@@ -56,9 +56,9 @@ using namespace std::chrono_literals;
 
 TEST(StringsTest, simple_strings)
 {
-    WindowMock window_mock;
+    ::testing::NiceMock<WindowMock> window_mock;
 
-    EXPECT_CALL(window_mock, GetRect).WillOnce([&]()
+    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
         {
             return Rect{0, 0, 600, 400};
         });

@@ -55,7 +55,7 @@ DeleteElementsTask::DeleteElementsTask(ElementPtr _text, const CaretState& _befo
 bool DeleteElementsTask::Execute()
 {
     logger->Debug("Execute DeleteElementsTask");
-    ElementPtr el = text->document->GetElement(before_state.id);
+    ElementPtr el = text->document->GetParent(before_state.id);
     assert(el != nullptr);
     if (el->DeleteElements(before_state, after_state, with_undo))
     {

@@ -89,7 +89,7 @@ bool String::InsertElements(std::vector<ElementPtr>& _elements, const CaretState
 
 bool String::DeleteElements(const CaretState& before_state, CaretState& after_state, bool with_undo)
 {
-    elements->RemoveAt(before_state.GetPos(), 0);
+    elements->RemoveAt(before_state.GetPos(), 1);
     after_state.SetState(before_state.id, before_state.selections);
     return true;
 }
