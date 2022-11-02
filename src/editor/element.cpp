@@ -56,8 +56,19 @@ bool Element::InsertElements(std::vector<ElementPtr>& _elements, const CaretStat
     return false;
 }
 
-bool Element::DeleteElements(const CaretState& before_state, CaretState& after_state, bool with_undo)
+bool Element::DeleteElements(const CaretState& before_state, CaretState& after_state, bool left, bool with_undo)
 {
+    after_state = before_state;
+    if (before_state.selections.IsEmpty())
+    {
+        if ((left && before_state.GetPos() == 0) || (!left && before_state.GetPos() == elements->Count()))
+            return false;
+        if (left)
+            elements->RemoveAt(before_state.GetPos() - 1, 1, after_state);
+        else
+            elements->RemoveAt(before_state.GetPos(), 1, after_state);
+        return true;
+    }
     return false;
 }
 

@@ -19,7 +19,8 @@ String::String(Element* parent) :
 }
 
 String::String(Element* parent, const std::string _str) : 
-    Element(parent)
+    Element(parent),
+    format(document->GetDefaultStringFormat())
 {
     type = ElementType::STRING;
 
@@ -53,6 +54,31 @@ void String::UpdateRect()
     baseline = parent->window->GetFontAscent(format);
 }
 
+std::string String::ToHtml()
+{
+    std::string s = "<span ";
+    s += "style=\"font-family:'";
+    s += format->family;
+    s += "';";
+    s += "font-size:";
+    s += std::to_string(format->size);
+    s += "px;";
+    if (format->underline)
+        s += "text-decoration: underline;";
+    s += "\">";
+    if (format->bold)
+        s += "<strong>";
+    if (format->italic)
+        s += "<em>";
+    s += elements->ToHtml();
+    if (format->italic)
+        s += "</em>";
+    if (format->bold)
+        s += "</strong>";
+    s += "</span>";
+    return s;
+}
+
 bool String::InsertElements(std::vector<ElementPtr>& _elements, const CaretState& before_state, CaretState& after_state, bool with_undo)
 {
     if (_elements.size() == 1 && _elements[0]->type == ElementType::STRING)
@@ -63,22 +89,27 @@ bool String::InsertElements(std::vector<ElementPtr>& _elements, const CaretState
             //replace the string and format
             if (before_state.GetPos() != 0)
                 return false;
+            if (with_undo)
+            {
+                //document->DeleteElements(CaretState(id, 0, elements->Count()), false, false, true);
+                document->DeleteElements(CaretState(id), false, false, true);
+                document->InsertElement(Clone(), before_state, false, true);
+            }
             elements.reset(new StringElements(this, s->elements->ToText()));
             format = s->format;
             after_state.SetState(elements->GetElementId(elements->Count()), before_state.selections);
-            if (with_undo)
-                document->DeleteElements(CaretState(elements->GetElementId(0), elements->Count()), false, true);
-            //elements->Remake(caret_state);
             document->Remake(parent->id, false);
             return true;
         }
         else if (!s->format || s->format == format)
         {
-            elements->Insert(_elements[0], before_state.GetPos());
-            after_state.SetState(elements->GetElementId(before_state.GetPos() + _elements[0]->elements->Count()), before_state.selections);
+            after_state = before_state;
+            elements->Insert(_elements[0], before_state.GetPos(), after_state);
+            //after_state.SetState(elements->GetElementId(before_state.GetPos() + _elements[0]->elements->Count()), before_state.selections);
             if (with_undo)
-                document->DeleteElements(CaretState(elements->GetElementId(before_state.GetPos()), s->elements->Count()), false, true);
-            //elements->Remake(CaretState& caret_state);
+            {
+                //document->DeleteElements(CaretState(id, 0, s->elements->Count()), false, false, true);
+            }
             document->Remake(parent->id, false);
             return true;
         }
@@ -87,10 +118,15 @@ bool String::InsertElements(std::vector<ElementPtr>& _elements, const CaretState
     return parent->InsertElements(_elements, before_state, after_state, with_undo);
 }
 
-bool String::DeleteElements(const CaretState& before_state, CaretState& after_state, bool with_undo)
+bool String::DeleteElements(const CaretState& before_state, CaretState& after_state, bool left, bool with_undo)
 {
-    elements->RemoveAt(before_state.GetPos(), 1);
-    after_state.SetState(before_state.id, before_state.selections);
+    if ((before_state.GetPos() == 0 && left) || (before_state.GetPos() == elements->Count() && !left))
+        return false;
+    after_state = before_state;
+    if (left)
+        elements->RemoveAt(before_state.GetPos() - 1, 1, after_state);
+    else
+        elements->RemoveAt(before_state.GetPos(), 1, after_state);
     return true;
 }
 
@@ -218,12 +254,17 @@ void StringElements::Add(ElementPtr element)
 {
 }
 
-void StringElements::Insert(ElementPtr element, const uint pos)
+void StringElements::Insert(ElementPtr element, const uint pos, CaretState& caret_state)
 {
     assert(element->type == ElementType::STRING);
     assert(str.length() >= pos);
-    String* s = dynamic_cast<String*>(element.get());
-    str.insert(pos, s->ToText());
+    std::string s = dynamic_cast<String*>(element.get())->ToText();
+    if (caret_state.IsInsideElement(parent->id))
+    {
+        if (caret_state.GetPos() >= pos)
+            caret_state.SetState(parent->id, caret_state.GetPos() + s.length());
+    }
+    str.insert(pos, s);
 }
 
 void StringElements::Remove(const ElementPtr element)

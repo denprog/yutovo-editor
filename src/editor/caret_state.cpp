@@ -89,6 +89,11 @@ bool Selections::HasSelection(const ElementId& id, uint& start, uint& size) cons
     return true;
 }
 
+bool Selections::IsEmpty() const
+{
+    return selections.empty();
+}
+
 //CaretState
 
 CaretState::CaretState(const std::vector<ElementPtr>& elements) :
@@ -97,10 +102,9 @@ CaretState::CaretState(const std::vector<ElementPtr>& elements) :
     selections.AddSelection(Selection{id, 0, (uint)elements.size()});
 }
 
-CaretState::CaretState(const ElementId _id, uint _selected) :
+CaretState::CaretState(const ElementId _id) :
     id(_id)
 {
-    selections.AddSelection(Selection{id, 0, _selected});
 }
 
 CaretState::CaretState(const Element* element, uint pos)

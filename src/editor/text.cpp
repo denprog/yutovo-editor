@@ -76,7 +76,7 @@ bool Text::InsertElements(std::vector<ElementPtr>& _elements, const CaretState& 
     return false;
 }
 
-bool Text::DeleteElements(const CaretState& before_state, CaretState& after_state, bool with_undo)
+bool Text::DeleteElements(const CaretState& before_state, CaretState& after_state, bool left, bool with_undo)
 {
     return false;
 }

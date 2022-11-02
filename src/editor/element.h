@@ -39,7 +39,7 @@ public:
     virtual void Remake(CaretState& caret_state, bool with_elements);
 
     virtual bool InsertElements(std::vector<ElementPtr>& _elements, const CaretState& before_state, CaretState& after_state, bool with_undo);
-    virtual bool DeleteElements(const CaretState& before_state, CaretState& after_state, bool with_undo);
+    virtual bool DeleteElements(const CaretState& before_state, CaretState& after_state, bool left, bool with_undo);
 
     virtual bool CanSplit(const uint max_left_width);
     virtual bool Split(const uint max_left_width, CaretState& caret_state);

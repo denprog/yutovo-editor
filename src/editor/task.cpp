@@ -8,9 +8,19 @@ namespace yutovo
 
 //Task
 
+uint Task::next_id = 1;
+
 Task::Task(ElementPtr _text) : 
     text(_text),
-    logger(Logger::GetInstance())
+    logger(Logger::GetInstance()),
+    id(next_id++)
+{
+}
+
+Task::Task(ElementPtr _text, const uint _id) :
+    text(_text),
+    logger(Logger::GetInstance()),
+    id(_id)
 {
 }
 
@@ -24,6 +34,16 @@ InsertElementsTask::InsertElementsTask(ElementPtr _text, std::vector<ElementPtr>
     after_state(_after_state)
 {
     with_undo = _with_undo;
+}
+
+InsertElementsTask::InsertElementsTask(ElementPtr _text, std::vector<ElementPtr>& _elements, const CaretState& _before_state, CaretState& _after_state, 
+    uint _id) :
+    Task(_text, _id),
+    elements(_elements),
+    before_state(_before_state),
+    after_state(_after_state)
+{
+    with_undo = false;
 }
 
 bool InsertElementsTask::Execute()
@@ -44,12 +64,22 @@ bool InsertElementsTask::Execute()
 
 //DeleteElementsTask
 
-DeleteElementsTask::DeleteElementsTask(ElementPtr _text, const CaretState& _before_state, CaretState& _after_state, bool _with_undo) :
+DeleteElementsTask::DeleteElementsTask(ElementPtr _text, const CaretState& _before_state, CaretState& _after_state, bool _left, bool _with_undo) :
     Task(_text),
     before_state(_before_state),
-    after_state(_after_state)
+    after_state(_after_state),
+    left(_left)
 {
     with_undo = _with_undo;
+}
+
+DeleteElementsTask::DeleteElementsTask(ElementPtr _text, const CaretState& _before_state, CaretState& _after_state, bool _left, uint _id) :
+    Task(_text, _id),
+    before_state(_before_state),
+    after_state(_after_state),
+    left(_left)
+{
+    with_undo = false;
 }
 
 bool DeleteElementsTask::Execute()
@@ -57,9 +87,10 @@ bool DeleteElementsTask::Execute()
     logger->Debug("Execute DeleteElementsTask");
     ElementPtr el = text->document->GetParent(before_state.id);
     assert(el != nullptr);
-    if (el->DeleteElements(before_state, after_state, with_undo))
+    if (el->DeleteElements(before_state, after_state, left, with_undo))
     {
         text->document->caret.SetState(after_state, true);
+        text->document->Remake(el->parent->id, true);
         return true;
     }
     return false;

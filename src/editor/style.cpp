@@ -5,8 +5,8 @@ namespace yutovo
 
 //StringFormat
 
-StringFormat::StringFormat(const std::string _font, uint _size, bool _bold, bool _italic, bool _underline) :
-    font(_font), 
+StringFormat::StringFormat(const std::string _family, uint _size, bool _bold, bool _italic, bool _underline) :
+    family(_family), 
     size(_size),
     bold(_bold),
     italic(_italic),
@@ -18,17 +18,17 @@ StringFormat::StringFormat(const std::string _font, uint _size, bool _bold, bool
 
 std::vector<StringFormatPtr> StringFormats::string_formats;
 
-StringFormatPtr StringFormats::GetFormat(const std::string _font, uint _size, bool _bold, bool _italic, bool _underline)
+StringFormatPtr StringFormats::GetFormat(const std::string _family, uint _size, bool _bold, bool _italic, bool _underline)
 {
     //return the present format
     for (auto& f : string_formats)
     {
-        if (f->font == _font && f->size == _size && f->bold == _bold && f->italic == _italic && f->underline == _underline)
+        if (f->family == _family && f->size == _size && f->bold == _bold && f->italic == _italic && f->underline == _underline)
             return f;
     }
 
     //or create a new one
-    StringFormatPtr f(new StringFormat(_font, _size, _bold, _italic, _underline));
+    StringFormatPtr f(new StringFormat(_family, _size, _bold, _italic, _underline));
     string_formats.push_back(f);
     return f;
 }

@@ -21,8 +21,10 @@ public:
 
     virtual void UpdateRect();
 
+    virtual std::string ToHtml();
+
     virtual bool InsertElements(std::vector<ElementPtr>& _elements, const CaretState& before_state, CaretState& after_state, bool with_undo);
-    virtual bool DeleteElements(const CaretState& before_state, CaretState& after_state, bool with_undo);
+    virtual bool DeleteElements(const CaretState& before_state, CaretState& after_state, bool left, bool with_undo);
 
     virtual bool CanSplit(const uint max_left_width);
     virtual bool Split(const uint max_left_width, CaretState& caret_state);
@@ -49,7 +51,7 @@ public:
     //virtual ElementPtr Get(uint pos);
     virtual ElementId GetElementId(uint pos);
     virtual void Add(ElementPtr element);
-    virtual void Insert(ElementPtr element, const uint pos);
+    virtual void Insert(ElementPtr element, const uint pos, CaretState& caret_state);
     virtual void Remove(const ElementPtr element);
     virtual void RemoveAt(const uint pos, const int size);
     virtual void Clear();

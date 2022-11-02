@@ -73,7 +73,7 @@ bool Page::InsertElements(std::vector<ElementPtr>& _elements, const CaretState& 
     return parent->InsertElements(_elements, before_state, after_state, with_undo);
 }
 
-bool Page::DeleteElements(const CaretState& before_state, CaretState& after_state, bool with_undo)
+bool Page::DeleteElements(const CaretState& before_state, CaretState& after_state, bool left, bool with_undo)
 {
     return false;
 }

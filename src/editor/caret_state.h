@@ -32,6 +32,7 @@ struct Selections
     void AddSelection(const ElementId& id, const uint pos, const uint count);
     void ClearSelection();
     bool HasSelection(const ElementId& id, uint& start, uint& size) const;
+    bool IsEmpty() const;
 
     std::vector<Selection> selections;
 };
@@ -40,7 +41,7 @@ struct CaretState
 {
     CaretState() = default;
     CaretState(const std::vector<ElementPtr>& elements);
-    CaretState(const ElementId _id, uint _selected);
+    CaretState(const ElementId _id);
     CaretState(const Element* element, uint pos);
     CaretState(const Element* element, uint pos, const Selections& _selections);
 

@@ -13,6 +13,7 @@ namespace yutovo
 struct Task
 {
     Task(ElementPtr _text);
+    Task(ElementPtr _text, const uint _id);
 
     virtual bool Execute() = 0;
 
@@ -21,6 +22,9 @@ struct Task
     bool with_undo = false; //this task has (will have) undo
 
     Logger* logger;
+
+    static uint next_id;
+    uint id; //for syncing with undo/redo
 };
 
 typedef std::shared_ptr<Task> TaskPtr;
@@ -28,6 +32,7 @@ typedef std::shared_ptr<Task> TaskPtr;
 struct InsertElementsTask : Task
 {
     InsertElementsTask(ElementPtr _text, std::vector<ElementPtr>& _elements, const CaretState& _before_state, CaretState& _after_state, bool _with_undo);
+    InsertElementsTask(ElementPtr _text, std::vector<ElementPtr>& _elements, const CaretState& _before_state, CaretState& _after_state, uint _id);
 
     virtual bool Execute();
 
@@ -38,12 +43,14 @@ struct InsertElementsTask : Task
 
 struct DeleteElementsTask : Task
 {
-    DeleteElementsTask(ElementPtr _text, const CaretState& _before_state, CaretState& _after_state, bool _with_undo);
+    DeleteElementsTask(ElementPtr _text, const CaretState& _before_state, CaretState& _after_state, bool _left, bool _with_undo);
+    DeleteElementsTask(ElementPtr _text, const CaretState& _before_state, CaretState& _after_state, bool _left, uint _id);
 
     virtual bool Execute();
 
     CaretState before_state;
     CaretState after_state; //may be empty
+    bool left; //delete on the left or on the right
 };
 
 struct SplitElementTask : Task

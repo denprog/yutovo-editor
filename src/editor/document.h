@@ -31,8 +31,10 @@ public:
     void InsertElement(Element* element, const CaretState& caret_state, bool with_undo, bool undo = false);
     void InsertElements(std::vector<ElementPtr>& elements, const CaretState& caret_state, bool with_undo, bool undo = false);
     void InsertElements(std::vector<ElementPtr>& elements, const CaretState& before_state, CaretState& after_state, bool with_undo, bool undo = false);
-    void DeleteElements(const CaretState& caret_state, bool with_undo, bool undo = false);
-    void DeleteElements(const CaretState& before_state, CaretState& after_state, bool with_undo, bool undo = false);
+
+    void DeleteElements(bool left, bool with_undo, bool undo);
+    void DeleteElements(const CaretState& caret_state, bool left, bool with_undo, bool undo);
+    void DeleteElements(const CaretState& before_state, CaretState& after_state, bool left, bool with_undo, bool undo);
 
     void SplitElement(const ElementId& id, const ElementId& remake_id, const uint max_left_width);
     void MergeElement(const ElementId& id1, const ElementId& id2, ElementId remake_id);
@@ -95,6 +97,8 @@ public:
     std::thread main_loop;
 
     CaretSettings caret_settings;
+
+    uint cur_task_id = 0;
 
     Logger* logger;
 };

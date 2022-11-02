@@ -2,6 +2,10 @@ cmake_minimum_required(VERSION 3.17)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
+set(CMAKE_AUTOUIC ON)
+set(CMAKE_AUTOMOC ON)
+set(CMAKE_AUTORCC ON)
+
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
@@ -9,9 +13,11 @@ enable_testing()
 find_package(GTest REQUIRED)
 include_directories(${GTEST_INCLUDE_DIR})
 
+find_package(Qt5 COMPONENTS Widgets REQUIRED)
+
 add_executable(${PROJECT_NAME}_tests
 	main.cpp
-	strings.cpp
+	str.cpp
 )
 
 target_link_libraries(${PROJECT_NAME}_tests PRIVATE
@@ -24,6 +30,7 @@ target_link_libraries(${PROJECT_NAME}_tests PRIVATE
 	m
 	dl
 	${PROJECT_NAME}
+    Qt5::Widgets
 )
 
 target_include_directories(${PROJECT_NAME}_tests PRIVATE

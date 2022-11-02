@@ -97,7 +97,7 @@ bool Row::InsertElements(std::vector<ElementPtr>& _elements, const CaretState& b
         after_state = c;
     }
     if (with_undo)
-        document->DeleteElements(CaretState(_elements), false, true);
+        document->DeleteElements(CaretState(_elements), false, false, true);
     return true;
 }
 

@@ -15,7 +15,7 @@ void QtWindow::DrawText(const std::string& text, const StringFormatPtr format, c
     if (!p.begin(surface.get()))
         return;
     
-    QFont font(format->font.c_str(), format->size);
+    QFont font(format->family.c_str(), format->size);
     font.setItalic(format->italic);
     font.setBold(format->bold);
     font.setUnderline(format->underline);
@@ -102,7 +102,7 @@ void QtWindow::RestoreRect()
 
 Size QtWindow::GetTextSize(const std::string& text, const StringFormatPtr format)
 {
-    QFont font(format->font.c_str(), format->size);
+    QFont font(format->family.c_str(), format->size);
     font.setBold(format->bold);
     font.setItalic(format->italic);
     font.setUnderline(format->underline);
@@ -115,7 +115,7 @@ Size QtWindow::GetTextSize(const std::string& text, const StringFormatPtr format
 
 int QtWindow::GetFontAscent(const StringFormatPtr format)
 {
-    QFont font(format->font.c_str(), format->size);
+    QFont font(format->family.c_str(), format->size);
     font.setBold(format->bold);
     font.setItalic(format->italic);
     font.setUnderline(format->underline);

@@ -10,9 +10,9 @@ namespace yutovo
 
 struct StringFormat
 {
-    StringFormat(const std::string _font, uint _size, bool _bold, bool _italic, bool _underline);
+    StringFormat(const std::string _family, uint _size, bool _bold, bool _italic, bool _underline);
  
-    std::string font;
+    std::string family;
     uint size;
     bool bold;
     bool italic;
@@ -25,7 +25,7 @@ typedef std::shared_ptr<StringFormat> StringFormatPtr;
 class StringFormats
 {
 public:
-    static StringFormatPtr GetFormat(const std::string _font, uint _size, bool _bold, bool _italic, bool _underline);
+    static StringFormatPtr GetFormat(const std::string _family, uint _size, bool _bold, bool _italic, bool _underline);
 
 private:
     static std::vector<StringFormatPtr> string_formats;

@@ -219,7 +219,7 @@ bool Paragraph::InsertElements(std::vector<ElementPtr>& _elements, const CaretSt
     return parent->InsertElements(_elements, before_state, after_state, with_undo);
 }
 
-bool Paragraph::DeleteElements(const CaretState& before_state, CaretState& after_state, bool with_undo)
+bool Paragraph::DeleteElements(const CaretState& before_state, CaretState& after_state, bool left, bool with_undo)
 {
     return false;
 }
