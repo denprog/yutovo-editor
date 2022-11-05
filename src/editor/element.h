@@ -96,6 +96,10 @@ public:
     //bool mergeable = true;
 
     std::unique_ptr<Elements> elements; //child nodes
+
+#ifdef DEBUG
+    std::string to_str;
+#endif
 };
 
 class Elements
@@ -117,8 +121,8 @@ public:
     virtual void Insert(ElementPtr element, const uint pos);
     virtual void Insert(ElementPtr element, const uint pos, CaretState& caret_state);
     virtual void Remove(const ElementPtr element);
-    virtual void RemoveAt(const uint pos, const int size, CaretState& caret_state);
     virtual void RemoveAt(const uint pos, const int size);
+    virtual void RemoveAt(const uint pos, const int size, CaretState& caret_state);
     virtual void Clear();
     virtual uint Count();
 

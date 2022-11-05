@@ -1,5 +1,6 @@
 #include "caret_state.h"
 #include "element.h"
+#include "util.h"
 #include <algorithm>
 
 namespace yutovo
@@ -74,6 +75,17 @@ void Selections::ClearSelection()
     selections.clear();
 }
 
+void Selections::ClearSelection(const ElementId& id)
+{
+    auto it = std::find_if(selections.begin(), selections.end(), 
+        [id](auto& selection)
+        {
+            return selection.id == id;
+        });
+    if (it != selections.end())
+        selections.erase(it);
+}
+
 bool Selections::HasSelection(const ElementId& id, uint& start, uint& size) const
 {
     auto it = std::find_if(selections.begin(), selections.end(), 
@@ -94,6 +106,21 @@ bool Selections::IsEmpty() const
     return selections.empty();
 }
 
+#ifdef DEBUG
+std::string Selections::ToString() const
+{
+    std::string res;
+    for (size_t i = 0; i < selections.size(); ++i)
+    {
+        const Selection& s = selections[i];
+        res += "[" + IdToString(s.id) + "," + std::to_string(s.start) + "," + std::to_string(s.size) + "]";
+        if (i < selections.size() - 1)
+            res += ",";
+    }
+    return res;
+}
+#endif
+
 //CaretState
 
 CaretState::CaretState(const std::vector<ElementPtr>& elements) :
@@ -107,13 +134,26 @@ CaretState::CaretState(const ElementId _id) :
 {
 }
 
-CaretState::CaretState(const Element* element, uint pos)
+CaretState::CaretState(const Element* element, const uint pos)
 {
     id = element->id;
     id.push_back(pos);
 }
 
-CaretState::CaretState(const Element* element, uint pos, const Selections& _selections) :
+CaretState::CaretState(const ElementId _id, const uint pos) :
+    id(_id)
+{
+    id.push_back(pos);
+}
+
+CaretState::CaretState(const ElementId _id, const uint pos, const uint count) :
+    id(_id)
+{
+    selections.AddSelection(id, pos, count);
+    id.push_back(pos);
+}
+
+CaretState::CaretState(const Element* element, const uint pos, const Selections& _selections) :
     CaretState(element, pos)
 {
     selections = _selections;
@@ -211,6 +251,13 @@ bool CaretState::IsInsideElement(const ElementId& _id) const
 bool CaretState::IsEmpty() const
 {
     return id.empty();
+}
+
+std::string CaretState::ToString() const
+{
+    std::string res = "id:" + IdToString(id) + "; ";
+    res += "selections: " + selections.ToString();
+    return res;
 }
 
 }

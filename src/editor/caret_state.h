@@ -31,8 +31,13 @@ struct Selections
     void AddSelection(const Selection& selection);
     void AddSelection(const ElementId& id, const uint pos, const uint count);
     void ClearSelection();
+    void ClearSelection(const ElementId& id);
     bool HasSelection(const ElementId& id, uint& start, uint& size) const;
     bool IsEmpty() const;
+
+#ifdef DEBUG
+    std::string ToString() const;
+#endif
 
     std::vector<Selection> selections;
 };
@@ -42,8 +47,10 @@ struct CaretState
     CaretState() = default;
     CaretState(const std::vector<ElementPtr>& elements);
     CaretState(const ElementId _id);
-    CaretState(const Element* element, uint pos);
-    CaretState(const Element* element, uint pos, const Selections& _selections);
+    CaretState(const ElementId _id, const uint pos);
+    CaretState(const ElementId _id, const uint pos, const uint count);
+    CaretState(const Element* element, const uint pos);
+    CaretState(const Element* element, const uint pos, const Selections& _selections);
 
     bool operator==(const CaretState& c);
     bool operator!=(const CaretState& c);
@@ -63,6 +70,10 @@ struct CaretState
     bool IsInsideElement(const ElementId& _id) const;
 
     bool IsEmpty() const;
+
+#ifdef DEBUG
+    std::string ToString() const;
+#endif
 
     ElementId id;
     Selections selections;

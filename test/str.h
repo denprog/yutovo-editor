@@ -72,9 +72,16 @@ struct StringsTest : public testing::Test
         return Size{cx > s.width() ? cx : s.width(), s.height()};
     }
 
-    void CheckString(const std::string& str, const std::string& check_str)
+    CaretState MakeCaretState(uint paragraph_id, uint row_id, uint string_id, uint string_pos)
     {
-        ASSERT_TRUE(str == check_str) << str << " != \n" << check_str;
+        CaretState r;
+        ElementId id{0, 0};
+        id.push_back(paragraph_id);
+        id.push_back(row_id);
+        id.push_back(string_id);
+        id.push_back(string_pos);
+        r.id = id;
+        return r;
     }
 
     int argc = 0;

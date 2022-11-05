@@ -58,12 +58,12 @@ int Rect::DistToSegment(const int x, const int y, const int seg_x1, const int se
 	return round(h);
 }
 
-std::string ToString(const ElementId& id)
+std::string IdToString(const ElementId& id)
 {
 	std::string res;
 	for (size_t i = 0; i < id.size(); ++i)
 	{
-		res += std::to_string(i);
+		res += std::to_string(id[i]);
 		if (i < id.size() - 1)
 			res += ",";
 	}

@@ -89,6 +89,10 @@ void Document::MainLoop()
                     undos.erase(undos.begin());
                 }
                 caret.Show();
+
+#ifdef DEBUG
+                last_undo_executed = true;
+#endif
             }
         }
 
@@ -98,20 +102,21 @@ void Document::MainLoop()
                 std::lock_guard<std::mutex> lock(tasks_mutex);
                 if (!redos.empty())
                 {
-                    //execute one redo
-                    size_t i = undo_tasks.size();
-                    if (redo_tasks.size() > i)
+                    //execute one redo: collect all redo tasks for first absent undo
+                    uint last_undo_task_id = 0;
+                    if (!undo_tasks.empty())
+                        last_undo_task_id = undo_tasks.top()->id;
+                    
+                    int i = 0;
+                    for (i = redo_tasks.size() - 1; i >=0; --i)
                     {
-                        //collect tasks with one id
-                        TaskPtr t = redo_tasks[i++];
-                        uint id = t->id;
-                        while (id == t->id)
-                        {
-                            temp_redo_tasks.push_back(t);
-                            if (redo_tasks.size() == i)
-                                break;
-                            t = redo_tasks[i];
-                        }
+                        if (redo_tasks[i]->id == last_undo_task_id)
+                            break;
+                    }
+                    uint redo_task_id = redo_tasks[++i]->id;
+                    while (i < redo_tasks.size() && redo_tasks[i]->id == redo_task_id)
+                    {
+                        temp_redo_tasks.push_back(redo_tasks[i++]);
                     }
                 }
             }
@@ -120,6 +125,7 @@ void Document::MainLoop()
                 caret.Hide();
                 for (TaskPtr t : temp_redo_tasks)
                 {
+                    cur_task_id = t->id;
                     if (!t->Execute())
                         break;
                 }
@@ -128,6 +134,10 @@ void Document::MainLoop()
                     redos.erase(redos.begin());
                 }
                 caret.Show();
+
+#ifdef DEBUG
+                last_redo_executed = true;
+#endif
             }
         }
 
@@ -144,19 +154,27 @@ void Document::MainLoop()
             for (auto& t : temp_tasks)
             {
                 cur_task_id = t->id;
+                uint last_undo_task_id = 0;
+                if (!undo_tasks.empty())
+                    last_undo_task_id = undo_tasks.top()->id;
+                
                 if (t->Execute() && t->with_undo)
                 {
-                    //shrink to the size of undo
-                    TaskPtr u = undo_tasks.top();
+                    //shrink the redo vector to the size of the undo stack
                     for (int i = redo_tasks.size() - 1; i >= 0; --i)
                     {
-                        if (redo_tasks[i]->id == u->id)
+                        if (redo_tasks[i]->id == last_undo_task_id)
                             break;
                         redo_tasks.erase(redo_tasks.begin() + i);
                     }
 
                     redo_tasks.push_back(t);
                 }
+
+#ifdef DEBUG
+                if (last_task_id == t->id)
+                    last_task_executed = true;
+#endif
             }
             caret.Show();
         }
@@ -183,11 +201,23 @@ void Document::InsertText(const std::string& str, const StringFormatPtr string_f
     InsertElement(new String(nullptr, str, string_format), CaretState(), with_undo);
 }
 
+void Document::InsertText(const std::string& str, const StringFormatPtr string_format, const CaretState& before_state, CaretState& after_state)
+{
+    InsertElement(new String(nullptr, str, string_format), before_state, after_state);
+}
+
 void Document::InsertElement(Element* element, const CaretState& caret_state, bool with_undo, bool undo)
 {
     std::vector<ElementPtr> elements;
     elements.emplace_back(element);
     InsertElements(elements, caret_state, with_undo, undo);
+}
+
+void Document::InsertElement(Element* element, const CaretState& before_state, CaretState& after_state)
+{
+    std::vector<ElementPtr> elements;
+    elements.emplace_back(element);
+    InsertElements(elements, before_state, after_state, false, true);
 }
 
 void Document::InsertElements(std::vector<ElementPtr>& elements, const CaretState& caret_state, bool with_undo, bool undo)
@@ -200,9 +230,15 @@ void Document::InsertElements(std::vector<ElementPtr>& elements, const CaretStat
 {
     std::lock_guard<std::mutex> lock(tasks_mutex);
     if (undo)
+    {
         undo_tasks.push(TaskPtr(new InsertElementsTask(text, elements, before_state, after_state, cur_task_id)));
+        last_task_id = cur_task_id;
+    }
     else
+    {
         tasks.emplace_back(new InsertElementsTask(text, elements, before_state, after_state, with_undo));
+        last_task_id = tasks[tasks.size() - 1]->id;
+    }
     next_circle.notify_one();
 }
 
@@ -221,9 +257,15 @@ void Document::DeleteElements(const CaretState& before_state, CaretState& after_
 {
     std::lock_guard<std::mutex> lock(tasks_mutex);
     if (undo)
+    {
         undo_tasks.push(TaskPtr(new DeleteElementsTask(text, before_state, after_state, left, cur_task_id)));
+        last_task_id = cur_task_id;
+    }
     else
+    {
         tasks.emplace_back(new DeleteElementsTask(text, before_state, after_state, left, with_undo));
+        last_task_id = tasks[tasks.size() - 1]->id;
+    }
     next_circle.notify_one();
 }
 
@@ -322,6 +364,8 @@ void Document::SetCaretVisible(bool visible)
 
 void Document::Undo()
 {
+    if (!CanUndo())
+        return;
     std::lock_guard<std::mutex> lock(tasks_mutex);
     undos.push_back(true);
     next_circle.notify_one();
@@ -329,6 +373,8 @@ void Document::Undo()
 
 void Document::Redo()
 {
+    if (!CanRedo())
+        return;
     std::lock_guard<std::mutex> lock(tasks_mutex);
     redos.push_back(true);
     next_circle.notify_one();
@@ -337,13 +383,13 @@ void Document::Redo()
 bool Document::CanUndo()
 {
     std::lock_guard<std::mutex> lock(tasks_mutex);
-    return !undos.empty();
+    return !undo_tasks.empty();
 }
 
 bool Document::CanRedo()
 {
     std::lock_guard<std::mutex> lock(tasks_mutex);
-    return !redos.empty();
+    return !redo_tasks.empty();
 }
 
 void Document::Resize(uint width, uint height)
@@ -399,7 +445,14 @@ void Document::Remake(const ElementId& id, bool with_elements)
 
 std::string Document::ToHtml()
 {
+    std::lock_guard<std::mutex> lock(tasks_mutex);
     return text->ToHtml();
+}
+
+std::string Document::ToText()
+{
+    std::lock_guard<std::mutex> lock(tasks_mutex);
+    return text->ToText();
 }
 
 TextFormatPtr Document::GetDefaultTextFormat()
@@ -421,5 +474,20 @@ StringFormatPtr Document::GetDefaultStringFormat()
 {
     return StringFormats::GetFormat("Arial", 22, false, false, false);
 }
+
+#ifdef DEBUG
+void Document::WaitMainLoop()
+{
+    while (!last_task_executed && !last_undo_executed && !last_redo_executed)
+    {
+        std::this_thread::sleep_for(10ms);
+    }
+
+    last_task_id = 0;
+    last_task_executed = false;
+    last_undo_executed = false;
+    last_redo_executed = false;
+}
+#endif
 
 }

@@ -67,8 +67,17 @@ bool Element::DeleteElements(const CaretState& before_state, CaretState& after_s
             elements->RemoveAt(before_state.GetPos() - 1, 1, after_state);
         else
             elements->RemoveAt(before_state.GetPos(), 1, after_state);
+#ifdef DEBUG
+        to_str = ToText();
+#endif
         return true;
     }
+    for (size_t i = 0; i < before_state.selections.selections.size(); ++i)
+    {
+    }
+#ifdef DEBUG
+    to_str = ToText();
+#endif
     return false;
 }
 
@@ -507,6 +516,12 @@ void Elements::Remove(const ElementPtr element)
     }    
 }
 
+void Elements::RemoveAt(const uint pos, const int size)
+{
+    elements.erase(elements.begin() + pos, elements.begin() + pos + size);
+    UpdateIds();
+}
+
 void Elements::RemoveAt(const uint pos, const int size, CaretState& caret_state)
 {
     int cs_pos = -1;
@@ -524,12 +539,16 @@ void Elements::RemoveAt(const uint pos, const int size, CaretState& caret_state)
 
     if (cs_pos != -1)
         caret_state.SetState(elements[cs_pos - size]->id, caret_state.GetPos());
-}
-
-void Elements::RemoveAt(const uint pos, const int size)
-{
-    elements.erase(elements.begin() + pos, elements.begin() + pos + size);
-    UpdateIds();
+    else
+    {
+        if (Count() <= pos)
+            return;
+        ElementPtr el = Get(pos);
+        if (!el->HasCaretState())
+        {
+            el->GetFirstCaretState(caret_state);
+        }
+    }
 }
 
 void Elements::Clear()

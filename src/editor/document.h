@@ -27,8 +27,10 @@ public:
     void InsertParagraph(bool with_undo);
     void InsertText(const std::string& str, bool with_undo);
     void InsertText(const std::string& str, const StringFormatPtr string_format, bool with_undo);
+    void InsertText(const std::string& str, const StringFormatPtr string_format, const CaretState& before_state, CaretState& after_state);
 
     void InsertElement(Element* element, const CaretState& caret_state, bool with_undo, bool undo = false);
+    void InsertElement(Element* element, const CaretState& before_state, CaretState& after_state);
     void InsertElements(std::vector<ElementPtr>& elements, const CaretState& caret_state, bool with_undo, bool undo = false);
     void InsertElements(std::vector<ElementPtr>& elements, const CaretState& before_state, CaretState& after_state, bool with_undo, bool undo = false);
 
@@ -66,6 +68,7 @@ public:
     void Remake(const ElementId& id, bool with_elements);
 
     std::string ToHtml();
+    std::string ToText();
 
     TextFormatPtr GetDefaultTextFormat();
     PageFormatPtr GetDefaultPageFormat();
@@ -74,6 +77,17 @@ public:
 
 private:
     void MainLoop();
+
+#ifdef DEBUG
+public:
+    void WaitMainLoop();
+
+private:
+    uint last_task_id = 0;
+    bool last_task_executed = false;
+    bool last_undo_executed = false;
+    bool last_redo_executed = false;
+#endif
 
 public:
     Window* window;

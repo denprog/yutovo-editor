@@ -91,13 +91,17 @@ bool Row::InsertElements(std::vector<ElementPtr>& _elements, const CaretState& b
     }
     for (size_t i = 0; i < _elements.size(); ++i)
     {
-        elements->Insert(_elements[i], before_state.GetElementPos(id) + i + 1);
+        after_state = before_state;
+        elements->Insert(_elements[i], before_state.GetElementPos(id) + i, after_state);
         CaretState c;
-        elements->Get(before_state.GetElementPos(id) + i + 1)->GetLastCaretState(c);
-        after_state = c;
+        if (elements->Get(before_state.GetElementPos(id) + i)->GetLastCaretState(c))
+            after_state = c;
     }
     if (with_undo)
-        document->DeleteElements(CaretState(_elements), false, false, true);
+        document->DeleteElements(CaretState(_elements[0]->id), false, false, true);
+#ifdef DEBUG
+    to_str = ToText();
+#endif
     return true;
 }
 

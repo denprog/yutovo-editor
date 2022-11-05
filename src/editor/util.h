@@ -120,7 +120,7 @@ struct Color
     uint8_t b;
 };
 
-std::string ToString(const ElementId& id);
+std::string IdToString(const ElementId& id);
 
 }
 

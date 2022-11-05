@@ -167,7 +167,7 @@ RemakeTask::RemakeTask(ElementPtr _text, const ElementId& _id, bool _with_elemen
 
 bool RemakeTask::Execute()
 {
-    logger->Debug("Execute RemakeTask id={}", ToString(id));
+    logger->Debug("Execute RemakeTask id={}", IdToString(id));
     CaretState c = text->document->caret.GetCaretState();
     text->document->GetElement(id)->Remake(c, with_elements);
     text->document->caret.SetState(c, true);
@@ -185,7 +185,7 @@ RedrawTask::RedrawTask(ElementPtr _text, const ElementId& _id) :
 
 bool RedrawTask::Execute()
 {
-    logger->Debug("Execute RedrawTask id={}", ToString(id));
+    logger->Debug("Execute RedrawTask id={}", IdToString(id));
     ElementPtr element = text->document->GetElement(id);
     text->window->DrawFillRect(element->GetAbsoluteRect(), Color::White());
     CaretState cur = text->document->caret.GetCaretState();

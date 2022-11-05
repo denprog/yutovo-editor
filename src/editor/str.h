@@ -48,12 +48,13 @@ public:
     virtual void Draw(const Selections& selections) const;
     virtual void Remake(CaretState& caret_state);
 
-    //virtual ElementPtr Get(uint pos);
     virtual ElementId GetElementId(uint pos);
     virtual void Add(ElementPtr element);
+    virtual void Insert(ElementPtr element, const uint pos);
     virtual void Insert(ElementPtr element, const uint pos, CaretState& caret_state);
     virtual void Remove(const ElementPtr element);
     virtual void RemoveAt(const uint pos, const int size);
+    virtual void RemoveAt(const uint pos, const int size, CaretState& caret_state);
     virtual void Clear();
     virtual uint Count();
 

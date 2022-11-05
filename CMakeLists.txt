@@ -5,5 +5,7 @@ project(yutovo
     LANGUAGES CXX
 )
 
+add_compile_definitions(DEBUG)
+
 add_subdirectory(src)
 add_subdirectory(test)
