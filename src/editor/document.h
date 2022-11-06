@@ -81,12 +81,16 @@ private:
 #ifdef DEBUG
 public:
     void WaitMainLoop();
+    void WaitCaretMoving();
 
 private:
     uint last_task_id = 0;
     bool last_task_executed = false;
     bool last_undo_executed = false;
     bool last_redo_executed = false;
+
+    friend class MoveCaretTask;
+    bool last_caret_moved = false;
 #endif
 
 public:

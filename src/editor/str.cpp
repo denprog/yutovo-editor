@@ -173,11 +173,12 @@ bool String::DeleteElements(const CaretState& before_state, CaretState& after_st
             else
                 elements->RemoveAt(before_state.GetPos() - 1, 1);
         }
-        if (with_undo)
-        {
-            CaretState s = before_state;
-            document->InsertText(undo_str, format, after_state, s);
-        }
+    }
+
+    if (with_undo)
+    {
+        CaretState s = before_state;
+        document->InsertText(undo_str, format, after_state, s);
     }
 
 #ifdef DEBUG

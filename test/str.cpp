@@ -163,4 +163,79 @@ TEST_F(StringsTest, strings2)
     ASSERT_TRUE(document.caret.GetCaretState() == MakeCaretState(0, 0, 0, 11)) << document.caret.GetCaretState().ToString();
 }
 
+TEST_F(StringsTest, selections1)
+{
+    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
+        {
+            return Rect{0, 0, 600, 400};
+        });
+
+    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::string& text, const StringFormatPtr format)
+        {
+            return GetTextSizeMock(text, format);
+        });
+
+    document.InsertText("TestString", true);
+    document.WaitMainLoop();
+    ASSERT_TRUE(document.ToText() == "TestString") << document.ToText();
+
+    document.MoveCaretLeft(true);
+    document.WaitCaretMoving();
+    ASSERT_TRUE(document.caret.GetCaretState() == MakeCaretState(0, 0, 0, 9, 9, 1)) << document.caret.GetCaretState().ToString();
+
+    document.DeleteElements(true, true, false);
+    document.WaitMainLoop();
+    ASSERT_TRUE(document.ToText() == "TestStrin") << document.ToText();
+    ASSERT_TRUE(document.caret.GetCaretState() == MakeCaretState(0, 0, 0, 9)) << document.caret.GetCaretState().ToString();
+
+    document.MoveCaretLeft(true);
+    document.WaitCaretMoving();
+    document.MoveCaretLeft(true);
+    document.WaitCaretMoving();
+    ASSERT_TRUE(document.caret.GetCaretState() == MakeCaretState(0, 0, 0, 7, 7, 2)) << document.caret.GetCaretState().ToString();
+
+    document.DeleteElements(true, true, false);
+    document.WaitMainLoop();
+    ASSERT_TRUE(document.ToText() == "TestStr") << document.ToText();
+    ASSERT_TRUE(document.caret.GetCaretState() == MakeCaretState(0, 0, 0, 7)) << document.caret.GetCaretState().ToString();
+
+    document.MoveCaretLeft(true);
+    document.WaitCaretMoving();
+    document.MoveCaretLeft(true);
+    document.WaitCaretMoving();
+    document.MoveCaretLeft(true);
+    document.WaitCaretMoving();
+    ASSERT_TRUE(document.caret.GetCaretState() == MakeCaretState(0, 0, 0, 4, 4, 3)) << document.caret.GetCaretState().ToString();
+
+    document.DeleteElements(false, true, false);
+    document.WaitMainLoop();
+    ASSERT_TRUE(document.ToText() == "Test") << document.ToText();
+    ASSERT_TRUE(document.caret.GetCaretState() == MakeCaretState(0, 0, 0, 4)) << document.caret.GetCaretState().ToString();
+
+    document.Undo();
+    document.WaitMainLoop();
+    ASSERT_TRUE(document.ToText() == "TestStr") << document.ToText();
+    ASSERT_TRUE(document.caret.GetCaretState() == MakeCaretState(0, 0, 0, 4, 4, 3)) << document.caret.GetCaretState().ToString();
+
+    document.Redo();
+    document.WaitMainLoop();
+    ASSERT_TRUE(document.ToText() == "Test") << document.ToText();
+    ASSERT_TRUE(document.caret.GetCaretState() == MakeCaretState(0, 0, 0, 4)) << document.caret.GetCaretState().ToString();
+
+    document.Undo();
+    document.WaitMainLoop();
+    ASSERT_TRUE(document.ToText() == "TestStr") << document.ToText();
+    ASSERT_TRUE(document.caret.GetCaretState() == MakeCaretState(0, 0, 0, 4, 4, 3)) << document.caret.GetCaretState().ToString();
+
+    document.Undo();
+    document.WaitMainLoop();
+    ASSERT_TRUE(document.ToText() == "TestStrin") << document.ToText();
+    ASSERT_TRUE(document.caret.GetCaretState() == MakeCaretState(0, 0, 0, 7, 7, 2)) << document.caret.GetCaretState().ToString();
+
+    document.Undo();
+    document.WaitMainLoop();
+    ASSERT_TRUE(document.ToText() == "TestString") << document.ToText();
+    ASSERT_TRUE(document.caret.GetCaretState() == MakeCaretState(0, 0, 0, 9, 9, 1)) << document.caret.GetCaretState().ToString();
+}
+
 }

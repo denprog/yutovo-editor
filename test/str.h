@@ -84,6 +84,19 @@ struct StringsTest : public testing::Test
         return r;
     }
 
+    CaretState MakeCaretState(uint paragraph_id, uint row_id, uint string_id, uint string_pos, uint selection_start, uint selection_size)
+    {
+        CaretState r;
+        ElementId id{0, 0};
+        id.push_back(paragraph_id);
+        id.push_back(row_id);
+        id.push_back(string_id);
+        r.selections.AddSelection(id, selection_start, selection_size);
+        id.push_back(string_pos);
+        r.id = id;
+        return r;
+    }
+
     int argc = 0;
     char** argv = nullptr;
     QApplication app;

@@ -8,6 +8,11 @@ namespace yutovo
 
 //Selections
 
+bool Selections::operator==(const Selections& s)
+{
+    return selections == s.selections;
+}
+
 bool Selections::operator!=(const Selections& s)
 {
     return selections != s.selections;
@@ -161,12 +166,12 @@ CaretState::CaretState(const Element* element, const uint pos, const Selections&
 
 bool CaretState::operator==(const CaretState& c)
 {
-    return id == c.id;
+    return id == c.id && selections == c.selections;
 }
 
 bool CaretState::operator!=(const CaretState& c)
 {
-    return id != c.id;
+    return id != c.id || selections != c.selections;
 }
 
 void CaretState::SetState(ElementPtr element)

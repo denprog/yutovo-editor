@@ -294,6 +294,10 @@ bool MoveCaretTask::Execute()
         }
     }
 
+#ifdef DEBUG
+    text->document->last_caret_moved = true;
+#endif
+
     return true;
 }
 

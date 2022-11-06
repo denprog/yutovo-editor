@@ -488,6 +488,16 @@ void Document::WaitMainLoop()
     last_undo_executed = false;
     last_redo_executed = false;
 }
+
+void Document::WaitCaretMoving()
+{
+    while (!last_caret_moved)
+    {
+        std::this_thread::sleep_for(10ms);
+    }
+
+    last_caret_moved = false;
+}
 #endif
 
 }

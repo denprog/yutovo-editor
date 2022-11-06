@@ -26,6 +26,7 @@ struct Selection
 
 struct Selections
 {
+    bool operator==(const Selections& s);
     bool operator!=(const Selections& s);
     
     void AddSelection(const Selection& selection);
