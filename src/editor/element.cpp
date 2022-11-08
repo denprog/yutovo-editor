@@ -622,7 +622,7 @@ bool Elements::GetLeftCaretState(const CaretState& before_state, CaretState& aft
                 {
                     after_state.selections = before_state.selections;
                     CaretState c = after_state;
-                    ElementPtr el = parent->document->GetElement(c.id);
+                    ElementPtr el = parent->document->GetParent(c.id);
                     if (el->GetLeftCaretState(c, after_state, selection))
                         return true;
                 }
@@ -661,7 +661,7 @@ bool Elements::GetRightCaretState(const CaretState& before_state, CaretState& af
                 {
                     after_state.selections = before_state.selections;
                     CaretState c = after_state;
-                    ElementPtr el = parent->document->GetElement(c.id);
+                    ElementPtr el = parent->document->GetParent(c.id);
                     if (el->GetRightCaretState(c, after_state, selection))
                         return true;
                 }

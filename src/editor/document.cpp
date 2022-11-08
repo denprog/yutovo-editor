@@ -201,37 +201,39 @@ void Document::InsertText(const std::string& str, const StringFormatPtr string_f
     InsertElement(new String(nullptr, str, string_format), CaretState(), with_undo);
 }
 
-void Document::InsertText(const std::string& str, const StringFormatPtr string_format, const CaretState& before_state, CaretState& after_state)
+void Document::InsertText(const std::string& str, const StringFormatPtr string_format, const CaretState& before_state, CaretState& after_state, 
+    ElementId element_id)
 {
-    InsertElement(new String(nullptr, str, string_format), before_state, after_state);
+    InsertElement(new String(nullptr, str, string_format), before_state, after_state, element_id);
 }
 
-void Document::InsertElement(Element* element, const CaretState& caret_state, bool with_undo, bool undo)
-{
-    std::vector<ElementPtr> elements;
-    elements.emplace_back(element);
-    InsertElements(elements, caret_state, with_undo, undo);
-}
-
-void Document::InsertElement(Element* element, const CaretState& before_state, CaretState& after_state)
+void Document::InsertElement(Element* element, const CaretState& caret_state, bool with_undo, bool undo, ElementId element_id)
 {
     std::vector<ElementPtr> elements;
     elements.emplace_back(element);
-    InsertElements(elements, before_state, after_state, false, true);
+    InsertElements(elements, caret_state, with_undo, undo, element_id);
 }
 
-void Document::InsertElements(std::vector<ElementPtr>& elements, const CaretState& caret_state, bool with_undo, bool undo)
+void Document::InsertElement(Element* element, const CaretState& before_state, CaretState& after_state, ElementId element_id)
+{
+    std::vector<ElementPtr> elements;
+    elements.emplace_back(element);
+    InsertElements(elements, before_state, after_state, false, true, element_id);
+}
+
+void Document::InsertElements(std::vector<ElementPtr>& elements, const CaretState& caret_state, bool with_undo, bool undo, ElementId element_id)
 {
     CaretState c;
-    InsertElements(elements, caret_state, c, with_undo, undo);
+    InsertElements(elements, caret_state, c, with_undo, undo, element_id);
 }
 
-void Document::InsertElements(std::vector<ElementPtr>& elements, const CaretState& before_state, CaretState& after_state, bool with_undo, bool undo)
+void Document::InsertElements(std::vector<ElementPtr>& elements, const CaretState& before_state, CaretState& after_state, bool with_undo, bool undo, 
+    ElementId element_id)
 {
     std::lock_guard<std::mutex> lock(tasks_mutex);
     if (undo)
     {
-        undo_tasks.push(TaskPtr(new InsertElementsTask(text, elements, before_state, after_state, cur_task_id)));
+        undo_tasks.push(TaskPtr(new InsertElementsTask(text, elements, before_state, after_state, cur_task_id, element_id)));
         last_task_id = cur_task_id;
     }
     else
@@ -318,6 +320,10 @@ void Document::MoveCaretLeft(bool selection)
     std::lock_guard<std::mutex> lock(tasks_mutex);
     tasks.emplace_back(new MoveCaretTask(text, &caret, MoveCaretTask::MoveCaretDir::LEFT, true, selection));
     next_circle.notify_one();
+
+#ifdef DEBUG
+    last_caret_moved = false;
+#endif
 }
 
 void Document::MoveCaretRight(bool selection)
@@ -325,6 +331,10 @@ void Document::MoveCaretRight(bool selection)
     std::lock_guard<std::mutex> lock(tasks_mutex);
     tasks.emplace_back(new MoveCaretTask(text, &caret, MoveCaretTask::MoveCaretDir::RIGHT, true, selection));
     next_circle.notify_one();
+
+#ifdef DEBUG
+    last_caret_moved = false;
+#endif
 }
 
 void Document::MoveCaretUp(bool selection)

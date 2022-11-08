@@ -25,6 +25,10 @@ String::String(Element* parent, const std::string _str) :
     type = ElementType::STRING;
 
     elements.reset(new StringElements(this, _str));
+
+#ifdef DEBUG
+    to_str = ToText();
+#endif
 }
 
 String::String(Element* parent, const std::string _str, const StringFormatPtr _format) :
@@ -34,6 +38,10 @@ String::String(Element* parent, const std::string _str, const StringFormatPtr _f
     type = ElementType::STRING;
 
     elements.reset(new StringElements(this, _str));
+
+#ifdef DEBUG
+    to_str = ToText();
+#endif
 }
 
 Element* String::Clone()
@@ -117,7 +125,7 @@ bool String::InsertElements(std::vector<ElementPtr>& _elements, const CaretState
                 elements->Insert(_elements[0], before_state.GetPos(), after_state);
             }
             else
-                elements->Insert(_elements[0], before_state.GetPos());
+                elements->Insert(_elements[0], before_state.GetPos(id));
             document->Remake(parent->id, false);
 #ifdef DEBUG
             to_str = ToText();
@@ -137,17 +145,19 @@ bool String::DeleteElements(const CaretState& before_state, CaretState& after_st
     std::string undo_str;
     std::string& str = ((StringElements*)elements.get())->str;
 
+    uint pos = 0;
     uint start, size;
     if (before_state.selections.HasSelection(id, start, size))
     {
         undo_str = str.substr(start, size);
         if (after_state.IsEmpty())
         {
-            after_state = before_state;
+            after_state.id = before_state.id;
             elements->RemoveAt(start, size, after_state);
         }
         else
             elements->RemoveAt(start, size);
+        pos = start;
     }
     else
     {
@@ -161,6 +171,7 @@ bool String::DeleteElements(const CaretState& before_state, CaretState& after_st
             }
             else
                 elements->RemoveAt(before_state.GetPos() - 1, 1);
+            pos = before_state.GetPos() - 1;
         }
         else
         {
@@ -169,16 +180,20 @@ bool String::DeleteElements(const CaretState& before_state, CaretState& after_st
             {
                 after_state = before_state;
                 elements->RemoveAt(before_state.GetPos(), 1, after_state);
+                pos = before_state.GetPos();
             }
             else
+            {
                 elements->RemoveAt(before_state.GetPos() - 1, 1);
+                pos = before_state.GetPos() - 1;
+            }
         }
     }
 
     if (with_undo)
     {
         CaretState s = before_state;
-        document->InsertText(undo_str, format, after_state, s);
+        document->InsertText(undo_str, format, after_state, s, elements->GetElementId(pos));
     }
 
 #ifdef DEBUG
@@ -225,6 +240,9 @@ bool String::Split(const uint max_left_width, CaretState& caret_state)
                     if (caret_state.GetPos() > i + 1)
                         caret_state.SetState(el->id, caret_state.GetPos() - i - 1);
                 }
+#ifdef DEBUG
+    to_str = ToText();
+#endif
                 return true;
             }
         }
@@ -253,6 +271,9 @@ bool String::Merge(const ElementPtr with_element, CaretState& caret_state)
 
     elements->Insert(with_element, elements->Count());
     with_element->parent->elements->RemoveAt(with_element->parent->elements->GetElementPos(with_element->id), 1);
+#ifdef DEBUG
+    to_str = ToText();
+#endif
     return true;
 }
 
@@ -351,10 +372,10 @@ void StringElements::RemoveAt(const uint pos, const int size, CaretState& caret_
         p = caret_state.GetPos();
         if (p >= pos + size)
             caret_state.SetPos(p - size);
-        caret_state.selections.ClearSelection(parent->id);
     }
 
     str.erase(str.begin() + pos, str.begin() + pos + size);
+    caret_state.selections.ClearSelection(parent->id);
 }
 
 void StringElements::Clear()

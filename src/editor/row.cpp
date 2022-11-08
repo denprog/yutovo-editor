@@ -91,11 +91,42 @@ bool Row::InsertElements(std::vector<ElementPtr>& _elements, const CaretState& b
     }
     for (size_t i = 0; i < _elements.size(); ++i)
     {
-        after_state = before_state;
-        elements->Insert(_elements[i], before_state.GetElementPos(id) + i, after_state);
-        CaretState c;
-        if (elements->Get(before_state.GetElementPos(id) + i)->GetLastCaretState(c))
-            after_state = c;
+        if (after_state.IsEmpty())
+        {
+            after_state = before_state;
+            ElementPtr el = document->GetParent(before_state.id);
+            CaretState c;
+            if (el->GetFirstCaretState(c) && c == before_state)
+            {
+                elements->Insert(_elements[i], before_state.GetElementPos(id) + i, after_state);
+                if (elements->Get(before_state.GetElementPos(id) + i)->GetLastCaretState(c))
+                    after_state = c;
+            }
+            else if (el->GetLastCaretState(c) && c == before_state)
+            {
+                elements->Insert(_elements[i], before_state.GetElementPos(id) + i + 1, after_state);
+                if (elements->Get(before_state.GetElementPos(id) + i + 1)->GetFirstCaretState(c))
+                    after_state = c;
+            }
+        }
+        else
+        {
+            //elements->Insert(_elements[i], before_state.GetElementPos(id) + i);
+            ElementPtr el = document->GetParent(before_state.id);
+            CaretState c;
+            if (el->GetFirstCaretState(c) && c == before_state)
+                elements->Insert(_elements[i], before_state.GetElementPos(id) + i);
+            else if (el->GetLastCaretState(c) && c == before_state)
+            {
+                elements->Insert(_elements[i], before_state.GetElementPos(id) + i + 1);
+                if (elements->Count() > i)
+                {
+                    ElementPtr el1 = elements->Get(before_state.GetElementPos(id) + i + 1);
+                    ElementPtr el2 = elements->Get(before_state.GetElementPos(id) + i + 2);
+                    el1->Merge(el2, c);
+                }
+            }
+        }
     }
     if (with_undo)
         document->DeleteElements(CaretState(_elements[0]->id), false, false, true);

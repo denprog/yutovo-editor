@@ -33,9 +33,12 @@ struct InsertElementsTask : Task
 {
     InsertElementsTask(ElementPtr _text, std::vector<ElementPtr>& _elements, const CaretState& _before_state, CaretState& _after_state, bool _with_undo);
     InsertElementsTask(ElementPtr _text, std::vector<ElementPtr>& _elements, const CaretState& _before_state, CaretState& _after_state, uint _id);
+    InsertElementsTask(ElementPtr _text, std::vector<ElementPtr>& _elements, const CaretState& _before_state, CaretState& _after_state, uint _id, 
+        ElementId _element_id);
 
     virtual bool Execute();
 
+    ElementId element_id; //insert into this element or use id from before_state
     std::vector<ElementPtr> elements;
     CaretState before_state;
     CaretState after_state; //may be empty
@@ -48,6 +51,7 @@ struct DeleteElementsTask : Task
 
     virtual bool Execute();
 
+    ElementId element_id; //delete from this element or use id from before_state
     CaretState before_state;
     CaretState after_state; //may be empty
     bool left; //delete on the left or on the right

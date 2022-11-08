@@ -8,14 +8,28 @@ namespace yutovo
 
 //Selections
 
-bool Selections::operator==(const Selections& s)
+bool Selections::operator==(const Selections& _selections)
 {
-    return selections == s.selections;
+    if (selections.size() != _selections.selections.size())
+        return false;
+    for (const Selection& s : _selections.selections)
+    {
+        auto it = std::find_if(selections.begin(), selections.end(), 
+            [s](auto& selection)
+            {
+                return selection.id == s.id;
+            });
+        if (it == selections.end())
+            return false;
+        if (*it != s)
+            return false;
+    }
+    return true;
 }
 
-bool Selections::operator!=(const Selections& s)
+bool Selections::operator!=(const Selections& _selections)
 {
-    return selections != s.selections;
+    return !(selections == _selections.selections);
 }
     
 void Selections::AddSelection(const Selection& selection)
@@ -199,6 +213,14 @@ void CaretState::SetState(const ElementId _id, const uint pos)
     id.push_back(pos);
 }
 
+void CaretState::MergeState(const CaretState& caret_state)
+{
+    if (!caret_state.id.empty())
+        id = caret_state.id;
+    for (const Selection& s : caret_state.selections.selections)
+        selections.AddSelection(s.id, s.start, s.size);
+}
+
 void CaretState::SetPos(const uint pos)
 {
     id[id.size() - 1] = pos;
@@ -207,6 +229,16 @@ void CaretState::SetPos(const uint pos)
 uint CaretState::GetPos() const
 {
     return id[id.size() - 1];
+}
+
+int CaretState::GetPos(const ElementId& id) const
+{
+    if (IsInsideElement(id))
+        return GetPos();
+    uint start, size;
+    if (selections.HasSelection(id, start, size))
+        return start;
+    return -1;
 }
 
 uint CaretState::GetElementPos(const ElementId& _id) const
@@ -255,7 +287,7 @@ bool CaretState::IsInsideElement(const ElementId& _id) const
 
 bool CaretState::IsEmpty() const
 {
-    return id.empty();
+    return id.empty() && selections.IsEmpty();
 }
 
 std::string CaretState::ToString() const

@@ -46,12 +46,26 @@ InsertElementsTask::InsertElementsTask(ElementPtr _text, std::vector<ElementPtr>
     with_undo = false;
 }
 
+InsertElementsTask::InsertElementsTask(ElementPtr _text, std::vector<ElementPtr>& _elements, const CaretState& _before_state, CaretState& _after_state, 
+    uint _id, ElementId _element_id) :
+    InsertElementsTask(_text, _elements, _before_state, _after_state, _id)
+{
+    element_id = _element_id;
+}
+
 bool InsertElementsTask::Execute()
 {
     logger->Debug("Execute InsertElementsTask");
     if (before_state.IsEmpty())
         before_state = text->document->caret.GetCaretState();
-    ElementPtr el = text->document->GetParent(before_state.id);
+    ElementPtr el;
+    if (element_id.empty())
+        el = text->document->GetParent(before_state.id);
+    else
+    {
+        el = text->document->GetParent(element_id);
+        before_state.id = element_id;
+    }
     assert(el != nullptr);
     if (el->InsertElements(elements, before_state, after_state, with_undo))
     {
@@ -85,12 +99,40 @@ DeleteElementsTask::DeleteElementsTask(ElementPtr _text, const CaretState& _befo
 bool DeleteElementsTask::Execute()
 {
     logger->Debug("Execute DeleteElementsTask");
-    ElementPtr el = text->document->GetParent(before_state.id);
-    assert(el != nullptr);
-    if (el->DeleteElements(before_state, after_state, left, with_undo))
+
+    auto DeleteElements = [&](ElementPtr el, CaretState& _after_state)
     {
+        assert(el != nullptr);
+        if (el->DeleteElements(before_state, _after_state, left, with_undo))
+        {
+            text->document->Remake(el->parent->id, true);
+            return true;
+        }
+        return false;
+    };
+
+    if (before_state.selections.IsEmpty())
+    {
+        if (DeleteElements(text->document->GetParent(before_state.id), after_state))
+        {
+            text->document->caret.SetState(after_state, true);
+            return true;
+        }
+    }
+    else
+    {
+        CaretState c;
+        for (Selection& s : before_state.selections.selections)
+        {
+            CaretState _after_state;
+            if (!DeleteElements(text->document->GetElement(s.id), after_state.IsEmpty() ? _after_state : after_state))
+                return false; //todo transaction fix?
+            if (!_after_state.IsEmpty())
+                c.MergeState(_after_state);
+        }
+        if (!c.IsEmpty())
+            after_state = c;
         text->document->caret.SetState(after_state, true);
-        text->document->Remake(el->parent->id, true);
         return true;
     }
     return false;

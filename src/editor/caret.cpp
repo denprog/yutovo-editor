@@ -42,11 +42,10 @@ void Caret::Show()
     if (!visible)
         return;
     
-    Element* element = current_element;
-    caret_rect = element->GetAbsoluteRect(element->GetCaretRect(current_pos));
+    caret_rect = current_element->GetAbsoluteRect(current_element->GetCaretRect(current_pos));
     if (!show)
         window->StoreRect(caret_rect);
-    element->DrawCaret(current_pos);
+    current_element->DrawCaret(current_pos);
     window->Update(caret_rect);
     show = true;
 }

@@ -27,12 +27,15 @@ public:
     void InsertParagraph(bool with_undo);
     void InsertText(const std::string& str, bool with_undo);
     void InsertText(const std::string& str, const StringFormatPtr string_format, bool with_undo);
-    void InsertText(const std::string& str, const StringFormatPtr string_format, const CaretState& before_state, CaretState& after_state);
+    void InsertText(const std::string& str, const StringFormatPtr string_format, const CaretState& before_state, CaretState& after_state, 
+        ElementId element_id);
 
-    void InsertElement(Element* element, const CaretState& caret_state, bool with_undo, bool undo = false);
-    void InsertElement(Element* element, const CaretState& before_state, CaretState& after_state);
-    void InsertElements(std::vector<ElementPtr>& elements, const CaretState& caret_state, bool with_undo, bool undo = false);
-    void InsertElements(std::vector<ElementPtr>& elements, const CaretState& before_state, CaretState& after_state, bool with_undo, bool undo = false);
+    void InsertElement(Element* element, const CaretState& caret_state, bool with_undo, bool undo = false, ElementId element_id = ElementId{});
+    void InsertElement(Element* element, const CaretState& before_state, CaretState& after_state, ElementId element_id = ElementId{});
+    void InsertElements(std::vector<ElementPtr>& elements, const CaretState& caret_state, bool with_undo, bool undo = false, 
+        ElementId element_id = ElementId{});
+    void InsertElements(std::vector<ElementPtr>& elements, const CaretState& before_state, CaretState& after_state, bool with_undo, bool undo = false, 
+        ElementId element_id = ElementId{});
 
     void DeleteElements(bool left, bool with_undo, bool undo);
     void DeleteElements(const CaretState& caret_state, bool left, bool with_undo, bool undo);

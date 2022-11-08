@@ -19,6 +19,11 @@ struct Selection
         return id == s.id && start == s.start && size == s.size;
     }
 
+    bool operator!=(const Selection& s) const
+    {
+        return !(*this == s);
+    }
+
     ElementId id;
     uint start;
     uint size;
@@ -26,8 +31,8 @@ struct Selection
 
 struct Selections
 {
-    bool operator==(const Selections& s);
-    bool operator!=(const Selections& s);
+    bool operator==(const Selections& _selections);
+    bool operator!=(const Selections& _selections);
     
     void AddSelection(const Selection& selection);
     void AddSelection(const ElementId& id, const uint pos, const uint count);
@@ -61,9 +66,12 @@ struct CaretState
     void SetState(const ElementId _id, const ElementId tail_id);
     void SetState(const ElementId _id, const uint pos);
 
+    void MergeState(const CaretState& caret_state);
+
     void SetPos(const uint pos);
 
     uint GetPos() const;
+    int GetPos(const ElementId& id) const;
     uint GetElementPos(const ElementId& _id) const;
     int GetStatePos(const ElementId& _id) const;
     ElementId GetElementAtPos(const uint pos) const;
