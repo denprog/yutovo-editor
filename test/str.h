@@ -100,22 +100,28 @@ struct StringsTest : public testing::Test
     CaretState MakeCaretState(uint paragraph_id, uint row_id, uint string_id, uint string_pos, uint selection1_start, uint selection1_size,
         uint string2_id, uint selection2_start, uint selection2_size)
     {
-        CaretState r;
-        ElementId id{0, 0};
-        id.push_back(paragraph_id);
-        id.push_back(row_id);
-        id.push_back(string_id);
-        r.selections.AddSelection(id, selection1_start, selection1_size);
+        CaretState res = MakeCaretState(paragraph_id, row_id, string_id, string_pos, selection1_start, selection1_size);
 
         ElementId id2{0, 0};
         id2.push_back(paragraph_id);
         id2.push_back(row_id);
         id2.push_back(string2_id);
-        r.selections.AddSelection(id2, selection2_start, selection2_size);
+        res.selections.AddSelection(id2, selection2_start, selection2_size);
+        return res;
+    }
 
-        id.push_back(string_pos);
-        r.id = id;
-        return r;
+    CaretState MakeCaretState(uint paragraph_id, uint row_id, uint string_id, uint string_pos, uint selection1_start, uint selection1_size,
+        uint string2_id, uint selection2_start, uint selection2_size, uint string3_id, uint selection3_start, uint selection3_size)
+    {
+        CaretState res = MakeCaretState(paragraph_id, row_id, string_id, string_pos, selection1_start, selection1_size,
+            string2_id, selection2_start, selection2_size);
+
+        ElementId id3{0, 0};
+        id3.push_back(paragraph_id);
+        id3.push_back(row_id);
+        id3.push_back(string3_id);
+        res.selections.AddSelection(id3, selection3_start, selection3_size);
+        return res;
     }
 
     int argc = 0;

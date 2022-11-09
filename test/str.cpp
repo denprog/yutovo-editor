@@ -294,13 +294,12 @@ TEST_F(StringsTest, selections2)
 
     document.MoveCaretLeft(false);
     document.WaitCaretMoving();
-    ASSERT_TRUE(document.caret.GetCaretState() == MakeCaretState(0, 0, 0, 1)) << document.caret.GetCaretState().ToString();
-    document.MoveCaretRight(true);
-    document.MoveCaretRight(true);
-    document.MoveCaretRight(true);
-    document.MoveCaretRight(true);
-    document.MoveCaretRight(true);
+    ASSERT_TRUE(document.caret.GetCaretState() == MakeCaretState(0, 0, 0, 2)) << document.caret.GetCaretState().ToString();
+    document.MoveCaretLeft(false);
+    for (int i = 0; i < 5; ++i)
+        document.MoveCaretRight(true);
     document.WaitCaretMoving();
+    std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.caret.GetCaretState() == MakeCaretState(0, 0, 1, 2, 0, 2, 0, 1, 3)) << document.caret.GetCaretState().ToString();
 
     document.DeleteElements(true, true, false);
@@ -322,6 +321,110 @@ TEST_F(StringsTest, selections2)
         "</p></body>") << 
         document.ToHtml();
     ASSERT_TRUE(document.caret.GetCaretState() == MakeCaretState(0, 0, 1, 2, 0, 2, 0, 1, 3)) << document.caret.GetCaretState().ToString();
+
+    document.MoveCaretRight(false);
+    document.WaitCaretMoving();
+    ASSERT_TRUE(document.caret.GetCaretState() == MakeCaretState(0, 0, 1, 2)) << document.caret.GetCaretState().ToString();
+}
+
+TEST_F(StringsTest, selections3)
+{
+    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
+        {
+            return Rect{0, 0, 600, 400};
+        });
+
+    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::string& text, const StringFormatPtr format)
+        {
+            return GetTextSizeMock(text, format);
+        });
+
+    document.InsertText("Normal", std::make_shared<StringFormat>("Arial", 16, false, false, false), true);
+    document.InsertText("Bold", std::make_shared<StringFormat>("Times New Roman", 34, true, false, false), true);
+    document.InsertText("Italic", std::make_shared<StringFormat>("Courier", 24, false, true, false), true);
+    document.WaitMainLoop();
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body><p>"\
+        "<span style=\"font-family:'Arial';font-size:16px;\">Normal</span>"\
+        "<span style=\"font-family:'Times New Roman';font-size:34px;\"><strong>Bold</strong></span>"\
+        "<span style=\"font-family:'Courier';font-size:24px;\"><em>Italic</em></span>"\
+        "</p></body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.caret.GetCaretState() == MakeCaretState(0, 0, 2, 6)) << document.caret.GetCaretState().ToString();
+
+    document.MoveCaretHome(false);
+    for (int i = 0; i < 4; ++i)
+        document.MoveCaretRight(false);
+    for (int i = 0; i < 9; ++i)
+        document.MoveCaretRight(true);
+    document.WaitCaretMoving();
+    std::this_thread::sleep_for(100ms);
+    ASSERT_TRUE(document.caret.GetCaretState() == MakeCaretState(0, 0, 2, 3, 0, 3, 1, 0, 4, 0, 4, 2)) << document.caret.GetCaretState().ToString();
+
+    document.DeleteElements(true, true, false);
+    document.WaitMainLoop();
+    std::this_thread::sleep_for(100ms);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body><p>"\
+        "<span style=\"font-family:'Arial';font-size:16px;\">Norm</span>"\
+        "<span style=\"font-family:'Courier';font-size:24px;\"><em>lic</em></span>"\
+        "</p></body>") << 
+        document.ToHtml();
+
+    document.Undo();
+    document.WaitMainLoop();
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body><p>"\
+        "<span style=\"font-family:'Arial';font-size:16px;\">Normal</span>"\
+        "<span style=\"font-family:'Times New Roman';font-size:34px;\"><strong>Bold</strong></span>"\
+        "<span style=\"font-family:'Courier';font-size:24px;\"><em>Italic</em></span>"\
+        "</p></body>") << 
+        document.ToHtml();
+
+    document.MoveCaretHome(false);
+    for (int i = 0; i < 6; ++i)
+        document.MoveCaretRight(true);
+    document.WaitCaretMoving();
+    ASSERT_TRUE(document.caret.GetCaretState() == MakeCaretState(0, 0, 0, 6, 0, 6)) << document.caret.GetCaretState().ToString();
+
+    document.DeleteElements(true, true, false);
+    document.WaitMainLoop();
+    std::this_thread::sleep_for(100ms);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body><p>"\
+        "<span style=\"font-family:'Times New Roman';font-size:34px;\"><strong>Bold</strong></span>"\
+        "<span style=\"font-family:'Courier';font-size:24px;\"><em>Italic</em></span>"\
+        "</p></body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.caret.GetCaretState() == MakeCaretState(0, 0, 0, 0)) << document.caret.GetCaretState().ToString();
+
+    document.Undo();
+    document.WaitMainLoop();
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body><p>"\
+        "<span style=\"font-family:'Arial';font-size:16px;\">Normal</span>"\
+        "<span style=\"font-family:'Times New Roman';font-size:34px;\"><strong>Bold</strong></span>"\
+        "<span style=\"font-family:'Courier';font-size:24px;\"><em>Italic</em></span>"\
+        "</p></body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.caret.GetCaretState() == MakeCaretState(0, 0, 0, 6, 0, 6)) << document.caret.GetCaretState().ToString();
+
+    document.MoveCaretLeft(false);
+    for (int i = 0; i < 20; ++i)
+        document.MoveCaretRight(true);
+    document.WaitCaretMoving();
+    std::this_thread::sleep_for(100ms);
+    ASSERT_TRUE(document.caret.GetCaretState() == MakeCaretState(0, 0, 2, 6, 0, 6, 1, 0, 4, 0, 0, 6)) << document.caret.GetCaretState().ToString();
+
+    document.DeleteElements(true, true, false);
+    document.WaitMainLoop();
+    std::this_thread::sleep_for(100ms);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body><p>"\
+        "<span style=\"font-family:'Courier';font-size:24px;\"><em></em></span>"\
+        "</p></body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.caret.GetCaretState() == MakeCaretState(0, 0, 0, 0)) << document.caret.GetCaretState().ToString();
 }
 
 TEST_F(StringsTest, inserts1)

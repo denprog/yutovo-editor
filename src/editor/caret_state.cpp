@@ -31,10 +31,11 @@ bool Selections::operator!=(const Selections& _selections)
 {
     return !(selections == _selections.selections);
 }
-    
+
 void Selections::AddSelection(const Selection& selection)
 {
     selections.emplace_back(selection);
+    std::sort(selections.begin(), selections.end());
 }
 
 void Selections::AddSelection(const ElementId& id, const uint pos, const uint count)
@@ -87,6 +88,7 @@ void Selections::AddSelection(const ElementId& id, const uint pos, const uint co
         if (it->size == 0)
             selections.erase(it);
     }
+    std::sort(selections.begin(), selections.end());
 }
 
 void Selections::ClearSelection()
@@ -103,6 +105,11 @@ void Selections::ClearSelection(const ElementId& id)
         });
     if (it != selections.end())
         selections.erase(it);
+}
+
+bool Selections::HasSelection() const
+{
+    return !selections.empty();
 }
 
 bool Selections::HasSelection(const ElementId& id, uint& start, uint& size) const

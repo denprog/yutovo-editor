@@ -122,8 +122,9 @@ bool DeleteElementsTask::Execute()
     else
     {
         CaretState c;
-        for (Selection& s : before_state.selections.selections)
+        for (int i = before_state.selections.selections.size() - 1; i >= 0; --i)
         {
+            Selection& s = before_state.selections.selections[i];
             CaretState _after_state;
             if (!DeleteElements(text->document->GetElement(s.id), after_state.IsEmpty() ? _after_state : after_state))
                 return false; //todo transaction fix?

@@ -24,6 +24,19 @@ struct Selection
         return !(*this == s);
     }
 
+    bool operator<(const Selection& s)
+    {
+        size_t i;
+        for (i = 0; i < id.size() && i < s.id.size(); ++i)
+        {
+            if (id[i] > s.id[i])
+                return false;
+        }
+        if (i == id.size())
+            return true;
+        return false;
+    }
+
     ElementId id;
     uint start;
     uint size;
@@ -38,6 +51,7 @@ struct Selections
     void AddSelection(const ElementId& id, const uint pos, const uint count);
     void ClearSelection();
     void ClearSelection(const ElementId& id);
+    bool HasSelection() const;
     bool HasSelection(const ElementId& id, uint& start, uint& size) const;
     bool IsEmpty() const;
 

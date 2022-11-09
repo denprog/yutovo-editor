@@ -18,6 +18,8 @@ Caret::Caret(Window* _window, Text* _text) :
 
 void Caret::SetState(const CaretState& caret_state, bool update_x_pos)
 {
+    if (!text->document->GetParent(caret_state.id))
+        return;
     current_element = text->document->GetParent(caret_state.id).get();
     current_pos = caret_state.GetPos();
     selections = caret_state.selections;
@@ -115,8 +117,16 @@ void Caret::MoveEnd(bool select)
 void Caret::MoveLeft(bool select)
 {
     CaretState cur = GetCaretState();
-    if (!select)
-        cur.selections.ClearSelection();
+    if (cur.selections.HasSelection() && !select)
+    {
+        uint start, size;
+        if (cur.selections.HasSelection(text->document->GetParent(cur.id)->id, start, size))
+        {
+            selections.ClearSelection();
+            SetState(CaretState(text->document->GetParent(cur.id)->id, start));
+            return;
+        }
+    }
     
     CaretState res;
     if (current_element->GetLeftCaretState(cur, res, select))
@@ -129,8 +139,16 @@ void Caret::MoveLeft(bool select)
 void Caret::MoveRight(bool select)
 {
     CaretState cur = GetCaretState();
-    if (!select)
-        cur.selections.ClearSelection();
+    if (cur.selections.HasSelection() && !select)
+    {
+        uint start, size;
+        if (cur.selections.HasSelection(text->document->GetParent(cur.id)->id, start, size))
+        {
+            selections.ClearSelection();
+            SetState(CaretState(text->document->GetParent(cur.id)->id, start + size));
+            return;
+        }
+    }
     
     CaretState res;
     if (current_element->GetRightCaretState(cur, res, select))

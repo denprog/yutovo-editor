@@ -30,9 +30,9 @@ void Row::Remake(CaretState& caret_state, bool with_elements)
             auto el = (*elements)[i];
             if (el->type == ElementType::STRING)
             {
-                if (el->elements->Count() == 0 && parent->elements->Count() > 1)
+                if (el->elements->Count() == 0 && elements->Count() > 1)
                 {
-                    elements->RemoveAt(i, 1); //remove empty strings
+                    elements->RemoveAt(i, 1, caret_state); //remove empty strings
                     continue;
                 }
                 if (i < elements->Count() - 1)
@@ -105,7 +105,7 @@ bool Row::InsertElements(std::vector<ElementPtr>& _elements, const CaretState& b
             else if (el->GetLastCaretState(c) && c == before_state)
             {
                 elements->Insert(_elements[i], before_state.GetElementPos(id) + i + 1, after_state);
-                if (elements->Get(before_state.GetElementPos(id) + i + 1)->GetFirstCaretState(c))
+                if (elements->Get(before_state.GetElementPos(id) + i + 1)->GetLastCaretState(c))
                     after_state = c;
             }
         }

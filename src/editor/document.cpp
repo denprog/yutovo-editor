@@ -305,7 +305,11 @@ ElementPtr Document::GetParent(const ElementId& _id)
         return text;
     ElementPtr el = text->elements->Get(_id[1]);
     for (uint i = 2; i < _id.size() - 1; ++i)
+    {
+        if (el->elements->Count() <= _id[i])
+            return nullptr;
         el = el->elements->Get(_id[i]);
+    }
     return el;
 }
 
