@@ -121,8 +121,10 @@ public:
     virtual void Insert(ElementPtr element, const uint pos);
     virtual void Insert(ElementPtr element, const uint pos, CaretState& caret_state);
     virtual void Remove(const ElementPtr element);
+    virtual void Remove(const ElementPtr element, CaretState& caret_state);
     virtual void RemoveAt(const uint pos, const int size);
     virtual void RemoveAt(const uint pos, const int size, CaretState& caret_state);
+    virtual void Move(const ElementPtr element, const uint pos, CaretState& caret_state);
     virtual void Clear();
     virtual uint Count();
 

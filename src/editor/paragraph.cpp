@@ -81,8 +81,7 @@ void Paragraph::Remake(CaretState& caret_state, bool with_elements)
             while (next_row && next_row->elements->Get(0)->rect.width < page->page_width - row->rect.width - format->indent_before)
             {
                 //move the element from the next row in the current one
-                row->elements->Insert(next_row->elements->Get(0), row->elements->Count(), caret_state);
-                next_row->elements->RemoveAt(0, 1, caret_state);
+                row->elements->Move(next_row->elements->Get(0), row->elements->Count(), caret_state);
                 row->Remake(caret_state, true);
                 if (next_row->elements->Count() == 0)
                 {
@@ -100,8 +99,7 @@ void Paragraph::Remake(CaretState& caret_state, bool with_elements)
                 ElementPtr el = next_row->elements->Get(0);
                 while (el->Split(page->page_width - row->rect.width - format->indent_before, caret_state))
                 {
-                    row->elements->Insert(next_row->elements->Get(0), row->elements->Count(), caret_state);
-                    next_row->elements->RemoveAt(0, 1, caret_state);
+                    row->elements->Move(next_row->elements->Get(0), row->elements->Count(), caret_state);
                     row->Remake(caret_state, true);
                     next_row->Remake(caret_state, true);
                     el = next_row->elements->Get(0);

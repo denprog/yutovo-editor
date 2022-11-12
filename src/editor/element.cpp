@@ -533,6 +533,11 @@ void Elements::Remove(const ElementPtr element)
     }    
 }
 
+void Elements::Remove(const ElementPtr element, CaretState& caret_state)
+{
+    parent->elements->RemoveAt(element->parent->elements->GetElementPos(element->id), 1, caret_state);
+}
+
 void Elements::RemoveAt(const uint pos, const int size)
 {
     elements.erase(elements.begin() + pos, elements.begin() + pos + size);
@@ -559,8 +564,6 @@ void Elements::RemoveAt(const uint pos, const int size, CaretState& caret_state)
     int p = -1;
     for (size_t i = pos; i < size; ++i)
     {
-        if (parent->document->GetParent(elements[i]->id)->id != parent->id) //this element may has already moved
-            continue;
         if (caret_state.IsInsideElement(elements[i]->id))
         {
             p = i;
@@ -586,6 +589,33 @@ void Elements::RemoveAt(const uint pos, const int size, CaretState& caret_state)
 
     for (auto p : selections)
         caret_state.selections.AddSelection(elements[p.first - size]->id, p.second.start, p.second.size);
+}
+
+void Elements::Move(const ElementPtr element, const uint pos, CaretState& caret_state)
+{
+    if (caret_state.IsInsideElement(element->id))
+    {
+        int cs_pos = caret_state.GetPos();
+        element->parent->elements->Remove(element, caret_state);
+        Insert(element, pos, caret_state);
+        caret_state.SetState(element->id, cs_pos);
+    }
+    else if (element->parent->elements->Count() > 1)
+    {
+        int cs_pos = -1;
+        auto p = element->parent;
+        if (caret_state.IsInsideElement(p->elements->Get(1)->id))
+            cs_pos = caret_state.GetPos();
+        element->parent->elements->Remove(element, caret_state);
+        Insert(element, pos, caret_state);
+        if (cs_pos != -1)
+            caret_state.SetState(p->elements->Get(0)->id, cs_pos);
+    }
+    else
+    {
+        element->parent->elements->Remove(element, caret_state);
+        Insert(element, pos, caret_state);
+    }
 }
 
 void Elements::Clear()
