@@ -37,6 +37,11 @@ struct Selection
         return false;
     }
 
+    bool IsEmpty()
+    {
+        return id.empty();
+    }
+
     ElementId id;
     uint start;
     uint size;
@@ -49,9 +54,11 @@ struct Selections
     
     void AddSelection(const Selection& selection);
     void AddSelection(const ElementId& id, const uint pos, const uint count);
+    void RemoveSelection(const ElementId& id, const uint start);
     void ClearSelection();
     void ClearSelection(const ElementId& id);
     bool HasSelection() const;
+    bool HasSelection(const ElementId& id, Selection& selection) const;
     bool HasSelection(const ElementId& id, uint& start, uint& size) const;
     bool IsEmpty() const;
 

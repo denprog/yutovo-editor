@@ -91,6 +91,17 @@ void Selections::AddSelection(const ElementId& id, const uint pos, const uint co
     std::sort(selections.begin(), selections.end());
 }
 
+void Selections::RemoveSelection(const ElementId& id, const uint start)
+{
+    auto it = std::find_if(selections.begin(), selections.end(), 
+        [id, start](auto& selection)
+        {
+            return selection.id == id && selection.start == start;
+        });
+    if (it != selections.end())
+        selections.erase(it);
+}
+
 void Selections::ClearSelection()
 {
     selections.clear();
@@ -112,7 +123,7 @@ bool Selections::HasSelection() const
     return !selections.empty();
 }
 
-bool Selections::HasSelection(const ElementId& id, uint& start, uint& size) const
+bool Selections::HasSelection(const ElementId& id, Selection& selection) const
 {
     auto it = std::find_if(selections.begin(), selections.end(), 
         [id](auto& selection)
@@ -122,8 +133,17 @@ bool Selections::HasSelection(const ElementId& id, uint& start, uint& size) cons
     if (it == selections.end())
         return false;
     
-    start = it->start;
-    size = it->size;
+    selection = *it;
+    return true;
+}
+
+bool Selections::HasSelection(const ElementId& id, uint& start, uint& size) const
+{
+    Selection s;
+    if (!HasSelection(id, s))
+        return false;
+    start = s.start;
+    size = s.size;
     return true;
 }
 

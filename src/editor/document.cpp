@@ -315,7 +315,7 @@ ElementPtr Document::GetParent(const ElementId& _id)
 
 Rect Document::GetCaretRect(const CaretState& caret_state)
 {
-    ElementPtr el = GetElement(caret_state.id);
+    ElementPtr el = GetParent(caret_state.id);
     return el->GetAbsoluteRect(el->GetCaretRect(caret_state.GetPos()));
 }
 

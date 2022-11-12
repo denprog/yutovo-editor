@@ -2,6 +2,7 @@
 #include "document.h"
 #include <assert.h>
 #include <limits>
+#include <map>
 
 namespace yutovo
 {
@@ -81,20 +82,20 @@ bool Element::DeleteElements(const CaretState& before_state, CaretState& after_s
     return false;
 }
 
-bool Element::CanSplit(const uint max_left_width)
-{
-    return false;
-}
+// bool Element::CanSplit(const uint max_left_width)
+// {
+//     return false;
+// }
 
 bool Element::Split(const uint max_left_width, CaretState& caret_state)
 {
     return false;
 }
 
-bool Element::CanMerge(const ElementPtr with_element)
-{
-    return false;
-}
+// bool Element::CanMerge(const ElementPtr with_element)
+// {
+//     return false;
+// }
 
 bool Element::Merge(const ElementPtr with_element, CaretState& caret_state)
 {
@@ -154,7 +155,7 @@ bool Element::GetTopCaretState(const int x, const int y, CaretState& res, bool s
     while (next != last)
     {
         CaretState c = next;
-        ElementPtr el = document->GetElement(c.id);
+        ElementPtr el = document->GetParent(c.id);
         if (!el->GetRightCaretState(c, next, selection))
             break;
         
@@ -192,7 +193,7 @@ bool Element::GetBottomCaretState(const int x, const int y, CaretState& res, boo
     while (next != last)
     {
         CaretState c = next;
-        ElementPtr el = document->GetElement(c.id);
+        ElementPtr el = document->GetParent(c.id);
         if (!el->GetRightCaretState(c, next, selection))
             break;
         
@@ -480,13 +481,23 @@ void Elements::Insert(ElementPtr element, const uint pos, CaretState& caret_stat
     int p = -1;
     if (caret_state.IsInsideElement(element->id))
         p = caret_state.GetPos();
+    
+    Selection selection;
+    if (caret_state.selections.HasSelection(element->id, selection))
+        caret_state.selections.RemoveSelection(element->id, selection.start);
+    
     int cs_pos = -1;
-    for (size_t i = 0; i < elements.size(); ++i)
+    std::map<size_t, Selection> selections;
+    for (size_t i = pos; i < elements.size(); ++i)
     {
         if (caret_state.IsInsideElement(elements[i]->id))
-        {
             cs_pos = i;
-            break;
+
+        Selection s;
+        if (caret_state.selections.HasSelection(elements[i]->id, s))
+        {
+            caret_state.selections.RemoveSelection(elements[i]->id, s.start);
+            selections[i] = s;
         }
     }
     
@@ -497,10 +508,16 @@ void Elements::Insert(ElementPtr element, const uint pos, CaretState& caret_stat
     element->window = parent->window;
     UpdateIds(); //set id
 
+    //update caret state on the new position of the element
     if (p != -1)
         caret_state.SetState(element->id, p);
     if (cs_pos != -1)
         caret_state.SetState(elements[cs_pos + 1]->id, caret_state.GetPos());
+    if (!selection.IsEmpty())
+        caret_state.selections.AddSelection(element->id, selection.start, selection.size);
+
+    for (auto p : selections)
+        caret_state.selections.AddSelection(elements[p.first + pos + 1]->id, p.second.start, p.second.size);
 }
 
 void Elements::Remove(const ElementPtr element)
@@ -525,11 +542,28 @@ void Elements::RemoveAt(const uint pos, const int size)
 void Elements::RemoveAt(const uint pos, const int size, CaretState& caret_state)
 {
     int cs_pos = -1;
+    std::map<size_t, Selection> selections;
     for (size_t i = pos + size; i < elements.size(); ++i)
     {
         if (caret_state.IsInsideElement(elements[i]->id))
-        {
             cs_pos = i;
+
+        Selection s;
+        if (caret_state.selections.HasSelection(elements[i]->id, s))
+        {
+            caret_state.selections.RemoveSelection(elements[i]->id, s.start);
+            selections[i] = s;
+        }
+    }
+
+    int p = -1;
+    for (size_t i = pos; i < size; ++i)
+    {
+        if (parent->document->GetParent(elements[i]->id)->id != parent->id) //this element may has already moved
+            continue;
+        if (caret_state.IsInsideElement(elements[i]->id))
+        {
+            p = i;
             break;
         }
     }
@@ -539,7 +573,7 @@ void Elements::RemoveAt(const uint pos, const int size, CaretState& caret_state)
 
     if (cs_pos != -1)
         caret_state.SetState(elements[cs_pos - size]->id, caret_state.GetPos());
-    else
+    else if (p != -1)
     {
         if (Count() <= pos)
             return;
@@ -549,6 +583,9 @@ void Elements::RemoveAt(const uint pos, const int size, CaretState& caret_state)
             el->GetFirstCaretState(caret_state);
         }
     }
+
+    for (auto p : selections)
+        caret_state.selections.AddSelection(elements[p.first - size]->id, p.second.start, p.second.size);
 }
 
 void Elements::Clear()

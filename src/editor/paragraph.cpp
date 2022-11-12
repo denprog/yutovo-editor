@@ -46,15 +46,19 @@ void Paragraph::Remake(CaretState& caret_state, bool with_elements)
             if (i < elements->Count() - 1)
                 next_row = elements->Get(i + 1);
 
+            bool b = true;
             //move or split element if it's more then row width
             while (row->rect.width + format->indent_before > page->page_width)
             {
                 ElementPtr el = row->elements->Get(row->elements->Count() - 1);
-                if (el->Split(row->rect.width - page->page_width, caret_state))
+                if (el->Split(page->page_width - format->indent_before, caret_state))
                     el = row->elements->Get(row->elements->Count() - 1);
 
                 if (row->elements->Count() == 1)
+                {
+                    b = false;
                     break;
+                }
 
                 if (!next_row)
                 {
@@ -69,6 +73,9 @@ void Paragraph::Remake(CaretState& caret_state, bool with_elements)
                 next_row->Remake(caret_state, true);
                 remake = true;
             }
+
+            if (!b)
+                continue;
 
             //move elements above if they are narrower to be placed in the row
             while (next_row && next_row->elements->Get(0)->rect.width < page->page_width - row->rect.width - format->indent_before)
@@ -105,86 +112,6 @@ void Paragraph::Remake(CaretState& caret_state, bool with_elements)
             UpdateRect();
         }
     }
-    // bool splitting = false; //for separation splitting of merging    
-    // if (format->word_wrap == ParagraphFormat::WordWrap::Normal)
-    // {
-    //     Page* page = (Page*)parent;
-
-    //     for (int i = 0; i < elements->Count(); ++i)
-    //     {
-    //         ElementPtr row = elements->Get(i);
-    //         ElementPtr next_row;
-    //         if (i < elements->Count() - 1)
-    //             next_row = elements->Get(i + 1);
-    //         if (row->rect.width + format->indent_before > page->page_width)
-    //         {
-    //             //while (row->rect.width + format->indent_before > page_width)
-    //             //{
-    //             ElementPtr el = row->elements->Get(row->elements->Count() - 1);
-    //             // if (el->Split(row->rect.width - page_width))
-    //             // {
-    //             //     el = row->elements->Get(row->elements->Count() - 1);
-    //             // }
-    //             //else
-    //             //{
-    //             if (row->elements->Count() == 1)
-    //                 break;
-    //             if (!next_row)
-    //             {
-    //                 next_row.reset(new Row(this));
-    //                 AddElement(next_row);
-    //             }
-    //             //move the element in the next row
-    //             next_row->elements->Insert(el, 0);
-    //             row->elements->RemoveAt(row->elements->Count() - 1, 1);
-    //             row->UpdateRect();
-    //             //next_row->Remake(caret_state, true);
-    //             //el->mergeable = false;
-    //             if (el->CanSplit(row->rect.width + format->indent_before - page->page_width))
-    //             {
-    //                 document->SplitElement(el->id, id, row->rect.width + format->indent_before - page->page_width);
-    //                 splitting = true;
-    //             }
-    //             else
-    //                 document->Remake(id, true);
-    //                 //}
-    //             //}
-    //         }
-    //         else
-    //         {
-    //             while (next_row && next_row->elements->Get(0)->rect.width < page->page_width - row->rect.width - format->indent_before)
-    //             {
-    //                 //move the element from the next row in the current one
-    //                 row->elements->Insert(next_row->elements->Get(0), row->elements->Count());
-    //                 next_row->elements->RemoveAt(0, 1);
-    //                 next_row->UpdateRect();
-    //                 row->Remake(caret_state, true);
-    //                 if (next_row->elements->Count() == 0)
-    //                 {
-    //                     elements->RemoveAt(i + 1, 1);
-    //                     next_row.reset();
-    //                 }
-    //                 document->Remake(id, true);
-    //             }
-    //         }
-
-    //         UpdateRect();
-    //     }
-    // }
-
-    // if (!splitting)
-    // {
-    //     for (int i = 0; i < elements->Count(); ++i)
-    //     {
-    //         ElementPtr row = elements->Get(i);
-    //         for (int j = 0; j < row->elements->Count() - 1; ++j)
-    //         {
-    //             ElementPtr el = row->elements->Get(j);
-    //             if (el->CanMerge(row->elements->Get(j + 1)))
-    //                 document->MergeElement(el->id, row->elements->Get(j + 1)->id, row->id);
-    //         }
-    //     }
-    // }
 
     int h = 0;
     for (int i = 0; i < elements->Count(); ++i)

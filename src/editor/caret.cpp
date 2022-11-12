@@ -122,6 +122,7 @@ void Caret::MoveLeft(bool select)
         uint start, size;
         if (cur.selections.HasSelection(text->document->GetParent(cur.id)->id, start, size))
         {
+            last_selections = selections;
             selections.ClearSelection();
             SetState(CaretState(text->document->GetParent(cur.id)->id, start));
             return;
@@ -144,6 +145,7 @@ void Caret::MoveRight(bool select)
         uint start, size;
         if (cur.selections.HasSelection(text->document->GetParent(cur.id)->id, start, size))
         {
+            last_selections = selections;
             selections.ClearSelection();
             SetState(CaretState(text->document->GetParent(cur.id)->id, start + size));
             return;

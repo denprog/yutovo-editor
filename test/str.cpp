@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include "str.h"
+#include "mock.h"
 #include <QPainter>
 
 namespace yutovo_test
@@ -9,7 +9,7 @@ using namespace yutovo;
 
 using namespace std::chrono_literals;
 
-TEST_F(StringsTest, strings1)
+TEST_F(DocumentTest, strings1)
 {
     EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
         {
@@ -63,7 +63,7 @@ TEST_F(StringsTest, strings1)
     ASSERT_TRUE(document.caret.GetCaretState() == MakeCaretState(0, 0, 0, 0)) << document.caret.GetCaretState().ToString();
 }
 
-TEST_F(StringsTest, strings2)
+TEST_F(DocumentTest, strings2)
 {
     EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
         {
@@ -163,7 +163,7 @@ TEST_F(StringsTest, strings2)
     ASSERT_TRUE(document.caret.GetCaretState() == MakeCaretState(0, 0, 0, 11)) << document.caret.GetCaretState().ToString();
 }
 
-TEST_F(StringsTest, selections1)
+TEST_F(DocumentTest, selections1)
 {
     EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
         {
@@ -238,7 +238,7 @@ TEST_F(StringsTest, selections1)
     ASSERT_TRUE(document.caret.GetCaretState() == MakeCaretState(0, 0, 0, 9, 9, 1)) << document.caret.GetCaretState().ToString();
 }
 
-TEST_F(StringsTest, selections2)
+TEST_F(DocumentTest, selections2)
 {
     EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
         {
@@ -327,7 +327,7 @@ TEST_F(StringsTest, selections2)
     ASSERT_TRUE(document.caret.GetCaretState() == MakeCaretState(0, 0, 1, 2)) << document.caret.GetCaretState().ToString();
 }
 
-TEST_F(StringsTest, selections3)
+TEST_F(DocumentTest, selections3)
 {
     EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
         {
@@ -427,7 +427,7 @@ TEST_F(StringsTest, selections3)
     ASSERT_TRUE(document.caret.GetCaretState() == MakeCaretState(0, 0, 0, 0)) << document.caret.GetCaretState().ToString();
 }
 
-TEST_F(StringsTest, inserts1)
+TEST_F(DocumentTest, inserts1)
 {
     EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
         {

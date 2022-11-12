@@ -17,7 +17,9 @@ find_package(Qt5 COMPONENTS Widgets REQUIRED)
 
 add_executable(${PROJECT_NAME}_tests
 	main.cpp
+	mock.cpp
 	str.cpp
+	paragraph.cpp
 )
 
 target_link_libraries(${PROJECT_NAME}_tests PRIVATE

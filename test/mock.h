@@ -1,5 +1,5 @@
-#ifndef __STRINGS_H__
-#define __STRINGS_H__
+#ifndef __MOCK_H__
+#define __MOCK_H__
 
 #include <QMainWindow>
 #include <QApplication>
@@ -51,9 +51,9 @@ public:
     MOCK_METHOD(Rect, GetRect, (), (override));
 };
 
-struct StringsTest : public testing::Test
+struct DocumentTest : public testing::Test
 {
-    StringsTest() :
+    DocumentTest() :
         app(argc, argv),
         document(&window_mock)
     {
@@ -121,6 +121,14 @@ struct StringsTest : public testing::Test
         id3.push_back(row_id);
         id3.push_back(string3_id);
         res.selections.AddSelection(id3, selection3_start, selection3_size);
+        return res;
+    }
+
+    CaretState MakeCaretState(ElementId caret_id, Selection selection1, Selection selection2)
+    {
+        CaretState res(caret_id);
+        res.selections.AddSelection(selection1);
+        res.selections.AddSelection(selection2);
         return res;
     }
 

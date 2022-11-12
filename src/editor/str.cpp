@@ -227,20 +227,20 @@ bool String::DeleteElements(const CaretState& before_state, CaretState& after_st
     return true;
 }
 
-bool String::CanSplit(const uint max_left_width)
-{
-    std::string& str = ((StringElements*)elements.get())->str;
-    for (size_t i = str.size() - 2; i > 0; --i) //at least one character in the splitted string
-    {
-        if (str[i] == ' ')
-        {
-            Size s = window->GetTextSize(str.substr(0, i + 1), format);
-            if (s.width <= max_left_width)
-                return true;
-        }
-    }
-    return false;
-}
+// bool String::CanSplit(const uint max_left_width)
+// {
+//     std::string& str = ((StringElements*)elements.get())->str;
+//     for (size_t i = str.size() - 2; i > 0; --i) //at least one character in the splitted string
+//     {
+//         if (str[i] == ' ')
+//         {
+//             Size s = window->GetTextSize(str.substr(0, i + 1), format);
+//             if (s.width <= max_left_width)
+//                 return true;
+//         }
+//     }
+//     return false;
+// }
 
 bool String::Split(const uint max_left_width, CaretState& caret_state)
 {
@@ -265,8 +265,26 @@ bool String::Split(const uint max_left_width, CaretState& caret_state)
                     if (caret_state.GetPos() > i + 1)
                         caret_state.SetState(el->id, caret_state.GetPos() - i - 1);
                 }
+
+                uint start, size;
+                if (caret_state.selections.HasSelection(id, start, size))
+                {
+                    if (start > i + 1)
+                    {
+                        //move selection into the new element
+                        caret_state.selections.AddSelection(el->id, start - i - 1, size);
+                        caret_state.selections.RemoveSelection(id, start);
+                    }
+                    else if (start < str.length() && start + size > str.length())
+                    {
+                        //split the selection
+                        caret_state.selections.RemoveSelection(id, start);
+                        caret_state.selections.AddSelection(id, start, str.length() - start);
+                        caret_state.selections.AddSelection(el->id, 0, size - str.length() + start);
+                    }
+                }
 #ifdef DEBUG
-    to_str = ToText();
+                to_str = ToText();
 #endif
                 return true;
             }
@@ -275,12 +293,12 @@ bool String::Split(const uint max_left_width, CaretState& caret_state)
     return false;
 }
 
-bool String::CanMerge(const ElementPtr with_element)
-{
-    if (with_element->type != ElementType::STRING || ((String*)with_element.get())->format != format)
-        return false;
-    return true;
-}
+// bool String::CanMerge(const ElementPtr with_element)
+// {
+//     if (with_element->type != ElementType::STRING || ((String*)with_element.get())->format != format)
+//         return false;
+//     return true;
+// }
 
 bool String::Merge(const ElementPtr with_element, CaretState& caret_state)
 {
@@ -293,9 +311,18 @@ bool String::Merge(const ElementPtr with_element, CaretState& caret_state)
 
     if (caret_state.IsInsideElement(with_element->id))
         caret_state.SetState(id, caret_state.GetPos() + elements->Count()); //update caret state
+    
+    Selection s;
+    if (caret_state.selections.HasSelection(with_element->id, s))
+        caret_state.selections.RemoveSelection(with_element->id, s.start);
 
+    uint c = elements->Count();
     elements->Insert(with_element, elements->Count());
     with_element->parent->elements->RemoveAt(with_element->parent->elements->GetElementPos(with_element->id), 1);
+
+    if (!s.IsEmpty())
+        caret_state.selections.AddSelection(id, s.start + c, s.size);
+
 #ifdef DEBUG
     to_str = ToText();
 #endif
