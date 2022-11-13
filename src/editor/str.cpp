@@ -150,31 +150,6 @@ bool String::DeleteElements(const CaretState& before_state, CaretState& after_st
     if (before_state.selections.HasSelection(id, start, size))
     {
         undo_str = str.substr(start, size);
-        if (start == 0 && size == elements->Count())
-        {
-//            return parent->DeleteElements(before_state, after_state, left, with_undo);
-//             //remove the entire element
-//             uint p = parent->elements->GetElementPos(id);
-//             if (after_state.IsEmpty())
-//             {
-//                 after_state.id = before_state.id;
-//                 parent->elements->RemoveAt(p, 1, after_state);
-//             }
-//             else
-//                 parent->elements->RemoveAt(p, 1);
-
-//             if (with_undo)
-//             {
-//                 CaretState s = before_state;
-//                 document->InsertText(undo_str, format, after_state, s, parent->elements->GetElementId(p));
-//             }
-
-// #ifdef DEBUG
-//             parent->to_str = parent->ToText();
-// #endif
-//             return true;
-        }
-        
         if (after_state.IsEmpty())
         {
             after_state.id = before_state.id;

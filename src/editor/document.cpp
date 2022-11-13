@@ -193,7 +193,9 @@ void Document::InsertParagraph(bool with_undo)
 
 void Document::InsertText(const std::string& str, bool with_undo)
 {
-    InsertElement(new String(nullptr, str), CaretState(), with_undo);
+    StringFormatPtr format;
+    if (GetCurrentStringFormat(format))
+        InsertElement(new String(nullptr, str, format), CaretState(), with_undo);
 }
 
 void Document::InsertText(const std::string& str, const StringFormatPtr string_format, bool with_undo)
@@ -307,6 +309,16 @@ Rect Document::GetCaretRect(const CaretState& caret_state)
 {
     ElementPtr el = GetParent(caret_state.id);
     return el->GetAbsoluteRect(el->GetCaretRect(caret_state.GetPos()));
+}
+
+bool Document::GetCurrentStringFormat(StringFormatPtr& format)
+{
+    CaretState c = caret.GetCaretState();
+    ElementPtr el = GetParent(c.id);
+    if (!el || el->type != ElementType::STRING)
+        return false;
+    format = ((String*)el.get())->format;
+    return true;
 }
 
 void Document::MoveCaretLeft(bool selection)

@@ -68,7 +68,34 @@ bool InsertElementsTask::Execute()
         before_state.id = element_id;
     }
     assert(el != nullptr);
-    if (el->InsertElements(elements, before_state, after_state, with_undo))
+
+    CaretState c;
+    if (with_undo && !before_state.selections.IsEmpty())
+    {
+        //remove selection before insert
+        auto DeleteElements = [&](ElementPtr el, CaretState& _after_state)
+        {
+            assert(el != nullptr);
+            if (el->DeleteElements(before_state, _after_state, true, with_undo))
+            {
+                text->document->Remake(el->parent->id, true);
+                return true;
+            }
+            return false;
+        };
+
+        for (int i = before_state.selections.selections.size() - 1; i >= 0; --i)
+        {
+            Selection& s = before_state.selections.selections[i];
+            CaretState _after_state;
+            if (!DeleteElements(text->document->GetElement(s.id), after_state.IsEmpty() ? _after_state : after_state))
+                return false; //todo transaction fix?
+            if (!_after_state.IsEmpty())
+                c.MergeState(_after_state);
+        }
+    }
+
+    if (el->InsertElements(elements, c.IsEmpty() ? before_state : c, after_state, with_undo))
     {
         text->document->caret.SetState(after_state, true);
         text->document->Remake(el->parent->id, true);
