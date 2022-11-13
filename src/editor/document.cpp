@@ -230,16 +230,18 @@ void Document::InsertElements(std::vector<ElementPtr>& elements, const CaretStat
 void Document::InsertElements(std::vector<ElementPtr>& elements, const CaretState& before_state, CaretState& after_state, bool with_undo, bool undo, 
     ElementId element_id)
 {
-    std::lock_guard<std::mutex> lock(tasks_mutex);
-    if (undo)
     {
-        undo_tasks.push(TaskPtr(new InsertElementsTask(text, elements, before_state, after_state, cur_task_id, element_id)));
-        last_task_id = cur_task_id;
-    }
-    else
-    {
-        tasks.emplace_back(new InsertElementsTask(text, elements, before_state, after_state, with_undo));
-        last_task_id = tasks[tasks.size() - 1]->id;
+        std::lock_guard<std::mutex> lock(tasks_mutex);
+        if (undo)
+        {
+            undo_tasks.push(TaskPtr(new InsertElementsTask(text, elements, before_state, after_state, cur_task_id, element_id)));
+            last_task_id = cur_task_id;
+        }
+        else
+        {
+            tasks.emplace_back(new InsertElementsTask(text, elements, before_state, after_state, with_undo));
+            last_task_id = tasks[tasks.size() - 1]->id;
+        }
     }
     next_circle.notify_one();
 }
@@ -257,31 +259,19 @@ void Document::DeleteElements(const CaretState& caret_state, bool left, bool wit
 
 void Document::DeleteElements(const CaretState& before_state, CaretState& after_state, bool left, bool with_undo, bool undo)
 {
-    std::lock_guard<std::mutex> lock(tasks_mutex);
-    if (undo)
     {
-        undo_tasks.push(TaskPtr(new DeleteElementsTask(text, before_state, after_state, left, cur_task_id)));
-        last_task_id = cur_task_id;
+        std::lock_guard<std::mutex> lock(tasks_mutex);
+        if (undo)
+        {
+            undo_tasks.push(TaskPtr(new DeleteElementsTask(text, before_state, after_state, left, cur_task_id)));
+            last_task_id = cur_task_id;
+        }
+        else
+        {
+            tasks.emplace_back(new DeleteElementsTask(text, before_state, after_state, left, with_undo));
+            last_task_id = tasks[tasks.size() - 1]->id;
+        }
     }
-    else
-    {
-        tasks.emplace_back(new DeleteElementsTask(text, before_state, after_state, left, with_undo));
-        last_task_id = tasks[tasks.size() - 1]->id;
-    }
-    next_circle.notify_one();
-}
-
-void Document::SplitElement(const ElementId& id, const ElementId& remake_id, const uint max_left_width)
-{
-    std::lock_guard<std::mutex> lock(tasks_mutex);
-    tasks.emplace_back(new SplitElementTask(text, id, remake_id, max_left_width));
-    next_circle.notify_one();
-}
-
-void Document::MergeElement(const ElementId& id1, const ElementId& id2, ElementId remake_id)
-{
-    std::lock_guard<std::mutex> lock(tasks_mutex);
-    tasks.emplace_back(new MergeElementsTask(text, id1, id2, remake_id));
     next_circle.notify_one();
 }
 
@@ -423,7 +413,7 @@ void Document::Redraw(const ElementId& id)
     {
         TaskPtr last = tasks[tasks.size() - 1];
         RedrawTask* t = dynamic_cast<RedrawTask*>(last.get());
-        if (!t || t->id != id)
+        if (!t || t->element_id != id)
             tasks.emplace_back(new RedrawTask(text, id));
     }
     else
@@ -447,7 +437,7 @@ void Document::Remake(const ElementId& id, bool with_elements)
     {
         TaskPtr last = tasks[tasks.size() - 1];
         RemakeTask* t = dynamic_cast<RemakeTask*>(last.get());
-        if (!t || t->id != id || t->with_elements != with_elements)
+        if (!t || t->element_id != id || t->with_elements != with_elements)
             tasks.emplace_back(new RemakeTask(text, id, with_elements));
     }
     else
