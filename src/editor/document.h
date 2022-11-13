@@ -41,9 +41,6 @@ public:
     void DeleteElements(const CaretState& caret_state, bool left, bool with_undo, bool undo);
     void DeleteElements(const CaretState& before_state, CaretState& after_state, bool left, bool with_undo, bool undo);
 
-    void SplitElement(const ElementId& id, const ElementId& remake_id, const uint max_left_width);
-    void MergeElement(const ElementId& id1, const ElementId& id2, ElementId remake_id);
-
     ElementPtr GetElement(const ElementId& _id);
     ElementPtr GetParent(const ElementId& _id);
 

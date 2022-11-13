@@ -57,37 +57,13 @@ struct DeleteElementsTask : Task
     bool left; //delete on the left or on the right
 };
 
-struct SplitElementTask : Task
-{
-    SplitElementTask(ElementPtr _text, ElementId _id, ElementId _remake_id, const uint _max_left_width);
-    SplitElementTask(ElementPtr _text, ElementId _id, ElementId _remake_id, const int _pos);
-
-    virtual bool Execute();
-
-    ElementId id; //element for splitting
-    ElementId remake_id; //remake this element after split
-    uint max_left_width = 0; //split by width
-    int pos = -1; //split by pos
-};
-
-struct MergeElementsTask : Task
-{
-    MergeElementsTask(ElementPtr _text, ElementId _id1, ElementId _id2, ElementId _remake_id);
-
-    virtual bool Execute();
-
-    ElementId id1;
-    ElementId id2;
-    ElementId remake_id;
-};
-
 struct RemakeTask : Task
 {
     RemakeTask(ElementPtr _text, const ElementId& _id, bool _with_elements);
 
     virtual bool Execute();
 
-    ElementId id;
+    ElementId element_id;
     bool with_elements;
 };
 
@@ -97,7 +73,7 @@ struct RedrawTask : Task
 
     virtual bool Execute();
 
-    ElementId id;
+    ElementId element_id;
 };
 
 struct ResizeTask : Task

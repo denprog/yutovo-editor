@@ -58,6 +58,7 @@ bool InsertElementsTask::Execute()
     logger->Debug("Execute InsertElementsTask");
     if (before_state.IsEmpty())
         before_state = text->document->caret.GetCaretState();
+
     ElementPtr el;
     if (element_id.empty())
         el = text->document->GetParent(before_state.id);
@@ -139,82 +140,22 @@ bool DeleteElementsTask::Execute()
     return false;
 }
 
-//SplitElementTask
-
-SplitElementTask::SplitElementTask(ElementPtr _text, ElementId _id, ElementId _remake_id, const uint _max_left_width) :
-    Task(_text),
-    id(_id),
-    remake_id(_remake_id),
-    max_left_width(_max_left_width)
-{
-}
-
-SplitElementTask::SplitElementTask(ElementPtr _text, ElementId _id, ElementId _remake_id, const int _pos) :
-    Task(_text),
-    id(_id),
-    remake_id(_remake_id),
-    pos(_pos)
-{
-}
-
-bool SplitElementTask::Execute()
-{
-    ElementPtr el = text->document->GetElement(id);
-    if (max_left_width > 0)
-    {
-        CaretState caret_state = text->document->caret.GetCaretState();
-        if (el->Split(max_left_width, caret_state))
-        {
-            text->document->caret.SetState(caret_state, true);
-            text->document->Remake(remake_id, true);
-            return true;
-        }
-    }
-    return false;
-}
-
-//MergeElementsTask
-
-MergeElementsTask::MergeElementsTask(ElementPtr _text, ElementId _id1, ElementId _id2, ElementId _remake_id) :
-    Task(_text),
-    id1(_id1),
-    id2(_id2),
-    remake_id(_remake_id)
-{
-}
-
-bool MergeElementsTask::Execute()
-{
-    ElementPtr el1 = text->document->GetElement(id1);
-    ElementPtr el2 = text->document->GetElement(id2);
-    if (!el1 || !el2)
-        return false;
-    CaretState caret_state = text->document->caret.GetCaretState();
-    if (el1->Merge(el2, caret_state))
-    {
-        text->document->caret.SetState(caret_state, true);
-        text->document->Remake(remake_id, true);
-        return true;
-    }
-    return false;
-}
-
 //RemakeTask
 
 RemakeTask::RemakeTask(ElementPtr _text, const ElementId& _id, bool _with_elements) : 
     Task(_text), 
-    id(_id),
+    element_id(_id),
     with_elements(_with_elements)
 {
 }
 
 bool RemakeTask::Execute()
 {
-    logger->Debug("Execute RemakeTask id={}", IdToString(id));
+    logger->Debug("Execute RemakeTask element_id={}", IdToString(element_id));
     CaretState c = text->document->caret.GetCaretState();
-    text->document->GetElement(id)->Remake(c, with_elements);
+    text->document->GetElement(element_id)->Remake(c, with_elements);
     text->document->caret.SetState(c, true);
-    text->document->Redraw(id);
+    text->document->Redraw(element_id);
     return true;
 }
 
@@ -222,14 +163,14 @@ bool RemakeTask::Execute()
 
 RedrawTask::RedrawTask(ElementPtr _text, const ElementId& _id) :
     Task(_text),
-    id(_id)
+    element_id(_id)
 {
 }
 
 bool RedrawTask::Execute()
 {
-    logger->Debug("Execute RedrawTask id={}", IdToString(id));
-    ElementPtr element = text->document->GetElement(id);
+    logger->Debug("Execute RedrawTask element_id={}", IdToString(element_id));
+    ElementPtr element = text->document->GetElement(element_id);
     text->window->DrawFillRect(element->GetAbsoluteRect(), Color::White());
     CaretState cur = text->document->caret.GetCaretState();
     element->Draw(cur.selections);
