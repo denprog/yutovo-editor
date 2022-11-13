@@ -35,6 +35,7 @@ public:
     
 protected:
     friend class StringElements;
+    friend class Document;
 
     StringFormatPtr format;
 };

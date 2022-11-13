@@ -46,6 +46,8 @@ public:
 
     Rect GetCaretRect(const CaretState& caret_state);
 
+    bool GetCurrentStringFormat(StringFormatPtr& format);
+
     void MoveCaretLeft(bool selection);
     void MoveCaretRight(bool selection);
     void MoveCaretUp(bool selection);
