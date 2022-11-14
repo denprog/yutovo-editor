@@ -64,10 +64,12 @@ public:
 
     virtual Rect GetRect();
 
-    virtual bool GetFirstCaretState(CaretState& res);
-    virtual bool GetLastCaretState(CaretState& res);
+    virtual bool GetFirstCaretState(CaretState& caret_state, bool selection);
+    virtual bool GetLastCaretState(CaretState& caret_state, bool selection);
     virtual bool GetLeftCaretState(const CaretState& before_state, CaretState& after_state, bool selection);
     virtual bool GetRightCaretState(const CaretState& before_state, CaretState& after_state, bool selection);
+    virtual bool GetWordLeftCaretState(const CaretState& before_state, CaretState& after_state, bool selection);
+    virtual bool GetWordRightCaretState(const CaretState& before_state, CaretState& after_state, bool selection);
 
     virtual std::string ToHtml();
     virtual std::string ToText();

@@ -102,14 +102,14 @@ bool Element::Merge(const ElementPtr with_element, CaretState& caret_state)
     return false;
 }
 
-bool Element::GetFirstCaretState(CaretState& res)
+bool Element::GetFirstCaretState(CaretState& caret_state, bool selection)
 {
-    return elements->GetFirstCaretState(res);
+    return elements->GetFirstCaretState(caret_state, selection);
 }
 
-bool Element::GetLastCaretState(CaretState& res)
+bool Element::GetLastCaretState(CaretState& caret_state, bool selection)
 {
-    return elements->GetLastCaretState(res);
+    return elements->GetLastCaretState(caret_state, selection);
 }
 
 bool Element::GetLeftCaretState(const CaretState& before_state, CaretState& after_state, bool selection)
@@ -118,18 +118,21 @@ bool Element::GetLeftCaretState(const CaretState& before_state, CaretState& afte
     {
         if (elements->GetLeftCaretState(before_state, after_state, selection))
             return true;
-        if (parent)
-            return parent->GetLeftCaretState(before_state, after_state, selection);
     }
+    if (parent)
+        return parent->GetLeftCaretState(before_state, after_state, selection);
     return false;
 }
 
-bool Element::GetRightCaretState(const CaretState& caret_state, CaretState& res, bool selection)
+bool Element::GetRightCaretState(const CaretState& before_state, CaretState& after_state, bool selection)
 {
-    if (elements->GetRightCaretState(caret_state, res, selection))
-        return true;
+    if (before_state.IsInsideElement(id))
+    {
+        if (elements->GetRightCaretState(before_state, after_state, selection))
+            return true;
+    }
     if (parent)
-        return parent->GetRightCaretState(caret_state, res, selection);
+        return parent->GetRightCaretState(before_state, after_state, selection);
     return false;
 }
 
@@ -143,9 +146,9 @@ bool Element::GetTopCaretState(const int x, const int y, CaretState& res, bool s
     }
 
     CaretState next, last;
-    if (!GetFirstCaretState(next))
+    if (!GetFirstCaretState(next, selection))
         return false;
-    if (!GetLastCaretState(last))
+    if (!GetLastCaretState(last, selection))
         return false;
     
     res = next;
@@ -181,9 +184,9 @@ bool Element::GetBottomCaretState(const int x, const int y, CaretState& res, boo
     }
 
     CaretState next, last;
-    if (!GetFirstCaretState(next))
+    if (!GetFirstCaretState(next, selection))
         return false;
-    if (!GetLastCaretState(last))
+    if (!GetLastCaretState(last, selection))
         return false;
     
     res = next;
@@ -220,6 +223,30 @@ bool Element::GetEndCaretState(const CaretState& before_state, CaretState& after
 {
     if (parent)
         return parent->GetEndCaretState(before_state, after_state, selection);
+    return false;
+}
+
+bool Element::GetWordLeftCaretState(const CaretState& before_state, CaretState& after_state, bool selection)
+{
+    if (before_state.IsInsideElement(id))
+    {
+        if (elements->GetWordLeftCaretState(before_state, after_state, selection))
+            return true;
+    }
+    if (parent)
+        return parent->GetWordLeftCaretState(before_state, after_state, selection);
+    return false;
+}
+
+bool Element::GetWordRightCaretState(const CaretState& before_state, CaretState& after_state, bool selection)
+{
+    if (before_state.IsInsideElement(id))
+    {
+        if (elements->GetWordRightCaretState(before_state, after_state, selection))
+            return true;
+    }
+    if (parent)
+        return parent->GetWordRightCaretState(before_state, after_state, selection);
     return false;
 }
 
@@ -583,7 +610,7 @@ void Elements::RemoveAt(const uint pos, const int size, CaretState& caret_state)
         ElementPtr el = Get(pos);
         if (!el->HasCaretState())
         {
-            el->GetFirstCaretState(caret_state);
+            el->GetFirstCaretState(caret_state, false);
         }
     }
 
@@ -657,23 +684,23 @@ Rect Elements::GetRect()
     return Rect{left, top, right - left, bottom - top};
 }
 
-bool Elements::GetFirstCaretState(CaretState& res)
+bool Elements::GetFirstCaretState(CaretState& caret_state, bool selection)
 {
     if (elements.empty())
         return false;
     if (elements[0]->HasCaretState())
     {
-        res.id = GetElementId(0);
+        caret_state.id = GetElementId(0);
         return true;
     }
-    return elements[0]->GetFirstCaretState(res);
+    return elements[0]->GetFirstCaretState(caret_state, selection);
 }
 
-bool Elements::GetLastCaretState(CaretState& res)
+bool Elements::GetLastCaretState(CaretState& caret_state, bool selection)
 {
     if (elements.empty())
         return false;
-    return elements[elements.size() - 1]->GetLastCaretState(res);
+    return elements[elements.size() - 1]->GetLastCaretState(caret_state, selection);
 }
 
 bool Elements::GetLeftCaretState(const CaretState& before_state, CaretState& after_state, bool selection)
@@ -685,7 +712,8 @@ bool Elements::GetLeftCaretState(const CaretState& before_state, CaretState& aft
         {
             if (elements[p]->CanContinueSelection())
             {
-                if (elements[p]->GetLastCaretState(after_state))
+                after_state = before_state;
+                if (elements[p]->GetLastCaretState(after_state, selection))
                 {
                     after_state.selections = before_state.selections;
                     CaretState c = after_state;
@@ -695,7 +723,7 @@ bool Elements::GetLeftCaretState(const CaretState& before_state, CaretState& aft
                 }
             }
         }
-        else if (elements[p]->GetLastCaretState(after_state))
+        else if (elements[p]->GetLastCaretState(after_state, selection))
             return true;
         if (elements[p]->HasCaretState())
         {
@@ -724,7 +752,8 @@ bool Elements::GetRightCaretState(const CaretState& before_state, CaretState& af
         {
             if (elements[p]->CanContinueSelection())
             {
-                if (elements[p]->GetFirstCaretState(after_state))
+                after_state = before_state;
+                if (elements[p]->GetFirstCaretState(after_state, selection))
                 {
                     after_state.selections = before_state.selections;
                     CaretState c = after_state;
@@ -734,11 +763,95 @@ bool Elements::GetRightCaretState(const CaretState& before_state, CaretState& af
                 }
             }
         }
-        else if (elements[p]->GetFirstCaretState(after_state))
+        else if (elements[p]->GetFirstCaretState(after_state, selection))
         {
             if (selection)
                 after_state.selections.AddSelection(parent->id, p, 1);
             return true;
+        }
+    }
+    return false;
+}
+
+bool Elements::GetWordLeftCaretState(const CaretState& before_state, CaretState& after_state, bool selection)
+{
+    uint p = before_state.GetElementPos(parent->id);
+    while (p-- > 0)
+    {
+        if (selection)
+        {
+            if (elements[p]->CanContinueSelection())
+            {
+                after_state = before_state;
+                if (elements[p]->GetLastCaretState(after_state, selection))
+                {
+                    after_state.selections = before_state.selections;
+                    CaretState c = after_state;
+                    ElementPtr el = parent->document->GetParent(c.id);
+                    if (el->GetWordLeftCaretState(c, after_state, selection))
+                        return true;
+                }
+            }
+        }
+        else
+        {
+            CaretState c;
+            if (elements[p]->GetLastCaretState(c, selection))
+            {
+                if (elements[p]->GetWordLeftCaretState(c, after_state, selection))
+                    return true;
+            }
+        }
+        if (elements[p]->HasCaretState())
+        {
+            after_state.SetState(GetElementId(p), before_state.selections);
+            if (selection)
+                after_state.selections.AddSelection(parent->id, p, 1);
+            return true;
+        }
+    }
+    return false;
+}
+
+bool Elements::GetWordRightCaretState(const CaretState& before_state, CaretState& after_state, bool selection)
+{
+    uint p = before_state.GetElementPos(parent->id);
+    while (++p < Count())
+    {
+        if (elements[p]->HasCaretState())
+        {
+            after_state.SetState(GetElementId(p), before_state.selections);
+            if (selection)
+                after_state.selections.AddSelection(parent->id, p, 1);
+            return true;
+        }
+        if (selection)
+        {
+            if (elements[p]->CanContinueSelection())
+            {
+                after_state = before_state;
+                if (elements[p]->GetFirstCaretState(after_state, selection))
+                {
+                    after_state.selections = before_state.selections;
+                    CaretState c = after_state;
+                    ElementPtr el = parent->document->GetParent(c.id);
+                    if (el->GetWordRightCaretState(c, after_state, selection))
+                        return true;
+                }
+            }
+        }
+        else
+        {
+            CaretState c;
+            if (elements[p]->GetFirstCaretState(c, selection))
+            {
+                if (elements[p]->GetWordRightCaretState(c, after_state, selection))
+                {
+                    if (selection)
+                        after_state.selections.AddSelection(parent->id, p, 1);
+                    return true;
+                }
+            }
         }
     }
     return false;

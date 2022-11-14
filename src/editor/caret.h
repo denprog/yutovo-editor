@@ -43,6 +43,8 @@ public:
     void MoveRight(bool select);
     void MoveUp(bool select);
     void MoveDown(bool select);
+    void MoveWordLeft(bool select);
+    void MoveWordRight(bool select);
 
     void UpdateXPos();
 

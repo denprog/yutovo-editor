@@ -46,14 +46,16 @@ public:
     //virtual bool CanMerge(const ElementPtr with_element);
     virtual bool Merge(const ElementPtr with_element, CaretState& caret_state);
 
-    virtual bool GetFirstCaretState(CaretState& res);
-    virtual bool GetLastCaretState(CaretState& res);
+    virtual bool GetFirstCaretState(CaretState& caret_state, bool selection);
+    virtual bool GetLastCaretState(CaretState& caret_state, bool selection);
     virtual bool GetLeftCaretState(const CaretState& before_state, CaretState& after_state, bool selection);
-    virtual bool GetRightCaretState(const CaretState& caret_state, CaretState& res, bool selection);
+    virtual bool GetRightCaretState(const CaretState& before_state, CaretState& after_state, bool selection);
     virtual bool GetTopCaretState(const int x, const int y, CaretState& res, bool selection);
     virtual bool GetBottomCaretState(const int x, const int y, CaretState& res, bool selection);
     virtual bool GetBeginCaretState(const CaretState& before_state, CaretState& after_state, bool selection);
     virtual bool GetEndCaretState(const CaretState& before_state, CaretState& after_state, bool selection);
+    virtual bool GetWordLeftCaretState(const CaretState& before_state, CaretState& after_state, bool selection);
+    virtual bool GetWordRightCaretState(const CaretState& before_state, CaretState& after_state, bool selection);
 
     virtual bool HasCaretState();
     virtual bool CanContinueSelection();
@@ -133,10 +135,13 @@ public:
 
     virtual Rect GetRect();
 
-    virtual bool GetFirstCaretState(CaretState& res);
-    virtual bool GetLastCaretState(CaretState& res);
+    virtual bool GetFirstCaretState(CaretState& caret_state, bool selection);
+    virtual bool GetLastCaretState(CaretState& caret_state, bool selection);
     virtual bool GetLeftCaretState(const CaretState& before_state, CaretState& after_state, bool selection);
     virtual bool GetRightCaretState(const CaretState& before_state, CaretState& after_state, bool selection);
+    virtual bool GetWordLeftCaretState(const CaretState& before_state, CaretState& after_state, bool selection);
+    virtual bool GetWordRightCaretState(const CaretState& before_state, CaretState& after_state, bool selection);
+
     virtual bool HasLastCaretState();
 
     virtual std::string ToHtml();

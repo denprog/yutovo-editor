@@ -20,6 +20,7 @@ add_executable(${PROJECT_NAME}_tests
 	mock.cpp
 	str.cpp
 	paragraph.cpp
+	caret.cpp
 )
 
 target_link_libraries(${PROJECT_NAME}_tests PRIVATE
