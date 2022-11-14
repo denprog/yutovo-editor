@@ -96,16 +96,16 @@ bool Row::InsertElements(std::vector<ElementPtr>& _elements, const CaretState& b
             after_state = before_state;
             ElementPtr el = document->GetParent(before_state.id);
             CaretState c;
-            if (el->GetFirstCaretState(c) && c == before_state)
+            if (el->GetFirstCaretState(c, false) && c == before_state)
             {
                 elements->Insert(_elements[i], before_state.GetElementPos(id) + i, after_state);
-                if (elements->Get(before_state.GetElementPos(id) + i)->GetLastCaretState(c))
+                if (elements->Get(before_state.GetElementPos(id) + i)->GetLastCaretState(c, false))
                     after_state = c;
             }
-            else if (el->GetLastCaretState(c) && c == before_state)
+            else if (el->GetLastCaretState(c, false) && c == before_state)
             {
                 elements->Insert(_elements[i], before_state.GetElementPos(id) + i + 1, after_state);
-                if (elements->Get(before_state.GetElementPos(id) + i + 1)->GetLastCaretState(c))
+                if (elements->Get(before_state.GetElementPos(id) + i + 1)->GetLastCaretState(c, false))
                     after_state = c;
             }
         }
@@ -114,9 +114,9 @@ bool Row::InsertElements(std::vector<ElementPtr>& _elements, const CaretState& b
             //elements->Insert(_elements[i], before_state.GetElementPos(id) + i);
             ElementPtr el = document->GetParent(before_state.id);
             CaretState c;
-            if (el->GetFirstCaretState(c) && c == before_state)
+            if (el->GetFirstCaretState(c, false) && c == before_state)
                 elements->Insert(_elements[i], before_state.GetElementPos(id) + i);
-            else if (el->GetLastCaretState(c) && c == before_state)
+            else if (el->GetLastCaretState(c, false) && c == before_state)
             {
                 elements->Insert(_elements[i], before_state.GetElementPos(id) + i + 1);
                 if (elements->Count() > i)
@@ -138,12 +138,12 @@ bool Row::InsertElements(std::vector<ElementPtr>& _elements, const CaretState& b
 
 bool Row::GetBeginCaretState(const CaretState& before_state, CaretState& after_state, bool selection)
 {
-    return GetFirstCaretState(after_state);
+    return GetFirstCaretState(after_state, selection);
 }
 
 bool Row::GetEndCaretState(const CaretState& before_state, CaretState& after_state, bool selection)
 {
-    return GetLastCaretState(after_state);
+    return GetLastCaretState(after_state, selection);
 }
 
 bool Row::CanContinueSelection()

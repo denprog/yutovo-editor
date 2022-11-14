@@ -49,6 +49,7 @@ TEST_F(DocumentTest, strings1)
     document.MoveCaretHome(false);
     document.InsertText("Bold", std::make_shared<StringFormat>("Times New Roman", 34, true, false, false), true);
     document.WaitMainLoop();
+    std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body><p>"\
         "<span style=\"font-family:'Times New Roman';font-size:34px;\"><strong>Bold</strong></span>"\

@@ -96,7 +96,9 @@ struct MoveCaretTask : Task
         UP,
         DOWN,
         HOME,
-        END
+        END,
+        WORD_LEFT,
+        WORD_RIGHT
     };
 
     MoveCaretTask(ElementPtr _text, Caret* _caret, MoveCaretDir _dir, bool _visible);

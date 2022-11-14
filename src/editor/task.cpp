@@ -269,6 +269,12 @@ bool MoveCaretTask::Execute()
     case MoveCaretDir::END:
         caret->MoveEnd(selection);
         break;
+    case MoveCaretDir::WORD_LEFT:
+        caret->MoveWordLeft(selection);
+        break;
+    case MoveCaretDir::WORD_RIGHT:
+        caret->MoveWordRight(selection);
+        break;
     }
 
     Element* element = caret->current_element;

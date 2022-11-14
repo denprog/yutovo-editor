@@ -321,54 +321,55 @@ bool Document::GetCurrentStringFormat(StringFormatPtr& format)
     return true;
 }
 
-void Document::MoveCaretLeft(bool selection)
+void Document::MoveCaret(MoveCaretTask::MoveCaretDir dir, bool selection)
 {
     std::lock_guard<std::mutex> lock(tasks_mutex);
-    tasks.emplace_back(new MoveCaretTask(text, &caret, MoveCaretTask::MoveCaretDir::LEFT, true, selection));
+    tasks.emplace_back(new MoveCaretTask(text, &caret, dir, true, selection));
     next_circle.notify_one();
 
 #ifdef DEBUG
     last_caret_moved = false;
 #endif
+}
+
+void Document::MoveCaretLeft(bool selection)
+{
+    MoveCaret(MoveCaretTask::MoveCaretDir::LEFT, selection);
 }
 
 void Document::MoveCaretRight(bool selection)
 {
-    std::lock_guard<std::mutex> lock(tasks_mutex);
-    tasks.emplace_back(new MoveCaretTask(text, &caret, MoveCaretTask::MoveCaretDir::RIGHT, true, selection));
-    next_circle.notify_one();
-
-#ifdef DEBUG
-    last_caret_moved = false;
-#endif
+    MoveCaret(MoveCaretTask::MoveCaretDir::RIGHT, selection);
 }
 
 void Document::MoveCaretUp(bool selection)
 {
-    std::lock_guard<std::mutex> lock(tasks_mutex);
-    tasks.emplace_back(new MoveCaretTask(text, &caret, MoveCaretTask::MoveCaretDir::UP, true, selection));
-    next_circle.notify_one();
+    MoveCaret(MoveCaretTask::MoveCaretDir::UP, selection);
 }
 
 void Document::MoveCaretDown(bool selection)
 {
-    std::lock_guard<std::mutex> lock(tasks_mutex);
-    tasks.emplace_back(new MoveCaretTask(text, &caret, MoveCaretTask::MoveCaretDir::DOWN, true, selection));
-    next_circle.notify_one();
+    MoveCaret(MoveCaretTask::MoveCaretDir::DOWN, selection);
 }
 
 void Document::MoveCaretHome(bool selection)
 {
-    std::lock_guard<std::mutex> lock(tasks_mutex);
-    tasks.emplace_back(new MoveCaretTask(text, &caret, MoveCaretTask::MoveCaretDir::HOME, true, selection));
-    next_circle.notify_one();
+    MoveCaret(MoveCaretTask::MoveCaretDir::HOME, selection);
 }
 
 void Document::MoveCaretEnd(bool selection)
 {
-    std::lock_guard<std::mutex> lock(tasks_mutex);
-    tasks.emplace_back(new MoveCaretTask(text, &caret, MoveCaretTask::MoveCaretDir::END, true, selection));
-    next_circle.notify_one();
+    MoveCaret(MoveCaretTask::MoveCaretDir::END, selection);
+}
+
+void Document::MoveCaretWordLeft(bool selection)
+{
+    MoveCaret(MoveCaretTask::MoveCaretDir::WORD_LEFT, selection);
+}
+
+void Document::MoveCaretWordRight(bool selection)
+{
+    MoveCaret(MoveCaretTask::MoveCaretDir::WORD_RIGHT, selection);
 }
 
 void Document::SetCaretVisible(bool visible)

@@ -435,15 +435,19 @@ Rect StringElements::GetRect()
     return Rect{0, 0, s.width, s.height};
 }
 
-bool StringElements::GetFirstCaretState(CaretState& res)
+bool StringElements::GetFirstCaretState(CaretState& caret_state, bool selection)
 {
-    res.id = GetElementId(0);
+    if (selection)
+        caret_state.selections.AddSelection(parent->id, 0, caret_state.GetPos());
+    caret_state.id = GetElementId(0);
     return true;
 }
 
-bool StringElements::GetLastCaretState(CaretState& res)
+bool StringElements::GetLastCaretState(CaretState& caret_state, bool selection)
 {
-    res.id = GetElementId(str.length());
+    if (selection)
+        caret_state.selections.AddSelection(parent->id, caret_state.GetPos(), str.length() - caret_state.GetPos());
+    caret_state.id = GetElementId(str.length());
     return true;
 }
 
@@ -467,6 +471,44 @@ bool StringElements::GetRightCaretState(const CaretState& before_state, CaretSta
     if (selection)
         after_state.selections.AddSelection(parent->id, pos, 1);
     return true;
+}
+
+bool StringElements::GetWordLeftCaretState(const CaretState& before_state, CaretState& after_state, bool selection)
+{
+    uint pos = before_state.GetPos();
+    if (pos == 0 || pos > str.length())
+        return false;
+    for (int i = pos - 2; i >= 0; --i)
+    {
+        if (str[i] == ' ')
+        {
+            after_state.SetState(GetElementId(i + 1), before_state.selections);
+            if (selection)
+                after_state.selections.AddSelection(parent->id, i + 1, pos - i - 1);
+            return true;
+        }
+    }
+    after_state = before_state;
+    return GetFirstCaretState(after_state, selection);
+}
+
+bool StringElements::GetWordRightCaretState(const CaretState& before_state, CaretState& after_state, bool selection)
+{
+    uint pos = before_state.GetPos();
+    if (pos >= str.length())
+        return false;
+    for (int i = pos + 1; i < str.length(); ++i)
+    {
+        if (str[i] == ' ')
+        {
+            after_state.SetState(GetElementId(i), before_state.selections);
+            if (selection)
+                after_state.selections.AddSelection(parent->id, pos, i - pos);
+            return true;
+        }
+    }
+    after_state = before_state;
+    return GetLastCaretState(after_state, selection);
 }
 
 std::string StringElements::ToHtml()

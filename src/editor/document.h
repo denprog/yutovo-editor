@@ -48,12 +48,15 @@ public:
 
     bool GetCurrentStringFormat(StringFormatPtr& format);
 
+    void MoveCaret(MoveCaretTask::MoveCaretDir dir, bool selection);
     void MoveCaretLeft(bool selection);
     void MoveCaretRight(bool selection);
     void MoveCaretUp(bool selection);
     void MoveCaretDown(bool selection);
     void MoveCaretHome(bool selection);
     void MoveCaretEnd(bool selection);
+    void MoveCaretWordLeft(bool selection);
+    void MoveCaretWordRight(bool selection);
 
     void SetCaretVisible(bool visible);
 

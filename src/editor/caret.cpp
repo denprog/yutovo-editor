@@ -73,7 +73,7 @@ void Caret::Blink()
 void Caret::MoveToDocumentBegin(bool select)
 {
     CaretState c;
-    text->GetFirstCaretState(c);
+    text->GetFirstCaretState(c, select);
     SetState(c);
     UpdateXPos();
 }
@@ -81,7 +81,7 @@ void Caret::MoveToDocumentBegin(bool select)
 void Caret::MoveToDocumentEnd(bool select)
 {
     CaretState c;
-    text->GetLastCaretState(c);
+    text->GetLastCaretState(c, select);
     SetState(c);
     UpdateXPos();
 }
@@ -164,7 +164,6 @@ void Caret::MoveUp(bool select)
 {
     CaretState res;
     Rect r = current_element->GetAbsoluteRect(current_element->GetCaretRect(current_pos));
-    //if (!x_caret_state.IsEmpty())
     if (last_x_element)
     {
         //fix x position
@@ -183,7 +182,6 @@ void Caret::MoveDown(bool select)
 {
     CaretState res;
     Rect r = current_element->GetAbsoluteRect(current_element->GetCaretRect(current_pos));
-    //if (!x_caret_state.IsEmpty())
     if (last_x_element)
     {
         //fix x position
@@ -198,9 +196,54 @@ void Caret::MoveDown(bool select)
     }
 }
 
+void Caret::MoveWordLeft(bool select)
+{
+    CaretState cur = GetCaretState();
+    if (cur.selections.HasSelection() && !select)
+    {
+        uint start, size;
+        if (cur.selections.HasSelection(text->document->GetParent(cur.id)->id, start, size))
+        {
+            last_selections = selections;
+            selections.ClearSelection();
+            SetState(CaretState(text->document->GetParent(cur.id)->id, start));
+            return;
+        }
+    }
+    
+    CaretState res;
+    if (current_element->GetWordLeftCaretState(cur, res, select))
+    {
+        SetState(res);
+        UpdateXPos();
+    }
+}
+
+void Caret::MoveWordRight(bool select)
+{
+    CaretState cur = GetCaretState();
+    if (cur.selections.HasSelection() && !select)
+    {
+        uint start, size;
+        if (cur.selections.HasSelection(text->document->GetParent(cur.id)->id, start, size))
+        {
+            last_selections = selections;
+            selections.ClearSelection();
+            SetState(CaretState(text->document->GetParent(cur.id)->id, start + size));
+            return;
+        }
+    }
+    
+    CaretState res;
+    if (current_element->GetWordRightCaretState(cur, res, select))
+    {
+        SetState(res);
+        UpdateXPos();
+    }
+}
+
 void Caret::UpdateXPos()
 {
-    //x_caret_state = CaretState(current_element, current_pos);
     last_x_element = current_element;
     last_x_pos = current_pos;
 }

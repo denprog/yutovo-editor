@@ -51,10 +51,16 @@ void DocumentWidget::keyPressEvent(QKeyEvent *event)
     switch (event->key())
     {
     case Qt::Key_Left:
-        document.MoveCaretLeft(event->modifiers() & Qt::ShiftModifier);
+        if (event->modifiers() & Qt::ControlModifier)
+            document.MoveCaretWordLeft(event->modifiers() & Qt::ShiftModifier);
+        else
+            document.MoveCaretLeft(event->modifiers() & Qt::ShiftModifier);
         break;
     case Qt::Key_Right:
-        document.MoveCaretRight(event->modifiers() & Qt::ShiftModifier);
+        if (event->modifiers() & Qt::ControlModifier)
+            document.MoveCaretWordRight(event->modifiers() & Qt::ShiftModifier);
+        else
+            document.MoveCaretRight(event->modifiers() & Qt::ShiftModifier);
         break;
     case Qt::Key_Up:
         document.MoveCaretUp(event->modifiers() & Qt::ShiftModifier);
