@@ -25,6 +25,7 @@ public:
 
     void InsertPage(bool with_undo);
     void InsertParagraph(bool with_undo);
+    void InsertParagraph(const CaretState& before_state, CaretState& after_state);
     void InsertText(const std::string& str, bool with_undo);
     void InsertText(const std::string& str, const StringFormatPtr string_format, bool with_undo);
     void InsertText(const std::string& str, const StringFormatPtr string_format, const CaretState& before_state, CaretState& after_state, 
@@ -43,6 +44,8 @@ public:
 
     ElementPtr GetElement(const ElementId& _id);
     ElementPtr GetParent(const ElementId& _id);
+
+    ElementPtr FindParent(const ElementId& id, const ElementType type);
 
     Rect GetCaretRect(const CaretState& caret_state);
 

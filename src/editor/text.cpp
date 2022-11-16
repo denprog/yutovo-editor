@@ -27,6 +27,11 @@ Element* Text::Clone()
     return new Text(*this);
 }
 
+Element* Text::Create(Element* parent)
+{
+    return nullptr;
+}
+
 void Text::Draw(const Selections& selections) const
 {
     window->BeginDrawOutside();

@@ -21,6 +21,11 @@ Element* Row::Clone()
     return new Row(*this);
 }
 
+Element* Row::Create(Element* parent)
+{
+    return new Row(parent);
+}
+
 void Row::Remake(CaretState& caret_state, bool with_elements)
 {
     if (elements->Count() > 1)
@@ -111,7 +116,6 @@ bool Row::InsertElements(std::vector<ElementPtr>& _elements, const CaretState& b
         }
         else
         {
-            //elements->Insert(_elements[i], before_state.GetElementPos(id) + i);
             ElementPtr el = document->GetParent(before_state.id);
             CaretState c;
             if (el->GetFirstCaretState(c, false) && c == before_state)
@@ -128,12 +132,51 @@ bool Row::InsertElements(std::vector<ElementPtr>& _elements, const CaretState& b
             }
         }
     }
+
     if (with_undo)
         document->DeleteElements(CaretState(_elements[0]->id), false, false, true);
+    
 #ifdef DEBUG
     to_str = ToText();
 #endif
     return true;
+}
+
+bool Row::DeleteElements(const CaretState& before_state, CaretState& after_state, bool left, bool with_undo)
+{
+    if (before_state.selections.IsEmpty())
+    {
+        if (!left)
+        {
+            if (before_state.GetPos() == 0 && elements->Count() == 1 && elements->Get(0)->type == ElementType::STRING && 
+                elements->Get(0)->elements->Count() == 0)
+                return parent->DeleteElements(before_state, after_state, left, with_undo);
+        }
+
+        if ((left && before_state.GetPos() == 0) || (!left && before_state.GetPos() == elements->Count()))
+            return parent->DeleteElements(before_state, after_state, left, with_undo);
+        else if (!left)
+        {
+            CaretState c;
+            if (GetLastCaretState(c, false) && c.id == before_state.id)
+                return parent->DeleteElements(before_state, after_state, left, with_undo);
+        }
+        
+        if (after_state.IsEmpty())
+            after_state = before_state;
+        if (left)
+            elements->RemoveAt(before_state.GetPos() - 1, 1, after_state);
+        else
+            elements->RemoveAt(before_state.GetPos(), 1, after_state);
+#ifdef DEBUG
+        to_str = ToText();
+#endif
+        return true;
+    }
+#ifdef DEBUG
+    to_str = ToText();
+#endif
+    return false;
 }
 
 bool Row::GetBeginCaretState(const CaretState& before_state, CaretState& after_state, bool selection)

@@ -33,7 +33,9 @@ public:
     Element(const Element& source);
     virtual ~Element();
 
-    virtual Element* Clone();
+    virtual Element* Clone() = 0;
+
+    virtual Element* Create(Element* parent) = 0;
 
     virtual void Draw(const Selections& selections) const;
     virtual void Remake(CaretState& caret_state, bool with_elements);
@@ -41,9 +43,8 @@ public:
     virtual bool InsertElements(std::vector<ElementPtr>& _elements, const CaretState& before_state, CaretState& after_state, bool with_undo);
     virtual bool DeleteElements(const CaretState& before_state, CaretState& after_state, bool left, bool with_undo);
 
-    //virtual bool CanSplit(const uint max_left_width);
     virtual bool Split(const uint max_left_width, CaretState& caret_state);
-    //virtual bool CanMerge(const ElementPtr with_element);
+    virtual bool SplitAt(const uint pos);
     virtual bool Merge(const ElementPtr with_element, CaretState& caret_state);
 
     virtual bool GetFirstCaretState(CaretState& caret_state, bool selection);
@@ -126,6 +127,7 @@ public:
     virtual void Remove(const ElementPtr element, CaretState& caret_state);
     virtual void RemoveAt(const uint pos, const int size);
     virtual void RemoveAt(const uint pos, const int size, CaretState& caret_state);
+    virtual void Move(const ElementPtr element, const uint pos);
     virtual void Move(const ElementPtr element, const uint pos, CaretState& caret_state);
     virtual void Clear();
     virtual uint Count();

@@ -49,6 +49,11 @@ Element* String::Clone()
     return new String(*this);
 }
 
+Element* String::Create(Element* parent)
+{
+    return new String(parent);
+}
+
 void String::Remake(CaretState& caret_state, bool with_elements)
 {
     elements->Remake(caret_state);
@@ -140,7 +145,7 @@ bool String::InsertElements(std::vector<ElementPtr>& _elements, const CaretState
 bool String::DeleteElements(const CaretState& before_state, CaretState& after_state, bool left, bool with_undo)
 {
     if ((before_state.GetPos() == 0 && left) || (before_state.GetPos() == elements->Count() && !left))
-        return false;
+        return parent->DeleteElements(before_state, after_state, left, with_undo);
     
     std::string undo_str;
     std::string& str = ((StringElements*)elements.get())->str;
@@ -202,21 +207,6 @@ bool String::DeleteElements(const CaretState& before_state, CaretState& after_st
     return true;
 }
 
-// bool String::CanSplit(const uint max_left_width)
-// {
-//     std::string& str = ((StringElements*)elements.get())->str;
-//     for (size_t i = str.size() - 2; i > 0; --i) //at least one character in the splitted string
-//     {
-//         if (str[i] == ' ')
-//         {
-//             Size s = window->GetTextSize(str.substr(0, i + 1), format);
-//             if (s.width <= max_left_width)
-//                 return true;
-//         }
-//     }
-//     return false;
-// }
-
 bool String::Split(const uint max_left_width, CaretState& caret_state)
 {
     std::string& str = ((StringElements*)elements.get())->str;
@@ -268,12 +258,23 @@ bool String::Split(const uint max_left_width, CaretState& caret_state)
     return false;
 }
 
-// bool String::CanMerge(const ElementPtr with_element)
-// {
-//     if (with_element->type != ElementType::STRING || ((String*)with_element.get())->format != format)
-//         return false;
-//     return true;
-// }
+bool String::SplitAt(const uint pos)
+{
+    if (pos == 0 || pos >= elements->Count())
+        return false;
+    
+    std::string& str = ((StringElements*)elements.get())->str;
+    ElementPtr el(new String(parent, str.substr(pos), format));
+    int p = parent->elements->GetElementPos(id);
+    parent->elements->Insert(el, p + 1);
+    str = str.substr(0, pos);
+    UpdateRect();
+#ifdef DEBUG
+    parent->to_str = parent->ToText();
+    to_str = ToText();
+#endif
+    return true;
+}
 
 bool String::Merge(const ElementPtr with_element, CaretState& caret_state)
 {

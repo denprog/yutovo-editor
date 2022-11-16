@@ -79,6 +79,7 @@ struct PageFormat
     uint top_indent;
     uint right_indent;
     uint bottom_indent;
+    uint paragraph_spacing;
 };
 
 typedef std::shared_ptr<PageFormat> PageFormatPtr;
@@ -86,7 +87,7 @@ typedef std::shared_ptr<PageFormat> PageFormatPtr;
 class PageFormats
 {
 public:
-    static PageFormatPtr GetFormat(uint left_indent, uint top_indent, uint right_indent, uint bottom_indent);
+    static PageFormatPtr GetFormat(uint left_indent, uint top_indent, uint right_indent, uint bottom_indent, uint paragraph_spacing);
 
 private:
     static std::vector<PageFormatPtr> page_formats;
