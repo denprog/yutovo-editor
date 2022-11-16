@@ -139,6 +139,9 @@ bool DeleteElementsTask::Execute()
         return false;
     };
 
+    if (before_state.IsEmpty())
+        before_state = text->document->caret.GetCaretState();
+
     if (before_state.selections.IsEmpty())
     {
         if (DeleteElements(text->document->GetParent(before_state.id), after_state))

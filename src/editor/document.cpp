@@ -183,12 +183,19 @@ void Document::MainLoop()
 
 void Document::InsertPage(bool with_undo)
 {
-    InsertElement(new Page(nullptr), CaretState(), with_undo);
+    InsertElement(new Page(text.get()), CaretState(), with_undo);
 }
 
 void Document::InsertParagraph(bool with_undo)
 {
-    InsertElement(new Paragraph(nullptr), CaretState(), with_undo);
+    auto page = FindParent(caret.GetCaretState().id, ElementType::PAGE);
+    InsertElement(new Paragraph(page.get()), CaretState(), with_undo);
+}
+
+void Document::InsertParagraph(const CaretState& before_state, CaretState& after_state)
+{
+    auto page = FindParent(before_state.id, ElementType::PAGE);
+    InsertElement(new Paragraph(page.get()), before_state, after_state);
 }
 
 void Document::InsertText(const std::string& str, bool with_undo)
@@ -302,6 +309,14 @@ ElementPtr Document::GetParent(const ElementId& _id)
             return nullptr;
         el = el->elements->Get(_id[i]);
     }
+    return el;
+}
+
+ElementPtr Document::FindParent(const ElementId& id, const ElementType type)
+{
+    ElementPtr el = GetParent(id);
+    while (el && el->type != type)
+        el = GetParent(el->id);
     return el;
 }
 
@@ -479,7 +494,7 @@ TextFormatPtr Document::GetDefaultTextFormat()
 
 PageFormatPtr Document::GetDefaultPageFormat()
 {
-    return PageFormats::GetFormat(20, 20, 20, 20);
+    return PageFormats::GetFormat(20, 20, 20, 20, 10);
 }
 
 ParagraphFormatPtr Document::GetDefaultParagraphFormat()

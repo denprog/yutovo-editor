@@ -35,11 +35,6 @@ Element::~Element()
 {
 }
 
-Element* Element::Clone()
-{
-    return new Element(this);
-}
-
 void Element::Draw(const Selections& selections) const
 {
     elements->Draw(selections);
@@ -59,11 +54,12 @@ bool Element::InsertElements(std::vector<ElementPtr>& _elements, const CaretStat
 
 bool Element::DeleteElements(const CaretState& before_state, CaretState& after_state, bool left, bool with_undo)
 {
-    after_state = before_state;
+    if (after_state.IsEmpty())
+        after_state = before_state;
     if (before_state.selections.IsEmpty())
     {
         if ((left && before_state.GetPos() == 0) || (!left && before_state.GetPos() == elements->Count()))
-            return false;
+            return parent->DeleteElements(before_state, after_state, left, with_undo);
         if (left)
             elements->RemoveAt(before_state.GetPos() - 1, 1, after_state);
         else
@@ -82,20 +78,23 @@ bool Element::DeleteElements(const CaretState& before_state, CaretState& after_s
     return false;
 }
 
-// bool Element::CanSplit(const uint max_left_width)
-// {
-//     return false;
-// }
-
 bool Element::Split(const uint max_left_width, CaretState& caret_state)
 {
     return false;
 }
 
-// bool Element::CanMerge(const ElementPtr with_element)
-// {
-//     return false;
-// }
+bool Element::SplitAt(const uint pos)
+{
+    if (elements->Count() <= pos)
+        return false;
+    ElementPtr part(Create(parent));
+    for (int i = pos; i < elements->Count();)
+    {
+        part->elements->Insert(elements->Get(i), part->elements->Count());
+        elements->RemoveAt(i, 1);
+    }
+    return true;
+}
 
 bool Element::Merge(const ElementPtr with_element, CaretState& caret_state)
 {
@@ -589,7 +588,7 @@ void Elements::RemoveAt(const uint pos, const int size, CaretState& caret_state)
     }
 
     int p = -1;
-    for (size_t i = pos; i < size; ++i)
+    for (size_t i = pos; i < pos + size; ++i)
     {
         if (caret_state.IsInsideElement(elements[i]->id))
         {
@@ -606,7 +605,10 @@ void Elements::RemoveAt(const uint pos, const int size, CaretState& caret_state)
     else if (p != -1)
     {
         if (Count() <= pos)
+        {
+            parent->GetLastCaretState(caret_state, false);
             return;
+        }
         ElementPtr el = Get(pos);
         if (!el->HasCaretState())
         {
@@ -616,6 +618,16 @@ void Elements::RemoveAt(const uint pos, const int size, CaretState& caret_state)
 
     for (auto p : selections)
         caret_state.selections.AddSelection(elements[p.first - size]->id, p.second.start, p.second.size);
+}
+
+void Elements::Move(const ElementPtr element, const uint pos)
+{
+    element->parent->elements->Remove(element);
+    Insert(element, pos);
+#ifdef DEBUG
+    parent->to_str = parent->ToText();
+    element->parent->to_str = element->parent->ToText();
+#endif
 }
 
 void Elements::Move(const ElementPtr element, const uint pos, CaretState& caret_state)
@@ -643,6 +655,10 @@ void Elements::Move(const ElementPtr element, const uint pos, CaretState& caret_
         element->parent->elements->Remove(element, caret_state);
         Insert(element, pos, caret_state);
     }
+#ifdef DEBUG
+    parent->to_str = parent->ToText();
+    element->parent->to_str = element->parent->ToText();
+#endif
 }
 
 void Elements::Clear()

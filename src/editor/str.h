@@ -17,6 +17,8 @@ public:
 
     virtual Element* Clone();
 
+    virtual Element* Create(Element* parent);
+
     virtual void Remake(CaretState& caret_state, bool with_elements);
 
     virtual void UpdateRect();
@@ -26,9 +28,8 @@ public:
     virtual bool InsertElements(std::vector<ElementPtr>& _elements, const CaretState& before_state, CaretState& after_state, bool with_undo);
     virtual bool DeleteElements(const CaretState& before_state, CaretState& after_state, bool left, bool with_undo);
 
-    //virtual bool CanSplit(const uint max_left_width);
     virtual bool Split(const uint max_left_width, CaretState& caret_state);
-    //virtual bool CanMerge(const ElementPtr with_element);
+    virtual bool SplitAt(const uint pos);
     virtual bool Merge(const ElementPtr with_element, CaretState& caret_state);
 
     virtual bool CanContinueSelection();

@@ -14,6 +14,8 @@ public:
 
     virtual Element* Clone();
 
+    virtual Element* Create(Element* parent);
+
     virtual void Draw(const Selections& selections) const;
     virtual void Remake(CaretState& caret_state, bool with_elements);
     virtual void UpdateRect();

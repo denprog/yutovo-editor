@@ -75,15 +75,16 @@ ParagraphFormatPtr ParagraphFormats::GetFormat(ParagraphFormat::Alignment _align
 
 std::vector<PageFormatPtr> PageFormats::page_formats;
 
-PageFormatPtr PageFormats::GetFormat(uint left_indent, uint top_indent, uint right_indent, uint bottom_indent)
+PageFormatPtr PageFormats::GetFormat(uint left_indent, uint top_indent, uint right_indent, uint bottom_indent, uint paragraph_spacing)
 {
     for (auto& p : page_formats)
     {
-        if (p->left_indent == left_indent && p->top_indent == top_indent && p->right_indent == right_indent && p->bottom_indent == bottom_indent)
+        if (p->left_indent == left_indent && p->top_indent == top_indent && p->right_indent == right_indent && p->bottom_indent == bottom_indent && 
+            p->paragraph_spacing == paragraph_spacing)
             return p;
     }
 
-    PageFormatPtr p(new PageFormat{left_indent, top_indent, right_indent, bottom_indent});
+    PageFormatPtr p(new PageFormat{left_indent, top_indent, right_indent, bottom_indent, paragraph_spacing});
     page_formats.push_back(p);
     return p;
 }

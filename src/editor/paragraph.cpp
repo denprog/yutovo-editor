@@ -21,6 +21,11 @@ Element* Paragraph::Clone()
     return new Paragraph(*this);
 }
 
+Element* Paragraph::Create(Element* parent)
+{
+    return new Paragraph(parent);
+}
+
 void Paragraph::Draw(const Selections& selections) const
 {
     Element::Draw(selections);
@@ -146,7 +151,7 @@ bool Paragraph::InsertElements(std::vector<ElementPtr>& _elements, const CaretSt
 
 bool Paragraph::DeleteElements(const CaretState& before_state, CaretState& after_state, bool left, bool with_undo)
 {
-    return false;
+    return parent->DeleteElements(before_state, after_state, left, with_undo);
 }
 
 bool Paragraph::GetTopCaretState(const int x, const int y, CaretState& res, bool selection)
