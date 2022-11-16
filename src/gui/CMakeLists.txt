@@ -19,6 +19,7 @@ add_executable(${PROJECT_NAME}_gui
     mainwindow.cpp
     mainwindow.h
     mainwindow.ui
+    resources.qrc
     qt_window.cpp
 )
 
