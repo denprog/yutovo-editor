@@ -80,8 +80,16 @@ void DocumentWidget::keyPressEvent(QKeyEvent *event)
     case Qt::Key_Delete:
         document.DeleteElements(false, true, false);
         break;
+    case Qt::Key_Return:
+        document.InsertParagraph(true);
+        break;
     default:
         QString str = event->text();
+        for (auto ch : str)
+        {
+            if (!ch.isPrint())
+                return;
+        }
         if (!str.isEmpty())
             document.InsertText(str.toUtf8().data(), true);
         break;
