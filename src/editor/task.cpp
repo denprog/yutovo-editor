@@ -278,6 +278,12 @@ bool MoveCaretTask::Execute()
     case MoveCaretDir::WORD_RIGHT:
         caret->MoveWordRight(selection);
         break;
+    case MoveCaretDir::DOCUMENT_BEGIN:
+        caret->MoveToDocumentBegin(selection);
+        break;
+    case MoveCaretDir::DOCUMENT_END:
+        caret->MoveToDocumentEnd(selection);
+        break;
     }
 
     Element* element = caret->current_element;

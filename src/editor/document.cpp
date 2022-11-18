@@ -387,6 +387,16 @@ void Document::MoveCaretWordRight(bool selection)
     MoveCaret(MoveCaretTask::MoveCaretDir::WORD_RIGHT, selection);
 }
 
+void Document::MoveCaretToDocumentBegin(bool selection)
+{
+    MoveCaret(MoveCaretTask::MoveCaretDir::DOCUMENT_BEGIN, selection);
+}
+
+void Document::MoveCaretToDocumentEnd(bool selection)
+{
+    MoveCaret(MoveCaretTask::MoveCaretDir::DOCUMENT_END, selection);
+}
+
 void Document::SetCaretVisible(bool visible)
 {
     std::lock_guard<std::mutex> lock(tasks_mutex);
