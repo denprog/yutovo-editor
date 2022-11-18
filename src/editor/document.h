@@ -60,6 +60,8 @@ public:
     void MoveCaretEnd(bool selection);
     void MoveCaretWordLeft(bool selection);
     void MoveCaretWordRight(bool selection);
+    void MoveCaretToDocumentBegin(bool selection);
+    void MoveCaretToDocumentEnd(bool selection);
 
     void SetCaretVisible(bool visible);
 

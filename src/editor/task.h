@@ -98,7 +98,9 @@ struct MoveCaretTask : Task
         HOME,
         END,
         WORD_LEFT,
-        WORD_RIGHT
+        WORD_RIGHT,
+        DOCUMENT_BEGIN,
+        DOCUMENT_END
     };
 
     MoveCaretTask(ElementPtr _text, Caret* _caret, MoveCaretDir _dir, bool _visible);

@@ -85,30 +85,43 @@ bool Page::InsertElements(std::vector<ElementPtr>& _elements, const CaretState& 
     if (_elements.size() != 1 || _elements[0]->type != ElementType::PARAGRAPH)
         return parent->InsertElements(_elements, before_state, after_state, with_undo);
 
+    ElementPtr insert_element(_elements[0]->Clone());
     ElementPtr el = document->GetParent(before_state.id);
     ElementPtr paragraph = document->FindParent(el->id, ElementType::PARAGRAPH);
     ElementPtr row = document->FindParent(el->id, ElementType::ROW);
-    ElementPtr new_row = _elements[0]->elements->Get(0); //move elements into this one row, which will be splitted during paragraph formatting
+    ElementPtr new_row = insert_element->elements->Get(0); //move elements into this one row, which will be splitted during paragraph formatting
     if (new_row->elements->Count() == 0)
         new_row->AddElement(ElementPtr(new String(new_row.get())));
 
     el->SplitAt(before_state.GetPos()); //try to split current element
     uint p = row->elements->GetElementPos(el->id);
-    for (int i = p + 1; i < row->elements->Count();) //move all elements at the right side of the row
-        new_row->elements->Move(row->elements->Get(i), new_row->elements->Count());
+    if (before_state.GetPos() != 0 || p != 0)
+    {
+        for (int i = p + 1; i < row->elements->Count();) //move all elements at the right side of the row
+            new_row->elements->Move(row->elements->Get(i), new_row->elements->Count());
+    }
 
-    p = elements->GetElementPos(paragraph->id);
-    for (int i = p + 1; i < paragraph->elements->Count(); ++i) //move the rest rows of the paragraph
+    uint k = elements->GetElementPos(paragraph->id);
+    for (int i = k + 1; i < paragraph->elements->Count(); ++i) //move the rest rows of the paragraph
     {
         ElementPtr r = paragraph->elements->Get(i);
         for (int j = 0; j < r->elements->Count();)
             new_row->elements->Move(r->elements->Get(j), new_row->elements->Count());
     }
 
-    elements->Insert(_elements[0], p + 1);
+    if (p == 0 && before_state.GetPos() == 0)
+        elements->Insert(insert_element, k);
+    else
+        elements->Insert(insert_element, k + 1);
 
     if (after_state.IsEmpty())
-        new_row->GetFirstCaretState(after_state, false);
+    {
+        if (p == 0 && before_state.GetPos() == 0)
+            row->GetFirstCaretState(after_state, false);
+        else
+            new_row->GetFirstCaretState(after_state, false);
+    }
+    
     document->Remake(id, true);
 
     if (with_undo)
