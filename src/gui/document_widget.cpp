@@ -74,6 +74,12 @@ void DocumentWidget::keyPressEvent(QKeyEvent *event)
     case Qt::Key_End:
         document.MoveCaretEnd(event->modifiers() & Qt::ShiftModifier);
         break;
+    case Qt::Key_Backspace:
+        document.DeleteElements(true, true, false);
+        break;
+    case Qt::Key_Delete:
+        document.DeleteElements(false, true, false);
+        break;
     default:
         QString str = event->text();
         if (!str.isEmpty())

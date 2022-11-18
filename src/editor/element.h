@@ -112,6 +112,8 @@ public:
     Elements(const Elements& source);
 
     ElementPtr operator[](const int pos);
+
+    virtual Elements* Clone(Element* _parent);
     
     virtual void Draw(const Selections& selections) const;
     virtual void Remake(CaretState& caret_state);

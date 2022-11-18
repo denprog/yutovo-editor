@@ -104,8 +104,9 @@ bool String::InsertElements(std::vector<ElementPtr>& _elements, const CaretState
                 return false;
             if (with_undo)
             {
-                document->DeleteElements(CaretState(id), false, false, true);
-                document->InsertElement(Clone(), before_state, false, true);
+                CaretState c(id);
+                document->InsertElement(Clone(), c, false, true);
+                document->DeleteElements(c, (CaretState&)before_state, false, false, true);
             }
             elements.reset(new StringElements(this, s->elements->ToText()));
             format = s->format;
@@ -249,6 +250,7 @@ bool String::Split(const uint max_left_width, CaretState& caret_state)
                     }
                 }
 #ifdef DEBUG
+                parent->to_str = parent->ToText();
                 to_str = ToText();
 #endif
                 return true;
@@ -321,6 +323,11 @@ StringElements::StringElements(Element* parent, const std::string& _str) :
     Elements(parent),
     str(_str)
 {
+}
+
+Elements* StringElements::Clone(Element* _parent)
+{
+    return new StringElements(_parent, str);
 }
 
 void StringElements::Draw(const Selections& selections) const

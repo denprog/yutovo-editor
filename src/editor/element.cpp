@@ -28,7 +28,11 @@ Element::Element(const Element& source) :
     id(source.id),
     editable(source.editable)
 {
-    elements.reset(new Elements(*source.elements)); //deep copy
+    elements.reset(source.elements->Clone(this)); //deep copy
+
+#ifdef DEBUG
+    to_str = ToText();
+#endif
 }
 
 Element::~Element()
@@ -446,6 +450,14 @@ Elements::Elements(const Elements& source) :
 ElementPtr Elements::operator[](const int pos)
 {
     return elements[pos];
+}
+
+Elements* Elements::Clone(Element* _parent)
+{
+    Elements* res = new Elements(_parent);
+    for (auto el : elements)
+        res->Add(ElementPtr(el->Clone()));
+    return res;
 }
 
 void Elements::Draw(const Selections& selections) const
