@@ -92,7 +92,7 @@ struct CaretState
     void SetPos(const uint pos);
 
     uint GetPos() const;
-    int GetPos(const ElementId& id) const;
+    int GetPos(const ElementId& _id) const;
     uint GetElementPos(const ElementId& _id) const;
     int GetStatePos(const ElementId& _id) const;
     ElementId GetElementAtPos(const uint pos) const;

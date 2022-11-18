@@ -186,12 +186,12 @@ void MainWindow::Paste()
 
 void MainWindow::Undo()
 {
-
+    document_widget->document.Undo();
 }
 
 void MainWindow::Redo()
 {
-
+    document_widget->document.Redo();
 }
 
 void MainWindow::About()

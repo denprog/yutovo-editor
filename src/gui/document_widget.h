@@ -26,6 +26,8 @@ protected:
 
 private:
     QtWindow window;
+
+public:
     Document document;
 };
 

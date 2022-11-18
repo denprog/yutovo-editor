@@ -47,6 +47,8 @@ public:
     StringElements(Element* parent);
     StringElements(Element* parent, const std::string& _str);
 
+    virtual Elements* Clone(Element* _parent);
+
     virtual void Draw(const Selections& selections) const;
     virtual void Remake(CaretState& caret_state);
 

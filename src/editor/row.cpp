@@ -113,6 +113,10 @@ bool Row::InsertElements(std::vector<ElementPtr>& _elements, const CaretState& b
                 if (elements->Get(before_state.GetElementPos(id) + i + 1)->GetLastCaretState(c, false))
                     after_state = c;
             }
+            else if (elements->Count() == 0)
+            {
+                elements->Insert(_elements[i], before_state.GetElementPos(id) + i, after_state);
+            }
         }
         else
         {

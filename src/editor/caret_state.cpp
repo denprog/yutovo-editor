@@ -258,12 +258,12 @@ uint CaretState::GetPos() const
     return id[id.size() - 1];
 }
 
-int CaretState::GetPos(const ElementId& id) const
+int CaretState::GetPos(const ElementId& _id) const
 {
-    if (IsInsideElement(id))
+    if (IsInsideElement(_id))
         return GetPos();
     uint start, size;
-    if (selections.HasSelection(id, start, size))
+    if (selections.HasSelection(_id, start, size))
         return start;
     return -1;
 }
