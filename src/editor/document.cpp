@@ -257,7 +257,7 @@ void Document::InsertElements(std::vector<ElementPtr>& elements, const CaretStat
 
 void Document::DeleteElements(bool left, bool with_undo, bool undo)
 {
-    DeleteElements(caret.GetCaretState(), left, with_undo, undo);
+    DeleteElements(CaretState(), left, with_undo, undo);
 }
 
 void Document::DeleteElements(const CaretState& caret_state, bool left, bool with_undo, bool undo)
