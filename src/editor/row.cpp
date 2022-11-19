@@ -157,15 +157,31 @@ bool Row::DeleteElements(const CaretState& before_state, CaretState& after_state
                 return parent->DeleteElements(before_state, after_state, left, with_undo);
         }
 
-        if ((left && before_state.GetPos() == 0) || (!left && before_state.GetPos() == elements->Count()))
+        CaretState first_state, last_state;
+        GetFirstCaretState(first_state, false);
+        GetLastCaretState(last_state, false);
+        if ((left && (CaretState&)before_state == first_state) || (!left && (CaretState&)before_state == last_state))
             return parent->DeleteElements(before_state, after_state, left, with_undo);
-        else if (!left)
+
+        if (left)
         {
-            CaretState c;
-            if (GetLastCaretState(c, false) && c.id == before_state.id)
-                return parent->DeleteElements(before_state, after_state, left, with_undo);
+            if (before_state.GetPos() == 0)
+            {
+                int p = elements->GetElementPos(document->GetParent(before_state.id)->id);
+                if (p > 0)
+                {
+                    auto el = elements->Get(p - 1);
+                    if (el->CanContinueSelection())
+                    {
+                        CaretState c;
+                        el->GetLastCaretState(c, false);
+                        el->DeleteElements(c, after_state, left, with_undo);
+                        return true;
+                    }
+                }
+            }
         }
-        
+
         if (after_state.IsEmpty())
             after_state = before_state;
         if (left)

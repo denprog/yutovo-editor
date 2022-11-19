@@ -637,4 +637,40 @@ TEST_F(DocumentTest, inserts4)
     ASSERT_TRUE(document.caret.GetCaretState() == MakeCaretState(0, 0, 0, 0)) << document.caret.GetCaretState().ToString();
 }
 
+TEST_F(DocumentTest, delete1)
+{
+    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
+        {
+            return Rect{0, 0, 600, 400};
+        });
+
+    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::string& text, const StringFormatPtr format)
+        {
+            return GetTextSizeMock(text, format);
+        });
+
+    document.InsertText("Text", std::make_shared<StringFormat>("Arial", 24, false, false, false), true);
+    document.InsertText("Italic", std::make_shared<StringFormat>("Times New Roman", 18, false, true, false), true);
+    document.WaitMainLoop();
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body><p>"\
+        "<span style=\"font-family:'Arial';font-size:24px;\">Text</span>"\
+        "<span style=\"font-family:'Times New Roman';font-size:18px;\"><em>Italic</em></span>"\
+        "</p></body>") << 
+        document.ToHtml();
+    
+    for (int i = 0; i < 5; ++i)
+        document.MoveCaretLeft(false);
+    document.DeleteElements(true, true, false);
+    document.DeleteElements(true, true, false);
+    document.WaitMainLoop();
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body><p>"\
+        "<span style=\"font-family:'Arial';font-size:24px;\">Tex</span>"\
+        "<span style=\"font-family:'Times New Roman';font-size:18px;\"><em>talic</em></span>"\
+        "</p></body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.caret.GetCaretState() == MakeCaretState(0, 0, 0, 3)) << document.caret.GetCaretState().ToString();
+}
+
 }
