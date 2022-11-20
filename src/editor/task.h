@@ -57,6 +57,28 @@ struct DeleteElementsTask : Task
     bool left; //delete on the left or on the right
 };
 
+struct ChangeStringFormatTask : Task
+{
+    ChangeStringFormatTask(ElementPtr _text, const StringFormat& _format, const CaretState& _before_state, CaretState& _after_state);
+
+    virtual bool Execute();
+
+    StringFormat format;
+    CaretState before_state;
+    CaretState after_state; //may be empty
+};
+
+struct ChangeParagraphFormatTask : Task
+{
+    ChangeParagraphFormatTask(ElementPtr _text, const ParagraphFormat& _format, const CaretState& _before_state, CaretState& _after_state);
+
+    virtual bool Execute();
+
+    ParagraphFormat format;
+    CaretState before_state;
+    CaretState after_state; //may be empty
+};
+
 struct RemakeTask : Task
 {
     RemakeTask(ElementPtr _text, const ElementId& _id, bool _with_elements);

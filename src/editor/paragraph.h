@@ -26,6 +26,8 @@ public:
     virtual bool GetTopCaretState(const int x, const int y, CaretState& res, bool selection);
     virtual bool GetBottomCaretState(const int x, const int y, CaretState& res, bool selection);
 
+    virtual StringFormatPtr GetStringFormat();
+    
     virtual std::string ToHtml();
 
 protected:

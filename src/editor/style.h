@@ -12,6 +12,8 @@ struct StringFormat
 {
     StringFormat(const std::string _family, uint _size, bool _bold, bool _italic, bool _underline);
  
+    bool operator==(const StringFormat& f);
+
     std::string family;
     uint size;
     bool bold;
@@ -25,10 +27,10 @@ typedef std::shared_ptr<StringFormat> StringFormatPtr;
 class StringFormats
 {
 public:
-    static StringFormatPtr GetFormat(const std::string _family, uint _size, bool _bold, bool _italic, bool _underline);
+    StringFormatPtr GetFormat(const std::string _family, uint _size, bool _bold, bool _italic, bool _underline);
 
 private:
-    static std::vector<StringFormatPtr> string_formats;
+    std::vector<StringFormatPtr> string_formats;
 };
 
 struct ParagraphFormat
@@ -47,9 +49,10 @@ struct ParagraphFormat
         Normal
     };
 
-    ParagraphFormat(Alignment _alignment, WordWrap _word_wrap, uint _line_spacing, uint _indent_before, uint _indent_after, uint _indent_first_line, 
-        uint _spacing_before, uint _spacing_after);
+    ParagraphFormat(std::string _name, Alignment _alignment, WordWrap _word_wrap, uint _line_spacing, uint _indent_before, uint _indent_after, 
+        uint _indent_first_line, uint _spacing_before, uint _spacing_after, StringFormatPtr _string_format);
 
+    std::string name;
     Alignment alignment = Alignment::Left;
     WordWrap word_wrap = WordWrap::Normal;
     uint line_spacing;
@@ -58,6 +61,8 @@ struct ParagraphFormat
     uint indent_first_line;
     uint spacing_before;
     uint spacing_after;
+
+    StringFormatPtr string_format;
 };
 
 typedef std::shared_ptr<ParagraphFormat> ParagraphFormatPtr;
@@ -66,11 +71,16 @@ typedef std::shared_ptr<ParagraphFormat> ParagraphFormatPtr;
 class ParagraphFormats
 {
 public:
-    static ParagraphFormatPtr GetFormat(ParagraphFormat::Alignment _alignment, ParagraphFormat::WordWrap _word_wrap, uint _line_spacing, 
-        uint _indent_before, uint _indent_after, uint _indent_first_line, uint _spacing_before, uint _spacing_after);
+    ParagraphFormats(StringFormats& _string_formats);
+
+    ParagraphFormatPtr GetFormat(std::string _name, ParagraphFormat::Alignment _alignment, ParagraphFormat::WordWrap _word_wrap, uint _line_spacing, 
+        uint _indent_before, uint _indent_after, uint _indent_first_line, uint _spacing_before, uint _spacing_after, StringFormatPtr _string_format);
+    ParagraphFormatPtr GetFormat(const std::string& name);
+    void GetFormats(std::vector<ParagraphFormatPtr>& formats);
 
 private:
-    static std::vector<ParagraphFormatPtr> paragraph_formats;
+    StringFormats& string_formats;
+    std::vector<ParagraphFormatPtr> paragraph_formats;
 };
 
 struct PageFormat
@@ -112,30 +122,6 @@ public:
 
 private:
     static std::vector<TextFormatPtr> text_formats;
-};
-
-class Style
-{
-public:
-    Style(const std::string _name, StringFormatPtr _string_format, ParagraphFormatPtr _paragraph_format);
-
-public:
-    std::string name;
-    StringFormatPtr string_format;
-    ParagraphFormatPtr paragraph_format;
-};
-
-typedef std::shared_ptr<Style> StylePtr;
-
-class Styles
-{
-public:
-    Styles();
-
-    void AddStyle(const std::string name, StringFormatPtr string_format, ParagraphFormatPtr paragraph_format);
-
-private:
-    std::vector<StylePtr> styles;
 };
 
 }

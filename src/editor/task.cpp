@@ -170,6 +170,36 @@ bool DeleteElementsTask::Execute()
     return false;
 }
 
+//ChangeStringFormatTask
+
+ChangeStringFormatTask::ChangeStringFormatTask(ElementPtr _text, const StringFormat& _format, const CaretState& _before_state, 
+    CaretState& _after_state) :
+    Task(_text),
+    format(_format),
+    before_state(_before_state),
+    after_state(_after_state)
+{
+}
+
+bool ChangeStringFormatTask::Execute()
+{
+    return false;
+}
+
+ChangeParagraphFormatTask::ChangeParagraphFormatTask(ElementPtr _text, const ParagraphFormat& _format, const CaretState& _before_state, 
+    CaretState& _after_state) :
+    Task(_text),
+    format(_format),
+    before_state(_before_state),
+    after_state(_after_state)
+{
+}
+
+bool ChangeParagraphFormatTask::Execute()
+{
+    return false;
+}
+
 //RemakeTask
 
 RemakeTask::RemakeTask(ElementPtr _text, const ElementId& _id, bool _with_elements) : 

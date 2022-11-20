@@ -258,6 +258,13 @@ uint CaretState::GetPos() const
     return id[id.size() - 1];
 }
 
+ElementId CaretState::GetElement() const
+{
+    ElementId _id(id);
+    _id.erase(_id.end() - 1);
+    return _id;
+}
+
 int CaretState::GetPos(const ElementId& _id) const
 {
     if (IsInsideElement(_id))
@@ -302,7 +309,7 @@ ElementId CaretState::GetTailId(const uint pos) const
 
 bool CaretState::IsInsideElement(const ElementId& _id) const
 {
-    if (id.size() < _id.size())
+    if (id.size() < _id.size() || _id.empty())
         return false;
     for (size_t i = 0; i < _id.size(); ++i)
     {

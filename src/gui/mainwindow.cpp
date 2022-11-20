@@ -13,6 +13,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
 
     qRegisterMetaType<Rect>("Rect");
+    qRegisterMetaType<CaretState>("CaretState");
 
     SetupGui();
     CreateActions();
@@ -29,6 +30,8 @@ void MainWindow::SetupGui()
     document_widget = new DocumentWidget(ui->centralwidget);
     document_widget->setObjectName(QStringLiteral("document_widget"));
     ui->verticalLayout->addWidget(document_widget);
+
+    connect(&document_widget->window, &QtWindow::CaretMoved, this, &MainWindow::OnCaretMoved);
 
     document_widget->InsertText("Text", std::make_shared<StringFormat>("Arial", 22, false, false, false));
     document_widget->InsertText("Italic", std::make_shared<StringFormat>("Times New Roman", 18, false, true, false));
@@ -116,29 +119,39 @@ void MainWindow::CreateActions()
     edit_toolbar->addAction(action);
 
     //fonts toolbar
-    QToolBar *fonts_toolbar = addToolBar(tr("Fonts"));
-    fonts_toolbar->setStyleSheet("QToolBar{spacing:4px;}");
+    QToolBar *format_toolbat = addToolBar(tr("Format"));
+    format_toolbat->setStyleSheet("QToolBar{spacing:4px;}");
+
+    paragraph_format_combo = new QComboBox;
+    connect(paragraph_format_combo, &QComboBox::currentTextChanged, this, &MainWindow::OnCurrentParagraphFormatChanged);
+    format_toolbat->addWidget(paragraph_format_combo);
+    FillParagraphFormats();
+
+    format_toolbat->addSeparator();
 
     QFontComboBox* font_combo = new QFontComboBox;
     connect(font_combo, &QFontComboBox::currentFontChanged, this, &MainWindow::OnCurrentFontChanged);
-    fonts_toolbar->addWidget(font_combo);
+    format_toolbat->addWidget(font_combo);
 
     size_combo = new QComboBox;
     connect(size_combo, &QComboBox::currentTextChanged, this, &MainWindow::OnCurrentSizeChanged);
-    fonts_toolbar->addWidget(size_combo);
+    format_toolbat->addWidget(size_combo);
     FillSizes(font_combo->currentFont());
 
-    action = new QAction(QIcon(":/icons/images/bold.png"), tr("Bold"), this);
-    connect(action, &QAction::triggered, this, &MainWindow::Bold);
-    fonts_toolbar->addAction(action);
+    bold_action = new QAction(QIcon(":/icons/images/bold.png"), tr("Bold"), this);
+    connect(bold_action, &QAction::triggered, this, &MainWindow::OnBold);
+    bold_action->setCheckable(true);
+    format_toolbat->addAction(bold_action);
 
-    action = new QAction(QIcon(":/icons/images/italic.png"), tr("Italic"), this);
-    connect(action, &QAction::triggered, this, &MainWindow::Italic);
-    fonts_toolbar->addAction(action);
+    italic_action = new QAction(QIcon(":/icons/images/italic.png"), tr("Italic"), this);
+    connect(italic_action, &QAction::triggered, this, &MainWindow::OnItalic);
+    italic_action->setCheckable(true);
+    format_toolbat->addAction(italic_action);
 
-    action = new QAction(QIcon(":/icons/images/underline.png"), tr("Underline"), this);
-    connect(action, &QAction::triggered, this, &MainWindow::Underline);
-    fonts_toolbar->addAction(action);
+    underline_action = new QAction(QIcon(":/icons/images/underline.png"), tr("Underline"), this);
+    connect(underline_action, &QAction::triggered, this, &MainWindow::OnUnderline);
+    underline_action->setCheckable(true);
+    format_toolbat->addAction(underline_action);
 
     //help menu
     QMenu* help_menu = menuBar()->addMenu(tr("&Help"));
@@ -198,26 +211,70 @@ void MainWindow::About()
 {
 }
 
-void MainWindow::Bold()
+void MainWindow::OnCurrentParagraphFormatChanged(const QString& format)
 {
-}
 
-void MainWindow::Italic()
-{
-}
-
-void MainWindow::Underline()
-{
 }
 
 void MainWindow::OnCurrentFontChanged(const QFont& font)
 {
     FillSizes(font);
+    document_widget->document.SetFontFamily(font.family().toUtf8().data());
+    document_widget->setFocus();
 }
 
 void MainWindow::OnCurrentSizeChanged(const QString& size)
 {
+    int s;
+    try
+    {
+        s = std::stoi(size.toUtf8().data());
+    }
+    catch (...)
+    {
+        return;
+    }
+    document_widget->document.SetFontSize(s);
+    document_widget->setFocus();
+}
 
+void MainWindow::OnBold()
+{
+    document_widget->document.SetBold(bold_action->isEnabled());
+}
+
+void MainWindow::OnItalic()
+{
+    document_widget->document.SetItalic(italic_action->isEnabled());
+}
+
+void MainWindow::OnUnderline()
+{
+    document_widget->document.SetUnderline(underline_action->isEnabled());
+}
+
+void MainWindow::OnCaretMoved(const CaretState& caret_state)
+{
+    if (document_widget->document.GetElementType(caret_state.GetElement()) == ElementType::STRING)
+    {
+        StringFormatPtr format;
+        if (document_widget->document.GetStringFormat(caret_state.GetElement(), format))
+        {
+            bold_action->setChecked(format->bold);
+            italic_action->setChecked(format->italic);
+            underline_action->setChecked(format->underline);
+        }
+    }
+}
+
+void MainWindow::FillParagraphFormats()
+{
+    std::vector<ParagraphFormatPtr> formats;
+    document_widget->document.paragraph_formats.GetFormats(formats);
+    for (auto& f : formats)
+    {
+        paragraph_format_combo->addItem(f->name.c_str());
+    }
 }
 
 void MainWindow::FillSizes(const QFont& font)

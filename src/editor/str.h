@@ -33,6 +33,9 @@ public:
     virtual bool Merge(const ElementPtr with_element, CaretState& caret_state);
 
     virtual bool CanContinueSelection();
+
+public:
+    bool ChangeStringFormat(const StringFormatPtr _format);
     
 protected:
     friend class StringElements;

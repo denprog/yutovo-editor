@@ -83,6 +83,9 @@ public:
     virtual Rect GetAbsoluteRect() const;
     Point GetAbsolutePoint(const Point& point) const;
 
+    virtual ParagraphFormatPtr GetParagraphFormat();
+    virtual StringFormatPtr GetStringFormat();
+
 public:
     Document* document = nullptr;
     Window* window = nullptr;

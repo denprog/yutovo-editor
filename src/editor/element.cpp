@@ -433,6 +433,18 @@ Point Element::GetAbsolutePoint(const Point& point) const
     return point;
 }
 
+ParagraphFormatPtr Element::GetParagraphFormat()
+{
+    assert(parent);
+    return parent->GetParagraphFormat();
+}
+
+StringFormatPtr Element::GetStringFormat()
+{
+    assert(parent); //anybody must return string format
+    return parent->GetStringFormat();
+}
+
 //Elements
 
 Elements::Elements(Element* _parent) :
