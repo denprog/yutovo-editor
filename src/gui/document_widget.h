@@ -25,6 +25,7 @@ protected:
     virtual void mousePressEvent(QMouseEvent *event);
 
 private:
+    friend class MainWindow;
     QtWindow window;
 
 public:

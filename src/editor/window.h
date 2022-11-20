@@ -45,6 +45,8 @@ public:
     void BeginDrawOutside();
     void EndDrawOutside();
 
+    virtual void OnCaretMoved(const CaretState& caret_state);
+
 protected:
     Point document_point;
     bool draw_doc = false; //drawing inside the clipping regions

@@ -117,21 +117,40 @@ bool Row::InsertElements(std::vector<ElementPtr>& _elements, const CaretState& b
             {
                 elements->Insert(_elements[i], before_state.GetElementPos(id) + i, after_state);
             }
+            else
+            {
+                if (el->SplitAt(before_state.GetPos()))
+                {
+                    elements->Insert(_elements[i], before_state.GetElementPos(id) + i + 1, after_state);
+                    if (elements->Get(before_state.GetElementPos(id) + i + 1)->GetLastCaretState(c, false))
+                        after_state = c;
+                }
+            }
         }
         else
         {
             ElementPtr el = document->GetParent(before_state.id);
+            uint p = before_state.GetElementPos(id);
             CaretState c;
             if (el->GetFirstCaretState(c, false) && c == before_state)
-                elements->Insert(_elements[i], before_state.GetElementPos(id) + i);
+                elements->Insert(_elements[i], p + i);
             else if (el->GetLastCaretState(c, false) && c == before_state)
             {
-                elements->Insert(_elements[i], before_state.GetElementPos(id) + i + 1);
-                if (elements->Count() > i)
+                elements->Insert(_elements[i], p + i + 1);
+                if (elements->Count() > p + i + 2)
                 {
-                    ElementPtr el1 = elements->Get(before_state.GetElementPos(id) + i + 1);
-                    ElementPtr el2 = elements->Get(before_state.GetElementPos(id) + i + 2);
+                    ElementPtr el1 = elements->Get(p + i + 1);
+                    ElementPtr el2 = elements->Get(p + i + 2);
                     el1->Merge(el2, c);
+                }
+            }
+            else
+            {
+                if (el->SplitAt(before_state.GetPos()))
+                {
+                    elements->Insert(_elements[i], p + i + 1, after_state);
+                    if (elements->Get(p + i + 1)->GetLastCaretState(c, false))
+                        after_state = c;
                 }
             }
         }

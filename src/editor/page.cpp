@@ -203,4 +203,9 @@ bool Page::GetBottomCaretState(const int x, const int y, CaretState& res, bool s
     return false;
 }
 
+ParagraphFormatPtr Page::GetParagraphFormat()
+{
+    return document->current_paragraph_format;
+}
+
 }

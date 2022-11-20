@@ -50,6 +50,10 @@ public:
     Rect GetCaretRect(const CaretState& caret_state);
 
     bool GetCurrentStringFormat(StringFormatPtr& format);
+    void SetCurrentStringFormat(StringFormatPtr& format);
+
+    ElementType GetElementType(const ElementId id);
+    bool GetStringFormat(const ElementId id, StringFormatPtr& format);
 
     void MoveCaret(MoveCaretTask::MoveCaretDir dir, bool selection);
     void MoveCaretLeft(bool selection);
@@ -82,8 +86,16 @@ public:
 
     TextFormatPtr GetDefaultTextFormat();
     PageFormatPtr GetDefaultPageFormat();
-    ParagraphFormatPtr GetDefaultParagraphFormat();
-    StringFormatPtr GetDefaultStringFormat();
+
+    void SetCurrentParagraphFormat(const std::string& name);
+
+    void UpdateFormats();
+
+    void SetFontFamily(const std::string& family);
+    void SetFontSize(const uint size);
+    void SetBold(const bool enabled);
+    void SetItalic(const bool enabled);
+    void SetUnderline(const bool enabled);
 
 private:
     void MainLoop();
@@ -106,12 +118,21 @@ private:
 public:
     Window* window;
 
+    StringFormats string_formats;
+    ParagraphFormats paragraph_formats;
+
 private:
+    friend class Page;
+
+    StringFormatPtr current_string_format;
+    ParagraphFormatPtr current_paragraph_format;
+
     ElementPtr text;
 
 public:
     Caret caret;
 
+private:
     std::mutex tasks_mutex;
     std::vector<TaskPtr> tasks;
     std::stack<TaskPtr> undo_tasks;

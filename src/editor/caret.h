@@ -63,7 +63,6 @@ private:
 
     Rect caret_rect;
 
-    //CaretState x_caret_state; //for moving vertical
     Element* last_x_element = nullptr;
     uint last_x_pos = 0;
 };

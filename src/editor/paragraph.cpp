@@ -9,7 +9,7 @@ namespace yutovo
 
 Paragraph::Paragraph(Element* parent) :
     Element(parent),
-    format(document->GetDefaultParagraphFormat())
+    format(parent->GetParagraphFormat())
 {
     type = ElementType::PARAGRAPH;
 
@@ -29,8 +29,6 @@ Element* Paragraph::Create(Element* parent)
 void Paragraph::Draw(const Selections& selections) const
 {
     Element::Draw(selections);
-
-    window->DrawRect(GetAbsoluteRect(), Color::Red());
 }
 
 void Paragraph::Remake(CaretState& caret_state, bool with_elements)
@@ -184,6 +182,11 @@ bool Paragraph::GetBottomCaretState(const int x, const int y, CaretState& res, b
     if (!row)
         return parent->GetBottomCaretState(x, y, res, selection);
     return row->GetBottomCaretState(x, y, res, selection);
+}
+
+StringFormatPtr Paragraph::GetStringFormat()
+{
+    return format->string_format;
 }
 
 std::string Paragraph::ToHtml()

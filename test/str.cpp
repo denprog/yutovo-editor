@@ -637,6 +637,273 @@ TEST_F(DocumentTest, inserts4)
     ASSERT_TRUE(document.caret.GetCaretState() == MakeCaretState(0, 0, 0, 0)) << document.caret.GetCaretState().ToString();
 }
 
+TEST_F(DocumentTest, inserts5)
+{
+    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
+        {
+            return Rect{0, 0, 600, 400};
+        });
+
+    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::string& text, const StringFormatPtr format)
+        {
+            return GetTextSizeMock(text, format);
+        });
+
+    document.InsertText("Text", std::make_shared<StringFormat>("Arial", 24, false, false, false), true);
+    for (int i = 0; i < 2; ++i)
+        document.MoveCaretLeft(false);
+    document.InsertText("Bold", std::make_shared<StringFormat>("Arial", 24, true, false, false), true);
+    document.WaitMainLoop();
+    std::this_thread::sleep_for(100ms);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body><p>"\
+        "<span style=\"font-family:'Arial';font-size:24px;\">Te</span>"\
+        "<span style=\"font-family:'Arial';font-size:24px;\"><strong>Bold</strong></span>"\
+        "<span style=\"font-family:'Arial';font-size:24px;\">xt</span>"\
+        "</p></body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.caret.GetCaretState() == MakeCaretState(0, 0, 1, 4)) << document.caret.GetCaretState().ToString();
+
+    document.Undo();
+    document.WaitMainLoop();
+    std::this_thread::sleep_for(100ms);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body><p>"\
+        "<span style=\"font-family:'Arial';font-size:24px;\">Text</span>"\
+        "</p></body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.caret.GetCaretState() == MakeCaretState(0, 0, 0, 2)) << document.caret.GetCaretState().ToString();
+
+    document.Redo();
+    document.WaitMainLoop();
+    std::this_thread::sleep_for(100ms);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body><p>"\
+        "<span style=\"font-family:'Arial';font-size:24px;\">Te</span>"\
+        "<span style=\"font-family:'Arial';font-size:24px;\"><strong>Bold</strong></span>"\
+        "<span style=\"font-family:'Arial';font-size:24px;\">xt</span>"\
+        "</p></body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.caret.GetCaretState() == MakeCaretState(0, 0, 1, 4)) << document.caret.GetCaretState().ToString();
+}
+
+TEST_F(DocumentTest, inserts6)
+{
+    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
+        {
+            return Rect{0, 0, 600, 400};
+        });
+
+    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::string& text, const StringFormatPtr format)
+        {
+            return GetTextSizeMock(text, format);
+        });
+
+    document.InsertText("Text", std::make_shared<StringFormat>("Arial", 24, false, false, false), true);
+    document.MoveCaretHome(false);
+    document.InsertText("Bold", std::make_shared<StringFormat>("Arial", 24, true, false, false), true);
+    document.WaitMainLoop();
+    std::this_thread::sleep_for(100ms);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body><p>"\
+        "<span style=\"font-family:'Arial';font-size:24px;\"><strong>Bold</strong></span>"\
+        "<span style=\"font-family:'Arial';font-size:24px;\">Text</span>"\
+        "</p></body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.caret.GetCaretState() == MakeCaretState(0, 0, 0, 4)) << document.caret.GetCaretState().ToString();
+
+    document.Undo();
+    document.WaitMainLoop();
+    std::this_thread::sleep_for(100ms);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body><p>"\
+        "<span style=\"font-family:'Arial';font-size:24px;\">Text</span>"\
+        "</p></body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.caret.GetCaretState() == MakeCaretState(0, 0, 0, 0)) << document.caret.GetCaretState().ToString();
+
+    document.Redo();
+    document.WaitMainLoop();
+    std::this_thread::sleep_for(100ms);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body><p>"\
+        "<span style=\"font-family:'Arial';font-size:24px;\"><strong>Bold</strong></span>"\
+        "<span style=\"font-family:'Arial';font-size:24px;\">Text</span>"\
+        "</p></body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.caret.GetCaretState() == MakeCaretState(0, 0, 0, 4)) << document.caret.GetCaretState().ToString();
+}
+
+TEST_F(DocumentTest, inserts7)
+{
+    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
+        {
+            return Rect{0, 0, 600, 400};
+        });
+
+    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::string& text, const StringFormatPtr format)
+        {
+            return GetTextSizeMock(text, format);
+        });
+
+    document.InsertText("Text", std::make_shared<StringFormat>("Arial", 24, false, false, false), true);
+    document.MoveCaretEnd(false);
+    document.InsertText("Bold", std::make_shared<StringFormat>("Arial", 24, true, false, false), true);
+    document.WaitMainLoop();
+    std::this_thread::sleep_for(100ms);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body><p>"\
+        "<span style=\"font-family:'Arial';font-size:24px;\">Text</span>"\
+        "<span style=\"font-family:'Arial';font-size:24px;\"><strong>Bold</strong></span>"\
+        "</p></body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.caret.GetCaretState() == MakeCaretState(0, 0, 1, 4)) << document.caret.GetCaretState().ToString();
+
+    document.Undo();
+    document.WaitMainLoop();
+    std::this_thread::sleep_for(100ms);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body><p>"\
+        "<span style=\"font-family:'Arial';font-size:24px;\">Text</span>"\
+        "</p></body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.caret.GetCaretState() == MakeCaretState(0, 0, 0, 4)) << document.caret.GetCaretState().ToString();
+
+    document.Redo();
+    document.WaitMainLoop();
+    std::this_thread::sleep_for(100ms);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body><p>"\
+        "<span style=\"font-family:'Arial';font-size:24px;\">Text</span>"\
+        "<span style=\"font-family:'Arial';font-size:24px;\"><strong>Bold</strong></span>"\
+        "</p></body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.caret.GetCaretState() == MakeCaretState(0, 0, 1, 4)) << document.caret.GetCaretState().ToString();
+}
+
+TEST_F(DocumentTest, fonts1)
+{
+    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
+        {
+            return Rect{0, 0, 600, 400};
+        });
+
+    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::string& text, const StringFormatPtr format)
+        {
+            return GetTextSizeMock(text, format);
+        });
+
+    document.SetFontFamily("Courier New");
+    document.SetFontSize(12);
+    document.InsertText("C", true);
+    document.WaitMainLoop();
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body><p>"\
+        "<span style=\"font-family:'Courier New';font-size:12px;\">C</span>"\
+        "</p></body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.caret.GetCaretState() == MakeCaretState(0, 0, 0, 1)) << document.caret.GetCaretState().ToString();
+
+    document.InsertText("o", true);
+    document.InsertText("u", true);
+    document.InsertText("r", true);
+    document.InsertText("i", true);
+    document.InsertText("e", true);
+    document.InsertText("r", true);
+    document.WaitMainLoop();
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body><p>"\
+        "<span style=\"font-family:'Courier New';font-size:12px;\">Courier</span>"\
+        "</p></body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.caret.GetCaretState() == MakeCaretState(0, 0, 0, 7)) << document.caret.GetCaretState().ToString();
+
+    for (int i = 0; i < 5; ++i)
+    {
+        document.Undo();
+        document.WaitMainLoop();
+    }
+    std::this_thread::sleep_for(100ms);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body><p>"\
+        "<span style=\"font-family:'Courier New';font-size:12px;\">Co</span>"\
+        "</p></body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.caret.GetCaretState() == MakeCaretState(0, 0, 0, 2)) << document.caret.GetCaretState().ToString();
+
+    for (int i = 0; i < 5; ++i)
+    {
+        document.Undo();
+        std::this_thread::sleep_for(10ms);
+    }
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body><p>"\
+        "<span style=\"font-family:'Arial';font-size:22px;\"></span>"\
+        "</p></body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.caret.GetCaretState() == MakeCaretState(0, 0, 0, 0)) << document.caret.GetCaretState().ToString();
+
+    for (int i = 0; i < 15; ++i)
+    {
+        document.Redo();
+        std::this_thread::sleep_for(10ms);
+    }
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body><p>"\
+        "<span style=\"font-family:'Courier New';font-size:12px;\">Courier</span>"\
+        "</p></body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.caret.GetCaretState() == MakeCaretState(0, 0, 0, 7)) << document.caret.GetCaretState().ToString();
+
+    document.SetFontFamily("Times New Roman");
+    document.SetFontSize(22);
+    document.SetBold(true);
+    document.SetItalic(true);
+    document.SetUnderline(true);
+    document.InsertText(" New", true);
+    document.WaitMainLoop();
+    std::this_thread::sleep_for(100ms);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body><p>"\
+        "<span style=\"font-family:'Courier New';font-size:12px;\">Courier</span>"\
+        "<span style=\"font-family:'Times New Roman';font-size:22px;text-decoration: underline;\"><strong><em> New</em></strong></span>"\
+        "</p></body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.caret.GetCaretState() == MakeCaretState(0, 0, 1, 4)) << document.caret.GetCaretState().ToString();
+
+    document.Undo();
+    document.WaitMainLoop();
+    std::this_thread::sleep_for(100ms);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body><p>"\
+        "<span style=\"font-family:'Courier New';font-size:12px;\">Courier</span>"\
+        "</p></body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.caret.GetCaretState() == MakeCaretState(0, 0, 0, 7)) << document.caret.GetCaretState().ToString();
+
+    document.Redo();
+    document.WaitMainLoop();
+    std::this_thread::sleep_for(100ms);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body><p>"\
+        "<span style=\"font-family:'Courier New';font-size:12px;\">Courier</span>"\
+        "<span style=\"font-family:'Times New Roman';font-size:22px;text-decoration: underline;\"><strong><em> New</em></strong></span>"\
+        "</p></body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.caret.GetCaretState() == MakeCaretState(0, 0, 1, 4)) << document.caret.GetCaretState().ToString();
+
+    for (int i = 0; i < 5; ++i)
+        document.Redo();
+    std::this_thread::sleep_for(100ms);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body><p>"\
+        "<span style=\"font-family:'Courier New';font-size:12px;\">Courier</span>"\
+        "<span style=\"font-family:'Times New Roman';font-size:22px;text-decoration: underline;\"><strong><em> New</em></strong></span>"\
+        "</p></body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.caret.GetCaretState() == MakeCaretState(0, 0, 1, 4)) << document.caret.GetCaretState().ToString();
+}
+
 TEST_F(DocumentTest, delete1)
 {
     EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()

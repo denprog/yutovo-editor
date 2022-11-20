@@ -42,21 +42,32 @@ private:
 
     void About();
 
-    void Bold();
-    void Italic();
-    void Underline();
-
 private slots:
+    void OnCurrentParagraphFormatChanged(const QString& format);
     void OnCurrentFontChanged(const QFont& font);
     void OnCurrentSizeChanged(const QString& size);
 
+    void OnBold();
+    void OnItalic();
+    void OnUnderline();
+
+    void OnCaretMoved(const CaretState& caret_state);
+
 private:
+    void FillParagraphFormats();
     void FillSizes(const QFont& font);
 
 private:
     Ui::MainWindow *ui;
     DocumentWidget* document_widget;
+
+    QComboBox* paragraph_format_combo = nullptr;
+    
     QComboBox* size_combo = nullptr;
+
+    QAction* bold_action = nullptr;
+    QAction* italic_action = nullptr;
+    QAction* underline_action = nullptr;
 };
 
 #endif

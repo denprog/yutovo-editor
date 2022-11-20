@@ -9,7 +9,7 @@ namespace yutovo
 
 String::String(Element* parent) : 
     Element(parent),
-    format(document->GetDefaultStringFormat())
+    format(parent->GetStringFormat())
 {
     type = ElementType::STRING;
 
@@ -20,7 +20,7 @@ String::String(Element* parent) :
 
 String::String(Element* parent, const std::string _str) : 
     Element(parent),
-    format(document->GetDefaultStringFormat())
+    format(parent->GetStringFormat())
 {
     type = ElementType::STRING;
 
@@ -211,7 +211,7 @@ bool String::DeleteElements(const CaretState& before_state, CaretState& after_st
 bool String::Split(const uint max_left_width, CaretState& caret_state)
 {
     std::string& str = ((StringElements*)elements.get())->str;
-    for (size_t i = str.size() - 2; i > 0; --i) //at least one character in the splitted string
+    for (int i = str.size() - 2; i > 0; --i) //at least one character in the splitted string
     {
         if (str[i] == ' ')
         {
@@ -309,6 +309,13 @@ bool String::Merge(const ElementPtr with_element, CaretState& caret_state)
 
 bool String::CanContinueSelection()
 {
+    return true;
+}
+
+bool String::ChangeStringFormat(const StringFormatPtr _format)
+{
+    if (*format == *_format)
+        return false;
     return true;
 }
 

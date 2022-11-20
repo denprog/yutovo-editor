@@ -25,6 +25,9 @@ void Caret::SetState(const CaretState& caret_state, bool update_x_pos)
     selections = caret_state.selections;
     if (update_x_pos)
         UpdateXPos();
+    
+    window->OnCaretMoved(caret_state);
+    text->document->UpdateFormats();
 }
 
 CaretState Caret::GetCaretState()

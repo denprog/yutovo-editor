@@ -41,13 +41,17 @@ public:
 
     virtual void MoveDocument(const int left, const int top);
 
+    virtual void OnCaretMoved(const CaretState& caret_state);
+
     virtual Rect GetRect();
 
+public:
     void GetPixmap(QPixmap& out, const QRect& rect);
 
 signals:
     void DocumentUpdated(const Rect rect);
     void WindowUpdated();
+    void CaretMoved(const CaretState& caret_state);
 
 private:
     std::unique_ptr<QImage> surface;

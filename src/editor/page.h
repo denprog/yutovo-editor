@@ -26,6 +26,8 @@ public:
     virtual bool GetTopCaretState(const int x, const int y, CaretState& res, bool selection);
     virtual bool GetBottomCaretState(const int x, const int y, CaretState& res, bool selection);
 
+    virtual ParagraphFormatPtr GetParagraphFormat();
+
 public:
     int page_width = 0;
 

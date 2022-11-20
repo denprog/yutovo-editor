@@ -14,6 +14,8 @@ using namespace std::chrono_literals;
 
 Document::Document(Window* _window) :
     window(_window),
+    paragraph_formats(string_formats),
+    current_paragraph_format(paragraph_formats.GetFormat("Text body")),
     text(new Text(this)),
     caret(_window, (Text*)text.get()),
     logger(Logger::GetInstance())
@@ -74,6 +76,7 @@ void Document::MainLoop()
                             t = undo_tasks.top();
                         }
                     }
+                    undos.clear();
                 }
             }
             if (!temp_undo_tasks.empty())
@@ -83,10 +86,6 @@ void Document::MainLoop()
                 {
                     if (!t->Execute())
                         break;
-                }
-                {
-                    std::lock_guard<std::mutex> lock(tasks_mutex);
-                    undos.erase(undos.begin());
                 }
                 caret.Show();
 
@@ -113,11 +112,16 @@ void Document::MainLoop()
                         if (redo_tasks[i]->id == last_undo_task_id)
                             break;
                     }
-                    uint redo_task_id = redo_tasks[++i]->id;
-                    while (i < redo_tasks.size() && redo_tasks[i]->id == redo_task_id)
+
+                    if (++i < redo_tasks.size())
                     {
-                        temp_redo_tasks.push_back(redo_tasks[i++]);
+                        uint redo_task_id = redo_tasks[i]->id;
+                        while (i < redo_tasks.size() && redo_tasks[i]->id == redo_task_id)
+                        {
+                            temp_redo_tasks.push_back(redo_tasks[i++]);
+                        }
                     }
+                    redos.clear();
                 }
             }
             if (!temp_redo_tasks.empty())
@@ -128,10 +132,6 @@ void Document::MainLoop()
                     cur_task_id = t->id;
                     if (!t->Execute())
                         break;
-                }
-                {
-                    std::lock_guard<std::mutex> lock(tasks_mutex);
-                    redos.erase(redos.begin());
                 }
                 caret.Show();
 
@@ -328,9 +328,95 @@ Rect Document::GetCaretRect(const CaretState& caret_state)
 
 bool Document::GetCurrentStringFormat(StringFormatPtr& format)
 {
+    std::lock_guard<std::mutex> lock(tasks_mutex);
+    if (current_string_format)
+    {
+        format = current_string_format;
+        return true;
+    }
+    return false;
+}
+
+void Document::SetCurrentStringFormat(StringFormatPtr& format)
+{
+    std::lock_guard<std::mutex> lock(tasks_mutex);
+    current_string_format = format;
+}
+
+void Document::UpdateFormats()
+{
+    std::lock_guard<std::mutex> lock(tasks_mutex);
     CaretState c = caret.GetCaretState();
     ElementPtr el = GetParent(c.id);
     if (!el || el->type != ElementType::STRING)
+        return;
+    current_string_format = ((String*)el.get())->format;
+}
+
+void Document::SetFontFamily(const std::string& family)
+{
+    std::lock_guard<std::mutex> lock(tasks_mutex);
+    if (current_string_format)
+    {
+        current_string_format = string_formats.GetFormat(family, current_string_format->size, current_string_format->bold, 
+            current_string_format->italic, current_string_format->underline);
+    }
+}
+
+void Document::SetFontSize(const uint size)
+{
+    std::lock_guard<std::mutex> lock(tasks_mutex);
+    if (current_string_format)
+    {
+        current_string_format = string_formats.GetFormat(current_string_format->family, size, current_string_format->bold, 
+            current_string_format->italic, current_string_format->underline);
+    }
+}
+
+void Document::SetBold(const bool enabled)
+{
+    std::lock_guard<std::mutex> lock(tasks_mutex);
+    if (current_string_format)
+    {
+        current_string_format = string_formats.GetFormat(current_string_format->family, current_string_format->size, enabled, 
+            current_string_format->italic, current_string_format->underline);
+    }
+}
+
+void Document::SetItalic(const bool enabled)
+{
+    std::lock_guard<std::mutex> lock(tasks_mutex);
+    if (current_string_format)
+    {
+        current_string_format = string_formats.GetFormat(current_string_format->family, current_string_format->size, 
+            current_string_format->bold, enabled, current_string_format->underline);
+    }
+}
+
+void Document::SetUnderline(const bool enabled)
+{
+    std::lock_guard<std::mutex> lock(tasks_mutex);
+    if (current_string_format)
+    {
+        current_string_format = string_formats.GetFormat(current_string_format->family, current_string_format->size, current_string_format->bold, 
+            current_string_format->italic, enabled);
+    }
+}
+
+ElementType Document::GetElementType(const ElementId id)
+{
+    std::lock_guard<std::mutex> lock(tasks_mutex);
+    ElementPtr el = GetElement(id);
+    if (!el)
+        return ElementType::NONE;
+    return el->type;
+}
+
+bool Document::GetStringFormat(const ElementId id, StringFormatPtr& format)
+{
+    std::lock_guard<std::mutex> lock(tasks_mutex);
+    ElementPtr el = GetElement(id);
+    if (el->type != ElementType::STRING)
         return false;
     format = ((String*)el.get())->format;
     return true;
@@ -507,14 +593,9 @@ PageFormatPtr Document::GetDefaultPageFormat()
     return PageFormats::GetFormat(20, 20, 20, 20, 10);
 }
 
-ParagraphFormatPtr Document::GetDefaultParagraphFormat()
+void Document::SetCurrentParagraphFormat(const std::string& name)
 {
-    return ParagraphFormats::GetFormat(ParagraphFormat::Alignment::Left, ParagraphFormat::WordWrap::Normal, 5, 10, 10, 0, 10, 10);
-}
-
-StringFormatPtr Document::GetDefaultStringFormat()
-{
-    return StringFormats::GetFormat("Arial", 22, false, false, false);
+    current_paragraph_format = paragraph_formats.GetFormat(name);
 }
 
 #ifdef DEBUG

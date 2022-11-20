@@ -130,7 +130,6 @@ void QtWindow::Update(const Rect& rect)
         pixmap.convertFromImage(*surface);
     }
 
-    //emit DocumentUpdated(rect);
     Rect r(rect);
     r.left -= document_point.x;
     emit DocumentUpdated(r);
@@ -164,24 +163,17 @@ void QtWindow::MoveDocument(const int left, const int top)
 {
     Window::MoveDocument(left, top);
     ClearSurface();
-
-    // {
-    //     std::lock_guard<std::mutex> lock(pixmap_mutex);
-    //     pixmap.convertFromImage(*surface);
-    // }
-
-    // QRect rect = surface->rect();
-    // Rect r(rect.left(), rect.top(), rect.width(), rect.height());
-    // emit DocumentUpdated(r);
-
-    //emit WindowUpdated();
-    //store_rect.Reset();
 }
 
 Rect QtWindow::GetRect()
 {
     QRect rect = surface->rect();
     return Rect{rect.left(), rect.top(), rect.width(), rect.height()};
+}
+
+void QtWindow::OnCaretMoved(const CaretState& caret_state)
+{
+    emit CaretMoved(caret_state);
 }
 
 void QtWindow::GetPixmap(QPixmap& out, const QRect& rect)
