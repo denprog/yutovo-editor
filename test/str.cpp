@@ -951,6 +951,26 @@ TEST_F(DocumentTest, delete1)
         "</p></body>") << 
         document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 3)) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitMainLoop();
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body><p>"\
+        "<span style=\"font-family:'Arial';font-size:24px;\">Text</span>"\
+        "<span style=\"font-family:'Times New Roman';font-size:18px;\"><em>talic</em></span>"\
+        "</p></body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 1, 0)) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitMainLoop();
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body><p>"\
+        "<span style=\"font-family:'Arial';font-size:24px;\">Text</span>"\
+        "<span style=\"font-family:'Times New Roman';font-size:18px;\"><em>Italic</em></span>"\
+        "</p></body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 1, 1)) << document.GetEditorState().ToString();
 }
 
 }
