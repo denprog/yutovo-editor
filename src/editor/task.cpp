@@ -26,29 +26,22 @@ Task::Task(ElementPtr _text, const uint _id) :
 
 //InsertElementsTask
 
-InsertElementsTask::InsertElementsTask(ElementPtr _text, std::vector<ElementPtr>& _elements, const CaretState& _before_state, CaretState& _after_state, 
-    bool _with_undo) :
+InsertElementsTask::InsertElementsTask(ElementPtr _text, std::vector<ElementPtr>& _elements, bool _with_undo) :
     Task(_text),
-    elements(_elements),
-    before_state(_before_state),
-    after_state(_after_state)
+    elements(_elements)
 {
     with_undo = _with_undo;
 }
 
-InsertElementsTask::InsertElementsTask(ElementPtr _text, std::vector<ElementPtr>& _elements, const CaretState& _before_state, CaretState& _after_state, 
-    uint _id) :
+InsertElementsTask::InsertElementsTask(ElementPtr _text, std::vector<ElementPtr>& _elements, uint _id) :
     Task(_text, _id),
-    elements(_elements),
-    before_state(_before_state),
-    after_state(_after_state)
+    elements(_elements)
 {
     with_undo = false;
 }
 
-InsertElementsTask::InsertElementsTask(ElementPtr _text, std::vector<ElementPtr>& _elements, const CaretState& _before_state, CaretState& _after_state, 
-    uint _id, ElementId _element_id) :
-    InsertElementsTask(_text, _elements, _before_state, _after_state, _id)
+InsertElementsTask::InsertElementsTask(ElementPtr _text, std::vector<ElementPtr>& _elements, uint _id, ElementId _element_id) :
+    InsertElementsTask(_text, _elements, _id)
 {
     element_id = _element_id;
 }
@@ -56,27 +49,34 @@ InsertElementsTask::InsertElementsTask(ElementPtr _text, std::vector<ElementPtr>
 bool InsertElementsTask::Execute()
 {
     logger->Debug("Execute InsertElementsTask");
+
+    if (with_undo)
+        text->document->PushEditorState(true);
+
     if (before_state.IsEmpty())
-        before_state = text->document->caret.GetCaretState();
+        before_state = text->document->GetEditorState();
+    
+    CaretState caret_state = before_state.caret_state;
+    SelectionState& selection_state = before_state.selection_state;
 
     ElementPtr el;
     if (element_id.empty())
-        el = text->document->GetParent(before_state.id);
+        el = text->document->GetParent(caret_state.id);
     else
     {
         el = text->document->GetParent(element_id);
-        before_state.id = element_id;
+        caret_state.id = element_id;
     }
     assert(el != nullptr);
 
     CaretState c;
-    if (with_undo && !before_state.selections.IsEmpty())
+    if (with_undo && !selection_state.IsEmpty())
     {
         //remove selection before insert
-        auto DeleteElements = [&](ElementPtr el, CaretState& _after_state)
+        auto DeleteElements = [&](ElementPtr el)
         {
             assert(el != nullptr);
-            if (el->DeleteElements(before_state, _after_state, true, with_undo))
+            if (el->DeleteElements(true, with_undo))
             {
                 text->document->Remake(el->parent->id, true);
                 return true;
@@ -84,20 +84,18 @@ bool InsertElementsTask::Execute()
             return false;
         };
 
-        for (int i = before_state.selections.selections.size() - 1; i >= 0; --i)
+        for (int i = selection_state.state.size() - 1; i >= 0; --i)
         {
-            Selection& s = before_state.selections.selections[i];
-            CaretState _after_state;
-            if (!DeleteElements(text->document->GetElement(s.id), after_state.IsEmpty() ? _after_state : after_state))
+            ElementSelectionState& s = selection_state.state[i];
+            if (!DeleteElements(text->document->GetElement(s.id)))
                 return false; //todo transaction fix?
-            if (!_after_state.IsEmpty())
-                c.MergeState(_after_state);
         }
     }
 
-    if (el->InsertElements(elements, c.IsEmpty() ? before_state : c, after_state, with_undo))
+    if (el->InsertElements(elements, with_undo))
     {
-        text->document->caret.SetState(after_state, true);
+        if (with_undo)
+            text->document->PushEditorState(true);
         text->document->Remake(el->parent->id, true);
         return true;
     }
@@ -106,19 +104,15 @@ bool InsertElementsTask::Execute()
 
 //DeleteElementsTask
 
-DeleteElementsTask::DeleteElementsTask(ElementPtr _text, const CaretState& _before_state, CaretState& _after_state, bool _left, bool _with_undo) :
+DeleteElementsTask::DeleteElementsTask(ElementPtr _text, bool _left, bool _with_undo) :
     Task(_text),
-    before_state(_before_state),
-    after_state(_after_state),
     left(_left)
 {
     with_undo = _with_undo;
 }
 
-DeleteElementsTask::DeleteElementsTask(ElementPtr _text, const CaretState& _before_state, CaretState& _after_state, bool _left, uint _id) :
+DeleteElementsTask::DeleteElementsTask(ElementPtr _text, bool _left, uint _id) :
     Task(_text, _id),
-    before_state(_before_state),
-    after_state(_after_state),
     left(_left)
 {
     with_undo = false;
@@ -128,10 +122,19 @@ bool DeleteElementsTask::Execute()
 {
     logger->Debug("Execute DeleteElementsTask");
 
-    auto DeleteElements = [&](ElementPtr el, CaretState& _after_state)
+    if (with_undo)
+        text->document->PushEditorState(true);
+
+    if (before_state.IsEmpty())
+        before_state = text->document->GetEditorState();
+
+    CaretState caret_state = before_state.caret_state;
+    SelectionState& selection_state = before_state.selection_state;
+
+    auto DeleteElements = [&](ElementPtr el)
     {
         assert(el != nullptr);
-        if (el->DeleteElements(before_state, _after_state, left, with_undo))
+        if (el->DeleteElements(left, with_undo))
         {
             text->document->Remake(el->parent->id, true);
             return true;
@@ -139,32 +142,25 @@ bool DeleteElementsTask::Execute()
         return false;
     };
 
-    if (before_state.IsEmpty())
-        before_state = text->document->caret.GetCaretState();
-
-    if (before_state.selections.IsEmpty())
+    if (selection_state.IsEmpty())
     {
-        if (DeleteElements(text->document->GetParent(before_state.id), after_state))
+        if (DeleteElements(text->document->GetParent(caret_state.id)))
         {
-            text->document->caret.SetState(after_state, true);
+            if (with_undo)
+                text->document->PushEditorState(true);
             return true;
         }
     }
     else
     {
-        CaretState c;
-        for (int i = before_state.selections.selections.size() - 1; i >= 0; --i)
+        for (int i = selection_state.state.size() - 1; i >= 0; --i)
         {
-            Selection& s = before_state.selections.selections[i];
-            CaretState _after_state;
-            if (!DeleteElements(text->document->GetElement(s.id), after_state.IsEmpty() ? _after_state : after_state))
+            ElementSelectionState& s = selection_state.state[i];
+            if (!DeleteElements(text->document->GetElement(s.id)))
                 return false; //todo transaction fix?
-            if (!_after_state.IsEmpty())
-                c.MergeState(_after_state);
         }
-        if (!c.IsEmpty())
-            after_state = c;
-        text->document->caret.SetState(after_state, true);
+        if (with_undo)
+            text->document->PushEditorState(true);
         return true;
     }
     return false;
@@ -172,12 +168,9 @@ bool DeleteElementsTask::Execute()
 
 //ChangeStringFormatTask
 
-ChangeStringFormatTask::ChangeStringFormatTask(ElementPtr _text, const StringFormat& _format, const CaretState& _before_state, 
-    CaretState& _after_state) :
+ChangeStringFormatTask::ChangeStringFormatTask(ElementPtr _text, const StringFormat& _format) :
     Task(_text),
-    format(_format),
-    before_state(_before_state),
-    after_state(_after_state)
+    format(_format)
 {
 }
 
@@ -186,12 +179,9 @@ bool ChangeStringFormatTask::Execute()
     return false;
 }
 
-ChangeParagraphFormatTask::ChangeParagraphFormatTask(ElementPtr _text, const ParagraphFormat& _format, const CaretState& _before_state, 
-    CaretState& _after_state) :
+ChangeParagraphFormatTask::ChangeParagraphFormatTask(ElementPtr _text, const ParagraphFormat& _format) :
     Task(_text),
-    format(_format),
-    before_state(_before_state),
-    after_state(_after_state)
+    format(_format)
 {
 }
 
@@ -212,9 +202,7 @@ RemakeTask::RemakeTask(ElementPtr _text, const ElementId& _id, bool _with_elemen
 bool RemakeTask::Execute()
 {
     logger->Debug("Execute RemakeTask element_id={}", IdToString(element_id));
-    CaretState c = text->document->caret.GetCaretState();
-    text->document->GetElement(element_id)->Remake(c, with_elements);
-    text->document->caret.SetState(c, true);
+    text->document->GetElement(element_id)->Remake(with_elements);
     text->document->Redraw(element_id);
     return true;
 }
@@ -232,8 +220,7 @@ bool RedrawTask::Execute()
     logger->Debug("Execute RedrawTask element_id={}", IdToString(element_id));
     ElementPtr element = text->document->GetElement(element_id);
     text->window->DrawFillRect(element->GetAbsoluteRect(), Color::White());
-    CaretState cur = text->document->caret.GetCaretState();
-    element->Draw(cur.selections);
+    element->Draw();
     text->window->Update(element->GetAbsoluteRect());
     return true;
 }
@@ -258,20 +245,22 @@ bool ResizeTask::Execute()
 
 MoveCaretTask::MoveCaretTask(ElementPtr _text, Caret* _caret, MoveCaretDir _dir, bool _visible) : 
     Task(_text),
+    document(_text->document),
     caret(_caret),
     dir(_dir),
     visible(_visible)
 {
 }
 
-MoveCaretTask::MoveCaretTask(ElementPtr _text, Caret* _caret, MoveCaretDir _dir, bool _visible, bool _selection) :
+MoveCaretTask::MoveCaretTask(ElementPtr _text, Caret* _caret, MoveCaretDir _dir, bool _visible, bool _select) :
     MoveCaretTask(_text, _caret, _dir, _visible)
 {
-    selection = _selection;
+    select = _select;
 }
 
 MoveCaretTask::MoveCaretTask(ElementPtr _text, Caret* _caret, Point _point) :
     Task(_text),
+    document(_text->document),
     caret(_caret),
     point(_point)
 {
@@ -279,15 +268,28 @@ MoveCaretTask::MoveCaretTask(ElementPtr _text, Caret* _caret, Point _point) :
 
 bool MoveCaretTask::Execute()
 {
+    Selection* selection = select ? &document->selection : nullptr;
     switch (dir)
     {
     case MoveCaretDir::NONE:
         caret->SetVisible(visible);
         return true;
     case MoveCaretDir::LEFT:
+        if (!document->selection.IsEmpty() && !select)
+        {
+            ElementSelection& s = document->selection.selection[0];
+            caret->SetState(s.element->id, s.start);
+            break;
+        }
         caret->MoveLeft(selection);
         break;
     case MoveCaretDir::RIGHT:
+        if (!document->selection.IsEmpty() && !select)
+        {
+            ElementSelection& s = document->selection.selection[document->selection.selection.size() - 1];
+            caret->SetState(s.element->id, s.start + s.size);
+            break;
+        }
         caret->MoveRight(selection);
         break;
     case MoveCaretDir::UP:
@@ -316,44 +318,40 @@ bool MoveCaretTask::Execute()
         break;
     }
 
-    Element* element = caret->current_element;
-    Rect r = element->GetAbsoluteRect(element->GetCaretRect(caret->current_pos));
-    Rect view_port = text->window->GetViewPort(0);
+    text->document->UpdateCaretView();
 
-    //move view port in the view if the caret is outside of it
-    if (r.left < text->window->GetDocumentPoint().x + view_port.left)
-    {
-        caret->SetVisible(false);
-        text->window->MoveDocument(r.left - view_port.left - 1, 0);
-        text->document->Redraw(text->id);
-        text->document->SetCaretVisible(true);
-    }
-    else if (r.GetRight() > view_port.GetRight() + text->window->GetDocumentPoint().x)
-    {
-        caret->SetVisible(false);
-        text->window->MoveDocument(r.GetRight() - view_port.GetRight(), 0);
-        text->document->Redraw(text->id);
-        text->document->SetCaretVisible(true);
-    }
-    else
-    {
-        CaretState cur = caret->GetCaretState();
-        if (caret->last_selections != cur.selections)
-        {
-            //redraw elements with selection
-            for (auto& s : cur.selections.selections)
-                text->document->Redraw(s.id);
-            for (auto& s : caret->last_selections.selections)
-                text->document->Redraw(s.id);
+    if (!select)
+        text->document->selection.Clear();
 
-            caret->last_selections = cur.selections;
-        }
-    }
+    text->document->UpdateLastSelection();    
 
 #ifdef DEBUG
     text->document->last_caret_moved = true;
 #endif
 
+    return true;
+}
+
+//SetEditorStateTask
+
+SetEditorStateTask::SetEditorStateTask(ElementPtr _text, const CaretState& _caret_state, const SelectionState& _selection_state, const uint task_id) :
+    Task(_text, task_id),
+    caret_state(_caret_state),
+    selection_state(_selection_state)
+{
+}
+
+bool SetEditorStateTask::Execute()
+{
+    text->document->caret.SetState(caret_state);
+    text->document->selection.Set(selection_state);
+
+    text->document->UpdateCaretView();
+    text->document->UpdateLastSelection();    
+
+#ifdef DEBUG
+    text->document->last_caret_moved = true;
+#endif
     return true;
 }
 

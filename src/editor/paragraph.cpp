@@ -26,15 +26,15 @@ Element* Paragraph::Create(Element* parent)
     return new Paragraph(parent);
 }
 
-void Paragraph::Draw(const Selections& selections) const
+void Paragraph::Draw() const
 {
-    Element::Draw(selections);
+    Element::Draw();
 }
 
-void Paragraph::Remake(CaretState& caret_state, bool with_elements)
+void Paragraph::Remake(bool with_elements)
 {
     if (with_elements)
-        Element::Remake(caret_state, with_elements);
+        Element::Remake(with_elements);
 
     bool remake = false;
 
@@ -54,7 +54,7 @@ void Paragraph::Remake(CaretState& caret_state, bool with_elements)
             while (row->rect.width + format->indent_before > page->page_width)
             {
                 ElementPtr el = row->elements->Get(row->elements->Count() - 1);
-                if (el->Split(page->page_width - format->indent_before, caret_state))
+                if (el->Split(page->page_width - format->indent_before))
                     el = row->elements->Get(row->elements->Count() - 1);
 
                 if (row->elements->Count() == 1)
@@ -70,10 +70,9 @@ void Paragraph::Remake(CaretState& caret_state, bool with_elements)
                 }
 
                 //move the element in the next row
-                next_row->elements->Insert(el, 0, caret_state);
-                row->elements->RemoveAt(row->elements->Count() - 1, 1);
-                row->Remake(caret_state, false);
-                next_row->Remake(caret_state, true);
+                next_row->elements->Move(el, 0);
+                row->Remake(false);
+                next_row->Remake(true);
                 remake = true;
             }
 
@@ -84,15 +83,15 @@ void Paragraph::Remake(CaretState& caret_state, bool with_elements)
             while (next_row && next_row->elements->Get(0)->rect.width < page->page_width - row->rect.width - format->indent_before)
             {
                 //move the element from the next row in the current one
-                row->elements->Move(next_row->elements->Get(0), row->elements->Count(), caret_state);
-                row->Remake(caret_state, true);
+                row->elements->Move(next_row->elements->Get(0), row->elements->Count());
+                row->Remake(true);
                 if (next_row->elements->Count() == 0)
                 {
                     elements->RemoveAt(i + 1, 1);
                     next_row.reset();
                 }
                 else
-                    next_row->Remake(caret_state, true);
+                    next_row->Remake(true);
                 remake = true;
             }
 
@@ -100,11 +99,11 @@ void Paragraph::Remake(CaretState& caret_state, bool with_elements)
             {
                 //try to split the first element and move it above
                 ElementPtr el = next_row->elements->Get(0);
-                while (el->Split(page->page_width - row->rect.width - format->indent_before, caret_state))
+                while (el->Split(page->page_width - row->rect.width - format->indent_before))
                 {
-                    row->elements->Move(next_row->elements->Get(0), row->elements->Count(), caret_state);
-                    row->Remake(caret_state, true);
-                    next_row->Remake(caret_state, true);
+                    row->elements->Move(next_row->elements->Get(0), row->elements->Count());
+                    row->Remake(true);
+                    next_row->Remake(true);
                     el = next_row->elements->Get(0);
                     remake = true;
                 }
@@ -137,22 +136,22 @@ void Paragraph::UpdateRect()
     rect.top = 0;
 }
 
-bool Paragraph::InsertElements(std::vector<ElementPtr>& _elements, const CaretState& before_state, CaretState& after_state, bool with_undo)
+bool Paragraph::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo)
 {
     if (_elements.size() == 1 && _elements[0]->type == ElementType::ROW)
     {
-        return Element::InsertElements(_elements, before_state, after_state, with_undo);
+        return Element::InsertElements(_elements, with_undo);
     }
 
-    return parent->InsertElements(_elements, before_state, after_state, with_undo);
+    return parent->InsertElements(_elements, with_undo);
 }
 
-bool Paragraph::DeleteElements(const CaretState& before_state, CaretState& after_state, bool left, bool with_undo)
+bool Paragraph::DeleteElements(bool left, bool with_undo)
 {
-    return parent->DeleteElements(before_state, after_state, left, with_undo);
+    return parent->DeleteElements(left, with_undo);
 }
 
-bool Paragraph::GetTopCaretState(const int x, const int y, CaretState& res, bool selection)
+bool Paragraph::GetTopCaretState(const int x, const int y, CaretState& caret_state, Selection* select)
 {
     ElementPtr row;
     //find nearest row
@@ -164,11 +163,11 @@ bool Paragraph::GetTopCaretState(const int x, const int y, CaretState& res, bool
         row = el;
     }
     if (!row)
-        return parent->GetTopCaretState(x, y, res, selection);
-    return row->GetTopCaretState(x, y, res, selection);
+        return parent->GetTopCaretState(x, y, caret_state, select);
+    return row->GetTopCaretState(x, y, caret_state, select);
 }
 
-bool Paragraph::GetBottomCaretState(const int x, const int y, CaretState& res, bool selection)
+bool Paragraph::GetBottomCaretState(const int x, const int y, CaretState& caret_state, Selection* select)
 {
     ElementPtr row;
     //find nearest row
@@ -180,8 +179,8 @@ bool Paragraph::GetBottomCaretState(const int x, const int y, CaretState& res, b
         row = el;
     }
     if (!row)
-        return parent->GetBottomCaretState(x, y, res, selection);
-    return row->GetBottomCaretState(x, y, res, selection);
+        return parent->GetBottomCaretState(x, y, caret_state, select);
+    return row->GetBottomCaretState(x, y, caret_state, select);
 }
 
 StringFormatPtr Paragraph::GetStringFormat()

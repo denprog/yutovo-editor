@@ -8,6 +8,8 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 add_library(${PROJECT_NAME}
     caret.cpp
     caret_state.cpp
+    selection.cpp
+    editor_state.cpp
     task.cpp
     document.cpp
     element.cpp

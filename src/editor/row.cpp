@@ -26,7 +26,7 @@ Element* Row::Create(Element* parent)
     return new Row(parent);
 }
 
-void Row::Remake(CaretState& caret_state, bool with_elements)
+void Row::Remake(bool with_elements)
 {
     if (elements->Count() > 1)
     {
@@ -37,14 +37,14 @@ void Row::Remake(CaretState& caret_state, bool with_elements)
             {
                 if (el->elements->Count() == 0 && elements->Count() > 1)
                 {
-                    elements->RemoveAt(i, 1, caret_state); //remove empty strings
+                    elements->RemoveAt(i, 1); //remove empty strings
                     continue;
                 }
                 if (i < elements->Count() - 1)
                 {
-                    if (el->Merge(elements->Get(i + 1), caret_state))
+                    if (el->Merge(elements->Get(i + 1)))
                     {
-                        el->Remake(caret_state, true);
+                        el->Remake(true);
                         continue;
                     }
                 }
@@ -53,10 +53,12 @@ void Row::Remake(CaretState& caret_state, bool with_elements)
         }
     }
     else if (elements->Count() == 0)
+    {
         AddElement(ElementPtr(new String(this))); //insert empty string
+    }
 
     if (with_elements)
-        elements->Remake(caret_state);
+        elements->Remake();
     
     int cx = 0;
     for (uint i = 0; i < elements->Count(); ++i)
@@ -87,104 +89,107 @@ void Row::Remake(CaretState& caret_state, bool with_elements)
     document->Remake(parent->id, false);
 }
 
-bool Row::InsertElements(std::vector<ElementPtr>& _elements, const CaretState& before_state, CaretState& after_state, bool with_undo)
+bool Row::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo)
 {
+    CaretState caret_state = caret->GetCaretState();
+    if (!caret_state.IsInsideElement(id))
+        return parent->InsertElements(_elements, with_undo);
+    
     for (auto& el : _elements)
     {
         if (el->type != ElementType::STRING) //here can be inserted only strings for a while
-            return parent->InsertElements(_elements, before_state, after_state, with_undo);
+            return parent->InsertElements(_elements, with_undo);
     }
-    for (size_t i = 0; i < _elements.size(); ++i)
+
+    CaretState c;
+    ElementPtr el = document->GetParent(caret_state.id);
+    if (el->id == id)
     {
-        if (after_state.IsEmpty())
+        for (size_t i = 0; i < _elements.size(); ++i)
         {
-            after_state = before_state;
-            ElementPtr el = document->GetParent(before_state.id);
-            CaretState c;
-            if (el->GetFirstCaretState(c, false) && c == before_state)
+            elements->Insert(_elements[i], i);
+            if (elements->Get(i)->GetLastCaretState(c, nullptr))
+                caret->SetState(c);
+        }
+    }
+    else
+    {
+        for (size_t i = 0; i < _elements.size(); ++i)
+        {
+            uint p = caret_state.GetElementPos(el->id);
+            if (el->GetFirstCaretState(c, nullptr) && c == caret_state)
             {
-                elements->Insert(_elements[i], before_state.GetElementPos(id) + i, after_state);
-                if (elements->Get(before_state.GetElementPos(id) + i)->GetLastCaretState(c, false))
-                    after_state = c;
-            }
-            else if (el->GetLastCaretState(c, false) && c == before_state)
-            {
-                elements->Insert(_elements[i], before_state.GetElementPos(id) + i + 1, after_state);
-                if (elements->Get(before_state.GetElementPos(id) + i + 1)->GetLastCaretState(c, false))
-                    after_state = c;
-            }
-            else if (elements->Count() == 0)
-            {
-                elements->Insert(_elements[i], before_state.GetElementPos(id) + i, after_state);
-            }
-            else
-            {
-                if (el->SplitAt(before_state.GetPos()))
+                elements->Insert(_elements[i], p + i);
+                if (elements->Get(p + i)->GetLastCaretState(c, nullptr))
+                    caret->SetState(c);
+                if (with_undo)
                 {
-                    elements->Insert(_elements[i], before_state.GetElementPos(id) + i + 1, after_state);
-                    if (elements->Get(before_state.GetElementPos(id) + i + 1)->GetLastCaretState(c, false))
-                        after_state = c;
+                    document->DeleteElements(false, false, true);
+                    document->PushEditorState(SelectionState(id, p + i, 1), true);
                 }
             }
-        }
-        else
-        {
-            ElementPtr el = document->GetParent(before_state.id);
-            uint p = before_state.GetElementPos(id);
-            CaretState c;
-            if (el->GetFirstCaretState(c, false) && c == before_state)
-                elements->Insert(_elements[i], p + i);
-            else if (el->GetLastCaretState(c, false) && c == before_state)
+            else if (el->GetLastCaretState(c, nullptr) && c == caret_state)
             {
                 elements->Insert(_elements[i], p + i + 1);
+                if (elements->Get(p + i + 1)->GetLastCaretState(c, nullptr))
+                    caret->SetState(c);
                 if (elements->Count() > p + i + 2)
                 {
                     ElementPtr el1 = elements->Get(p + i + 1);
                     ElementPtr el2 = elements->Get(p + i + 2);
-                    el1->Merge(el2, c);
+                    el1->Merge(el2);
+                }
+                if (with_undo)
+                {
+                    document->DeleteElements(false, false, true);
+                    document->PushEditorState(SelectionState(id, p + i + 1, 1), true);
                 }
             }
             else
             {
-                if (el->SplitAt(before_state.GetPos()))
+                if (el->SplitAt(caret_state.GetPos()))
                 {
-                    elements->Insert(_elements[i], p + i + 1, after_state);
-                    if (elements->Get(p + i + 1)->GetLastCaretState(c, false))
-                        after_state = c;
+                    elements->Insert(_elements[i], p + i + 1);
+                    if (elements->Get(p + i + 1)->GetLastCaretState(c, nullptr))
+                        caret->SetState(c);
+                }
+                if (with_undo)
+                {
+                    document->DeleteElements(false, false, true);
+                    document->PushEditorState(SelectionState(id, p + i + 1, 1), true);
                 }
             }
         }
     }
 
-    if (with_undo)
-        document->DeleteElements(CaretState(_elements[0]->id), false, false, true);
-    
 #ifdef DEBUG
     to_str = ToText();
 #endif
     return true;
 }
 
-bool Row::DeleteElements(const CaretState& before_state, CaretState& after_state, bool left, bool with_undo)
+bool Row::DeleteElements(bool left, bool with_undo)
 {
-    if (before_state.selections.IsEmpty())
+    CaretState before_state = caret->GetCaretState();
+    if (selection->IsEmpty())
     {
         if (!left)
         {
             if (before_state.GetPos() == 0 && elements->Count() == 1 && elements->Get(0)->type == ElementType::STRING && 
                 elements->Get(0)->elements->Count() == 0)
-                return parent->DeleteElements(before_state, after_state, left, with_undo);
+                return parent->DeleteElements(left, with_undo);
         }
 
         CaretState first_state, last_state;
-        GetFirstCaretState(first_state, false);
-        GetLastCaretState(last_state, false);
-        if ((left && (CaretState&)before_state == first_state) || (!left && (CaretState&)before_state == last_state))
-            return parent->DeleteElements(before_state, after_state, left, with_undo);
+        GetFirstCaretState(first_state, nullptr);
+        GetLastCaretState(last_state, nullptr);
+        if ((left && before_state == first_state) || (!left && before_state == last_state))
+            return parent->DeleteElements(left, with_undo);
 
+        int pos = before_state.GetElementPos(id);
         if (left)
         {
-            if (before_state.GetPos() == 0)
+            if (pos == 0)
             {
                 int p = elements->GetElementPos(document->GetParent(before_state.id)->id);
                 if (p > 0)
@@ -193,78 +198,69 @@ bool Row::DeleteElements(const CaretState& before_state, CaretState& after_state
                     if (el->CanContinueSelection())
                     {
                         CaretState c;
-                        el->GetLastCaretState(c, false);
-                        el->DeleteElements(c, after_state, left, with_undo);
-                        return true;
+                        if (el->GetLastCaretState(c, nullptr))
+                        {
+                            caret->SetState(c);
+                            if (!el->DeleteElements(left, with_undo))
+                                return parent->DeleteElements(left, with_undo);
+#ifdef DEBUG
+                            to_str = ToText();
+#endif
+                            return true;
+                        }
                     }
                 }
+                else
+                    return parent->DeleteElements(left, with_undo);
             }
+            else                
+                elements->RemoveAt(pos - 1, 1);
+        }
+        else
+        {
+            if (pos == elements->Count())
+                return parent->DeleteElements(left, with_undo);
+            else
+                elements->RemoveAt(pos, 1);
         }
 
-        if (after_state.IsEmpty())
-            after_state = before_state;
-        if (left)
-            elements->RemoveAt(before_state.GetPos() - 1, 1, after_state);
-        else
-            elements->RemoveAt(before_state.GetPos(), 1, after_state);
 #ifdef DEBUG
         to_str = ToText();
 #endif
         return true;
     }
+    else
+    {
+        uint start, size;
+        if (selection->Has(id, start, size))
+        {
+            elements->RemoveAt(start, size);
+#ifdef DEBUG
+            to_str = ToText();
+#endif
+            return true;
+        }
+    }
+
 #ifdef DEBUG
     to_str = ToText();
 #endif
     return false;
 }
 
-bool Row::GetBeginCaretState(const CaretState& before_state, CaretState& after_state, bool selection)
+bool Row::GetBeginCaretState(CaretState& caret_state, Selection* select)
 {
-    return GetFirstCaretState(after_state, selection);
+    return GetFirstCaretState(caret_state, select);
 }
 
-bool Row::GetEndCaretState(const CaretState& before_state, CaretState& after_state, bool selection)
+bool Row::GetEndCaretState(CaretState& caret_state, Selection* select)
 {
-    return GetLastCaretState(after_state, selection);
+    return GetLastCaretState(caret_state, select);
 }
 
 bool Row::CanContinueSelection()
 {
     return true;
 }
-
-// bool Row::GetTopCaretState(const int x, const int y, CaretState& res)
-// {
-//     return false;
-// }
-
-// bool Row::GetBottomCaretState(const int x, const int y, CaretState& res)
-// {
-//     if (y > rect.top)
-//         return parent->GetBottomCaretState(x, y, res);
-
-//     CaretState next, last;
-//     if (!GetFirstCaretState(next))
-//         return false;
-//     if (!GetLastCaretState(last))
-//         return false;
-    
-// 	int min_dist = std::numeric_limits<int>::max();
-
-//     do
-//     {
-//         Rect r = document->GetCaretRect(next);
-//         int dist = r.DistToPoint(x, y);
-//         if (dist < min_dist)
-//             res = next;
-//         CaretState c = next;
-
-//         if (!GetRightCaretState(c, next))
-//             break;
-//     }
-//     while (next != last);
-
-//     return true;
-// }
 
 }

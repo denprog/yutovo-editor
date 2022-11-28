@@ -4,6 +4,8 @@
 #include <vector>
 #include <memory>
 #include "caret_state.h"
+#include "selection.h"
+#include "editor_state.h"
 #include "caret.h"
 #include "logger.h"
 
@@ -31,52 +33,45 @@ typedef std::shared_ptr<Task> TaskPtr;
 
 struct InsertElementsTask : Task
 {
-    InsertElementsTask(ElementPtr _text, std::vector<ElementPtr>& _elements, const CaretState& _before_state, CaretState& _after_state, bool _with_undo);
-    InsertElementsTask(ElementPtr _text, std::vector<ElementPtr>& _elements, const CaretState& _before_state, CaretState& _after_state, uint _id);
-    InsertElementsTask(ElementPtr _text, std::vector<ElementPtr>& _elements, const CaretState& _before_state, CaretState& _after_state, uint _id, 
-        ElementId _element_id);
+    InsertElementsTask(ElementPtr _text, std::vector<ElementPtr>& _elements, bool _with_undo);
+    InsertElementsTask(ElementPtr _text, std::vector<ElementPtr>& _elements, uint _id);
+    InsertElementsTask(ElementPtr _text, std::vector<ElementPtr>& _elements, uint _id, ElementId _element_id);
 
     virtual bool Execute();
 
-    ElementId element_id; //insert into this element or use id from before_state
+    ElementId element_id; //insert into this element or use id from caret state
     std::vector<ElementPtr> elements;
-    CaretState before_state;
-    CaretState after_state; //may be empty
+    EditorState before_state;
 };
 
 struct DeleteElementsTask : Task
 {
-    DeleteElementsTask(ElementPtr _text, const CaretState& _before_state, CaretState& _after_state, bool _left, bool _with_undo);
-    DeleteElementsTask(ElementPtr _text, const CaretState& _before_state, CaretState& _after_state, bool _left, uint _id);
+    DeleteElementsTask(ElementPtr _text, bool _left, bool _with_undo);
+    DeleteElementsTask(ElementPtr _text, bool _left, uint _id);
 
     virtual bool Execute();
 
-    ElementId element_id; //delete from this element or use id from before_state
-    CaretState before_state;
-    CaretState after_state; //may be empty
+    ElementId element_id; //delete from this element or use id from caret state
     bool left; //delete on the left or on the right
+    EditorState before_state;
 };
 
 struct ChangeStringFormatTask : Task
 {
-    ChangeStringFormatTask(ElementPtr _text, const StringFormat& _format, const CaretState& _before_state, CaretState& _after_state);
+    ChangeStringFormatTask(ElementPtr _text, const StringFormat& _format);
 
     virtual bool Execute();
 
     StringFormat format;
-    CaretState before_state;
-    CaretState after_state; //may be empty
 };
 
 struct ChangeParagraphFormatTask : Task
 {
-    ChangeParagraphFormatTask(ElementPtr _text, const ParagraphFormat& _format, const CaretState& _before_state, CaretState& _after_state);
+    ChangeParagraphFormatTask(ElementPtr _text, const ParagraphFormat& _format);
 
     virtual bool Execute();
 
     ParagraphFormat format;
-    CaretState before_state;
-    CaretState after_state; //may be empty
 };
 
 struct RemakeTask : Task
@@ -126,16 +121,27 @@ struct MoveCaretTask : Task
     };
 
     MoveCaretTask(ElementPtr _text, Caret* _caret, MoveCaretDir _dir, bool _visible);
-    MoveCaretTask(ElementPtr _text, Caret* _caret, MoveCaretDir _dir, bool _visible, bool _selection);
+    MoveCaretTask(ElementPtr _text, Caret* _caret, MoveCaretDir _dir, bool _visible, bool _select);
     MoveCaretTask(ElementPtr _text, Caret* _caret, Point _point);
 
     virtual bool Execute();
 
+    Document* document;
     Caret* caret;
     MoveCaretDir dir = MoveCaretDir::NONE;
     Point point{-1, -1};
     bool visible = false;
-    bool selection = false;
+    bool select = false;
+};
+
+struct SetEditorStateTask : Task
+{
+    SetEditorStateTask(ElementPtr _text, const CaretState& _caret_state, const SelectionState& _selection_state, const uint task_id);
+
+    virtual bool Execute();
+
+    CaretState caret_state;
+    SelectionState selection_state;
 };
 
 }

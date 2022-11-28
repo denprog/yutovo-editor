@@ -9,13 +9,10 @@ namespace yutovo
 //Text
 
 Text::Text(Document* _document) : 
-    Element(nullptr),
+    Element(_document),
     format(document->GetDefaultTextFormat())
 {
     type = ElementType::TEXT;
-
-    document = _document;
-    window = document->window;
 
     id.push_back(0);
 
@@ -32,18 +29,18 @@ Element* Text::Create(Element* parent)
     return nullptr;
 }
 
-void Text::Draw(const Selections& selections) const
+void Text::Draw() const
 {
     window->BeginDrawOutside();
     window->DrawFillRect(window->GetRect(), Color::White());
     window->EndDrawOutside();
 
-    Element::Draw(selections);
+    Element::Draw();
 }
 
-void Text::Remake(CaretState& caret_state, bool with_elements)
+void Text::Remake(bool with_elements)
 {
-    Element::Remake(caret_state, with_elements);
+    Element::Remake(with_elements);
 }
 
 void Text::UpdateRect()
@@ -61,27 +58,12 @@ void Text::UpdateRect()
         rect.width = p.x + v.width;
 }
 
-bool Text::InsertElements(std::vector<ElementPtr>& _elements, const CaretState& before_state, CaretState& after_state, bool with_undo)
+bool Text::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo)
 {
-    // if (_elements.size() == 1 && _elements[0]->type == ElementType::PAGE)
-    // {
-    //     if (format->paging == TextFormat::Paging::ONE_PAGE)
-    //     {
-    //         if (elements->Count() == 0)
-    //         {
-    //             elements->Add(_elements[0]);
-    //             after_state.SetState(_elements[0]);
-    //             document->Remake(id);
-    //             return true;
-    //         }
-    //     }
-    //     return false;
-    // }
-
     return false;
 }
 
-bool Text::DeleteElements(const CaretState& before_state, CaretState& after_state, bool left, bool with_undo)
+bool Text::DeleteElements(bool left, bool with_undo)
 {
     return false;
 }

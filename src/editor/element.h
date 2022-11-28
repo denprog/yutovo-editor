@@ -12,6 +12,8 @@ namespace yutovo
 
 class Document;
 class Elements;
+class Caret;
+class Selection;
 
 enum class ElementType
 {
@@ -29,6 +31,7 @@ class Element;
 class Element
 {
 public:
+    Element(Document* _document);
     Element(Element* _parent);
     Element(const Element& source);
     virtual ~Element();
@@ -37,26 +40,26 @@ public:
 
     virtual Element* Create(Element* parent) = 0;
 
-    virtual void Draw(const Selections& selections) const;
-    virtual void Remake(CaretState& caret_state, bool with_elements);
+    virtual void Draw() const;
+    virtual void Remake(bool with_elements);
 
-    virtual bool InsertElements(std::vector<ElementPtr>& _elements, const CaretState& before_state, CaretState& after_state, bool with_undo);
-    virtual bool DeleteElements(const CaretState& before_state, CaretState& after_state, bool left, bool with_undo);
+    virtual bool InsertElements(std::vector<ElementPtr>& _elements, bool with_undo);
+    virtual bool DeleteElements(bool left, bool with_undo);
 
-    virtual bool Split(const uint max_left_width, CaretState& caret_state);
+    virtual bool Split(const uint max_left_width);
     virtual bool SplitAt(const uint pos);
-    virtual bool Merge(const ElementPtr with_element, CaretState& caret_state);
+    virtual bool Merge(const ElementPtr with_element);
 
-    virtual bool GetFirstCaretState(CaretState& caret_state, bool selection);
-    virtual bool GetLastCaretState(CaretState& caret_state, bool selection);
-    virtual bool GetLeftCaretState(const CaretState& before_state, CaretState& after_state, bool selection);
-    virtual bool GetRightCaretState(const CaretState& before_state, CaretState& after_state, bool selection);
-    virtual bool GetTopCaretState(const int x, const int y, CaretState& res, bool selection);
-    virtual bool GetBottomCaretState(const int x, const int y, CaretState& res, bool selection);
-    virtual bool GetBeginCaretState(const CaretState& before_state, CaretState& after_state, bool selection);
-    virtual bool GetEndCaretState(const CaretState& before_state, CaretState& after_state, bool selection);
-    virtual bool GetWordLeftCaretState(const CaretState& before_state, CaretState& after_state, bool selection);
-    virtual bool GetWordRightCaretState(const CaretState& before_state, CaretState& after_state, bool selection);
+    virtual bool GetFirstCaretState(CaretState& caret_state, Selection* select);
+    virtual bool GetLastCaretState(CaretState& caret_state, Selection* select);
+    virtual bool GetLeftCaretState(CaretState& caret_state, Selection* select);
+    virtual bool GetRightCaretState(CaretState& caret_state, Selection* select);
+    virtual bool GetTopCaretState(const int x, const int y, CaretState& caret_state, Selection* select);
+    virtual bool GetBottomCaretState(const int x, const int y, CaretState& caret_state, Selection* select);
+    virtual bool GetBeginCaretState(CaretState& caret_state, Selection* select);
+    virtual bool GetEndCaretState(CaretState& caret_state, Selection* select);
+    virtual bool GetWordLeftCaretState(CaretState& caret_state, Selection* select);
+    virtual bool GetWordRightCaretState(CaretState& caret_state, Selection* select);
 
     virtual bool HasCaretState();
     virtual bool CanContinueSelection();
@@ -70,12 +73,8 @@ public:
     virtual void UpdateRect();
 
     Element* GetElementInPos(const ElementId& _id, const uint pos);
-    //ElementPtr GetElement(const ElementId& _id);
-    //Element* GetParent(const ElementId& _id);
 
     void AddElement(ElementPtr element);
-    // void RemoveElement(uint pos, CaretState& caret_state);
-    // void MoveElement(ElementPtr from, uint from_pos, ElementPtr to, uint to_pos, CaretState& caret_state);
 
     uint GetChildPos(const Element* element);
 
@@ -87,11 +86,12 @@ public:
     virtual StringFormatPtr GetStringFormat();
 
 public:
+    Element* parent = nullptr;
+
     Document* document = nullptr;
     Window* window = nullptr;
 
     ElementType type = ElementType::NONE;
-    Element* parent;
     ElementId id; //hierarchic unique id
     Rect rect; //relative bounding rect
     int baseline = 0;
@@ -99,11 +99,16 @@ public:
     bool modified = false;
     
     bool editable = true;
-    //bool mergeable = true;
 
+protected:
+    Caret* caret = nullptr;
+    Selection* selection = nullptr;
+
+public:
     std::unique_ptr<Elements> elements; //child nodes
 
 #ifdef DEBUG
+public:
     std::string to_str;
 #endif
 };
@@ -118,8 +123,8 @@ public:
 
     virtual Elements* Clone(Element* _parent);
     
-    virtual void Draw(const Selections& selections) const;
-    virtual void Remake(CaretState& caret_state);
+    virtual void Draw() const;
+    virtual void Remake();
 
     virtual ElementPtr Get(uint pos);
     virtual ElementId GetElementId(uint pos);
@@ -127,13 +132,9 @@ public:
 
     virtual void Add(ElementPtr element);
     virtual void Insert(ElementPtr element, const uint pos);
-    virtual void Insert(ElementPtr element, const uint pos, CaretState& caret_state);
     virtual void Remove(const ElementPtr element);
-    virtual void Remove(const ElementPtr element, CaretState& caret_state);
     virtual void RemoveAt(const uint pos, const int size);
-    virtual void RemoveAt(const uint pos, const int size, CaretState& caret_state);
     virtual void Move(const ElementPtr element, const uint pos);
-    virtual void Move(const ElementPtr element, const uint pos, CaretState& caret_state);
     virtual void Clear();
     virtual uint Count();
 
@@ -142,12 +143,12 @@ public:
 
     virtual Rect GetRect();
 
-    virtual bool GetFirstCaretState(CaretState& caret_state, bool selection);
-    virtual bool GetLastCaretState(CaretState& caret_state, bool selection);
-    virtual bool GetLeftCaretState(const CaretState& before_state, CaretState& after_state, bool selection);
-    virtual bool GetRightCaretState(const CaretState& before_state, CaretState& after_state, bool selection);
-    virtual bool GetWordLeftCaretState(const CaretState& before_state, CaretState& after_state, bool selection);
-    virtual bool GetWordRightCaretState(const CaretState& before_state, CaretState& after_state, bool selection);
+    virtual bool GetFirstCaretState(CaretState& caret_state, Selection* select);
+    virtual bool GetLastCaretState(CaretState& caret_state, Selection* select);
+    virtual bool GetLeftCaretState(CaretState& caret_state, Selection* select);
+    virtual bool GetRightCaretState(CaretState& caret_state, Selection* select);
+    virtual bool GetWordLeftCaretState(CaretState& caret_state, Selection* select);
+    virtual bool GetWordRightCaretState(CaretState& caret_state, Selection* select);
 
     virtual bool HasLastCaretState();
 
@@ -158,7 +159,9 @@ protected:
     virtual void UpdateIds();
 
 protected:
-    Element* parent;
+    Element* parent = nullptr;
+    Caret* caret = nullptr;
+    Selection* selection = nullptr;
 
 private:
     std::vector<ElementPtr> elements;

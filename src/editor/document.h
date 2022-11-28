@@ -9,9 +9,11 @@
 #include <memory>
 #include "window.h"
 #include "caret.h"
+#include "selection.h"
 #include "text.h"
 #include "task.h"
 #include "util.h"
+#include "editor_state.h"
 #include "logger.h"
 
 namespace yutovo
@@ -24,23 +26,21 @@ public:
     ~Document();
 
     void InsertPage(bool with_undo);
-    void InsertParagraph(bool with_undo);
-    void InsertParagraph(const CaretState& before_state, CaretState& after_state);
+    void InsertParagraph(bool with_undo, bool undo = false);
     void InsertText(const std::string& str, bool with_undo);
     void InsertText(const std::string& str, const StringFormatPtr string_format, bool with_undo);
-    void InsertText(const std::string& str, const StringFormatPtr string_format, const CaretState& before_state, CaretState& after_state, 
-        ElementId element_id);
+    void InsertText(const std::string& str, const StringFormatPtr string_format, ElementId element_id);
 
-    void InsertElement(Element* element, const CaretState& caret_state, bool with_undo, bool undo = false, ElementId element_id = ElementId{});
-    void InsertElement(Element* element, const CaretState& before_state, CaretState& after_state, ElementId element_id = ElementId{});
-    void InsertElements(std::vector<ElementPtr>& elements, const CaretState& caret_state, bool with_undo, bool undo = false, 
-        ElementId element_id = ElementId{});
-    void InsertElements(std::vector<ElementPtr>& elements, const CaretState& before_state, CaretState& after_state, bool with_undo, bool undo = false, 
-        ElementId element_id = ElementId{});
+    void InsertElement(Element* element, bool with_undo, bool undo = false, ElementId element_id = ElementId{});
+    void InsertElement(Element* element, ElementId element_id = ElementId{});
+    void InsertElements(std::vector<ElementPtr>& elements, bool with_undo, bool undo = false, ElementId element_id = ElementId{});
 
     void DeleteElements(bool left, bool with_undo, bool undo);
-    void DeleteElements(const CaretState& caret_state, bool left, bool with_undo, bool undo);
-    void DeleteElements(const CaretState& before_state, CaretState& after_state, bool left, bool with_undo, bool undo);
+
+    void PushEditorState(bool undo);
+    void PushEditorState(const CaretState& caret_state, bool undo);
+    void PushEditorState(const SelectionState& selection_state, bool undo);
+    void PushEditorState(const CaretState& caret_state, const SelectionState& selection_state, bool undo);
 
     ElementPtr GetElement(const ElementId& _id);
     ElementPtr GetParent(const ElementId& _id);
@@ -55,17 +55,17 @@ public:
     ElementType GetElementType(const ElementId id);
     bool GetStringFormat(const ElementId id, StringFormatPtr& format);
 
-    void MoveCaret(MoveCaretTask::MoveCaretDir dir, bool selection);
-    void MoveCaretLeft(bool selection);
-    void MoveCaretRight(bool selection);
-    void MoveCaretUp(bool selection);
-    void MoveCaretDown(bool selection);
-    void MoveCaretHome(bool selection);
-    void MoveCaretEnd(bool selection);
-    void MoveCaretWordLeft(bool selection);
-    void MoveCaretWordRight(bool selection);
-    void MoveCaretToDocumentBegin(bool selection);
-    void MoveCaretToDocumentEnd(bool selection);
+    void MoveCaret(MoveCaretTask::MoveCaretDir dir, bool select);
+    void MoveCaretLeft(bool select);
+    void MoveCaretRight(bool select);
+    void MoveCaretUp(bool select);
+    void MoveCaretDown(bool select);
+    void MoveCaretHome(bool select);
+    void MoveCaretEnd(bool select);
+    void MoveCaretWordLeft(bool select);
+    void MoveCaretWordRight(bool select);
+    void MoveCaretToDocumentBegin(bool select);
+    void MoveCaretToDocumentEnd(bool select);
 
     void SetCaretVisible(bool visible);
 
@@ -97,6 +97,8 @@ public:
     void SetItalic(const bool enabled);
     void SetUnderline(const bool enabled);
 
+    EditorState GetEditorState();
+
 private:
     void MainLoop();
 
@@ -111,9 +113,15 @@ private:
     bool last_undo_executed = false;
     bool last_redo_executed = false;
 
-    friend class MoveCaretTask;
     bool last_caret_moved = false;
 #endif
+
+private:
+    friend class MoveCaretTask;
+    friend class SetEditorStateTask;
+
+    void UpdateCaretView();
+    void UpdateLastSelection();
 
 public:
     Window* window;
@@ -131,6 +139,8 @@ private:
 
 public:
     Caret caret;
+    Selection selection;
+    Selection last_selection;
 
 private:
     std::mutex tasks_mutex;

@@ -18,11 +18,13 @@ Document::Document(Window* _window) :
     current_paragraph_format(paragraph_formats.GetFormat("Text body")),
     text(new Text(this)),
     caret(_window, (Text*)text.get()),
+    selection(this),
+    last_selection(this),
     logger(Logger::GetInstance())
 {
     logger->Info("Document start");
 
-    caret.MoveToDocumentBegin(false);
+    caret.MoveToDocumentBegin(nullptr);
 
     main_loop = std::thread(&Document::MainLoop, this);
 
@@ -183,72 +185,58 @@ void Document::MainLoop()
 
 void Document::InsertPage(bool with_undo)
 {
-    InsertElement(new Page(text.get()), CaretState(), with_undo);
+    InsertElement(new Page(text.get()), with_undo);
 }
 
-void Document::InsertParagraph(bool with_undo)
+void Document::InsertParagraph(bool with_undo, bool undo)
 {
     auto page = FindParent(caret.GetCaretState().id, ElementType::PAGE);
-    InsertElement(new Paragraph(page.get()), CaretState(), with_undo);
-}
-
-void Document::InsertParagraph(const CaretState& before_state, CaretState& after_state)
-{
-    auto page = FindParent(before_state.id, ElementType::PAGE);
-    InsertElement(new Paragraph(page.get()), before_state, after_state);
+    InsertElement(new Paragraph(page.get()), with_undo, undo);
 }
 
 void Document::InsertText(const std::string& str, bool with_undo)
 {
     StringFormatPtr format;
     if (GetCurrentStringFormat(format))
-        InsertElement(new String(nullptr, str, format), CaretState(), with_undo);
+        InsertElement(new String(this, str, format), with_undo);
 }
 
 void Document::InsertText(const std::string& str, const StringFormatPtr string_format, bool with_undo)
 {
-    InsertElement(new String(nullptr, str, string_format), CaretState(), with_undo);
+    InsertElement(new String(this, str, string_format), with_undo);
 }
 
-void Document::InsertText(const std::string& str, const StringFormatPtr string_format, const CaretState& before_state, CaretState& after_state, 
-    ElementId element_id)
+void Document::InsertText(const std::string& str, const StringFormatPtr string_format, ElementId element_id)
 {
-    InsertElement(new String(nullptr, str, string_format), before_state, after_state, element_id);
+    InsertElement(new String(this, str, string_format), element_id);
 }
 
-void Document::InsertElement(Element* element, const CaretState& caret_state, bool with_undo, bool undo, ElementId element_id)
-{
-    std::vector<ElementPtr> elements;
-    elements.emplace_back(element);
-    InsertElements(elements, caret_state, with_undo, undo, element_id);
-}
-
-void Document::InsertElement(Element* element, const CaretState& before_state, CaretState& after_state, ElementId element_id)
+void Document::InsertElement(Element* element, bool with_undo, bool undo, ElementId element_id)
 {
     std::vector<ElementPtr> elements;
     elements.emplace_back(element);
-    InsertElements(elements, before_state, after_state, false, true, element_id);
+    InsertElements(elements, with_undo, undo, element_id);
 }
 
-void Document::InsertElements(std::vector<ElementPtr>& elements, const CaretState& caret_state, bool with_undo, bool undo, ElementId element_id)
+void Document::InsertElement(Element* element, ElementId element_id)
 {
-    CaretState c;
-    InsertElements(elements, caret_state, c, with_undo, undo, element_id);
+    std::vector<ElementPtr> elements;
+    elements.emplace_back(element);
+    InsertElements(elements, false, true, element_id);
 }
 
-void Document::InsertElements(std::vector<ElementPtr>& elements, const CaretState& before_state, CaretState& after_state, bool with_undo, bool undo, 
-    ElementId element_id)
+void Document::InsertElements(std::vector<ElementPtr>& elements, bool with_undo, bool undo, ElementId element_id)
 {
     {
         std::lock_guard<std::mutex> lock(tasks_mutex);
         if (undo)
         {
-            undo_tasks.push(TaskPtr(new InsertElementsTask(text, elements, before_state, after_state, cur_task_id, element_id)));
+            undo_tasks.push(TaskPtr(new InsertElementsTask(text, elements, cur_task_id, element_id)));
             last_task_id = cur_task_id;
         }
         else
         {
-            tasks.emplace_back(new InsertElementsTask(text, elements, before_state, after_state, with_undo));
+            tasks.emplace_back(new InsertElementsTask(text, elements, with_undo));
             last_task_id = tasks[tasks.size() - 1]->id;
         }
     }
@@ -257,29 +245,47 @@ void Document::InsertElements(std::vector<ElementPtr>& elements, const CaretStat
 
 void Document::DeleteElements(bool left, bool with_undo, bool undo)
 {
-    DeleteElements(CaretState(), left, with_undo, undo);
-}
-
-void Document::DeleteElements(const CaretState& caret_state, bool left, bool with_undo, bool undo)
-{
-    CaretState c;
-    DeleteElements(caret_state, c, left, with_undo, undo);
-}
-
-void Document::DeleteElements(const CaretState& before_state, CaretState& after_state, bool left, bool with_undo, bool undo)
-{
     {
         std::lock_guard<std::mutex> lock(tasks_mutex);
         if (undo)
         {
-            undo_tasks.push(TaskPtr(new DeleteElementsTask(text, before_state, after_state, left, cur_task_id)));
+            undo_tasks.push(TaskPtr(new DeleteElementsTask(text, left, cur_task_id)));
             last_task_id = cur_task_id;
         }
         else
         {
-            tasks.emplace_back(new DeleteElementsTask(text, before_state, after_state, left, with_undo));
+            tasks.emplace_back(new DeleteElementsTask(text, left, with_undo));
             last_task_id = tasks[tasks.size() - 1]->id;
         }
+    }
+    next_circle.notify_one();
+}
+
+void Document::PushEditorState(bool undo)
+{
+    PushEditorState(caret.GetCaretState(), selection.GetState(), undo);
+}
+
+void Document::PushEditorState(const CaretState& caret_state, bool undo)
+{
+    PushEditorState(caret_state, selection.GetState(), undo);
+}
+
+void Document::PushEditorState(const SelectionState& selection_state, bool undo)
+{
+    SelectionState s = selection.GetState();
+    s.Merge(selection_state);
+    PushEditorState(caret.GetCaretState(), s, undo);
+}
+
+void Document::PushEditorState(const CaretState& caret_state, const SelectionState& selection_state, bool undo)
+{
+    {
+        std::lock_guard<std::mutex> lock(tasks_mutex);
+        if (undo)
+            undo_tasks.push(TaskPtr(new SetEditorStateTask(text, caret_state, selection_state, cur_task_id)));
+        else
+            tasks.emplace_back(new SetEditorStateTask(text, caret_state, selection_state, cur_task_id));
     }
     next_circle.notify_one();
 }
@@ -291,7 +297,7 @@ ElementPtr Document::GetElement(const ElementId& _id)
     ElementPtr el = text->elements->Get(_id[1]);
     for (uint i = 2; i < _id.size(); ++i)
     {
-        if (el->elements->Count() <= _id[i])
+        if (!el || el->elements->Count() < _id[i])
             return nullptr;
         el = el->elements->Get(_id[i]);
     }
@@ -422,10 +428,10 @@ bool Document::GetStringFormat(const ElementId id, StringFormatPtr& format)
     return true;
 }
 
-void Document::MoveCaret(MoveCaretTask::MoveCaretDir dir, bool selection)
+void Document::MoveCaret(MoveCaretTask::MoveCaretDir dir, bool select)
 {
     std::lock_guard<std::mutex> lock(tasks_mutex);
-    tasks.emplace_back(new MoveCaretTask(text, &caret, dir, true, selection));
+    tasks.emplace_back(new MoveCaretTask(text, &caret, dir, true, select));
     next_circle.notify_one();
 
 #ifdef DEBUG
@@ -433,54 +439,54 @@ void Document::MoveCaret(MoveCaretTask::MoveCaretDir dir, bool selection)
 #endif
 }
 
-void Document::MoveCaretLeft(bool selection)
+void Document::MoveCaretLeft(bool select)
 {
-    MoveCaret(MoveCaretTask::MoveCaretDir::LEFT, selection);
+    MoveCaret(MoveCaretTask::MoveCaretDir::LEFT, select);
 }
 
-void Document::MoveCaretRight(bool selection)
+void Document::MoveCaretRight(bool select)
 {
-    MoveCaret(MoveCaretTask::MoveCaretDir::RIGHT, selection);
+    MoveCaret(MoveCaretTask::MoveCaretDir::RIGHT, select);
 }
 
-void Document::MoveCaretUp(bool selection)
+void Document::MoveCaretUp(bool select)
 {
-    MoveCaret(MoveCaretTask::MoveCaretDir::UP, selection);
+    MoveCaret(MoveCaretTask::MoveCaretDir::UP, select);
 }
 
-void Document::MoveCaretDown(bool selection)
+void Document::MoveCaretDown(bool select)
 {
-    MoveCaret(MoveCaretTask::MoveCaretDir::DOWN, selection);
+    MoveCaret(MoveCaretTask::MoveCaretDir::DOWN, select);
 }
 
-void Document::MoveCaretHome(bool selection)
+void Document::MoveCaretHome(bool select)
 {
-    MoveCaret(MoveCaretTask::MoveCaretDir::HOME, selection);
+    MoveCaret(MoveCaretTask::MoveCaretDir::HOME, select);
 }
 
-void Document::MoveCaretEnd(bool selection)
+void Document::MoveCaretEnd(bool select)
 {
-    MoveCaret(MoveCaretTask::MoveCaretDir::END, selection);
+    MoveCaret(MoveCaretTask::MoveCaretDir::END, select);
 }
 
-void Document::MoveCaretWordLeft(bool selection)
+void Document::MoveCaretWordLeft(bool select)
 {
-    MoveCaret(MoveCaretTask::MoveCaretDir::WORD_LEFT, selection);
+    MoveCaret(MoveCaretTask::MoveCaretDir::WORD_LEFT, select);
 }
 
-void Document::MoveCaretWordRight(bool selection)
+void Document::MoveCaretWordRight(bool select)
 {
-    MoveCaret(MoveCaretTask::MoveCaretDir::WORD_RIGHT, selection);
+    MoveCaret(MoveCaretTask::MoveCaretDir::WORD_RIGHT, select);
 }
 
-void Document::MoveCaretToDocumentBegin(bool selection)
+void Document::MoveCaretToDocumentBegin(bool select)
 {
-    MoveCaret(MoveCaretTask::MoveCaretDir::DOCUMENT_BEGIN, selection);
+    MoveCaret(MoveCaretTask::MoveCaretDir::DOCUMENT_BEGIN, select);
 }
 
-void Document::MoveCaretToDocumentEnd(bool selection)
+void Document::MoveCaretToDocumentEnd(bool select)
 {
-    MoveCaret(MoveCaretTask::MoveCaretDir::DOCUMENT_END, selection);
+    MoveCaret(MoveCaretTask::MoveCaretDir::DOCUMENT_END, select);
 }
 
 void Document::SetCaretVisible(bool visible)
@@ -598,6 +604,11 @@ void Document::SetCurrentParagraphFormat(const std::string& name)
     current_paragraph_format = paragraph_formats.GetFormat(name);
 }
 
+EditorState Document::GetEditorState()
+{
+    return {caret.GetCaretState(), selection.GetState()};
+}
+
 #ifdef DEBUG
 void Document::WaitMainLoop()
 {
@@ -622,5 +633,40 @@ void Document::WaitCaretMoving()
     last_caret_moved = false;
 }
 #endif
+
+void Document::UpdateCaretView()
+{
+    Element* element = caret.current_element;
+    Rect r = element->GetAbsoluteRect(element->GetCaretRect(caret.current_pos));
+    Rect view_port = text->window->GetViewPort(0);
+
+    //move view port in the view if the caret is outside of it
+    if (r.left < window->GetDocumentPoint().x + view_port.left)
+    {
+        caret.SetVisible(false);
+        window->MoveDocument(r.left - view_port.left - 1, 0);
+        Redraw(text->id);
+        SetCaretVisible(true);
+    }
+    else if (r.GetRight() > view_port.GetRight() + window->GetDocumentPoint().x)
+    {
+        caret.SetVisible(false);
+        window->MoveDocument(r.GetRight() - view_port.GetRight(), 0);
+        Redraw(text->id);
+        SetCaretVisible(true);
+    }
+}
+
+void Document::UpdateLastSelection()
+{
+    if (selection != last_selection)
+    {
+        for (auto& s : selection.selection)
+            Redraw(s.element->id);
+        for (auto& s : last_selection.selection)
+            Redraw(s.element->id);
+        last_selection = selection;
+    }
+}
 
 }

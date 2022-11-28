@@ -12,82 +12,21 @@ class Element;
 typedef std::vector<uint> ElementId;
 typedef std::shared_ptr<Element> ElementPtr;
 
-struct Selection
-{
-    bool operator==(const Selection& s) const
-    {
-        return id == s.id && start == s.start && size == s.size;
-    }
-
-    bool operator!=(const Selection& s) const
-    {
-        return !(*this == s);
-    }
-
-    bool operator<(const Selection& s)
-    {
-        size_t i;
-        for (i = 0; i < id.size() && i < s.id.size(); ++i)
-        {
-            if (id[i] > s.id[i])
-                return false;
-        }
-        if (i == id.size())
-            return true;
-        return false;
-    }
-
-    bool IsEmpty()
-    {
-        return id.empty();
-    }
-
-    ElementId id;
-    uint start;
-    uint size;
-};
-
-struct Selections
-{
-    bool operator==(const Selections& _selections);
-    bool operator!=(const Selections& _selections);
-    
-    void AddSelection(const Selection& selection);
-    void AddSelection(const ElementId& id, const uint pos, const uint count);
-    void RemoveSelection(const ElementId& id, const uint start);
-    void ClearSelection();
-    void ClearSelection(const ElementId& id);
-    bool HasSelection() const;
-    bool HasSelection(const ElementId& id, Selection& selection) const;
-    bool HasSelection(const ElementId& id, uint& start, uint& size) const;
-    bool IsEmpty() const;
-
-#ifdef DEBUG
-    std::string ToString() const;
-#endif
-
-    std::vector<Selection> selections;
-};
-
 struct CaretState
 {
     CaretState() = default;
     CaretState(const std::vector<ElementPtr>& elements);
     CaretState(const ElementId _id);
     CaretState(const ElementId _id, const uint pos);
-    CaretState(const ElementId _id, const uint pos, const uint count);
     CaretState(const Element* element, const uint pos);
-    CaretState(const Element* element, const uint pos, const Selections& _selections);
 
     bool operator==(const CaretState& c);
     bool operator!=(const CaretState& c);
 
     void SetState(ElementPtr element);
-    void SetState(const ElementId _id, const Selections& _selections);
     void SetState(const ElementId _id, const ElementId tail_id);
     void SetState(const ElementId _id, const uint pos);
-
-    void MergeState(const CaretState& caret_state);
+    void SetState(const ElementId _id);
 
     void SetPos(const uint pos);
 
@@ -107,7 +46,6 @@ struct CaretState
 #endif
 
     ElementId id;
-    Selections selections;
 };
 
 }
