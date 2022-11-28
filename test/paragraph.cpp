@@ -40,7 +40,7 @@ TEST_F(ParagraphTest, resizing1)
         "</p></body>") << 
         document.ToHtml();
     std::this_thread::sleep_for(100ms);
-    ASSERT_TRUE(document.caret.GetCaretState() == MakeCaretState(0, 0, 3, 23)) << document.caret.GetCaretState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 3, 23)) << document.GetEditorState().ToString();
 
     width = 400;
     document.Resize(width, 400);
@@ -54,7 +54,7 @@ TEST_F(ParagraphTest, resizing1)
         "<span style=\"font-family:'Arial';font-size:20px;\">String3</span>"\
         "</p></body>") << 
         document.ToHtml();
-    ASSERT_TRUE(document.caret.GetCaretState() == MakeCaretState(0, 1, 0, 7)) << document.caret.GetCaretState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 1, 0, 7)) << document.GetEditorState().ToString();
 
     width = 390;
     document.Resize(width, 400);
@@ -68,7 +68,7 @@ TEST_F(ParagraphTest, resizing1)
         "<span style=\"font-family:'Arial';font-size:20px;\">String2 String3</span>"\
         "</p></body>") << 
         document.ToHtml();
-    ASSERT_TRUE(document.caret.GetCaretState() == MakeCaretState(0, 1, 0, 15)) << document.caret.GetCaretState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 1, 0, 15)) << document.GetEditorState().ToString();
 
     width = 290;
     document.Resize(width, 400);
@@ -81,7 +81,7 @@ TEST_F(ParagraphTest, resizing1)
         "<span style=\"font-family:'Arial';font-size:20px;\">String1 String2 String3</span>"\
         "</p></body>") << 
         document.ToHtml();
-    ASSERT_TRUE(document.caret.GetCaretState() == MakeCaretState(0, 1, 0, 23)) << document.caret.GetCaretState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 1, 0, 23)) << document.GetEditorState().ToString();
 
     width = 220;
     document.Resize(width, 400);
@@ -95,7 +95,7 @@ TEST_F(ParagraphTest, resizing1)
         "<span style=\"font-family:'Arial';font-size:20px;\">String2 String3</span>"\
         "</p></body>") << 
         document.ToHtml();
-    ASSERT_TRUE(document.caret.GetCaretState() == MakeCaretState(0, 2, 0, 15)) << document.caret.GetCaretState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 2, 0, 15)) << document.GetEditorState().ToString();
 
     document.MoveCaretHome(false);
     document.WaitCaretMoving();
@@ -111,7 +111,7 @@ TEST_F(ParagraphTest, resizing1)
         "<span style=\"font-family:'Arial';font-size:20px;\">String3</span>"\
         "</p></body>") << 
         document.ToHtml();
-    ASSERT_TRUE(document.caret.GetCaretState() == MakeCaretState(0, 1, 0, 8)) << document.caret.GetCaretState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 1, 0, 8)) << document.GetEditorState().ToString();
 
     document.MoveCaretRight(false);
     document.WaitCaretMoving();
@@ -127,7 +127,7 @@ TEST_F(ParagraphTest, resizing1)
         "<span style=\"font-family:'Arial';font-size:20px;\">String2 String3</span>"\
         "</p></body>") << 
         document.ToHtml();
-    ASSERT_TRUE(document.caret.GetCaretState() == MakeCaretState(0, 2, 0, 1)) << document.caret.GetCaretState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 2, 0, 1)) << document.GetEditorState().ToString();
 
     width = 240;
     document.Resize(width, 400);
@@ -141,7 +141,7 @@ TEST_F(ParagraphTest, resizing1)
         "<span style=\"font-family:'Arial';font-size:20px;\">String3</span>"\
         "</p></body>") << 
         document.ToHtml();
-    ASSERT_TRUE(document.caret.GetCaretState() == MakeCaretState(0, 1, 0, 9)) << document.caret.GetCaretState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 1, 0, 9)) << document.GetEditorState().ToString();
 
     width = 290;
     document.Resize(width, 400);
@@ -154,7 +154,7 @@ TEST_F(ParagraphTest, resizing1)
         "<span style=\"font-family:'Arial';font-size:20px;\">String1 String2 String3</span>"\
         "</p></body>") << 
         document.ToHtml();
-    ASSERT_TRUE(document.caret.GetCaretState() == MakeCaretState(0, 1, 0, 9)) << document.caret.GetCaretState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 1, 0, 9)) << document.GetEditorState().ToString();
 
     width = 330;
     document.Resize(width, 400);
@@ -168,7 +168,7 @@ TEST_F(ParagraphTest, resizing1)
         "<span style=\"font-family:'Arial';font-size:20px;\">String2 String3</span>"\
         "</p></body>") << 
         document.ToHtml();
-    ASSERT_TRUE(document.caret.GetCaretState() == MakeCaretState(0, 1, 0, 1)) << document.caret.GetCaretState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 1, 0, 1)) << document.GetEditorState().ToString();
 
     width = 200;
     document.Resize(width, 400);
@@ -183,10 +183,10 @@ TEST_F(ParagraphTest, resizing1)
         "<span style=\"font-family:'Arial';font-size:20px;\">String3</span>"\
         "</p></body>") << 
         document.ToHtml();
-    ASSERT_TRUE(document.caret.GetCaretState() == MakeCaretState(0, 3, 0, 1)) << document.caret.GetCaretState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 3, 0, 1)) << document.GetEditorState().ToString();
 }
 
-TEST_F(DocumentTest, resizing2)
+TEST_F(ParagraphTest, resizing2)
 {
     int width = 476;
     EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
@@ -216,7 +216,7 @@ TEST_F(DocumentTest, resizing2)
         "</p></body>") << 
         document.ToHtml();
     std::this_thread::sleep_for(100ms);
-    ASSERT_TRUE(document.caret.GetCaretState() == MakeCaretState(0, 0, 3, 21, 21, 2)) << document.caret.GetCaretState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 3, 21, 21, 2)) << document.GetEditorState().ToString();
 
     width = 440;
     document.Resize(width, 400);
@@ -230,7 +230,7 @@ TEST_F(DocumentTest, resizing2)
         "<span style=\"font-family:'Arial';font-size:20px;\">String3</span>"\
         "</p></body>") << 
         document.ToHtml();
-    ASSERT_TRUE(document.caret.GetCaretState() == MakeCaretState(0, 1, 0, 5, 5, 2)) << document.caret.GetCaretState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 1, 0, 5, 5, 2)) << document.GetEditorState().ToString();
 
     width = 476;
     document.Resize(width, 400);
@@ -239,6 +239,17 @@ TEST_F(DocumentTest, resizing2)
     for (int i = 0; i < 7; ++i)
         document.MoveCaretLeft(true);
     document.WaitCaretMoving();
+    std::this_thread::sleep_for(100ms);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body><p>"\
+        "<span style=\"font-family:'Arial';font-size:22px;\">Text</span>"\
+        "<span style=\"font-family:'Times New Roman';font-size:18px;\"><em>Italic</em></span>"\
+        "<span style=\"font-family:'Times New Roman';font-size:34px;\"><strong>Bold</strong></span>"\
+        "<span style=\"font-family:'Arial';font-size:20px;\">String1 String2 String3</span>"\
+        "</p></body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 3, 8, 8, 7)) << document.GetEditorState().ToString();
+
     width = 440;
     document.Resize(width, 400);
     std::this_thread::sleep_for(100ms);
@@ -251,7 +262,7 @@ TEST_F(DocumentTest, resizing2)
         "<span style=\"font-family:'Arial';font-size:20px;\">String3</span>"\
         "</p></body>") << 
         document.ToHtml();
-    ASSERT_TRUE(document.caret.GetCaretState() == MakeCaretState(0, 0, 3, 8, 8, 7)) << document.caret.GetCaretState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 3, 8, 8, 7)) << document.GetEditorState().ToString();
 
     for (int i = 0; i < 5; ++i)
         document.MoveCaretLeft(true);
@@ -267,9 +278,9 @@ TEST_F(DocumentTest, resizing2)
         "<span style=\"font-family:'Arial';font-size:20px;\">String2 String3</span>"\
         "</p></body>") << 
         document.ToHtml();
-    ASSERT_TRUE(document.caret.GetCaretState() == MakeCaretState(ElementId{0, 0, 0, 0, 3, 3}, 
-        Selection{ElementId{0, 0, 0, 0, 3}, 3, 5}, 
-        Selection{ElementId{0, 0, 0, 1, 0}, 0, 7})) << document.caret.GetCaretState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 3, 3}, 
+        ElementSelectionState{ElementId{0, 0, 0, 0, 3}, 3, 5}, 
+        ElementSelectionState{ElementId{0, 0, 0, 1, 0}, 0, 7})) << document.GetEditorState().ToString();
 
     width = 420;
     document.Resize(width, 400);
@@ -283,7 +294,7 @@ TEST_F(DocumentTest, resizing2)
         "<span style=\"font-family:'Arial';font-size:20px;\">String3</span>"\
         "</p></body>") << 
         document.ToHtml();
-    ASSERT_TRUE(document.caret.GetCaretState() == MakeCaretState(0, 0, 3, 3, 3, 12)) << document.caret.GetCaretState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 3, 3, 3, 12)) << document.GetEditorState().ToString();
 }
 
 TEST_F(ParagraphTest, paragraph1)
@@ -313,7 +324,7 @@ TEST_F(ParagraphTest, paragraph1)
         "</p></body>") << 
         document.ToHtml();
     std::this_thread::sleep_for(100ms);
-    ASSERT_TRUE(document.caret.GetCaretState() == MakeCaretState(0, 0, 3, 23)) << document.caret.GetCaretState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 3, 23)) << document.GetEditorState().ToString();
 
     document.InsertParagraph(true);
     document.WaitMainLoop();
@@ -331,7 +342,7 @@ TEST_F(ParagraphTest, paragraph1)
             "</p>"\
         "</body>") << 
         document.ToHtml();
-    ASSERT_TRUE(document.caret.GetCaretState() == MakeCaretState(1, 0, 0, 0)) << document.caret.GetCaretState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(1, 0, 0, 0)) << document.GetEditorState().ToString();
 
     document.Undo();
     document.WaitMainLoop();
@@ -344,7 +355,7 @@ TEST_F(ParagraphTest, paragraph1)
         "</p></body>") << 
         document.ToHtml();
     std::this_thread::sleep_for(100ms);
-    ASSERT_TRUE(document.caret.GetCaretState() == MakeCaretState(0, 0, 3, 23)) << document.caret.GetCaretState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 3, 23)) << document.GetEditorState().ToString();
 
     document.Redo();
     document.WaitMainLoop();
@@ -362,15 +373,15 @@ TEST_F(ParagraphTest, paragraph1)
             "</p>"\
         "</body>") << 
         document.ToHtml();
-    ASSERT_TRUE(document.caret.GetCaretState() == MakeCaretState(1, 0, 0, 0)) << document.caret.GetCaretState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(1, 0, 0, 0)) << document.GetEditorState().ToString();
 
     document.MoveCaretUp(false);
     document.WaitCaretMoving();
-    ASSERT_TRUE(document.caret.GetCaretState() == MakeCaretState(0, 0, 0, 0)) << document.caret.GetCaretState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 0)) << document.GetEditorState().ToString();
 
     document.MoveCaretWordRight(false);
     document.WaitCaretMoving();
-    ASSERT_TRUE(document.caret.GetCaretState() == MakeCaretState(0, 0, 0, 4)) << document.caret.GetCaretState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 4)) << document.GetEditorState().ToString();
 
     document.InsertParagraph(true);
     document.WaitMainLoop();
@@ -390,7 +401,7 @@ TEST_F(ParagraphTest, paragraph1)
             "</p>"\
         "</body>") << 
         document.ToHtml();
-    ASSERT_TRUE(document.caret.GetCaretState() == MakeCaretState(1, 0, 0, 0)) << document.caret.GetCaretState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(1, 0, 0, 0)) << document.GetEditorState().ToString();
 
     document.Undo();
     document.WaitMainLoop();
@@ -408,7 +419,7 @@ TEST_F(ParagraphTest, paragraph1)
             "</p>"\
         "</body>") << 
         document.ToHtml();
-    ASSERT_TRUE(document.caret.GetCaretState() == MakeCaretState(0, 0, 0, 4)) << document.caret.GetCaretState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 4)) << document.GetEditorState().ToString();
 
     document.Redo();
     document.WaitMainLoop();
@@ -427,7 +438,7 @@ TEST_F(ParagraphTest, paragraph1)
             "</p>"\
         "</body>") << 
         document.ToHtml();
-    ASSERT_TRUE(document.caret.GetCaretState() == MakeCaretState(1, 0, 0, 0)) << document.caret.GetCaretState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(1, 0, 0, 0)) << document.GetEditorState().ToString();
 
     for (int i = 0; i < 3; ++i)
         document.MoveCaretRight(false);
@@ -452,7 +463,7 @@ TEST_F(ParagraphTest, paragraph1)
             "</p>"\
         "</body>") << 
         document.ToHtml();
-    ASSERT_TRUE(document.caret.GetCaretState() == MakeCaretState(2, 0, 0, 0)) << document.caret.GetCaretState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(2, 0, 0, 0)) << document.GetEditorState().ToString();
 
     document.Undo();
     document.WaitMainLoop();
@@ -472,11 +483,11 @@ TEST_F(ParagraphTest, paragraph1)
             "</p>"\
         "</body>") << 
         document.ToHtml();
-    ASSERT_TRUE(document.caret.GetCaretState() == MakeCaretState(1, 0, 0, 3)) << document.caret.GetCaretState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(1, 0, 0, 3)) << document.GetEditorState().ToString();
 
     document.MoveCaretUp(false);
     document.MoveCaretEnd(false);
-    document.DeleteElements(CaretState(), false, true, false);
+    document.DeleteElements(false, true, false);
     document.WaitMainLoop();
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
@@ -492,7 +503,7 @@ TEST_F(ParagraphTest, paragraph1)
             "</p>"\
         "</body>") << 
         document.ToHtml();
-    ASSERT_TRUE(document.caret.GetCaretState() == MakeCaretState(0, 0, 0, 4)) << document.caret.GetCaretState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 4)) << document.GetEditorState().ToString();
 
     document.Undo();
     document.WaitMainLoop();
@@ -512,7 +523,7 @@ TEST_F(ParagraphTest, paragraph1)
             "</p>"\
         "</body>") << 
         document.ToHtml();
-    ASSERT_TRUE(document.caret.GetCaretState() == MakeCaretState(0, 0, 0, 4)) << document.caret.GetCaretState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 4)) << document.GetEditorState().ToString();
 
     document.MoveCaretToDocumentBegin(false);
     document.InsertParagraph(true);
@@ -535,7 +546,7 @@ TEST_F(ParagraphTest, paragraph1)
             "</p>"\
         "</body>") << 
         document.ToHtml();
-    ASSERT_TRUE(document.caret.GetCaretState() == MakeCaretState(1, 0, 0, 0)) << document.caret.GetCaretState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(1, 0, 0, 0)) << document.GetEditorState().ToString();
 
     document.Undo();
     document.WaitMainLoop();
@@ -555,7 +566,7 @@ TEST_F(ParagraphTest, paragraph1)
             "</p>"\
         "</body>") << 
         document.ToHtml();
-    ASSERT_TRUE(document.caret.GetCaretState() == MakeCaretState(0, 0, 0, 0)) << document.caret.GetCaretState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 0)) << document.GetEditorState().ToString();
 
     document.Redo();
     document.WaitMainLoop();
@@ -578,7 +589,7 @@ TEST_F(ParagraphTest, paragraph1)
             "</p>"\
         "</body>") << 
         document.ToHtml();
-    ASSERT_TRUE(document.caret.GetCaretState() == MakeCaretState(1, 0, 0, 0)) << document.caret.GetCaretState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(1, 0, 0, 0)) << document.GetEditorState().ToString();
 
     document.MoveCaretToDocumentEnd(false);
     document.MoveCaretHome(false);
@@ -606,7 +617,7 @@ TEST_F(ParagraphTest, paragraph1)
             "</p>"\
         "</body>") << 
         document.ToHtml();
-    ASSERT_TRUE(document.caret.GetCaretState() == MakeCaretState(3, 0, 0, 0)) << document.caret.GetCaretState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(3, 0, 0, 0)) << document.GetEditorState().ToString();
 
     document.Undo();
     document.WaitMainLoop();
@@ -628,7 +639,7 @@ TEST_F(ParagraphTest, paragraph1)
             "</p>"\
         "</body>") << 
         document.ToHtml();
-    ASSERT_TRUE(document.caret.GetCaretState() == MakeCaretState(2, 0, 0, 0)) << document.caret.GetCaretState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(2, 0, 0, 0)) << document.GetEditorState().ToString();
 
     document.Redo();
     document.WaitMainLoop();
@@ -653,7 +664,7 @@ TEST_F(ParagraphTest, paragraph1)
             "</p>"\
         "</body>") << 
         document.ToHtml();
-    ASSERT_TRUE(document.caret.GetCaretState() == MakeCaretState(3, 0, 0, 0)) << document.caret.GetCaretState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(3, 0, 0, 0)) << document.GetEditorState().ToString();
 }
 
 }

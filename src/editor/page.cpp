@@ -28,7 +28,7 @@ Element* Page::Create(Element* parent)
     return new Page(parent);
 }
 
-void Page::Draw(const Selections& selections) const
+void Page::Draw() const
 {
     Rect v = window->GetRect();
     v.left += format->left_indent;
@@ -41,16 +41,16 @@ void Page::Draw(const Selections& selections) const
     window->DrawRect(Rect(v.left - 1, v.top - 1, v.width + 2, v.height + 2), Color::Blue());
     window->EndDrawOutside();
 
-    Element::Draw(selections);
+    Element::Draw();
 }
 
-void Page::Remake(CaretState& caret_state, bool with_elements)
+void Page::Remake(bool with_elements)
 {
     Rect v = window->GetRect();
     page_width = v.width - format->right_indent - format->left_indent;
 
     if (with_elements)
-        Element::Remake(caret_state, true);
+        Element::Remake(true);
 
     int h = 0;
     for (int i = 0; i < elements->Count(); ++i) //arrange paragraphs
@@ -80,11 +80,12 @@ void Page::UpdateRect()
         rect.height = v.height;
 }
 
-bool Page::InsertElements(std::vector<ElementPtr>& _elements, const CaretState& before_state, CaretState& after_state, bool with_undo)
+bool Page::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo)
 {
     if (_elements.size() != 1 || _elements[0]->type != ElementType::PARAGRAPH)
-        return parent->InsertElements(_elements, before_state, after_state, with_undo);
+        return parent->InsertElements(_elements, with_undo);
 
+    CaretState before_state = caret->GetCaretState();
     ElementPtr insert_element(_elements[0]->Clone());
     ElementPtr el = document->GetParent(before_state.id);
     ElementPtr paragraph = document->FindParent(el->id, ElementType::PARAGRAPH);
@@ -109,23 +110,24 @@ bool Page::InsertElements(std::vector<ElementPtr>& _elements, const CaretState& 
             new_row->elements->Move(r->elements->Get(j), new_row->elements->Count());
     }
 
-    if (p == 0 && before_state.GetPos() == 0)
-        elements->Insert(insert_element, k);
-    else
-        elements->Insert(insert_element, k + 1);
-
-    if (after_state.IsEmpty())
+    CaretState after;
+    if (p == 0 && document->caret.current_pos == 0)
     {
-        if (p == 0 && before_state.GetPos() == 0)
-            row->GetFirstCaretState(after_state, false);
-        else
-            new_row->GetFirstCaretState(after_state, false);
+        elements->Insert(insert_element, k);
+        if (row->GetFirstCaretState(after, nullptr))
+            document->caret.SetState(after);
+    }
+    else
+    {
+        elements->Insert(insert_element, k + 1);
+        if (new_row->GetFirstCaretState(after, nullptr))
+            document->caret.SetState(after);
     }
     
     document->Remake(id, true);
 
     if (with_undo)
-        document->DeleteElements(after_state, (CaretState&)before_state, true, false, true);
+        document->DeleteElements(true, false, true);
     
 #ifdef DEBUG
     to_str = ToText();
@@ -133,8 +135,9 @@ bool Page::InsertElements(std::vector<ElementPtr>& _elements, const CaretState& 
     return true;
 }
 
-bool Page::DeleteElements(const CaretState& before_state, CaretState& after_state, bool left, bool with_undo)
+bool Page::DeleteElements(bool left, bool with_undo)
 {
+    CaretState before_state = caret->GetCaretState();
     ElementPtr el = document->GetParent(before_state.id);
     ElementPtr paragraph = document->FindParent(el->id, ElementType::PARAGRAPH);
 
@@ -144,10 +147,6 @@ bool Page::DeleteElements(const CaretState& before_state, CaretState& after_stat
     if (!left && p == elements->Count() - 1)
         return false;
     
-    CaretState c;
-    if (after_state.IsEmpty())
-        c = before_state;
-    
     //merge current paragraph with the above one
     auto dest_p = left ? elements->Get(p - 1) : elements->Get(p);
     auto dest_row = dest_p->elements->Get(dest_p->elements->Count() - 1);
@@ -156,25 +155,14 @@ bool Page::DeleteElements(const CaretState& before_state, CaretState& after_stat
     {
         auto row = source_p->elements->Get(i);
         for (uint j = 0; j < row->elements->Count();)
-        {
-            if (after_state.IsEmpty())
-                dest_row->elements->Move(row->elements->Get(j), dest_row->elements->Count(), c);
-            else
-                dest_row->elements->Move(row->elements->Get(j), dest_row->elements->Count());
-        }
+            dest_row->elements->Move(row->elements->Get(j), dest_row->elements->Count());
     }
 
-    if (after_state.IsEmpty())
-        after_state = c;
-
-    elements->RemoveAt(left ? p : p + 1, 1, after_state);
+    elements->RemoveAt(left ? p : p + 1, 1);
     document->Remake(id, true);
 
     if (with_undo)
-    {
-        CaretState s = before_state;
-        document->InsertParagraph(after_state, s);
-    }
+        document->InsertParagraph(true, true);
 
 #ifdef DEBUG
     to_str = ToText();
@@ -182,7 +170,7 @@ bool Page::DeleteElements(const CaretState& before_state, CaretState& after_stat
     return true;
 }
 
-bool Page::GetTopCaretState(const int x, const int y, CaretState& res, bool selection)
+bool Page::GetTopCaretState(const int x, const int y, CaretState& caret_state, Selection* select)
 {
     ElementPtr p;
     //find nearest paragraph
@@ -194,11 +182,11 @@ bool Page::GetTopCaretState(const int x, const int y, CaretState& res, bool sele
         p = el;
     }
     if (!p)
-        return parent->GetTopCaretState(x, y, res, selection);
-    return p->GetTopCaretState(x, y, res, selection);
+        return parent->GetTopCaretState(x, y, caret_state, select);
+    return p->GetTopCaretState(x, y, caret_state, select);
 }
 
-bool Page::GetBottomCaretState(const int x, const int y, CaretState& res, bool selection)
+bool Page::GetBottomCaretState(const int x, const int y, CaretState& caret_state, Selection* select)
 {
     return false;
 }

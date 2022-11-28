@@ -14,23 +14,24 @@ public:
     String(Element* parent);
     String(Element* parent, const std::string _str);
     String(Element* parent, const std::string _str, const StringFormatPtr _format);
+    String(Document* _document, const std::string _str, const StringFormatPtr _format);
 
     virtual Element* Clone();
 
     virtual Element* Create(Element* parent);
 
-    virtual void Remake(CaretState& caret_state, bool with_elements);
+    virtual void Remake(bool with_elements);
 
     virtual void UpdateRect();
 
     virtual std::string ToHtml();
 
-    virtual bool InsertElements(std::vector<ElementPtr>& _elements, const CaretState& before_state, CaretState& after_state, bool with_undo);
-    virtual bool DeleteElements(const CaretState& before_state, CaretState& after_state, bool left, bool with_undo);
+    virtual bool InsertElements(std::vector<ElementPtr>& _elements, bool with_undo);
+    virtual bool DeleteElements(bool left, bool with_undo);
 
-    virtual bool Split(const uint max_left_width, CaretState& caret_state);
+    virtual bool Split(const uint max_left_width);
     virtual bool SplitAt(const uint pos);
-    virtual bool Merge(const ElementPtr with_element, CaretState& caret_state);
+    virtual bool Merge(const ElementPtr with_element);
 
     virtual bool CanContinueSelection();
 
@@ -52,16 +53,16 @@ public:
 
     virtual Elements* Clone(Element* _parent);
 
-    virtual void Draw(const Selections& selections) const;
-    virtual void Remake(CaretState& caret_state);
+    virtual void Draw() const;
+    virtual void Remake();
 
+    virtual ElementPtr Get(uint pos);
     virtual ElementId GetElementId(uint pos);
+    
     virtual void Add(ElementPtr element);
     virtual void Insert(ElementPtr element, const uint pos);
-    virtual void Insert(ElementPtr element, const uint pos, CaretState& caret_state);
     virtual void Remove(const ElementPtr element);
     virtual void RemoveAt(const uint pos, const int size);
-    virtual void RemoveAt(const uint pos, const int size, CaretState& caret_state);
     virtual void Clear();
     virtual uint Count();
 
@@ -70,12 +71,12 @@ public:
 
     virtual Rect GetRect();
 
-    virtual bool GetFirstCaretState(CaretState& caret_state, bool selection);
-    virtual bool GetLastCaretState(CaretState& caret_state, bool selection);
-    virtual bool GetLeftCaretState(const CaretState& before_state, CaretState& after_state, bool selection);
-    virtual bool GetRightCaretState(const CaretState& before_state, CaretState& after_state, bool selection);
-    virtual bool GetWordLeftCaretState(const CaretState& before_state, CaretState& after_state, bool selection);
-    virtual bool GetWordRightCaretState(const CaretState& before_state, CaretState& after_state, bool selection);
+    virtual bool GetFirstCaretState(CaretState& caret_state, Selection* select);
+    virtual bool GetLastCaretState(CaretState& caret_state, Selection* select);
+    virtual bool GetLeftCaretState(CaretState& caret_state, Selection* select);
+    virtual bool GetRightCaretState(CaretState& caret_state, Selection* select);
+    virtual bool GetWordLeftCaretState(CaretState& caret_state, Selection* select);
+    virtual bool GetWordRightCaretState(CaretState& caret_state, Selection* select);
 
     virtual std::string ToHtml();
     virtual std::string ToText();

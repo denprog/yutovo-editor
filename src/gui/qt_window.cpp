@@ -1,5 +1,6 @@
 #include "qt_window.h"
 #include <QPainter>
+#include <QFontMetrics>
 #include "document_widget.h"
 
 //QtWindow

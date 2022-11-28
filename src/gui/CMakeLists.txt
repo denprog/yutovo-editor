@@ -9,9 +9,17 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-set(QT_SELECT qt5.14)
+#set(QT_SELECT qt5.14)
 
 find_package(Qt5 COMPONENTS Widgets REQUIRED)
+
+# if (Qt5Widgets_FOUND)
+#     if (Qt5Widgets_VERSION VERSION_LESS 5.14.0)
+#         message(FATAL_ERROR "Minimum supported Qt5 version is 5.14")
+#     endif()
+# else()
+#     message(SEND_ERROR "The Qt5Widgets library could not be found!")
+# endif(Qt5Widgets_FOUND)
 
 add_executable(${PROJECT_NAME}_gui
     main.cpp

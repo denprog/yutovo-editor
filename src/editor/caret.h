@@ -26,6 +26,8 @@ public:
     Caret(Window* _window, Text* _text);
 
     void SetState(const CaretState& caret_state, bool update_x_pos = false);
+    void SetState(const ElementId id, const uint pos, bool update_x_pos = false);
+    void SetPos(const uint pos, bool update_x_pos = false);
 
     CaretState GetCaretState();
 
@@ -35,24 +37,24 @@ public:
     void Hide();
     void Blink();
 
-    void MoveToDocumentBegin(bool select);
-    void MoveToDocumentEnd(bool select);
-    void MoveHome(bool select);
-    void MoveEnd(bool select);
-    void MoveLeft(bool select);
-    void MoveRight(bool select);
-    void MoveUp(bool select);
-    void MoveDown(bool select);
-    void MoveWordLeft(bool select);
-    void MoveWordRight(bool select);
+    void MoveToDocumentBegin(Selection* selection);
+    void MoveToDocumentEnd(Selection* selection);
+    void MoveHome(Selection* selection);
+    void MoveEnd(Selection* selection);
+    void MoveLeft(Selection* selection);
+    void MoveRight(Selection* selection);
+    void MoveUp(Selection* selection);
+    void MoveDown(Selection* selection);
+    void MoveWordLeft(Selection* selection);
+    void MoveWordRight(Selection* selection);
+
+    bool IsInsideElement(const ElementId id);
 
     void UpdateXPos();
 
 public:
     Element* current_element;
     uint current_pos;
-    Selections selections;
-    Selections last_selections;
 
 private:
     bool show = false;
