@@ -224,6 +224,8 @@ bool Row::DeleteElements(bool left, bool with_undo)
                 elements->RemoveAt(pos, 1);
         }
 
+        document->Remake(id, false);
+
 #ifdef DEBUG
         to_str = ToText();
 #endif
@@ -235,6 +237,7 @@ bool Row::DeleteElements(bool left, bool with_undo)
         if (selection->Has(id, start, size))
         {
             elements->RemoveAt(start, size);
+            document->Remake(id, false);
 #ifdef DEBUG
             to_str = ToText();
 #endif
@@ -246,6 +249,26 @@ bool Row::DeleteElements(bool left, bool with_undo)
     to_str = ToText();
 #endif
     return false;
+}
+
+bool Row::ChangeStringFormat(const StringFormatPtr format, bool with_undo)
+{
+    SelectionState s = selection->GetState();
+    for (auto& t : s.state)
+    {
+        if (!IsChild(id, t.id))
+            continue;
+        ElementPtr el = document->GetElement(t.id);
+        if (el->SplitAt(t.start))
+            el = elements->Get(elements->GetElementPos(el->id) + 1);
+        el->SplitAt(t.size);
+        el->ChangeStringFormat(format, with_undo);
+    }
+
+#ifdef DEBUG
+    to_str = ToText();
+#endif
+    return true;
 }
 
 bool Row::GetBeginCaretState(CaretState& caret_state, Selection* select)

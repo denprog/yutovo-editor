@@ -28,19 +28,18 @@ public:
 
     virtual bool InsertElements(std::vector<ElementPtr>& _elements, bool with_undo);
     virtual bool DeleteElements(bool left, bool with_undo);
+    virtual bool ChangeStringFormat(const StringFormatPtr format, bool with_undo);
 
     virtual bool Split(const uint max_left_width);
     virtual bool SplitAt(const uint pos);
     virtual bool Merge(const ElementPtr with_element);
 
     virtual bool CanContinueSelection();
-
-public:
-    bool ChangeStringFormat(const StringFormatPtr _format);
     
 protected:
     friend class StringElements;
     friend class Document;
+    friend class ChangeStringFormatTask;
 
     StringFormatPtr format;
 };

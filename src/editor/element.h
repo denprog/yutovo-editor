@@ -45,6 +45,7 @@ public:
 
     virtual bool InsertElements(std::vector<ElementPtr>& _elements, bool with_undo);
     virtual bool DeleteElements(bool left, bool with_undo);
+    virtual bool ChangeStringFormat(const StringFormatPtr format, bool with_undo);
 
     virtual bool Split(const uint max_left_width);
     virtual bool SplitAt(const uint pos);
@@ -127,6 +128,7 @@ public:
     virtual void Remake();
 
     virtual ElementPtr Get(uint pos);
+    virtual ElementPtr Get(ElementId id);
     virtual ElementId GetElementId(uint pos);
     virtual int GetElementPos(ElementId id);
 

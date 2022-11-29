@@ -89,6 +89,17 @@ bool Element::DeleteElements(bool left, bool with_undo)
     return false;
 }
 
+bool Element::ChangeStringFormat(const StringFormatPtr format, bool with_undo)
+{
+    for (uint i = 0; i < elements->Count(); ++i)
+    {
+        auto el = elements->Get(i);
+        if (!el->ChangeStringFormat(format, with_undo))
+            return false;
+    }
+    return true;
+}
+
 bool Element::Split(const uint max_left_width)
 {
     return false;
@@ -434,6 +445,18 @@ ElementPtr Elements::Get(uint pos)
     return elements[pos];
 }
 
+ElementPtr Elements::Get(ElementId id)
+{
+    auto it = std::find_if(elements.begin(), elements.end(), 
+        [id](ElementPtr& el)
+        {
+            return el->id == id;
+        });
+    if (it == elements.end())
+        return nullptr;
+    return *it;
+}
+
 ElementId Elements::GetElementId(uint pos)
 {
     assert(elements.size() > pos);
@@ -518,29 +541,8 @@ void Elements::RemoveAt(const uint pos, const int size)
 
 void Elements::Move(const ElementPtr element, const uint pos)
 {
-    if (caret->IsInsideElement(element->id))
-    {
-        int cs_pos = caret->current_pos;
-        element->parent->elements->Remove(element);
-        Insert(element, pos);
-        caret->SetState(element->id, cs_pos);
-    }
-    else if (element->parent->elements->Count() > 1)
-    {
-        int cs_pos = -1;
-        auto p = element->parent;
-        if (caret->IsInsideElement(p->elements->Get(1)->id))
-            cs_pos = caret->current_pos;
-        element->parent->elements->Remove(element);
-        Insert(element, pos);
-        if (cs_pos != -1)
-            caret->SetState(p->elements->Get(0)->id, cs_pos);
-    }
-    else
-    {
-        element->parent->elements->Remove(element);
-        Insert(element, pos);
-    }
+    Insert(ElementPtr(element->Clone()), pos);
+    element->parent->elements->Remove(element);
 
 #ifdef DEBUG
     parent->to_str = parent->ToText();

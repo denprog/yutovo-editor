@@ -122,6 +122,8 @@ struct Color
 
 std::string IdToString(const ElementId& id);
 
+bool IsChild(const ElementId& parent_id, const ElementId& child_id);
+
 }
 
 #endif

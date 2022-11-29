@@ -58,11 +58,22 @@ struct DeleteElementsTask : Task
 
 struct ChangeStringFormatTask : Task
 {
-    ChangeStringFormatTask(ElementPtr _text, const StringFormat& _format);
+    ChangeStringFormatTask(ElementPtr _text, const StringFormatPtr& _format, bool _with_undo);
+    ChangeStringFormatTask(ElementPtr _text, const StringFormatPtr& _format, bool _set_family, bool _set_size, bool _set_bold, bool _set_italic, 
+        bool _set_underline, bool _with_undo);
+    ChangeStringFormatTask(ElementPtr _text, const StringFormatPtr& _format, uint _id);
 
     virtual bool Execute();
 
-    StringFormat format;
+    StringFormatPtr format;
+
+    bool set_family = true;
+    bool set_size = true;
+    bool set_bold = true;
+    bool set_italic = true;
+    bool set_underline = true;
+
+    EditorState before_state;
 };
 
 struct ChangeParagraphFormatTask : Task
@@ -76,7 +87,8 @@ struct ChangeParagraphFormatTask : Task
 
 struct RemakeTask : Task
 {
-    RemakeTask(ElementPtr _text, const ElementId& _id, bool _with_elements);
+    RemakeTask(ElementPtr _text, const ElementId& _element_id, bool _with_elements);
+    RemakeTask(ElementPtr _text, const ElementId& _element_id, bool _with_elements, uint id);
 
     virtual bool Execute();
 

@@ -46,7 +46,7 @@ void Document::MainLoop()
     while (!exit)
     {
         {
-            std::unique_lock<std::mutex> lock(tasks_mutex);
+            std::unique_lock<std::recursive_mutex> lock(tasks_mutex);
             if (tasks.empty() && undos.empty() && redos.empty())
             {
                 if (next_circle.wait_for(lock, caret_settings.blink_delay * 1ms) == std::cv_status::timeout) //wait for tasks
@@ -60,7 +60,7 @@ void Document::MainLoop()
         {
             std::vector<TaskPtr> temp_undo_tasks;
             {
-                std::lock_guard<std::mutex> lock(tasks_mutex);
+                std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
                 if (!undos.empty())
                 {
                     //execute one undo
@@ -100,7 +100,7 @@ void Document::MainLoop()
         {
             std::vector<TaskPtr> temp_redo_tasks;
             {
-                std::lock_guard<std::mutex> lock(tasks_mutex);
+                std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
                 if (!redos.empty())
                 {
                     //execute one redo: collect all redo tasks for first absent undo
@@ -144,7 +144,7 @@ void Document::MainLoop()
         }
 
         {
-            std::lock_guard<std::mutex> lock(tasks_mutex);
+            std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
             temp_tasks = tasks;
             tasks.clear();
         }
@@ -228,7 +228,7 @@ void Document::InsertElement(Element* element, ElementId element_id)
 void Document::InsertElements(std::vector<ElementPtr>& elements, bool with_undo, bool undo, ElementId element_id)
 {
     {
-        std::lock_guard<std::mutex> lock(tasks_mutex);
+        std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
         if (undo)
         {
             undo_tasks.push(TaskPtr(new InsertElementsTask(text, elements, cur_task_id, element_id)));
@@ -246,7 +246,7 @@ void Document::InsertElements(std::vector<ElementPtr>& elements, bool with_undo,
 void Document::DeleteElements(bool left, bool with_undo, bool undo)
 {
     {
-        std::lock_guard<std::mutex> lock(tasks_mutex);
+        std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
         if (undo)
         {
             undo_tasks.push(TaskPtr(new DeleteElementsTask(text, left, cur_task_id)));
@@ -255,6 +255,41 @@ void Document::DeleteElements(bool left, bool with_undo, bool undo)
         else
         {
             tasks.emplace_back(new DeleteElementsTask(text, left, with_undo));
+            last_task_id = tasks[tasks.size() - 1]->id;
+        }
+    }
+    next_circle.notify_one();
+}
+
+void Document::ChangeStringFormat(const std::string family, const uint size, const bool bold, const bool italic, const bool underline, 
+    bool with_undo, bool undo)
+{
+    ChangeStringFormat(string_formats.GetFormat(family, size, bold, italic, underline), with_undo, undo);
+}
+
+void Document::ChangeStringFormat(const StringFormatPtr format, bool set_family, bool set_size, bool set_bold, bool set_italic, bool set_underline, 
+    bool with_undo)
+{
+    {
+        std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
+        tasks.emplace_back(new ChangeStringFormatTask(text, format, set_family, set_size, set_bold, set_italic, set_underline, with_undo));
+        last_task_id = tasks[tasks.size() - 1]->id;
+    }
+    next_circle.notify_one();
+}
+
+void Document::ChangeStringFormat(const StringFormatPtr format, bool with_undo, bool undo)
+{
+    {
+        std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
+        if (undo)
+        {
+            undo_tasks.push(TaskPtr(new ChangeStringFormatTask(text, format, cur_task_id)));
+            last_task_id = cur_task_id;
+        }
+        else
+        {
+            tasks.emplace_back(new ChangeStringFormatTask(text, format, with_undo));
             last_task_id = tasks[tasks.size() - 1]->id;
         }
     }
@@ -273,15 +308,13 @@ void Document::PushEditorState(const CaretState& caret_state, bool undo)
 
 void Document::PushEditorState(const SelectionState& selection_state, bool undo)
 {
-    SelectionState s = selection.GetState();
-    s.Merge(selection_state);
-    PushEditorState(caret.GetCaretState(), s, undo);
+    PushEditorState(caret.GetCaretState(), selection_state, undo);
 }
 
 void Document::PushEditorState(const CaretState& caret_state, const SelectionState& selection_state, bool undo)
 {
     {
-        std::lock_guard<std::mutex> lock(tasks_mutex);
+        std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
         if (undo)
             undo_tasks.push(TaskPtr(new SetEditorStateTask(text, caret_state, selection_state, cur_task_id)));
         else
@@ -334,7 +367,7 @@ Rect Document::GetCaretRect(const CaretState& caret_state)
 
 bool Document::GetCurrentStringFormat(StringFormatPtr& format)
 {
-    std::lock_guard<std::mutex> lock(tasks_mutex);
+    std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
     if (current_string_format)
     {
         format = current_string_format;
@@ -345,33 +378,44 @@ bool Document::GetCurrentStringFormat(StringFormatPtr& format)
 
 void Document::SetCurrentStringFormat(StringFormatPtr& format)
 {
-    std::lock_guard<std::mutex> lock(tasks_mutex);
+    std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
     current_string_format = format;
 }
 
 void Document::UpdateFormats()
 {
-    std::lock_guard<std::mutex> lock(tasks_mutex);
+    std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
     CaretState c = caret.GetCaretState();
     ElementPtr el = GetParent(c.id);
     if (!el || el->type != ElementType::STRING)
+    {
+        current_string_format.reset();
         return;
+    }
     current_string_format = ((String*)el.get())->format;
 }
 
 void Document::SetFontFamily(const std::string& family)
 {
-    std::lock_guard<std::mutex> lock(tasks_mutex);
+    std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
     if (current_string_format)
     {
-        current_string_format = string_formats.GetFormat(family, current_string_format->size, current_string_format->bold, 
-            current_string_format->italic, current_string_format->underline);
+        if (!selection.IsEmpty())
+        {
+            ChangeStringFormat(string_formats.GetFormat(family, current_string_format->size, current_string_format->bold, 
+                current_string_format->italic, current_string_format->underline), true, false);
+        }
+        else
+        {
+            current_string_format = string_formats.GetFormat(family, current_string_format->size, current_string_format->bold, 
+                current_string_format->italic, current_string_format->underline);
+        }
     }
 }
 
 void Document::SetFontSize(const uint size)
 {
-    std::lock_guard<std::mutex> lock(tasks_mutex);
+    std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
     if (current_string_format)
     {
         current_string_format = string_formats.GetFormat(current_string_format->family, size, current_string_format->bold, 
@@ -381,37 +425,61 @@ void Document::SetFontSize(const uint size)
 
 void Document::SetBold(const bool enabled)
 {
-    std::lock_guard<std::mutex> lock(tasks_mutex);
+    std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
     if (current_string_format)
     {
-        current_string_format = string_formats.GetFormat(current_string_format->family, current_string_format->size, enabled, 
-            current_string_format->italic, current_string_format->underline);
+        if (!selection.IsEmpty())
+        {
+            ChangeStringFormat(string_formats.GetFormat(current_string_format->family, current_string_format->size, enabled, 
+                current_string_format->italic, current_string_format->underline), false, false, true, false, false, true);
+        }
+        else
+        {
+            current_string_format = string_formats.GetFormat(current_string_format->family, current_string_format->size, enabled, 
+                current_string_format->italic, current_string_format->underline);
+        }
     }
 }
 
 void Document::SetItalic(const bool enabled)
 {
-    std::lock_guard<std::mutex> lock(tasks_mutex);
+    std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
     if (current_string_format)
     {
-        current_string_format = string_formats.GetFormat(current_string_format->family, current_string_format->size, 
-            current_string_format->bold, enabled, current_string_format->underline);
+        if (!selection.IsEmpty())
+        {
+            ChangeStringFormat(string_formats.GetFormat(current_string_format->family, current_string_format->size, current_string_format->bold, 
+                enabled, current_string_format->underline), true, false);
+        }
+        else
+        {
+            current_string_format = string_formats.GetFormat(current_string_format->family, current_string_format->size, 
+                current_string_format->bold, enabled, current_string_format->underline);
+        }
     }
 }
 
 void Document::SetUnderline(const bool enabled)
 {
-    std::lock_guard<std::mutex> lock(tasks_mutex);
+    std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
     if (current_string_format)
     {
-        current_string_format = string_formats.GetFormat(current_string_format->family, current_string_format->size, current_string_format->bold, 
-            current_string_format->italic, enabled);
+        if (!selection.IsEmpty())
+        {
+            ChangeStringFormat(string_formats.GetFormat(current_string_format->family, current_string_format->size, current_string_format->bold, 
+                current_string_format->italic, enabled), true, false);
+        }
+        else
+        {
+            current_string_format = string_formats.GetFormat(current_string_format->family, current_string_format->size, current_string_format->bold, 
+                current_string_format->italic, enabled);
+        }
     }
 }
 
 ElementType Document::GetElementType(const ElementId id)
 {
-    std::lock_guard<std::mutex> lock(tasks_mutex);
+    std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
     ElementPtr el = GetElement(id);
     if (!el)
         return ElementType::NONE;
@@ -420,7 +488,7 @@ ElementType Document::GetElementType(const ElementId id)
 
 bool Document::GetStringFormat(const ElementId id, StringFormatPtr& format)
 {
-    std::lock_guard<std::mutex> lock(tasks_mutex);
+    std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
     ElementPtr el = GetElement(id);
     if (el->type != ElementType::STRING)
         return false;
@@ -430,7 +498,7 @@ bool Document::GetStringFormat(const ElementId id, StringFormatPtr& format)
 
 void Document::MoveCaret(MoveCaretTask::MoveCaretDir dir, bool select)
 {
-    std::lock_guard<std::mutex> lock(tasks_mutex);
+    std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
     tasks.emplace_back(new MoveCaretTask(text, &caret, dir, true, select));
     next_circle.notify_one();
 
@@ -491,7 +559,7 @@ void Document::MoveCaretToDocumentEnd(bool select)
 
 void Document::SetCaretVisible(bool visible)
 {
-    std::lock_guard<std::mutex> lock(tasks_mutex);
+    std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
     tasks.emplace_back(new MoveCaretTask(text, &caret, MoveCaretTask::MoveCaretDir::NONE, visible));
     next_circle.notify_one();
 }
@@ -500,7 +568,7 @@ void Document::Undo()
 {
     if (!CanUndo())
         return;
-    std::lock_guard<std::mutex> lock(tasks_mutex);
+    std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
     undos.push_back(true);
     next_circle.notify_one();
 }
@@ -509,27 +577,27 @@ void Document::Redo()
 {
     if (!CanRedo())
         return;
-    std::lock_guard<std::mutex> lock(tasks_mutex);
+    std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
     redos.push_back(true);
     next_circle.notify_one();
 }
 
 bool Document::CanUndo()
 {
-    std::lock_guard<std::mutex> lock(tasks_mutex);
+    std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
     return !undo_tasks.empty();
 }
 
 bool Document::CanRedo()
 {
-    std::lock_guard<std::mutex> lock(tasks_mutex);
+    std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
     return !redo_tasks.empty();
 }
 
 void Document::Resize(uint width, uint height)
 {
     {
-        std::lock_guard<std::mutex> lock(tasks_mutex);
+        std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
         tasks.emplace_back(new ResizeTask(text, width, height));
         next_circle.notify_one();
     }
@@ -538,54 +606,67 @@ void Document::Resize(uint width, uint height)
 
 void Document::Redraw(const ElementId& id)
 {
-    std::lock_guard<std::mutex> lock(tasks_mutex);
-    if (!tasks.empty())
     {
-        TaskPtr last = tasks[tasks.size() - 1];
-        RedrawTask* t = dynamic_cast<RedrawTask*>(last.get());
-        if (!t || t->element_id != id)
+        std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
+        if (!tasks.empty())
+        {
+            TaskPtr last = tasks[tasks.size() - 1];
+            RedrawTask* t = dynamic_cast<RedrawTask*>(last.get());
+            if (!t || t->element_id != id)
+                tasks.emplace_back(new RedrawTask(text, id));
+        }
+        else
+        {
             tasks.emplace_back(new RedrawTask(text, id));
-    }
-    else
-    {
-        tasks.emplace_back(new RedrawTask(text, id));
+        }
     }
     next_circle.notify_one();
 }
 
 void Document::Redraw()
 {
-    std::lock_guard<std::mutex> lock(tasks_mutex);
-    tasks.emplace_back(new RedrawTask(text, text->id));
+    {
+        std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
+        tasks.emplace_back(new RedrawTask(text, text->id));
+    }
     next_circle.notify_one();
 }
 
-void Document::Remake(const ElementId& id, bool with_elements)
+void Document::Remake(const ElementId& id, bool with_elements, bool undo)
 {
-    std::lock_guard<std::mutex> lock(tasks_mutex);
-    if (!tasks.empty())
     {
-        TaskPtr last = tasks[tasks.size() - 1];
-        RemakeTask* t = dynamic_cast<RemakeTask*>(last.get());
-        if (!t || t->element_id != id || t->with_elements != with_elements)
-            tasks.emplace_back(new RemakeTask(text, id, with_elements));
-    }
-    else
-    {
-        tasks.emplace_back(new RemakeTask(text, id, with_elements));
+        std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
+        if (undo)
+        {
+            undo_tasks.push(TaskPtr(new RemakeTask(text, id, with_elements, cur_task_id)));
+        }
+        else
+        {
+            if (!tasks.empty())
+            {
+                TaskPtr last = tasks[tasks.size() - 1];
+                RemakeTask* t = dynamic_cast<RemakeTask*>(last.get());
+                if (!t || t->element_id != id || t->with_elements != with_elements)
+                    tasks.emplace_back(new RemakeTask(text, id, with_elements));
+            }
+            else
+            {
+                tasks.emplace_back(new RemakeTask(text, id, with_elements));
+            }
+        }
     }
     next_circle.notify_one();
 }
 
 std::string Document::ToHtml()
 {
-    std::lock_guard<std::mutex> lock(tasks_mutex);
+    std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
     return text->ToHtml();
 }
 
 std::string Document::ToText()
 {
-    std::lock_guard<std::mutex> lock(tasks_mutex);
+    std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
     return text->ToText();
 }
 
@@ -597,6 +678,11 @@ TextFormatPtr Document::GetDefaultTextFormat()
 PageFormatPtr Document::GetDefaultPageFormat()
 {
     return PageFormats::GetFormat(20, 20, 20, 20, 10);
+}
+
+StringFormatPtr Document::GetStringFormat(const std::string family, uint size, bool bold, bool italic, bool underline)
+{
+    return string_formats.GetFormat(family, size, bold, italic, underline);
 }
 
 void Document::SetCurrentParagraphFormat(const std::string& name)
