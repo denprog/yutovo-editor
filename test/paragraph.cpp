@@ -26,10 +26,10 @@ TEST_F(ParagraphTest, resizing1)
             return GetTextSizeMock(text, format);
         });
 
-    document.InsertText("Text", std::make_shared<StringFormat>("Arial", 22, false, false, false), true);
-    document.InsertText("Italic", std::make_shared<StringFormat>("Times New Roman", 18, false, true, false), true);
-    document.InsertText("Bold", std::make_shared<StringFormat>("Times New Roman", 34, true, false, false), true);
-    document.InsertText("String1 String2 String3", std::make_shared<StringFormat>("Arial", 20, false, false, false), true);
+    document.InsertText("Text", document.GetStringFormat("Arial", 22, false, false, false), true);
+    document.InsertText("Italic", document.GetStringFormat("Times New Roman", 18, false, true, false), true);
+    document.InsertText("Bold", document.GetStringFormat("Times New Roman", 34, true, false, false), true);
+    document.InsertText("String1 String2 String3", document.GetStringFormat("Arial", 20, false, false, false), true);
     document.WaitMainLoop();
     ASSERT_TRUE(document.ToHtml() == 
         "<body><p>"\
@@ -199,10 +199,10 @@ TEST_F(ParagraphTest, resizing2)
             return GetTextSizeMock(text, format);
         });
 
-    document.InsertText("Text", std::make_shared<StringFormat>("Arial", 22, false, false, false), true);
-    document.InsertText("Italic", std::make_shared<StringFormat>("Times New Roman", 18, false, true, false), true);
-    document.InsertText("Bold", std::make_shared<StringFormat>("Times New Roman", 34, true, false, false), true);
-    document.InsertText("String1 String2 String3", std::make_shared<StringFormat>("Arial", 20, false, false, false), true);
+    document.InsertText("Text", document.GetStringFormat("Arial", 22, false, false, false), true);
+    document.InsertText("Italic", document.GetStringFormat("Times New Roman", 18, false, true, false), true);
+    document.InsertText("Bold", document.GetStringFormat("Times New Roman", 34, true, false, false), true);
+    document.InsertText("String1 String2 String3", document.GetStringFormat("Arial", 20, false, false, false), true);
     document.WaitMainLoop();
     document.MoveCaretLeft(true);
     document.MoveCaretLeft(true);
@@ -310,10 +310,10 @@ TEST_F(ParagraphTest, paragraph1)
             return GetTextSizeMock(text, format);
         });
 
-    document.InsertText("Text", std::make_shared<StringFormat>("Arial", 22, false, false, false), true);
-    document.InsertText("Italic", std::make_shared<StringFormat>("Times New Roman", 18, false, true, false), true);
-    document.InsertText("Bold", std::make_shared<StringFormat>("Times New Roman", 34, true, false, false), true);
-    document.InsertText("String1 String2 String3", std::make_shared<StringFormat>("Arial", 20, false, false, false), true);
+    document.InsertText("Text", document.GetStringFormat("Arial", 22, false, false, false), true);
+    document.InsertText("Italic", document.GetStringFormat("Times New Roman", 18, false, true, false), true);
+    document.InsertText("Bold", document.GetStringFormat("Times New Roman", 34, true, false, false), true);
+    document.InsertText("String1 String2 String3", document.GetStringFormat("Arial", 20, false, false, false), true);
     document.WaitMainLoop();
     ASSERT_TRUE(document.ToHtml() == 
         "<body><p>"\

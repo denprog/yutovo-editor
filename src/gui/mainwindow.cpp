@@ -33,10 +33,10 @@ void MainWindow::SetupGui()
 
     connect(&document_widget->window, &QtWindow::CaretMoved, this, &MainWindow::OnCaretMoved);
 
-    document_widget->InsertText("Text", std::make_shared<StringFormat>("Arial", 22, false, false, false));
-    document_widget->InsertText("Italic", std::make_shared<StringFormat>("Times New Roman", 18, false, true, false));
-    document_widget->InsertText("Bold", std::make_shared<StringFormat>("Times New Roman", 34, true, false, false));
-    document_widget->InsertText("String1 String2 String3", std::make_shared<StringFormat>("Arial", 20, false, false, false));
+    document_widget->InsertText("Text", document_widget->document.GetStringFormat("Arial", 22, false, false, false));
+    document_widget->InsertText("Italic", document_widget->document.GetStringFormat("Times New Roman", 18, false, true, false));
+    document_widget->InsertText("Bold", document_widget->document.GetStringFormat("Times New Roman", 34, true, false, false));
+    document_widget->InsertText("String1 String2 String3", document_widget->document.GetStringFormat("Arial", 20, false, false, false));
 }
 
 void MainWindow::CreateActions()

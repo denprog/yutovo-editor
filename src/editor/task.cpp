@@ -1,6 +1,7 @@
 #include "task.h"
 #include "text.h"
 #include "document.h"
+#include "str.h"
 #include <assert.h>
 
 namespace yutovo
@@ -135,10 +136,7 @@ bool DeleteElementsTask::Execute()
     {
         assert(el != nullptr);
         if (el->DeleteElements(left, with_undo))
-        {
-            text->document->Remake(el->parent->id, true);
             return true;
-        }
         return false;
     };
 
@@ -168,15 +166,90 @@ bool DeleteElementsTask::Execute()
 
 //ChangeStringFormatTask
 
-ChangeStringFormatTask::ChangeStringFormatTask(ElementPtr _text, const StringFormat& _format) :
+ChangeStringFormatTask::ChangeStringFormatTask(ElementPtr _text, const StringFormatPtr& _format, bool _with_undo) :
     Task(_text),
+    format(_format)
+{
+    with_undo = _with_undo;
+}
+
+ChangeStringFormatTask::ChangeStringFormatTask(ElementPtr _text, const StringFormatPtr& _format, bool _set_family, bool _set_size, 
+    bool _set_bold, bool _set_italic, bool _set_underline, bool _with_undo) :
+    ChangeStringFormatTask(_text, _format, _with_undo)
+{
+    set_family = _set_family;
+    set_size = _set_size;
+    set_bold = _set_bold;
+    set_italic = _set_italic;
+    set_underline = _set_underline;
+}
+
+ChangeStringFormatTask::ChangeStringFormatTask(ElementPtr _text, const StringFormatPtr& _format, uint _id) :
+    Task(_text, _id), 
     format(_format)
 {
 }
 
 bool ChangeStringFormatTask::Execute()
 {
-    return false;
+    if (with_undo)
+    {
+        text->document->PushEditorState(true);
+        text->document->Remake(text->id, true, true);
+    }
+
+    if (before_state.IsEmpty())
+        before_state = text->document->GetEditorState();
+
+    CaretState& caret_state = before_state.caret_state;
+    SelectionState& selection_state = before_state.selection_state;
+
+    std::vector<ElementPtr> elements;
+    for (int i = 0; i < selection_state.state.size(); ++i)
+    {
+        ElementSelectionState& s = selection_state.state[i];
+        elements.push_back(text->document->GetElement(s.id));
+    }
+
+    //for (int i = selection_state.state.size() - 1; i >= 0; --i)
+    for (int i = 0; i < selection_state.state.size(); ++i)
+    {
+        ElementSelectionState& s = selection_state.state[i];
+        //auto el = text->document->GetElement(s.id);
+        auto el = elements[i];
+
+        StringFormatPtr _format;
+        if (text->document->GetElementType(el->id) == ElementType::STRING)
+        {
+            //set only actual params
+            StringFormat f = *((String*)el.get())->format;
+            if (set_family)
+                f.family = format->family;
+            if (set_size)
+                f.size = format->size;
+            if (set_bold)
+                f.bold = format->bold;
+            if (set_italic)
+                f.italic = format->italic;
+            if (set_underline)
+                f.underline = format->underline;
+            _format = text->document->GetStringFormat(f.family, f.size, f.bold, f.italic, f.underline);
+        }
+        else
+        {
+            _format = format;
+        }
+
+        if (!el->ChangeStringFormat(_format, with_undo))
+            return false;
+        text->document->Remake(text->document->GetParent(s.id)->id, true);
+        text->document->UpdateFormats();
+    }
+
+    if (with_undo)
+        text->document->PushEditorState(true);
+
+    return true;
 }
 
 ChangeParagraphFormatTask::ChangeParagraphFormatTask(ElementPtr _text, const ParagraphFormat& _format) :
@@ -192,9 +265,16 @@ bool ChangeParagraphFormatTask::Execute()
 
 //RemakeTask
 
-RemakeTask::RemakeTask(ElementPtr _text, const ElementId& _id, bool _with_elements) : 
+RemakeTask::RemakeTask(ElementPtr _text, const ElementId& _element_id, bool _with_elements) : 
     Task(_text), 
-    element_id(_id),
+    element_id(_element_id),
+    with_elements(_with_elements)
+{
+}
+
+RemakeTask::RemakeTask(ElementPtr _text, const ElementId& _element_id, bool _with_elements, uint id) :
+    Task(_text, id), 
+    element_id(_element_id),
     with_elements(_with_elements)
 {
 }
@@ -219,6 +299,8 @@ bool RedrawTask::Execute()
 {
     logger->Debug("Execute RedrawTask element_id={}", IdToString(element_id));
     ElementPtr element = text->document->GetElement(element_id);
+    if (!element)
+        return false;
     text->window->DrawFillRect(element->GetAbsoluteRect(), Color::White());
     element->Draw();
     text->window->Update(element->GetAbsoluteRect());

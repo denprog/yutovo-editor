@@ -70,8 +70,8 @@ TEST_F(DocumentTest, caret1)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 10)) << document.GetEditorState().ToString();
 
     document.InsertText(" Word3", true);
-    document.InsertText("Bold", std::make_shared<StringFormat>("Times New Roman", 34, true, false, false), true);
-    document.InsertText("Italic", std::make_shared<StringFormat>("Courier", 24, false, true, false), true);
+    document.InsertText("Bold", document.GetStringFormat("Times New Roman", 34, true, false, false), true);
+    document.InsertText("Italic", document.GetStringFormat("Courier", 24, false, true, false), true);
     document.WaitMainLoop();
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 2, 6)) << document.GetEditorState().ToString();

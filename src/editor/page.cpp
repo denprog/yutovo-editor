@@ -90,19 +90,31 @@ bool Page::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo)
     ElementPtr el = document->GetParent(before_state.id);
     ElementPtr paragraph = document->FindParent(el->id, ElementType::PARAGRAPH);
     ElementPtr row = document->FindParent(el->id, ElementType::ROW);
+
+    uint k = elements->GetElementPos(paragraph->id);
+    uint p = row->elements->GetElementPos(el->id);
+    bool caret_next_row = false;
+    if (p == 0 && document->caret.current_pos == 0)
+    {
+        elements->Insert(insert_element, k);
+    }
+    else
+    {
+        elements->Insert(insert_element, k + 1);
+        caret_next_row = true;
+    }
+
     ElementPtr new_row = insert_element->elements->Get(0); //move elements into this one row, which will be splitted during paragraph formatting
     if (new_row->elements->Count() == 0)
         new_row->AddElement(ElementPtr(new String(new_row.get())));
 
     el->SplitAt(before_state.GetPos()); //try to split current element
-    uint p = row->elements->GetElementPos(el->id);
     if (before_state.GetPos() != 0 || p != 0)
     {
         for (int i = p + 1; i < row->elements->Count();) //move all elements at the right side of the row
             new_row->elements->Move(row->elements->Get(i), new_row->elements->Count());
     }
 
-    uint k = elements->GetElementPos(paragraph->id);
     for (int i = k + 1; i < paragraph->elements->Count(); ++i) //move the rest rows of the paragraph
     {
         ElementPtr r = paragraph->elements->Get(i);
@@ -111,16 +123,14 @@ bool Page::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo)
     }
 
     CaretState after;
-    if (p == 0 && document->caret.current_pos == 0)
+    if (caret_next_row)
     {
-        elements->Insert(insert_element, k);
-        if (row->GetFirstCaretState(after, nullptr))
+        if (new_row->GetFirstCaretState(after, nullptr))
             document->caret.SetState(after);
     }
     else
     {
-        elements->Insert(insert_element, k + 1);
-        if (new_row->GetFirstCaretState(after, nullptr))
+        if (row->GetFirstCaretState(after, nullptr))
             document->caret.SetState(after);
     }
     

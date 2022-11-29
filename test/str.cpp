@@ -53,7 +53,7 @@ TEST_F(DocumentTest, strings1)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 8)) << document.GetEditorState().ToString();
 
     document.MoveCaretHome(false);
-    document.InsertText("Bold", std::make_shared<StringFormat>("Times New Roman", 34, true, false, false), true);
+    document.InsertText("Bold", document.GetStringFormat("Times New Roman", 34, true, false, false), true);
     document.WaitMainLoop();
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
@@ -265,7 +265,7 @@ TEST_F(DocumentTest, selections2)
 
     document.InsertText("Test", true);
     document.MoveCaretHome(false);
-    document.InsertText("Bold", std::make_shared<StringFormat>("Times New Roman", 34, true, false, false), true);
+    document.InsertText("Bold", document.GetStringFormat("Times New Roman", 34, true, false, false), true);
     document.WaitMainLoop();
     ASSERT_TRUE(document.ToHtml() == 
         "<body><p>"\
@@ -351,9 +351,9 @@ TEST_F(DocumentTest, selections3)
             return GetTextSizeMock(text, format);
         });
 
-    document.InsertText("Normal", std::make_shared<StringFormat>("Arial", 16, false, false, false), true);
-    document.InsertText("Bold", std::make_shared<StringFormat>("Times New Roman", 34, true, false, false), true);
-    document.InsertText("Italic", std::make_shared<StringFormat>("Courier", 24, false, true, false), true);
+    document.InsertText("Normal", document.GetStringFormat("Arial", 16, false, false, false), true);
+    document.InsertText("Bold", document.GetStringFormat("Times New Roman", 34, true, false, false), true);
+    document.InsertText("Italic", document.GetStringFormat("Courier", 24, false, true, false), true);
     document.WaitMainLoop();
     ASSERT_TRUE(document.ToHtml() == 
         "<body><p>"\
@@ -459,7 +459,7 @@ TEST_F(DocumentTest, inserts1)
         "</p></body>") << 
         document.ToHtml();
     
-    document.InsertText("Bold", std::make_shared<StringFormat>("Times New Roman", 34, true, false, false), true);
+    document.InsertText("Bold", document.GetStringFormat("Times New Roman", 34, true, false, false), true);
     document.WaitMainLoop();
     ASSERT_TRUE(document.ToHtml() == 
         "<body><p>"\
@@ -519,7 +519,7 @@ TEST_F(DocumentTest, inserts2)
         document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 3)) << document.GetEditorState().ToString();
 
-    document.InsertText("Bold", std::make_shared<StringFormat>("Times New Roman", 34, true, false, false), true);
+    document.InsertText("Bold", document.GetStringFormat("Times New Roman", 34, true, false, false), true);
     document.WaitMainLoop();
     ASSERT_TRUE(document.ToHtml() == 
         "<body><p>"\
@@ -556,10 +556,10 @@ TEST_F(DocumentTest, inserts3)
             return GetTextSizeMock(text, format);
         });
 
-    document.InsertText("Text", std::make_shared<StringFormat>("Arial", 24, false, false, false), true);
-    document.InsertText("Italic", std::make_shared<StringFormat>("Times New Roman", 18, false, true, false), true);
-    document.InsertText("Bold", std::make_shared<StringFormat>("Times New Roman", 34, true, false, false), true);
-    document.InsertText("String1 String2 String3", std::make_shared<StringFormat>("Arial", 20, false, false, false), true);
+    document.InsertText("Text", document.GetStringFormat("Arial", 24, false, false, false), true);
+    document.InsertText("Italic", document.GetStringFormat("Times New Roman", 18, false, true, false), true);
+    document.InsertText("Bold", document.GetStringFormat("Times New Roman", 34, true, false, false), true);
+    document.InsertText("String1 String2 String3", document.GetStringFormat("Arial", 20, false, false, false), true);
     document.WaitMainLoop();
     ASSERT_TRUE(document.ToHtml() == 
         "<body><p>"\
@@ -619,11 +619,11 @@ TEST_F(DocumentTest, inserts4)
             return GetTextSizeMock(text, format);
         });
 
-    document.InsertText("Text", std::make_shared<StringFormat>("Arial", 24, false, false, false), true);
+    document.InsertText("Text", document.GetStringFormat("Arial", 24, false, false, false), true);
     for (int i = 0; i < 4; ++i)
         document.DeleteElements(true, true, false);
-    document.InsertText("Text", std::make_shared<StringFormat>("Arial", 24, false, false, false), true);
-    document.InsertText("Italic", std::make_shared<StringFormat>("Times New Roman", 18, false, true, false), true);
+    document.InsertText("Text", document.GetStringFormat("Arial", 24, false, false, false), true);
+    document.InsertText("Italic", document.GetStringFormat("Times New Roman", 18, false, true, false), true);
     document.WaitMainLoop();
     ASSERT_TRUE(document.ToHtml() == 
         "<body><p>"\
@@ -662,10 +662,10 @@ TEST_F(DocumentTest, inserts5)
             return GetTextSizeMock(text, format);
         });
 
-    document.InsertText("Text", std::make_shared<StringFormat>("Arial", 24, false, false, false), true);
+    document.InsertText("Text", document.GetStringFormat("Arial", 24, false, false, false), true);
     for (int i = 0; i < 2; ++i)
         document.MoveCaretLeft(false);
-    document.InsertText("Bold", std::make_shared<StringFormat>("Arial", 24, true, false, false), true);
+    document.InsertText("Bold", document.GetStringFormat("Arial", 24, true, false, false), true);
     document.WaitMainLoop();
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
@@ -712,9 +712,9 @@ TEST_F(DocumentTest, inserts6)
             return GetTextSizeMock(text, format);
         });
 
-    document.InsertText("Text", std::make_shared<StringFormat>("Arial", 24, false, false, false), true);
+    document.InsertText("Text", document.GetStringFormat("Arial", 24, false, false, false), true);
     document.MoveCaretHome(false);
-    document.InsertText("Bold", std::make_shared<StringFormat>("Arial", 24, true, false, false), true);
+    document.InsertText("Bold", document.GetStringFormat("Arial", 24, true, false, false), true);
     document.WaitMainLoop();
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
@@ -759,9 +759,9 @@ TEST_F(DocumentTest, inserts7)
             return GetTextSizeMock(text, format);
         });
 
-    document.InsertText("Text", std::make_shared<StringFormat>("Arial", 24, false, false, false), true);
+    document.InsertText("Text", document.GetStringFormat("Arial", 24, false, false, false), true);
     document.MoveCaretEnd(false);
-    document.InsertText("Bold", std::make_shared<StringFormat>("Arial", 24, true, false, false), true);
+    document.InsertText("Bold", document.GetStringFormat("Arial", 24, true, false, false), true);
     document.WaitMainLoop();
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
@@ -917,6 +917,187 @@ TEST_F(DocumentTest, fonts1)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 1, 4)) << document.GetEditorState().ToString();
 }
 
+TEST_F(DocumentTest, fonts2)
+{
+    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
+        {
+            return Rect{0, 0, 600, 400};
+        });
+
+    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::string& text, const StringFormatPtr format)
+        {
+            return GetTextSizeMock(text, format);
+        });
+
+    document.InsertText("Text", document.GetStringFormat("Arial", 24, false, false, false), true);
+    document.WaitMainLoop();
+    document.MoveCaretLeft(true);
+    document.ChangeStringFormat("Times New Roman", 22, false, false, false, true, false);
+    document.WaitMainLoop();
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body><p>"\
+        "<span style=\"font-family:'Arial';font-size:24px;\">Tex</span>"\
+        "<span style=\"font-family:'Times New Roman';font-size:22px;\">t</span>"\
+        "</p></body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 1, 0, 0, 1)) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitMainLoop();
+    std::this_thread::sleep_for(100ms);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body><p>"\
+        "<span style=\"font-family:'Arial';font-size:24px;\">Text</span>"\
+        "</p></body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 3, 3, 1)) << document.GetEditorState().ToString();
+
+    document.MoveCaretHome(true);
+    document.WaitCaretMoving();
+    document.SetBold(true);
+    document.WaitMainLoop();
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body><p>"\
+        "<span style=\"font-family:'Arial';font-size:24px;\"><strong>Text</strong></span>"\
+        "</p></body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 0, 0, 4)) << document.GetEditorState().ToString();
+
+    document.SetItalic(true);
+    document.WaitMainLoop();
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body><p>"\
+        "<span style=\"font-family:'Arial';font-size:24px;\"><strong><em>Text</em></strong></span>"\
+        "</p></body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 0, 0, 4)) << document.GetEditorState().ToString();
+
+    document.SetUnderline(true);
+    document.WaitMainLoop();
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body><p>"\
+        "<span style=\"font-family:'Arial';font-size:24px;text-decoration: underline;\"><strong><em>Text</em></strong></span>"\
+        "</p></body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 0, 0, 4)) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitMainLoop();
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body><p>"\
+        "<span style=\"font-family:'Arial';font-size:24px;\"><strong><em>Text</em></strong></span>"\
+        "</p></body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 0, 0, 4)) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitMainLoop();
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body><p>"\
+        "<span style=\"font-family:'Arial';font-size:24px;\"><strong>Text</strong></span>"\
+        "</p></body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 0, 0, 4)) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitMainLoop();
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body><p>"\
+        "<span style=\"font-family:'Arial';font-size:24px;\">Text</span>"\
+        "</p></body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 0, 0, 4)) << document.GetEditorState().ToString();
+
+    document.Redo();
+    document.WaitMainLoop();
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body><p>"\
+        "<span style=\"font-family:'Arial';font-size:24px;\"><strong>Text</strong></span>"\
+        "</p></body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 0, 0, 4)) << document.GetEditorState().ToString();
+
+    document.Redo();
+    document.WaitMainLoop();
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body><p>"\
+        "<span style=\"font-family:'Arial';font-size:24px;\"><strong><em>Text</em></strong></span>"\
+        "</p></body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 0, 0, 4)) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitMainLoop();
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body><p>"\
+        "<span style=\"font-family:'Arial';font-size:24px;\"><strong>Text</strong></span>"\
+        "</p></body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 0, 0, 4)) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitMainLoop();
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body><p>"\
+        "<span style=\"font-family:'Arial';font-size:24px;\">Text</span>"\
+        "</p></body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 0, 0, 4)) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitMainLoop();
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body><p>"\
+        "<span style=\"font-family:'Arial';font-size:22px;\"></span>"\
+        "</p></body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 0)) << document.GetEditorState().ToString();
+}
+
+TEST_F(DocumentTest, fonts3)
+{
+    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
+        {
+            return Rect{0, 0, 600, 400};
+        });
+
+    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::string& text, const StringFormatPtr format)
+        {
+            return GetTextSizeMock(text, format);
+        });
+
+    document.InsertText("Text", document.GetStringFormat("Arial", 24, false, false, false), true);
+    document.InsertText("Italic", document.GetStringFormat("Courier New", 14, false, true, false), true);
+    for (int i = 0; i < 3; ++i)
+        document.MoveCaretLeft(false);
+    for (int i = 0; i < 5; ++i)
+        document.MoveCaretLeft(true);
+    document.WaitMainLoop();
+    document.WaitCaretMoving();
+    document.SetBold(true);
+    document.WaitMainLoop();
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body><p>"\
+        "<span style=\"font-family:'Arial';font-size:24px;\">Te</span>"\
+        "<span style=\"font-family:'Arial';font-size:24px;\"><strong>xt</strong></span>"\
+        "<span style=\"font-family:'Courier New';font-size:14px;\"><strong><em>Ita</em></strong></span>"\
+        "<span style=\"font-family:'Courier New';font-size:14px;\"><em>lic</em></span>"\
+        "</p></body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 1, 0, 0, 2, 2, 0, 3)) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitMainLoop();
+    std::this_thread::sleep_for(100ms);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body><p>"\
+        "<span style=\"font-family:'Arial';font-size:24px;\">Text</span>"\
+        "<span style=\"font-family:'Courier New';font-size:14px;\"><em>Italic</em></span>"\
+        "</p></body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 2, 2, 2, 1, 0, 3)) << document.GetEditorState().ToString();
+}
+
 TEST_F(DocumentTest, delete1)
 {
     EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
@@ -929,8 +1110,8 @@ TEST_F(DocumentTest, delete1)
             return GetTextSizeMock(text, format);
         });
 
-    document.InsertText("Text", std::make_shared<StringFormat>("Arial", 24, false, false, false), true);
-    document.InsertText("Italic", std::make_shared<StringFormat>("Times New Roman", 18, false, true, false), true);
+    document.InsertText("Text", document.GetStringFormat("Arial", 24, false, false, false), true);
+    document.InsertText("Italic", document.GetStringFormat("Times New Roman", 18, false, true, false), true);
     document.WaitMainLoop();
     ASSERT_TRUE(document.ToHtml() == 
         "<body><p>"\

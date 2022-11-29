@@ -37,6 +37,11 @@ public:
 
     void DeleteElements(bool left, bool with_undo, bool undo);
 
+    void ChangeStringFormat(const std::string family, const uint size, const bool bold, const bool italic, const bool underline, bool with_undo, bool undo);
+    void ChangeStringFormat(const StringFormatPtr format, bool set_family, bool set_size, bool set_bold, bool set_italic, bool set_underline, 
+        bool with_undo);
+    void ChangeStringFormat(const StringFormatPtr format, bool with_undo, bool undo);
+
     void PushEditorState(bool undo);
     void PushEditorState(const CaretState& caret_state, bool undo);
     void PushEditorState(const SelectionState& selection_state, bool undo);
@@ -79,13 +84,14 @@ public:
 
     void Redraw(const ElementId& id);
     void Redraw();
-    void Remake(const ElementId& id, bool with_elements);
+    void Remake(const ElementId& id, bool with_elements, bool undo = false);
 
     std::string ToHtml();
     std::string ToText();
 
     TextFormatPtr GetDefaultTextFormat();
     PageFormatPtr GetDefaultPageFormat();
+    StringFormatPtr GetStringFormat(const std::string family, uint size, bool bold, bool italic, bool underline);
 
     void SetCurrentParagraphFormat(const std::string& name);
 
@@ -143,7 +149,7 @@ public:
     Selection last_selection;
 
 private:
-    std::mutex tasks_mutex;
+    std::recursive_mutex tasks_mutex;
     std::vector<TaskPtr> tasks;
     std::stack<TaskPtr> undo_tasks;
     std::vector<TaskPtr> redo_tasks;
@@ -152,7 +158,7 @@ private:
 
     bool exit = false;
 
-    std::condition_variable next_circle;
+    std::condition_variable_any next_circle;
     std::thread main_loop;
 
     CaretSettings caret_settings;

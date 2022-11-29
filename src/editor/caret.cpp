@@ -1,6 +1,7 @@
 #include "caret.h"
 #include "text.h"
 #include "document.h"
+#include "util.h"
 #include <chrono>
 
 namespace yutovo
@@ -18,9 +19,10 @@ Caret::Caret(Window* _window, Text* _text) :
 
 void Caret::SetState(const CaretState& caret_state, bool update_x_pos)
 {
-    if (!text->document->GetParent(caret_state.id))
+    auto el = text->document->GetParent(caret_state.id);
+    if (!el)
         return;
-    current_element = text->document->GetParent(caret_state.id).get();
+    current_element = el.get();
     current_pos = caret_state.GetPos();
     if (update_x_pos)
         UpdateXPos();
@@ -31,7 +33,10 @@ void Caret::SetState(const CaretState& caret_state, bool update_x_pos)
 
 void Caret::SetState(const ElementId id, const uint pos, bool update_x_pos)
 {
-    current_element = text->document->GetElement(id).get();
+    auto el = text->document->GetElement(id);
+    if (!el)
+        return;
+    current_element = el.get();
     current_pos = pos;
     if (update_x_pos)
         UpdateXPos();
@@ -203,7 +208,7 @@ void Caret::MoveWordRight(Selection* selection)
 
 bool Caret::IsInsideElement(const ElementId id)
 {
-    return current_element->id == id;
+    return IsChild(id, current_element->id);
 }
 
 void Caret::UpdateXPos()

@@ -196,10 +196,47 @@ bool String::DeleteElements(bool left, bool with_undo)
         document->PushEditorState(CaretState(elements->GetElementId(pos)), true);
     }
 
+    document->Remake(parent->id, false);
+
 #ifdef DEBUG
     to_str = ToText();
 #endif
     return true;
+}
+
+bool String::ChangeStringFormat(const StringFormatPtr _format, bool with_undo)
+{
+    uint start, size;
+    if (selection->Has(id, start, size))
+    {
+        if (start == 0 && size == elements->Count())
+        {
+            //change format of the whole string
+            if (with_undo)
+            {
+                document->ChangeStringFormat(format, false, true);
+                document->Remake(parent->id, true);
+            }
+            format = _format;
+            return true;
+        }
+        else
+        {
+            ElementPtr el = parent->elements->Get(id);
+            if (SplitAt(start))
+                el = parent->elements->Get(parent->elements->GetElementPos(id) + 1);
+            el->SplitAt(size);
+            if (with_undo)
+            {
+                document->ChangeStringFormat(format, false, true);
+                document->PushEditorState(SelectionState(el->id, 0, el->elements->Count()), true);
+                document->Remake(parent->id, true);
+            }
+            ((String*)el.get())->format = _format;
+            return true;
+        }
+    }
+    return parent->ChangeStringFormat(_format, with_undo);
 }
 
 bool String::Split(const uint max_left_width)
@@ -258,6 +295,10 @@ bool String::SplitAt(const uint pos)
 {
     if (pos == 0 || pos >= elements->Count())
         return false;
+
+    int cs_pos = -1;
+    if (caret->IsInsideElement(id))
+        cs_pos = caret->current_pos;
     
     std::string& str = ((StringElements*)elements.get())->str;
     ElementPtr el(new String(parent, str.substr(pos), format));
@@ -265,6 +306,20 @@ bool String::SplitAt(const uint pos)
     parent->elements->Insert(el, p + 1);
     str = str.substr(0, pos);
     UpdateRect();
+
+    uint start, size;
+    if (selection->Has(id, start, size))
+    {
+        if (start >= pos && size <= el->elements->Count())
+        {
+            selection->Remove(id, start, size);
+            selection->Add(el->id, start - pos, size);
+        }
+    }
+
+    if (cs_pos >= (int)pos)
+        caret->SetState(el->id, cs_pos - pos, true);
+
 #ifdef DEBUG
     parent->to_str = parent->ToText();
     to_str = ToText();
@@ -295,9 +350,6 @@ bool String::Merge(const ElementPtr with_element)
     elements->Insert(with_element, elements->Count());
     with_element->parent->elements->RemoveAt(with_element->parent->elements->GetElementPos(with_element->id), 1);
 
-    // if (size > 0)
-    //     selection->Add(id, start + c, size);
-
 #ifdef DEBUG
     to_str = ToText();
 #endif
@@ -306,13 +358,6 @@ bool String::Merge(const ElementPtr with_element)
 
 bool String::CanContinueSelection()
 {
-    return true;
-}
-
-bool String::ChangeStringFormat(const StringFormatPtr _format)
-{
-    if (*format == *_format)
-        return false;
     return true;
 }
 
