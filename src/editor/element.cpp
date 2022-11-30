@@ -100,6 +100,13 @@ bool Element::ChangeStringFormat(const StringFormatPtr format, bool with_undo)
     return true;
 }
 
+bool Element::ChangeParagraphFormat(const ParagraphFormatPtr format, bool with_undo)
+{
+    if (!parent)
+        return false;
+    return parent->ChangeParagraphFormat(format, with_undo);
+}
+
 bool Element::Split(const uint max_left_width)
 {
     return false;
@@ -121,6 +128,12 @@ bool Element::SplitAt(const uint pos)
 bool Element::Merge(const ElementPtr with_element)
 {
     return false;
+}
+
+void Element::UpdateStringFormat(const StringFormatPtr base_format, const StringFormatPtr new_format)
+{
+    for (int i = 0; i < elements->Count(); ++i)
+        elements->Get(i)->UpdateStringFormat(base_format, new_format);
 }
 
 bool Element::GetFirstCaretState(CaretState& caret_state, Selection* select)

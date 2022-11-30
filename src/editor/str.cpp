@@ -315,9 +315,14 @@ bool String::SplitAt(const uint pos)
             selection->Remove(id, start, size);
             selection->Add(el->id, start - pos, size);
         }
+        if (cs_pos == pos && start == pos)
+            caret->SetState(el->id, 0, true);
+        else if (cs_pos == pos && start + size == pos)
+            caret->SetState(id, elements->Count(), true);
+        else if (cs_pos > (int)pos)
+            caret->SetState(el->id, cs_pos - pos, true);
     }
-
-    if (cs_pos >= (int)pos)
+    else if (cs_pos >= (int)pos)
         caret->SetState(el->id, cs_pos - pos, true);
 
 #ifdef DEBUG
@@ -354,6 +359,23 @@ bool String::Merge(const ElementPtr with_element)
     to_str = ToText();
 #endif
     return true;
+}
+
+void String::UpdateStringFormat(const StringFormatPtr base_format, const StringFormatPtr new_format)
+{
+    StringFormat f = *format;
+    //change params only the same with the base format
+    if (base_format->family == format->family)
+        f.family = new_format->family;
+    if (base_format->size == format->size)
+        f.size = new_format->size;
+    if (base_format->bold == format->bold)
+        f.bold = new_format->bold;
+    if (base_format->italic == format->italic)
+        f.italic = new_format->italic;
+    if (base_format->underline == format->underline)
+        f.underline = new_format->underline;
+    format = document->GetStringFormat(f.family, f.size, f.bold, f.italic, f.underline);
 }
 
 bool String::CanContinueSelection()

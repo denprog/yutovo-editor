@@ -174,7 +174,7 @@ void Document::MainLoop()
                 }
 
 #ifdef DEBUG
-                if (last_task_id == t->id)
+                if (last_task_id > 0 && last_task_id == t->id)
                     last_task_executed = true;
 #endif
             }
@@ -290,6 +290,24 @@ void Document::ChangeStringFormat(const StringFormatPtr format, bool with_undo, 
         else
         {
             tasks.emplace_back(new ChangeStringFormatTask(text, format, with_undo));
+            last_task_id = tasks[tasks.size() - 1]->id;
+        }
+    }
+    next_circle.notify_one();
+}
+
+void Document::ChangeParagraphFormat(const ParagraphFormatPtr format, bool with_undo, bool undo)
+{
+    {
+        std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
+        if (undo)
+        {
+            undo_tasks.push(TaskPtr(new ChangeParagraphFormatTask(text, format, cur_task_id)));
+            last_task_id = cur_task_id;
+        }
+        else
+        {
+            tasks.emplace_back(new ChangeParagraphFormatTask(text, format, with_undo));
             last_task_id = tasks[tasks.size() - 1]->id;
         }
     }
@@ -477,6 +495,16 @@ void Document::SetUnderline(const bool enabled)
     }
 }
 
+void Document::SetCurrentParagraphFormat(const std::string& name)
+{
+    std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
+    current_paragraph_format = paragraph_formats.GetFormat(name);
+    if (current_paragraph_format)
+    {
+        ChangeParagraphFormat(current_paragraph_format, true, false);
+    }
+}
+
 ElementType Document::GetElementType(const ElementId id)
 {
     std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
@@ -498,8 +526,10 @@ bool Document::GetStringFormat(const ElementId id, StringFormatPtr& format)
 
 void Document::MoveCaret(MoveCaretTask::MoveCaretDir dir, bool select)
 {
-    std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
-    tasks.emplace_back(new MoveCaretTask(text, &caret, dir, true, select));
+    {
+        std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
+        tasks.emplace_back(new MoveCaretTask(text, &caret, dir, true, select));
+    }
     next_circle.notify_one();
 
 #ifdef DEBUG
@@ -559,8 +589,10 @@ void Document::MoveCaretToDocumentEnd(bool select)
 
 void Document::SetCaretVisible(bool visible)
 {
-    std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
-    tasks.emplace_back(new MoveCaretTask(text, &caret, MoveCaretTask::MoveCaretDir::NONE, visible));
+    {
+        std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
+        tasks.emplace_back(new MoveCaretTask(text, &caret, MoveCaretTask::MoveCaretDir::NONE, visible));
+    }
     next_circle.notify_one();
 }
 
@@ -568,8 +600,10 @@ void Document::Undo()
 {
     if (!CanUndo())
         return;
-    std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
-    undos.push_back(true);
+    {
+        std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
+        undos.push_back(true);
+    }
     next_circle.notify_one();
 }
 
@@ -577,8 +611,10 @@ void Document::Redo()
 {
     if (!CanRedo())
         return;
-    std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
-    redos.push_back(true);
+    {
+        std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
+        redos.push_back(true);
+    }
     next_circle.notify_one();
 }
 
@@ -599,8 +635,8 @@ void Document::Resize(uint width, uint height)
     {
         std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
         tasks.emplace_back(new ResizeTask(text, width, height));
-        next_circle.notify_one();
     }
+    next_circle.notify_one();
     Remake(text->id, true);
 }
 
@@ -685,11 +721,6 @@ StringFormatPtr Document::GetStringFormat(const std::string family, uint size, b
     return string_formats.GetFormat(family, size, bold, italic, underline);
 }
 
-void Document::SetCurrentParagraphFormat(const std::string& name)
-{
-    current_paragraph_format = paragraph_formats.GetFormat(name);
-}
-
 EditorState Document::GetEditorState()
 {
     return {caret.GetCaretState(), selection.GetState()};
@@ -698,14 +729,32 @@ EditorState Document::GetEditorState()
 #ifdef DEBUG
 void Document::WaitMainLoop()
 {
-    while (!last_task_executed && !last_undo_executed && !last_redo_executed)
+    while (!last_task_executed)
     {
         std::this_thread::sleep_for(10ms);
     }
 
     last_task_id = 0;
     last_task_executed = false;
+}
+
+void Document::WaitUndo()
+{
+    while (!last_undo_executed)
+    {
+        std::this_thread::sleep_for(10ms);
+    }
+
     last_undo_executed = false;
+}
+
+void Document::WaitRedo()
+{
+    while (!last_redo_executed)
+    {
+        std::this_thread::sleep_for(10ms);
+    }
+
     last_redo_executed = false;
 }
 

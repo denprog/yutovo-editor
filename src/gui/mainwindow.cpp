@@ -213,7 +213,8 @@ void MainWindow::About()
 
 void MainWindow::OnCurrentParagraphFormatChanged(const QString& format)
 {
-
+    document_widget->document.SetCurrentParagraphFormat(format.toUtf8().data());
+    document_widget->setFocus();
 }
 
 void MainWindow::OnCurrentFontChanged(const QFont& font)

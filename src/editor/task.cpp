@@ -192,6 +192,7 @@ ChangeStringFormatTask::ChangeStringFormatTask(ElementPtr _text, const StringFor
 
 bool ChangeStringFormatTask::Execute()
 {
+    logger->Debug("Execute ChangeStringFormatTask");
     if (with_undo)
     {
         text->document->PushEditorState(true);
@@ -211,11 +212,9 @@ bool ChangeStringFormatTask::Execute()
         elements.push_back(text->document->GetElement(s.id));
     }
 
-    //for (int i = selection_state.state.size() - 1; i >= 0; --i)
     for (int i = 0; i < selection_state.state.size(); ++i)
     {
         ElementSelectionState& s = selection_state.state[i];
-        //auto el = text->document->GetElement(s.id);
         auto el = elements[i];
 
         StringFormatPtr _format;
@@ -252,15 +251,42 @@ bool ChangeStringFormatTask::Execute()
     return true;
 }
 
-ChangeParagraphFormatTask::ChangeParagraphFormatTask(ElementPtr _text, const ParagraphFormat& _format) :
+ChangeParagraphFormatTask::ChangeParagraphFormatTask(ElementPtr _text, const ParagraphFormatPtr& _format, bool _with_undo) :
     Task(_text),
+    format(_format)
+{
+    with_undo = _with_undo;
+}
+
+ChangeParagraphFormatTask::ChangeParagraphFormatTask(ElementPtr _text, const ParagraphFormatPtr& _format, uint _id) :
+    Task(_text, _id), 
     format(_format)
 {
 }
 
 bool ChangeParagraphFormatTask::Execute()
 {
-    return false;
+    logger->Debug("Execute ChangeParagraphFormatTask");
+    if (before_state.IsEmpty())
+        before_state = text->document->GetEditorState();
+
+    CaretState& caret_state = before_state.caret_state;
+    auto el = text->document->FindParent(caret_state.id, ElementType::PARAGRAPH);
+    if (!el)
+        return false;
+
+    if (with_undo)
+        text->document->PushEditorState(true);
+
+    if (!el->ChangeParagraphFormat(format, with_undo))
+        return false;
+
+    if (with_undo)
+        text->document->PushEditorState(true);
+
+    text->document->UpdateFormats();
+
+    return true;
 }
 
 //RemakeTask
