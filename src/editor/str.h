@@ -34,8 +34,10 @@ public:
     virtual bool SplitAt(const uint pos);
     virtual bool Merge(const ElementPtr with_element);
 
+    virtual void UpdateStringFormat(const StringFormatPtr base_format, const StringFormatPtr new_format);
+
     virtual bool CanContinueSelection();
-    
+
 protected:
     friend class StringElements;
     friend class Document;

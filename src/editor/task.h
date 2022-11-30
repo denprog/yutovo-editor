@@ -78,11 +78,14 @@ struct ChangeStringFormatTask : Task
 
 struct ChangeParagraphFormatTask : Task
 {
-    ChangeParagraphFormatTask(ElementPtr _text, const ParagraphFormat& _format);
+    ChangeParagraphFormatTask(ElementPtr _text, const ParagraphFormatPtr& _format, bool _with_undo);
+    ChangeParagraphFormatTask(ElementPtr _text, const ParagraphFormatPtr& _format, uint _id);
 
     virtual bool Execute();
 
-    ParagraphFormat format;
+    ParagraphFormatPtr format;
+
+    EditorState before_state;
 };
 
 struct RemakeTask : Task

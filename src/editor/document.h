@@ -42,6 +42,8 @@ public:
         bool with_undo);
     void ChangeStringFormat(const StringFormatPtr format, bool with_undo, bool undo);
 
+    void ChangeParagraphFormat(const ParagraphFormatPtr format, bool with_undo, bool undo);
+
     void PushEditorState(bool undo);
     void PushEditorState(const CaretState& caret_state, bool undo);
     void PushEditorState(const SelectionState& selection_state, bool undo);
@@ -93,8 +95,6 @@ public:
     PageFormatPtr GetDefaultPageFormat();
     StringFormatPtr GetStringFormat(const std::string family, uint size, bool bold, bool italic, bool underline);
 
-    void SetCurrentParagraphFormat(const std::string& name);
-
     void UpdateFormats();
 
     void SetFontFamily(const std::string& family);
@@ -102,6 +102,8 @@ public:
     void SetBold(const bool enabled);
     void SetItalic(const bool enabled);
     void SetUnderline(const bool enabled);
+
+    void SetCurrentParagraphFormat(const std::string& name);
 
     EditorState GetEditorState();
 
@@ -111,6 +113,8 @@ private:
 #ifdef DEBUG
 public:
     void WaitMainLoop();
+    void WaitUndo();
+    void WaitRedo();
     void WaitCaretMoving();
 
 private:

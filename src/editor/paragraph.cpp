@@ -151,6 +151,20 @@ bool Paragraph::DeleteElements(bool left, bool with_undo)
     return parent->DeleteElements(left, with_undo);
 }
 
+bool Paragraph::ChangeParagraphFormat(const ParagraphFormatPtr _format, bool with_undo)
+{
+    if (with_undo)
+        document->ChangeParagraphFormat(format, false, true);
+
+    for (int i = 0; i < elements->Count(); ++i)
+        elements->Get(i)->UpdateStringFormat(format->string_format, _format->string_format);
+
+    format = _format;
+    Remake(true);
+    
+    return true;
+}
+
 bool Paragraph::GetTopCaretState(const int x, const int y, CaretState& caret_state, Selection* select)
 {
     ElementPtr row;

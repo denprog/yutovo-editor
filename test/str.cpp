@@ -30,13 +30,13 @@ TEST_F(DocumentTest, strings1)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 1)) << document.GetEditorState().ToString();
 
     document.Undo();
-    document.WaitMainLoop();
+    document.WaitUndo();
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == "<body><p><span style=\"font-family:'Arial';font-size:22px;\"></span></p></body>") << document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 0)) << document.GetEditorState().ToString();
 
     document.Redo();
-    document.WaitMainLoop();
+    document.WaitRedo();
     ASSERT_TRUE(document.ToHtml() == "<body><p><span style=\"font-family:'Arial';font-size:22px;\">T</span></p></body>") << document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 1)) << document.GetEditorState().ToString();
 
@@ -65,7 +65,7 @@ TEST_F(DocumentTest, strings1)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 4)) << document.GetEditorState().ToString();
 
     document.Undo();
-    document.WaitMainLoop();
+    document.WaitUndo();
     ASSERT_TRUE(document.ToHtml() == "<body><p><span style=\"font-family:'Arial';font-size:22px;\">TextText</span></p></body>") << document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 0)) << document.GetEditorState().ToString();
 }
@@ -90,6 +90,7 @@ TEST_F(DocumentTest, strings2)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 0)) << document.GetEditorState().ToString();
 
     document.Undo();
+    document.WaitUndo();
     ASSERT_TRUE(document.ToHtml() == "<body><p><span style=\"font-family:'Arial';font-size:22px;\"></span></p></body>") << document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 0)) << document.GetEditorState().ToString();
 
@@ -99,6 +100,7 @@ TEST_F(DocumentTest, strings2)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 0)) << document.GetEditorState().ToString();
 
     document.Undo();
+    document.WaitUndo();
     ASSERT_TRUE(document.ToHtml() == "<body><p><span style=\"font-family:'Arial';font-size:22px;\"></span></p></body>") << document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 0)) << document.GetEditorState().ToString();
 
@@ -113,17 +115,17 @@ TEST_F(DocumentTest, strings2)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 3)) << document.GetEditorState().ToString();
 
     document.Undo();
-    document.WaitMainLoop();
+    document.WaitUndo();
     ASSERT_TRUE(document.ToHtml() == "<body><p><span style=\"font-family:'Arial';font-size:22px;\">Text</span></p></body>") << document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 4)) << document.GetEditorState().ToString();
 
     document.Redo();
-    document.WaitMainLoop();
+    document.WaitRedo();
     ASSERT_TRUE(document.ToHtml() == "<body><p><span style=\"font-family:'Arial';font-size:22px;\">Tex</span></p></body>") << document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 3)) << document.GetEditorState().ToString();
 
     document.Undo();
-    document.WaitMainLoop();
+    document.WaitUndo();
     ASSERT_TRUE(document.ToHtml() == "<body><p><span style=\"font-family:'Arial';font-size:22px;\">Text</span></p></body>") << document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 4)) << document.GetEditorState().ToString();
 
@@ -140,32 +142,32 @@ TEST_F(DocumentTest, strings2)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 10)) << document.GetEditorState().ToString();
 
     document.Undo();
-    document.WaitMainLoop();
+    document.WaitUndo();
     ASSERT_TRUE(document.ToText() == "TextStrin") << document.ToText();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 9)) << document.GetEditorState().ToString();
 
     document.Undo();
-    document.WaitMainLoop();
+    document.WaitUndo();
     ASSERT_TRUE(document.ToText() == "TextStri") << document.ToText();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 8)) << document.GetEditorState().ToString();
 
     document.Undo();
-    document.WaitMainLoop();
+    document.WaitUndo();
     ASSERT_TRUE(document.ToText() == "TextStr") << document.ToText();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 7)) << document.GetEditorState().ToString();
 
     document.Undo();
-    document.WaitMainLoop();
+    document.WaitUndo();
     ASSERT_TRUE(document.ToHtml() == "<body><p><span style=\"font-family:'Arial';font-size:22px;\">Text</span></p></body>") << document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 4)) << document.GetEditorState().ToString();
 
     document.Redo();
-    document.WaitMainLoop();
+    document.WaitRedo();
     ASSERT_TRUE(document.ToText() == "TextStr") << document.ToText();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 7)) << document.GetEditorState().ToString();
 
     document.Redo();
-    document.WaitMainLoop();
+    document.WaitRedo();
     ASSERT_TRUE(document.ToText() == "TextStri") << document.ToText();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 8)) << document.GetEditorState().ToString();
 
@@ -225,28 +227,28 @@ TEST_F(DocumentTest, selections1)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 4)) << document.GetEditorState().ToString();
 
     document.Undo();
-    document.WaitMainLoop();
+    document.WaitUndo();
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToText() == "TestStr") << document.ToText();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 4, 4, 3)) << document.GetEditorState().ToString();
 
     document.Redo();
-    document.WaitMainLoop();
+    document.WaitRedo();
     ASSERT_TRUE(document.ToText() == "Test") << document.ToText();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 4)) << document.GetEditorState().ToString();
 
     document.Undo();
-    document.WaitMainLoop();
+    document.WaitUndo();
     ASSERT_TRUE(document.ToText() == "TestStr") << document.ToText();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 4, 4, 3)) << document.GetEditorState().ToString();
 
     document.Undo();
-    document.WaitMainLoop();
+    document.WaitUndo();
     ASSERT_TRUE(document.ToText() == "TestStrin") << document.ToText();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 7, 7, 2)) << document.GetEditorState().ToString();
 
     document.Undo();
-    document.WaitMainLoop();
+    document.WaitUndo();
     ASSERT_TRUE(document.ToText() == "TestString") << document.ToText();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 9, 9, 1)) << document.GetEditorState().ToString();
 }
@@ -295,7 +297,7 @@ TEST_F(DocumentTest, selections2)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 2)) << document.GetEditorState().ToString();
     
     document.Undo();
-    document.WaitMainLoop();
+    document.WaitUndo();
     ASSERT_TRUE(document.ToHtml() == 
         "<body><p>"\
         "<span style=\"font-family:'Times New Roman';font-size:34px;\"><strong>Bold</strong></span>"\
@@ -325,7 +327,7 @@ TEST_F(DocumentTest, selections2)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 1, 0)) << document.GetEditorState().ToString();
 
     document.Undo();
-    document.WaitMainLoop();
+    document.WaitUndo();
     ASSERT_TRUE(document.ToHtml() == 
         "<body><p>"\
         "<span style=\"font-family:'Times New Roman';font-size:34px;\"><strong>Bold</strong></span>"\
@@ -384,7 +386,7 @@ TEST_F(DocumentTest, selections3)
         document.ToHtml();
 
     document.Undo();
-    document.WaitMainLoop();
+    document.WaitUndo();
     ASSERT_TRUE(document.ToHtml() == 
         "<body><p>"\
         "<span style=\"font-family:'Arial';font-size:16px;\">Normal</span>"\
@@ -411,7 +413,7 @@ TEST_F(DocumentTest, selections3)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 0)) << document.GetEditorState().ToString();
 
     document.Undo();
-    document.WaitMainLoop();
+    document.WaitUndo();
     ASSERT_TRUE(document.ToHtml() == 
         "<body><p>"\
         "<span style=\"font-family:'Arial';font-size:16px;\">Normal</span>"\
@@ -502,7 +504,7 @@ TEST_F(DocumentTest, inserts2)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 3)) << document.GetEditorState().ToString();
 
     document.Undo();
-    document.WaitMainLoop();
+    document.WaitUndo();
     ASSERT_TRUE(document.ToHtml() == 
         "<body><p>"\
         "<span style=\"font-family:'Arial';font-size:22px;\">Test</span>"\
@@ -511,7 +513,7 @@ TEST_F(DocumentTest, inserts2)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 2, 2, 2)) << document.GetEditorState().ToString();
 
     document.Redo();
-    document.WaitMainLoop();
+    document.WaitRedo();
     ASSERT_TRUE(document.ToHtml() == 
         "<body><p>"\
         "<span style=\"font-family:'Arial';font-size:22px;\">TeX</span>"\
@@ -571,7 +573,7 @@ TEST_F(DocumentTest, inserts3)
         document.ToHtml();
     
     document.Undo();
-    document.WaitMainLoop();
+    document.WaitUndo();
     ASSERT_TRUE(document.ToHtml() == 
         "<body><p>"\
         "<span style=\"font-family:'Arial';font-size:24px;\">Text</span>"\
@@ -581,7 +583,7 @@ TEST_F(DocumentTest, inserts3)
         document.ToHtml();
 
     document.Undo();
-    document.WaitMainLoop();
+    document.WaitUndo();
     ASSERT_TRUE(document.ToHtml() == 
         "<body><p>"\
         "<span style=\"font-family:'Arial';font-size:24px;\">Text</span>"\
@@ -590,7 +592,7 @@ TEST_F(DocumentTest, inserts3)
         document.ToHtml();
 
     document.Undo();
-    document.WaitMainLoop();
+    document.WaitUndo();
     ASSERT_TRUE(document.ToHtml() == 
         "<body><p>"\
         "<span style=\"font-family:'Arial';font-size:24px;\">Text</span>"\
@@ -598,7 +600,7 @@ TEST_F(DocumentTest, inserts3)
         document.ToHtml();
 
     document.Undo();
-    document.WaitMainLoop();
+    document.WaitUndo();
     ASSERT_TRUE(document.ToHtml() == 
         "<body><p>"\
         "<span style=\"font-family:'Arial';font-size:22px;\"></span>"\
@@ -633,7 +635,7 @@ TEST_F(DocumentTest, inserts4)
         document.ToHtml();
     
     document.Undo();
-    document.WaitMainLoop();
+    document.WaitUndo();
     ASSERT_TRUE(document.ToHtml() == 
         "<body><p>"\
         "<span style=\"font-family:'Arial';font-size:24px;\">Text</span>"\
@@ -641,7 +643,7 @@ TEST_F(DocumentTest, inserts4)
         document.ToHtml();
 
     document.Undo();
-    document.WaitMainLoop();
+    document.WaitUndo();
     ASSERT_TRUE(document.ToHtml() == 
         "<body><p>"\
         "<span style=\"font-family:'Arial';font-size:24px;\"></span>"\
@@ -678,7 +680,7 @@ TEST_F(DocumentTest, inserts5)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 1, 4)) << document.GetEditorState().ToString();
 
     document.Undo();
-    document.WaitMainLoop();
+    document.WaitUndo();
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body><p>"\
@@ -688,7 +690,7 @@ TEST_F(DocumentTest, inserts5)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 2)) << document.GetEditorState().ToString();
 
     document.Redo();
-    document.WaitMainLoop();
+    document.WaitRedo();
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body><p>"\
@@ -726,7 +728,7 @@ TEST_F(DocumentTest, inserts6)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 4)) << document.GetEditorState().ToString();
 
     document.Undo();
-    document.WaitMainLoop();
+    document.WaitUndo();
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body><p>"\
@@ -736,7 +738,7 @@ TEST_F(DocumentTest, inserts6)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 0)) << document.GetEditorState().ToString();
 
     document.Redo();
-    document.WaitMainLoop();
+    document.WaitRedo();
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body><p>"\
@@ -773,7 +775,7 @@ TEST_F(DocumentTest, inserts7)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 1, 4)) << document.GetEditorState().ToString();
 
     document.Undo();
-    document.WaitMainLoop();
+    document.WaitUndo();
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body><p>"\
@@ -783,7 +785,7 @@ TEST_F(DocumentTest, inserts7)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 4)) << document.GetEditorState().ToString();
 
     document.Redo();
-    document.WaitMainLoop();
+    document.WaitRedo();
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body><p>"\
@@ -834,7 +836,7 @@ TEST_F(DocumentTest, fonts1)
     for (int i = 0; i < 5; ++i)
     {
         document.Undo();
-        document.WaitMainLoop();
+        document.WaitUndo();
     }
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
@@ -885,7 +887,7 @@ TEST_F(DocumentTest, fonts1)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 1, 4)) << document.GetEditorState().ToString();
 
     document.Undo();
-    document.WaitMainLoop();
+    document.WaitUndo();
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body><p>"\
@@ -895,7 +897,7 @@ TEST_F(DocumentTest, fonts1)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 7)) << document.GetEditorState().ToString();
 
     document.Redo();
-    document.WaitMainLoop();
+    document.WaitRedo();
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body><p>"\
@@ -943,7 +945,7 @@ TEST_F(DocumentTest, fonts2)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 1, 0, 0, 1)) << document.GetEditorState().ToString();
 
     document.Undo();
-    document.WaitMainLoop();
+    document.WaitUndo();
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body><p>"\
@@ -982,7 +984,7 @@ TEST_F(DocumentTest, fonts2)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 0, 0, 4)) << document.GetEditorState().ToString();
 
     document.Undo();
-    document.WaitMainLoop();
+    document.WaitUndo();
     ASSERT_TRUE(document.ToHtml() == 
         "<body><p>"\
         "<span style=\"font-family:'Arial';font-size:24px;\"><strong><em>Text</em></strong></span>"\
@@ -991,7 +993,7 @@ TEST_F(DocumentTest, fonts2)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 0, 0, 4)) << document.GetEditorState().ToString();
 
     document.Undo();
-    document.WaitMainLoop();
+    document.WaitUndo();
     ASSERT_TRUE(document.ToHtml() == 
         "<body><p>"\
         "<span style=\"font-family:'Arial';font-size:24px;\"><strong>Text</strong></span>"\
@@ -1000,7 +1002,7 @@ TEST_F(DocumentTest, fonts2)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 0, 0, 4)) << document.GetEditorState().ToString();
 
     document.Undo();
-    document.WaitMainLoop();
+    document.WaitUndo();
     ASSERT_TRUE(document.ToHtml() == 
         "<body><p>"\
         "<span style=\"font-family:'Arial';font-size:24px;\">Text</span>"\
@@ -1009,7 +1011,7 @@ TEST_F(DocumentTest, fonts2)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 0, 0, 4)) << document.GetEditorState().ToString();
 
     document.Redo();
-    document.WaitMainLoop();
+    document.WaitRedo();
     ASSERT_TRUE(document.ToHtml() == 
         "<body><p>"\
         "<span style=\"font-family:'Arial';font-size:24px;\"><strong>Text</strong></span>"\
@@ -1018,7 +1020,7 @@ TEST_F(DocumentTest, fonts2)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 0, 0, 4)) << document.GetEditorState().ToString();
 
     document.Redo();
-    document.WaitMainLoop();
+    document.WaitRedo();
     ASSERT_TRUE(document.ToHtml() == 
         "<body><p>"\
         "<span style=\"font-family:'Arial';font-size:24px;\"><strong><em>Text</em></strong></span>"\
@@ -1027,7 +1029,7 @@ TEST_F(DocumentTest, fonts2)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 0, 0, 4)) << document.GetEditorState().ToString();
 
     document.Undo();
-    document.WaitMainLoop();
+    document.WaitUndo();
     ASSERT_TRUE(document.ToHtml() == 
         "<body><p>"\
         "<span style=\"font-family:'Arial';font-size:24px;\"><strong>Text</strong></span>"\
@@ -1036,7 +1038,7 @@ TEST_F(DocumentTest, fonts2)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 0, 0, 4)) << document.GetEditorState().ToString();
 
     document.Undo();
-    document.WaitMainLoop();
+    document.WaitUndo();
     ASSERT_TRUE(document.ToHtml() == 
         "<body><p>"\
         "<span style=\"font-family:'Arial';font-size:24px;\">Text</span>"\
@@ -1045,7 +1047,7 @@ TEST_F(DocumentTest, fonts2)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 0, 0, 4)) << document.GetEditorState().ToString();
 
     document.Undo();
-    document.WaitMainLoop();
+    document.WaitUndo();
     ASSERT_TRUE(document.ToHtml() == 
         "<body><p>"\
         "<span style=\"font-family:'Arial';font-size:22px;\"></span>"\
@@ -1087,7 +1089,7 @@ TEST_F(DocumentTest, fonts3)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 1, 0, 0, 2, 2, 0, 3)) << document.GetEditorState().ToString();
 
     document.Undo();
-    document.WaitMainLoop();
+    document.WaitUndo();
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body><p>"\
@@ -1134,7 +1136,7 @@ TEST_F(DocumentTest, delete1)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 3)) << document.GetEditorState().ToString();
 
     document.Undo();
-    document.WaitMainLoop();
+    document.WaitUndo();
     ASSERT_TRUE(document.ToHtml() == 
         "<body><p>"\
         "<span style=\"font-family:'Arial';font-size:24px;\">Text</span>"\
@@ -1144,7 +1146,7 @@ TEST_F(DocumentTest, delete1)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 1, 0)) << document.GetEditorState().ToString();
 
     document.Undo();
-    document.WaitMainLoop();
+    document.WaitUndo();
     ASSERT_TRUE(document.ToHtml() == 
         "<body><p>"\
         "<span style=\"font-family:'Arial';font-size:24px;\">Text</span>"\

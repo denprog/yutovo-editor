@@ -46,10 +46,13 @@ public:
     virtual bool InsertElements(std::vector<ElementPtr>& _elements, bool with_undo);
     virtual bool DeleteElements(bool left, bool with_undo);
     virtual bool ChangeStringFormat(const StringFormatPtr format, bool with_undo);
+    virtual bool ChangeParagraphFormat(const ParagraphFormatPtr format, bool with_undo);
 
     virtual bool Split(const uint max_left_width);
     virtual bool SplitAt(const uint pos);
     virtual bool Merge(const ElementPtr with_element);
+
+    virtual void UpdateStringFormat(const StringFormatPtr base_format, const StringFormatPtr new_format);
 
     virtual bool GetFirstCaretState(CaretState& caret_state, Selection* select);
     virtual bool GetLastCaretState(CaretState& caret_state, Selection* select);
@@ -138,6 +141,7 @@ public:
     virtual void RemoveAt(const uint pos, const int size);
     virtual void Move(const ElementPtr element, const uint pos);
     virtual void Clear();
+
     virtual uint Count();
 
     virtual Rect GetCaretRect(const uint pos) const;

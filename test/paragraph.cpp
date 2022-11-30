@@ -345,7 +345,7 @@ TEST_F(ParagraphTest, paragraph1)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(1, 0, 0, 0)) << document.GetEditorState().ToString();
 
     document.Undo();
-    document.WaitMainLoop();
+    document.WaitUndo();
     ASSERT_TRUE(document.ToHtml() == 
         "<body><p>"\
         "<span style=\"font-family:'Arial';font-size:22px;\">Text</span>"\
@@ -358,7 +358,7 @@ TEST_F(ParagraphTest, paragraph1)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 3, 23)) << document.GetEditorState().ToString();
 
     document.Redo();
-    document.WaitMainLoop();
+    document.WaitRedo();
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
@@ -404,7 +404,7 @@ TEST_F(ParagraphTest, paragraph1)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(1, 0, 0, 0)) << document.GetEditorState().ToString();
 
     document.Undo();
-    document.WaitMainLoop();
+    document.WaitUndo();
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
@@ -422,7 +422,7 @@ TEST_F(ParagraphTest, paragraph1)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 4)) << document.GetEditorState().ToString();
 
     document.Redo();
-    document.WaitMainLoop();
+    document.WaitRedo();
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -466,7 +466,7 @@ TEST_F(ParagraphTest, paragraph1)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(2, 0, 0, 0)) << document.GetEditorState().ToString();
 
     document.Undo();
-    document.WaitMainLoop();
+    document.WaitUndo();
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
@@ -506,7 +506,7 @@ TEST_F(ParagraphTest, paragraph1)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 4)) << document.GetEditorState().ToString();
 
     document.Undo();
-    document.WaitMainLoop();
+    document.WaitUndo();
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
@@ -549,7 +549,7 @@ TEST_F(ParagraphTest, paragraph1)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(1, 0, 0, 0)) << document.GetEditorState().ToString();
 
     document.Undo();
-    document.WaitMainLoop();
+    document.WaitUndo();
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
@@ -569,7 +569,7 @@ TEST_F(ParagraphTest, paragraph1)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 0)) << document.GetEditorState().ToString();
 
     document.Redo();
-    document.WaitMainLoop();
+    document.WaitRedo();
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
@@ -620,7 +620,7 @@ TEST_F(ParagraphTest, paragraph1)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(3, 0, 0, 0)) << document.GetEditorState().ToString();
 
     document.Undo();
-    document.WaitMainLoop();
+    document.WaitUndo();
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -642,7 +642,7 @@ TEST_F(ParagraphTest, paragraph1)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(2, 0, 0, 0)) << document.GetEditorState().ToString();
 
     document.Redo();
-    document.WaitMainLoop();
+    document.WaitRedo();
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -665,6 +665,158 @@ TEST_F(ParagraphTest, paragraph1)
         "</body>") << 
         document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(3, 0, 0, 0)) << document.GetEditorState().ToString();
+}
+
+TEST_F(ParagraphTest, paragraph2)
+{
+    int width = 476;
+    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
+        {
+            return Rect{0, 0, width, 400};
+        });
+
+    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::string& text, const StringFormatPtr format)
+        {
+            return GetTextSizeMock(text, format);
+        });
+
+    document.InsertText("The source of the text itself is a little mysterious.", true);
+    document.WaitMainLoop();
+    ASSERT_TRUE(document.ToText() == "The source of the text itself is a little mysterious.") << document.ToText();
+
+    document.SetCurrentParagraphFormat("Header 1");
+    document.WaitMainLoop();
+    std::this_thread::sleep_for(100ms);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:34px;\"><strong>The source of the </strong></span>"\
+                "<span style=\"font-family:'Arial';font-size:34px;\"><strong>text itself is a little </strong></span>"\
+                "<span style=\"font-family:'Arial';font-size:34px;\"><strong>mysterious.</strong></span>"\
+            "</p>"\
+        "</body>") 
+        << document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 2, 0, 11)) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\">The source of the text itself is a </span>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\">little mysterious.</span>"\
+            "</p>"\
+        "</body>") 
+        << document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 1, 0, 18)) << document.GetEditorState().ToString();
+
+    document.Redo();
+    document.WaitRedo();
+    std::this_thread::sleep_for(100ms);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:34px;\"><strong>The source of the </strong></span>"\
+                "<span style=\"font-family:'Arial';font-size:34px;\"><strong>text itself is a little </strong></span>"\
+                "<span style=\"font-family:'Arial';font-size:34px;\"><strong>mysterious.</strong></span>"\
+            "</p>"\
+        "</body>") 
+        << document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 2, 0, 11)) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    std::this_thread::sleep_for(100ms);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\">The source of the text itself is a </span>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\">little mysterious.</span>"\
+            "</p>"\
+        "</body>") 
+        << document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 1, 0, 18)) << document.GetEditorState().ToString();
+
+    document.MoveCaretToDocumentBegin(false);
+    for (int i = 0; i < 4; ++i)
+        document.MoveCaretRight(false);
+    document.MoveCaretWordRight(true);
+    document.WaitCaretMoving();
+    document.SetBold(true);
+    document.WaitMainLoop();
+    document.SetCurrentParagraphFormat("Monospace");
+    document.WaitMainLoop();
+    std::this_thread::sleep_for(400ms);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Courier New';font-size:12px;\">The </span>"\
+                "<span style=\"font-family:'Courier New';font-size:12px;\"><strong>source</strong></span>"\
+                "<span style=\"font-family:'Courier New';font-size:12px;\"> of the text itself is a little </span>"\
+                "<span style=\"font-family:'Courier New';font-size:12px;\">mysterious.</span>"\
+            "</p>"\
+        "</body>") 
+        << document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 1, 6, 0, 6)) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    std::this_thread::sleep_for(100ms);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\">The </span>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\"><strong>source</strong></span>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\"> of the text itself is a </span>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\">little mysterious.</span>"\
+            "</p>"\
+        "</body>") 
+        << document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 1, 6, 0, 6)) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    std::this_thread::sleep_for(100ms);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\">The source of the text itself is a </span>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\">little mysterious.</span>"\
+            "</p>"\
+        "</body>") 
+        << document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 10, 4, 6)) << document.GetEditorState().ToString();
+
+    document.Redo();
+    document.WaitRedo();
+    std::this_thread::sleep_for(100ms);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\">The </span>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\"><strong>source</strong></span>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\"> of the text itself is a </span>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\">little mysterious.</span>"\
+            "</p>"\
+        "</body>") 
+        << document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 1, 6, 0, 6)) << document.GetEditorState().ToString();
+
+    document.Redo();
+    document.WaitRedo();
+    std::this_thread::sleep_for(100ms);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Courier New';font-size:12px;\">The </span>"\
+                "<span style=\"font-family:'Courier New';font-size:12px;\"><strong>source</strong></span>"\
+                "<span style=\"font-family:'Courier New';font-size:12px;\"> of the text itself is a little </span>"\
+                "<span style=\"font-family:'Courier New';font-size:12px;\">mysterious.</span>"\
+            "</p>"\
+        "</body>") 
+        << document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 1, 6, 0, 6)) << document.GetEditorState().ToString();
 }
 
 }
