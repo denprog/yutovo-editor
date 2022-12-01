@@ -184,8 +184,8 @@ bool String::DeleteElements(bool left, bool with_undo)
         else
         {
             undo_str = str.substr(caret_pos, 1);
-            elements->RemoveAt(caret_pos - 1, 1);
-            pos = caret_pos - 1;
+            elements->RemoveAt(caret_pos, 1);
+            pos = caret_pos;
         }
         caret->SetPos(pos, true);
     }
@@ -196,7 +196,7 @@ bool String::DeleteElements(bool left, bool with_undo)
         document->PushEditorState(CaretState(elements->GetElementId(pos)), true);
     }
 
-    document->Remake(parent->id, false);
+    document->Remake(parent->id, true);
 
 #ifdef DEBUG
     to_str = ToText();
