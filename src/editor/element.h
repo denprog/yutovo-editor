@@ -134,6 +134,7 @@ public:
     virtual ElementPtr Get(ElementId id);
     virtual ElementId GetElementId(uint pos);
     virtual int GetElementPos(ElementId id);
+    virtual int GetChildPos(ElementId id);
 
     virtual void Add(ElementPtr element);
     virtual void Insert(ElementPtr element, const uint pos);

@@ -87,8 +87,10 @@ int CaretState::GetPos(const ElementId& _id) const
     return -1;
 }
 
-uint CaretState::GetElementPos(const ElementId& _id) const
+int CaretState::GetElementPos(const ElementId& _id) const
 {
+    if (id.size() < _id.size() - 1)
+        return -1;
     return id[_id.size() - 1];
 }
 

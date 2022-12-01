@@ -563,6 +563,7 @@ TEST_F(DocumentTest, inserts3)
     document.InsertText("Bold", document.GetStringFormat("Times New Roman", 34, true, false, false), true);
     document.InsertText("String1 String2 String3", document.GetStringFormat("Arial", 20, false, false, false), true);
     document.WaitMainLoop();
+    std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body><p>"\
         "<span style=\"font-family:'Arial';font-size:24px;\">Text</span>"\

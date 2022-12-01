@@ -169,7 +169,7 @@ void Caret::MoveUp(Selection* selection)
     }
     CaretState c;
     if (current_element->GetTopCaretState(r.left, r.top, c, selection))
-        SetState(c);
+        SetState(c, false);
 }
 
 void Caret::MoveDown(Selection* selection)
@@ -183,7 +183,7 @@ void Caret::MoveDown(Selection* selection)
     }
     CaretState c;
     if (current_element->GetBottomCaretState(r.left, r.GetBottom(), c, selection))
-        SetState(c);
+        SetState(c, false);
 }
 
 void Caret::MoveWordLeft(Selection* selection)
