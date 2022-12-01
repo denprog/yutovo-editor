@@ -1,7 +1,6 @@
 #include "mainwindow.h"
 #include <QMenu>
 #include <QToolBar>
-#include <QFontComboBox>
 #include "editor/util.h"
 
 //MainWindow
@@ -129,14 +128,14 @@ void MainWindow::CreateActions()
 
     format_toolbat->addSeparator();
 
-    QFontComboBox* font_combo = new QFontComboBox;
-    connect(font_combo, &QFontComboBox::currentFontChanged, this, &MainWindow::OnCurrentFontChanged);
-    format_toolbat->addWidget(font_combo);
+    family_combo = new QFontComboBox;
+    connect(family_combo, &QFontComboBox::currentFontChanged, this, &MainWindow::OnCurrentFontChanged);
+    format_toolbat->addWidget(family_combo);
 
     size_combo = new QComboBox;
     connect(size_combo, &QComboBox::currentTextChanged, this, &MainWindow::OnCurrentSizeChanged);
     format_toolbat->addWidget(size_combo);
-    FillSizes(font_combo->currentFont());
+    FillSizes(family_combo->currentFont());
 
     bold_action = new QAction(QIcon(":/icons/images/bold.png"), tr("Bold"), this);
     connect(bold_action, &QAction::triggered, this, &MainWindow::OnBold);
@@ -261,6 +260,8 @@ void MainWindow::OnCaretMoved(const CaretState& caret_state)
         StringFormatPtr format;
         if (document_widget->document.GetStringFormat(caret_state.GetElement(), format))
         {
+            family_combo->setCurrentText(format->family.c_str());
+            size_combo->setCurrentText(std::to_string(format->size).c_str());
             bold_action->setChecked(format->bold);
             italic_action->setChecked(format->italic);
             underline_action->setChecked(format->underline);

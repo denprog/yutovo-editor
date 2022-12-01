@@ -427,10 +427,13 @@ bool MoveCaretTask::Execute()
     }
 
     text->document->UpdateCaretView();
-    text->document->UpdateLastSelection();    
+    text->document->UpdateLastSelection();
 
     if (!select)
+    {
         text->document->selection.Clear();
+        text->document->UpdateLastSelection();
+    }
 
 #ifdef DEBUG
     text->document->last_caret_moved = true;

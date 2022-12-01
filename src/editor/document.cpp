@@ -436,8 +436,12 @@ void Document::SetFontSize(const uint size)
     std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
     if (current_string_format)
     {
-        current_string_format = string_formats.GetFormat(current_string_format->family, size, current_string_format->bold, 
-            current_string_format->italic, current_string_format->underline);
+        auto f = string_formats.GetFormat(current_string_format->family, size, current_string_format->bold, current_string_format->italic, 
+            current_string_format->underline);
+        if (!selection.IsEmpty())
+            ChangeStringFormat(f, false, true, false, false, false, true);
+        else
+            current_string_format = f;
     }
 }
 
@@ -446,16 +450,12 @@ void Document::SetBold(const bool enabled)
     std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
     if (current_string_format)
     {
+        auto f = string_formats.GetFormat(current_string_format->family, current_string_format->size, enabled, current_string_format->italic, 
+            current_string_format->underline);
         if (!selection.IsEmpty())
-        {
-            ChangeStringFormat(string_formats.GetFormat(current_string_format->family, current_string_format->size, enabled, 
-                current_string_format->italic, current_string_format->underline), false, false, true, false, false, true);
-        }
+            ChangeStringFormat(f, false, false, true, false, false, true);
         else
-        {
-            current_string_format = string_formats.GetFormat(current_string_format->family, current_string_format->size, enabled, 
-                current_string_format->italic, current_string_format->underline);
-        }
+            current_string_format = f;
     }
 }
 
@@ -464,16 +464,12 @@ void Document::SetItalic(const bool enabled)
     std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
     if (current_string_format)
     {
+        auto f = string_formats.GetFormat(current_string_format->family, current_string_format->size, current_string_format->bold, enabled, 
+            current_string_format->underline);
         if (!selection.IsEmpty())
-        {
-            ChangeStringFormat(string_formats.GetFormat(current_string_format->family, current_string_format->size, current_string_format->bold, 
-                enabled, current_string_format->underline), true, false);
-        }
+            ChangeStringFormat(f, true, false);
         else
-        {
-            current_string_format = string_formats.GetFormat(current_string_format->family, current_string_format->size, 
-                current_string_format->bold, enabled, current_string_format->underline);
-        }
+            current_string_format = f;
     }
 }
 
@@ -482,16 +478,12 @@ void Document::SetUnderline(const bool enabled)
     std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
     if (current_string_format)
     {
+        auto f = string_formats.GetFormat(current_string_format->family, current_string_format->size, current_string_format->bold, 
+            current_string_format->italic, enabled);
         if (!selection.IsEmpty())
-        {
-            ChangeStringFormat(string_formats.GetFormat(current_string_format->family, current_string_format->size, current_string_format->bold, 
-                current_string_format->italic, enabled), true, false);
-        }
+            ChangeStringFormat(f, true, false);
         else
-        {
-            current_string_format = string_formats.GetFormat(current_string_format->family, current_string_format->size, current_string_format->bold, 
-                current_string_format->italic, enabled);
-        }
+            current_string_format = f;
     }
 }
 
