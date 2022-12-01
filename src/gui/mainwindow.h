@@ -3,6 +3,7 @@
 
 #include <QMainWindow>
 #include <QComboBox>
+#include <QFontComboBox>
 #include "ui_mainwindow.h"
 #include <cstring>
 #include "document_widget.h"
@@ -63,6 +64,7 @@ private:
 
     QComboBox* paragraph_format_combo = nullptr;
     
+    QFontComboBox* family_combo = nullptr;
     QComboBox* size_combo = nullptr;
 
     QAction* bold_action = nullptr;
