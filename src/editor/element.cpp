@@ -486,6 +486,22 @@ int Elements::GetElementPos(ElementId id)
     return -1;
 }
 
+//Find child in the id and get its position
+int Elements::GetChildPos(ElementId id)
+{
+    if (parent->id.size() > id.size())
+        return -1;
+    ElementId _id(id);
+    _id.erase(_id.begin() + parent->id.size() + 1, _id.end());
+
+    for (size_t i = 0; i < elements.size(); ++i)
+    {
+        if (GetElementId(i) == _id)
+            return i;
+    }
+    return -1;
+}
+
 void Elements::Add(ElementPtr element)
 {
     elements.push_back(ElementPtr(element));
@@ -623,7 +639,7 @@ bool Elements::GetLastCaretState(CaretState& caret_state, Selection* select)
 
 bool Elements::GetLeftCaretState(CaretState& caret_state, Selection* select)
 {
-    int p = GetElementPos(parent->document->GetElement(caret_state.id)->id);
+    int p = GetChildPos(caret_state.id);
     if (p < 0)
         return false;
     while (p-- > 0)
@@ -655,7 +671,7 @@ bool Elements::GetLeftCaretState(CaretState& caret_state, Selection* select)
 
 bool Elements::GetRightCaretState(CaretState& caret_state, Selection* select)
 {
-    int p = GetElementPos(parent->document->GetElement(caret_state.id)->id);
+    int p = GetChildPos(caret_state.id);
     if (p < 0)
         return false;
     while (++p < Count())
@@ -691,7 +707,7 @@ bool Elements::GetRightCaretState(CaretState& caret_state, Selection* select)
 
 bool Elements::GetWordLeftCaretState(CaretState& caret_state, Selection* select)
 {
-    int p = GetElementPos(parent->document->GetElement(caret_state.id)->id);
+    int p = GetChildPos(caret_state.id);
     if (p < 0)
         return false;
     while (p-- > 0)
@@ -729,7 +745,7 @@ bool Elements::GetWordLeftCaretState(CaretState& caret_state, Selection* select)
 
 bool Elements::GetWordRightCaretState(CaretState& caret_state, Selection* select)
 {
-    int p = GetElementPos(parent->document->GetElement(caret_state.id)->id);
+    int p = GetChildPos(caret_state.id);
     if (p < 0)
         return false;
     while (++p < Count())

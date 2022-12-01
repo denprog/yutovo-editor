@@ -25,9 +25,9 @@ class Caret
 public:
     Caret(Window* _window, Text* _text);
 
-    void SetState(const CaretState& caret_state, bool update_x_pos = false);
-    void SetState(const ElementId id, const uint pos, bool update_x_pos = false);
-    void SetPos(const uint pos, bool update_x_pos = false);
+    void SetState(const CaretState& caret_state, bool update_x_pos = true);
+    void SetState(const ElementId id, const uint pos, bool update_x_pos = true);
+    void SetPos(const uint pos, bool update_x_pos = true);
 
     CaretState GetCaretState();
 

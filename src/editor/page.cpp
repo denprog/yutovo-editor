@@ -198,7 +198,18 @@ bool Page::GetTopCaretState(const int x, const int y, CaretState& caret_state, S
 
 bool Page::GetBottomCaretState(const int x, const int y, CaretState& caret_state, Selection* select)
 {
-    return false;
+    ElementPtr p;
+    //find nearest paragraph
+    for (int i = elements->Count() - 1; i >= 0; --i)
+    {
+        ElementPtr el = elements->Get(i);
+        if (y > el->GetAbsoluteRect().top)
+            break;
+        p = el;
+    }
+    if (!p)
+        return parent->GetBottomCaretState(x, y, caret_state, select);
+    return p->GetBottomCaretState(x, y, caret_state, select);
 }
 
 ParagraphFormatPtr Page::GetParagraphFormat()
