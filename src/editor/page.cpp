@@ -91,8 +91,8 @@ bool Page::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo)
     ElementPtr paragraph = document->FindParent(el->id, ElementType::PARAGRAPH);
     ElementPtr row = document->FindParent(el->id, ElementType::ROW);
 
-    uint k = elements->GetElementPos(paragraph->id);
-    uint p = row->elements->GetElementPos(el->id);
+    int k = elements->GetElementPos(paragraph->id);
+    int p = row->elements->GetElementPos(el->id);
     bool caret_next_row = false;
     if (p == 0 && document->caret.current_pos == 0)
     {
@@ -108,8 +108,9 @@ bool Page::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo)
     if (new_row->elements->Count() == 0)
         new_row->AddElement(ElementPtr(new String(new_row.get())));
 
-    el->SplitAt(before_state.GetPos()); //try to split current element
-    if (before_state.GetPos() != 0 || p != 0)
+    if (!el->SplitAt(before_state.GetPos()) && before_state.GetPos() == 0) //try to split current element
+        --p;
+    if (before_state.GetPos() != 0 || p >= 0)
     {
         for (int i = p + 1; i < row->elements->Count();) //move all elements at the right side of the row
             new_row->elements->Move(row->elements->Get(i), new_row->elements->Count());

@@ -665,6 +665,36 @@ TEST_F(ParagraphTest, paragraph1)
         "</body>") << 
         document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(3, 0, 0, 0)) << document.GetEditorState().ToString();
+
+    for (int i = 0; i < 7; ++i)
+        document.MoveCaretRight(false);
+    document.WaitCaretMoving();
+    document.InsertParagraph(true);
+    document.WaitMainLoop();
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\"></span>"\
+            "</p>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\">Text</span>"\
+            "</p>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\"></span>"\
+            "</p>"\
+            "<p>"\
+                "<span style=\"font-family:'Times New Roman';font-size:18px;\"><em>Italic</em></span>"\
+            "</p>"\
+            "<p>"\
+                "<span style=\"font-family:'Times New Roman';font-size:34px;\"><strong>Bold</strong></span>"\
+                "<span style=\"font-family:'Arial';font-size:20px;\">String1 String2 String3</span>"\
+            "</p>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\"></span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(4, 0, 0, 0)) << document.GetEditorState().ToString();
 }
 
 TEST_F(ParagraphTest, paragraph2)
