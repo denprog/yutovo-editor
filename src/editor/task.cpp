@@ -1,8 +1,15 @@
 #include "task.h"
 #include "text.h"
-#include "document.h"
 #include "str.h"
+#include "paragraph.h"
+#include "page.h"
+#include "row.h"
+#include "util.h"
+#include "result_codes.h"
 #include <assert.h>
+#include <boost/archive/binary_oarchive.hpp>
+#include <boost/archive/binary_iarchive.hpp>
+#include <boost/serialization/shared_ptr.hpp>
 
 namespace yutovo
 {
@@ -308,6 +315,9 @@ RemakeTask::RemakeTask(ElementPtr _text, const ElementId& _element_id, bool _wit
 bool RemakeTask::Execute()
 {
     logger->Debug("Execute RemakeTask element_id={}", IdToString(element_id));
+    auto p = text->document->GetElement(element_id);
+    if (!p)
+        return false;
     text->document->GetElement(element_id)->Remake(with_elements);
     text->document->Redraw(element_id);
     return true;
@@ -462,6 +472,92 @@ bool SetEditorStateTask::Execute()
 #ifdef DEBUG
     text->document->last_caret_moved = true;
 #endif
+    return true;
+}
+
+//NewTask
+
+NewTask::NewTask(ElementPtr _text) :
+    Task(_text)
+{
+}
+
+bool NewTask::Execute()
+{
+    text->document->MoveCaretToDocumentBegin(false);
+    text->document->text = ElementPtr(new Text(text->document));
+    text->document->Remake(text->id, true, false);
+    return true;
+}
+
+//SerializeTask
+
+SerializeTask::SerializeTask(ElementPtr _text) :
+    Task(_text)
+{
+}
+
+//SaveTask
+
+SaveTask::SaveTask(ElementPtr _text, const std::string _filename) :
+    SerializeTask(_text),
+    filename(_filename)
+{
+}
+
+bool SaveTask::Execute()
+{
+    std::ofstream file(filename);
+    boost::archive::binary_oarchive oarchive(file);
+    RegisterTypes(oarchive);
+
+    try
+    {
+        oarchive << text->document->string_formats; //store string formats
+        oarchive << text->document->paragraph_formats; //store paragraph formats
+        oarchive << text; //store text
+    }
+    catch (boost::archive::archive_exception& ex)
+    {
+        text->window->OnSaveResult(id, ToIOResult(ex.code));
+    }
+
+    text->window->OnSaveResult(id, IOResult::Success);
+    return true;
+}
+
+//LoadTask
+
+LoadTask::LoadTask(ElementPtr _text, const std::string _filename) :
+    SerializeTask(_text),
+    filename(_filename)
+{
+}
+
+bool LoadTask::Execute()
+{
+    std::ifstream file(filename);
+    DocumentUserData user_data{text->document, nullptr};
+    UserDataAdapter<DocumentUserData, boost::archive::binary_iarchive> iarchive(user_data, file);
+    RegisterTypes(iarchive);
+    ElementPtr t;
+
+    try
+    {
+        iarchive >> text->document->string_formats; //restore string formats
+        iarchive >> text->document->paragraph_formats; //restore paragraph formats
+        iarchive >> t; //restore text
+    }
+    catch (boost::archive::archive_exception& ex)
+    {
+        text->window->OnLoadResult(id, ToIOResult(ex.code));
+    }
+
+    text->document->text = t;
+    //text->document->caret.Reset();
+    text->document->MoveCaretToDocumentBegin(false);
+    text->document->Remake(text->id, true, false);
+    text->window->OnLoadResult(id, IOResult::Success);
     return true;
 }
 

@@ -60,7 +60,9 @@ public:
     void SetCurrentStringFormat(StringFormatPtr& format);
 
     ElementType GetElementType(const ElementId id);
-    bool GetStringFormat(const ElementId id, StringFormatPtr& format);
+
+    bool GetStringFormat(const ElementId id, StringFormat& format);
+    bool GetParagraphFormat(const ElementId id, ParagraphFormat& format);
 
     void MoveCaret(MoveCaretTask::MoveCaretDir dir, bool select);
     void MoveCaretLeft(bool select);
@@ -88,12 +90,17 @@ public:
     void Redraw();
     void Remake(const ElementId& id, bool with_elements, bool undo = false);
 
+    void New();
+    uint Save(const std::string& filename);
+    uint Load(const std::string& filename);
+
     std::string ToHtml();
     std::string ToText();
 
     TextFormatPtr GetDefaultTextFormat();
     PageFormatPtr GetDefaultPageFormat();
     StringFormatPtr GetStringFormat(const std::string family, uint size, bool bold, bool italic, bool underline);
+    StringFormatPtr GetStringFormat(const uint id);
 
     void UpdateFormats();
 
@@ -116,10 +123,13 @@ public:
     void WaitUndo();
     void WaitRedo();
     void WaitCaretMoving();
+    void WaitLoad();
 
 private:
     uint last_task_id = 0;
+    uint last_load_task_id = 0;
     bool last_task_executed = false;
+    bool last_load_executed = false;
     bool last_undo_executed = false;
     bool last_redo_executed = false;
 
@@ -129,6 +139,8 @@ private:
 private:
     friend class MoveCaretTask;
     friend class SetEditorStateTask;
+    friend class NewTask;
+    friend class LoadTask;
 
     void UpdateCaretView();
     void UpdateLastSelection();
@@ -136,8 +148,8 @@ private:
 public:
     Window* window;
 
-    StringFormats string_formats;
-    ParagraphFormats paragraph_formats;
+    StringFormatsPtr string_formats;
+    ParagraphFormatsPtr paragraph_formats;
 
 private:
     friend class Page;

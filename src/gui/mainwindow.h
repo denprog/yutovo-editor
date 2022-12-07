@@ -53,6 +53,8 @@ private slots:
     void OnUnderline();
 
     void OnCaretMoved(const CaretState& caret_state);
+    void OnSaveResult(const uint task_id, IOResult result);
+    void OnLoadResult(const uint task_id, IOResult result);
 
 private:
     void FillParagraphFormats();
@@ -61,6 +63,8 @@ private:
 private:
     Ui::MainWindow *ui;
     DocumentWidget* document_widget;
+    Document* document = nullptr;
+    QString current_file_name;
 
     QComboBox* paragraph_format_combo = nullptr;
     

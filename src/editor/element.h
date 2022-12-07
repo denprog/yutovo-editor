@@ -1,11 +1,17 @@
-#ifndef __CHARACTER_H__
-#define __CHARACTER_H__
+#ifndef __ELEMENT_H__
+#define __ELEMENT_H__
 
 #include <memory>
-#include <vector>
+#include <fstream>
 #include "window.h"
 #include "util.h"
 #include "caret_state.h"
+#include <boost/archive/binary_iarchive.hpp>
+#include <boost/archive/binary_oarchive.hpp>
+#include <boost/serialization/split_member.hpp>
+#include <boost/serialization/vector.hpp>
+#include <boost/serialization/shared_ptr.hpp>
+#include <boost/serialization/unique_ptr.hpp>
 
 namespace yutovo
 {
@@ -162,6 +168,23 @@ public:
     virtual std::string ToHtml();
     virtual std::string ToText();
 
+    template <class Archive>
+    void save(Archive& ar, const unsigned int version) const
+    {
+        ar << parent;
+        ar << elements;
+    }
+
+    template <class Archive>
+    void load(Archive& ar, const unsigned int version)
+    {
+        elements.clear();
+        ar >> elements;
+        UpdateIds();
+    }
+
+	BOOST_SERIALIZATION_SPLIT_MEMBER()
+
 protected:
     virtual void UpdateIds();
 
@@ -174,6 +197,28 @@ private:
     std::vector<ElementPtr> elements;
 };
 
+}
+
+namespace boost
+{
+namespace serialization
+{
+
+template<class Archive>
+void save_construct_data(Archive& ar, const yutovo::Elements* t, const unsigned int version)
+{
+}
+
+template<class Archive>
+void load_construct_data(Archive& ar, yutovo::Elements* t, const unsigned int version)
+{
+    yutovo::Element* p;
+    ar >> p;
+    yutovo::DocumentUserData& user_data = yutovo::GetUserData<yutovo::DocumentUserData>(ar);
+    ::new(t)yutovo::Elements(p);
+}
+
+}
 }
 
 #endif

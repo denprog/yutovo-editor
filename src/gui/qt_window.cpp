@@ -177,6 +177,16 @@ void QtWindow::OnCaretMoved(const CaretState& caret_state)
     emit CaretMoved(caret_state);
 }
 
+void QtWindow::OnSaveResult(const uint task_id, IOResult result)
+{
+    emit SaveResult(task_id, result);
+}
+
+void QtWindow::OnLoadResult(const uint task_id, IOResult result)
+{
+    emit LoadResult(task_id, result);
+}
+
 void QtWindow::GetPixmap(QPixmap& out, const QRect& rect)
 {
     std::lock_guard<std::mutex> lock(pixmap_mutex);

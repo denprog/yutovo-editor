@@ -3,7 +3,9 @@
 
 #include <string>
 #include "element.h"
+#include "document.h"
 #include "style.h"
+#include <boost/serialization/unique_ptr.hpp>
 
 namespace yutovo
 {
@@ -38,11 +40,25 @@ public:
 
     virtual bool CanContinueSelection();
 
+    template <class Archive>
+    void save(Archive& ar, const unsigned int version) const
+    {
+        ar << format->id;
+        ar << (boost::serialization::base_object<Element>(*this), elements);
+    }
+
+    template <class Archive>
+    void load(Archive& ar, const unsigned int version)
+    {
+        ar >> (boost::serialization::base_object<Element>(*this), elements);
+    }
+
+	BOOST_SERIALIZATION_SPLIT_MEMBER()
+
 protected:
-    friend class StringElements;
     friend class Document;
     friend class ChangeStringFormatTask;
-
+    friend class StringElements;
     StringFormatPtr format;
 };
 
@@ -82,12 +98,70 @@ public:
     virtual std::string ToHtml();
     virtual std::string ToText();
 
+    template <class Archive>
+    void save(Archive& ar, const unsigned int version) const
+    {
+        ar << parent;
+        ar << str;
+    }
+
+    template <class Archive>
+    void load(Archive& ar, const unsigned int version)
+    {
+        ar >> str;
+    }
+
+	BOOST_SERIALIZATION_SPLIT_MEMBER()
+
 private:
     friend class String;
 
     std::string str;
 };
 
+}
+
+namespace boost
+{
+namespace serialization
+{
+
+template<class Archive>
+void save_construct_data(Archive& ar, const yutovo::String* t, const unsigned int version)
+{
+    ar << t->parent;
+}
+
+template<class Archive>
+void load_construct_data(Archive& ar, yutovo::String* t, const unsigned int version)
+{
+    yutovo::Element* p;
+    ar >> p;
+    uint format_id;
+    ar >> format_id;
+    yutovo::DocumentUserData& user_data = yutovo::GetUserData<yutovo::DocumentUserData>(ar);
+    auto f = user_data.document->GetStringFormat(format_id);
+    if (f)
+        ::new(t)yutovo::String(p, "", f);
+    else
+        ::new(t)yutovo::String(p);
+}
+
+template<class Archive>
+void save_construct_data(Archive& ar, const yutovo::StringElements* t, const unsigned int version)
+{
+}
+
+template<class Archive>
+void load_construct_data(Archive& ar, yutovo::StringElements* t, const unsigned int version)
+{
+    yutovo::Element* p;
+    ar >> p;
+    yutovo::DocumentUserData& user_data = yutovo::GetUserData<yutovo::DocumentUserData>(ar);
+    ::new(t)yutovo::StringElements(p);
+}
+
+}
 }
 
 #endif
