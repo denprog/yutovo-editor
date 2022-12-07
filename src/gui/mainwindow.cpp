@@ -1,6 +1,8 @@
 #include "mainwindow.h"
 #include <QMenu>
 #include <QToolBar>
+#include <QFileDialog>
+#include <QMessageBox>
 #include "editor/util.h"
 
 //MainWindow
@@ -13,6 +15,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     qRegisterMetaType<Rect>("Rect");
     qRegisterMetaType<CaretState>("CaretState");
+    qRegisterMetaType<IOResult>("IOResult");
 
     SetupGui();
     CreateActions();
@@ -28,14 +31,17 @@ void MainWindow::SetupGui()
 {
     document_widget = new DocumentWidget(ui->centralwidget);
     document_widget->setObjectName(QStringLiteral("document_widget"));
+    document = &document_widget->document;
     ui->verticalLayout->addWidget(document_widget);
 
     connect(&document_widget->window, &QtWindow::CaretMoved, this, &MainWindow::OnCaretMoved);
+    connect(&document_widget->window, &QtWindow::SaveResult, this, &MainWindow::OnSaveResult);
+    connect(&document_widget->window, &QtWindow::LoadResult, this, &MainWindow::OnLoadResult);
 
-    document_widget->InsertText("Text", document_widget->document.GetStringFormat("Arial", 22, false, false, false));
-    document_widget->InsertText("Italic", document_widget->document.GetStringFormat("Times New Roman", 18, false, true, false));
-    document_widget->InsertText("Bold", document_widget->document.GetStringFormat("Times New Roman", 34, true, false, false));
-    document_widget->InsertText("String1 String2 String3", document_widget->document.GetStringFormat("Arial", 20, false, false, false));
+    document_widget->InsertText("Text", document->GetStringFormat("Arial", 22, false, false, false));
+    document_widget->InsertText("Italic", document->GetStringFormat("Times New Roman", 18, false, true, false));
+    document_widget->InsertText("Bold", document->GetStringFormat("Times New Roman", 34, true, false, false));
+    document_widget->InsertText("String1 String2 String3", document->GetStringFormat("Arial", 20, false, false, false));
 }
 
 void MainWindow::CreateActions()
@@ -165,18 +171,39 @@ void MainWindow::CreateStatusBar()
 
 void MainWindow::New()
 {
+    document->New();
+    current_file_name = "";
 }
 
 void MainWindow::Open()
 {
+    QString file_name = QFileDialog::getOpenFileName(this, tr("Open file"), "", tr("Yutovo files (*.yut)"));
+    if (file_name == "")
+        return;
+    document->Load(file_name.toUtf8().data());
+    current_file_name = file_name;
 }
 
 void MainWindow::Save()
 {
+    if (current_file_name == "")
+        SaveAs();
+    else
+        document->Save(current_file_name.toUtf8().data());
 }
 
 void MainWindow::SaveAs()
 {
+    QFileDialog save_dialog(this, tr("Save file as"), "", tr("Yutovo files (*.yut)"));
+    save_dialog.setDefaultSuffix("yut");
+    save_dialog.setAcceptMode(QFileDialog::AcceptSave);
+    if (!save_dialog.exec())
+        return;
+    QStringList file_names = save_dialog.selectedFiles();
+    if (file_names.empty())
+        return;
+    document->Save(file_names[0].toUtf8().data());
+    current_file_name = file_names[0];
 }
 
 void MainWindow::Exit()
@@ -198,12 +225,12 @@ void MainWindow::Paste()
 
 void MainWindow::Undo()
 {
-    document_widget->document.Undo();
+    document->Undo();
 }
 
 void MainWindow::Redo()
 {
-    document_widget->document.Redo();
+    document->Redo();
 }
 
 void MainWindow::About()
@@ -212,14 +239,14 @@ void MainWindow::About()
 
 void MainWindow::OnCurrentParagraphFormatChanged(const QString& format)
 {
-    document_widget->document.SetCurrentParagraphFormat(format.toUtf8().data());
+    document->SetCurrentParagraphFormat(format.toUtf8().data());
     document_widget->setFocus();
 }
 
 void MainWindow::OnCurrentFontChanged(const QFont& font)
 {
     FillSizes(font);
-    document_widget->document.SetFontFamily(font.family().toUtf8().data());
+    document->SetFontFamily(font.family().toUtf8().data());
     document_widget->setFocus();
 }
 
@@ -234,45 +261,57 @@ void MainWindow::OnCurrentSizeChanged(const QString& size)
     {
         return;
     }
-    document_widget->document.SetFontSize(s);
+    document->SetFontSize(s);
     document_widget->setFocus();
 }
 
 void MainWindow::OnBold()
 {
-    document_widget->document.SetBold(bold_action->isEnabled());
+    document->SetBold(bold_action->isEnabled());
 }
 
 void MainWindow::OnItalic()
 {
-    document_widget->document.SetItalic(italic_action->isEnabled());
+    document->SetItalic(italic_action->isEnabled());
 }
 
 void MainWindow::OnUnderline()
 {
-    document_widget->document.SetUnderline(underline_action->isEnabled());
+    document->SetUnderline(underline_action->isEnabled());
 }
 
 void MainWindow::OnCaretMoved(const CaretState& caret_state)
 {
-    if (document_widget->document.GetElementType(caret_state.GetElement()) == ElementType::STRING)
+    if (document->GetElementType(caret_state.GetElement()) == ElementType::STRING)
     {
-        StringFormatPtr format;
-        if (document_widget->document.GetStringFormat(caret_state.GetElement(), format))
+        StringFormat format;
+        if (document->GetStringFormat(caret_state.GetElement(), format))
         {
-            family_combo->setCurrentText(format->family.c_str());
-            size_combo->setCurrentText(std::to_string(format->size).c_str());
-            bold_action->setChecked(format->bold);
-            italic_action->setChecked(format->italic);
-            underline_action->setChecked(format->underline);
+            family_combo->setCurrentText(format.family.c_str());
+            size_combo->setCurrentText(std::to_string(format.size).c_str());
+            bold_action->setChecked(format.bold);
+            italic_action->setChecked(format.italic);
+            underline_action->setChecked(format.underline);
         }
     }
+}
+
+void MainWindow::OnSaveResult(const uint task_id, IOResult result)
+{
+    if (result != IOResult::Success)
+        QMessageBox::critical(this, tr("Yutovo"), tr("Error saving document"));
+}
+
+void MainWindow::OnLoadResult(const uint task_id, IOResult result)
+{
+    if (result != IOResult::Success)
+        QMessageBox::critical(this, tr("Yutovo"), tr("Error loading document"));
 }
 
 void MainWindow::FillParagraphFormats()
 {
     std::vector<ParagraphFormatPtr> formats;
-    document_widget->document.paragraph_formats.GetFormats(formats);
+    document->paragraph_formats->GetFormats(formats);
     for (auto& f : formats)
     {
         paragraph_format_combo->addItem(f->name.c_str());

@@ -5,6 +5,7 @@
 #include <vector>
 #include "util.h"
 #include "style.h"
+#include "result_codes.h"
 
 namespace yutovo
 {
@@ -46,6 +47,9 @@ public:
     void EndDrawOutside();
 
     virtual void OnCaretMoved(const CaretState& caret_state);
+
+    virtual void OnSaveResult(const uint task_id, IOResult result);
+    virtual void OnLoadResult(const uint task_id, IOResult result);
 
 protected:
     Point document_point;

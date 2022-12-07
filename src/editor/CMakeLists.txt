@@ -22,13 +22,14 @@ add_library(${PROJECT_NAME}
     window.cpp
     util.cpp
     logger.cpp
+    result_codes.cpp
 )
 
 target_link_libraries(${PROJECT_NAME} PRIVATE 
     stdc++
     stdc++fs
     pthread
-    m
+    boost_serialization
 )
 
 target_include_directories(${PROJECT_NAME} PRIVATE

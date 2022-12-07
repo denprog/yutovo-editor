@@ -2,8 +2,11 @@
 #include "str.h"
 #include "paragraph.h"
 #include "row.h"
+#include "page.h"
+#include "util.h"
 #include <assert.h>
 #include <chrono>
+#include <sstream>
 
 namespace yutovo
 {
@@ -14,8 +17,9 @@ using namespace std::chrono_literals;
 
 Document::Document(Window* _window) :
     window(_window),
-    paragraph_formats(string_formats),
-    current_paragraph_format(paragraph_formats.GetFormat("Text body")),
+    string_formats(new StringFormats()),
+    paragraph_formats(new ParagraphFormats(string_formats)),
+    current_paragraph_format(paragraph_formats->GetFormat("Text body")),
     text(new Text(this)),
     caret(_window, (Text*)text.get()),
     selection(this),
@@ -174,8 +178,13 @@ void Document::MainLoop()
                 }
 
 #ifdef DEBUG
-                if (last_task_id > 0 && last_task_id == t->id)
-                    last_task_executed = true;
+                if (last_task_id > 0)
+                {
+                    if (last_task_id == t->id)
+                        last_task_executed = true;
+                }
+                if (last_load_task_id == t->id)
+                    last_load_executed = true;
 #endif
             }
             caret.Show();
@@ -264,7 +273,7 @@ void Document::DeleteElements(bool left, bool with_undo, bool undo)
 void Document::ChangeStringFormat(const std::string family, const uint size, const bool bold, const bool italic, const bool underline, 
     bool with_undo, bool undo)
 {
-    ChangeStringFormat(string_formats.GetFormat(family, size, bold, italic, underline), with_undo, undo);
+    ChangeStringFormat(string_formats->GetFormat(family, size, bold, italic, underline), with_undo, undo);
 }
 
 void Document::ChangeStringFormat(const StringFormatPtr format, bool set_family, bool set_size, bool set_bold, bool set_italic, bool set_underline, 
@@ -420,12 +429,12 @@ void Document::SetFontFamily(const std::string& family)
     {
         if (!selection.IsEmpty())
         {
-            ChangeStringFormat(string_formats.GetFormat(family, current_string_format->size, current_string_format->bold, 
+            ChangeStringFormat(string_formats->GetFormat(family, current_string_format->size, current_string_format->bold, 
                 current_string_format->italic, current_string_format->underline), true, false);
         }
         else
         {
-            current_string_format = string_formats.GetFormat(family, current_string_format->size, current_string_format->bold, 
+            current_string_format = string_formats->GetFormat(family, current_string_format->size, current_string_format->bold, 
                 current_string_format->italic, current_string_format->underline);
         }
     }
@@ -436,7 +445,7 @@ void Document::SetFontSize(const uint size)
     std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
     if (current_string_format)
     {
-        auto f = string_formats.GetFormat(current_string_format->family, size, current_string_format->bold, current_string_format->italic, 
+        auto f = string_formats->GetFormat(current_string_format->family, size, current_string_format->bold, current_string_format->italic, 
             current_string_format->underline);
         if (!selection.IsEmpty())
             ChangeStringFormat(f, false, true, false, false, false, true);
@@ -450,7 +459,7 @@ void Document::SetBold(const bool enabled)
     std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
     if (current_string_format)
     {
-        auto f = string_formats.GetFormat(current_string_format->family, current_string_format->size, enabled, current_string_format->italic, 
+        auto f = string_formats->GetFormat(current_string_format->family, current_string_format->size, enabled, current_string_format->italic, 
             current_string_format->underline);
         if (!selection.IsEmpty())
             ChangeStringFormat(f, false, false, true, false, false, true);
@@ -464,7 +473,7 @@ void Document::SetItalic(const bool enabled)
     std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
     if (current_string_format)
     {
-        auto f = string_formats.GetFormat(current_string_format->family, current_string_format->size, current_string_format->bold, enabled, 
+        auto f = string_formats->GetFormat(current_string_format->family, current_string_format->size, current_string_format->bold, enabled, 
             current_string_format->underline);
         if (!selection.IsEmpty())
             ChangeStringFormat(f, true, false);
@@ -478,7 +487,7 @@ void Document::SetUnderline(const bool enabled)
     std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
     if (current_string_format)
     {
-        auto f = string_formats.GetFormat(current_string_format->family, current_string_format->size, current_string_format->bold, 
+        auto f = string_formats->GetFormat(current_string_format->family, current_string_format->size, current_string_format->bold, 
             current_string_format->italic, enabled);
         if (!selection.IsEmpty())
             ChangeStringFormat(f, true, false);
@@ -490,7 +499,7 @@ void Document::SetUnderline(const bool enabled)
 void Document::SetCurrentParagraphFormat(const std::string& name)
 {
     std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
-    current_paragraph_format = paragraph_formats.GetFormat(name);
+    current_paragraph_format = paragraph_formats->GetFormat(name);
     if (current_paragraph_format)
     {
         ChangeParagraphFormat(current_paragraph_format, true, false);
@@ -506,13 +515,23 @@ ElementType Document::GetElementType(const ElementId id)
     return el->type;
 }
 
-bool Document::GetStringFormat(const ElementId id, StringFormatPtr& format)
+bool Document::GetStringFormat(const ElementId id, StringFormat& format)
 {
     std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
     ElementPtr el = GetElement(id);
     if (el->type != ElementType::STRING)
         return false;
-    format = ((String*)el.get())->format;
+    format = *((String*)el.get())->format;
+    return true;
+}
+
+bool Document::GetParagraphFormat(const ElementId id, ParagraphFormat& format)
+{
+    std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
+    auto el = FindParent(id, ElementType::PARAGRAPH);
+    if (!el)
+        return false;
+    format = *((Paragraph*)el.get())->format;
     return true;
 }
 
@@ -686,6 +705,35 @@ void Document::Remake(const ElementId& id, bool with_elements, bool undo)
     next_circle.notify_one();
 }
 
+void Document::New()
+{
+    std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
+    tasks.emplace_back(new NewTask(text));
+#ifdef DEBUG
+    last_task_id = tasks[tasks.size() - 1]->id;
+#endif
+}
+
+uint Document::Save(const std::string& filename)
+{
+    std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
+    tasks.emplace_back(new SaveTask(text, filename));
+#ifdef DEBUG
+    last_task_id = tasks[tasks.size() - 1]->id;
+#endif
+    return tasks[tasks.size() - 1]->id;
+}
+
+uint Document::Load(const std::string& filename)
+{
+    std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
+    tasks.emplace_back(new LoadTask(text, filename));
+#ifdef DEBUG
+    last_load_task_id = tasks[tasks.size() - 1]->id;
+#endif
+    return tasks[tasks.size() - 1]->id;
+}
+
 std::string Document::ToHtml()
 {
     std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
@@ -710,7 +758,12 @@ PageFormatPtr Document::GetDefaultPageFormat()
 
 StringFormatPtr Document::GetStringFormat(const std::string family, uint size, bool bold, bool italic, bool underline)
 {
-    return string_formats.GetFormat(family, size, bold, italic, underline);
+    return string_formats->GetFormat(family, size, bold, italic, underline);
+}
+
+StringFormatPtr Document::GetStringFormat(const uint id)
+{
+    return string_formats->GetFormat(id);
 }
 
 EditorState Document::GetEditorState()
@@ -758,6 +811,18 @@ void Document::WaitCaretMoving()
     }
 
     last_caret_moved = false;
+}
+
+void Document::WaitLoad()
+{
+    while (!last_load_executed)
+    {
+        std::this_thread::sleep_for(10ms);
+    }
+
+    std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
+    last_load_task_id = 0;
+    last_load_executed = false;
 }
 #endif
 

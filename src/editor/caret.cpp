@@ -69,7 +69,7 @@ void Caret::SetVisible(bool _visible)
 
 void Caret::Show()
 {
-    if (!visible)
+    if (!visible || !current_element)
         return;
     
     caret_rect = current_element->GetAbsoluteRect(current_element->GetCaretRect(current_pos));
@@ -208,13 +208,19 @@ void Caret::MoveWordRight(Selection* selection)
 
 bool Caret::IsInsideElement(const ElementId id)
 {
-    return IsChild(id, current_element->id);
+    return current_element && IsChild(id, current_element->id);
 }
 
 void Caret::UpdateXPos()
 {
     last_x_element = current_element;
     last_x_pos = current_pos;
+}
+
+void Caret::Reset()
+{
+    current_element = nullptr;
+    current_pos = 0;
 }
 
 }

@@ -116,7 +116,8 @@ bool Page::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo)
             new_row->elements->Move(row->elements->Get(i), new_row->elements->Count());
     }
 
-    for (int i = k + 1; i < paragraph->elements->Count(); ++i) //move the rest rows of the paragraph
+    int r_pos = paragraph->elements->GetElementPos(row->id);
+    for (int i = r_pos + 1; i < paragraph->elements->Count(); ++i) //move the rest rows of the paragraph
     {
         ElementPtr r = paragraph->elements->Get(i);
         for (int j = 0; j < r->elements->Count();)

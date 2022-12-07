@@ -7,6 +7,9 @@
 namespace yutovo
 {
 
+class Document;
+class Element;
+
 struct Point
 {
     int x = 0;
@@ -123,6 +126,36 @@ struct Color
 std::string IdToString(const ElementId& id);
 
 bool IsChild(const ElementId& parent_id, const ElementId& child_id);
+
+struct DocumentUserData
+{
+    Document* document = nullptr;
+};
+
+template <class UserData, class Archive>
+UserData& GetUserData(Archive&);
+
+template <class UserData, class Archive>
+class UserDataAdapter : public Archive
+{
+public:
+    template <class ... Args>
+    UserDataAdapter(UserData& _user_data, Args&& ... args) :
+        Archive(std::forward<Args>(args) ...),
+        user_data(_user_data)
+    {
+    }
+
+private:
+    friend UserData& GetUserData<UserData>(Archive& ar);
+    UserData& user_data;
+};
+
+template <class UserData, class Archive>
+UserData& GetUserData(Archive& ar)
+{
+    return dynamic_cast<UserDataAdapter<UserData, Archive>&>(ar).user_data;
+}
 
 }
 

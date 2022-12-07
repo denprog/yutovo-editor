@@ -1,4 +1,5 @@
 #include "style.h"
+#include "document.h"
 #include <algorithm>
 
 namespace yutovo
@@ -6,12 +7,20 @@ namespace yutovo
 
 //StringFormat
 
-StringFormat::StringFormat(const std::string _family, uint _size, bool _bold, bool _italic, bool _underline) :
+uint StringFormat::next_id = 1;
+
+StringFormat::StringFormat(const uint _id, const std::string _family, uint _size, bool _bold, bool _italic, bool _underline) :
+    id(_id),
     family(_family), 
     size(_size),
     bold(_bold),
     italic(_italic),
     underline(_underline)
+{
+}
+
+StringFormat::StringFormat(const std::string _family, uint _size, bool _bold, bool _italic, bool _underline) :
+    StringFormat(next_id++, _family, _size, _bold, _italic, _underline)
 {
 }
 
@@ -37,6 +46,18 @@ StringFormatPtr StringFormats::GetFormat(const std::string _family, uint _size, 
     return f;
 }
 
+StringFormatPtr StringFormats::GetFormat(const uint _id)
+{
+    auto it = std::find_if(string_formats.begin(), string_formats.end(), 
+        [_id](auto& f)
+        {
+            return f->id == _id;
+        });
+    if (it != string_formats.end())
+        return *it;
+    return nullptr;
+}
+
 //ParagraphFormat
 
 ParagraphFormat::ParagraphFormat(std::string _name, Alignment _alignment, WordWrap _word_wrap, uint _line_spacing, uint _indent_before, uint _indent_after, 
@@ -56,20 +77,20 @@ ParagraphFormat::ParagraphFormat(std::string _name, Alignment _alignment, WordWr
 
 //ParagraphFormats
 
-ParagraphFormats::ParagraphFormats(StringFormats& _string_formats) :
+ParagraphFormats::ParagraphFormats(StringFormatsPtr _string_formats) :
     string_formats(_string_formats)
 {
     //those are predefined paragraph styles
     GetFormat("Text body", ParagraphFormat::Alignment::Left, ParagraphFormat::WordWrap::Normal, 5, 10, 10, 0, 10, 10, 
-        string_formats.GetFormat("Arial", 22, false, false, false));
+        string_formats->GetFormat("Arial", 22, false, false, false));
     GetFormat("Header 1", ParagraphFormat::Alignment::Left, ParagraphFormat::WordWrap::Normal, 5, 10, 10, 0, 10, 10, 
-        string_formats.GetFormat("Arial", 34, true, false, false));
+        string_formats->GetFormat("Arial", 34, true, false, false));
     GetFormat("Header 2", ParagraphFormat::Alignment::Left, ParagraphFormat::WordWrap::Normal, 5, 10, 10, 0, 10, 10, 
-        string_formats.GetFormat("Arial", 30, true, false, false));
+        string_formats->GetFormat("Arial", 30, true, false, false));
     GetFormat("Header 3", ParagraphFormat::Alignment::Left, ParagraphFormat::WordWrap::Normal, 5, 10, 10, 0, 10, 10,
-        string_formats.GetFormat("Arial", 26, true, false, false));
+        string_formats->GetFormat("Arial", 26, true, false, false));
     GetFormat("Monospace", ParagraphFormat::Alignment::Left, ParagraphFormat::WordWrap::Normal, 5, 10, 10, 0, 10, 10, 
-        string_formats.GetFormat("Courier New", 12, false, false, false));
+        string_formats->GetFormat("Courier New", 12, false, false, false));
 }
 
 ParagraphFormatPtr ParagraphFormats::GetFormat(std::string _name, ParagraphFormat::Alignment _alignment, ParagraphFormat::WordWrap _word_wrap, 
@@ -144,4 +165,67 @@ TextFormatPtr TextFormats::GetFormat(TextFormat::Paging paging)
     return t;
 }
 
+}
+
+namespace boost
+{
+namespace serialization
+{
+
+template <>
+void load_construct_data(boost::archive::binary_iarchive& ar, yutovo::StringFormat* t, const unsigned int version)
+{
+    uint id;
+    std::string family;
+    uint size;
+    bool bold;
+    bool italic;
+    bool underline;
+    ar >> id;
+    ar >> family;
+    ar >> size;
+    ar >> bold;
+    ar >> italic;
+    ar >> underline;
+    ::new(t)yutovo::StringFormat(id, family, size, bold, italic, underline);
+}
+
+template <>
+void load_construct_data(boost::archive::binary_iarchive& ar, yutovo::ParagraphFormat* t, const unsigned int version)
+{
+    std::string name;
+    yutovo::ParagraphFormat::Alignment alignment;
+    yutovo::ParagraphFormat::WordWrap word_wrap;
+    uint line_spacing;
+    uint indent_before;
+    uint indent_after;
+    uint indent_first_line;
+    uint spacing_before;
+    uint spacing_after;
+    ar >> name;
+    ar >> alignment;
+    ar >> word_wrap;
+    ar >> line_spacing;
+    ar >> indent_before;
+    ar >> indent_after;
+    ar >> indent_first_line;
+    ar >> spacing_before;
+    ar >> spacing_after;
+    uint string_format_id;
+    ar >> string_format_id;
+    yutovo::DocumentUserData& user_data = yutovo::GetUserData<yutovo::DocumentUserData>(ar);
+    auto string_format = user_data.document->string_formats->GetFormat(string_format_id);
+
+    ::new(t)yutovo::ParagraphFormat(name, alignment, word_wrap, line_spacing, indent_before, indent_after, indent_first_line, spacing_before, 
+        spacing_after, string_format);
+}
+
+template <>
+void load_construct_data(boost::archive::binary_iarchive& ar, yutovo::ParagraphFormats* t, const unsigned int version)
+{
+    yutovo::DocumentUserData& user_data = yutovo::GetUserData<yutovo::DocumentUserData>(ar);
+    ::new(t)yutovo::ParagraphFormats(user_data.document->string_formats);
+}
+
+}
 }

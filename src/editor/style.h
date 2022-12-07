@@ -4,15 +4,43 @@
 #include <string>
 #include <memory>
 #include <vector>
+#include <boost/serialization/split_member.hpp>
+#include <boost/serialization/shared_ptr.hpp>
+#include <boost/serialization/unique_ptr.hpp>
+#include <boost/serialization/vector.hpp>
+#include "util.h"
 
 namespace yutovo
 {
 
 struct StringFormat
 {
+    StringFormat() = default;
+    StringFormat(const uint _id, const std::string _family, uint _size, bool _bold, bool _italic, bool _underline);
     StringFormat(const std::string _family, uint _size, bool _bold, bool _italic, bool _underline);
  
     bool operator==(const StringFormat& f);
+
+    template <class Archive>
+    void save(Archive& ar, const unsigned int version) const
+    {
+        ar << id;
+        ar << family;
+        ar << size;
+        ar << bold;
+        ar << italic;
+        ar << underline;
+    }
+
+    template <class Archive>
+    void load(Archive& ar, const unsigned int version)
+    {
+    }
+
+    BOOST_SERIALIZATION_SPLIT_MEMBER()
+
+    uint id; //for serialization
+    static uint next_id;
 
     std::string family;
     uint size;
@@ -28,10 +56,19 @@ class StringFormats
 {
 public:
     StringFormatPtr GetFormat(const std::string _family, uint _size, bool _bold, bool _italic, bool _underline);
+    StringFormatPtr GetFormat(const uint _id);
+
+    template <class Archive>
+    void serialize(Archive& ar, const unsigned int version)
+    {
+        ar & string_formats;
+    }
 
 private:
     std::vector<StringFormatPtr> string_formats;
 };
+
+typedef std::shared_ptr<StringFormats> StringFormatsPtr;
 
 struct ParagraphFormat
 {
@@ -49,8 +86,31 @@ struct ParagraphFormat
         Normal
     };
 
+    ParagraphFormat() = default;
     ParagraphFormat(std::string _name, Alignment _alignment, WordWrap _word_wrap, uint _line_spacing, uint _indent_before, uint _indent_after, 
         uint _indent_first_line, uint _spacing_before, uint _spacing_after, StringFormatPtr _string_format);
+
+    template <class Archive>
+    void save(Archive& ar, const unsigned int version) const
+    {
+        ar << name;
+        ar << alignment;
+        ar << word_wrap;
+        ar << line_spacing;
+        ar << indent_before;
+        ar << indent_after;
+        ar << indent_first_line;
+        ar << spacing_before;
+        ar << spacing_after;
+        ar << string_format->id;
+    }
+
+    template <class Archive>
+    void load(Archive& ar, const unsigned int version)
+    {
+    }
+
+    BOOST_SERIALIZATION_SPLIT_MEMBER()
 
     std::string name;
     Alignment alignment = Alignment::Left;
@@ -71,17 +131,33 @@ typedef std::shared_ptr<ParagraphFormat> ParagraphFormatPtr;
 class ParagraphFormats
 {
 public:
-    ParagraphFormats(StringFormats& _string_formats);
+    ParagraphFormats(StringFormatsPtr _string_formats);
 
     ParagraphFormatPtr GetFormat(std::string _name, ParagraphFormat::Alignment _alignment, ParagraphFormat::WordWrap _word_wrap, uint _line_spacing, 
         uint _indent_before, uint _indent_after, uint _indent_first_line, uint _spacing_before, uint _spacing_after, StringFormatPtr _string_format);
     ParagraphFormatPtr GetFormat(const std::string& name);
     void GetFormats(std::vector<ParagraphFormatPtr>& formats);
 
+    template <class Archive>
+    void save(Archive& ar, const unsigned int version) const
+    {
+        ar << paragraph_formats;
+    }
+
+    template <class Archive>
+    void load(Archive& ar, const unsigned int version)
+    {
+        ar >> paragraph_formats;
+    }
+
+    BOOST_SERIALIZATION_SPLIT_MEMBER()
+    
 private:
-    StringFormats& string_formats;
+    StringFormatsPtr string_formats;
     std::vector<ParagraphFormatPtr> paragraph_formats;
 };
+
+typedef std::unique_ptr<ParagraphFormats> ParagraphFormatsPtr;
 
 struct PageFormat
 {
@@ -124,6 +200,23 @@ private:
     static std::vector<TextFormatPtr> text_formats;
 };
 
+}
+
+namespace boost
+{
+namespace serialization
+{
+
+template <class Archive>
+void load_construct_data(Archive& ar, yutovo::StringFormat* t, const unsigned int version);
+
+template <class Archive>
+void load_construct_data(Archive& ar, yutovo::ParagraphFormat* t, const unsigned int version);
+
+template <class Archive>
+void load_construct_data(Archive& ar, yutovo::ParagraphFormats* t, const unsigned int version);
+
+}
 }
 
 #endif

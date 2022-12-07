@@ -52,6 +52,8 @@ public:
 
     void UpdateXPos();
 
+    void Reset();
+
 public:
     Element* current_element;
     uint current_pos;

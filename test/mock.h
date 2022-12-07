@@ -49,6 +49,9 @@ public:
     MOCK_METHOD(void, Resize, (uint width, uint height), (override));
 
     MOCK_METHOD(Rect, GetRect, (), (override));
+
+    MOCK_METHOD(void, OnSaveResult, (const uint task_id, IOResult result), (override));
+    MOCK_METHOD(void, OnLoadResult, (const uint task_id, IOResult result), (override));
 };
 
 struct DocumentTest : public testing::Test

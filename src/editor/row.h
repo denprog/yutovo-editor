@@ -2,6 +2,8 @@
 #define __ROW_H__
 
 #include "element.h"
+#include "str.h"
+#include <boost/serialization/unique_ptr.hpp>
 
 namespace yutovo
 {
@@ -25,10 +27,47 @@ public:
     virtual bool GetEndCaretState(CaretState& caret_state, Selection* select);
 
     virtual bool CanContinueSelection();
+
+    template <class Archive>
+    void save(Archive& ar, const unsigned int version) const
+    {
+        ar << (boost::serialization::base_object<Element>(*this), elements);
+    }
+
+    template <class Archive>
+    void load(Archive& ar, const unsigned int version)
+    {
+        ar >> (boost::serialization::base_object<Element>(*this), elements);
+    }
+
+	BOOST_SERIALIZATION_SPLIT_MEMBER()
 };
 
 typedef std::shared_ptr<Row> RowPtr;
 
+}
+
+namespace boost
+{
+namespace serialization
+{
+
+template<class Archive>
+void save_construct_data(Archive& ar, const yutovo::Row* t, const unsigned int version)
+{
+    ar << t->parent;
+}
+
+template<class Archive>
+void load_construct_data(Archive& ar, yutovo::Row* t, const unsigned int version)
+{
+    yutovo::Element* p;
+    ar >> p;
+    yutovo::DocumentUserData& user_data = yutovo::GetUserData<yutovo::DocumentUserData>(ar);
+    ::new(t)yutovo::Row(p);
+}
+
+}
 }
 
 #endif

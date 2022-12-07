@@ -1,5 +1,6 @@
 #include "paragraph.h"
 #include "document.h"
+#include "page.h"
 #include "row.h"
 
 namespace yutovo
