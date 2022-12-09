@@ -734,6 +734,58 @@ uint Document::Load(const std::string& filename)
     return tasks[tasks.size() - 1]->id;
 }
 
+void Document::Copy(std::stringstream& out_array, std::string& out_text)
+{
+    std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
+    tasks.emplace_back(new CopyTask(text, out_array, out_text, false));
+#ifdef DEBUG
+    last_task_id = tasks[tasks.size() - 1]->id;
+#endif
+}
+
+void Document::Paste(std::stringstream& in_array)
+{
+    DocumentUserData user_data{this};
+    UserDataAdapter<DocumentUserData, boost::archive::binary_iarchive> iarchive(user_data, in_array);
+    std::vector<ElementPtr> elements;
+    RegisterTypes(iarchive);
+    
+    try
+    {
+        iarchive >> elements;
+    }
+    catch (boost::archive::archive_exception& ex)
+    {
+        window->OnPasteResult(PasteResult::PasteError);
+        return;
+    }
+
+    if (!elements.empty())
+        InsertElements(elements, true);
+    window->OnPasteResult(PasteResult::Success);
+}
+
+void Document::Paste(const std::string& text)
+{
+    if (text.empty())
+    {
+        window->OnPasteResult(PasteResult::EmptyBuffer);
+        return;
+    }
+
+    InsertText(text, true);
+    window->OnPasteResult(PasteResult::Success);
+}
+
+void Document::Cut(std::stringstream& out_array, std::string& out_text)
+{
+    std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
+    tasks.emplace_back(new CopyTask(text, out_array, out_text, true));
+#ifdef DEBUG
+    last_task_id = tasks[tasks.size() - 1]->id;
+#endif
+}
+
 std::string Document::ToHtml()
 {
     std::lock_guard<std::recursive_mutex> lock(tasks_mutex);

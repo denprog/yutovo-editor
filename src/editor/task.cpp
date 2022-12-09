@@ -10,6 +10,7 @@
 #include <boost/archive/binary_oarchive.hpp>
 #include <boost/archive/binary_iarchive.hpp>
 #include <boost/serialization/shared_ptr.hpp>
+#include <sstream>
 
 namespace yutovo
 {
@@ -490,17 +491,10 @@ bool NewTask::Execute()
     return true;
 }
 
-//SerializeTask
-
-SerializeTask::SerializeTask(ElementPtr _text) :
-    Task(_text)
-{
-}
-
 //SaveTask
 
 SaveTask::SaveTask(ElementPtr _text, const std::string _filename) :
-    SerializeTask(_text),
+    Task(_text),
     filename(_filename)
 {
 }
@@ -529,7 +523,7 @@ bool SaveTask::Execute()
 //LoadTask
 
 LoadTask::LoadTask(ElementPtr _text, const std::string _filename) :
-    SerializeTask(_text),
+    Task(_text),
     filename(_filename)
 {
 }
@@ -537,7 +531,7 @@ LoadTask::LoadTask(ElementPtr _text, const std::string _filename) :
 bool LoadTask::Execute()
 {
     std::ifstream file(filename);
-    DocumentUserData user_data{text->document, nullptr};
+    DocumentUserData user_data{text->document};
     UserDataAdapter<DocumentUserData, boost::archive::binary_iarchive> iarchive(user_data, file);
     RegisterTypes(iarchive);
     ElementPtr t;
@@ -554,10 +548,59 @@ bool LoadTask::Execute()
     }
 
     text->document->text = t;
-    //text->document->caret.Reset();
     text->document->MoveCaretToDocumentBegin(false);
     text->document->Remake(text->id, true, false);
     text->window->OnLoadResult(id, IOResult::Success);
+    return true;
+}
+
+//CopyTask
+
+CopyTask::CopyTask(ElementPtr _text, std::stringstream& _out_array, std::string& _out_text, bool _cut) :
+    Task(_text),
+    out_array(_out_array),
+    out_text(_out_text),
+    cut(_cut)
+{
+}
+
+bool CopyTask::Execute()
+{
+    auto before_state = text->document->GetEditorState();
+    SelectionState& selection_state = before_state.selection_state;
+    if (selection_state.IsEmpty())
+    {
+        text->document->window->OnCopyResult(CopyResult::EmptySelection);
+        return false;
+    }
+
+    std::vector<ElementPtr> copy;
+    for (int i = 0; i < selection_state.state.size(); ++i)
+        text->document->GetElement(selection_state.state[i].id)->Copy(copy);
+
+    for (auto& el : copy)
+    {
+        out_text += el->ToText();
+        el->parent = nullptr; //these elements have no parent
+    }
+
+    boost::archive::binary_oarchive oarchive(out_array);
+    RegisterTypes(oarchive);
+
+    try
+    {
+        oarchive << copy;
+    }
+    catch (boost::archive::archive_exception& ex)
+    {
+        text->document->window->OnCopyResult(CopyResult::CopyError);
+        return false;
+    }
+
+    text->document->window->OnCopyResult(CopyResult::Success);
+
+    if (cut)
+        text->document->DeleteElements(true, true, false);
     return true;
 }
 

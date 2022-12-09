@@ -172,7 +172,7 @@ Rect QtWindow::GetRect()
     return Rect{rect.left(), rect.top(), rect.width(), rect.height()};
 }
 
-void QtWindow::OnCaretMoved(const CaretState& caret_state)
+void QtWindow::OnCaretMoved(const CaretState caret_state)
 {
     emit CaretMoved(caret_state);
 }
@@ -185,6 +185,16 @@ void QtWindow::OnSaveResult(const uint task_id, IOResult result)
 void QtWindow::OnLoadResult(const uint task_id, IOResult result)
 {
     emit LoadResult(task_id, result);
+}
+
+void QtWindow::OnCopyResult(CopyResult result)
+{
+    emit ClipboardCopyResult(result);
+}
+
+void QtWindow::OnPasteResult(PasteResult result)
+{
+    emit ClipboardPasteResult(result);
 }
 
 void QtWindow::GetPixmap(QPixmap& out, const QRect& rect)

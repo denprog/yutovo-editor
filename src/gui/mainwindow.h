@@ -6,6 +6,7 @@
 #include <QFontComboBox>
 #include "ui_mainwindow.h"
 #include <cstring>
+#include <sstream>
 #include "document_widget.h"
 
 QT_BEGIN_NAMESPACE
@@ -34,9 +35,9 @@ private:
     void SaveAs();
     void Exit();
 
-    void Cut();
     void Copy();
     void Paste();
+    void Cut();
 
     void Undo();
     void Redo();
@@ -52,9 +53,10 @@ private slots:
     void OnItalic();
     void OnUnderline();
 
-    void OnCaretMoved(const CaretState& caret_state);
+    void OnCaretMoved(const CaretState caret_state);
     void OnSaveResult(const uint task_id, IOResult result);
     void OnLoadResult(const uint task_id, IOResult result);
+    void OnClipboardCopyResult(CopyResult result);
 
 private:
     void FillParagraphFormats();
@@ -64,7 +66,11 @@ private:
     Ui::MainWindow *ui;
     DocumentWidget* document_widget;
     Document* document = nullptr;
+
     QString current_file_name;
+
+    std::stringstream clipboard_array;
+    std::string clipboard_text;
 
     QComboBox* paragraph_format_combo = nullptr;
     

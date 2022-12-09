@@ -94,6 +94,11 @@ public:
     uint Save(const std::string& filename);
     uint Load(const std::string& filename);
 
+    void Copy(std::stringstream& out_array, std::string& out_text);
+    void Paste(std::stringstream& in_array);
+    void Paste(const std::string& text);
+    void Cut(std::stringstream& out_array, std::string& out_text);
+
     std::string ToHtml();
     std::string ToText();
 

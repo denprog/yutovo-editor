@@ -24,6 +24,20 @@ enum class IOResult
     OutputStreamError // error on input stream
 };
 
+enum class CopyResult
+{
+    Success = 0,
+    EmptySelection,
+    CopyError
+};
+
+enum class PasteResult
+{
+    Success = 0,
+    EmptyBuffer,
+    PasteError
+};
+
 IOResult ToIOResult(boost::archive::archive_exception::exception_code code);
 
 }

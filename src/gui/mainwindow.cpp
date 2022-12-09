@@ -3,6 +3,8 @@
 #include <QToolBar>
 #include <QFileDialog>
 #include <QMessageBox>
+#include <QClipboard>
+#include <QMimeData>
 #include "editor/util.h"
 
 //MainWindow
@@ -16,6 +18,8 @@ MainWindow::MainWindow(QWidget *parent) :
     qRegisterMetaType<Rect>("Rect");
     qRegisterMetaType<CaretState>("CaretState");
     qRegisterMetaType<IOResult>("IOResult");
+    qRegisterMetaType<CopyResult>("CopyResult");
+    qRegisterMetaType<std::vector<ElementPtr>>("std::vector<ElementPtr>");
 
     SetupGui();
     CreateActions();
@@ -37,6 +41,7 @@ void MainWindow::SetupGui()
     connect(&document_widget->window, &QtWindow::CaretMoved, this, &MainWindow::OnCaretMoved);
     connect(&document_widget->window, &QtWindow::SaveResult, this, &MainWindow::OnSaveResult);
     connect(&document_widget->window, &QtWindow::LoadResult, this, &MainWindow::OnLoadResult);
+    connect(&document_widget->window, &QtWindow::ClipboardCopyResult, this, &MainWindow::OnClipboardCopyResult);
 
     document_widget->InsertText("Text", document->GetStringFormat("Arial", 22, false, false, false));
     document_widget->InsertText("Italic", document->GetStringFormat("Times New Roman", 18, false, true, false));
@@ -211,16 +216,43 @@ void MainWindow::Exit()
     close();
 }
 
-void MainWindow::Cut()
-{
-}
-
 void MainWindow::Copy()
 {
+    document->Copy(clipboard_array, clipboard_text);
 }
 
 void MainWindow::Paste()
 {
+    QClipboard* clipboard = QGuiApplication::clipboard();
+    const QMimeData* mime_data = clipboard->mimeData();
+    if (mime_data->hasFormat("yutovo/elements"))
+    {
+        QByteArray arr = mime_data->data("yutovo/elements"); //firstly check the own format
+        if (arr.isEmpty())
+        {
+            //otherwise check if there is a text in the clipboard
+            QString s;
+            if (mime_data->hasText())
+                s = mime_data->text();
+            if (s == "")
+                return;
+            document->Paste(s.toUtf8().data());
+            return;
+        }
+        std::stringstream str(arr.toStdString());
+        document->Paste(str);
+    }
+    else
+    {
+        QString s = clipboard->text();
+        if (s != "")
+            document->Paste(s.toUtf8().data());
+    }
+}
+
+void MainWindow::Cut()
+{
+    document->Cut(clipboard_array, clipboard_text);
 }
 
 void MainWindow::Undo()
@@ -280,7 +312,7 @@ void MainWindow::OnUnderline()
     document->SetUnderline(underline_action->isEnabled());
 }
 
-void MainWindow::OnCaretMoved(const CaretState& caret_state)
+void MainWindow::OnCaretMoved(const CaretState caret_state)
 {
     if (document->GetElementType(caret_state.GetElement()) == ElementType::STRING)
     {
@@ -306,6 +338,21 @@ void MainWindow::OnLoadResult(const uint task_id, IOResult result)
 {
     if (result != IOResult::Success)
         QMessageBox::critical(this, tr("Yutovo"), tr("Error loading document"));
+}
+
+void MainWindow::OnClipboardCopyResult(CopyResult result)
+{
+    if (result != CopyResult::Success)
+        return;
+    QClipboard* clipboard = QGuiApplication::clipboard();
+    QMimeData* mime_data = new QMimeData;
+    std::string s = clipboard_array.str();
+    QByteArray item_data(s.c_str(), s.size());
+    mime_data->setData("yutovo/elements", item_data); //custom clipboard type
+    mime_data->setText(clipboard_text.c_str());
+    clipboard->setMimeData(mime_data);
+    clipboard_array.clear();
+    clipboard_text = "";
 }
 
 void MainWindow::FillParagraphFormats()

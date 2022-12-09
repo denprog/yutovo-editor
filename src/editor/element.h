@@ -43,6 +43,7 @@ public:
     virtual ~Element();
 
     virtual Element* Clone() = 0;
+    virtual bool Copy(std::vector<ElementPtr>& copy);
 
     virtual Element* Create(Element* parent) = 0;
 

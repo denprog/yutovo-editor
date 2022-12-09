@@ -22,6 +22,7 @@ add_executable(${PROJECT_NAME}_tests
 	paragraph.cpp
 	caret.cpp
 	files.cpp
+	clipboard.cpp
 )
 
 target_link_libraries(${PROJECT_NAME}_tests PRIVATE

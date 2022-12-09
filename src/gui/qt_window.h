@@ -41,10 +41,13 @@ public:
 
     virtual void MoveDocument(const int left, const int top);
 
-    virtual void OnCaretMoved(const CaretState& caret_state);
+    virtual void OnCaretMoved(const CaretState caret_state);
 
     virtual void OnSaveResult(const uint task_id, IOResult result);
     virtual void OnLoadResult(const uint task_id, IOResult result);
+
+    virtual void OnCopyResult(CopyResult result);
+    virtual void OnPasteResult(PasteResult result);
 
     virtual Rect GetRect();
 
@@ -54,9 +57,11 @@ public:
 signals:
     void DocumentUpdated(const Rect rect);
     void WindowUpdated();
-    void CaretMoved(const CaretState& caret_state);
+    void CaretMoved(const CaretState caret_state);
     void SaveResult(const uint task_id, IOResult result);
     void LoadResult(const uint task_id, IOResult result);
+    void ClipboardCopyResult(CopyResult result);
+    void ClipboardPasteResult(PasteResult result);
 
 private:
     std::unique_ptr<QImage> surface;

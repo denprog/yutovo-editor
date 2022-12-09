@@ -154,6 +154,20 @@ TEST_F(DocumentTest, caret1)
     document.MoveCaretWordRight(true);
     document.WaitCaretMoving();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 2, 6, 0, 6, 0, 0, 16, 1, 0, 4)) << document.GetEditorState().ToString();
+
+    document.MoveCaretHome(false);
+    document.MoveCaretWordRight(false);
+    document.MoveCaretWordRight(false);
+    document.WaitCaretMoving();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 10)) << document.GetEditorState().ToString();
+
+    document.MoveCaretWordRight(true);
+    document.WaitCaretMoving();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 16, 10, 6)) << document.GetEditorState().ToString();
+
+    document.MoveCaretWordRight(true);
+    document.WaitCaretMoving();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 1, 4, 0, 4, 0, 10, 6)) << document.GetEditorState().ToString();
 }
 
 TEST_F(DocumentTest, caret2)
@@ -261,6 +275,33 @@ TEST_F(DocumentTest, caret3)
     document.MoveCaretUp(false);
     document.WaitCaretMoving();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 42)) << document.GetEditorState().ToString();
+}
+
+TEST_F(DocumentTest, caret4)
+{
+    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
+        {
+            return Rect{0, 0, 600, 400};
+        });
+
+    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::string& text, const StringFormatPtr format)
+        {
+            return GetTextSizeMock(text, format);
+        });
+
+    document.InsertText("Text Word2 Word3 ", true);
+    document.InsertText("Bold", document.GetStringFormat("Times New Roman", 34, true, false, false), true);
+    document.InsertText("Italic", document.GetStringFormat("Courier", 24, false, true, false), true);
+    document.WaitMainLoop();
+    document.MoveCaretToDocumentBegin(false);
+    document.MoveCaretWordRight(false);
+    document.MoveCaretWordRight(false);
+    document.MoveCaretWordRight(true);
+    document.MoveCaretWordRight(true);
+    document.MoveCaretWordRight(true);
+    document.WaitCaretMoving();
+    std::this_thread::sleep_for(100ms);
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 1, 4, 0, 4, 0, 10, 7)) << document.GetEditorState().ToString();
 }
 
 }
