@@ -62,6 +62,20 @@ Element* String::Clone()
     return new String(*this);
 }
 
+bool String::Copy(std::vector<ElementPtr>& copy)
+{
+    uint start, size;
+    if (!selection->Has(id, start, size))
+        return false;
+    if (start == 0 && size == elements->Count())
+    {
+        copy.push_back(ElementPtr(Clone()));
+        return true;
+    }
+    copy.push_back(ElementPtr(new String(parent, ((StringElements*)elements.get())->str.substr(start, size), format)));
+    return true;
+}
+
 Element* String::Create(Element* parent)
 {
     return new String(parent);

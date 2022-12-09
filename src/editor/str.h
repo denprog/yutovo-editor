@@ -19,6 +19,7 @@ public:
     String(Document* _document, const std::string _str, const StringFormatPtr _format);
 
     virtual Element* Clone();
+    virtual bool Copy(std::vector<ElementPtr>& copy);
 
     virtual Element* Create(Element* parent);
 

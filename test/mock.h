@@ -52,6 +52,9 @@ public:
 
     MOCK_METHOD(void, OnSaveResult, (const uint task_id, IOResult result), (override));
     MOCK_METHOD(void, OnLoadResult, (const uint task_id, IOResult result), (override));
+
+    MOCK_METHOD(void, OnCopyResult, (CopyResult result), (override));
+    MOCK_METHOD(void, OnPasteResult, (PasteResult result), (override));
 };
 
 struct DocumentTest : public testing::Test

@@ -40,7 +40,7 @@ void Window::EndDrawOutside()
     draw_doc = true;
 }
 
-void Window::OnCaretMoved(const CaretState& caret_state)
+void Window::OnCaretMoved(const CaretState caret_state)
 {
 }
 
@@ -49,6 +49,14 @@ void Window::OnSaveResult(const uint task_id, IOResult result)
 }
 
 void Window::OnLoadResult(const uint task_id, IOResult result)
+{
+}
+
+void Window::OnCopyResult(CopyResult result)
+{
+}
+
+void Window::OnPasteResult(PasteResult result)
 {
 }
 

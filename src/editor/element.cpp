@@ -23,10 +23,10 @@ Element::Element(Document* _document) :
 
 Element::Element(Element* _parent) :
     parent(_parent),
-    document(_parent->document),
-    window(document->window),
-    caret(&document->caret),
-    selection(&document->selection),
+    document(parent ? parent->document : nullptr), //parent == null when pasting from clipboard
+    window(document ? document->window : nullptr),
+    caret(document ? &document->caret : nullptr),
+    selection(document ? &document->selection : nullptr),
     elements(new Elements(this))
 {
 }
@@ -50,6 +50,21 @@ Element::Element(const Element& source) :
 
 Element::~Element()
 {
+}
+
+bool Element::Copy(std::vector<ElementPtr>& copy)
+{
+    uint start, size;
+    if (!selection->Has(id, start, size))
+        return false;
+    if (start == 0 && size == elements->Count())
+    {
+        copy.push_back(ElementPtr(Clone()));
+        return true;
+    }
+    for (uint i = start; i < start + size; ++i)
+        copy.push_back(ElementPtr(elements->Get(i)->Clone()));
+    return true;
 }
 
 void Element::Draw() const

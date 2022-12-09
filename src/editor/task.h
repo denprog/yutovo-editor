@@ -166,7 +166,6 @@ struct NewTask : Task
     virtual bool Execute();
 };
 
-
 class Text;
 class Page;
 class Paragraph;
@@ -174,30 +173,7 @@ class Row;
 class String;
 class StringElements;
 
-struct SerializeTask : Task
-{
-    SerializeTask(ElementPtr _text);
-
- 	template<class Archive>
-	void RegisterTypes(Archive& archive)
-    {
-        boost::serialization::void_cast_register<yutovo::Text, yutovo::Element>(static_cast<yutovo::Text*>(NULL), static_cast<yutovo::Element*>(NULL));
-        boost::serialization::void_cast_register<yutovo::Page, yutovo::Element>(static_cast<yutovo::Page*>(NULL), static_cast<yutovo::Element*>(NULL));
-        boost::serialization::void_cast_register<yutovo::Paragraph, yutovo::Element>(static_cast<yutovo::Paragraph*>(NULL), static_cast<yutovo::Element*>(NULL));
-        boost::serialization::void_cast_register<yutovo::Row, yutovo::Element>(static_cast<yutovo::Row*>(NULL), static_cast<yutovo::Element*>(NULL));
-        boost::serialization::void_cast_register<yutovo::String, yutovo::Element>(static_cast<yutovo::String*>(NULL), static_cast<yutovo::Element*>(NULL));
-        boost::serialization::void_cast_register<yutovo::StringElements, yutovo::Elements>(static_cast<yutovo::StringElements*>(NULL), static_cast<yutovo::Elements*>(NULL));
-
-        archive.template register_type<yutovo::Text>();
-        archive.template register_type<yutovo::Page>();
-        archive.template register_type<yutovo::Paragraph>();
-        archive.template register_type<yutovo::Row>();
-        archive.template register_type<yutovo::String>();
-        archive.template register_type<yutovo::StringElements>();
-    }
-};
-
-struct SaveTask : SerializeTask
+struct SaveTask : Task
 {
     SaveTask(ElementPtr _text, const std::string _filename);
 
@@ -206,13 +182,24 @@ struct SaveTask : SerializeTask
     std::string filename;
 };
 
-struct LoadTask : SerializeTask
+struct LoadTask : Task
 {
     LoadTask(ElementPtr _text, const std::string _filename);
 
     virtual bool Execute();
 
     std::string filename;
+};
+
+struct CopyTask : Task
+{
+    CopyTask(ElementPtr _text, std::stringstream& _out_array, std::string& _out_text, bool _cut);
+
+    virtual bool Execute();
+
+    std::stringstream& out_array;
+    std::string& out_text;
+    bool cut;
 };
 
 }
