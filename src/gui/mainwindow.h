@@ -53,7 +53,7 @@ private slots:
     void OnItalic();
     void OnUnderline();
 
-    void OnCaretMoved(const CaretState caret_state);
+    void OnCaretMoved(const EditorState editor_state);
     void OnSaveResult(const uint task_id, IOResult result);
     void OnLoadResult(const uint task_id, IOResult result);
     void OnClipboardCopyResult(CopyResult result);

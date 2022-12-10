@@ -172,9 +172,9 @@ Rect QtWindow::GetRect()
     return Rect{rect.left(), rect.top(), rect.width(), rect.height()};
 }
 
-void QtWindow::OnCaretMoved(const CaretState caret_state)
+void QtWindow::OnCaretMoved(const EditorState editor_state)
 {
-    emit CaretMoved(caret_state);
+    emit CaretMoved(editor_state);
 }
 
 void QtWindow::OnSaveResult(const uint task_id, IOResult result)

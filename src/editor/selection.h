@@ -43,7 +43,7 @@ struct SelectionState
     void Add(const ElementSelectionState& s);
     void Merge(const SelectionState& s);
     
-    bool IsEmpty();
+    bool IsEmpty() const;
 
 #ifdef DEBUG
     std::string ToString() const;
