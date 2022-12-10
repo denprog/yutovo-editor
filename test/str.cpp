@@ -1243,6 +1243,50 @@ TEST_F(DocumentTest, delete2)
         "</body>") << 
         document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 1, 4)) << document.GetEditorState().ToString();
+
+    document.MoveCaretToDocumentBegin(false);
+    document.MoveCaretWordRight(false);
+    document.WaitCaretMoving();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 4)) << document.GetEditorState().ToString();
+
+    document.DeleteElements(false, true, false);
+    document.WaitMainLoop();
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:24px;\">Text</span>"\
+                "<span style=\"font-family:'Times New Roman';font-size:18px;\"><em>tal</em></span>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\">Normal</span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 1, 0)) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:24px;\">Text</span>"\
+                "<span style=\"font-family:'Times New Roman';font-size:18px;\"><em>Ital</em></span>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\">Normal</span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 4)) << document.GetEditorState().ToString();
+
+    document.Redo();
+    document.WaitRedo();
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:24px;\">Text</span>"\
+                "<span style=\"font-family:'Times New Roman';font-size:18px;\"><em>tal</em></span>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\">Normal</span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 1, 0)) << document.GetEditorState().ToString();
 }
 
 }

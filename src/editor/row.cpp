@@ -221,7 +221,31 @@ bool Row::DeleteElements(bool left, bool with_undo)
             if (pos == elements->Count())
                 return parent->DeleteElements(left, with_undo);
             else
-                elements->RemoveAt(pos, 1);
+            {
+                int p = elements->GetElementPos(document->GetParent(before_state.id)->id);
+                if (p < elements->Count())
+                {
+                    auto el = elements->Get(p + 1);
+                    if (el->CanContinueSelection())
+                    {
+                        CaretState c;
+                        if (el->GetFirstCaretState(c, nullptr))
+                        {
+                            caret->SetState(c);
+                            if (!el->DeleteElements(left, with_undo))
+                                return parent->DeleteElements(left, with_undo);
+#ifdef DEBUG
+                            to_str = ToText();
+#endif
+                            return true;
+                        }
+                    }
+                    else
+                        elements->RemoveAt(pos, 1);
+                }
+                else
+                    elements->RemoveAt(pos, 1);
+            }
         }
 
         document->Remake(id, false);
