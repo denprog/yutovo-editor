@@ -318,7 +318,24 @@ void MainWindow::OnCaretMoved(const EditorState editor_state)
     const CaretState& c = editor_state.caret_state;
     const SelectionState& s = editor_state.selection_state;
     StringFormat format;
+    ParagraphFormat paragraph_format;
 
+    //find common paragraph format
+    document->GetParagraphFormat(c.id, paragraph_format);
+    for (auto& state : s.state)
+    {
+        ParagraphFormat p;
+        if (document->GetParagraphFormat(c.id, p))
+        {
+            if (p.name != paragraph_format.name)
+            {
+                paragraph_format.name = "";
+                break;
+            }
+        }
+    }
+
+    //find common string format
     if (document->GetElementType(c.GetElement()) == ElementType::STRING)
     {
         document->GetStringFormat(c.id, format);
@@ -344,6 +361,8 @@ void MainWindow::OnCaretMoved(const EditorState editor_state)
         }
     }
 
+    //update the interface elements
+    paragraph_format_combo->setCurrentText(paragraph_format.name.c_str());
     family_combo->setCurrentText(format.family.c_str());
     if (format.size == 0)
         size_combo->setCurrentText("");
