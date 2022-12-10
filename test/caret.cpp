@@ -346,6 +346,52 @@ TEST_F(DocumentTest, caret5)
             "</p>"\
         "</body>") 
         << document.ToHtml();
+    
+    document.MoveCaretEnd(false);
+    document.MoveCaretWordLeft(false);
+    document.MoveCaretWordLeft(false);
+    document.WaitCaretMoving();
+    document.InsertParagraph(true);
+    document.WaitMainLoop();
+    std::this_thread::sleep_for(100ms);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\">Text</span>"\
+                "<span style=\"font-family:'Times New Roman';font-size:18px;\"><em>Italic</em></span>"\
+                "<span style=\"font-family:'Times New Roman';font-size:34px;\"><strong>Bold</strong></span>"\
+                "<span style=\"font-family:'Arial';font-size:20px;\">String1 </span>"\
+            "</p>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:20px;\">String2 String3</span>"\
+            "</p>"\
+        "</body>") 
+        << document.ToHtml();
+    
+    document.MoveCaretRight(false);
+    document.MoveCaretLeft(true);
+    document.WaitCaretMoving();
+    document.MoveCaretLeft(true);
+    document.WaitCaretMoving();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 3, 7}, 
+        ElementSelectionState{ElementId{0, 0, 0, 0, 3}, 7, 1}, 
+        ElementSelectionState{ElementId{0, 0, 1, 0, 0}, 0, 1})) << document.GetEditorState().ToString();
+
+    document.MoveCaretLeft(true);
+    document.WaitCaretMoving();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 3, 6}, 
+        ElementSelectionState{ElementId{0, 0, 0, 0, 3}, 6, 2}, 
+        ElementSelectionState{ElementId{0, 0, 1, 0, 0}, 0, 1})) << document.GetEditorState().ToString();
+    
+    document.MoveCaretLeft(false);
+    document.WaitCaretMoving();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 3, 6)) << document.GetEditorState().ToString();
+    for (int i = 0; i < 4; ++i)
+        document.MoveCaretRight(true);
+    document.WaitCaretMoving();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 0, 0, 2}, 
+        ElementSelectionState{ElementId{0, 0, 0, 0, 3}, 6, 2}, 
+        ElementSelectionState{ElementId{0, 0, 1, 0, 0}, 0, 2})) << document.GetEditorState().ToString();
 }
 
 }

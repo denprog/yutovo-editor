@@ -21,6 +21,8 @@ bool ElementSelection::operator<(const ElementSelection& s) const
     size_t i;
     for (i = 0; i < element->id.size() && i < s.element->id.size(); ++i)
     {
+        if (element->id[i] < s.element->id[i])
+            return true;
         if (element->id[i] > s.element->id[i])
             return false;
     }
@@ -53,11 +55,11 @@ SelectionState::SelectionState(const ElementId id, uint start, uint size)
     Add(id, start, size);
 }
 
-bool SelectionState::operator==(const SelectionState& s) const
+bool SelectionState::operator==(const SelectionState& compare) const
 {
-    if (state.size() != s.state.size())
+    if (state.size() != compare.state.size())
         return false;
-    for (const ElementSelectionState& s : s.state)
+    for (const ElementSelectionState& s : compare.state)
     {
         auto it = std::find_if(state.begin(), state.end(), 
             [s](auto& t)
@@ -72,9 +74,9 @@ bool SelectionState::operator==(const SelectionState& s) const
     return true;
 }
 
-bool SelectionState::operator!=(const SelectionState& s) const
+bool SelectionState::operator!=(const SelectionState& compare) const
 {
-    return !(state == s.state);
+    return !(state == compare.state);
 }
 
 void SelectionState::Add(const ElementId id, uint start, uint size)

@@ -23,8 +23,8 @@ struct ElementSelection
 
 struct ElementSelectionState
 {
-    bool operator==(const ElementSelectionState& s) const;
-    bool operator!=(const ElementSelectionState& s) const;
+    bool operator==(const ElementSelectionState& compare) const;
+    bool operator!=(const ElementSelectionState& compare) const;
 
     ElementId id;
     uint start = 0;
