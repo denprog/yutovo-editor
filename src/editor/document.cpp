@@ -883,19 +883,35 @@ void Document::UpdateCaretView()
     Element* element = caret.current_element;
     Rect r = element->GetAbsoluteRect(element->GetCaretRect(caret.current_pos));
     Rect view_port = text->window->GetViewPort(0);
+    Point p = window->GetDocumentPoint();
 
     //move view port in the view if the caret is outside of it
-    if (r.left < window->GetDocumentPoint().x + view_port.left)
+    if (r.left < p.x + view_port.left)
     {
         caret.SetVisible(false);
-        window->MoveDocument(r.left - view_port.left - 1, 0);
+        window->MoveDocument(r.left - view_port.left - 1, p.y);
         Redraw(text->id);
         SetCaretVisible(true);
     }
-    else if (r.GetRight() > view_port.GetRight() + window->GetDocumentPoint().x)
+    else if (r.GetRight() > view_port.GetRight() + p.x)
     {
         caret.SetVisible(false);
-        window->MoveDocument(r.GetRight() - view_port.GetRight(), 0);
+        window->MoveDocument(r.GetRight() - view_port.GetRight(), p.y);
+        Redraw(text->id);
+        SetCaretVisible(true);
+    }
+
+    if (r.top < p.y + view_port.top)
+    {
+        caret.SetVisible(false);
+        window->MoveDocument(p.x, r.top - view_port.top - 1);
+        Redraw(text->id);
+        SetCaretVisible(true);
+    }
+    else if (r.GetBottom() > view_port.GetBottom() + p.y)
+    {
+        caret.SetVisible(false);
+        window->MoveDocument(p.x, r.GetBottom() - view_port.GetBottom());
         Redraw(text->id);
         SetCaretVisible(true);
     }

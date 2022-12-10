@@ -24,7 +24,7 @@ void QtWindow::DrawText(const std::string& text, const StringFormatPtr format, c
     if (draw_doc)
         p.setClipRegion(clip_region);
     bool b = p.hasClipping();
-    p.drawText(QRect(rect.left - document_point.x, rect.top, rect.width, rect.height), text.c_str());
+    p.drawText(QRect(rect.left - document_point.x, rect.top - document_point.y, rect.width, rect.height), text.c_str());
     p.end();
 }
 
@@ -36,7 +36,7 @@ void QtWindow::DrawLine(const int x1, const int y1, const int x2, const int y2)
     p.setPen(QPen(QBrush(Qt::SolidPattern), 1));
     if (draw_doc)
         p.setClipRegion(clip_region);
-    p.drawLine(x1 - document_point.x, y1, x2 - document_point.x, y2);
+    p.drawLine(x1 - document_point.x, y1 - document_point.y, x2 - document_point.x, y2 - document_point.y);
     p.end();
 }
 
@@ -49,7 +49,7 @@ void QtWindow::DrawRect(const int x1, const int y1, const int width, const int h
     if (draw_doc)
     {
         p.setClipRegion(clip_region);
-        p.drawRect(x1 - document_point.x, y1, width, height);
+        p.drawRect(x1 - document_point.x, y1 - document_point.y, width, height);
     }
     else
         p.drawRect(x1, y1, width, height);
@@ -64,7 +64,7 @@ void QtWindow::DrawFillRect(const int x1, const int y1, const int width, const i
     if (draw_doc)
     {
         p.setClipRegion(clip_region);
-        p.fillRect(x1 - document_point.x, y1, width, height, QColor::fromRgba(color.ToInt()));
+        p.fillRect(x1 - document_point.x, y1 - document_point.y, width, height, QColor::fromRgba(color.ToInt()));
     }
     else
         p.fillRect(x1, y1, width, height, QColor::fromRgba(color.ToInt()));
@@ -85,6 +85,7 @@ void QtWindow::StoreRect(const Rect& rect)
 {
     Rect r(rect);
     r.left -= document_point.x;
+    r.top -= document_point.y;
     store_image = surface->copy(r.left, r.top, r.width, r.height);
     store_rect = r;
 }
@@ -133,6 +134,7 @@ void QtWindow::Update(const Rect& rect)
 
     Rect r(rect);
     r.left -= document_point.x;
+    r.top -= document_point.y;
     emit DocumentUpdated(r);
 }
 
