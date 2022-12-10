@@ -519,7 +519,7 @@ bool Document::GetStringFormat(const ElementId id, StringFormat& format)
 {
     std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
     ElementPtr el = GetElement(id);
-    if (el->type != ElementType::STRING)
+    if (!el || el->type != ElementType::STRING)
         return false;
     format = *((String*)el.get())->format;
     return true;
