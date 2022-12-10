@@ -336,9 +336,8 @@ void MainWindow::OnCaretMoved(const EditorState editor_state)
     }
 
     //find common string format
-    if (document->GetElementType(c.GetElement()) == ElementType::STRING)
+    if (document->GetElementType(c.GetElement()) == ElementType::STRING && document->GetStringFormat(c.id, format))
     {
-        document->GetStringFormat(c.id, format);
         for (auto& state : s.state)
         {
             if (document->GetElementType(state.id) != ElementType::STRING)
