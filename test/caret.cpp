@@ -121,6 +121,16 @@ TEST_F(DocumentTest, caret1)
     document.MoveCaretWordLeft(true);
     document.WaitCaretMoving();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 1, 0, 0, 4, 2, 0, 6)) << document.GetEditorState().ToString();
+    std::this_thread::sleep_for(100ms);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\">Text Word2 Word3</span>"\
+                "<span style=\"font-family:'Times New Roman';font-size:34px;\"><strong>Bold</strong></span>"\
+                "<span style=\"font-family:'Courier';font-size:24px;\"><em>Italic</em></span>"\
+            "</p>"\
+        "</body>") 
+        << document.ToHtml();
 
     document.MoveCaretWordLeft(true);
     document.WaitCaretMoving();
@@ -302,6 +312,40 @@ TEST_F(DocumentTest, caret4)
     document.WaitCaretMoving();
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 1, 4, 0, 4, 0, 10, 7)) << document.GetEditorState().ToString();
+}
+
+TEST_F(DocumentTest, caret5)
+{
+    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
+        {
+            return Rect{0, 0, 600, 400};
+        });
+
+    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::string& text, const StringFormatPtr format)
+        {
+            return GetTextSizeMock(text, format);
+        });
+    
+    document.InsertText("Text", document.GetStringFormat("Arial", 22, false, false, false), true);
+    document.InsertText("Italic", document.GetStringFormat("Times New Roman", 18, false, true, false), true);
+    document.InsertText("Bold", document.GetStringFormat("Times New Roman", 34, true, false, false), true);
+    document.InsertText("String1 String2 String3", document.GetStringFormat("Arial", 20, false, false, false), true);
+    document.MoveCaretWordLeft(false);
+    document.MoveCaretWordLeft(false);
+    document.MoveCaretWordLeft(true);
+    document.MoveCaretWordLeft(true);
+    document.WaitCaretMoving();
+    std::this_thread::sleep_for(100ms);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\">Text</span>"\
+                "<span style=\"font-family:'Times New Roman';font-size:18px;\"><em>Italic</em></span>"\
+                "<span style=\"font-family:'Times New Roman';font-size:34px;\"><strong>Bold</strong></span>"\
+                "<span style=\"font-family:'Arial';font-size:20px;\">String1 String2 String3</span>"\
+            "</p>"\
+        "</body>") 
+        << document.ToHtml();
 }
 
 }

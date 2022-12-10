@@ -444,6 +444,7 @@ bool MoveCaretTask::Execute()
     {
         text->document->selection.Clear();
         text->document->UpdateLastSelection();
+        text->window->OnCaretMoved(text->document->GetEditorState());
     }
 
 #ifdef DEBUG

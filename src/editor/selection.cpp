@@ -93,7 +93,7 @@ void SelectionState::Merge(const SelectionState& s)
         Add(t);
 }
 
-bool SelectionState::IsEmpty()
+bool SelectionState::IsEmpty() const
 {
     return state.empty();
 }

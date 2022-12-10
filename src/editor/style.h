@@ -39,6 +39,8 @@ struct StringFormat
 
     BOOST_SERIALIZATION_SPLIT_MEMBER()
 
+    void Reset();
+
     uint id; //for serialization
     static uint next_id;
 

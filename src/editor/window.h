@@ -5,6 +5,7 @@
 #include <vector>
 #include "util.h"
 #include "style.h"
+#include "editor_state.h"
 #include "result_codes.h"
 
 namespace yutovo
@@ -46,7 +47,7 @@ public:
     void BeginDrawOutside();
     void EndDrawOutside();
 
-    virtual void OnCaretMoved(const CaretState caret_state);
+    virtual void OnCaretMoved(const EditorState editor_state);
 
     virtual void OnSaveResult(const uint task_id, IOResult result);
     virtual void OnLoadResult(const uint task_id, IOResult result);

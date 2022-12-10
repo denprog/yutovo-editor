@@ -29,6 +29,15 @@ bool StringFormat::operator==(const StringFormat& f)
     return family == f.family && size == f.size && bold == f.bold && italic == f.italic && underline == f.underline;
 }
 
+void StringFormat::Reset()
+{
+    family = "";
+    size = 0;
+    bold = false;
+    italic = false;
+    underline = false;
+}
+
 //StringFormats
 
 StringFormatPtr StringFormats::GetFormat(const std::string _family, uint _size, bool _bold, bool _italic, bool _underline)

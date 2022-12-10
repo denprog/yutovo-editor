@@ -17,6 +17,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     qRegisterMetaType<Rect>("Rect");
     qRegisterMetaType<CaretState>("CaretState");
+    qRegisterMetaType<EditorState>("EditorState");
     qRegisterMetaType<IOResult>("IOResult");
     qRegisterMetaType<CopyResult>("CopyResult");
     qRegisterMetaType<std::vector<ElementPtr>>("std::vector<ElementPtr>");
@@ -312,20 +313,45 @@ void MainWindow::OnUnderline()
     document->SetUnderline(underline_action->isEnabled());
 }
 
-void MainWindow::OnCaretMoved(const CaretState caret_state)
+void MainWindow::OnCaretMoved(const EditorState editor_state)
 {
-    if (document->GetElementType(caret_state.GetElement()) == ElementType::STRING)
+    const CaretState& c = editor_state.caret_state;
+    const SelectionState& s = editor_state.selection_state;
+    StringFormat format;
+
+    if (document->GetElementType(c.GetElement()) == ElementType::STRING)
     {
-        StringFormat format;
-        if (document->GetStringFormat(caret_state.GetElement(), format))
+        document->GetStringFormat(c.id, format);
+        for (auto& state : s.state)
         {
-            family_combo->setCurrentText(format.family.c_str());
-            size_combo->setCurrentText(std::to_string(format.size).c_str());
-            bold_action->setChecked(format.bold);
-            italic_action->setChecked(format.italic);
-            underline_action->setChecked(format.underline);
+            if (document->GetElementType(state.id) != ElementType::STRING)
+            {
+                format.Reset();
+                break;
+            }
+            StringFormat f;
+            document->GetStringFormat(state.id, f);
+            if (format.family != "" && format.family != f.family)
+                format.family = "";
+            if (format.size != 0 && format.size != f.size)
+                format.size = 0;
+            if (format.bold != false && format.bold != f.bold)
+                format.bold = false;
+            if (format.italic != false && format.italic != f.italic)
+                format.italic = false;
+            if (format.underline != false && format.underline != f.underline)
+                format.underline = false;
         }
     }
+
+    family_combo->setCurrentText(format.family.c_str());
+    if (format.size == 0)
+        size_combo->setCurrentText("");
+    else
+        size_combo->setCurrentText(std::to_string(format.size).c_str());
+    bold_action->setChecked(format.bold);
+    italic_action->setChecked(format.italic);
+    underline_action->setChecked(format.underline);
 }
 
 void MainWindow::OnSaveResult(const uint task_id, IOResult result)

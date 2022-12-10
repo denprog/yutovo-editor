@@ -40,7 +40,7 @@ void Window::EndDrawOutside()
     draw_doc = true;
 }
 
-void Window::OnCaretMoved(const CaretState caret_state)
+void Window::OnCaretMoved(const EditorState editor_state)
 {
 }
 
