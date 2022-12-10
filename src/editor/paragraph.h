@@ -29,6 +29,8 @@ public:
     virtual bool GetTopCaretState(const int x, const int y, CaretState& caret_state, Selection* select);
     virtual bool GetBottomCaretState(const int x, const int y, CaretState& caret_state, Selection* select);
 
+    virtual bool CanContinueSelection();
+
     virtual StringFormatPtr GetStringFormat();
     
     virtual std::string ToHtml();

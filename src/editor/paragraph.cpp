@@ -198,6 +198,11 @@ bool Paragraph::GetBottomCaretState(const int x, const int y, CaretState& caret_
     return row->GetBottomCaretState(x, y, caret_state, select);
 }
 
+bool Paragraph::CanContinueSelection()
+{
+    return true;
+}
+
 StringFormatPtr Paragraph::GetStringFormat()
 {
     return format->string_format;
