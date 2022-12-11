@@ -649,6 +649,22 @@ bool Document::CanRedo()
     return !redo_tasks.empty();
 }
 
+void Document::RollbackUndo()
+{
+    //remove last undo tasks with one id
+    if (undo_tasks.empty())
+        return;
+    TaskPtr t = undo_tasks.top();
+    uint id = t->id;
+    while (id == t->id)
+    {
+        undo_tasks.pop();
+        if (undo_tasks.empty())
+            break;
+        t = undo_tasks.top();
+    }
+}
+
 void Document::Resize(uint width, uint height)
 {
     {
