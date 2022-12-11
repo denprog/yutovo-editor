@@ -937,6 +937,9 @@ void Document::UpdateCaretView()
     Rect view_port = text->window->GetViewPort(0);
     Point p = window->GetDocumentPoint();
 
+    if (r.height > view_port.height || r.width > view_port.width)
+        return;
+    
     //move view port in the view if the caret is outside of it
     if (r.left < p.x + view_port.left)
     {
