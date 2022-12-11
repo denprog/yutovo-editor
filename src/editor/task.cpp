@@ -287,7 +287,10 @@ bool ChangeParagraphFormatTask::Execute()
         text->document->PushEditorState(true);
 
     if (!el->ChangeParagraphFormat(format, with_undo))
+    {
+        text->document->RollbackUndo();
         return false;
+    }
 
     if (with_undo)
         text->document->PushEditorState(true);

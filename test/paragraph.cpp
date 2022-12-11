@@ -847,6 +847,38 @@ TEST_F(ParagraphTest, paragraph2)
         "</body>") 
         << document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 1, 6, 0, 6)) << document.GetEditorState().ToString();
+
+    document.SetCurrentParagraphFormat("Monospace");
+    document.WaitMainLoop();
+    std::this_thread::sleep_for(100ms);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Courier New';font-size:12px;\">The </span>"\
+                "<span style=\"font-family:'Courier New';font-size:12px;\"><strong>source</strong></span>"\
+                "<span style=\"font-family:'Courier New';font-size:12px;\"> of the text itself is a little </span>"\
+                "<span style=\"font-family:'Courier New';font-size:12px;\">mysterious.</span>"\
+            "</p>"\
+        "</body>") 
+        << document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 1, 6, 0, 6)) << document.GetEditorState().ToString();
+
+    document.SetCurrentParagraphFormat("Monospace");
+    document.WaitMainLoop();
+    document.Undo();
+    document.WaitUndo();
+    std::this_thread::sleep_for(100ms);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\">The </span>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\"><strong>source</strong></span>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\"> of the text itself is a </span>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\">little mysterious.</span>"\
+            "</p>"\
+        "</body>") 
+        << document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 1, 6, 0, 6)) << document.GetEditorState().ToString();
 }
 
 }

@@ -154,6 +154,9 @@ bool Paragraph::DeleteElements(bool left, bool with_undo)
 
 bool Paragraph::ChangeParagraphFormat(const ParagraphFormatPtr _format, bool with_undo)
 {
+    if (format->name == _format->name)
+        return false;
+    
     if (with_undo)
         document->ChangeParagraphFormat(format, false, true);
 

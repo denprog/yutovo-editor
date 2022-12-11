@@ -86,6 +86,8 @@ public:
     bool CanUndo();
     bool CanRedo();
 
+    void RollbackUndo();
+
     void Resize(uint width, uint height);
 
     void Redraw(const ElementId& id);
