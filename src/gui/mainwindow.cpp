@@ -91,19 +91,19 @@ void MainWindow::CreateActions()
     QMenu *edit_menu = menuBar()->addMenu(tr("&Edit"));
     QToolBar *edit_toolbar = addToolBar(tr("Edit"));
 
-    action = new QAction(QIcon(":/icons/images/undo.png"), tr("U&ndo"), this);
-    action->setShortcuts(QKeySequence::Undo);
-    action->setStatusTip(tr("Undo the last operation"));
-    connect(action, &QAction::triggered, this, &MainWindow::Undo);
-    edit_menu->addAction(action);
-    edit_toolbar->addAction(action);
+    undo_action = new QAction(QIcon(":/icons/images/undo.png"), tr("U&ndo"), this);
+    undo_action->setShortcuts(QKeySequence::Undo);
+    undo_action->setStatusTip(tr("Undo the last operation"));
+    connect(undo_action, &QAction::triggered, this, &MainWindow::Undo);
+    edit_menu->addAction(undo_action);
+    edit_toolbar->addAction(undo_action);
 
-    action = new QAction(QIcon(":/icons/images/redo.png"), tr("&Redo"), this);
-    action->setShortcuts(QKeySequence::Redo);
-    action->setStatusTip(tr("Redo the last operation"));
-    connect(action, &QAction::triggered, this, &MainWindow::Redo);
-    edit_menu->addAction(action);
-    edit_toolbar->addAction(action);
+    redo_action = new QAction(QIcon(":/icons/images/redo.png"), tr("&Redo"), this);
+    redo_action->setShortcuts(QKeySequence::Redo);
+    redo_action->setStatusTip(tr("Redo the last operation"));
+    connect(redo_action, &QAction::triggered, this, &MainWindow::Redo);
+    edit_menu->addAction(redo_action);
+    edit_toolbar->addAction(redo_action);
 
     edit_menu->addSeparator();
     edit_toolbar->addSeparator();
@@ -370,6 +370,9 @@ void MainWindow::OnCaretMoved(const EditorState editor_state)
     bold_action->setChecked(format.bold);
     italic_action->setChecked(format.italic);
     underline_action->setChecked(format.underline);
+
+    undo_action->setEnabled(document->CanUndo());
+    redo_action->setEnabled(document->CanRedo());
 }
 
 void MainWindow::OnSaveResult(const uint task_id, IOResult result)

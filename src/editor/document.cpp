@@ -641,7 +641,24 @@ bool Document::CanUndo()
 bool Document::CanRedo()
 {
     std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
-    return !redo_tasks.empty();
+    uint last_undo_task_id = 0;
+    if (!undo_tasks.empty())
+        last_undo_task_id = undo_tasks.top()->id;
+    
+    int i = 0;
+    for (i = redo_tasks.size() - 1; i >=0; --i)
+    {
+        if (redo_tasks[i]->id == last_undo_task_id)
+            break;
+    }
+
+    if (++i < redo_tasks.size())
+    {
+        uint redo_task_id = redo_tasks[i]->id;
+        if (i < redo_tasks.size() && redo_tasks[i]->id == redo_task_id)
+            return true;
+    }
+    return false;
 }
 
 void Document::RollbackUndo()

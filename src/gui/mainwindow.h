@@ -77,6 +77,9 @@ private:
     QFontComboBox* family_combo = nullptr;
     QComboBox* size_combo = nullptr;
 
+    QAction* undo_action = nullptr;
+    QAction* redo_action = nullptr;
+
     QAction* bold_action = nullptr;
     QAction* italic_action = nullptr;
     QAction* underline_action = nullptr;
