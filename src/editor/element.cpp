@@ -577,7 +577,10 @@ void Elements::RemoveAt(const uint pos, const int size)
         else
         {
             CaretState s;
-            el->GetFirstCaretState(s, nullptr);
+            if (pos < Count())
+                el->GetFirstCaretState(s, nullptr);
+            else
+                el->GetLastCaretState(s, nullptr);
             caret->SetState(s);
         }
     }
