@@ -152,6 +152,7 @@ private:
     friend class SetEditorStateTask;
     friend class NewTask;
     friend class LoadTask;
+    friend class RedrawTask;
 
     void UpdateCaretView();
     void UpdateLastSelection();

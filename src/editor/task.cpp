@@ -345,6 +345,7 @@ bool RedrawTask::Execute()
     element->Draw();
     text->document->caret.Show();
     text->window->Update(element->GetAbsoluteRect());
+    text->document->UpdateCaretView();
     return true;
 }
 
