@@ -11,15 +11,16 @@ namespace yutovo
 
 using namespace std::chrono_literals;
 
-Caret::Caret(Window* _window, Text* _text) :
+Caret::Caret(Window* _window, ElementPtr _text) :
     window(_window),
-    text(_text)
+    text(_text),
+    document(text->document)
 {
 }
 
 void Caret::SetState(const CaretState& caret_state, bool update_x_pos)
 {
-    auto el = text->document->GetParent(caret_state.id);
+    auto el = document->GetParent(caret_state.id);
     if (!el)
         return;
     current_element = el.get();
@@ -27,13 +28,13 @@ void Caret::SetState(const CaretState& caret_state, bool update_x_pos)
     if (update_x_pos)
         UpdateXPos();
     
-    window->OnCaretMoved(text->document->GetEditorState());
-    text->document->UpdateFormats();
+    window->OnCaretMoved(document->GetEditorState());
+    document->UpdateFormats();
 }
 
 void Caret::SetState(const ElementId id, const uint pos, bool update_x_pos)
 {
-    auto el = text->document->GetElement(id);
+    auto el = document->GetElement(id);
     if (!el)
         return;
     current_element = el.get();
@@ -41,8 +42,8 @@ void Caret::SetState(const ElementId id, const uint pos, bool update_x_pos)
     if (update_x_pos)
         UpdateXPos();
     
-    window->OnCaretMoved(text->document->GetEditorState());
-    text->document->UpdateFormats();
+    window->OnCaretMoved(document->GetEditorState());
+    document->UpdateFormats();
 }
 
 void Caret::SetPos(const uint pos, bool update_x_pos)
@@ -51,8 +52,8 @@ void Caret::SetPos(const uint pos, bool update_x_pos)
     if (update_x_pos)
         UpdateXPos();
     
-    window->OnCaretMoved(text->document->GetEditorState());
-    text->document->UpdateFormats();
+    window->OnCaretMoved(document->GetEditorState());
+    document->UpdateFormats();
 }
 
 CaretState Caret::GetCaretState()

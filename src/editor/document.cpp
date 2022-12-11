@@ -21,7 +21,7 @@ Document::Document(Window* _window) :
     paragraph_formats(new ParagraphFormats(string_formats)),
     current_paragraph_format(paragraph_formats->GetFormat("Text body")),
     text(new Text(this)),
-    caret(_window, (Text*)text.get()),
+    caret(_window, text),
     selection(this),
     last_selection(this),
     logger(Logger::GetInstance())
@@ -348,6 +348,14 @@ void Document::PushEditorState(const CaretState& caret_state, const SelectionSta
             tasks.emplace_back(new SetEditorStateTask(text, caret_state, selection_state, cur_task_id));
     }
     next_circle.notify_one();
+}
+
+void Document::ResetTasks()
+{
+    std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
+    tasks.clear();
+    undo_tasks = std::stack<TaskPtr>();
+    redo_tasks.clear();
 }
 
 ElementPtr Document::GetElement(const ElementId& _id)
