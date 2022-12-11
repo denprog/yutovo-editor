@@ -705,6 +705,22 @@ void Document::Remake(const ElementId& id, bool with_elements, bool undo)
     next_circle.notify_one();
 }
 
+bool Document::WillRedraw(const ElementId& id)
+{
+    std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
+    for (int i = tasks.size() - 1; i >= 0; --i)
+    {
+        TaskPtr t = tasks[i];
+        RedrawTask* redraw_task = dynamic_cast<RedrawTask*>(t.get());
+        if (redraw_task && IsChild(redraw_task->element_id, id))
+            return true;
+        RemakeTask* remake_task = dynamic_cast<RemakeTask*>(t.get());
+        if (remake_task && IsChild(remake_task->element_id, id))
+            return true;
+    }
+    return false;
+}
+
 void Document::New()
 {
     std::lock_guard<std::recursive_mutex> lock(tasks_mutex);

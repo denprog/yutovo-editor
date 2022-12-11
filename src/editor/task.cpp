@@ -334,10 +334,10 @@ RedrawTask::RedrawTask(ElementPtr _text, const ElementId& _id) :
 
 bool RedrawTask::Execute()
 {
-    logger->Debug("Execute RedrawTask element_id={}", IdToString(element_id));
     ElementPtr element = text->document->GetElement(element_id);
-    if (!element)
+    if (!element || text->document->WillRedraw(element_id)) //don't redraw if it will redraw later
         return false;
+    logger->Debug("Execute RedrawTask element_id={}", IdToString(element_id));
     text->window->DrawFillRect(element->GetAbsoluteRect(), Color::White());
     element->Draw();
     text->window->Update(element->GetAbsoluteRect());

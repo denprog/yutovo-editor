@@ -90,6 +90,8 @@ public:
     void Redraw();
     void Remake(const ElementId& id, bool with_elements, bool undo = false);
 
+    bool WillRedraw(const ElementId& id);
+
     void New();
     uint Save(const std::string& filename);
     uint Load(const std::string& filename);
