@@ -23,7 +23,7 @@ struct CaretSettings
 class Caret
 {
 public:
-    Caret(Window* _window, Text* _text);
+    Caret(Window* _window, ElementPtr _text);
 
     void SetState(const CaretState& caret_state, bool update_x_pos = true);
     void SetState(const ElementId id, const uint pos, bool update_x_pos = true);
@@ -63,7 +63,8 @@ private:
     bool visible = true;
 
     Window* window;
-    Text* text;
+    ElementPtr text;
+    Document* document;
 
     Rect caret_rect;
 

@@ -49,6 +49,8 @@ public:
     void PushEditorState(const SelectionState& selection_state, bool undo);
     void PushEditorState(const CaretState& caret_state, const SelectionState& selection_state, bool undo);
 
+    void ResetTasks();
+
     ElementPtr GetElement(const ElementId& _id);
     ElementPtr GetParent(const ElementId& _id);
 

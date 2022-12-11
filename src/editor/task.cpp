@@ -486,6 +486,7 @@ NewTask::NewTask(ElementPtr _text) :
 
 bool NewTask::Execute()
 {
+    text->document->ResetTasks();
     text->document->MoveCaretToDocumentBegin(false);
     text->document->text = ElementPtr(new Text(text->document));
     text->document->Remake(text->id, true, false);
@@ -548,6 +549,7 @@ bool LoadTask::Execute()
         text->window->OnLoadResult(id, ToIOResult(ex.code));
     }
 
+    text->document->ResetTasks();
     text->document->text = t;
     text->document->MoveCaretToDocumentBegin(false);
     text->document->Remake(text->id, true, false);
