@@ -343,6 +343,7 @@ bool RedrawTask::Execute()
     logger->Debug("Execute RedrawTask element_id={}", IdToString(element_id));
     text->window->DrawFillRect(element->GetAbsoluteRect(), Color::White());
     element->Draw();
+    text->document->caret.Show();
     text->window->Update(element->GetAbsoluteRect());
     return true;
 }
@@ -442,6 +443,7 @@ bool MoveCaretTask::Execute()
 
     text->document->UpdateCaretView();
     text->document->UpdateLastSelection();
+    text->document->caret.Show();
 
     if (!select)
     {

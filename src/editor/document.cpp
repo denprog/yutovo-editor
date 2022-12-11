@@ -87,14 +87,12 @@ void Document::MainLoop()
             }
             if (!temp_undo_tasks.empty())
             {
-                caret.Hide();
+                caret.Hide(); //caret will be shown on Redraw or caret moving
                 for (TaskPtr t : temp_undo_tasks)
                 {
                     if (!t->Execute())
                         break;
                 }
-                caret.Show();
-
 #ifdef DEBUG
                 last_undo_executed = true;
 #endif
@@ -132,15 +130,13 @@ void Document::MainLoop()
             }
             if (!temp_redo_tasks.empty())
             {
-                caret.Hide();
+                caret.Hide(); //caret will be shown on Redraw or caret moving
                 for (TaskPtr t : temp_redo_tasks)
                 {
                     cur_task_id = t->id;
                     if (!t->Execute())
                         break;
                 }
-                caret.Show();
-
 #ifdef DEBUG
                 last_redo_executed = true;
 #endif
@@ -155,7 +151,7 @@ void Document::MainLoop()
 
         if (!temp_tasks.empty())
         {
-            caret.Hide();
+            caret.Hide(); //caret will be shown on Redraw or caret moving
             //execute all the tasks
             for (auto& t : temp_tasks)
             {
@@ -187,7 +183,6 @@ void Document::MainLoop()
                     last_load_executed = true;
 #endif
             }
-            caret.Show();
         }
     }
 }
@@ -928,32 +923,28 @@ void Document::UpdateCaretView()
     //move view port in the view if the caret is outside of it
     if (r.left < p.x + view_port.left)
     {
-        caret.SetVisible(false);
+        caret.Hide(); //caret will be shown on Redraw
         window->MoveDocument(r.left - view_port.left - 1, p.y);
         Redraw(text->id);
-        SetCaretVisible(true);
     }
     else if (r.GetRight() > view_port.GetRight() + p.x)
     {
-        caret.SetVisible(false);
+        caret.Hide();
         window->MoveDocument(r.GetRight() - view_port.GetRight(), p.y);
         Redraw(text->id);
-        SetCaretVisible(true);
     }
 
     if (r.top < p.y + view_port.top)
     {
-        caret.SetVisible(false);
+        caret.Hide();
         window->MoveDocument(p.x, r.top - view_port.top - 1);
         Redraw(text->id);
-        SetCaretVisible(true);
     }
     else if (r.GetBottom() > view_port.GetBottom() + p.y)
     {
-        caret.SetVisible(false);
+        caret.Hide();
         window->MoveDocument(p.x, r.GetBottom() - view_port.GetBottom());
         Redraw(text->id);
-        SetCaretVisible(true);
     }
 }
 
