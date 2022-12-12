@@ -124,6 +124,7 @@ struct MoveCaretTask : Task
     enum class MoveCaretDir
     {
         NONE = 0,
+        POINT,
         LEFT,
         RIGHT,
         UP,

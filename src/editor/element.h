@@ -84,6 +84,7 @@ public:
     virtual void UpdateRect();
 
     Element* GetElementInPos(const ElementId& _id, const uint pos);
+    virtual bool GetElementAtCoords(const int x, const int y, ElementId& _id);
 
     void AddElement(ElementPtr element);
 

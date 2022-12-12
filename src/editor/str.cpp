@@ -94,6 +94,36 @@ void String::UpdateRect()
     baseline = parent->window->GetFontAscent(format);
 }
 
+bool String::GetElementAtCoords(const int x, const int y, ElementId& _id)
+{
+    Rect r = GetAbsoluteRect();
+    if (!r.IsPointInside(x, y))
+        return false;
+    //find nearest caret state
+    CaretState next, last, nearest;
+    if (!GetFirstCaretState(next, nullptr) || !GetLastCaretState(last, nullptr))
+        return false;
+
+    nearest = next;
+    r = document->GetCaretRect(nearest);
+	int min_dist = r.DistToPoint(x, y);
+    while (next != last)
+    {
+        ElementPtr el = document->GetParent(next.id);
+        if (!el->GetRightCaretState(next, nullptr))
+            break;
+        r = document->GetCaretRect(next);
+        int dist = r.DistToPoint(x, y);
+        if (dist < min_dist)
+        {
+            min_dist = dist;
+            nearest = next;
+        }
+    }
+    _id = nearest.id;
+    return true;
+}
+
 std::string String::ToHtml()
 {
     std::string s = "<span ";

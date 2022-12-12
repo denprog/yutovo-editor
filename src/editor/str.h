@@ -27,6 +27,8 @@ public:
 
     virtual void UpdateRect();
 
+    virtual bool GetElementAtCoords(const int x, const int y, ElementId& _id);
+
     virtual std::string ToHtml();
 
     virtual bool InsertElements(std::vector<ElementPtr>& _elements, bool with_undo);

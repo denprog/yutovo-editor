@@ -353,6 +353,22 @@ Element* Element::GetElementInPos(const ElementId& _id, const uint pos)
     return elements->Get(i[0])->GetElementInPos(i, pos - 1);
 }
 
+bool Element::GetElementAtCoords(const int x, const int y, ElementId& _id)
+{
+    Rect r = GetAbsoluteRect();
+    if (!r.IsPointInside(x, y))
+        return false;
+    
+    //look in the child elements
+    for (int i = 0; i < elements->Count(); ++i)
+    {
+        ElementPtr el = elements->Get(i);
+        if (el->GetElementAtCoords(x, y, _id))
+            return true;
+    }
+    return false;
+}
+
 void Element::AddElement(ElementPtr element)
 {
     elements->Add(element);
@@ -547,7 +563,7 @@ void Elements::Insert(ElementPtr element, const uint pos)
 
     //update caret state on the new position of the element
     if (p != -1)
-        caret->SetState(element->id, p);
+        caret->SetState(element->id, p, true);
     if (!s.IsEmpty())
         selection->Add(element, s.start, s.size);
 }

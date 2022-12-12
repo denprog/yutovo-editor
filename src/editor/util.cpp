@@ -64,6 +64,11 @@ int Rect::DistToSegment(const int x, const int y, const int seg_x1, const int se
 	return round(h);
 }
 
+bool Rect::IsPointInside(const int x, const int y)
+{
+    return x >= left && x <= left + width && y >= top && y <= top + height;
+}
+
 std::string IdToString(const ElementId& id)
 {
 	std::string res;
