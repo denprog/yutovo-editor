@@ -300,17 +300,17 @@ void MainWindow::OnCurrentSizeChanged(const QString& size)
 
 void MainWindow::OnBold()
 {
-    document->SetBold(bold_action->isEnabled());
+    document->SetBold(bold_action->isChecked());
 }
 
 void MainWindow::OnItalic()
 {
-    document->SetItalic(italic_action->isEnabled());
+    document->SetItalic(italic_action->isChecked());
 }
 
 void MainWindow::OnUnderline()
 {
-    document->SetUnderline(underline_action->isEnabled());
+    document->SetUnderline(underline_action->isChecked());
 }
 
 void MainWindow::OnCaretMoved(const EditorState editor_state)
