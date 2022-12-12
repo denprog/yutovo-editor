@@ -106,6 +106,7 @@ bool InsertElementsTask::Execute()
         if (with_undo)
             text->document->PushEditorState(true);
         text->document->Remake(el->parent->id, true);
+        text->document->Redraw(el->parent->id, true); //move into view
         return true;
     }
     return false;
@@ -154,6 +155,7 @@ bool DeleteElementsTask::Execute()
         {
             if (with_undo)
                 text->document->PushEditorState(true);
+            text->document->Redraw(caret_state.id, true); //move into view
             return true;
         }
     }
@@ -167,6 +169,7 @@ bool DeleteElementsTask::Execute()
         }
         if (with_undo)
             text->document->PushEditorState(true);
+        text->document->Redraw(caret_state.id, true); //move into view
         return true;
     }
     return false;
@@ -255,6 +258,8 @@ bool ChangeStringFormatTask::Execute()
 
     if (with_undo)
         text->document->PushEditorState(true);
+    
+    text->document->Redraw(caret_state.id, true); //move into view
 
     return true;
 }
@@ -296,6 +301,7 @@ bool ChangeParagraphFormatTask::Execute()
         text->document->PushEditorState(true);
 
     text->document->UpdateFormats();
+    text->document->Redraw(el->parent->id, true); //move into view
 
     return true;
 }
@@ -323,29 +329,31 @@ bool RemakeTask::Execute()
     if (!p)
         return false;
     text->document->GetElement(element_id)->Remake(with_elements);
-    text->document->Redraw(element_id);
+    text->document->Redraw(element_id, false);
     return true;
 }
 
 //RedrawTask
 
-RedrawTask::RedrawTask(ElementPtr _text, const ElementId& _id) :
+RedrawTask::RedrawTask(ElementPtr _text, const ElementId& _id, bool _move_into_view) :
     Task(_text),
-    element_id(_id)
+    element_id(_id),
+    move_into_view(_move_into_view)
 {
 }
 
 bool RedrawTask::Execute()
 {
     ElementPtr element = text->document->GetElement(element_id);
-    if (!element || text->document->WillRedraw(element_id)) //don't redraw if it will redraw later
+    if (!element || text->document->WillRedraw(element_id, move_into_view)) //don't redraw if it will redraw later
         return false;
     logger->Debug("Execute RedrawTask element_id={}", IdToString(element_id));
     text->window->DrawFillRect(element->GetAbsoluteRect(), Color::White());
     element->Draw();
     text->document->caret.Show();
     text->window->Update(element->GetAbsoluteRect());
-    text->document->UpdateCaretView();
+    if (move_into_view)
+        text->document->UpdateCaretView();
     return true;
 }
 
