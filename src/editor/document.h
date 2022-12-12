@@ -53,6 +53,7 @@ public:
 
     ElementPtr GetElement(const ElementId& _id);
     ElementPtr GetParent(const ElementId& _id);
+    bool GetElementAtCoords(const int x, const int y, ElementId& id);
 
     ElementPtr FindParent(const ElementId& id, const ElementType type);
 
@@ -77,6 +78,7 @@ public:
     void MoveCaretWordRight(bool select);
     void MoveCaretToDocumentBegin(bool select);
     void MoveCaretToDocumentEnd(bool select);
+    void MoveCaret(const int x, const int y);
 
     void SetCaretVisible(bool visible);
 

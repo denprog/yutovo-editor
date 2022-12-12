@@ -46,6 +46,20 @@ void Caret::SetState(const ElementId id, const uint pos, bool update_x_pos)
     document->UpdateFormats();
 }
 
+void Caret::SetState(const ElementId id, bool update_x_pos)
+{
+    auto el = document->GetParent(id);
+    if (!el)
+        return;
+    current_element = el.get();
+    current_pos = id[id.size() - 1];
+    if (update_x_pos)
+        UpdateXPos();
+    
+    window->OnCaretMoved(document->GetEditorState());
+    document->UpdateFormats();
+}
+
 void Caret::SetPos(const uint pos, bool update_x_pos)
 {
     current_pos = pos;

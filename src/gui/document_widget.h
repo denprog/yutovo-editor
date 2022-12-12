@@ -14,6 +14,8 @@ public:
 
     void InsertText(const std::string& str, const StringFormatPtr string_format);
 
+    bool GetElementAtCoords(const int x, const int y, ElementId& id);
+
 public slots:
     void OnDocumentUpdated(const Rect rect);
     void OnWindowUpdated();
@@ -23,6 +25,7 @@ protected:
     virtual void resizeEvent(QResizeEvent *event);
     virtual void keyPressEvent(QKeyEvent *event);
     virtual void mousePressEvent(QMouseEvent *event);
+    virtual void mouseMoveEvent(QMouseEvent *event);
 
 private:
     friend class MainWindow;

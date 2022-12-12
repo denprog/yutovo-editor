@@ -381,6 +381,12 @@ ElementPtr Document::GetParent(const ElementId& _id)
     return el;
 }
 
+bool Document::GetElementAtCoords(const int x, const int y, ElementId& id)
+{
+    std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
+    return text->GetElementAtCoords(x, y, id);
+}
+
 ElementPtr Document::FindParent(const ElementId& id, const ElementType type)
 {
     ElementPtr el = GetParent(id);
@@ -599,6 +605,19 @@ void Document::MoveCaretToDocumentBegin(bool select)
 void Document::MoveCaretToDocumentEnd(bool select)
 {
     MoveCaret(MoveCaretTask::MoveCaretDir::DOCUMENT_END, select);
+}
+
+void Document::MoveCaret(const int x, const int y)
+{
+    {
+        std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
+        tasks.emplace_back(new MoveCaretTask(text, &caret, Point{x, y}));
+    }
+    next_circle.notify_one();
+
+#ifdef DEBUG
+    last_caret_moved = false;
+#endif
 }
 
 void Document::SetCaretVisible(bool visible)

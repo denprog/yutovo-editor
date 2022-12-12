@@ -394,7 +394,9 @@ MoveCaretTask::MoveCaretTask(ElementPtr _text, Caret* _caret, Point _point) :
     Task(_text),
     document(_text->document),
     caret(_caret),
-    point(_point)
+    dir(MoveCaretDir::POINT),
+    point(_point),
+    select(false)
 {
 }
 
@@ -406,6 +408,13 @@ bool MoveCaretTask::Execute()
     case MoveCaretDir::NONE:
         caret->SetVisible(visible);
         return true;
+    case MoveCaretDir::POINT:
+        {
+            ElementId id;
+            if (text->GetElementAtCoords(point.x, point.y, id))
+                caret->SetState(id, true);
+        }
+        break;
     case MoveCaretDir::LEFT:
         if (!document->selection.IsEmpty() && !select)
         {

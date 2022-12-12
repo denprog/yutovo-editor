@@ -1,6 +1,9 @@
 #include "document_widget.h"
 #include <QResizeEvent>
+#include <QMouseEvent>
 #include <QPainter>
+#include <QGuiApplication>
+#include <QCursor>
 
 //DocumentWidget
 
@@ -13,11 +16,18 @@ DocumentWidget::DocumentWidget(QWidget *parent) :
     connect(&window, &QtWindow::WindowUpdated, this, &DocumentWidget::OnWindowUpdated);
 
     setFocusPolicy(Qt::StrongFocus);
+    setMouseTracking(true);
 }
 
 void DocumentWidget::InsertText(const std::string& str, const StringFormatPtr string_format)
 {
     document.InsertText(str, string_format, true);
+}
+
+bool DocumentWidget::GetElementAtCoords(const int x, const int y, ElementId& id)
+{
+    auto p = window.GetDocumentPoint();
+    return document.GetElementAtCoords(x + p.x, y + p.y, id);
 }
 
 void DocumentWidget::OnDocumentUpdated(const Rect rect)
@@ -98,5 +108,20 @@ void DocumentWidget::keyPressEvent(QKeyEvent *event)
 
 void DocumentWidget::mousePressEvent(QMouseEvent *event)
 {
-    
+    if (event->buttons() == Qt::LeftButton)
+        document.MoveCaret((int)event->pos().x(), (int)event->pos().y());
+}
+
+void DocumentWidget::mouseMoveEvent(QMouseEvent *event)
+{
+    ElementId id;
+    if (!GetElementAtCoords((int)event->pos().x(), (int)event->pos().y(), id))
+    {
+        setCursor(Qt::ArrowCursor);
+        return;
+    }
+    if (document.GetElementType(id) == ElementType::STRING)
+        setCursor(Qt::IBeamCursor);
+    else
+        setCursor(Qt::ArrowCursor);
 }
