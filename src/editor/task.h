@@ -101,11 +101,12 @@ struct RemakeTask : Task
 
 struct RedrawTask : Task
 {
-    RedrawTask(ElementPtr _text, const ElementId& _id);
+    RedrawTask(ElementPtr _text, const ElementId& _id, bool _move_into_view);
 
     virtual bool Execute();
 
     ElementId element_id;
+    bool move_into_view;
 };
 
 struct ResizeTask : Task

@@ -90,11 +90,11 @@ public:
 
     void Resize(uint width, uint height);
 
-    void Redraw(const ElementId& id);
+    void Redraw(const ElementId& id, bool move_into_view);
     void Redraw();
     void Remake(const ElementId& id, bool with_elements, bool undo = false);
 
-    bool WillRedraw(const ElementId& id);
+    bool WillRedraw(const ElementId& id, bool move_into_view);
 
     void New();
     uint Save(const std::string& filename);

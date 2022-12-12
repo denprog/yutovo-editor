@@ -687,7 +687,7 @@ void Document::Resize(uint width, uint height)
     Remake(text->id, true);
 }
 
-void Document::Redraw(const ElementId& id)
+void Document::Redraw(const ElementId& id, bool move_into_view)
 {
     {
         std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
@@ -696,11 +696,13 @@ void Document::Redraw(const ElementId& id)
             TaskPtr last = tasks[tasks.size() - 1];
             RedrawTask* t = dynamic_cast<RedrawTask*>(last.get());
             if (!t || t->element_id != id)
-                tasks.emplace_back(new RedrawTask(text, id));
+                tasks.emplace_back(new RedrawTask(text, id, move_into_view));
+            else if (!t->move_into_view)
+                t->move_into_view = move_into_view;
         }
         else
         {
-            tasks.emplace_back(new RedrawTask(text, id));
+            tasks.emplace_back(new RedrawTask(text, id, move_into_view));
         }
     }
     next_circle.notify_one();
@@ -708,11 +710,7 @@ void Document::Redraw(const ElementId& id)
 
 void Document::Redraw()
 {
-    {
-        std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
-        tasks.emplace_back(new RedrawTask(text, text->id));
-    }
-    next_circle.notify_one();
+    Redraw(text->id, false);
 }
 
 void Document::Remake(const ElementId& id, bool with_elements, bool undo)
@@ -741,7 +739,7 @@ void Document::Remake(const ElementId& id, bool with_elements, bool undo)
     next_circle.notify_one();
 }
 
-bool Document::WillRedraw(const ElementId& id)
+bool Document::WillRedraw(const ElementId& id, bool move_into_view)
 {
     std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
     for (int i = tasks.size() - 1; i >= 0; --i)
@@ -749,7 +747,11 @@ bool Document::WillRedraw(const ElementId& id)
         TaskPtr t = tasks[i];
         RedrawTask* redraw_task = dynamic_cast<RedrawTask*>(t.get());
         if (redraw_task && IsChild(redraw_task->element_id, id))
+        {
+            if (!redraw_task->move_into_view)
+                redraw_task->move_into_view = move_into_view;
             return true;
+        }
         RemakeTask* remake_task = dynamic_cast<RemakeTask*>(t.get());
         if (remake_task && IsChild(remake_task->element_id, id))
             return true;
@@ -945,26 +947,26 @@ void Document::UpdateCaretView()
     {
         caret.Hide(); //caret will be shown on Redraw
         window->MoveDocument(r.left - view_port.left - 1, p.y);
-        Redraw(text->id);
+        Redraw(text->id, false);
     }
     else if (r.GetRight() > view_port.GetRight() + p.x)
     {
         caret.Hide();
         window->MoveDocument(r.GetRight() - view_port.GetRight(), p.y);
-        Redraw(text->id);
+        Redraw(text->id, false);
     }
 
     if (r.top < p.y + view_port.top)
     {
         caret.Hide();
         window->MoveDocument(p.x, r.top - view_port.top - 1);
-        Redraw(text->id);
+        Redraw(text->id, false);
     }
     else if (r.GetBottom() > view_port.GetBottom() + p.y)
     {
         caret.Hide();
         window->MoveDocument(p.x, r.GetBottom() - view_port.GetBottom());
-        Redraw(text->id);
+        Redraw(text->id, false);
     }
 }
 
@@ -973,9 +975,9 @@ void Document::UpdateLastSelection()
     if (selection != last_selection)
     {
         for (auto& s : selection.selection)
-            Redraw(s.element->id);
+            Redraw(s.element->id, false);
         for (auto& s : last_selection.selection)
-            Redraw(s.element->id);
+            Redraw(s.element->id, false);
         last_selection = selection;
     }
 }
