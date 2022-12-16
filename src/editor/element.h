@@ -120,7 +120,7 @@ public:
     bool editable = true;
 
 protected:
-    Caret* caret = nullptr;
+    CaretPtr caret;
     Selection* selection = nullptr;
 
 public:
@@ -197,7 +197,7 @@ protected:
 
 protected:
     Element* parent = nullptr;
-    Caret* caret = nullptr;
+    CaretPtr caret;
     Selection* selection = nullptr;
 
 private:

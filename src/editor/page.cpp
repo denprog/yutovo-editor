@@ -94,7 +94,7 @@ bool Page::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo)
     int k = elements->GetElementPos(paragraph->id);
     int p = row->elements->GetElementPos(el->id);
     bool caret_next_row = false;
-    if (p == 0 && document->caret.current_pos == 0)
+    if (p == 0 && document->caret->current_pos == 0)
     {
         elements->Insert(insert_element, k);
     }
@@ -128,12 +128,12 @@ bool Page::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo)
     if (caret_next_row)
     {
         if (new_row->GetFirstCaretState(after, nullptr))
-            document->caret.SetState(after);
+            document->caret->SetState(after);
     }
     else
     {
         if (row->GetFirstCaretState(after, nullptr))
-            document->caret.SetState(after);
+            document->caret->SetState(after);
     }
     
     document->Remake(id, true);

@@ -22,9 +22,11 @@ MainWindow::MainWindow(QWidget *parent) :
     qRegisterMetaType<CopyResult>("CopyResult");
     qRegisterMetaType<std::vector<ElementPtr>>("std::vector<ElementPtr>");
 
-    SetupGui();
-    CreateActions();
+    document_widget = new DocumentWidget(ui->centralwidget);
+    document = document_widget->CreateDocument();
+
     CreateStatusBar();
+    SetupGui();
 }
 
 MainWindow::~MainWindow()
@@ -34,15 +36,17 @@ MainWindow::~MainWindow()
 
 void MainWindow::SetupGui()
 {
-    document_widget = new DocumentWidget(ui->centralwidget);
     document_widget->setObjectName(QStringLiteral("document_widget"));
-    document = &document_widget->document;
     ui->verticalLayout->addWidget(document_widget);
 
     connect(&document_widget->window, &QtWindow::CaretMoved, this, &MainWindow::OnCaretMoved);
     connect(&document_widget->window, &QtWindow::SaveResult, this, &MainWindow::OnSaveResult);
     connect(&document_widget->window, &QtWindow::LoadResult, this, &MainWindow::OnLoadResult);
     connect(&document_widget->window, &QtWindow::ClipboardCopyResult, this, &MainWindow::OnClipboardCopyResult);
+
+    CreateActions();
+
+    document->Start();
 }
 
 void MainWindow::CreateActions()
@@ -138,9 +142,9 @@ void MainWindow::CreateActions()
     format_toolbat->setStyleSheet("QToolBar{spacing:4px;}");
 
     paragraph_format_combo = new QComboBox;
-    connect(paragraph_format_combo, &QComboBox::currentTextChanged, this, &MainWindow::OnCurrentParagraphFormatChanged);
     format_toolbat->addWidget(paragraph_format_combo);
     FillParagraphFormats();
+    connect(paragraph_format_combo, &QComboBox::currentTextChanged, this, &MainWindow::OnCurrentParagraphFormatChanged);
 
     format_toolbat->addSeparator();
 

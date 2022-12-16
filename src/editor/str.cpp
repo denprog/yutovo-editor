@@ -156,7 +156,7 @@ std::string String::ToHtml()
 
 bool String::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo)
 {
-    if (!document->caret.IsInsideElement(id))
+    if (!document->caret->IsInsideElement(id))
         return parent->InsertElements(_elements, with_undo);
     if (_elements.size() == 1 && _elements[0]->type == ElementType::STRING)
     {
@@ -164,7 +164,7 @@ bool String::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo)
         if (elements->Count() == 0)
         {
             //replace the string and format
-            if (document->caret.current_pos != 0)
+            if (document->caret->current_pos != 0)
                 return false;
             if (with_undo)
             {

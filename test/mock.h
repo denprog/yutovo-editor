@@ -63,6 +63,7 @@ struct DocumentTest : public testing::Test
         app(argc, argv),
         document(&window_mock)
     {
+        document.Start();
     }
 
     Size GetTextSizeMock(const std::string& text, const StringFormatPtr format)

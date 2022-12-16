@@ -25,6 +25,8 @@ public:
     Document(Window* _window);
     ~Document();
 
+    void Start();
+
     void InsertPage(bool with_undo);
     void InsertParagraph(bool with_undo, bool undo = false);
     void InsertText(const std::string& str, bool with_undo);
@@ -187,7 +189,7 @@ private:
     ElementPtr text;
 
 public:
-    Caret caret;
+    CaretPtr caret;
     Selection selection;
     Selection last_selection;
 
@@ -209,6 +211,8 @@ private:
 
     Logger* logger;
 };
+
+typedef std::shared_ptr<Document> DocumentPtr;
 
 }
 

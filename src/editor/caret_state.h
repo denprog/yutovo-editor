@@ -8,9 +8,11 @@ namespace yutovo
 {
 
 class Element;
+class Caret;
 
 typedef std::vector<uint> ElementId;
 typedef std::shared_ptr<Element> ElementPtr;
+typedef std::shared_ptr<Caret> CaretPtr;
 
 struct CaretState
 {

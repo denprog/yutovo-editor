@@ -12,6 +12,8 @@ class DocumentWidget : public QWidget
 public:
     DocumentWidget(QWidget *parent);
 
+    DocumentPtr CreateDocument();
+
     void InsertText(const std::string& str, const StringFormatPtr string_format);
 
     bool GetElementAtCoords(const int x, const int y, ElementId& id);
@@ -32,7 +34,7 @@ private:
     QtWindow window;
 
 public:
-    Document document;
+    DocumentPtr document;
 };
 
 #endif

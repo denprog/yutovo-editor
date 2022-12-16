@@ -11,10 +11,9 @@ namespace yutovo
 
 using namespace std::chrono_literals;
 
-Caret::Caret(Window* _window, ElementPtr _text) :
-    window(_window),
-    text(_text),
-    document(text->document)
+Caret::Caret(Document* _document) :
+    document(_document),
+    window(document->window)
 {
 }
 
