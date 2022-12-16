@@ -4,6 +4,7 @@
 #include "paragraph.h"
 #include "page.h"
 #include "row.h"
+#include "formulas/code.h"
 #include "util.h"
 #include "result_codes.h"
 #include <assert.h>
@@ -11,6 +12,7 @@
 #include <boost/archive/binary_iarchive.hpp>
 #include <boost/serialization/shared_ptr.hpp>
 #include <sstream>
+#include <vector>
 
 namespace yutovo
 {
@@ -21,6 +23,7 @@ uint Task::next_id = 1;
 
 Task::Task(ElementPtr _text) : 
     text(_text),
+    document(text->document),
     logger(Logger::GetInstance()),
     id(next_id++)
 {
@@ -172,6 +175,66 @@ bool DeleteElementsTask::Execute()
         text->document->Redraw(caret_state.id, true); //move into view
         return true;
     }
+    return false;
+}
+
+//InsertFormulasTask
+
+InsertFormulasTask::InsertFormulasTask(ElementPtr _text, std::vector<ElementPtr>& _elements, bool _with_undo) :
+    Task(_text),
+    elements(_elements)
+{
+    with_undo = _with_undo;
+}
+
+InsertFormulasTask::InsertFormulasTask(ElementPtr _text, std::vector<ElementPtr>& _elements, uint _id) :
+    Task(_text, _id),
+    elements(_elements)
+{
+    with_undo = false;
+}
+
+bool InsertFormulasTask::Execute()
+{
+    logger->Debug("Execute InsertFormulasTask");
+
+    if (before_state.IsEmpty())
+        before_state = document->GetEditorState();
+    
+    CaretState& caret_state = before_state.caret_state;
+    SelectionState& selection_state = before_state.selection_state;
+
+    ElementPtr el = document->GetParent(caret_state.id);
+    assert(el);
+
+    if (elements[0]->type != ElementType::CODE)
+    {
+        if (document->FindParent(caret_state.id, ElementType::CODE) == nullptr)
+        {
+            //there is no code element - insert one
+            if (with_undo)
+                document->PushEditorState(true);
+            
+            ElementPtr code(new Code(el.get()));
+            std::vector v{code};
+            if (!el->InsertElements(v, with_undo))
+                return false;
+            el = code;
+        }
+    }
+
+    if (with_undo)
+        document->PushEditorState(true);
+
+    if (el->InsertElements(elements, with_undo))
+    {
+        if (with_undo)
+            document->PushEditorState(true);
+        document->Remake(el->parent->id, true);
+        document->Redraw(el->parent->id, true); //move into view
+        return true;
+    }
+
     return false;
 }
 

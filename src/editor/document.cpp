@@ -3,6 +3,8 @@
 #include "paragraph.h"
 #include "row.h"
 #include "page.h"
+#include "formulas/code.h"
+#include "formulas/division.h"
 #include "util.h"
 #include <assert.h>
 #include <chrono>
@@ -19,7 +21,9 @@ Document::Document(Window* _window) :
     window(_window),
     string_formats(new StringFormats()),
     paragraph_formats(new ParagraphFormats(string_formats)),
+    formula_formats(new FormulaFormats(string_formats)),
     current_paragraph_format(paragraph_formats->GetFormat("Text body")),
+    current_formula_format(formula_formats->GetFormat("Calculator")),
     text(new Text(this)),
     caret(_window, text),
     selection(this),
@@ -265,6 +269,41 @@ void Document::DeleteElements(bool left, bool with_undo, bool undo)
     next_circle.notify_one();
 }
 
+void Document::InsertCode(bool with_undo)
+{
+    InsertFormula(new Code(this), with_undo, false);
+}
+
+void Document::InsertDivision(bool with_undo)
+{
+    InsertFormula(new Division(this), with_undo, false);
+}
+
+void Document::InsertFormula(Element* element, bool with_undo, bool undo)
+{
+    std::vector<ElementPtr> elements;
+    elements.emplace_back(element);
+    InsertFormulas(elements, with_undo, undo);
+}
+
+void Document::InsertFormulas(std::vector<ElementPtr>& elements, bool with_undo, bool undo)
+{
+    {
+        std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
+        if (undo)
+        {
+            undo_tasks.push(TaskPtr(new InsertFormulasTask(text, elements, cur_task_id)));
+            last_task_id = cur_task_id;
+        }
+        else
+        {
+            tasks.emplace_back(new InsertFormulasTask(text, elements, with_undo));
+            last_task_id = tasks[tasks.size() - 1]->id;
+        }
+    }
+    next_circle.notify_one();
+}
+
 void Document::ChangeStringFormat(const std::string family, const uint size, const bool bold, const bool italic, const bool underline, 
     bool with_undo, bool undo)
 {
@@ -418,17 +457,41 @@ void Document::SetCurrentStringFormat(StringFormatPtr& format)
     current_string_format = format;
 }
 
+bool Document::GetCurrentParagraphFormat(ParagraphFormatPtr& format)
+{
+    std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
+    if (current_paragraph_format)
+    {
+        format = current_paragraph_format;
+        return true;
+    }
+    return false;
+}
+
+bool Document::GetCurrentFormulaFormat(FormulaFormatPtr& format)
+{
+    std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
+    if (current_formula_format)
+    {
+        format = current_formula_format;
+        return true;
+    }
+    return false;
+}
+
 void Document::UpdateFormats()
 {
     std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
     CaretState c = caret.GetCaretState();
     ElementPtr el = GetParent(c.id);
-    if (!el || el->type != ElementType::STRING)
+    if (!el)
     {
         current_string_format.reset();
         return;
     }
-    current_string_format = ((String*)el.get())->format;
+    StringFormat f;
+    if (GetStringFormat(el->id, f))
+        current_string_format = string_formats->GetFormat(f);
 }
 
 void Document::SetFontFamily(const std::string& family)
@@ -528,10 +591,21 @@ bool Document::GetStringFormat(const ElementId id, StringFormat& format)
 {
     std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
     ElementPtr el = GetElement(id);
-    if (!el || el->type != ElementType::STRING)
-        return false;
-    format = *((String*)el.get())->format;
-    return true;
+    if (el->type == ElementType::STRING)
+    {
+        format = *((String*)el.get())->format;
+        return true;
+    }
+    else if (el->type == ElementType::ROW)
+    {
+        el = FindParent(el->id, ElementType::PARAGRAPH);
+        if (el)
+        {
+            format = *((Paragraph*)el.get())->format->string_format;
+            return true;
+        }
+    }
+    return false;
 }
 
 bool Document::GetParagraphFormat(const ElementId id, ParagraphFormat& format)
@@ -954,6 +1028,8 @@ void Document::WaitLoad()
 void Document::UpdateCaretView()
 {
     Element* element = caret.current_element;
+    if (!element)
+        return;
     Rect r = element->GetAbsoluteRect(element->GetCaretRect(caret.current_pos));
     Rect view_port = text->window->GetViewPort(0);
     Point p = window->GetDocumentPoint();

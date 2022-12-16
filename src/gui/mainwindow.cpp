@@ -43,11 +43,6 @@ void MainWindow::SetupGui()
     connect(&document_widget->window, &QtWindow::SaveResult, this, &MainWindow::OnSaveResult);
     connect(&document_widget->window, &QtWindow::LoadResult, this, &MainWindow::OnLoadResult);
     connect(&document_widget->window, &QtWindow::ClipboardCopyResult, this, &MainWindow::OnClipboardCopyResult);
-
-    document_widget->InsertText("Text", document->GetStringFormat("Arial", 22, false, false, false));
-    document_widget->InsertText("Italic", document->GetStringFormat("Times New Roman", 18, false, true, false));
-    document_widget->InsertText("Bold", document->GetStringFormat("Times New Roman", 34, true, false, false));
-    document_widget->InsertText("String1 String2 String3", document->GetStringFormat("Arial", 20, false, false, false));
 }
 
 void MainWindow::CreateActions()
@@ -90,6 +85,15 @@ void MainWindow::CreateActions()
     //edit menu and toolbar
     QMenu *edit_menu = menuBar()->addMenu(tr("&Edit"));
     QToolBar *edit_toolbar = addToolBar(tr("Edit"));
+
+    action = new QAction(QIcon(":/icons/images/formula.png"), tr("&Code"), this);
+    action->setStatusTip(tr("Insert code"));
+    connect(action, &QAction::triggered, this, &MainWindow::OnInsertCode);
+    edit_menu->addAction(action);
+    edit_toolbar->addAction(action);
+
+    edit_menu->addSeparator();
+    edit_toolbar->addSeparator();
 
     undo_action = new QAction(QIcon(":/icons/images/undo.png"), tr("U&ndo"), this);
     undo_action->setShortcuts(QKeySequence::Undo);
@@ -270,6 +274,11 @@ void MainWindow::About()
 {
 }
 
+void MainWindow::OnInsertCode()
+{
+    document->InsertCode(true);
+}
+
 void MainWindow::OnCurrentParagraphFormatChanged(const QString& format)
 {
     document->SetCurrentParagraphFormat(format.toUtf8().data());
@@ -336,7 +345,12 @@ void MainWindow::OnCaretMoved(const EditorState editor_state)
     }
 
     //find common string format
-    if (document->GetElementType(c.GetElement()) == ElementType::STRING && document->GetStringFormat(c.id, format))
+    auto t = document->GetElementType(c.GetElement());
+    if (t != ElementType::STRING && t != ElementType::ROW)
+    {
+        format.Reset();
+    }
+    else if (document->GetStringFormat(c.GetElement(), format))
     {
         for (auto& state : s.state)
         {

@@ -55,6 +55,21 @@ StringFormatPtr StringFormats::GetFormat(const std::string _family, uint _size, 
     return f;
 }
 
+StringFormatPtr StringFormats::GetFormat(const StringFormat& source)
+{
+    //return the present format
+    for (auto& f : string_formats)
+    {
+        if (*f == source)
+            return f;
+    }
+
+    //or create a new one
+    StringFormatPtr f(new StringFormat(source.family, source.size, source.bold, source.italic, source.underline));
+    string_formats.push_back(f);
+    return f;
+}
+
 StringFormatPtr StringFormats::GetFormat(const uint _id)
 {
     auto it = std::find_if(string_formats.begin(), string_formats.end(), 
@@ -137,6 +152,52 @@ ParagraphFormatPtr ParagraphFormats::GetFormat(const std::string& name)
 void ParagraphFormats::GetFormats(std::vector<ParagraphFormatPtr>& formats)
 {
     formats = paragraph_formats;
+}
+
+//FormulaFormat
+
+FormulaFormat::FormulaFormat(const std::string& _name, StringFormatPtr _string_format, uint _inter_spacing) :
+    name(_name),
+    string_format(_string_format),
+    inter_spacing(_inter_spacing)
+{
+}
+
+bool FormulaFormat::operator==(const FormulaFormat& f)
+{
+    return name == f.name && *string_format == *f.string_format && inter_spacing == f.inter_spacing;
+}
+
+//FormulaFormats
+
+FormulaFormats::FormulaFormats(StringFormatsPtr _string_formats) :
+    string_formats(_string_formats)
+{
+    GetFormat("Calculator", string_formats->GetFormat("Courier New", 14, false, false, false), 2);
+}
+
+FormulaFormatPtr FormulaFormats::GetFormat(const std::string& name)
+{
+    for (auto f : formula_formats)
+    {
+        if (f->name == name)
+            return f;
+    }
+    return nullptr;
+}
+
+FormulaFormatPtr FormulaFormats::GetFormat(const std::string& name, StringFormatPtr string_format, uint inter_spacing)
+{
+    //return the present format
+    for (auto f : formula_formats)
+    {
+        if (f->name == name && f->string_format == string_format && f->inter_spacing == inter_spacing)
+            return f;
+    }
+
+    //or create a new one
+    formula_formats.emplace_back(new FormulaFormat(name, string_format, inter_spacing));
+    return formula_formats[formula_formats.size() - 1];
 }
 
 //PageFormats

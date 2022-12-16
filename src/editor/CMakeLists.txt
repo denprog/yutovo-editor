@@ -23,6 +23,12 @@ add_library(${PROJECT_NAME}
     util.cpp
     logger.cpp
     result_codes.cpp
+    formulas/formula.cpp
+    formulas/code.cpp
+    formulas/code_string.cpp
+    formulas/code_row.cpp
+    formulas/shape.cpp
+    formulas/division.cpp
 )
 
 target_link_libraries(${PROJECT_NAME} PRIVATE 

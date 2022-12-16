@@ -28,7 +28,10 @@ enum class ElementType
     PAGE,
     PARAGRAPH,
     ROW,
-    STRING
+    STRING,
+    CODE,
+    SHAPE,
+    DIVISION
 };
 
 class Element;
@@ -61,6 +64,8 @@ public:
 
     virtual void UpdateStringFormat(const StringFormatPtr base_format, const StringFormatPtr new_format);
 
+    virtual void AfterInsert();
+
     virtual bool GetFirstCaretState(CaretState& caret_state, Selection* select);
     virtual bool GetLastCaretState(CaretState& caret_state, Selection* select);
     virtual bool GetLeftCaretState(CaretState& caret_state, Selection* select);
@@ -73,6 +78,7 @@ public:
     virtual bool GetWordRightCaretState(CaretState& caret_state, Selection* select);
 
     virtual bool HasCaretState();
+    virtual bool HasLastCaretState();
     virtual bool CanContinueSelection();
 
     virtual Rect GetCaretRect(const uint pos) const;
@@ -96,6 +102,7 @@ public:
 
     virtual ParagraphFormatPtr GetParagraphFormat();
     virtual StringFormatPtr GetStringFormat();
+    virtual FormulaFormatPtr GetFormulaFormat();
 
 public:
     Element* parent = nullptr;
@@ -151,7 +158,7 @@ public:
     virtual void Move(const ElementPtr element, const uint pos);
     virtual void Clear();
 
-    virtual uint Count();
+    virtual uint Count() const;
 
     virtual Rect GetCaretRect(const uint pos) const;
     virtual void DrawCaret(const uint pos) const;
@@ -164,8 +171,6 @@ public:
     virtual bool GetRightCaretState(CaretState& caret_state, Selection* select);
     virtual bool GetWordLeftCaretState(CaretState& caret_state, Selection* select);
     virtual bool GetWordRightCaretState(CaretState& caret_state, Selection* select);
-
-    virtual bool HasLastCaretState();
 
     virtual std::string ToHtml();
     virtual std::string ToText();

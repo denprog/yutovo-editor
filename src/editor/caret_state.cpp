@@ -20,6 +20,7 @@ CaretState::CaretState(const ElementId _id) :
 
 CaretState::CaretState(const Element* element, const uint pos)
 {
+    assert(element);
     id = element->id;
     id.push_back(pos);
 }

@@ -151,6 +151,10 @@ void Element::UpdateStringFormat(const StringFormatPtr base_format, const String
         elements->Get(i)->UpdateStringFormat(base_format, new_format);
 }
 
+void Element::AfterInsert()
+{
+}
+
 bool Element::GetFirstCaretState(CaretState& caret_state, Selection* select)
 {
     return elements->GetFirstCaretState(caret_state, select);
@@ -196,9 +200,9 @@ bool Element::GetTopCaretState(const int x, const int y, CaretState& caret_state
 
     CaretState next, last;
     if (!GetFirstCaretState(next, select))
-        return false;
+        next.SetState(id);
     if (!GetLastCaretState(last, select))
-        return false;
+        last.SetState(id);
     
     caret_state = next;
     Rect r = document->GetCaretRect(next);
@@ -233,9 +237,9 @@ bool Element::GetBottomCaretState(const int x, const int y, CaretState& caret_st
 
     CaretState next, last;
     if (!GetFirstCaretState(next, select))
-        return false;
+        next.SetState(id);
     if (!GetLastCaretState(last, select))
-        return false;
+        last.SetState(id);
     
     caret_state = next;
     Rect r = document->GetCaretRect(next);
@@ -298,6 +302,11 @@ bool Element::GetWordRightCaretState(CaretState& caret_state, Selection* select)
 }
 
 bool Element::HasCaretState()
+{
+    return false;
+}
+
+bool Element::HasLastCaretState()
 {
     return false;
 }
@@ -437,6 +446,12 @@ StringFormatPtr Element::GetStringFormat()
 {
     assert(parent); //anybody must return string format
     return parent->GetStringFormat();
+}
+
+FormulaFormatPtr Element::GetFormulaFormat()
+{
+    assert(parent);
+    return parent->GetFormulaFormat();
 }
 
 //Elements
@@ -585,19 +600,26 @@ void Elements::RemoveAt(const uint pos, const int size)
 
     if (cs_pos != -1 && Count() > 0)
     {
-        ElementPtr el = Get(pos < Count() ? pos : pos - 1);
-        if (el->HasCaretState())
+        if (pos == Count() && elements[pos - 1]->HasLastCaretState())
         {
-            caret->SetState(el->id);
+            caret->SetState(parent->id, pos);
         }
         else
         {
-            CaretState s;
-            if (pos < Count())
-                el->GetFirstCaretState(s, nullptr);
+            ElementPtr el = Get(pos < Count() ? pos : pos - 1);
+            if (el->HasCaretState())
+            {
+                caret->SetState(el->id);
+            }
             else
-                el->GetLastCaretState(s, nullptr);
-            caret->SetState(s);
+            {
+                CaretState s;
+                if (pos < Count())
+                    el->GetFirstCaretState(s, nullptr);
+                else
+                    el->GetLastCaretState(s, nullptr);
+                caret->SetState(s);
+            }
         }
     }
 }
@@ -618,18 +640,43 @@ void Elements::Clear()
     elements.clear();
 }
 
-uint Elements::Count()
+uint Elements::Count() const
 {
     return elements.size();
 }
 
 Rect Elements::GetCaretRect(const uint pos) const
 {
-    return Rect();
+    Rect r;
+    if (pos == Count())
+    {
+        Rect& rect = elements[pos - 1]->rect;
+        r = Rect{rect.GetRight() - 1, rect.top - 1, 2, rect.height + 2}; //for last caret state draw one line
+    }
+    else
+    {
+        r = elements[pos]->rect; //draw caret of two lines
+        r.left -= 3;
+        r.width += 6;
+        r.top -= 3;
+        r.height += 6;
+    }
+    return r;
 }
 
 void Elements::DrawCaret(const uint pos) const
 {
+    if (pos == Count())
+    {
+        Rect r = parent->GetAbsoluteRect(elements[pos - 1]->rect);
+        parent->window->DrawLine(r.GetRight(), r.top, r.GetRight(), r.GetBottom(), Color::Black());
+    }
+    else
+    {
+        Rect r = parent->GetAbsoluteRect(elements[pos]->rect);
+        parent->window->DrawLine(r.left - 2, r.top - 2, r.left - 2, r.GetBottom() + 2, Color::Black());
+        parent->window->DrawLine(r.left - 2, r.GetBottom() + 2, r.GetRight() + 2, r.GetBottom() + 2, Color::Black());
+    }
 }
 
 Rect Elements::GetRect()
@@ -668,6 +715,11 @@ bool Elements::GetLastCaretState(CaretState& caret_state, Selection* select)
 {
     if (elements.empty())
         return false;
+    if (elements[elements.size() - 1]->HasLastCaretState())
+    {
+        caret_state.SetState(parent->id, Count());
+        return true;
+    }
     return elements[elements.size() - 1]->GetLastCaretState(caret_state, select);
 }
 
@@ -675,7 +727,13 @@ bool Elements::GetLeftCaretState(CaretState& caret_state, Selection* select)
 {
     int p = GetChildPos(caret_state.id);
     if (p < 0)
-        return false;
+    {
+        CaretState c;
+        if (GetLastCaretState(c, nullptr) && caret_state == c)
+            p = Count();
+        else
+            return false;
+    }
     while (p-- > 0)
     {
         if (select)
@@ -690,15 +748,23 @@ bool Elements::GetLeftCaretState(CaretState& caret_state, Selection* select)
                 }
             }
         }
-        else if (elements[p]->GetLastCaretState(caret_state, select))
-            return true;
-        if (elements[p]->HasCaretState())
+        else if (Count() > p + 1 && elements[p + 1]->id != caret_state.id && elements[p + 1]->HasCaretState())
         {
-            caret_state.SetState(Get(p));
+            caret_state.SetState(Get(p + 1));
             if (select)
-                select->Add(parent->id, p, 1);
+                select->Add(parent->id, p + 1, 1);
             return true;
         }
+        else if (elements[p]->GetLastCaretState(caret_state, select))
+            return true;
+    }
+
+    if (Count() > 0 && elements[0]->HasCaretState())
+    {
+        caret_state.SetState(Get(0));
+        if (select)
+            select->Add(parent->id, 0, 1);
+        return true;
     }
     return false;
 }
@@ -708,7 +774,18 @@ bool Elements::GetRightCaretState(CaretState& caret_state, Selection* select)
     int p = GetChildPos(caret_state.id);
     if (p < 0)
         return false;
-    while (++p < Count())
+    
+    if (parent->document->GetParent(caret_state.id)->id == parent->id) //try to enter into this element
+    {
+        if (elements[p]->GetFirstCaretState(caret_state, select))
+        {
+            if (select)
+                select->Add(parent->id, p, 1);
+            return true;
+        }
+    }
+
+    while (++p < Count()) //find next nearest caret state
     {
         if (elements[p]->HasCaretState())
         {
@@ -735,6 +812,12 @@ bool Elements::GetRightCaretState(CaretState& caret_state, Selection* select)
                 select->Add(parent->id, p, 1);
             return true;
         }
+    }
+
+    if (elements[p - 1]->HasLastCaretState())
+    {
+        caret_state.SetState(parent->id, p);
+        return true;
     }
     return false;
 }
@@ -816,11 +899,6 @@ bool Elements::GetWordRightCaretState(CaretState& caret_state, Selection* select
             }
         }
     }
-    return false;
-}
-
-bool Elements::HasLastCaretState()
-{
     return false;
 }
 

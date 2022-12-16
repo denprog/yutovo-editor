@@ -7,13 +7,17 @@ namespace yutovo
 
 //Row
 
-Row::Row(Element* parent) :
-    Element(parent)
+Row::Row(Document* _document) :
+    Element(_document)
+{
+}
+
+Row::Row(Element* _parent) :
+    Element(_parent)
 {
     type = ElementType::ROW;
 
-    ElementPtr str(new String(this));
-    AddElement(str);
+    AddEmptyElement();
 }
 
 Element* Row::Clone()
@@ -54,7 +58,7 @@ void Row::Remake(bool with_elements)
     }
     else if (elements->Count() == 0)
     {
-        AddElement(ElementPtr(new String(this))); //insert empty string
+        AddEmptyElement(); //insert empty string
     }
 
     if (with_elements)
@@ -94,10 +98,10 @@ bool Row::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo)
     CaretState caret_state = caret->GetCaretState();
     if (!caret_state.IsInsideElement(id))
         return parent->InsertElements(_elements, with_undo);
-    
+
     for (auto& el : _elements)
     {
-        if (el->type != ElementType::STRING) //here can be inserted only strings for a while
+        if (el->type == ElementType::PARAGRAPH) //paragraphs can be inserted above
             return parent->InsertElements(_elements, with_undo);
     }
 
@@ -107,8 +111,8 @@ bool Row::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo)
     {
         for (size_t i = 0; i < _elements.size(); ++i)
         {
-            elements->Insert(_elements[i], i);
-            if (elements->Get(i)->GetLastCaretState(c, nullptr))
+            elements->Insert(_elements[i], caret_state.GetPos() + i);
+            if (elements->Get(caret_state.GetPos() + i)->GetLastCaretState(c, nullptr))
                 caret->SetState(c);
         }
     }
@@ -122,6 +126,7 @@ bool Row::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo)
                 elements->Insert(_elements[i], p + i);
                 if (elements->Get(p + i)->GetLastCaretState(c, nullptr))
                     caret->SetState(c);
+                _elements[i]->AfterInsert();
                 if (with_undo)
                 {
                     document->DeleteElements(false, false, true);
@@ -261,6 +266,8 @@ bool Row::DeleteElements(bool left, bool with_undo)
         if (selection->Has(id, start, size))
         {
             elements->RemoveAt(start, size);
+            if (elements->Count() == 0)
+                Remake(false);
             document->Remake(id, false);
 #ifdef DEBUG
             to_str = ToText();
@@ -308,6 +315,11 @@ bool Row::GetEndCaretState(CaretState& caret_state, Selection* select)
 bool Row::CanContinueSelection()
 {
     return true;
+}
+
+void Row::AddEmptyElement()
+{
+    AddElement(ElementPtr(new String(this)));
 }
 
 }
