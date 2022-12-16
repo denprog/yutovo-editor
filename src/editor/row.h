@@ -11,7 +11,8 @@ namespace yutovo
 class Row : public Element
 {
 public:
-    Row(Element* parent);
+    Row(Document* _document);
+    Row(Element* _parent);
 
     virtual Element* Clone();
 
@@ -27,6 +28,8 @@ public:
     virtual bool GetEndCaretState(CaretState& caret_state, Selection* select);
 
     virtual bool CanContinueSelection();
+
+    virtual void AddEmptyElement();
 
     template <class Archive>
     void save(Archive& ar, const unsigned int version) const

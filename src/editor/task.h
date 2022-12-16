@@ -20,6 +20,7 @@ struct Task
     virtual bool Execute() = 0;
 
     ElementPtr text;
+    Document* document;
     bool undo = false; //this is an undo task
     bool with_undo = false; //this task has (will have) undo
 
@@ -53,6 +54,17 @@ struct DeleteElementsTask : Task
 
     ElementId element_id; //delete from this element or use id from caret state
     bool left; //delete on the left or on the right
+    EditorState before_state;
+};
+
+struct InsertFormulasTask : Task
+{
+    InsertFormulasTask(ElementPtr _text, std::vector<ElementPtr>& _elements, bool _with_undo);
+    InsertFormulasTask(ElementPtr _text, std::vector<ElementPtr>& _elements, uint _id);
+
+    virtual bool Execute();
+
+    std::vector<ElementPtr> elements;
     EditorState before_state;
 };
 

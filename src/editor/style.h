@@ -41,14 +41,14 @@ struct StringFormat
 
     void Reset();
 
-    uint id; //for serialization
+    uint id = 0; //for serialization
     static uint next_id;
 
     std::string family;
-    uint size;
-    bool bold;
-    bool italic;
-    bool underline;
+    uint size = 0;
+    bool bold = false;
+    bool italic = false;
+    bool underline = false;
 };
 
 typedef std::shared_ptr<StringFormat> StringFormatPtr;
@@ -58,6 +58,7 @@ class StringFormats
 {
 public:
     StringFormatPtr GetFormat(const std::string _family, uint _size, bool _bold, bool _italic, bool _underline);
+    StringFormatPtr GetFormat(const StringFormat& source);
     StringFormatPtr GetFormat(const uint _id);
 
     template <class Archive>
@@ -160,6 +161,35 @@ private:
 };
 
 typedef std::unique_ptr<ParagraphFormats> ParagraphFormatsPtr;
+
+struct FormulaFormat
+{
+    FormulaFormat() = default;
+    FormulaFormat(const std::string& _name, StringFormatPtr _string_format, uint _inter_spacing);
+
+    bool operator==(const FormulaFormat& f);
+
+    std::string name;
+    StringFormatPtr string_format;
+    uint inter_spacing = 1;
+};
+
+typedef std::shared_ptr<FormulaFormat> FormulaFormatPtr;
+
+class FormulaFormats
+{
+public:
+    FormulaFormats(StringFormatsPtr _string_formats);
+
+    FormulaFormatPtr GetFormat(const std::string& name);
+    FormulaFormatPtr GetFormat(const std::string& name, StringFormatPtr string_format, uint inter_spacing);
+
+private:
+    StringFormatsPtr string_formats;
+    std::vector<FormulaFormatPtr> formula_formats;
+};
+
+typedef std::unique_ptr<FormulaFormats> FormulaFormatsPtr;
 
 struct PageFormat
 {

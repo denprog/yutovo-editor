@@ -37,6 +37,12 @@ public:
 
     void DeleteElements(bool left, bool with_undo, bool undo);
 
+    void InsertCode(bool with_undo);
+    void InsertDivision(bool with_undo);
+
+    void InsertFormula(Element* element, bool with_undo, bool undo);
+    void InsertFormulas(std::vector<ElementPtr>& elements, bool with_undo, bool undo);
+
     void ChangeStringFormat(const std::string family, const uint size, const bool bold, const bool italic, const bool underline, bool with_undo, bool undo);
     void ChangeStringFormat(const StringFormatPtr format, bool set_family, bool set_size, bool set_bold, bool set_italic, bool set_underline, 
         bool with_undo);
@@ -61,6 +67,10 @@ public:
 
     bool GetCurrentStringFormat(StringFormatPtr& format);
     void SetCurrentStringFormat(StringFormatPtr& format);
+
+    bool GetCurrentParagraphFormat(ParagraphFormatPtr& format);
+
+    bool GetCurrentFormulaFormat(FormulaFormatPtr& format);
 
     ElementType GetElementType(const ElementId id);
 
@@ -159,17 +169,20 @@ private:
     void UpdateCaretView();
     void UpdateLastSelection();
 
+private:
+    std::recursive_mutex tasks_mutex;
+
 public:
     Window* window;
 
     StringFormatsPtr string_formats;
     ParagraphFormatsPtr paragraph_formats;
+    FormulaFormatsPtr formula_formats;
 
 private:
-    friend class Page;
-
     StringFormatPtr current_string_format;
     ParagraphFormatPtr current_paragraph_format;
+    FormulaFormatPtr current_formula_format;
 
     ElementPtr text;
 
@@ -179,7 +192,6 @@ public:
     Selection last_selection;
 
 private:
-    std::recursive_mutex tasks_mutex;
     std::vector<TaskPtr> tasks;
     std::stack<TaskPtr> undo_tasks;
     std::vector<TaskPtr> redo_tasks;

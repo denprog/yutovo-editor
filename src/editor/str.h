@@ -22,6 +22,7 @@ public:
     virtual bool Copy(std::vector<ElementPtr>& copy);
 
     virtual Element* Create(Element* parent);
+    virtual Element* Create(Element* parent, const std::string _str, const StringFormatPtr _format);
 
     virtual void Remake(bool with_elements);
 
@@ -84,7 +85,7 @@ public:
     virtual void Remove(const ElementPtr element);
     virtual void RemoveAt(const uint pos, const int size);
     virtual void Clear();
-    virtual uint Count();
+    virtual uint Count() const;
 
     virtual Rect GetCaretRect(const uint pos) const;
     virtual void DrawCaret(const uint pos) const;

@@ -435,7 +435,7 @@ TEST_F(DocumentTest, selections3)
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body><p>"\
-        "<span style=\"font-family:'Courier';font-size:24px;\"><em></em></span>"\
+        "<span style=\"font-family:'Arial';font-size:16px;\"></span>"\
         "</p></body>") << 
         document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 0)) << document.GetEditorState().ToString();

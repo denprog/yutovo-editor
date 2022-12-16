@@ -23,6 +23,8 @@ add_executable(${PROJECT_NAME}_tests
 	caret.cpp
 	files.cpp
 	clipboard.cpp
+	code.cpp
+	division.cpp
 )
 
 target_link_libraries(${PROJECT_NAME}_tests PRIVATE

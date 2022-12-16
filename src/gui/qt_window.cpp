@@ -28,12 +28,12 @@ void QtWindow::DrawText(const std::string& text, const StringFormatPtr format, c
     p.end();
 }
 
-void QtWindow::DrawLine(const int x1, const int y1, const int x2, const int y2)
+void QtWindow::DrawLine(const int x1, const int y1, const int x2, const int y2, const Color color)
 {
     QPainter p;
     if (!p.begin(surface.get()))
         return;
-    p.setPen(QPen(QBrush(Qt::SolidPattern), 1));
+    p.setPen(QColor::fromRgba(color.ToInt()));
     if (draw_doc)
         p.setClipRegion(clip_region);
     p.drawLine(x1 - document_point.x, y1 - document_point.y, x2 - document_point.x, y2 - document_point.y);

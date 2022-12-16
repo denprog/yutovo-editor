@@ -29,7 +29,7 @@ class WindowMock : public Window
 {
 public:
     MOCK_METHOD(void, DrawText, (const std::string& text, const StringFormatPtr format, const Rect& rect), (override));
-    MOCK_METHOD(void, DrawLine, (const int x1, const int y1, const int x2, const int y2), (override));
+    MOCK_METHOD(void, DrawLine, (const int x1, const int y1, const int x2, const int y2, const Color color), (override));
     MOCK_METHOD(void, DrawRect, (const int x1, const int y1, const int width, const int height, const Color color), (override));
     MOCK_METHOD(void, DrawFillRect, (const int x1, const int y1, const int width, const int height, const Color color), (override));
     MOCK_METHOD(int, GetFontAscent, (const StringFormatPtr), (override));
@@ -141,6 +141,11 @@ struct DocumentTest : public testing::Test
         s.Add(selection1);
         s.Add(selection2);
         return EditorState{c, s};
+    }
+
+    EditorState MakeEditorState(ElementId id)
+    {
+        return EditorState{CaretState{id}, SelectionState{}};
     }
 
     int argc = 0;

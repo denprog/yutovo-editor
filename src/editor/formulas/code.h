@@ -1,0 +1,40 @@
+#ifndef __CODE_H__
+#define __CODE_H__
+
+#include "code_row.h"
+
+namespace yutovo
+{
+
+class Code : public CodeRow
+{
+public:
+    Code(Document* _document);
+    Code(Element* parent);
+    Code(const Code& source) = default;
+
+    virtual Element* Clone();
+
+    virtual Element* Create(Element* parent);
+
+    virtual void Draw() const;
+
+    virtual void AfterInsert();
+
+    virtual void UpdateRect();
+
+    virtual bool HasCaretState();
+    virtual bool HasLastCaretState();
+
+    virtual StringFormatPtr GetStringFormat();
+    virtual FormulaFormatPtr GetFormulaFormat();
+
+    virtual std::string ToHtml();
+
+protected:
+    FormulaFormatPtr formula_format;
+};
+
+}
+
+#endif

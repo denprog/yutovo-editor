@@ -72,13 +72,18 @@ bool String::Copy(std::vector<ElementPtr>& copy)
         copy.push_back(ElementPtr(Clone()));
         return true;
     }
-    copy.push_back(ElementPtr(new String(parent, ((StringElements*)elements.get())->str.substr(start, size), format)));
+    copy.push_back(ElementPtr(Create(parent, ((StringElements*)elements.get())->str.substr(start, size), format)));
     return true;
 }
 
 Element* String::Create(Element* parent)
 {
     return new String(parent);
+}
+
+Element* String::Create(Element* parent, const std::string _str, const StringFormatPtr _format)
+{
+    return new String(parent, _str, _format);
 }
 
 void String::Remake(bool with_elements)
@@ -216,6 +221,8 @@ bool String::DeleteElements(bool left, bool with_undo)
         undo_str = str.substr(start, size);
         elements->RemoveAt(start, size);
         pos = start;
+        if (elements->Count() == 0)
+            parent->Remake(false);
     }
     else if (caret->IsInsideElement(id))
     {
@@ -231,7 +238,10 @@ bool String::DeleteElements(bool left, bool with_undo)
             elements->RemoveAt(caret_pos, 1);
             pos = caret_pos;
         }
-        caret->SetPos(pos, true);
+        if (elements->Count() == 0)
+            parent->Remake(false);
+        else
+            caret->SetPos(pos, true);
     }
 
     if (with_undo)
@@ -240,7 +250,10 @@ bool String::DeleteElements(bool left, bool with_undo)
             document->InsertText(undo_str, format, ElementId{});
         else
             document->InsertText(undo_str, format, elements->GetElementId(pos));
-        document->PushEditorState(CaretState(elements->GetElementId(pos)), true);
+        if (elements->Count() > 0)
+            document->PushEditorState(CaretState(elements->GetElementId(pos)), true);
+        else
+            document->PushEditorState(caret->GetCaretState(), true);
     }
 
     document->Remake(parent->id, true);
@@ -297,7 +310,7 @@ bool String::Split(const uint max_left_width)
             if (s.width <= max_left_width)
             {
                 //create new string and insert it after this one
-                ElementPtr el(new String(parent, str.substr(i + 1), format));
+                ElementPtr el(Create(parent, str.substr(i + 1), format));
                 int pos = parent->elements->GetElementPos(id);
                 parent->elements->Insert(el, pos + 1);
                 str = str.substr(0, i + 1);
@@ -348,7 +361,7 @@ bool String::SplitAt(const uint pos)
         cs_pos = caret->current_pos;
     
     std::string& str = ((StringElements*)elements.get())->str;
-    ElementPtr el(new String(parent, str.substr(pos), format));
+    ElementPtr el(Create(parent, str.substr(pos), format));
     int p = parent->elements->GetElementPos(id);
     parent->elements->Insert(el, p + 1);
     str = str.substr(0, pos);
@@ -497,6 +510,9 @@ void StringElements::Insert(ElementPtr element, const uint pos)
             caret_state.SetState(parent->id, caret_state.GetPos() + s.length());
     }
     str.insert(pos, s);
+#ifdef DEBUG
+    parent->to_str = parent->ToText();
+#endif
 }
 
 void StringElements::Remove(const ElementPtr element)
@@ -519,14 +535,20 @@ void StringElements::RemoveAt(const uint pos, const int size)
 
     str.erase(str.begin() + pos, str.begin() + pos + size);
     selection->Remove(parent->id, pos, size);
+#ifdef DEBUG
+    parent->to_str = parent->ToText();
+#endif
 }
 
 void StringElements::Clear()
 {
     str = "";
+#ifdef DEBUG
+    parent->to_str = parent->ToText();
+#endif
 }
 
-uint StringElements::Count()
+uint StringElements::Count() const
 {
     return str.length();
 }
@@ -540,7 +562,7 @@ Rect StringElements::GetCaretRect(const uint pos) const
 void StringElements::DrawCaret(const uint pos) const
 {
     Rect r = parent->GetAbsoluteRect(GetCaretRect(pos));
-    parent->window->DrawLine(r.left, r.top, r.left, r.GetBottom() - 1);
+    parent->window->DrawLine(r.left, r.top, r.left, r.GetBottom() - 1, Color::Black());
 }
 
 Rect StringElements::GetRect()

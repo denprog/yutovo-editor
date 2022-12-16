@@ -45,6 +45,8 @@ private:
     void About();
 
 private slots:
+    void OnInsertCode();
+
     void OnCurrentParagraphFormatChanged(const QString& format);
     void OnCurrentFontChanged(const QFont& font);
     void OnCurrentSizeChanged(const QString& size);
