@@ -9,8 +9,7 @@
 
 DocumentWidget::DocumentWidget(QWidget *parent) :
     QWidget(parent),
-    window(this),
-    document(&window)
+    window(this)
 {
     connect(&window, &QtWindow::DocumentUpdated, this, &DocumentWidget::OnDocumentUpdated);
     connect(&window, &QtWindow::WindowUpdated, this, &DocumentWidget::OnWindowUpdated);
@@ -19,15 +18,21 @@ DocumentWidget::DocumentWidget(QWidget *parent) :
     setMouseTracking(true);
 }
 
+DocumentPtr DocumentWidget::CreateDocument()
+{
+    document.reset(new Document(&window));
+    return document;
+}
+
 void DocumentWidget::InsertText(const std::string& str, const StringFormatPtr string_format)
 {
-    document.InsertText(str, string_format, true);
+    document->InsertText(str, string_format, true);
 }
 
 bool DocumentWidget::GetElementAtCoords(const int x, const int y, ElementId& id)
 {
     auto p = window.GetDocumentPoint();
-    return document.GetElementAtCoords(x + p.x, y + p.y, id);
+    return document->GetElementAtCoords(x + p.x, y + p.y, id);
 }
 
 void DocumentWidget::OnDocumentUpdated(const Rect rect)
@@ -38,7 +43,7 @@ void DocumentWidget::OnDocumentUpdated(const Rect rect)
 void DocumentWidget::OnWindowUpdated()
 {
     update(rect());
-    document.Redraw();
+    document->Redraw();
 }
 
 void DocumentWidget::paintEvent(QPaintEvent *event)
@@ -53,7 +58,7 @@ void DocumentWidget::paintEvent(QPaintEvent *event)
 
 void DocumentWidget::resizeEvent(QResizeEvent *event)
 {
-    document.Resize(event->size().width(), event->size().height());
+    document->Resize(event->size().width(), event->size().height());
 }
 
 void DocumentWidget::keyPressEvent(QKeyEvent *event)
@@ -62,36 +67,36 @@ void DocumentWidget::keyPressEvent(QKeyEvent *event)
     {
     case Qt::Key_Left:
         if (event->modifiers() & Qt::ControlModifier)
-            document.MoveCaretWordLeft(event->modifiers() & Qt::ShiftModifier);
+            document->MoveCaretWordLeft(event->modifiers() & Qt::ShiftModifier);
         else
-            document.MoveCaretLeft(event->modifiers() & Qt::ShiftModifier);
+            document->MoveCaretLeft(event->modifiers() & Qt::ShiftModifier);
         break;
     case Qt::Key_Right:
         if (event->modifiers() & Qt::ControlModifier)
-            document.MoveCaretWordRight(event->modifiers() & Qt::ShiftModifier);
+            document->MoveCaretWordRight(event->modifiers() & Qt::ShiftModifier);
         else
-            document.MoveCaretRight(event->modifiers() & Qt::ShiftModifier);
+            document->MoveCaretRight(event->modifiers() & Qt::ShiftModifier);
         break;
     case Qt::Key_Up:
-        document.MoveCaretUp(event->modifiers() & Qt::ShiftModifier);
+        document->MoveCaretUp(event->modifiers() & Qt::ShiftModifier);
         break;
     case Qt::Key_Down:
-        document.MoveCaretDown(event->modifiers() & Qt::ShiftModifier);
+        document->MoveCaretDown(event->modifiers() & Qt::ShiftModifier);
         break;
     case Qt::Key_Home:
-        document.MoveCaretHome(event->modifiers() & Qt::ShiftModifier);
+        document->MoveCaretHome(event->modifiers() & Qt::ShiftModifier);
         break;
     case Qt::Key_End:
-        document.MoveCaretEnd(event->modifiers() & Qt::ShiftModifier);
+        document->MoveCaretEnd(event->modifiers() & Qt::ShiftModifier);
         break;
     case Qt::Key_Backspace:
-        document.DeleteElements(true, true, false);
+        document->DeleteElements(true, true, false);
         break;
     case Qt::Key_Delete:
-        document.DeleteElements(false, true, false);
+        document->DeleteElements(false, true, false);
         break;
     case Qt::Key_Return:
-        document.InsertParagraph(true);
+        document->InsertParagraph(true);
         break;
     default:
         QString str = event->text();
@@ -101,7 +106,7 @@ void DocumentWidget::keyPressEvent(QKeyEvent *event)
                 return;
         }
         if (!str.isEmpty())
-            document.InsertText(str.toUtf8().data(), true);
+            document->InsertText(str.toUtf8().data(), true);
         break;
     }
 }
@@ -109,7 +114,7 @@ void DocumentWidget::keyPressEvent(QKeyEvent *event)
 void DocumentWidget::mousePressEvent(QMouseEvent *event)
 {
     if (event->buttons() == Qt::LeftButton)
-        document.MoveCaret((int)event->pos().x(), (int)event->pos().y());
+        document->MoveCaret((int)event->pos().x(), (int)event->pos().y());
 }
 
 void DocumentWidget::mouseMoveEvent(QMouseEvent *event)
@@ -120,7 +125,7 @@ void DocumentWidget::mouseMoveEvent(QMouseEvent *event)
         setCursor(Qt::ArrowCursor);
         return;
     }
-    if (document.GetElementType(id) == ElementType::STRING)
+    if (document->GetElementType(id) == ElementType::STRING)
         setCursor(Qt::IBeamCursor);
     else
         setCursor(Qt::ArrowCursor);

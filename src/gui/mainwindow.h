@@ -67,7 +67,7 @@ private:
 private:
     Ui::MainWindow *ui;
     DocumentWidget* document_widget;
-    Document* document = nullptr;
+    DocumentPtr document;
 
     QString current_file_name;
 

@@ -15,7 +15,7 @@ Element::Element(Document* _document) :
     parent(nullptr),
     document(_document),
     window(_document->window),
-    caret(&document->caret),
+    caret(document->caret),
     selection(&document->selection),
     elements(new Elements(this))
 {
@@ -25,7 +25,7 @@ Element::Element(Element* _parent) :
     parent(_parent),
     document(parent ? parent->document : nullptr), //parent == null when pasting from clipboard
     window(document ? document->window : nullptr),
-    caret(document ? &document->caret : nullptr),
+    caret(document ? document->caret : nullptr),
     selection(document ? &document->selection : nullptr),
     elements(new Elements(this))
 {
@@ -38,7 +38,7 @@ Element::Element(const Element& source) :
     type(source.type),
     id(source.id),
     editable(source.editable),
-    caret(&document->caret),
+    caret(document->caret),
     selection(&document->selection)
 {
     elements.reset(source.elements->Clone(this)); //deep copy
@@ -458,14 +458,14 @@ FormulaFormatPtr Element::GetFormulaFormat()
 
 Elements::Elements(Element* _parent) :
     parent(_parent),
-    caret(&parent->document->caret),
-    selection(&parent->document->selection)
+    caret(parent->document ? parent->document->caret : nullptr),
+    selection(parent->document ? &parent->document->selection : nullptr)
 {
 }
 
 Elements::Elements(const Elements& source) :
     parent(source.parent),
-    caret(&parent->document->caret),
+    caret(parent->document->caret),
     selection(&parent->document->selection)
 {
     for (auto& el : source.elements)

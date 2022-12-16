@@ -413,7 +413,7 @@ bool RedrawTask::Execute()
     logger->Debug("Execute RedrawTask element_id={}", IdToString(element_id));
     text->window->DrawFillRect(element->GetAbsoluteRect(), Color::White());
     element->Draw();
-    text->document->caret.Show();
+    text->document->caret->Show();
     text->window->Update(element->GetAbsoluteRect());
     if (move_into_view)
         text->document->UpdateCaretView();
@@ -438,7 +438,7 @@ bool ResizeTask::Execute()
 
 //MoveCaretTask
 
-MoveCaretTask::MoveCaretTask(ElementPtr _text, Caret* _caret, MoveCaretDir _dir, bool _visible) : 
+MoveCaretTask::MoveCaretTask(ElementPtr _text, CaretPtr _caret, MoveCaretDir _dir, bool _visible) : 
     Task(_text),
     document(_text->document),
     caret(_caret),
@@ -447,13 +447,13 @@ MoveCaretTask::MoveCaretTask(ElementPtr _text, Caret* _caret, MoveCaretDir _dir,
 {
 }
 
-MoveCaretTask::MoveCaretTask(ElementPtr _text, Caret* _caret, MoveCaretDir _dir, bool _visible, bool _select) :
+MoveCaretTask::MoveCaretTask(ElementPtr _text, CaretPtr _caret, MoveCaretDir _dir, bool _visible, bool _select) :
     MoveCaretTask(_text, _caret, _dir, _visible)
 {
     select = _select;
 }
 
-MoveCaretTask::MoveCaretTask(ElementPtr _text, Caret* _caret, Point _point) :
+MoveCaretTask::MoveCaretTask(ElementPtr _text, CaretPtr _caret, Point _point) :
     Task(_text),
     document(_text->document),
     caret(_caret),
@@ -524,7 +524,7 @@ bool MoveCaretTask::Execute()
 
     text->document->UpdateCaretView();
     text->document->UpdateLastSelection();
-    text->document->caret.Show();
+    text->document->caret->Show();
 
     if (!select)
     {
@@ -551,7 +551,7 @@ SetEditorStateTask::SetEditorStateTask(ElementPtr _text, const CaretState& _care
 
 bool SetEditorStateTask::Execute()
 {
-    text->document->caret.SetState(caret_state);
+    text->document->caret->SetState(caret_state);
     text->document->selection.Set(selection_state);
 
     text->document->UpdateCaretView();

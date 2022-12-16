@@ -149,14 +149,14 @@ struct MoveCaretTask : Task
         DOCUMENT_END
     };
 
-    MoveCaretTask(ElementPtr _text, Caret* _caret, MoveCaretDir _dir, bool _visible);
-    MoveCaretTask(ElementPtr _text, Caret* _caret, MoveCaretDir _dir, bool _visible, bool _select);
-    MoveCaretTask(ElementPtr _text, Caret* _caret, Point _point);
+    MoveCaretTask(ElementPtr _text, CaretPtr _caret, MoveCaretDir _dir, bool _visible);
+    MoveCaretTask(ElementPtr _text, CaretPtr _caret, MoveCaretDir _dir, bool _visible, bool _select);
+    MoveCaretTask(ElementPtr _text, CaretPtr _caret, Point _point);
 
     virtual bool Execute();
 
     Document* document;
-    Caret* caret;
+    CaretPtr caret;
     MoveCaretDir dir = MoveCaretDir::NONE;
     Point point{-1, -1};
     bool visible = false;

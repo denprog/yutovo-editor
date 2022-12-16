@@ -24,19 +24,11 @@ Document::Document(Window* _window) :
     formula_formats(new FormulaFormats(string_formats)),
     current_paragraph_format(paragraph_formats->GetFormat("Text body")),
     current_formula_format(formula_formats->GetFormat("Calculator")),
-    text(new Text(this)),
-    caret(_window, text),
     selection(this),
     last_selection(this),
     logger(Logger::GetInstance())
 {
     logger->Info("Document start");
-
-    caret.MoveToDocumentBegin(nullptr);
-
-    main_loop = std::thread(&Document::MainLoop, this);
-
-    Remake(text->id, true);
 }
 
 Document::~Document()
@@ -45,6 +37,19 @@ Document::~Document()
     next_circle.notify_one();
     main_loop.join();
     logger->Info("Document end");
+}
+
+void Document::Start()
+{
+    caret.reset(new Caret(this));
+    text.reset(new Text(this));
+    caret->text = text;
+
+    caret->MoveToDocumentBegin(nullptr);
+
+    main_loop = std::thread(&Document::MainLoop, this);
+
+    Remake(text->id, true);
 }
 
 void Document::MainLoop()
@@ -59,7 +64,7 @@ void Document::MainLoop()
             {
                 if (next_circle.wait_for(lock, caret_settings.blink_delay * 1ms) == std::cv_status::timeout) //wait for tasks
                 {
-                    caret.Blink();
+                    caret->Blink();
                     continue;
                 }
             }
@@ -91,7 +96,7 @@ void Document::MainLoop()
             }
             if (!temp_undo_tasks.empty())
             {
-                caret.Hide(); //caret will be shown on Redraw or caret moving
+                caret->Hide(); //caret will be shown on Redraw or caret moving
                 for (TaskPtr t : temp_undo_tasks)
                 {
                     if (!t->Execute())
@@ -134,7 +139,7 @@ void Document::MainLoop()
             }
             if (!temp_redo_tasks.empty())
             {
-                caret.Hide(); //caret will be shown on Redraw or caret moving
+                caret->Hide(); //caret will be shown on Redraw or caret moving
                 for (TaskPtr t : temp_redo_tasks)
                 {
                     cur_task_id = t->id;
@@ -155,7 +160,7 @@ void Document::MainLoop()
 
         if (!temp_tasks.empty())
         {
-            caret.Hide(); //caret will be shown on Redraw or caret moving
+            caret->Hide(); //caret will be shown on Redraw or caret moving
             //execute all the tasks
             for (auto& t : temp_tasks)
             {
@@ -198,7 +203,7 @@ void Document::InsertPage(bool with_undo)
 
 void Document::InsertParagraph(bool with_undo, bool undo)
 {
-    auto page = FindParent(caret.GetCaretState().id, ElementType::PAGE);
+    auto page = FindParent(caret->GetCaretState().id, ElementType::PAGE);
     InsertElement(new Paragraph(page.get()), with_undo, undo);
 }
 
@@ -359,7 +364,7 @@ void Document::ChangeParagraphFormat(const ParagraphFormatPtr format, bool with_
 
 void Document::PushEditorState(bool undo)
 {
-    PushEditorState(caret.GetCaretState(), selection.GetState(), undo);
+    PushEditorState(caret->GetCaretState(), selection.GetState(), undo);
 }
 
 void Document::PushEditorState(const CaretState& caret_state, bool undo)
@@ -369,7 +374,7 @@ void Document::PushEditorState(const CaretState& caret_state, bool undo)
 
 void Document::PushEditorState(const SelectionState& selection_state, bool undo)
 {
-    PushEditorState(caret.GetCaretState(), selection_state, undo);
+    PushEditorState(caret->GetCaretState(), selection_state, undo);
 }
 
 void Document::PushEditorState(const CaretState& caret_state, const SelectionState& selection_state, bool undo)
@@ -482,7 +487,7 @@ bool Document::GetCurrentFormulaFormat(FormulaFormatPtr& format)
 void Document::UpdateFormats()
 {
     std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
-    CaretState c = caret.GetCaretState();
+    CaretState c = caret->GetCaretState();
     ElementPtr el = GetParent(c.id);
     if (!el)
     {
@@ -622,7 +627,7 @@ void Document::MoveCaret(MoveCaretTask::MoveCaretDir dir, bool select)
 {
     {
         std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
-        tasks.emplace_back(new MoveCaretTask(text, &caret, dir, true, select));
+        tasks.emplace_back(new MoveCaretTask(text, caret, dir, true, select));
     }
     next_circle.notify_one();
 
@@ -685,7 +690,7 @@ void Document::MoveCaret(const int x, const int y)
 {
     {
         std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
-        tasks.emplace_back(new MoveCaretTask(text, &caret, Point{x, y}));
+        tasks.emplace_back(new MoveCaretTask(text, caret, Point{x, y}));
     }
     next_circle.notify_one();
 
@@ -698,7 +703,7 @@ void Document::SetCaretVisible(bool visible)
 {
     {
         std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
-        tasks.emplace_back(new MoveCaretTask(text, &caret, MoveCaretTask::MoveCaretDir::NONE, visible));
+        tasks.emplace_back(new MoveCaretTask(text, caret, MoveCaretTask::MoveCaretDir::NONE, visible));
     }
     next_circle.notify_one();
 }
@@ -967,7 +972,7 @@ StringFormatPtr Document::GetStringFormat(const uint id)
 
 EditorState Document::GetEditorState()
 {
-    return {caret.GetCaretState(), selection.GetState()};
+    return {caret->GetCaretState(), selection.GetState()};
 }
 
 #ifdef DEBUG
@@ -1027,10 +1032,10 @@ void Document::WaitLoad()
 
 void Document::UpdateCaretView()
 {
-    Element* element = caret.current_element;
+    Element* element = caret->current_element;
     if (!element)
         return;
-    Rect r = element->GetAbsoluteRect(element->GetCaretRect(caret.current_pos));
+    Rect r = element->GetAbsoluteRect(element->GetCaretRect(caret->current_pos));
     Rect view_port = text->window->GetViewPort(0);
     Point p = window->GetDocumentPoint();
 
@@ -1040,26 +1045,26 @@ void Document::UpdateCaretView()
     //move view port in the view if the caret is outside of it
     if (r.left < p.x + view_port.left)
     {
-        caret.Hide(); //caret will be shown on Redraw
+        caret->Hide(); //caret will be shown on Redraw
         window->MoveDocument(r.left - view_port.left - 1, p.y);
         Redraw(text->id, false);
     }
     else if (r.GetRight() > view_port.GetRight() + p.x)
     {
-        caret.Hide();
+        caret->Hide();
         window->MoveDocument(r.GetRight() - view_port.GetRight(), p.y);
         Redraw(text->id, false);
     }
 
     if (r.top < p.y + view_port.top)
     {
-        caret.Hide();
+        caret->Hide();
         window->MoveDocument(p.x, r.top - view_port.top - 1);
         Redraw(text->id, false);
     }
     else if (r.GetBottom() > view_port.GetBottom() + p.y)
     {
-        caret.Hide();
+        caret->Hide();
         window->MoveDocument(p.x, r.GetBottom() - view_port.GetBottom());
         Redraw(text->id, false);
     }

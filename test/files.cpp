@@ -296,7 +296,7 @@ TEST_F(DocumentTest, files4)
     document.MoveCaretToDocumentEnd(false);
     document.WaitCaretMoving();
     ParagraphFormat f;
-    document.GetParagraphFormat(document.caret.current_element->id, f);
+    document.GetParagraphFormat(document.caret->current_element->id, f);
     ASSERT_TRUE(f.name == "Monospace") << f.name;
 }
 
