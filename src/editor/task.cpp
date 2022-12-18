@@ -67,6 +67,8 @@ bool InsertElementsTask::Execute()
 
     if (before_state.IsEmpty())
         before_state = text->document->GetEditorState();
+    else
+        text->document->SetEditorState(before_state); //it is redo
     
     CaretState caret_state = before_state.caret_state;
     SelectionState& selection_state = before_state.selection_state;
@@ -140,6 +142,8 @@ bool DeleteElementsTask::Execute()
 
     if (before_state.IsEmpty())
         before_state = text->document->GetEditorState();
+    else
+        text->document->SetEditorState(before_state); //it is redo
 
     CaretState caret_state = before_state.caret_state;
     SelectionState& selection_state = before_state.selection_state;
@@ -200,6 +204,8 @@ bool InsertFormulasTask::Execute()
 
     if (before_state.IsEmpty())
         before_state = document->GetEditorState();
+    else
+        text->document->SetEditorState(before_state); //it is redo
     
     CaretState& caret_state = before_state.caret_state;
     SelectionState& selection_state = before_state.selection_state;

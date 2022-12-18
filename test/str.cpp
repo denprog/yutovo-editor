@@ -647,7 +647,7 @@ TEST_F(DocumentTest, inserts4)
     document.WaitUndo();
     ASSERT_TRUE(document.ToHtml() == 
         "<body><p>"\
-        "<span style=\"font-family:'Arial';font-size:24px;\"></span>"\
+        "<span style=\"font-family:'Arial';font-size:22px;\"></span>"\
         "</p></body>") << 
         document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 0)) << document.GetEditorState().ToString();
@@ -795,6 +795,48 @@ TEST_F(DocumentTest, inserts7)
         "</p></body>") << 
         document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 1, 4)) << document.GetEditorState().ToString();
+
+    document.MoveCaretToDocumentBegin(false);
+    document.WaitCaretMoving();
+    document.InsertText("T", true);
+    document.MoveCaretToDocumentEnd(false);
+    document.WaitCaretMoving();
+    document.InsertText("d", true);
+    document.WaitMainLoop();
+    std::this_thread::sleep_for(100ms);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body><p>"\
+        "<span style=\"font-family:'Arial';font-size:24px;\">TText</span>"\
+        "<span style=\"font-family:'Arial';font-size:24px;\"><strong>Boldd</strong></span>"\
+        "</p></body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 1, 5)) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    document.Undo();
+    document.WaitUndo();
+    std::this_thread::sleep_for(100ms);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body><p>"\
+        "<span style=\"font-family:'Arial';font-size:24px;\">Text</span>"\
+        "<span style=\"font-family:'Arial';font-size:24px;\"><strong>Bold</strong></span>"\
+        "</p></body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 0)) << document.GetEditorState().ToString();
+
+    document.Redo();
+    document.WaitRedo();
+    document.Redo();
+    document.WaitRedo();
+    std::this_thread::sleep_for(100ms);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body><p>"\
+        "<span style=\"font-family:'Arial';font-size:24px;\">TText</span>"\
+        "<span style=\"font-family:'Arial';font-size:24px;\"><strong>Boldd</strong></span>"\
+        "</p></body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 1, 5)) << document.GetEditorState().ToString();
 }
 
 TEST_F(DocumentTest, fonts1)
