@@ -138,6 +138,7 @@ public:
     void SetCurrentParagraphFormat(const std::string& name);
 
     EditorState GetEditorState();
+    void SetEditorState(EditorState& state);
 
 private:
     void MainLoop();

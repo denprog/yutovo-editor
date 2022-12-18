@@ -114,6 +114,7 @@ bool Row::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo)
             elements->Insert(_elements[i], caret_state.GetPos() + i);
             if (elements->Get(caret_state.GetPos() + i)->GetLastCaretState(c, nullptr))
                 caret->SetState(c);
+            _elements[i]->AfterInsert();
         }
     }
     else
@@ -227,11 +228,13 @@ bool Row::DeleteElements(bool left, bool with_undo)
                 return parent->DeleteElements(left, with_undo);
             else
             {
-                int p = elements->GetElementPos(document->GetParent(before_state.id)->id);
+                int p = elements->GetElementPos(before_state.id);
+                if (p == -1)
+                    p = elements->GetElementPos(document->GetParent(before_state.id)->id);
                 if (p < elements->Count())
                 {
                     auto el = elements->Get(p + 1);
-                    if (el->CanContinueSelection())
+                    if (el && el->CanContinueSelection())
                     {
                         CaretState c;
                         if (el->GetFirstCaretState(c, nullptr))
@@ -246,10 +249,17 @@ bool Row::DeleteElements(bool left, bool with_undo)
                         }
                     }
                     else
-                        elements->RemoveAt(pos, 1);
+                    {
+                        elements->RemoveAt(p, 1);
+                    }
                 }
                 else
-                    elements->RemoveAt(pos, 1);
+                {
+                    elements->RemoveAt(p, 1);
+                }
+
+                if (elements->Count() == 0)
+                    Remake(false);
             }
         }
 

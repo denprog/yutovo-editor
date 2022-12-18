@@ -413,6 +413,8 @@ ElementPtr Document::GetElement(const ElementId& _id)
 
 ElementPtr Document::GetParent(const ElementId& _id)
 {
+    if (_id.size() == 1)
+        return nullptr;
     if (_id.size() == 2)
         return text;
     ElementPtr el = text->elements->Get(_id[1]);
@@ -973,6 +975,12 @@ StringFormatPtr Document::GetStringFormat(const uint id)
 EditorState Document::GetEditorState()
 {
     return {caret->GetCaretState(), selection.GetState()};
+}
+
+void Document::SetEditorState(EditorState& state)
+{
+    caret->SetState(state.caret_state);
+    selection.Set(state.selection_state);
 }
 
 #ifdef DEBUG
