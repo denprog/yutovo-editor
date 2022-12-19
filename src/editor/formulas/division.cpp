@@ -21,14 +21,22 @@ Division::Division(Document* _document) :
     Init();
 }
 
+Division::Division(const Division& source) :
+    Formula(source),
+    upper(elements->Get(0).get()),
+    shape((Shape*)elements->Get(1).get()),
+    lower(elements->Get(2).get())
+{
+}
+
 void Division::Init()
 {
-    upper.reset(new CodeRow(this));
-    elements->Add(upper);
-    shape.reset(new Shape(this));
-    elements->Add(shape);
-    lower.reset(new CodeRow(this));
-    elements->Add(lower);
+    upper = new CodeRow(this);
+    elements->Add(ElementPtr(upper));
+    shape = new Shape(this);
+    elements->Add(ElementPtr(shape));
+    lower = new CodeRow(this);
+    elements->Add(ElementPtr(lower));
 }
 
 Element* Division::Clone()
@@ -74,7 +82,7 @@ void Division::Remake(bool with_elements)
     document->Remake(parent->id, false);
 }
 
-void Division::AfterInsert()
+bool Division::AfterInsert(bool with_undo)
 {
     if (upper->elements->Count() == 1)
     {
@@ -82,10 +90,35 @@ void Division::AfterInsert()
         if (str && str->elements->Count() == 0)
         {
             CaretState c;
-            if (upper->GetFirstCaretState(c, nullptr))
-                caret->SetState(c);
+            if (caret->current_element)
+            {
+                c = caret->GetCaretState();
+                //move the current element in the upper one
+                if (c.id != id && c.IsInsideElement(parent->id) && c.GetPosInElement(parent->id) < parent->elements->Count())
+                {
+                    if (with_undo)
+                    {
+                        document->InsertFormula(caret->current_element->Clone(), false, true);
+                        document->PushEditorState(CaretState(caret->current_element->id), true);
+                    }
+                    upper->elements->RemoveAt(0, 1);
+                    upper->elements->Move(document->GetElement(caret->current_element->id), 0);
+                }
+            }
+            if (upper->elements->Get(0)->elements->Count() == 0)
+            {
+                if (upper->GetFirstCaretState(c, nullptr))
+                    caret->SetState(c);
+            }
+            else
+            {
+                if (lower->GetFirstCaretState(c, nullptr))
+                    caret->SetState(c);
+            }
+            return true;
         }
     }
+    return false;
 }
 
 bool Division::GetTopCaretState(const int x, const int y, CaretState& caret_state, Selection* select)

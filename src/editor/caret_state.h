@@ -36,6 +36,7 @@ struct CaretState
     ElementId GetElement() const;
     int GetPos(const ElementId& _id) const;
     int GetElementPos(const ElementId& _id) const;
+    int GetPosInElement(const ElementId& _id) const;
     int GetStatePos(const ElementId& _id) const;
     ElementId GetElementAtPos(const uint pos) const;
     ElementId GetTailId(const uint pos) const;

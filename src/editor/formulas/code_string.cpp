@@ -6,21 +6,25 @@ namespace yutovo
 CodeString::CodeString(Element* parent) :
     String(parent)
 {
+    type = ElementType::CODE_STRING;
 }
 
 CodeString::CodeString(Element* parent, const std::string str) :
     String(parent, str)
 {
+    type = ElementType::CODE_STRING;
 }
 
 CodeString::CodeString(Element* parent, const std::string str, const StringFormatPtr _format) :
     String(parent, str, _format)
 {
+    type = ElementType::CODE_STRING;
 }
 
 CodeString::CodeString(Document* _document, const std::string str, const StringFormatPtr _format) :
     String(_document, str, _format)
 {
+    type = ElementType::CODE_STRING;
 }
 
 Element* CodeString::Clone()

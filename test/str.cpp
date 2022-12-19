@@ -535,15 +535,16 @@ TEST_F(DocumentTest, inserts2)
     document.MoveCaretLeft(false);
     for (int i = 0; i < 3; ++i)
         document.MoveCaretLeft(true);
+    document.WaitCaretMoving();
     document.InsertText("h", true);
     document.WaitMainLoop();
     ASSERT_TRUE(document.ToHtml() == 
         "<body><p>"\
-        "<span style=\"font-family:'Arial';font-size:22px;\">Te</span>"\
-        "<span style=\"font-family:'Times New Roman';font-size:34px;\"><strong>hld</strong></span>"\
+        "<span style=\"font-family:'Arial';font-size:22px;\">Teh</span>"\
+        "<span style=\"font-family:'Times New Roman';font-size:34px;\"><strong>ld</strong></span>"\
         "</p></body>") << 
         document.ToHtml();
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 1, 1)) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 3)) << document.GetEditorState().ToString();
 }
 
 TEST_F(DocumentTest, inserts3)

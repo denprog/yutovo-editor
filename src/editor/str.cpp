@@ -158,7 +158,7 @@ bool String::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo)
 {
     if (!document->caret->IsInsideElement(id))
         return parent->InsertElements(_elements, with_undo);
-    if (_elements.size() == 1 && _elements[0]->type == ElementType::STRING)
+    if (_elements.size() == 1 && document->IsString(_elements[0]))
     {
         String* s = dynamic_cast<String*>(_elements[0].get());
         if (elements->Count() == 0)
@@ -394,7 +394,7 @@ bool String::SplitAt(const uint pos)
 
 bool String::Merge(const ElementPtr with_element)
 {
-    if (with_element->type != ElementType::STRING)
+    if (!document->IsString(with_element))
         return false;
     //merge two strings if those formats are equal
     String* el = (String*)with_element.get();
@@ -500,7 +500,7 @@ void StringElements::Add(ElementPtr element)
 
 void StringElements::Insert(ElementPtr element, const uint pos)
 {
-    assert(element->type == ElementType::STRING);
+    assert(parent->document->IsString(element));
     assert(str.length() >= pos);
     CaretState caret_state = caret->GetCaretState();
     std::string s = dynamic_cast<String*>(element.get())->ToText();

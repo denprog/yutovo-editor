@@ -10,13 +10,13 @@ namespace yutovo
 Row::Row(Document* _document) :
     Element(_document)
 {
+    type = ElementType::ROW;
 }
 
 Row::Row(Element* _parent) :
     Element(_parent)
 {
     type = ElementType::ROW;
-
     AddEmptyElement();
 }
 
@@ -37,7 +37,7 @@ void Row::Remake(bool with_elements)
         for (size_t i = 0; i < elements->Count();)
         {
             auto el = (*elements)[i];
-            if (el->type == ElementType::STRING)
+            if (document->IsString(el))
             {
                 if (el->elements->Count() == 0 && elements->Count() > 1)
                 {
@@ -112,32 +112,45 @@ bool Row::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo)
         for (size_t i = 0; i < _elements.size(); ++i)
         {
             elements->Insert(_elements[i], caret_state.GetPos() + i);
+            if (i == 0 && _elements[0]->AfterInsert(with_undo))
+                continue;
             if (elements->Get(caret_state.GetPos() + i)->GetLastCaretState(c, nullptr))
                 caret->SetState(c);
-            _elements[i]->AfterInsert();
         }
     }
     else
     {
         for (size_t i = 0; i < _elements.size(); ++i)
         {
+            ElementPtr ins(_elements[i]);
+            bool b = false;
             uint p = caret_state.GetElementPos(el->id);
             if (el->GetFirstCaretState(c, nullptr) && c == caret_state)
             {
-                elements->Insert(_elements[i], p + i);
-                if (elements->Get(p + i)->GetLastCaretState(c, nullptr))
-                    caret->SetState(c);
-                _elements[i]->AfterInsert();
+                elements->Insert(ins, p + i);
+                Remake(false);
                 if (with_undo)
                 {
                     document->DeleteElements(false, false, true);
                     document->PushEditorState(SelectionState(id, p + i, 1), true);
                 }
+                if (i == 0)
+                    b = ins->AfterInsert(with_undo);
+                if (!b && elements->Get(p + i)->GetLastCaretState(c, nullptr))
+                    caret->SetState(c);
             }
             else if (el->GetLastCaretState(c, nullptr) && c == caret_state)
             {
-                elements->Insert(_elements[i], p + i + 1);
-                if (elements->Get(p + i + 1)->GetLastCaretState(c, nullptr))
+                elements->Insert(ins, p + i + 1);
+                Remake(false);
+                if (with_undo)
+                {
+                    document->DeleteElements(false, false, true);
+                    document->PushEditorState(SelectionState(id, p + i + 1, 1), true);
+                }
+                if (i == 0)
+                    b = ins->AfterInsert(with_undo);
+                if (!b && elements->Get(p + i + 1)->GetLastCaretState(c, nullptr))
                     caret->SetState(c);
                 if (elements->Count() > p + i + 2)
                 {
@@ -145,17 +158,12 @@ bool Row::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo)
                     ElementPtr el2 = elements->Get(p + i + 2);
                     el1->Merge(el2);
                 }
-                if (with_undo)
-                {
-                    document->DeleteElements(false, false, true);
-                    document->PushEditorState(SelectionState(id, p + i + 1, 1), true);
-                }
             }
             else
             {
                 if (el->SplitAt(caret_state.GetPos()))
                 {
-                    elements->Insert(_elements[i], p + i + 1);
+                    elements->Insert(ins, p + i + 1);
                     if (elements->Get(p + i + 1)->GetLastCaretState(c, nullptr))
                         caret->SetState(c);
                 }
@@ -182,8 +190,10 @@ bool Row::DeleteElements(bool left, bool with_undo)
         if (!left)
         {
             if (before_state.GetPos() == 0 && elements->Count() == 1 && elements->Get(0)->type == ElementType::STRING && 
-                elements->Get(0)->elements->Count() == 0)
+                elements->Get(0)->type == ElementType::CODE_STRING && elements->Get(0)->elements->Count() == 0)
+            {
                 return parent->DeleteElements(left, with_undo);
+            }
         }
 
         CaretState first_state, last_state;

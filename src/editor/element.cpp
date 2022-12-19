@@ -151,8 +151,9 @@ void Element::UpdateStringFormat(const StringFormatPtr base_format, const String
         elements->Get(i)->UpdateStringFormat(base_format, new_format);
 }
 
-void Element::AfterInsert()
+bool Element::AfterInsert(bool with_undo)
 {
+    return false;
 }
 
 bool Element::GetFirstCaretState(CaretState& caret_state, Selection* select)

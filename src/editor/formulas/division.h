@@ -12,6 +12,7 @@ class Division : public Formula
 public:
     Division(Element* _parent);
     Division(Document* _document);
+    Division(const Division& source);
 
     void Init();
 
@@ -22,7 +23,7 @@ public:
     virtual void Draw() const;
     virtual void Remake(bool with_elements);
 
-    virtual void AfterInsert();
+    virtual bool AfterInsert(bool with_undo);
 
     virtual bool GetTopCaretState(const int x, const int y, CaretState& caret_state, Selection* select);
     virtual bool GetBottomCaretState(const int x, const int y, CaretState& caret_state, Selection* select);
@@ -30,8 +31,8 @@ public:
     virtual std::string ToHtml();
     
 protected:
-    ElementPtr upper, lower;
-    ShapePtr shape;
+    Element *upper, *lower;
+    Shape *shape;
 };
 
 }

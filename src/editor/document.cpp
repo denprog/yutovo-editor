@@ -4,6 +4,7 @@
 #include "row.h"
 #include "page.h"
 #include "formulas/code.h"
+#include "formulas/code_string.h"
 #include "formulas/division.h"
 #include "util.h"
 #include <assert.h>
@@ -279,6 +280,13 @@ void Document::InsertCode(bool with_undo)
     InsertFormula(new Code(this), with_undo, false);
 }
 
+void Document::InsertCodeString(const std::string& str, bool with_undo)
+{
+    FormulaFormatPtr format;
+    if (GetCurrentFormulaFormat(format))
+        InsertFormula(new CodeString(this, str, format->string_format), with_undo, false);
+}
+
 void Document::InsertDivision(bool with_undo)
 {
     InsertFormula(new Division(this), with_undo, false);
@@ -365,6 +373,11 @@ void Document::ChangeParagraphFormat(const ParagraphFormatPtr format, bool with_
 void Document::PushEditorState(bool undo)
 {
     PushEditorState(caret->GetCaretState(), selection.GetState(), undo);
+}
+
+void Document::PushEditorState(const EditorState& editor_state, bool undo)
+{
+    PushEditorState(editor_state.caret_state, editor_state.selection_state, undo);
 }
 
 void Document::PushEditorState(const CaretState& caret_state, bool undo)
@@ -594,16 +607,26 @@ ElementType Document::GetElementType(const ElementId id)
     return el->type;
 }
 
+bool Document::IsString(ElementPtr el)
+{
+    return el->type == ElementType::STRING || el->type == ElementType::CODE_STRING;
+}
+
+bool Document::IsRow(ElementPtr el)
+{
+    return el->type == ElementType::ROW || el->type == ElementType::CODE_ROW;
+}
+
 bool Document::GetStringFormat(const ElementId id, StringFormat& format)
 {
     std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
     ElementPtr el = GetElement(id);
-    if (el->type == ElementType::STRING)
+    if (IsString(el))
     {
         format = *((String*)el.get())->format;
         return true;
     }
-    else if (el->type == ElementType::ROW)
+    else if (IsRow(el))
     {
         el = FindParent(el->id, ElementType::PARAGRAPH);
         if (el)
