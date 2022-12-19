@@ -6,7 +6,7 @@ set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 #set(QT_SELECT qt5.14)
@@ -29,6 +29,7 @@ add_executable(${PROJECT_NAME}_gui
     mainwindow.ui
     resources.qrc
     qt_window.cpp
+    command_map.cpp
 )
 
 target_compile_options(${PROJECT_NAME}_gui PRIVATE -fPIC)

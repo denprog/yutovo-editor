@@ -4,6 +4,7 @@
 #include <QPainter>
 #include <QGuiApplication>
 #include <QCursor>
+#include "mainwindow.h"
 
 //DocumentWidget
 
@@ -13,6 +14,7 @@ DocumentWidget::DocumentWidget(QWidget *parent) :
 {
     connect(&window, &QtWindow::DocumentUpdated, this, &DocumentWidget::OnDocumentUpdated);
     connect(&window, &QtWindow::WindowUpdated, this, &DocumentWidget::OnWindowUpdated);
+    connect(&window, &QtWindow::CaretMoved, this, &DocumentWidget::OnCaretMoved);
 
     setFocusPolicy(Qt::StrongFocus);
     setMouseTracking(true);
@@ -21,6 +23,7 @@ DocumentWidget::DocumentWidget(QWidget *parent) :
 DocumentPtr DocumentWidget::CreateDocument()
 {
     document.reset(new Document(&window));
+    shortcuts_map.Init(document);
     return document;
 }
 
@@ -46,6 +49,11 @@ void DocumentWidget::OnWindowUpdated()
     document->Redraw();
 }
 
+void DocumentWidget::OnCaretMoved(const EditorState editor_state)
+{
+    current_editor_state = editor_state;
+}
+
 void DocumentWidget::paintEvent(QPaintEvent *event)
 {
     const QRect& rect = event->rect();
@@ -63,52 +71,18 @@ void DocumentWidget::resizeEvent(QResizeEvent *event)
 
 void DocumentWidget::keyPressEvent(QKeyEvent *event)
 {
-    switch (event->key())
+    QKeySequence s(event->modifiers() | event->key());
+    if (shortcuts_map.Call(s, current_editor_state))
+        return;
+
+    QString str = event->text();
+    for (auto ch : str)
     {
-    case Qt::Key_Left:
-        if (event->modifiers() & Qt::ControlModifier)
-            document->MoveCaretWordLeft(event->modifiers() & Qt::ShiftModifier);
-        else
-            document->MoveCaretLeft(event->modifiers() & Qt::ShiftModifier);
-        break;
-    case Qt::Key_Right:
-        if (event->modifiers() & Qt::ControlModifier)
-            document->MoveCaretWordRight(event->modifiers() & Qt::ShiftModifier);
-        else
-            document->MoveCaretRight(event->modifiers() & Qt::ShiftModifier);
-        break;
-    case Qt::Key_Up:
-        document->MoveCaretUp(event->modifiers() & Qt::ShiftModifier);
-        break;
-    case Qt::Key_Down:
-        document->MoveCaretDown(event->modifiers() & Qt::ShiftModifier);
-        break;
-    case Qt::Key_Home:
-        document->MoveCaretHome(event->modifiers() & Qt::ShiftModifier);
-        break;
-    case Qt::Key_End:
-        document->MoveCaretEnd(event->modifiers() & Qt::ShiftModifier);
-        break;
-    case Qt::Key_Backspace:
-        document->DeleteElements(true, true, false);
-        break;
-    case Qt::Key_Delete:
-        document->DeleteElements(false, true, false);
-        break;
-    case Qt::Key_Return:
-        document->InsertParagraph(true);
-        break;
-    default:
-        QString str = event->text();
-        for (auto ch : str)
-        {
-            if (!ch.isPrint())
-                return;
-        }
-        if (!str.isEmpty())
-            document->InsertText(str.toUtf8().data(), true);
-        break;
+        if (!ch.isPrint())
+            return;
     }
+    if (!str.isEmpty())
+        document->InsertText(str.toUtf8().data(), true);
 }
 
 void DocumentWidget::mousePressEvent(QMouseEvent *event)
