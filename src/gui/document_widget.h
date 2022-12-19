@@ -4,6 +4,7 @@
 #include <QWidget>
 #include "editor/document.h"
 #include "qt_window.h"
+#include "command_map.h"
 
 using namespace yutovo;
 
@@ -21,6 +22,7 @@ public:
 public slots:
     void OnDocumentUpdated(const Rect rect);
     void OnWindowUpdated();
+    void OnCaretMoved(const EditorState editor_state);
 
 protected:
     virtual void paintEvent(QPaintEvent *event);
@@ -32,6 +34,10 @@ protected:
 private:
     friend class MainWindow;
     QtWindow window;
+
+    ShortcutsMap shortcuts_map;
+    
+    EditorState current_editor_state;
 
 public:
     DocumentPtr document;

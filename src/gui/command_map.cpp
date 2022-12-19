@@ -1,0 +1,110 @@
+#include "command_map.h"
+
+namespace yutovo
+{
+
+//ShortcutsMap
+
+void ShortcutsMap::Init(DocumentPtr _document)
+{
+    document = _document;
+
+    //caret moving
+    Add(QKeySequence("Left"), "", std::function<void ()>(std::bind(&Document::MoveCaretLeft, document.get(), false)));
+    Add(QKeySequence("Right"), "", std::function<void ()>(std::bind(&Document::MoveCaretRight, document.get(), false)));
+    Add(QKeySequence("Up"), "", std::function<void ()>(std::bind(&Document::MoveCaretUp, document.get(), false)));
+    Add(QKeySequence("Down"), "", std::function<void ()>(std::bind(&Document::MoveCaretDown, document.get(), false)));
+
+    Add(QKeySequence("Ctrl+Left"), "", std::function<void ()>(std::bind(&Document::MoveCaretWordLeft, document.get(), false)));
+    Add(QKeySequence("Ctrl+Right"), "", std::function<void ()>(std::bind(&Document::MoveCaretWordRight, document.get(), false)));
+
+    Add(QKeySequence("Home"), "", std::function<void ()>(std::bind(&Document::MoveCaretHome, document.get(), false)));
+    Add(QKeySequence("End"), "", std::function<void ()>(std::bind(&Document::MoveCaretEnd, document.get(), false)));
+
+    Add(QKeySequence("Ctrl+Home"), "", std::function<void ()>(std::bind(&Document::MoveCaretToDocumentBegin, document.get(), false)));
+    Add(QKeySequence("Ctrl+End"), "", std::function<void ()>(std::bind(&Document::MoveCaretToDocumentEnd, document.get(), false)));
+
+    //selection
+    Add(QKeySequence("Shift+Left"), "", std::function<void ()>(std::bind(&Document::MoveCaretLeft, document.get(), true)));
+    Add(QKeySequence("Shift+Right"), "", std::function<void ()>(std::bind(&Document::MoveCaretRight, document.get(), true)));
+    Add(QKeySequence("Shift+Up"), "", std::function<void ()>(std::bind(&Document::MoveCaretUp, document.get(), true)));
+    Add(QKeySequence("Shift+Down"), "", std::function<void ()>(std::bind(&Document::MoveCaretDown, document.get(), true)));
+
+    Add(QKeySequence("Shift+Ctrl+Left"), "", std::function<void ()>(std::bind(&Document::MoveCaretWordLeft, document.get(), true)));
+    Add(QKeySequence("Shift+Ctrl+Right"), "", std::function<void ()>(std::bind(&Document::MoveCaretWordRight, document.get(), true)));
+
+    //edit text
+    Add(QKeySequence("Delete"), "", std::function<void ()>(std::bind(&Document::DeleteElements, document.get(), false, true, false)));
+    Add(QKeySequence("Backspace"), "", std::function<void ()>(std::bind(&Document::DeleteElements, document.get(), true, true, false)));
+    Add(QKeySequence("Return"), "", std::function<void ()>(std::bind(&Document::InsertParagraph, document.get(), true, false)));
+
+    //edit code
+    Add(QKeySequence("Ctrl+Shift+C"), "\\code", std::function<void ()>(std::bind(&Document::InsertCode, document.get(), true)));
+    Add(QKeySequence("Ctrl+Shift+D"), "\\div", std::function<void ()>(std::bind(&Document::InsertDivision, document.get(), true)));
+    Add(QKeySequence("/"), "\\div", std::function<void ()>(std::bind(&Document::InsertDivision, document.get(), true)), CommandContext::Formula);
+}
+
+bool ShortcutsMap::Call(const QKeySequence& shortcut, const EditorState& editor_state)
+{
+    struct CommandMapsVisitor
+    {
+        CommandMapsVisitor(const QKeySequence& _shortcut, Document* _document, const EditorState& _editor_state, bool& _res) :
+            shortcut(_shortcut),
+            document(_document),
+            editor_state(_editor_state),
+            res(_res)
+        {
+        }
+
+        void operator()(CommandMapVoid& m)
+        {
+            if (m.shortcut == shortcut)
+            {
+                switch (m.context)
+                {
+                case CommandContext::Formula:
+                    if (!document->FindParent(editor_state.caret_state.id, ElementType::CODE))
+                        return;
+                    break;
+                case CommandContext::Text:
+                    if (!document->FindParent(editor_state.caret_state.id, ElementType::CODE))
+                        return;
+                    break;
+                }
+                m();
+                res = true;
+            }
+        }
+
+        void operator()(CommandMapString& m)
+        {
+        }
+
+        const QKeySequence& shortcut;
+        Document* document;
+        const EditorState& editor_state;
+        bool& res;
+    };
+
+    for (auto& c : command_maps)
+    {
+        bool res = false;
+        std::visit(CommandMapsVisitor{shortcut, document.get(), editor_state, res}, c);
+        if (res)
+            return true;
+    }
+
+    return false;
+}
+
+void ShortcutsMap::Add(QKeySequence shortcut, std::string command, std::function<void (void)> func, CommandContext context)
+{
+    command_maps.push_back(CommandMapVoid{shortcut, command, context, func});
+}
+
+void ShortcutsMap::Add(QKeySequence shortcut, std::string command, std::function<void (const std::string&)> func, CommandContext context)
+{
+    command_maps.push_back(CommandMapString{shortcut, command, context, func});
+}
+
+}
