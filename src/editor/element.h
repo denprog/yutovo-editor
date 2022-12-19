@@ -30,6 +30,8 @@ enum class ElementType
     ROW,
     STRING,
     CODE,
+    CODE_ROW,
+    CODE_STRING,
     SHAPE,
     DIVISION
 };
@@ -64,7 +66,7 @@ public:
 
     virtual void UpdateStringFormat(const StringFormatPtr base_format, const StringFormatPtr new_format);
 
-    virtual void AfterInsert();
+    virtual bool AfterInsert(bool with_undo);
 
     virtual bool GetFirstCaretState(CaretState& caret_state, Selection* select);
     virtual bool GetLastCaretState(CaretState& caret_state, Selection* select);

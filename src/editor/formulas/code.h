@@ -19,7 +19,7 @@ public:
 
     virtual void Draw() const;
 
-    virtual void AfterInsert();
+    virtual bool AfterInsert(bool with_undo);
 
     virtual void UpdateRect();
 

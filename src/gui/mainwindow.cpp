@@ -350,7 +350,7 @@ void MainWindow::OnCaretMoved(const EditorState editor_state)
 
     //find common string format
     auto t = document->GetElementType(c.GetElement());
-    if (t != ElementType::STRING && t != ElementType::ROW)
+    if (!document->IsString(document->GetElement(c.GetElement())) && !document->IsRow(document->GetElement(c.GetElement())))
     {
         format.Reset();
     }
@@ -358,7 +358,7 @@ void MainWindow::OnCaretMoved(const EditorState editor_state)
     {
         for (auto& state : s.state)
         {
-            if (document->GetElementType(state.id) != ElementType::STRING)
+            if (document->IsString(document->GetElement(state.id)))
             {
                 format.Reset();
                 break;

@@ -40,6 +40,7 @@ public:
     void DeleteElements(bool left, bool with_undo, bool undo);
 
     void InsertCode(bool with_undo);
+    void InsertCodeString(const std::string& str, bool with_undo);
     void InsertDivision(bool with_undo);
 
     void InsertFormula(Element* element, bool with_undo, bool undo);
@@ -53,6 +54,7 @@ public:
     void ChangeParagraphFormat(const ParagraphFormatPtr format, bool with_undo, bool undo);
 
     void PushEditorState(bool undo);
+    void PushEditorState(const EditorState& editor_state, bool undo);
     void PushEditorState(const CaretState& caret_state, bool undo);
     void PushEditorState(const SelectionState& selection_state, bool undo);
     void PushEditorState(const CaretState& caret_state, const SelectionState& selection_state, bool undo);
@@ -75,6 +77,9 @@ public:
     bool GetCurrentFormulaFormat(FormulaFormatPtr& format);
 
     ElementType GetElementType(const ElementId id);
+
+    bool IsString(ElementPtr el);
+    bool IsRow(ElementPtr el);
 
     bool GetStringFormat(const ElementId id, StringFormat& format);
     bool GetParagraphFormat(const ElementId id, ParagraphFormat& format);

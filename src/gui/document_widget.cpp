@@ -125,7 +125,7 @@ void DocumentWidget::mouseMoveEvent(QMouseEvent *event)
         setCursor(Qt::ArrowCursor);
         return;
     }
-    if (document->GetElementType(id) == ElementType::STRING)
+    if (document->GetElementType(id) == ElementType::STRING || document->GetElementType(id) == ElementType::CODE_STRING)
         setCursor(Qt::IBeamCursor);
     else
         setCursor(Qt::ArrowCursor);

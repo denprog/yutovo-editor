@@ -7,11 +7,13 @@ namespace yutovo
 CodeRow::CodeRow(Document* _document) :
     Row(_document)
 {
+    type = ElementType::CODE_ROW;
 }
 
 CodeRow::CodeRow(Element* parent) :
     Row(parent)
 {
+    type = ElementType::CODE_ROW;
     elements->Clear();
     AddEmptyElement();
 }

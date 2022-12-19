@@ -34,11 +34,12 @@ void Code::Draw() const
     window->DrawRect(GetAbsoluteRect(), Color::Red());
 }
 
-void Code::AfterInsert()
+bool Code::AfterInsert(bool with_undo)
 {
     CaretState c;
     if (GetFirstCaretState(c, nullptr))
         caret->SetState(c);
+    return true;
 }
 
 void Code::UpdateRect()

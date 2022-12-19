@@ -31,6 +31,7 @@ Task::Task(ElementPtr _text) :
 
 Task::Task(ElementPtr _text, const uint _id) :
     text(_text),
+    document(text->document),
     logger(Logger::GetInstance()),
     id(_id)
 {
@@ -217,13 +218,17 @@ bool InsertFormulasTask::Execute()
     {
         if (document->FindParent(caret_state.id, ElementType::CODE) == nullptr)
         {
-            //there is no code element - insert one
+            //there is no code element - insert one in the current row
+            auto row = document->FindParent(caret_state.id, ElementType::ROW);
+            if (!row)
+                return false;
+            
             if (with_undo)
                 document->PushEditorState(true);
             
-            ElementPtr code(new Code(el.get()));
+            ElementPtr code(new Code(row.get()));
             std::vector v{code};
-            if (!el->InsertElements(v, with_undo))
+            if (!row->InsertElements(v, with_undo))
                 return false;
             el = code;
         }
@@ -232,7 +237,11 @@ bool InsertFormulasTask::Execute()
     if (with_undo)
         document->PushEditorState(true);
 
-    if (el->InsertElements(elements, with_undo))
+    std::vector<ElementPtr> _elements;
+    for (int i = 0; i < elements.size(); ++i)
+        _elements.push_back(ElementPtr(elements[i]->Clone()));
+    
+    if (el->InsertElements(_elements, with_undo))
     {
         if (with_undo)
             document->PushEditorState(true);
@@ -298,7 +307,7 @@ bool ChangeStringFormatTask::Execute()
         auto el = elements[i];
 
         StringFormatPtr _format;
-        if (text->document->GetElementType(el->id) == ElementType::STRING)
+        if (text->document->IsString(el))
         {
             //set only actual params
             StringFormat f = *((String*)el.get())->format;
