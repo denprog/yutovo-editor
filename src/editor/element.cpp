@@ -767,10 +767,13 @@ bool Elements::GetLeftCaretState(CaretState& caret_state, Selection* select)
 
     if (Count() > 0 && elements[0]->HasCaretState())
     {
-        caret_state.SetState(Get(0));
-        if (select)
-            select->Add(parent->id, 0, 1);
-        return true;
+        if (caret_state != CaretState(Get(0)->id))
+        {
+            caret_state.SetState(Get(0));
+            if (select)
+                select->Add(parent->id, 0, 1);
+            return true;
+        }
     }
     return false;
 }
