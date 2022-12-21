@@ -562,7 +562,10 @@ Rect StringElements::GetCaretRect(const uint pos) const
 void StringElements::DrawCaret(const uint pos) const
 {
     Rect r = parent->GetAbsoluteRect(GetCaretRect(pos));
-    parent->window->DrawLine(r.left, r.top, r.left, r.GetBottom() - 1, Color::Black());
+    if (Count() == 0)
+        parent->window->DrawLine(r.left + parent->rect.width / 2, r.top, r.left + parent->rect.width / 2, r.GetBottom() - 1, Color::Black());
+    else
+        parent->window->DrawLine(r.left, r.top, r.left, r.GetBottom() - 1, Color::Black());
 }
 
 Rect StringElements::GetRect()
