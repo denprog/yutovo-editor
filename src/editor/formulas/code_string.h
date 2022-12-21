@@ -24,6 +24,8 @@ public:
 
     virtual void UpdateRect();
 
+    virtual Rect GetCaretRect(const uint pos) const;
+
     virtual void GetMargin(int& left, int& top, int& right, int& bottom) const;
 
     virtual std::string ToHtml();

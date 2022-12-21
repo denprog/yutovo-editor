@@ -60,7 +60,16 @@ void CodeString::UpdateRect()
     String::UpdateRect();
 
     if (elements->Count() == 0)
-        rect.SetRect(0, 0, rect.width + 4, rect.height);
+        rect.SetRect(0, 0, rect.width + 6, rect.height);
+}
+
+Rect CodeString::GetCaretRect(const uint pos) const
+{
+    Rect r = String::GetCaretRect(pos);
+    if (elements->Count() > 0)
+        return r;
+    r.left += rect.width / 2;
+    return r;
 }
 
 void CodeString::GetMargin(int& left, int& top, int& right, int& bottom) const

@@ -73,9 +73,9 @@ void Division::Remake(bool with_elements)
     else
         shape->rect.SetRect(0, 0, w, w / 200 > 2 ? 2 : w / 200);
     upper->rect.Move((w - upper->rect.width) / 2, 0);
-    shape->rect.Move(0, upper->rect.height + shape->rect.height + 1);
-    lower->rect.Move((w - lower->rect.width) / 2, upper->rect.height + shape->rect.height + (shape->rect.height + 1) * 2);
-    baseline = upper->rect.height + 1;
+    shape->rect.Move(0, upper->rect.height + shape->rect.height + 3);
+    lower->rect.Move((w - lower->rect.width) / 2, upper->rect.height + shape->rect.height + (shape->rect.height + 3) * 2);
+    baseline = upper->rect.height + 3;
 
     UpdateRect();
 
