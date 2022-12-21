@@ -65,21 +65,24 @@ void Row::Remake(bool with_elements)
         elements->Remake();
     
     int cx = 0;
+    int left_p = 0, top_p = 0, right_p = 0, bottom_p = 0;
     for (uint i = 0; i < elements->Count(); ++i)
     {
-        auto element = elements->Get(i);
-        element->rect.Move(cx, 1);
-        cx += element->rect.width;
+        auto el = elements->Get(i);
+        el->GetMargin(left_p, top_p, right_p, bottom_p);
+        el->rect.Move(cx + left_p, top_p);
+        cx += el->rect.width + left_p + right_p;
     }
     UpdateRect();
+    rect.width += right_p;
 
     //align the baseline
     baseline = 0;
     for (uint i = 0; i < elements->Count(); ++i)
     {
-        auto element = elements->Get(i);
-        if (element->baseline > baseline)
-            baseline = element->baseline;
+        auto el = elements->Get(i);
+        if (el->baseline > baseline)
+            baseline = el->baseline;
     }
 
     for (uint i = 0; i < elements->Count(); ++i)
@@ -89,8 +92,33 @@ void Row::Remake(bool with_elements)
     }
 
     UpdateRect();
+    rect.width += right_p;
 
     document->Remake(parent->id, false);
+}
+
+void Row::GetMargin(int& left, int& top, int& right, int& bottom) const
+{
+    int left_m, top_m, right_m, bottom_m;
+    int max_top_m = 0, max_bottom_m = 0;
+    if (elements->Count() > 0)
+    {
+        elements->Get(0)->GetMargin(left_m, top_m, right_m, bottom_m);
+        left = left_m;
+        elements->Get(elements->Count() - 1)->GetMargin(left_m, top_m, right_m, bottom_m);
+        right = right_m;
+    }
+    for (uint i = 0; i < elements->Count(); ++i)
+    {
+        auto el = elements->Get(i);
+        el->GetMargin(left_m, top_m, right_m, bottom_m);
+        if (top_m > 0 && el->rect.top - top_m < 0 && max_top_m < top_m - el->rect.top)
+            max_top_m = top_m - el->rect.top;
+        if (bottom_m > 0 && el->rect.GetBottom() + bottom_m > rect.height && max_bottom_m < bottom_m - (rect.height - el->rect.GetBottom()))
+            max_bottom_m = bottom_m - (rect.height - el->rect.GetBottom());
+    }
+    top = max_top_m;
+    bottom = max_bottom_m;
 }
 
 bool Row::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo)

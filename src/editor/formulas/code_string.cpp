@@ -27,6 +27,12 @@ CodeString::CodeString(Document* _document, const std::string str, const StringF
     type = ElementType::CODE_STRING;
 }
 
+CodeString::CodeString(const String& source) :
+    String(source)
+{
+    type = ElementType::CODE_STRING;
+}
+
 Element* CodeString::Clone()
 {
     return new CodeString(*this);
@@ -55,6 +61,15 @@ void CodeString::UpdateRect()
 
     if (elements->Count() == 0)
         rect.SetRect(0, 0, rect.width + 4, rect.height);
+}
+
+void CodeString::GetMargin(int& left, int& top, int& right, int& bottom) const
+{
+    const FormulaFormatPtr f = GetFormulaFormat();
+    left = f->left_margin;
+    top = f->top_margin;
+    right = f->right_margin;
+    bottom = f->bottom_margin;
 }
 
 std::string CodeString::ToHtml()

@@ -21,17 +21,20 @@ public:
 
     virtual bool AfterInsert(bool with_undo);
 
+    virtual void GetMargin(int& left, int& top, int& right, int& bottom) const;
+
     virtual void UpdateRect();
 
     virtual bool HasCaretState();
     virtual bool HasLastCaretState();
 
     virtual StringFormatPtr GetStringFormat();
-    virtual FormulaFormatPtr GetFormulaFormat();
+    virtual FormulaFormatPtr GetFormulaFormat() const;
 
     virtual std::string ToHtml();
 
 protected:
+    FormulaFormatPtr code_format;
     FormulaFormatPtr formula_format;
 };
 

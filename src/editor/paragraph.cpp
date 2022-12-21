@@ -115,11 +115,13 @@ void Paragraph::Remake(bool with_elements)
     }
 
     int h = 0;
+    int left_m = 0, top_m = 0, right_m = 0, bottom_m = 0;
     for (int i = 0; i < elements->Count(); ++i)
     {
         ElementPtr row = elements->Get(i);
-        row->rect.Move(row->rect.left, h);
-        h += row->rect.height + format->line_spacing;
+        row->GetMargin(left_m, top_m, right_m, bottom_m); //consider the margins
+        row->rect.Move(row->rect.left, h + top_m); //move the row
+        h += row->rect.height + format->line_spacing + top_m + bottom_m;
     }
 
     UpdateRect();
@@ -135,6 +137,25 @@ void Paragraph::UpdateRect()
 
     rect.left = format->indent_before;
     rect.top = 0;
+}
+
+void Paragraph::GetMargin(int& left, int& top, int& right, int& bottom) const
+{
+    int left_m = 0, top_m = 0, right_m = 0, bottom_m = 0;
+    int max_left_m = 0, max_right_m = 0;
+    for (int i = 0; i < elements->Count(); ++i)
+    {
+        ElementPtr row = elements->Get(i);
+        row->GetMargin(left_m, top_m, right_m, bottom_m); //consider the margins
+        if (max_left_m < left_m)
+            max_left_m = left_m;
+        if (max_right_m < right_m)
+            max_right_m = right_m;
+        if (i == 0)
+            top = top_m;
+        if (i == elements->Count() - 1)
+            bottom = bottom_m;
+    }
 }
 
 bool Paragraph::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo)

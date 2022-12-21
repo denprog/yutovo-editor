@@ -156,16 +156,22 @@ void ParagraphFormats::GetFormats(std::vector<ParagraphFormatPtr>& formats)
 
 //FormulaFormat
 
-FormulaFormat::FormulaFormat(const std::string& _name, StringFormatPtr _string_format, uint _inter_spacing) :
+FormulaFormat::FormulaFormat(const std::string& _name, StringFormatPtr _string_format, uint _inter_spacing, 
+    int _left_margin, int _top_margin, int _right_margin, int _bottom_margin) : 
     name(_name),
     string_format(_string_format),
-    inter_spacing(_inter_spacing)
+    inter_spacing(_inter_spacing),
+    left_margin(_left_margin),
+    top_margin(_top_margin),
+    right_margin(_right_margin),
+    bottom_margin(_bottom_margin)
 {
 }
 
 bool FormulaFormat::operator==(const FormulaFormat& f)
 {
-    return name == f.name && *string_format == *f.string_format && inter_spacing == f.inter_spacing;
+    return name == f.name && *string_format == *f.string_format && inter_spacing == f.inter_spacing &&
+        left_margin == f.left_margin &&  top_margin == f.top_margin && right_margin == f.right_margin && bottom_margin == f.bottom_margin;
 }
 
 //FormulaFormats
@@ -173,7 +179,8 @@ bool FormulaFormat::operator==(const FormulaFormat& f)
 FormulaFormats::FormulaFormats(StringFormatsPtr _string_formats) :
     string_formats(_string_formats)
 {
-    GetFormat("Calculator", string_formats->GetFormat("Courier New", 14, false, false, false), 2);
+    GetFormat("Code", string_formats->GetFormat("Courier New", 14, false, false, false), 2, 5, 2, 5, 2);
+    GetFormat("Formula", string_formats->GetFormat("Courier New", 14, false, false, false), 2, 2, 2, 2, 2);
 }
 
 FormulaFormatPtr FormulaFormats::GetFormat(const std::string& name)
@@ -186,17 +193,21 @@ FormulaFormatPtr FormulaFormats::GetFormat(const std::string& name)
     return nullptr;
 }
 
-FormulaFormatPtr FormulaFormats::GetFormat(const std::string& name, StringFormatPtr string_format, uint inter_spacing)
+FormulaFormatPtr FormulaFormats::GetFormat(const std::string& name, StringFormatPtr string_format, uint inter_spacing, 
+    int left_margin, int top_margin, int right_margin, int bottom_margin)
 {
+    FormulaFormatPtr format(new FormulaFormat(name, string_format, inter_spacing, 
+        left_margin, top_margin, right_margin, bottom_margin));
+    
     //return the present format
     for (auto f : formula_formats)
     {
-        if (f->name == name && f->string_format == string_format && f->inter_spacing == inter_spacing)
+        if (*f == *format)
             return f;
     }
 
     //or create a new one
-    formula_formats.emplace_back(new FormulaFormat(name, string_format, inter_spacing));
+    formula_formats.emplace_back(format);
     return formula_formats[formula_formats.size() - 1];
 }
 
