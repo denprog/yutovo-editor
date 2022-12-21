@@ -110,12 +110,15 @@ bool Page::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo)
     if (new_row->elements->Count() == 0)
         new_row->AddElement(ElementPtr(new String(new_row.get())));
 
-    if (!el->SplitAt(before_state.GetPos()) && before_state.GetPos() == 0) //try to split current element
-        --p;
-    if (before_state.GetPos() != 0 || p >= 0)
+    if (p >= 0)
     {
-        for (int i = p + 1; i < row->elements->Count();) //move all elements at the right side of the row
-            new_row->elements->Move(row->elements->Get(i), new_row->elements->Count());
+        if (!el->SplitAt(before_state.GetPos()) && before_state.GetPos() == 0) //try to split current element
+            --p;
+        if (before_state.GetPos() != 0 || p >= 0)
+        {
+            for (int i = p + 1; i < row->elements->Count();) //move all elements at the right side of the row
+                new_row->elements->Move(row->elements->Get(i), new_row->elements->Count());
+        }
     }
 
     int r_pos = paragraph->elements->GetElementPos(row->id);

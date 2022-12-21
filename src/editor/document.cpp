@@ -448,7 +448,10 @@ bool Document::GetElementAtCoords(const int x, const int y, ElementId& id)
 
 ElementPtr Document::FindParent(const ElementId& id, const ElementType type)
 {
-    ElementPtr el = GetParent(id);
+    ElementPtr el = GetElement(id);
+    if (el && el->type == type)
+        return el;
+    el = GetParent(id);
     while (el && el->type != type)
         el = GetParent(el->id);
     return el;
