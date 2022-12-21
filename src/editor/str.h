@@ -63,6 +63,7 @@ protected:
     friend class Document;
     friend class ChangeStringFormatTask;
     friend class StringElements;
+    friend class InsertElementsTask;
     StringFormatPtr format;
 };
 
