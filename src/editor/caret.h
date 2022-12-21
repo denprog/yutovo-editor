@@ -50,6 +50,7 @@ public:
     void MoveWordRight(Selection* selection);
 
     bool IsInsideElement(const ElementId id);
+    bool IsOnElement(const ElementId id);
 
     void UpdateXPos();
 

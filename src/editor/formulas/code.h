@@ -23,8 +23,6 @@ public:
 
     virtual void GetMargin(int& left, int& top, int& right, int& bottom) const;
 
-    virtual void UpdateRect();
-
     virtual bool HasCaretState();
     virtual bool HasLastCaretState();
 

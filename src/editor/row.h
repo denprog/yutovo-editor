@@ -20,8 +20,6 @@ public:
 
     virtual void Remake(bool with_elements);
 
-    virtual void GetMargin(int& left, int& top, int& right, int& bottom) const;
-    
     virtual bool InsertElements(std::vector<ElementPtr>& _elements, bool with_undo);
     virtual bool DeleteElements(bool left, bool with_undo);
     virtual bool ChangeStringFormat(const StringFormatPtr format, bool with_undo);
