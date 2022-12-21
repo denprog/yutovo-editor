@@ -7,7 +7,9 @@ Code::Code(Document* _document) :
     CodeRow(_document)
 {
     type = ElementType::CODE;
-    document->GetCurrentFormulaFormat(formula_format);
+    code_format = document->formula_formats->GetFormat("Code");
+    formula_format = document->formula_formats->GetFormat("Formula");
+
     AddEmptyElement();
 }
 
@@ -15,7 +17,8 @@ Code::Code(Element* parent) :
     CodeRow(parent)
 {
     type = ElementType::CODE;
-    document->GetCurrentFormulaFormat(formula_format);
+    code_format = document->formula_formats->GetFormat("Code");
+    formula_format = document->formula_formats->GetFormat("Formula");
 }
 
 Element* Code::Clone()
@@ -42,6 +45,14 @@ bool Code::AfterInsert(bool with_undo)
     return true;
 }
 
+void Code::GetMargin(int& left, int& top, int& right, int& bottom) const
+{
+    left = code_format->left_margin;
+    top = code_format->top_margin;
+    right = code_format->right_margin;
+    bottom = code_format->bottom_margin;
+}
+
 void Code::UpdateRect()
 {
     Row::UpdateRect();
@@ -63,7 +74,7 @@ StringFormatPtr Code::GetStringFormat()
     return formula_format->string_format;
 }
 
-FormulaFormatPtr Code::GetFormulaFormat()
+FormulaFormatPtr Code::GetFormulaFormat() const
 {
     return formula_format;
 }

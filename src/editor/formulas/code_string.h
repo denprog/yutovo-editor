@@ -13,6 +13,7 @@ public:
     CodeString(Element* parent, const std::string str);
     CodeString(Element* parent, const std::string str, const StringFormatPtr _format);
     CodeString(Document* _document, const std::string str, const StringFormatPtr _format);
+    CodeString(const String& source);
 
     virtual Element* Clone();
 
@@ -22,6 +23,8 @@ public:
     virtual void Draw() const;
 
     virtual void UpdateRect();
+
+    virtual void GetMargin(int& left, int& top, int& right, int& bottom) const;
 
     virtual std::string ToHtml();
 };

@@ -21,6 +21,8 @@ public:
     virtual bool SplitAt(const uint pos);
     virtual bool Merge(const ElementPtr with_element);
 
+    virtual void GetMargin(int& left, int& top, int& right, int& bottom) const;
+
     virtual bool HasCaretState();
     virtual bool HasLastCaretState();
 

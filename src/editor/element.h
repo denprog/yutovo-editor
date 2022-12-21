@@ -86,6 +86,8 @@ public:
     virtual Rect GetCaretRect(const uint pos) const;
     virtual void DrawCaret(const uint pos) const;
 
+    virtual void GetMargin(int& left, int& top, int& right, int& bottom) const;
+
     virtual std::string ToHtml();
     virtual std::string ToText();
 
@@ -104,7 +106,7 @@ public:
 
     virtual ParagraphFormatPtr GetParagraphFormat();
     virtual StringFormatPtr GetStringFormat();
-    virtual FormulaFormatPtr GetFormulaFormat();
+    virtual FormulaFormatPtr GetFormulaFormat() const;
 
 public:
     Element* parent = nullptr;

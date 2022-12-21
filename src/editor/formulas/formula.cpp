@@ -51,6 +51,15 @@ bool Formula::Merge(const ElementPtr with_element)
     return false;
 }
 
+void Formula::GetMargin(int& left, int& top, int& right, int& bottom) const
+{
+    const FormulaFormatPtr f = GetFormulaFormat();
+    left = f->left_margin;
+    top = f->top_margin;
+    right = f->right_margin;
+    bottom = f->bottom_margin;
+}
+
 bool Formula::HasCaretState()
 {
     return true;

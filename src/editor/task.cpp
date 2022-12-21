@@ -5,6 +5,7 @@
 #include "page.h"
 #include "row.h"
 #include "formulas/code.h"
+#include "formulas/code_string.h"
 #include "util.h"
 #include "result_codes.h"
 #include <assert.h>
@@ -107,7 +108,20 @@ bool InsertElementsTask::Execute()
         }
     }
 
-    if (el->InsertElements(elements, with_undo))
+    std::vector<ElementPtr> _elements;
+    for (auto t : elements)
+    {
+        if (t->type == ElementType::STRING && (el->type == ElementType::CODE || document->FindParent(el->id, ElementType::CODE)))
+        {
+            //change type of string
+            String* str = (String*)t.get();
+            _elements.emplace_back(new CodeString(*str));
+            continue;
+        }
+        _elements.push_back(t);
+    }
+
+    if (el->InsertElements(_elements, with_undo))
     {
         if (with_undo)
             text->document->PushEditorState(true);

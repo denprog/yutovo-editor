@@ -24,7 +24,7 @@ Document::Document(Window* _window) :
     paragraph_formats(new ParagraphFormats(string_formats)),
     formula_formats(new FormulaFormats(string_formats)),
     current_paragraph_format(paragraph_formats->GetFormat("Text body")),
-    current_formula_format(formula_formats->GetFormat("Calculator")),
+    current_formula_format(formula_formats->GetFormat("Code")),
     selection(this),
     last_selection(this),
     logger(Logger::GetInstance())
@@ -609,12 +609,12 @@ ElementType Document::GetElementType(const ElementId id)
 
 bool Document::IsString(ElementPtr el)
 {
-    return el->type == ElementType::STRING || el->type == ElementType::CODE_STRING;
+    return el && (el->type == ElementType::STRING || el->type == ElementType::CODE_STRING);
 }
 
 bool Document::IsRow(ElementPtr el)
 {
-    return el->type == ElementType::ROW || el->type == ElementType::CODE_ROW;
+    return el && (el->type == ElementType::ROW || el->type == ElementType::CODE_ROW);
 }
 
 bool Document::GetStringFormat(const ElementId id, StringFormat& format)

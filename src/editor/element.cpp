@@ -327,6 +327,11 @@ void Element::DrawCaret(const uint pos) const
     elements->DrawCaret(pos);
 }
 
+void Element::GetMargin(int& left, int& top, int& right, int& bottom) const
+{
+    left = top = right = bottom = 0;
+}
+
 std::string Element::ToHtml()
 {
     return elements->ToHtml();
@@ -449,7 +454,7 @@ StringFormatPtr Element::GetStringFormat()
     return parent->GetStringFormat();
 }
 
-FormulaFormatPtr Element::GetFormulaFormat()
+FormulaFormatPtr Element::GetFormulaFormat() const
 {
     assert(parent);
     return parent->GetFormulaFormat();
@@ -669,14 +674,14 @@ void Elements::DrawCaret(const uint pos) const
 {
     if (pos == Count())
     {
-        Rect r = parent->GetAbsoluteRect(elements[pos - 1]->rect);
-        parent->window->DrawLine(r.GetRight(), r.top, r.GetRight(), r.GetBottom(), Color::Black());
+        Rect r = parent->GetAbsoluteRect(GetCaretRect(pos));
+        parent->window->DrawLine(r.GetRight() - 1, r.top + 1, r.GetRight() - 1, r.GetBottom() - 2, Color::Black());
     }
     else
     {
-        Rect r = parent->GetAbsoluteRect(elements[pos]->rect);
-        parent->window->DrawLine(r.left - 2, r.top - 2, r.left - 2, r.GetBottom() + 2, Color::Black());
-        parent->window->DrawLine(r.left - 2, r.GetBottom() + 2, r.GetRight() + 2, r.GetBottom() + 2, Color::Black());
+        Rect r = parent->GetAbsoluteRect(GetCaretRect(pos));
+        parent->window->DrawLine(r.left + 1, r.top + 1, r.left + 1, r.GetBottom() - 2, Color::Black());
+        parent->window->DrawLine(r.left + 1, r.GetBottom() - 2, r.GetRight() - 2, r.GetBottom() - 2, Color::Black());
     }
 }
 

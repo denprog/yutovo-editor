@@ -165,13 +165,20 @@ typedef std::unique_ptr<ParagraphFormats> ParagraphFormatsPtr;
 struct FormulaFormat
 {
     FormulaFormat() = default;
-    FormulaFormat(const std::string& _name, StringFormatPtr _string_format, uint _inter_spacing);
+    FormulaFormat(const std::string& _name, StringFormatPtr _string_format, uint _inter_spacing, 
+        int _left_margin, int _top_margin, int _right_margin, int _bottom_margin);
 
     bool operator==(const FormulaFormat& f);
 
     std::string name;
     StringFormatPtr string_format;
-    uint inter_spacing = 1;
+
+    int inter_spacing = 0;
+
+    int left_margin = 0;
+    int top_margin = 0;
+    int right_margin = 0;
+    int bottom_margin = 0;
 };
 
 typedef std::shared_ptr<FormulaFormat> FormulaFormatPtr;
@@ -182,7 +189,8 @@ public:
     FormulaFormats(StringFormatsPtr _string_formats);
 
     FormulaFormatPtr GetFormat(const std::string& name);
-    FormulaFormatPtr GetFormat(const std::string& name, StringFormatPtr string_format, uint inter_spacing);
+    FormulaFormatPtr GetFormat(const std::string& name, StringFormatPtr string_format, uint inter_spacing, 
+        int left_margin, int top_margin, int right_margin, int bottom_margin);
 
 private:
     StringFormatsPtr string_formats;

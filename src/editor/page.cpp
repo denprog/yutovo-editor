@@ -52,12 +52,14 @@ void Page::Remake(bool with_elements)
     if (with_elements)
         Element::Remake(true);
 
+    int left_m = 0, top_m = 0, right_m = 0, bottom_m = 0;
     int h = 0;
     for (int i = 0; i < elements->Count(); ++i) //arrange paragraphs
     {
         ElementPtr p = elements->Get(i);
-        p->rect.Move(p->rect.left, h);
-        h += p->rect.height + format->paragraph_spacing;
+        p->GetMargin(left_m, top_m, right_m, bottom_m); //consider the margins
+        p->rect.Move(p->rect.left, h + top_m);
+        h += p->rect.height + format->paragraph_spacing + bottom_m;
     }
 
     UpdateRect();

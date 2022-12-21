@@ -39,12 +39,12 @@ struct Rect
         return Point{left, top};
     }
 
-    int GetRight()
+    int GetRight() const
     {
         return left + width;
     }
 
-    int GetBottom()
+    int GetBottom() const
     {
         return top + height;
     }
