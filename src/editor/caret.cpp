@@ -234,6 +234,11 @@ bool Caret::IsInsideElement(const ElementId id)
     return current_element && IsChild(id, current_element->id);
 }
 
+bool Caret::IsOnElement(const ElementId id)
+{
+    return current_element && GetCaretState() == id;
+}
+
 void Caret::UpdateXPos()
 {
     last_x_element = current_element;

@@ -53,12 +53,6 @@ void Code::GetMargin(int& left, int& top, int& right, int& bottom) const
     bottom = code_format->bottom_margin;
 }
 
-void Code::UpdateRect()
-{
-    Row::UpdateRect();
-    rect.SetRect(0, 0, rect.width, rect.height + 4);
-}
-
 bool Code::HasCaretState()
 {
     return true;

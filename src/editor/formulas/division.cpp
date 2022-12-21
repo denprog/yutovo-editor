@@ -73,9 +73,9 @@ void Division::Remake(bool with_elements)
     else
         shape->rect.SetRect(0, 0, w, w / 200 > 2 ? 2 : w / 200);
     upper->rect.Move((w - upper->rect.width) / 2, 0);
-    shape->rect.Move(0, upper->rect.height + shape->rect.height + 3);
-    lower->rect.Move((w - lower->rect.width) / 2, upper->rect.height + shape->rect.height + (shape->rect.height + 3) * 2);
-    baseline = upper->rect.height + 3;
+    shape->rect.Move(0, upper->rect.height + shape->rect.height + 4);
+    lower->rect.Move((w - lower->rect.width) / 2, upper->rect.height + shape->rect.height + (shape->rect.height + 4) * 2);
+    baseline = upper->rect.height + 4;
 
     UpdateRect();
 
@@ -123,11 +123,11 @@ bool Division::AfterInsert(bool with_undo)
 
 bool Division::GetTopCaretState(const int x, const int y, CaretState& caret_state, Selection* select)
 {
-    if (lower->GetAbsoluteRect().GetBottom() <= y)
+    if (lower->GetAbsoluteRect().GetBottom() <= y && !caret->IsOnElement(lower->id))
         return lower->GetTopCaretState(x, y, caret_state, select);
-    if (shape->GetAbsoluteRect().GetBottom() <= y)
+    if (shape->GetAbsoluteRect().GetBottom() <= y && !caret->IsOnElement(shape->id))
         return shape->GetTopCaretState(x, y, caret_state, select);
-    if (upper->GetAbsoluteRect().GetBottom() <= y)
+    if (upper->GetAbsoluteRect().GetBottom() <= y && !caret->IsOnElement(upper->id))
         return upper->GetTopCaretState(x, y, caret_state, select);
     return parent->GetTopCaretState(x, y, caret_state, select);
 }
