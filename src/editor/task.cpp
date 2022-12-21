@@ -111,11 +111,14 @@ bool InsertElementsTask::Execute()
     std::vector<ElementPtr> _elements;
     for (auto t : elements)
     {
-        if (t->type == ElementType::STRING && (el->type == ElementType::CODE || document->FindParent(el->id, ElementType::CODE)))
+        auto code = document->FindParent(el->id, ElementType::CODE);
+        if (t->type == ElementType::STRING && code)
         {
             //change type of string
             String* str = (String*)t.get();
-            _elements.emplace_back(new CodeString(*str));
+            auto c = new CodeString(*str);
+            c->format = code->GetStringFormat();
+            _elements.emplace_back(c);
             continue;
         }
         _elements.push_back(t);
