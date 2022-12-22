@@ -17,6 +17,8 @@ public:
 
     virtual Element* Create(Element* parent);
 
+    virtual bool InsertElements(std::vector<ElementPtr>& _elements, bool with_undo);
+
     virtual void AddEmptyElement();
 
     virtual std::string ToHtml();

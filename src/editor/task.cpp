@@ -240,7 +240,10 @@ bool InsertFormulasTask::Execute()
             //there is no code element - insert one in the current row
             auto row = document->FindParent(caret_state.id, ElementType::ROW);
             if (!row)
+            {
+                document->RollbackUndo();
                 return false;
+            }
             
             if (with_undo)
                 document->PushEditorState(true);
@@ -248,7 +251,10 @@ bool InsertFormulasTask::Execute()
             ElementPtr code(new Code(row.get()));
             std::vector v{code};
             if (!row->InsertElements(v, with_undo))
+            {
+                document->RollbackUndo();
                 return false;
+            }
             el = code;
         }
     }
@@ -269,6 +275,7 @@ bool InsertFormulasTask::Execute()
         return true;
     }
 
+    document->RollbackUndo();
     return false;
 }
 

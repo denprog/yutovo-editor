@@ -28,6 +28,16 @@ Element* CodeRow::Create(Element* parent)
     return new CodeRow(parent);
 }
 
+bool CodeRow::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo)
+{
+    for (auto el : _elements)
+    {
+        if (el->type == ElementType::CODE)
+            return false;
+    }
+    return Row::InsertElements(_elements, with_undo);
+}
+
 void CodeRow::AddEmptyElement()
 {
     AddElement(ElementPtr(new CodeString(this)));
