@@ -145,6 +145,7 @@ public:
     ElementPtr operator[](const int pos);
 
     virtual Elements* Clone(Element* _parent);
+    virtual void Clone(std::vector<ElementPtr>& _elements, const uint start, const uint size);
     
     virtual void Draw() const;
     virtual void Remake();

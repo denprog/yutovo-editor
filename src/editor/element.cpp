@@ -491,6 +491,12 @@ Elements* Elements::Clone(Element* _parent)
     return res;
 }
 
+void Elements::Clone(std::vector<ElementPtr>& _elements, const uint start, const uint size)
+{
+    for (int i = start; i < start + size; ++i)
+        _elements.push_back(elements[i]);
+}
+
 void Elements::Draw() const
 {
     for (auto& element : elements)
