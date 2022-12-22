@@ -59,6 +59,7 @@ void Row::Remake(bool with_elements)
     else if (elements->Count() == 0)
     {
         AddEmptyElement(); //insert empty string
+        Remake(true);
         CaretState c;
         if (GetFirstCaretState(c, nullptr))
             caret->SetState(c);
@@ -261,8 +262,15 @@ bool Row::DeleteElements(bool left, bool with_undo)
                 else
                     return parent->DeleteElements(left, with_undo);
             }
-            else                
+            else
+            {
+                if (with_undo)
+                {
+                    document->InsertElement(elements->Get(pos - 1)->Clone(), false, true);
+                    document->PushEditorState(CaretState(id, pos - 1), true);
+                }
                 elements->RemoveAt(pos - 1, 1);
+            }
         }
         else
         {
@@ -292,16 +300,26 @@ bool Row::DeleteElements(bool left, bool with_undo)
                     }
                     else
                     {
+                        if (with_undo)
+                        {
+                            document->InsertElement(elements->Get(p)->Clone(), false, true);
+                            document->PushEditorState(CaretState(id, p), true);
+                        }
                         elements->RemoveAt(p, 1);
                     }
                 }
                 else
                 {
+                    if (with_undo)
+                    {
+                        document->InsertElement(elements->Get(p)->Clone(), false, true);
+                        document->PushEditorState(CaretState(id, p), true);
+                    }
                     elements->RemoveAt(p, 1);
                 }
 
                 if (elements->Count() == 0)
-                    Remake(false);
+                    Remake(true);
             }
         }
 
@@ -317,9 +335,16 @@ bool Row::DeleteElements(bool left, bool with_undo)
         uint start, size;
         if (selection->Has(id, start, size))
         {
+            if (with_undo)
+            {
+                std::vector<ElementPtr> clone;
+                elements->Clone(clone, start, size);
+                document->InsertElements(clone, false, true);
+                document->PushEditorState(CaretState(id, start), true);
+            }
             elements->RemoveAt(start, size);
             if (elements->Count() == 0)
-                Remake(false);
+                Remake(true);
             document->Remake(id, false);
 #ifdef DEBUG
             to_str = ToText();
