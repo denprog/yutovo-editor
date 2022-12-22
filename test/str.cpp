@@ -269,6 +269,7 @@ TEST_F(DocumentTest, selections2)
     document.MoveCaretHome(false);
     document.InsertText("Bold", document.GetStringFormat("Times New Roman", 34, true, false, false), true);
     document.WaitMainLoop();
+    std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body><p>"\
         "<span style=\"font-family:'Times New Roman';font-size:34px;\"><strong>Bold</strong></span>"\
@@ -357,6 +358,7 @@ TEST_F(DocumentTest, selections3)
     document.InsertText("Bold", document.GetStringFormat("Times New Roman", 34, true, false, false), true);
     document.InsertText("Italic", document.GetStringFormat("Courier", 24, false, true, false), true);
     document.WaitMainLoop();
+    std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body><p>"\
         "<span style=\"font-family:'Arial';font-size:16px;\">Normal</span>"\
@@ -629,6 +631,7 @@ TEST_F(DocumentTest, inserts4)
     document.InsertText("Text", document.GetStringFormat("Arial", 24, false, false, false), true);
     document.InsertText("Italic", document.GetStringFormat("Times New Roman", 18, false, true, false), true);
     document.WaitMainLoop();
+    std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body><p>"\
         "<span style=\"font-family:'Arial';font-size:24px;\">Text</span>"\
@@ -648,7 +651,7 @@ TEST_F(DocumentTest, inserts4)
     document.WaitUndo();
     ASSERT_TRUE(document.ToHtml() == 
         "<body><p>"\
-        "<span style=\"font-family:'Arial';font-size:22px;\"></span>"\
+        "<span style=\"font-family:'Arial';font-size:24px;\"></span>"\
         "</p></body>") << 
         document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 0)) << document.GetEditorState().ToString();
@@ -1437,6 +1440,7 @@ TEST_F(DocumentTest, delete3)
     document.WaitMainLoop();
     document.Undo();
     document.WaitUndo();
+    std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\

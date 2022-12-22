@@ -104,7 +104,11 @@ bool InsertElementsTask::Execute()
         {
             ElementSelectionState& s = selection_state.state[i];
             if (!DeleteElements(text->document->GetElement(s.id)))
-                return false; //todo transaction fix?
+            {
+                if (with_undo)
+                    document->RollbackUndo();
+                return false;
+            }
         }
     }
 
@@ -132,6 +136,8 @@ bool InsertElementsTask::Execute()
         text->document->Redraw(el->parent->id, true); //move into view
         return true;
     }
+    if (with_undo)
+        document->RollbackUndo();
     return false;
 }
 
@@ -189,7 +195,8 @@ bool DeleteElementsTask::Execute()
             ElementSelectionState& s = selection_state.state[i];
             if (!DeleteElements(text->document->GetElement(s.id)))
             {
-                document->RollbackUndo();
+                if (with_undo)
+                    document->RollbackUndo();
                 return false;
             }
         }
@@ -198,7 +205,9 @@ bool DeleteElementsTask::Execute()
         text->document->Redraw(caret_state.id, true); //move into view
         return true;
     }
-    document->RollbackUndo();
+
+    if (with_undo)
+        document->RollbackUndo();
     return false;
 }
 
@@ -241,7 +250,8 @@ bool InsertFormulasTask::Execute()
             auto row = document->FindParent(caret_state.id, ElementType::ROW);
             if (!row)
             {
-                document->RollbackUndo();
+                if (with_undo)
+                    document->RollbackUndo();
                 return false;
             }
             
@@ -252,7 +262,8 @@ bool InsertFormulasTask::Execute()
             std::vector v{code};
             if (!row->InsertElements(v, with_undo))
             {
-                document->RollbackUndo();
+                if (with_undo)
+                    document->RollbackUndo();
                 return false;
             }
             el = code;
@@ -275,7 +286,8 @@ bool InsertFormulasTask::Execute()
         return true;
     }
 
-    document->RollbackUndo();
+    if (with_undo)
+        document->RollbackUndo();
     return false;
 }
 
@@ -355,7 +367,11 @@ bool ChangeStringFormatTask::Execute()
         }
 
         if (!el->ChangeStringFormat(_format, with_undo))
+        {
+            if (with_undo)
+                document->RollbackUndo();
             return false;
+        }
         text->document->Remake(text->document->GetParent(s.id)->id, true);
         text->document->UpdateFormats();
     }
@@ -397,7 +413,8 @@ bool ChangeParagraphFormatTask::Execute()
 
     if (!el->ChangeParagraphFormat(format, with_undo))
     {
-        text->document->RollbackUndo();
+        if (with_undo)
+            text->document->RollbackUndo();
         return false;
     }
 

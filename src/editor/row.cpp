@@ -137,10 +137,16 @@ bool Row::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo)
     {
         for (size_t i = 0; i < _elements.size(); ++i)
         {
-            elements->Insert(_elements[i], caret_state.GetPos() + i);
+            uint p = caret_state.GetPos();
+            elements->Insert(_elements[i], p + i);
+            if (with_undo)
+            {
+                document->DeleteElements(false, false, true);
+                document->PushEditorState(SelectionState(id, p + i, 1), true);
+            }
             if (i == 0 && _elements[0]->AfterInsert(with_undo))
                 continue;
-            if (elements->Get(caret_state.GetPos() + i)->GetLastCaretState(c, nullptr))
+            if (elements->Get(p + i)->GetLastCaretState(c, nullptr))
                 caret->SetState(c);
         }
     }
