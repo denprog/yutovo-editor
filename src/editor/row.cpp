@@ -59,6 +59,9 @@ void Row::Remake(bool with_elements)
     else if (elements->Count() == 0)
     {
         AddEmptyElement(); //insert empty string
+        CaretState c;
+        if (GetFirstCaretState(c, nullptr))
+            caret->SetState(c);
     }
 
     if (with_elements)
@@ -91,7 +94,7 @@ void Row::Remake(bool with_elements)
     }
 
     UpdateRect();
-    
+
     rect.width += right_m;
 
     //align top and bottom of the line by the margins of the elements
