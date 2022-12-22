@@ -169,9 +169,7 @@ bool DeleteElementsTask::Execute()
     auto DeleteElements = [&](ElementPtr el)
     {
         assert(el != nullptr);
-        if (el->DeleteElements(left, with_undo))
-            return true;
-        return false;
+        return el->DeleteElements(left, with_undo);
     };
 
     if (selection_state.IsEmpty())
@@ -190,13 +188,17 @@ bool DeleteElementsTask::Execute()
         {
             ElementSelectionState& s = selection_state.state[i];
             if (!DeleteElements(text->document->GetElement(s.id)))
-                return false; //todo transaction fix?
+            {
+                document->RollbackUndo();
+                return false;
+            }
         }
         if (with_undo)
             text->document->PushEditorState(true);
         text->document->Redraw(caret_state.id, true); //move into view
         return true;
     }
+    document->RollbackUndo();
     return false;
 }
 
