@@ -82,42 +82,51 @@ void Division::Remake(bool with_elements)
     document->Remake(parent->id, false);
 }
 
-bool Division::AfterInsert(bool with_undo)
+bool Division::AfterInsert(ElementPtr el1, ElementPtr el2, bool with_undo)
 {
-    if (upper->elements->Count() == 1)
+    if (upper->elements->Count() != 1 || lower->elements->Count() != 1 || !caret)
+        return false;
+
+    String* str1 = dynamic_cast<String*>(upper->elements->Get(0).get());
+    String* str2 = dynamic_cast<String*>(lower->elements->Get(0).get());
+    if (str1 && str1->elements->Count() == 0)
     {
-        String* str = dynamic_cast<String*>(upper->elements->Get(0).get());
-        if (str && str->elements->Count() == 0)
+        CaretState c;
+        if (el2 && str2 && str2->elements->Count() == 0)
         {
-            CaretState c;
-            if (caret->current_element)
+            //move the second element in the lower element
+            lower->elements->RemoveAt(0, 1);
+            lower->elements->Move(document->GetElement(el2->id), 0);
+            if (with_undo)
             {
-                c = caret->GetCaretState();
-                //move the current element in the upper one
-                if (c.id != id && c.IsInsideElement(parent->id) && c.GetPosInElement(parent->id) < parent->elements->Count())
-                {
-                    if (with_undo)
-                    {
-                        document->InsertFormula(caret->current_element->Clone(), false, true);
-                        document->PushEditorState(CaretState(caret->current_element->id), true);
-                    }
-                    upper->elements->RemoveAt(0, 1);
-                    upper->elements->Move(document->GetElement(caret->current_element->id), 0);
-                }
+                document->InsertFormula(el2->Clone(), false, true);
+                document->PushEditorState(CaretState(parent->id, parent->elements->GetElementPos(id) + 1), true);
             }
-            if (upper->elements->Get(0)->elements->Count() == 0)
-            {
-                if (upper->GetFirstCaretState(c, nullptr))
-                    caret->SetState(c);
-            }
-            else
-            {
-                if (lower->GetFirstCaretState(c, nullptr))
-                    caret->SetState(c);
-            }
-            return true;
         }
+        if (el1)
+        {
+            //move the first element in the upper element
+            upper->elements->RemoveAt(0, 1);
+            upper->elements->Move(document->GetElement(el1->id), 0);
+            if (with_undo)
+            {
+                document->InsertFormula(el1->Clone(), false, true);
+                document->PushEditorState(CaretState(parent->id, parent->elements->GetElementPos(id)), true);
+            }
+        }
+        if (upper->elements->Get(0)->elements->Count() == 0)
+        {
+            if (upper->GetFirstCaretState(c, nullptr))
+                caret->SetState(c);
+        }
+        else
+        {
+            if (lower->GetFirstCaretState(c, nullptr))
+                caret->SetState(c);
+        }
+        return true;
     }
+
     return false;
 }
 

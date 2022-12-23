@@ -170,7 +170,7 @@ bool String::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo)
             {
                 document->InsertElement(Clone(), false, true);
                 document->DeleteElements(false, false, true);
-                document->PushEditorState(CaretState(id), true);
+                document->PushEditorState(CaretState(id), SelectionState(id, 0, s->elements->Count()), true);
             }
             elements.reset(new StringElements(this, s->elements->ToText()));
             format = s->format;
@@ -418,6 +418,16 @@ bool String::Merge(const ElementPtr with_element)
 #ifdef DEBUG
     to_str = ToText();
 #endif
+    return true;
+}
+
+bool String::AfterInsert(ElementPtr el1, ElementPtr el2, bool with_undo)
+{
+    if (!caret)
+        return false;
+    CaretState c;
+    if (GetLastCaretState(c, nullptr))
+        caret->SetState(c);
     return true;
 }
 

@@ -40,6 +40,8 @@ public:
     virtual bool SplitAt(const uint pos);
     virtual bool Merge(const ElementPtr with_element);
 
+    virtual bool AfterInsert(ElementPtr el1, ElementPtr el2, bool with_undo);
+
     virtual void UpdateStringFormat(const StringFormatPtr base_format, const StringFormatPtr new_format);
 
     virtual bool CanContinueSelection();

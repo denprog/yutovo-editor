@@ -145,7 +145,7 @@ bool Row::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo)
                 document->DeleteElements(false, false, true);
                 document->PushEditorState(SelectionState(id, p + i, 1), true);
             }
-            if (i == 0 && _elements[0]->AfterInsert(with_undo))
+            if (i == 0 && elements->Get(p + i)->AfterInsert(elements->Get(p + i + 1), nullptr, with_undo))
                 continue;
             if (elements->Get(p + i)->GetLastCaretState(c, nullptr))
                 caret->SetState(c);
@@ -168,9 +168,12 @@ bool Row::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo)
                     document->PushEditorState(SelectionState(id, p + i, 1), true);
                 }
                 if (i == 0)
-                    b = ins->AfterInsert(with_undo);
-                if (!b && elements->Get(p + i)->GetLastCaretState(c, nullptr))
-                    caret->SetState(c);
+                    b = ins->AfterInsert(elements->Count() > p + i + 1 ? elements->Get(p + i + 1) : nullptr, nullptr, with_undo);
+                if (!b)
+                {
+                    if (elements->Get(elements->Count() > p + i + 1 ? p + i + 1 : p + i)->GetLastCaretState(c, nullptr))
+                        caret->SetState(c);
+                }
             }
             else if (el->GetLastCaretState(c, nullptr) && c == caret_state)
             {
@@ -182,7 +185,7 @@ bool Row::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo)
                     document->PushEditorState(SelectionState(id, p + i + 1, 1), true);
                 }
                 if (i == 0)
-                    b = ins->AfterInsert(with_undo);
+                    b = ins->AfterInsert(elements->Get(p + i), nullptr, with_undo);
                 if (!b && elements->Get(p + i + 1)->GetLastCaretState(c, nullptr))
                     caret->SetState(c);
                 if (elements->Count() > p + i + 2)
@@ -197,13 +200,15 @@ bool Row::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo)
                 if (el->SplitAt(caret_state.GetPos()))
                 {
                     elements->Insert(ins, p + i + 1);
-                    if (elements->Get(p + i + 1)->GetLastCaretState(c, nullptr))
+                    if (i == 0)
+                        b = ins->AfterInsert(el, elements->Get(p + i + 2), with_undo);
+                    if (!b && elements->Get(p + i + 1)->GetLastCaretState(c, nullptr))
                         caret->SetState(c);
                 }
                 if (with_undo)
                 {
                     document->DeleteElements(false, false, true);
-                    document->PushEditorState(SelectionState(id, p + i + 1, 1), true);
+                    document->PushEditorState(SelectionState(id, elements->GetElementPos(ins->id), 1), true);
                 }
             }
         }
@@ -283,7 +288,9 @@ bool Row::DeleteElements(bool left, bool with_undo)
                     p = elements->GetElementPos(document->GetParent(before_state.id)->id);
                 if (p < elements->Count())
                 {
-                    auto el = elements->Get(p + 1);
+                    if (before_state.GetElement() != id)
+                        ++p;
+                    auto el = elements->Get(p);
                     if (el && el->CanContinueSelection())
                     {
                         CaretState c;
@@ -298,7 +305,7 @@ bool Row::DeleteElements(bool left, bool with_undo)
                             return true;
                         }
                     }
-                    else
+                    else if (p < elements->Count())
                     {
                         if (with_undo)
                         {
@@ -308,7 +315,7 @@ bool Row::DeleteElements(bool left, bool with_undo)
                         elements->RemoveAt(p, 1);
                     }
                 }
-                else
+                else if (p >= 0)
                 {
                     if (with_undo)
                     {
