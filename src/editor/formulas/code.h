@@ -19,12 +19,13 @@ public:
 
     virtual void Draw() const;
 
-    virtual bool AfterInsert(bool with_undo);
+    virtual bool AfterInsert(ElementPtr el1, ElementPtr el2, bool with_undo);
 
     virtual void GetMargin(int& left, int& top, int& right, int& bottom) const;
 
     virtual bool HasCaretState();
     virtual bool HasLastCaretState();
+    virtual bool CanContinueSelection();
 
     virtual StringFormatPtr GetStringFormat();
     virtual FormulaFormatPtr GetFormulaFormat() const;

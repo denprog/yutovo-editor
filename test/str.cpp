@@ -607,7 +607,7 @@ TEST_F(DocumentTest, inserts3)
     document.WaitUndo();
     ASSERT_TRUE(document.ToHtml() == 
         "<body><p>"\
-        "<span style=\"font-family:'Arial';font-size:22px;\"></span>"\
+        "<span style=\"font-family:'Arial';font-size:24px;\"></span>"\
         "</p></body>") << 
         document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 0)) << document.GetEditorState().ToString();
@@ -900,7 +900,7 @@ TEST_F(DocumentTest, fonts1)
     }
     ASSERT_TRUE(document.ToHtml() == 
         "<body><p>"\
-        "<span style=\"font-family:'Arial';font-size:22px;\"></span>"\
+        "<span style=\"font-family:'Courier New';font-size:12px;\"></span>"\
         "</p></body>") << 
         document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 0)) << document.GetEditorState().ToString();
@@ -1097,7 +1097,7 @@ TEST_F(DocumentTest, fonts2)
     document.WaitUndo();
     ASSERT_TRUE(document.ToHtml() == 
         "<body><p>"\
-        "<span style=\"font-family:'Arial';font-size:22px;\"></span>"\
+        "<span style=\"font-family:'Arial';font-size:24px;\"></span>"\
         "</p></body>") << 
         document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 0)) << document.GetEditorState().ToString();

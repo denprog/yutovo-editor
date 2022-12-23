@@ -151,7 +151,7 @@ void Element::UpdateStringFormat(const StringFormatPtr base_format, const String
         elements->Get(i)->UpdateStringFormat(base_format, new_format);
 }
 
-bool Element::AfterInsert(bool with_undo)
+bool Element::AfterInsert(ElementPtr el1, ElementPtr el2, bool with_undo)
 {
     return false;
 }
