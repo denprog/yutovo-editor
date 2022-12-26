@@ -23,6 +23,8 @@ public:
     virtual void Draw() const;
     virtual void Remake(bool with_elements);
 
+    virtual bool DeleteElements(bool left, bool with_undo);
+    
     virtual bool AfterInsert(ElementPtr el1, ElementPtr el2, bool with_undo);
 
     virtual bool GetTopCaretState(const int x, const int y, CaretState& caret_state, Selection* select);

@@ -614,6 +614,11 @@ void Elements::Remove(const ElementPtr element)
     parent->elements->RemoveAt(element->parent->elements->GetElementPos(element->id), 1);
 }
 
+void Elements::Remove(const ElementId id)
+{
+    RemoveAt(GetElementPos(id), 1);
+}
+
 void Elements::RemoveAt(const uint pos, const int size)
 {
     selection->Remove(parent->id, pos, size);
@@ -659,6 +664,12 @@ void Elements::Move(const ElementPtr element, const uint pos)
     parent->to_str = parent->ToText();
     element->parent->to_str = element->parent->ToText();
 #endif
+}
+
+void Elements::Move(const Elements& _elements, const uint pos)
+{
+    for (int i = 0; i < _elements.Count(); ++i)
+        Move(_elements.elements[i], pos + i);
 }
 
 void Elements::Clear()

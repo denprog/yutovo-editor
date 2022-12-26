@@ -827,4 +827,102 @@ TEST_F(DivisionTest, division7)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 2, 0, 0})) << document.GetEditorState().ToString();
 }
 
+
+TEST_F(DivisionTest, division8)
+{
+    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
+        {
+            return Rect{0, 0, 600, 400};
+        });
+
+    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::string& text, const StringFormatPtr format)
+        {
+            return GetTextSizeMock(text, format);
+        });
+
+    document.InsertDivision(true);
+    document.InsertText("123", true);
+    document.WaitMainLoop();
+    document.MoveCaretDown(false);
+    document.MoveCaretDown(false);
+    document.WaitCaretMoving();
+    document.InsertText("45", true);
+    document.WaitMainLoop();
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mfrac>"\
+                            "<mrow>"\
+                                "<mi>123</mi>"\
+                            "</mrow>"\
+                            "<mrow>"\
+                                "<mi>45</mi>"\
+                            "</mrow>"\
+                        "</mfrac>"\
+                    "</mrow>"\
+                "</math>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 2, 0, 2})) << document.GetEditorState().ToString();
+
+    document.MoveCaretUp(false);
+    document.WaitCaretMoving();
+    document.DeleteElements(false, true, false);
+    document.WaitMainLoop();
+    std::this_thread::sleep_for(100ms);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mi>12345</mi>"\
+                    "</mrow>"\
+                "</math>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 3})) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mfrac>"\
+                            "<mrow>"\
+                                "<mi>123</mi>"\
+                            "</mrow>"\
+                            "<mrow>"\
+                                "<mi>45</mi>"\
+                            "</mrow>"\
+                        "</mfrac>"\
+                    "</mrow>"\
+                "</math>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 1})) << document.GetEditorState().ToString();
+
+    document.Redo();
+    document.WaitRedo();
+    std::this_thread::sleep_for(100ms);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mi>12345</mi>"\
+                    "</mrow>"\
+                "</math>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 3})) << document.GetEditorState().ToString();
+}
+
 }
