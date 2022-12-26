@@ -128,6 +128,8 @@ std::string IdToString(const ElementId& id);
 
 bool IsChild(const ElementId& parent_id, const ElementId& child_id);
 
+ElementId GetParent(const ElementId& id);
+
 struct DocumentUserData
 {
     Document* document = nullptr;

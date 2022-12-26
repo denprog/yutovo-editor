@@ -92,6 +92,10 @@ void String::Remake(bool with_elements)
     UpdateRect();
 }
 
+void String::Normalize(bool with_undo)
+{
+}
+
 void String::UpdateRect()
 {
     Size s = parent->window->GetTextSize(((StringElements*)elements.get())->str, format);
@@ -158,6 +162,7 @@ bool String::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo)
 {
     if (!document->caret->IsInsideElement(id))
         return parent->InsertElements(_elements, with_undo);
+    
     if (_elements.size() == 1 && document->IsString(_elements[0]))
     {
         String* s = dynamic_cast<String*>(_elements[0].get());
@@ -175,7 +180,7 @@ bool String::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo)
             elements.reset(new StringElements(this, s->elements->ToText()));
             format = s->format;
             caret->SetState(elements->GetElementId(elements->Count()));
-            document->Remake(parent->id, false);
+            parent->Normalize(with_undo);
 #ifdef DEBUG
             to_str = ToText();
 #endif
@@ -191,7 +196,7 @@ bool String::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo)
             }
             elements->Insert(_elements[0], caret->current_pos);
             caret->SetState(elements->GetElementId(caret->current_pos + s->elements->Count()));
-            document->Remake(parent->id, false);
+            parent->Normalize(with_undo);   
 #ifdef DEBUG
             to_str = ToText();
 #endif
@@ -221,8 +226,6 @@ bool String::DeleteElements(bool left, bool with_undo)
         undo_str = str.substr(start, size);
         elements->RemoveAt(start, size);
         pos = start;
-        if (elements->Count() == 0)
-            parent->Remake(false);
     }
     else if (caret->IsInsideElement(id))
     {
@@ -238,10 +241,7 @@ bool String::DeleteElements(bool left, bool with_undo)
             elements->RemoveAt(caret_pos, 1);
             pos = caret_pos;
         }
-        if (elements->Count() == 0)
-            parent->Remake(false);
-        else
-            caret->SetPos(pos, true);
+        caret->SetPos(pos, true);
     }
 
     if (with_undo)
@@ -250,13 +250,10 @@ bool String::DeleteElements(bool left, bool with_undo)
             document->InsertText(undo_str, format, ElementId{});
         else
             document->InsertText(undo_str, format, elements->GetElementId(pos));
-        if (elements->Count() > 0)
-            document->PushEditorState(CaretState(elements->GetElementId(pos)), true);
-        else
-            document->PushEditorState(caret->GetCaretState(), true);
+        document->PushEditorState(CaretState(elements->GetElementId(pos)), true);
     }
 
-    document->Remake(parent->id, true);
+    parent->Normalize(with_undo);
 
 #ifdef DEBUG
     to_str = ToText();
@@ -273,11 +270,9 @@ bool String::ChangeStringFormat(const StringFormatPtr _format, bool with_undo)
         {
             //change format of the whole string
             if (with_undo)
-            {
                 document->ChangeStringFormat(format, false, true);
-                document->Remake(parent->id, true);
-            }
             format = _format;
+            parent->Normalize(with_undo);
             return true;
         }
         else
@@ -290,9 +285,9 @@ bool String::ChangeStringFormat(const StringFormatPtr _format, bool with_undo)
             {
                 document->ChangeStringFormat(format, false, true);
                 document->PushEditorState(SelectionState(el->id, 0, el->elements->Count()), true);
-                document->Remake(parent->id, true);
             }
             ((String*)el.get())->format = _format;
+            parent->Normalize(with_undo);
             return true;
         }
     }

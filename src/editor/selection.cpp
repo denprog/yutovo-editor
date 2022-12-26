@@ -95,6 +95,47 @@ void SelectionState::Merge(const SelectionState& s)
         Add(t);
 }
 
+ElementId SelectionState::GetCommonElement() const
+{
+    if (state.empty())
+        return {};
+    
+    ElementId id = state[0].id;
+    for (int i = 1; i < state.size(); ++i)
+    {
+        ElementId _id = state[i].id;
+        if (id == _id || IsChild(id, _id))
+            continue;
+        if (IsChild(_id, id))
+        {
+            id = _id;
+            continue;
+        }
+
+        ElementId p1 = GetParent(id);
+        ElementId p2 = GetParent(_id);
+        while (!p1.empty() && !p2.empty())
+        {
+            bool f = false;
+            while (!p2.empty())
+            {
+                if (p1 == p2)
+                {
+                    id = p1;
+                    f = true;
+                    break;
+                }
+                p2 = GetParent(p2);
+            }
+            if (f)
+                break;
+            p1 = GetParent(p1);
+            p2 = GetParent(_id);
+        }
+    }
+    return id;
+}
+
 bool SelectionState::IsEmpty() const
 {
     return state.empty();

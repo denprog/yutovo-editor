@@ -43,6 +43,8 @@ struct SelectionState
     void Add(const ElementSelectionState& s);
     void Merge(const SelectionState& s);
     
+    ElementId GetCommonElement() const;
+
     bool IsEmpty() const;
 
 #ifdef DEBUG

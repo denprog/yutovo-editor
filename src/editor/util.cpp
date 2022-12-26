@@ -93,6 +93,13 @@ bool IsChild(const ElementId& parent_id, const ElementId& child_id)
     return true;
 }
 
+ElementId GetParent(const ElementId& id)
+{
+    ElementId _id(id);
+    _id.erase(_id.end() - 1);
+    return _id;
+}
+
 template<>
 void RegisterTypes(UserDataAdapter<DocumentUserData, boost::archive::binary_iarchive>& archive)
 {

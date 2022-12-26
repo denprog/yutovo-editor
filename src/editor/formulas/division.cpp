@@ -99,8 +99,10 @@ bool Division::AfterInsert(ElementPtr el1, ElementPtr el2, bool with_undo)
             lower->elements->Move(document->GetElement(el2->id), 0);
             if (with_undo)
             {
-                document->InsertFormula(el2->Clone(), false, true);
-                document->PushEditorState(CaretState(parent->id, parent->elements->GetElementPos(id) + 1), true);
+                auto _el2 = el2->Clone();
+                _el2->dont_normalize = true;
+                document->InsertFormula(_el2, false, true);
+                document->PushEditorState(CaretState(parent->id, parent->elements->GetElementPos(id)), true);
             }
         }
         if (el1)
@@ -110,7 +112,9 @@ bool Division::AfterInsert(ElementPtr el1, ElementPtr el2, bool with_undo)
             upper->elements->Move(document->GetElement(el1->id), 0);
             if (with_undo)
             {
-                document->InsertFormula(el1->Clone(), false, true);
+                auto _el1 = el1->Clone();
+                _el1->dont_normalize = true;
+                document->InsertFormula(_el1, false, true);
                 document->PushEditorState(CaretState(parent->id, parent->elements->GetElementPos(id)), true);
             }
         }

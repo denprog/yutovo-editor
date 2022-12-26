@@ -42,6 +42,7 @@ TEST_F(DocumentTest, strings1)
 
     document.InsertText("e", true);
     document.WaitMainLoop();
+    std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == "<body><p><span style=\"font-family:'Arial';font-size:22px;\">Te</span></p></body>") << document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 2)) << document.GetEditorState().ToString();
     document.InsertText("x", true);
@@ -379,7 +380,7 @@ TEST_F(DocumentTest, selections3)
 
     document.DeleteElements(true, true, false);
     document.WaitMainLoop();
-    std::this_thread::sleep_for(100ms);
+    std::this_thread::sleep_for(200ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body><p>"\
         "<span style=\"font-family:'Arial';font-size:16px;\">Norm</span>"\
@@ -389,6 +390,7 @@ TEST_F(DocumentTest, selections3)
 
     document.Undo();
     document.WaitUndo();
+    std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body><p>"\
         "<span style=\"font-family:'Arial';font-size:16px;\">Normal</span>"\
@@ -1340,6 +1342,7 @@ TEST_F(DocumentTest, delete2)
     document.WaitMainLoop();
     document.DeleteElements(true, true, false);
     document.WaitMainLoop();
+    std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
