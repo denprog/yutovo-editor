@@ -82,6 +82,39 @@ void Division::Remake(bool with_elements)
     document->Remake(parent->id, false);
 }
 
+bool Division::DeleteElements(bool left, bool with_undo)
+{
+    if (!selection->IsEmpty() || left || caret->current_pos != 1)
+        return false;
+    
+    //remove division by deleting its shape
+    int p = parent->elements->GetElementPos(id);
+    uint c1 = elements->Get(0)->elements->Count();
+    uint c2 = elements->Get(2)->elements->Count();
+    Element* undo_el = nullptr;
+    if (with_undo)
+        undo_el = Clone();
+
+    caret->SetState(id);
+    parent->elements->Move(*elements->Get(0)->elements, p);
+    parent->elements->Move(*elements->Get(2)->elements, p + 1);
+    parent->elements->Remove(id);
+    CaretState c;
+    if (parent->elements->Get(p + 1)->GetFirstCaretState(c, nullptr))
+        caret->SetState(c);
+
+    if (with_undo)
+    {
+        document->InsertElement(undo_el, false, true);
+        document->PushEditorState(CaretState(parent->id, p), true);
+        document->DeleteElements(false, false, true);
+        document->PushEditorState(SelectionState(parent->id, p, c1 + c2), true);
+    }
+
+    parent->Normalize(with_undo);
+    return true;
+}
+
 bool Division::AfterInsert(ElementPtr el1, ElementPtr el2, bool with_undo)
 {
     if (upper->elements->Count() != 1 || lower->elements->Count() != 1 || !caret)

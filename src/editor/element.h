@@ -162,8 +162,10 @@ public:
     virtual void Add(ElementPtr element);
     virtual void Insert(ElementPtr element, const uint pos);
     virtual void Remove(const ElementPtr element);
+    virtual void Remove(const ElementId id);
     virtual void RemoveAt(const uint pos, const int size);
     virtual void Move(const ElementPtr element, const uint pos);
+    virtual void Move(const Elements& _elements, const uint pos);
     virtual void Clear();
 
     virtual uint Count() const;
