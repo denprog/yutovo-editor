@@ -25,6 +25,7 @@ public:
     virtual Element* Create(Element* parent, const std::string _str, const StringFormatPtr _format);
 
     virtual void Remake(bool with_elements);
+    virtual void Normalize(bool with_undo);
 
     virtual void UpdateRect();
 

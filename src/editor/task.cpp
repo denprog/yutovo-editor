@@ -65,22 +65,22 @@ bool InsertElementsTask::Execute()
     logger->Debug("Execute InsertElementsTask");
 
     if (with_undo)
-        text->document->PushEditorState(true);
+        document->PushEditorState(true);
 
     if (before_state.IsEmpty())
-        before_state = text->document->GetEditorState();
+        before_state = document->GetEditorState();
     else
-        text->document->SetEditorState(before_state); //it is redo
+        document->SetEditorState(before_state); //it is redo
     
     CaretState caret_state = before_state.caret_state;
     SelectionState& selection_state = before_state.selection_state;
 
     ElementPtr el;
     if (element_id.empty())
-        el = text->document->GetParent(caret_state.id);
+        el = document->GetParent(caret_state.id);
     else
     {
-        el = text->document->GetParent(element_id);
+        el = document->GetParent(element_id);
         caret_state.id = element_id;
     }
     assert(el != nullptr);
@@ -94,7 +94,7 @@ bool InsertElementsTask::Execute()
             assert(el != nullptr);
             if (el->DeleteElements(true, with_undo))
             {
-                text->document->Remake(el->parent->id, true);
+                document->Remake(el->parent->id, true);
                 return true;
             }
             return false;
@@ -103,7 +103,7 @@ bool InsertElementsTask::Execute()
         for (int i = selection_state.state.size() - 1; i >= 0; --i)
         {
             ElementSelectionState& s = selection_state.state[i];
-            if (!DeleteElements(text->document->GetElement(s.id)))
+            if (!DeleteElements(document->GetElement(s.id)))
             {
                 if (with_undo)
                     document->RollbackUndo();
@@ -131,9 +131,9 @@ bool InsertElementsTask::Execute()
     if (el->InsertElements(_elements, with_undo))
     {
         if (with_undo)
-            text->document->PushEditorState(true);
-        text->document->Remake(el->parent->id, true);
-        text->document->Redraw(el->parent->id, true); //move into view
+            document->PushEditorState(true);
+        document->Remake(el->parent->id, true);
+        document->Redraw(el->parent->id, true); //move into view
         return true;
     }
     if (with_undo)
@@ -162,12 +162,12 @@ bool DeleteElementsTask::Execute()
     logger->Debug("Execute DeleteElementsTask");
 
     if (with_undo)
-        text->document->PushEditorState(true);
+        document->PushEditorState(true);
 
     if (before_state.IsEmpty())
-        before_state = text->document->GetEditorState();
+        before_state = document->GetEditorState();
     else
-        text->document->SetEditorState(before_state); //it is redo
+        document->SetEditorState(before_state); //it is redo
 
     CaretState caret_state = before_state.caret_state;
     SelectionState& selection_state = before_state.selection_state;
@@ -180,11 +180,11 @@ bool DeleteElementsTask::Execute()
 
     if (selection_state.IsEmpty())
     {
-        if (DeleteElements(text->document->GetParent(caret_state.id)))
+        if (DeleteElements(document->GetParent(caret_state.id)))
         {
             if (with_undo)
-                text->document->PushEditorState(true);
-            text->document->Redraw(caret_state.id, true); //move into view
+                document->PushEditorState(true);
+            document->Redraw(caret_state.id, true); //move into view
             return true;
         }
     }
@@ -193,7 +193,7 @@ bool DeleteElementsTask::Execute()
         for (int i = selection_state.state.size() - 1; i >= 0; --i)
         {
             ElementSelectionState& s = selection_state.state[i];
-            if (!DeleteElements(text->document->GetElement(s.id)))
+            if (!DeleteElements(document->GetElement(s.id)))
             {
                 if (with_undo)
                     document->RollbackUndo();
@@ -201,8 +201,8 @@ bool DeleteElementsTask::Execute()
             }
         }
         if (with_undo)
-            text->document->PushEditorState(true);
-        text->document->Redraw(caret_state.id, true); //move into view
+            document->PushEditorState(true);
+        document->Redraw(caret_state.id, true); //move into view
         return true;
     }
 
@@ -321,10 +321,7 @@ bool ChangeStringFormatTask::Execute()
 {
     logger->Debug("Execute ChangeStringFormatTask");
     if (with_undo)
-    {
         text->document->PushEditorState(true);
-        text->document->Remake(text->id, true, true);
-    }
 
     if (before_state.IsEmpty())
         before_state = text->document->GetEditorState();
@@ -372,14 +369,16 @@ bool ChangeStringFormatTask::Execute()
                 document->RollbackUndo();
             return false;
         }
-        text->document->Remake(text->document->GetParent(s.id)->id, true);
-        text->document->UpdateFormats();
+
+        document->UpdateFormats();
     }
 
     if (with_undo)
-        text->document->PushEditorState(true);
-    
-    text->document->Redraw(caret_state.id, true); //move into view
+        document->PushEditorState(true);
+
+    auto p_id = selection_state.state.size() == 1 ? GetParent(selection_state.state[0].id) : selection_state.GetCommonElement();
+    document->Remake(p_id, true);
+    document->Redraw(caret_state.id, true); //move into view
 
     return true;
 }
@@ -401,28 +400,28 @@ bool ChangeParagraphFormatTask::Execute()
 {
     logger->Debug("Execute ChangeParagraphFormatTask");
     if (before_state.IsEmpty())
-        before_state = text->document->GetEditorState();
+        before_state = document->GetEditorState();
 
     CaretState& caret_state = before_state.caret_state;
-    auto el = text->document->FindParent(caret_state.id, ElementType::PARAGRAPH);
+    auto el = document->FindParent(caret_state.id, ElementType::PARAGRAPH);
     if (!el)
         return false;
 
     if (with_undo)
-        text->document->PushEditorState(true);
+        document->PushEditorState(true);
 
     if (!el->ChangeParagraphFormat(format, with_undo))
     {
         if (with_undo)
-            text->document->RollbackUndo();
+            document->RollbackUndo();
         return false;
     }
 
     if (with_undo)
-        text->document->PushEditorState(true);
+        document->PushEditorState(true);
 
-    text->document->UpdateFormats();
-    text->document->Redraw(el->parent->id, true); //move into view
+    document->UpdateFormats();
+    document->Redraw(el->parent->id, true); //move into view
 
     return true;
 }
@@ -449,8 +448,8 @@ bool RemakeTask::Execute()
     auto p = text->document->GetElement(element_id);
     if (!p)
         return false;
-    text->document->GetElement(element_id)->Remake(with_elements);
-    text->document->Redraw(element_id, false);
+    document->GetElement(element_id)->Remake(with_elements);
+    document->Redraw(element_id, false);
     return true;
 }
 
@@ -468,6 +467,7 @@ bool RedrawTask::Execute()
     ElementPtr element = text->document->GetElement(element_id);
     if (!element || text->document->WillRedraw(element_id, move_into_view)) //don't redraw if it will redraw later
         return false;
+    
     logger->Debug("Execute RedrawTask element_id={}", IdToString(element_id));
     text->window->DrawFillRect(element->GetAbsoluteRect(), Color::White());
     element->Draw();
@@ -609,14 +609,14 @@ SetEditorStateTask::SetEditorStateTask(ElementPtr _text, const CaretState& _care
 
 bool SetEditorStateTask::Execute()
 {
-    text->document->caret->SetState(caret_state);
-    text->document->selection.Set(selection_state);
+    document->caret->SetState(caret_state);
+    document->selection.Set(selection_state);
 
-    text->document->UpdateCaretView();
-    text->document->UpdateLastSelection();    
+    document->UpdateCaretView();
+    document->UpdateLastSelection();    
 
 #ifdef DEBUG
-    text->document->last_caret_moved = true;
+    document->last_caret_moved = true;
 #endif
     return true;
 }

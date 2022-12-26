@@ -19,6 +19,7 @@ public:
     virtual Element* Create(Element* parent);
 
     virtual void Remake(bool with_elements);
+    virtual void Normalize(bool with_undo);
 
     virtual bool InsertElements(std::vector<ElementPtr>& _elements, bool with_undo);
     virtual bool DeleteElements(bool left, bool with_undo);

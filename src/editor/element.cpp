@@ -38,6 +38,7 @@ Element::Element(const Element& source) :
     type(source.type),
     id(source.id),
     editable(source.editable),
+    dont_normalize(source.dont_normalize),
     caret(document->caret),
     selection(&document->selection)
 {
@@ -77,6 +78,12 @@ void Element::Remake(bool with_elements)
     if (with_elements)
         elements->Remake();
     UpdateRect();
+}
+
+void Element::Normalize(bool with_undo)
+{
+    for (int i = 0; i < elements->Count(); ++i)
+        elements->Get(i)->Normalize(with_undo);
 }
 
 bool Element::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo)
@@ -440,6 +447,13 @@ Point Element::GetAbsolutePoint(const Point& point) const
         return p;
     }
     return point;
+}
+
+void Element::ResetDontNormalize()
+{
+    dont_normalize = false;
+    for (int i = 0; i < elements->Count(); ++i)
+        elements->Get(i)->dont_normalize = false;
 }
 
 ParagraphFormatPtr Element::GetParagraphFormat()

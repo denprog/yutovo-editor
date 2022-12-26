@@ -35,6 +35,7 @@ public:
 
     void InsertElement(Element* element, bool with_undo, bool undo = false, ElementId element_id = ElementId{});
     void InsertElement(Element* element, ElementId element_id = ElementId{});
+    void InsertElement(ElementPtr element, ElementId element_id = ElementId{});
     void InsertElements(std::vector<ElementPtr>& elements, bool with_undo, bool undo = false, ElementId element_id = ElementId{});
 
     void DeleteElements(bool left, bool with_undo, bool undo);

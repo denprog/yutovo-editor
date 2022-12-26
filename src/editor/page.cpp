@@ -146,6 +146,8 @@ bool Page::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo)
     if (with_undo)
         document->DeleteElements(true, false, true);
     
+    new_row->Normalize(with_undo);
+    
 #ifdef DEBUG
     to_str = ToText();
 #endif
@@ -180,6 +182,8 @@ bool Page::DeleteElements(bool left, bool with_undo)
 
     if (with_undo)
         document->InsertParagraph(true, true);
+    
+    dest_row->Normalize(with_undo);
 
 #ifdef DEBUG
     to_str = ToText();

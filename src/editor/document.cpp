@@ -239,6 +239,13 @@ void Document::InsertElement(Element* element, ElementId element_id)
     InsertElements(elements, false, true, element_id);
 }
 
+void Document::InsertElement(ElementPtr element, ElementId element_id)
+{
+    std::vector<ElementPtr> elements;
+    elements.push_back(element);
+    InsertElements(elements, false, true, element_id);
+}
+
 void Document::InsertElements(std::vector<ElementPtr>& elements, bool with_undo, bool undo, ElementId element_id)
 {
     {

@@ -54,6 +54,7 @@ public:
 
     virtual void Draw() const;
     virtual void Remake(bool with_elements);
+    virtual void Normalize(bool with_undo);
 
     virtual bool InsertElements(std::vector<ElementPtr>& _elements, bool with_undo);
     virtual bool DeleteElements(bool left, bool with_undo);
@@ -104,6 +105,8 @@ public:
     virtual Rect GetAbsoluteRect() const;
     Point GetAbsolutePoint(const Point& point) const;
 
+    void ResetDontNormalize();
+
     virtual ParagraphFormatPtr GetParagraphFormat();
     virtual StringFormatPtr GetStringFormat();
     virtual FormulaFormatPtr GetFormulaFormat() const;
@@ -119,9 +122,9 @@ public:
     Rect rect; //relative bounding rect
     int baseline = 0;
     
-    bool modified = false;
-    
     bool editable = true;
+
+    bool dont_normalize = false; //don't normalize this element in next normalization circle
 
 protected:
     CaretPtr caret;
