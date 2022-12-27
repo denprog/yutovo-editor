@@ -826,12 +826,15 @@ void Document::Redraw(const ElementId& id, bool move_into_view)
         std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
         if (!tasks.empty())
         {
-            TaskPtr last = tasks[tasks.size() - 1];
-            RedrawTask* t = dynamic_cast<RedrawTask*>(last.get());
-            if (!t || t->element_id != id)
-                tasks.emplace_back(new RedrawTask(text, id, move_into_view));
-            else if (!t->move_into_view)
-                t->move_into_view = move_into_view;
+            if (!WillRedraw(id, move_into_view))
+            {
+                TaskPtr last = tasks[tasks.size() - 1];
+                RedrawTask* t = dynamic_cast<RedrawTask*>(last.get());
+                if (!t || t->element_id != id)
+                    tasks.emplace_back(new RedrawTask(text, id, move_into_view));
+                else if (!t->move_into_view)
+                    t->move_into_view = move_into_view;
+            }
         }
         else
         {

@@ -111,6 +111,8 @@ public:
     virtual StringFormatPtr GetStringFormat();
     virtual FormulaFormatPtr GetFormulaFormat() const;
 
+    virtual void UpdateFormat(StringFormatPtr& _format);
+
 public:
     Element* parent = nullptr;
 
@@ -120,6 +122,7 @@ public:
     ElementType type = ElementType::NONE;
     ElementId id; //hierarchic unique id
     Rect rect; //relative bounding rect
+    Rect last_rect; //for determining of necessity of remaking parent
     int baseline = 0;
     
     bool editable = true;

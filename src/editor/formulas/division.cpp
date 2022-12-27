@@ -79,7 +79,12 @@ void Division::Remake(bool with_elements)
 
     UpdateRect();
 
-    document->Remake(parent->id, false);
+    if (rect != last_rect)
+    {
+        parent->Remake(false);
+        document->Redraw(id, false);
+    }
+    last_rect = rect;
 }
 
 bool Division::DeleteElements(bool left, bool with_undo)
@@ -151,6 +156,9 @@ bool Division::AfterInsert(ElementPtr el1, ElementPtr el2, bool with_undo)
                 document->PushEditorState(CaretState(parent->id, parent->elements->GetElementPos(id)), true);
             }
         }
+
+        UpdateFormat(GetFormulaFormat()->string_format);
+
         if (upper->elements->Get(0)->elements->Count() == 0)
         {
             if (upper->GetFirstCaretState(c, nullptr))

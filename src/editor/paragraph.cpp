@@ -133,7 +133,13 @@ void Paragraph::Remake(bool with_elements)
         Normalize(false);
         document->Remake(id, true);
     }
-    document->Remake(parent->id, false);
+
+    if (rect != last_rect)
+    {
+        parent->Remake(false);
+        document->Redraw(id, false);
+    }
+    last_rect = rect;
 }
 
 void Paragraph::UpdateRect()

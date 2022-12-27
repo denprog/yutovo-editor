@@ -90,6 +90,10 @@ void String::Remake(bool with_elements)
 {
     elements->Remake();
     UpdateRect();
+
+    if (rect != last_rect)
+        parent->Remake(false);
+    last_rect = rect;
 }
 
 void String::Normalize(bool with_undo)
@@ -253,6 +257,7 @@ bool String::DeleteElements(bool left, bool with_undo)
         document->PushEditorState(CaretState(elements->GetElementId(pos)), true);
     }
 
+    Remake(false);
     parent->Normalize(with_undo);
 
 #ifdef DEBUG
@@ -441,6 +446,11 @@ void String::UpdateStringFormat(const StringFormatPtr base_format, const StringF
     if (base_format->underline == format->underline)
         f.underline = new_format->underline;
     format = document->GetStringFormat(f.family, f.size, f.bold, f.italic, f.underline);
+}
+
+void String::UpdateFormat(StringFormatPtr& _format)
+{
+    format = _format;
 }
 
 bool String::CanContinueSelection()
