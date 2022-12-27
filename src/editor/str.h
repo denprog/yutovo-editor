@@ -44,6 +44,7 @@ public:
     virtual bool AfterInsert(ElementPtr el1, ElementPtr el2, bool with_undo);
 
     virtual void UpdateStringFormat(const StringFormatPtr base_format, const StringFormatPtr new_format);
+    virtual void UpdateFormat(StringFormatPtr& _format);
 
     virtual bool CanContinueSelection();
 

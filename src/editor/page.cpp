@@ -64,7 +64,11 @@ void Page::Remake(bool with_elements)
 
     UpdateRect();
 
-    document->Remake(parent->id, false);
+    //document->Remake(parent->id, false);
+    if (rect != last_rect)
+        parent->Remake(false);
+    document->Redraw(id, false);
+    last_rect = rect;
 }
 
 void Page::UpdateRect()

@@ -84,7 +84,12 @@ void Row::Remake(bool with_elements)
         el->rect.top += max_top_m;
     }
 
-    document->Remake(parent->id, false);
+    if (rect != last_rect)
+    {
+        parent->Remake(false);
+        document->Redraw(id, false);
+    }
+    last_rect = rect;
 }
 
 void Row::Normalize(bool with_undo)

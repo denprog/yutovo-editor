@@ -474,6 +474,12 @@ FormulaFormatPtr Element::GetFormulaFormat() const
     return parent->GetFormulaFormat();
 }
 
+void Element::UpdateFormat(StringFormatPtr& _format)
+{
+    for (int i = 0; i < elements->Count(); ++i)
+        elements->Get(i)->UpdateFormat(_format);
+}
+
 //Elements
 
 Elements::Elements(Element* _parent) :

@@ -34,6 +34,16 @@ struct Rect
     {
     }
 
+    bool operator==(const Rect& compare)
+    {
+        return left == compare.left && top == compare.top && width == compare.width && height == compare.height;
+    }
+
+    bool operator!=(const Rect& compare)
+    {
+        return !operator==(compare);
+    }
+
     Point GetTopLeft()
     {
         return Point{left, top};
