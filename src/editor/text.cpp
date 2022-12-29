@@ -38,14 +38,9 @@ void Text::Draw() const
     Element::Draw();
 }
 
-void Text::Remake(bool with_elements)
+void Text::UpdateRect(bool with_elements)
 {
-    Element::Remake(with_elements);
-}
-
-void Text::UpdateRect()
-{
-    Element::UpdateRect();
+    Element::UpdateRect(with_elements);
 
     Rect v = window->GetRect();
     if (rect.width < v.width)

@@ -86,13 +86,16 @@ Element* String::Create(Element* parent, const std::string _str, const StringFor
     return new String(parent, _str, _format);
 }
 
-void String::Remake(bool with_elements)
+void String::Remake(bool with_elements, bool with_parent)
 {
-    elements->Remake();
+    //elements->Remake();
+    Size s = window->GetTextSize(((StringElements*)elements.get())->str, format);
+    rect = {1, 1, s.width, s.height};
+
     UpdateRect();
 
-    if (rect != last_rect)
-        parent->Remake(false);
+    if (rect != last_rect && with_parent)
+        parent->Remake(false, true);
     last_rect = rect;
 }
 
@@ -100,7 +103,7 @@ void String::Normalize(bool with_undo)
 {
 }
 
-void String::UpdateRect()
+void String::UpdateRect(bool with_elements)
 {
     Size s = parent->window->GetTextSize(((StringElements*)elements.get())->str, format);
     rect.SetRect(0, 0, s.width, s.height);
@@ -257,7 +260,7 @@ bool String::DeleteElements(bool left, bool with_undo)
         document->PushEditorState(CaretState(elements->GetElementId(pos)), true);
     }
 
-    Remake(false);
+    Remake(false, true);
     parent->Normalize(with_undo);
 
 #ifdef DEBUG
@@ -293,6 +296,7 @@ bool String::ChangeStringFormat(const StringFormatPtr _format, bool with_undo)
             }
             ((String*)el.get())->format = _format;
             parent->Normalize(with_undo);
+            parent->Remake(true, false);
             return true;
         }
     }
@@ -411,7 +415,6 @@ bool String::Merge(const ElementPtr with_element)
         selection->Add(id, elements->Count() + start, size);
     }
 
-    uint c = elements->Count();
     elements->Insert(with_element, elements->Count());
     with_element->parent->elements->RemoveAt(with_element->parent->elements->GetElementPos(with_element->id), 1);
 
@@ -482,18 +485,25 @@ void StringElements::Draw() const
     uint start = 0, size = 0;
     if (parent->document->selection.Has(parent->id, start, size))
     {
-        //draw the selection
+        //draw text with selection
         Rect r1 = parent->GetAbsoluteRect(GetCaretRect(start));
         Rect r2 = parent->GetAbsoluteRect(GetCaretRect(start + size));
         parent->window->DrawFillRect(r1.left, r1.top, r2.left - r1.left, r2.GetBottom() - r1.top, Color::Blue());
-    }
-    parent->window->DrawText(str, format, parent->GetAbsoluteRect()); //draw the string
-}
 
-void StringElements::Remake()
-{
-    Size s = parent->window->GetTextSize(str, ((String*)parent)->format);
-    parent->rect = {1, 1, s.width, s.height};
+        Rect r = parent->GetAbsoluteRect();
+        std::string s = str.substr(0, start);
+        parent->window->DrawText(s, format, r, format->color);
+
+        int p = parent->window->GetCharPos(str, format, start);
+        s = str.substr(start, size);
+        parent->window->DrawText(s, format, Rect{r.left + p, r.top, r.width - p, r.height}, format->selection_color);
+
+        p = parent->window->GetCharPos(str, format, start + size);
+        s = str.substr(start + size, str.length() - size);
+        parent->window->DrawText(s, format, Rect{r.left + p, r.top, r.width - p, r.height}, format->color);
+    }
+    else
+        parent->window->DrawText(str, format, parent->GetAbsoluteRect(), format->color); //draw the string
 }
 
 ElementPtr StringElements::Get(uint pos)

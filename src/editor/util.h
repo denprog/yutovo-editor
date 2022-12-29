@@ -98,9 +98,23 @@ struct Rect
 
 struct Color
 {
+    bool operator==(const Color& compare)
+    {
+        return a == compare.a && r == compare.b && g == compare.g && b == compare.b;
+    }
+
     uint32_t ToInt() const
     {
         return (a << 24) + (r << 16) + (g << 8) + b;
+    }
+
+    static Color FromInt(uint32_t c)
+    {
+        uint8_t a = (c & 0xff000000) >> 24;
+        uint8_t r = (c & 0x00ff0000) >> 16;
+        uint8_t g = (c & 0x0000ff00) >> 8;
+        uint8_t b = (c & 0x000000ff);
+        return Color{a, r, g, b};
     }
 
     static Color Red()
@@ -128,10 +142,10 @@ struct Color
         return Color{0xff, 0xff, 0xff, 0xff};
     }
 
-    uint8_t a;
-    uint8_t r;
-    uint8_t g;
-    uint8_t b;
+    uint8_t a = 0;
+    uint8_t r = 0;
+    uint8_t g = 0;
+    uint8_t b = 0;
 };
 
 std::string IdToString(const ElementId& id);
@@ -139,6 +153,7 @@ std::string IdToString(const ElementId& id);
 bool IsChild(const ElementId& parent_id, const ElementId& child_id);
 
 ElementId GetParent(const ElementId& id);
+ElementId GetChild(const ElementId& id, uint pos);
 
 struct DocumentUserData
 {

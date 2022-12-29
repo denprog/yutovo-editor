@@ -10,7 +10,7 @@ QtWindow::QtWindow(DocumentWidget* document_widget) :
 {
 }
 
-void QtWindow::DrawText(const std::string& text, const StringFormatPtr format, const Rect& rect)
+void QtWindow::DrawText(const std::string& text, const StringFormatPtr format, const Rect& rect, const Color color)
 {
     QPainter p;
     if (!p.begin(surface.get()))
@@ -20,6 +20,7 @@ void QtWindow::DrawText(const std::string& text, const StringFormatPtr format, c
     font.setItalic(format->italic);
     font.setBold(format->bold);
     font.setUnderline(format->underline);
+    p.setPen(QColor::fromRgba(color.ToInt()));
     p.setFont(font);
     if (draw_doc)
         p.setClipRegion(clip_region);
@@ -113,6 +114,17 @@ Size QtWindow::GetTextSize(const std::string& text, const StringFormatPtr format
     QSize s = m.size(Qt::TextSingleLine, str);
     int cx = m.horizontalAdvance(str);
     return Size{cx > s.width() ? cx : s.width(), s.height()};
+}
+
+int QtWindow::GetCharPos(const std::string& text, const StringFormatPtr format, int pos)
+{
+    QFont font(format->family.c_str(), format->size);
+    font.setBold(format->bold);
+    font.setItalic(format->italic);
+    font.setUnderline(format->underline);
+    QFontMetrics m(font);
+    QString str(text.c_str());
+    return m.horizontalAdvance(str, pos);
 }
 
 int QtWindow::GetFontAscent(const StringFormatPtr format)

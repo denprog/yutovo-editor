@@ -32,10 +32,10 @@ void Paragraph::Draw() const
     Element::Draw();
 }
 
-void Paragraph::Remake(bool with_elements)
+void Paragraph::Remake(bool with_elements, bool with_parent)
 {
     if (with_elements)
-        Element::Remake(with_elements);
+        Element::Remake(with_elements, false);
 
     bool remake = false;
 
@@ -70,12 +70,13 @@ void Paragraph::Remake(bool with_elements)
                 {
                     next_row.reset(new Row(this));
                     AddElement(next_row);
+                    next_row->elements->Clear();
                 }
 
                 //move the element in the next row
                 next_row->elements->Move(el, 0);
-                row->Remake(false);
-                next_row->Remake(true);
+                row->Remake(true, false);
+                next_row->Remake(true, false);
                 remake = true;
             }
 
@@ -87,14 +88,19 @@ void Paragraph::Remake(bool with_elements)
             {
                 //move the element from the next row in the current one
                 row->elements->Move(next_row->elements->Get(0), row->elements->Count());
-                row->Remake(true);
+                row->Remake(true, false);
+                row->Normalize(false);
                 if (next_row->elements->Count() == 0)
                 {
                     elements->RemoveAt(i + 1, 1);
                     next_row.reset();
                 }
                 else
-                    next_row->Remake(true);
+                {
+                    next_row->Remake(true, false);
+                    next_row->Normalize(false);
+                }
+                row->UpdateRect();
                 remake = true;
             }
 
@@ -105,11 +111,24 @@ void Paragraph::Remake(bool with_elements)
                 while (el && el->Split(page->page_width - row->rect.width - format->indent_before))
                 {
                     row->elements->Move(next_row->elements->Get(0), row->elements->Count());
-                    row->Remake(true);
-                    next_row->Remake(true);
+                    row->Remake(true, false);
+                    next_row->Remake(true, false);
+                    row->Normalize(false);
+                    next_row->Normalize(false);
                     el = next_row->elements->Get(0);
                     remake = true;
                 }
+            }
+
+            if (remake)
+            {
+                row->Remake(true, false);
+                if (next_row)
+                    next_row->Remake(true, false);
+
+                row->Normalize(false);
+                if (next_row)
+                    next_row->Normalize(false);
             }
 
             UpdateRect();
@@ -128,23 +147,18 @@ void Paragraph::Remake(bool with_elements)
 
     UpdateRect();
 
-    if (remake)
-    {
-        Normalize(false);
-        document->Remake(id, true);
-    }
-
     if (rect != last_rect)
     {
-        parent->Remake(false);
+        if (with_parent)
+            parent->Remake(false, true);
         document->Redraw(id, false);
     }
     last_rect = rect;
 }
 
-void Paragraph::UpdateRect()
+void Paragraph::UpdateRect(bool with_elements)
 {
-    Element::UpdateRect();
+    Element::UpdateRect(with_elements);
 
     rect.left = format->indent_before;
     rect.top = 0;
@@ -177,7 +191,7 @@ bool Paragraph::ChangeParagraphFormat(const ParagraphFormatPtr _format, bool wit
         elements->Get(i)->UpdateStringFormat(format->string_format, _format->string_format);
 
     format = _format;
-    Remake(true);
+    Remake(true, true);
     
     return true;
 }

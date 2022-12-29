@@ -448,7 +448,7 @@ bool RemakeTask::Execute()
     auto p = text->document->GetElement(element_id);
     if (!p)
         return false;
-    document->GetElement(element_id)->Remake(with_elements);
+    document->GetElement(element_id)->Remake(with_elements, true);
     document->Redraw(element_id, false);
     return true;
 }

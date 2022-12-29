@@ -24,10 +24,10 @@ public:
     virtual Element* Create(Element* parent);
     virtual Element* Create(Element* parent, const std::string _str, const StringFormatPtr _format);
 
-    virtual void Remake(bool with_elements);
+    virtual void Remake(bool with_elements, bool with_parent);
     virtual void Normalize(bool with_undo);
 
-    virtual void UpdateRect();
+    virtual void UpdateRect(bool with_elements = false);
 
     virtual bool GetElementAtCoords(const int x, const int y, ElementId& _id);
 
@@ -80,7 +80,6 @@ public:
     virtual Elements* Clone(Element* _parent);
 
     virtual void Draw() const;
-    virtual void Remake();
 
     virtual ElementPtr Get(uint pos);
     virtual ElementId GetElementId(uint pos);

@@ -9,24 +9,27 @@ namespace yutovo
 
 uint StringFormat::next_id = 1;
 
-StringFormat::StringFormat(const uint _id, const std::string _family, uint _size, bool _bold, bool _italic, bool _underline) :
+StringFormat::StringFormat(const uint _id, const std::string _family, uint _size, bool _bold, bool _italic, bool _underline, Color _color, Color _selection_color) :
     id(_id),
     family(_family), 
     size(_size),
     bold(_bold),
     italic(_italic),
-    underline(_underline)
+    underline(_underline),
+    color(_color),
+    selection_color(_selection_color)
 {
 }
 
-StringFormat::StringFormat(const std::string _family, uint _size, bool _bold, bool _italic, bool _underline) :
-    StringFormat(next_id++, _family, _size, _bold, _italic, _underline)
+StringFormat::StringFormat(const std::string _family, uint _size, bool _bold, bool _italic, bool _underline, Color _color, Color _selection_color) :
+    StringFormat(next_id++, _family, _size, _bold, _italic, _underline, _color, _selection_color)
 {
 }
 
 bool StringFormat::operator==(const StringFormat& f)
 {
-    return family == f.family && size == f.size && bold == f.bold && italic == f.italic && underline == f.underline;
+    return family == f.family && size == f.size && bold == f.bold && italic == f.italic && underline == f.underline && 
+        color == f.color && selection_color == f.selection_color;
 }
 
 void StringFormat::Reset()
@@ -42,17 +45,22 @@ void StringFormat::Reset()
 
 StringFormatPtr StringFormats::GetFormat(const std::string _family, uint _size, bool _bold, bool _italic, bool _underline)
 {
+    return GetFormat(_family, _size, _bold, _italic, _underline, Color::Black(), Color::White());
+}
+
+StringFormatPtr StringFormats::GetFormat(const std::string _family, uint _size, bool _bold, bool _italic, bool _underline, Color _color, Color _selection_color)
+{
+    StringFormatPtr format(new StringFormat(_family, _size, _bold, _italic, _underline, _color, _selection_color));
     //return the present format
     for (auto& f : string_formats)
     {
-        if (f->family == _family && f->size == _size && f->bold == _bold && f->italic == _italic && f->underline == _underline)
+        if (*f == *format)
             return f;
     }
 
     //or create a new one
-    StringFormatPtr f(new StringFormat(_family, _size, _bold, _italic, _underline));
-    string_formats.push_back(f);
-    return f;
+    string_formats.push_back(format);
+    return format;
 }
 
 StringFormatPtr StringFormats::GetFormat(const StringFormat& source)
@@ -65,7 +73,7 @@ StringFormatPtr StringFormats::GetFormat(const StringFormat& source)
     }
 
     //or create a new one
-    StringFormatPtr f(new StringFormat(source.family, source.size, source.bold, source.italic, source.underline));
+    StringFormatPtr f(new StringFormat(source.family, source.size, source.bold, source.italic, source.underline, Color::Black(), Color::White()));
     string_formats.push_back(f);
     return f;
 }
@@ -157,21 +165,24 @@ void ParagraphFormats::GetFormats(std::vector<ParagraphFormatPtr>& formats)
 //FormulaFormat
 
 FormulaFormat::FormulaFormat(const std::string& _name, StringFormatPtr _string_format, uint _inter_spacing, 
-    int _left_margin, int _top_margin, int _right_margin, int _bottom_margin) : 
+    int _left_margin, int _top_margin, int _right_margin, int _bottom_margin, Color _color, Color _selection_color) : 
     name(_name),
     string_format(_string_format),
     inter_spacing(_inter_spacing),
     left_margin(_left_margin),
     top_margin(_top_margin),
     right_margin(_right_margin),
-    bottom_margin(_bottom_margin)
+    bottom_margin(_bottom_margin),
+    color(_color),
+    selection_color(_selection_color)
 {
 }
 
 bool FormulaFormat::operator==(const FormulaFormat& f)
 {
     return name == f.name && *string_format == *f.string_format && inter_spacing == f.inter_spacing &&
-        left_margin == f.left_margin &&  top_margin == f.top_margin && right_margin == f.right_margin && bottom_margin == f.bottom_margin;
+        left_margin == f.left_margin &&  top_margin == f.top_margin && right_margin == f.right_margin && bottom_margin == f.bottom_margin &&
+        color == f.color && selection_color == f.selection_color;
 }
 
 //FormulaFormats
@@ -179,8 +190,8 @@ bool FormulaFormat::operator==(const FormulaFormat& f)
 FormulaFormats::FormulaFormats(StringFormatsPtr _string_formats) :
     string_formats(_string_formats)
 {
-    GetFormat("Code", string_formats->GetFormat("Courier New", 14, false, false, false), 2, 5, 2, 5, 2);
-    GetFormat("Formula", string_formats->GetFormat("Courier New", 14, false, false, false), 2, 2, 2, 2, 2);
+    GetFormat("Code", string_formats->GetFormat("Courier New", 14, false, false, false), 2, 5, 2, 5, 2, Color::Black(), Color::White());
+    GetFormat("Formula", string_formats->GetFormat("Courier New", 14, false, false, false), 2, 2, 2, 2, 2, Color::Black(), Color::White());
 }
 
 FormulaFormatPtr FormulaFormats::GetFormat(const std::string& name)
@@ -194,10 +205,10 @@ FormulaFormatPtr FormulaFormats::GetFormat(const std::string& name)
 }
 
 FormulaFormatPtr FormulaFormats::GetFormat(const std::string& name, StringFormatPtr string_format, uint inter_spacing, 
-    int left_margin, int top_margin, int right_margin, int bottom_margin)
+    int left_margin, int top_margin, int right_margin, int bottom_margin, Color color, Color selection_color)
 {
     FormulaFormatPtr format(new FormulaFormat(name, string_format, inter_spacing, 
-        left_margin, top_margin, right_margin, bottom_margin));
+        left_margin, top_margin, right_margin, bottom_margin, color, selection_color));
     
     //return the present format
     for (auto f : formula_formats)
@@ -268,7 +279,12 @@ void load_construct_data(boost::archive::binary_iarchive& ar, yutovo::StringForm
     ar >> bold;
     ar >> italic;
     ar >> underline;
-    ::new(t)yutovo::StringFormat(id, family, size, bold, italic, underline);
+    uint32_t c;
+    ar >> c;
+    yutovo::Color color = yutovo::Color::FromInt(c);
+    ar >> c;
+    yutovo::Color selection_color = yutovo::Color::FromInt(c);
+    ::new(t)yutovo::StringFormat(id, family, size, bold, italic, underline, color, selection_color);
 }
 
 template <>

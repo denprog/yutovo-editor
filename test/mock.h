@@ -28,7 +28,7 @@ public:
 class WindowMock : public Window
 {
 public:
-    MOCK_METHOD(void, DrawText, (const std::string& text, const StringFormatPtr format, const Rect& rect), (override));
+    MOCK_METHOD(void, DrawText, (const std::string& text, const StringFormatPtr format, const Rect& rect, const Color color), (override));
     MOCK_METHOD(void, DrawLine, (const int x1, const int y1, const int x2, const int y2, const Color color), (override));
     MOCK_METHOD(void, DrawRect, (const int x1, const int y1, const int width, const int height, const Color color), (override));
     MOCK_METHOD(void, DrawFillRect, (const int x1, const int y1, const int width, const int height, const Color color), (override));
@@ -39,6 +39,7 @@ public:
     MOCK_METHOD(void, RestoreRect, (), (override));
 
     MOCK_METHOD(Size, GetTextSize, (const std::string& text, const StringFormatPtr format), (override));
+    MOCK_METHOD(int, GetCharPos, (const std::string& text, const StringFormatPtr format, int pos), (override));
 
     MOCK_METHOD(void, Update, (const Rect& rect), (override));
 
@@ -66,16 +67,18 @@ struct DocumentTest : public testing::Test
         document.Start();
     }
 
-    Size GetTextSizeMock(const std::string& text, const StringFormatPtr format)
+    Size GetTextSizeMock(const std::string text, const StringFormatPtr format)
     {
         QFont font(format->family.c_str(), format->size);
         font.setBold(format->bold);
         font.setItalic(format->italic);
         font.setUnderline(format->underline);
         QFontMetrics m(font);
-        QString str(text.c_str());
-        QSize s = m.size(Qt::TextSingleLine, str);
+        QString str = QString::fromStdString(text);
+        auto l = str.length();
+        auto f = m.lineWidth();
         int cx = m.horizontalAdvance(str);
+        QSize s = m.size(Qt::TextSingleLine, str);
         return Size{cx > s.width() ? cx : s.width(), s.height()};
     }
 
@@ -147,6 +150,14 @@ struct DocumentTest : public testing::Test
     EditorState MakeEditorState(ElementId id)
     {
         return EditorState{CaretState{id}, SelectionState{}};
+    }
+
+    EditorState MakeEditorState(ElementId id, ElementSelectionState selection)
+    {
+        CaretState c(id);
+        SelectionState s;
+        s.Add(selection);
+        return EditorState{c, s};
     }
 
     int argc = 0;
