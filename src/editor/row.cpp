@@ -371,7 +371,8 @@ bool Row::DeleteElements(bool left, bool with_undo)
             }
         }
 
-        //document->Remake(id, false);
+        parent->Remake(true, false);
+        document->Redraw(parent->id, true);
 
 #ifdef DEBUG
         to_str = ToText();
