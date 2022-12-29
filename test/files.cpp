@@ -139,11 +139,14 @@ TEST_F(DocumentTest, files3)
 
     document.InsertText("In literary theory, a text is any object that can be read, whether this object is a work of literature, "\
         "a street sign, an arrangement of buildings on a city block, or styles of clothing.", true);
+    document.WaitMainLoop();
+    std::this_thread::sleep_for(100ms);
     document.MoveCaretToDocumentBegin(false);
     for (int i = 0; i < 3; ++i)
         document.MoveCaretRight(false);
     for (int i = 0; i < 8; ++i)
         document.MoveCaretRight(true);
+    document.WaitCaretMoving();
     std::this_thread::sleep_for(100ms);
     document.SetBold(true);
     document.WaitMainLoop();
@@ -152,6 +155,7 @@ TEST_F(DocumentTest, files3)
         document.MoveCaretRight(false);
     document.WaitCaretMoving();
     document.InsertParagraph(true);
+    document.WaitMainLoop();
     for (int i = 0; i < 7; ++i)
         document.MoveCaretRight(true);
     document.WaitCaretMoving();

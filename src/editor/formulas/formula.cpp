@@ -5,15 +5,15 @@ namespace yutovo
 {
 
 Formula::Formula(Element* _parent) : 
-    Element(_parent)
+    Element(_parent),
+    formula_format(GetFormulaFormat())
 {
-    string_format = document->GetStringFormat("Courier New", 14, false, false, false);
 }
 
 Formula::Formula(Document* _document) :
     Element(_document)
 {
-    string_format = document->GetStringFormat("Courier New", 14, false, false, false);
+    document->GetCurrentFormulaFormat(formula_format);
 }
 
 bool Formula::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo)
@@ -53,11 +53,10 @@ bool Formula::Merge(const ElementPtr with_element)
 
 void Formula::GetMargin(int& left, int& top, int& right, int& bottom) const
 {
-    const FormulaFormatPtr f = GetFormulaFormat();
-    left = f->left_margin;
-    top = f->top_margin;
-    right = f->right_margin;
-    bottom = f->bottom_margin;
+    left = formula_format->left_margin;
+    top = formula_format->top_margin;
+    right = formula_format->right_margin;
+    bottom = formula_format->bottom_margin;
 }
 
 bool Formula::HasCaretState()
@@ -72,7 +71,7 @@ bool Formula::HasLastCaretState()
 
 StringFormatPtr Formula::GetStringFormat()
 {
-    return string_format;
+    return formula_format->string_format;
 }
 
 }

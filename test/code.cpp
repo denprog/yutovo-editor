@@ -427,4 +427,48 @@ TEST_F(CodeTest, code5)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0})) << document.GetEditorState().ToString();
 }
 
+TEST_F(CodeTest, code6)
+{
+    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
+        {
+            return Rect{0, 0, 600, 400};
+        });
+
+    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::string& text, const StringFormatPtr format)
+        {
+            return GetTextSizeMock(text, format);
+        });
+    
+    document.InsertCode(true);
+    document.WaitMainLoop();
+    document.MoveCaretLeft(false);
+    document.WaitCaretMoving();
+    document.MoveCaretRight(true);
+    document.WaitCaretMoving();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 1}, ElementSelectionState{{0, 0, 0, 0}, 0, 1})) << document.GetEditorState().ToString();
+
+    document.MoveCaretRight(true);
+    document.WaitCaretMoving();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 1}, ElementSelectionState{{0, 0, 0, 0}, 0, 1})) << document.GetEditorState().ToString();
+
+    document.MoveCaretLeft(true);
+    document.WaitCaretMoving();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0})) << document.GetEditorState().ToString();
+
+    document.MoveCaretEnd(false);
+    document.InsertCode(true);
+    document.WaitMainLoop();
+    document.MoveCaretLeft(false);
+    document.MoveCaretHome(false);
+    document.WaitCaretMoving();
+    document.MoveCaretRight(true);
+    document.WaitCaretMoving();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 1}, ElementSelectionState{{0, 0, 0, 0}, 0, 1})) << document.GetEditorState().ToString();
+
+    document.MoveCaretRight(true);
+    document.WaitCaretMoving();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 2}, 
+        ElementSelectionState{{0, 0, 0, 0}, 0, 2})) << document.GetEditorState().ToString();
+}
+
 }

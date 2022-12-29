@@ -140,6 +140,7 @@ TEST_F(DocumentTest, clipboard2)
     document.WaitCaretMoving();
     document.Paste(clipboard_array);
     document.WaitMainLoop();
+    std::this_thread::sleep_for(200ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\

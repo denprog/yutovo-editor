@@ -17,7 +17,7 @@ class Window
 public:
     Window();
 
-    virtual void DrawText(const std::string& text, const StringFormatPtr format, const Rect& rect) = 0;
+    virtual void DrawText(const std::string& text, const StringFormatPtr format, const Rect& rect, const Color color) = 0;
     virtual void DrawLine(const int x1, const int y1, const int x2, const int y2, const Color color) = 0;
     void DrawRect(const Rect& rect, const Color color);
     virtual void DrawRect(const int x1, const int y1, const int width, const int height, const Color color) = 0;
@@ -29,6 +29,7 @@ public:
     virtual void RestoreRect() = 0;
 
     virtual Size GetTextSize(const std::string& text, const StringFormatPtr format) = 0;
+    virtual int GetCharPos(const std::string& text, const StringFormatPtr format, int pos) = 0;
     virtual int GetFontAscent(const StringFormatPtr format) = 0;
 
     virtual void SetViewPort(const Rect view_port) = 0;

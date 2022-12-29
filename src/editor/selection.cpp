@@ -148,7 +148,7 @@ std::string SelectionState::ToString() const
     for (size_t i = 0; i < state.size(); ++i)
     {
         const ElementSelectionState& s = state[i];
-        res += "[" + IdToString(s.id) + "," + std::to_string(s.start) + "," + std::to_string(s.size) + "]";
+        res += "[{" + IdToString(s.id) + "}," + std::to_string(s.start) + "," + std::to_string(s.size) + "]";
         if (i < state.size() - 1)
             res += ",";
     }
@@ -278,16 +278,11 @@ bool Selection::Has(const ElementPtr element, uint& start, uint& size) const
 
 bool Selection::Has(const ElementId id, uint& start, uint& size) const
 {
-    auto it = std::find_if(selection.begin(), selection.end(), 
-        [id](auto& s)
-        {
-            return s.element->id == id;
-        });
-    if (it == selection.end())
+    ElementSelection s;
+    if (!Has(id, s))
         return false;
-    
-    start = it->start;
-    size = it->size;
+    start = s.start;
+    size = s.size;
     return true;
 }
 
@@ -296,11 +291,26 @@ bool Selection::Has(const ElementId id, ElementSelection& s) const
     auto it = std::find_if(selection.begin(), selection.end(), 
         [id](auto& s)
         {
-            return s.element->id == id;
+            if (s.element->id == id)
+                return true;
+            for (int i = s.start; i < s.start + s.size; ++i)
+            {
+                if (IsChild(GetChild(s.element->id, i), id))
+                    return true;
+            }
+            return false;
         });
     if (it == selection.end())
         return false;
-    s = *it;
+    if (it->element->id == id)
+        s = *it;
+    else
+    {
+        //parent element is selected, so select the whole this element
+        auto el = document->GetElement(id);
+        s.start = 0;
+        s.size = el->elements->Count();
+    }
     return true;
 }
 

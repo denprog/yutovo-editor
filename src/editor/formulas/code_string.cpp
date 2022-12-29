@@ -52,15 +52,26 @@ void CodeString::Draw() const
 {
     String::Draw();
     if (elements->Count() == 0)
-        window->DrawRect(GetAbsoluteRect(), Color::Blue());
+    {
+        uint start = 0, size = 0;
+        if (document->selection.Has(parent->id, start, size))
+        {
+            auto f = GetFormulaFormat();
+            auto r = GetAbsoluteRect();
+            window->DrawRect(r, f->selection_color);
+            window->DrawFillRect(Rect(r.left + 1, r.top + 1, r.width - 2, r.height -2 ), Color::Blue());
+        }
+        else
+            window->DrawRect(GetAbsoluteRect(), Color::Blue());
+    }
 }
 
-void CodeString::UpdateRect()
+void CodeString::UpdateRect(bool with_elements)
 {
-    String::UpdateRect();
+    String::UpdateRect(with_elements);
 
     if (elements->Count() == 0)
-        rect.SetRect(0, 0, rect.width + 6, rect.height);
+        rect.SetRect(0, 0, rect.width + empty_rect_width, rect.height);
 }
 
 Rect CodeString::GetCaretRect(const uint pos) const

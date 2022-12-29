@@ -816,6 +816,9 @@ void Document::Resize(uint width, uint height)
         std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
         tasks.emplace_back(new ResizeTask(text, width, height));
     }
+#ifdef DEBUG
+    last_task_id = tasks[tasks.size() - 1]->id;
+#endif
     next_circle.notify_one();
     Remake(text->id, true);
 }

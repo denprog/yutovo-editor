@@ -52,20 +52,39 @@ Element* Division::Create(Element* parent)
 void Division::Draw() const
 {
     shape->draw_func = 
-        [p = parent](const Rect& rect)
+        [&](const Rect& r)
         {
-            if (rect.height == 0)
-                p->window->DrawLine(rect.left, rect.top, rect.left + rect.width, rect.top, Color::Black());
+            uint start = 0, size = 0;
+            if (parent->document->selection.Has(parent->id, start, size))
+            {
+                if (r.height == 0)
+                    parent->window->DrawLine(r.left, r.top, r.left + r.width, r.top, formula_format->selection_color);
+                else
+                    parent->window->DrawFillRect(r.left, r.top, r.width, r.height, formula_format->selection_color);
+            }
             else
-                p->window->DrawFillRect(rect.left, rect.top, rect.width, rect.height, Color::Black());
+            {
+                if (r.height == 0)
+                    parent->window->DrawLine(r.left, r.top, r.left + r.width, r.top, formula_format->color);
+                else
+                    parent->window->DrawFillRect(r.left, r.top, r.width, r.height, formula_format->color);
+            }
         };
+
+    uint start = 0, size = 0;
+    if (parent->document->selection.Has(parent->id, start, size))
+    {
+        Rect abs_rect = GetAbsoluteRect();
+        parent->window->DrawFillRect(abs_rect.left, abs_rect.top, abs_rect.width, abs_rect.height, Color::Blue());
+    }
+
     Formula::Draw();
 }
 
-void Division::Remake(bool with_elements)
+void Division::Remake(bool with_elements, bool with_parent)
 {
     if (with_elements)
-        elements->Remake();
+        elements->Remake(with_parent);
     
     int w = std::max(upper->rect.width + 2, lower->rect.width + 2);
     if (w < 200)
@@ -79,9 +98,9 @@ void Division::Remake(bool with_elements)
 
     UpdateRect();
 
-    if (rect != last_rect)
+    if (rect != last_rect && with_parent)
     {
-        parent->Remake(false);
+        parent->Remake(false, true);
         document->Redraw(id, false);
     }
     last_rect = rect;

@@ -53,7 +53,7 @@ public:
     virtual Element* Create(Element* parent) = 0;
 
     virtual void Draw() const;
-    virtual void Remake(bool with_elements);
+    virtual void Remake(bool with_elements, bool with_parent);
     virtual void Normalize(bool with_undo);
 
     virtual bool InsertElements(std::vector<ElementPtr>& _elements, bool with_undo);
@@ -92,7 +92,7 @@ public:
     virtual std::string ToHtml();
     virtual std::string ToText();
 
-    virtual void UpdateRect();
+    virtual void UpdateRect(bool with_elements = false);
 
     Element* GetElementInPos(const ElementId& _id, const uint pos);
     virtual bool GetElementAtCoords(const int x, const int y, ElementId& _id);
@@ -154,7 +154,7 @@ public:
     virtual void Clone(std::vector<ElementPtr>& _elements, const uint start, const uint size);
     
     virtual void Draw() const;
-    virtual void Remake();
+    virtual void Remake(bool with_parent);
 
     virtual ElementPtr Get(uint pos);
     virtual ElementPtr Get(ElementId id);

@@ -194,7 +194,7 @@ TEST_F(DocumentTest, caret2)
 
     document.InsertText("The source of the text itself is a little mysterious.", true);
     document.WaitMainLoop();
-    std::this_thread::sleep_for(100ms);
+    std::this_thread::sleep_for(400ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\

@@ -44,13 +44,13 @@ void Page::Draw() const
     Element::Draw();
 }
 
-void Page::Remake(bool with_elements)
+void Page::Remake(bool with_elements, bool with_parent)
 {
     Rect v = window->GetRect();
     page_width = v.width - format->right_indent - format->left_indent;
 
     if (with_elements)
-        Element::Remake(true);
+        Element::Remake(true, with_parent);
 
     int left_m = 0, top_m = 0, right_m = 0, bottom_m = 0;
     int h = 0;
@@ -65,15 +65,15 @@ void Page::Remake(bool with_elements)
     UpdateRect();
 
     //document->Remake(parent->id, false);
-    if (rect != last_rect)
-        parent->Remake(false);
+    if (rect != last_rect && with_parent)
+        parent->Remake(false, with_parent);
     document->Redraw(id, false);
     last_rect = rect;
 }
 
-void Page::UpdateRect()
+void Page::UpdateRect(bool with_elements)
 {
-    Element::UpdateRect();
+    Element::UpdateRect(with_elements);
     rect.left = format->left_indent;
     rect.top = format->top_indent;
 

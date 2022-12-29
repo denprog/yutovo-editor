@@ -29,7 +29,7 @@ public:
     virtual StringFormatPtr GetStringFormat();
 
 protected:
-    StringFormatPtr string_format;
+    FormulaFormatPtr formula_format;
 };
 
 }

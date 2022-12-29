@@ -30,10 +30,10 @@ Element* Row::Create(Element* parent)
     return new Row(parent);
 }
 
-void Row::Remake(bool with_elements)
+void Row::Remake(bool with_elements, bool with_parent)
 {
     if (with_elements)
-        elements->Remake();
+        elements->Remake(with_parent);
     
     int cx = 0;
     int left_m, top_m, right_m, bottom_m;
@@ -86,7 +86,8 @@ void Row::Remake(bool with_elements)
 
     if (rect != last_rect)
     {
-        parent->Remake(false);
+        if (with_parent)
+            parent->Remake(false, true);
         document->Redraw(id, false);
     }
     last_rect = rect;
@@ -96,7 +97,6 @@ void Row::Normalize(bool with_undo)
 {
     Element::Normalize(with_undo);
 
-    bool remake = false;
     if (elements->Count() > 1)
     {
         for (size_t i = 0; i < elements->Count();)
@@ -114,7 +114,6 @@ void Row::Normalize(bool with_undo)
                         document->PushEditorState(CaretState(id, i), true);
                     }
                     elements->RemoveAt(i, 1); //remove empty strings
-                    remake = true;
                     if (i > 0)
                         --i;
                     continue;
@@ -139,7 +138,6 @@ void Row::Normalize(bool with_undo)
                             document->DeleteElements(false, false, true);
                             document->PushEditorState(SelectionState(id, elements->GetElementPos(el->id), 1), true);
                         }
-                        remake = true;
                         continue;
                     }
                 }
@@ -155,16 +153,12 @@ void Row::Normalize(bool with_undo)
             document->PushEditorState(CaretState(id, 0), true);
         }
         AddEmptyElement(); //insert empty string
-        remake = true;
         CaretState c;
         if (GetFirstCaretState(c, nullptr))
             caret->SetState(c);
     }
 
     ResetDontNormalize();
-
-    if (remake)
-        Remake(true);
 }
 
 bool Row::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo)
@@ -377,7 +371,7 @@ bool Row::DeleteElements(bool left, bool with_undo)
             }
         }
 
-        document->Remake(id, false);
+        //document->Remake(id, false);
 
 #ifdef DEBUG
         to_str = ToText();

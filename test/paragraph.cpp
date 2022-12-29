@@ -31,6 +31,7 @@ TEST_F(ParagraphTest, resizing1)
     document.InsertText("Bold", document.GetStringFormat("Times New Roman", 34, true, false, false), true);
     document.InsertText("String1 String2 String3", document.GetStringFormat("Arial", 20, false, false, false), true);
     document.WaitMainLoop();
+    std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body><p>"\
         "<span style=\"font-family:'Arial';font-size:22px;\">Text</span>"\
@@ -44,6 +45,7 @@ TEST_F(ParagraphTest, resizing1)
 
     width = 400;
     document.Resize(width, 400);
+    document.WaitMainLoop();
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body><p>"\
@@ -58,6 +60,7 @@ TEST_F(ParagraphTest, resizing1)
 
     width = 390;
     document.Resize(width, 400);
+    document.WaitMainLoop();
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body><p>"\
@@ -72,6 +75,7 @@ TEST_F(ParagraphTest, resizing1)
 
     width = 290;
     document.Resize(width, 400);
+    document.WaitMainLoop();
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body><p>"\
@@ -85,6 +89,7 @@ TEST_F(ParagraphTest, resizing1)
 
     width = 220;
     document.Resize(width, 400);
+    document.WaitMainLoop();
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body><p>"\
@@ -101,6 +106,7 @@ TEST_F(ParagraphTest, resizing1)
     document.WaitCaretMoving();
     width = 240;
     document.Resize(width, 400);
+    document.WaitMainLoop();
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body><p>"\
@@ -117,6 +123,7 @@ TEST_F(ParagraphTest, resizing1)
     document.WaitCaretMoving();
     width = 220;
     document.Resize(width, 400);
+    document.WaitMainLoop();
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body><p>"\
@@ -131,6 +138,7 @@ TEST_F(ParagraphTest, resizing1)
 
     width = 240;
     document.Resize(width, 400);
+    document.WaitMainLoop();
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body><p>"\
@@ -145,6 +153,7 @@ TEST_F(ParagraphTest, resizing1)
 
     width = 290;
     document.Resize(width, 400);
+    document.WaitMainLoop();
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body><p>"\
@@ -158,6 +167,7 @@ TEST_F(ParagraphTest, resizing1)
 
     width = 330;
     document.Resize(width, 400);
+    document.WaitMainLoop();
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body><p>"\
@@ -172,6 +182,7 @@ TEST_F(ParagraphTest, resizing1)
 
     width = 200;
     document.Resize(width, 400);
+    document.WaitMainLoop();
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body><p>"\
@@ -820,7 +831,7 @@ TEST_F(ParagraphTest, paragraph2)
 
     document.Redo();
     document.WaitRedo();
-    std::this_thread::sleep_for(100ms);
+    std::this_thread::sleep_for(400ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\

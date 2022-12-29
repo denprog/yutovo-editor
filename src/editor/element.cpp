@@ -73,10 +73,10 @@ void Element::Draw() const
     elements->Draw();
 }
 
-void Element::Remake(bool with_elements)
+void Element::Remake(bool with_elements, bool with_parent)
 {
     if (with_elements)
-        elements->Remake();
+        elements->Remake(with_parent);
     UpdateRect();
 }
 
@@ -349,8 +349,14 @@ std::string Element::ToText()
     return elements->ToText();
 }
 
-void Element::UpdateRect()
+void Element::UpdateRect(bool with_elements)
 {
+    if (with_elements)
+    {
+        for (int i = 0; i < elements->Count(); ++i)
+            elements->Get(i)->UpdateRect();
+    }
+    
     //get rect relatively to the parent
     int right = std::numeric_limits<int>::min();
     int bottom = std::numeric_limits<int>::min();
@@ -519,14 +525,14 @@ void Elements::Clone(std::vector<ElementPtr>& _elements, const uint start, const
 
 void Elements::Draw() const
 {
-    for (auto& element : elements)
-        element->Draw();
+    for (auto el : elements)
+        el->Draw();
 }
 
-void Elements::Remake()
+void Elements::Remake(bool with_parent)
 {
-    for (auto& element : elements)
-        element->Remake(true);
+    for (auto el : elements)
+        el->Remake(true, with_parent);
 }
 
 ElementPtr Elements::Get(uint pos)
@@ -823,11 +829,14 @@ bool Elements::GetRightCaretState(CaretState& caret_state, Selection* select)
     
     if (parent->document->GetParent(caret_state.id)->id == parent->id) //try to enter into this element
     {
-        if (elements[p]->GetFirstCaretState(caret_state, select))
+        if ((select && elements[p]->CanContinueSelection()) || !select)
         {
-            if (select)
-                select->Add(parent->id, p, 1);
-            return true;
+            if (elements[p]->GetFirstCaretState(caret_state, select))
+            {
+                if (select)
+                    select->Add(parent->id, p, 1);
+                return true;
+            }
         }
     }
 
@@ -837,7 +846,7 @@ bool Elements::GetRightCaretState(CaretState& caret_state, Selection* select)
         {
             caret_state.SetState(Get(p));
             if (select)
-                select->Add(parent->id, p, 1);
+                select->Add(parent->id, p - 1, 1);
             return true;
         }
         if (select)
@@ -863,6 +872,8 @@ bool Elements::GetRightCaretState(CaretState& caret_state, Selection* select)
     if (elements[p - 1]->HasLastCaretState())
     {
         caret_state.SetState(parent->id, p);
+        if (select)
+            select->Add(parent->id, p - 1, 1);
         return true;
     }
     return false;

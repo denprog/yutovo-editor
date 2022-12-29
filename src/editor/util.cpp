@@ -100,6 +100,13 @@ ElementId GetParent(const ElementId& id)
     return _id;
 }
 
+ElementId GetChild(const ElementId& id, uint pos)
+{
+    ElementId _id(id);
+    _id.push_back(pos);
+    return _id;
+}
+
 template<>
 void RegisterTypes(UserDataAdapter<DocumentUserData, boost::archive::binary_iarchive>& archive)
 {
