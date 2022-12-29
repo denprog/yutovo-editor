@@ -194,6 +194,38 @@ bool Division::AfterInsert(ElementPtr el1, ElementPtr el2, bool with_undo)
     return false;
 }
 
+bool Division::GetLeftCaretState(CaretState& caret_state, Selection* select)
+{
+    if (select)
+    {
+        CaretState c;
+        if ((lower->GetFirstCaretState(c, nullptr) && caret_state == c) || (upper->GetFirstCaretState(c, nullptr) && caret_state == c))
+        {
+            caret_state.SetState(id);
+            select->Clear();
+            select->Add(parent->id, parent->elements->GetChildPos(id), 1);
+            return true;
+        }
+    }
+    return Formula::GetLeftCaretState(caret_state, select);
+}
+
+bool Division::GetRightCaretState(CaretState& caret_state, Selection* select)
+{
+    if (select)
+    {
+        CaretState c;
+        if ((lower->GetLastCaretState(c, nullptr) && caret_state == c) || (upper->GetLastCaretState(c, nullptr) && caret_state == c))
+        {
+            caret_state.SetState(parent->id, parent->elements->GetChildPos(id) + 1);
+            select->Clear();
+            select->Add(parent->id, parent->elements->GetChildPos(id), 1);
+            return true;
+        }
+    }
+    return Formula::GetRightCaretState(caret_state, select);
+}
+
 bool Division::GetTopCaretState(const int x, const int y, CaretState& caret_state, Selection* select)
 {
     if (lower->GetAbsoluteRect().GetBottom() <= y && !caret->IsOnElement(lower->id))
