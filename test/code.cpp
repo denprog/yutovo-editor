@@ -469,6 +469,20 @@ TEST_F(CodeTest, code6)
     document.WaitCaretMoving();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 2}, 
         ElementSelectionState{{0, 0, 0, 0}, 0, 2})) << document.GetEditorState().ToString();
+    
+    document.MoveCaretEnd(false);
+    document.WaitCaretMoving();
+    document.MoveCaretLeft(true);
+    document.WaitCaretMoving();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 1}, ElementSelectionState{{0, 0, 0, 0}, 1, 1})) << document.GetEditorState().ToString();
+
+    document.MoveCaretLeft(true);
+    document.WaitCaretMoving();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0}, ElementSelectionState{{0, 0, 0, 0}, 0, 2})) << document.GetEditorState().ToString();
+
+    document.MoveCaretLeft(true);
+    document.WaitCaretMoving();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0}, ElementSelectionState{{0, 0, 0, 0}, 0, 2})) << document.GetEditorState().ToString();
 }
 
 }
