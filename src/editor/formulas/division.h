@@ -27,6 +27,8 @@ public:
     
     virtual bool AfterInsert(ElementPtr el1, ElementPtr el2, bool with_undo);
 
+    virtual bool GetLeftCaretState(CaretState& caret_state, Selection* select);
+    virtual bool GetRightCaretState(CaretState& caret_state, Selection* select);
     virtual bool GetTopCaretState(const int x, const int y, CaretState& caret_state, Selection* select);
     virtual bool GetBottomCaretState(const int x, const int y, CaretState& caret_state, Selection* select);
 
