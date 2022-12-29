@@ -635,7 +635,7 @@ void Elements::RemoveAt(const uint pos, const int size)
 {
     selection->Remove(parent->id, pos, size);
     int cs_pos = -1;
-    if (caret->IsInsideElement(elements[pos]->id))
+    if (caret->IsInsideElement(elements[pos]->id) || caret->IsOnElement(elements[pos]->id))
         cs_pos = pos;
 
     elements.erase(elements.begin() + pos, elements.begin() + pos + size);
@@ -893,6 +893,13 @@ bool Elements::GetWordLeftCaretState(CaretState& caret_state, Selection* select)
         return false;
     while (p-- > 0)
     {
+        if (elements[p]->type == ElementType::CODE)
+        {
+            caret_state.SetState(Get(p));
+            if (select)
+                select->Add(parent->id, p, 1);
+            return true;
+        }
         if (select)
         {
             if (elements[p]->CanContinueSelection())

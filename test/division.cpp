@@ -746,7 +746,7 @@ TEST_F(DivisionTest, division6)
             "</p>"\
         "</body>") << 
         document.ToHtml();
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 0})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 0, 0})) << document.GetEditorState().ToString();
 }
 
 TEST_F(DivisionTest, division7)
@@ -972,6 +972,96 @@ TEST_F(DivisionTest, division9)
     document.WaitCaretMoving();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0, 0}, 
         ElementSelectionState{{0, 0, 0, 0, 0}, 0, 1})) << document.GetEditorState().ToString();
+}
+
+TEST_F(DivisionTest, division10)
+{
+    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
+        {
+            return Rect{0, 0, 600, 400};
+        });
+
+    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::string& text, const StringFormatPtr format)
+        {
+            return GetTextSizeMock(text, format);
+        });
+
+    document.InsertDivision(true);
+    document.InsertText("123", true);
+    document.WaitMainLoop();
+
+    for (int i = 0; i < 5; ++i)
+        document.MoveCaretRight(false);
+    document.WaitCaretMoving();
+    document.InsertDivision(true);
+    document.InsertText("456", true);
+    document.WaitMainLoop();
+
+    for (int i = 0; i < 5; ++i)
+        document.MoveCaretRight(false);
+    document.WaitCaretMoving();
+    document.InsertText("Text", true);
+    document.WaitMainLoop();
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mfrac>"\
+                            "<mrow>"\
+                                "<mi>123</mi>"\
+                            "</mrow>"\
+                            "<mrow>"\
+                                "<mi>Null</mi>"\
+                            "</mrow>"\
+                        "</mfrac>"\
+                    "</mrow>"\
+                "</math>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mfrac>"\
+                            "<mrow>"\
+                                "<mi>456</mi>"\
+                            "</mrow>"\
+                            "<mrow>"\
+                                "<mi>Null</mi>"\
+                            "</mrow>"\
+                        "</mfrac>"\
+                    "</mrow>"\
+                "</math>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\">Text</span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 2, 4})) << document.GetEditorState().ToString();
+
+    document.MoveCaretWordLeft(false);
+    document.MoveCaretWordLeft(false);
+    document.WaitCaretMoving();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 1})) << document.GetEditorState().ToString();
+
+    document.DeleteElements(false, true, false);
+    document.WaitMainLoop();
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mfrac>"\
+                            "<mrow>"\
+                                "<mi>123</mi>"\
+                            "</mrow>"\
+                            "<mrow>"\
+                                "<mi>Null</mi>"\
+                            "</mrow>"\
+                        "</mfrac>"\
+                    "</mrow>"\
+                "</math>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\">Text</span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 1, 0})) << document.GetEditorState().ToString();
 }
 
 }
