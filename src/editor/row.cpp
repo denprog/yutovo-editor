@@ -87,7 +87,7 @@ void Row::Remake(bool with_elements, bool with_parent)
     if (rect != last_rect)
     {
         if (with_parent)
-            parent->Remake(false, true);
+            document->Remake(parent->id, false);
         document->Redraw(id, false);
     }
     last_rect = rect;
