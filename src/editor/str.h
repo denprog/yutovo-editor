@@ -48,6 +48,8 @@ public:
 
     virtual bool CanContinueSelection();
 
+    virtual void UpdateDrawRect();
+
     template <class Archive>
     void save(Archive& ar, const unsigned int version) const
     {

@@ -19,6 +19,11 @@ void Window::DrawRect(const Rect& rect, const Color color)
     DrawRect(rect.left, rect.top, rect.width, rect.height, color);
 }
 
+void Window::ClearRect(const Rect& rect)
+{
+    ClearRect(rect.left, rect.top, rect.width, rect.height);
+}
+
 void Window::MoveDocument(const int left, const int top)
 {
     document_point.x = left;

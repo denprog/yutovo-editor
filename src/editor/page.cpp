@@ -62,13 +62,20 @@ void Page::Remake(bool with_elements, bool with_parent)
         h += p->rect.height + format->paragraph_spacing + bottom_m;
     }
 
+    Element::UpdateRect(false);
+    rect.left = format->left_indent;
+    rect.top = format->top_indent;
+
+    bool remake = (rect != last_rect && with_parent);
+    last_rect = rect;
+
     UpdateRect();
 
-    //document->Remake(parent->id, false);
-    if (rect != last_rect && with_parent)
+    if (remake)
+    {
         parent->Remake(false, with_parent);
-    document->Redraw(id, false);
-    last_rect = rect;
+        document->Redraw(id, false);
+    }
 }
 
 void Page::UpdateRect(bool with_elements)

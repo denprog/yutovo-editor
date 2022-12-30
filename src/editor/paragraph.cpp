@@ -35,7 +35,7 @@ void Paragraph::Draw() const
 void Paragraph::Remake(bool with_elements, bool with_parent)
 {
     if (with_elements)
-        Element::Remake(with_elements, false);
+        Element::Remake(with_elements, with_parent);
 
     bool remake = false;
 

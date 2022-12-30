@@ -257,4 +257,9 @@ std::string Division::ToHtml()
     return s;
 }
 
+std::string Division::ToText()
+{
+    return "(" + upper->ToText() + ")/(" + lower->ToText() + ")";
+}
+
 }

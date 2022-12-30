@@ -72,6 +72,11 @@ void QtWindow::DrawFillRect(const int x1, const int y1, const int width, const i
     p.end();
 }
 
+void QtWindow::ClearRect(const int x1, const int y1, const int width, const int height)
+{
+    DrawFillRect(x1, y1, width, height, Color::White());
+}
+
 void QtWindow::ClearSurface()
 {
     QPainter p;

@@ -486,6 +486,13 @@ void Element::UpdateFormat(StringFormatPtr& _format)
         elements->Get(i)->UpdateFormat(_format);
 }
 
+void Element::UpdateDrawRect()
+{
+    for (int i = 0; i < elements->Count(); ++i)
+        elements->Get(i)->UpdateDrawRect();
+    draw_rect = GetAbsoluteRect();
+}
+
 //Elements
 
 Elements::Elements(Element* _parent) :

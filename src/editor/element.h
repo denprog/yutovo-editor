@@ -113,6 +113,8 @@ public:
 
     virtual void UpdateFormat(StringFormatPtr& _format);
 
+    virtual void UpdateDrawRect();
+
 public:
     Element* parent = nullptr;
 
@@ -123,6 +125,7 @@ public:
     ElementId id; //hierarchic unique id
     Rect rect; //relative bounding rect
     Rect last_rect; //for determining of necessity of remaking parent
+    Rect draw_rect;
     int baseline = 0;
     
     bool editable = true;

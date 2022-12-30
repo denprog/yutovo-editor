@@ -371,7 +371,7 @@ bool Row::DeleteElements(bool left, bool with_undo)
             }
         }
 
-        parent->Remake(true, false);
+        parent->Remake(true, true);
         document->Redraw(parent->id, true);
 
 #ifdef DEBUG
