@@ -561,4 +561,66 @@ TEST_F(CodeTest, code6)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0}, ElementSelectionState{{0, 0, 0, 0}, 0, 2})) << document.GetEditorState().ToString();
 }
 
+TEST_F(CodeTest, code7)
+{
+    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
+        {
+            return Rect{0, 0, 327, 400};
+        });
+
+    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::string& text, const StringFormatPtr format)
+        {
+            return GetTextSizeMock(text, format);
+        });
+    
+    document.InsertCode(true);
+    document.WaitMainLoop();
+    document.MoveCaretRight(false);
+    document.WaitCaretMoving();
+    document.InsertText("The source of the text itself is a little mysterious.", true);
+    document.WaitMainLoop();
+    std::this_thread::sleep_for(100ms);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mi>Null</mi>"\
+                    "</mrow>"\
+                "</math>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\">The source of the </span>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\">text itself is a little </span>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\">mysterious.</span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    
+    document.MoveCaretUp(false);
+    document.MoveCaretUp(false);
+    document.WaitCaretMoving();
+    document.InsertCode(true);
+    document.WaitMainLoop();
+    std::this_thread::sleep_for(100ms);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mi>Null</mi>"\
+                    "</mrow>"\
+                "</math>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\">The sourc</span>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mi>Null</mi>"\
+                    "</mrow>"\
+                "</math>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\">e of the </span>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\">text itself is a little </span>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\">mysterious.</span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+}
+
 }

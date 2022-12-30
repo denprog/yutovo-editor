@@ -27,11 +27,6 @@ Element* Paragraph::Create(Element* parent)
     return new Paragraph(parent);
 }
 
-void Paragraph::Draw() const
-{
-    Element::Draw();
-}
-
 void Paragraph::Remake(bool with_elements, bool with_parent)
 {
     if (with_elements)

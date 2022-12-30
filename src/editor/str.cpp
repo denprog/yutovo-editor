@@ -94,7 +94,7 @@ void String::Remake(bool with_elements, bool with_parent)
     UpdateRect();
 
     if (rect != last_rect && with_parent)
-        parent->Remake(false, true);
+        document->Remake(parent->id, false);
     last_rect = rect;
 }
 
