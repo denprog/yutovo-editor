@@ -33,6 +33,7 @@ public:
     virtual bool GetBottomCaretState(const int x, const int y, CaretState& caret_state, Selection* select);
 
     virtual std::string ToHtml();
+    virtual std::string ToText();
     
 protected:
     Element *upper, *lower;

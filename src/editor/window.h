@@ -23,6 +23,9 @@ public:
     virtual void DrawRect(const int x1, const int y1, const int width, const int height, const Color color) = 0;
     void DrawFillRect(const Rect& rect, const Color color);
     virtual void DrawFillRect(const int x1, const int y1, const int width, const int height, const Color color) = 0;
+    void ClearRect(const Rect& rect);
+    virtual void ClearRect(const int x1, const int y1, const int width, const int height) = 0;
+
     virtual void ClearSurface() = 0;
 
     virtual void StoreRect(const Rect& rect) = 0;

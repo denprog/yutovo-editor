@@ -88,7 +88,6 @@ Element* String::Create(Element* parent, const std::string _str, const StringFor
 
 void String::Remake(bool with_elements, bool with_parent)
 {
-    //elements->Remake();
     Size s = window->GetTextSize(((StringElements*)elements.get())->str, format);
     rect = {1, 1, s.width, s.height};
 
@@ -459,6 +458,11 @@ void String::UpdateFormat(StringFormatPtr& _format)
 bool String::CanContinueSelection()
 {
     return true;
+}
+
+void String::UpdateDrawRect()
+{
+    draw_rect = GetAbsoluteRect();
 }
 
 //StringElements
