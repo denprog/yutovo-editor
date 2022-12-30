@@ -376,8 +376,11 @@ bool ChangeStringFormatTask::Execute()
     if (with_undo)
         document->PushEditorState(true);
 
-    auto p_id = selection_state.state.size() == 1 ? GetParent(selection_state.state[0].id) : selection_state.GetCommonElement();
-    document->Remake(p_id, true);
+    if (!selection_state.IsEmpty())
+    {
+        auto p_id = selection_state.state.size() == 1 ? GetParent(selection_state.state[0].id) : selection_state.GetCommonElement();
+        document->Remake(p_id, true);
+    }
     document->Redraw(caret_state.id, true); //move into view
 
     return true;
