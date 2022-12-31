@@ -44,13 +44,13 @@ void Page::Draw() const
     Element::Draw();
 }
 
-void Page::Remake(bool with_elements, bool with_parent)
+void Page::Remake(bool with_elements, bool with_parent, bool with_undo)
 {
     Rect v = window->GetRect();
     page_width = v.width - format->right_indent - format->left_indent;
 
     if (with_elements)
-        Element::Remake(true, with_parent);
+        Element::Remake(true, with_parent, with_undo);
 
     int left_m = 0, top_m = 0, right_m = 0, bottom_m = 0;
     int h = 0;
@@ -73,7 +73,7 @@ void Page::Remake(bool with_elements, bool with_parent)
 
     if (remake)
     {
-        parent->Remake(false, with_parent);
+        parent->Remake(false, with_parent, with_undo);
         document->Redraw(id, false);
     }
 }
@@ -152,7 +152,7 @@ bool Page::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo)
             document->caret->SetState(after);
     }
     
-    document->Remake(id, true);
+    document->Remake(id, true, with_undo, false);
 
     if (with_undo)
         document->DeleteElements(true, false, true);
@@ -168,7 +168,7 @@ bool Page::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo)
 bool Page::DeleteElements(bool left, bool with_undo)
 {
     CaretState before_state = caret->GetCaretState();
-    ElementPtr el = document->GetParent(before_state.id);
+    ElementPtr el = document->GetElement(before_state.id);
     ElementPtr paragraph = document->FindParent(el->id, ElementType::PARAGRAPH);
 
     int p = elements->GetElementPos(paragraph->id);
@@ -189,7 +189,7 @@ bool Page::DeleteElements(bool left, bool with_undo)
     }
 
     elements->RemoveAt(left ? p : p + 1, 1);
-    document->Remake(id, true);
+    document->Remake(id, true, with_undo, false);
 
     if (with_undo)
         document->InsertParagraph(true, true);

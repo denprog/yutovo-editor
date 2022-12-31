@@ -30,10 +30,10 @@ Element* Row::Create(Element* parent)
     return new Row(parent);
 }
 
-void Row::Remake(bool with_elements, bool with_parent)
+void Row::Remake(bool with_elements, bool with_parent, bool with_undo)
 {
     if (with_elements)
-        elements->Remake(with_parent);
+        elements->Remake(with_parent, with_undo);
     
     int cx = 0;
     int left_m, top_m, right_m, bottom_m;
@@ -87,7 +87,7 @@ void Row::Remake(bool with_elements, bool with_parent)
     if (rect != last_rect)
     {
         if (with_parent)
-            document->Remake(parent->id, false);
+            document->Remake(parent->id, false, with_undo, false);
         document->Redraw(id, false);
     }
     last_rect = rect;
@@ -150,7 +150,7 @@ void Row::Normalize(bool with_undo)
         if (with_undo)
         {
             document->DeleteElements(false, false, true);
-            document->PushEditorState(CaretState(id, 0), true);
+            document->PushEditorState(SelectionState(parent->id, parent->elements->GetElementPos(id), 1), true);
         }
         AddEmptyElement(); //insert empty string
         CaretState c;
@@ -169,7 +169,7 @@ bool Row::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo)
 
     for (auto& el : _elements)
     {
-        if (el->type == ElementType::PARAGRAPH) //paragraphs can be inserted above
+        if (el->type == ElementType::PARAGRAPH || el->type == ElementType::ROW) //paragraphs and rows can be inserted above
             return parent->InsertElements(_elements, with_undo);
     }
 
@@ -271,8 +271,7 @@ bool Row::DeleteElements(bool left, bool with_undo)
     {
         if (!left)
         {
-            if (before_state.GetPos() == 0 && elements->Count() == 1 && elements->Get(0)->type == ElementType::STRING && 
-                elements->Get(0)->type == ElementType::CODE_STRING && elements->Get(0)->elements->Count() == 0)
+            if (before_state.GetPos() == 0 && elements->Count() == 1 && document->IsString(elements->Get(0)) && elements->Get(0)->elements->Count() == 0)
             {
                 return parent->DeleteElements(left, with_undo);
             }
@@ -371,7 +370,7 @@ bool Row::DeleteElements(bool left, bool with_undo)
             }
         }
 
-        parent->Remake(true, true);
+        parent->Remake(true, true, with_undo);
         document->Redraw(parent->id, true);
 
 #ifdef DEBUG

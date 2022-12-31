@@ -97,6 +97,7 @@ TEST_F(DocumentTest, strings2)
 
     document.DeleteElements(false, true, false);
     document.WaitMainLoop();
+    std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == "<body><p><span style=\"font-family:'Arial';font-size:22px;\"></span></p></body>") << document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 0)) << document.GetEditorState().ToString();
 
@@ -132,6 +133,7 @@ TEST_F(DocumentTest, strings2)
 
     document.InsertText("Str", true);
     document.WaitMainLoop();
+    std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToText() == "TextStr") << document.ToText();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 7)) << document.GetEditorState().ToString();
     document.InsertText("i", true);
@@ -174,6 +176,7 @@ TEST_F(DocumentTest, strings2)
 
     document.InsertText("Str", true);
     document.WaitMainLoop();
+    std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToText() == "TextStriStr") << document.ToText();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 11)) << document.GetEditorState().ToString();
 }
@@ -527,6 +530,7 @@ TEST_F(DocumentTest, inserts2)
 
     document.InsertText("Bold", document.GetStringFormat("Times New Roman", 34, true, false, false), true);
     document.WaitMainLoop();
+    std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body><p>"\
         "<span style=\"font-family:'Arial';font-size:22px;\">TeX</span>"\
@@ -542,6 +546,7 @@ TEST_F(DocumentTest, inserts2)
     document.WaitCaretMoving();
     document.InsertText("h", true);
     document.WaitMainLoop();
+    std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body><p>"\
         "<span style=\"font-family:'Arial';font-size:22px;\">Teh</span>"\

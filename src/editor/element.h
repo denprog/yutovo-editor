@@ -53,7 +53,7 @@ public:
     virtual Element* Create(Element* parent) = 0;
 
     virtual void Draw() const;
-    virtual void Remake(bool with_elements, bool with_parent);
+    virtual void Remake(bool with_elements, bool with_parent, bool with_undo);
     virtual void Normalize(bool with_undo);
 
     virtual bool InsertElements(std::vector<ElementPtr>& _elements, bool with_undo);
@@ -157,7 +157,7 @@ public:
     virtual void Clone(std::vector<ElementPtr>& _elements, const uint start, const uint size);
     
     virtual void Draw() const;
-    virtual void Remake(bool with_parent);
+    virtual void Remake(bool with_parent, bool with_undo);
 
     virtual ElementPtr Get(uint pos);
     virtual ElementPtr Get(ElementId id);

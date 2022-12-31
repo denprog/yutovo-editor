@@ -539,6 +539,7 @@ TEST_F(ParagraphTest, paragraph1)
     document.MoveCaretToDocumentBegin(false);
     document.InsertParagraph(true);
     document.WaitMainLoop();
+    std::this_thread::sleep_for(200ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -607,6 +608,7 @@ TEST_F(ParagraphTest, paragraph1)
     document.MoveCaretUp(false);
     document.InsertParagraph(true);
     document.WaitMainLoop();
+    std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -682,6 +684,7 @@ TEST_F(ParagraphTest, paragraph1)
     document.WaitCaretMoving();
     document.InsertParagraph(true);
     document.WaitMainLoop();
+    std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\

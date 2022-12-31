@@ -47,7 +47,7 @@ TEST_F(DocumentTest, files1)
     std::this_thread::sleep_for(200ms);
     document.Load("1.yut");
     document.WaitLoad();
-    std::this_thread::sleep_for(200ms);
+    std::this_thread::sleep_for(400ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -99,7 +99,7 @@ TEST_F(DocumentTest, files2)
     document.Save("2.yut");
     document.New();
     document.WaitMainLoop();
-    std::this_thread::sleep_for(200ms);
+    std::this_thread::sleep_for(400ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -111,7 +111,7 @@ TEST_F(DocumentTest, files2)
 
     document.Load("2.yut");
     document.WaitLoad();
-    std::this_thread::sleep_for(200ms);
+    std::this_thread::sleep_for(1000ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -203,7 +203,7 @@ TEST_F(DocumentTest, files3)
 
     document.Load("3.yut");
     document.WaitLoad();
-    std::this_thread::sleep_for(400ms);
+    std::this_thread::sleep_for(1000ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -285,7 +285,7 @@ TEST_F(DocumentTest, files4)
 
     document.Load("4.yut");
     document.WaitLoad();
-    std::this_thread::sleep_for(400ms);
+    std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\

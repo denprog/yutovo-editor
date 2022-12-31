@@ -17,7 +17,7 @@ public:
     virtual Element* Create(Element* parent);
 
     virtual void Draw() const;
-    virtual void Remake(bool with_elements, bool with_parent);
+    virtual void Remake(bool with_elements, bool with_parent, bool with_undo);
 
     virtual bool HasCaretState();
 
