@@ -102,13 +102,14 @@ struct ChangeParagraphFormatTask : Task
 
 struct RemakeTask : Task
 {
-    RemakeTask(ElementPtr _text, const ElementId& _element_id, bool _with_elements);
-    RemakeTask(ElementPtr _text, const ElementId& _element_id, bool _with_elements, uint id);
+    RemakeTask(ElementPtr _text, const ElementId& _element_id, bool _with_elements, bool _with_undo);
+    RemakeTask(ElementPtr _text, const ElementId& _element_id, bool _with_elements, bool _with_undo, uint id);
 
     virtual bool Execute();
 
     ElementId element_id;
     bool with_elements;
+    bool with_undo;
 };
 
 struct RedrawTask : Task

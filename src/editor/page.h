@@ -18,7 +18,7 @@ public:
     virtual Element* Create(Element* parent);
 
     virtual void Draw() const;
-    virtual void Remake(bool with_elements, bool with_parent);
+    virtual void Remake(bool with_elements, bool with_parent, bool with_undo);
     virtual void UpdateRect(bool with_elements = false);
 
     virtual bool InsertElements(std::vector<ElementPtr>& _elements, bool with_undo);

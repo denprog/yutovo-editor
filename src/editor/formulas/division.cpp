@@ -81,10 +81,10 @@ void Division::Draw() const
     Formula::Draw();
 }
 
-void Division::Remake(bool with_elements, bool with_parent)
+void Division::Remake(bool with_elements, bool with_parent, bool with_undo)
 {
     if (with_elements)
-        elements->Remake(with_parent);
+        elements->Remake(with_parent, with_undo);
     
     int w = std::max(upper->rect.width + 2, lower->rect.width + 2);
     if (w < 200)
@@ -100,7 +100,7 @@ void Division::Remake(bool with_elements, bool with_parent)
 
     if (rect != last_rect && with_parent)
     {
-        parent->Remake(false, true);
+        parent->Remake(false, true, with_undo);
         document->Redraw(id, false);
     }
     last_rect = rect;
@@ -108,7 +108,24 @@ void Division::Remake(bool with_elements, bool with_parent)
 
 bool Division::DeleteElements(bool left, bool with_undo)
 {
-    if (!selection->IsEmpty() || left || caret->current_pos != 1)
+    uint start, size;
+    if (selection->Has(id, start, size))
+    {
+        if (start == 0 && size == 1)
+        {
+            upper->elements->Clear();
+            Normalize(with_undo);
+            return true;
+        }
+        if (start == 2 && size == 1)
+        {
+            lower->elements->Clear();
+            Normalize(with_undo);
+            return true;
+        }
+        return false;
+    }
+    else if (!selection->IsEmpty() || left || caret->current_pos != 1)
         return false;
     
     //remove division by deleting its shape

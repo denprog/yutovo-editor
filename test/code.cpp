@@ -104,6 +104,7 @@ TEST_F(CodeTest, code1)
     document.WaitCaretMoving();
     document.InsertText("Text", true);
     document.WaitMainLoop();
+    std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -123,6 +124,7 @@ TEST_F(CodeTest, code1)
     document.WaitCaretMoving();
     document.InsertText("Normal", true);
     document.WaitMainLoop();
+    std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -246,6 +248,7 @@ TEST_F(CodeTest, code3)
 
     document.DeleteElements(false, true, false);
     document.WaitMainLoop();
+    std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == "<body><p><span style=\"font-family:'Arial';font-size:22px;\"></span></p></body>") << document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0})) << document.GetEditorState().ToString();
 }
@@ -402,6 +405,7 @@ TEST_F(CodeTest, code5)
 
     document.Undo();
     document.WaitUndo();
+    std::this_thread::sleep_for(200ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -433,6 +437,7 @@ TEST_F(CodeTest, code5)
     document.WaitCaretMoving();
     document.InsertCode(true);
     document.WaitMainLoop();
+    std::this_thread::sleep_for(200ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -454,6 +459,7 @@ TEST_F(CodeTest, code5)
     document.MoveCaretLeft(false);
     document.DeleteElements(false, true, false);
     document.WaitMainLoop();
+    std::this_thread::sleep_for(200ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -469,6 +475,7 @@ TEST_F(CodeTest, code5)
 
     document.Undo();
     document.WaitUndo();
+    std::this_thread::sleep_for(200ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -489,6 +496,7 @@ TEST_F(CodeTest, code5)
 
     document.Redo();
     document.WaitRedo();
+    std::this_thread::sleep_for(200ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\

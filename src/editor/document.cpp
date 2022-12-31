@@ -50,7 +50,7 @@ void Document::Start()
 
     main_loop = std::thread(&Document::MainLoop, this);
 
-    Remake(text->id, true);
+    Remake(text->id, true, false, false);
 }
 
 void Document::MainLoop()
@@ -820,7 +820,7 @@ void Document::Resize(uint width, uint height)
     last_task_id = tasks[tasks.size() - 1]->id;
 #endif
     next_circle.notify_one();
-    Remake(text->id, true);
+    Remake(text->id, true, false, false);
 }
 
 void Document::Redraw(const ElementId& id, bool move_into_view)
@@ -852,13 +852,13 @@ void Document::Redraw()
     Redraw(text->id, false);
 }
 
-void Document::Remake(const ElementId& id, bool with_elements, bool undo)
+void Document::Remake(const ElementId& id, bool with_elements, bool with_undo, bool undo)
 {
     {
         std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
         if (undo)
         {
-            undo_tasks.push(TaskPtr(new RemakeTask(text, id, with_elements, cur_task_id)));
+            undo_tasks.push(TaskPtr(new RemakeTask(text, id, with_elements, with_undo, cur_task_id)));
         }
         else
         {
@@ -867,11 +867,11 @@ void Document::Remake(const ElementId& id, bool with_elements, bool undo)
                 TaskPtr last = tasks[tasks.size() - 1];
                 RemakeTask* t = dynamic_cast<RemakeTask*>(last.get());
                 if (!t || t->element_id != id || t->with_elements != with_elements)
-                    tasks.emplace_back(new RemakeTask(text, id, with_elements));
+                    tasks.emplace_back(new RemakeTask(text, id, with_elements, with_undo, cur_task_id));
             }
             else
             {
-                tasks.emplace_back(new RemakeTask(text, id, with_elements));
+                tasks.emplace_back(new RemakeTask(text, id, with_elements, with_undo, cur_task_id));
             }
         }
     }

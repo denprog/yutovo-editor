@@ -23,7 +23,7 @@ bool Formula::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo)
 
 bool Formula::DeleteElements(bool left, bool with_undo)
 {
-    return false;
+    return Element::DeleteElements(left, with_undo);
 }
 
 bool Formula::ChangeStringFormat(const StringFormatPtr format, bool with_undo)

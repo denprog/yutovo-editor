@@ -94,7 +94,7 @@ bool InsertElementsTask::Execute()
             assert(el != nullptr);
             if (el->DeleteElements(true, with_undo))
             {
-                document->Remake(el->parent->id, true);
+                document->Remake(el->parent->id, true, with_undo, false);
                 return true;
             }
             return false;
@@ -132,7 +132,7 @@ bool InsertElementsTask::Execute()
     {
         if (with_undo)
             document->PushEditorState(true);
-        document->Remake(el->parent->id, true);
+        document->Remake(el->parent->id, true, with_undo, false);
         document->Redraw(el->parent->id, true); //move into view
         return true;
     }
@@ -281,7 +281,7 @@ bool InsertFormulasTask::Execute()
     {
         if (with_undo)
             document->PushEditorState(true);
-        document->Remake(el->parent->id, true);
+        document->Remake(el->parent->id, true, with_undo, false);
         document->Redraw(el->parent->id, true); //move into view
         return true;
     }
@@ -379,7 +379,7 @@ bool ChangeStringFormatTask::Execute()
     if (!selection_state.IsEmpty())
     {
         auto p_id = selection_state.state.size() == 1 ? GetParent(selection_state.state[0].id) : selection_state.GetCommonElement();
-        document->Remake(p_id, true);
+        document->Remake(p_id, true, with_undo, false);
     }
     document->Redraw(caret_state.id, true); //move into view
 
@@ -431,17 +431,19 @@ bool ChangeParagraphFormatTask::Execute()
 
 //RemakeTask
 
-RemakeTask::RemakeTask(ElementPtr _text, const ElementId& _element_id, bool _with_elements) : 
+RemakeTask::RemakeTask(ElementPtr _text, const ElementId& _element_id, bool _with_elements, bool _with_undo) : 
     Task(_text), 
     element_id(_element_id),
-    with_elements(_with_elements)
+    with_elements(_with_elements),
+    with_undo(_with_undo)
 {
 }
 
-RemakeTask::RemakeTask(ElementPtr _text, const ElementId& _element_id, bool _with_elements, uint id) :
+RemakeTask::RemakeTask(ElementPtr _text, const ElementId& _element_id, bool _with_elements, bool _with_undo, uint id) :
     Task(_text, id), 
     element_id(_element_id),
-    with_elements(_with_elements)
+    with_elements(_with_elements),
+    with_undo(_with_undo)
 {
 }
 
@@ -451,7 +453,7 @@ bool RemakeTask::Execute()
     auto p = text->document->GetElement(element_id);
     if (!p)
         return false;
-    document->GetElement(element_id)->Remake(with_elements, true);
+    document->GetElement(element_id)->Remake(with_elements, true, with_undo);
     document->Redraw(element_id, false);
     return true;
 }
@@ -643,7 +645,7 @@ bool NewTask::Execute()
     text->document->ResetTasks();
     text->document->MoveCaretToDocumentBegin(false);
     text->document->text = ElementPtr(new Text(text->document));
-    text->document->Remake(text->id, true, false);
+    text->document->Remake(text->id, true, false, false);
     return true;
 }
 
@@ -706,7 +708,7 @@ bool LoadTask::Execute()
     text->document->ResetTasks();
     text->document->text = t;
     text->document->MoveCaretToDocumentBegin(false);
-    text->document->Remake(text->id, true, false);
+    text->document->Remake(text->id, true, false, false);
     text->window->OnLoadResult(id, IOResult::Success);
     return true;
 }

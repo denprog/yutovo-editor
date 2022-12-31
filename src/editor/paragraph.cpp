@@ -27,11 +27,14 @@ Element* Paragraph::Create(Element* parent)
     return new Paragraph(parent);
 }
 
-void Paragraph::Remake(bool with_elements, bool with_parent)
+void Paragraph::Remake(bool with_elements, bool with_parent, bool with_undo)
 {
     if (with_elements)
-        Element::Remake(with_elements, with_parent);
+        Element::Remake(with_elements, with_parent, with_undo);
 
+    ElementPtr clone;
+    if (with_undo)
+        clone.reset(Clone());
     bool remake = false;
 
     if (format->word_wrap == ParagraphFormat::WordWrap::Normal)
@@ -70,8 +73,8 @@ void Paragraph::Remake(bool with_elements, bool with_parent)
 
                 //move the element in the next row
                 next_row->elements->Move(el, 0);
-                row->Remake(true, false);
-                next_row->Remake(true, false);
+                row->Remake(true, false, with_undo);
+                next_row->Remake(true, false, with_undo);
                 remake = true;
             }
 
@@ -83,7 +86,7 @@ void Paragraph::Remake(bool with_elements, bool with_parent)
             {
                 //move the element from the next row in the current one
                 row->elements->Move(next_row->elements->Get(0), row->elements->Count());
-                row->Remake(true, false);
+                row->Remake(true, false, with_undo);
                 row->Normalize(false);
                 if (next_row->elements->Count() == 0)
                 {
@@ -92,7 +95,7 @@ void Paragraph::Remake(bool with_elements, bool with_parent)
                 }
                 else
                 {
-                    next_row->Remake(true, false);
+                    next_row->Remake(true, false, with_undo);
                     next_row->Normalize(false);
                 }
                 row->UpdateRect();
@@ -106,8 +109,8 @@ void Paragraph::Remake(bool with_elements, bool with_parent)
                 while (el && el->Split(page->page_width - row->rect.width - format->indent_before))
                 {
                     row->elements->Move(next_row->elements->Get(0), row->elements->Count());
-                    row->Remake(true, false);
-                    next_row->Remake(true, false);
+                    row->Remake(true, false, with_undo);
+                    next_row->Remake(true, false, with_undo);
                     row->Normalize(false);
                     next_row->Normalize(false);
                     el = next_row->elements->Get(0);
@@ -117,9 +120,9 @@ void Paragraph::Remake(bool with_elements, bool with_parent)
 
             if (remake)
             {
-                row->Remake(true, false);
+                row->Remake(true, false, with_undo);
                 if (next_row)
-                    next_row->Remake(true, false);
+                    next_row->Remake(true, false, with_undo);
 
                 row->Normalize(false);
                 if (next_row)
@@ -140,15 +143,50 @@ void Paragraph::Remake(bool with_elements, bool with_parent)
         h += row->rect.height + format->line_spacing + top_m + bottom_m;
     }
 
+    if (with_undo && remake)
+    {
+        for (int i = 0; i < clone->elements->Count(); ++i)
+            document->InsertElement(clone->elements->Get(i));
+        document->DeleteElements(false, false, true);
+        document->PushEditorState(SelectionState(id, 0, elements->Count()), true);
+    }
+
     UpdateRect();
 
     if (rect != last_rect)
     {
         if (with_parent)
-            parent->Remake(false, true);
+            parent->Remake(false, true, with_undo);
         document->Redraw(id, false);
     }
     last_rect = rect;
+}
+
+void Paragraph::Normalize(bool with_undo)
+{
+    Element::Normalize(with_undo);
+
+    if (elements->Count() == 0)
+    {
+        AddElement(ElementPtr(new Row(this))); //paragraph has to have at least one row
+        if (with_undo)
+        {
+            document->DeleteElements(false, false, true);
+            document->PushEditorState(SelectionState(id, 0, elements->Count()), true);
+        }
+    }
+
+    if (elements->Count() > 1)
+    {
+        for (int i = 0; i < elements->Count();)
+        {
+            auto el = elements->Get(i);
+            if (el->elements->Count() == 1 && el->elements->Get(0)->type == ElementType::STRING && el->elements->Get(0)->elements->Count() == 0)
+                elements->RemoveAt(i, 1);
+            else
+                ++i;
+        }
+    }
 }
 
 void Paragraph::UpdateRect(bool with_elements)
@@ -163,7 +201,10 @@ bool Paragraph::InsertElements(std::vector<ElementPtr>& _elements, bool with_und
 {
     if (_elements.size() == 1 && _elements[0]->type == ElementType::ROW)
     {
-        return Element::InsertElements(_elements, with_undo);
+        if (!Element::InsertElements(_elements, with_undo))
+            return false;
+        Normalize(with_undo);
+        return true;
     }
 
     return parent->InsertElements(_elements, with_undo);
@@ -171,6 +212,15 @@ bool Paragraph::InsertElements(std::vector<ElementPtr>& _elements, bool with_und
 
 bool Paragraph::DeleteElements(bool left, bool with_undo)
 {
+    uint start, size;
+    if (selection->Has(id, start, size))
+    {
+        if (Element::DeleteElements(left, with_undo))
+        {
+            Normalize(with_undo);
+            return true;
+        }
+    }
     return parent->DeleteElements(left, with_undo);
 }
 
@@ -186,7 +236,7 @@ bool Paragraph::ChangeParagraphFormat(const ParagraphFormatPtr _format, bool wit
         elements->Get(i)->UpdateStringFormat(format->string_format, _format->string_format);
 
     format = _format;
-    Remake(true, true);
+    Remake(true, true, with_undo);
     
     return true;
 }

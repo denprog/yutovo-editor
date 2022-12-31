@@ -26,7 +26,7 @@ void Shape::Draw() const
     draw_func(GetAbsoluteRect());
 }
 
-void Shape::Remake(bool with_elements, bool with_parent)
+void Shape::Remake(bool with_elements, bool with_parent, bool with_undo)
 {
 }
 

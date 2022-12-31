@@ -86,7 +86,7 @@ Element* String::Create(Element* parent, const std::string _str, const StringFor
     return new String(parent, _str, _format);
 }
 
-void String::Remake(bool with_elements, bool with_parent)
+void String::Remake(bool with_elements, bool with_parent, bool with_undo)
 {
     Size s = window->GetTextSize(((StringElements*)elements.get())->str, format);
     rect = {1, 1, s.width, s.height};
@@ -94,7 +94,7 @@ void String::Remake(bool with_elements, bool with_parent)
     UpdateRect();
 
     if (rect != last_rect && with_parent)
-        document->Remake(parent->id, false);
+        document->Remake(parent->id, false, with_undo, false);
     last_rect = rect;
 }
 
@@ -179,6 +179,7 @@ bool String::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo)
                 return false;
             if (with_undo)
             {
+                document->PushEditorState(true);
                 document->InsertElement(Clone(), false, true);
                 document->DeleteElements(false, false, true);
                 document->PushEditorState(CaretState(id), SelectionState(id, 0, s->elements->Count()), true);
@@ -259,7 +260,7 @@ bool String::DeleteElements(bool left, bool with_undo)
         document->PushEditorState(CaretState(elements->GetElementId(pos)), true);
     }
 
-    Remake(false, true);
+    Remake(false, true, with_undo);
     parent->Normalize(with_undo);
 
 #ifdef DEBUG
@@ -295,7 +296,7 @@ bool String::ChangeStringFormat(const StringFormatPtr _format, bool with_undo)
             }
             ((String*)el.get())->format = _format;
             parent->Normalize(with_undo);
-            parent->Remake(true, false);
+            parent->Remake(true, false, with_undo);
             return true;
         }
     }

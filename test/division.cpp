@@ -75,6 +75,7 @@ TEST_F(DivisionTest, division1)
 
     document.InsertText("1", true);
     document.WaitMainLoop();
+    std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -100,6 +101,7 @@ TEST_F(DivisionTest, division1)
     document.WaitCaretMoving();
     document.InsertText("2", true);
     document.WaitMainLoop();
+    std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -173,6 +175,7 @@ TEST_F(DivisionTest, division1)
     document.WaitCaretMoving();
     document.InsertDivision(true);
     document.WaitMainLoop();
+    std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -251,6 +254,7 @@ TEST_F(DivisionTest, division2)
 
     document.InsertDivision(true);
     document.WaitMainLoop();
+    std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -663,6 +667,7 @@ TEST_F(DivisionTest, division6)
 
     document.Undo();
     document.WaitUndo();
+    std::this_thread::sleep_for(200ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\

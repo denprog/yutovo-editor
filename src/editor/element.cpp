@@ -73,10 +73,10 @@ void Element::Draw() const
     elements->Draw();
 }
 
-void Element::Remake(bool with_elements, bool with_parent)
+void Element::Remake(bool with_elements, bool with_parent, bool with_undo)
 {
     if (with_elements)
-        elements->Remake(with_parent);
+        elements->Remake(with_parent, with_undo);
     UpdateRect();
 }
 
@@ -88,6 +88,14 @@ void Element::Normalize(bool with_undo)
 
 bool Element::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo)
 {
+    auto c = caret->GetCaretState();
+    if (c.IsInsideElement(id))
+    {
+        int pos = c.GetPosInElement(id);
+        for (int i = 0; i < _elements.size(); ++i)
+            elements->Insert(_elements[i], i);
+        return true;
+    }
     return false;
 }
 
@@ -99,6 +107,35 @@ bool Element::DeleteElements(bool left, bool with_undo)
             return parent->DeleteElements(left, with_undo);
         elements->RemoveAt(left ? caret->current_pos - 1 : caret->current_pos, 1);
 
+#ifdef DEBUG
+        to_str = ToText();
+#endif
+        return true;
+    }
+
+    uint start, size;
+    if (selection->Has(id, start, size))
+    {
+        if (with_undo)
+        {
+            std::vector<ElementPtr> clone;
+            elements->Clone(clone, start, size);
+            document->InsertElements(clone, false, true);
+            document->PushEditorState(CaretState(id, start), true);
+        }
+
+        elements->RemoveAt(start, size);
+        if (elements->Count() == 0)
+        {
+            Normalize(with_undo);
+            CaretState c;
+            if (GetFirstCaretState(c, nullptr))
+                caret->SetState(c);
+        }
+        else
+        {
+            Normalize(with_undo);
+        }
 #ifdef DEBUG
         to_str = ToText();
 #endif
@@ -536,10 +573,10 @@ void Elements::Draw() const
         el->Draw();
 }
 
-void Elements::Remake(bool with_parent)
+void Elements::Remake(bool with_parent, bool with_undo)
 {
     for (auto el : elements)
-        el->Remake(true, with_parent);
+        el->Remake(true, with_parent, with_undo);
 }
 
 ElementPtr Elements::Get(uint pos)
