@@ -157,6 +157,19 @@ DeleteElementsTask::DeleteElementsTask(ElementPtr _text, bool _left, uint _id) :
     with_undo = false;
 }
 
+DeleteElementsTask::DeleteElementsTask(ElementPtr _text, ElementId _element_id, bool _with_undo) :
+    Task(_text),
+    element_id(_element_id)
+{
+}
+
+DeleteElementsTask::DeleteElementsTask(ElementPtr _text, ElementId _element_id, bool _with_undo, uint _id) :
+    Task(_text, _id),
+    element_id(_element_id)
+{
+    with_undo = _with_undo;
+}
+
 bool DeleteElementsTask::Execute()
 {
     logger->Debug("Execute DeleteElementsTask");
@@ -164,13 +177,26 @@ bool DeleteElementsTask::Execute()
     if (with_undo)
         document->PushEditorState(true);
 
-    if (before_state.IsEmpty())
-        before_state = document->GetEditorState();
+    SelectionState selection_state;
+    if (element_id.empty())
+    {
+        if (before_state.IsEmpty())
+            before_state = document->GetEditorState();
+        else
+            document->SetEditorState(before_state); //it is redo
+        selection_state = before_state.selection_state;
+    }
     else
-        document->SetEditorState(before_state); //it is redo
+    {
+        before_state = document->GetEditorState();
+        //clear elements inside this element
+        selection_state = SelectionState{element_id, 0, document->GetElement(element_id)->elements->Count()};
+        EditorState s{before_state.caret_state, selection_state};
+        document->SetEditorState(s);
+    }
 
     CaretState caret_state = before_state.caret_state;
-    SelectionState& selection_state = before_state.selection_state;
+    //SelectionState& selection_state = before_state.selection_state;
 
     auto DeleteElements = [&](ElementPtr el)
     {

@@ -238,9 +238,10 @@ TEST_F(DocumentTest, clipboard4)
 
 TEST_F(DocumentTest, clipboard5)
 {
+    int width = 327;
     EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
         {
-            return Rect{0, 0, 327, 400};
+            return Rect{0, 0, width, 400};
         });
 
     EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::string& text, const StringFormatPtr format)
@@ -284,6 +285,22 @@ TEST_F(DocumentTest, clipboard5)
     document.WaitUndo();
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToText() == "") << document.ToText();
+
+    document.Redo();
+    document.WaitRedo();
+    width = 480;
+    document.Resize(width, 400);
+    std::this_thread::sleep_for(100ms);
+
+    document.Undo();
+    document.WaitUndo();
+    std::this_thread::sleep_for(100ms);
+    ASSERT_TRUE(document.ToText() == "") << document.ToText();
+
+    document.Redo();
+    document.WaitRedo();
+    std::this_thread::sleep_for(100ms);
+    ASSERT_TRUE(document.ToText() == "The <mrow> MathML element is used to group sub-expressions") << document.ToText();
 }
 
 }

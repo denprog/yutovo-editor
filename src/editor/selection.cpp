@@ -196,6 +196,8 @@ void Selection::Set(SelectionState& state)
 
 void Selection::Add(const ElementPtr element, uint start, uint size)
 {
+    if (!element)
+        return;
     auto it = std::find_if(selection.begin(), selection.end(), 
         [element](auto& s)
         {

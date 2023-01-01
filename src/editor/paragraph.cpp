@@ -147,8 +147,9 @@ void Paragraph::Remake(bool with_elements, bool with_parent, bool with_undo)
     {
         for (int i = 0; i < clone->elements->Count(); ++i)
             document->InsertElement(clone->elements->Get(i));
-        document->DeleteElements(false, false, true);
-        document->PushEditorState(SelectionState(id, 0, elements->Count()), true);
+        document->PushEditorState(CaretState(id, 0), true);
+        document->ClearElements(id, false, true);
+        document->PushEditorState(CaretState(id, 0), true);
     }
 
     UpdateRect();

@@ -282,6 +282,24 @@ void Document::DeleteElements(bool left, bool with_undo, bool undo)
     next_circle.notify_one();
 }
 
+void Document::ClearElements(ElementId element_id, bool with_undo, bool undo)
+{
+    {
+        std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
+        if (undo)
+        {
+            undo_tasks.push(TaskPtr(new DeleteElementsTask(text, element_id, with_undo, cur_task_id)));
+            last_task_id = cur_task_id;
+        }
+        else
+        {
+            tasks.emplace_back(new DeleteElementsTask(text, element_id, with_undo));
+            last_task_id = tasks[tasks.size() - 1]->id;
+        }
+    }
+    next_circle.notify_one();
+}
+
 void Document::InsertCode(bool with_undo)
 {
     InsertFormula(new Code(this), with_undo, false);
