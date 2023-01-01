@@ -49,10 +49,12 @@ struct DeleteElementsTask : Task
 {
     DeleteElementsTask(ElementPtr _text, bool _left, bool _with_undo);
     DeleteElementsTask(ElementPtr _text, bool _left, uint _id);
+    DeleteElementsTask(ElementPtr _text, ElementId _element_id, bool _with_undo);
+    DeleteElementsTask(ElementPtr _text, ElementId _element_id, bool _with_undo, uint _id);
 
     virtual bool Execute();
 
-    ElementId element_id; //delete from this element or use id from caret state
+    ElementId element_id; //delete elements from this element or use id from caret state
     bool left; //delete on the left or on the right
     EditorState before_state;
 };

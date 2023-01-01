@@ -39,6 +39,7 @@ public:
     void InsertElements(std::vector<ElementPtr>& elements, bool with_undo, bool undo = false, ElementId element_id = ElementId{});
 
     void DeleteElements(bool left, bool with_undo, bool undo);
+    void ClearElements(ElementId element_id, bool with_undo, bool undo);
 
     void InsertCode(bool with_undo);
     void InsertCodeString(const std::string& str, bool with_undo);

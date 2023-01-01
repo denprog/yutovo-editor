@@ -136,6 +136,9 @@ bool Element::DeleteElements(bool left, bool with_undo)
         {
             Normalize(with_undo);
         }
+
+        document->Remake(id, true, true, false);
+
 #ifdef DEBUG
         to_str = ToText();
 #endif
