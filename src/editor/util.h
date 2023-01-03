@@ -154,6 +154,7 @@ bool IsChild(const ElementId& parent_id, const ElementId& child_id);
 
 ElementId GetParent(const ElementId& id);
 ElementId GetChild(const ElementId& id, uint pos);
+int GetChildPos(const ElementId& id);
 
 struct DocumentUserData
 {

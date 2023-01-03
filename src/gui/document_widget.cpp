@@ -72,10 +72,10 @@ void DocumentWidget::resizeEvent(QResizeEvent *event)
 void DocumentWidget::keyPressEvent(QKeyEvent *event)
 {
     QKeySequence s(event->modifiers() | event->key());
-    if (shortcuts_map.Call(s, current_editor_state))
+    QString str = event->text();
+    if (shortcuts_map.Call(s, str.length() > 0 ? str[0] : QChar(), current_editor_state))
         return;
 
-    QString str = event->text();
     for (auto ch : str)
     {
         if (!ch.isPrint())

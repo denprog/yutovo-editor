@@ -43,6 +43,7 @@ public:
 
     void InsertCode(bool with_undo);
     void InsertCodeString(const std::string& str, bool with_undo);
+    void InsertPlus(bool with_undo);
     void InsertDivision(bool with_undo);
 
     void InsertFormula(Element* element, bool with_undo, bool undo);
@@ -81,7 +82,9 @@ public:
     ElementType GetElementType(const ElementId id);
 
     bool IsString(ElementPtr el);
+    bool IsString(ElementId id);
     bool IsRow(ElementPtr el);
+    bool IsRow(ElementId id);
 
     bool GetStringFormat(const ElementId id, StringFormat& format);
     bool GetParagraphFormat(const ElementId id, ParagraphFormat& format);

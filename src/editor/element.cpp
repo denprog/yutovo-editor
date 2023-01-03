@@ -103,9 +103,9 @@ bool Element::DeleteElements(bool left, bool with_undo)
 {
     if (selection->IsEmpty())
     {
-        if ((left && caret->current_pos == 0) || (!left && caret->current_pos == elements->Count()))
+        if ((left && caret->GetPos() == 0) || (!left && caret->GetPos() == elements->Count()))
             return parent->DeleteElements(left, with_undo);
-        elements->RemoveAt(left ? caret->current_pos - 1 : caret->current_pos, 1);
+        elements->RemoveAt(left ? caret->GetPos() - 1 : caret->GetPos(), 1);
 
 #ifdef DEBUG
         to_str = ToText();
@@ -633,6 +633,13 @@ int Elements::GetChildPos(ElementId id)
     return -1;
 }
 
+bool Elements::IsLast(ElementId id)
+{
+    if (elements.empty())
+        return false;
+    return Get(Count() - 1)->id == id;
+}
+
 void Elements::Add(ElementPtr element)
 {
     elements.push_back(ElementPtr(element));
@@ -648,7 +655,7 @@ void Elements::Insert(ElementPtr element, const uint pos)
 {
     int p = -1;
     if (caret->IsInsideElement(element->id))
-        p = caret->current_pos;
+        p = caret->GetPos();
     
     ElementSelection s;
     if (selection->Has(element->id, s))
@@ -684,6 +691,7 @@ void Elements::RemoveAt(const uint pos, const int size)
     int cs_pos = -1;
     if (caret->IsInsideElement(elements[pos]->id) || caret->IsOnElement(elements[pos]->id))
         cs_pos = pos;
+    CaretState c = caret->GetCaretState();
 
     elements.erase(elements.begin() + pos, elements.begin() + pos + size);
     UpdateIds();

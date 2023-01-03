@@ -330,6 +330,7 @@ TEST_F(DivisionTest, division3)
     document.InsertText("Text", true);
     document.InsertDivision(true);
     document.WaitMainLoop();
+    std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -960,6 +961,7 @@ TEST_F(DivisionTest, division9)
         ElementSelectionState{{0, 0, 0, 0, 0}, 0, 1})) << document.GetEditorState().ToString();
     
     document.MoveCaretRight(false);
+    document.WaitCaretMoving();
     document.MoveCaretLeft(false);
     document.MoveCaretLeft(false);
     document.MoveCaretLeft(false);

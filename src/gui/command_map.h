@@ -19,6 +19,7 @@ enum CommandContext
 struct CommandMap
 {
     QKeySequence shortcut;
+    QChar symbol;
     std::string command;
     CommandContext context = CommandContext::Everywhere;
 };
@@ -52,11 +53,17 @@ public:
 
     void Init(DocumentPtr _document);
 
-    bool Call(const QKeySequence& shortcut, const EditorState& editor_state);
+    bool Call(const QKeySequence& shortcut, QChar symbol, const EditorState& editor_state);
 
 private:
     void Add(QKeySequence shortcut, std::string command, std::function<void (void)> func, CommandContext context = CommandContext::Everywhere);
-    void Add(QKeySequence shortcut, std::string command, std::function<void (const std::string&)> func, CommandContext context = CommandContext::Everywhere);
+    void Add(QKeySequence shortcut, QChar symbol, std::string command, std::function<void (void)> func, 
+        CommandContext context = CommandContext::Everywhere);
+    
+    void Add(QKeySequence shortcut, std::string command, std::function<void (const std::string&)> func, 
+        CommandContext context = CommandContext::Everywhere);
+    void Add(QKeySequence shortcut, QChar symbol, std::string command, std::function<void (const std::string&)> func, 
+        CommandContext context = CommandContext::Everywhere);
 
 private:
     DocumentPtr document;

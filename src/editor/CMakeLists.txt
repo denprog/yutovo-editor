@@ -28,6 +28,8 @@ add_library(${PROJECT_NAME}
     formulas/code_string.cpp
     formulas/code_row.cpp
     formulas/shape.cpp
+    formulas/only_shape_formula.cpp
+    formulas/plus.cpp
     formulas/division.cpp
 )
 

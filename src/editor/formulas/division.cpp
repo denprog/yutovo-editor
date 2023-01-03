@@ -94,7 +94,7 @@ void Division::Remake(bool with_elements, bool with_parent, bool with_undo)
     upper->rect.Move((w - upper->rect.width) / 2, 0);
     shape->rect.Move(0, upper->rect.height + shape->rect.height + 4);
     lower->rect.Move((w - lower->rect.width) / 2, upper->rect.height + shape->rect.height + (shape->rect.height + 4) * 2);
-    baseline = upper->rect.height + 4;
+    baseline = shape->rect.GetBottom() - shape->rect.height / 2;
 
     UpdateRect();
 
@@ -125,7 +125,7 @@ bool Division::DeleteElements(bool left, bool with_undo)
         }
         return false;
     }
-    else if (!selection->IsEmpty() || left || caret->current_pos != 1)
+    else if (!selection->IsEmpty() || left || caret->GetPos() != 1)
         return false;
     
     //remove division by deleting its shape

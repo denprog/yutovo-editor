@@ -114,6 +114,7 @@ void Row::Normalize(bool with_undo)
                         document->PushEditorState(CaretState(id, i), true);
                     }
                     elements->RemoveAt(i, 1); //remove empty strings
+                    window->OnCaretMoved(parent->document->GetEditorState());
                     if (i > 0)
                         --i;
                     continue;
@@ -138,6 +139,7 @@ void Row::Normalize(bool with_undo)
                             document->DeleteElements(false, false, true);
                             document->PushEditorState(SelectionState(id, elements->GetElementPos(el->id), 1), true);
                         }
+                        window->OnCaretMoved(parent->document->GetEditorState());
                         continue;
                     }
                 }
@@ -150,7 +152,7 @@ void Row::Normalize(bool with_undo)
         if (with_undo)
         {
             document->DeleteElements(false, false, true);
-            document->PushEditorState(SelectionState(parent->id, parent->elements->GetElementPos(id), 1), true);
+            document->PushEditorState(CaretState(id), SelectionState(parent->id, parent->elements->GetElementPos(id), 1), true);
         }
         AddEmptyElement(); //insert empty string
         CaretState c;

@@ -72,6 +72,7 @@ void CodeString::UpdateRect(bool with_elements)
 
     if (elements->Count() == 0)
         rect.SetRect(0, 0, rect.width + empty_rect_width, rect.height);
+    baseline = rect.height / 2;
 }
 
 Rect CodeString::GetCaretRect(const uint pos) const
