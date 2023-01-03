@@ -175,7 +175,7 @@ bool String::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo)
         if (elements->Count() == 0)
         {
             //replace the string and format
-            if (document->caret->current_pos != 0)
+            if (document->caret->GetPos() != 0)
                 return false;
             if (with_undo)
             {
@@ -199,10 +199,10 @@ bool String::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo)
             {
                 document->DeleteElements(true, false, true);
                 if (s->elements->Count() > 1)
-                    document->PushEditorState(SelectionState(id, caret->current_pos, s->elements->Count()), true);
+                    document->PushEditorState(SelectionState(id, caret->GetPos(), s->elements->Count()), true);
             }
-            elements->Insert(_elements[0], caret->current_pos);
-            caret->SetState(elements->GetElementId(caret->current_pos + s->elements->Count()));
+            elements->Insert(_elements[0], caret->GetPos());
+            caret->SetState(elements->GetElementId(caret->GetPos() + s->elements->Count()));
             parent->Normalize(with_undo);   
 #ifdef DEBUG
             to_str = ToText();
@@ -216,7 +216,7 @@ bool String::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo)
 
 bool String::DeleteElements(bool left, bool with_undo)
 {
-    uint caret_pos = caret->current_pos;
+    uint caret_pos = caret->GetPos();
     if (caret->IsInsideElement(id))
     {
         if ((caret_pos == 0 && left) || (caret_pos == elements->Count() && !left))
@@ -323,8 +323,8 @@ bool String::Split(const uint max_left_width)
                 if (caret->IsInsideElement(id))
                 {
                     //update caret state
-                    if (caret->current_pos > i + 1)
-                        caret->SetState(el->id, caret->current_pos - i - 1);
+                    if (caret->GetPos() > i + 1)
+                        caret->SetState(el->id, caret->GetPos() - i - 1, true);
                 }
 
                 uint start, size;
@@ -362,7 +362,7 @@ bool String::SplitAt(const uint pos)
 
     int cs_pos = -1;
     if (caret->IsInsideElement(id))
-        cs_pos = caret->current_pos;
+        cs_pos = caret->GetPos();
     
     std::string& str = ((StringElements*)elements.get())->str;
     ElementPtr el(Create(parent, str.substr(pos), format));
@@ -406,7 +406,7 @@ bool String::Merge(const ElementPtr with_element)
         return false;
 
     if (caret->IsInsideElement(with_element->id))
-        caret->SetState(id, caret->current_pos + elements->Count()); //update caret state
+        caret->SetState(id, caret->GetPos() + elements->Count()); //update caret state
 
     uint start, size = 0;
     if (selection->Has(with_element->id, start, size))

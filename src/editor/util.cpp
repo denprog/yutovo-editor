@@ -107,6 +107,11 @@ ElementId GetChild(const ElementId& id, uint pos)
     return _id;
 }
 
+int GetChildPos(const ElementId& id)
+{
+    return id[id.size() - 1];
+}
+
 template<>
 void RegisterTypes(UserDataAdapter<DocumentUserData, boost::archive::binary_iarchive>& archive)
 {

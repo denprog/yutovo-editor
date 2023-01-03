@@ -25,8 +25,25 @@ void Caret::SetState(const CaretState& caret_state, bool update_x_pos)
         Reset();
         return;
     }
-    current_element = el.get();
-    current_pos = caret_state.GetPos();
+
+    last_pos = false;
+    element = el.get();
+    if (document->IsString(element->id))
+        str_pos = caret_state.GetPos();
+    else
+    {
+        str_pos = -1;
+        int p = caret_state.GetPos();
+        if (p == element->elements->Count())
+        {
+            element = element->elements->Get(p - 1).get();
+            last_pos = true;
+        }
+        else
+        {
+            element = element->elements->Get(p).get();
+        }
+    }
     if (update_x_pos)
         UpdateXPos();
     
@@ -36,14 +53,29 @@ void Caret::SetState(const CaretState& caret_state, bool update_x_pos)
 
 void Caret::SetState(const ElementId id, const uint pos, bool update_x_pos)
 {
-    auto el = document->GetElement(id);
-    if (!el)
+    element = document->GetElement(id).get();
+    if (!element)
     {
         Reset();
         return;
     }
-    current_element = el.get();
-    current_pos = pos;
+
+    last_pos = false;
+    if (document->IsString(element->id))
+        str_pos = pos;
+    else
+    {
+        str_pos = -1;
+        if (pos == element->elements->Count())
+        {
+            element = element->elements->Get(pos - 1).get();
+            last_pos = true;
+        }
+        else
+        {
+            element = element->elements->Get(pos).get();
+        }
+    }
     if (update_x_pos)
         UpdateXPos();
     
@@ -53,14 +85,18 @@ void Caret::SetState(const ElementId id, const uint pos, bool update_x_pos)
 
 void Caret::SetState(const ElementId id, bool update_x_pos)
 {
-    auto el = document->GetParent(id);
-    if (!el)
+    element = document->GetElement(id).get();
+    if (!element)
     {
         Reset();
         return;
     }
-    current_element = el.get();
-    current_pos = id[id.size() - 1];
+    last_pos = false;
+    if (document->IsString(element->id))
+        str_pos = GetChildPos(id);
+    else
+        str_pos = -1;
+
     if (update_x_pos)
         UpdateXPos();
     
@@ -70,7 +106,23 @@ void Caret::SetState(const ElementId id, bool update_x_pos)
 
 void Caret::SetPos(const uint pos, bool update_x_pos)
 {
-    current_pos = pos;
+    last_pos = false;
+    str_pos = -1;
+    if (document->IsString(element->id))
+        str_pos = pos;
+    else
+    {
+        if (pos == element->elements->Count())
+        {
+            element = element->elements->Get(pos - 1).get();
+            last_pos = true;
+        }
+        else
+        {
+            element = element->elements->Get(pos).get();
+        }
+    }
+
     if (update_x_pos)
         UpdateXPos();
     
@@ -78,9 +130,23 @@ void Caret::SetPos(const uint pos, bool update_x_pos)
     document->UpdateFormats();
 }
 
+Element* Caret::GetElement() const
+{
+    if (str_pos >= 0)
+        return element;
+    return element->parent;
+}
+
+int Caret::GetPos() const
+{
+    if (str_pos >= 0)
+        return str_pos;
+    return last_pos ? GetChildPos(element->id) + 1 : GetChildPos(element->id);
+}
+
 CaretState Caret::GetCaretState()
 {
-    return CaretState(current_element, current_pos);
+    return CaretState(GetElement(), GetPos());
 }
 
 void Caret::SetVisible(bool _visible)
@@ -92,13 +158,13 @@ void Caret::SetVisible(bool _visible)
 
 void Caret::Show()
 {
-    if (!visible || !current_element)
+    if (!visible || !GetElement())
         return;
     
-    caret_rect = current_element->GetAbsoluteRect(current_element->GetCaretRect(current_pos));
+    caret_rect = GetElement()->GetAbsoluteRect(GetElement()->GetCaretRect(GetPos()));
     if (!show)
         window->StoreRect(caret_rect);
-    current_element->DrawCaret(current_pos);
+    GetElement()->DrawCaret(GetPos());
     window->Update(caret_rect);
     show = true;
 }
@@ -144,7 +210,7 @@ void Caret::MoveToDocumentEnd(Selection* selection)
 void Caret::MoveHome(Selection* selection)
 {
     CaretState c = GetCaretState();
-    if (current_element->GetBeginCaretState(c, selection))
+    if (GetElement()->GetBeginCaretState(c, selection))
     {
         SetState(c);
         UpdateXPos();
@@ -154,7 +220,7 @@ void Caret::MoveHome(Selection* selection)
 void Caret::MoveEnd(Selection* selection)
 {
     CaretState c = GetCaretState();
-    if (current_element->GetEndCaretState(c, selection))
+    if (GetElement()->GetEndCaretState(c, selection))
     {
         SetState(c);
         UpdateXPos();
@@ -164,7 +230,7 @@ void Caret::MoveEnd(Selection* selection)
 void Caret::MoveLeft(Selection* selection)
 {
     CaretState c = GetCaretState();
-    if (current_element->GetLeftCaretState(c, selection))
+    if (GetElement()->GetLeftCaretState(c, selection))
     {
         SetState(c);
         UpdateXPos();
@@ -174,7 +240,7 @@ void Caret::MoveLeft(Selection* selection)
 void Caret::MoveRight(Selection* selection)
 {
     CaretState c = GetCaretState();
-    if (current_element->GetRightCaretState(c, selection))
+    if (GetElement()->GetRightCaretState(c, selection))
     {
         SetState(c);
         UpdateXPos();
@@ -183,7 +249,7 @@ void Caret::MoveRight(Selection* selection)
 
 void Caret::MoveUp(Selection* selection)
 {
-    Rect r = current_element->GetAbsoluteRect(current_element->GetCaretRect(current_pos));
+    Rect r = GetElement()->GetAbsoluteRect(GetElement()->GetCaretRect(GetPos()));
     if (last_x_element)
     {
         //fix x position
@@ -191,13 +257,13 @@ void Caret::MoveUp(Selection* selection)
         r.left = x_rect.left;
     }
     CaretState c;
-    if (current_element->GetTopCaretState(r.left, r.top + 2, c, selection))
+    if (GetElement()->GetTopCaretState(r.left, r.top + 2, c, selection))
         SetState(c, false);
 }
 
 void Caret::MoveDown(Selection* selection)
 {
-    Rect r = current_element->GetAbsoluteRect(current_element->GetCaretRect(current_pos));
+    Rect r = GetElement()->GetAbsoluteRect(GetElement()->GetCaretRect(GetPos()));
     if (last_x_element)
     {
         //fix x position
@@ -205,14 +271,14 @@ void Caret::MoveDown(Selection* selection)
         r.left = x_rect.left;
     }
     CaretState c;
-    if (current_element->GetBottomCaretState(r.left, r.GetBottom() - 2, c, selection))
+    if (GetElement()->GetBottomCaretState(r.left, r.GetBottom() - 2, c, selection))
         SetState(c, false);
 }
 
 void Caret::MoveWordLeft(Selection* selection)
 {
     CaretState c = GetCaretState();
-    if (current_element->GetWordLeftCaretState(c, selection))
+    if (GetElement()->GetWordLeftCaretState(c, selection))
     {
         SetState(c);
         UpdateXPos();
@@ -222,7 +288,7 @@ void Caret::MoveWordLeft(Selection* selection)
 void Caret::MoveWordRight(Selection* selection)
 {
     CaretState c = GetCaretState();
-    if (current_element->GetWordRightCaretState(c, selection))
+    if (GetElement()->GetWordRightCaretState(c, selection))
     {
         SetState(c);
         UpdateXPos();
@@ -231,24 +297,35 @@ void Caret::MoveWordRight(Selection* selection)
 
 bool Caret::IsInsideElement(const ElementId id)
 {
-    return current_element && IsChild(id, current_element->id);
+    auto el = GetElement();
+    if (document->IsString(el->id))
+        return id == el->id;
+    return IsChild(id, el->id);
 }
 
 bool Caret::IsOnElement(const ElementId id)
 {
-    return current_element && GetCaretState() == id;
+    return GetCaretState() == id;
 }
 
 void Caret::UpdateXPos()
 {
-    last_x_element = current_element;
-    last_x_pos = current_pos;
+    if (document->IsString(element->id))
+    {
+        last_x_element = element;
+        last_x_pos = str_pos;
+    }
+    else
+    {
+        last_x_element = element->parent;
+        last_x_pos = GetChildPos(element->id);
+    }
 }
 
 void Caret::Reset()
 {
-    current_element = nullptr;
-    current_pos = 0;
+    element = nullptr;
+    str_pos = -1;
 }
 
 }

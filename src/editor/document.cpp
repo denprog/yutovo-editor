@@ -5,6 +5,7 @@
 #include "page.h"
 #include "formulas/code.h"
 #include "formulas/code_string.h"
+#include "formulas/plus.h"
 #include "formulas/division.h"
 #include "util.h"
 #include <assert.h>
@@ -310,6 +311,11 @@ void Document::InsertCodeString(const std::string& str, bool with_undo)
     FormulaFormatPtr format;
     if (GetCurrentFormulaFormat(format))
         InsertFormula(new CodeString(this, str, format->string_format), with_undo, false);
+}
+
+void Document::InsertPlus(bool with_undo)
+{
+    InsertFormula(new Plus(this), with_undo, false);
 }
 
 void Document::InsertDivision(bool with_undo)
@@ -640,9 +646,21 @@ bool Document::IsString(ElementPtr el)
     return el && (el->type == ElementType::STRING || el->type == ElementType::CODE_STRING);
 }
 
+bool Document::IsString(ElementId id)
+{
+    auto el = GetElement(id);
+    return IsString(el);
+}
+
 bool Document::IsRow(ElementPtr el)
 {
     return el && (el->type == ElementType::ROW || el->type == ElementType::CODE_ROW);
+}
+
+bool Document::IsRow(ElementId id)
+{
+    auto el = GetElement(id);
+    return IsRow(el);
 }
 
 bool Document::GetStringFormat(const ElementId id, StringFormat& format)
@@ -1097,10 +1115,10 @@ void Document::WaitLoad()
 
 void Document::UpdateCaretView()
 {
-    Element* element = caret->current_element;
+    Element* element = caret->GetElement();
     if (!element)
         return;
-    Rect r = element->GetAbsoluteRect(element->GetCaretRect(caret->current_pos));
+    Rect r = element->GetAbsoluteRect(element->GetCaretRect(caret->GetPos()));
     Rect view_port = text->window->GetViewPort(0);
     Point p = window->GetDocumentPoint();
 

@@ -41,15 +41,17 @@ void ShortcutsMap::Init(DocumentPtr _document)
     //edit code
     Add(QKeySequence("Ctrl+Shift+C"), "\\code", std::function<void ()>(std::bind(&Document::InsertCode, document.get(), true)));
     Add(QKeySequence("Ctrl+Shift+D"), "\\div", std::function<void ()>(std::bind(&Document::InsertDivision, document.get(), true)));
+    Add(QKeySequence(""), '+', "\\plus", std::function<void ()>(std::bind(&Document::InsertPlus, document.get(), true)), CommandContext::Formula);
     Add(QKeySequence("/"), "\\div", std::function<void ()>(std::bind(&Document::InsertDivision, document.get(), true)), CommandContext::Formula);
 }
 
-bool ShortcutsMap::Call(const QKeySequence& shortcut, const EditorState& editor_state)
+bool ShortcutsMap::Call(const QKeySequence& shortcut, QChar symbol, const EditorState& editor_state)
 {
     struct CommandMapsVisitor
     {
-        CommandMapsVisitor(const QKeySequence& _shortcut, Document* _document, const EditorState& _editor_state, bool& _res) :
+        CommandMapsVisitor(const QKeySequence& _shortcut, QChar _symbol, Document* _document, const EditorState& _editor_state, bool& _res) :
             shortcut(_shortcut),
+            symbol(_symbol),
             document(_document),
             editor_state(_editor_state),
             res(_res)
@@ -58,7 +60,7 @@ bool ShortcutsMap::Call(const QKeySequence& shortcut, const EditorState& editor_
 
         void operator()(CommandMapVoid& m)
         {
-            if (m.shortcut == shortcut)
+            if (m.shortcut == shortcut || (m.symbol != QChar() && m.symbol == symbol))
             {
                 switch (m.context)
                 {
@@ -67,7 +69,7 @@ bool ShortcutsMap::Call(const QKeySequence& shortcut, const EditorState& editor_
                         return;
                     break;
                 case CommandContext::Text:
-                    if (!document->FindParent(editor_state.caret_state.id, ElementType::CODE))
+                    if (document->FindParent(editor_state.caret_state.id, ElementType::CODE))
                         return;
                     break;
                 }
@@ -81,6 +83,7 @@ bool ShortcutsMap::Call(const QKeySequence& shortcut, const EditorState& editor_
         }
 
         const QKeySequence& shortcut;
+        QChar symbol;
         Document* document;
         const EditorState& editor_state;
         bool& res;
@@ -89,7 +92,7 @@ bool ShortcutsMap::Call(const QKeySequence& shortcut, const EditorState& editor_
     for (auto& c : command_maps)
     {
         bool res = false;
-        std::visit(CommandMapsVisitor{shortcut, document.get(), editor_state, res}, c);
+        std::visit(CommandMapsVisitor{shortcut, symbol, document.get(), editor_state, res}, c);
         if (res)
             return true;
     }
@@ -99,12 +102,22 @@ bool ShortcutsMap::Call(const QKeySequence& shortcut, const EditorState& editor_
 
 void ShortcutsMap::Add(QKeySequence shortcut, std::string command, std::function<void (void)> func, CommandContext context)
 {
-    command_maps.push_back(CommandMapVoid{shortcut, command, context, func});
+    command_maps.push_back(CommandMapVoid{shortcut, QChar(), command, context, func});
+}
+
+void ShortcutsMap::Add(QKeySequence shortcut, QChar symbol, std::string command, std::function<void (void)> func, CommandContext context)
+{
+    command_maps.push_back(CommandMapVoid{shortcut, symbol, command, context, func});
 }
 
 void ShortcutsMap::Add(QKeySequence shortcut, std::string command, std::function<void (const std::string&)> func, CommandContext context)
 {
-    command_maps.push_back(CommandMapString{shortcut, command, context, func});
+    command_maps.push_back(CommandMapString{shortcut, QChar(), command, context, func});
+}
+
+void ShortcutsMap::Add(QKeySequence shortcut, QChar symbol, std::string command, std::function<void (const std::string&)> func, CommandContext context)
+{
+    command_maps.push_back(CommandMapString{shortcut, symbol, command, context, func});
 }
 
 }

@@ -30,6 +30,9 @@ public:
     void SetState(const ElementId id, bool update_x_pos = true);
     void SetPos(const uint pos, bool update_x_pos = true);
 
+    Element* GetElement() const;
+    int GetPos() const;
+
     CaretState GetCaretState();
 
     void SetVisible(bool _visible);
@@ -56,11 +59,11 @@ public:
 
     void Reset();
 
-public:
-    Element* current_element;
-    uint current_pos;
-
 private:
+    Element* element = nullptr;
+    int str_pos = -1; //if element is string, then it is position in the element
+    bool last_pos = false;
+
     bool show = false;
     bool visible = true;
 
