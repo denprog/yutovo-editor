@@ -614,6 +614,11 @@ int Elements::GetElementPos(ElementId id)
         if (GetElementId(i) == id)
             return i;
     }
+    if (Count() > 0 && elements[elements.size() - 1]->HasLastCaretState())
+    {
+        if (GetElementId(Count() - 1) == GetPrevPos(id))
+            return Count() - 1;
+    }
     return -1;
 }
 

@@ -28,6 +28,7 @@ add_executable(${PROJECT_NAME}_tests
 	minus.cpp
 	multiply.cpp
 	division.cpp
+	formulas.cpp
 )
 
 target_link_libraries(${PROJECT_NAME}_tests PRIVATE

@@ -309,7 +309,23 @@ bool Row::DeleteElements(bool left, bool with_undo)
                     }
                 }
                 else
+                {
+                    p = elements->GetElementPos(before_state.id);
+                    if (p > 0)
+                    {
+                        if (with_undo)
+                        {
+                            document->InsertElement(elements->Get(p)->Clone(), false, true);
+                            document->PushEditorState(CaretState(id, p), true);
+                        }
+                        elements->RemoveAt(p, 1);
+#ifdef DEBUG
+                        to_str = ToText();
+#endif
+                        return true;
+                    }
                     return parent->DeleteElements(left, with_undo);
+                }
             }
             else
             {

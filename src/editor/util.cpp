@@ -112,6 +112,13 @@ int GetChildPos(const ElementId& id)
     return id[id.size() - 1];
 }
 
+ElementId GetPrevPos(const ElementId& id)
+{
+    ElementId _id(id);
+    --_id[_id.size() - 1];
+    return _id;
+}
+
 template<>
 void RegisterTypes(UserDataAdapter<DocumentUserData, boost::archive::binary_iarchive>& archive)
 {
