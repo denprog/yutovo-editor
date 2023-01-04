@@ -64,11 +64,9 @@ bool SelectionState::operator==(const SelectionState& compare) const
         auto it = std::find_if(state.begin(), state.end(), 
             [s](auto& t)
             {
-                return t.id == s.id;
+                return t.id == s.id && t.start == s.start && t.size == s.size;
             });
         if (it == state.end())
-            return false;
-        if (*it != s)
             return false;
     }
     return true;
@@ -199,7 +197,7 @@ void Selection::Add(const ElementPtr element, uint start, uint size)
     if (!element)
         return;
     auto it = std::find_if(selection.begin(), selection.end(), 
-        [element](auto& s)
+        [element](ElementSelection& s)
         {
             return s.element == element;
         });
@@ -210,7 +208,7 @@ void Selection::Add(const ElementPtr element, uint start, uint size)
     else
     {
         //append or substract the selection or add a new one
-        if (start < it->start && start + size <= it->start + it->size)
+        if (start < it->start && start + size >= it->start)
         {
             it->size = it->start - start + it->size;
             it->start = start;
@@ -314,6 +312,22 @@ bool Selection::Has(const ElementId id, ElementSelection& s) const
         s.size = el->elements->Count();
     }
     return true;
+}
+
+bool Selection::IsSelected(const ElementId id) const
+{
+    auto it = std::find_if(selection.begin(), selection.end(), 
+        [id](const ElementSelection& s)
+        {
+            for (int i = s.start; i < s.start + s.size; ++i)
+            {
+                ElementId ch = GetChild(s.element->id, i);
+                if (ch == id || IsChild(ch, id))
+                    return true;
+            }
+            return false;
+        });
+    return it != selection.end();
 }
 
 void Selection::Clear()

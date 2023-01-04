@@ -139,6 +139,14 @@ struct DocumentTest : public testing::Test
         return res;
     }
 
+    EditorState MakeEditorState(ElementId id, ElementSelectionState selection)
+    {
+        CaretState c(id);
+        SelectionState s;
+        s.Add(selection);
+        return EditorState{c, s};
+    }
+
     EditorState MakeEditorState(ElementId id, ElementSelectionState selection1, ElementSelectionState selection2)
     {
         CaretState c(id);
@@ -148,17 +156,58 @@ struct DocumentTest : public testing::Test
         return EditorState{c, s};
     }
 
-    EditorState MakeEditorState(ElementId id)
-    {
-        return EditorState{CaretState{id}, SelectionState{}};
-    }
-
-    EditorState MakeEditorState(ElementId id, ElementSelectionState selection)
+    EditorState MakeEditorState(ElementId id, ElementSelectionState selection1, ElementSelectionState selection2, ElementSelectionState selection3)
     {
         CaretState c(id);
         SelectionState s;
-        s.Add(selection);
+        s.Add(selection1);
+        s.Add(selection2);
+        s.Add(selection3);
         return EditorState{c, s};
+    }
+
+    EditorState MakeEditorState(ElementId id, ElementSelectionState selection1, ElementSelectionState selection2, ElementSelectionState selection3, 
+        ElementSelectionState selection4)
+    {
+        CaretState c(id);
+        SelectionState s;
+        s.Add(selection1);
+        s.Add(selection2);
+        s.Add(selection3);
+        s.Add(selection4);
+        return EditorState{c, s};
+    }
+
+    EditorState MakeEditorState(ElementId id, ElementSelectionState selection1, ElementSelectionState selection2, ElementSelectionState selection3, 
+        ElementSelectionState selection4, ElementSelectionState selection5)
+    {
+        CaretState c(id);
+        SelectionState s;
+        s.Add(selection1);
+        s.Add(selection2);
+        s.Add(selection3);
+        s.Add(selection4);
+        s.Add(selection5);
+        return EditorState{c, s};
+    }
+
+    EditorState MakeEditorState(ElementId id, ElementSelectionState selection1, ElementSelectionState selection2, ElementSelectionState selection3, 
+        ElementSelectionState selection4, ElementSelectionState selection5, ElementSelectionState selection6)
+    {
+        CaretState c(id);
+        SelectionState s;
+        s.Add(selection1);
+        s.Add(selection2);
+        s.Add(selection3);
+        s.Add(selection4);
+        s.Add(selection5);
+        s.Add(selection6);
+        return EditorState{c, s};
+    }
+
+    EditorState MakeEditorState(ElementId id)
+    {
+        return EditorState{CaretState{id}, SelectionState{}};
     }
 
     int argc = 0;
