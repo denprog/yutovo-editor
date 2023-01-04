@@ -67,4 +67,43 @@ TEST_F(FormulaTest, minus1)
         ElementSelectionState{{0, 0, 0, 0, 0}, 0, 1})) << document.GetEditorState().ToString();
 }
 
+TEST_F(FormulaTest, minus2)
+{
+    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
+        {
+            return Rect{0, 0, 600, 400};
+        });
+
+    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::string& text, const StringFormatPtr format)
+        {
+            return GetTextSizeMock(text, format);
+        });
+
+    document.InsertMinus(true);
+    document.InsertMinus(true);
+    document.InsertMinus(true);
+    document.WaitMainLoop();
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mo>-</mo>"\
+                        "<mo>-</mo>"\
+                        "<mo>-</mo>"\
+                    "</mrow>"\
+                "</math>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 3})) << document.GetEditorState().ToString();
+
+    document.MoveCaretHome(false);
+    document.MoveCaretRight(true);
+    document.MoveCaretRight(true);
+    document.WaitCaretMoving();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0, 2}, 
+        ElementSelectionState{{0, 0, 0, 0, 0}, 0, 2})) << document.GetEditorState().ToString();
+}
+
 }
