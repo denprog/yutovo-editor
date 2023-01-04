@@ -218,6 +218,10 @@ struct DocumentTest : public testing::Test
     Document document;
 };
 
+struct FormulaTest : DocumentTest
+{
+};
+
 }
 
 #endif

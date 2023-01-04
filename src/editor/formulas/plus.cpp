@@ -46,23 +46,12 @@ void Plus::Draw() const
                 round(r.width * 0.2), round(w * 0.8), c);
         };
 
-    if (document->selection.IsSelected(id))
-    {
-        Rect abs_rect = GetAbsoluteRect();
-        parent->window->DrawFillRect(abs_rect.left, abs_rect.top, abs_rect.width, abs_rect.height, Color::Blue());
-    }
-
-    Formula::Draw();
+    OnlyShapeFormula::Draw();
 }
 
 std::string Plus::ToHtml()
 {
     return "<mo>+</mo>";
-}
-
-std::string Plus::ToText()
-{
-    return "+";
 }
 
 }

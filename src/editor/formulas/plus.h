@@ -20,7 +20,6 @@ public:
     virtual void Draw() const;
 
     virtual std::string ToHtml();
-    virtual std::string ToText();
 };
 
 }
