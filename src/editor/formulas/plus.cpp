@@ -38,22 +38,15 @@ void Plus::Draw() const
     shape->draw_func = 
         [&](const Rect& r)
         {
-            uint start = 0, size = 0;
-            if (parent->document->selection.Has(parent->id, start, size))
-            {
-            }
-            else
-            {
-                float w = float(rect.width);
-                window->DrawFillRect(round(r.left + w * 0.1), round(r.top + float(rect.height) / 2 - w / 2 + w * 0.4), 
-                    round(r.width * 0.8), round(w * 0.2), formula_format->color);
-                window->DrawFillRect(round(r.left + w * 0.4), round(r.top + float(rect.height) / 2 - w / 2 + w * 0.1), 
-                    round(r.width * 0.2), round(w * 0.8), formula_format->color);
-            }
+            Color c = document->selection.IsSelected(id) ? formula_format->selection_color : formula_format->color;
+            float w = float(rect.width);
+            window->DrawFillRect(round(r.left + w * 0.1), round(r.top + float(rect.height) / 2 - w / 2 + w * 0.4), 
+                round(r.width * 0.8), round(w * 0.2), c);
+            window->DrawFillRect(round(r.left + w * 0.4), round(r.top + float(rect.height) / 2 - w / 2 + w * 0.1), 
+                round(r.width * 0.2), round(w * 0.8), c);
         };
 
-    uint start = 0, size = 0;
-    if (parent->document->selection.Has(parent->id, start, size))
+    if (document->selection.IsSelected(id))
     {
         Rect abs_rect = GetAbsoluteRect();
         parent->window->DrawFillRect(abs_rect.left, abs_rect.top, abs_rect.width, abs_rect.height, Color::Blue());

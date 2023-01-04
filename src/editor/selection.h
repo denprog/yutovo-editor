@@ -70,6 +70,7 @@ public:
     bool Has(const ElementPtr element, uint& start, uint& size) const;
     bool Has(const ElementId id, uint& start, uint& size) const;
     bool Has(const ElementId id, ElementSelection& s) const;
+    bool IsSelected(const ElementId id) const;
     void Clear();
 
     bool IsEmpty() const;

@@ -54,28 +54,17 @@ void Division::Draw() const
     shape->draw_func = 
         [&](const Rect& r)
         {
-            uint start = 0, size = 0;
-            if (parent->document->selection.Has(parent->id, start, size))
-            {
-                if (r.height == 0)
-                    parent->window->DrawLine(r.left, r.top, r.left + r.width, r.top, formula_format->selection_color);
-                else
-                    parent->window->DrawFillRect(r.left, r.top, r.width, r.height, formula_format->selection_color);
-            }
+            Color c = document->selection.IsSelected(id) ? formula_format->selection_color : formula_format->color;
+            if (r.height == 0)
+                window->DrawLine(r.left, r.top, r.left + r.width, r.top, c);
             else
-            {
-                if (r.height == 0)
-                    parent->window->DrawLine(r.left, r.top, r.left + r.width, r.top, formula_format->color);
-                else
-                    parent->window->DrawFillRect(r.left, r.top, r.width, r.height, formula_format->color);
-            }
+                window->DrawFillRect(r.left, r.top, r.width, r.height, c);
         };
 
-    uint start = 0, size = 0;
-    if (parent->document->selection.Has(parent->id, start, size))
+    if (document->selection.IsSelected(id))
     {
         Rect abs_rect = GetAbsoluteRect();
-        parent->window->DrawFillRect(abs_rect.left, abs_rect.top, abs_rect.width, abs_rect.height, Color::Blue());
+        window->DrawFillRect(abs_rect.left, abs_rect.top, abs_rect.width, abs_rect.height, Color::Blue());
     }
 
     Formula::Draw();
