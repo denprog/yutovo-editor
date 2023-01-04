@@ -7,6 +7,7 @@
 #include "formulas/code_string.h"
 #include "formulas/plus.h"
 #include "formulas/minus.h"
+#include "formulas/multiply.h"
 #include "formulas/division.h"
 #include "util.h"
 #include <assert.h>
@@ -322,6 +323,11 @@ void Document::InsertPlus(bool with_undo)
 void Document::InsertMinus(bool with_undo)
 {
     InsertFormula(new Minus(this), with_undo, false);
+}
+
+void Document::InsertMultiply(bool with_undo)
+{
+    InsertFormula(new Multiply(this), with_undo, false);
 }
 
 void Document::InsertDivision(bool with_undo)

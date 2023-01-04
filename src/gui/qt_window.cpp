@@ -72,6 +72,22 @@ void QtWindow::DrawFillRect(const int x1, const int y1, const int width, const i
     p.end();
 }
 
+void QtWindow::DrawFillEllipse(const int x1, const int y1, const int width, const int height, const Color color)
+{
+    QPainter p;
+    if (!p.begin(surface.get()))
+        return;
+    p.setBrush(QColor::fromRgba(color.ToInt()));
+    if (draw_doc)
+    {
+        p.setClipRegion(clip_region);
+        p.drawEllipse(QPoint(x1 - document_point.x, y1 - document_point.y), width, height);
+    }
+    else
+        p.drawEllipse(QPoint(x1, y1), width, height);
+    p.end();
+}
+
 void QtWindow::ClearRect(const int x1, const int y1, const int width, const int height)
 {
     DrawFillRect(x1, y1, width, height, Color::White());

@@ -23,6 +23,8 @@ public:
     virtual void DrawLine(const int x1, const int y1, const int x2, const int y2, const Color color);
     virtual void DrawRect(const int x1, const int y1, const int width, const int height, const Color color);
     virtual void DrawFillRect(const int x1, const int y1, const int width, const int height, const Color color);
+    virtual void DrawFillEllipse(const int x1, const int y1, const int width, const int height, const Color color);
+
     virtual void ClearRect(const int x1, const int y1, const int width, const int height);
 
     virtual void ClearSurface();

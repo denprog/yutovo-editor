@@ -26,6 +26,7 @@ add_executable(${PROJECT_NAME}_tests
 	code.cpp
 	plus.cpp
 	minus.cpp
+	multiply.cpp
 	division.cpp
 )
 
