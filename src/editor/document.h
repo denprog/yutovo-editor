@@ -45,6 +45,7 @@ public:
     void InsertCodeString(const std::string& str, bool with_undo);
     void InsertPlus(bool with_undo);
     void InsertMinus(bool with_undo);
+    void InsertMultiply(bool with_undo);
     void InsertDivision(bool with_undo);
 
     void InsertFormula(Element* element, bool with_undo, bool undo);

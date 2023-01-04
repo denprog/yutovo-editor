@@ -43,6 +43,7 @@ void ShortcutsMap::Init(DocumentPtr _document)
     Add(QKeySequence("Ctrl+Shift+D"), "\\div", std::function<void ()>(std::bind(&Document::InsertDivision, document.get(), true)));
     Add(QKeySequence(""), '+', "\\plus", std::function<void ()>(std::bind(&Document::InsertPlus, document.get(), true)), CommandContext::Formula);
     Add(QKeySequence(""), '-', "\\minus", std::function<void ()>(std::bind(&Document::InsertMinus, document.get(), true)), CommandContext::Formula);
+    Add(QKeySequence(""), '*', "\\times", std::function<void ()>(std::bind(&Document::InsertMultiply, document.get(), true)), CommandContext::Formula);
     Add(QKeySequence("/"), "\\div", std::function<void ()>(std::bind(&Document::InsertDivision, document.get(), true)), CommandContext::Formula);
 }
 
