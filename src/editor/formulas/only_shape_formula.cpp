@@ -1,5 +1,6 @@
 #include "only_shape_formula.h"
 #include "../caret.h"
+#include "../document.h"
 
 namespace yutovo
 {
@@ -29,6 +30,17 @@ OnlyShapeFormula::OnlyShapeFormula(const OnlyShapeFormula& source) :
 {
 }
 
+void OnlyShapeFormula::Draw() const
+{
+    if (document->selection.IsSelected(id))
+    {
+        Rect abs_rect = GetAbsoluteRect();
+        parent->window->DrawFillRect(abs_rect.left, abs_rect.top, abs_rect.width, abs_rect.height, Color::Blue());
+    }
+
+    Formula::Draw();
+}
+
 bool OnlyShapeFormula::AfterInsert(ElementPtr el1, ElementPtr el2, bool with_undo)
 {
     caret->SetState(parent->id, parent->elements->GetElementPos(id) + 1, true);
@@ -52,6 +64,11 @@ void OnlyShapeFormula::UpdateRect(bool with_elements)
     baseline = shape->rect.height / 2;
 
     Formula::UpdateRect(false);
+}
+
+std::string OnlyShapeFormula::ToText()
+{
+    return std::string(1, symbol);
 }
 
 }

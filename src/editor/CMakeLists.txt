@@ -30,6 +30,7 @@ add_library(${PROJECT_NAME}
     formulas/shape.cpp
     formulas/only_shape_formula.cpp
     formulas/plus.cpp
+    formulas/minus.cpp
     formulas/division.cpp
 )
 

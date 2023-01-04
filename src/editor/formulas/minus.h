@@ -1,17 +1,17 @@
-#ifndef __PLUS_H__
-#define __PLUS_H__
+#ifndef __MINUS_H__
+#define __MINUS_H__
 
 #include "only_shape_formula.h"
 
 namespace yutovo
 {
 
-class Plus : public OnlyShapeFormula
+class Minus : public OnlyShapeFormula
 {
 public:
-    Plus(Element* _parent);
-    Plus(Document* _document);
-    Plus(const Plus& source);
+    Minus(Element* _parent);
+    Minus(Document* _document);
+    Minus(const Minus& source);
 
     virtual Element* Clone();
 
