@@ -196,7 +196,6 @@ bool DeleteElementsTask::Execute()
     }
 
     CaretState caret_state = before_state.caret_state;
-    //SelectionState& selection_state = before_state.selection_state;
 
     auto DeleteElements = [&](ElementPtr el)
     {

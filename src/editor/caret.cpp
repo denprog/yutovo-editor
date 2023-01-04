@@ -305,7 +305,11 @@ bool Caret::IsInsideElement(const ElementId id)
 
 bool Caret::IsOnElement(const ElementId id)
 {
-    return GetCaretState() == id;
+    if (GetCaretState() == id)
+        return true;
+    if (last_pos && GetPrevPos(GetCaretState().id) == id)
+        return true;
+    return false;
 }
 
 void Caret::UpdateXPos()
