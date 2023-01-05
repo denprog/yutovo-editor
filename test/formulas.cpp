@@ -74,6 +74,7 @@ TEST_F(FormulaTest, delete1)
     document.InsertPlus(true);
     document.DeleteElements(false, true, false);
     document.WaitMainLoop();
+    std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -92,6 +93,7 @@ TEST_F(FormulaTest, delete1)
     document.MoveCaretLeft(false);
     document.DeleteElements(false, true, false);
     document.WaitMainLoop();
+    std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -109,6 +111,7 @@ TEST_F(FormulaTest, delete1)
     document.MoveCaretLeft(false);
     document.DeleteElements(false, true, false);
     document.WaitMainLoop();
+    std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\

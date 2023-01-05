@@ -319,6 +319,7 @@ bool Row::DeleteElements(bool left, bool with_undo)
                             document->PushEditorState(CaretState(id, p), true);
                         }
                         elements->RemoveAt(p, 1);
+                        parent->Remake(true, true, with_undo);
 #ifdef DEBUG
                         to_str = ToText();
 #endif
@@ -410,6 +411,7 @@ bool Row::DeleteElements(bool left, bool with_undo)
             }
             elements->RemoveAt(start, size);
             Normalize(with_undo);
+            parent->Remake(true, true, with_undo);
 #ifdef DEBUG
             to_str = ToText();
 #endif
