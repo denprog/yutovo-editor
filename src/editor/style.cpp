@@ -192,6 +192,7 @@ FormulaFormats::FormulaFormats(StringFormatsPtr _string_formats) :
 {
     GetFormat("Code", string_formats->GetFormat("Courier New", 14, false, false, false), 2, 5, 2, 5, 2, Color::Black(), Color::White());
     GetFormat("Formula", string_formats->GetFormat("Courier New", 14, false, false, false), 2, 2, 2, 2, 2, Color::Black(), Color::White());
+    GetFormat("OnlyShapeFormula", string_formats->GetFormat("Courier New", 14, false, false, false), 0, 0, 0, 0, 0, Color{0xff, 0x40, 0x40, 0x40}, Color::White());
 }
 
 FormulaFormatPtr FormulaFormats::GetFormat(const std::string& name)

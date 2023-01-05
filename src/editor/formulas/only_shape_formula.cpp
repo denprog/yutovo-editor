@@ -11,6 +11,7 @@ OnlyShapeFormula::OnlyShapeFormula(Element* _parent, char _symbol) :
     Formula(_parent),
     symbol(_symbol)
 {
+    formula_format = document->formula_formats->GetFormat("OnlyShapeFormula");
     shape = new Shape(this);
     elements->Add(ElementPtr(shape));
 }
@@ -19,6 +20,7 @@ OnlyShapeFormula::OnlyShapeFormula(Document* _document, char _symbol) :
     Formula(_document),
     symbol(_symbol)
 {
+    formula_format = document->formula_formats->GetFormat("OnlyShapeFormula");
     shape = new Shape(this);
     elements->Add(ElementPtr(shape));
 }
