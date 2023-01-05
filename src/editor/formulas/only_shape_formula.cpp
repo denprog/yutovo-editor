@@ -45,7 +45,18 @@ void OnlyShapeFormula::Draw() const
 
 bool OnlyShapeFormula::AfterInsert(ElementPtr el1, ElementPtr el2, bool with_undo)
 {
-    caret->SetState(parent->id, parent->elements->GetElementPos(id) + 1, true);
+    if (!el2)
+        caret->SetState(parent->id, parent->elements->GetElementPos(id) + 1, true);
+    else if (el2->HasCaretState())
+        caret->SetState(el2->id, true);
+    else
+    {
+        CaretState c;
+        if (el2->GetFirstCaretState(c, nullptr))
+            caret->SetState(c, true);
+        else
+            caret->SetState(parent->id, parent->elements->GetElementPos(id) + 1, true);
+    }
     return true;
 }
 
