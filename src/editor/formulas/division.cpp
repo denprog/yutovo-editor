@@ -88,10 +88,7 @@ void Division::Remake(bool with_elements, bool with_parent, bool with_undo)
     UpdateRect();
 
     if (rect != last_rect && with_parent)
-    {
         parent->Remake(false, true, with_undo);
-        document->Redraw(id, false);
-    }
     last_rect = rect;
 }
 
