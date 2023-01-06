@@ -9,6 +9,7 @@
 #include "formulas/minus.h"
 #include "formulas/multiply.h"
 #include "formulas/division.h"
+#include "formulas/power.h"
 #include "util.h"
 #include <assert.h>
 #include <chrono>
@@ -333,6 +334,11 @@ void Document::InsertMultiply(bool with_undo)
 void Document::InsertDivision(bool with_undo)
 {
     InsertFormula(new Division(this), with_undo, false);
+}
+
+void Document::InsertPower(bool with_undo)
+{
+    InsertFormula(new Power(this), with_undo, false);
 }
 
 void Document::InsertFormula(Element* element, bool with_undo, bool undo)

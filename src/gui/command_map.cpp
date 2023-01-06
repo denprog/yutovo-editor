@@ -45,6 +45,7 @@ void ShortcutsMap::Init(DocumentPtr _document)
     Add(QKeySequence(""), '-', "\\minus", std::function<void ()>(std::bind(&Document::InsertMinus, document.get(), true)), CommandContext::Formula);
     Add(QKeySequence(""), '*', "\\times", std::function<void ()>(std::bind(&Document::InsertMultiply, document.get(), true)), CommandContext::Formula);
     Add(QKeySequence("/"), "\\div", std::function<void ()>(std::bind(&Document::InsertDivision, document.get(), true)), CommandContext::Formula);
+    Add(QKeySequence(""), '^', "\\pow", std::function<void ()>(std::bind(&Document::InsertPower, document.get(), true)), CommandContext::Formula);
 }
 
 bool ShortcutsMap::Call(const QKeySequence& shortcut, QChar symbol, const EditorState& editor_state)

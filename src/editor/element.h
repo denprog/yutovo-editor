@@ -36,8 +36,13 @@ enum class ElementType
     PLUS,
     MINUS,
     MULTIPLY,
-    DIVISION
+    DIVISION,
+    POWER,
+    SQUARE_ROOT,
+    NTH_ROOT
 };
+
+#define MAX_LEVEL 3
 
 class Element;
 
@@ -118,6 +123,8 @@ public:
 
     virtual void UpdateDrawRect();
 
+    virtual void UpdateLevel(uint8_t _level);
+
 public:
     Element* parent = nullptr;
 
@@ -129,7 +136,8 @@ public:
     Rect rect; //relative bounding rect
     Rect last_rect; //for determining of necessity of remaking parent
     Rect draw_rect;
-    int baseline = 0;
+    int baseline = 0; //baseline for drawing
+    uint8_t level = 1; //level of superscript or subscript
     
     bool editable = true;
 
