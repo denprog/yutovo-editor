@@ -2,19 +2,17 @@
 #define __DIVISION_H__
 
 #include "formula.h"
-#include "shape.h"
+#include "middle_shape_formula.h"
 
 namespace yutovo
 {
 
-class Division : public Formula
+class Division : public MiddleShapeFormula
 {
 public:
     Division(Element* _parent);
     Division(Document* _document);
     Division(const Division& source);
-
-    void Init();
 
     virtual Element* Clone();
 
@@ -23,10 +21,6 @@ public:
     virtual void Draw() const;
     virtual void Remake(bool with_elements, bool with_parent, bool with_undo);
 
-    virtual bool DeleteElements(bool left, bool with_undo);
-    
-    virtual bool AfterInsert(ElementPtr el1, ElementPtr el2, bool with_undo);
-
     virtual bool GetLeftCaretState(CaretState& caret_state, Selection* select);
     virtual bool GetRightCaretState(CaretState& caret_state, Selection* select);
     virtual bool GetTopCaretState(const int x, const int y, CaretState& caret_state, Selection* select);
@@ -34,10 +28,6 @@ public:
 
     virtual std::string ToHtml();
     virtual std::string ToText();
-    
-protected:
-    Element *upper, *lower;
-    Shape *shape;
 };
 
 }

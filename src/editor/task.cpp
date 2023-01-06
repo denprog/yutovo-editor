@@ -121,7 +121,7 @@ bool InsertElementsTask::Execute()
             //change type of string
             String* str = (String*)t.get();
             auto c = new CodeString(*str);
-            c->format = code->GetStringFormat();
+            c->format = el->GetStringFormat();
             _elements.emplace_back(c);
             continue;
         }
@@ -300,7 +300,11 @@ bool InsertFormulasTask::Execute()
 
     std::vector<ElementPtr> _elements;
     for (int i = 0; i < elements.size(); ++i)
-        _elements.push_back(ElementPtr(elements[i]->Clone()));
+    {
+        ElementPtr c(elements[i]->Clone());
+        c->UpdateLevel(el->level);
+        _elements.push_back(c);
+    }
     
     if (el->InsertElements(_elements, with_undo))
     {

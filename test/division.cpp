@@ -8,11 +8,7 @@ namespace yutovo_test
 using namespace yutovo;
 using namespace std::chrono_literals;
 
-struct DivisionTest : DocumentTest
-{
-};
-
-TEST_F(DivisionTest, division1)
+TEST_F(FormulaTest, division1)
 {
     EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
         {
@@ -205,7 +201,7 @@ TEST_F(DivisionTest, division1)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 1, 0, 0, 0})) << document.GetEditorState().ToString();
 }
 
-TEST_F(DivisionTest, division2)
+TEST_F(FormulaTest, division2)
 {
     EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
         {
@@ -315,7 +311,7 @@ TEST_F(DivisionTest, division2)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 2, 0, 0})) << document.GetEditorState().ToString();
 }
 
-TEST_F(DivisionTest, division3)
+TEST_F(FormulaTest, division3)
 {
     EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
         {
@@ -384,7 +380,7 @@ TEST_F(DivisionTest, division3)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 1, 0, 0, 0})) << document.GetEditorState().ToString();
 }
 
-TEST_F(DivisionTest, division4)
+TEST_F(FormulaTest, division4)
 {
     EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
         {
@@ -399,6 +395,7 @@ TEST_F(DivisionTest, division4)
     document.InsertText("Text", true);
     document.InsertDivision(true);
     document.WaitMainLoop();
+    std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -430,7 +427,7 @@ TEST_F(DivisionTest, division4)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 4})) << document.GetEditorState().ToString();
 }
 
-TEST_F(DivisionTest, division5)
+TEST_F(FormulaTest, division5)
 {
     EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
         {
@@ -512,7 +509,7 @@ TEST_F(DivisionTest, division5)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 1, 0, 2, 0, 1})) << document.GetEditorState().ToString();
 }
 
-TEST_F(DivisionTest, division6)
+TEST_F(FormulaTest, division6)
 {
     EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
         {
@@ -755,7 +752,7 @@ TEST_F(DivisionTest, division6)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 0, 0})) << document.GetEditorState().ToString();
 }
 
-TEST_F(DivisionTest, division7)
+TEST_F(FormulaTest, division7)
 {
     EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
         {
@@ -833,7 +830,7 @@ TEST_F(DivisionTest, division7)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 2, 0, 0})) << document.GetEditorState().ToString();
 }
 
-TEST_F(DivisionTest, division8)
+TEST_F(FormulaTest, division8)
 {
     EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
         {
@@ -930,7 +927,7 @@ TEST_F(DivisionTest, division8)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 3})) << document.GetEditorState().ToString();
 }
 
-TEST_F(DivisionTest, division9)
+TEST_F(FormulaTest, division9)
 {
     EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
         {
@@ -981,7 +978,7 @@ TEST_F(DivisionTest, division9)
         ElementSelectionState{{0, 0, 0, 0, 0}, 0, 1})) << document.GetEditorState().ToString();
 }
 
-TEST_F(DivisionTest, division10)
+TEST_F(FormulaTest, division10)
 {
     EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
         {

@@ -434,6 +434,11 @@ bool String::AfterInsert(ElementPtr el1, ElementPtr el2, bool with_undo)
     return true;
 }
 
+StringFormatPtr String::GetStringFormat()
+{
+    return format;
+}
+
 void String::UpdateStringFormat(const StringFormatPtr base_format, const StringFormatPtr new_format)
 {
     StringFormat f = *format;
@@ -453,7 +458,16 @@ void String::UpdateStringFormat(const StringFormatPtr base_format, const StringF
 
 void String::UpdateFormat(StringFormatPtr& _format)
 {
-    format = _format;
+    format = document->GetStringFormat(_format->family, GetFontSize(_format->size), _format->bold, _format->italic, _format->underline);
+}
+
+int String::GetFontSize(const uint size)
+{
+    if (level == 1)
+        return size;
+    if (size - (level - 1) * 2 > 8)
+        return size - (level - 1) * 2;
+    return 8;
 }
 
 bool String::CanContinueSelection()
@@ -464,6 +478,15 @@ bool String::CanContinueSelection()
 void String::UpdateDrawRect()
 {
     draw_rect = GetAbsoluteRect();
+}
+
+void String::UpdateLevel(uint8_t _level)
+{
+    level = _level;
+    if (!parent)
+        return;
+    format = parent->GetStringFormat();
+    format = document->GetStringFormat(format->family, GetFontSize(format->size), format->bold, format->italic, format->underline);
 }
 
 //StringElements

@@ -293,6 +293,7 @@ TEST_F(DocumentTest, selections2)
 
     document.DeleteElements(true, true, false);
     document.WaitMainLoop();
+    std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body><p>"\
         "<span style=\"font-family:'Times New Roman';font-size:34px;\"><strong>Bo</strong></span>"\

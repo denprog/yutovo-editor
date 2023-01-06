@@ -37,6 +37,7 @@ Element::Element(const Element& source) :
     window(source.window),
     type(source.type),
     id(source.id),
+    level(source.level),
     editable(source.editable),
     dont_normalize(source.dont_normalize),
     caret(document->caret),
@@ -531,6 +532,13 @@ void Element::UpdateDrawRect()
     for (int i = 0; i < elements->Count(); ++i)
         elements->Get(i)->UpdateDrawRect();
     draw_rect = GetAbsoluteRect();
+}
+
+void Element::UpdateLevel(uint8_t _level)
+{
+    for (int i = 0; i < elements->Count(); ++i)
+        elements->Get(i)->UpdateLevel(_level);
+    level = _level;
 }
 
 //Elements

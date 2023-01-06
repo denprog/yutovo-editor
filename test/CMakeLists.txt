@@ -28,6 +28,7 @@ add_executable(${PROJECT_NAME}_tests
 	minus.cpp
 	multiply.cpp
 	division.cpp
+	power.cpp
 	formulas.cpp
 )
 

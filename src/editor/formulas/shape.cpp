@@ -23,7 +23,8 @@ Element* Shape::Create(Element* parent)
 
 void Shape::Draw() const
 {
-    draw_func(GetAbsoluteRect());
+    if (draw_func)
+        draw_func(GetAbsoluteRect());
 }
 
 void Shape::Remake(bool with_elements, bool with_parent, bool with_undo)

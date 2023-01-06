@@ -43,12 +43,16 @@ public:
 
     virtual bool AfterInsert(ElementPtr el1, ElementPtr el2, bool with_undo);
 
+    virtual StringFormatPtr GetStringFormat();
     virtual void UpdateStringFormat(const StringFormatPtr base_format, const StringFormatPtr new_format);
     virtual void UpdateFormat(StringFormatPtr& _format);
+    int GetFontSize(const uint size);
 
     virtual bool CanContinueSelection();
 
     virtual void UpdateDrawRect();
+
+    virtual void UpdateLevel(uint8_t _level);
 
     template <class Archive>
     void save(Archive& ar, const unsigned int version) const

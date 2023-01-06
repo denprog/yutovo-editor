@@ -29,10 +29,12 @@ add_library(${PROJECT_NAME}
     formulas/code_row.cpp
     formulas/shape.cpp
     formulas/only_shape_formula.cpp
+    formulas/middle_shape_formula.cpp
     formulas/plus.cpp
     formulas/minus.cpp
     formulas/multiply.cpp
     formulas/division.cpp
+    formulas/power.cpp
 )
 
 target_link_libraries(${PROJECT_NAME} PRIVATE 
