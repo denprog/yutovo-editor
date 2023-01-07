@@ -48,6 +48,7 @@ public:
     void InsertMultiply(bool with_undo);
     void InsertDivision(bool with_undo);
     void InsertPower(bool with_undo);
+    void InsertNthRoot(bool with_undo);
 
     void InsertFormula(Element* element, bool with_undo, bool undo);
     void InsertFormulas(std::vector<ElementPtr>& elements, bool with_undo, bool undo);
