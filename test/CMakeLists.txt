@@ -29,6 +29,7 @@ add_executable(${PROJECT_NAME}_tests
 	multiply.cpp
 	division.cpp
 	power.cpp
+	nth_root.cpp
 	formulas.cpp
 )
 

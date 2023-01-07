@@ -61,6 +61,7 @@ bool MiddleShapeFormula::DeleteElements(bool left, bool with_undo)
         return false;
     
     //remove this element by deleting its shape
+    first->UpdateLevel(level);
     last->UpdateLevel(level);
     int p = parent->elements->GetElementPos(id);
     uint c1 = elements->Get(0)->elements->Count();

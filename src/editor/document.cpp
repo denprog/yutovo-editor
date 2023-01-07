@@ -10,6 +10,7 @@
 #include "formulas/multiply.h"
 #include "formulas/division.h"
 #include "formulas/power.h"
+#include "formulas/nth_root.h"
 #include "util.h"
 #include <assert.h>
 #include <chrono>
@@ -339,6 +340,11 @@ void Document::InsertDivision(bool with_undo)
 void Document::InsertPower(bool with_undo)
 {
     InsertFormula(new Power(this), with_undo, false);
+}
+
+void Document::InsertNthRoot(bool with_undo)
+{
+    InsertFormula(new NthRoot(this), with_undo, false);
 }
 
 void Document::InsertFormula(Element* element, bool with_undo, bool undo)

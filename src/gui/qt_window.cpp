@@ -88,6 +88,30 @@ void QtWindow::DrawFillEllipse(const int x1, const int y1, const int width, cons
     p.end();
 }
 
+void QtWindow::DrawFillPath(const std::list<Point>& path, const Color color)
+{
+    QVector<QPointF> points;
+    for (const Point& p : path)
+    {
+        if (draw_doc)
+            points.push_back(QPointF(p.x - document_point.x, p.y - document_point.y));
+        else
+            points.push_back(QPointF(p.x, p.y));
+    }
+    QPolygonF polygon(points);
+
+    QPainter p;
+    if (!p.begin(surface.get()))
+        return;
+    p.setRenderHint(QPainter::Antialiasing);
+    p.setBrush(QColor::fromRgba(color.ToInt()));
+    p.setClipRegion(clip_region);
+    QPainterPath _path;
+    _path.addPolygon(polygon);
+    p.drawPath(_path);
+    p.end();
+}
+
 void QtWindow::ClearRect(const int x1, const int y1, const int width, const int height)
 {
     DrawFillRect(x1, y1, width, height, Color::White());
