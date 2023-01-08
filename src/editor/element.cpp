@@ -39,7 +39,6 @@ Element::Element(const Element& source) :
     id(source.id),
     level(source.level),
     editable(source.editable),
-    dont_normalize(source.dont_normalize),
     caret(document->caret),
     selection(&document->selection)
 {
@@ -494,13 +493,6 @@ Point Element::GetAbsolutePoint(const Point& point) const
         return p;
     }
     return point;
-}
-
-void Element::ResetDontNormalize()
-{
-    dont_normalize = false;
-    for (int i = 0; i < elements->Count(); ++i)
-        elements->Get(i)->dont_normalize = false;
 }
 
 ParagraphFormatPtr Element::GetParagraphFormat()

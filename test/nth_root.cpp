@@ -178,6 +178,121 @@ TEST_F(FormulaTest, nth_root2)
         "</body>") << 
         document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 1})) << document.GetEditorState().ToString();
+
+    for (int i = 0; i < 3; ++i)
+        document.MoveCaretLeft(false);
+    document.WaitCaretMoving();
+    document.InsertText("5", true);
+    document.WaitMainLoop();
+    for (int i = 0; i < 4; ++i)
+        document.MoveCaretRight(false);
+    document.WaitCaretMoving();
+    document.DeleteElements(false, true, false);
+    document.WaitMainLoop();
+    std::this_thread::sleep_for(100ms);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mi>5312</mi>"\
+                    "</mrow>"\
+                "</math>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 2})) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mi>5</mi>"\
+                        "<mroot>"\
+                            "<mrow>"\
+                                "<mi>12</mi>"\
+                            "</mrow>"\
+                            "<mrow>"\
+                                "<mi>3</mi>"\
+                            "</mrow>"\
+                        "</mroot>"\
+                    "</mrow>"\
+                "</math>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 1, 1})) << document.GetEditorState().ToString();
+
+    document.DeleteElements(false, true, false);
+    document.WaitMainLoop();
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mi>5312</mi>"\
+                    "</mrow>"\
+                "</math>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 2})) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mi>5</mi>"\
+                        "<mroot>"\
+                            "<mrow>"\
+                                "<mi>12</mi>"\
+                            "</mrow>"\
+                            "<mrow>"\
+                                "<mi>3</mi>"\
+                            "</mrow>"\
+                        "</mroot>"\
+                    "</mrow>"\
+                "</math>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 1, 1})) << document.GetEditorState().ToString();
+
+    document.MoveCaretEnd(false);
+    document.WaitCaretMoving();
+    document.InsertText("7", true);
+    document.WaitMainLoop();
+    std::this_thread::sleep_for(100ms);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mi>5</mi>"\
+                        "<mroot>"\
+                            "<mrow>"\
+                                "<mi>12</mi>"\
+                            "</mrow>"\
+                            "<mrow>"\
+                                "<mi>3</mi>"\
+                            "</mrow>"\
+                        "</mroot>"\
+                        "<mi>7</mi>"\
+                    "</mrow>"\
+                "</math>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 2, 1})) << document.GetEditorState().ToString();
 }
 
 }

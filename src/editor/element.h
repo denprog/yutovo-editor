@@ -113,8 +113,6 @@ public:
     virtual Rect GetAbsoluteRect() const;
     Point GetAbsolutePoint(const Point& point) const;
 
-    void ResetDontNormalize();
-
     virtual ParagraphFormatPtr GetParagraphFormat();
     virtual StringFormatPtr GetStringFormat();
     virtual FormulaFormatPtr GetFormulaFormat() const;
@@ -140,8 +138,6 @@ public:
     uint8_t level = 1; //level of superscript or subscript
     
     bool editable = true;
-
-    bool dont_normalize = false; //don't normalize this element in next normalization circle
 
 protected:
     CaretPtr caret;

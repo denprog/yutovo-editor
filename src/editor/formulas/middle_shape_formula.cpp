@@ -72,10 +72,9 @@ bool MiddleShapeFormula::DeleteElements(bool left, bool with_undo)
 
     caret->SetState(id);
     parent->elements->Move(*elements->Get(0)->elements, p);
-    parent->elements->Move(*elements->Get(2)->elements, p + 1);
-    parent->elements->Remove(id);
+    parent->elements->Move(*elements->Get(2)->elements, p + c1);
     CaretState c;
-    if (parent->elements->Get(p + 1)->GetFirstCaretState(c, nullptr))
+    if (parent->elements->Get(p + c1)->GetFirstCaretState(c, nullptr))
         caret->SetState(c);
 
     if (with_undo)
@@ -83,9 +82,11 @@ bool MiddleShapeFormula::DeleteElements(bool left, bool with_undo)
         document->InsertElement(undo_el, false, true);
         document->PushEditorState(CaretState(parent->id, p), true);
         document->DeleteElements(false, false, true);
-        document->PushEditorState(SelectionState(parent->id, p, c1 + c2), true);
+        document->PushEditorState(CaretState(parent->id, p), SelectionState(parent->id, p, c1 + c2), true);
     }
 
+    auto t = parent->elements->Get(p + c1 + c2); //for not removing this element until this function ends
+    parent->elements->Remove(id);
     parent->Normalize(with_undo);
     document->Remake(parent->id, true, with_undo, false);
     return true;
@@ -107,23 +108,61 @@ bool MiddleShapeFormula::AfterInsert(ElementPtr el1, ElementPtr el2, bool with_u
             last->elements->Move(document->GetElement(el2->id), 0);
             if (with_undo)
             {
+                document->CallFunc(parent->id, 
+                    [&](const ElementId id)
+                    {
+                        document->GetElement(id)->Normalize(false);
+                    },
+                    true);
                 auto _el2 = el2->Clone();
-                _el2->dont_normalize = true;
-                document->InsertFormula(_el2, false, true);
+                document->CallFunc(ElementId{}, 
+                    [&](const ElementId id)
+                    {
+                        document->can_normalize = true;
+                    },
+                    true);
+                document->InsertElement(_el2, false, true);
                 document->PushEditorState(CaretState(parent->id, parent->elements->GetElementPos(id)), true);
+                document->CallFunc(ElementId{}, 
+                    [&](const ElementId id)
+                    {
+                        document->can_normalize = false;
+                    },
+                    true);
             }
         }
         if (el1)
         {
-            //move the first element in the upper element
-            first->elements->RemoveAt(0, 1);
-            first->elements->Move(document->GetElement(el1->id), 0);
-            if (with_undo)
+            String* str = dynamic_cast<String*>(el1.get());
+            if (!str || str->elements->Count() > 0)
             {
-                auto _el1 = el1->Clone();
-                _el1->dont_normalize = true;
-                document->InsertFormula(_el1, false, true);
-                document->PushEditorState(CaretState(parent->id, parent->elements->GetElementPos(id)), true);
+                //move the first element in the upper element
+                first->elements->RemoveAt(0, 1);
+                first->elements->Move(document->GetElement(el1->id), 0);
+                if (with_undo)
+                {
+                    document->CallFunc(parent->id, 
+                        [&](const ElementId id)
+                        {
+                            document->GetElement(id)->Normalize(false);
+                        },
+                        true);
+                    auto _el1 = el1->Clone();
+                    document->CallFunc(ElementId{}, 
+                        [&](const ElementId id)
+                        {
+                            document->can_normalize = true;
+                        },
+                        true);
+                    document->InsertElement(_el1, false, true);
+                    document->PushEditorState(CaretState(parent->id, parent->elements->GetElementPos(id)), true);
+                    document->CallFunc(ElementId{}, 
+                        [&](const ElementId id)
+                        {
+                            document->can_normalize = false;
+                        },
+                        true);
+                }
             }
         }
 
@@ -142,6 +181,7 @@ bool MiddleShapeFormula::AfterInsert(ElementPtr el1, ElementPtr el2, bool with_u
         }
 
         UpdateLevel(level);
+        parent->Normalize(with_undo);
         return true;
     }
 

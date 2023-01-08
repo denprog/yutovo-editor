@@ -66,6 +66,8 @@ public:
     void PushEditorState(const SelectionState& selection_state, bool undo);
     void PushEditorState(const CaretState& caret_state, const SelectionState& selection_state, bool undo);
 
+    void CallFunc(const ElementId& _id, std::function<void (const ElementId id)> func, bool undo);
+
     void ResetTasks();
 
     ElementPtr GetElement(const ElementId& _id);
@@ -207,6 +209,8 @@ public:
     CaretPtr caret;
     Selection selection;
     Selection last_selection;
+
+    bool can_normalize = true;
 
 private:
     std::vector<TaskPtr> tasks;

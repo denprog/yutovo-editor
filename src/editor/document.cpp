@@ -457,6 +457,18 @@ void Document::PushEditorState(const CaretState& caret_state, const SelectionSta
     next_circle.notify_one();
 }
 
+void Document::CallFunc(const ElementId& _id, std::function<void (const ElementId id)> func, bool undo)
+{
+    {
+        std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
+        if (undo)
+            undo_tasks.push(TaskPtr(new CallFuncTask(text, _id, func, cur_task_id)));
+        else
+            tasks.emplace_back(new CallFuncTask(text, _id, func, cur_task_id));
+    }
+    next_circle.notify_one();
+}
+
 void Document::ResetTasks()
 {
     std::lock_guard<std::recursive_mutex> lock(tasks_mutex);

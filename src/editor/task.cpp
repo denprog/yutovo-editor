@@ -535,6 +535,19 @@ bool ResizeTask::Execute()
     return true;
 }
 
+CallFuncTask::CallFuncTask(ElementPtr _text, const ElementId& _id, std::function<void (const ElementId id)> _func, const uint task_id) :
+    Task(_text, task_id),
+    id(_id),
+    func(_func)
+{
+}
+
+bool CallFuncTask::Execute()
+{
+    func(id);
+    return true;
+}
+
 //MoveCaretTask
 
 MoveCaretTask::MoveCaretTask(ElementPtr _text, CaretPtr _caret, MoveCaretDir _dir, bool _visible) : 
