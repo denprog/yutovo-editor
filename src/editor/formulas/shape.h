@@ -7,6 +7,10 @@
 namespace yutovo
 {
 
+#define ROOT_X_LEFT_OFFSET 2
+#define ROOT_Y_OFFSET 4
+#define ROOT_X_RIGHT_OFFSET 2
+
 class Shape : public Element
 {
 public:

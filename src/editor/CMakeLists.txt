@@ -36,6 +36,7 @@ add_library(${PROJECT_NAME}
     formulas/division.cpp
     formulas/power.cpp
     formulas/nth_root.cpp
+    formulas/square_root.cpp
 )
 
 target_link_libraries(${PROJECT_NAME} PRIVATE 

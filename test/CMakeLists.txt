@@ -30,6 +30,7 @@ add_executable(${PROJECT_NAME}_tests
 	division.cpp
 	power.cpp
 	nth_root.cpp
+	square_root.cpp
 	formulas.cpp
 )
 
