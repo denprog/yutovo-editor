@@ -134,6 +134,16 @@ struct ResizeTask : Task
     uint height;
 };
 
+struct CallFuncTask : Task
+{
+    CallFuncTask(ElementPtr _text, const ElementId& _id, std::function<void (const ElementId id)> _func, const uint task_id);
+
+    virtual bool Execute();
+
+    const ElementId id;
+    std::function<void (const ElementId id)> func;
+};
+
 struct MoveCaretTask : Task
 {
     enum class MoveCaretDir

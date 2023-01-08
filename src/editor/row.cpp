@@ -95,6 +95,9 @@ void Row::Remake(bool with_elements, bool with_parent, bool with_undo)
 
 void Row::Normalize(bool with_undo)
 {
+    if (!document->can_normalize)
+        return;
+    
     Element::Normalize(with_undo);
 
     if (elements->Count() > 1)
@@ -102,16 +105,27 @@ void Row::Normalize(bool with_undo)
         for (size_t i = 0; i < elements->Count();)
         {
             auto el = (*elements)[i];
-            if (document->IsString(el) && !el->dont_normalize)
+            if (document->IsString(el))
             {
                 if (el->elements->Count() == 0 && elements->Count() > 1)
                 {
                     if (with_undo)
                     {
                         auto t = elements->Get(i)->Clone();
-                        t->dont_normalize = true;
+                        document->CallFunc(ElementId{}, 
+                            [&](const ElementId id)
+                            {
+                                document->can_normalize = true;
+                            },
+                            true);
                         document->InsertElement(t);
                         document->PushEditorState(CaretState(id, i), true);
+                        document->CallFunc(ElementId{}, 
+                            [&](const ElementId id)
+                            {
+                                document->can_normalize = false;
+                            },
+                            true);
                     }
                     elements->RemoveAt(i, 1); //remove empty strings
                     window->OnCaretMoved(parent->document->GetEditorState());
@@ -125,17 +139,28 @@ void Row::Normalize(bool with_undo)
                     if (with_undo)
                     {
                         el1.reset(el->Clone());
-                        el1->dont_normalize = true;
                         el2.reset(elements->Get(i + 1)->Clone());
                     }
                     if (el->Merge(elements->Get(i + 1)))
                     {
                         if (with_undo)
                         {
+                            document->CallFunc(el1->id, 
+                                [&](const ElementId id)
+                                {
+                                    document->can_normalize = true;
+                                },
+                                true);
                             document->InsertElement(el1);
                             document->PushEditorState(CaretState(id, elements->GetElementPos(el->id)), true);
                             document->InsertElement(el2);
                             document->PushEditorState(CaretState(id, elements->GetElementPos(el->id)), true);
+                            document->CallFunc(el1->id, 
+                                [&](const ElementId id)
+                                {
+                                    document->can_normalize = false;
+                                },
+                                true);
                             document->DeleteElements(false, false, true);
                             document->PushEditorState(SelectionState(id, elements->GetElementPos(el->id), 1), true);
                         }
@@ -159,8 +184,6 @@ void Row::Normalize(bool with_undo)
         if (GetFirstCaretState(c, nullptr))
             caret->SetState(c);
     }
-
-    ResetDontNormalize();
 }
 
 bool Row::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo)
