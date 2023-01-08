@@ -448,6 +448,7 @@ TEST_F(FormulaTest, division5)
     document.WaitCaretMoving();
     document.InsertDivision(true);
     document.WaitMainLoop();
+    std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -771,6 +772,7 @@ TEST_F(FormulaTest, division7)
     document.WaitCaretMoving();
     document.InsertDivision(true);
     document.WaitMainLoop();
+    std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\

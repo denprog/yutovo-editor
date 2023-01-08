@@ -740,8 +740,8 @@ void Elements::Move(const ElementPtr element, const uint pos)
 
 void Elements::Move(const Elements& _elements, const uint pos)
 {
-    for (int i = 0; i < _elements.Count(); ++i)
-        Move(_elements.elements[i], pos + i);
+    for (int i = 0, j = 0; i < _elements.Count();)
+        Move(_elements.elements[0], pos + j++);
 }
 
 void Elements::Clear()
