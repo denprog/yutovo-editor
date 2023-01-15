@@ -1,0 +1,226 @@
+#include "solver_task.h"
+#include "rapidjson/document.h"
+#include "rapidjson/writer.h"
+#include "rapidjson/stringbuffer.h"
+
+namespace yutovo
+{
+
+//SolverTask
+
+SolverTask::SolverTask(ElementId _id, ExpressionType _expression_type, const std::string& _expression) :
+    id(_id),
+    expression_type(_expression_type),
+    expression(_expression),
+    logger(Logger::GetInstance("programs/Math/bin/", "yutovo", true, true))
+{
+}
+
+//RealSolverTask
+
+RealSolverTask::RealSolverTask(ElementId _id, ExpressionType _expression_type, const uint _precision, AngleMeasure _angle_measure, const std::string& _expression) :
+    SolverTask(_id, _expression_type, _expression),
+    precision(_precision),
+    angle_measure(_angle_measure)
+{
+}
+
+bool RealSolverTask::Solve(zmq::socket_t& socket, Result& result)
+{
+    //request
+    rapidjson::Document doc;
+    auto& alloc = doc.GetAllocator();
+    doc.SetObject();
+    doc.AddMember("solver_type", 1, alloc);
+    doc.AddMember("result_type", (int)ResultType::REAL, alloc);
+    doc.AddMember("expression", rapidjson::StringRef(expression.c_str()), alloc);
+    doc.AddMember("precision", precision, alloc);
+    doc.AddMember("angle_measure", (int)angle_measure, alloc);
+    doc.AddMember("accuracy_size", 6, alloc);
+    doc.AddMember("exponent_size", 3, alloc);
+
+    rapidjson::StringBuffer buffer;
+    rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
+    doc.Accept(writer);
+    std::string str = buffer.GetString();
+
+    logger->Info("Send request:\n{}", str);
+    zmq::message_t request(str.size());
+    std::memcpy(request.data(), str.data(), str.size());
+    socket.send(request);
+
+    //reply
+    zmq::message_t reply;
+    socket.recv(&reply);
+
+    std::string json = std::string((const char*)reply.data(), reply.size());
+    logger->Info("Got reply:\n{}", json);
+    doc.Parse<0>(json.c_str());
+    if (doc.HasParseError())
+    {
+        logger->Error("Json error");
+        result.error.error_code = ErrorCode::JSON_ERROR;
+        return false;
+    }
+
+    result.type = ResultType::REAL;
+
+    if (doc.HasMember("error"))
+    {
+        logger->Error("Solver error");
+        result.error.error_code = ErrorCode::SOLVER_ERROR;
+        return false;
+    }
+    if (!doc.HasMember("mantissa") || !doc["mantissa"].IsString())
+    {
+        logger->Error("mantissa error");
+        result.error.error_code = ErrorCode::JSON_ERROR;
+        return false;
+    }
+
+    result.values["mantissa"] = doc["mantissa"].GetString();
+    if (doc.HasMember("exponent") && doc["exponent"].IsString())
+        result.values["exponent"] = doc["exponent"].GetString();
+
+    return true;
+}
+
+//IntegerSolverTask
+
+IntegerSolverTask::IntegerSolverTask(ElementId _id, ExpressionType _expression_type, Notation _notation, const std::string& _expression) :
+    SolverTask(_id, _expression_type, _expression),
+    notation(_notation)
+{
+}
+
+bool IntegerSolverTask::Solve(zmq::socket_t& socket, Result& result)
+{
+    //request
+    rapidjson::Document doc;
+    auto& alloc = doc.GetAllocator();
+    doc.SetObject();
+    doc.AddMember("solver_type", 1, alloc);
+    doc.AddMember("result_type", (int)ResultType::INTEGER, alloc);
+    doc.AddMember("expression", rapidjson::StringRef(expression.c_str()), alloc);
+
+    rapidjson::StringBuffer buffer;
+    rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
+    doc.Accept(writer);
+    std::string str = buffer.GetString();
+
+    logger->Info("Send request:\n{}", str);
+    zmq::message_t request(str.size());
+    std::memcpy(request.data(), str.data(), str.size());
+    socket.send(request);
+
+    //reply
+    zmq::message_t reply;
+    socket.recv(&reply);
+    
+    std::string json = std::string((const char*)reply.data(), reply.size());
+    logger->Info("Got reply:\n{}", json);
+    doc.Parse<0>(json.c_str());
+    if (doc.HasParseError())
+    {
+        logger->Error("Json error");
+        result.error.error_code = ErrorCode::JSON_ERROR;
+        return false;
+    }
+
+    result.type = ResultType::INTEGER;
+
+    if (doc.HasMember("error"))
+    {
+        logger->Error("Solver error");
+        result.error.error_code = ErrorCode::SOLVER_ERROR;
+        return false;
+    }
+    if (!doc.HasMember("value") || !doc["value"].IsString())
+    {
+        logger->Error("value error");
+        result.error.error_code = ErrorCode::JSON_ERROR;
+        return false;
+    }
+
+    result.values["value"] = doc["value"].GetString();
+
+    return true;
+}
+
+//RationalSolverTask
+
+RationalSolverTask::RationalSolverTask(ElementId _id, ExpressionType _expression_type, const std::string& _expression) :
+    SolverTask(_id, _expression_type, _expression)
+{
+}
+
+bool RationalSolverTask::Solve(zmq::socket_t& socket, Result& result)
+{
+    //request
+    rapidjson::Document doc;
+    auto& alloc = doc.GetAllocator();
+    doc.SetObject();
+    doc.AddMember("solver_type", 1, alloc);
+    doc.AddMember("result_type", (int)ResultType::RATIONAL, alloc);
+    doc.AddMember("expression", rapidjson::StringRef(expression.c_str()), alloc);
+
+    rapidjson::StringBuffer buffer;
+    rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
+    doc.Accept(writer);
+    std::string str = buffer.GetString();
+
+    logger->Info("Send request:\n{}", str);
+    zmq::message_t request(str.size());
+    std::memcpy(request.data(), str.data(), str.size());
+    socket.send(request);
+
+    //reply
+    zmq::message_t reply;
+    socket.recv(&reply);
+    
+    std::string json = std::string((const char*)reply.data(), reply.size());
+    logger->Info("Got reply:\n{}", json);
+    doc.Parse<0>(json.c_str());
+    if (doc.HasParseError())
+    {
+        logger->Error("Json error");
+        result.error.error_code = ErrorCode::JSON_ERROR;
+        return false;
+    }
+
+    result.type = ResultType::RATIONAL;
+
+    if (doc.HasMember("error"))
+    {
+        logger->Error("Solver error");
+        result.error.error_code = ErrorCode::SOLVER_ERROR;
+        return false;
+    }
+    if (!doc.HasMember("numerator") || !doc["numerator"].IsString() || !doc.HasMember("denomerator") || !doc["denomerator"].IsString())
+    {
+        logger->Error("value error");
+        result.error.error_code = ErrorCode::JSON_ERROR;
+        return false;
+    }
+
+    result.values["numerator"] = doc["numerator"].GetString();
+    result.values["denomerator"] = doc["denomerator"].GetString();
+
+    return true;
+}
+
+//ComplexSolverTask
+
+ComplexSolverTask::ComplexSolverTask(ElementId _id, ExpressionType _expression_type, const uint _precision, AngleMeasure _angle_measure, const std::string& _expression) :
+    SolverTask(_id, _expression_type, _expression),
+    precision(_precision),
+    angle_measure(_angle_measure)
+{
+}
+
+bool ComplexSolverTask::Solve(zmq::socket_t& socket, Result& result)
+{
+    return true;
+}
+
+}

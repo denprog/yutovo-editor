@@ -7,6 +7,8 @@
 namespace yutovo
 {
 
+class CodeRow;
+
 class MiddleShapeFormula : public Formula
 {
 public:
@@ -18,13 +20,13 @@ public:
 
     virtual bool DeleteElements(bool left, bool with_undo);
 
-    virtual bool AfterInsert(ElementPtr el1, ElementPtr el2, bool with_undo);
+    virtual bool AfterInsert(bool with_undo);
 
     virtual bool GetLeftCaretState(CaretState& caret_state, Selection* select);
     virtual bool GetRightCaretState(CaretState& caret_state, Selection* select);
 
 protected:
-    Element *first, *last;
+    CodeRow *first, *last;
     Shape *shape;
 };
 

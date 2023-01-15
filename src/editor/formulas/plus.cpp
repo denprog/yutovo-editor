@@ -41,9 +41,9 @@ void Plus::Draw() const
             Color c = document->selection.IsSelected(id) ? formula_format->selection_color : formula_format->color;
             float w = float(rect.width);
             window->DrawFillRect(round(r.left + w * 0.1), round(r.top + float(rect.height) / 2 - w / 2 + w * 0.4), 
-                round(r.width * 0.8), round(w * 0.2), c);
+                round(r.width * 0.8), round(w * 0.15), c);
             window->DrawFillRect(round(r.left + w * 0.4), round(r.top + float(rect.height) / 2 - w / 2 + w * 0.1), 
-                round(r.width * 0.2), round(w * 0.8), c);
+                round(r.width * 0.15), round(w * 0.8), c);
         };
 
     OnlyShapeFormula::Draw();

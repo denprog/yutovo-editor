@@ -41,7 +41,7 @@ void Multiply::Draw() const
             Color c = document->selection.IsSelected(id) ? formula_format->selection_color : formula_format->color;
             float w = float(rect.width);
             window->DrawFillEllipse(round(r.left + w / 2 - w * 0.15), round(r.top + float(rect.height) / 2 - w * 0.15), 
-                round(r.width * 0.3), round(w * 0.3), c);
+                round(r.width * 0.1), round(w * 0.1), c);
         };
 
     OnlyShapeFormula::Draw();

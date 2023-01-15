@@ -1,4 +1,5 @@
 #include "power.h"
+#include "code_row.h"
 #include "../str.h"
 #include "../document.h"
 
@@ -55,11 +56,15 @@ void Power::Remake(bool with_elements, bool with_parent, bool with_undo)
     shape->rect.Move(first->rect.width, 0);
     last->rect.Move(first->rect.width + shape->rect.width, 0);
 
+    baseline = first->rect.top + first->baseline;
+
     UpdateRect();
 
     if (rect != last_rect && with_parent)
         parent->Remake(false, true, with_undo);
     last_rect = rect;
+
+    document->Remake(parent->id, false, with_undo, false);
 }
 
 void Power::UpdateLevel(uint8_t _level)
@@ -82,6 +87,21 @@ std::string Power::ToHtml()
 std::string Power::ToText()
 {
     return "pow(" + first->ToText() + "," + last->ToText() + ")";
+}
+
+void Power::AddBase(ElementPtr base)
+{
+    if (first->IsEmpty())
+        first->elements->Clear();
+    first->elements->Add(base);
+}
+
+void Power::AddExponent(ElementPtr exponent)
+{
+    if (last->IsEmpty())
+        last->elements->Clear();
+    last->elements->Add(exponent);
+    UpdateLevel(level);
 }
 
 }

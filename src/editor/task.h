@@ -7,6 +7,7 @@
 #include "selection.h"
 #include "editor_state.h"
 #include "caret.h"
+#include "solver.h"
 #include "logger.h"
 
 namespace yutovo
@@ -227,6 +228,16 @@ struct CopyTask : Task
     std::stringstream& out_array;
     std::string& out_text;
     bool cut;
+};
+
+struct ResultTask : Task
+{
+    ResultTask(ElementPtr _text, ElementId _id, Result _result);
+
+    virtual bool Execute();
+
+    ElementId id;
+    Result result;
 };
 
 }

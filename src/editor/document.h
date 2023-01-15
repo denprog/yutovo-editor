@@ -12,6 +12,7 @@
 #include "selection.h"
 #include "text.h"
 #include "task.h"
+#include "solver.h"
 #include "util.h"
 #include "editor_state.h"
 #include "logger.h"
@@ -50,6 +51,7 @@ public:
     void InsertPower(bool with_undo);
     void InsertNthRoot(bool with_undo);
     void InsertSquareRoot(bool with_undo);
+    void InsertEquation(ResultType result_type, bool with_undo);
 
     void InsertFormula(Element* element, bool with_undo, bool undo);
     void InsertFormulas(std::vector<ElementPtr>& elements, bool with_undo, bool undo);
@@ -157,6 +159,10 @@ public:
     EditorState GetEditorState();
     void SetEditorState(EditorState& state);
 
+    void Solve(ElementId _id, ExpressionType expression_type, ResultType result_type, const uint precision, AngleMeasure angle_measure, 
+        Notation notation, const std::string& expression);
+    void PutResult(ElementId _id, Result result);
+
 private:
     void MainLoop();
 
@@ -167,16 +173,20 @@ public:
     void WaitRedo();
     void WaitCaretMoving();
     void WaitLoad();
+    void WaitSolver();
 
 private:
-    uint last_task_id = 0;
-    uint last_load_task_id = 0;
+    int last_task_id = -1;
+    int last_load_task_id = -1;
     bool last_task_executed = false;
     bool last_load_executed = false;
     bool last_undo_executed = false;
     bool last_redo_executed = false;
 
     bool last_caret_moved = false;
+
+    int last_solver_task_id = -1;
+    bool last_solver_executed = false;
 #endif
 
 private:
@@ -191,6 +201,7 @@ private:
 
 private:
     std::recursive_mutex tasks_mutex;
+    std::recursive_mutex solver_tasks_mutex;
 
 public:
     Window* window;
@@ -219,6 +230,8 @@ private:
     std::vector<TaskPtr> redo_tasks;
     std::vector<bool> undos;
     std::vector<bool> redos;
+
+    Solver solver;
 
     bool exit = false;
 

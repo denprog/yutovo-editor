@@ -24,7 +24,12 @@ public:
 
     virtual std::string ToHtml();
     virtual std::string ToText();
+
+    void AddBase(ElementPtr base);
+    void AddExponent(ElementPtr exponent);
 };
+
+typedef std::shared_ptr<Power> PowerPtr;
 
 }
 

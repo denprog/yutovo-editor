@@ -29,8 +29,8 @@ void SquareRoot::Init()
 {
     type = ElementType::SQUARE_ROOT;
     shape = new Shape(this);
-    elements->Add(ElementPtr(shape));
     last = new CodeRow(this);
+    elements->Add(ElementPtr(shape));
     elements->Add(ElementPtr(last));
 }
 
