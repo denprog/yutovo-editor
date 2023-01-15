@@ -48,6 +48,16 @@ void ShortcutsMap::Init(DocumentPtr _document)
     Add(QKeySequence(""), '^', "\\pow", std::function<void ()>(std::bind(&Document::InsertPower, document.get(), true)), CommandContext::Formula);
     Add(QKeySequence("Ctrl+Shift+N"), "\\nth", std::function<void ()>(std::bind(&Document::InsertNthRoot, document.get(), true)));
     Add(QKeySequence("Ctrl+Shift+S"), "\\sqrt", std::function<void ()>(std::bind(&Document::InsertSquareRoot, document.get(), true)));
+    Add(QKeySequence(""), '=', "\\equal", std::function<void ()>(std::bind(&Document::InsertEquation, document.get(), ResultType::AUTO, true)), 
+        CommandContext::Formula);
+    Add(QKeySequence(""), "\\eq_real", std::function<void ()>(std::bind(&Document::InsertEquation, document.get(), ResultType::REAL, true)), 
+        CommandContext::Formula);
+    Add(QKeySequence(""), "\\eq_int", std::function<void ()>(std::bind(&Document::InsertEquation, document.get(), ResultType::INTEGER, true)), 
+        CommandContext::Formula);
+    Add(QKeySequence(""), "\\eq_rat", std::function<void ()>(std::bind(&Document::InsertEquation, document.get(), ResultType::RATIONAL, true)), 
+        CommandContext::Formula);
+    Add(QKeySequence(""), "\\eq_comp", std::function<void ()>(std::bind(&Document::InsertEquation, document.get(), ResultType::COMPLEX, true)), 
+        CommandContext::Formula);
 }
 
 bool ShortcutsMap::Call(const QKeySequence& shortcut, QChar symbol, const EditorState& editor_state)

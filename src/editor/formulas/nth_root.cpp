@@ -1,4 +1,5 @@
 #include "nth_root.h"
+#include "code_row.h"
 #include "../str.h"
 #include "../document.h"
 

@@ -39,7 +39,14 @@ enum class ElementType
     DIVISION,
     POWER,
     SQUARE_ROOT,
-    NTH_ROOT
+    NTH_ROOT,
+    EQUATION,
+    REAL_RESULT,
+    INTEGER_RESULT,
+    RATIONAL_RESULT,
+    COMPLEX_RESULT,
+    AUTO_RESULT,
+    ERROR_RESULT
 };
 
 #define MAX_LEVEL 3
@@ -75,7 +82,7 @@ public:
 
     virtual void UpdateStringFormat(const StringFormatPtr base_format, const StringFormatPtr new_format);
 
-    virtual bool AfterInsert(ElementPtr el1, ElementPtr el2, bool with_undo);
+    virtual bool AfterInsert(bool with_undo);
 
     virtual bool GetFirstCaretState(CaretState& caret_state, Selection* select);
     virtual bool GetLastCaretState(CaretState& caret_state, Selection* select);

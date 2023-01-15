@@ -37,7 +37,7 @@ void Code::Draw() const
     window->DrawRect(GetAbsoluteRect(), Color::Red());
 }
 
-bool Code::AfterInsert(ElementPtr el1, ElementPtr el2, bool with_undo)
+bool Code::AfterInsert(bool with_undo)
 {
     CaretState c;
     if (GetFirstCaretState(c, nullptr))

@@ -52,7 +52,7 @@ void Division::Draw() const
         window->DrawFillRect(abs_rect.left, abs_rect.top, abs_rect.width, abs_rect.height, Color::Blue());
     }
 
-    Formula::Draw();
+    MiddleShapeFormula::Draw();
 }
 
 void Division::Remake(bool with_elements, bool with_parent, bool with_undo)
@@ -143,6 +143,20 @@ std::string Division::ToHtml()
 std::string Division::ToText()
 {
     return "(" + first->ToText() + ")/(" + last->ToText() + ")";
+}
+
+void Division::AddNumerator(ElementPtr numerator)
+{
+    if (first->IsEmpty())
+        first->elements->Clear();
+    first->elements->Add(numerator);
+}
+
+void Division::AddDenomerator(ElementPtr denomerator)
+{
+    if (last->IsEmpty())
+        last->elements->Clear();
+    last->elements->Add(denomerator);
 }
 
 }

@@ -22,9 +22,9 @@ MiddleShapeFormula::MiddleShapeFormula(Document* _document) :
 
 MiddleShapeFormula::MiddleShapeFormula(const MiddleShapeFormula& source) :
     Formula(source),
-    first(elements->Get(0).get()),
+    first((CodeRow*)elements->Get(0).get()),
     shape((Shape*)elements->Get(1).get()),
-    last(elements->Get(2).get())
+    last((CodeRow*)elements->Get(2).get())
 {
 }
 
@@ -92,7 +92,7 @@ bool MiddleShapeFormula::DeleteElements(bool left, bool with_undo)
     return true;
 }
 
-bool MiddleShapeFormula::AfterInsert(ElementPtr el1, ElementPtr el2, bool with_undo)
+bool MiddleShapeFormula::AfterInsert(bool with_undo)
 {
     if (first->elements->Count() != 1 || last->elements->Count() != 1 || !caret)
         return false;
@@ -101,7 +101,10 @@ bool MiddleShapeFormula::AfterInsert(ElementPtr el1, ElementPtr el2, bool with_u
     String* str2 = dynamic_cast<String*>(last->elements->Get(0).get());
     if (str1 && str1->elements->Count() == 0)
     {
-        if (el2 && str2 && str2->elements->Count() == 0)
+        int pos = parent->elements->GetElementPos(id);
+        ElementPtr el1 = (pos == 0 ? nullptr : parent->elements->Get(pos - 1));
+        ElementPtr el2 = (parent->elements->IsLast(id) ? nullptr : parent->elements->Get(pos + 1));
+        if (el2 && dynamic_cast<String*>(el2.get()) && str2 && str2->elements->Count() == 0)
         {
             //move the second element in the last element
             last->elements->RemoveAt(0, 1);
@@ -131,10 +134,10 @@ bool MiddleShapeFormula::AfterInsert(ElementPtr el1, ElementPtr el2, bool with_u
                     true);
             }
         }
-        if (el1)
+        if (el1 && dynamic_cast<String*>(el1.get()))
         {
             String* str = dynamic_cast<String*>(el1.get());
-            if (!str || str->elements->Count() > 0)
+            if (str->elements->Count() > 0)
             {
                 //move the first element in the upper element
                 first->elements->RemoveAt(0, 1);

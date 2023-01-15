@@ -28,6 +28,9 @@ public:
 
     virtual std::string ToHtml();
     virtual std::string ToText();
+
+    void AddNumerator(ElementPtr numerator);
+    void AddDenomerator(ElementPtr denomerator);
 };
 
 }

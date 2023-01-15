@@ -198,7 +198,7 @@ void Element::UpdateStringFormat(const StringFormatPtr base_format, const String
         elements->Get(i)->UpdateStringFormat(base_format, new_format);
 }
 
-bool Element::AfterInsert(ElementPtr el1, ElementPtr el2, bool with_undo)
+bool Element::AfterInsert(bool with_undo)
 {
     return false;
 }
@@ -386,6 +386,8 @@ std::string Element::ToHtml()
 
 std::string Element::ToText()
 {
+    if (!elements)
+        return "";
     return elements->ToText();
 }
 
@@ -654,6 +656,10 @@ void Elements::Add(ElementPtr element)
     element->window = parent->window;
     //set id
     UpdateIds();
+
+#ifdef DEBUG
+    parent->to_str = parent->ToText();
+#endif
 }
 
 void Elements::Insert(ElementPtr element, const uint pos)
@@ -678,11 +684,19 @@ void Elements::Insert(ElementPtr element, const uint pos)
         caret->SetState(element->id, p, true);
     if (!s.IsEmpty())
         selection->Add(element, s.start, s.size);
+
+#ifdef DEBUG
+    parent->to_str = parent->ToText();
+#endif
 }
 
 void Elements::Remove(const ElementPtr element)
 {
     parent->elements->RemoveAt(element->parent->elements->GetElementPos(element->id), 1);
+
+#ifdef DEBUG
+    parent->to_str = parent->ToText();
+#endif
 }
 
 void Elements::Remove(const ElementId id)
@@ -725,6 +739,10 @@ void Elements::RemoveAt(const uint pos, const int size)
             }
         }
     }
+
+#ifdef DEBUG
+    parent->to_str = parent->ToText();
+#endif
 }
 
 void Elements::Move(const ElementPtr element, const uint pos)
@@ -747,6 +765,10 @@ void Elements::Move(const Elements& _elements, const uint pos)
 void Elements::Clear()
 {
     elements.clear();
+
+#ifdef DEBUG
+    parent->to_str = parent->ToText();
+#endif
 }
 
 uint Elements::Count() const

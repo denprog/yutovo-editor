@@ -10,13 +10,13 @@ namespace yutovo
 class Logger
 {
 private:
-    Logger();
+    Logger(const std::string& path, const std::string& name, bool in_console, bool in_file);
 
 public:
     Logger(Logger const&) = delete;
     void operator=(Logger const&) = delete;
 
-    static Logger* GetInstance();
+    static Logger* GetInstance(const std::string& path, const std::string& name, bool in_console, bool in_file);
 
     void Info(const char* message);
     void Debug(const char* message);
@@ -53,6 +53,18 @@ public:
 
 private:
     std::shared_ptr<spdlog::logger> log;
+};
+
+class LoggerFormatter : public spdlog::formatter
+{
+public:
+    LoggerFormatter();
+
+    virtual void format(const spdlog::details::log_msg &msg, spdlog::memory_buf_t &dest);
+    virtual std::unique_ptr<spdlog::formatter> clone() const;
+
+private:
+    std::vector<std::unique_ptr<spdlog::details::flag_formatter>> formatters;
 };
 
 }

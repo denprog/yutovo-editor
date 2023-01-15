@@ -32,6 +32,10 @@ add_executable(${PROJECT_NAME}_tests
 	nth_root.cpp
 	square_root.cpp
 	formulas.cpp
+	solver_auto.cpp
+	solver_real.cpp
+	solver_integer.cpp
+	solver_rational.cpp
 )
 
 target_link_libraries(${PROJECT_NAME}_tests PRIVATE

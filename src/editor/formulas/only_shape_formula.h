@@ -16,7 +16,7 @@ public:
 
     virtual void Draw() const;
     
-    virtual bool AfterInsert(ElementPtr el1, ElementPtr el2, bool with_undo);
+    virtual bool AfterInsert(bool with_undo);
 
     virtual bool GetFirstCaretState(CaretState& caret_state, Selection* select);
     virtual bool GetLastCaretState(CaretState& caret_state, Selection* select);

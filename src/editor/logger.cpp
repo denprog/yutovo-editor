@@ -1,29 +1,58 @@
 #include "logger.h"
+#include <memory>
+#include <iostream>
 #include <experimental/filesystem>
+#include <spdlog/sinks/stdout_sinks.h>
 
 namespace yutovo
 {
 
 //Logger
 
-Logger::Logger()
+Logger::Logger(const std::string& path, const std::string& name, bool in_console, bool in_file)
 {
-    std::experimental::filesystem::create_directory("log");
+    std::vector<spdlog::sink_ptr> sinks;
     try
     {
-        log = spdlog::daily_logger_mt("editor", "log/editor.log", 0, 0);
+        if (in_console)
+        {
+            auto s = std::make_shared<spdlog::sinks::stdout_sink_st>();
+            s->set_formatter(std::unique_ptr<spdlog::formatter>(new LoggerFormatter()));
+            sinks.push_back(s);
+        }
+
+        std::string p;
+        if (in_file)
+        {
+#ifdef _WIN32
+            char szPath[MAX_PATH];
+            if (SUCCEEDED(SHGetFolderPathA(NULL, CSIDL_COMMON_APPDATA, NULL, 0, szPath)))
+                p = std::string(szPath);
+#else
+            auto home = getenv("HOME");
+            if (home != nullptr)
+                p = std::string(home) + "/";
+#endif
+            p += path + name + ".log";
+            sinks.push_back(std::make_shared<spdlog::sinks::daily_file_sink_mt>(p, 0, 0, false, 10));
+        }
+        log = std::make_shared<spdlog::logger>(name, begin(sinks), end(sinks));
+
+        if (in_file)
+            log->flush();
     }
     catch (spdlog::spdlog_ex& ex)
     {
+        std::cout << ex.what();
     }
 
     spdlog::set_pattern("[%H:%M:%S.%e][%t][%n][%l] %v");
-    spdlog::set_level(spdlog::level::debug);
+    spdlog::set_level(spdlog::level::info);
 }
 
-Logger* Logger::GetInstance()
+Logger* Logger::GetInstance(const std::string& path, const std::string& name, bool in_console, bool in_file)
 {
-    static Logger log;
+    static Logger log(path, name, in_console, in_file);
     return &log;
 }
 
@@ -57,6 +86,37 @@ void Logger::Error(const char* message)
         return;
     log->error(message);
     log->flush();
+}
+
+//LoggerFormatter
+
+LoggerFormatter::LoggerFormatter()
+{
+    std::unique_ptr<spdlog::details::aggregate_formatter> p_format = spdlog::details::make_unique<spdlog::details::aggregate_formatter>();
+    p_format->add_ch('[');
+    formatters.push_back(std::move(p_format));
+    formatters.push_back(spdlog::details::make_unique<spdlog::details::level_formatter<spdlog::details::null_scoped_padder>>(spdlog::details::padding_info{}));
+    p_format = spdlog::details::make_unique<spdlog::details::aggregate_formatter>();
+    p_format->add_ch(']');
+    p_format->add_ch(' ');
+    formatters.push_back(std::move(p_format));
+    formatters.push_back(spdlog::details::make_unique<spdlog::details::v_formatter<spdlog::details::null_scoped_padder>>(spdlog::details::padding_info{}));
+}
+
+void LoggerFormatter::format(const spdlog::details::log_msg &msg, spdlog::memory_buf_t &dest)
+{
+    std::tm t = spdlog::details::os::localtime(spdlog::log_clock::to_time_t(msg.time));
+
+    for (auto &f : formatters)
+        f->format(msg, t, dest);
+
+    if (dest.size() > 0 && dest[dest.size() - 1] != '\r' && dest[dest.size() - 1] != '\n')
+        spdlog::details::fmt_helper::append_string_view(spdlog::details::os::default_eol, dest);
+}
+
+std::unique_ptr<spdlog::formatter> LoggerFormatter::clone() const
+{
+    return std::unique_ptr<spdlog::formatter>(new LoggerFormatter());
 }
 
 }

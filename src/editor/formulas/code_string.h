@@ -34,6 +34,8 @@ protected:
     const int empty_rect_width = 6;
 };
 
+typedef std::shared_ptr<CodeString> CodeStringPtr;
+
 }
 
 #endif

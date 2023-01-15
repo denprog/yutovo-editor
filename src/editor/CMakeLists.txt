@@ -23,6 +23,8 @@ add_library(${PROJECT_NAME}
     util.cpp
     logger.cpp
     result_codes.cpp
+    solver.cpp
+    solver_task.cpp
     formulas/formula.cpp
     formulas/code.cpp
     formulas/code_string.cpp
@@ -37,6 +39,8 @@ add_library(${PROJECT_NAME}
     formulas/power.cpp
     formulas/nth_root.cpp
     formulas/square_root.cpp
+    formulas/equation.cpp
+    formulas/result.cpp
 )
 
 target_link_libraries(${PROJECT_NAME} PRIVATE 
@@ -44,6 +48,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
     stdc++fs
     pthread
     boost_serialization
+    zmq
 )
 
 target_include_directories(${PROJECT_NAME} PRIVATE

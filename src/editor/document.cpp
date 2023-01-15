@@ -12,6 +12,7 @@
 #include "formulas/power.h"
 #include "formulas/nth_root.h"
 #include "formulas/square_root.h"
+#include "formulas/equation.h"
 #include "util.h"
 #include <assert.h>
 #include <chrono>
@@ -33,9 +34,10 @@ Document::Document(Window* _window) :
     current_formula_format(formula_formats->GetFormat("Code")),
     selection(this),
     last_selection(this),
-    logger(Logger::GetInstance())
+    solver(this),
+    logger(Logger::GetInstance("programs/Math/bin/", "yutovo", true, true))
 {
-    logger->Info("Document start");
+    logger->Debug("Document start");
 }
 
 Document::~Document()
@@ -43,7 +45,7 @@ Document::~Document()
     exit = true;
     next_circle.notify_one();
     main_loop.join();
-    logger->Info("Document end");
+    logger->Debug("Document end");
 }
 
 void Document::Start()
@@ -197,6 +199,8 @@ void Document::MainLoop()
                 }
                 if (last_load_task_id == t->id)
                     last_load_executed = true;
+                if (last_solver_task_id == t->id)
+                    last_solver_executed = true;
 #endif
             }
         }
@@ -351,6 +355,11 @@ void Document::InsertNthRoot(bool with_undo)
 void Document::InsertSquareRoot(bool with_undo)
 {
     InsertFormula(new SquareRoot(this), with_undo, false);
+}
+
+void Document::InsertEquation(ResultType result_type, bool with_undo)
+{
+    InsertFormula(new Equation(this, result_type), with_undo, false);
 }
 
 void Document::InsertFormula(Element* element, bool with_undo, bool undo)
@@ -1100,6 +1109,21 @@ void Document::SetEditorState(EditorState& state)
     selection.Set(state.selection_state);
 }
 
+void Document::Solve(ElementId _id, ExpressionType expression_type, ResultType result_type, const uint precision, AngleMeasure angle_measure, 
+    Notation notation, const std::string& expression)
+{
+    solver.Solve(_id, expression_type, result_type, precision, angle_measure, notation, expression);
+}
+
+void Document::PutResult(ElementId _id, Result result)
+{
+    std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
+    tasks.emplace_back(new ResultTask(text, _id, result));
+#ifdef DEBUG
+    last_solver_task_id = tasks[tasks.size() - 1]->id;
+#endif
+}
+
 #ifdef DEBUG
 void Document::WaitMainLoop()
 {
@@ -1152,6 +1176,18 @@ void Document::WaitLoad()
     std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
     last_load_task_id = 0;
     last_load_executed = false;
+}
+
+void Document::WaitSolver()
+{
+    while (!last_solver_executed)
+    {
+        std::this_thread::sleep_for(10ms);
+    }
+
+    std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
+    last_solver_task_id = 0;
+    last_solver_executed = false;
 }
 #endif
 

@@ -84,6 +84,7 @@ TEST_F(FormulaTest, plus2)
     document.InsertPlus(true);
     document.InsertText("45", true);
     document.WaitMainLoop();
+    std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\

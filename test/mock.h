@@ -225,6 +225,22 @@ struct FormulaTest : DocumentTest
 {
 };
 
+struct SolverAutoTest : DocumentTest
+{
+};
+
+struct SolverRealTest : DocumentTest
+{
+};
+
+struct SolverIntegerTest : DocumentTest
+{
+};
+
+struct SolverRationalTest : DocumentTest
+{
+};
+
 }
 
 #endif

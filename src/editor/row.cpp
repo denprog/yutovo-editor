@@ -211,7 +211,7 @@ bool Row::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo)
                 document->DeleteElements(false, false, true);
                 document->PushEditorState(SelectionState(id, p + i, 1), true);
             }
-            if (i == 0 && elements->Get(p + i)->AfterInsert(elements->Get(p + i + 1), nullptr, with_undo))
+            if (i == 0 && elements->Get(p + i)->AfterInsert(with_undo))
             {
                 parent->Normalize(with_undo);
                 continue;
@@ -237,7 +237,7 @@ bool Row::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo)
                     document->PushEditorState(SelectionState(id, p + i + 1, 1), true);
                 }
                 if (i == 0)
-                    b = ins->AfterInsert(elements->Get(p + i), nullptr, with_undo);
+                    b = ins->AfterInsert(with_undo);
                 if (!b && elements->Get(p + i + 1)->GetLastCaretState(c, nullptr))
                     caret->SetState(c);
                 if (elements->Count() > p + i + 2)
@@ -256,7 +256,7 @@ bool Row::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo)
                     document->PushEditorState(SelectionState(id, p + i, 1), true);
                 }
                 if (i == 0)
-                    b = ins->AfterInsert(elements->Count() > p + i + 1 ? elements->Get(p + i + 1) : nullptr, nullptr, with_undo);
+                    b = ins->AfterInsert(with_undo);
                 if (!b)
                 {
                     if (elements->Get(elements->Count() > p + i + 1 ? p + i + 1 : p + i)->GetLastCaretState(c, nullptr))
@@ -269,7 +269,7 @@ bool Row::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo)
                 {
                     elements->Insert(ins, p + i + 1);
                     if (i == 0)
-                        b = ins->AfterInsert(el, elements->Get(p + i + 2), with_undo);
+                        b = ins->AfterInsert(with_undo);
                     if (!b && elements->Get(p + i + 1)->GetLastCaretState(c, nullptr))
                         caret->SetState(c);
                 }
@@ -486,6 +486,15 @@ bool Row::CanContinueSelection()
 void Row::AddEmptyElement()
 {
     AddElement(ElementPtr(new String(this)));
+}
+
+bool Row::IsEmpty()
+{
+    if (elements->Count() != 1)
+        return false;
+    if (!document->IsString(elements->Get(0)))
+        return false;
+    return elements->Get(0)->elements->Count() == 0;
 }
 
 }

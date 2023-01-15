@@ -6,6 +6,7 @@
 #include "row.h"
 #include "formulas/code.h"
 #include "formulas/code_string.h"
+#include "formulas/result.h"
 #include "util.h"
 #include "result_codes.h"
 #include <assert.h>
@@ -25,7 +26,7 @@ uint Task::next_id = 1;
 Task::Task(ElementPtr _text) : 
     text(_text),
     document(text->document),
-    logger(Logger::GetInstance()),
+    logger(Logger::GetInstance("programs/Math/bin/", "yutovo", true, true)),
     id(next_id++)
 {
 }
@@ -33,7 +34,7 @@ Task::Task(ElementPtr _text) :
 Task::Task(ElementPtr _text, const uint _id) :
     text(_text),
     document(text->document),
-    logger(Logger::GetInstance()),
+    logger(Logger::GetInstance("programs/Math/bin/", "yutovo", true, true)),
     id(_id)
 {
 }
@@ -802,6 +803,35 @@ bool CopyTask::Execute()
 
     if (cut)
         text->document->DeleteElements(true, true, false);
+    return true;
+}
+
+//ResultTask
+
+ResultTask::ResultTask(ElementPtr _text, ElementId _id, Result _result) :
+    Task(_text),
+    id(_id),
+    result(_result)
+{
+}
+
+bool ResultTask::Execute()
+{
+    ElementPtr el = document->GetElement(id);
+    if (el->type != ElementType::AUTO_RESULT)
+        return false;
+    AutoResult* r = dynamic_cast<AutoResult*>(el.get());
+    if (!r)
+        return false;
+    r->PutResult(result);
+    if (result.error.error_code != ErrorCode::NONE)
+    {
+        //mark errors positions
+    }
+    if (!result.warnings.empty())
+    {
+        //mark warnings positions
+    }
     return true;
 }
 

@@ -424,7 +424,7 @@ bool String::Merge(const ElementPtr with_element)
     return true;
 }
 
-bool String::AfterInsert(ElementPtr el1, ElementPtr el2, bool with_undo)
+bool String::AfterInsert(bool with_undo)
 {
     if (!caret)
         return false;
