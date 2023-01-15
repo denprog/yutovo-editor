@@ -84,6 +84,8 @@ void Row::Remake(bool with_elements, bool with_parent, bool with_undo)
         el->rect.top += max_top_m;
     }
 
+    baseline += max_top_m;
+
     if (rect != last_rect)
     {
         if (with_parent)
