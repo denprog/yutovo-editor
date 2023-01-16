@@ -26,6 +26,7 @@ uint Task::next_id = 1;
 Task::Task(ElementPtr _text) : 
     text(_text),
     document(text->document),
+    window(document->window),
     logger(Logger::GetInstance("programs/Math/bin/", "yutovo", true, true)),
     id(next_id++)
 {
@@ -34,6 +35,7 @@ Task::Task(ElementPtr _text) :
 Task::Task(ElementPtr _text, const uint _id) :
     text(_text),
     document(text->document),
+    window(document->window),
     logger(Logger::GetInstance("programs/Math/bin/", "yutovo", true, true)),
     id(_id)
 {
@@ -685,10 +687,10 @@ NewTask::NewTask(ElementPtr _text) :
 
 bool NewTask::Execute()
 {
-    text->document->ResetTasks();
-    text->document->MoveCaretToDocumentBegin(false);
-    text->document->text = ElementPtr(new Text(text->document));
-    text->document->Remake(text->id, true, false, false);
+    document->ResetTasks();
+    document->text.reset(new Text(text->document));
+    document->Remake(text->id, true, false, false);
+    document->MoveCaretToDocumentBegin(false);
     return true;
 }
 
@@ -703,21 +705,23 @@ SaveTask::SaveTask(ElementPtr _text, const std::string _filename) :
 bool SaveTask::Execute()
 {
     std::ofstream file(filename);
-    boost::archive::binary_oarchive oarchive(file);
-    RegisterTypes(oarchive);
-
     try
     {
-        oarchive << text->document->string_formats; //store string formats
-        oarchive << text->document->paragraph_formats; //store paragraph formats
+        boost::archive::binary_oarchive oarchive(file);
+        RegisterTypes(oarchive);
+
+        oarchive << document->string_formats; //store string formats
+        oarchive << document->paragraph_formats; //store paragraph formats
         oarchive << text; //store text
     }
     catch (boost::archive::archive_exception& ex)
     {
-        text->window->OnSaveResult(id, ToIOResult(ex.code));
+        window->OnSaveResult(id, ToIOResult(ex.code));
+        logger->Error("Error saving document '{}': {}", filename, ex.code);
+        return false;
     }
 
-    text->window->OnSaveResult(id, IOResult::Success);
+    window->OnSaveResult(id, IOResult::Success);
     return true;
 }
 
@@ -732,27 +736,33 @@ LoadTask::LoadTask(ElementPtr _text, const std::string _filename) :
 bool LoadTask::Execute()
 {
     std::ifstream file(filename);
-    DocumentUserData user_data{text->document};
-    UserDataAdapter<DocumentUserData, boost::archive::binary_iarchive> iarchive(user_data, file);
-    RegisterTypes(iarchive);
+    DocumentUserData user_data{document};
     ElementPtr t;
 
     try
     {
-        iarchive >> text->document->string_formats; //restore string formats
-        iarchive >> text->document->paragraph_formats; //restore paragraph formats
+        UserDataAdapter<DocumentUserData, boost::archive::binary_iarchive> iarchive(user_data, file);
+        RegisterTypes(iarchive);
+
+        iarchive >> document->string_formats; //restore string formats
+        iarchive >> document->paragraph_formats; //restore paragraph formats
         iarchive >> t; //restore text
     }
     catch (boost::archive::archive_exception& ex)
     {
-        text->window->OnLoadResult(id, ToIOResult(ex.code));
+        window->OnLoadResult(id, ToIOResult(ex.code));
+        logger->Error("Error loading document '{}': {}", filename, ex.code);
+        return false;
     }
 
-    text->document->ResetTasks();
-    text->document->text = t;
-    text->document->MoveCaretToDocumentBegin(false);
-    text->document->Remake(text->id, true, false, false);
-    text->window->OnLoadResult(id, IOResult::Success);
+    if (!t)
+        return false;
+    
+    document->ResetTasks();
+    document->text = t;
+    document->MoveCaretToDocumentBegin(false);
+    document->Remake(text->id, true, false, false);
+    window->OnLoadResult(id, IOResult::Success);
     return true;
 }
 

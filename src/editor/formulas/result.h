@@ -66,6 +66,7 @@ class AutoResult : public Element
 public:
     AutoResult(Document* _document);
     AutoResult(Element* parent);
+    AutoResult(Element* parent, uint _precision, AngleMeasure _angle_measure, Notation _notation);
     AutoResult(const AutoResult& source);
 
     virtual Element* Clone();
@@ -77,6 +78,21 @@ public:
     void Solve(const std::string& expression, ResultType result_type);
     void PutResult(Result result);
 
+    template <class Archive>
+    void save(Archive& ar, const unsigned int version) const
+    {
+        ar << precision;
+        ar << angle_measure;
+        ar << notation;
+    }
+
+    template <class Archive>
+    void load(Archive& ar, const unsigned int version)
+    {
+    }
+
+	BOOST_SERIALIZATION_SPLIT_MEMBER()
+
 private:
     uint precision = 3;
     AngleMeasure angle_measure = AngleMeasure::RADIAN;
@@ -87,6 +103,35 @@ private:
 
 typedef std::shared_ptr<AutoResult> AutoResultPtr;
 
+}
+
+namespace boost
+{
+namespace serialization
+{
+
+template<class Archive>
+void save_construct_data(Archive& ar, const yutovo::AutoResult* t, const unsigned int version)
+{
+    ar << t->parent;
+}
+
+template<class Archive>
+void load_construct_data(Archive& ar, yutovo::AutoResult* t, const unsigned int version)
+{
+    yutovo::Element* p;
+    ar >> p;
+    uint precision;
+    ar >> precision;
+    yutovo::AngleMeasure angle_measure;
+    ar >> angle_measure;
+    yutovo::Notation notation;
+    ar >> notation;
+    yutovo::DocumentUserData& user_data = yutovo::GetUserData<yutovo::DocumentUserData>(ar);
+    ::new(t)yutovo::AutoResult(p, precision, angle_measure, notation);
+}
+
+}
 }
 
 #endif

@@ -7,6 +7,18 @@
 #include "page.h"
 #include "paragraph.h"
 #include "element.h"
+#include "formulas/code.h"
+#include "formulas/code_row.h"
+#include "formulas/code_string.h"
+#include "formulas/plus.h"
+#include "formulas/minus.h"
+#include "formulas/multiply.h"
+#include "formulas/division.h"
+#include "formulas/nth_root.h"
+#include "formulas/square_root.h"
+#include "formulas/result.h"
+#include "formulas/power.h"
+#include "formulas/equation.h"
 
 namespace yutovo
 {
@@ -119,8 +131,7 @@ ElementId GetPrevPos(const ElementId& id)
     return _id;
 }
 
-template<>
-void RegisterTypes(UserDataAdapter<DocumentUserData, boost::archive::binary_iarchive>& archive)
+void RegisterTypes()
 {
     boost::serialization::void_cast_register<yutovo::Text, yutovo::Element>(static_cast<yutovo::Text*>(NULL), static_cast<yutovo::Element*>(NULL));
     boost::serialization::void_cast_register<yutovo::Page, yutovo::Element>(static_cast<yutovo::Page*>(NULL), static_cast<yutovo::Element*>(NULL));
@@ -129,23 +140,52 @@ void RegisterTypes(UserDataAdapter<DocumentUserData, boost::archive::binary_iarc
     boost::serialization::void_cast_register<yutovo::String, yutovo::Element>(static_cast<yutovo::String*>(NULL), static_cast<yutovo::Element*>(NULL));
     boost::serialization::void_cast_register<yutovo::StringElements, yutovo::Elements>(static_cast<yutovo::StringElements*>(NULL), static_cast<yutovo::Elements*>(NULL));
 
+    boost::serialization::void_cast_register<yutovo::CodeRow, yutovo::Element>(static_cast<yutovo::CodeRow*>(NULL), static_cast<yutovo::Element*>(NULL));
+    boost::serialization::void_cast_register<yutovo::Code, yutovo::CodeRow>(static_cast<yutovo::Code*>(NULL), static_cast<yutovo::CodeRow*>(NULL));
+    boost::serialization::void_cast_register<yutovo::CodeString, yutovo::String>(static_cast<yutovo::CodeString*>(NULL), static_cast<yutovo::String*>(NULL));
+    boost::serialization::void_cast_register<yutovo::Shape, yutovo::Element>(static_cast<yutovo::Shape*>(NULL), static_cast<yutovo::Element*>(NULL));
+    boost::serialization::void_cast_register<yutovo::Division, yutovo::Element>(static_cast<yutovo::Division*>(NULL), static_cast<yutovo::Element*>(NULL));
+    boost::serialization::void_cast_register<yutovo::Equation, yutovo::Element>(static_cast<yutovo::Equation*>(NULL), static_cast<yutovo::Element*>(NULL));
+    boost::serialization::void_cast_register<yutovo::Minus, yutovo::Element>(static_cast<yutovo::Minus*>(NULL), static_cast<yutovo::Element*>(NULL));
+    boost::serialization::void_cast_register<yutovo::Multiply, yutovo::Element>(static_cast<yutovo::Multiply*>(NULL), static_cast<yutovo::Element*>(NULL));
+    boost::serialization::void_cast_register<yutovo::NthRoot, yutovo::Element>(static_cast<yutovo::NthRoot*>(NULL), static_cast<yutovo::Element*>(NULL));
+    boost::serialization::void_cast_register<yutovo::Plus, yutovo::Element>(static_cast<yutovo::Plus*>(NULL), static_cast<yutovo::Element*>(NULL));
+    boost::serialization::void_cast_register<yutovo::Power, yutovo::Element>(static_cast<yutovo::Power*>(NULL), static_cast<yutovo::Element*>(NULL));
+    boost::serialization::void_cast_register<yutovo::AutoResult, yutovo::Element>(static_cast<yutovo::AutoResult*>(NULL), static_cast<yutovo::Element*>(NULL));
+    boost::serialization::void_cast_register<yutovo::SquareRoot, yutovo::Element>(static_cast<yutovo::SquareRoot*>(NULL), static_cast<yutovo::Element*>(NULL));
+}
+
+template<>
+void RegisterTypes(UserDataAdapter<DocumentUserData, boost::archive::binary_iarchive>& archive)
+{
+    RegisterTypes();
+
     archive.template register_type<yutovo::Text>();
     archive.template register_type<yutovo::Page>();
     archive.template register_type<yutovo::Paragraph>();
     archive.template register_type<yutovo::Row>();
     archive.template register_type<yutovo::String>();
     archive.template register_type<yutovo::StringElements>();
+
+    archive.template register_type<yutovo::CodeRow>();
+    archive.template register_type<yutovo::Code>();
+    archive.template register_type<yutovo::CodeString>();
+    archive.template register_type<yutovo::Shape>();
+    archive.template register_type<yutovo::Division>();
+    archive.template register_type<yutovo::Equation>();
+    archive.template register_type<yutovo::Minus>();
+    archive.template register_type<yutovo::Multiply>();
+    archive.template register_type<yutovo::NthRoot>();
+    archive.template register_type<yutovo::Plus>();
+    archive.template register_type<yutovo::Power>();
+    archive.template register_type<yutovo::AutoResult>();
+    archive.template register_type<yutovo::SquareRoot>();
 }
 
 template<>
 void RegisterTypes(boost::archive::binary_iarchive& archive)
 {
-    boost::serialization::void_cast_register<yutovo::Text, yutovo::Element>(static_cast<yutovo::Text*>(NULL), static_cast<yutovo::Element*>(NULL));
-    boost::serialization::void_cast_register<yutovo::Page, yutovo::Element>(static_cast<yutovo::Page*>(NULL), static_cast<yutovo::Element*>(NULL));
-    boost::serialization::void_cast_register<yutovo::Paragraph, yutovo::Element>(static_cast<yutovo::Paragraph*>(NULL), static_cast<yutovo::Element*>(NULL));
-    boost::serialization::void_cast_register<yutovo::Row, yutovo::Element>(static_cast<yutovo::Row*>(NULL), static_cast<yutovo::Element*>(NULL));
-    boost::serialization::void_cast_register<yutovo::String, yutovo::Element>(static_cast<yutovo::String*>(NULL), static_cast<yutovo::Element*>(NULL));
-    boost::serialization::void_cast_register<yutovo::StringElements, yutovo::Elements>(static_cast<yutovo::StringElements*>(NULL), static_cast<yutovo::Elements*>(NULL));
+    RegisterTypes();
 
     archive.template register_type<yutovo::Text>();
     archive.template register_type<yutovo::Page>();
@@ -153,17 +193,26 @@ void RegisterTypes(boost::archive::binary_iarchive& archive)
     archive.template register_type<yutovo::Row>();
     archive.template register_type<yutovo::String>();
     archive.template register_type<yutovo::StringElements>();
+
+    archive.template register_type<yutovo::CodeRow>();
+    archive.template register_type<yutovo::Code>();
+    archive.template register_type<yutovo::CodeString>();
+    archive.template register_type<yutovo::Shape>();
+    archive.template register_type<yutovo::Division>();
+    archive.template register_type<yutovo::Equation>();
+    archive.template register_type<yutovo::Minus>();
+    archive.template register_type<yutovo::Multiply>();
+    archive.template register_type<yutovo::NthRoot>();
+    archive.template register_type<yutovo::Plus>();
+    archive.template register_type<yutovo::Power>();
+    archive.template register_type<yutovo::AutoResult>();
+    archive.template register_type<yutovo::SquareRoot>();
 }
 
 template<>
 void RegisterTypes(boost::archive::binary_oarchive& archive)
 {
-    boost::serialization::void_cast_register<yutovo::Text, yutovo::Element>(static_cast<yutovo::Text*>(NULL), static_cast<yutovo::Element*>(NULL));
-    boost::serialization::void_cast_register<yutovo::Page, yutovo::Element>(static_cast<yutovo::Page*>(NULL), static_cast<yutovo::Element*>(NULL));
-    boost::serialization::void_cast_register<yutovo::Paragraph, yutovo::Element>(static_cast<yutovo::Paragraph*>(NULL), static_cast<yutovo::Element*>(NULL));
-    boost::serialization::void_cast_register<yutovo::Row, yutovo::Element>(static_cast<yutovo::Row*>(NULL), static_cast<yutovo::Element*>(NULL));
-    boost::serialization::void_cast_register<yutovo::String, yutovo::Element>(static_cast<yutovo::String*>(NULL), static_cast<yutovo::Element*>(NULL));
-    boost::serialization::void_cast_register<yutovo::StringElements, yutovo::Elements>(static_cast<yutovo::StringElements*>(NULL), static_cast<yutovo::Elements*>(NULL));
+    RegisterTypes();
 
     archive.template register_type<yutovo::Text>();
     archive.template register_type<yutovo::Page>();
@@ -171,6 +220,20 @@ void RegisterTypes(boost::archive::binary_oarchive& archive)
     archive.template register_type<yutovo::Row>();
     archive.template register_type<yutovo::String>();
     archive.template register_type<yutovo::StringElements>();
+
+    archive.template register_type<yutovo::CodeRow>();
+    archive.template register_type<yutovo::Code>();
+    archive.template register_type<yutovo::CodeString>();
+    archive.template register_type<yutovo::Shape>();
+    archive.template register_type<yutovo::Division>();
+    archive.template register_type<yutovo::Equation>();
+    archive.template register_type<yutovo::Minus>();
+    archive.template register_type<yutovo::Multiply>();
+    archive.template register_type<yutovo::NthRoot>();
+    archive.template register_type<yutovo::Plus>();
+    archive.template register_type<yutovo::Power>();
+    archive.template register_type<yutovo::AutoResult>();
+    archive.template register_type<yutovo::SquareRoot>();
 }
 
 }

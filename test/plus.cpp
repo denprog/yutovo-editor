@@ -343,4 +343,99 @@ TEST_F(FormulaTest, plus5)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 2})) << document.GetEditorState().ToString();
 }
 
+//Save/Load
+TEST_F(FormulaTest, plus6)
+{
+    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
+        {
+            return Rect{0, 0, 600, 400};
+        });
+
+    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::string& text, const StringFormatPtr format)
+        {
+            return GetTextSizeMock(text, format);
+        });
+
+    document.InsertText("123", true);
+    document.InsertCode(true);
+    document.InsertPlus(true);
+    document.WaitMainLoop();
+    document.Save("plus6_1.yut");
+
+    document.New();
+    document.WaitMainLoop();
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\"></span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 0)) << document.GetEditorState().ToString();
+
+    std::this_thread::sleep_for(200ms);
+    document.Load("plus6_1.yut");
+    document.WaitLoad();
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\">123</span>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mo>+</mo>"\
+                    "</mrow>"\
+                "</math>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 0)) << document.GetEditorState().ToString();
+
+    document.MoveCaretEnd(false);
+    document.MoveCaretLeft(false);
+    document.MoveCaretLeft(false);
+    document.WaitCaretMoving();
+    document.InsertText("5", true);
+    document.WaitMainLoop();
+    document.MoveCaretRight(false);
+    document.MoveCaretRight(false);
+    document.WaitCaretMoving();
+    document.InsertText("67", true);
+    document.WaitMainLoop();
+
+    document.Save("plus6_2.yut");
+
+    document.New();
+    document.WaitMainLoop();
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\"></span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 0)) << document.GetEditorState().ToString();
+
+    std::this_thread::sleep_for(200ms);
+    document.Load("plus6_2.yut");
+    document.WaitLoad();
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\">123</span>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mi>5</mi>"\
+                        "<mo>+</mo>"\
+                        "<mi>67</mi>"\
+                    "</mrow>"\
+                "</math>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 0)) << document.GetEditorState().ToString();
+}
+
 }

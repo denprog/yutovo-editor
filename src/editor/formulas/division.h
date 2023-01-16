@@ -3,6 +3,7 @@
 
 #include "formula.h"
 #include "middle_shape_formula.h"
+#include "code_row.h"
 
 namespace yutovo
 {
@@ -31,8 +32,49 @@ public:
 
     void AddNumerator(ElementPtr numerator);
     void AddDenomerator(ElementPtr denomerator);
+
+    template <class Archive>
+    void save(Archive& ar, const unsigned int version) const
+    {
+        ar << first;
+        ar << last;
+    }
+
+    template <class Archive>
+    void load(Archive& ar, const unsigned int version)
+    {
+        ar >> first;
+        elements->Replace(ElementPtr(first), 0);
+        ar >> last;
+        elements->Replace(ElementPtr(last), 2);
+    }
+
+	BOOST_SERIALIZATION_SPLIT_MEMBER()
 };
 
+}
+
+namespace boost
+{
+namespace serialization
+{
+
+template<class Archive>
+void save_construct_data(Archive& ar, const yutovo::Division* t, const unsigned int version)
+{
+    ar << t->parent;
+}
+
+template<class Archive>
+void load_construct_data(Archive& ar, yutovo::Division* t, const unsigned int version)
+{
+    yutovo::Element* p;
+    ar >> p;
+    yutovo::DocumentUserData& user_data = yutovo::GetUserData<yutovo::DocumentUserData>(ar);
+    ::new(t)yutovo::Division(p);
+}
+
+}
 }
 
 #endif

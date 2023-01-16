@@ -71,7 +71,6 @@ private:
 
     Document* document;
     Window* window;
-    ElementPtr text;
 
     Rect caret_rect;
 

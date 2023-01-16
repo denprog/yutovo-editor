@@ -1070,4 +1070,109 @@ TEST_F(FormulaTest, division10)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 1, 0})) << document.GetEditorState().ToString();
 }
 
+//Save/Load
+TEST_F(FormulaTest, division11)
+{
+    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
+        {
+            return Rect{0, 0, 600, 400};
+        });
+
+    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::string& text, const StringFormatPtr format)
+        {
+            return GetTextSizeMock(text, format);
+        });
+
+    document.InsertDivision(true);
+    document.InsertText("3", true);
+    document.WaitMainLoop();
+    document.MoveCaretDown(false);
+    document.MoveCaretDown(false);
+    document.WaitCaretMoving();
+    document.InsertText("2", true);
+    document.WaitMainLoop();
+    document.Save("division11_1.yut");
+
+    document.New();
+    document.WaitMainLoop();
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\"></span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 0)) << document.GetEditorState().ToString();
+
+    std::this_thread::sleep_for(200ms);
+    document.Load("division11_1.yut");
+    document.WaitLoad();
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mfrac>"\
+                            "<mrow>"\
+                                "<mi>3</mi>"\
+                            "</mrow>"\
+                            "<mrow>"\
+                                "<mi>2</mi>"\
+                            "</mrow>"\
+                        "</mfrac>"\
+                    "</mrow>"\
+                "</math>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0})) << document.GetEditorState().ToString();
+
+    document.InsertText("123", true);
+    document.WaitMainLoop();
+    document.MoveCaretEnd(false);
+    document.WaitCaretMoving();
+    document.InsertText("Text", true);
+    document.WaitMainLoop();
+    document.Save("division11_2.yut");
+
+    document.New();
+    document.WaitMainLoop();
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\"></span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 0)) << document.GetEditorState().ToString();
+
+    std::this_thread::sleep_for(200ms);
+    document.Load("division11_2.yut");
+    document.WaitLoad();
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\">123</span>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mfrac>"\
+                            "<mrow>"\
+                                "<mi>3</mi>"\
+                            "</mrow>"\
+                            "<mrow>"\
+                                "<mi>2</mi>"\
+                            "</mrow>"\
+                        "</mfrac>"\
+                    "</mrow>"\
+                "</math>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\">Text</span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0})) << document.GetEditorState().ToString();
+}
+
 }

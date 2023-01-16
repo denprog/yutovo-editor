@@ -32,11 +32,48 @@ public:
 
     virtual std::string ToHtml();
 
+    template <class Archive>
+    void save(Archive& ar, const unsigned int version) const
+    {
+        ar << (boost::serialization::base_object<CodeRow>(*this), elements);
+    }
+
+    template <class Archive>
+    void load(Archive& ar, const unsigned int version)
+    {
+        ar >> (boost::serialization::base_object<CodeRow>(*this), elements);
+    }
+
+	BOOST_SERIALIZATION_SPLIT_MEMBER()
+
 protected:
     FormulaFormatPtr code_format;
     FormulaFormatPtr formula_format;
 };
 
+}
+
+namespace boost
+{
+namespace serialization
+{
+
+template<class Archive>
+void save_construct_data(Archive& ar, const yutovo::Code* t, const unsigned int version)
+{
+    ar << t->parent;
+}
+
+template<class Archive>
+void load_construct_data(Archive& ar, yutovo::Code* t, const unsigned int version)
+{
+    yutovo::Element* p;
+    ar >> p;
+    yutovo::DocumentUserData& user_data = yutovo::GetUserData<yutovo::DocumentUserData>(ar);
+    ::new(t)yutovo::Code(p);
+}
+
+}
 }
 
 #endif

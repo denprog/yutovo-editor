@@ -30,12 +30,56 @@ public:
 
     virtual std::string ToHtml();
 
+    template <class Archive>
+    void save(Archive& ar, const unsigned int version) const
+    {
+        ar << format->id;
+        ar << (boost::serialization::base_object<String>(*this), elements);
+    }
+
+    template <class Archive>
+    void load(Archive& ar, const unsigned int version)
+    {
+        ar >> (boost::serialization::base_object<String>(*this), elements);
+    }
+
+	BOOST_SERIALIZATION_SPLIT_MEMBER()
+
 protected:
     const int empty_rect_width = 6;
 };
 
 typedef std::shared_ptr<CodeString> CodeStringPtr;
 
+}
+
+namespace boost
+{
+namespace serialization
+{
+
+template<class Archive>
+void save_construct_data(Archive& ar, const yutovo::CodeString* t, const unsigned int version)
+{
+    ar << t->parent;
+}
+
+template<class Archive>
+void load_construct_data(Archive& ar, yutovo::CodeString* t, const unsigned int version)
+{
+    yutovo::Element* p;
+    ar >> p;
+    uint format_id;
+    ar >> format_id;
+    yutovo::DocumentUserData& user_data = yutovo::GetUserData<yutovo::DocumentUserData>(ar);
+    auto f = user_data.document->GetStringFormat(format_id);
+    if (f)
+        ::new(t)yutovo::CodeString(p, "", f);
+    else
+        ::new(t)yutovo::CodeString(p);
+}
+
+}
 }
 
 #endif

@@ -22,6 +22,7 @@ struct Task
 
     ElementPtr text;
     Document* document;
+    Window* window;
     bool undo = false; //this is an undo task
     bool with_undo = false; //this task has (will have) undo
 

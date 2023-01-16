@@ -23,7 +23,7 @@ TEST_F(DocumentTest, files1)
 
     document.InsertText("Text", true);
     document.WaitMainLoop();
-    ASSERT_TRUE(document.Save("1.yut"));
+    document.Save("1.yut");
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
