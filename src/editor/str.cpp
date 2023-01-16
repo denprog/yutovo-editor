@@ -1,6 +1,7 @@
 #include "str.h"
 #include "document.h"
 #include <assert.h>
+#include <boost/locale.hpp>
 
 namespace yutovo
 {
@@ -514,20 +515,24 @@ void StringElements::Draw() const
     if (parent->document->selection.Has(parent->id, start, size))
     {
         //draw text with selection
+        std::u32string u_str = boost::locale::conv::utf_to_utf<char32_t>(str);
         Rect r1 = parent->GetAbsoluteRect(GetCaretRect(start));
         Rect r2 = parent->GetAbsoluteRect(GetCaretRect(start + size));
         parent->window->DrawFillRect(r1.left, r1.top, r2.left - r1.left, r2.GetBottom() - r1.top, Color::Blue());
 
         Rect r = parent->GetAbsoluteRect();
-        std::string s = str.substr(0, start);
+        std::u32string u_part = u_str.substr(0, start);
+        std::string s = boost::locale::conv::utf_to_utf<char>(u_part);
         parent->window->DrawText(s, format, r, format->color);
 
         int p = parent->window->GetCharPos(str, format, start);
-        s = str.substr(start, size);
+        u_part = u_str.substr(start, size);
+        s = boost::locale::conv::utf_to_utf<char>(u_part);
         parent->window->DrawText(s, format, Rect{r.left + p, r.top, r.width - p, r.height}, format->selection_color);
 
         p = parent->window->GetCharPos(str, format, start + size);
-        s = str.substr(start + size, str.length() - size);
+        u_part = u_str.substr(start + size, str.length() - size);
+        s = boost::locale::conv::utf_to_utf<char>(u_part);
         parent->window->DrawText(s, format, Rect{r.left + p, r.top, r.width - p, r.height}, format->color);
     }
     else
@@ -608,7 +613,9 @@ uint StringElements::Count() const
 
 Rect StringElements::GetCaretRect(const uint pos) const
 {
-    Size s = parent->window->GetTextSize(str.substr(0, pos), ((String*)parent)->format);
+    std::u32string u_part = boost::locale::conv::utf_to_utf<char32_t>(str).substr(0, pos);
+    std::string sub = boost::locale::conv::utf_to_utf<char>(u_part);
+    Size s = parent->window->GetTextSize(sub, ((String*)parent)->format);
     return Rect(s.width, 0, 1, s.height);
 }
 
