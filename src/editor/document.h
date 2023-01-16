@@ -195,6 +195,7 @@ private:
     friend class NewTask;
     friend class LoadTask;
     friend class RedrawTask;
+    friend class Caret;
 
     void UpdateCaretView();
     void UpdateLastSelection();

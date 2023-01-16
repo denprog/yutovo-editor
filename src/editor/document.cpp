@@ -52,7 +52,6 @@ void Document::Start()
 {
     caret.reset(new Caret(this));
     text.reset(new Text(this));
-    caret->text = text;
 
     caret->MoveToDocumentBegin(nullptr);
 

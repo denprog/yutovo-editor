@@ -187,6 +187,7 @@ public:
     virtual void RemoveAt(const uint pos, const int size);
     virtual void Move(const ElementPtr element, const uint pos);
     virtual void Move(const Elements& _elements, const uint pos);
+    virtual void Replace(ElementPtr element, const uint pos);
     virtual void Clear();
 
     virtual uint Count() const;

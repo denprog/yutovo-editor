@@ -28,11 +28,49 @@ public:
     virtual std::string ToHtml();
     virtual std::string ToText();
 
+    template <class Archive>
+    void save(Archive& ar, const unsigned int version) const
+    {
+        ar << last;
+    }
+
+    template <class Archive>
+    void load(Archive& ar, const unsigned int version)
+    {
+        ar >> last;
+        elements->Replace(ElementPtr(last), 1);
+    }
+
+	BOOST_SERIALIZATION_SPLIT_MEMBER()
+
 protected:
     Element *last;
     Shape *shape;
 };
 
+}
+
+namespace boost
+{
+namespace serialization
+{
+
+template<class Archive>
+void save_construct_data(Archive& ar, const yutovo::SquareRoot* t, const unsigned int version)
+{
+    ar << t->parent;
+}
+
+template<class Archive>
+void load_construct_data(Archive& ar, yutovo::SquareRoot* t, const unsigned int version)
+{
+    yutovo::Element* p;
+    ar >> p;
+    yutovo::DocumentUserData& user_data = yutovo::GetUserData<yutovo::DocumentUserData>(ar);
+    ::new(t)yutovo::SquareRoot(p);
+}
+
+}
 }
 
 #endif

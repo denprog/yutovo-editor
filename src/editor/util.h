@@ -187,6 +187,8 @@ UserData& GetUserData(Archive& ar)
     return dynamic_cast<UserDataAdapter<UserData, Archive>&>(ar).user_data;
 }
 
+void RegisterTypes();
+
 template<class Archive>
 void RegisterTypes(Archive& archive);
 

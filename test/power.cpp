@@ -490,4 +490,75 @@ TEST_F(FormulaTest, power5)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 2, 0, 1})) << document.GetEditorState().ToString();
 }
 
+//Save/Load
+TEST_F(FormulaTest, power6)
+{
+    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
+        {
+            return Rect{0, 0, 600, 400};
+        });
+
+    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::string& text, const StringFormatPtr format)
+        {
+            return GetTextSizeMock(text, format);
+        });
+
+    document.InsertCode(true);
+    document.InsertText("123", true);
+    document.WaitMainLoop();
+    document.MoveCaretLeft(false);
+    document.WaitCaretMoving();
+    document.InsertPower(true);
+    document.WaitMainLoop();
+    document.MoveCaretRight(false);
+    document.WaitCaretMoving();
+    document.InsertPower(true);
+    document.InsertText("5", true);
+    document.WaitMainLoop();
+    document.Save("power6_1.yut");
+
+    document.New();
+    document.WaitMainLoop();
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\"></span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 0)) << document.GetEditorState().ToString();
+
+    std::this_thread::sleep_for(100ms);
+    document.Load("power6_1.yut");
+    document.WaitLoad();
+    std::this_thread::sleep_for(100ms);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<msup>"\
+                            "<mrow>"\
+                                "<mi>12</mi>"\
+                            "</mrow>"\
+                            "<mrow>"\
+                                "<msup>"\
+                                    "<mrow>"\
+                                        "<mi>3</mi>"\
+                                    "</mrow>"\
+                                    "<mrow>"\
+                                        "<mi>5</mi>"\
+                                    "</mrow>"\
+                                "</msup>"\
+                            "</mrow>"\
+                        "</msup>"\
+                    "</mrow>"\
+                "</math>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0})) << document.GetEditorState().ToString();
+}
+
 }

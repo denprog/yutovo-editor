@@ -190,7 +190,7 @@ void Caret::Blink()
 void Caret::MoveToDocumentBegin(Selection* selection)
 {
     CaretState c;
-    if (text->GetFirstCaretState(c, selection))
+    if (document->text->GetFirstCaretState(c, selection))
     {
         SetState(c);
         UpdateXPos();
@@ -200,7 +200,7 @@ void Caret::MoveToDocumentBegin(Selection* selection)
 void Caret::MoveToDocumentEnd(Selection* selection)
 {
     CaretState c;
-    if (text->GetLastCaretState(c, selection))
+    if (document->text->GetLastCaretState(c, selection))
     {
         SetState(c);
         UpdateXPos();

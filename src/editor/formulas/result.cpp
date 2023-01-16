@@ -155,6 +155,14 @@ AutoResult::AutoResult(Element* parent) :
     type = ElementType::AUTO_RESULT;
 }
 
+AutoResult::AutoResult(Element* parent, uint _precision, AngleMeasure _angle_measure, Notation _notation) :
+    Element(parent),
+    precision(_precision),
+    angle_measure(_angle_measure),
+    notation(_notation)
+{
+}
+
 AutoResult::AutoResult(const AutoResult& source) :
     Element(source),
     precision(source.precision),

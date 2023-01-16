@@ -762,6 +762,12 @@ void Elements::Move(const Elements& _elements, const uint pos)
         Move(_elements.elements[0], pos + j++);
 }
 
+void Elements::Replace(ElementPtr element, const uint pos)
+{
+    RemoveAt(pos, 1);
+    Insert(element, pos);
+}
+
 void Elements::Clear()
 {
     elements.clear();

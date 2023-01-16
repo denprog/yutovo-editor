@@ -26,7 +26,7 @@ public:
     virtual bool GetRightCaretState(CaretState& caret_state, Selection* select);
 
 protected:
-    CodeRow *first, *last;
+    CodeRow *first = nullptr, *last = nullptr;
     Shape *shape;
 };
 
