@@ -30,9 +30,9 @@ public:
 
     void InsertPage(bool with_undo);
     void InsertParagraph(bool with_undo, bool undo = false);
-    void InsertText(const std::string& str, bool with_undo);
-    void InsertText(const std::string& str, const StringFormatPtr string_format, bool with_undo);
-    void InsertText(const std::string& str, const StringFormatPtr string_format, ElementId element_id);
+    void InsertString(const std::string& str, bool with_undo);
+    void InsertString(const std::string& str, const StringFormatPtr string_format, bool with_undo);
+    void InsertString(const std::string& str, const StringFormatPtr string_format, ElementId element_id);
 
     void InsertElement(Element* element, bool with_undo, bool undo = false, ElementId element_id = ElementId{});
     void InsertElement(Element* element, ElementId element_id = ElementId{});
@@ -129,13 +129,13 @@ public:
 
     bool WillRedraw(const ElementId& id, bool move_into_view);
 
-    void New();
+    uint New();
     uint Save(const std::string& filename);
     uint Load(const std::string& filename);
 
     void Copy(std::stringstream& out_array, std::string& out_text);
     void Paste(std::stringstream& in_array);
-    void Paste(const std::string& text);
+    void Paste(const std::string& str);
     void Cut(std::stringstream& out_array, std::string& out_text);
 
     std::string ToHtml();
@@ -174,6 +174,7 @@ public:
     void WaitCaretMoving();
     void WaitLoad();
     void WaitSolver();
+    void WaitTask(uint task_id);
 
 private:
     int last_task_id = -1;
@@ -187,6 +188,8 @@ private:
 
     int last_solver_task_id = -1;
     bool last_solver_executed = false;
+
+    std::vector<uint> last_tasks;
 #endif
 
 private:

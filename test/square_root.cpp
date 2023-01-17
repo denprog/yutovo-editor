@@ -63,7 +63,7 @@ TEST_F(FormulaTest, square_root1)
         document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 1, 0, 0})) << document.GetEditorState().ToString();
 
-    document.InsertText("2", true);
+    document.InsertString("2", true);
     document.WaitMainLoop();
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
@@ -97,7 +97,7 @@ TEST_F(FormulaTest, square_root2)
         });
 
     document.InsertSquareRoot(true);
-    document.InsertText("12", true);
+    document.InsertString("12", true);
     document.MoveCaretLeft(false);
     document.MoveCaretLeft(false);
     document.MoveCaretLeft(false);
@@ -168,9 +168,9 @@ TEST_F(FormulaTest, square_root3)
         });
 
     document.InsertSquareRoot(true);
-    document.InsertText("12", true);
+    document.InsertString("12", true);
     document.InsertPlus(true);
-    document.InsertText("3", true);
+    document.InsertString("3", true);
     document.WaitMainLoop();
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
@@ -265,13 +265,13 @@ TEST_F(FormulaTest, square_root4)
             return GetTextSizeMock(text, format);
         });
 
-    document.InsertText("Square root", true);
+    document.InsertString("Square root", true);
     document.InsertSquareRoot(true);
-    document.InsertText("12", true);
+    document.InsertString("12", true);
     document.InsertPlus(true);
-    document.InsertText("3", true);
+    document.InsertString("3", true);
     document.InsertSquareRoot(true);
-    document.InsertText("567", true);
+    document.InsertString("567", true);
     document.WaitMainLoop();
     document.Save("square_root4_1.yut");
 

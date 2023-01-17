@@ -21,7 +21,7 @@ TEST_F(DocumentTest, files1)
             return GetTextSizeMock(text, format);
         });
 
-    document.InsertText("Text", true);
+    document.InsertString("Text", true);
     document.WaitMainLoop();
     document.Save("1.yut");
     ASSERT_TRUE(document.ToHtml() == 
@@ -70,18 +70,18 @@ TEST_F(DocumentTest, files2)
             return GetTextSizeMock(text, format);
         });
 
-    document.InsertText("The source of ", true);
+    document.InsertString("The source of ", true);
     document.SetBold(true);
     document.SetFontFamily("Courier New");
-    document.InsertText("the text ", true);
+    document.InsertString("the text ", true);
     document.SetBold(false);
     document.SetItalic(true);
     document.SetFontFamily("Times New Roman");
     document.SetFontSize(14);
-    document.InsertText("itself ", true);
+    document.InsertString("itself ", true);
     document.SetFontSize(20);
     document.SetItalic(false);
-    document.InsertText("is a little mysterious.", true);
+    document.InsertString("is a little mysterious.", true);
     document.WaitMainLoop();
     std::this_thread::sleep_for(200ms);
     ASSERT_TRUE(document.ToHtml() == 
@@ -137,7 +137,7 @@ TEST_F(DocumentTest, files3)
             return GetTextSizeMock(text, format);
         });
 
-    document.InsertText("In literary theory, a text is any object that can be read, whether this object is a work of literature, "\
+    document.InsertString("In literary theory, a text is any object that can be read, whether this object is a work of literature, "\
         "a street sign, an arrangement of buildings on a city block, or styles of clothing.", true);
     document.WaitMainLoop();
     std::this_thread::sleep_for(100ms);
@@ -246,7 +246,7 @@ TEST_F(DocumentTest, files4)
             ASSERT_TRUE(result == IOResult::Success);
         });
 
-    document.InsertText("In literary theory, a text is any object that can be read, whether this object is a work of literature, "\
+    document.InsertString("In literary theory, a text is any object that can be read, whether this object is a work of literature, "\
         "a street sign, an arrangement of buildings on a city block, or styles of clothing.", true);
     document.MoveCaretToDocumentBegin(false);
     for (int i = 0; i < 20; ++i)

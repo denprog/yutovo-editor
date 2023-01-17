@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <memory>
+#include <sstream>
 #include "caret_state.h"
 #include "selection.h"
 #include "editor_state.h"

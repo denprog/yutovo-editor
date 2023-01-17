@@ -12,7 +12,8 @@ namespace yutovo
 class Paragraph : public Element
 {
 public:
-    Paragraph(Element* parent);
+    Paragraph(Element* _parent);
+    Paragraph(Document* _document);
 
     virtual Element* Clone();
 

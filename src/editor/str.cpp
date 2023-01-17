@@ -255,9 +255,9 @@ bool String::DeleteElements(bool left, bool with_undo)
     if (with_undo)
     {
         if ((left && caret_pos == 1) || (!left && caret_pos == 0 && elements->Count() == 0))
-            document->InsertText(undo_str, format, ElementId{});
+            document->InsertString(undo_str, format, ElementId{});
         else
-            document->InsertText(undo_str, format, elements->GetElementId(pos));
+            document->InsertString(undo_str, format, elements->GetElementId(pos));
         document->PushEditorState(CaretState(elements->GetElementId(pos)), true);
     }
 
