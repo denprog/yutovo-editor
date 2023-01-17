@@ -88,7 +88,7 @@ void DocumentWidget::keyPressEvent(QKeyEvent *event)
 void DocumentWidget::mousePressEvent(QMouseEvent *event)
 {
     if (event->buttons() == Qt::LeftButton)
-        document->MoveCaret((int)event->pos().x(), (int)event->pos().y());
+        document->MoveCaret((int)event->pos().x() + window.document_point.x, (int)event->pos().y() + window.document_point.y);
 }
 
 void DocumentWidget::mouseMoveEvent(QMouseEvent *event)
