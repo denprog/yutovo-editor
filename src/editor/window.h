@@ -63,8 +63,10 @@ public:
     virtual void OnCopyResult(CopyResult result);
     virtual void OnPasteResult(PasteResult result);
 
-protected:
+public:
     Point document_point;
+
+protected:
     bool draw_doc = false; //drawing inside the clipping regions
 };
 
