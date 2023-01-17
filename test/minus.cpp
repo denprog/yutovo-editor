@@ -119,7 +119,7 @@ TEST_F(FormulaTest, minus3)
             return GetTextSizeMock(text, format);
         });
 
-    document.InsertText("123", true);
+    document.InsertString("123", true);
     document.WaitMainLoop();
     document.MoveCaretHome(false);
     document.WaitCaretMoving();
@@ -160,12 +160,12 @@ TEST_F(FormulaTest, minus3)
 
     document.MoveCaretRight(false);
     document.WaitCaretMoving();
-    document.InsertText("5", true);
+    document.InsertString("5", true);
     document.WaitMainLoop();
     document.MoveCaretRight(false);
     document.MoveCaretRight(false);
     document.WaitCaretMoving();
-    document.InsertText("67", true);
+    document.InsertString("67", true);
     document.WaitMainLoop();
 
     document.Save("minus3_1.yut");

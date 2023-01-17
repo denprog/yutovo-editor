@@ -33,7 +33,7 @@ TEST_F(DocumentTest, clipboard1)
 
     std::stringstream clipboard_array;
     std::string clipboard_text;
-    document.InsertText("Text", true);
+    document.InsertString("Text", true);
     document.WaitMainLoop();
     document.MoveCaretHome(true);
     document.WaitCaretMoving();
@@ -98,18 +98,18 @@ TEST_F(DocumentTest, clipboard2)
 
     std::stringstream clipboard_array;
     std::string clipboard_text;
-    document.InsertText("The source of ", true);
+    document.InsertString("The source of ", true);
     document.SetBold(true);
     document.SetFontFamily("Courier New");
-    document.InsertText("the text ", true);
+    document.InsertString("the text ", true);
     document.SetBold(false);
     document.SetItalic(true);
     document.SetFontFamily("Times New Roman");
     document.SetFontSize(14);
-    document.InsertText("itself ", true);
+    document.InsertString("itself ", true);
     document.SetFontSize(20);
     document.SetItalic(false);
-    document.InsertText("is a little mysterious.", true);
+    document.InsertString("is a little mysterious.", true);
     document.WaitMainLoop();
     std::this_thread::sleep_for(200ms);
     ASSERT_TRUE(document.ToHtml() == 
@@ -182,7 +182,7 @@ TEST_F(DocumentTest, clipboard3)
 
     std::stringstream clipboard_array;
     std::string clipboard_text;
-    document.InsertText("The source of the text itself is a little ", true);
+    document.InsertString("The source of the text itself is a little ", true);
     document.WaitMainLoop();
     document.MoveCaretHome(true);
     document.WaitCaretMoving();
@@ -221,7 +221,7 @@ TEST_F(DocumentTest, clipboard4)
 
     std::stringstream clipboard_array;
     std::string clipboard_text;
-    document.InsertText("The source of the text itself is a little strange", true);
+    document.InsertString("The source of the text itself is a little strange", true);
     document.WaitMainLoop();
     document.MoveCaretWordLeft(true);
     document.Cut(clipboard_array, clipboard_text);
@@ -301,6 +301,232 @@ TEST_F(DocumentTest, clipboard5)
     document.WaitRedo();
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToText() == "The <mrow> MathML element is used to group sub-expressions") << document.ToText();
+}
+
+//Paste with paragraph
+TEST_F(DocumentTest, clipboard6)
+{
+    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
+        {
+            return Rect{0, 0, 400, 400};
+        });
+
+    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::string& text, const StringFormatPtr format)
+        {
+            return GetTextSizeMock(text, format);
+        });
+
+    EXPECT_CALL(window_mock, OnPasteResult).WillRepeatedly([&](PasteResult result)
+        {
+            ASSERT_TRUE(result == PasteResult::Success);
+        });
+
+    document.Paste("Tradicionalmente, el medio de un documento era el papel y la información era ingresada a mano.\r\n"\
+        "Desde el punto de vista de la informática, es un archivo.");
+    document.WaitMainLoop();
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\">Tradicionalmente, el medio </span>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\">de un documento era el </span>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\">papel y la información era </span>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\">ingresada a mano.</span>"\
+            "</p>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\">Desde el punto de vista de </span>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\">la informática, es un archivo.</span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(1, 1, 0, 31)) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.New());
+    std::this_thread::sleep_for(200ms);
+    document.Paste("Tradicionalmente, el medio de un documento era el papel y la información era ingresada a mano.\n"\
+        "Desde el punto de vista de la informática, es un archivo.");
+    document.WaitMainLoop();
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\">Tradicionalmente, el medio </span>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\">de un documento era el </span>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\">papel y la información era </span>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\">ingresada a mano.</span>"\
+            "</p>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\">Desde el punto de vista de </span>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\">la informática, es un archivo.</span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(1, 1, 0, 31)) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    std::this_thread::sleep_for(100ms);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\"></span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0, 0})) << document.GetEditorState().ToString();
+
+    document.Redo();
+    document.WaitRedo();
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\">Tradicionalmente, el medio </span>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\">de un documento era el </span>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\">papel y la información era </span>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\">ingresada a mano.</span>"\
+            "</p>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\">Desde el punto de vista de </span>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\">la informática, es un archivo.</span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(1, 1, 0, 31)) << document.GetEditorState().ToString();
+}
+
+//Paste with paragraph
+TEST_F(DocumentTest, clipboard7)
+{
+    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
+        {
+            return Rect{0, 0, 400, 400};
+        });
+
+    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::string& text, const StringFormatPtr format)
+        {
+            return GetTextSizeMock(text, format);
+        });
+
+    EXPECT_CALL(window_mock, OnPasteResult).WillRepeatedly([&](PasteResult result)
+        {
+            ASSERT_TRUE(result == PasteResult::Success);
+        });
+
+    document.Paste("Paragraph1.\r\n"\
+        "Paragraph2");
+    document.WaitMainLoop();
+    std::this_thread::sleep_for(100ms);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\">Paragraph1.</span>"\
+            "</p>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\">Paragraph2</span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(1, 0, 0, 10)) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.New());
+    std::this_thread::sleep_for(100ms);
+
+    document.Paste("Paragraph1.\r\n"\
+        "Paragraph2.\r\n"\
+        "Paragraph3");
+    document.WaitMainLoop();
+    std::this_thread::sleep_for(100ms);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\">Paragraph1.</span>"\
+            "</p>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\">Paragraph2.</span>"\
+            "</p>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\">Paragraph3</span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(2, 0, 0, 10)) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.New());
+    std::this_thread::sleep_for(100ms);
+
+    document.Paste("Paragraph1.\n"\
+        "Paragraph2.\n"\
+        "Paragraph3");
+    document.WaitMainLoop();
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\">Paragraph1.</span>"\
+            "</p>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\">Paragraph2.</span>"\
+            "</p>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\">Paragraph3</span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(2, 0, 0, 10)) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.New());
+    std::this_thread::sleep_for(100ms);
+
+    document.Paste("Paragraph1.\n"\
+        "\n"\
+        "Paragraph3");
+    document.WaitMainLoop();
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\">Paragraph1.</span>"\
+            "</p>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\"></span>"\
+            "</p>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\">Paragraph3</span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(2, 0, 0, 10)) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    std::this_thread::sleep_for(100ms);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\"></span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0, 0})) << document.GetEditorState().ToString();
+
+    document.Redo();
+    document.WaitRedo();
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\">Paragraph1.</span>"\
+            "</p>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\"></span>"\
+            "</p>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\">Paragraph3</span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(2, 0, 0, 10)) << document.GetEditorState().ToString();
 }
 
 }

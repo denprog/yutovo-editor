@@ -80,7 +80,7 @@ TEST_F(FormulaTest, multiply2)
             return GetTextSizeMock(text, format);
         });
 
-    document.InsertText("123", true);
+    document.InsertString("123", true);
     document.WaitMainLoop();
     document.MoveCaretLeft(false);
     document.WaitCaretMoving();
@@ -123,12 +123,12 @@ TEST_F(FormulaTest, multiply2)
     for (int i = 0; i < 4; ++i)
         document.MoveCaretRight(false);
     document.WaitCaretMoving();
-    document.InsertText("56", true);
+    document.InsertString("56", true);
     document.WaitMainLoop();
     document.MoveCaretRight(false);
     document.MoveCaretRight(false);
     document.WaitCaretMoving();
-    document.InsertText("67", true);
+    document.InsertString("67", true);
     document.WaitMainLoop();
 
     document.Save("multiply2_2.yut");

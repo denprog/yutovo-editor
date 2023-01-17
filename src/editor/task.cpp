@@ -15,6 +15,7 @@
 #include <boost/serialization/shared_ptr.hpp>
 #include <sstream>
 #include <vector>
+#include <boost/locale.hpp>
 
 namespace yutovo
 {
@@ -128,20 +129,61 @@ bool InsertElementsTask::Execute()
             _elements.emplace_back(c);
             continue;
         }
+        if (t->type == ElementType::STRING)
+        {
+            //divide string by paragraphs
+            std::string str = t->ToText();
+            std::u32string u_str = boost::locale::conv::utf_to_utf<char32_t>(str);
+            if (u_str.size() > 0)
+            {
+                size_t p1 = 0, p2 = 0, k = 0;
+                while (p2 < u_str.size())
+                {
+                    p2 = u_str.find(U"\r\n", p1);
+                    if (p2 == std::string::npos)
+                    {
+                        p2 = u_str.find(U"\n", p1);
+                        if (p2 == std::string::npos)
+                            p2 = u_str.size();
+                        else
+                            k = 1;
+                    }
+                    else
+                        k = 2;
+                    std::u32string u_part = u_str.substr(p1, p2 - p1);
+                    std::string s = boost::locale::conv::utf_to_utf<char>(u_part);
+                    _elements.emplace_back(new String(document, s, t->GetStringFormat()));
+                    if (p2 < u_str.size())
+                    {
+                        _elements.emplace_back(new Paragraph(document));
+                        p2 += k;
+                        p1 = p2;
+                    }
+                }
+                continue;
+            }
+        }
         _elements.push_back(t);
     }
 
-    if (el->InsertElements(_elements, with_undo))
+    for (auto& _el : _elements)
     {
+        std::vector<ElementPtr> t{_el};
+        if (!el->InsertElements(t, with_undo))
+        {
+            if (with_undo)
+                document->RollbackUndo();
+            return false;
+        }
+        
+        el = document->GetParent(document->caret->GetElement()->id);
+
         if (with_undo)
             document->PushEditorState(true);
         document->Remake(el->parent->id, true, with_undo, false);
         document->Redraw(el->parent->id, true); //move into view
-        return true;
     }
-    if (with_undo)
-        document->RollbackUndo();
-    return false;
+    return true;
 }
 
 //DeleteElementsTask
@@ -687,10 +729,11 @@ NewTask::NewTask(ElementPtr _text) :
 
 bool NewTask::Execute()
 {
+    document->caret->MoveToDocumentBegin(nullptr);
     document->ResetTasks();
     document->text.reset(new Text(text->document));
     document->Remake(text->id, true, false, false);
-    document->MoveCaretToDocumentBegin(false);
+    document->caret->MoveToDocumentBegin(nullptr);
     return true;
 }
 

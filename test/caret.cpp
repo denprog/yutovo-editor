@@ -20,7 +20,7 @@ TEST_F(DocumentTest, caret1)
             return GetTextSizeMock(text, format);
         });
 
-    document.InsertText("Text", true);
+    document.InsertString("Text", true);
     document.WaitMainLoop();
     ASSERT_TRUE(document.ToText() == "Text") << document.ToText();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 4)) << document.GetEditorState().ToString();
@@ -51,7 +51,7 @@ TEST_F(DocumentTest, caret1)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 0, 0, 3)) << document.GetEditorState().ToString();
 
     document.MoveCaretEnd(false);
-    document.InsertText(" Word2", true);
+    document.InsertString(" Word2", true);
     document.MoveCaretWordLeft(false);
     document.WaitCaretMoving();
     document.WaitMainLoop();
@@ -69,9 +69,9 @@ TEST_F(DocumentTest, caret1)
     document.WaitCaretMoving();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 10)) << document.GetEditorState().ToString();
 
-    document.InsertText(" Word3", true);
-    document.InsertText("Bold", document.GetStringFormat("Times New Roman", 34, true, false, false), true);
-    document.InsertText("Italic", document.GetStringFormat("Courier", 24, false, true, false), true);
+    document.InsertString(" Word3", true);
+    document.InsertString("Bold", document.GetStringFormat("Times New Roman", 34, true, false, false), true);
+    document.InsertString("Italic", document.GetStringFormat("Courier", 24, false, true, false), true);
     document.WaitMainLoop();
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 2, 6)) << document.GetEditorState().ToString();
@@ -192,7 +192,7 @@ TEST_F(DocumentTest, caret2)
             return GetTextSizeMock(text, format);
         });
 
-    document.InsertText("The source of the text itself is a little mysterious.", true);
+    document.InsertString("The source of the text itself is a little mysterious.", true);
     document.WaitMainLoop();
     std::this_thread::sleep_for(400ms);
     ASSERT_TRUE(document.ToHtml() == 
@@ -256,7 +256,7 @@ TEST_F(DocumentTest, caret3)
             return GetTextSizeMock(text, format);
         });
 
-    document.InsertText("The source of the text itself is a little mysterious.", true);
+    document.InsertString("The source of the text itself is a little mysterious.", true);
     document.MoveCaretWordLeft(false);
     document.InsertParagraph(true);
     document.WaitMainLoop();
@@ -299,9 +299,9 @@ TEST_F(DocumentTest, caret4)
             return GetTextSizeMock(text, format);
         });
 
-    document.InsertText("Text Word2 Word3 ", true);
-    document.InsertText("Bold", document.GetStringFormat("Times New Roman", 34, true, false, false), true);
-    document.InsertText("Italic", document.GetStringFormat("Courier", 24, false, true, false), true);
+    document.InsertString("Text Word2 Word3 ", true);
+    document.InsertString("Bold", document.GetStringFormat("Times New Roman", 34, true, false, false), true);
+    document.InsertString("Italic", document.GetStringFormat("Courier", 24, false, true, false), true);
     document.WaitMainLoop();
     document.MoveCaretToDocumentBegin(false);
     document.MoveCaretWordRight(false);
@@ -326,10 +326,10 @@ TEST_F(DocumentTest, caret5)
             return GetTextSizeMock(text, format);
         });
     
-    document.InsertText("Text", document.GetStringFormat("Arial", 22, false, false, false), true);
-    document.InsertText("Italic", document.GetStringFormat("Times New Roman", 18, false, true, false), true);
-    document.InsertText("Bold", document.GetStringFormat("Times New Roman", 34, true, false, false), true);
-    document.InsertText("String1 String2 String3", document.GetStringFormat("Arial", 20, false, false, false), true);
+    document.InsertString("Text", document.GetStringFormat("Arial", 22, false, false, false), true);
+    document.InsertString("Italic", document.GetStringFormat("Times New Roman", 18, false, true, false), true);
+    document.InsertString("Bold", document.GetStringFormat("Times New Roman", 34, true, false, false), true);
+    document.InsertString("String1 String2 String3", document.GetStringFormat("Arial", 20, false, false, false), true);
     document.MoveCaretWordLeft(false);
     document.MoveCaretWordLeft(false);
     document.MoveCaretWordLeft(true);

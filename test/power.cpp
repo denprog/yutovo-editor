@@ -69,7 +69,7 @@ TEST_F(FormulaTest, power1)
         document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 0, 0})) << document.GetEditorState().ToString();
 
-    document.InsertText("2", true);
+    document.InsertString("2", true);
     document.WaitMainLoop();
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
@@ -95,7 +95,7 @@ TEST_F(FormulaTest, power1)
     document.MoveCaretRight(false);
     document.MoveCaretRight(false);
     document.WaitCaretMoving();
-    document.InsertText("3", true);
+    document.InsertString("3", true);
     document.WaitMainLoop();
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
@@ -132,7 +132,7 @@ TEST_F(FormulaTest, power2)
         });
 
     document.InsertCode(true);
-    document.InsertText("123", true);
+    document.InsertString("123", true);
     document.InsertPower(true);
     document.WaitMainLoop();
     std::this_thread::sleep_for(100ms);
@@ -207,9 +207,9 @@ TEST_F(FormulaTest, power3)
         });
 
     document.InsertCode(true);
-    document.InsertText("123", true);
+    document.InsertString("123", true);
     document.InsertPower(true);
-    document.InsertText("5", true);
+    document.InsertString("5", true);
     document.WaitMainLoop();
     document.MoveCaretLeft(false);
     document.MoveCaretLeft(false);
@@ -281,7 +281,7 @@ TEST_F(FormulaTest, power4)
         });
 
     document.InsertCode(true);
-    document.InsertText("123", true);
+    document.InsertString("123", true);
     document.WaitMainLoop();
     document.MoveCaretLeft(false);
     document.WaitCaretMoving();
@@ -337,7 +337,7 @@ TEST_F(FormulaTest, power5)
         });
 
     document.InsertCode(true);
-    document.InsertText("123", true);
+    document.InsertString("123", true);
     document.WaitMainLoop();
     document.MoveCaretLeft(false);
     document.WaitCaretMoving();
@@ -346,7 +346,7 @@ TEST_F(FormulaTest, power5)
     document.MoveCaretRight(false);
     document.WaitCaretMoving();
     document.InsertPower(true);
-    document.InsertText("5", true);
+    document.InsertString("5", true);
     document.WaitMainLoop();
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
@@ -504,7 +504,7 @@ TEST_F(FormulaTest, power6)
         });
 
     document.InsertCode(true);
-    document.InsertText("123", true);
+    document.InsertString("123", true);
     document.WaitMainLoop();
     document.MoveCaretLeft(false);
     document.WaitCaretMoving();
@@ -513,7 +513,7 @@ TEST_F(FormulaTest, power6)
     document.MoveCaretRight(false);
     document.WaitCaretMoving();
     document.InsertPower(true);
-    document.InsertText("5", true);
+    document.InsertString("5", true);
     document.WaitMainLoop();
     document.Save("power6_1.yut");
 

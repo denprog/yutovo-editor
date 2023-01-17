@@ -69,7 +69,7 @@ TEST_F(FormulaTest, nth_root1)
         document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 0, 0})) << document.GetEditorState().ToString();
 
-    document.InsertText("2", true);
+    document.InsertString("2", true);
     document.WaitMainLoop();
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
@@ -95,7 +95,7 @@ TEST_F(FormulaTest, nth_root1)
     document.MoveCaretRight(false);
     document.MoveCaretRight(false);
     document.WaitCaretMoving();
-    document.InsertText("3", true);
+    document.InsertString("3", true);
     document.WaitMainLoop();
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
@@ -132,10 +132,10 @@ TEST_F(FormulaTest, nth_root2)
         });
 
     document.InsertNthRoot(true);
-    document.InsertText("3", true);
+    document.InsertString("3", true);
     document.MoveCaretRight(false);
     document.MoveCaretRight(false);
-    document.InsertText("12", true);
+    document.InsertString("12", true);
     document.MoveCaretLeft(false);
     document.MoveCaretLeft(false);
     document.MoveCaretLeft(false);
@@ -182,7 +182,7 @@ TEST_F(FormulaTest, nth_root2)
     for (int i = 0; i < 3; ++i)
         document.MoveCaretLeft(false);
     document.WaitCaretMoving();
-    document.InsertText("5", true);
+    document.InsertString("5", true);
     document.WaitMainLoop();
     for (int i = 0; i < 4; ++i)
         document.MoveCaretRight(false);
@@ -269,7 +269,7 @@ TEST_F(FormulaTest, nth_root2)
 
     document.MoveCaretEnd(false);
     document.WaitCaretMoving();
-    document.InsertText("7", true);
+    document.InsertString("7", true);
     document.WaitMainLoop();
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
@@ -309,21 +309,21 @@ TEST_F(FormulaTest, nth_root3)
         });
 
     document.InsertNthRoot(true);
-    document.InsertText("3", true);
+    document.InsertString("3", true);
     document.InsertPlus(true);
-    document.InsertText("1.4", true);
+    document.InsertString("1.4", true);
     document.WaitMainLoop();
     document.MoveCaretRight(false);
     document.MoveCaretRight(false);
     document.WaitCaretMoving();
-    document.InsertText("2", true);
+    document.InsertString("2", true);
     document.InsertMultiply(true);
     document.InsertDivision(true);
-    document.InsertText("5", true);
+    document.InsertString("5", true);
     document.WaitMainLoop();
     document.MoveCaretDown(false);
     document.MoveCaretDown(false);
-    document.InsertText("67", true);
+    document.InsertString("67", true);
     document.Save("nth_root3_1.yut");
 
     document.New();

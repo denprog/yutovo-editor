@@ -17,6 +17,15 @@ Paragraph::Paragraph(Element* parent) :
     AddElement(ElementPtr(new Row(this))); //paragraph has to have at least one row
 }
 
+Paragraph::Paragraph(Document* _document) :
+    Element(_document)
+{
+    type = ElementType::PARAGRAPH;
+
+    document->GetCurrentParagraphFormat(format);
+    AddElement(ElementPtr(new Row(this))); //paragraph has to have at least one row
+}
+
 Element* Paragraph::Clone()
 {
     return new Paragraph(*this);

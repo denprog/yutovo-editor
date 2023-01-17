@@ -22,12 +22,12 @@ TEST_F(SolverRationalTest, rational1)
     
     document.InsertCode(true);
     document.InsertDivision(true);
-    document.InsertText("1", true);
+    document.InsertString("1", true);
     document.WaitMainLoop();
     document.MoveCaretDown(false);
     document.MoveCaretDown(false);
     document.WaitCaretMoving();
-    document.InsertText("2", true);
+    document.InsertString("2", true);
     document.WaitMainLoop();
     document.MoveCaretRight(false);
     document.WaitCaretMoving();

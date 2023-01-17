@@ -40,7 +40,7 @@ TEST_F(CodeTest, code1)
         document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0})) << document.GetEditorState().ToString();
 
-    document.InsertText("m", true);
+    document.InsertString("m", true);
     document.WaitMainLoop();
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
@@ -102,7 +102,7 @@ TEST_F(CodeTest, code1)
     for (int i = 0; i < 3; ++i)
         document.MoveCaretLeft(false);
     document.WaitCaretMoving();
-    document.InsertText("Text", true);
+    document.InsertString("Text", true);
     document.WaitMainLoop();
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
@@ -122,7 +122,7 @@ TEST_F(CodeTest, code1)
     for (int i = 0; i < 4; ++i)
         document.MoveCaretRight(false);
     document.WaitCaretMoving();
-    document.InsertText("Normal", true);
+    document.InsertString("Normal", true);
     document.WaitMainLoop();
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
@@ -153,7 +153,7 @@ TEST_F(CodeTest, code2)
             return GetTextSizeMock(text, format);
         });
 
-    document.InsertText("Text", true);
+    document.InsertString("Text", true);
     document.InsertCode(true);
     document.WaitMainLoop();
     std::this_thread::sleep_for(100ms);
@@ -585,7 +585,7 @@ TEST_F(CodeTest, code7)
     document.WaitMainLoop();
     document.MoveCaretRight(false);
     document.WaitCaretMoving();
-    document.InsertText("The source of the text itself is a little mysterious.", true);
+    document.InsertString("The source of the text itself is a little mysterious.", true);
     document.WaitMainLoop();
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
@@ -746,7 +746,7 @@ TEST_F(CodeTest, code8)
 
     document.MoveCaretRight(false);
     document.WaitCaretMoving();
-    document.InsertText("Text", true);
+    document.InsertString("Text", true);
     document.InsertCode(true);
     document.MoveCaretRight(false);
     document.WaitCaretMoving();

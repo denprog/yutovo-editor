@@ -21,7 +21,7 @@ TEST_F(FormulaTest, delete1)
         });
 
     document.InsertCode(true);
-    document.InsertText("123", true);
+    document.InsertString("123", true);
     document.InsertPlus(true);
     document.WaitMainLoop();
     document.DeleteElements(true, true, false);

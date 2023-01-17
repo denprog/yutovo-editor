@@ -200,6 +200,11 @@ void Document::MainLoop()
                     last_load_executed = true;
                 if (last_solver_task_id == t->id)
                     last_solver_executed = true;
+                
+                std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
+                if (last_tasks.size() > 1000)
+                    last_tasks.clear();
+                last_tasks.push_back(t->id);
 #endif
             }
         }
@@ -213,23 +218,22 @@ void Document::InsertPage(bool with_undo)
 
 void Document::InsertParagraph(bool with_undo, bool undo)
 {
-    auto page = FindParent(caret->GetCaretState().id, ElementType::PAGE);
-    InsertElement(new Paragraph(page.get()), with_undo, undo);
+    InsertElement(new Paragraph(this), with_undo, undo);
 }
 
-void Document::InsertText(const std::string& str, bool with_undo)
+void Document::InsertString(const std::string& str, bool with_undo)
 {
     StringFormatPtr format;
     if (GetCurrentStringFormat(format))
         InsertElement(new String(this, str, format), with_undo);
 }
 
-void Document::InsertText(const std::string& str, const StringFormatPtr string_format, bool with_undo)
+void Document::InsertString(const std::string& str, const StringFormatPtr string_format, bool with_undo)
 {
     InsertElement(new String(this, str, string_format), with_undo);
 }
 
-void Document::InsertText(const std::string& str, const StringFormatPtr string_format, ElementId element_id)
+void Document::InsertString(const std::string& str, const StringFormatPtr string_format, ElementId element_id)
 {
     InsertElement(new String(this, str, string_format), element_id);
 }
@@ -984,13 +988,14 @@ bool Document::WillRedraw(const ElementId& id, bool move_into_view)
     return false;
 }
 
-void Document::New()
+uint Document::New()
 {
     std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
     tasks.emplace_back(new NewTask(text));
 #ifdef DEBUG
     last_task_id = tasks[tasks.size() - 1]->id;
 #endif
+    return tasks[tasks.size() - 1]->id;
 }
 
 uint Document::Save(const std::string& filename)
@@ -1044,15 +1049,15 @@ void Document::Paste(std::stringstream& in_array)
     window->OnPasteResult(PasteResult::Success);
 }
 
-void Document::Paste(const std::string& text)
+void Document::Paste(const std::string& str)
 {
-    if (text.empty())
+    if (str.empty())
     {
         window->OnPasteResult(PasteResult::EmptyBuffer);
         return;
     }
 
-    InsertText(text, true);
+    InsertString(str, true);
     window->OnPasteResult(PasteResult::Success);
 }
 
@@ -1187,6 +1192,19 @@ void Document::WaitSolver()
     std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
     last_solver_task_id = 0;
     last_solver_executed = false;
+}
+
+void Document::WaitTask(uint task_id)
+{
+    while (true)
+    {
+        std::this_thread::sleep_for(100ms);
+
+        std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
+        if (std::find(last_tasks.begin(), last_tasks.end(), task_id) != last_tasks.end())
+            return;
+        last_tasks.clear();
+    }
 }
 #endif
 

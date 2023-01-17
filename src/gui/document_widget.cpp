@@ -29,7 +29,7 @@ DocumentPtr DocumentWidget::CreateDocument()
 
 void DocumentWidget::InsertText(const std::string& str, const StringFormatPtr string_format)
 {
-    document->InsertText(str, string_format, true);
+    document->InsertString(str, string_format, true);
 }
 
 bool DocumentWidget::GetElementAtCoords(const int x, const int y, ElementId& id)
@@ -82,7 +82,7 @@ void DocumentWidget::keyPressEvent(QKeyEvent *event)
             return;
     }
     if (!str.isEmpty())
-        document->InsertText(str.toUtf8().data(), true);
+        document->InsertString(str.toUtf8().data(), true);
 }
 
 void DocumentWidget::mousePressEvent(QMouseEvent *event)

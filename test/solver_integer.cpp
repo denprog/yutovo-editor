@@ -21,9 +21,9 @@ TEST_F(SolverIntegerTest, solver1)
         });
     
     document.InsertCode(true);
-    document.InsertText("2345", true);
+    document.InsertString("2345", true);
     document.InsertPlus(true);
-    document.InsertText("35", true);
+    document.InsertString("35", true);
     document.InsertEquation(ResultType::INTEGER, true);
     document.WaitMainLoop();
     document.WaitSolver();
@@ -84,9 +84,9 @@ TEST_F(SolverIntegerTest, solver2)
     
     document.InsertCode(true);
     document.InsertMinus(true);
-    document.InsertText("23", true);
+    document.InsertString("23", true);
     document.InsertMultiply(true);
-    document.InsertText("355", true);
+    document.InsertString("355", true);
     document.InsertEquation(ResultType::INTEGER, true);
     document.WaitMainLoop();
     document.WaitSolver();

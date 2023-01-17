@@ -21,7 +21,7 @@ TEST_F(SolverAutoTest, solver1)
         });
     
     document.InsertCode(true);
-    document.InsertText("1", true);
+    document.InsertString("1", true);
     document.InsertEquation(ResultType::AUTO, true);
     document.WaitMainLoop();
     document.WaitSolver();
@@ -102,9 +102,9 @@ TEST_F(SolverAutoTest, solver2)
         });
     
     document.InsertCode(true);
-    document.InsertText("2", true);
+    document.InsertString("2", true);
     document.InsertPlus(true);
-    document.InsertText("3", true);
+    document.InsertString("3", true);
     document.InsertEquation(ResultType::AUTO, true);
     document.WaitMainLoop();
     document.WaitSolver();
@@ -191,9 +191,9 @@ TEST_F(SolverAutoTest, solver3)
         });
     
     document.InsertCode(true);
-    document.InsertText("2", true);
+    document.InsertString("2", true);
     document.InsertPlus(true);
-    document.InsertText("3", true);
+    document.InsertString("3", true);
     document.InsertEquation(ResultType::AUTO, true);
     document.WaitMainLoop();
     document.WaitSolver();

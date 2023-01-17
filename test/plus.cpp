@@ -80,9 +80,9 @@ TEST_F(FormulaTest, plus2)
         });
 
     document.InsertCode(true);
-    document.InsertText("123", true);
+    document.InsertString("123", true);
     document.InsertPlus(true);
-    document.InsertText("45", true);
+    document.InsertString("45", true);
     document.WaitMainLoop();
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
@@ -194,11 +194,11 @@ TEST_F(FormulaTest, plus4)
         });
 
     document.InsertCode(true);
-    document.InsertText("123", true);
+    document.InsertString("123", true);
     document.InsertPlus(true);
-    document.InsertText("45", true);
+    document.InsertString("45", true);
     document.InsertPlus(true);
-    document.InsertText("3456", true);
+    document.InsertString("3456", true);
     document.WaitMainLoop();
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
@@ -306,7 +306,7 @@ TEST_F(FormulaTest, plus5)
         });
 
     document.InsertCode(true);
-    document.InsertText("123", true);
+    document.InsertString("123", true);
     document.WaitMainLoop();
     document.MoveCaretLeft(false);
     document.WaitCaretMoving();
@@ -356,7 +356,7 @@ TEST_F(FormulaTest, plus6)
             return GetTextSizeMock(text, format);
         });
 
-    document.InsertText("123", true);
+    document.InsertString("123", true);
     document.InsertCode(true);
     document.InsertPlus(true);
     document.WaitMainLoop();
@@ -396,12 +396,12 @@ TEST_F(FormulaTest, plus6)
     document.MoveCaretLeft(false);
     document.MoveCaretLeft(false);
     document.WaitCaretMoving();
-    document.InsertText("5", true);
+    document.InsertString("5", true);
     document.WaitMainLoop();
     document.MoveCaretRight(false);
     document.MoveCaretRight(false);
     document.WaitCaretMoving();
-    document.InsertText("67", true);
+    document.InsertString("67", true);
     document.WaitMainLoop();
 
     document.Save("plus6_2.yut");
