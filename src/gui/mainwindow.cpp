@@ -5,6 +5,7 @@
 #include <QMessageBox>
 #include <QClipboard>
 #include <QMimeData>
+#include <QScrollBar>
 #include "editor/util.h"
 
 //MainWindow
@@ -37,12 +38,26 @@ MainWindow::~MainWindow()
 void MainWindow::SetupGui()
 {
     document_widget->setObjectName(QStringLiteral("document_widget"));
-    ui->verticalLayout->addWidget(document_widget);
+
+    vertical_scroll = new QScrollBar(Qt::Vertical);
+    horizontal_scroll = new QScrollBar(Qt::Horizontal);
+    ui->gridLayout->addWidget(document_widget, 0, 0);
+    ui->gridLayout->addWidget(vertical_scroll, 0, 1);
+    ui->gridLayout->addWidget(horizontal_scroll, 1, 0);
+
+    connect(vertical_scroll, &QAbstractSlider::valueChanged, this, &MainWindow::OnVerticalValueChanged);
+    connect(horizontal_scroll, &QAbstractSlider::valueChanged, this, &MainWindow::OnHorizontalValueChanged);
+    vertical_scroll->setMinimum(0);
+    vertical_scroll->setSingleStep(10);
+    horizontal_scroll->setMinimum(0);
+    horizontal_scroll->setSingleStep(10);
 
     connect(&document_widget->window, &QtWindow::CaretMoved, this, &MainWindow::OnCaretMoved);
     connect(&document_widget->window, &QtWindow::SaveResult, this, &MainWindow::OnSaveResult);
     connect(&document_widget->window, &QtWindow::LoadResult, this, &MainWindow::OnLoadResult);
     connect(&document_widget->window, &QtWindow::ClipboardCopyResult, this, &MainWindow::OnClipboardCopyResult);
+
+    connect(&document_widget->window, &QtWindow::DocumentUpdated, this, &MainWindow::OnDocumentUpdated);
 
     CreateActions();
 
@@ -278,6 +293,18 @@ void MainWindow::About()
 {
 }
 
+void MainWindow::OnVerticalValueChanged(int value)
+{
+    document_widget->window.document_point.y = value;
+    document->Redraw();
+}
+
+void MainWindow::OnHorizontalValueChanged(int value)
+{
+    document_widget->window.document_point.x = value;
+    document->Redraw();
+}
+
 void MainWindow::OnInsertCode()
 {
     document->InsertCode(true);
@@ -418,6 +445,20 @@ void MainWindow::OnClipboardCopyResult(CopyResult result)
     clipboard->setMimeData(mime_data);
     clipboard_array.clear();
     clipboard_text = "";
+}
+
+void MainWindow::OnDocumentUpdated(const Rect rect)
+{
+    Rect r = document_widget->window.GetViewPort(0);
+    Size& s = document_widget->window.document_size;
+    Point& p = document_widget->window.document_point;
+    
+    vertical_scroll->setMaximum(s.height - r.height);
+    vertical_scroll->setPageStep(r.height);
+    vertical_scroll->setValue(p.y);
+    horizontal_scroll->setMaximum(s.width - r.width);
+    horizontal_scroll->setPageStep(r.width);
+    horizontal_scroll->setValue(p.x);
 }
 
 void MainWindow::FillParagraphFormats()

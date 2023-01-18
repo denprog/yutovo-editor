@@ -543,24 +543,25 @@ RedrawTask::RedrawTask(ElementPtr _text, const ElementId& _id, bool _move_into_v
 
 bool RedrawTask::Execute()
 {
-    ElementPtr element = text->document->GetElement(element_id);
-    if (!element || text->document->WillRedraw(element_id, move_into_view)) //don't redraw if it will be redrawn later
+    ElementPtr element = document->GetElement(element_id);
+    if (!element || document->WillRedraw(element_id, move_into_view)) //don't redraw if it will be redrawn later
         return false;
     
     logger->Debug("Execute RedrawTask element_id={}", IdToString(element_id));
 
-    text->document->caret->Hide();
+    document->caret->Hide();
 
     Rect clear_rect = element->draw_rect.IsEmpty() ? element->GetAbsoluteRect() : element->draw_rect;
-    text->window->ClearRect(clear_rect); //clear last rect before drawing
-    text->window->Update(clear_rect);
+    window->ClearRect(clear_rect); //clear last rect before drawing
+    window->Update(clear_rect);
     element->Draw(); //draw element and update its rect
     element->UpdateDrawRect();
 
-    text->document->caret->Show();
-    text->window->Update(element->GetAbsoluteRect());
+    document->caret->Show();
+    window->SetDocumentSize({text->elements->Get(0)->rect.width, text->elements->Get(0)->rect.height});
+    window->Update(element->GetAbsoluteRect());
     if (move_into_view)
-        text->document->UpdateCaretView();
+        document->UpdateCaretView();
     return true;
 }
 
