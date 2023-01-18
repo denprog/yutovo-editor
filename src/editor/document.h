@@ -125,7 +125,7 @@ public:
 
     void Redraw(const ElementId& id, bool move_into_view);
     void Redraw();
-    void Remake(const ElementId& id, bool with_elements, bool with_undo, bool undo);
+    void Remake(const ElementId& id, bool with_elements, bool with_undo, bool undo, bool move_into_view = false);
 
     bool WillRedraw(const ElementId& id, bool move_into_view);
 

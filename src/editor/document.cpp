@@ -942,13 +942,13 @@ void Document::Redraw()
     Redraw(text->id, false);
 }
 
-void Document::Remake(const ElementId& id, bool with_elements, bool with_undo, bool undo)
+void Document::Remake(const ElementId& id, bool with_elements, bool with_undo, bool undo, bool move_into_view)
 {
     {
         std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
         if (undo)
         {
-            undo_tasks.push(TaskPtr(new RemakeTask(text, id, with_elements, with_undo, cur_task_id)));
+            undo_tasks.push(TaskPtr(new RemakeTask(text, id, with_elements, with_undo, move_into_view, cur_task_id)));
         }
         else
         {
@@ -957,11 +957,11 @@ void Document::Remake(const ElementId& id, bool with_elements, bool with_undo, b
                 TaskPtr last = tasks[tasks.size() - 1];
                 RemakeTask* t = dynamic_cast<RemakeTask*>(last.get());
                 if (!t || t->element_id != id || t->with_elements != with_elements)
-                    tasks.emplace_back(new RemakeTask(text, id, with_elements, with_undo, cur_task_id));
+                    tasks.emplace_back(new RemakeTask(text, id, with_elements, with_undo, move_into_view, cur_task_id));
             }
             else
             {
-                tasks.emplace_back(new RemakeTask(text, id, with_elements, with_undo, cur_task_id));
+                tasks.emplace_back(new RemakeTask(text, id, with_elements, with_undo, move_into_view, cur_task_id));
             }
         }
     }
@@ -983,7 +983,10 @@ bool Document::WillRedraw(const ElementId& id, bool move_into_view)
         }
         RemakeTask* remake_task = dynamic_cast<RemakeTask*>(t.get());
         if (remake_task && IsChild(remake_task->element_id, id))
-            return true;
+        {
+            if (remake_task->move_into_view == move_into_view)
+                return true;
+        }
     }
     return false;
 }
@@ -1214,7 +1217,7 @@ void Document::UpdateCaretView()
     if (!element)
         return;
     Rect r = element->GetAbsoluteRect(element->GetCaretRect(caret->GetPos()));
-    Rect view_port = text->window->GetViewPort(0);
+    Rect view_port = window->GetViewPort(0);
     Point p = window->GetDocumentPoint();
 
     if (r.height > view_port.height || r.width > view_port.width)

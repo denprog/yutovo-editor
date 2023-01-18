@@ -180,8 +180,7 @@ bool InsertElementsTask::Execute()
 
         if (with_undo)
             document->PushEditorState(true);
-        document->Remake(el->parent->id, true, with_undo, false);
-        document->Redraw(el->parent->id, true); //move into view
+        document->Remake(el->parent->id, true, with_undo, false, true); //move into view
     }
     return true;
 }
@@ -254,7 +253,7 @@ bool DeleteElementsTask::Execute()
         {
             if (with_undo)
                 document->PushEditorState(true);
-            document->Redraw(caret_state.id, true); //move into view
+            document->Remake(document->caret->GetElement()->id, true, with_undo, false, true); //move into view
             return true;
         }
     }
@@ -272,7 +271,7 @@ bool DeleteElementsTask::Execute()
         }
         if (with_undo)
             document->PushEditorState(true);
-        document->Redraw(caret_state.id, true); //move into view
+        document->Remake(document->caret->GetElement()->id, true, with_undo, false, true); //move into view
         return true;
     }
 
@@ -513,11 +512,12 @@ RemakeTask::RemakeTask(ElementPtr _text, const ElementId& _element_id, bool _wit
 {
 }
 
-RemakeTask::RemakeTask(ElementPtr _text, const ElementId& _element_id, bool _with_elements, bool _with_undo, uint id) :
+RemakeTask::RemakeTask(ElementPtr _text, const ElementId& _element_id, bool _with_elements, bool _with_undo, bool _move_into_view, uint id) :
     Task(_text, id), 
     element_id(_element_id),
     with_elements(_with_elements),
-    with_undo(_with_undo)
+    with_undo(_with_undo),
+    move_into_view(_move_into_view)
 {
 }
 
@@ -528,7 +528,7 @@ bool RemakeTask::Execute()
     if (!p)
         return false;
     document->GetElement(element_id)->Remake(with_elements, true, with_undo);
-    document->Redraw(element_id, false);
+    document->Redraw(element_id, move_into_view);
     return true;
 }
 
