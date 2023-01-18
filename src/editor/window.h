@@ -51,6 +51,7 @@ public:
 
     virtual void MoveDocument(const int left, const int top);
     Point GetDocumentPoint();
+    virtual void SetDocumentSize(const Size size);
 
     void BeginDrawOutside();
     void EndDrawOutside();
@@ -65,6 +66,7 @@ public:
 
 public:
     Point document_point;
+    Size document_size;
 
 protected:
     bool draw_doc = false; //drawing inside the clipping regions

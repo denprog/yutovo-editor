@@ -26,8 +26,13 @@ void Window::ClearRect(const Rect& rect)
 
 void Window::MoveDocument(const int left, const int top)
 {
-    document_point.x = left;
-    document_point.y = top;
+    document_point.x = left > 0 ? left : 0;
+    document_point.y = top > 0 ? top : 0;
+}
+
+void Window::SetDocumentSize(const Size size)
+{
+    document_size = size;
 }
 
 Point Window::GetDocumentPoint()

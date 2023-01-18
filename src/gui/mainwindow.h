@@ -45,6 +45,9 @@ private:
     void About();
 
 private slots:
+    void OnVerticalValueChanged(int value);
+    void OnHorizontalValueChanged(int value);
+
     void OnInsertCode();
 
     void OnCurrentParagraphFormatChanged(const QString& format);
@@ -59,6 +62,7 @@ private slots:
     void OnSaveResult(const uint task_id, IOResult result);
     void OnLoadResult(const uint task_id, IOResult result);
     void OnClipboardCopyResult(CopyResult result);
+    void OnDocumentUpdated(const Rect rect);
 
 private:
     void FillParagraphFormats();
@@ -68,6 +72,8 @@ private:
     Ui::MainWindow *ui;
     DocumentWidget* document_widget;
     DocumentPtr document;
+
+    QScrollBar *vertical_scroll = nullptr, *horizontal_scroll = nullptr;
 
     QString current_file_name;
 
