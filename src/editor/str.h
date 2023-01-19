@@ -16,13 +16,14 @@ public:
     String(Element* parent);
     String(Element* parent, const std::string _str);
     String(Element* parent, const std::string _str, const StringFormatPtr _format);
+    String(Element* parent, const std::u32string _str, const StringFormatPtr _format);
     String(Document* _document, const std::string _str, const StringFormatPtr _format);
 
     virtual Element* Clone();
     virtual bool Copy(std::vector<ElementPtr>& copy);
 
     virtual Element* Create(Element* parent);
-    virtual Element* Create(Element* parent, const std::string _str, const StringFormatPtr _format);
+    virtual Element* Create(Element* parent, const std::u32string _str, const StringFormatPtr _format);
 
     virtual void Remake(bool with_elements, bool with_parent, bool with_undo);
     virtual void Normalize(bool with_undo);
@@ -81,7 +82,7 @@ class StringElements : public Elements
 {
 public:
     StringElements(Element* parent);
-    StringElements(Element* parent, const std::string& _str);
+    StringElements(Element* parent, const std::u32string& _str);
 
     virtual Elements* Clone(Element* _parent);
 
@@ -116,13 +117,15 @@ public:
     void save(Archive& ar, const unsigned int version) const
     {
         ar << parent;
-        ar << str;
+        ar << ToBasicString(str);
     }
 
     template <class Archive>
     void load(Archive& ar, const unsigned int version)
     {
-        ar >> str;
+        std::string s;
+        ar >> s;
+        str = ToUtfString(s);
     }
 
 	BOOST_SERIALIZATION_SPLIT_MEMBER()
@@ -130,7 +133,7 @@ public:
 private:
     friend class String;
 
-    std::string str;
+    std::u32string str;
 };
 
 }
