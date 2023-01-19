@@ -21,6 +21,12 @@ CodeString::CodeString(Element* parent, const std::string str, const StringForma
     type = ElementType::CODE_STRING;
 }
 
+CodeString::CodeString(Element* parent, const std::u32string str, const StringFormatPtr _format) :
+    String(parent, str, _format)
+{
+    type = ElementType::CODE_STRING;
+}
+
 CodeString::CodeString(Document* _document, const std::string str, const StringFormatPtr _format) :
     String(_document, str, _format)
 {
@@ -43,7 +49,7 @@ Element* CodeString::Create(Element* parent)
     return new CodeString(parent);
 }
 
-Element* CodeString::Create(Element* parent, const std::string _str, const StringFormatPtr _format)
+Element* CodeString::Create(Element* parent, const std::u32string _str, const StringFormatPtr _format)
 {
     return new CodeString(parent, _str, _format);
 }

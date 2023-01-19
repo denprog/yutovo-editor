@@ -339,7 +339,7 @@ TEST_F(DocumentTest, clipboard6)
             "</p>"\
         "</body>") << 
         document.ToHtml();
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(1, 1, 0, 31)) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(1, 1, 0, 30)) << document.GetEditorState().ToString();
 
     document.WaitTask(document.New());
     std::this_thread::sleep_for(200ms);
@@ -361,7 +361,7 @@ TEST_F(DocumentTest, clipboard6)
             "</p>"\
         "</body>") << 
         document.ToHtml();
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(1, 1, 0, 31)) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(1, 1, 0, 30)) << document.GetEditorState().ToString();
 
     document.Undo();
     document.WaitUndo();
@@ -392,7 +392,7 @@ TEST_F(DocumentTest, clipboard6)
             "</p>"\
         "</body>") << 
         document.ToHtml();
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(1, 1, 0, 31)) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(1, 1, 0, 30)) << document.GetEditorState().ToString();
 }
 
 //Paste with paragraph

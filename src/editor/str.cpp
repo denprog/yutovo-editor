@@ -1,5 +1,6 @@
 #include "str.h"
 #include "document.h"
+#include "util.h"
 #include <assert.h>
 #include <boost/locale.hpp>
 
@@ -25,7 +26,7 @@ String::String(Element* parent, const std::string _str) :
 {
     type = ElementType::STRING;
 
-    elements.reset(new StringElements(this, _str));
+    elements.reset(new StringElements(this, ToUtfString(_str)));
 
 #ifdef DEBUG
     to_str = ToText();
@@ -33,6 +34,19 @@ String::String(Element* parent, const std::string _str) :
 }
 
 String::String(Element* parent, const std::string _str, const StringFormatPtr _format) :
+    Element(parent), 
+    format(_format)
+{
+    type = ElementType::STRING;
+
+    elements.reset(new StringElements(this, ToUtfString(_str)));
+
+#ifdef DEBUG
+    to_str = ToText();
+#endif
+}
+
+String::String(Element* parent, const std::u32string _str, const StringFormatPtr _format) :
     Element(parent), 
     format(_format)
 {
@@ -51,7 +65,7 @@ String::String(Document* _document, const std::string _str, const StringFormatPt
 {
     type = ElementType::STRING;
 
-    elements.reset(new StringElements(this, _str));
+    elements.reset(new StringElements(this, boost::locale::conv::utf_to_utf<char32_t>(_str)));
 
 #ifdef DEBUG
     to_str = ToText();
@@ -82,14 +96,14 @@ Element* String::Create(Element* parent)
     return new String(parent);
 }
 
-Element* String::Create(Element* parent, const std::string _str, const StringFormatPtr _format)
+Element* String::Create(Element* parent, const std::u32string _str, const StringFormatPtr _format)
 {
     return new String(parent, _str, _format);
 }
 
 void String::Remake(bool with_elements, bool with_parent, bool with_undo)
 {
-    Size s = window->GetTextSize(((StringElements*)elements.get())->str, format);
+    Size s = window->GetTextSize(ToBasicString(((StringElements*)elements.get())->str), format);
     rect = {1, 1, s.width, s.height};
 
     UpdateRect();
@@ -105,7 +119,7 @@ void String::Normalize(bool with_undo)
 
 void String::UpdateRect(bool with_elements)
 {
-    Size s = parent->window->GetTextSize(((StringElements*)elements.get())->str, format);
+    Size s = parent->window->GetTextSize(ToBasicString(((StringElements*)elements.get())->str), format);
     rect.SetRect(0, 0, s.width, s.height);
     baseline = parent->window->GetFontAscent(format);
 }
@@ -185,7 +199,7 @@ bool String::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo)
                 document->DeleteElements(false, false, true);
                 document->PushEditorState(CaretState(id), SelectionState(id, 0, s->elements->Count()), true);
             }
-            elements.reset(new StringElements(this, s->elements->ToText()));
+            elements.reset(new StringElements(this, ToUtfString(s->elements->ToText())));
             format = s->format;
             caret->SetState(elements->GetElementId(elements->Count()));
             parent->Normalize(with_undo);
@@ -224,8 +238,8 @@ bool String::DeleteElements(bool left, bool with_undo)
             return parent->DeleteElements(left, with_undo);
     }
     
-    std::string undo_str;
-    std::string& str = ((StringElements*)elements.get())->str;
+    std::u32string undo_str;
+    std::u32string& str = ((StringElements*)elements.get())->str;
 
     uint pos = 0;
     uint start, size;
@@ -255,9 +269,9 @@ bool String::DeleteElements(bool left, bool with_undo)
     if (with_undo)
     {
         if ((left && caret_pos == 1) || (!left && caret_pos == 0 && elements->Count() == 0))
-            document->InsertString(undo_str, format, ElementId{});
+            document->InsertString(ToBasicString(undo_str), format, ElementId{});
         else
-            document->InsertString(undo_str, format, elements->GetElementId(pos));
+            document->InsertString(ToBasicString(undo_str), format, elements->GetElementId(pos));
         document->PushEditorState(CaretState(elements->GetElementId(pos)), true);
     }
 
@@ -306,12 +320,12 @@ bool String::ChangeStringFormat(const StringFormatPtr _format, bool with_undo)
 
 bool String::Split(const uint max_left_width)
 {
-    std::string& str = ((StringElements*)elements.get())->str;
+    std::u32string& str = ((StringElements*)elements.get())->str;
     for (int i = str.size() - 2; i > 0; --i) //at least one character in the splitted string
     {
         if (str[i] == ' ')
         {
-            Size s = window->GetTextSize(str.substr(0, i + 1), format);
+            Size s = window->GetTextSize(ToBasicString(str.substr(0, i + 1)), format);
             if (s.width <= max_left_width)
             {
                 //create new string and insert it after this one
@@ -365,7 +379,7 @@ bool String::SplitAt(const uint pos)
     if (caret->IsInsideElement(id))
         cs_pos = caret->GetPos();
     
-    std::string& str = ((StringElements*)elements.get())->str;
+    std::u32string& str = ((StringElements*)elements.get())->str;
     ElementPtr el(Create(parent, str.substr(pos), format));
     int p = parent->elements->GetElementPos(id);
     parent->elements->Insert(el, p + 1);
@@ -497,7 +511,7 @@ StringElements::StringElements(Element* parent) :
 {
 }
 
-StringElements::StringElements(Element* parent, const std::string& _str) :
+StringElements::StringElements(Element* parent, const std::u32string& _str) :
     Elements(parent),
     str(_str)
 {
@@ -515,28 +529,24 @@ void StringElements::Draw() const
     if (parent->document->selection.Has(parent->id, start, size))
     {
         //draw text with selection
-        std::u32string u_str = boost::locale::conv::utf_to_utf<char32_t>(str);
         Rect r1 = parent->GetAbsoluteRect(GetCaretRect(start));
         Rect r2 = parent->GetAbsoluteRect(GetCaretRect(start + size));
         parent->window->DrawFillRect(r1.left, r1.top, r2.left - r1.left, r2.GetBottom() - r1.top, Color::Blue());
 
         Rect r = parent->GetAbsoluteRect();
-        std::u32string u_part = u_str.substr(0, start);
-        std::string s = boost::locale::conv::utf_to_utf<char>(u_part);
-        parent->window->DrawText(s, format, r, format->color);
+        std::u32string u_part = str.substr(0, start);
+        parent->window->DrawText(ToBasicString(u_part), format, r, format->color);
 
-        int p = parent->window->GetCharPos(str, format, start);
-        u_part = u_str.substr(start, size);
-        s = boost::locale::conv::utf_to_utf<char>(u_part);
-        parent->window->DrawText(s, format, Rect{r.left + p, r.top, r.width - p, r.height}, format->selection_color);
+        int p = parent->window->GetCharPos(ToBasicString(str), format, start);
+        u_part = str.substr(start, size);
+        parent->window->DrawText(ToBasicString(u_part), format, Rect{r.left + p, r.top, r.width - p, r.height}, format->selection_color);
 
-        p = parent->window->GetCharPos(str, format, start + size);
-        u_part = u_str.substr(start + size, str.length() - size);
-        s = boost::locale::conv::utf_to_utf<char>(u_part);
-        parent->window->DrawText(s, format, Rect{r.left + p, r.top, r.width - p, r.height}, format->color);
+        p = parent->window->GetCharPos(ToBasicString(str), format, start + size);
+        u_part = str.substr(start + size, str.length() - size);
+        parent->window->DrawText(ToBasicString(u_part), format, Rect{r.left + p, r.top, r.width - p, r.height}, format->color);
     }
     else
-        parent->window->DrawText(str, format, parent->GetAbsoluteRect(), format->color); //draw the string
+        parent->window->DrawText(ToBasicString(str), format, parent->GetAbsoluteRect(), format->color); //draw the string
 }
 
 ElementPtr StringElements::Get(uint pos)
@@ -561,7 +571,7 @@ void StringElements::Insert(ElementPtr element, const uint pos)
     assert(parent->document->IsString(element));
     assert(str.length() >= pos);
     CaretState caret_state = caret->GetCaretState();
-    std::string s = dynamic_cast<String*>(element.get())->ToText();
+    std::u32string s = ToUtfString(dynamic_cast<String*>(element.get())->ToText());
     if (caret_state.IsInsideElement(parent->id))
     {
         if (caret_state.GetPos() >= pos)
@@ -600,7 +610,7 @@ void StringElements::RemoveAt(const uint pos, const int size)
 
 void StringElements::Clear()
 {
-    str = "";
+    str = U"";
 #ifdef DEBUG
     parent->to_str = parent->ToText();
 #endif
@@ -630,7 +640,7 @@ void StringElements::DrawCaret(const uint pos) const
 
 Rect StringElements::GetRect()
 {
-    Size s = parent->window->GetTextSize(str, ((String*)parent)->format);
+    Size s = parent->window->GetTextSize(ToBasicString(str), ((String*)parent)->format);
     return Rect{0, 0, s.width, s.height};
 }
 
@@ -710,12 +720,12 @@ bool StringElements::GetWordRightCaretState(CaretState& caret_state, Selection* 
 
 std::string StringElements::ToHtml()
 {
-    return str;
+    return ToBasicString(str);
 }
 
 std::string StringElements::ToText()
 {
-    return str;
+    return ToBasicString(str);
 }
 
 }

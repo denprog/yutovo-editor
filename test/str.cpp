@@ -324,6 +324,7 @@ TEST_F(DocumentTest, selections2)
 
     document.DeleteElements(true, true, false);
     document.WaitMainLoop();
+    std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body><p>"\
         "<span style=\"font-family:'Times New Roman';font-size:34px;\"><strong>B</strong></span>"\
@@ -1272,6 +1273,7 @@ TEST_F(DocumentTest, delete2)
     document.WaitCaretMoving();
     document.DeleteElements(true, true, false);
     document.WaitMainLoop();
+    std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -1287,6 +1289,7 @@ TEST_F(DocumentTest, delete2)
     document.WaitCaretMoving();
     document.DeleteElements(true, true, false);
     document.WaitMainLoop();
+    std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -1462,6 +1465,37 @@ TEST_F(DocumentTest, delete3)
         "</body>") << 
         document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 2, 1)) << document.GetEditorState().ToString();
+}
+
+//Delete of Utf-8 characters
+TEST_F(DocumentTest, delete4)
+{
+    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
+        {
+            return Rect{0, 0, 600, 400};
+        });
+
+    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::string& text, const StringFormatPtr format)
+        {
+            return GetTextSizeMock(text, format);
+        });
+
+    document.InsertString("La versión 3 de la especificación MathML fue lanzada como Recomendación de W3C el 20 de octubre de 2010.", true);
+    document.WaitMainLoop();
+    document.MoveCaretToDocumentBegin(false);
+    for (int i = 0; i < 8; ++i)
+        document.MoveCaretRight(false);
+    document.WaitCaretMoving();
+    document.DeleteElements(false, true, false);
+    std::this_thread::sleep_for(100ms);
+    ASSERT_TRUE(document.ToText() == "La versin 3 de la especificación MathML fue lanzada como Recomendación de W3C el 20 de octubre de 2010.") << 
+        document.ToText();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 8)) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    ASSERT_TRUE(document.ToText() == "La versión 3 de la especificación MathML fue lanzada como Recomendación de W3C el 20 de octubre de 2010.") << 
+        document.ToText();
 }
 
 }

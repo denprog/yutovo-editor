@@ -3,6 +3,7 @@
 
 #include <stdint.h>
 #include "caret_state.h"
+#include <boost/locale.hpp>
 
 namespace yutovo
 {
@@ -191,6 +192,9 @@ void RegisterTypes();
 
 template<class Archive>
 void RegisterTypes(Archive& archive);
+
+std::u32string ToUtfString(const std::string& str);
+std::string ToBasicString(const std::u32string& str);
 
 }
 
