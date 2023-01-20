@@ -120,7 +120,7 @@ void String::Normalize(bool with_undo)
 void String::UpdateRect(bool with_elements)
 {
     Size s = parent->window->GetTextSize(ToBasicString(((StringElements*)elements.get())->str), format);
-    rect.SetRect(0, 0, s.width, s.height);
+    rect.SetSize(s.width, s.height);
     baseline = parent->window->GetFontAscent(format);
 }
 

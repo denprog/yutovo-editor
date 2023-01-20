@@ -82,9 +82,7 @@ TEST_F(FormulaTest, plus2)
     document.InsertCode(true);
     document.InsertString("123", true);
     document.InsertPlus(true);
-    document.InsertString("45", true);
-    document.WaitMainLoop();
-    std::this_thread::sleep_for(100ms);
+    document.WaitTask(document.InsertString("45", true));
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -100,8 +98,7 @@ TEST_F(FormulaTest, plus2)
         document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 2, 2})) << document.GetEditorState().ToString();
 
-    document.InsertPlus(true);
-    document.WaitMainLoop();
+    document.WaitTask(document.InsertPlus(true));
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -142,8 +139,7 @@ TEST_F(FormulaTest, plus3)
 
     document.InsertCode(true);
     document.InsertPlus(true);
-    document.InsertPlus(true);
-    document.WaitMainLoop();
+    document.WaitTask(document.InsertPlus(true));
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -198,8 +194,7 @@ TEST_F(FormulaTest, plus4)
     document.InsertPlus(true);
     document.InsertString("45", true);
     document.InsertPlus(true);
-    document.InsertString("3456", true);
-    document.WaitMainLoop();
+    document.WaitTask(document.InsertString("3456", true));
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -310,8 +305,7 @@ TEST_F(FormulaTest, plus5)
     document.WaitMainLoop();
     document.MoveCaretLeft(false);
     document.WaitCaretMoving();
-    document.InsertPlus(true);
-    document.WaitMainLoop();
+    document.WaitTask(document.InsertPlus(true));
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\

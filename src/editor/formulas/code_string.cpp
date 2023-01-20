@@ -77,7 +77,7 @@ void CodeString::UpdateRect(bool with_elements)
     String::UpdateRect(with_elements);
 
     if (elements->Count() == 0)
-        rect.SetRect(0, 0, rect.width + empty_rect_width, rect.height);
+        rect.SetSize(rect.width + empty_rect_width, rect.height);
     baseline = rect.height / 2;
 }
 
