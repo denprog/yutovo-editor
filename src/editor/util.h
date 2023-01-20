@@ -74,6 +74,12 @@ struct Rect
         top = _top;
     }
 
+    void SetSize(int _width, int _height)
+    {
+        width = _width;
+        height = _height;
+    }
+
     void Reset()
     {
         left = 0;

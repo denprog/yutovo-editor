@@ -20,8 +20,7 @@ TEST_F(FormulaTest, square_root1)
             return GetTextSizeMock(text, format);
         });
 
-    document.InsertSquareRoot(true);
-    document.WaitMainLoop();
+    document.WaitTask(document.InsertSquareRoot(true));
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -63,9 +62,7 @@ TEST_F(FormulaTest, square_root1)
         document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 1, 0, 0})) << document.GetEditorState().ToString();
 
-    document.InsertString("2", true);
-    document.WaitMainLoop();
-    std::this_thread::sleep_for(100ms);
+    document.WaitTask(document.InsertString("2", true));
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -102,9 +99,7 @@ TEST_F(FormulaTest, square_root2)
     document.MoveCaretLeft(false);
     document.MoveCaretLeft(false);
     document.WaitCaretMoving();
-    document.DeleteElements(false, true, false);
-    document.WaitMainLoop();
-    std::this_thread::sleep_for(100ms);
+    document.WaitTask(document.DeleteElements(false, true, false));
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -170,8 +165,7 @@ TEST_F(FormulaTest, square_root3)
     document.InsertSquareRoot(true);
     document.InsertString("12", true);
     document.InsertPlus(true);
-    document.InsertString("3", true);
-    document.WaitMainLoop();
+    document.WaitTask(document.InsertString("3", true));
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -194,8 +188,7 @@ TEST_F(FormulaTest, square_root3)
     document.MoveCaretHome(false);
     document.MoveCaretLeft(false);
     document.WaitCaretMoving();
-    document.DeleteElements(false, true, false);
-    document.WaitMainLoop();
+    document.WaitTask(document.DeleteElements(false, true, false));
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\

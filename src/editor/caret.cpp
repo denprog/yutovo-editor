@@ -27,7 +27,7 @@ void Caret::SetState(const CaretState& caret_state, bool update_x_pos)
     }
 
     last_pos = false;
-    element = el.get();
+    element = el;
     if (document->IsString(element->id))
         str_pos = caret_state.GetPos();
     else
@@ -36,12 +36,12 @@ void Caret::SetState(const CaretState& caret_state, bool update_x_pos)
         int p = caret_state.GetPos();
         if (p == element->elements->Count())
         {
-            element = element->elements->Get(p - 1).get();
+            element = element->elements->Get(p - 1);
             last_pos = true;
         }
         else
         {
-            element = element->elements->Get(p).get();
+            element = element->elements->Get(p);
         }
     }
     if (update_x_pos)
@@ -53,7 +53,7 @@ void Caret::SetState(const CaretState& caret_state, bool update_x_pos)
 
 void Caret::SetState(const ElementId id, const uint pos, bool update_x_pos)
 {
-    element = document->GetElement(id).get();
+    element = document->GetElement(id);
     if (!element)
     {
         Reset();
@@ -68,12 +68,12 @@ void Caret::SetState(const ElementId id, const uint pos, bool update_x_pos)
         str_pos = -1;
         if (pos == element->elements->Count())
         {
-            element = element->elements->Get(pos - 1).get();
+            element = element->elements->Get(pos - 1);
             last_pos = true;
         }
         else
         {
-            element = element->elements->Get(pos).get();
+            element = element->elements->Get(pos);
         }
     }
     if (update_x_pos)
@@ -85,7 +85,7 @@ void Caret::SetState(const ElementId id, const uint pos, bool update_x_pos)
 
 void Caret::SetState(const ElementId id, bool update_x_pos)
 {
-    element = document->GetElement(id).get();
+    element = document->GetElement(id);
     if (!element)
     {
         Reset();
@@ -114,12 +114,12 @@ void Caret::SetPos(const uint pos, bool update_x_pos)
     {
         if (pos == element->elements->Count())
         {
-            element = element->elements->Get(pos - 1).get();
+            element = element->elements->Get(pos - 1);
             last_pos = true;
         }
         else
         {
-            element = element->elements->Get(pos).get();
+            element = element->elements->Get(pos);
         }
     }
 
@@ -133,7 +133,7 @@ void Caret::SetPos(const uint pos, bool update_x_pos)
 Element* Caret::GetElement() const
 {
     if (str_pos >= 0)
-        return element;
+        return element.get();
     return element->parent;
 }
 
@@ -316,7 +316,7 @@ void Caret::UpdateXPos()
 {
     if (document->IsString(element->id))
     {
-        last_x_element = element;
+        last_x_element = element.get();
         last_x_pos = str_pos;
     }
     else

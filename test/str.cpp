@@ -1306,8 +1306,7 @@ TEST_F(DocumentTest, delete2)
     document.WaitCaretMoving();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 4)) << document.GetEditorState().ToString();
 
-    document.DeleteElements(false, true, false);
-    document.WaitMainLoop();
+    document.WaitTask(document.DeleteElements(false, true, false));
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -1349,9 +1348,7 @@ TEST_F(DocumentTest, delete2)
     for (int i = 0; i < 5; ++i)
         document.DeleteElements(true, true, false);
     document.WaitMainLoop();
-    document.DeleteElements(true, true, false);
-    document.WaitMainLoop();
-    std::this_thread::sleep_for(100ms);
+    document.WaitTask(document.DeleteElements(true, true, false));
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -1362,8 +1359,7 @@ TEST_F(DocumentTest, delete2)
         document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 1, 3)) << document.GetEditorState().ToString();
 
-    document.DeleteElements(true, true, false);
-    document.WaitMainLoop();
+    document.WaitTask(document.DeleteElements(true, true, false));
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -1393,9 +1389,7 @@ TEST_F(DocumentTest, delete3)
     for (int i = 0; i < 5; ++i)
         document.DeleteElements(true, true, false);
     document.WaitMainLoop();
-    document.DeleteElements(true, true, false);
-    document.WaitMainLoop();
-    std::this_thread::sleep_for(100ms);
+    document.WaitTask(document.DeleteElements(true, true, false));
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -1420,9 +1414,7 @@ TEST_F(DocumentTest, delete3)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 2, 1)) << document.GetEditorState().ToString();
 
     document.MoveCaretLeft(false);
-    document.DeleteElements(false, true, false);
-    document.WaitMainLoop();
-    std::this_thread::sleep_for(100ms);
+    document.WaitTask(document.DeleteElements(false, true, false));
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -1450,8 +1442,7 @@ TEST_F(DocumentTest, delete3)
     document.WaitCaretMoving();
     document.InsertString("orm", true);
     document.WaitMainLoop();
-    document.DeleteElements(false, true, false);
-    document.WaitMainLoop();
+    document.WaitTask(document.DeleteElements(false, true, false));
     document.Undo();
     document.WaitUndo();
     std::this_thread::sleep_for(200ms);
@@ -1486,8 +1477,7 @@ TEST_F(DocumentTest, delete4)
     for (int i = 0; i < 8; ++i)
         document.MoveCaretRight(false);
     document.WaitCaretMoving();
-    document.DeleteElements(false, true, false);
-    std::this_thread::sleep_for(100ms);
+    document.WaitTask(document.DeleteElements(false, true, false));
     ASSERT_TRUE(document.ToText() == "La versin 3 de la especificación MathML fue lanzada como Recomendación de W3C el 20 de octubre de 2010.") << 
         document.ToText();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 8)) << document.GetEditorState().ToString();

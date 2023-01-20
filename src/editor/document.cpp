@@ -211,55 +211,56 @@ void Document::MainLoop()
     }
 }
 
-void Document::InsertPage(bool with_undo)
+uint Document::InsertPage(bool with_undo)
 {
-    InsertElement(new Page(text.get()), with_undo);
+    return InsertElement(new Page(text.get()), with_undo);
 }
 
-void Document::InsertParagraph(bool with_undo, bool undo)
+uint Document::InsertParagraph(bool with_undo, bool undo)
 {
-    InsertElement(new Paragraph(this), with_undo, undo);
+    return InsertElement(new Paragraph(this), with_undo, undo);
 }
 
-void Document::InsertString(const std::string& str, bool with_undo)
+uint Document::InsertString(const std::string& str, bool with_undo)
 {
     StringFormatPtr format;
     if (GetCurrentStringFormat(format))
-        InsertElement(new String(this, str, format), with_undo);
+        return InsertElement(new String(this, str, format), with_undo);
+    return 0;
 }
 
-void Document::InsertString(const std::string& str, const StringFormatPtr string_format, bool with_undo)
+uint Document::InsertString(const std::string& str, const StringFormatPtr string_format, bool with_undo)
 {
-    InsertElement(new String(this, str, string_format), with_undo);
+    return InsertElement(new String(this, str, string_format), with_undo);
 }
 
-void Document::InsertString(const std::string& str, const StringFormatPtr string_format, ElementId element_id)
+uint Document::InsertString(const std::string& str, const StringFormatPtr string_format, ElementId element_id)
 {
-    InsertElement(new String(this, str, string_format), element_id);
+    return InsertElement(new String(this, str, string_format), element_id);
 }
 
-void Document::InsertElement(Element* element, bool with_undo, bool undo, ElementId element_id)
-{
-    std::vector<ElementPtr> elements;
-    elements.emplace_back(element);
-    InsertElements(elements, with_undo, undo, element_id);
-}
-
-void Document::InsertElement(Element* element, ElementId element_id)
+uint Document::InsertElement(Element* element, bool with_undo, bool undo, ElementId element_id)
 {
     std::vector<ElementPtr> elements;
     elements.emplace_back(element);
-    InsertElements(elements, false, true, element_id);
+    return InsertElements(elements, with_undo, undo, element_id);
 }
 
-void Document::InsertElement(ElementPtr element, ElementId element_id)
+uint Document::InsertElement(Element* element, ElementId element_id)
+{
+    std::vector<ElementPtr> elements;
+    elements.emplace_back(element);
+    return InsertElements(elements, false, true, element_id);
+}
+
+uint Document::InsertElement(ElementPtr element, ElementId element_id)
 {
     std::vector<ElementPtr> elements;
     elements.push_back(element);
-    InsertElements(elements, false, true, element_id);
+    return InsertElements(elements, false, true, element_id);
 }
 
-void Document::InsertElements(std::vector<ElementPtr>& elements, bool with_undo, bool undo, ElementId element_id)
+uint Document::InsertElements(std::vector<ElementPtr>& elements, bool with_undo, bool undo, ElementId element_id)
 {
     {
         std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
@@ -275,9 +276,10 @@ void Document::InsertElements(std::vector<ElementPtr>& elements, bool with_undo,
         }
     }
     next_circle.notify_one();
+    return last_task_id;
 }
 
-void Document::DeleteElements(bool left, bool with_undo, bool undo)
+uint Document::DeleteElements(bool left, bool with_undo, bool undo)
 {
     {
         std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
@@ -293,9 +295,10 @@ void Document::DeleteElements(bool left, bool with_undo, bool undo)
         }
     }
     next_circle.notify_one();
+    return last_task_id;
 }
 
-void Document::ClearElements(ElementId element_id, bool with_undo, bool undo)
+uint Document::ClearElements(ElementId element_id, bool with_undo, bool undo)
 {
     {
         std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
@@ -311,68 +314,70 @@ void Document::ClearElements(ElementId element_id, bool with_undo, bool undo)
         }
     }
     next_circle.notify_one();
+    return last_task_id;
 }
 
-void Document::InsertCode(bool with_undo)
+uint Document::InsertCode(bool with_undo)
 {
-    InsertFormula(new Code(this), with_undo, false);
+    return InsertFormula(new Code(this), with_undo, false);
 }
 
-void Document::InsertCodeString(const std::string& str, bool with_undo)
+uint Document::InsertCodeString(const std::string& str, bool with_undo)
 {
     FormulaFormatPtr format;
     if (GetCurrentFormulaFormat(format))
-        InsertFormula(new CodeString(this, str, format->string_format), with_undo, false);
+        return InsertFormula(new CodeString(this, str, format->string_format), with_undo, false);
+    return 0;
 }
 
-void Document::InsertPlus(bool with_undo)
+uint Document::InsertPlus(bool with_undo)
 {
-    InsertFormula(new Plus(this), with_undo, false);
+    return InsertFormula(new Plus(this), with_undo, false);
 }
 
-void Document::InsertMinus(bool with_undo)
+uint Document::InsertMinus(bool with_undo)
 {
-    InsertFormula(new Minus(this), with_undo, false);
+    return InsertFormula(new Minus(this), with_undo, false);
 }
 
-void Document::InsertMultiply(bool with_undo)
+uint Document::InsertMultiply(bool with_undo)
 {
-    InsertFormula(new Multiply(this), with_undo, false);
+    return InsertFormula(new Multiply(this), with_undo, false);
 }
 
-void Document::InsertDivision(bool with_undo)
+uint Document::InsertDivision(bool with_undo)
 {
-    InsertFormula(new Division(this), with_undo, false);
+    return InsertFormula(new Division(this), with_undo, false);
 }
 
-void Document::InsertPower(bool with_undo)
+uint Document::InsertPower(bool with_undo)
 {
-    InsertFormula(new Power(this), with_undo, false);
+    return InsertFormula(new Power(this), with_undo, false);
 }
 
-void Document::InsertNthRoot(bool with_undo)
+uint Document::InsertNthRoot(bool with_undo)
 {
-    InsertFormula(new NthRoot(this), with_undo, false);
+    return InsertFormula(new NthRoot(this), with_undo, false);
 }
 
-void Document::InsertSquareRoot(bool with_undo)
+uint Document::InsertSquareRoot(bool with_undo)
 {
-    InsertFormula(new SquareRoot(this), with_undo, false);
+    return InsertFormula(new SquareRoot(this), with_undo, false);
 }
 
-void Document::InsertEquation(ResultType result_type, bool with_undo)
+uint Document::InsertEquation(ResultType result_type, bool with_undo)
 {
-    InsertFormula(new Equation(this, result_type), with_undo, false);
+    return InsertFormula(new Equation(this, result_type), with_undo, false);
 }
 
-void Document::InsertFormula(Element* element, bool with_undo, bool undo)
+uint Document::InsertFormula(Element* element, bool with_undo, bool undo)
 {
     std::vector<ElementPtr> elements;
     elements.emplace_back(element);
-    InsertFormulas(elements, with_undo, undo);
+    return InsertFormulas(elements, with_undo, undo);
 }
 
-void Document::InsertFormulas(std::vector<ElementPtr>& elements, bool with_undo, bool undo)
+uint Document::InsertFormulas(std::vector<ElementPtr>& elements, bool with_undo, bool undo)
 {
     {
         std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
@@ -388,6 +393,7 @@ void Document::InsertFormulas(std::vector<ElementPtr>& elements, bool with_undo,
         }
     }
     next_circle.notify_one();
+    return last_task_id;
 }
 
 void Document::ChangeStringFormat(const std::string family, const uint size, const bool bold, const bool italic, const bool underline, 
@@ -1199,6 +1205,8 @@ void Document::WaitSolver()
 
 void Document::WaitTask(uint task_id)
 {
+    if (task_id == 0)
+        return;
     while (true)
     {
         std::this_thread::sleep_for(100ms);

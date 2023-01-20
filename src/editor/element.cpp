@@ -410,7 +410,7 @@ void Element::UpdateRect(bool with_elements)
         if (element->rect.GetBottom() > bottom)
             bottom = element->rect.GetBottom();
     }
-    rect.SetRect(0, 0, right, bottom);
+    rect.SetSize(right, bottom);
 }
 
 Element* Element::GetElementInPos(const ElementId& _id, const uint pos)

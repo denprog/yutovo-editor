@@ -354,8 +354,7 @@ bool InsertFormulasTask::Execute()
     {
         if (with_undo)
             document->PushEditorState(true);
-        document->Remake(el->parent->id, true, with_undo, false);
-        document->Redraw(el->parent->id, true); //move into view
+        document->Remake(el->parent->parent->id, true, with_undo, false, true); //move into view
         return true;
     }
 
