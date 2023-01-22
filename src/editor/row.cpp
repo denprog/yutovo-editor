@@ -13,11 +13,12 @@ Row::Row(Document* _document) :
     type = ElementType::ROW;
 }
 
-Row::Row(Element* _parent) :
+Row::Row(Element* _parent, bool with_string) :
     Element(_parent)
 {
     type = ElementType::ROW;
-    AddEmptyElement();
+    if (with_string)
+        AddEmptyElement();
 }
 
 Element* Row::Clone()
@@ -196,7 +197,7 @@ bool Row::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo)
 
     for (auto& el : _elements)
     {
-        if (el->type == ElementType::PARAGRAPH || el->type == ElementType::ROW) //paragraphs and rows can be inserted above
+        if (document->IsParagraph(el) || document->IsRow(el)) //paragraphs and rows can be inserted above
             return parent->InsertElements(_elements, with_undo);
     }
 

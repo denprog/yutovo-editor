@@ -29,7 +29,8 @@ enum class ElementType
     PARAGRAPH,
     ROW,
     STRING,
-    CODE,
+    CODE_BLOCK,
+    CODE_PARAGRAPH,
     CODE_ROW,
     CODE_STRING,
     SHAPE,
@@ -113,6 +114,8 @@ public:
     virtual bool GetElementAtCoords(const int x, const int y, ElementId& _id);
 
     void AddElement(ElementPtr element);
+    
+    virtual void AddEmptyElement();
 
     uint GetChildPos(const Element* element);
 

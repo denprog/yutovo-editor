@@ -37,7 +37,7 @@ TEST_F(FormulaTest, delete1)
             "</p>"\
         "</body>") << 
         document.ToHtml();
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 3})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 0, 3})) << document.GetEditorState().ToString();
 
     document.Undo();
     document.WaitUndo();
@@ -53,7 +53,7 @@ TEST_F(FormulaTest, delete1)
             "</p>"\
         "</body>") << 
         document.ToHtml();
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 2})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 2})) << document.GetEditorState().ToString();
 
     document.Redo();
     document.WaitRedo();
@@ -68,7 +68,7 @@ TEST_F(FormulaTest, delete1)
             "</p>"\
         "</body>") << 
         document.ToHtml();
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 3})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 0, 3})) << document.GetEditorState().ToString();
 
     document.InsertPlus(true);
     document.InsertPlus(true);
@@ -88,7 +88,7 @@ TEST_F(FormulaTest, delete1)
             "</p>"\
         "</body>") << 
         document.ToHtml();
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 3})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 3})) << document.GetEditorState().ToString();
 
     document.MoveCaretLeft(false);
     document.DeleteElements(false, true, false);
@@ -106,7 +106,7 @@ TEST_F(FormulaTest, delete1)
             "</p>"\
         "</body>") << 
         document.ToHtml();
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 2})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 2})) << document.GetEditorState().ToString();
 
     document.MoveCaretLeft(false);
     document.DeleteElements(false, true, false);
@@ -123,7 +123,7 @@ TEST_F(FormulaTest, delete1)
             "</p>"\
         "</body>") << 
         document.ToHtml();
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 3})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 0, 3})) << document.GetEditorState().ToString();
 
     document.Undo();
     document.WaitUndo();
@@ -139,7 +139,7 @@ TEST_F(FormulaTest, delete1)
             "</p>"\
         "</body>") << 
         document.ToHtml();
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 1})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 1})) << document.GetEditorState().ToString();
 
     document.Undo();
     document.WaitUndo();
@@ -156,7 +156,7 @@ TEST_F(FormulaTest, delete1)
             "</p>"\
         "</body>") << 
         document.ToHtml();
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 2})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 2})) << document.GetEditorState().ToString();
 
     document.Redo();
     document.WaitRedo();
@@ -172,7 +172,7 @@ TEST_F(FormulaTest, delete1)
             "</p>"\
         "</body>") << 
         document.ToHtml();
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 2})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 2})) << document.GetEditorState().ToString();
 
     document.Redo();
     document.WaitRedo();
@@ -187,7 +187,7 @@ TEST_F(FormulaTest, delete1)
             "</p>"\
         "</body>") << 
         document.ToHtml();
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 3})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 0, 3})) << document.GetEditorState().ToString();
 }
 
 TEST_F(FormulaTest, insert1)
@@ -221,12 +221,12 @@ TEST_F(FormulaTest, insert1)
                         "<mi>Null</mi>"\
                     "</mrow>"\
                 "</math>"\
-                "<span style=\"font-family:'Arial';font-size:22px;\"> documento era el papel y </span>"\
-                "<span style=\"font-family:'Arial';font-size:22px;\">la información</span>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\"> documento era el papel y la </span>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\">información</span>"\
             "</p>"\
         "</body>") << 
         document.ToHtml();
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 1, 1, 0, 0})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 1, 1, 0, 0, 0, 0})) << document.GetEditorState().ToString();
 
     document.Undo();
     document.WaitUndo();
@@ -243,6 +243,7 @@ TEST_F(FormulaTest, insert1)
 
     document.Redo();
     document.WaitRedo();
+    std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -253,12 +254,12 @@ TEST_F(FormulaTest, insert1)
                         "<mi>Null</mi>"\
                     "</mrow>"\
                 "</math>"\
-                "<span style=\"font-family:'Arial';font-size:22px;\"> documento era el papel y </span>"\
-                "<span style=\"font-family:'Arial';font-size:22px;\">la información</span>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\"> documento era el papel y la </span>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\">información</span>"\
             "</p>"\
         "</body>") << 
         document.ToHtml();
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 1, 1, 0, 0})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 1, 1, 0, 0, 0, 0})) << document.GetEditorState().ToString();
 }
 
 }

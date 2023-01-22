@@ -1,14 +1,14 @@
 #ifndef __PAGE_H__
 #define __PAGE_H__
 
-#include "element.h"
+#include "block.h"
 #include "style.h"
 #include <boost/serialization/unique_ptr.hpp>
 
 namespace yutovo
 {
 
-class Page : public Element
+class Page : public Block
 {
 public:
     Page(Element* parent);
@@ -20,12 +20,6 @@ public:
     virtual void Draw() const;
     virtual void Remake(bool with_elements, bool with_parent, bool with_undo);
     virtual void UpdateRect(bool with_elements = false);
-
-    virtual bool InsertElements(std::vector<ElementPtr>& _elements, bool with_undo);
-    virtual bool DeleteElements(bool left, bool with_undo);
-
-    virtual bool GetTopCaretState(const int x, const int y, CaretState& caret_state, Selection* select);
-    virtual bool GetBottomCaretState(const int x, const int y, CaretState& caret_state, Selection* select);
 
     virtual ParagraphFormatPtr GetParagraphFormat();
 

@@ -1,23 +1,27 @@
-#ifndef __CODE_H__
-#define __CODE_H__
+#ifndef __CODE_BLOCK_H__
+#define __CODE_BLOCK_H__
 
-#include "code_row.h"
+#include "../block.h"
+#include "../style.h"
 
 namespace yutovo
 {
 
-class Code : public CodeRow
+//Group of code paragraphs
+class CodeBlock : public Block
 {
 public:
-    Code(Document* _document);
-    Code(Element* parent);
-    Code(const Code& source) = default;
+    CodeBlock(Document* _document);
+    CodeBlock(Element* parent);
+    CodeBlock(const CodeBlock& source) = default;
 
     virtual Element* Clone();
 
     virtual Element* Create(Element* parent);
 
     virtual void Draw() const;
+    virtual void Remake(bool with_elements, bool with_parent, bool with_undo);
+    virtual void UpdateRect(bool with_elements = false);
 
     virtual bool AfterInsert(bool with_undo);
 
@@ -29,25 +33,27 @@ public:
 
     virtual StringFormatPtr GetStringFormat();
     virtual FormulaFormatPtr GetFormulaFormat() const;
+    virtual ParagraphFormatPtr GetParagraphFormat();
 
-    virtual std::string ToHtml();
+    virtual void AddEmptyElement();
 
     template <class Archive>
     void save(Archive& ar, const unsigned int version) const
     {
-        ar << (boost::serialization::base_object<CodeRow>(*this), elements);
+        ar << (boost::serialization::base_object<Element>(*this), elements);
     }
 
     template <class Archive>
     void load(Archive& ar, const unsigned int version)
     {
-        ar >> (boost::serialization::base_object<CodeRow>(*this), elements);
+        ar >> (boost::serialization::base_object<Element>(*this), elements);
     }
 
-	BOOST_SERIALIZATION_SPLIT_MEMBER()
+    BOOST_SERIALIZATION_SPLIT_MEMBER()
 
 protected:
-    FormulaFormatPtr code_format;
+    CodeFormatPtr code_format;
+    ParagraphFormatPtr paragraph_format;
     FormulaFormatPtr formula_format;
 };
 
@@ -59,18 +65,18 @@ namespace serialization
 {
 
 template<class Archive>
-void save_construct_data(Archive& ar, const yutovo::Code* t, const unsigned int version)
+void save_construct_data(Archive& ar, const yutovo::CodeBlock* t, const unsigned int version)
 {
     ar << t->parent;
 }
 
 template<class Archive>
-void load_construct_data(Archive& ar, yutovo::Code* t, const unsigned int version)
+void load_construct_data(Archive& ar, yutovo::CodeBlock* t, const unsigned int version)
 {
     yutovo::Element* p;
     ar >> p;
     yutovo::DocumentUserData& user_data = yutovo::GetUserData<yutovo::DocumentUserData>(ar);
-    ::new(t)yutovo::Code(p);
+    ::new(t)yutovo::CodeBlock(p);
 }
 
 }

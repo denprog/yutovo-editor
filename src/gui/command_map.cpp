@@ -80,11 +80,11 @@ bool ShortcutsMap::Call(const QKeySequence& shortcut, QChar symbol, const Editor
                 switch (m.context)
                 {
                 case CommandContext::Formula:
-                    if (!document->FindParent(editor_state.caret_state.id, ElementType::CODE))
+                    if (!document->FindParent(editor_state.caret_state.id, ElementType::CODE_BLOCK))
                         return;
                     break;
                 case CommandContext::Text:
-                    if (document->FindParent(editor_state.caret_state.id, ElementType::CODE))
+                    if (document->FindParent(editor_state.caret_state.id, ElementType::CODE_BLOCK))
                         return;
                     break;
                 }

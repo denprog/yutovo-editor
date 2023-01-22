@@ -123,6 +123,8 @@ ParagraphFormats::ParagraphFormats(StringFormatsPtr _string_formats) :
         string_formats->GetFormat("Arial", 26, true, false, false));
     GetFormat("Monospace", ParagraphFormat::Alignment::Left, ParagraphFormat::WordWrap::Normal, 5, 10, 10, 0, 10, 10, 
         string_formats->GetFormat("Courier New", 12, false, false, false));
+    GetFormat("Code", ParagraphFormat::Alignment::Left, ParagraphFormat::WordWrap::None, 2, 2, 2, 0, 2, 2, 
+        string_formats->GetFormat("Courier New", 14, false, false, false));
 }
 
 ParagraphFormatPtr ParagraphFormats::GetFormat(std::string _name, ParagraphFormat::Alignment _alignment, ParagraphFormat::WordWrap _word_wrap, 
@@ -220,7 +222,65 @@ FormulaFormatPtr FormulaFormats::GetFormat(const std::string& name, StringFormat
 
     //or create a new one
     formula_formats.emplace_back(format);
-    return formula_formats[formula_formats.size() - 1];
+    return format;
+}
+
+//CodeFormat
+
+CodeFormat::CodeFormat(const std::string& _name, uint _left_indent, uint _top_indent, uint _right_indent, uint _bottom_indent, 
+    uint _left_margin, uint _top_margin, uint _right_margin, uint _bottom_margin, uint _paragraph_spacing) :
+    name(_name), 
+    left_indent(_left_indent),
+    top_indent(_top_indent),
+    right_indent(_right_indent),
+    bottom_indent(_bottom_indent),
+    left_margin(_left_margin),
+    top_margin(_top_margin),
+    right_margin(_right_margin),
+    bottom_margin(_bottom_margin), 
+    paragraph_spacing(_paragraph_spacing)
+{
+}
+
+bool CodeFormat::operator==(const CodeFormat& c)
+{
+    return name == c.name && left_indent == c.left_indent && top_indent == c.top_indent && bottom_indent == c.bottom_indent && 
+        paragraph_spacing == c.paragraph_spacing;
+}
+
+//CodeFormats
+
+CodeFormats::CodeFormats()
+{
+    GetFormat("Calculator", 2, 2, 2, 2, 2, 2, 2, 2, 2);
+}
+
+CodeFormatPtr CodeFormats::GetFormat(const std::string& name)
+{
+    for (auto c : code_formats)
+    {
+        if (c->name == name)
+            return c;
+    }
+    return nullptr;
+}
+
+CodeFormatPtr CodeFormats::GetFormat(const std::string& name, uint left_indent, uint top_indent, uint right_indent, uint bottom_indent, 
+    uint left_margin, uint top_margin, uint right_margin, uint bottom_margin, uint paragraph_spacing)
+{
+    CodeFormatPtr format(new CodeFormat(name, left_indent, top_indent, right_indent, bottom_indent, 
+        left_margin, top_margin, right_margin, bottom_margin, paragraph_spacing));
+    
+    //return the present format
+    for (auto c : code_formats)
+    {
+        if (*c == *format)
+            return c;
+    }
+
+    //or create a new one
+    code_formats.emplace_back(format);
+    return format;
 }
 
 //PageFormats

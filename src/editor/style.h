@@ -207,6 +207,46 @@ private:
 
 typedef std::unique_ptr<FormulaFormats> FormulaFormatsPtr;
 
+struct CodeFormat
+{
+    CodeFormat() = default;
+    CodeFormat(const std::string& _name, uint _left_indent, uint _top_indent, uint _right_indent, uint _bottom_indent, 
+        uint left_margin, uint top_margin, uint right_margin, uint bottom_margin, uint _paragraph_spacing);
+
+    bool operator==(const CodeFormat& c);
+
+    std::string name;
+
+    uint left_indent;
+    uint top_indent;
+    uint right_indent;
+    uint bottom_indent;
+
+    uint left_margin = 0;
+    uint top_margin = 0;
+    uint right_margin = 0;
+    uint bottom_margin = 0;
+
+    uint paragraph_spacing;
+};
+
+typedef std::shared_ptr<CodeFormat> CodeFormatPtr;
+
+class CodeFormats
+{
+public:
+    CodeFormats();
+
+    CodeFormatPtr GetFormat(const std::string& name);
+    CodeFormatPtr GetFormat(const std::string& name, uint left_indent, uint top_indent, uint right_indent, uint bottom_indent, 
+        uint left_margin, uint top_margin, uint right_margin, uint bottom_margin, uint paragraph_spacing);
+
+private:
+    std::vector<CodeFormatPtr> code_formats;
+};
+
+typedef std::unique_ptr<CodeFormats> CodeFormatsPtr;
+
 struct PageFormat
 {
     uint left_indent;

@@ -1,0 +1,130 @@
+#include "code_block.h"
+#include "code_paragraph.h"
+
+namespace yutovo
+{
+
+CodeBlock::CodeBlock(Document* _document) :
+    Block(_document)
+{
+    type = ElementType::CODE_BLOCK;
+    code_format = document->code_formats->GetFormat("Calculator");
+    paragraph_format = document->paragraph_formats->GetFormat("Code");
+    formula_format = document->formula_formats->GetFormat("Formula");
+    AddEmptyElement(); //code block has to have at least one code paragraph
+}
+
+CodeBlock::CodeBlock(Element* parent) :
+    Block(parent)
+{
+    type = ElementType::CODE_BLOCK;
+    code_format = document->code_formats->GetFormat("Calculator");
+    paragraph_format = document->paragraph_formats->GetFormat("Code");
+    formula_format = document->formula_formats->GetFormat("Formula");
+    AddEmptyElement(); //code block has to have at least one code paragraph
+}
+
+Element* CodeBlock::Clone()
+{
+    return new CodeBlock(*this);
+}
+
+Element* CodeBlock::Create(Element* parent)
+{
+    return new CodeBlock(parent);
+}
+
+void CodeBlock::Draw() const
+{
+    Element::Draw();
+    window->DrawRect(GetAbsoluteRect(), Color::Red());
+}
+
+void CodeBlock::Remake(bool with_elements, bool with_parent, bool with_undo)
+{
+    if (with_elements)
+        Element::Remake(true, with_parent, with_undo);
+
+    int left_m = 0, top_m = 0, right_m = 0, bottom_m = 0;
+    int h = 0;
+    for (int i = 0; i < elements->Count(); ++i) //arrange paragraphs
+    {
+        ElementPtr p = elements->Get(i);
+        p->GetMargin(left_m, top_m, right_m, bottom_m); //consider the margins
+        p->rect.Move(p->rect.left, h + top_m);
+        h += p->rect.height + code_format->paragraph_spacing + bottom_m;
+    }
+
+    Element::UpdateRect(false);
+
+    bool remake = (rect != last_rect && with_parent);
+    last_rect = rect;
+
+    UpdateRect();
+
+    if (remake)
+    {
+        parent->Remake(false, with_parent, with_undo);
+        document->Redraw(id, false);
+    }
+}
+
+void CodeBlock::UpdateRect(bool with_elements)
+{
+    Element::UpdateRect(with_elements);
+    rect.left = code_format->left_indent;
+    rect.top = code_format->top_indent;
+}
+
+bool CodeBlock::AfterInsert(bool with_undo)
+{
+    CaretState c;
+    if (GetFirstCaretState(c, nullptr))
+        caret->SetState(c);
+    return true;
+}
+
+void CodeBlock::GetMargin(int& left, int& top, int& right, int& bottom) const
+{
+    left = code_format->left_margin;
+    top = code_format->top_margin;
+    right = code_format->right_margin;
+    bottom = code_format->bottom_margin;
+}
+
+bool CodeBlock::HasCaretState()
+{
+    return true;
+}
+
+bool CodeBlock::HasLastCaretState()
+{
+    return true;
+}
+
+bool CodeBlock::CanContinueSelection()
+{
+    return false;
+}
+
+StringFormatPtr CodeBlock::GetStringFormat()
+{
+    return formula_format->string_format;
+}
+
+FormulaFormatPtr CodeBlock::GetFormulaFormat() const
+{
+    return formula_format;
+}
+
+ParagraphFormatPtr CodeBlock::GetParagraphFormat()
+{
+    return paragraph_format;
+}
+
+void CodeBlock::AddEmptyElement()
+{
+    AddElement(ElementPtr(new CodeParagraph(this)));
+}
+
+}
