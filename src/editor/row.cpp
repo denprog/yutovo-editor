@@ -253,13 +253,13 @@ bool Row::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo)
             else if (el->GetFirstCaretState(c, nullptr) && c == caret_state)
             {
                 elements->Insert(ins, p + i);
+                if (i == 0)
+                    b = ins->AfterInsert(with_undo);
                 if (with_undo)
                 {
                     document->DeleteElements(false, false, true);
                     document->PushEditorState(SelectionState(id, p + i, 1), true);
                 }
-                if (i == 0)
-                    b = ins->AfterInsert(with_undo);
                 if (!b)
                 {
                     if (elements->Get(elements->Count() > p + i + 1 ? p + i + 1 : p + i)->GetLastCaretState(c, nullptr))
