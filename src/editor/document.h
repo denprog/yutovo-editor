@@ -78,6 +78,8 @@ public:
     bool GetElementAtCoords(const int x, const int y, ElementId& id);
 
     ElementPtr FindParent(const ElementId& id, const ElementType type);
+    ElementPtr FindParentParagraph(const ElementId& id);
+    ElementPtr FindParentRow(const ElementId& id);
 
     Rect GetCaretRect(const CaretState& caret_state);
 
@@ -94,6 +96,8 @@ public:
     bool IsString(ElementId id);
     bool IsRow(ElementPtr el);
     bool IsRow(ElementId id);
+    bool IsParagraph(ElementPtr el);
+    bool IsParagraph(ElementId id);
 
     bool GetStringFormat(const ElementId id, StringFormat& format);
     bool GetParagraphFormat(const ElementId id, ParagraphFormat& format);
@@ -212,11 +216,13 @@ public:
 
     StringFormatsPtr string_formats;
     ParagraphFormatsPtr paragraph_formats;
+    CodeFormatsPtr code_formats;
     FormulaFormatsPtr formula_formats;
 
 private:
     StringFormatPtr current_string_format;
     ParagraphFormatPtr current_paragraph_format;
+    CodeFormatPtr current_code_format;
     FormulaFormatPtr current_formula_format;
 
     ElementPtr text;

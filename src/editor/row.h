@@ -12,7 +12,7 @@ class Row : public Element
 {
 public:
     Row(Document* _document);
-    Row(Element* _parent);
+    Row(Element* _parent, bool with_string = true);
 
     virtual Element* Clone();
 

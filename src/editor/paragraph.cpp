@@ -8,22 +8,24 @@ namespace yutovo
 
 //Paragraph
 
-Paragraph::Paragraph(Element* parent) :
+Paragraph::Paragraph(Element* parent, bool with_row) :
     Element(parent),
     format(parent->GetParagraphFormat())
 {
     type = ElementType::PARAGRAPH;
 
-    AddElement(ElementPtr(new Row(this))); //paragraph has to have at least one row
+    if (with_row)
+        AddEmptyElement(); //paragraph has to have at least one row
 }
 
-Paragraph::Paragraph(Document* _document) :
+Paragraph::Paragraph(Document* _document, bool with_row) :
     Element(_document)
 {
     type = ElementType::PARAGRAPH;
 
     document->GetCurrentParagraphFormat(format);
-    AddElement(ElementPtr(new Row(this))); //paragraph has to have at least one row
+    if (with_row)
+        AddEmptyElement(); //paragraph has to have at least one row
 }
 
 Element* Paragraph::Clone()
@@ -166,8 +168,12 @@ void Paragraph::Remake(bool with_elements, bool with_parent, bool with_undo)
     if (rect != last_rect)
     {
         if (with_parent)
+        {
             parent->Remake(false, true, with_undo);
-        document->Redraw(id, false);
+            document->Redraw(parent->id, false);
+        }
+        else
+            document->Redraw(id, false);
     }
     last_rect = rect;
 }
@@ -285,6 +291,11 @@ bool Paragraph::GetBottomCaretState(const int x, const int y, CaretState& caret_
 bool Paragraph::CanContinueSelection()
 {
     return true;
+}
+
+void Paragraph::AddEmptyElement()
+{
+    AddElement(ElementPtr(new Row(this)));
 }
 
 StringFormatPtr Paragraph::GetStringFormat()

@@ -444,6 +444,10 @@ void Element::AddElement(ElementPtr element)
     elements->Add(element);
 }
 
+void Element::AddEmptyElement()
+{
+}
+
 uint Element::GetChildPos(const Element* element)
 {
     for (size_t i = 0; i < elements->Count(); ++i)
@@ -991,7 +995,7 @@ bool Elements::GetWordLeftCaretState(CaretState& caret_state, Selection* select)
         return false;
     while (p-- > 0)
     {
-        if (elements[p]->type == ElementType::CODE)
+        if (elements[p]->type == ElementType::CODE_BLOCK)
         {
             caret_state.SetState(Get(p));
             if (select)

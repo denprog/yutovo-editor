@@ -11,10 +11,9 @@ CodeRow::CodeRow(Document* _document) :
 }
 
 CodeRow::CodeRow(Element* parent) :
-    Row(parent)
+    Row(parent, false)
 {
     type = ElementType::CODE_ROW;
-    elements->Clear();
     AddEmptyElement();
 }
 
@@ -39,7 +38,7 @@ bool CodeRow::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo)
 {
     for (auto el : _elements)
     {
-        if (el->type == ElementType::CODE)
+        if (el->type == ElementType::CODE_BLOCK)
             return false;
     }
     return Row::InsertElements(_elements, with_undo);

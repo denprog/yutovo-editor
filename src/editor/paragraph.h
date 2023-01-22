@@ -9,11 +9,12 @@
 namespace yutovo
 {
 
+//Group of rows
 class Paragraph : public Element
 {
 public:
-    Paragraph(Element* _parent);
-    Paragraph(Document* _document);
+    Paragraph(Element* _parent, bool with_row = true);
+    Paragraph(Document* _document, bool with_row = true);
 
     virtual Element* Clone();
 
@@ -31,6 +32,8 @@ public:
     virtual bool GetBottomCaretState(const int x, const int y, CaretState& caret_state, Selection* select);
 
     virtual bool CanContinueSelection();
+
+    virtual void AddEmptyElement();
 
     virtual StringFormatPtr GetStringFormat();
     

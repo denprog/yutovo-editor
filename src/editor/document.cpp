@@ -3,7 +3,7 @@
 #include "paragraph.h"
 #include "row.h"
 #include "page.h"
-#include "formulas/code.h"
+#include "formulas/code_block.h"
 #include "formulas/code_string.h"
 #include "formulas/plus.h"
 #include "formulas/minus.h"
@@ -29,8 +29,10 @@ Document::Document(Window* _window) :
     window(_window),
     string_formats(new StringFormats()),
     paragraph_formats(new ParagraphFormats(string_formats)),
+    code_formats(new CodeFormats()),
     formula_formats(new FormulaFormats(string_formats)),
     current_paragraph_format(paragraph_formats->GetFormat("Text body")),
+    current_code_format(code_formats->GetFormat("Calculator")),
     current_formula_format(formula_formats->GetFormat("Code")),
     selection(this),
     last_selection(this),
@@ -319,7 +321,7 @@ uint Document::ClearElements(ElementId element_id, bool with_undo, bool undo)
 
 uint Document::InsertCode(bool with_undo)
 {
-    return InsertFormula(new Code(this), with_undo, false);
+    return InsertFormula(new CodeBlock(this), with_undo, false);
 }
 
 uint Document::InsertCodeString(const std::string& str, bool with_undo)
@@ -548,6 +550,28 @@ ElementPtr Document::FindParent(const ElementId& id, const ElementType type)
     return el;
 }
 
+ElementPtr Document::FindParentParagraph(const ElementId& id)
+{
+    ElementPtr el = GetElement(id);
+    if (el && (el->type == ElementType::PARAGRAPH || el->type == ElementType::CODE_PARAGRAPH))
+        return el;
+    el = GetParent(id);
+    while (el && el->type != ElementType::PARAGRAPH && el->type != ElementType::CODE_PARAGRAPH)
+        el = GetParent(el->id);
+    return el;
+}
+
+ElementPtr Document::FindParentRow(const ElementId& id)
+{
+    ElementPtr el = GetElement(id);
+    if (el && (el->type == ElementType::ROW || el->type == ElementType::CODE_ROW))
+        return el;
+    el = GetParent(id);
+    while (el && el->type != ElementType::ROW && el->type != ElementType::CODE_ROW)
+        el = GetParent(el->id);
+    return el;
+}
+
 Rect Document::GetCaretRect(const CaretState& caret_state)
 {
     ElementPtr el = GetParent(caret_state.id);
@@ -721,6 +745,17 @@ bool Document::IsRow(ElementId id)
 {
     auto el = GetElement(id);
     return IsRow(el);
+}
+
+bool Document::IsParagraph(ElementPtr el)
+{
+    return el && (el->type == ElementType::PARAGRAPH || el->type == ElementType::CODE_PARAGRAPH);
+}
+
+bool Document::IsParagraph(ElementId id)
+{
+    auto el = GetElement(id);
+    return IsParagraph(el);
 }
 
 bool Document::GetStringFormat(const ElementId id, StringFormat& format)

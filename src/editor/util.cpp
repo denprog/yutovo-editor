@@ -7,7 +7,8 @@
 #include "page.h"
 #include "paragraph.h"
 #include "element.h"
-#include "formulas/code.h"
+#include "formulas/code_block.h"
+#include "formulas/code_paragraph.h"
 #include "formulas/code_row.h"
 #include "formulas/code_string.h"
 #include "formulas/plus.h"
@@ -140,8 +141,9 @@ void RegisterTypes()
     boost::serialization::void_cast_register<yutovo::String, yutovo::Element>(static_cast<yutovo::String*>(NULL), static_cast<yutovo::Element*>(NULL));
     boost::serialization::void_cast_register<yutovo::StringElements, yutovo::Elements>(static_cast<yutovo::StringElements*>(NULL), static_cast<yutovo::Elements*>(NULL));
 
+    boost::serialization::void_cast_register<yutovo::CodeBlock, yutovo::Element>(static_cast<yutovo::CodeBlock*>(NULL), static_cast<yutovo::Element*>(NULL));
+    boost::serialization::void_cast_register<yutovo::CodeParagraph, yutovo::Element>(static_cast<yutovo::CodeParagraph*>(NULL), static_cast<yutovo::Element*>(NULL));
     boost::serialization::void_cast_register<yutovo::CodeRow, yutovo::Element>(static_cast<yutovo::CodeRow*>(NULL), static_cast<yutovo::Element*>(NULL));
-    boost::serialization::void_cast_register<yutovo::Code, yutovo::CodeRow>(static_cast<yutovo::Code*>(NULL), static_cast<yutovo::CodeRow*>(NULL));
     boost::serialization::void_cast_register<yutovo::CodeString, yutovo::String>(static_cast<yutovo::CodeString*>(NULL), static_cast<yutovo::String*>(NULL));
     boost::serialization::void_cast_register<yutovo::Shape, yutovo::Element>(static_cast<yutovo::Shape*>(NULL), static_cast<yutovo::Element*>(NULL));
     boost::serialization::void_cast_register<yutovo::Division, yutovo::Element>(static_cast<yutovo::Division*>(NULL), static_cast<yutovo::Element*>(NULL));
@@ -167,8 +169,9 @@ void RegisterTypes(UserDataAdapter<DocumentUserData, boost::archive::binary_iarc
     archive.template register_type<yutovo::String>();
     archive.template register_type<yutovo::StringElements>();
 
+    archive.template register_type<yutovo::CodeBlock>();
+    archive.template register_type<yutovo::CodeParagraph>();
     archive.template register_type<yutovo::CodeRow>();
-    archive.template register_type<yutovo::Code>();
     archive.template register_type<yutovo::CodeString>();
     archive.template register_type<yutovo::Shape>();
     archive.template register_type<yutovo::Division>();
@@ -194,8 +197,9 @@ void RegisterTypes(boost::archive::binary_iarchive& archive)
     archive.template register_type<yutovo::String>();
     archive.template register_type<yutovo::StringElements>();
 
+    archive.template register_type<yutovo::CodeBlock>();
+    archive.template register_type<yutovo::CodeParagraph>();
     archive.template register_type<yutovo::CodeRow>();
-    archive.template register_type<yutovo::Code>();
     archive.template register_type<yutovo::CodeString>();
     archive.template register_type<yutovo::Shape>();
     archive.template register_type<yutovo::Division>();
@@ -221,8 +225,9 @@ void RegisterTypes(boost::archive::binary_oarchive& archive)
     archive.template register_type<yutovo::String>();
     archive.template register_type<yutovo::StringElements>();
 
+    archive.template register_type<yutovo::CodeBlock>();
+    archive.template register_type<yutovo::CodeParagraph>();
     archive.template register_type<yutovo::CodeRow>();
-    archive.template register_type<yutovo::Code>();
     archive.template register_type<yutovo::CodeString>();
     archive.template register_type<yutovo::Shape>();
     archive.template register_type<yutovo::Division>();

@@ -4,7 +4,8 @@
 #include "paragraph.h"
 #include "page.h"
 #include "row.h"
-#include "formulas/code.h"
+#include "formulas/code_block.h"
+#include "formulas/code_paragraph.h"
 #include "formulas/code_string.h"
 #include "formulas/result.h"
 #include "util.h"
@@ -119,7 +120,7 @@ bool InsertElementsTask::Execute()
     std::vector<ElementPtr> _elements;
     for (auto t : elements)
     {
-        auto code = document->FindParent(el->id, ElementType::CODE);
+        auto code = document->FindParent(el->id, ElementType::CODE_BLOCK);
         if (t->type == ElementType::STRING && code)
         {
             //change type of string
@@ -127,6 +128,12 @@ bool InsertElementsTask::Execute()
             auto c = new CodeString(*str);
             c->format = el->GetStringFormat();
             _elements.emplace_back(c);
+            continue;
+        }
+        if (t->type == ElementType::PARAGRAPH && code)
+        {
+            //change type of paragraph
+            _elements.emplace_back(new CodeParagraph(document));
             continue;
         }
         if (t->type == ElementType::STRING)
@@ -311,12 +318,12 @@ bool InsertFormulasTask::Execute()
     ElementPtr el = document->GetParent(caret_state.id);
     assert(el);
 
-    if (elements[0]->type != ElementType::CODE)
+    if (elements[0]->type != ElementType::CODE_BLOCK)
     {
-        if (document->FindParent(caret_state.id, ElementType::CODE) == nullptr)
+        if (document->FindParent(caret_state.id, ElementType::CODE_BLOCK) == nullptr)
         {
             //there is no code element - insert one in the current row
-            auto row = document->FindParent(caret_state.id, ElementType::ROW);
+            auto row = document->FindParentRow(caret_state.id);
             if (!row)
             {
                 if (with_undo)
@@ -327,7 +334,7 @@ bool InsertFormulasTask::Execute()
             if (with_undo)
                 document->PushEditorState(true);
             
-            ElementPtr code(new Code(row.get()));
+            ElementPtr code(new CodeBlock(row.get()));
             std::vector v{code};
             if (!row->InsertElements(v, with_undo))
             {
@@ -335,7 +342,7 @@ bool InsertFormulasTask::Execute()
                     document->RollbackUndo();
                 return false;
             }
-            el = code;
+            el = code->elements->Get(0)->elements->Get(0);
         }
     }
 

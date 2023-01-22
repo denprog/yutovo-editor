@@ -13,6 +13,7 @@ add_library(${PROJECT_NAME}
     task.cpp
     document.cpp
     element.cpp
+    block.cpp
     page.cpp
     paragraph.cpp
     row.cpp
@@ -26,7 +27,8 @@ add_library(${PROJECT_NAME}
     solver.cpp
     solver_task.cpp
     formulas/formula.cpp
-    formulas/code.cpp
+    formulas/code_block.cpp
+    formulas/code_paragraph.cpp
     formulas/code_string.cpp
     formulas/code_row.cpp
     formulas/shape.cpp
