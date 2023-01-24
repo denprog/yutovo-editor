@@ -4,9 +4,9 @@
 #include <QMainWindow>
 #include <QApplication>
 #include <gmock/gmock.h>
-#include "editor/document.h"
-#include "editor/util.h"
-#include "editor/window.h"
+#include "document.h"
+#include "util.h"
+#include "window.h"
 
 namespace yutovo_test
 {

@@ -57,3 +57,10 @@ target_include_directories(${PROJECT_NAME}_tests PRIVATE
 )
 
 gtest_discover_tests(${PROJECT_NAME}_tests)
+
+install(
+    TARGETS ${PROJECT_NAME}_tests
+    EXPORT ${PROJECT_NAME}
+    DESTINATION ${INSTALL_PATH}/bin
+    COMPONENT ${PROJECT_NAME}
+)

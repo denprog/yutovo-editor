@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 #include "mock.h"
-#include "editor/style.h"
+#include "style.h"
 
 namespace yutovo_test
 {
