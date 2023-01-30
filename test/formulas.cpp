@@ -20,7 +20,7 @@ TEST_F(FormulaTest, delete1)
             return GetTextSizeMock(text, format);
         });
 
-    document.InsertCode(true);
+    document.InsertCode(false, true);
     document.InsertString("123", true);
     document.InsertPlus(true);
     document.WaitMainLoop();
@@ -202,7 +202,6 @@ TEST_F(FormulaTest, insert1)
             return GetTextSizeMock(text, format);
         });
 
-    //document.InsertCode(true);
     document.InsertString("Tradicionalmente, el medio de un documento era el papel y la información", true);
     document.WaitMainLoop();
     document.MoveCaretToDocumentBegin(false);
@@ -210,7 +209,7 @@ TEST_F(FormulaTest, insert1)
     document.MoveCaretRight(false);
     document.MoveCaretRight(false);
     document.WaitCaretMoving();
-    document.WaitTask(document.InsertCode(true));
+    document.WaitTask(document.InsertCode(false, true));
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\

@@ -2,24 +2,13 @@
 #define __SOLVER_TASK_H__
 
 #include "caret_state.h"
-#include "logger.h"
 #include <memory>
 #include <zmq.hpp>
 #include <map>
+#include <yutovo_service/solver.h>
 
 namespace yutovo
 {
-
-//Returned result type
-enum class ResultType
-{
-	NONE = 0, 
-	REAL, 
-	INTEGER, 
-	RATIONAL, 
-	COMPLEX, 
-	AUTO
-};
 
 enum class AngleMeasure
 {
@@ -51,16 +40,9 @@ enum class ExpressionType
 	USER_MEASURE //user measure
 };
 
-enum class ErrorCode
-{
-    NONE = 0,
-    JSON_ERROR,
-    SOLVER_ERROR
-};
-
 struct Error
 {
-    ErrorCode error_code = ErrorCode::NONE;
+    yutovo_service::ErrorCode error_code = yutovo_service::ErrorCode::NONE;
     int solver_error_code = -1;
     int pos = -1;
     int line = -1;
@@ -79,19 +61,23 @@ struct Warning
 
 struct Result
 {
-    ResultType type;
+    yutovo_service::ResultType type;
     std::map<std::string, std::string> values;
     Error error;
     std::vector<Warning> warnings;
 };
 
+class Logger;
+
 struct SolverTask
 {
-    SolverTask(ElementId _id, ExpressionType _expression_type, const std::string& _expression);
+    SolverTask(ElementId _id, std::string& _guid, uint _code_id, ExpressionType _expression_type, const std::string& _expression);
 
     virtual bool Solve(zmq::socket_t& socket, Result& result) = 0;
 
     ElementId id;
+    std::string guid;
+    uint code_id;
     ExpressionType expression_type;
     std::string expression;
     Logger* logger;
@@ -99,7 +85,8 @@ struct SolverTask
 
 struct RealSolverTask : SolverTask
 {
-    RealSolverTask(ElementId _id, ExpressionType _expression_type, const uint _precision, AngleMeasure _angle_measure, const std::string& _expression);
+    RealSolverTask(ElementId _id, std::string& _guid, uint _code_id, ExpressionType _expression_type, const uint _precision, 
+        AngleMeasure _angle_measure, const std::string& _expression);
 
     virtual bool Solve(zmq::socket_t& socket, Result& result);
 
@@ -109,7 +96,7 @@ struct RealSolverTask : SolverTask
 
 struct IntegerSolverTask : SolverTask
 {
-    IntegerSolverTask(ElementId _id, ExpressionType _expression_type, Notation _notation, const std::string& _expression);
+    IntegerSolverTask(ElementId _id, std::string& _guid, uint _code_id, ExpressionType _expression_type, Notation _notation, const std::string& _expression);
 
     virtual bool Solve(zmq::socket_t& socket, Result& result);
 
@@ -118,14 +105,15 @@ struct IntegerSolverTask : SolverTask
 
 struct RationalSolverTask : SolverTask
 {
-    RationalSolverTask(ElementId _id, ExpressionType _expression_type, const std::string& _expression);
+    RationalSolverTask(ElementId _id, std::string& _guid, uint _code_id, ExpressionType _expression_type, const std::string& _expression);
 
     virtual bool Solve(zmq::socket_t& socket, Result& result);
 };
 
 struct ComplexSolverTask : SolverTask
 {
-    ComplexSolverTask(ElementId _id, ExpressionType _expression_type, const uint _precision, AngleMeasure _angle_measure, const std::string& _expression);
+    ComplexSolverTask(ElementId _id, std::string& _guid, uint _code_id, ExpressionType _expression_type, const uint _precision, 
+        AngleMeasure _angle_measure, const std::string& _expression);
 
     virtual bool Solve(zmq::socket_t& socket, Result& result);
 

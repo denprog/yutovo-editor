@@ -5,6 +5,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS ON)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
+find_package(yutovo_service REQUIRED PATHS ${INSTALL_PATH}/cmake/)
+
 add_library(${PROJECT_NAME}
     caret.cpp
     caret_state.cpp
@@ -26,6 +28,7 @@ add_library(${PROJECT_NAME}
     result_codes.cpp
     solver.cpp
     solver_task.cpp
+    config.cpp
     formulas/formula.cpp
     formulas/code_block.cpp
     formulas/code_paragraph.cpp
@@ -52,18 +55,17 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
 	POSITION_INDEPENDENT_CODE ON
 )
 
-target_include_directories(${PROJECT_NAME} PUBLIC
-	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
-)
-
-set_target_properties(${PROJECT_NAME} PROPERTIES OUTPUT_NAME ${PROJECT_NAME})
-
 target_link_libraries(${PROJECT_NAME} PRIVATE 
     stdc++
     stdc++fs
     pthread
     boost_serialization
     zmq
+)
+
+target_include_directories(${PROJECT_NAME} PUBLIC
+	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+    ${INSTALL_PATH}/include
 )
 
 target_include_directories(${PROJECT_NAME} PUBLIC
@@ -98,6 +100,7 @@ install(
         window.h
         style.h
         util.h
+        config.h
     DESTINATION ${INSTALL_PATH}/include/${PROJECT_NAME}
     COMPONENT ${PROJECT_NAME}
 )

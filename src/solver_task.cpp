@@ -2,14 +2,19 @@
 #include "rapidjson/document.h"
 #include "rapidjson/writer.h"
 #include "rapidjson/stringbuffer.h"
+#include "logger.h"
 
 namespace yutovo
 {
 
+using namespace yutovo_service;
+
 //SolverTask
 
-SolverTask::SolverTask(ElementId _id, ExpressionType _expression_type, const std::string& _expression) :
+SolverTask::SolverTask(ElementId _id, std::string& _guid, uint _code_id, ExpressionType _expression_type, const std::string& _expression) :
     id(_id),
+    guid(_guid),
+    code_id(_code_id),
     expression_type(_expression_type),
     expression(_expression),
     logger(Logger::GetInstance("programs/Math/bin/", "yutovo", true, true))
@@ -18,8 +23,9 @@ SolverTask::SolverTask(ElementId _id, ExpressionType _expression_type, const std
 
 //RealSolverTask
 
-RealSolverTask::RealSolverTask(ElementId _id, ExpressionType _expression_type, const uint _precision, AngleMeasure _angle_measure, const std::string& _expression) :
-    SolverTask(_id, _expression_type, _expression),
+RealSolverTask::RealSolverTask(ElementId _id, std::string& _guid, uint _code_id, ExpressionType _expression_type, const uint _precision, 
+    AngleMeasure _angle_measure, const std::string& _expression) :
+    SolverTask(_id, _guid, _code_id, _expression_type, _expression),
     precision(_precision),
     angle_measure(_angle_measure)
 {
@@ -31,7 +37,9 @@ bool RealSolverTask::Solve(zmq::socket_t& socket, Result& result)
     rapidjson::Document doc;
     auto& alloc = doc.GetAllocator();
     doc.SetObject();
-    doc.AddMember("solver_type", 1, alloc);
+    doc.AddMember("guid", rapidjson::StringRef(guid.c_str()), alloc);
+    doc.AddMember("code_id", code_id, alloc);
+    doc.AddMember("solver_type", (int)SolverType::CALCULATOR, alloc);
     doc.AddMember("result_type", (int)ResultType::REAL, alloc);
     doc.AddMember("expression", rapidjson::StringRef(expression.c_str()), alloc);
     doc.AddMember("precision", precision, alloc);
@@ -44,14 +52,24 @@ bool RealSolverTask::Solve(zmq::socket_t& socket, Result& result)
     doc.Accept(writer);
     std::string str = buffer.GetString();
 
-    logger->Info("Send request:\n{}", str);
+    logger->Info("Sending request:\n{}", str);
     zmq::message_t request(str.size());
     std::memcpy(request.data(), str.data(), str.size());
-    socket.send(request);
+    if (socket.send(request) == 0)
+    {
+        logger->Error("Send timeout");
+        result.error.error_code = ErrorCode::SOLVER_TIMEOUT_ERROR;
+        return false;
+    }
 
     //reply
     zmq::message_t reply;
-    socket.recv(&reply);
+    if (socket.recv(&reply) == 0)
+    {
+        logger->Error("Receive timeout");
+        result.error.error_code = ErrorCode::SOLVER_TIMEOUT_ERROR;
+        return false;
+    }
 
     std::string json = std::string((const char*)reply.data(), reply.size());
     logger->Info("Got reply:\n{}", json);
@@ -68,7 +86,16 @@ bool RealSolverTask::Solve(zmq::socket_t& socket, Result& result)
     if (doc.HasMember("error"))
     {
         logger->Error("Solver error");
-        result.error.error_code = ErrorCode::SOLVER_ERROR;
+        if (doc["error"].IsObject())
+        {
+            rapidjson::Value error = doc["error"].GetObject();
+            if (error.HasMember("error_code") && error["error_code"].IsInt())
+            {
+                result.error.error_code = (ErrorCode)error["error_code"].GetInt();
+                return false;
+            }
+        }
+        result.error.error_code = ErrorCode::EXPRESSION_ERROR;
         return false;
     }
     if (!doc.HasMember("mantissa") || !doc["mantissa"].IsString())
@@ -87,8 +114,9 @@ bool RealSolverTask::Solve(zmq::socket_t& socket, Result& result)
 
 //IntegerSolverTask
 
-IntegerSolverTask::IntegerSolverTask(ElementId _id, ExpressionType _expression_type, Notation _notation, const std::string& _expression) :
-    SolverTask(_id, _expression_type, _expression),
+IntegerSolverTask::IntegerSolverTask(ElementId _id, std::string& _guid, uint _code_id, ExpressionType _expression_type, 
+    Notation _notation, const std::string& _expression) :
+    SolverTask(_id, _guid, _code_id, _expression_type, _expression),
     notation(_notation)
 {
 }
@@ -99,7 +127,9 @@ bool IntegerSolverTask::Solve(zmq::socket_t& socket, Result& result)
     rapidjson::Document doc;
     auto& alloc = doc.GetAllocator();
     doc.SetObject();
-    doc.AddMember("solver_type", 1, alloc);
+    doc.AddMember("guid", rapidjson::StringRef(guid.c_str()), alloc);
+    doc.AddMember("code_id", code_id, alloc);
+    doc.AddMember("solver_type", (int)SolverType::CALCULATOR, alloc);
     doc.AddMember("result_type", (int)ResultType::INTEGER, alloc);
     doc.AddMember("expression", rapidjson::StringRef(expression.c_str()), alloc);
 
@@ -111,11 +141,21 @@ bool IntegerSolverTask::Solve(zmq::socket_t& socket, Result& result)
     logger->Info("Send request:\n{}", str);
     zmq::message_t request(str.size());
     std::memcpy(request.data(), str.data(), str.size());
-    socket.send(request);
+    if (socket.send(request) == 0)
+    {
+        logger->Error("Send timeout");
+        result.error.error_code = ErrorCode::SOLVER_TIMEOUT_ERROR;
+        return false;
+    }
 
     //reply
     zmq::message_t reply;
-    socket.recv(&reply);
+    if (socket.recv(&reply) == 0)
+    {
+        logger->Error("Receive timeout");
+        result.error.error_code = ErrorCode::SOLVER_TIMEOUT_ERROR;
+        return false;
+    }
     
     std::string json = std::string((const char*)reply.data(), reply.size());
     logger->Info("Got reply:\n{}", json);
@@ -132,7 +172,16 @@ bool IntegerSolverTask::Solve(zmq::socket_t& socket, Result& result)
     if (doc.HasMember("error"))
     {
         logger->Error("Solver error");
-        result.error.error_code = ErrorCode::SOLVER_ERROR;
+        if (doc["error"].IsObject())
+        {
+            rapidjson::Value error = doc["error"].GetObject();
+            if (error.HasMember("error_code") && error["error_code"].IsInt())
+            {
+                result.error.error_code = (ErrorCode)error["error_code"].GetInt();
+                return false;
+            }
+        }
+        result.error.error_code = ErrorCode::EXPRESSION_ERROR;
         return false;
     }
     if (!doc.HasMember("value") || !doc["value"].IsString())
@@ -149,8 +198,8 @@ bool IntegerSolverTask::Solve(zmq::socket_t& socket, Result& result)
 
 //RationalSolverTask
 
-RationalSolverTask::RationalSolverTask(ElementId _id, ExpressionType _expression_type, const std::string& _expression) :
-    SolverTask(_id, _expression_type, _expression)
+RationalSolverTask::RationalSolverTask(ElementId _id, std::string& _guid, uint _code_id, ExpressionType _expression_type, const std::string& _expression) :
+    SolverTask(_id, _guid, _code_id, _expression_type, _expression)
 {
 }
 
@@ -160,6 +209,8 @@ bool RationalSolverTask::Solve(zmq::socket_t& socket, Result& result)
     rapidjson::Document doc;
     auto& alloc = doc.GetAllocator();
     doc.SetObject();
+    doc.AddMember("guid", rapidjson::StringRef(guid.c_str()), alloc);
+    doc.AddMember("code_id", code_id, alloc);
     doc.AddMember("solver_type", 1, alloc);
     doc.AddMember("result_type", (int)ResultType::RATIONAL, alloc);
     doc.AddMember("expression", rapidjson::StringRef(expression.c_str()), alloc);
@@ -172,11 +223,21 @@ bool RationalSolverTask::Solve(zmq::socket_t& socket, Result& result)
     logger->Info("Send request:\n{}", str);
     zmq::message_t request(str.size());
     std::memcpy(request.data(), str.data(), str.size());
-    socket.send(request);
+    if (socket.send(request) == 0)
+    {
+        logger->Error("Send timeout");
+        result.error.error_code = ErrorCode::SOLVER_TIMEOUT_ERROR;
+        return false;
+    }
 
     //reply
     zmq::message_t reply;
-    socket.recv(&reply);
+    if (socket.recv(&reply) == 0)
+    {
+        logger->Error("Receive timeout");
+        result.error.error_code = ErrorCode::SOLVER_TIMEOUT_ERROR;
+        return false;
+    }
     
     std::string json = std::string((const char*)reply.data(), reply.size());
     logger->Info("Got reply:\n{}", json);
@@ -193,7 +254,16 @@ bool RationalSolverTask::Solve(zmq::socket_t& socket, Result& result)
     if (doc.HasMember("error"))
     {
         logger->Error("Solver error");
-        result.error.error_code = ErrorCode::SOLVER_ERROR;
+        if (doc["error"].IsObject())
+        {
+            rapidjson::Value error = doc["error"].GetObject();
+            if (error.HasMember("error_code") && error["error_code"].IsInt())
+            {
+                result.error.error_code = (ErrorCode)error["error_code"].GetInt();
+                return false;
+            }
+        }
+        result.error.error_code = ErrorCode::EXPRESSION_ERROR;
         return false;
     }
     if (!doc.HasMember("numerator") || !doc["numerator"].IsString() || !doc.HasMember("denomerator") || !doc["denomerator"].IsString())
@@ -211,8 +281,9 @@ bool RationalSolverTask::Solve(zmq::socket_t& socket, Result& result)
 
 //ComplexSolverTask
 
-ComplexSolverTask::ComplexSolverTask(ElementId _id, ExpressionType _expression_type, const uint _precision, AngleMeasure _angle_measure, const std::string& _expression) :
-    SolverTask(_id, _expression_type, _expression),
+ComplexSolverTask::ComplexSolverTask(ElementId _id, std::string& _guid, uint _code_id, ExpressionType _expression_type, const uint _precision, 
+    AngleMeasure _angle_measure, const std::string& _expression) :
+    SolverTask(_id, _guid, _code_id, _expression_type, _expression),
     precision(_precision),
     angle_measure(_angle_measure)
 {

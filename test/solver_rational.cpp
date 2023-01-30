@@ -6,6 +6,7 @@ namespace yutovo_test
 {
 
 using namespace yutovo;
+using namespace yutovo_service;
 using namespace std::chrono_literals;
 
 TEST_F(SolverRationalTest, rational1)
@@ -20,7 +21,7 @@ TEST_F(SolverRationalTest, rational1)
             return GetTextSizeMock(text, format);
         });
     
-    document.InsertCode(true);
+    document.InsertCode(false, true);
     document.InsertDivision(true);
     document.InsertString("1", true);
     document.WaitMainLoop();
@@ -34,7 +35,7 @@ TEST_F(SolverRationalTest, rational1)
     document.InsertEquation(ResultType::RATIONAL, true);
     document.WaitMainLoop();
     document.WaitSolver();
-    std::this_thread::sleep_for(100ms);
+    std::this_thread::sleep_for(1s);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\

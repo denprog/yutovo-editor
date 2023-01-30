@@ -6,9 +6,12 @@
 #include "division.h"
 #include "../solver.h"
 #include "code_string.h"
+#include "code_block.h"
 
 namespace yutovo
 {
+
+using namespace yutovo_service;
 
 //ResultRow
 
@@ -133,12 +136,12 @@ ErrorResult::ErrorResult(Document* _document) :
     type = ElementType::ERROR_RESULT;
 }
 
-ErrorResult::ErrorResult(Element* parent, const ErrorCode error_code) :
+ErrorResult::ErrorResult(Element* parent, const yutovo_service::ErrorCode error_code) :
     ResultRow(parent)
 {
     type = ElementType::ERROR_RESULT;
     elements->Clear();
-    AddElement(ElementPtr(new CodeString(this, "Error")));
+    AddElement(ElementPtr(new CodeString(this, ErrorCodeToString(error_code))));
 }
 
 //AutoResult
@@ -184,47 +187,62 @@ Element* AutoResult::Create(Element* _parent)
 void AutoResult::Remake(bool with_elements, bool with_parent, bool with_undo)
 {
     Element::Remake(with_elements, with_parent, with_undo);
-    if (elements->Count() > 0)
-        baseline = elements->Get(0)->baseline;
+    if (elements->Count() == 0)
+    {
+        //put waiting symbol
+        elements->Add(ElementPtr(new CodeString(this, "~")));
+        elements->Get(0)->SetEditable(false);
+        Element::Remake(true, false, false);
+    }
+    baseline = elements->Get(0)->baseline;
+    document->Remake(parent->id, false, false, false);
 }
 
-void AutoResult::Solve(const std::string& expression, ResultType result_type)
+void AutoResult::Solve(const std::string& expression, yutovo_service::ResultType result_type)
 {
     if (last_expression == expression)
         return;
 
-    document->Solve(id, ExpressionType::CALC, result_type, precision, angle_measure, notation, expression);
+    auto code = document->FindParent(id, ElementType::CODE_BLOCK);
+    document->Solve(id, ((CodeBlock*)code.get())->code_id, ExpressionType::CALC, result_type, precision, angle_measure, notation, expression);
 
     last_expression = expression;
 }
 
 void AutoResult::PutResult(Result result)
 {
+    if (result.error.error_code == ErrorCode::SOLVER_RESTARTED_ERROR)
+    {
+        document->ReSolve(id); //wait for re-solving the expressions above and later this one
+        return;
+    }
+
     elements->Clear();
     if (result.error.error_code != ErrorCode::NONE)
     {
         //put error message
         elements->Add(ElementPtr(new ErrorResult(this, result.error.error_code)));
-        document->Remake(parent->parent->id, true, false, false);
-        return;
     }
-
-    //put element of returned result type
-    switch (result.type)
+    else
     {
-    case ResultType::REAL:
-        elements->Add(ResultPtr(new RealResult(this, result.values["mantissa"], result.values["exponent"])));
-        break;
-	case ResultType::INTEGER:
-        elements->Add(ResultPtr(new IntegerResult(this, result.values["value"])));
-        break;
-	case ResultType::RATIONAL:
-        elements->Add(ResultPtr(new RationalResult(this, result.values["numerator"], result.values["denomerator"])));
-        break;
-	case ResultType::COMPLEX:
-        break;
+        //put element of returned result type
+        switch (result.type)
+        {
+        case ResultType::REAL:
+            elements->Add(ResultPtr(new RealResult(this, result.values["mantissa"], result.values["exponent"])));
+            break;
+        case ResultType::INTEGER:
+            elements->Add(ResultPtr(new IntegerResult(this, result.values["value"])));
+            break;
+        case ResultType::RATIONAL:
+            elements->Add(ResultPtr(new RationalResult(this, result.values["numerator"], result.values["denomerator"])));
+            break;
+        case ResultType::COMPLEX:
+            break;
+        }
     }
 
+    elements->Get(0)->SetEditable(false);
     Remake(true, false, false);
     document->Remake(parent->parent->id, true, false, false);
 }

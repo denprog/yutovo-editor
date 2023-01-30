@@ -57,7 +57,7 @@ class ErrorResult : public ResultRow
 {
 public:
     ErrorResult(Document* _document);
-    ErrorResult(Element* parent, const ErrorCode error_code);
+    ErrorResult(Element* parent, const yutovo_service::ErrorCode error_code);
     ErrorResult(const ErrorResult& source) = default;
 };
 
@@ -75,7 +75,7 @@ public:
 
     virtual void Remake(bool with_elements, bool with_parent, bool with_undo);
 
-    void Solve(const std::string& expression, ResultType result_type);
+    void Solve(const std::string& expression, yutovo_service::ResultType result_type);
     void PutResult(Result result);
 
     template <class Archive>

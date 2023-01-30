@@ -8,6 +8,7 @@
 #include "formulas/code_paragraph.h"
 #include "formulas/code_string.h"
 #include "formulas/result.h"
+#include "logger.h"
 #include "util.h"
 #include "result_codes.h"
 #include <assert.h>
@@ -334,7 +335,7 @@ bool InsertFormulasTask::Execute()
             if (with_undo)
                 document->PushEditorState(true);
             
-            ElementPtr code(new CodeBlock(row.get()));
+            ElementPtr code(new CodeBlock(row.get(), document->cur_code_id));
             std::vector v{code};
             if (!row->InsertElements(v, with_undo))
             {
@@ -877,19 +878,49 @@ ResultTask::ResultTask(ElementPtr _text, ElementId _id, Result _result) :
 bool ResultTask::Execute()
 {
     ElementPtr el = document->GetElement(id);
-    if (el->type != ElementType::AUTO_RESULT)
+    if (el && el->type != ElementType::AUTO_RESULT)
         return false;
     AutoResult* r = dynamic_cast<AutoResult*>(el.get());
     if (!r)
         return false;
     r->PutResult(result);
-    if (result.error.error_code != ErrorCode::NONE)
+    if (result.error.error_code != yutovo_service::ErrorCode::NONE)
     {
         //mark errors positions
     }
     if (!result.warnings.empty())
     {
         //mark warnings positions
+    }
+    return true;
+}
+
+//ResolveTask
+
+ResolveTask::ResolveTask(ElementPtr _text, ElementId _id) :
+    Task(_text),
+    id(_id)
+{
+}
+
+bool ResolveTask::Execute()
+{
+    auto el = document->FindParent(id, ElementType::CODE_BLOCK);
+    if (!el)
+        return false;
+    CodeBlock* c = dynamic_cast<CodeBlock*>(el.get());
+    if (!c)
+        return false;
+
+    uint code_id = c->code_id;
+    std::vector<ElementId> code_blocks;
+    text->FindElements(ElementType::CODE_BLOCK, code_blocks); //find all code block above
+    for (ElementId _id : code_blocks)
+    {
+        auto el = document->GetElement(_id);
+        CodeBlock* c = dynamic_cast<CodeBlock*>(el.get());
+        if (c && c->code_id == code_id)
+            c->ReSolve(); //resolve all the connected code blocks above and the current one
     }
     return true;
 }

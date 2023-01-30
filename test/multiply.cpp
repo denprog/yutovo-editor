@@ -84,7 +84,7 @@ TEST_F(FormulaTest, multiply2)
     document.WaitMainLoop();
     document.MoveCaretLeft(false);
     document.WaitCaretMoving();
-    document.InsertCode(true);
+    document.InsertCode(false, true);
     document.InsertMultiply(true);
     document.WaitMainLoop();
     document.Save("multiply2_1.yut");

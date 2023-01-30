@@ -37,9 +37,10 @@ Document::Document(Window* _window) :
     selection(this),
     last_selection(this),
     solver(this),
-    logger(Logger::GetInstance("programs/Math/bin/", "yutovo", true, true))
+    logger(Logger::GetInstance(".", "yutovo", true, true))
 {
     logger->Debug("Document start");
+    config.Open("config.json");
 }
 
 Document::~Document()
@@ -319,9 +320,11 @@ uint Document::ClearElements(ElementId element_id, bool with_undo, bool undo)
     return last_task_id;
 }
 
-uint Document::InsertCode(bool with_undo)
+uint Document::InsertCode(bool next_code_id, bool with_undo)
 {
-    return InsertFormula(new CodeBlock(this), with_undo, false);
+    if (next_code_id)
+        ++cur_code_id;
+    return InsertFormula(new CodeBlock(this, cur_code_id), with_undo, false);
 }
 
 uint Document::InsertCodeString(const std::string& str, bool with_undo)
@@ -367,7 +370,7 @@ uint Document::InsertSquareRoot(bool with_undo)
     return InsertFormula(new SquareRoot(this), with_undo, false);
 }
 
-uint Document::InsertEquation(ResultType result_type, bool with_undo)
+uint Document::InsertEquation(yutovo_service::ResultType result_type, bool with_undo)
 {
     return InsertFormula(new Equation(this, result_type), with_undo, false);
 }
@@ -1157,10 +1160,16 @@ void Document::SetEditorState(EditorState& state)
     selection.Set(state.selection_state);
 }
 
-void Document::Solve(ElementId _id, ExpressionType expression_type, ResultType result_type, const uint precision, AngleMeasure angle_measure, 
-    Notation notation, const std::string& expression)
+void Document::Solve(ElementId _id, uint code_id, ExpressionType expression_type, yutovo_service::ResultType result_type, const uint precision, 
+    AngleMeasure angle_measure, Notation notation, const std::string& expression)
 {
-    solver.Solve(_id, expression_type, result_type, precision, angle_measure, notation, expression);
+    solver.Solve(_id, code_id, expression_type, result_type, precision, angle_measure, notation, expression);
+}
+
+void Document::ReSolve(ElementId _id)
+{
+    std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
+    tasks.emplace_back(new ResolveTask(text, _id));
 }
 
 void Document::PutResult(ElementId _id, Result result)

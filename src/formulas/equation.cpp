@@ -13,7 +13,7 @@ Equation::Equation(Element* _parent) :
     type = ElementType::EQUATION;
 }
 
-Equation::Equation(Document* _document, ResultType _result_type) :
+Equation::Equation(Document* _document, yutovo_service::ResultType _result_type) :
     MiddleShapeFormula(_document),
     result_type(_result_type)
 {
@@ -22,7 +22,6 @@ Equation::Equation(Document* _document, ResultType _result_type) :
 
 Equation::Equation(const Equation& source) :
     MiddleShapeFormula(source),
-    auto_result(source.auto_result),
     result_type(source.result_type)
 {
 }
@@ -109,6 +108,16 @@ void Equation::Remake(bool with_elements, bool with_parent, bool with_undo)
     auto_result->Solve(first->ToText(), result_type); //solve the expression in the left part
 }
 
+bool Equation::DeleteElements(bool left, bool with_undo)
+{
+    if (caret->IsOnElement(shape->id))
+    {
+        last = nullptr;
+        elements->RemoveAt(2, 1);
+    }
+    return MiddleShapeFormula::DeleteElements(left, with_undo);
+}
+
 bool Equation::AfterInsert(bool with_undo)
 {
     int pos = parent->elements->GetElementPos(id);
@@ -128,11 +137,18 @@ bool Equation::AfterInsert(bool with_undo)
     return true;
 }
 
+void Equation::ReSolve()
+{
+    auto_result.reset();
+    document->Remake(id, true, false, false);
+}
+
 std::string Equation::ToHtml()
 {
     std::string s = first->ToHtml();
     s += "<mo>=</mo>";
-    s += last->ToHtml();
+    if (last)
+        s += last->ToHtml();
     return s;
 }
 
@@ -140,7 +156,8 @@ std::string Equation::ToText()
 {
     std::string s = first->ToText();
     s += "=";
-    s += last->ToText();
+    if (last)
+        s += last->ToText();
     return s;
 }
 

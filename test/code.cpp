@@ -24,7 +24,7 @@ TEST_F(CodeTest, code1)
             return GetTextSizeMock(text, format);
         });
     
-    document.InsertCode(true);
+    document.InsertCode(false, true);
     document.WaitMainLoop();
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
@@ -154,7 +154,7 @@ TEST_F(CodeTest, code2)
         });
 
     document.InsertString("Text", true);
-    document.InsertCode(true);
+    document.InsertCode(false, true);
     document.WaitMainLoop();
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
@@ -206,7 +206,7 @@ TEST_F(CodeTest, code3)
             return GetTextSizeMock(text, format);
         });
     
-    document.InsertCode(true);
+    document.InsertCode(false, true);
     document.WaitMainLoop();
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
@@ -265,7 +265,7 @@ TEST_F(CodeTest, code4)
             return GetTextSizeMock(text, format);
         });
     
-    document.InsertCode(true);
+    document.InsertCode(false, true);
     document.WaitMainLoop();
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
@@ -281,7 +281,7 @@ TEST_F(CodeTest, code4)
         document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 0, 0})) << document.GetEditorState().ToString();
 
-    document.InsertCode(true);
+    document.InsertCode(false, true);
     document.WaitMainLoop();
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
@@ -319,7 +319,7 @@ TEST_F(CodeTest, code4)
 
     document.MoveCaretRight(false);
     document.WaitCaretMoving();
-    document.InsertCode(true);
+    document.InsertCode(false, true);
     document.WaitMainLoop();
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
@@ -388,7 +388,7 @@ TEST_F(CodeTest, code5)
             return GetTextSizeMock(text, format);
         });
     
-    document.InsertCode(true);
+    document.InsertCode(false, true);
     document.WaitMainLoop();
     document.MoveCaretLeft(false);
     document.WaitCaretMoving();
@@ -435,7 +435,7 @@ TEST_F(CodeTest, code5)
     document.MoveCaretRight(false);
     document.MoveCaretRight(false);
     document.WaitCaretMoving();
-    document.InsertCode(true);
+    document.InsertCode(false, true);
     document.WaitMainLoop();
     std::this_thread::sleep_for(200ms);
     ASSERT_TRUE(document.ToHtml() == 
@@ -523,7 +523,7 @@ TEST_F(CodeTest, code6)
             return GetTextSizeMock(text, format);
         });
     
-    document.InsertCode(true);
+    document.InsertCode(false, true);
     document.WaitMainLoop();
     document.MoveCaretLeft(false);
     document.WaitCaretMoving();
@@ -540,7 +540,7 @@ TEST_F(CodeTest, code6)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0})) << document.GetEditorState().ToString();
 
     document.MoveCaretEnd(false);
-    document.InsertCode(true);
+    document.InsertCode(false, true);
     document.WaitMainLoop();
     document.MoveCaretLeft(false);
     document.MoveCaretHome(false);
@@ -581,7 +581,7 @@ TEST_F(CodeTest, code7)
             return GetTextSizeMock(text, format);
         });
     
-    document.InsertCode(true);
+    document.InsertCode(false, true);
     document.WaitMainLoop();
     document.MoveCaretRight(false);
     document.WaitCaretMoving();
@@ -606,7 +606,7 @@ TEST_F(CodeTest, code7)
     document.MoveCaretUp(false);
     document.MoveCaretUp(false);
     document.WaitCaretMoving();
-    document.InsertCode(true);
+    document.InsertCode(false, true);
     document.WaitMainLoop();
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
@@ -632,7 +632,7 @@ TEST_F(CodeTest, code7)
     
     document.MoveCaretToDocumentEnd(false);
     document.WaitCaretMoving();
-    document.InsertCode(true);
+    document.InsertCode(false, true);
     document.WaitMainLoop();
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
@@ -728,7 +728,7 @@ TEST_F(CodeTest, code8)
             return GetTextSizeMock(text, format);
         });
     
-    document.InsertCode(true);
+    document.InsertCode(false, true);
     document.WaitMainLoop();
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
@@ -747,7 +747,7 @@ TEST_F(CodeTest, code8)
     document.MoveCaretRight(false);
     document.WaitCaretMoving();
     document.InsertString("Text", true);
-    document.InsertCode(true);
+    document.InsertCode(false, true);
     document.MoveCaretRight(false);
     document.WaitCaretMoving();
     document.Undo();
@@ -781,7 +781,7 @@ TEST_F(CodeTest, code9)
             return GetTextSizeMock(text, format);
         });
     
-    document.InsertCode(true);
+    document.InsertCode(false, true);
     document.WaitTask(document.InsertParagraph(true));
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
@@ -852,7 +852,7 @@ TEST_F(CodeTest, code10)
         });
     
     document.InsertString("Text", true);
-    document.InsertCode(true);
+    document.InsertCode(false, true);
     document.InsertString("1234", true);
     document.WaitMainLoop();
     document.MoveCaretLeft(false);

@@ -11,8 +11,8 @@ namespace yutovo
 class CodeBlock : public Block
 {
 public:
-    CodeBlock(Document* _document);
-    CodeBlock(Element* parent);
+    CodeBlock(Document* _document, uint _code_id);
+    CodeBlock(Element* parent, uint _code_id);
     CodeBlock(const CodeBlock& source) = default;
 
     virtual Element* Clone();
@@ -40,6 +40,7 @@ public:
     template <class Archive>
     void save(Archive& ar, const unsigned int version) const
     {
+        ar << code_id;
         ar << (boost::serialization::base_object<Element>(*this), elements);
     }
 
@@ -50,6 +51,9 @@ public:
     }
 
     BOOST_SERIALIZATION_SPLIT_MEMBER()
+
+public:
+    uint code_id = 0; //id for unification of code blocks
 
 protected:
     CodeFormatPtr code_format;
@@ -75,8 +79,10 @@ void load_construct_data(Archive& ar, yutovo::CodeBlock* t, const unsigned int v
 {
     yutovo::Element* p;
     ar >> p;
+    uint code_id;
+    ar >> code_id;
     yutovo::DocumentUserData& user_data = yutovo::GetUserData<yutovo::DocumentUserData>(ar);
-    ::new(t)yutovo::CodeBlock(p);
+    ::new(t)yutovo::CodeBlock(p, code_id);
 }
 
 }

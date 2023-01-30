@@ -181,6 +181,9 @@ std::string String::ToHtml()
 
 bool String::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo)
 {
+    if (!editable)
+        return false;
+    
     if (!document->caret->IsInsideElement(id))
         return parent->InsertElements(_elements, with_undo);
     
@@ -231,6 +234,9 @@ bool String::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo)
 
 bool String::DeleteElements(bool left, bool with_undo)
 {
+    if (!editable)
+        return false;
+    
     uint caret_pos = caret->GetPos();
     if (caret->IsInsideElement(id))
     {
@@ -286,6 +292,9 @@ bool String::DeleteElements(bool left, bool with_undo)
 
 bool String::ChangeStringFormat(const StringFormatPtr _format, bool with_undo)
 {
+    if (!editable)
+        return false;
+    
     uint start, size;
     if (selection->Has(id, start, size))
     {
@@ -320,6 +329,9 @@ bool String::ChangeStringFormat(const StringFormatPtr _format, bool with_undo)
 
 bool String::Split(const uint max_left_width)
 {
+    if (!editable)
+        return false;
+
     std::u32string& str = ((StringElements*)elements.get())->str;
     for (int i = str.size() - 2; i > 0; --i) //at least one character in the splitted string
     {
@@ -372,6 +384,8 @@ bool String::Split(const uint max_left_width)
 
 bool String::SplitAt(const uint pos)
 {
+    if (!editable)
+        return false;
     if (pos == 0 || pos >= elements->Count())
         return false;
 
@@ -413,6 +427,8 @@ bool String::SplitAt(const uint pos)
 
 bool String::Merge(const ElementPtr with_element)
 {
+    if (!editable)
+        return false;
     if (!document->IsString(with_element))
         return false;
     //merge two strings if those formats are equal
@@ -502,6 +518,21 @@ void String::UpdateLevel(uint8_t _level)
         return;
     format = parent->GetStringFormat();
     format = document->GetStringFormat(format->family, GetFontSize(format->size), format->bold, format->italic, format->underline);
+}
+
+void String::SetEditable(bool _editable)
+{
+    editable = _editable;
+}
+
+void String::FindElements(ElementType _type, std::vector<ElementId>& _elements)
+{
+    if (type == _type)
+        _elements.push_back(id);
+}
+
+void String::ReSolve()
+{
 }
 
 //StringElements

@@ -79,7 +79,7 @@ TEST_F(FormulaTest, plus2)
             return GetTextSizeMock(text, format);
         });
 
-    document.InsertCode(true);
+    document.InsertCode(false, true);
     document.InsertString("123", true);
     document.InsertPlus(true);
     document.WaitTask(document.InsertString("45", true));
@@ -137,7 +137,7 @@ TEST_F(FormulaTest, plus3)
             return GetTextSizeMock(text, format);
         });
 
-    document.InsertCode(true);
+    document.InsertCode(false, true);
     document.InsertPlus(true);
     document.WaitTask(document.InsertPlus(true));
     ASSERT_TRUE(document.ToHtml() == 
@@ -189,7 +189,7 @@ TEST_F(FormulaTest, plus4)
             return GetTextSizeMock(text, format);
         });
 
-    document.InsertCode(true);
+    document.InsertCode(false, true);
     document.InsertString("123", true);
     document.InsertPlus(true);
     document.InsertString("45", true);
@@ -300,7 +300,7 @@ TEST_F(FormulaTest, plus5)
             return GetTextSizeMock(text, format);
         });
 
-    document.InsertCode(true);
+    document.InsertCode(false, true);
     document.InsertString("123", true);
     document.WaitMainLoop();
     document.MoveCaretLeft(false);
@@ -351,7 +351,7 @@ TEST_F(FormulaTest, plus6)
         });
 
     document.InsertString("123", true);
-    document.InsertCode(true);
+    document.InsertCode(false, true);
     document.InsertPlus(true);
     document.WaitMainLoop();
     document.Save("plus6_1.yut");

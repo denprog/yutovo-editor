@@ -15,7 +15,9 @@
 #include "solver.h"
 #include "util.h"
 #include "editor_state.h"
+#include "config.h"
 #include "logger.h"
+#include <yutovo_service/solver.h>
 
 namespace yutovo
 {
@@ -42,7 +44,7 @@ public:
     uint DeleteElements(bool left, bool with_undo, bool undo);
     uint ClearElements(ElementId element_id, bool with_undo, bool undo);
 
-    uint InsertCode(bool with_undo);
+    uint InsertCode(bool next_code_id, bool with_undo);
     uint InsertCodeString(const std::string& str, bool with_undo);
     uint InsertPlus(bool with_undo);
     uint InsertMinus(bool with_undo);
@@ -51,7 +53,7 @@ public:
     uint InsertPower(bool with_undo);
     uint InsertNthRoot(bool with_undo);
     uint InsertSquareRoot(bool with_undo);
-    uint InsertEquation(ResultType result_type, bool with_undo);
+    uint InsertEquation(yutovo_service::ResultType result_type, bool with_undo);
 
     uint InsertFormula(Element* element, bool with_undo, bool undo);
     uint InsertFormulas(std::vector<ElementPtr>& elements, bool with_undo, bool undo);
@@ -163,8 +165,9 @@ public:
     EditorState GetEditorState();
     void SetEditorState(EditorState& state);
 
-    void Solve(ElementId _id, ExpressionType expression_type, ResultType result_type, const uint precision, AngleMeasure angle_measure, 
-        Notation notation, const std::string& expression);
+    void Solve(ElementId _id, uint code_id, ExpressionType expression_type, yutovo_service::ResultType result_type, const uint precision, 
+        AngleMeasure angle_measure, Notation notation, const std::string& expression);
+    void ReSolve(ElementId _id);
     void PutResult(ElementId _id, Result result);
 
 private:
@@ -233,6 +236,10 @@ public:
     Selection last_selection;
 
     bool can_normalize = true;
+
+    Config config;
+
+    uint cur_code_id = 1;
 
 private:
     std::vector<TaskPtr> tasks;
