@@ -6,6 +6,7 @@ namespace yutovo_test
 {
 
 using namespace yutovo;
+using namespace yutovo_service;
 using namespace std::chrono_literals;
 
 TEST_F(SolverAutoTest, solver1)
@@ -20,12 +21,12 @@ TEST_F(SolverAutoTest, solver1)
             return GetTextSizeMock(text, format);
         });
     
-    document.InsertCode(true);
+    document.InsertCode(false, true);
     document.InsertString("1", true);
     document.InsertEquation(ResultType::AUTO, true);
     document.WaitMainLoop();
     document.WaitSolver();
-    std::this_thread::sleep_for(100ms);
+    std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -66,7 +67,7 @@ TEST_F(SolverAutoTest, solver1)
     document.Redo();
     document.WaitRedo();
     document.WaitSolver();
-    std::this_thread::sleep_for(100ms);
+    std::this_thread::sleep_for(1ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -101,14 +102,14 @@ TEST_F(SolverAutoTest, solver2)
             return GetTextSizeMock(text, format);
         });
     
-    document.InsertCode(true);
+    document.InsertCode(false, true);
     document.InsertString("2", true);
     document.InsertPlus(true);
     document.InsertString("3", true);
     document.InsertEquation(ResultType::AUTO, true);
     document.WaitMainLoop();
     document.WaitSolver();
-    std::this_thread::sleep_for(100ms);
+    std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -153,7 +154,7 @@ TEST_F(SolverAutoTest, solver2)
     document.Redo();
     document.WaitRedo();
     document.WaitSolver();
-    std::this_thread::sleep_for(100ms);
+    std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -190,7 +191,7 @@ TEST_F(SolverAutoTest, solver3)
             return GetTextSizeMock(text, format);
         });
     
-    document.InsertCode(true);
+    document.InsertCode(false, true);
     document.InsertString("2", true);
     document.InsertPlus(true);
     document.InsertString("3", true);
@@ -201,7 +202,7 @@ TEST_F(SolverAutoTest, solver3)
     document.Save("solver3_1.yut");
     document.New();
     document.WaitMainLoop();
-    std::this_thread::sleep_for(200ms);
+    std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -215,7 +216,7 @@ TEST_F(SolverAutoTest, solver3)
     document.Load("solver3_1.yut");
     document.WaitLoad();
     document.WaitSolver();
-    std::this_thread::sleep_for(100ms);
+    std::this_thread::sleep_for(2ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\

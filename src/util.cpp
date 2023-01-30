@@ -24,6 +24,8 @@
 namespace yutovo
 {
 
+using namespace yutovo_service;
+
 //Rect
 
 int Rect::DistToPoint(const int x, const int y)
@@ -249,6 +251,19 @@ std::u32string ToUtfString(const std::string& str)
 std::string ToBasicString(const std::u32string& str)
 {
     return boost::locale::conv::utf_to_utf<char>(str);
+}
+
+std::string ErrorCodeToString(const yutovo_service::ErrorCode error_code)
+{
+    static std::map<yutovo_service::ErrorCode, std::string> error_code_str = 
+        {
+            {ErrorCode::NONE, "None"},
+            {ErrorCode::JSON_ERROR, "Json error"},
+            {ErrorCode::EXPRESSION_ERROR, "Expression error"},
+            {ErrorCode::SOLVER_TIMEOUT_ERROR, "Timeout error"},
+            {ErrorCode::SOLVER_RESTARTED_ERROR, "Solver restarted"}
+        };
+    return error_code_str[error_code];
 }
 
 }

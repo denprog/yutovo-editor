@@ -131,7 +131,7 @@ TEST_F(FormulaTest, power2)
             return GetTextSizeMock(text, format);
         });
 
-    document.InsertCode(true);
+    document.InsertCode(false, true);
     document.InsertString("123", true);
     document.InsertPower(true);
     document.WaitMainLoop();
@@ -206,7 +206,7 @@ TEST_F(FormulaTest, power3)
             return GetTextSizeMock(text, format);
         });
 
-    document.InsertCode(true);
+    document.InsertCode(false, true);
     document.InsertString("123", true);
     document.InsertPower(true);
     document.InsertString("5", true);
@@ -280,7 +280,7 @@ TEST_F(FormulaTest, power4)
             return GetTextSizeMock(text, format);
         });
 
-    document.InsertCode(true);
+    document.InsertCode(false, true);
     document.InsertString("123", true);
     document.WaitMainLoop();
     document.MoveCaretLeft(false);
@@ -336,7 +336,7 @@ TEST_F(FormulaTest, power5)
             return GetTextSizeMock(text, format);
         });
 
-    document.InsertCode(true);
+    document.InsertCode(false, true);
     document.InsertString("123", true);
     document.WaitMainLoop();
     document.MoveCaretLeft(false);
@@ -503,7 +503,7 @@ TEST_F(FormulaTest, power6)
             return GetTextSizeMock(text, format);
         });
 
-    document.InsertCode(true);
+    document.InsertCode(false, true);
     document.InsertString("123", true);
     document.WaitMainLoop();
     document.MoveCaretLeft(false);

@@ -1,11 +1,15 @@
 #include "code_block.h"
 #include "code_paragraph.h"
+#include "formula.h"
 
 namespace yutovo
 {
 
-CodeBlock::CodeBlock(Document* _document) :
-    Block(_document)
+//CodeBlock
+
+CodeBlock::CodeBlock(Document* _document, uint _code_id) :
+    Block(_document),
+    code_id(_code_id)
 {
     type = ElementType::CODE_BLOCK;
     code_format = document->code_formats->GetFormat("Calculator");
@@ -14,8 +18,9 @@ CodeBlock::CodeBlock(Document* _document) :
     AddEmptyElement(); //code block has to have at least one code paragraph
 }
 
-CodeBlock::CodeBlock(Element* parent) :
-    Block(parent)
+CodeBlock::CodeBlock(Element* parent, uint _code_id) :
+    Block(parent),
+    code_id(_code_id)
 {
     type = ElementType::CODE_BLOCK;
     code_format = document->code_formats->GetFormat("Calculator");
@@ -31,7 +36,7 @@ Element* CodeBlock::Clone()
 
 Element* CodeBlock::Create(Element* parent)
 {
-    return new CodeBlock(parent);
+    return new CodeBlock(parent, parent->document->cur_code_id);
 }
 
 void CodeBlock::Draw() const

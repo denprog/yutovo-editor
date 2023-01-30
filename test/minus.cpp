@@ -123,7 +123,7 @@ TEST_F(FormulaTest, minus3)
     document.WaitMainLoop();
     document.MoveCaretHome(false);
     document.WaitCaretMoving();
-    document.InsertCode(true);
+    document.InsertCode(false, true);
     document.InsertMinus(true);
     document.WaitMainLoop();
     document.Save("minus3_1.yut");

@@ -3,6 +3,7 @@
 
 #include <stdint.h>
 #include "caret_state.h"
+#include "solver_task.h"
 #include <boost/locale.hpp>
 
 namespace yutovo
@@ -201,6 +202,8 @@ void RegisterTypes(Archive& archive);
 
 std::u32string ToUtfString(const std::string& str);
 std::string ToBasicString(const std::u32string& str);
+
+std::string ErrorCodeToString(const yutovo_service::ErrorCode error_code);
 
 }
 

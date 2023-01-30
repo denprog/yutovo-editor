@@ -11,7 +11,7 @@ class Equation : public MiddleShapeFormula
 {
 public:
     Equation(Element* _parent);
-    Equation(Document* _document, ResultType _result_type);
+    Equation(Document* _document, yutovo_service::ResultType _result_type);
     Equation(const Equation& source);
 
     virtual Element* Clone();
@@ -24,8 +24,12 @@ public:
 
     virtual void Remake(bool with_elements, bool with_parent, bool with_undo);
 
+    virtual bool DeleteElements(bool left, bool with_undo);
+    
     virtual bool AfterInsert(bool with_undo);
 
+    virtual void ReSolve();
+    
     virtual std::string ToHtml();
     virtual std::string ToText();
 
@@ -49,7 +53,7 @@ public:
 
 protected:
     AutoResultPtr auto_result;
-    ResultType result_type;
+    yutovo_service::ResultType result_type;
 };
 
 }

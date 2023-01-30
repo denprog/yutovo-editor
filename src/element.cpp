@@ -539,6 +539,30 @@ void Element::UpdateLevel(uint8_t _level)
     level = _level;
 }
 
+void Element::SetEditable(bool _editable)
+{
+    for (int i = 0; i < elements->Count(); ++i)
+        elements->Get(i)->SetEditable(_editable);
+    editable = _editable;
+}
+
+void Element::FindElements(ElementType _type, std::vector<ElementId>& _elements)
+{
+    for (int i = 0; i < elements->Count(); ++i)
+    {
+        auto el = elements->Get(i);
+        if (el->type == _type)
+            _elements.push_back(el->id);
+        el->FindElements(_type, _elements);
+    }
+}
+
+void Element::ReSolve()
+{
+    for (int i = 0; i < elements->Count(); ++i)
+        elements->Get(i)->ReSolve();
+}
+
 //Elements
 
 Elements::Elements(Element* _parent) :

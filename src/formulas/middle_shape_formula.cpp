@@ -26,6 +26,11 @@ MiddleShapeFormula::MiddleShapeFormula(const MiddleShapeFormula& source) :
     shape((Shape*)elements->Get(1).get()),
     last((CodeRow*)elements->Get(2).get())
 {
+    if (!last)
+    {
+        last = new CodeRow(this);
+        elements->Add(ElementPtr(last));
+    }
 }
 
 void MiddleShapeFormula::Init()
@@ -62,17 +67,23 @@ bool MiddleShapeFormula::DeleteElements(bool left, bool with_undo)
     
     //remove this element by deleting its shape
     first->UpdateLevel(level);
-    last->UpdateLevel(level);
     int p = parent->elements->GetElementPos(id);
     uint c1 = elements->Get(0)->elements->Count();
-    uint c2 = elements->Get(2)->elements->Count();
+
+    uint c2 = 0;
+    if (last)
+    {
+        last->UpdateLevel(level);
+        c2 = elements->Get(2)->elements->Count();
+    }
     Element* undo_el = nullptr;
     if (with_undo)
         undo_el = Clone();
 
     caret->SetState(id);
     parent->elements->Move(*elements->Get(0)->elements, p);
-    parent->elements->Move(*elements->Get(2)->elements, p + c1);
+    if (last)
+        parent->elements->Move(*elements->Get(2)->elements, p + c1);
     CaretState c;
     if (parent->elements->Get(p + c1)->GetFirstCaretState(c, nullptr))
         caret->SetState(c);

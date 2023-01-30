@@ -326,6 +326,7 @@ TEST_F(ParagraphTest, paragraph1)
     document.InsertString("Bold", document.GetStringFormat("Times New Roman", 34, true, false, false), true);
     document.InsertString("String1 String2 String3", document.GetStringFormat("Arial", 20, false, false, false), true);
     document.WaitMainLoop();
+    std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body><p>"\
         "<span style=\"font-family:'Arial';font-size:22px;\">Text</span>"\
@@ -334,7 +335,6 @@ TEST_F(ParagraphTest, paragraph1)
         "<span style=\"font-family:'Arial';font-size:20px;\">String1 String2 String3</span>"\
         "</p></body>") << 
         document.ToHtml();
-    std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 3, 23)) << document.GetEditorState().ToString();
 
     document.InsertParagraph(true);

@@ -55,6 +55,12 @@ public:
 
     virtual void UpdateLevel(uint8_t _level);
 
+    virtual void SetEditable(bool _editable);
+
+    virtual void FindElements(ElementType _type, std::vector<ElementId>& _elements);
+
+    virtual void ReSolve();
+
     template <class Archive>
     void save(Archive& ar, const unsigned int version) const
     {

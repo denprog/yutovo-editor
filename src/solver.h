@@ -12,31 +12,34 @@ namespace yutovo
 
 class Document;
 
+typedef std::shared_ptr<zmq::socket_t> SocketPtr;
+
 class Solver
 {
 public:
     Solver(Document* _document);
     ~Solver();
 
-    void Solve(ElementId id, ExpressionType expression_type, ResultType result_type, const uint precision, AngleMeasure angle_measure, 
-        Notation notation, const std::string& expression);
-
-    void OnResult(Result result);
+    void Solve(ElementId id, uint code_id, ExpressionType expression_type, yutovo_service::ResultType result_type, const uint precision, 
+        AngleMeasure angle_measure, Notation notation, const std::string& expression);
 
 private:
     void MessageLoop();
+    void CreateSocket(SocketPtr& socket, zmq::context_t& context);
 
 private:
     Document* document;
 
     std::queue<SolverTaskPtr> tasks;
-    std::vector<ResultType> result_types_seq;
+    std::vector<yutovo_service::ResultType> result_types_seq;
 
     bool exit = false;
 
     std::mutex tasks_mutex;
     std::condition_variable_any next_circle;
     std::thread message_loop;
+
+    std::string guid;
 };
 
 }

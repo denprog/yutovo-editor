@@ -6,6 +6,7 @@ namespace yutovo_test
 {
 
 using namespace yutovo;
+using namespace yutovo_service;
 using namespace std::chrono_literals;
 
 TEST_F(SolverIntegerTest, solver1)
@@ -20,14 +21,14 @@ TEST_F(SolverIntegerTest, solver1)
             return GetTextSizeMock(text, format);
         });
     
-    document.InsertCode(true);
+    document.InsertCode(false, true);
     document.InsertString("2345", true);
     document.InsertPlus(true);
     document.InsertString("35", true);
     document.InsertEquation(ResultType::INTEGER, true);
     document.WaitMainLoop();
     document.WaitSolver();
-    std::this_thread::sleep_for(100ms);
+    std::this_thread::sleep_for(1s);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -82,7 +83,7 @@ TEST_F(SolverIntegerTest, solver2)
             return GetTextSizeMock(text, format);
         });
     
-    document.InsertCode(true);
+    document.InsertCode(false, true);
     document.InsertMinus(true);
     document.InsertString("23", true);
     document.InsertMultiply(true);
@@ -90,7 +91,7 @@ TEST_F(SolverIntegerTest, solver2)
     document.InsertEquation(ResultType::INTEGER, true);
     document.WaitMainLoop();
     document.WaitSolver();
-    std::this_thread::sleep_for(100ms);
+    std::this_thread::sleep_for(1s);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\

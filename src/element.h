@@ -133,6 +133,12 @@ public:
 
     virtual void UpdateLevel(uint8_t _level);
 
+    virtual void SetEditable(bool _editable);
+
+    virtual void FindElements(ElementType _type, std::vector<ElementId>& _elements);
+
+    virtual void ReSolve();
+
 public:
     Element* parent = nullptr;
 

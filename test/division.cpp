@@ -766,7 +766,7 @@ TEST_F(FormulaTest, division7)
             return GetTextSizeMock(text, format);
         });
     
-    document.InsertCode(true);
+    document.InsertCode(false, true);
     document.InsertString("Text", true);
     document.WaitMainLoop();
     document.MoveCaretLeft(false);

@@ -9,10 +9,11 @@
 #include "editor_state.h"
 #include "caret.h"
 #include "solver.h"
-#include "logger.h"
 
 namespace yutovo
 {
+
+class Logger;
 
 struct Task
 {
@@ -241,6 +242,15 @@ struct ResultTask : Task
 
     ElementId id;
     Result result;
+};
+
+struct ResolveTask : Task
+{
+    ResolveTask(ElementPtr _text, ElementId _id);
+
+    virtual bool Execute();
+
+    ElementId id;
 };
 
 }
