@@ -77,6 +77,16 @@ void Element::Remake(bool with_elements, bool with_parent, bool with_undo)
 {
     if (with_elements)
         elements->Remake(with_parent, with_undo);
+    else
+    {
+        for (int i = 0; i < elements->Count(); ++i)
+        {
+            auto el = elements->Get(i);
+            if (el->remake_always)
+                el->Remake(false, false, with_undo);
+        }
+    }
+
     UpdateRect();
 }
 
@@ -546,6 +556,32 @@ void Element::SetEditable(bool _editable)
     editable = _editable;
 }
 
+int Element::FindElement(const ElementId from_id, bool forward, const ElementType type)
+{
+    int pos = elements->GetElementPos(from_id);
+    if (pos == -1)
+        return -1;
+    if (forward)
+    {
+        for (int i = pos + 1; i < elements->Count(); ++i)
+        {
+            auto el = elements->Get(i);
+            if (el->type == type)
+                return i;
+        }
+    }
+    else
+    {
+        for (int i = pos - 1; i >= 0; --i)
+        {
+            auto el = elements->Get(i);
+            if (el->type == type)
+                return i;
+        }
+    }
+    return -1;
+}
+
 void Element::FindElements(ElementType _type, std::vector<ElementId>& _elements)
 {
     for (int i = 0; i < elements->Count(); ++i)
@@ -666,6 +702,13 @@ int Elements::GetChildPos(ElementId id)
             return i;
     }
     return -1;
+}
+
+bool Elements::IsFirst(ElementId id)
+{
+    if (elements.empty())
+        return false;
+    return Get(0)->id == id;
 }
 
 bool Elements::IsLast(ElementId id)

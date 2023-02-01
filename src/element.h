@@ -42,6 +42,8 @@ enum class ElementType
     SQUARE_ROOT,
     NTH_ROOT,
     EQUATION,
+    OPEN_FENCE,
+    CLOSE_FENCE,
     REAL_RESULT,
     INTEGER_RESULT,
     RATIONAL_RESULT,
@@ -135,6 +137,7 @@ public:
 
     virtual void SetEditable(bool _editable);
 
+    virtual int FindElement(const ElementId from_id, bool forward, const ElementType type);
     virtual void FindElements(ElementType _type, std::vector<ElementId>& _elements);
 
     virtual void ReSolve();
@@ -158,6 +161,8 @@ public:
 protected:
     CaretPtr caret;
     Selection* selection = nullptr;
+
+    bool remake_always = false;
 
 public:
     std::unique_ptr<Elements> elements; //child nodes
@@ -187,6 +192,7 @@ public:
     virtual ElementId GetElementId(uint pos);
     virtual int GetElementPos(ElementId id);
     virtual int GetChildPos(ElementId id);
+    virtual bool IsFirst(ElementId id);
     virtual bool IsLast(ElementId id);
 
     virtual void Add(ElementPtr element);

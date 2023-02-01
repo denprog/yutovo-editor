@@ -13,6 +13,7 @@
 #include "formulas/nth_root.h"
 #include "formulas/square_root.h"
 #include "formulas/equation.h"
+#include "formulas/fences.h"
 #include "util.h"
 #include <assert.h>
 #include <chrono>
@@ -373,6 +374,16 @@ uint Document::InsertSquareRoot(bool with_undo)
 uint Document::InsertEquation(yutovo_service::ResultType result_type, bool with_undo)
 {
     return InsertFormula(new Equation(this, result_type), with_undo, false);
+}
+
+uint Document::InsertOpenFence(bool with_undo)
+{
+    return InsertFormula(new OpenFence(this), with_undo, false);
+}
+
+uint Document::InsertCloseFence(bool with_undo)
+{
+    return InsertFormula(new CloseFence(this), with_undo, false);
 }
 
 uint Document::InsertFormula(Element* element, bool with_undo, bool undo)

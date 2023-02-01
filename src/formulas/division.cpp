@@ -57,8 +57,7 @@ void Division::Draw() const
 
 void Division::Remake(bool with_elements, bool with_parent, bool with_undo)
 {
-    if (with_elements)
-        elements->Remake(with_parent, with_undo);
+    MiddleShapeFormula::Remake(with_elements, with_parent, with_undo);
     
     int w = std::max(first->rect.width + 2, last->rect.width + 2);
     if (w < 200)
