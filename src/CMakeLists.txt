@@ -46,6 +46,7 @@ add_library(${PROJECT_NAME}
     formulas/square_root.cpp
     formulas/equation.cpp
     formulas/result.cpp
+    formulas/fences.cpp
 )
 
 set_target_properties(${PROJECT_NAME} PROPERTIES

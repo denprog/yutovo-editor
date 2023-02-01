@@ -33,9 +33,8 @@ Element* Row::Create(Element* parent)
 
 void Row::Remake(bool with_elements, bool with_parent, bool with_undo)
 {
-    if (with_elements)
-        elements->Remake(with_parent, with_undo);
-    
+    Element::Remake(with_elements, with_parent, with_undo);
+
     int cx = 0;
     int left_m, top_m, right_m, bottom_m;
     for (uint i = 0; i < elements->Count(); ++i)

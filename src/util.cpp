@@ -20,6 +20,7 @@
 #include "formulas/result.h"
 #include "formulas/power.h"
 #include "formulas/equation.h"
+#include "formulas/fences.h"
 
 namespace yutovo
 {
@@ -157,6 +158,8 @@ void RegisterTypes()
     boost::serialization::void_cast_register<yutovo::Power, yutovo::Element>(static_cast<yutovo::Power*>(NULL), static_cast<yutovo::Element*>(NULL));
     boost::serialization::void_cast_register<yutovo::AutoResult, yutovo::Element>(static_cast<yutovo::AutoResult*>(NULL), static_cast<yutovo::Element*>(NULL));
     boost::serialization::void_cast_register<yutovo::SquareRoot, yutovo::Element>(static_cast<yutovo::SquareRoot*>(NULL), static_cast<yutovo::Element*>(NULL));
+    boost::serialization::void_cast_register<yutovo::OpenFence, yutovo::Element>(static_cast<yutovo::OpenFence*>(NULL), static_cast<yutovo::Element*>(NULL));
+    boost::serialization::void_cast_register<yutovo::CloseFence, yutovo::Element>(static_cast<yutovo::CloseFence*>(NULL), static_cast<yutovo::Element*>(NULL));
 }
 
 template<>
@@ -185,6 +188,8 @@ void RegisterTypes(UserDataAdapter<DocumentUserData, boost::archive::binary_iarc
     archive.template register_type<yutovo::Power>();
     archive.template register_type<yutovo::AutoResult>();
     archive.template register_type<yutovo::SquareRoot>();
+    archive.template register_type<yutovo::OpenFence>();
+    archive.template register_type<yutovo::CloseFence>();
 }
 
 template<>
@@ -213,6 +218,8 @@ void RegisterTypes(boost::archive::binary_iarchive& archive)
     archive.template register_type<yutovo::Power>();
     archive.template register_type<yutovo::AutoResult>();
     archive.template register_type<yutovo::SquareRoot>();
+    archive.template register_type<yutovo::OpenFence>();
+    archive.template register_type<yutovo::CloseFence>();
 }
 
 template<>
@@ -241,6 +248,8 @@ void RegisterTypes(boost::archive::binary_oarchive& archive)
     archive.template register_type<yutovo::Power>();
     archive.template register_type<yutovo::AutoResult>();
     archive.template register_type<yutovo::SquareRoot>();
+    archive.template register_type<yutovo::OpenFence>();
+    archive.template register_type<yutovo::CloseFence>();
 }
 
 std::u32string ToUtfString(const std::string& str)

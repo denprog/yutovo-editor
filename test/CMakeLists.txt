@@ -31,6 +31,7 @@ add_executable(${PROJECT_NAME}_tests
 	power.cpp
 	nth_root.cpp
 	square_root.cpp
+	fences.cpp
 	formulas.cpp
 	solver_auto.cpp
 	solver_real.cpp

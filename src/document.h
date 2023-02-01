@@ -54,6 +54,8 @@ public:
     uint InsertNthRoot(bool with_undo);
     uint InsertSquareRoot(bool with_undo);
     uint InsertEquation(yutovo_service::ResultType result_type, bool with_undo);
+    uint InsertOpenFence(bool with_undo);
+    uint InsertCloseFence(bool with_undo);
 
     uint InsertFormula(Element* element, bool with_undo, bool undo);
     uint InsertFormulas(std::vector<ElementPtr>& elements, bool with_undo, bool undo);
