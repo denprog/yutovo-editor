@@ -531,10 +531,10 @@ RemakeTask::RemakeTask(ElementPtr _text, const ElementId& _element_id, bool _wit
 bool RemakeTask::Execute()
 {
     logger->Debug("Execute RemakeTask element_id={}", IdToString(element_id));
-    auto p = text->document->GetElement(element_id);
-    if (!p)
+    auto el = document->GetElement(element_id);
+    if (!el)
         return false;
-    document->GetElement(element_id)->Remake(with_elements, true, with_undo);
+    el->Remake(with_elements, true, with_undo);
     document->Redraw(element_id, move_into_view);
     return true;
 }
