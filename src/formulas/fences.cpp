@@ -174,7 +174,7 @@ void CloseFence::Remake(bool with_elements, bool with_parent, bool with_undo)
     if (parent->elements->IsFirst(id))
         return;
     
-    //set rect of the shape by the next elements until close fence
+    //set rect of the shape by the previous elements until open fence
     int pos = parent->elements->GetElementPos(id);
     int open_pos = parent->FindElement(id, false, ElementType::OPEN_FENCE);
     int max_height = 0;

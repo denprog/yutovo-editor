@@ -213,6 +213,12 @@ bool Element::AfterInsert(bool with_undo)
     return false;
 }
 
+void Element::AfterChildInsert(const ElementId child_id, bool with_undo)
+{
+    if (parent)
+        parent->AfterChildInsert(child_id, with_undo);
+}
+
 bool Element::GetFirstCaretState(CaretState& caret_state, Selection* select)
 {
     return elements->GetFirstCaretState(caret_state, select);

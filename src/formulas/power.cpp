@@ -67,6 +67,51 @@ void Power::Remake(bool with_elements, bool with_parent, bool with_undo)
     document->Remake(parent->id, false, with_undo, false);
 }
 
+void Power::AfterChildInsert(const ElementId child_id, bool with_undo)
+{
+    //if a close fense was inserted, move elements from parent row into first child until open fence
+    if (GetParent(child_id) != first->id)
+        return;
+    auto el = document->GetElement(child_id);
+    if (el->type != ElementType::CLOSE_FENCE)
+        return;
+    int pos = parent->elements->GetElementPos(id);
+    int open_pos = 0;
+    for (int i = pos - 1; i >= 0; --i)
+    {
+        auto c = parent->elements->Get(i);
+        if (c->type == ElementType::OPEN_FENCE)
+        {
+            open_pos = i;
+            break;
+        }
+    }
+    for (int i = pos - 1; i >= open_pos; --i)
+    {
+        auto _el = parent->elements->Get(i);
+        first->elements->Move(_el, 0);
+        if (with_undo)
+        {
+            document->CallFunc(parent->id, 
+                [&](const ElementId id)
+                {
+                    document->GetElement(id)->Normalize(true);
+                },
+                true);
+            document->InsertElement(_el->Clone(), false, true);
+            document->PushEditorState(CaretState(parent->id, parent->elements->GetElementPos(id)), true);
+            document->DeleteElements(false, false, true);
+            document->PushEditorState(CaretState(first->id, 0), true);
+            document->CallFunc(parent->id, 
+                [&](const ElementId id)
+                {
+                    document->GetElement(id)->Normalize(false);
+                },
+                true);
+        }
+    }
+}
+
 void Power::UpdateLevel(uint8_t _level)
 {
     MiddleShapeFormula::UpdateLevel(_level);

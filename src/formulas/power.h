@@ -20,6 +20,8 @@ public:
     virtual void Draw() const;
     virtual void Remake(bool with_elements, bool with_parent, bool with_undo);
 
+    virtual void AfterChildInsert(const ElementId child_id, bool with_undo);
+
     virtual void UpdateLevel(uint8_t _level);
 
     virtual std::string ToHtml();

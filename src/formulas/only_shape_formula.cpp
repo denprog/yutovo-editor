@@ -58,6 +58,7 @@ bool OnlyShapeFormula::AfterInsert(bool with_undo)
         else
             caret->SetState(parent->id, pos + 1, true);
     }
+    parent->AfterChildInsert(id, with_undo);
     return true;
 }
 
