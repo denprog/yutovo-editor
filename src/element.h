@@ -86,6 +86,7 @@ public:
     virtual void UpdateStringFormat(const StringFormatPtr base_format, const StringFormatPtr new_format);
 
     virtual bool AfterInsert(bool with_undo);
+    virtual void AfterChildInsert(const ElementId child_id, bool with_undo);
 
     virtual bool GetFirstCaretState(CaretState& caret_state, Selection* select);
     virtual bool GetLastCaretState(CaretState& caret_state, Selection* select);
