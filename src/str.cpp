@@ -104,7 +104,7 @@ Element* String::Create(Element* parent, const std::u32string _str, const String
 void String::Remake(bool with_elements, bool with_parent, bool with_undo)
 {
     Size s = window->GetTextSize(ToBasicString(((StringElements*)elements.get())->str), format);
-    rect = {1, 1, s.width, s.height};
+    rect.SetSize(s.width, s.height);
 
     UpdateRect();
 
