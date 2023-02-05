@@ -10,6 +10,8 @@
 namespace yutovo
 {
 
+using namespace yutovo_service;
+
 enum class AngleMeasure
 {
     RADIAN = 1,
@@ -25,24 +27,16 @@ enum class Notation
     HEXADECIMAL
 };
 
-//Expression types
 enum class ExpressionType
 {
     NONE = 0,
-	CALC = 1, //expression for solving
-	STANDARD_FUNCTION, //buildin function
-	STANDARD_VARIABLE, //buildin variable
-	STANDARD_MEASURE, //building measure
-	USER_FUNCTION, //user function
-	USER_TEMP_VARIABLE, //temporary variable of a function
-	USER_SYMBOL, //symbol of user variable or function
-	USER_VARIABLE, //user variable
-	USER_MEASURE //user measure
+	SOLVE = 1, //expression for solving
+	USER_SYMBOL //symbol of user variable or function
 };
 
 struct Error
 {
-    yutovo_service::ErrorCode error_code = yutovo_service::ErrorCode::NONE;
+    yutovo_service::ErrorCode error_code = yutovo_service::ErrorCode::OK;
     int solver_error_code = -1;
     int pos = -1;
     int line = -1;
@@ -73,7 +67,9 @@ struct SolverTask
 {
     SolverTask(ElementId _id, std::string& _guid, uint _code_id, ExpressionType _expression_type, const std::string& _expression);
 
-    virtual bool Solve(zmq::socket_t& socket, Result& result) = 0;
+    virtual bool Execute(zmq::socket_t& socket, Result& result) = 0;
+
+    bool SendRequest(const rapidjson::Document& json, Result& result, zmq::socket_t& socket);
 
     ElementId id;
     std::string guid;
@@ -88,7 +84,7 @@ struct RealSolverTask : SolverTask
     RealSolverTask(ElementId _id, std::string& _guid, uint _code_id, ExpressionType _expression_type, const uint _precision, 
         AngleMeasure _angle_measure, const std::string& _expression);
 
-    virtual bool Solve(zmq::socket_t& socket, Result& result);
+    virtual bool Execute(zmq::socket_t& socket, Result& result);
 
     uint precision;
     AngleMeasure angle_measure;
@@ -98,7 +94,7 @@ struct IntegerSolverTask : SolverTask
 {
     IntegerSolverTask(ElementId _id, std::string& _guid, uint _code_id, ExpressionType _expression_type, Notation _notation, const std::string& _expression);
 
-    virtual bool Solve(zmq::socket_t& socket, Result& result);
+    virtual bool Execute(zmq::socket_t& socket, Result& result);
 
     Notation notation;
 };
@@ -107,18 +103,16 @@ struct RationalSolverTask : SolverTask
 {
     RationalSolverTask(ElementId _id, std::string& _guid, uint _code_id, ExpressionType _expression_type, const std::string& _expression);
 
-    virtual bool Solve(zmq::socket_t& socket, Result& result);
+    virtual bool Execute(zmq::socket_t& socket, Result& result);
 };
 
-struct ComplexSolverTask : SolverTask
+struct RemoveIdentifierSolverTask : SolverTask
 {
-    ComplexSolverTask(ElementId _id, std::string& _guid, uint _code_id, ExpressionType _expression_type, const uint _precision, 
-        AngleMeasure _angle_measure, const std::string& _expression);
+    RemoveIdentifierSolverTask(ElementId _id, std::string& _guid, uint _code_id, const ResultType _result_type, const std::string& _expression);
 
-    virtual bool Solve(zmq::socket_t& socket, Result& result);
+    virtual bool Execute(zmq::socket_t& socket, Result& result);
 
-    uint precision;
-    AngleMeasure angle_measure;
+    ResultType result_type;
 };
 
 typedef std::shared_ptr<SolverTask> SolverTaskPtr;

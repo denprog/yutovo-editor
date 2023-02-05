@@ -1,62 +1,51 @@
-#include "equation.h"
-#include "result.h"
-#include "../document.h"
+#include "assignment.h"
+#include "code_block.h"
 
 namespace yutovo
 {
 
-//Equation
+//Assignment
 
-Equation::Equation(Element* _parent) : 
+Assignment::Assignment(Element* _parent) :
     MiddleShapeFormula(_parent)
 {
-    type = ElementType::EQUATION;
+    type = ElementType::ASSIGNMENT;
 }
 
-Equation::Equation(Element* _parent, yutovo_service::ResultType _result_type) :
-    MiddleShapeFormula(_parent),
-    result_type(_result_type)
+Assignment::Assignment(Document* _document) :
+    MiddleShapeFormula(_document)
 {
-    type = ElementType::EQUATION;
+    type = ElementType::ASSIGNMENT;
 }
 
-Equation::Equation(Document* _document, yutovo_service::ResultType _result_type) :
-    MiddleShapeFormula(_document),
-    result_type(_result_type)
+Element* Assignment::Clone()
 {
-    type = ElementType::EQUATION;
+    return new Assignment(*this);
 }
 
-Equation::Equation(const Equation& source) :
-    MiddleShapeFormula(source),
-    result_type(source.result_type)
+Element* Assignment::Create(Element* _parent)
 {
+    return new Assignment(_parent);
 }
 
-Element* Equation::Clone()
-{
-    return new Equation(*this);
-}
-
-Element* Equation::Create(Element* _parent)
-{
-    return new Equation(_parent);
-}
-
-void Equation::Draw() const
+void Assignment::Draw() const
 {
     shape->draw_func = 
         [&](const Rect& r)
         {
             Color c = document->selection.IsSelected(id) ? formula_format->selection_color : formula_format->color;
             float w = float(r.width);
-            Rect s{(int)lround(r.left + w * 0.03), (int)lround(r.GetBottom() - r.height * 0.35), (int)lround(r.width * 0.9), (int)lround(r.height * 0.12)};
+
+            window->DrawFillEllipse((int)lround(r.left + w * 0.25), (int)lround(r.GetBottom() - r.height * 0.3), (int)lround(w * 0.05), (int)lround(w * 0.05), c);
+            window->DrawFillEllipse((int)lround(r.left + w * 0.25), (int)lround(r.GetBottom() - r.height * 0.543), (int)lround(w * 0.05), (int)lround(w * 0.05), c);
+
+            Rect s{(int)lround(r.left + w * 0.5), (int)lround(r.GetBottom() - r.height * 0.35), (int)lround(r.width * 0.45), (int)lround(r.height * 0.1)};
             if (s.height == 0)
                 s.height = 1;
             if (s.width == 0)
                 s.width = 1;
             window->DrawFillRect(s, c);
-            s = Rect{(int)lround(r.left + w * 0.03), (int)lround(r.GetBottom() - r.height * 0.593), (int)lround(r.width * 0.9), (int)lround(r.height * 0.12)};
+            s = Rect{(int)lround(r.left + w * 0.5), (int)lround(r.GetBottom() - r.height * 0.593), (int)lround(r.width * 0.45), (int)lround(r.height * 0.1)};
             if (s.height == 0)
                 s.height = 1;
             if (s.width == 0)
@@ -73,28 +62,18 @@ void Equation::Draw() const
     MiddleShapeFormula::Draw();
 }
 
-void Equation::UpdateRect(bool with_elements)
+void Assignment::UpdateRect(bool with_elements)
 {
-    Size s = parent->window->GetTextSize(std::string(1, '='), GetStringFormat());
+    Size s = parent->window->GetTextSize(std::string(":="), GetStringFormat());
     shape->rect.SetSize(s.width, s.height);
     shape->baseline = shape->rect.height / 2;
 
     MiddleShapeFormula::UpdateRect(false);
 }
 
-void Equation::Remake(bool with_elements, bool with_parent, bool with_undo)
+void Assignment::Remake(bool with_elements, bool with_parent, bool with_undo)
 {
-    if (!auto_result)
-    {
-        auto_result.reset(new AutoResult(last));
-        last->elements->Clear();
-        last->elements->Add(auto_result);
-    }
-
-    if (with_elements)
-        elements->Remake(with_parent, with_undo);
-
-    UpdateRect();
+    MiddleShapeFormula::Remake(with_elements, with_parent, with_undo);
 
     baseline = 0;
     for (uint i = 0; i < elements->Count(); ++i)
@@ -112,10 +91,19 @@ void Equation::Remake(bool with_elements, bool with_parent, bool with_undo)
         parent->Remake(false, true, with_undo);
     last_rect = rect;
 
-    auto_result->Solve(first->ToText(), result_type); //solve the expression in the left part
+    std::string expr = first->ToText() + "=" + last->ToText();
+    if (last_expression != expr)
+    {
+        auto code = document->FindParent(id, ElementType::CODE_BLOCK);
+        if (last_identifier != "")
+            document->RemoveIdentifier(id, ((CodeBlock*)code.get())->code_id, last_identifier);
+        document->SetUserIdentifier(id, ((CodeBlock*)code.get())->code_id, expr);
+        last_identifier = first->ToText();
+        last_expression = expr;
+    }
 }
 
-bool Equation::DeleteElements(bool left, bool with_undo)
+bool Assignment::DeleteElements(bool left, bool with_undo)
 {
     if (caret->IsOnElement(shape->id))
     {
@@ -125,7 +113,7 @@ bool Equation::DeleteElements(bool left, bool with_undo)
     return MiddleShapeFormula::DeleteElements(left, with_undo);
 }
 
-bool Equation::AfterInsert(bool with_undo)
+bool Assignment::AfterInsert(bool with_undo)
 {
     int pos = parent->elements->GetElementPos(id);
     if (pos > 0)
@@ -140,17 +128,19 @@ bool Equation::AfterInsert(bool with_undo)
         }
         first->elements->Move(el, i);
     }
-    caret->SetState(shape->id);
+    CaretState c;
+    last->GetFirstCaretState(c, nullptr);
+    caret->SetState(c);
     return true;
 }
 
-void Equation::ReSolve()
+void Assignment::ReSolve()
 {
-    auto_result.reset();
+    last_expression = "";
     document->Remake(id, true, false, false);
 }
 
-std::string Equation::ToHtml()
+std::string Assignment::ToHtml()
 {
     std::string s = first->ToHtml();
     s += "<mo>=</mo>";
@@ -159,7 +149,7 @@ std::string Equation::ToHtml()
     return s;
 }
 
-std::string Equation::ToText()
+std::string Assignment::ToText()
 {
     std::string s = first->ToText();
     s += "=";

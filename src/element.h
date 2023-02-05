@@ -49,7 +49,8 @@ enum class ElementType
     RATIONAL_RESULT,
     COMPLEX_RESULT,
     AUTO_RESULT,
-    ERROR_RESULT
+    ERROR_RESULT,
+    ASSIGNMENT
 };
 
 #define MAX_LEVEL 3

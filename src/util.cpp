@@ -266,7 +266,9 @@ std::string ErrorCodeToString(const yutovo_service::ErrorCode error_code)
 {
     static std::map<yutovo_service::ErrorCode, std::string> error_code_str = 
         {
-            {ErrorCode::NONE, "None"},
+            {ErrorCode::OK, "Ok"},
+            {ErrorCode::UNKNOWN_COMMAND, "Unknown command"},
+            {ErrorCode::NO_FIELD_ERROR, "No field"},
             {ErrorCode::JSON_ERROR, "Json error"},
             {ErrorCode::EXPRESSION_ERROR, "Expression error"},
             {ErrorCode::SOLVER_TIMEOUT_ERROR, "Timeout error"},

@@ -27,7 +27,7 @@ Solver::~Solver()
     message_loop.join();
 }
 
-void Solver::Solve(ElementId id, uint code_id, ExpressionType expression_type, yutovo_service::ResultType result_type, const uint precision, 
+void Solver::Solve(ElementId id, uint code_id, yutovo_service::ResultType result_type, const uint precision, 
     AngleMeasure angle_measure, Notation notation, const std::string& expression)
 {
     {
@@ -35,25 +35,45 @@ void Solver::Solve(ElementId id, uint code_id, ExpressionType expression_type, y
         switch (result_type)
         {
         case yutovo_service::ResultType::AUTO:
-            tasks.emplace(new RealSolverTask(id, guid, code_id, expression_type, precision, angle_measure, expression));
-            tasks.emplace(new IntegerSolverTask(id, guid, code_id, expression_type, notation, expression));
+            tasks.emplace(new RealSolverTask(id, guid, code_id, ExpressionType::SOLVE, precision, angle_measure, expression));
+            tasks.emplace(new IntegerSolverTask(id, guid, code_id, ExpressionType::SOLVE, notation, expression));
+            tasks.emplace(new RationalSolverTask(id, guid, code_id, ExpressionType::SOLVE, expression));
             break;
         case yutovo_service::ResultType::REAL:
-            tasks.emplace(new RealSolverTask(id, guid, code_id, expression_type, precision, angle_measure, expression));
+            tasks.emplace(new RealSolverTask(id, guid, code_id, ExpressionType::SOLVE, precision, angle_measure, expression));
             break;
         case yutovo_service::ResultType::INTEGER:
-            tasks.emplace(new IntegerSolverTask(id, guid, code_id, expression_type, notation, expression));
+            tasks.emplace(new IntegerSolverTask(id, guid, code_id, ExpressionType::SOLVE, notation, expression));
             break;
         case yutovo_service::ResultType::RATIONAL:
-            tasks.emplace(new RationalSolverTask(id, guid, code_id, expression_type, expression));
-            break;
-        case yutovo_service::ResultType::COMPLEX:
-            tasks.emplace(new ComplexSolverTask(id, guid, code_id, expression_type, precision, angle_measure, expression));
+            tasks.emplace(new RationalSolverTask(id, guid, code_id, ExpressionType::SOLVE, expression));
             break;
         }
 
         tasks.emplace(nullptr);
     }
+    next_circle.notify_one();
+}
+
+void Solver::SetUserIdentifier(ElementId id, uint code_id, const std::string& expression)
+{
+    std::unique_lock<std::mutex> lock(tasks_mutex);
+    tasks.emplace(new RealSolverTask(id, guid, code_id, ExpressionType::USER_SYMBOL, 0, AngleMeasure::RADIAN, expression));
+    tasks.emplace(new IntegerSolverTask(id, guid, code_id, ExpressionType::USER_SYMBOL, Notation::DECIMAL, expression));
+    tasks.emplace(new RationalSolverTask(id, guid, code_id, ExpressionType::USER_SYMBOL, expression));
+    tasks.emplace(nullptr);
+    next_circle.notify_one();
+}
+
+void Solver::RemoveIdentifier(ElementId id, uint code_id, const std::string& identifier)
+{
+    std::unique_lock<std::mutex> lock(tasks_mutex);
+    tasks.emplace(new RemoveIdentifierSolverTask(id, guid, code_id, ResultType::REAL, identifier));
+    tasks.emplace(nullptr);
+    tasks.emplace(new RemoveIdentifierSolverTask(id, guid, code_id, ResultType::INTEGER, identifier));
+    tasks.emplace(nullptr);
+    tasks.emplace(new RemoveIdentifierSolverTask(id, guid, code_id, ResultType::RATIONAL, identifier));
+    tasks.emplace(nullptr);
     next_circle.notify_one();
 }
 
@@ -87,7 +107,7 @@ void Solver::MessageLoop()
         Result result;
         for (SolverTaskPtr t : temp_tasks) //try all variants of parsers until one of them solves
         {
-            if (t->Solve(*socket.get(), result))
+            if (t->Execute(*socket.get(), result) && t->expression_type == ExpressionType::SOLVE)
                 break;
             if (result.error.error_code == yutovo_service::ErrorCode::SOLVER_TIMEOUT_ERROR)
             {
@@ -97,7 +117,12 @@ void Solver::MessageLoop()
             if (result.error.error_code == ErrorCode::SOLVER_RESTARTED_ERROR)
                 break;
         }
+
         document->PutResult(temp_tasks[0]->id, result);
+
+        if (result.error.error_code == ErrorCode::SOLVER_RESTARTED_ERROR)
+            document->ReSolve(temp_tasks[0]->id); //re-solve the expressions above and later this one
+        
         temp_tasks.clear();
     }
 
