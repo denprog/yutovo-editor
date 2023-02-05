@@ -242,6 +242,10 @@ struct SolverRationalTest : DocumentTest
 {
 };
 
+struct AssignmentTest : DocumentTest
+{
+};
+
 }
 
 #endif

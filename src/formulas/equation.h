@@ -11,6 +11,7 @@ class Equation : public MiddleShapeFormula
 {
 public:
     Equation(Element* _parent);
+    Equation(Element* _parent, yutovo_service::ResultType _result_type);
     Equation(Document* _document, yutovo_service::ResultType _result_type);
     Equation(const Equation& source);
 
@@ -36,6 +37,7 @@ public:
     template <class Archive>
     void save(Archive& ar, const unsigned int version) const
     {
+        ar << result_type;
         ar << first;
         ar << last;
     }
@@ -74,8 +76,10 @@ void load_construct_data(Archive& ar, yutovo::Equation* t, const unsigned int ve
 {
     yutovo::Element* p;
     ar >> p;
+    int result_type;
+    ar >> result_type;
     yutovo::DocumentUserData& user_data = yutovo::GetUserData<yutovo::DocumentUserData>(ar);
-    ::new(t)yutovo::Equation(p);
+    ::new(t)yutovo::Equation(p, (yutovo_service::ResultType)result_type);
 }
 
 }

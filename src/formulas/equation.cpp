@@ -13,6 +13,13 @@ Equation::Equation(Element* _parent) :
     type = ElementType::EQUATION;
 }
 
+Equation::Equation(Element* _parent, yutovo_service::ResultType _result_type) :
+    MiddleShapeFormula(_parent),
+    result_type(_result_type)
+{
+    type = ElementType::EQUATION;
+}
+
 Equation::Equation(Document* _document, yutovo_service::ResultType _result_type) :
     MiddleShapeFormula(_document),
     result_type(_result_type)

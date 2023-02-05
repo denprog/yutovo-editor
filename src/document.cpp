@@ -14,6 +14,7 @@
 #include "formulas/square_root.h"
 #include "formulas/equation.h"
 #include "formulas/fences.h"
+#include "formulas/assignment.h"
 #include "util.h"
 #include <assert.h>
 #include <chrono>
@@ -384,6 +385,11 @@ uint Document::InsertOpenFence(bool with_undo)
 uint Document::InsertCloseFence(bool with_undo)
 {
     return InsertFormula(new CloseFence(this), with_undo, false);
+}
+
+uint Document::InsertAssignment(bool with_undo)
+{
+    return InsertFormula(new Assignment(this), with_undo, false);
 }
 
 uint Document::InsertFormula(Element* element, bool with_undo, bool undo)
@@ -1171,10 +1177,10 @@ void Document::SetEditorState(EditorState& state)
     selection.Set(state.selection_state);
 }
 
-void Document::Solve(ElementId _id, uint code_id, ExpressionType expression_type, yutovo_service::ResultType result_type, const uint precision, 
+void Document::Solve(ElementId _id, uint code_id, yutovo_service::ResultType result_type, const uint precision, 
     AngleMeasure angle_measure, Notation notation, const std::string& expression)
 {
-    solver.Solve(_id, code_id, expression_type, result_type, precision, angle_measure, notation, expression);
+    solver.Solve(_id, code_id, result_type, precision, angle_measure, notation, expression);
 }
 
 void Document::ReSolve(ElementId _id)
@@ -1190,6 +1196,16 @@ void Document::PutResult(ElementId _id, Result result)
 #ifdef DEBUG
     last_solver_task_id = tasks[tasks.size() - 1]->id;
 #endif
+}
+
+void Document::SetUserIdentifier(ElementId _id, uint code_id, const std::string& expression)
+{
+    solver.SetUserIdentifier(_id, code_id, expression);
+}
+
+void Document::RemoveIdentifier(ElementId _id, uint code_id, const std::string& identifier)
+{
+    solver.RemoveIdentifier(_id, code_id, identifier);
 }
 
 #ifdef DEBUG

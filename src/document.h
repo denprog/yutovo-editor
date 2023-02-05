@@ -56,6 +56,7 @@ public:
     uint InsertEquation(yutovo_service::ResultType result_type, bool with_undo);
     uint InsertOpenFence(bool with_undo);
     uint InsertCloseFence(bool with_undo);
+    uint InsertAssignment(bool with_undo);
 
     uint InsertFormula(Element* element, bool with_undo, bool undo);
     uint InsertFormulas(std::vector<ElementPtr>& elements, bool with_undo, bool undo);
@@ -167,10 +168,12 @@ public:
     EditorState GetEditorState();
     void SetEditorState(EditorState& state);
 
-    void Solve(ElementId _id, uint code_id, ExpressionType expression_type, yutovo_service::ResultType result_type, const uint precision, 
+    void Solve(ElementId _id, uint code_id, yutovo_service::ResultType result_type, const uint precision, 
         AngleMeasure angle_measure, Notation notation, const std::string& expression);
     void ReSolve(ElementId _id);
     void PutResult(ElementId _id, Result result);
+    void SetUserIdentifier(ElementId _id, uint code_id, const std::string& expression);
+    void RemoveIdentifier(ElementId _id, uint code_id, const std::string& identifier);
 
 private:
     void MainLoop();

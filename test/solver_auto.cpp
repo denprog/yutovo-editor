@@ -216,7 +216,7 @@ TEST_F(SolverAutoTest, solver3)
     document.Load("solver3_1.yut");
     document.WaitLoad();
     document.WaitSolver();
-    std::this_thread::sleep_for(2ms);
+    std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\

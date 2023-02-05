@@ -204,7 +204,7 @@ void AutoResult::Solve(const std::string& expression, yutovo_service::ResultType
         return;
 
     auto code = document->FindParent(id, ElementType::CODE_BLOCK);
-    document->Solve(id, ((CodeBlock*)code.get())->code_id, ExpressionType::CALC, result_type, precision, angle_measure, notation, expression);
+    document->Solve(id, ((CodeBlock*)code.get())->code_id, result_type, precision, angle_measure, notation, expression);
 
     last_expression = expression;
 }
@@ -212,13 +212,10 @@ void AutoResult::Solve(const std::string& expression, yutovo_service::ResultType
 void AutoResult::PutResult(Result result)
 {
     if (result.error.error_code == ErrorCode::SOLVER_RESTARTED_ERROR)
-    {
-        document->ReSolve(id); //wait for re-solving the expressions above and later this one
         return;
-    }
 
     elements->Clear();
-    if (result.error.error_code != ErrorCode::NONE)
+    if (result.error.error_code != ErrorCode::OK)
     {
         //put error message
         elements->Add(ElementPtr(new ErrorResult(this, result.error.error_code)));

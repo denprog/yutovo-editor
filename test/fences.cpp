@@ -684,7 +684,7 @@ TEST_F(FormulaTest, fences7)
             "</p>"\
         "</body>") << 
         document.ToHtml();
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 0, 2})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 0, 0, 2})) << document.GetEditorState().ToString();
 
     document.Undo();
     document.WaitUndo();
@@ -707,7 +707,7 @@ TEST_F(FormulaTest, fences7)
             "</p>"\
         "</body>") << 
         document.ToHtml();
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 1, 0, 1})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1})) << document.GetEditorState().ToString();
 }
 
 }
