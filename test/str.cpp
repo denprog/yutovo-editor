@@ -1169,8 +1169,7 @@ TEST_F(DocumentTest, delete1)
         });
 
     document.InsertString("Text", document.GetStringFormat("Arial", 24, false, false, false), true);
-    document.InsertString("Italic", document.GetStringFormat("Times New Roman", 18, false, true, false), true);
-    document.WaitMainLoop();
+    document.WaitTask(document.InsertString("Italic", document.GetStringFormat("Times New Roman", 18, false, true, false), true));
     ASSERT_TRUE(document.ToHtml() == 
         "<body><p>"\
         "<span style=\"font-family:'Arial';font-size:24px;\">Text</span>"\
@@ -1181,8 +1180,7 @@ TEST_F(DocumentTest, delete1)
     for (int i = 0; i < 5; ++i)
         document.MoveCaretLeft(false);
     document.DeleteElements(true, true, false);
-    document.DeleteElements(true, true, false);
-    document.WaitMainLoop();
+    document.WaitTask(document.DeleteElements(true, true, false));
     ASSERT_TRUE(document.ToHtml() == 
         "<body><p>"\
         "<span style=\"font-family:'Arial';font-size:24px;\">Tex</span>"\
@@ -1211,8 +1209,7 @@ TEST_F(DocumentTest, delete1)
         document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 1, 1)) << document.GetEditorState().ToString();
 
-    document.DeleteElements(false, true, false);
-    document.WaitMainLoop();
+    document.WaitTask(document.DeleteElements(false, true, false));
     ASSERT_TRUE(document.ToHtml() == 
         "<body><p>"\
         "<span style=\"font-family:'Arial';font-size:24px;\">Text</span>"\
@@ -1232,8 +1229,7 @@ TEST_F(DocumentTest, delete1)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 1, 1)) << document.GetEditorState().ToString();
 
     document.MoveCaretLeft(false);
-    document.DeleteElements(false, true, false);
-    document.WaitMainLoop();
+    document.WaitTask(document.DeleteElements(false, true, false));
     ASSERT_TRUE(document.ToHtml() == 
         "<body><p>"\
         "<span style=\"font-family:'Arial';font-size:24px;\">Text</span>"\

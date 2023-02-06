@@ -58,8 +58,11 @@ public:
     uint InsertCloseFence(bool with_undo);
     uint InsertAssignment(bool with_undo);
 
-    uint InsertFormula(Element* element, bool with_undo, bool undo);
-    uint InsertFormulas(std::vector<ElementPtr>& elements, bool with_undo, bool undo);
+    uint InsertFences(bool with_undo);
+    uint InsertFunction(const std::string& name, bool with_undo);
+
+    uint InsertFormula(Element* element, bool with_undo, bool undo, bool with_last_task_id = false);
+    uint InsertFormulas(std::vector<ElementPtr>& elements, bool with_undo, bool undo, bool with_last_task_id = false);
 
     void ChangeStringFormat(const std::string family, const uint size, const bool bold, const bool italic, const bool underline, bool with_undo, bool undo);
     void ChangeStringFormat(const StringFormatPtr format, bool set_family, bool set_size, bool set_bold, bool set_italic, bool set_underline, 
@@ -107,9 +110,9 @@ public:
     bool GetStringFormat(const ElementId id, StringFormat& format);
     bool GetParagraphFormat(const ElementId id, ParagraphFormat& format);
 
-    void MoveCaret(MoveCaretTask::MoveCaretDir dir, bool select);
-    void MoveCaretLeft(bool select);
-    void MoveCaretRight(bool select);
+    void MoveCaret(MoveCaretTask::MoveCaretDir dir, bool select, bool with_last_task_id = false);
+    void MoveCaretLeft(bool select, bool with_last_task_id = false);
+    void MoveCaretRight(bool select, bool with_last_task_id = false);
     void MoveCaretUp(bool select);
     void MoveCaretDown(bool select);
     void MoveCaretHome(bool select);

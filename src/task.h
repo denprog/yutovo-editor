@@ -66,7 +66,7 @@ struct DeleteElementsTask : Task
 struct InsertFormulasTask : Task
 {
     InsertFormulasTask(ElementPtr _text, std::vector<ElementPtr>& _elements, bool _with_undo);
-    InsertFormulasTask(ElementPtr _text, std::vector<ElementPtr>& _elements, uint _id);
+    InsertFormulasTask(ElementPtr _text, std::vector<ElementPtr>& _elements, uint _id, bool _with_undo);
 
     virtual bool Execute();
 
@@ -169,6 +169,7 @@ struct MoveCaretTask : Task
 
     MoveCaretTask(ElementPtr _text, CaretPtr _caret, MoveCaretDir _dir, bool _visible);
     MoveCaretTask(ElementPtr _text, CaretPtr _caret, MoveCaretDir _dir, bool _visible, bool _select);
+    MoveCaretTask(ElementPtr _text, CaretPtr _caret, MoveCaretDir _dir, bool _visible, bool _select, uint _task_id);
     MoveCaretTask(ElementPtr _text, CaretPtr _caret, Point _point);
 
     virtual bool Execute();

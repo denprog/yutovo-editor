@@ -297,11 +297,11 @@ InsertFormulasTask::InsertFormulasTask(ElementPtr _text, std::vector<ElementPtr>
     with_undo = _with_undo;
 }
 
-InsertFormulasTask::InsertFormulasTask(ElementPtr _text, std::vector<ElementPtr>& _elements, uint _id) :
+InsertFormulasTask::InsertFormulasTask(ElementPtr _text, std::vector<ElementPtr>& _elements, uint _id, bool _with_undo) :
     Task(_text, _id),
     elements(_elements)
 {
-    with_undo = false;
+    with_undo = _with_undo;
 }
 
 bool InsertFormulasTask::Execute()
@@ -613,6 +613,16 @@ MoveCaretTask::MoveCaretTask(ElementPtr _text, CaretPtr _caret, MoveCaretDir _di
 
 MoveCaretTask::MoveCaretTask(ElementPtr _text, CaretPtr _caret, MoveCaretDir _dir, bool _visible, bool _select) :
     MoveCaretTask(_text, _caret, _dir, _visible)
+{
+    select = _select;
+}
+
+MoveCaretTask::MoveCaretTask(ElementPtr _text, CaretPtr _caret, MoveCaretDir _dir, bool _visible, bool _select, uint _task_id) : 
+    Task(_text, _task_id),
+    document(_text->document),
+    caret(_caret),
+    dir(_dir),
+    visible(_visible)
 {
     select = _select;
 }
