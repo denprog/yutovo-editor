@@ -392,25 +392,45 @@ uint Document::InsertAssignment(bool with_undo)
     return InsertFormula(new Assignment(this), with_undo, false);
 }
 
-uint Document::InsertFormula(Element* element, bool with_undo, bool undo)
+uint Document::InsertFences(bool with_undo)
+{
+    InsertFormula(new OpenFence(this), with_undo, false, false);
+    uint r = InsertFormula(new CloseFence(this), with_undo, false, true);
+    MoveCaretLeft(false, true);
+    return r;
+}
+
+uint Document::InsertFunction(const std::string& name, bool with_undo)
+{
+    InsertCodeString(name, true);
+    InsertFormula(new OpenFence(this), with_undo, false, true);
+    uint r = InsertFormula(new CloseFence(this), with_undo, false, true);
+    MoveCaretLeft(false, true);
+    return r;
+}
+
+uint Document::InsertFormula(Element* element, bool with_undo, bool undo, bool with_last_task_id)
 {
     std::vector<ElementPtr> elements;
     elements.emplace_back(element);
-    return InsertFormulas(elements, with_undo, undo);
+    return InsertFormulas(elements, with_undo, undo, with_last_task_id);
 }
 
-uint Document::InsertFormulas(std::vector<ElementPtr>& elements, bool with_undo, bool undo)
+uint Document::InsertFormulas(std::vector<ElementPtr>& elements, bool with_undo, bool undo, bool with_last_task_id)
 {
     {
         std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
         if (undo)
         {
-            undo_tasks.push(TaskPtr(new InsertFormulasTask(text, elements, cur_task_id)));
+            undo_tasks.push(TaskPtr(new InsertFormulasTask(text, elements, cur_task_id, false)));
             last_task_id = cur_task_id;
         }
         else
         {
-            tasks.emplace_back(new InsertFormulasTask(text, elements, with_undo));
+            if (with_last_task_id)
+                tasks.emplace_back(new InsertFormulasTask(text, elements, last_task_id, with_undo));
+            else
+                tasks.emplace_back(new InsertFormulasTask(text, elements, with_undo));
             last_task_id = tasks[tasks.size() - 1]->id;
         }
     }
@@ -809,11 +829,14 @@ bool Document::GetParagraphFormat(const ElementId id, ParagraphFormat& format)
     return true;
 }
 
-void Document::MoveCaret(MoveCaretTask::MoveCaretDir dir, bool select)
+void Document::MoveCaret(MoveCaretTask::MoveCaretDir dir, bool select, bool with_last_task_id)
 {
     {
         std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
-        tasks.emplace_back(new MoveCaretTask(text, caret, dir, true, select));
+        if (with_last_task_id)
+            tasks.emplace_back(new MoveCaretTask(text, caret, dir, true, select, last_task_id));
+        else
+            tasks.emplace_back(new MoveCaretTask(text, caret, dir, true, select));
     }
     next_circle.notify_one();
 
@@ -822,14 +845,14 @@ void Document::MoveCaret(MoveCaretTask::MoveCaretDir dir, bool select)
 #endif
 }
 
-void Document::MoveCaretLeft(bool select)
+void Document::MoveCaretLeft(bool select, bool with_last_task_id)
 {
-    MoveCaret(MoveCaretTask::MoveCaretDir::LEFT, select);
+    MoveCaret(MoveCaretTask::MoveCaretDir::LEFT, select, with_last_task_id);
 }
 
-void Document::MoveCaretRight(bool select)
+void Document::MoveCaretRight(bool select, bool with_last_task_id)
 {
-    MoveCaret(MoveCaretTask::MoveCaretDir::RIGHT, select);
+    MoveCaret(MoveCaretTask::MoveCaretDir::RIGHT, select, with_last_task_id);
 }
 
 void Document::MoveCaretUp(bool select)

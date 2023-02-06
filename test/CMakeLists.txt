@@ -38,6 +38,7 @@ add_executable(${PROJECT_NAME}_tests
 	solver_integer.cpp
 	solver_rational.cpp
 	assignment.cpp
+	functions.cpp
 )
 
 target_link_libraries(${PROJECT_NAME}_tests PRIVATE
