@@ -85,13 +85,6 @@ void CodeBlock::Remake(bool with_elements, bool with_parent, bool with_undo)
     }
 }
 
-void CodeBlock::UpdateRect(bool with_elements)
-{
-    Element::UpdateRect(with_elements);
-    rect.left = code_format->left_indent;
-    rect.top = code_format->top_indent;
-}
-
 bool CodeBlock::AfterInsert(bool with_undo)
 {
     CaretState c;

@@ -21,7 +21,6 @@ public:
 
     virtual void Draw() const;
     virtual void Remake(bool with_elements, bool with_parent, bool with_undo);
-    virtual void UpdateRect(bool with_elements = false);
 
     virtual bool AfterInsert(bool with_undo);
 
