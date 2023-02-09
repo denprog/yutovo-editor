@@ -252,7 +252,7 @@ bool CodeFormat::operator==(const CodeFormat& c)
 
 CodeFormats::CodeFormats()
 {
-    GetFormat("Calculator", 2, 2, 2, 2, 2, 2, 2, 2, 2);
+    GetFormat("Calculator", 5, 5, 5, 5, 2, 2, 2, 2, 2);
 }
 
 CodeFormatPtr CodeFormats::GetFormat(const std::string& name)
