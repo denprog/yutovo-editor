@@ -75,7 +75,7 @@ TEST_F(CodeTest, code1)
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
-                "<span style=\"font-family:'Arial';font-size:22px;\"></span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\"></span>"\
             "</p>"\
         "</body>") << 
         document.ToHtml();
@@ -108,7 +108,7 @@ TEST_F(CodeTest, code1)
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
-                "<span style=\"font-family:'Arial';font-size:22px;\">Text</span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">Text</span>"\
                 "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
                     "<mrow>"\
                         "<mi>m</mi>"\
@@ -128,13 +128,13 @@ TEST_F(CodeTest, code1)
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
-                "<span style=\"font-family:'Arial';font-size:22px;\">Text</span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">Text</span>"\
                 "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
                     "<mrow>"\
                         "<mi>m</mi>"\
                     "</mrow>"\
                 "</math>"\
-                "<span style=\"font-family:'Arial';font-size:22px;\">Normal</span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">Normal</span>"\
             "</p>"\
         "</body>") << 
         document.ToHtml();
@@ -160,7 +160,7 @@ TEST_F(CodeTest, code2)
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
-                "<span style=\"font-family:'Arial';font-size:22px;\">Text</span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">Text</span>"\
                 "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
                     "<mrow>"\
                         "<mi>Null</mi>"\
@@ -179,7 +179,7 @@ TEST_F(CodeTest, code2)
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
-                "<span style=\"font-family:'Arial';font-size:22px;\">Text</span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">Text</span>"\
                 "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
                     "<mrow>"\
                         "<mi>Null</mi>"\
@@ -187,7 +187,7 @@ TEST_F(CodeTest, code2)
                 "</math>"\
             "</p>"\
             "<p>"\
-                "<span style=\"font-family:'Arial';font-size:22px;\"></span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\"></span>"\
             "</p>"\
         "</body>") << 
         document.ToHtml();
@@ -224,7 +224,7 @@ TEST_F(CodeTest, code3)
 
     document.Undo();
     document.WaitUndo();
-    ASSERT_TRUE(document.ToHtml() == "<body><p><span style=\"font-family:'Arial';font-size:22px;\"></span></p></body>") << document.ToHtml();
+    ASSERT_TRUE(document.ToHtml() == "<body><p><span style=\"font-family:'Arial';font-size:14px;\"></span></p></body>") << document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0})) << document.GetEditorState().ToString();
 
     document.Redo();
@@ -249,7 +249,7 @@ TEST_F(CodeTest, code3)
     document.DeleteElements(false, true, false);
     document.WaitMainLoop();
     std::this_thread::sleep_for(100ms);
-    ASSERT_TRUE(document.ToHtml() == "<body><p><span style=\"font-family:'Arial';font-size:22px;\"></span></p></body>") << document.ToHtml();
+    ASSERT_TRUE(document.ToHtml() == "<body><p><span style=\"font-family:'Arial';font-size:14px;\"></span></p></body>") << document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0})) << document.GetEditorState().ToString();
 }
 
@@ -299,7 +299,7 @@ TEST_F(CodeTest, code4)
 
     document.Undo();
     document.WaitUndo();
-    ASSERT_TRUE(document.ToHtml() == "<body><p><span style=\"font-family:'Arial';font-size:22px;\"></span></p></body>") << document.ToHtml();
+    ASSERT_TRUE(document.ToHtml() == "<body><p><span style=\"font-family:'Arial';font-size:14px;\"></span></p></body>") << document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0})) << document.GetEditorState().ToString();
 
     document.Redo();
@@ -397,7 +397,7 @@ TEST_F(CodeTest, code5)
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
-                "<span style=\"font-family:'Arial';font-size:22px;\"></span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\"></span>"\
             "</p>"\
         "</body>") << 
         document.ToHtml();
@@ -424,7 +424,7 @@ TEST_F(CodeTest, code5)
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
-                "<span style=\"font-family:'Arial';font-size:22px;\"></span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\"></span>"\
             "</p>"\
         "</body>") << 
         document.ToHtml();
@@ -585,6 +585,7 @@ TEST_F(CodeTest, code7)
     document.WaitMainLoop();
     document.MoveCaretRight(false);
     document.WaitCaretMoving();
+    document.SetFontSize(22);
     document.InsertString("The source of the text itself is a little mysterious.", true);
     document.WaitMainLoop();
     std::this_thread::sleep_for(100ms);
@@ -617,13 +618,13 @@ TEST_F(CodeTest, code7)
                         "<mi>Null</mi>"\
                     "</mrow>"\
                 "</math>"\
-                "<span style=\"font-family:'Arial';font-size:22px;\">The sourc</span>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\">The sour</span>"\
                 "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
                     "<mrow>"\
                         "<mi>Null</mi>"\
                     "</mrow>"\
                 "</math>"\
-                "<span style=\"font-family:'Arial';font-size:22px;\">e of the </span>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\">ce of the </span>"\
                 "<span style=\"font-family:'Arial';font-size:22px;\">text itself is a little </span>"\
                 "<span style=\"font-family:'Arial';font-size:22px;\">mysterious.</span>"\
             "</p>"\
@@ -643,13 +644,13 @@ TEST_F(CodeTest, code7)
                         "<mi>Null</mi>"\
                     "</mrow>"\
                 "</math>"\
-                "<span style=\"font-family:'Arial';font-size:22px;\">The sourc</span>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\">The sour</span>"\
                 "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
                     "<mrow>"\
                         "<mi>Null</mi>"\
                     "</mrow>"\
                 "</math>"\
-                "<span style=\"font-family:'Arial';font-size:22px;\">e of the </span>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\">ce of the </span>"\
                 "<span style=\"font-family:'Arial';font-size:22px;\">text itself is a little </span>"\
                 "<span style=\"font-family:'Arial';font-size:22px;\">mysterious.</span>"\
                 "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
@@ -673,13 +674,13 @@ TEST_F(CodeTest, code7)
                         "<mi>Null</mi>"\
                     "</mrow>"\
                 "</math>"\
-                "<span style=\"font-family:'Arial';font-size:22px;\">The sourc</span>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\">The sour</span>"\
                 "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
                     "<mrow>"\
                         "<mi>Null</mi>"\
                     "</mrow>"\
                 "</math>"\
-                "<span style=\"font-family:'Arial';font-size:22px;\">e of the </span>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\">ce of the </span>"\
                 "<span style=\"font-family:'Arial';font-size:22px;\">text itself is a little </span>"\
                 "<span style=\"font-family:'Arial';font-size:22px;\">mysterious.</span>"\
             "</p>"\
@@ -696,13 +697,13 @@ TEST_F(CodeTest, code7)
                         "<mi>Null</mi>"\
                     "</mrow>"\
                 "</math>"\
-                "<span style=\"font-family:'Arial';font-size:22px;\">The sourc</span>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\">The sour</span>"\
                 "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
                     "<mrow>"\
                         "<mi>Null</mi>"\
                     "</mrow>"\
                 "</math>"\
-                "<span style=\"font-family:'Arial';font-size:22px;\">e of the </span>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\">ce of the </span>"\
                 "<span style=\"font-family:'Arial';font-size:22px;\">text itself is a little </span>"\
                 "<span style=\"font-family:'Arial';font-size:22px;\">mysterious.</span>"\
                 "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
@@ -761,7 +762,7 @@ TEST_F(CodeTest, code8)
                         "<mi>Null</mi>"\
                     "</mrow>"\
                 "</math>"\
-                "<span style=\"font-family:'Arial';font-size:22px;\">Text</span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">Text</span>"\
             "</p>"\
         "</body>") << 
         document.ToHtml();
@@ -860,7 +861,7 @@ TEST_F(CodeTest, code10)
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
-                "<span style=\"font-family:'Arial';font-size:22px;\">Text</span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">Text</span>"\
                 "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
                     "<mrow>"\
                         "<mi>123</mi>"\
@@ -881,7 +882,7 @@ TEST_F(CodeTest, code10)
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
-                "<span style=\"font-family:'Arial';font-size:22px;\">Text</span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">Text</span>"\
                 "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
                     "<mrow>"\
                         "<mi>1234</mi>"\
@@ -897,7 +898,7 @@ TEST_F(CodeTest, code10)
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
-                "<span style=\"font-family:'Arial';font-size:22px;\">Text</span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">Text</span>"\
                 "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
                     "<mrow>"\
                         "<mi>123</mi>"\
@@ -917,7 +918,7 @@ TEST_F(CodeTest, code10)
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
-                "<span style=\"font-family:'Arial';font-size:22px;\">Text</span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">Text</span>"\
                 "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
                     "<mrow>"\
                         "<mi>123</mi>"\
@@ -946,7 +947,7 @@ TEST_F(CodeTest, code10)
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
-                "<span style=\"font-family:'Arial';font-size:22px;\">Text</span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">Text</span>"\
                 "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
                     "<mrow>"\
                         "<mi>123</mi>"\

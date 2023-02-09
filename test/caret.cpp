@@ -20,6 +20,7 @@ TEST_F(DocumentTest, caret1)
             return GetTextSizeMock(text, format);
         });
 
+    document.SetFontSize(22);
     document.InsertString("Text", true);
     document.WaitMainLoop();
     ASSERT_TRUE(document.ToText() == "Text") << document.ToText();
@@ -192,6 +193,7 @@ TEST_F(DocumentTest, caret2)
             return GetTextSizeMock(text, format);
         });
 
+    document.SetFontSize(22);
     document.InsertString("The source of the text itself is a little mysterious.", true);
     document.WaitMainLoop();
     std::this_thread::sleep_for(400ms);
@@ -256,6 +258,7 @@ TEST_F(DocumentTest, caret3)
             return GetTextSizeMock(text, format);
         });
 
+    document.SetFontSize(22);
     document.InsertString("The source of the text itself is a little mysterious.", true);
     document.MoveCaretWordLeft(false);
     document.InsertParagraph(true);

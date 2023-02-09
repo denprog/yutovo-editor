@@ -44,7 +44,7 @@ TEST_F(FormulaTest, division1)
 
     document.Undo();
     document.WaitUndo();
-    ASSERT_TRUE(document.ToHtml() == "<body><p><span style=\"font-family:'Arial';font-size:22px;\"></span></p></body>") << document.ToHtml();
+    ASSERT_TRUE(document.ToHtml() == "<body><p><span style=\"font-family:'Arial';font-size:14px;\"></span></p></body>") << document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 0)) << document.GetEditorState().ToString();
 
     document.Redo();
@@ -230,7 +230,7 @@ TEST_F(FormulaTest, division2)
 
     document.Undo();
     document.WaitUndo();
-    ASSERT_TRUE(document.ToHtml() == "<body><p><span style=\"font-family:'Arial';font-size:22px;\"></span></p></body>") << document.ToHtml();
+    ASSERT_TRUE(document.ToHtml() == "<body><p><span style=\"font-family:'Arial';font-size:14px;\"></span></p></body>") << document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 0)) << document.GetEditorState().ToString();
 
     document.Redo();
@@ -330,7 +330,7 @@ TEST_F(FormulaTest, division3)
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
-                "<span style=\"font-family:'Arial';font-size:22px;\">Text</span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">Text</span>"\
                 "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
                     "<mrow>"\
                         "<mfrac>"\
@@ -358,7 +358,7 @@ TEST_F(FormulaTest, division3)
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
-                "<span style=\"font-family:'Arial';font-size:22px;\">Text</span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">Text</span>"\
                 "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
                     "<mrow>"\
                         "<mfrac>"\
@@ -373,7 +373,7 @@ TEST_F(FormulaTest, division3)
                 "</math>"\
             "</p>"\
             "<p>"\
-                "<span style=\"font-family:'Arial';font-size:22px;\"></span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\"></span>"\
             "</p>"\
         "</body>") << 
         document.ToHtml();
@@ -399,7 +399,7 @@ TEST_F(FormulaTest, division4)
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
-                "<span style=\"font-family:'Arial';font-size:22px;\">Text</span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">Text</span>"\
                 "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
                     "<mrow>"\
                         "<mfrac>"\
@@ -452,7 +452,7 @@ TEST_F(FormulaTest, division5)
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
-                "<span style=\"font-family:'Arial';font-size:22px;\">Text</span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">Text</span>"\
                 "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
                     "<mrow>"\
                         "<mfrac>"\
@@ -484,7 +484,7 @@ TEST_F(FormulaTest, division5)
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
-                "<span style=\"font-family:'Arial';font-size:22px;\">Text</span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">Text</span>"\
                 "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
                     "<mrow>"\
                         "<mfrac>"\
@@ -1037,7 +1037,7 @@ TEST_F(FormulaTest, division10)
                         "</mfrac>"\
                     "</mrow>"\
                 "</math>"\
-                "<span style=\"font-family:'Arial';font-size:22px;\">Text</span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">Text</span>"\
             "</p>"\
         "</body>") << 
         document.ToHtml();
@@ -1065,7 +1065,7 @@ TEST_F(FormulaTest, division10)
                         "</mfrac>"\
                     "</mrow>"\
                 "</math>"\
-                "<span style=\"font-family:'Arial';font-size:22px;\">Text</span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">Text</span>"\
             "</p>"\
         "</body>") << 
         document.ToHtml();
@@ -1101,7 +1101,7 @@ TEST_F(FormulaTest, division11)
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
-                "<span style=\"font-family:'Arial';font-size:22px;\"></span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\"></span>"\
             "</p>"\
         "</body>") << 
         document.ToHtml();
@@ -1144,7 +1144,7 @@ TEST_F(FormulaTest, division11)
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
-                "<span style=\"font-family:'Arial';font-size:22px;\"></span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\"></span>"\
             "</p>"\
         "</body>") << 
         document.ToHtml();
@@ -1157,7 +1157,7 @@ TEST_F(FormulaTest, division11)
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
-                "<span style=\"font-family:'Arial';font-size:22px;\">123</span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">123</span>"\
                 "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
                     "<mrow>"\
                         "<mfrac>"\
@@ -1170,7 +1170,7 @@ TEST_F(FormulaTest, division11)
                         "</mfrac>"\
                     "</mrow>"\
                 "</math>"\
-                "<span style=\"font-family:'Arial';font-size:22px;\">Text</span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">Text</span>"\
             "</p>"\
         "</body>") << 
         document.ToHtml();

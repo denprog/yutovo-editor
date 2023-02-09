@@ -349,7 +349,7 @@ TEST_F(ParagraphTest, paragraph1)
                 "<span style=\"font-family:'Arial';font-size:20px;\">String1 String2 String3</span>"\
             "</p>"\
             "<p>"\
-                "<span style=\"font-family:'Arial';font-size:22px;\"></span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\"></span>"\
             "</p>"\
         "</body>") << 
         document.ToHtml();
@@ -380,7 +380,7 @@ TEST_F(ParagraphTest, paragraph1)
                 "<span style=\"font-family:'Arial';font-size:20px;\">String1 String2 String3</span>"\
             "</p>"\
             "<p>"\
-                "<span style=\"font-family:'Arial';font-size:22px;\"></span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\"></span>"\
             "</p>"\
         "</body>") << 
         document.ToHtml();
@@ -408,7 +408,7 @@ TEST_F(ParagraphTest, paragraph1)
                 "<span style=\"font-family:'Arial';font-size:20px;\">String1 String2 String3</span>"\
             "</p>"\
             "<p>"\
-                "<span style=\"font-family:'Arial';font-size:22px;\"></span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\"></span>"\
             "</p>"\
         "</body>") << 
         document.ToHtml();
@@ -426,7 +426,7 @@ TEST_F(ParagraphTest, paragraph1)
                 "<span style=\"font-family:'Arial';font-size:20px;\">String1 String2 String3</span>"\
             "</p>"\
             "<p>"\
-                "<span style=\"font-family:'Arial';font-size:22px;\"></span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\"></span>"\
             "</p>"\
         "</body>") << 
         document.ToHtml();
@@ -445,7 +445,7 @@ TEST_F(ParagraphTest, paragraph1)
                 "<span style=\"font-family:'Arial';font-size:20px;\">String1 String2 String3</span>"\
             "</p>"\
             "<p>"\
-                "<span style=\"font-family:'Arial';font-size:22px;\"></span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\"></span>"\
             "</p>"\
         "</body>") << 
         document.ToHtml();
@@ -470,7 +470,7 @@ TEST_F(ParagraphTest, paragraph1)
                 "<span style=\"font-family:'Arial';font-size:20px;\">String1 String2 String3</span>"\
             "</p>"\
             "<p>"\
-                "<span style=\"font-family:'Arial';font-size:22px;\"></span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\"></span>"\
             "</p>"\
         "</body>") << 
         document.ToHtml();
@@ -490,7 +490,7 @@ TEST_F(ParagraphTest, paragraph1)
                 "<span style=\"font-family:'Arial';font-size:20px;\">String1 String2 String3</span>"\
             "</p>"\
             "<p>"\
-                "<span style=\"font-family:'Arial';font-size:22px;\"></span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\"></span>"\
             "</p>"\
         "</body>") << 
         document.ToHtml();
@@ -510,7 +510,7 @@ TEST_F(ParagraphTest, paragraph1)
                 "<span style=\"font-family:'Arial';font-size:20px;\">String1 String2 String3</span>"\
             "</p>"\
             "<p>"\
-                "<span style=\"font-family:'Arial';font-size:22px;\"></span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\"></span>"\
             "</p>"\
         "</body>") << 
         document.ToHtml();
@@ -530,7 +530,7 @@ TEST_F(ParagraphTest, paragraph1)
                 "<span style=\"font-family:'Arial';font-size:20px;\">String1 String2 String3</span>"\
             "</p>"\
             "<p>"\
-                "<span style=\"font-family:'Arial';font-size:22px;\"></span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\"></span>"\
             "</p>"\
         "</body>") << 
         document.ToHtml();
@@ -543,7 +543,7 @@ TEST_F(ParagraphTest, paragraph1)
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
-                "<span style=\"font-family:'Arial';font-size:22px;\"></span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\"></span>"\
             "</p>"\
             "<p>"\
                 "<span style=\"font-family:'Arial';font-size:22px;\">Text</span>"\
@@ -554,7 +554,7 @@ TEST_F(ParagraphTest, paragraph1)
                 "<span style=\"font-family:'Arial';font-size:20px;\">String1 String2 String3</span>"\
             "</p>"\
             "<p>"\
-                "<span style=\"font-family:'Arial';font-size:22px;\"></span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\"></span>"\
             "</p>"\
         "</body>") << 
         document.ToHtml();
@@ -574,7 +574,7 @@ TEST_F(ParagraphTest, paragraph1)
                 "<span style=\"font-family:'Arial';font-size:20px;\">String1 String2 String3</span>"\
             "</p>"\
             "<p>"\
-                "<span style=\"font-family:'Arial';font-size:22px;\"></span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\"></span>"\
             "</p>"\
         "</body>") << 
         document.ToHtml();
@@ -586,7 +586,7 @@ TEST_F(ParagraphTest, paragraph1)
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
-                "<span style=\"font-family:'Arial';font-size:22px;\"></span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\"></span>"\
             "</p>"\
             "<p>"\
                 "<span style=\"font-family:'Arial';font-size:22px;\">Text</span>"\
@@ -597,7 +597,7 @@ TEST_F(ParagraphTest, paragraph1)
                 "<span style=\"font-family:'Arial';font-size:20px;\">String1 String2 String3</span>"\
             "</p>"\
             "<p>"\
-                "<span style=\"font-family:'Arial';font-size:22px;\"></span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\"></span>"\
             "</p>"\
         "</body>") << 
         document.ToHtml();
@@ -612,13 +612,13 @@ TEST_F(ParagraphTest, paragraph1)
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
-                "<span style=\"font-family:'Arial';font-size:22px;\"></span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\"></span>"\
             "</p>"\
             "<p>"\
                 "<span style=\"font-family:'Arial';font-size:22px;\">Text</span>"\
             "</p>"\
             "<p>"\
-                "<span style=\"font-family:'Arial';font-size:22px;\"></span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\"></span>"\
             "</p>"\
             "<p>"\
                 "<span style=\"font-family:'Times New Roman';font-size:18px;\"><em>Italic</em></span>"\
@@ -626,7 +626,7 @@ TEST_F(ParagraphTest, paragraph1)
                 "<span style=\"font-family:'Arial';font-size:20px;\">String1 String2 String3</span>"\
             "</p>"\
             "<p>"\
-                "<span style=\"font-family:'Arial';font-size:22px;\"></span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\"></span>"\
             "</p>"\
         "</body>") << 
         document.ToHtml();
@@ -637,7 +637,7 @@ TEST_F(ParagraphTest, paragraph1)
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
-                "<span style=\"font-family:'Arial';font-size:22px;\"></span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\"></span>"\
             "</p>"\
             "<p>"\
                 "<span style=\"font-family:'Arial';font-size:22px;\">Text</span>"\
@@ -648,7 +648,7 @@ TEST_F(ParagraphTest, paragraph1)
                 "<span style=\"font-family:'Arial';font-size:20px;\">String1 String2 String3</span>"\
             "</p>"\
             "<p>"\
-                "<span style=\"font-family:'Arial';font-size:22px;\"></span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\"></span>"\
             "</p>"\
         "</body>") << 
         document.ToHtml();
@@ -659,13 +659,13 @@ TEST_F(ParagraphTest, paragraph1)
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
-                "<span style=\"font-family:'Arial';font-size:22px;\"></span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\"></span>"\
             "</p>"\
             "<p>"\
                 "<span style=\"font-family:'Arial';font-size:22px;\">Text</span>"\
             "</p>"\
             "<p>"\
-                "<span style=\"font-family:'Arial';font-size:22px;\"></span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\"></span>"\
             "</p>"\
             "<p>"\
                 "<span style=\"font-family:'Times New Roman';font-size:18px;\"><em>Italic</em></span>"\
@@ -673,7 +673,7 @@ TEST_F(ParagraphTest, paragraph1)
                 "<span style=\"font-family:'Arial';font-size:20px;\">String1 String2 String3</span>"\
             "</p>"\
             "<p>"\
-                "<span style=\"font-family:'Arial';font-size:22px;\"></span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\"></span>"\
             "</p>"\
         "</body>") << 
         document.ToHtml();
@@ -688,13 +688,13 @@ TEST_F(ParagraphTest, paragraph1)
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
-                "<span style=\"font-family:'Arial';font-size:22px;\"></span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\"></span>"\
             "</p>"\
             "<p>"\
                 "<span style=\"font-family:'Arial';font-size:22px;\">Text</span>"\
             "</p>"\
             "<p>"\
-                "<span style=\"font-family:'Arial';font-size:22px;\"></span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\"></span>"\
             "</p>"\
             "<p>"\
                 "<span style=\"font-family:'Times New Roman';font-size:18px;\"><em>Italic</em></span>"\
@@ -704,7 +704,7 @@ TEST_F(ParagraphTest, paragraph1)
                 "<span style=\"font-family:'Arial';font-size:20px;\">String1 String2 String3</span>"\
             "</p>"\
             "<p>"\
-                "<span style=\"font-family:'Arial';font-size:22px;\"></span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\"></span>"\
             "</p>"\
         "</body>") << 
         document.ToHtml();
@@ -734,9 +734,9 @@ TEST_F(ParagraphTest, paragraph2)
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
-                "<span style=\"font-family:'Arial';font-size:34px;\"><strong>The source of the </strong></span>"\
-                "<span style=\"font-family:'Arial';font-size:34px;\"><strong>text itself is a little </strong></span>"\
-                "<span style=\"font-family:'Arial';font-size:34px;\"><strong>mysterious.</strong></span>"\
+                "<span style=\"font-family:'Arial';font-size:30px;\"><strong>The source of the text </strong></span>"\
+                "<span style=\"font-family:'Arial';font-size:30px;\"><strong>itself is a little </strong></span>"\
+                "<span style=\"font-family:'Arial';font-size:30px;\"><strong>mysterious.</strong></span>"\
             "</p>"\
         "</body>") 
         << document.ToHtml();
@@ -748,12 +748,11 @@ TEST_F(ParagraphTest, paragraph2)
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
-                "<span style=\"font-family:'Arial';font-size:22px;\">The source of the text itself is a </span>"\
-                "<span style=\"font-family:'Arial';font-size:22px;\">little mysterious.</span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">The source of the text itself is a little mysterious.</span>"\
             "</p>"\
         "</body>") 
         << document.ToHtml();
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 1, 0, 18)) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 53)) << document.GetEditorState().ToString();
 
     document.Redo();
     document.WaitRedo();
@@ -761,9 +760,9 @@ TEST_F(ParagraphTest, paragraph2)
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
-                "<span style=\"font-family:'Arial';font-size:34px;\"><strong>The source of the </strong></span>"\
-                "<span style=\"font-family:'Arial';font-size:34px;\"><strong>text itself is a little </strong></span>"\
-                "<span style=\"font-family:'Arial';font-size:34px;\"><strong>mysterious.</strong></span>"\
+                "<span style=\"font-family:'Arial';font-size:30px;\"><strong>The source of the text </strong></span>"\
+                "<span style=\"font-family:'Arial';font-size:30px;\"><strong>itself is a little </strong></span>"\
+                "<span style=\"font-family:'Arial';font-size:30px;\"><strong>mysterious.</strong></span>"\
             "</p>"\
         "</body>") 
         << document.ToHtml();
@@ -775,12 +774,11 @@ TEST_F(ParagraphTest, paragraph2)
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
-                "<span style=\"font-family:'Arial';font-size:22px;\">The source of the text itself is a </span>"\
-                "<span style=\"font-family:'Arial';font-size:22px;\">little mysterious.</span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">The source of the text itself is a little mysterious.</span>"\
             "</p>"\
         "</body>") 
         << document.ToHtml();
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 1, 0, 18)) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 53)) << document.GetEditorState().ToString();
 
     document.MoveCaretToDocumentBegin(false);
     for (int i = 0; i < 4; ++i)
@@ -810,10 +808,9 @@ TEST_F(ParagraphTest, paragraph2)
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
-                "<span style=\"font-family:'Arial';font-size:22px;\">The </span>"\
-                "<span style=\"font-family:'Arial';font-size:22px;\"><strong>source</strong></span>"\
-                "<span style=\"font-family:'Arial';font-size:22px;\"> of the text itself is a </span>"\
-                "<span style=\"font-family:'Arial';font-size:22px;\">little mysterious.</span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">The </span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\"><strong>source</strong></span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\"> of the text itself is a little mysterious.</span>"\
             "</p>"\
         "</body>") 
         << document.ToHtml();
@@ -825,8 +822,7 @@ TEST_F(ParagraphTest, paragraph2)
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
-                "<span style=\"font-family:'Arial';font-size:22px;\">The source of the text itself is a </span>"\
-                "<span style=\"font-family:'Arial';font-size:22px;\">little mysterious.</span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">The source of the text itself is a little mysterious.</span>"\
             "</p>"\
         "</body>") 
         << document.ToHtml();
@@ -838,10 +834,9 @@ TEST_F(ParagraphTest, paragraph2)
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
-                "<span style=\"font-family:'Arial';font-size:22px;\">The </span>"\
-                "<span style=\"font-family:'Arial';font-size:22px;\"><strong>source</strong></span>"\
-                "<span style=\"font-family:'Arial';font-size:22px;\"> of the text itself is a </span>"\
-                "<span style=\"font-family:'Arial';font-size:22px;\">little mysterious.</span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">The </span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\"><strong>source</strong></span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\"> of the text itself is a little mysterious.</span>"\
             "</p>"\
         "</body>") 
         << document.ToHtml();
@@ -885,10 +880,9 @@ TEST_F(ParagraphTest, paragraph2)
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
-                "<span style=\"font-family:'Arial';font-size:22px;\">The </span>"\
-                "<span style=\"font-family:'Arial';font-size:22px;\"><strong>source</strong></span>"\
-                "<span style=\"font-family:'Arial';font-size:22px;\"> of the text itself is a </span>"\
-                "<span style=\"font-family:'Arial';font-size:22px;\">little mysterious.</span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">The </span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\"><strong>source</strong></span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\"> of the text itself is a little mysterious.</span>"\
             "</p>"\
         "</body>") 
         << document.ToHtml();

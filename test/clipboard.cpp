@@ -31,6 +31,7 @@ TEST_F(DocumentTest, clipboard1)
             ASSERT_TRUE(result == PasteResult::Success);
         });
 
+    document.SetFontSize(22);
     std::stringstream clipboard_array;
     std::string clipboard_text;
     document.InsertString("Text", true);
@@ -96,6 +97,7 @@ TEST_F(DocumentTest, clipboard2)
             ASSERT_TRUE(result == PasteResult::Success);
         });
 
+    document.SetFontSize(22);
     std::stringstream clipboard_array;
     std::string clipboard_text;
     document.InsertString("The source of ", true);
@@ -180,6 +182,7 @@ TEST_F(DocumentTest, clipboard3)
             ASSERT_TRUE(result == PasteResult::Success);
         });
 
+    document.SetFontSize(22);
     std::stringstream clipboard_array;
     std::string clipboard_text;
     document.InsertString("The source of the text itself is a little ", true);
@@ -219,6 +222,7 @@ TEST_F(DocumentTest, clipboard4)
             ASSERT_TRUE(result == PasteResult::Success);
         });
 
+    document.SetFontSize(22);
     std::stringstream clipboard_array;
     std::string clipboard_text;
     document.InsertString("The source of the text itself is a little strange", true);
@@ -259,6 +263,7 @@ TEST_F(DocumentTest, clipboard5)
             ASSERT_TRUE(result == PasteResult::Success);
         });
 
+    document.SetFontSize(22);
     document.Paste("The <mrow> MathML element is used to group sub-expressions");
     document.WaitMainLoop();
     std::this_thread::sleep_for(100ms);
@@ -321,6 +326,7 @@ TEST_F(DocumentTest, clipboard6)
             ASSERT_TRUE(result == PasteResult::Success);
         });
 
+    document.SetFontSize(22);
     document.Paste("Tradicionalmente, el medio de un documento era el papel y la información era ingresada a mano.\r\n"\
         "Desde el punto de vista de la informática, es un archivo.");
     document.WaitMainLoop();
@@ -343,6 +349,7 @@ TEST_F(DocumentTest, clipboard6)
 
     document.WaitTask(document.New());
     std::this_thread::sleep_for(200ms);
+    document.SetFontSize(22);
     document.Paste("Tradicionalmente, el medio de un documento era el papel y la información era ingresada a mano.\n"\
         "Desde el punto de vista de la informática, es un archivo.");
     document.WaitMainLoop();
@@ -413,6 +420,7 @@ TEST_F(DocumentTest, clipboard7)
             ASSERT_TRUE(result == PasteResult::Success);
         });
 
+    document.SetFontSize(22);
     document.Paste("Paragraph1.\r\n"\
         "Paragraph2");
     document.WaitMainLoop();
@@ -432,6 +440,7 @@ TEST_F(DocumentTest, clipboard7)
     document.WaitTask(document.New());
     std::this_thread::sleep_for(100ms);
 
+    document.SetFontSize(22);
     document.Paste("Paragraph1.\r\n"\
         "Paragraph2.\r\n"\
         "Paragraph3");
@@ -455,6 +464,7 @@ TEST_F(DocumentTest, clipboard7)
     document.WaitTask(document.New());
     std::this_thread::sleep_for(100ms);
 
+    document.SetFontSize(22);
     document.Paste("Paragraph1.\n"\
         "Paragraph2.\n"\
         "Paragraph3");
@@ -486,13 +496,13 @@ TEST_F(DocumentTest, clipboard7)
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
-                "<span style=\"font-family:'Arial';font-size:22px;\">Paragraph1.</span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">Paragraph1.</span>"\
             "</p>"\
             "<p>"\
-                "<span style=\"font-family:'Arial';font-size:22px;\"></span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\"></span>"\
             "</p>"\
             "<p>"\
-                "<span style=\"font-family:'Arial';font-size:22px;\">Paragraph3</span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">Paragraph3</span>"\
             "</p>"\
         "</body>") << 
         document.ToHtml();
@@ -504,7 +514,7 @@ TEST_F(DocumentTest, clipboard7)
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
-                "<span style=\"font-family:'Arial';font-size:22px;\"></span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\"></span>"\
             "</p>"\
         "</body>") << 
         document.ToHtml();
@@ -516,13 +526,13 @@ TEST_F(DocumentTest, clipboard7)
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
-                "<span style=\"font-family:'Arial';font-size:22px;\">Paragraph1.</span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">Paragraph1.</span>"\
             "</p>"\
             "<p>"\
-                "<span style=\"font-family:'Arial';font-size:22px;\"></span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\"></span>"\
             "</p>"\
             "<p>"\
-                "<span style=\"font-family:'Arial';font-size:22px;\">Paragraph3</span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">Paragraph3</span>"\
             "</p>"\
         "</body>") << 
         document.ToHtml();

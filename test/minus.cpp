@@ -37,7 +37,7 @@ TEST_F(FormulaTest, minus1)
 
     document.Undo();
     document.WaitUndo();
-    ASSERT_TRUE(document.ToHtml() == "<body><p><span style=\"font-family:'Arial';font-size:22px;\"></span></p></body>") << document.ToHtml();
+    ASSERT_TRUE(document.ToHtml() == "<body><p><span style=\"font-family:'Arial';font-size:14px;\"></span></p></body>") << document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 0)) << document.GetEditorState().ToString();
 
     document.Redo();
@@ -134,7 +134,7 @@ TEST_F(FormulaTest, minus3)
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
-                "<span style=\"font-family:'Arial';font-size:22px;\"></span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\"></span>"\
             "</p>"\
         "</body>") << 
         document.ToHtml();
@@ -152,7 +152,7 @@ TEST_F(FormulaTest, minus3)
                         "<mo>-</mo>"\
                     "</mrow>"\
                 "</math>"\
-                "<span style=\"font-family:'Arial';font-size:22px;\">123</span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">123</span>"\
             "</p>"\
         "</body>") << 
         document.ToHtml();
@@ -175,7 +175,7 @@ TEST_F(FormulaTest, minus3)
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
-                "<span style=\"font-family:'Arial';font-size:22px;\"></span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\"></span>"\
             "</p>"\
         "</body>") << 
         document.ToHtml();
@@ -195,7 +195,7 @@ TEST_F(FormulaTest, minus3)
                         "<mi>67</mi>"\
                     "</mrow>"\
                 "</math>"\
-                "<span style=\"font-family:'Arial';font-size:22px;\">123</span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">123</span>"\
             "</p>"\
         "</body>") << 
         document.ToHtml();

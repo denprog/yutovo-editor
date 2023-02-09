@@ -27,7 +27,7 @@ TEST_F(DocumentTest, files1)
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
-                "<span style=\"font-family:'Arial';font-size:22px;\">Text</span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">Text</span>"\
             "</p>"\
         "</body>") << 
         document.ToHtml();
@@ -38,7 +38,7 @@ TEST_F(DocumentTest, files1)
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
-                "<span style=\"font-family:'Arial';font-size:22px;\"></span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\"></span>"\
             "</p>"\
         "</body>") << 
         document.ToHtml();
@@ -51,7 +51,7 @@ TEST_F(DocumentTest, files1)
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
-                "<span style=\"font-family:'Arial';font-size:22px;\">Text</span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">Text</span>"\
             "</p>"\
         "</body>") << 
         document.ToHtml();
@@ -70,6 +70,7 @@ TEST_F(DocumentTest, files2)
             return GetTextSizeMock(text, format);
         });
 
+    document.SetFontSize(22);
     document.InsertString("The source of ", true);
     document.SetBold(true);
     document.SetFontFamily("Courier New");
@@ -103,7 +104,7 @@ TEST_F(DocumentTest, files2)
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
-                "<span style=\"font-family:'Arial';font-size:22px;\"></span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\"></span>"\
             "</p>"\
         "</body>") << 
         document.ToHtml();
@@ -137,6 +138,7 @@ TEST_F(DocumentTest, files3)
             return GetTextSizeMock(text, format);
         });
 
+    document.SetFontSize(22);
     document.InsertString("In literary theory, a text is any object that can be read, whether this object is a work of literature, "\
         "a street sign, an arrangement of buildings on a city block, or styles of clothing.", true);
     document.WaitMainLoop();
@@ -195,7 +197,7 @@ TEST_F(DocumentTest, files3)
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
-                "<span style=\"font-family:'Arial';font-size:22px;\"></span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\"></span>"\
             "</p>"\
         "</body>") << 
         document.ToHtml();
@@ -260,7 +262,7 @@ TEST_F(DocumentTest, files4)
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
-                "<span style=\"font-family:'Arial';font-size:22px;\">In literary theory, </span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">In literary theory, </span>"\
             "</p>"\
             "<p>"\
                 "<span style=\"font-family:'Courier New';font-size:12px;\">a text is any object that can be read, whether this object </span>"\
@@ -289,7 +291,7 @@ TEST_F(DocumentTest, files4)
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
-                "<span style=\"font-family:'Arial';font-size:22px;\">In literary theory, </span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">In literary theory, </span>"\
             "</p>"\
             "<p>"\
                 "<span style=\"font-family:'Courier New';font-size:12px;\">a text is any object that can be read, whether this object </span>"\

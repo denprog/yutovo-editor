@@ -202,6 +202,7 @@ TEST_F(FormulaTest, insert1)
             return GetTextSizeMock(text, format);
         });
 
+    document.SetFontSize(22);
     document.InsertString("Tradicionalmente, el medio de un documento era el papel y la información", true);
     document.WaitMainLoop();
     document.MoveCaretToDocumentBegin(false);
@@ -220,8 +221,8 @@ TEST_F(FormulaTest, insert1)
                         "<mi>Null</mi>"\
                     "</mrow>"\
                 "</math>"\
-                "<span style=\"font-family:'Arial';font-size:22px;\"> documento era el papel y la </span>"\
-                "<span style=\"font-family:'Arial';font-size:22px;\">información</span>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\"> documento era el papel y </span>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\">la información</span>"\
             "</p>"\
         "</body>") << 
         document.ToHtml();
@@ -253,8 +254,8 @@ TEST_F(FormulaTest, insert1)
                         "<mi>Null</mi>"\
                     "</mrow>"\
                 "</math>"\
-                "<span style=\"font-family:'Arial';font-size:22px;\"> documento era el papel y la </span>"\
-                "<span style=\"font-family:'Arial';font-size:22px;\">información</span>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\"> documento era el papel y </span>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\">la información</span>"\
             "</p>"\
         "</body>") << 
         document.ToHtml();
