@@ -15,6 +15,7 @@
 #include "formulas/equation.h"
 #include "formulas/fences.h"
 #include "formulas/assignment.h"
+#include "formulas/subscript.h"
 #include "util.h"
 #include <assert.h>
 #include <chrono>
@@ -392,6 +393,11 @@ uint Document::InsertAssignment(bool with_undo)
     return InsertFormula(new Assignment(this), with_undo, false);
 }
 
+uint Document::InsertSubscript(bool with_undo)
+{
+    return InsertFormula(new Subscript(this), with_undo, false);
+}
+
 uint Document::InsertFences(bool with_undo)
 {
     InsertFormula(new OpenFence(this), with_undo, false, false);
@@ -402,11 +408,26 @@ uint Document::InsertFences(bool with_undo)
 
 uint Document::InsertFunction(const std::string& name, bool with_undo)
 {
+    // FormulaFormatPtr format;
+    // if (!GetCurrentFormulaFormat(format))
+    //     return 0;
+    // std::vector<ElementPtr> elements;
+    // elements.emplace_back(new CodeString(this, name, format->string_format));
+    // elements.emplace_back(new OpenFence(this));
+    // elements.emplace_back(new CloseFence(this));
+    // return InsertFormulas(elements, with_undo, false);
+
     InsertCodeString(name, true);
     InsertFormula(new OpenFence(this), with_undo, false, true);
     uint r = InsertFormula(new CloseFence(this), with_undo, false, true);
     MoveCaretLeft(false, true);
     return r;
+}
+
+uint Document::InsertSubscriptFunction(const std::string& name, bool with_undo)
+{
+    InsertCodeString(name, true);
+    return InsertFormula(new Subscript(this), with_undo, false, true);
 }
 
 uint Document::InsertFormula(Element* element, bool with_undo, bool undo, bool with_last_task_id)

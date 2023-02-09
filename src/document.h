@@ -57,9 +57,12 @@ public:
     uint InsertOpenFence(bool with_undo);
     uint InsertCloseFence(bool with_undo);
     uint InsertAssignment(bool with_undo);
+    uint InsertSubscript(bool with_undo);
 
     uint InsertFences(bool with_undo);
+    
     uint InsertFunction(const std::string& name, bool with_undo);
+    uint InsertSubscriptFunction(const std::string& name, bool with_undo);
 
     uint InsertFormula(Element* element, bool with_undo, bool undo, bool with_last_task_id = false);
     uint InsertFormulas(std::vector<ElementPtr>& elements, bool with_undo, bool undo, bool with_last_task_id = false);
