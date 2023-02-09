@@ -56,7 +56,7 @@ void CodeBlock::Remake(bool with_elements, bool with_parent, bool with_undo)
     {
         ElementPtr p = elements->Get(i);
         p->GetMargin(left_m, top_m, right_m, bottom_m); //consider the margins
-        p->rect.Move(p->rect.left, h + top_m);
+        p->rect.Move(i == 0 ? p->rect.left + code_format->left_indent : p->rect.left, h + top_m + code_format->top_indent);
         h += p->rect.height + code_format->paragraph_spacing + bottom_m;
     }
 
@@ -66,6 +66,8 @@ void CodeBlock::Remake(bool with_elements, bool with_parent, bool with_undo)
     last_rect = rect;
 
     UpdateRect();
+    rect.width += code_format->right_indent;
+    rect.height += code_format->bottom_indent;
 
     if (remake)
     {
