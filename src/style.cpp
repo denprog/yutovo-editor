@@ -114,13 +114,13 @@ ParagraphFormats::ParagraphFormats(StringFormatsPtr _string_formats) :
 {
     //those are predefined paragraph styles
     GetFormat("Text body", ParagraphFormat::Alignment::Left, ParagraphFormat::WordWrap::Normal, 5, 10, 10, 0, 10, 10, 
-        string_formats->GetFormat("Arial", 22, false, false, false));
+        string_formats->GetFormat("Arial", 14, false, false, false));
     GetFormat("Header 1", ParagraphFormat::Alignment::Left, ParagraphFormat::WordWrap::Normal, 5, 10, 10, 0, 10, 10, 
-        string_formats->GetFormat("Arial", 34, true, false, false));
-    GetFormat("Header 2", ParagraphFormat::Alignment::Left, ParagraphFormat::WordWrap::Normal, 5, 10, 10, 0, 10, 10, 
         string_formats->GetFormat("Arial", 30, true, false, false));
-    GetFormat("Header 3", ParagraphFormat::Alignment::Left, ParagraphFormat::WordWrap::Normal, 5, 10, 10, 0, 10, 10,
+    GetFormat("Header 2", ParagraphFormat::Alignment::Left, ParagraphFormat::WordWrap::Normal, 5, 10, 10, 0, 10, 10, 
         string_formats->GetFormat("Arial", 26, true, false, false));
+    GetFormat("Header 3", ParagraphFormat::Alignment::Left, ParagraphFormat::WordWrap::Normal, 5, 10, 10, 0, 10, 10,
+        string_formats->GetFormat("Arial", 22, true, false, false));
     GetFormat("Monospace", ParagraphFormat::Alignment::Left, ParagraphFormat::WordWrap::Normal, 5, 10, 10, 0, 10, 10, 
         string_formats->GetFormat("Courier New", 12, false, false, false));
     GetFormat("Code", ParagraphFormat::Alignment::Left, ParagraphFormat::WordWrap::None, 2, 2, 2, 0, 2, 2, 

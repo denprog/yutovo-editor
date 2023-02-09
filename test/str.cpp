@@ -21,7 +21,8 @@ TEST_F(DocumentTest, strings1)
             return GetTextSizeMock(text, format);
         });
 
-    ASSERT_TRUE(document.ToHtml() == "<body><p><span style=\"font-family:'Arial';font-size:22px;\"></span></p></body>") << document.ToHtml();
+    document.SetFontSize(22);
+    ASSERT_TRUE(document.ToHtml() == "<body><p><span style=\"font-family:'Arial';font-size:14px;\"></span></p></body>") << document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 0)) << document.GetEditorState().ToString();
 
     document.InsertString("T", true);
@@ -83,29 +84,30 @@ TEST_F(DocumentTest, strings2)
             return GetTextSizeMock(text, format);
         });
 
-    ASSERT_TRUE(document.ToHtml() == "<body><p><span style=\"font-family:'Arial';font-size:22px;\"></span></p></body>") << document.ToHtml();
+    ASSERT_TRUE(document.ToHtml() == "<body><p><span style=\"font-family:'Arial';font-size:14px;\"></span></p></body>") << document.ToHtml();
 
     document.DeleteElements(true, true, false);
     document.WaitMainLoop();
-    ASSERT_TRUE(document.ToHtml() == "<body><p><span style=\"font-family:'Arial';font-size:22px;\"></span></p></body>") << document.ToHtml();
+    ASSERT_TRUE(document.ToHtml() == "<body><p><span style=\"font-family:'Arial';font-size:14px;\"></span></p></body>") << document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 0)) << document.GetEditorState().ToString();
 
     document.Undo();
     std::this_thread::sleep_for(100ms);
-    ASSERT_TRUE(document.ToHtml() == "<body><p><span style=\"font-family:'Arial';font-size:22px;\"></span></p></body>") << document.ToHtml();
+    ASSERT_TRUE(document.ToHtml() == "<body><p><span style=\"font-family:'Arial';font-size:14px;\"></span></p></body>") << document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 0)) << document.GetEditorState().ToString();
 
     document.DeleteElements(false, true, false);
     document.WaitMainLoop();
     std::this_thread::sleep_for(100ms);
-    ASSERT_TRUE(document.ToHtml() == "<body><p><span style=\"font-family:'Arial';font-size:22px;\"></span></p></body>") << document.ToHtml();
+    ASSERT_TRUE(document.ToHtml() == "<body><p><span style=\"font-family:'Arial';font-size:14px;\"></span></p></body>") << document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 0)) << document.GetEditorState().ToString();
 
     document.Undo();
     std::this_thread::sleep_for(100ms);
-    ASSERT_TRUE(document.ToHtml() == "<body><p><span style=\"font-family:'Arial';font-size:22px;\"></span></p></body>") << document.ToHtml();
+    ASSERT_TRUE(document.ToHtml() == "<body><p><span style=\"font-family:'Arial';font-size:14px;\"></span></p></body>") << document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 0)) << document.GetEditorState().ToString();
 
+    document.SetFontSize(22);
     document.InsertString("Text", true);
     document.WaitMainLoop();
     ASSERT_TRUE(document.ToHtml() == "<body><p><span style=\"font-family:'Arial';font-size:22px;\">Text</span></p></body>") << document.ToHtml();
@@ -269,6 +271,7 @@ TEST_F(DocumentTest, selections2)
             return GetTextSizeMock(text, format);
         });
 
+    document.SetFontSize(22);
     document.InsertString("Test", true);
     document.MoveCaretHome(false);
     document.InsertString("Bold", document.GetStringFormat("Times New Roman", 34, true, false, false), true);
@@ -462,6 +465,7 @@ TEST_F(DocumentTest, inserts1)
             return GetTextSizeMock(text, format);
         });
 
+    document.SetFontSize(22);
     document.InsertString("Test", true);
     document.WaitMainLoop();
     ASSERT_TRUE(document.ToHtml() == 
@@ -492,6 +496,7 @@ TEST_F(DocumentTest, inserts2)
             return GetTextSizeMock(text, format);
         });
 
+    document.SetFontSize(22);
     document.InsertString("Test", true);
     document.WaitMainLoop();
     ASSERT_TRUE(document.ToHtml() == 
@@ -570,6 +575,7 @@ TEST_F(DocumentTest, inserts3)
             return GetTextSizeMock(text, format);
         });
 
+    document.SetFontSize(22);
     document.InsertString("Text", document.GetStringFormat("Arial", 24, false, false, false), true);
     document.InsertString("Italic", document.GetStringFormat("Times New Roman", 18, false, true, false), true);
     document.InsertString("Bold", document.GetStringFormat("Times New Roman", 34, true, false, false), true);

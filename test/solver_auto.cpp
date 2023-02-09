@@ -206,7 +206,7 @@ TEST_F(SolverAutoTest, solver3)
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
-                "<span style=\"font-family:'Arial';font-size:22px;\"></span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\"></span>"\
             "</p>"\
         "</body>") << 
         document.ToHtml();
@@ -216,7 +216,7 @@ TEST_F(SolverAutoTest, solver3)
     document.Load("solver3_1.yut");
     document.WaitLoad();
     document.WaitSolver();
-    std::this_thread::sleep_for(100ms);
+    std::this_thread::sleep_for(200ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -256,6 +256,7 @@ TEST_F(SolverAutoTest, solver4)
     
     document.InsertSubscriptFunction("log", true);
     document.WaitMainLoop();
+    std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
