@@ -69,6 +69,15 @@ void CodeBlock::Remake(bool with_elements, bool with_parent, bool with_undo)
     rect.width += code_format->right_indent;
     rect.height += code_format->bottom_indent;
 
+    //align the baseline
+    baseline = 0;
+    for (uint i = 0; i < elements->Count(); ++i)
+    {
+        auto el = elements->Get(i);
+        if (el->baseline > baseline)
+            baseline = el->baseline;
+    }
+
     if (remake)
     {
         parent->Remake(false, with_parent, with_undo);
