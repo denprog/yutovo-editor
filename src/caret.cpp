@@ -314,6 +314,8 @@ bool Caret::IsOnElement(const ElementId id)
 
 void Caret::UpdateXPos()
 {
+    if (!element)
+        return;
     if (document->IsString(element->id))
     {
         last_x_element = element.get();

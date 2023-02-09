@@ -48,6 +48,7 @@ add_library(${PROJECT_NAME}
     formulas/result.cpp
     formulas/fences.cpp
     formulas/assignment.cpp
+    formulas/subscript.cpp
 )
 
 set_target_properties(${PROJECT_NAME} PROPERTIES

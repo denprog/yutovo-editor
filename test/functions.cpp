@@ -8,6 +8,7 @@ namespace yutovo_test
 using namespace yutovo;
 using namespace std::chrono_literals;
 
+//sin
 TEST_F(FormulaTest, functions1)
 {
     EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()

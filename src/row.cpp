@@ -240,8 +240,13 @@ bool Row::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo)
                 }
                 if (i == 0)
                     b = ins->AfterInsert(with_undo);
-                if (!b && elements->Get(p + i + 1)->GetLastCaretState(c, nullptr))
-                    caret->SetState(c);
+                if (!b)
+                {
+                    if (elements->Get(p + i + 1)->GetLastCaretState(c, nullptr))
+                        caret->SetState(c);
+                    else if (i > 0 && _elements[i - 1]->parent->GetLastCaretState(c, nullptr))
+                        caret->SetState(c);
+                }
                 if (elements->Count() > p + i + 2)
                 {
                     ElementPtr el1 = elements->Get(p + i + 1);

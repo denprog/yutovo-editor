@@ -50,7 +50,8 @@ enum class ElementType
     COMPLEX_RESULT,
     AUTO_RESULT,
     ERROR_RESULT,
-    ASSIGNMENT
+    ASSIGNMENT,
+    SUBSCRIPT
 };
 
 #define MAX_LEVEL 3
