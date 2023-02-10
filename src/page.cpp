@@ -34,14 +34,14 @@ void Page::Draw() const
     v.left += format->left_indent;
     v.top += format->top_indent;
     v.width -= format->right_indent + format->left_indent;
-    v.height -= format->bottom_indent + format->right_indent;
+    v.height -= format->bottom_indent + format->top_indent;
     window->SetViewPort(v);
+
+    Element::Draw();
 
     window->BeginDrawOutside();
     window->DrawRect(Rect(v.left - 1, v.top - 1, v.width + 2, v.height + 2), Color::Blue());
     window->EndDrawOutside();
-
-    Element::Draw();
 }
 
 void Page::Remake(bool with_elements, bool with_parent, bool with_undo)
