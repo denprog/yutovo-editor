@@ -44,6 +44,32 @@ bool CodeRow::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo)
     return Row::InsertElements(_elements, with_undo);
 }
 
+bool CodeRow::GetBeginCaretState(CaretState& caret_state, Selection* select)
+{
+    CaretState c;
+    if (Row::GetBeginCaretState(c, select))
+    {
+        if (c == caret_state)
+            return parent->GetBeginCaretState(caret_state, select);
+        caret_state = c;
+        return true;
+    }
+    return false;
+}
+
+bool CodeRow::GetEndCaretState(CaretState& caret_state, Selection* select)
+{
+    CaretState c;
+    if (Row::GetEndCaretState(c, select))
+    {
+        if (c == caret_state)
+            return parent->GetEndCaretState(caret_state, select);
+        caret_state = c;
+        return true;
+    }
+    return false;
+}
+
 void CodeRow::AddEmptyElement()
 {
     AddElement(ElementPtr(new CodeString(this)));

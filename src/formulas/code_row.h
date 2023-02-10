@@ -21,6 +21,9 @@ public:
 
     virtual bool InsertElements(std::vector<ElementPtr>& _elements, bool with_undo);
 
+    virtual bool GetBeginCaretState(CaretState& caret_state, Selection* select);
+    virtual bool GetEndCaretState(CaretState& caret_state, Selection* select);
+
     virtual void AddEmptyElement();
 
     virtual std::string ToHtml();
