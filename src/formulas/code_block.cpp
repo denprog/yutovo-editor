@@ -62,9 +62,6 @@ void CodeBlock::Remake(bool with_elements, bool with_parent, bool with_undo)
 
     Element::UpdateRect(false);
 
-    bool remake = (rect != last_rect && with_parent);
-    last_rect = rect;
-
     UpdateRect();
     rect.width += code_format->right_indent;
     rect.height += code_format->bottom_indent;
@@ -78,10 +75,11 @@ void CodeBlock::Remake(bool with_elements, bool with_parent, bool with_undo)
             baseline = el->baseline;
     }
 
-    if (remake)
+    if (rect != last_rect && with_parent)
     {
         parent->Remake(false, with_parent, with_undo);
         document->Redraw(id, false);
+        last_rect = rect;
     }
 }
 
