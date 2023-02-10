@@ -71,7 +71,6 @@ std::string Text::ToHtml()
 Rect Text::GetAbsoluteRect() const
 {
     Rect w = window->GetRect();
-    //Rect r = elements->GetRect();
     Rect r = Element::GetAbsoluteRect();
     if (r.width < w.width)
         r.width = w.width;
