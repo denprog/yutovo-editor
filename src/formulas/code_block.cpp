@@ -51,13 +51,13 @@ void CodeBlock::Remake(bool with_elements, bool with_parent, bool with_undo)
         Element::Remake(true, with_parent, with_undo);
 
     int left_m = 0, top_m = 0, right_m = 0, bottom_m = 0;
-    int h = 0;
+    int h = code_format->top_indent;
     for (int i = 0; i < elements->Count(); ++i) //arrange paragraphs
     {
         ElementPtr p = elements->Get(i);
         p->GetMargin(left_m, top_m, right_m, bottom_m); //consider the margins
-        p->rect.Move(i == 0 ? p->rect.left + code_format->left_indent : p->rect.left, h + top_m + code_format->top_indent);
-        h += p->rect.height + code_format->paragraph_spacing + bottom_m;
+        p->rect.Move(left_m + code_format->left_indent, h + top_m);
+        h = p->rect.GetBottom() + bottom_m;
     }
 
     Element::UpdateRect(false);
