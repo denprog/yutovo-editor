@@ -39,8 +39,6 @@ void CodeParagraph::UpdateRect(bool with_elements)
 void CodeParagraph::Remake(bool with_elements, bool with_parent, bool with_undo)
 {
     Paragraph::Remake(with_elements, with_parent, with_undo);
-
-    baseline = elements->Get(0)->rect.GetBottom();
 }
 
 void CodeParagraph::AddEmptyElement()

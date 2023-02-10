@@ -165,6 +165,8 @@ void Paragraph::Remake(bool with_elements, bool with_parent, bool with_undo)
 
     UpdateRect();
 
+    baseline = elements->Get(0)->baseline;
+
     if (rect != last_rect)
     {
         if (with_parent)
