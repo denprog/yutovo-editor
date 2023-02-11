@@ -165,6 +165,8 @@ ElementId GetChild(const ElementId& id, uint pos);
 int GetChildPos(const ElementId& id);
 ElementId GetPrevPos(const ElementId& id);
 
+ElementId GetWithParent(const ElementId id, const ElementId parent_id);
+
 struct DocumentUserData
 {
     Document* document = nullptr;

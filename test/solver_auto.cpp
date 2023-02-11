@@ -67,7 +67,7 @@ TEST_F(SolverAutoTest, solver1)
     document.Redo();
     document.WaitRedo();
     document.WaitSolver();
-    std::this_thread::sleep_for(1ms);
+    std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\

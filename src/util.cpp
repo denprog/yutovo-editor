@@ -135,6 +135,14 @@ ElementId GetPrevPos(const ElementId& id)
     return _id;
 }
 
+ElementId GetWithParent(const ElementId id, const ElementId parent_id)
+{
+    ElementId _id(id);
+    for (int i = 0; i < parent_id.size() && i < id.size(); ++i)
+        _id[i] = parent_id[i];
+    return _id;
+}
+
 void RegisterTypes()
 {
     boost::serialization::void_cast_register<yutovo::Text, yutovo::Element>(static_cast<yutovo::Text*>(NULL), static_cast<yutovo::Element*>(NULL));

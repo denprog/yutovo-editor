@@ -741,9 +741,9 @@ void Elements::Add(ElementPtr element)
 
 void Elements::Insert(ElementPtr element, const uint pos)
 {
-    int p = -1;
+    CaretState c;
     if (caret->IsInsideElement(element->id))
-        p = caret->GetPos();
+        c = caret->GetCaretState();
     
     ElementSelection s;
     if (selection->Has(element->id, s))
@@ -757,8 +757,8 @@ void Elements::Insert(ElementPtr element, const uint pos)
     UpdateIds(); //set id
 
     //update caret state on the new position of the element
-    if (p != -1)
-        caret->SetState(element->id, p, true);
+    if (!c.IsEmpty())
+        caret->SetState(GetWithParent(c.GetElement(), element->id), c.GetPos(), true);
     if (!s.IsEmpty())
         selection->Add(element, s.start, s.size);
 
@@ -785,8 +785,11 @@ void Elements::RemoveAt(const uint pos, const int size)
 {
     selection->Remove(parent->id, pos, size);
     int cs_pos = -1;
-    if (caret->IsInsideElement(elements[pos]->id) || caret->IsOnElement(elements[pos]->id))
-        cs_pos = pos;
+    if (!parent->id.empty())
+    {
+        if (caret->IsInsideElement(elements[pos]->id) || caret->IsOnElement(elements[pos]->id))
+            cs_pos = pos;
+    }
     CaretState c = caret->GetCaretState();
 
     elements.erase(elements.begin() + pos, elements.begin() + pos + size);
