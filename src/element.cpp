@@ -1027,7 +1027,7 @@ bool Elements::GetRightCaretState(CaretState& caret_state, Selection* select)
                         caret_state.SetState(parent->id, select->IsEmpty() ? p : p + 1);
                 }
                 else
-                    caret_state.SetState(Get(p));
+                    caret_state.SetState(parent->id, elements[p - 1]->HasCaretState() ? p : p + 1);
                 select->Add(parent->id, elements[p - 1]->HasCaretState() ? p - 1 : p, 1);
             }
             else

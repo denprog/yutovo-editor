@@ -1140,6 +1140,7 @@ TEST_F(DocumentTest, fonts3)
     document.WaitCaretMoving();
     document.SetBold(true);
     document.WaitMainLoop();
+    std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body><p>"\
         "<span style=\"font-family:'Arial';font-size:24px;\">Te</span>"\

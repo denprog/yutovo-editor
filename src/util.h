@@ -167,6 +167,8 @@ ElementId GetPrevPos(const ElementId& id);
 
 ElementId GetWithParent(const ElementId id, const ElementId parent_id);
 
+ElementId GetCommonParent(const std::vector<ElementId>& ids);
+
 struct DocumentUserData
 {
     Document* document = nullptr;
