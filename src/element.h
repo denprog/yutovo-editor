@@ -145,6 +145,10 @@ public:
 
     virtual void ReSolve();
 
+    virtual void SubscribeOnChange(const ElementId _id);
+    void EmitChanged();
+    virtual void OnChanged(const ElementId _id);
+
 public:
     Element* parent = nullptr;
 
@@ -166,6 +170,8 @@ protected:
     Selection* selection = nullptr;
 
     bool remake_always = false;
+
+    std::vector<ElementId> on_change_subscribers;
 
 public:
     std::unique_ptr<Elements> elements; //child nodes

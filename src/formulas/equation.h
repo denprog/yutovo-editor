@@ -34,6 +34,8 @@ public:
     virtual std::string ToHtml();
     virtual std::string ToText();
 
+    virtual void OnChanged(const ElementId _id);
+
     template <class Archive>
     void save(Archive& ar, const unsigned int version) const
     {
