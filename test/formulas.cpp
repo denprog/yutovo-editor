@@ -458,4 +458,37 @@ TEST_F(FormulaTest, insert1)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 1, 1, 0, 0, 0, 0})) << document.GetEditorState().ToString();
 }
 
+//selection of a formula
+TEST_F(FormulaTest, select1)
+{
+    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
+        {
+            return Rect{0, 0, 450, 400};
+        });
+
+    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::string& text, const StringFormatPtr format)
+        {
+            return GetTextSizeMock(text, format);
+        });
+
+    document.InsertDivision(true);
+    document.WaitTask(document.InsertString("3", true));
+    document.MoveCaretDown(false);
+    document.MoveCaretDown(false);
+    document.WaitCaretMoving();
+    document.WaitTask(document.InsertString("25", true));
+    document.MoveCaretLeft(false);
+    document.MoveCaretRight(true);
+    document.MoveCaretRight(true);
+    document.WaitCaretMoving();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0, 0, 0, 1}, 
+        ElementSelectionState{ElementId{0, 0, 0, 0, 0, 0, 0}, 0, 1})) << document.GetEditorState().ToString();
+
+    document.MoveCaretRight(true);
+    document.WaitCaretMoving();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 1}, 
+        ElementSelectionState{ElementId{0, 0, 0, 0, 0, 0, 0}, 0, 1},
+        ElementSelectionState{ElementId{0, 0, 0, 0}, 0, 1})) << document.GetEditorState().ToString();
+}
+
 }

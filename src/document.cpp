@@ -823,19 +823,11 @@ bool Document::GetStringFormat(const ElementId id, StringFormat& format)
 {
     std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
     ElementPtr el = GetElement(id);
-    if (IsString(el))
+    if (IsString(el) || IsRow(el))
     {
-        format = *((String*)el.get())->format;
+        auto f = el->GetStringFormat();
+        format = *f;
         return true;
-    }
-    else if (IsRow(el))
-    {
-        el = FindParent(el->id, ElementType::PARAGRAPH);
-        if (el)
-        {
-            format = *((Paragraph*)el.get())->format->string_format;
-            return true;
-        }
     }
     return false;
 }
