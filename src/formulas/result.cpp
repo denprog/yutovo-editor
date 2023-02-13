@@ -144,6 +144,14 @@ ErrorResult::ErrorResult(Element* parent, const yutovo_service::ErrorCode error_
     AddElement(ElementPtr(new CodeString(this, ErrorCodeToString(error_code))));
 }
 
+ErrorResult::ErrorResult(Element* parent, const yutovo_calculator::ParserExceptionCode parser_error_code) :
+    ResultRow(parent)
+{
+    type = ElementType::ERROR_RESULT;
+    elements->Clear();
+    AddElement(ElementPtr(new CodeString(this, ErrorCodeToString(parser_error_code))));
+}
+
 //AutoResult
 
 AutoResult::AutoResult(Document* _document) :
@@ -218,7 +226,10 @@ void AutoResult::PutResult(Result result)
     if (result.error.error_code != ErrorCode::OK)
     {
         //put error message
-        elements->Add(ElementPtr(new ErrorResult(this, result.error.error_code)));
+        if (result.error.parser_error_code != yutovo_calculator::ParserExceptionCode::None)
+            elements->Add(ElementPtr(new ErrorResult(this, result.error.parser_error_code)));
+        else
+            elements->Add(ElementPtr(new ErrorResult(this, result.error.error_code)));
     }
     else
     {

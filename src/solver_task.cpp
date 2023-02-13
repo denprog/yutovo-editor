@@ -98,12 +98,12 @@ bool RealSolverTask::Execute(zmq::socket_t& socket, Result& result)
         {
             rapidjson::Value error = doc["error"].GetObject();
             if (error.HasMember("error_code") && error["error_code"].IsInt())
-            {
                 result.error.error_code = (ErrorCode)error["error_code"].GetInt();
-                return false;
-            }
+            if (error.HasMember("parser_error_code") && error["parser_error_code"].IsInt())
+                result.error.parser_error_code = (yutovo_calculator::ParserExceptionCode)error["parser_error_code"].GetInt();
+            return false;
         }
-        result.error.error_code = ErrorCode::EXPRESSION_ERROR;
+        result.error.error_code = ErrorCode::PARSER_ERROR;
         return false;
     }
     if (!doc.HasMember("mantissa") || !doc["mantissa"].IsString())
@@ -173,12 +173,12 @@ bool IntegerSolverTask::Execute(zmq::socket_t& socket, Result& result)
         {
             rapidjson::Value error = doc["error"].GetObject();
             if (error.HasMember("error_code") && error["error_code"].IsInt())
-            {
                 result.error.error_code = (ErrorCode)error["error_code"].GetInt();
-                return false;
-            }
+            if (error.HasMember("parser_error_code") && error["parser_error_code"].IsInt())
+                result.error.parser_error_code = (yutovo_calculator::ParserExceptionCode)error["parser_error_code"].GetInt();
+            return false;
         }
-        result.error.error_code = ErrorCode::EXPRESSION_ERROR;
+        result.error.error_code = ErrorCode::PARSER_ERROR;
         return false;
     }
     if (!doc.HasMember("value") || !doc["value"].IsString())
@@ -244,12 +244,12 @@ bool RationalSolverTask::Execute(zmq::socket_t& socket, Result& result)
         {
             rapidjson::Value error = doc["error"].GetObject();
             if (error.HasMember("error_code") && error["error_code"].IsInt())
-            {
                 result.error.error_code = (ErrorCode)error["error_code"].GetInt();
-                return false;
-            }
+            if (error.HasMember("parser_error_code") && error["parser_error_code"].IsInt())
+                result.error.parser_error_code = (yutovo_calculator::ParserExceptionCode)error["parser_error_code"].GetInt();
+            return false;
         }
-        result.error.error_code = ErrorCode::EXPRESSION_ERROR;
+        result.error.error_code = ErrorCode::PARSER_ERROR;
         return false;
     }
     if (!doc.HasMember("numerator") || !doc["numerator"].IsString() || !doc.HasMember("denomerator") || !doc["denomerator"].IsString())
@@ -320,7 +320,7 @@ bool RemoveIdentifierSolverTask::Execute(zmq::socket_t& socket, Result& result)
                 return false;
             }
         }
-        result.error.error_code = ErrorCode::EXPRESSION_ERROR;
+        result.error.error_code = ErrorCode::PARSER_ERROR;
         return false;
     }
 

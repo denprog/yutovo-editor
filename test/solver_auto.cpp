@@ -50,7 +50,7 @@ TEST_F(SolverAutoTest, solver1)
 
     document.Undo();
     document.WaitUndo();
-    std::this_thread::sleep_for(100ms);
+    std::this_thread::sleep_for(200ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -67,7 +67,7 @@ TEST_F(SolverAutoTest, solver1)
     document.Redo();
     document.WaitRedo();
     document.WaitSolver();
-    std::this_thread::sleep_for(100ms);
+    std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -362,6 +362,154 @@ TEST_F(SolverAutoTest, solver5)
                         "<mrow>"\
                             "<mrow>"\
                                 "<mi>152.045</mi>"\
+                            "</mrow>"\
+                        "</mrow>"\
+                    "</mrow>"\
+                "</math>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+}
+
+//Solve with errors
+TEST_F(SolverAutoTest, solver6)
+{
+    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
+        {
+            return Rect{0, 0, 600, 400};
+        });
+
+    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::string& text, const StringFormatPtr format)
+        {
+            return GetTextSizeMock(text, format);
+        });
+    
+    document.WaitTask(document.InsertDivision(true));
+    document.WaitMainLoop();
+    document.MoveCaretRight(false);
+    document.MoveCaretRight(false);
+    document.MoveCaretRight(false);
+    document.WaitCaretMoving();
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mrow>"\
+                            "<mfrac>"\
+                                "<mrow>"\
+                                    "<mi>Null</mi>"\
+                                "</mrow>"\
+                                "<mrow>"\
+                                    "<mi>Null</mi>"\
+                                "</mrow>"\
+                            "</mfrac>"\
+                        "</mrow>"\
+                        "<mo>=</mo>"\
+                        "<mrow>"\
+                            "<mrow>"\
+                                "<mi>Syntax error</mi>"\
+                            "</mrow>"\
+                        "</mrow>"\
+                    "</mrow>"\
+                "</math>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+
+    document.MoveCaretLeft(false);
+    document.MoveCaretLeft(false);
+    document.WaitCaretMoving();
+    document.InsertString("2", true);
+    document.MoveCaretUp(false);
+    document.MoveCaretUp(false);
+    document.WaitCaretMoving();
+    document.WaitTask(document.InsertString("3", true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mrow>"\
+                            "<mfrac>"\
+                                "<mrow>"\
+                                    "<mi>3</mi>"\
+                                "</mrow>"\
+                                "<mrow>"\
+                                    "<mi>2</mi>"\
+                                "</mrow>"\
+                            "</mfrac>"\
+                        "</mrow>"\
+                        "<mo>=</mo>"\
+                        "<mrow>"\
+                            "<mrow>"\
+                                "<mi>1.5</mi>"\
+                            "</mrow>"\
+                        "</mrow>"\
+                    "</mrow>"\
+                "</math>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+
+    document.WaitTask(document.DeleteElements(true, true, false));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mrow>"\
+                            "<mfrac>"\
+                                "<mrow>"\
+                                    "<mi>Null</mi>"\
+                                "</mrow>"\
+                                "<mrow>"\
+                                    "<mi>2</mi>"\
+                                "</mrow>"\
+                            "</mfrac>"\
+                        "</mrow>"\
+                        "<mo>=</mo>"\
+                        "<mrow>"\
+                            "<mrow>"\
+                                "<mi>Syntax error</mi>"\
+                            "</mrow>"\
+                        "</mrow>"\
+                    "</mrow>"\
+                "</math>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    
+    document.Undo();
+    document.WaitUndo();
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mrow>"\
+                            "<mfrac>"\
+                                "<mrow>"\
+                                    "<mi>3</mi>"\
+                                "</mrow>"\
+                                "<mrow>"\
+                                    "<mi>2</mi>"\
+                                "</mrow>"\
+                            "</mfrac>"\
+                        "</mrow>"\
+                        "<mo>=</mo>"\
+                        "<mrow>"\
+                            "<mrow>"\
+                                "<mi>1.5</mi>"\
                             "</mrow>"\
                         "</mrow>"\
                     "</mrow>"\
