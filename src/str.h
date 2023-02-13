@@ -61,6 +61,8 @@ public:
 
     virtual void ReSolve();
 
+    virtual void SubscribeOnChange(const ElementId _id);
+
     template <class Archive>
     void save(Archive& ar, const unsigned int version) const
     {

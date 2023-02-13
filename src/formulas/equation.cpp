@@ -84,13 +84,6 @@ void Equation::UpdateRect(bool with_elements)
 
 void Equation::Remake(bool with_elements, bool with_parent, bool with_undo)
 {
-    if (!auto_result)
-    {
-        auto_result.reset(new AutoResult(last));
-        last->elements->Clear();
-        last->elements->Add(auto_result);
-    }
-
     if (with_elements)
         elements->Remake(with_parent, with_undo);
 
@@ -111,8 +104,6 @@ void Equation::Remake(bool with_elements, bool with_parent, bool with_undo)
     if (rect != last_rect && with_parent)
         parent->Remake(false, true, with_undo);
     last_rect = rect;
-
-    auto_result->Solve(first->ToText(), result_type); //solve the expression in the left part
 }
 
 bool Equation::DeleteElements(bool left, bool with_undo)
@@ -141,13 +132,14 @@ bool Equation::AfterInsert(bool with_undo)
         first->elements->Move(el, i);
     }
     caret->SetState(shape->id);
+    first->SubscribeOnChange(id);
     return true;
 }
 
 void Equation::ReSolve()
 {
     auto_result.reset();
-    document->Remake(id, true, false, false);
+    OnChanged({});
 }
 
 std::string Equation::ToHtml()
@@ -166,6 +158,17 @@ std::string Equation::ToText()
     if (last)
         s += last->ToText();
     return s;
+}
+
+void Equation::OnChanged(const ElementId _id)
+{
+    if (!auto_result)
+    {
+        auto_result.reset(new AutoResult(last));
+        last->elements->Clear();
+        last->elements->Add(auto_result);
+    }
+    auto_result->Solve(first->ToText(), result_type); //solve the expression in the left part
 }
 
 }

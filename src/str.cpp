@@ -206,6 +206,7 @@ bool String::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo)
             format = s->format;
             caret->SetState(elements->GetElementId(elements->Count()));
             parent->Normalize(with_undo);
+            parent->EmitChanged();
 #ifdef DEBUG
             to_str = ToText();
 #endif
@@ -221,7 +222,7 @@ bool String::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo)
             }
             elements->Insert(_elements[0], caret->GetPos());
             caret->SetState(elements->GetElementId(caret->GetPos() + s->elements->Count()));
-            parent->Normalize(with_undo);   
+            parent->Normalize(with_undo);
 #ifdef DEBUG
             to_str = ToText();
 #endif
@@ -535,6 +536,14 @@ void String::ReSolve()
 {
 }
 
+void String::SubscribeOnChange(const ElementId _id)
+{
+    if (_id.empty())
+        return;
+    if (std::find(on_change_subscribers.begin(), on_change_subscribers.end(), _id) == on_change_subscribers.end())
+        on_change_subscribers.push_back(_id);
+}
+
 //StringElements
 
 StringElements::StringElements(Element* parent) :
@@ -609,6 +618,9 @@ void StringElements::Insert(ElementPtr element, const uint pos)
             caret_state.SetState(parent->id, caret_state.GetPos() + s.length());
     }
     str.insert(pos, s);
+
+    parent->EmitChanged();
+
 #ifdef DEBUG
     parent->to_str = parent->ToText();
 #endif
@@ -634,6 +646,9 @@ void StringElements::RemoveAt(const uint pos, const int size)
 
     str.erase(str.begin() + pos, str.begin() + pos + size);
     selection->Remove(parent->id, pos, size);
+
+    parent->EmitChanged();
+
 #ifdef DEBUG
     parent->to_str = parent->ToText();
 #endif
@@ -642,6 +657,9 @@ void StringElements::RemoveAt(const uint pos, const int size)
 void StringElements::Clear()
 {
     str = U"";
+
+    parent->EmitChanged();
+
 #ifdef DEBUG
     parent->to_str = parent->ToText();
 #endif

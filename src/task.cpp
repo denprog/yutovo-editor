@@ -822,6 +822,7 @@ bool LoadTask::Execute()
     document->text = t;
     document->MoveCaretToDocumentBegin(false);
     document->Remake(text->id, true, false, false);
+    document->text->ReSolve();
     window->OnLoadResult(id, IOResult::Success);
     return true;
 }

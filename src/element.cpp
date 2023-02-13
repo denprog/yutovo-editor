@@ -40,7 +40,8 @@ Element::Element(const Element& source) :
     level(source.level),
     editable(source.editable),
     caret(document->caret),
-    selection(&document->selection)
+    selection(&document->selection),
+    on_change_subscribers(source.on_change_subscribers)
 {
     elements.reset(source.elements->Clone(this)); //deep copy
 
@@ -605,6 +606,36 @@ void Element::ReSolve()
         elements->Get(i)->ReSolve();
 }
 
+void Element::SubscribeOnChange(const ElementId _id)
+{
+    if (_id.empty())
+        return;
+    auto el = document->GetElement(_id);
+    for (int i = 0; i < elements->Count(); ++i)
+        elements->Get(i)->SubscribeOnChange(_id);
+    if (std::find(on_change_subscribers.begin(), on_change_subscribers.end(), _id) == on_change_subscribers.end())
+        on_change_subscribers.push_back(_id);
+}
+
+void Element::EmitChanged()
+{
+    for (auto it = on_change_subscribers.begin(); it != on_change_subscribers.end();)
+    {
+        auto el = document->GetElement(*it);
+        if (!el)
+        {
+            on_change_subscribers.erase(it);
+            continue;
+        }
+        el->OnChanged(id);
+        ++it;
+    }
+}
+
+void Element::OnChanged(const ElementId _id)
+{
+}
+
 //Elements
 
 Elements::Elements(Element* _parent) :
@@ -734,6 +765,8 @@ void Elements::Add(ElementPtr element)
     //set id
     UpdateIds();
 
+    parent->EmitChanged();
+
 #ifdef DEBUG
     parent->to_str = parent->ToText();
 #endif
@@ -762,6 +795,8 @@ void Elements::Insert(ElementPtr element, const uint pos)
     if (!s.IsEmpty())
         selection->Add(element, s.start, s.size);
 
+    parent->EmitChanged();
+
 #ifdef DEBUG
     parent->to_str = parent->ToText();
 #endif
@@ -770,6 +805,8 @@ void Elements::Insert(ElementPtr element, const uint pos)
 void Elements::Remove(const ElementPtr element)
 {
     parent->elements->RemoveAt(element->parent->elements->GetElementPos(element->id), 1);
+
+    parent->EmitChanged();
 
 #ifdef DEBUG
     parent->to_str = parent->ToText();
@@ -820,6 +857,8 @@ void Elements::RemoveAt(const uint pos, const int size)
         }
     }
 
+    parent->EmitChanged();
+
 #ifdef DEBUG
     parent->to_str = parent->ToText();
 #endif
@@ -851,6 +890,8 @@ void Elements::Replace(ElementPtr element, const uint pos)
 void Elements::Clear()
 {
     elements.clear();
+
+    parent->EmitChanged();
 
 #ifdef DEBUG
     parent->to_str = parent->ToText();

@@ -314,4 +314,61 @@ TEST_F(SolverAutoTest, solver4)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 0, 1})) << document.GetEditorState().ToString();
 }
 
+//Solve after changing element
+TEST_F(SolverAutoTest, solver5)
+{
+    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
+        {
+            return Rect{0, 0, 600, 400};
+        });
+
+    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::string& text, const StringFormatPtr format)
+        {
+            return GetTextSizeMock(text, format);
+        });
+    
+    document.InsertDivision(true);
+    document.InsertString("3345", true);
+    document.WaitMainLoop();
+    document.MoveCaretDown(false);
+    document.MoveCaretDown(false);
+    document.WaitCaretMoving();
+    document.InsertString("2", true);
+    document.MoveCaretRight(false);
+    document.WaitCaretMoving();
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+    document.MoveCaretLeft(false);
+    document.MoveCaretLeft(false);
+    document.InsertString("2", true);
+    document.WaitSolver();
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mrow>"\
+                            "<mfrac>"\
+                                "<mrow>"\
+                                    "<mi>3345</mi>"\
+                                "</mrow>"\
+                                "<mrow>"\
+                                    "<mi>22</mi>"\
+                                "</mrow>"\
+                            "</mfrac>"\
+                        "</mrow>"\
+                        "<mo>=</mo>"\
+                        "<mrow>"\
+                            "<mrow>"\
+                                "<mi>152.045</mi>"\
+                            "</mrow>"\
+                        "</mrow>"\
+                    "</mrow>"\
+                "</math>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+}
+
 }
