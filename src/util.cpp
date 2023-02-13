@@ -143,6 +143,47 @@ ElementId GetWithParent(const ElementId id, const ElementId parent_id)
     return _id;
 }
 
+ElementId GetCommonParent(const std::vector<ElementId>& ids)
+{
+    if (ids.empty())
+        return {};
+    
+    ElementId id = ids[0];
+    for (int i = 1; i < ids.size(); ++i)
+    {
+        ElementId _id = ids[i];
+        if (id == _id || IsChild(id, _id))
+            continue;
+        if (IsChild(_id, id))
+        {
+            id = _id;
+            continue;
+        }
+
+        ElementId p1 = GetParent(id);
+        ElementId p2 = GetParent(_id);
+        while (!p1.empty() && !p2.empty())
+        {
+            bool f = false;
+            while (!p2.empty())
+            {
+                if (p1 == p2)
+                {
+                    id = p1;
+                    f = true;
+                    break;
+                }
+                p2 = GetParent(p2);
+            }
+            if (f)
+                break;
+            p1 = GetParent(p1);
+            p2 = GetParent(_id);
+        }
+    }
+    return id;
+}
+
 void RegisterTypes()
 {
     boost::serialization::void_cast_register<yutovo::Text, yutovo::Element>(static_cast<yutovo::Text*>(NULL), static_cast<yutovo::Element*>(NULL));

@@ -1,5 +1,6 @@
 #include "selection.h"
 #include "document.h"
+#include "util.h"
 
 namespace yutovo
 {
@@ -18,17 +19,15 @@ bool ElementSelection::operator!=(const ElementSelection& s) const
 
 bool ElementSelection::operator<(const ElementSelection& s) const
 {
-    size_t i;
-    for (i = 0; i < element->id.size() && i < s.element->id.size(); ++i)
-    {
-        if (element->id[i] < s.element->id[i])
-            return true;
-        if (element->id[i] > s.element->id[i])
-            return false;
-    }
-    if (i == element->id.size())
-        return true;
-    return false;
+    std::vector<ElementId> ids;
+    ElementId s_id1 = element->id;
+    s_id1.push_back(start);
+    ids.push_back(s_id1);
+    ElementId s_id2 = s.element->id;
+    s_id2.push_back(s.start);
+    ids.push_back(s_id2);
+    ElementId _id = GetCommonParent(ids);
+    return s_id1[_id.size()] < s_id2[_id.size()]; //get position in common parent
 }
 
 bool ElementSelection::IsEmpty() const
@@ -95,43 +94,10 @@ void SelectionState::Merge(const SelectionState& s)
 
 ElementId SelectionState::GetCommonElement() const
 {
-    if (state.empty())
-        return {};
-    
-    ElementId id = state[0].id;
-    for (int i = 1; i < state.size(); ++i)
-    {
-        ElementId _id = state[i].id;
-        if (id == _id || IsChild(id, _id))
-            continue;
-        if (IsChild(_id, id))
-        {
-            id = _id;
-            continue;
-        }
-
-        ElementId p1 = GetParent(id);
-        ElementId p2 = GetParent(_id);
-        while (!p1.empty() && !p2.empty())
-        {
-            bool f = false;
-            while (!p2.empty())
-            {
-                if (p1 == p2)
-                {
-                    id = p1;
-                    f = true;
-                    break;
-                }
-                p2 = GetParent(p2);
-            }
-            if (f)
-                break;
-            p1 = GetParent(p1);
-            p2 = GetParent(_id);
-        }
-    }
-    return id;
+    std::vector<ElementId> ids;
+    for (int i = 0; i < state.size(); ++i)
+        ids.push_back(state[i].id);
+    return GetCommonParent(ids);
 }
 
 bool SelectionState::IsEmpty() const
@@ -308,6 +274,8 @@ bool Selection::Has(const ElementId id, ElementSelection& s) const
     {
         //parent element is selected, so select the whole this element
         auto el = document->GetElement(id);
+        if (!el)
+            return false;
         s.start = 0;
         s.size = el->elements->Count();
     }
