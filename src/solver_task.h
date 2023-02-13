@@ -37,6 +37,7 @@ enum class ExpressionType
 struct Error
 {
     yutovo_service::ErrorCode error_code = yutovo_service::ErrorCode::OK;
+    yutovo_calculator::ParserExceptionCode parser_error_code = yutovo_calculator::ParserExceptionCode::None;
     int solver_error_code = -1;
     int pos = -1;
     int line = -1;

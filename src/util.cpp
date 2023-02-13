@@ -319,11 +319,29 @@ std::string ErrorCodeToString(const yutovo_service::ErrorCode error_code)
             {ErrorCode::UNKNOWN_COMMAND, "Unknown command"},
             {ErrorCode::NO_FIELD_ERROR, "No field"},
             {ErrorCode::JSON_ERROR, "Json error"},
-            {ErrorCode::EXPRESSION_ERROR, "Expression error"},
+            {ErrorCode::PARSER_ERROR, "Parser error"},
             {ErrorCode::SOLVER_TIMEOUT_ERROR, "Timeout error"},
             {ErrorCode::SOLVER_RESTARTED_ERROR, "Solver restarted"}
         };
     return error_code_str[error_code];
+}
+
+std::string ErrorCodeToString(const yutovo_calculator::ParserExceptionCode parser_error_code)
+{
+    using namespace yutovo_calculator;
+    static std::map<ParserExceptionCode, std::string> error_code_str = 
+        {
+            {ParserExceptionCode::None, "Ok"},
+            {ParserExceptionCode::SyntaxError, "Syntax error"},
+            {ParserExceptionCode::WrongArgumentsCount, "Wrong arguments count"},
+            {ParserExceptionCode::UnknownIdentifier, "Unknown identifier"},
+            {ParserExceptionCode::ExpressionExpected, "Expression expected"},
+            {ParserExceptionCode::DivisionByZero, "Division by zero"},
+            {ParserExceptionCode::Overflow, "Overflow"},
+            {ParserExceptionCode::ArgumentIsOver, "Argument is over"},
+            {ParserExceptionCode::ConversionDoesNotFit, "Conversion does not fit"}
+        };
+    return error_code_str[parser_error_code];
 }
 
 }

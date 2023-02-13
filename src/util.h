@@ -208,6 +208,7 @@ std::u32string ToUtfString(const std::string& str);
 std::string ToBasicString(const std::u32string& str);
 
 std::string ErrorCodeToString(const yutovo_service::ErrorCode error_code);
+std::string ErrorCodeToString(const yutovo_calculator::ParserExceptionCode parser_error_code);
 
 }
 
