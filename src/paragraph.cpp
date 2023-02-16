@@ -156,16 +156,28 @@ void Paragraph::Remake(bool with_elements, bool with_parent, bool with_undo)
 
     if (with_undo && remake)
     {
+        document->CallFunc(ElementId{}, 
+            [&](const ElementId id)
+            {
+                document->can_normalize = true;
+            },
+            true);
         for (int i = 0; i < clone->elements->Count(); ++i)
             document->InsertElement(clone->elements->Get(i));
-        document->PushEditorState(CaretState(id, 0), true);
         document->ClearElements(id, false, true);
         document->PushEditorState(CaretState(id, 0), true);
+        document->CallFunc(ElementId{}, 
+            [&](const ElementId id)
+            {
+                document->can_normalize = false;
+            },
+            true);
     }
 
     UpdateRect();
 
-    baseline = elements->Get(0)->baseline;
+    if (elements->Count() > 0)
+        baseline = elements->Get(0)->baseline;
 
     if (rect != last_rect)
     {
@@ -182,6 +194,9 @@ void Paragraph::Remake(bool with_elements, bool with_parent, bool with_undo)
 
 void Paragraph::Normalize(bool with_undo)
 {
+    if (!document->can_normalize)
+        return;
+    
     Element::Normalize(with_undo);
 
     if (elements->Count() == 0)

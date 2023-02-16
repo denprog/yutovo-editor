@@ -239,7 +239,7 @@ bool String::DeleteElements(bool left, bool with_undo)
         return false;
     
     uint caret_pos = caret->GetPos();
-    if (caret->IsInsideElement(id))
+    if (caret->IsInsideElement(id) && selection->IsEmpty())
     {
         if ((caret_pos == 0 && left) || (caret_pos == elements->Count() && !left))
             return parent->DeleteElements(left, with_undo);

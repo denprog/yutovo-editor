@@ -546,4 +546,60 @@ TEST_F(DocumentTest, clipboard7)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(2, 0, 0, 10)) << document.GetEditorState().ToString();
 }
 
+//Cut/Paste at the beginning of the second row
+TEST_F(DocumentTest, clipboard8)
+{
+    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
+        {
+            return Rect{0, 0, 600, 400};
+        });
+
+    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::string& text, const StringFormatPtr format)
+        {
+            return GetTextSizeMock(text, format);
+        });
+
+    EXPECT_CALL(window_mock, OnCopyResult).WillRepeatedly([&](CopyResult result)
+        {
+            ASSERT_TRUE(result == CopyResult::Success);
+        });
+
+    EXPECT_CALL(window_mock, OnPasteResult).WillRepeatedly([&](PasteResult result)
+        {
+            ASSERT_TRUE(result == PasteResult::Success);
+        });
+
+    document.SetFontSize(22);
+    std::stringstream clipboard_array;
+    std::string clipboard_text;
+    document.WaitTask(document.InsertString("The source of the text itself is a little strange", true));
+    document.MoveCaretWordLeft(true);
+    document.WaitCaretMoving();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 1, 0, 0}, 
+        ElementSelectionState{ElementId{0, 0, 0, 1, 0}, 0, 7})) << document.GetEditorState().ToString();
+    
+    document.WaitTask(document.Cut(clipboard_array, clipboard_text));
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.ToText() == "The source of the text itself is a little ") << document.ToText();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0, 42})) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    std::this_thread::sleep_for(400ms);
+    ASSERT_TRUE(document.ToText() == "The source of the text itself is a little strange") << document.ToText();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 1, 0, 0}, 
+        ElementSelectionState{ElementId{0, 0, 0, 1, 0}, 0, 7})) << document.GetEditorState().ToString();
+    
+    document.Redo();
+    document.WaitRedo();
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.ToText() == "The source of the text itself is a little ") << document.ToText();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0, 42})) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.Paste(clipboard_array));
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.ToText() == "The source of the text itself is a little strange") << document.ToText();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 1, 0, 7})) << document.GetEditorState().ToString();
+}
+
 }
