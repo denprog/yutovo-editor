@@ -134,6 +134,8 @@ Element* Caret::GetElement() const
 {
     if (str_pos >= 0)
         return element.get();
+    if (!element)
+        return nullptr;
     return element->parent;
 }
 
@@ -141,6 +143,8 @@ int Caret::GetPos() const
 {
     if (str_pos >= 0)
         return str_pos;
+    if (!element)
+        return -1;
     return last_pos ? GetChildPos(element->id) + 1 : GetChildPos(element->id);
 }
 

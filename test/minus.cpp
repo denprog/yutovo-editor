@@ -102,6 +102,7 @@ TEST_F(FormulaTest, minus2)
     document.MoveCaretRight(true);
     document.MoveCaretRight(true);
     document.WaitCaretMoving();
+    std::this_thread::sleep_for(200ms);
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0, 0, 0, 2}, 
         ElementSelectionState{{0, 0, 0, 0, 0, 0, 0}, 0, 2})) << document.GetEditorState().ToString();
 }
@@ -124,8 +125,7 @@ TEST_F(FormulaTest, minus3)
     document.MoveCaretHome(false);
     document.WaitCaretMoving();
     document.InsertCode(false, true);
-    document.InsertMinus(true);
-    document.WaitMainLoop();
+    document.WaitTask(document.InsertMinus(true));
     document.Save("minus3_1.yut");
 
     document.New();
@@ -165,8 +165,7 @@ TEST_F(FormulaTest, minus3)
     document.MoveCaretRight(false);
     document.MoveCaretRight(false);
     document.WaitCaretMoving();
-    document.InsertString("67", true);
-    document.WaitMainLoop();
+    document.WaitTask(document.InsertString("67", true));
 
     document.Save("minus3_1.yut");
 
