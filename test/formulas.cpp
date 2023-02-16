@@ -430,8 +430,8 @@ TEST_F(FormulaTest, insert1)
         "<body>"\
             "<p>"\
                 "<span style=\"font-family:'Arial';font-size:22px;\">Tradicionalmente, el medio de </span>"\
-                "<span style=\"font-family:'Arial';font-size:22px;\">un documento era el papel y la </span>"\
-                "<span style=\"font-family:'Arial';font-size:22px;\">información</span>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\">un documento era el papel y </span>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\">la información</span>"\
             "</p>"\
         "</body>") << 
         document.ToHtml();
@@ -488,6 +488,61 @@ TEST_F(FormulaTest, select1)
     document.WaitCaretMoving();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 1}, 
         ElementSelectionState{ElementId{0, 0, 0, 0, 0, 0, 0}, 0, 1},
+        ElementSelectionState{ElementId{0, 0, 0, 0}, 0, 1})) << document.GetEditorState().ToString();
+}
+
+//deletion of a selected formula
+TEST_F(FormulaTest, select2)
+{
+    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
+        {
+            return Rect{0, 0, 450, 400};
+        });
+
+    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::string& text, const StringFormatPtr format)
+        {
+            return GetTextSizeMock(text, format);
+        });
+
+    document.WaitTask(document.InsertDivision(true));
+    document.MoveCaretHome(false);
+    document.MoveCaretHome(false);
+    document.WaitCaretMoving();
+    document.MoveCaretRight(true);
+    document.WaitCaretMoving();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 1}, 
+        ElementSelectionState{ElementId{0, 0, 0, 0}, 0, 1})) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.DeleteElements(false, true, false));
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\"></span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+
+    document.Undo();
+    document.WaitUndo();
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mfrac>"\
+                            "<mrow>"\
+                                "<mi>Null</mi>"\
+                            "</mrow>"\
+                            "<mrow>"\
+                                "<mi>Null</mi>"\
+                            "</mrow>"\
+                        "</mfrac>"\
+                    "</mrow>"\
+                "</math>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 1}, 
         ElementSelectionState{ElementId{0, 0, 0, 0}, 0, 1})) << document.GetEditorState().ToString();
 }
 

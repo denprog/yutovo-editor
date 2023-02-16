@@ -67,12 +67,12 @@ public:
     uint InsertFormula(Element* element, bool with_undo, bool undo, bool with_last_task_id = false);
     uint InsertFormulas(std::vector<ElementPtr>& elements, bool with_undo, bool undo, bool with_last_task_id = false);
 
-    void ChangeStringFormat(const std::string family, const uint size, const bool bold, const bool italic, const bool underline, bool with_undo, bool undo);
-    void ChangeStringFormat(const StringFormatPtr format, bool set_family, bool set_size, bool set_bold, bool set_italic, bool set_underline, 
+    uint ChangeStringFormat(const std::string family, const uint size, const bool bold, const bool italic, const bool underline, bool with_undo, bool undo);
+    uint ChangeStringFormat(const StringFormatPtr format, bool set_family, bool set_size, bool set_bold, bool set_italic, bool set_underline, 
         bool with_undo);
-    void ChangeStringFormat(const StringFormatPtr format, bool with_undo, bool undo);
+    uint ChangeStringFormat(const StringFormatPtr format, bool with_undo, bool undo);
 
-    void ChangeParagraphFormat(const ParagraphFormatPtr format, bool with_undo, bool undo);
+    uint ChangeParagraphFormat(const ParagraphFormatPtr format, bool with_undo, bool undo);
 
     void PushEditorState(bool undo);
     void PushEditorState(const EditorState& editor_state, bool undo);
@@ -148,10 +148,10 @@ public:
     uint Save(const std::string& filename);
     uint Load(const std::string& filename);
 
-    void Copy(std::stringstream& out_array, std::string& out_text);
-    void Paste(std::stringstream& in_array);
-    void Paste(const std::string& str);
-    void Cut(std::stringstream& out_array, std::string& out_text);
+    uint Copy(std::stringstream& out_array, std::string& out_text);
+    uint Paste(std::stringstream& in_array);
+    uint Paste(const std::string& str);
+    uint Cut(std::stringstream& out_array, std::string& out_text);
 
     std::string ToHtml();
     std::string ToText();
@@ -163,13 +163,13 @@ public:
 
     void UpdateFormats();
 
-    void SetFontFamily(const std::string& family);
-    void SetFontSize(const uint size);
-    void SetBold(const bool enabled);
-    void SetItalic(const bool enabled);
-    void SetUnderline(const bool enabled);
+    uint SetFontFamily(const std::string& family);
+    uint SetFontSize(const uint size);
+    uint SetBold(const bool enabled);
+    uint SetItalic(const bool enabled);
+    uint SetUnderline(const bool enabled);
 
-    void SetCurrentParagraphFormat(const std::string& name);
+    uint SetCurrentParagraphFormat(const std::string& name);
 
     EditorState GetEditorState();
     void SetEditorState(EditorState& state);

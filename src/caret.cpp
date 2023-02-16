@@ -158,13 +158,14 @@ void Caret::SetVisible(bool _visible)
 
 void Caret::Show()
 {
-    if (!visible || !GetElement())
+    auto el = GetElement();
+    if (!visible || !el)
         return;
     
-    caret_rect = GetElement()->GetAbsoluteRect(GetElement()->GetCaretRect(GetPos()));
+    caret_rect = el->GetAbsoluteRect(el->GetCaretRect(GetPos()));
     if (!show)
         window->StoreRect(caret_rect);
-    GetElement()->DrawCaret(GetPos());
+    el->DrawCaret(GetPos());
     window->Update(caret_rect);
     show = true;
 }

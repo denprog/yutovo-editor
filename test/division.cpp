@@ -851,8 +851,7 @@ TEST_F(FormulaTest, division8)
     document.MoveCaretDown(false);
     document.MoveCaretDown(false);
     document.WaitCaretMoving();
-    document.InsertString("45", true);
-    document.WaitMainLoop();
+    document.WaitTask(document.InsertString("45", true));
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -875,8 +874,7 @@ TEST_F(FormulaTest, division8)
 
     document.MoveCaretUp(false);
     document.WaitCaretMoving();
-    document.DeleteElements(false, true, false);
-    document.WaitMainLoop();
+    document.WaitTask(document.DeleteElements(false, true, false));
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
@@ -943,8 +941,7 @@ TEST_F(FormulaTest, division9)
         });
 
     document.InsertDivision(true);
-    document.InsertString("123", true);
-    document.WaitMainLoop();
+    document.WaitTask(document.InsertString("123", true));
     document.MoveCaretDown(false);
     document.MoveCaretDown(false);
     document.MoveCaretLeft(true);
@@ -1007,8 +1004,7 @@ TEST_F(FormulaTest, division10)
     for (int i = 0; i < 5; ++i)
         document.MoveCaretRight(false);
     document.WaitCaretMoving();
-    document.InsertString("Text", true);
-    document.WaitMainLoop();
+    document.WaitTask(document.InsertString("Text", true));
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
@@ -1048,8 +1044,7 @@ TEST_F(FormulaTest, division10)
     document.WaitCaretMoving();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 1})) << document.GetEditorState().ToString();
 
-    document.DeleteElements(false, true, false);
-    document.WaitMainLoop();
+    document.WaitTask(document.DeleteElements(false, true, false));
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\

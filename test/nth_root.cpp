@@ -326,9 +326,8 @@ TEST_F(FormulaTest, nth_root3)
     document.InsertString("67", true);
     document.Save("nth_root3_1.yut");
 
-    document.New();
-    document.WaitMainLoop();
-    std::this_thread::sleep_for(200ms);
+    document.WaitTask(document.New());
+    std::this_thread::sleep_for(400ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -339,8 +338,7 @@ TEST_F(FormulaTest, nth_root3)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 0)) << document.GetEditorState().ToString();
 
     std::this_thread::sleep_for(200ms);
-    document.Load("nth_root3_1.yut");
-    document.WaitLoad();
+    document.WaitTask(document.Load("nth_root3_1.yut"));
     std::this_thread::sleep_for(200ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
