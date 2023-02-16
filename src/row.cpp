@@ -465,8 +465,11 @@ bool Row::ChangeStringFormat(const StringFormatPtr format, bool with_undo)
         ElementPtr el = document->GetElement(t.id);
         if (el->SplitAt(t.start))
             el = elements->Get(elements->GetElementPos(el->id) + 1);
-        el->SplitAt(t.size);
-        el->ChangeStringFormat(format, with_undo);
+        if (el)
+        {
+            el->SplitAt(t.size);
+            el->ChangeStringFormat(format, with_undo);
+        }
     }
 
 #ifdef DEBUG

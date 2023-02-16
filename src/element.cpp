@@ -190,6 +190,7 @@ bool Element::SplitAt(const uint pos)
     if (elements->Count() <= pos)
         return false;
     ElementPtr part(Create(parent));
+    part->elements->Clear();
     for (int i = pos; i < elements->Count();)
     {
         part->elements->Insert(elements->Get(i), part->elements->Count());
@@ -1213,6 +1214,8 @@ void Elements::UpdateIds()
     for (size_t i = 0; i < elements.size(); ++i)
     {
         auto& el = elements[i];
+        if (el->parent->id.empty())
+            continue;
         el->id = el->parent->id;
         el->id.push_back(i);
         el->elements->UpdateIds();
