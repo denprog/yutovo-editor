@@ -204,7 +204,7 @@ TEST_F(DocumentTest, clipboard4)
 {
     EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
         {
-            return Rect{0, 0, 600, 400};
+            return Rect{0, 0, 620, 400};
         });
 
     EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::string& text, const StringFormatPtr format)
@@ -225,18 +225,20 @@ TEST_F(DocumentTest, clipboard4)
     document.SetFontSize(22);
     std::stringstream clipboard_array;
     std::string clipboard_text;
-    document.InsertString("The source of the text itself is a little strange", true);
-    document.WaitMainLoop();
+    document.WaitTask(document.InsertString("The source of the text itself is a little strange", true));
     document.MoveCaretWordLeft(true);
-    document.Cut(clipboard_array, clipboard_text);
-    document.WaitMainLoop();
-    std::this_thread::sleep_for(100ms);
+    document.WaitCaretMoving();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0, 42}, 
+        ElementSelectionState{ElementId{0, 0, 0, 0, 0}, 42, 7})) << document.GetEditorState().ToString();
+    document.WaitTask(document.Cut(clipboard_array, clipboard_text));
+    std::this_thread::sleep_for(200ms);
     ASSERT_TRUE(document.ToText() == "The source of the text itself is a little ") << document.ToText();
 
     for (int i = 0; i < 5; ++i)
         document.MoveCaretWordLeft(false);
     document.Paste(clipboard_array);
     document.WaitMainLoop();
+    std::this_thread::sleep_for(200ms);
     ASSERT_TRUE(document.ToText() == "The source of the strangetext itself is a little ") << document.ToText();
 }
 
@@ -327,25 +329,26 @@ TEST_F(DocumentTest, clipboard6)
         });
 
     document.SetFontSize(22);
-    document.Paste("Tradicionalmente, el medio de un documento era el papel y la información era ingresada a mano.\r\n"\
-        "Desde el punto de vista de la informática, es un archivo.");
-    document.WaitMainLoop();
+    document.WaitTask(document.Paste("Tradicionalmente, el medio de un documento era el papel y la información era ingresada a mano.\r\n"\
+        "Desde el punto de vista de la informática, es un archivo."));
     std::this_thread::sleep_for(200ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
-                "<span style=\"font-family:'Arial';font-size:22px;\">Tradicionalmente, el medio </span>"\
-                "<span style=\"font-family:'Arial';font-size:22px;\">de un documento era el </span>"\
-                "<span style=\"font-family:'Arial';font-size:22px;\">papel y la información era </span>"\
-                "<span style=\"font-family:'Arial';font-size:22px;\">ingresada a mano.</span>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\">Tradicionalmente, el </span>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\">medio de un documento </span>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\">era el papel y la </span>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\">información era ingresada </span>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\">a mano.</span>"\
             "</p>"\
             "<p>"\
                 "<span style=\"font-family:'Arial';font-size:22px;\">Desde el punto de vista de </span>"\
-                "<span style=\"font-family:'Arial';font-size:22px;\">la informática, es un archivo.</span>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\">la informática, es un </span>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\">archivo.</span>"\
             "</p>"\
         "</body>") << 
         document.ToHtml();
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(1, 1, 0, 30)) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(1, 2, 0, 8)) << document.GetEditorState().ToString();
 
     document.WaitTask(document.New());
     std::this_thread::sleep_for(200ms);
@@ -357,18 +360,20 @@ TEST_F(DocumentTest, clipboard6)
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
-                "<span style=\"font-family:'Arial';font-size:22px;\">Tradicionalmente, el medio </span>"\
-                "<span style=\"font-family:'Arial';font-size:22px;\">de un documento era el </span>"\
-                "<span style=\"font-family:'Arial';font-size:22px;\">papel y la información era </span>"\
-                "<span style=\"font-family:'Arial';font-size:22px;\">ingresada a mano.</span>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\">Tradicionalmente, el </span>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\">medio de un documento </span>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\">era el papel y la </span>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\">información era ingresada </span>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\">a mano.</span>"\
             "</p>"\
             "<p>"\
                 "<span style=\"font-family:'Arial';font-size:22px;\">Desde el punto de vista de </span>"\
-                "<span style=\"font-family:'Arial';font-size:22px;\">la informática, es un archivo.</span>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\">la informática, es un </span>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\">archivo.</span>"\
             "</p>"\
         "</body>") << 
         document.ToHtml();
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(1, 1, 0, 30)) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(1, 2, 0, 8)) << document.GetEditorState().ToString();
 
     document.Undo();
     document.WaitUndo();
@@ -388,18 +393,20 @@ TEST_F(DocumentTest, clipboard6)
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
-                "<span style=\"font-family:'Arial';font-size:22px;\">Tradicionalmente, el medio </span>"\
-                "<span style=\"font-family:'Arial';font-size:22px;\">de un documento era el </span>"\
-                "<span style=\"font-family:'Arial';font-size:22px;\">papel y la información era </span>"\
-                "<span style=\"font-family:'Arial';font-size:22px;\">ingresada a mano.</span>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\">Tradicionalmente, el </span>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\">medio de un documento </span>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\">era el papel y la </span>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\">información era ingresada </span>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\">a mano.</span>"\
             "</p>"\
             "<p>"\
                 "<span style=\"font-family:'Arial';font-size:22px;\">Desde el punto de vista de </span>"\
-                "<span style=\"font-family:'Arial';font-size:22px;\">la informática, es un archivo.</span>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\">la informática, es un </span>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\">archivo.</span>"\
             "</p>"\
         "</body>") << 
         document.ToHtml();
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(1, 1, 0, 30)) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(1, 2, 0, 8)) << document.GetEditorState().ToString();
 }
 
 //Paste with paragraph

@@ -11,6 +11,8 @@
 namespace yutovo_test
 {
 
+typedef unsigned int uint;
+
 using namespace yutovo;
 
 class MainWindow : public QMainWindow

@@ -21,7 +21,7 @@ bool Config::Open(const std::string& file_name)
     std::ifstream ifs{file_name};
     if (!ifs.is_open())
     {
-        logger->Error("Log file not open: {}", file_name);
+        logger->Error("Config file not open: {}", file_name);
         return false;
     }
 
@@ -31,7 +31,7 @@ bool Config::Open(const std::string& file_name)
 
     if (doc.HasParseError())
     {
-        logger->Error("Log file parse error: {}", file_name);
+        logger->Error("Config file parse error: {}", file_name);
         return false;
     }
 

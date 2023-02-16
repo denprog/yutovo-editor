@@ -618,15 +618,15 @@ TEST_F(CodeTest, code7)
                         "<mi>Null</mi>"\
                     "</mrow>"\
                 "</math>"\
-                "<span style=\"font-family:'Arial';font-size:22px;\">The sour</span>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\">The sourc</span>"\
                 "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
                     "<mrow>"\
                         "<mi>Null</mi>"\
                     "</mrow>"\
                 "</math>"\
-                "<span style=\"font-family:'Arial';font-size:22px;\">ce of the </span>"\
-                "<span style=\"font-family:'Arial';font-size:22px;\">text itself is a little </span>"\
-                "<span style=\"font-family:'Arial';font-size:22px;\">mysterious.</span>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\">e of </span>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\">the text itself is a </span>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\">little mysterious.</span>"\
             "</p>"\
         "</body>") << 
         document.ToHtml();
@@ -644,15 +644,15 @@ TEST_F(CodeTest, code7)
                         "<mi>Null</mi>"\
                     "</mrow>"\
                 "</math>"\
-                "<span style=\"font-family:'Arial';font-size:22px;\">The sour</span>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\">The sourc</span>"\
                 "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
                     "<mrow>"\
                         "<mi>Null</mi>"\
                     "</mrow>"\
                 "</math>"\
-                "<span style=\"font-family:'Arial';font-size:22px;\">ce of the </span>"\
-                "<span style=\"font-family:'Arial';font-size:22px;\">text itself is a little </span>"\
-                "<span style=\"font-family:'Arial';font-size:22px;\">mysterious.</span>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\">e of </span>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\">the text itself is a </span>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\">little mysterious.</span>"\
                 "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
                     "<mrow>"\
                         "<mi>Null</mi>"\
@@ -674,15 +674,15 @@ TEST_F(CodeTest, code7)
                         "<mi>Null</mi>"\
                     "</mrow>"\
                 "</math>"\
-                "<span style=\"font-family:'Arial';font-size:22px;\">The sour</span>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\">The sourc</span>"\
                 "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
                     "<mrow>"\
                         "<mi>Null</mi>"\
                     "</mrow>"\
                 "</math>"\
-                "<span style=\"font-family:'Arial';font-size:22px;\">ce of the </span>"\
-                "<span style=\"font-family:'Arial';font-size:22px;\">text itself is a little </span>"\
-                "<span style=\"font-family:'Arial';font-size:22px;\">mysterious.</span>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\">e of </span>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\">the text itself is a </span>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\">little mysterious.</span>"\
             "</p>"\
         "</body>") << 
         document.ToHtml();
@@ -697,15 +697,15 @@ TEST_F(CodeTest, code7)
                         "<mi>Null</mi>"\
                     "</mrow>"\
                 "</math>"\
-                "<span style=\"font-family:'Arial';font-size:22px;\">The sour</span>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\">The sourc</span>"\
                 "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
                     "<mrow>"\
                         "<mi>Null</mi>"\
                     "</mrow>"\
                 "</math>"\
-                "<span style=\"font-family:'Arial';font-size:22px;\">ce of the </span>"\
-                "<span style=\"font-family:'Arial';font-size:22px;\">text itself is a little </span>"\
-                "<span style=\"font-family:'Arial';font-size:22px;\">mysterious.</span>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\">e of </span>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\">the text itself is a </span>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\">little mysterious.</span>"\
                 "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
                     "<mrow>"\
                         "<mi>Null</mi>"\

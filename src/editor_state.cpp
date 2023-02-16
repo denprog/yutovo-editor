@@ -1,4 +1,5 @@
 #include "editor_state.h"
+#include <string>
 
 namespace yutovo
 {

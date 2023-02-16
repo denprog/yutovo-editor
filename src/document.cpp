@@ -459,13 +459,13 @@ uint Document::InsertFormulas(std::vector<ElementPtr>& elements, bool with_undo,
     return last_task_id;
 }
 
-void Document::ChangeStringFormat(const std::string family, const uint size, const bool bold, const bool italic, const bool underline, 
+uint Document::ChangeStringFormat(const std::string family, const uint size, const bool bold, const bool italic, const bool underline, 
     bool with_undo, bool undo)
 {
-    ChangeStringFormat(string_formats->GetFormat(family, size, bold, italic, underline), with_undo, undo);
+    return ChangeStringFormat(string_formats->GetFormat(family, size, bold, italic, underline), with_undo, undo);
 }
 
-void Document::ChangeStringFormat(const StringFormatPtr format, bool set_family, bool set_size, bool set_bold, bool set_italic, bool set_underline, 
+uint Document::ChangeStringFormat(const StringFormatPtr format, bool set_family, bool set_size, bool set_bold, bool set_italic, bool set_underline, 
     bool with_undo)
 {
     {
@@ -474,9 +474,10 @@ void Document::ChangeStringFormat(const StringFormatPtr format, bool set_family,
         last_task_id = tasks[tasks.size() - 1]->id;
     }
     next_circle.notify_one();
+    return last_task_id;
 }
 
-void Document::ChangeStringFormat(const StringFormatPtr format, bool with_undo, bool undo)
+uint Document::ChangeStringFormat(const StringFormatPtr format, bool with_undo, bool undo)
 {
     {
         std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
@@ -492,9 +493,10 @@ void Document::ChangeStringFormat(const StringFormatPtr format, bool with_undo, 
         }
     }
     next_circle.notify_one();
+    return last_task_id;
 }
 
-void Document::ChangeParagraphFormat(const ParagraphFormatPtr format, bool with_undo, bool undo)
+uint Document::ChangeParagraphFormat(const ParagraphFormatPtr format, bool with_undo, bool undo)
 {
     {
         std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
@@ -510,6 +512,7 @@ void Document::ChangeParagraphFormat(const ParagraphFormatPtr format, bool with_
         }
     }
     next_circle.notify_one();
+    return last_task_id;
 }
 
 void Document::PushEditorState(bool undo)
@@ -566,6 +569,8 @@ void Document::ResetTasks()
 
 ElementPtr Document::GetElement(const ElementId& _id)
 {
+    if (_id.empty())
+        return nullptr;
     if (_id.size() == 1)
         return text;
     ElementPtr el = text->elements->Get(_id[1]);
@@ -580,7 +585,7 @@ ElementPtr Document::GetElement(const ElementId& _id)
 
 ElementPtr Document::GetParent(const ElementId& _id)
 {
-    if (_id.size() == 1)
+    if (_id.size() == 1 || _id.empty())
         return nullptr;
     if (_id.size() == 2)
         return text;
@@ -693,14 +698,14 @@ void Document::UpdateFormats()
         current_string_format = string_formats->GetFormat(f);
 }
 
-void Document::SetFontFamily(const std::string& family)
+uint Document::SetFontFamily(const std::string& family)
 {
     std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
     if (current_string_format)
     {
         if (!selection.IsEmpty())
         {
-            ChangeStringFormat(string_formats->GetFormat(family, current_string_format->size, current_string_format->bold, 
+            return ChangeStringFormat(string_formats->GetFormat(family, current_string_format->size, current_string_format->bold, 
                 current_string_format->italic, current_string_format->underline), true, false);
         }
         else
@@ -709,9 +714,10 @@ void Document::SetFontFamily(const std::string& family)
                 current_string_format->italic, current_string_format->underline);
         }
     }
+    return 0;
 }
 
-void Document::SetFontSize(const uint size)
+uint Document::SetFontSize(const uint size)
 {
     std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
     if (current_string_format)
@@ -719,13 +725,14 @@ void Document::SetFontSize(const uint size)
         auto f = string_formats->GetFormat(current_string_format->family, size, current_string_format->bold, current_string_format->italic, 
             current_string_format->underline);
         if (!selection.IsEmpty())
-            ChangeStringFormat(f, false, true, false, false, false, true);
+            return ChangeStringFormat(f, false, true, false, false, false, true);
         else
             current_string_format = f;
     }
+    return 0;
 }
 
-void Document::SetBold(const bool enabled)
+uint Document::SetBold(const bool enabled)
 {
     std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
     if (current_string_format)
@@ -733,13 +740,14 @@ void Document::SetBold(const bool enabled)
         auto f = string_formats->GetFormat(current_string_format->family, current_string_format->size, enabled, current_string_format->italic, 
             current_string_format->underline);
         if (!selection.IsEmpty())
-            ChangeStringFormat(f, false, false, true, false, false, true);
+            return ChangeStringFormat(f, false, false, true, false, false, true);
         else
             current_string_format = f;
     }
+    return 0;
 }
 
-void Document::SetItalic(const bool enabled)
+uint Document::SetItalic(const bool enabled)
 {
     std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
     if (current_string_format)
@@ -747,13 +755,14 @@ void Document::SetItalic(const bool enabled)
         auto f = string_formats->GetFormat(current_string_format->family, current_string_format->size, current_string_format->bold, enabled, 
             current_string_format->underline);
         if (!selection.IsEmpty())
-            ChangeStringFormat(f, true, false);
+            return ChangeStringFormat(f, true, false);
         else
             current_string_format = f;
     }
+    return 0;
 }
 
-void Document::SetUnderline(const bool enabled)
+uint Document::SetUnderline(const bool enabled)
 {
     std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
     if (current_string_format)
@@ -761,20 +770,20 @@ void Document::SetUnderline(const bool enabled)
         auto f = string_formats->GetFormat(current_string_format->family, current_string_format->size, current_string_format->bold, 
             current_string_format->italic, enabled);
         if (!selection.IsEmpty())
-            ChangeStringFormat(f, true, false);
+            return ChangeStringFormat(f, true, false);
         else
             current_string_format = f;
     }
+    return 0;
 }
 
-void Document::SetCurrentParagraphFormat(const std::string& name)
+uint Document::SetCurrentParagraphFormat(const std::string& name)
 {
     std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
     current_paragraph_format = paragraph_formats->GetFormat(name);
     if (current_paragraph_format)
-    {
-        ChangeParagraphFormat(current_paragraph_format, true, false);
-    }
+        return ChangeParagraphFormat(current_paragraph_format, true, false);
+    return 0;
 }
 
 ElementType Document::GetElementType(const ElementId id)
@@ -1118,16 +1127,15 @@ uint Document::Load(const std::string& filename)
     return tasks[tasks.size() - 1]->id;
 }
 
-void Document::Copy(std::stringstream& out_array, std::string& out_text)
+uint Document::Copy(std::stringstream& out_array, std::string& out_text)
 {
     std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
     tasks.emplace_back(new CopyTask(text, out_array, out_text, false));
-#ifdef DEBUG
     last_task_id = tasks[tasks.size() - 1]->id;
-#endif
+    return last_task_id;
 }
 
-void Document::Paste(std::stringstream& in_array)
+uint Document::Paste(std::stringstream& in_array)
 {
     DocumentUserData user_data{this};
     UserDataAdapter<DocumentUserData, boost::archive::binary_iarchive> iarchive(user_data, in_array);
@@ -1141,33 +1149,34 @@ void Document::Paste(std::stringstream& in_array)
     catch (boost::archive::archive_exception& ex)
     {
         window->OnPasteResult(PasteResult::PasteError);
-        return;
+        return 0;
     }
 
     if (!elements.empty())
         InsertElements(elements, true);
     window->OnPasteResult(PasteResult::Success);
+    return last_task_id;
 }
 
-void Document::Paste(const std::string& str)
+uint Document::Paste(const std::string& str)
 {
     if (str.empty())
     {
         window->OnPasteResult(PasteResult::EmptyBuffer);
-        return;
+        return 0;
     }
 
     InsertString(str, true);
     window->OnPasteResult(PasteResult::Success);
+    return last_task_id;
 }
 
-void Document::Cut(std::stringstream& out_array, std::string& out_text)
+uint Document::Cut(std::stringstream& out_array, std::string& out_text)
 {
     std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
     tasks.emplace_back(new CopyTask(text, out_array, out_text, true));
-#ifdef DEBUG
     last_task_id = tasks[tasks.size() - 1]->id;
-#endif
+    return last_task_id;
 }
 
 std::string Document::ToHtml()

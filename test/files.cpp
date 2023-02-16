@@ -130,7 +130,7 @@ TEST_F(DocumentTest, files3)
 {
     EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
         {
-            return Rect{0, 0, 600, 400};
+            return Rect{0, 0, 630, 400};
         });
 
     EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::string& text, const StringFormatPtr format)
@@ -168,8 +168,7 @@ TEST_F(DocumentTest, files3)
     for (int i = 0; i < 21; ++i)
         document.MoveCaretRight(false);
     document.WaitCaretMoving();
-    document.InsertParagraph(true);
-    document.WaitMainLoop();
+    document.WaitTask(document.InsertParagraph(true));
     std::this_thread::sleep_for(1000ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
@@ -230,7 +229,7 @@ TEST_F(DocumentTest, files4)
 {
     EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
         {
-            return Rect{0, 0, 600, 400};
+            return Rect{0, 0, 610, 400};
         });
 
     EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::string& text, const StringFormatPtr format)
@@ -247,7 +246,7 @@ TEST_F(DocumentTest, files4)
         {
             ASSERT_TRUE(result == IOResult::Success);
         });
-
+    
     document.InsertString("In literary theory, a text is any object that can be read, whether this object is a work of literature, "\
         "a street sign, an arrangement of buildings on a city block, or styles of clothing.", true);
     document.MoveCaretToDocumentBegin(false);
@@ -256,8 +255,7 @@ TEST_F(DocumentTest, files4)
     document.WaitCaretMoving();
     std::this_thread::sleep_for(100ms);
     document.InsertParagraph(true);
-    document.SetCurrentParagraphFormat("Monospace");
-    document.WaitMainLoop();
+    document.WaitTask(document.SetCurrentParagraphFormat("Monospace"));
     std::this_thread::sleep_for(400ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
@@ -265,9 +263,10 @@ TEST_F(DocumentTest, files4)
                 "<span style=\"font-family:'Arial';font-size:14px;\">In literary theory, </span>"\
             "</p>"\
             "<p>"\
-                "<span style=\"font-family:'Courier New';font-size:12px;\">a text is any object that can be read, whether this object </span>"\
-                "<span style=\"font-family:'Courier New';font-size:12px;\">is a work of literature, a street sign, an arrangement of </span>"\
-                "<span style=\"font-family:'Courier New';font-size:12px;\">buildings on a city block, or styles of clothing.</span>"
+                "<span style=\"font-family:'Courier New';font-size:12px;\">a text is any object that can be read, whether this </span>"\
+                "<span style=\"font-family:'Courier New';font-size:12px;\">object is a work of literature, a street sign, an </span>"\
+                "<span style=\"font-family:'Courier New';font-size:12px;\">arrangement of buildings on a city block, or styles of </span>"
+                "<span style=\"font-family:'Courier New';font-size:12px;\">clothing.</span>"
             "</p>"\
         "</body>") 
         << document.ToHtml();
@@ -294,9 +293,10 @@ TEST_F(DocumentTest, files4)
                 "<span style=\"font-family:'Arial';font-size:14px;\">In literary theory, </span>"\
             "</p>"\
             "<p>"\
-                "<span style=\"font-family:'Courier New';font-size:12px;\">a text is any object that can be read, whether this object </span>"\
-                "<span style=\"font-family:'Courier New';font-size:12px;\">is a work of literature, a street sign, an arrangement of </span>"\
-                "<span style=\"font-family:'Courier New';font-size:12px;\">buildings on a city block, or styles of clothing.</span>"
+                "<span style=\"font-family:'Courier New';font-size:12px;\">a text is any object that can be read, whether this </span>"\
+                "<span style=\"font-family:'Courier New';font-size:12px;\">object is a work of literature, a street sign, an </span>"\
+                "<span style=\"font-family:'Courier New';font-size:12px;\">arrangement of buildings on a city block, or styles of </span>"
+                "<span style=\"font-family:'Courier New';font-size:12px;\">clothing.</span>"
             "</p>"\
         "</body>") 
         << document.ToHtml();
