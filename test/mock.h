@@ -15,6 +15,9 @@ typedef unsigned int uint;
 
 using namespace yutovo;
 
+extern int argc;
+extern char** argv;
+
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
@@ -216,8 +219,6 @@ struct DocumentTest : public testing::Test
         return EditorState{CaretState{id}, SelectionState{}};
     }
 
-    int argc = 0;
-    char** argv = nullptr;
     QApplication app;
     MainWindow main_window;
     ::testing::NiceMock<WindowMock> window_mock;
