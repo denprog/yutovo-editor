@@ -386,6 +386,141 @@ TEST_F(FormulaTest, delete3)
         ElementSelectionState{ElementId{0, 0, 0, 0, 2}, 0, 3})) << document.GetEditorState().ToString();
 }
 
+//Delete a selected code block at the beginning of the text
+TEST_F(FormulaTest, delete4)
+{
+    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
+        {
+            return Rect{0, 0, 433, 400};
+        });
+
+    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::string& text, const StringFormatPtr format)
+        {
+            return GetTextSizeMock(text, format);
+        });
+
+    document.WaitTask(document.InsertString("The source of the text itself is a little strange", true));
+    document.MoveCaretHome(false);
+    document.WaitCaretMoving();
+    document.WaitTask(document.InsertDivision(true));
+    std::this_thread::sleep_for(100ms);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mfrac>"\
+                            "<mrow>"\
+                                "<mi>Null</mi>"\
+                            "</mrow>"\
+                            "<mrow>"\
+                                "<mi>Null</mi>"\
+                            "</mrow>"\
+                        "</mfrac>"\
+                    "</mrow>"\
+                "</math>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">The source of the text itself is a little </span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">strange</span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+
+    document.MoveCaretHome(false);
+    document.MoveCaretHome(false);
+    document.MoveCaretRight(true);
+    document.WaitCaretMoving();
+    document.WaitTask(document.DeleteElements(false, true, false));
+    std::this_thread::sleep_for(100ms);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">The source of the text itself is a little strange</span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0})) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mfrac>"\
+                            "<mrow>"\
+                                "<mi>Null</mi>"\
+                            "</mrow>"\
+                            "<mrow>"\
+                                "<mi>Null</mi>"\
+                            "</mrow>"\
+                        "</mfrac>"\
+                    "</mrow>"\
+                "</math>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">The source of the text itself is a little </span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">strange</span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 1, 0}, 
+        ElementSelectionState{ElementId{0, 0, 0, 0}, 0, 1})) << document.GetEditorState().ToString();
+}
+
+//deletion of a selected formula
+TEST_F(FormulaTest, delete5)
+{
+    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
+        {
+            return Rect{0, 0, 450, 400};
+        });
+
+    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::string& text, const StringFormatPtr format)
+        {
+            return GetTextSizeMock(text, format);
+        });
+
+    document.WaitTask(document.InsertDivision(true));
+    document.MoveCaretHome(false);
+    document.MoveCaretHome(false);
+    document.WaitCaretMoving();
+    document.MoveCaretRight(true);
+    document.WaitCaretMoving();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 1}, 
+        ElementSelectionState{ElementId{0, 0, 0, 0}, 0, 1})) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.DeleteElements(false, true, false));
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\"></span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+
+    document.Undo();
+    document.WaitUndo();
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mfrac>"\
+                            "<mrow>"\
+                                "<mi>Null</mi>"\
+                            "</mrow>"\
+                            "<mrow>"\
+                                "<mi>Null</mi>"\
+                            "</mrow>"\
+                        "</mfrac>"\
+                    "</mrow>"\
+                "</math>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 1}, 
+        ElementSelectionState{ElementId{0, 0, 0, 0}, 0, 1})) << document.GetEditorState().ToString();
+}
+
 TEST_F(FormulaTest, insert1)
 {
     EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
@@ -541,7 +676,7 @@ TEST_F(FormulaTest, insert2)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0})) << document.GetEditorState().ToString();
 }
 
-//selection of a formula
+//Selection of a formula
 TEST_F(FormulaTest, select1)
 {
     EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
@@ -574,7 +709,7 @@ TEST_F(FormulaTest, select1)
         ElementSelectionState{ElementId{0, 0, 0, 0}, 0, 1})) << document.GetEditorState().ToString();
 }
 
-//deletion of a selected formula
+//Selection of a formula at the beginning of a text
 TEST_F(FormulaTest, select2)
 {
     EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
@@ -587,45 +722,15 @@ TEST_F(FormulaTest, select2)
             return GetTextSizeMock(text, format);
         });
 
+    document.InsertString("text", true);
+    document.MoveCaretHome(false);
+    document.WaitCaretMoving();
     document.WaitTask(document.InsertDivision(true));
     document.MoveCaretHome(false);
     document.MoveCaretHome(false);
-    document.WaitCaretMoving();
     document.MoveCaretRight(true);
     document.WaitCaretMoving();
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 1}, 
-        ElementSelectionState{ElementId{0, 0, 0, 0}, 0, 1})) << document.GetEditorState().ToString();
-
-    document.WaitTask(document.DeleteElements(false, true, false));
-    ASSERT_TRUE(document.ToHtml() == 
-        "<body>"\
-            "<p>"\
-                "<span style=\"font-family:'Arial';font-size:14px;\"></span>"\
-            "</p>"\
-        "</body>") << 
-        document.ToHtml();
-
-    document.Undo();
-    document.WaitUndo();
-    ASSERT_TRUE(document.ToHtml() == 
-        "<body>"\
-            "<p>"\
-                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
-                    "<mrow>"\
-                        "<mfrac>"\
-                            "<mrow>"\
-                                "<mi>Null</mi>"\
-                            "</mrow>"\
-                            "<mrow>"\
-                                "<mi>Null</mi>"\
-                            "</mrow>"\
-                        "</mfrac>"\
-                    "</mrow>"\
-                "</math>"\
-            "</p>"\
-        "</body>") << 
-        document.ToHtml();
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 1}, 
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 1, 0}, 
         ElementSelectionState{ElementId{0, 0, 0, 0}, 0, 1})) << document.GetEditorState().ToString();
 }
 

@@ -952,6 +952,7 @@ TEST_F(FormulaTest, division9)
     document.MoveCaretLeft(false);
     document.MoveCaretRight(false);
     document.MoveCaretDown(false);
+    document.MoveCaretDown(false);
     document.MoveCaretRight(true);
     document.WaitCaretMoving();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0, 0, 0, 1}, 
