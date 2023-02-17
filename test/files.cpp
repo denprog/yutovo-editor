@@ -100,7 +100,7 @@ TEST_F(DocumentTest, files2)
     document.Save("2.yut");
     document.New();
     document.WaitMainLoop();
-    std::this_thread::sleep_for(400ms);
+    std::this_thread::sleep_for(1000ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\

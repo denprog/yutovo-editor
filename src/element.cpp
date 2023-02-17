@@ -1078,7 +1078,18 @@ bool Elements::GetRightCaretState(CaretState& caret_state, Selection* select)
         }
         if (select)
         {
-            if (elements[p]->CanContinueSelection())
+            if (elements[p - 1]->HasCaretState())
+            {
+                select->Add(parent->id, p - 1, 1);
+                if (elements[p]->HasCaretState())
+                {
+                    caret_state.SetState(Get(p));
+                    return true;
+                }
+                else if (elements[p]->GetFirstCaretState(caret_state, nullptr))
+                    return true;
+            }
+            else if (elements[p]->CanContinueSelection())
             {
                 if (elements[p]->GetFirstCaretState(caret_state, nullptr))
                 {
