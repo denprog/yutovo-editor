@@ -128,9 +128,8 @@ TEST_F(FormulaTest, minus3)
     document.WaitTask(document.InsertMinus(true));
     document.Save("minus3_1.yut");
 
-    document.New();
-    document.WaitMainLoop();
-    std::this_thread::sleep_for(200ms);
+    document.WaitTask(document.New());
+    std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -169,8 +168,7 @@ TEST_F(FormulaTest, minus3)
 
     document.Save("minus3_1.yut");
 
-    document.New();
-    document.WaitMainLoop();
+    document.WaitTask(document.New());
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\

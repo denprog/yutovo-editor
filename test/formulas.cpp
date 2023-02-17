@@ -458,6 +458,89 @@ TEST_F(FormulaTest, insert1)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 1, 1, 0, 0, 0, 0})) << document.GetEditorState().ToString();
 }
 
+//Insert code in text and reformat text
+TEST_F(FormulaTest, insert2)
+{
+    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
+        {
+            return Rect{0, 0, 433, 400};
+        });
+
+    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::string& text, const StringFormatPtr format)
+        {
+            return GetTextSizeMock(text, format);
+        });
+
+    document.WaitTask(document.InsertString("The source of the text itself is a little strange", true));
+    document.MoveCaretWordLeft(false);
+    document.WaitCaretMoving();
+    document.WaitTask(document.InsertDivision(true));
+    std::this_thread::sleep_for(100ms);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">The source of the text itself is a little </span>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mfrac>"\
+                            "<mrow>"\
+                                "<mi>Null</mi>"\
+                            "</mrow>"\
+                            "<mrow>"\
+                                "<mi>Null</mi>"\
+                            "</mrow>"\
+                        "</mfrac>"\
+                    "</mrow>"\
+                "</math>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">strange</span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0})) << document.GetEditorState().ToString();
+    document.MoveCaretEnd(false);
+    document.MoveCaretEnd(false);
+    document.MoveCaretRight(false);
+    document.WaitCaretMoving();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 1, 0, 0})) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    std::this_thread::sleep_for(100ms);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">The source of the text itself is a little strange</span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 42})) << document.GetEditorState().ToString();
+
+    document.Redo();
+    document.WaitRedo();
+    std::this_thread::sleep_for(100ms);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">The source of the text itself is a little </span>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mfrac>"\
+                            "<mrow>"\
+                                "<mi>Null</mi>"\
+                            "</mrow>"\
+                            "<mrow>"\
+                                "<mi>Null</mi>"\
+                            "</mrow>"\
+                        "</mfrac>"\
+                    "</mrow>"\
+                "</math>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">strange</span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0})) << document.GetEditorState().ToString();
+}
+
 //selection of a formula
 TEST_F(FormulaTest, select1)
 {
