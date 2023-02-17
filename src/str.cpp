@@ -400,6 +400,7 @@ bool String::SplitAt(const uint pos)
     parent->elements->Insert(el, p + 1);
     str = str.substr(0, pos);
     UpdateRect();
+    el->UpdateRect();
 
     uint start, size;
     if (selection->Has(id, start, size))
