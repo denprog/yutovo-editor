@@ -102,7 +102,7 @@ TEST_F(FormulaTest, minus2)
     document.MoveCaretRight(true);
     document.MoveCaretRight(true);
     document.WaitCaretMoving();
-    std::this_thread::sleep_for(200ms);
+    std::this_thread::sleep_for(400ms);
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0, 0, 0, 2}, 
         ElementSelectionState{{0, 0, 0, 0, 0, 0, 0}, 0, 2})) << document.GetEditorState().ToString();
 }

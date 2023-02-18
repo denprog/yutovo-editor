@@ -779,9 +779,16 @@ void Elements::Insert(ElementPtr element, const uint pos)
     if (caret->IsInsideElement(element->id))
         c = caret->GetCaretState();
     
-    ElementSelection s;
-    if (selection->Has(element->id, s))
-        selection->Remove(element->id, s.start, s.size);
+    bool s = false;
+    if (element->parent)
+    {
+        s = selection->IsSelected(element->id);
+        if (s)
+            selection->Remove(element->parent->id, element->parent->elements->GetElementPos(element->id), 1);
+    }
+    ElementSelection p_s;
+    if (selection->HasChild(element->id, p_s))
+        selection->Remove(p_s.element->id, p_s.start, p_s.size);
     
     elements.insert(elements.begin() + pos, element);
 
@@ -790,16 +797,22 @@ void Elements::Insert(ElementPtr element, const uint pos)
     element->window = parent->window;
     UpdateIds(); //set id
 
+    selection->InsertElement(element->id); //update selection positions after inserting new element
+
     //update caret state on the new position of the element
     if (!c.IsEmpty())
         caret->SetState(GetWithParent(c.GetElement(), element->id), c.GetPos(), true);
-    if (!s.IsEmpty())
-        selection->Add(element, s.start, s.size);
+    //move selection onto the placed element
+    if (s)
+        selection->Add(element->parent->id, element->parent->elements->GetElementPos(element->id), 1);
+    if (!p_s.IsEmpty())
+        selection->Add(GetWithParent(p_s.element->id, element->id), p_s.start, p_s.size);
 
     parent->EmitChanged();
 
 #ifdef DEBUG
     parent->to_str = parent->ToText();
+    element->to_str = element->ToText();
 #endif
 }
 
@@ -830,6 +843,8 @@ void Elements::RemoveAt(const uint pos, const int size)
     }
     CaretState c = caret->GetCaretState();
 
+    for (int i = 0; i < size; ++i) //update selection positions before deleting elements
+        selection->RemoveElement(GetElementId(pos + i));
     elements.erase(elements.begin() + pos, elements.begin() + pos + size);
     UpdateIds();
 
