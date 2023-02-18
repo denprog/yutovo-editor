@@ -145,6 +145,7 @@ void Row::Normalize(bool with_undo)
                     }
                     if (el->Merge(elements->Get(i + 1)))
                     {
+                        el->UpdateRect(true);
                         if (with_undo)
                         {
                             document->CallFunc(el1->id, 

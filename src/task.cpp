@@ -176,6 +176,7 @@ bool InsertElementsTask::Execute()
 
     for (auto& _el : _elements)
     {
+        _el->parent = nullptr;
         std::vector<ElementPtr> t{_el};
         if (!el->InsertElements(t, with_undo))
         {

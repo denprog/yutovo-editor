@@ -67,10 +67,15 @@ public:
     void Add(const ElementPtr element, uint start, uint size);
     void Add(const ElementId id, uint start, uint size);
     void Remove(const ElementId id, uint start, uint size);
+    void InsertElement(const ElementId id);
+    void RemoveElement(const ElementId id);
+
     bool Has(const ElementPtr element, uint& start, uint& size) const;
     bool Has(const ElementId id, uint& start, uint& size) const;
     bool Has(const ElementId id, ElementSelection& s) const;
+    bool HasChild(const ElementId id, ElementSelection& s) const;
     bool IsSelected(const ElementId id) const;
+
     void Clear();
 
     bool IsEmpty() const;

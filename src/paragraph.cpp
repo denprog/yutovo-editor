@@ -91,7 +91,7 @@ void Paragraph::Remake(bool with_elements, bool with_parent, bool with_undo)
 
             if (!b)
                 continue;
-
+            
             //move elements above if they are narrower to be placed in the row
             while (next_row && next_row->elements->Count() > 0 && next_row->elements->Get(0)->rect.width < page->page_width - row->rect.width - format->indent_before)
             {

@@ -126,8 +126,7 @@ TEST_F(FormulaTest, fences2)
     
     document.InsertCode(false, true);
     document.InsertString("123", true);
-    document.InsertOpenFence(true);
-    document.WaitMainLoop();
+    document.WaitTask(document.InsertOpenFence(true));
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -159,8 +158,7 @@ TEST_F(FormulaTest, fences2)
 
     document.MoveCaretHome(false);
     document.WaitCaretMoving();
-    document.InsertOpenFence(true);
-    document.WaitMainLoop();
+    document.WaitTask(document.InsertOpenFence(true));
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -192,8 +190,7 @@ TEST_F(FormulaTest, fences2)
 
     document.MoveCaretRight(false);
     document.WaitCaretMoving();
-    document.InsertOpenFence(true);
-    document.WaitMainLoop();
+    document.WaitTask(document.InsertOpenFence(true));
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\

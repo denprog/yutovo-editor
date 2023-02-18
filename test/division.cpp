@@ -1082,17 +1082,14 @@ TEST_F(FormulaTest, division11)
         });
 
     document.InsertDivision(true);
-    document.InsertString("3", true);
-    document.WaitMainLoop();
+    document.WaitTask(document.InsertString("3", true));
     document.MoveCaretDown(false);
     document.MoveCaretDown(false);
     document.WaitCaretMoving();
-    document.InsertString("2", true);
-    document.WaitMainLoop();
+    document.WaitTask(document.InsertString("2", true));
     document.Save("division11_1.yut");
 
-    document.New();
-    document.WaitMainLoop();
+    document.WaitTask(document.New());
     std::this_thread::sleep_for(200ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
@@ -1127,16 +1124,15 @@ TEST_F(FormulaTest, division11)
         document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0})) << document.GetEditorState().ToString();
 
-    document.InsertString("123", true);
-    document.WaitMainLoop();
+    document.WaitTask(document.InsertString("123", true));
     document.MoveCaretEnd(false);
     document.WaitCaretMoving();
-    document.InsertString("Text", true);
-    document.WaitMainLoop();
+    document.WaitTask(document.InsertString("Text", true));
     document.Save("division11_2.yut");
 
     document.New();
     document.WaitMainLoop();
+    std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\

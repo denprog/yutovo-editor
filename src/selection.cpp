@@ -225,16 +225,52 @@ void Selection::Remove(const ElementId id, uint start, uint size)
         {
             return s.element->id == id;
         });
-    if (it != selection.end())
-    {
-        ElementSelection& s = *it;
-        if (s.start >= start && s.start + s.size <= start + size)
-            selection.erase(it);
-        else if (s.start < start && s.start + s.size > start)
-            s.size = start - s.start;
-        else if (s.start > start && s.start < start + size)
-            s.start = start + size;
-    }
+    if (it == selection.end())
+        return;
+    
+    ElementSelection& s = *it;
+    if (s.start >= start && s.start + s.size <= start + size)
+        selection.erase(it);
+    else if (s.start < start && s.start + s.size > start)
+        s.size = start - s.start;
+    else if (s.start > start && s.start < start + size)
+        s.start = start + size;
+}
+
+void Selection::InsertElement(const ElementId id)
+{
+    if (selection.empty() || id.empty())
+        return;
+    ElementId p_id = GetParent(id);
+    auto it = std::find_if(selection.begin(), selection.end(), 
+        [p_id](auto& s)
+        {
+            return s.element->id == p_id;
+        });
+    if (it == selection.end())
+        return;
+    
+    auto& s = *it;
+    if (s.start >= GetChildPos(id))
+        ++s.start;
+}
+
+void Selection::RemoveElement(const ElementId id)
+{
+    if (selection.empty() || id.empty())
+        return;
+    ElementId p_id = GetParent(id);
+    auto it = std::find_if(selection.begin(), selection.end(), 
+        [p_id](auto& s)
+        {
+            return s.element->id == p_id;
+        });
+    if (it == selection.end())
+        return;
+    
+    auto& s = *it;
+    if (s.start >= GetChildPos(id))
+        --s.start;
 }
 
 bool Selection::Has(const ElementPtr element, uint& start, uint& size) const
@@ -279,6 +315,24 @@ bool Selection::Has(const ElementId id, ElementSelection& s) const
         s.start = 0;
         s.size = el->elements->Count();
     }
+    return true;
+}
+
+bool Selection::HasChild(const ElementId id, ElementSelection& s) const
+{
+    auto it = std::find_if(selection.begin(), selection.end(), 
+        [id](auto& s)
+        {
+            for (int i = s.start; i < s.start + s.size; ++i)
+            {
+                if (IsChild(id, s.element->id))
+                    return true;
+            }
+            return false;
+        });
+    if (it == selection.end())
+        return false;
+    s = *it;
     return true;
 }
 
