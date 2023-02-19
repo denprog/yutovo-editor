@@ -80,7 +80,7 @@ public:
     void PushEditorState(const SelectionState& selection_state, bool undo);
     void PushEditorState(const CaretState& caret_state, const SelectionState& selection_state, bool undo);
 
-    void CallFunc(const ElementId& _id, std::function<void (const ElementId id)> func, bool undo);
+    void CallFunc(const ElementId& _id, CallFuncPtr func, bool undo);
 
     void ResetTasks();
 

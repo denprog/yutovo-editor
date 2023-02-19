@@ -93,9 +93,9 @@ void Subscript::AfterChildInsert(const ElementId child_id, bool with_undo)
         if (with_undo)
         {
             document->CallFunc(parent->id, 
-                [&](const ElementId id)
+                [d = document](const ElementId id)
                 {
-                    document->GetElement(id)->Normalize(true);
+                    d->GetElement(id)->Normalize(true);
                 },
                 true);
             document->InsertElement(_el->Clone(), false, true);
@@ -103,9 +103,9 @@ void Subscript::AfterChildInsert(const ElementId child_id, bool with_undo)
             document->DeleteElements(false, false, true);
             document->PushEditorState(CaretState(first->id, 0), true);
             document->CallFunc(parent->id, 
-                [&](const ElementId id)
+                [d = document](const ElementId id)
                 {
-                    document->GetElement(id)->Normalize(false);
+                    d->GetElement(id)->Normalize(false);
                 },
                 true);
         }

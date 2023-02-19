@@ -470,7 +470,7 @@ TEST_F(FormulaTest, delete4)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 1, 0})) << document.GetEditorState().ToString();
 }
 
-//deletion of a selected formula
+//Deletion of a selected formula
 TEST_F(FormulaTest, delete5)
 {
     EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
@@ -523,6 +523,96 @@ TEST_F(FormulaTest, delete5)
         document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 1}, 
         ElementSelectionState{ElementId{0, 0, 0, 0}, 0, 1})) << document.GetEditorState().ToString();
+}
+
+//Deletion of a selected formula with a text
+TEST_F(FormulaTest, delete6)
+{
+    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
+        {
+            return Rect{0, 0, 380, 400};
+        });
+
+    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::string& text, const StringFormatPtr format)
+        {
+            return GetTextSizeMock(text, format);
+        });
+
+    document.WaitTask(document.InsertString("The source of the text itself is a little strange", true));
+    document.MoveCaretUp(false);
+    document.MoveCaretHome(false);
+    document.WaitCaretMoving();
+    document.WaitTask(document.InsertDivision(true));
+    for (int i = 0; i < 17; ++i)
+        document.MoveCaretRight(false);
+    document.WaitTask(document.InsertDivision(true));
+    for (int i = 0; i < 14; ++i)
+        document.MoveCaretLeft(false);
+    for (int i = 0; i < 16; ++i)
+        document.MoveCaretRight(true);
+    document.WaitTask(document.DeleteElements(false, true, false));
+    std::this_thread::sleep_for(100ms);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mfrac>"\
+                            "<mrow>"\
+                                "<mi>Null</mi>"\
+                            "</mrow>"\
+                            "<mrow>"\
+                                "<mi>Null</mi>"\
+                            "</mrow>"\
+                        "</mfrac>"\
+                    "</mrow>"\
+                "</math>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">Th text itself is a little strange</span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 1, 2})) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    std::this_thread::sleep_for(400ms);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mfrac>"\
+                            "<mrow>"\
+                                "<mi>Null</mi>"\
+                            "</mrow>"\
+                            "<mrow>"\
+                                "<mi>Null</mi>"\
+                            "</mrow>"\
+                        "</mfrac>"\
+                    "</mrow>"\
+                "</math>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">The source of</span>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mfrac>"\
+                            "<mrow>"\
+                                "<mi>Null</mi>"\
+                            "</mrow>"\
+                            "<mrow>"\
+                                "<mi>Null</mi>"\
+                            "</mrow>"\
+                        "</mfrac>"\
+                    "</mrow>"\
+                "</math>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\"> the text itself is </span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">a little strange</span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 3, 4}, 
+        ElementSelectionState{ElementId{0, 0, 0, 0, 1}, 2, 11},
+        ElementSelectionState{ElementId{0, 0, 0, 0}, 2, 1},
+        ElementSelectionState{ElementId{0, 0, 0, 0, 3}, 0, 4})) << document.GetEditorState().ToString();
 }
 
 TEST_F(FormulaTest, insert1)

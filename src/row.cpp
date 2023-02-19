@@ -115,17 +115,17 @@ void Row::Normalize(bool with_undo)
                     {
                         auto t = elements->Get(i)->Clone();
                         document->CallFunc(ElementId{}, 
-                            [&](const ElementId id)
+                            [d = document](const ElementId id)
                             {
-                                document->can_normalize = true;
+                                d->can_normalize = true;
                             },
                             true);
                         document->InsertElement(t);
                         document->PushEditorState(CaretState(id, i), true);
                         document->CallFunc(ElementId{}, 
-                            [&](const ElementId id)
+                            [d = document](const ElementId id)
                             {
-                                document->can_normalize = false;
+                                d->can_normalize = false;
                             },
                             true);
                     }
@@ -148,20 +148,20 @@ void Row::Normalize(bool with_undo)
                         el->UpdateRect(true);
                         if (with_undo)
                         {
-                            document->CallFunc(el1->id, 
-                                [&](const ElementId id)
+                            document->CallFunc(ElementId{},
+                                [d = document](const ElementId id)
                                 {
-                                    document->can_normalize = true;
+                                    d->can_normalize = true;
                                 },
                                 true);
                             document->InsertElement(el1);
                             document->PushEditorState(CaretState(id, elements->GetElementPos(el->id)), true);
                             document->InsertElement(el2);
                             document->PushEditorState(CaretState(id, elements->GetElementPos(el->id)), true);
-                            document->CallFunc(el1->id, 
-                                [&](const ElementId id)
+                            document->CallFunc(ElementId{},
+                                [d = document](const ElementId id)
                                 {
-                                    document->can_normalize = false;
+                                    d->can_normalize = false;
                                 },
                                 true);
                             document->DeleteElements(false, false, true);

@@ -157,9 +157,9 @@ void Paragraph::Remake(bool with_elements, bool with_parent, bool with_undo)
     if (with_undo && remake)
     {
         document->CallFunc(ElementId{}, 
-            [&](const ElementId id)
+            [d = document](const ElementId id)
             {
-                document->can_normalize = true;
+                d->can_normalize = true;
             },
             true);
         for (int i = 0; i < clone->elements->Count(); ++i)
@@ -167,9 +167,9 @@ void Paragraph::Remake(bool with_elements, bool with_parent, bool with_undo)
         document->ClearElements(id, false, true);
         document->PushEditorState(CaretState(id, 0), true);
         document->CallFunc(ElementId{}, 
-            [&](const ElementId id)
+            [d = document](const ElementId id)
             {
-                document->can_normalize = false;
+                d->can_normalize = false;
             },
             true);
     }

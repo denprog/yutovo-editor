@@ -123,24 +123,24 @@ bool MiddleShapeFormula::AfterInsert(bool with_undo)
             if (with_undo)
             {
                 document->CallFunc(parent->id, 
-                    [&](const ElementId id)
+                    [d = document](const ElementId id)
                     {
-                        document->GetElement(id)->Normalize(false);
+                        d->GetElement(id)->Normalize(false);
                     },
                     true);
                 auto _el2 = el2->Clone();
                 document->CallFunc(ElementId{}, 
-                    [&](const ElementId id)
+                    [d = document](const ElementId id)
                     {
-                        document->can_normalize = true;
+                        d->can_normalize = true;
                     },
                     true);
                 document->InsertElement(_el2, false, true);
                 document->PushEditorState(CaretState(parent->id, parent->elements->GetElementPos(id)), true);
                 document->CallFunc(ElementId{}, 
-                    [&](const ElementId id)
+                    [d = document](const ElementId id)
                     {
-                        document->can_normalize = false;
+                        d->can_normalize = false;
                     },
                     true);
             }
@@ -156,24 +156,24 @@ bool MiddleShapeFormula::AfterInsert(bool with_undo)
                 if (with_undo)
                 {
                     document->CallFunc(parent->id, 
-                        [&](const ElementId id)
+                        [d = document](const ElementId id)
                         {
-                            document->GetElement(id)->Normalize(false);
+                            d->GetElement(id)->Normalize(false);
                         },
                         true);
                     auto _el1 = el1->Clone();
                     document->CallFunc(ElementId{}, 
-                        [&](const ElementId id)
+                        [d = document](const ElementId id)
                         {
-                            document->can_normalize = true;
+                            d->can_normalize = true;
                         },
                         true);
                     document->InsertElement(_el1, false, true);
                     document->PushEditorState(CaretState(parent->id, parent->elements->GetElementPos(id)), true);
                     document->CallFunc(ElementId{}, 
-                        [&](const ElementId id)
+                        [d = document](const ElementId id)
                         {
-                            document->can_normalize = false;
+                            d->can_normalize = false;
                         },
                         true);
                 }
