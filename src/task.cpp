@@ -320,6 +320,7 @@ bool InsertFormulasTask::Execute()
     ElementPtr el = document->GetParent(caret_state.id);
     assert(el);
 
+    bool insert_code_block = false;
     if (elements[0]->type != ElementType::CODE_BLOCK)
     {
         if (document->FindParent(caret_state.id, ElementType::CODE_BLOCK) == nullptr)
@@ -344,6 +345,7 @@ bool InsertFormulasTask::Execute()
                     document->RollbackUndo();
                 return false;
             }
+            insert_code_block = true;
             el = code->elements->Get(0)->elements->Get(0);
         }
     }
@@ -359,7 +361,7 @@ bool InsertFormulasTask::Execute()
         _elements.push_back(c);
     }
     
-    if (el->InsertElements(_elements, with_undo))
+    if (el->InsertElements(_elements, insert_code_block ? false : with_undo))
     {
         if (with_undo)
             document->PushEditorState(true);
