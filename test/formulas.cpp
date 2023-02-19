@@ -464,6 +464,10 @@ TEST_F(FormulaTest, delete4)
         document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 1, 0}, 
         ElementSelectionState{ElementId{0, 0, 0, 0}, 0, 1})) << document.GetEditorState().ToString();
+    
+    document.MoveCaretRight(false);
+    document.WaitCaretMoving();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 1, 0})) << document.GetEditorState().ToString();
 }
 
 //deletion of a selected formula

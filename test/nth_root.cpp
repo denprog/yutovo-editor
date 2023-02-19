@@ -339,7 +339,7 @@ TEST_F(FormulaTest, nth_root3)
 
     std::this_thread::sleep_for(200ms);
     document.WaitTask(document.Load("nth_root3_1.yut"));
-    std::this_thread::sleep_for(400ms);
+    std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
