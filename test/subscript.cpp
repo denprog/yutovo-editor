@@ -20,8 +20,7 @@ TEST_F(FormulaTest, subscript1)
             return GetTextSizeMock(text, format);
         });
 
-    document.InsertSubscript(true);
-    document.WaitMainLoop();
+    document.WaitTask(document.InsertSubscript(true));
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -69,8 +68,7 @@ TEST_F(FormulaTest, subscript1)
         document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0})) << document.GetEditorState().ToString();
 
-    document.InsertString("x", true);
-    document.WaitMainLoop();
+    document.WaitTask(document.InsertString("x", true));
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
@@ -95,8 +93,7 @@ TEST_F(FormulaTest, subscript1)
     document.MoveCaretRight(false);
     document.MoveCaretRight(false);
     document.WaitCaretMoving();
-    document.InsertString("3", true);
-    document.WaitMainLoop();
+    document.WaitTask(document.InsertString("3", true));
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
@@ -131,8 +128,7 @@ TEST_F(FormulaTest, subscript2)
             return GetTextSizeMock(text, format);
         });
 
-    document.InsertSubscriptFunction("log", true);
-    document.WaitMainLoop();
+    document.WaitTask(document.InsertSubscriptFunction("log", true));
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
