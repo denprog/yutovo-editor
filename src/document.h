@@ -28,7 +28,7 @@ public:
     Document(Window* _window);
     ~Document();
 
-    void Start();
+    void Start(Config& _config);
 
     uint InsertPage(bool with_undo);
     uint InsertParagraph(bool with_undo, bool undo = false);
