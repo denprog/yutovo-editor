@@ -29,7 +29,6 @@ add_library(${PROJECT_NAME}
     result_codes.cpp
     solver.cpp
     solver_task.cpp
-    config.cpp
     formulas/formula.cpp
     formulas/code_block.cpp
     formulas/code_paragraph.cpp

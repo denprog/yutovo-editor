@@ -74,7 +74,7 @@ struct DocumentTest : public testing::Test
         app(argc, argv),
         document(&window_mock)
     {
-        document.Start();
+        document.Start(config);
     }
 
     Size GetTextSizeMock(const std::string text, const StringFormatPtr format)
@@ -222,6 +222,7 @@ struct DocumentTest : public testing::Test
     QApplication app;
     MainWindow main_window;
     ::testing::NiceMock<WindowMock> window_mock;
+    yutovo::Config config;
     Document document;
 };
 

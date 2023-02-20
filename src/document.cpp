@@ -43,7 +43,6 @@ Document::Document(Window* _window) :
     logger(Logger::GetInstance(".", "yutovo", true, true))
 {
     logger->Debug("Document start");
-    config.Open("config.json");
 }
 
 Document::~Document()
@@ -54,8 +53,10 @@ Document::~Document()
     logger->Debug("Document end");
 }
 
-void Document::Start()
+void Document::Start(Config& _config)
 {
+    config = _config;
+    
     caret.reset(new Caret(this));
     text.reset(new Text(this));
 
