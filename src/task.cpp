@@ -46,9 +46,10 @@ Task::Task(ElementPtr _text, const uint _id) :
 
 //InsertElementsTask
 
-InsertElementsTask::InsertElementsTask(ElementPtr _text, std::vector<ElementPtr>& _elements, bool _with_undo) :
+InsertElementsTask::InsertElementsTask(ElementPtr _text, std::vector<ElementPtr>& _elements, bool _with_undo, bool _pasting) :
     Task(_text),
-    elements(_elements)
+    elements(_elements),
+    pasting(_pasting)
 {
     with_undo = _with_undo;
 }
@@ -174,6 +175,7 @@ bool InsertElementsTask::Execute()
         _elements.push_back(t);
     }
 
+    document->pasting = pasting;
     for (auto& _el : _elements)
     {
         _el->parent = nullptr;
@@ -182,15 +184,18 @@ bool InsertElementsTask::Execute()
         {
             if (with_undo)
                 document->RollbackUndo();
+            document->pasting = false;
             return false;
         }
         
-        el = document->GetParent(document->caret->GetElement()->id);
+        if (document->caret->GetElement())
+            el = document->GetElement(document->caret->GetElement()->id);
 
         if (with_undo)
             document->PushEditorState(true);
         document->Remake(el->parent->id, true, with_undo, false, true); //move into view
     }
+    document->pasting = false;
     return true;
 }
 
@@ -753,7 +758,7 @@ bool NewTask::Execute()
     document->ResetTasks();
     document->text.reset(new Text(text->document));
     document->Remake(text->id, true, false, false);
-    document->caret->MoveToDocumentBegin(nullptr);
+    document->MoveCaretToDocumentBegin(false);
     return true;
 }
 
@@ -842,17 +847,17 @@ CopyTask::CopyTask(ElementPtr _text, std::stringstream& _out_array, std::string&
 
 bool CopyTask::Execute()
 {
-    auto before_state = text->document->GetEditorState();
+    auto before_state = document->GetEditorState();
     SelectionState& selection_state = before_state.selection_state;
     if (selection_state.IsEmpty())
     {
-        text->document->window->OnCopyResult(CopyResult::EmptySelection);
+        window->OnCopyResult(CopyResult::EmptySelection);
         return false;
     }
 
     std::vector<ElementPtr> copy;
     for (int i = 0; i < selection_state.state.size(); ++i)
-        text->document->GetElement(selection_state.state[i].id)->Copy(copy);
+        document->GetElement(selection_state.state[i].id)->Copy(copy);
 
     for (auto& el : copy)
     {
@@ -869,14 +874,14 @@ bool CopyTask::Execute()
     }
     catch (boost::archive::archive_exception& ex)
     {
-        text->document->window->OnCopyResult(CopyResult::CopyError);
+        window->OnCopyResult(CopyResult::CopyError);
         return false;
     }
 
-    text->document->window->OnCopyResult(CopyResult::Success);
+    window->OnCopyResult(CopyResult::Success);
 
     if (cut)
-        text->document->DeleteElements(true, true, false);
+        document->DeleteElements(true, true, false);
     return true;
 }
 

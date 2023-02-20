@@ -38,7 +38,7 @@ typedef std::shared_ptr<Task> TaskPtr;
 
 struct InsertElementsTask : Task
 {
-    InsertElementsTask(ElementPtr _text, std::vector<ElementPtr>& _elements, bool _with_undo);
+    InsertElementsTask(ElementPtr _text, std::vector<ElementPtr>& _elements, bool _with_undo, bool _pasting = false);
     InsertElementsTask(ElementPtr _text, std::vector<ElementPtr>& _elements, uint _id);
     InsertElementsTask(ElementPtr _text, std::vector<ElementPtr>& _elements, uint _id, ElementId _element_id);
 
@@ -47,6 +47,7 @@ struct InsertElementsTask : Task
     ElementId element_id; //insert into this element or use id from caret state
     std::vector<ElementPtr> elements;
     EditorState before_state;
+    bool pasting = false; //this is pasting from clipboard
 };
 
 struct DeleteElementsTask : Task

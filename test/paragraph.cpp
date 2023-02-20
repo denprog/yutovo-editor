@@ -907,7 +907,7 @@ TEST_F(ParagraphTest, paragraph3)
 
     document.InsertString("45", document.GetStringFormat("Arial", 14, false, false, false), true);
     document.WaitTask(document.InsertDivision(true));
-    std::this_thread::sleep_for(100ms);
+    std::this_thread::sleep_for(200ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\

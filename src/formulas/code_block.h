@@ -13,6 +13,7 @@ class CodeBlock : public Block
 public:
     CodeBlock(Document* _document, uint _code_id);
     CodeBlock(Element* parent, uint _code_id);
+    CodeBlock(Document* _document, Element* parent, uint _code_id);
     CodeBlock(const CodeBlock& source) = default;
 
     virtual Element* Clone();
@@ -81,7 +82,7 @@ void load_construct_data(Archive& ar, yutovo::CodeBlock* t, const unsigned int v
     uint code_id;
     ar >> code_id;
     yutovo::DocumentUserData& user_data = yutovo::GetUserData<yutovo::DocumentUserData>(ar);
-    ::new(t)yutovo::CodeBlock(p, code_id);
+    ::new(t)yutovo::CodeBlock(user_data.document, p, code_id);
 }
 
 }

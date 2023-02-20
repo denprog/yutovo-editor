@@ -39,7 +39,8 @@ public:
     uint InsertElement(Element* element, bool with_undo, bool undo = false, ElementId element_id = ElementId{});
     uint InsertElement(Element* element, ElementId element_id = ElementId{});
     uint InsertElement(ElementPtr element, ElementId element_id = ElementId{});
-    uint InsertElements(std::vector<ElementPtr>& elements, bool with_undo, bool undo = false, ElementId element_id = ElementId{});
+    uint InsertElements(std::vector<ElementPtr>& elements, bool with_undo, bool undo = false, ElementId element_id = ElementId{}, 
+        bool pasting = false);
 
     uint DeleteElements(bool left, bool with_undo, bool undo);
     uint ClearElements(ElementId element_id, bool with_undo, bool undo);
@@ -247,6 +248,8 @@ public:
     Selection last_selection;
 
     bool can_normalize = true;
+
+    bool pasting = false;
 
     Config config;
 

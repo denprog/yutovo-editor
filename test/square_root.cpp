@@ -21,6 +21,7 @@ TEST_F(FormulaTest, square_root1)
         });
 
     document.WaitTask(document.InsertSquareRoot(true));
+    std::this_thread::sleep_for(200ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\

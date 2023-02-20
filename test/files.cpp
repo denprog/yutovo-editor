@@ -82,8 +82,7 @@ TEST_F(DocumentTest, files2)
     document.InsertString("itself ", true);
     document.SetFontSize(20);
     document.SetItalic(false);
-    document.InsertString("is a little mysterious.", true);
-    document.WaitMainLoop();
+    document.WaitTask(document.InsertString("is a little mysterious.", true));
     std::this_thread::sleep_for(200ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\

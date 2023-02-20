@@ -266,7 +266,7 @@ uint Document::InsertElement(ElementPtr element, ElementId element_id)
     return InsertElements(elements, false, true, element_id);
 }
 
-uint Document::InsertElements(std::vector<ElementPtr>& elements, bool with_undo, bool undo, ElementId element_id)
+uint Document::InsertElements(std::vector<ElementPtr>& elements, bool with_undo, bool undo, ElementId element_id, bool pasting)
 {
     {
         std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
@@ -277,7 +277,7 @@ uint Document::InsertElements(std::vector<ElementPtr>& elements, bool with_undo,
         }
         else
         {
-            tasks.emplace_back(new InsertElementsTask(text, elements, with_undo));
+            tasks.emplace_back(new InsertElementsTask(text, elements, with_undo, pasting));
             last_task_id = tasks[tasks.size() - 1]->id;
         }
     }
@@ -1129,6 +1129,8 @@ uint Document::Load(const std::string& filename)
 
 uint Document::Copy(std::stringstream& out_array, std::string& out_text)
 {
+    out_array.str("");
+    out_text = "";
     std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
     tasks.emplace_back(new CopyTask(text, out_array, out_text, false));
     last_task_id = tasks[tasks.size() - 1]->id;
@@ -1153,7 +1155,7 @@ uint Document::Paste(std::stringstream& in_array)
     }
 
     if (!elements.empty())
-        InsertElements(elements, true);
+        InsertElements(elements, true, false, ElementId{}, true);
     window->OnPasteResult(PasteResult::Success);
     return last_task_id;
 }
