@@ -98,6 +98,14 @@ void SquareRoot::Remake(bool with_elements, bool with_parent, bool with_undo)
     last_rect = rect;
 }
 
+bool SquareRoot::AfterInsert(bool with_undo)
+{
+    CaretState c;
+    last->GetFirstCaretState(c, nullptr);
+    caret->SetState(c);
+    return true;
+}
+
 bool SquareRoot::DeleteElements(bool left, bool with_undo)
 {
     uint start, size;

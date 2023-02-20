@@ -13,6 +13,13 @@ Row::Row(Document* _document) :
     type = ElementType::ROW;
 }
 
+Row::Row(Document* _document, Element* _parent) :
+    Element(_document)
+{
+    type = ElementType::ROW;
+    parent = _parent;
+}
+
 Row::Row(Element* _parent, bool with_string) :
     Element(_parent)
 {
@@ -197,7 +204,18 @@ bool Row::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo)
 
     for (auto& el : _elements)
     {
-        if (document->IsParagraph(el) || document->IsRow(el)) //paragraphs and rows can be inserted above
+        if (document->IsRow(el))
+        {
+            for (int i = 0; i < el->elements->Count(); ++i)
+            {
+                std::vector<ElementPtr> v;
+                v.push_back(el->elements->Get(i));
+                if (!InsertElements(v, with_undo))
+                    return false;
+            }
+            return true;
+        }
+        else if (document->IsParagraph(el)) //paragraphs can be inserted above
             return parent->InsertElements(_elements, with_undo);
     }
 
@@ -207,12 +225,22 @@ bool Row::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo)
     {
         for (size_t i = 0; i < _elements.size(); ++i)
         {
+            auto ins = _elements[i];
             uint p = caret_state.GetPosInElement(id);
-            elements->Insert(_elements[i], p + i);
+            elements->Insert(ins, p + i);
             if (with_undo)
             {
                 document->DeleteElements(false, false, true);
                 document->PushEditorState(SelectionState(id, p + i, 1), true);
+            }
+            if (document->pasting)
+            {
+                if (ins->HasLastCaretState())
+                    caret->SetState(id, p + i + 1, true);
+                else if (ins->GetLastCaretState(c, nullptr))
+                    caret->SetState(c);
+                parent->Normalize(with_undo);
+                continue;
             }
             if (i == 0 && elements->Get(p + i)->AfterInsert(with_undo))
             {
@@ -239,14 +267,21 @@ bool Row::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo)
                     document->DeleteElements(false, false, true);
                     document->PushEditorState(SelectionState(id, p + i + 1, 1), true);
                 }
-                if (i == 0)
+                if (i == 0 && !document->pasting)
                     b = ins->AfterInsert(with_undo);
                 if (!b)
                 {
-                    if (elements->Get(p + i + 1)->GetLastCaretState(c, nullptr))
-                        caret->SetState(c);
-                    else if (i > 0 && _elements[i - 1]->parent->GetLastCaretState(c, nullptr))
-                        caret->SetState(c);
+                    if (ins->HasLastCaretState())
+                    {
+                        caret->SetState(id, p + i + 2, true);
+                    }
+                    else
+                    {
+                        if (elements->Get(p + i + 1)->GetLastCaretState(c, nullptr))
+                            caret->SetState(c);
+                        else if (i > 0 && _elements[i - 1]->parent->GetLastCaretState(c, nullptr))
+                            caret->SetState(c);
+                    }
                 }
                 if (elements->Count() > p + i + 2)
                 {
@@ -258,7 +293,7 @@ bool Row::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo)
             else if (el->GetFirstCaretState(c, nullptr) && c == caret_state)
             {
                 elements->Insert(ins, p + i);
-                if (i == 0)
+                if (i == 0 && !document->pasting)
                     b = ins->AfterInsert(with_undo);
                 if (with_undo)
                 {
@@ -276,7 +311,7 @@ bool Row::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo)
                 if (el->SplitAt(caret_state.GetPos()))
                 {
                     elements->Insert(ins, p + i + 1);
-                    if (i == 0)
+                    if (i == 0 && !document->pasting)
                         b = ins->AfterInsert(with_undo);
                     if (!b && elements->Get(p + i + 1)->GetLastCaretState(c, nullptr))
                         caret->SetState(c);

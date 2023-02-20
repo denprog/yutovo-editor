@@ -12,6 +12,7 @@ class Row : public Element
 {
 public:
     Row(Document* _document);
+    Row(Document* _document, Element* _parent);
     Row(Element* _parent, bool with_string = true);
 
     virtual Element* Clone();
@@ -70,7 +71,7 @@ void load_construct_data(Archive& ar, yutovo::Row* t, const unsigned int version
     yutovo::Element* p;
     ar >> p;
     yutovo::DocumentUserData& user_data = yutovo::GetUserData<yutovo::DocumentUserData>(ar);
-    ::new(t)yutovo::Row(p);
+    ::new(t)yutovo::Row(user_data.document, p);
 }
 
 }

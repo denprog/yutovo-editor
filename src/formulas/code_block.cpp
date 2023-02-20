@@ -29,6 +29,21 @@ CodeBlock::CodeBlock(Element* parent, uint _code_id) :
     AddEmptyElement(); //code block has to have at least one code paragraph
 }
 
+CodeBlock::CodeBlock(Document* _document, Element* parent, uint _code_id) :
+    Block(parent),
+    code_id(_code_id)
+{
+    type = ElementType::CODE_BLOCK;
+    document = _document;
+    window = document->window;
+    caret = document->caret;
+    selection = &document->selection;
+    code_format = document->code_formats->GetFormat("Calculator");
+    paragraph_format = document->paragraph_formats->GetFormat("Code");
+    formula_format = document->formula_formats->GetFormat("Formula");
+    AddEmptyElement(); //code block has to have at least one code paragraph
+}
+
 Element* CodeBlock::Clone()
 {
     return new CodeBlock(*this);

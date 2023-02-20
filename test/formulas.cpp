@@ -628,14 +628,14 @@ TEST_F(FormulaTest, insert1)
         });
 
     document.SetFontSize(22);
-    document.InsertString("Tradicionalmente, el medio de un documento era el papel y la información", true);
-    document.WaitMainLoop();
+    document.WaitTask(document.InsertString("Tradicionalmente, el medio de un documento era el papel y la información", true));
     document.MoveCaretToDocumentBegin(false);
     document.MoveCaretDown(false);
     document.MoveCaretRight(false);
     document.MoveCaretRight(false);
     document.WaitCaretMoving();
     document.WaitTask(document.InsertCode(false, true));
+    std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\

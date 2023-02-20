@@ -23,6 +23,8 @@ public:
     virtual void Draw() const;
     virtual void Remake(bool with_elements, bool with_parent, bool with_undo);
 
+    virtual bool AfterInsert(bool with_undo);
+    
     virtual bool DeleteElements(bool left, bool with_undo);
 
     virtual std::string ToHtml();
