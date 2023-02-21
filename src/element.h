@@ -104,6 +104,7 @@ public:
     virtual bool HasCaretState();
     virtual bool HasLastCaretState();
     virtual bool CanContinueSelection();
+    virtual bool CanContinueVerticalMoving(); //will pass caret into this element from up and down
 
     virtual Rect GetCaretRect(const uint pos) const;
     virtual void DrawCaret(const uint pos) const;
