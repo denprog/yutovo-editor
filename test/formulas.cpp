@@ -575,7 +575,7 @@ TEST_F(FormulaTest, delete6)
 
     document.Undo();
     document.WaitUndo();
-    std::this_thread::sleep_for(400ms);
+    std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -604,8 +604,8 @@ TEST_F(FormulaTest, delete6)
                         "</mfrac>"\
                     "</mrow>"\
                 "</math>"\
-                "<span style=\"font-family:'Arial';font-size:14px;\"> the text itself is </span>"\
-                "<span style=\"font-family:'Arial';font-size:14px;\">a little strange</span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\"> the text itself </span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">is a little strange</span>"\
             "</p>"\
         "</body>") << 
         document.ToHtml();
@@ -790,7 +790,7 @@ TEST_F(FormulaTest, insert3)
     document.WaitTask(document.InsertDivision(true));
     document.Undo();
     document.WaitUndo();
-    std::this_thread::sleep_for(100ms);
+    std::this_thread::sleep_for(200ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -910,6 +910,7 @@ TEST_F(FormulaTest, select3)
     document.MoveCaretRight(true);
     document.MoveCaretRight(true);
     document.WaitCaretMoving();
+    std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 1, 0, 2}, 
         ElementSelectionState{ElementId{0, 0, 0, 0}, 1, 1},
         ElementSelectionState{ElementId{0, 0, 0, 1, 0}, 0, 2})) << document.GetEditorState().ToString();

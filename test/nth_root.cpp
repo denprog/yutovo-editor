@@ -319,12 +319,13 @@ TEST_F(FormulaTest, nth_root3)
     document.InsertString("2", true);
     document.InsertMultiply(true);
     document.InsertDivision(true);
-    document.InsertString("5", true);
-    document.WaitMainLoop();
+    document.WaitTask(document.InsertString("5", true));
     document.MoveCaretDown(false);
     document.MoveCaretDown(false);
-    document.InsertString("67", true);
-    document.Save("nth_root3_1.yut");
+    document.WaitCaretMoving();
+    std::this_thread::sleep_for(100ms);
+    document.WaitTask(document.InsertString("67", true));
+    document.WaitTask(document.Save("nth_root3_1.yut"));
 
     document.WaitTask(document.New());
     std::this_thread::sleep_for(400ms);
@@ -339,7 +340,7 @@ TEST_F(FormulaTest, nth_root3)
 
     std::this_thread::sleep_for(200ms);
     document.WaitTask(document.Load("nth_root3_1.yut"));
-    std::this_thread::sleep_for(600ms);
+    std::this_thread::sleep_for(400ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\

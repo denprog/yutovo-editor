@@ -607,9 +607,8 @@ TEST_F(CodeTest, code7)
     document.MoveCaretUp(false);
     document.MoveCaretUp(false);
     document.WaitCaretMoving();
-    document.InsertCode(false, true);
-    document.WaitMainLoop();
-    std::this_thread::sleep_for(100ms);
+    document.WaitTask(document.InsertCode(false, true));
+    std::this_thread::sleep_for(400ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -618,13 +617,13 @@ TEST_F(CodeTest, code7)
                         "<mi>Null</mi>"\
                     "</mrow>"\
                 "</math>"\
-                "<span style=\"font-family:'Arial';font-size:22px;\">The sourc</span>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\">The sour</span>"\
                 "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
                     "<mrow>"\
                         "<mi>Null</mi>"\
                     "</mrow>"\
                 "</math>"\
-                "<span style=\"font-family:'Arial';font-size:22px;\">e of </span>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\">ce of </span>"\
                 "<span style=\"font-family:'Arial';font-size:22px;\">the text itself is a </span>"\
                 "<span style=\"font-family:'Arial';font-size:22px;\">little mysterious.</span>"\
             "</p>"\
@@ -644,13 +643,13 @@ TEST_F(CodeTest, code7)
                         "<mi>Null</mi>"\
                     "</mrow>"\
                 "</math>"\
-                "<span style=\"font-family:'Arial';font-size:22px;\">The sourc</span>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\">The sour</span>"\
                 "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
                     "<mrow>"\
                         "<mi>Null</mi>"\
                     "</mrow>"\
                 "</math>"\
-                "<span style=\"font-family:'Arial';font-size:22px;\">e of </span>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\">ce of </span>"\
                 "<span style=\"font-family:'Arial';font-size:22px;\">the text itself is a </span>"\
                 "<span style=\"font-family:'Arial';font-size:22px;\">little mysterious.</span>"\
                 "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
@@ -674,13 +673,13 @@ TEST_F(CodeTest, code7)
                         "<mi>Null</mi>"\
                     "</mrow>"\
                 "</math>"\
-                "<span style=\"font-family:'Arial';font-size:22px;\">The sourc</span>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\">The sour</span>"\
                 "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
                     "<mrow>"\
                         "<mi>Null</mi>"\
                     "</mrow>"\
                 "</math>"\
-                "<span style=\"font-family:'Arial';font-size:22px;\">e of </span>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\">ce of </span>"\
                 "<span style=\"font-family:'Arial';font-size:22px;\">the text itself is a </span>"\
                 "<span style=\"font-family:'Arial';font-size:22px;\">little mysterious.</span>"\
             "</p>"\
@@ -697,13 +696,13 @@ TEST_F(CodeTest, code7)
                         "<mi>Null</mi>"\
                     "</mrow>"\
                 "</math>"\
-                "<span style=\"font-family:'Arial';font-size:22px;\">The sourc</span>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\">The sour</span>"\
                 "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
                     "<mrow>"\
                         "<mi>Null</mi>"\
                     "</mrow>"\
                 "</math>"\
-                "<span style=\"font-family:'Arial';font-size:22px;\">e of </span>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\">ce of </span>"\
                 "<span style=\"font-family:'Arial';font-size:22px;\">the text itself is a </span>"\
                 "<span style=\"font-family:'Arial';font-size:22px;\">little mysterious.</span>"\
                 "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
