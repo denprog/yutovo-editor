@@ -289,6 +289,10 @@ bool Element::GetTopCaretState(const int x, const int y, CaretState& caret_state
         }
     }
 
+    auto el = document->GetElement(caret_state.id);
+    if (el->CanContinueVerticalMoving())
+        el->GetTopCaretState(x, y, caret_state, select);
+
     return true;
 }
 
@@ -325,6 +329,10 @@ bool Element::GetBottomCaretState(const int x, const int y, CaretState& caret_st
             caret_state = next;
         }
     }
+
+    auto el = document->GetElement(caret_state.id);
+    if (el->CanContinueVerticalMoving())
+        el->GetBottomCaretState(x, y, caret_state, select);
 
     return true;
 }
@@ -378,6 +386,11 @@ bool Element::HasLastCaretState()
 }
 
 bool Element::CanContinueSelection()
+{
+    return false;
+}
+
+bool Element::CanContinueVerticalMoving()
 {
     return false;
 }

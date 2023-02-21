@@ -397,4 +397,44 @@ TEST_F(DocumentTest, caret5)
         ElementSelectionState{ElementId{0, 0, 1, 0, 0}, 0, 2})) << document.GetEditorState().ToString();
 }
 
+TEST_F(DocumentTest, caret6)
+{
+    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
+        {
+            return Rect{0, 0, 600, 400};
+        });
+
+    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::string& text, const StringFormatPtr format)
+        {
+            return GetTextSizeMock(text, format);
+        });
+    
+    document.InsertString("Text", true);
+    document.InsertParagraph(true);
+    document.WaitTask(document.InsertDivision(true));
+    document.MoveCaretEnd(false);
+    document.MoveCaretEnd(false);
+    document.WaitCaretMoving();
+    document.InsertParagraph(true);
+    document.WaitTask(document.InsertString("String", true));
+    document.MoveCaretLeft(false);
+    document.MoveCaretLeft(false);
+    document.MoveCaretLeft(false);
+    document.MoveCaretUp(false);
+    document.WaitCaretMoving();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 0, 0, 0, 0, 0})) << document.GetEditorState().ToString();
+
+    document.MoveCaretUp(false);
+    document.WaitCaretMoving();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0, 2})) << document.GetEditorState().ToString();
+
+    document.MoveCaretDown(false);
+    document.WaitCaretMoving();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 0, 0, 0, 0, 0})) << document.GetEditorState().ToString();
+
+    document.MoveCaretDown(false);
+    document.WaitCaretMoving();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 2, 0, 0, 3})) << document.GetEditorState().ToString();
+}
+
 }
