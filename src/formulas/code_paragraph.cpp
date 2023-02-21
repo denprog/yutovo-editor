@@ -29,18 +29,6 @@ Element* CodeParagraph::Create(Element* parent)
     return new CodeParagraph(parent);
 }
 
-void CodeParagraph::UpdateRect(bool with_elements)
-{
-    Paragraph::UpdateRect(with_elements);
-
-    rect.left = format->indent_before;
-}
-
-void CodeParagraph::Remake(bool with_elements, bool with_parent, bool with_undo)
-{
-    Paragraph::Remake(with_elements, with_parent, with_undo);
-}
-
 void CodeParagraph::AddEmptyElement()
 {
     AddElement(ElementPtr(new CodeRow(this)));

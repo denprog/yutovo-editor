@@ -150,7 +150,7 @@ void Paragraph::Remake(bool with_elements, bool with_parent, bool with_undo)
     {
         ElementPtr row = elements->Get(i);
         row->GetMargin(left_m, top_m, right_m, bottom_m); //consider the margins
-        row->rect.Move(0, h + top_m); //move the row
+        row->rect.Move(format->indent_before, h + top_m); //move the row
         h += row->rect.height + format->line_spacing + top_m + bottom_m;
     }
 
@@ -220,13 +220,6 @@ void Paragraph::Normalize(bool with_undo)
                 ++i;
         }
     }
-}
-
-void Paragraph::UpdateRect(bool with_elements)
-{
-    Element::UpdateRect(with_elements);
-
-    rect.left = format->indent_before;
 }
 
 bool Paragraph::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo)
