@@ -17,10 +17,6 @@ public:
 
     virtual Element* Create(Element* parent);
 
-    virtual void UpdateRect(bool with_elements = false);
-
-    virtual void Remake(bool with_elements, bool with_parent, bool with_undo);
-
     virtual void AddEmptyElement();
 
     virtual std::string ToHtml();
