@@ -266,14 +266,23 @@ TEST_F(DocumentTest, clipboard5)
         });
 
     document.SetFontSize(22);
-    document.Paste("The <mrow> MathML element is used to group sub-expressions");
-    document.WaitMainLoop();
-    std::this_thread::sleep_for(100ms);
-    ASSERT_TRUE(document.ToText() == "The <mrow> MathML element is used to group sub-expressions") << document.ToText();
+    document.WaitTask(document.Paste("The <mrow> MathML element is used to group sub-expressions"));
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\">The <mrow> </span>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\">MathML element is </span>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\">used to group </span>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\">sub-expressions</span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
 
+    std::this_thread::sleep_for(200ms);
     document.Undo();
     document.WaitUndo();
-    std::this_thread::sleep_for(100ms);
+    std::this_thread::sleep_for(200ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\

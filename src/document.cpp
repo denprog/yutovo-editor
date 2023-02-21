@@ -64,7 +64,8 @@ void Document::Start(Config& _config)
 
     main_loop = std::thread(&Document::MainLoop, this);
 
-    Remake(text->id, true, false, false);
+    Remake(text->id, false, false, false);
+    Remake(text->elements->Get(0)->id, false, false, false);
 }
 
 void Document::MainLoop()
