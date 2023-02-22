@@ -74,4 +74,9 @@ StringFormatPtr Formula::GetStringFormat()
     return formula_format->string_format;
 }
 
+bool Formula::IsFormula()
+{
+    return true;
+}
+
 }

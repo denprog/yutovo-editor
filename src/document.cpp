@@ -439,21 +439,21 @@ uint Document::InsertFormula(Element* element, bool with_undo, bool undo, bool w
     return InsertFormulas(elements, with_undo, undo, with_last_task_id);
 }
 
-uint Document::InsertFormulas(std::vector<ElementPtr>& elements, bool with_undo, bool undo, bool with_last_task_id)
+uint Document::InsertFormulas(std::vector<ElementPtr>& elements, bool with_undo, bool undo, bool with_last_task_id, bool pasting)
 {
     {
         std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
         if (undo)
         {
-            undo_tasks.push(TaskPtr(new InsertFormulasTask(text, elements, cur_task_id, false)));
+            undo_tasks.push(TaskPtr(new InsertFormulasTask(text, cur_task_id, elements, false)));
             last_task_id = cur_task_id;
         }
         else
         {
             if (with_last_task_id)
-                tasks.emplace_back(new InsertFormulasTask(text, elements, last_task_id, with_undo));
+                tasks.emplace_back(new InsertFormulasTask(text, last_task_id, elements, with_undo));
             else
-                tasks.emplace_back(new InsertFormulasTask(text, elements, with_undo));
+                tasks.emplace_back(new InsertFormulasTask(text, elements, with_undo, pasting));
             last_task_id = tasks[tasks.size() - 1]->id;
         }
     }
@@ -1157,8 +1157,24 @@ uint Document::Paste(std::stringstream& in_array)
     }
 
     if (!elements.empty())
-        InsertElements(elements, true, false, ElementId{}, true);
-    window->OnPasteResult(PasteResult::Success);
+    {
+        bool only_formulas = true;
+        for (auto& el : elements)
+        {
+            if (!el->IsFormula())
+            {
+                only_formulas = false;
+                break;
+            }
+        }
+        if (only_formulas)
+            InsertFormulas(elements, true, false, false, true);
+        else
+            InsertElements(elements, true, false, ElementId{}, true);
+        window->OnPasteResult(PasteResult::Success);
+    }
+    else
+        window->OnPasteResult(PasteResult::EmptyBuffer);
     return last_task_id;
 }
 

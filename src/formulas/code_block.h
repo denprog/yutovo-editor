@@ -41,6 +41,8 @@ public:
 
     virtual void AddEmptyElement();
 
+    virtual bool IsFormula();
+
     template <class Archive>
     void save(Archive& ar, const unsigned int version) const
     {

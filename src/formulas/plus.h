@@ -53,7 +53,10 @@ void load_construct_data(Archive& ar, yutovo::Plus* t, const unsigned int versio
     yutovo::Element* p;
     ar >> p;
     yutovo::DocumentUserData& user_data = yutovo::GetUserData<yutovo::DocumentUserData>(ar);
-    ::new(t)yutovo::Plus(p);
+    if (p)
+        ::new(t)yutovo::Plus(p);
+    else
+        ::new(t)yutovo::Plus(user_data.document);
 }
 
 }

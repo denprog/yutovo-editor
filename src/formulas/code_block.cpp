@@ -164,4 +164,9 @@ void CodeBlock::AddEmptyElement()
     AddElement(ElementPtr(new CodeParagraph(this)));
 }
 
+bool CodeBlock::IsFormula()
+{
+    return true;
+}
+
 }

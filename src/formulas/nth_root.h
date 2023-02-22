@@ -63,7 +63,10 @@ void load_construct_data(Archive& ar, yutovo::NthRoot* t, const unsigned int ver
     yutovo::Element* p;
     ar >> p;
     yutovo::DocumentUserData& user_data = yutovo::GetUserData<yutovo::DocumentUserData>(ar);
-    ::new(t)yutovo::NthRoot(p);
+    if (p)
+        ::new(t)yutovo::NthRoot(p);
+    else
+        ::new(t)yutovo::NthRoot(user_data.document);
 }
 
 }

@@ -66,7 +66,7 @@ public:
     uint InsertSubscriptFunction(const std::string& name, bool with_undo);
 
     uint InsertFormula(Element* element, bool with_undo, bool undo, bool with_last_task_id = false);
-    uint InsertFormulas(std::vector<ElementPtr>& elements, bool with_undo, bool undo, bool with_last_task_id = false);
+    uint InsertFormulas(std::vector<ElementPtr>& elements, bool with_undo, bool undo, bool with_last_task_id = false, bool pasting = false);
 
     uint ChangeStringFormat(const std::string family, const uint size, const bool bold, const bool italic, const bool underline, bool with_undo, bool undo);
     uint ChangeStringFormat(const StringFormatPtr format, bool set_family, bool set_size, bool set_bold, bool set_italic, bool set_underline, 

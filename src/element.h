@@ -143,6 +143,9 @@ public:
 
     virtual int FindElement(const ElementId from_id, bool forward, const ElementType type);
     virtual void FindElements(ElementType _type, std::vector<ElementId>& _elements);
+    virtual ElementId FindParent(const ElementType _type);
+
+    virtual bool IsFormula();
 
     virtual void ReSolve();
 

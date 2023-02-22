@@ -29,6 +29,8 @@ public:
 
     virtual void GetMargin(int& left, int& top, int& right, int& bottom) const;
 
+    virtual bool IsFormula();
+
     virtual std::string ToHtml();
 
     template <class Archive>
@@ -75,7 +77,12 @@ void load_construct_data(Archive& ar, yutovo::CodeString* t, const unsigned int 
     yutovo::DocumentUserData& user_data = yutovo::GetUserData<yutovo::DocumentUserData>(ar);
     auto f = user_data.document->GetStringFormat(format_id);
     if (f)
-        ::new(t)yutovo::CodeString(p, "", f);
+    {
+        if (p)
+            ::new(t)yutovo::CodeString(p, "", f);
+        else
+            ::new(t)yutovo::CodeString(user_data.document, "", f);
+    }
     else
         ::new(t)yutovo::CodeString(p);
 }

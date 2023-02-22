@@ -19,6 +19,8 @@ public:
 
     virtual void AddEmptyElement();
 
+    virtual bool IsFormula();
+
     virtual std::string ToHtml();
 
     template <class Archive>
@@ -61,7 +63,10 @@ void load_construct_data(Archive& ar, yutovo::CodeParagraph* t, const unsigned i
     yutovo::Element* p;
     ar >> p;
     yutovo::DocumentUserData& user_data = yutovo::GetUserData<yutovo::DocumentUserData>(ar);
-    ::new(t)yutovo::CodeParagraph(p);
+    if (p)
+        ::new(t)yutovo::CodeParagraph(p);
+    else
+        ::new(t)yutovo::CodeParagraph(user_data.document);
 }
 
 }

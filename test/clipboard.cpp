@@ -1057,4 +1057,145 @@ TEST_F(DocumentTest, clipboard12)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 2, 3})) << document.GetEditorState().ToString();
 }
 
+//Insert a part of a formula into text
+TEST_F(DocumentTest, clipboard13)
+{
+    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
+        {
+            return Rect{0, 0, 600, 400};
+        });
+
+    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::string& text, const StringFormatPtr format)
+        {
+            return GetTextSizeMock(text, format);
+        });
+
+    EXPECT_CALL(window_mock, OnCopyResult).WillRepeatedly([&](CopyResult result)
+        {
+            ASSERT_TRUE(result == CopyResult::Success);
+        });
+
+    EXPECT_CALL(window_mock, OnPasteResult).WillRepeatedly([&](PasteResult result)
+        {
+            ASSERT_TRUE(result == PasteResult::Success);
+        });
+
+    document.InsertDivision(true);
+    document.WaitTask(document.InsertString("123", true));
+    document.MoveCaretLeft(true);
+    document.MoveCaretLeft(true);
+    document.WaitCaretMoving();
+
+    std::stringstream clipboard_array;
+    std::string clipboard_text;
+    document.WaitTask(document.Copy(clipboard_array, clipboard_text));
+    std::this_thread::sleep_for(200ms);
+
+    document.MoveCaretEnd(false);
+    document.MoveCaretEnd(false);
+    document.MoveCaretEnd(false);
+    document.WaitCaretMoving();
+
+    document.WaitTask(document.Paste(clipboard_array));
+    std::this_thread::sleep_for(100ms);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mfrac>"\
+                            "<mrow>"\
+                                "<mi>123</mi>"\
+                            "</mrow>"\
+                            "<mrow>"\
+                                "<mi>Null</mi>"\
+                            "</mrow>"\
+                        "</mfrac>"\
+                    "</mrow>"\
+                "</math>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mi>23</mi>"\
+                    "</mrow>"\
+                "</math>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 1, 0, 0, 0, 2})) << document.GetEditorState().ToString();
+}
+
+//Insert a part of a formula into text
+TEST_F(DocumentTest, clipboard14)
+{
+    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
+        {
+            return Rect{0, 0, 600, 400};
+        });
+
+    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::string& text, const StringFormatPtr format)
+        {
+            return GetTextSizeMock(text, format);
+        });
+
+    EXPECT_CALL(window_mock, OnCopyResult).WillRepeatedly([&](CopyResult result)
+        {
+            ASSERT_TRUE(result == CopyResult::Success);
+        });
+
+    EXPECT_CALL(window_mock, OnPasteResult).WillRepeatedly([&](PasteResult result)
+        {
+            ASSERT_TRUE(result == PasteResult::Success);
+        });
+
+    document.InsertDivision(true);
+    document.WaitTask(document.InsertString("123", true));
+    document.MoveCaretEnd(false);
+    document.MoveCaretLeft(true);
+    document.WaitCaretMoving();
+
+    std::stringstream clipboard_array;
+    std::string clipboard_text;
+    document.WaitTask(document.Copy(clipboard_array, clipboard_text));
+    std::this_thread::sleep_for(200ms);
+
+    document.MoveCaretEnd(false);
+    document.MoveCaretEnd(false);
+    document.MoveCaretEnd(false);
+    document.WaitCaretMoving();
+
+    document.WaitTask(document.Paste(clipboard_array));
+    std::this_thread::sleep_for(100ms);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mfrac>"\
+                            "<mrow>"\
+                                "<mi>123</mi>"\
+                            "</mrow>"\
+                            "<mrow>"\
+                                "<mi>Null</mi>"\
+                            "</mrow>"\
+                        "</mfrac>"\
+                    "</mrow>"\
+                "</math>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mfrac>"\
+                            "<mrow>"\
+                                "<mi>123</mi>"\
+                            "</mrow>"\
+                            "<mrow>"\
+                                "<mi>Null</mi>"\
+                            "</mrow>"\
+                        "</mfrac>"\
+                    "</mrow>"\
+                "</math>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 1, 0, 0, 1})) << document.GetEditorState().ToString();
+}
+
 }

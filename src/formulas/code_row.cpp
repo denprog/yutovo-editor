@@ -75,6 +75,11 @@ void CodeRow::AddEmptyElement()
     AddElement(ElementPtr(new CodeString(this)));
 }
 
+bool CodeRow::IsFormula()
+{
+    return true;
+}
+
 std::string CodeRow::ToHtml()
 {
     std::string s = "<mrow>";

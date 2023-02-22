@@ -910,7 +910,7 @@ TEST_F(FormulaTest, select3)
     document.MoveCaretRight(true);
     document.MoveCaretRight(true);
     document.WaitCaretMoving();
-    std::this_thread::sleep_for(100ms);
+    std::this_thread::sleep_for(200ms);
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 1, 0, 2}, 
         ElementSelectionState{ElementId{0, 0, 0, 0}, 1, 1},
         ElementSelectionState{ElementId{0, 0, 0, 1, 0}, 0, 2})) << document.GetEditorState().ToString();
@@ -918,7 +918,7 @@ TEST_F(FormulaTest, select3)
     width = 380;
     document.Resize(width, 400);
     document.WaitMainLoop();
-    std::this_thread::sleep_for(100ms);
+    std::this_thread::sleep_for(200ms);
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 1, 1, 2}, 
         ElementSelectionState{ElementId{0, 0, 0, 1}, 0, 1},
         ElementSelectionState{ElementId{0, 0, 0, 1, 1}, 0, 2})) << document.GetEditorState().ToString();

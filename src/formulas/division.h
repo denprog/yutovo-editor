@@ -71,7 +71,10 @@ void load_construct_data(Archive& ar, yutovo::Division* t, const unsigned int ve
     yutovo::Element* p;
     ar >> p;
     yutovo::DocumentUserData& user_data = yutovo::GetUserData<yutovo::DocumentUserData>(ar);
-    ::new(t)yutovo::Division(p);
+    if (p)
+        ::new(t)yutovo::Division(p);
+    else
+        ::new(t)yutovo::Division(user_data.document);
 }
 
 }

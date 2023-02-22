@@ -34,6 +34,11 @@ void CodeParagraph::AddEmptyElement()
     AddElement(ElementPtr(new CodeRow(this)));
 }
 
+bool CodeParagraph::IsFormula()
+{
+    return true;
+}
+
 std::string CodeParagraph::ToHtml()
 {
     std::string s = "<math xmlns='http://www.w3.org/1998/Math/MathML'>";

@@ -74,7 +74,10 @@ void load_construct_data(Archive& ar, yutovo::Assignment* t, const unsigned int 
     yutovo::Element* p;
     ar >> p;
     yutovo::DocumentUserData& user_data = yutovo::GetUserData<yutovo::DocumentUserData>(ar);
-    ::new(t)yutovo::Assignment(p);
+    if (p)
+        ::new(t)yutovo::Assignment(p);
+    else
+        ::new(t)yutovo::Assignment(user_data.document);
 }
 
 }
