@@ -100,7 +100,10 @@ void load_construct_data(Archive& ar, yutovo::CloseFence* t, const unsigned int 
     yutovo::Element* p;
     ar >> p;
     yutovo::DocumentUserData& user_data = yutovo::GetUserData<yutovo::DocumentUserData>(ar);
-    ::new(t)yutovo::CloseFence(p);
+    if (p)
+        ::new(t)yutovo::CloseFence(p);
+    else
+        ::new(t)yutovo::CloseFence(user_data.document);
 }
 
 }

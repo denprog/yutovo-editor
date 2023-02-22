@@ -67,7 +67,10 @@ void load_construct_data(Archive& ar, yutovo::Subscript* t, const unsigned int v
     yutovo::Element* p;
     ar >> p;
     yutovo::DocumentUserData& user_data = yutovo::GetUserData<yutovo::DocumentUserData>(ar);
-    ::new(t)yutovo::Subscript(p);
+    if (p)
+        ::new(t)yutovo::Subscript(p);
+    else
+        ::new(t)yutovo::Subscript(user_data.document);
 }
 
 }

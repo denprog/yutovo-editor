@@ -81,7 +81,10 @@ void load_construct_data(Archive& ar, yutovo::Equation* t, const unsigned int ve
     int result_type;
     ar >> result_type;
     yutovo::DocumentUserData& user_data = yutovo::GetUserData<yutovo::DocumentUserData>(ar);
-    ::new(t)yutovo::Equation(p, (yutovo_service::ResultType)result_type);
+    if (p)
+        ::new(t)yutovo::Equation(p, (yutovo_service::ResultType)result_type);
+    else
+        ::new(t)yutovo::Equation(user_data.document, (yutovo_service::ResultType)result_type);
 }
 
 }

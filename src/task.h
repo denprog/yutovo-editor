@@ -66,13 +66,14 @@ struct DeleteElementsTask : Task
 
 struct InsertFormulasTask : Task
 {
-    InsertFormulasTask(ElementPtr _text, std::vector<ElementPtr>& _elements, bool _with_undo);
-    InsertFormulasTask(ElementPtr _text, std::vector<ElementPtr>& _elements, uint _id, bool _with_undo);
+    InsertFormulasTask(ElementPtr _text, std::vector<ElementPtr>& _elements, bool _with_undo, bool _pasting = false);
+    InsertFormulasTask(ElementPtr _text, uint _id, std::vector<ElementPtr>& _elements, bool _with_undo);
 
     virtual bool Execute();
 
     std::vector<ElementPtr> elements;
     EditorState before_state;
+    bool pasting = false; //this is pasting from clipboard
 };
 
 struct ChangeStringFormatTask : Task

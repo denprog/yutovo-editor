@@ -296,14 +296,15 @@ bool DeleteElementsTask::Execute()
 
 //InsertFormulasTask
 
-InsertFormulasTask::InsertFormulasTask(ElementPtr _text, std::vector<ElementPtr>& _elements, bool _with_undo) :
+InsertFormulasTask::InsertFormulasTask(ElementPtr _text, std::vector<ElementPtr>& _elements, bool _with_undo, bool _pasting) :
     Task(_text),
-    elements(_elements)
+    elements(_elements),
+    pasting(_pasting)
 {
     with_undo = _with_undo;
 }
 
-InsertFormulasTask::InsertFormulasTask(ElementPtr _text, std::vector<ElementPtr>& _elements, uint _id, bool _with_undo) :
+InsertFormulasTask::InsertFormulasTask(ElementPtr _text, uint _id, std::vector<ElementPtr>& _elements, bool _with_undo) :
     Task(_text, _id),
     elements(_elements)
 {
@@ -366,13 +367,16 @@ bool InsertFormulasTask::Execute()
         _elements.push_back(c);
     }
     
+    document->pasting = pasting;
     if (el->InsertElements(_elements, insert_code_block ? false : with_undo))
     {
         if (with_undo)
             document->PushEditorState(true);
         document->Remake(el->parent->parent->id, true, with_undo, false, true); //move into view
+        document->pasting = false;
         return true;
     }
+    document->pasting = false;
 
     if (with_undo)
         document->RollbackUndo();

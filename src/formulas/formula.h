@@ -28,6 +28,8 @@ public:
 
     virtual StringFormatPtr GetStringFormat();
 
+    virtual bool IsFormula();
+
 protected:
     FormulaFormatPtr formula_format;
 };

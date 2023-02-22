@@ -546,7 +546,13 @@ StringFormatPtr Element::GetStringFormat()
 
 FormulaFormatPtr Element::GetFormulaFormat() const
 {
-    assert(parent);
+    if (!parent)
+    {
+        FormulaFormatPtr f;
+        if (document->GetCurrentFormulaFormat(f))
+            return f;
+        return nullptr;
+    }
     return parent->GetFormulaFormat();
 }
 
@@ -612,6 +618,20 @@ void Element::FindElements(ElementType _type, std::vector<ElementId>& _elements)
             _elements.push_back(el->id);
         el->FindElements(_type, _elements);
     }
+}
+
+ElementId Element::FindParent(const ElementType _type)
+{
+    if (type == _type)
+        return id;
+    if (!parent)
+        return ElementId{};
+    return parent->FindParent(_type);
+}
+
+bool Element::IsFormula()
+{
+    return false;
 }
 
 void Element::ReSolve()

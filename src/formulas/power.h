@@ -70,7 +70,10 @@ void load_construct_data(Archive& ar, yutovo::Power* t, const unsigned int versi
     yutovo::Element* p;
     ar >> p;
     yutovo::DocumentUserData& user_data = yutovo::GetUserData<yutovo::DocumentUserData>(ar);
-    ::new(t)yutovo::Power(p);
+    if (p)
+        ::new(t)yutovo::Power(p);
+    else
+        ::new(t)yutovo::Power(user_data.document);
 }
 
 }

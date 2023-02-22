@@ -99,6 +99,11 @@ void CodeString::GetMargin(int& left, int& top, int& right, int& bottom) const
     bottom = f->bottom_margin;
 }
 
+bool CodeString::IsFormula()
+{
+    return true;
+}
+
 std::string CodeString::ToHtml()
 {
     std::string s = "<mi>";

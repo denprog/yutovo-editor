@@ -69,7 +69,10 @@ void load_construct_data(Archive& ar, yutovo::SquareRoot* t, const unsigned int 
     yutovo::Element* p;
     ar >> p;
     yutovo::DocumentUserData& user_data = yutovo::GetUserData<yutovo::DocumentUserData>(ar);
-    ::new(t)yutovo::SquareRoot(p);
+    if (p)
+        ::new(t)yutovo::SquareRoot(p);
+    else
+        ::new(t)yutovo::SquareRoot(user_data.document);
 }
 
 }
