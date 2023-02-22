@@ -32,7 +32,9 @@ bool Block::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo)
     int k = elements->GetElementPos(paragraph->id);
     int p = row->elements->GetElementPos(el->id);
     bool caret_next_row = false;
-    if (p == 0 && document->caret->GetPos() == 0)
+    CaretState c;
+    row->GetFirstCaretState(c, nullptr);
+    if (caret->GetCaretState() == c)
     {
         elements->Insert(insert_element, k);
     }
