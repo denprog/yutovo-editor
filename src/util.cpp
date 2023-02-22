@@ -99,7 +99,7 @@ std::string IdToString(const ElementId& id)
 
 bool IsChild(const ElementId& parent_id, const ElementId& child_id)
 {
-    if (child_id.size() < parent_id.size() || parent_id.empty())
+    if (child_id.size() <= parent_id.size() || parent_id.empty())
         return false;
     for (size_t i = 0; i < parent_id.size(); ++i)
     {

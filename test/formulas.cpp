@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 #include "mock.h"
 #include "style.h"
+#include "formulas/code_string.h"
 
 namespace yutovo_test
 {
@@ -990,7 +991,7 @@ TEST_F(FormulaTest, select5)
     width = 380;
     document.Resize(width, 400);
     document.WaitMainLoop();
-    std::this_thread::sleep_for(100ms);
+    std::this_thread::sleep_for(200ms);
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 1, 1, 4}, 
         ElementSelectionState{ElementId{0, 0, 0, 0, 0}, 39, 3},
         ElementSelectionState{ElementId{0, 0, 0, 1}, 0, 1},
@@ -999,7 +1000,7 @@ TEST_F(FormulaTest, select5)
     width = 350;
     document.Resize(width, 400);
     document.WaitMainLoop();
-    std::this_thread::sleep_for(100ms);
+    std::this_thread::sleep_for(200ms);
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 1, 2, 4}, 
         ElementSelectionState{ElementId{0, 0, 0, 1, 0}, 4, 3},
         ElementSelectionState{ElementId{0, 0, 0, 1}, 1, 1},
@@ -1013,6 +1014,51 @@ TEST_F(FormulaTest, select5)
         ElementSelectionState{ElementId{0, 0, 0, 0, 0}, 39, 3},
         ElementSelectionState{ElementId{0, 0, 0, 1}, 0, 1},
         ElementSelectionState{ElementId{0, 0, 0, 1, 1}, 0, 4})) << document.GetEditorState().ToString();
+}
+
+TEST_F(FormulaTest, fonts1)
+{
+    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
+        {
+            return Rect{0, 0, 600, 400};
+        });
+
+    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::string& text, const StringFormatPtr format)
+        {
+            return GetTextSizeMock(text, format);
+        });
+
+    document.InsertDivision(true);
+    document.WaitTask(document.InsertString("123", true));
+    document.MoveCaretHome(false);
+    document.MoveCaretHome(false);
+    document.MoveCaretHome(false);
+    document.MoveCaretRight(true);
+    document.WaitCaretMoving();
+    document.WaitTask(document.SetFontSize(12));
+    std::this_thread::sleep_for(100ms);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mfrac>"\
+                            "<mrow>"\
+                                "<mi>123</mi>"\
+                            "</mrow>"\
+                            "<mrow>"\
+                                "<mi>Null</mi>"\
+                            "</mrow>"\
+                        "</mfrac>"\
+                    "</mrow>"\
+                "</math>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    auto s = document.GetElement(ElementId{0, 0, 0, 0, 0, 0, 0, 0, 0, 0});
+    ASSERT_TRUE(s->type == ElementType::CODE_STRING && ((CodeString*)s.get())->GetStringFormat()->size == 12);
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 1}, 
+        ElementSelectionState{ElementId{0, 0, 0, 0}, 0, 1})) << document.GetEditorState().ToString();
 }
 
 }
