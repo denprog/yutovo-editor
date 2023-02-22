@@ -493,6 +493,8 @@ bool Row::DeleteElements(bool left, bool with_undo)
 
 bool Row::ChangeStringFormat(const StringFormatPtr format, bool with_undo)
 {
+    Element::ChangeStringFormat(format, with_undo);
+    
     SelectionState s = selection->GetState();
     for (auto& t : s.state)
     {

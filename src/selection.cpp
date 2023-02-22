@@ -325,7 +325,7 @@ bool Selection::HasChild(const ElementId id, ElementSelection& s) const
         {
             for (int i = s.start; i < s.start + s.size; ++i)
             {
-                if (IsChild(id, s.element->id))
+                if (IsChild(id, s.element->id) || id == s.element->id)
                     return true;
             }
             return false;

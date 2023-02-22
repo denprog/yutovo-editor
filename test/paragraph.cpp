@@ -213,8 +213,7 @@ TEST_F(ParagraphTest, resizing2)
     document.InsertString("Text", document.GetStringFormat("Arial", 22, false, false, false), true);
     document.InsertString("Italic", document.GetStringFormat("Times New Roman", 18, false, true, false), true);
     document.InsertString("Bold", document.GetStringFormat("Times New Roman", 34, true, false, false), true);
-    document.InsertString("String1 String2 String3", document.GetStringFormat("Arial", 20, false, false, false), true);
-    document.WaitMainLoop();
+    document.WaitTask(document.InsertString("String1 String2 String3", document.GetStringFormat("Arial", 20, false, false, false), true));
     document.MoveCaretLeft(true);
     document.MoveCaretLeft(true);
     document.WaitCaretMoving();
@@ -227,11 +226,12 @@ TEST_F(ParagraphTest, resizing2)
         "</p></body>") << 
         document.ToHtml();
     std::this_thread::sleep_for(100ms);
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 3, 21, 21, 2)) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 3, 21}, 
+        ElementSelectionState{ElementId{0, 0, 0, 0, 3}, 21, 2})) << document.GetEditorState().ToString();
 
     width = 440;
     document.Resize(width, 400);
-    std::this_thread::sleep_for(100ms);
+    std::this_thread::sleep_for(200ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body><p>"\
         "<span style=\"font-family:'Arial';font-size:22px;\">Text</span>"\
@@ -241,7 +241,8 @@ TEST_F(ParagraphTest, resizing2)
         "<span style=\"font-family:'Arial';font-size:20px;\">String3</span>"\
         "</p></body>") << 
         document.ToHtml();
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 1, 0, 5, 5, 2)) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 1, 0, 5}, 
+        ElementSelectionState{ElementId{0, 0, 0, 1, 0}, 5, 2})) << document.GetEditorState().ToString();
 
     width = 530;
     document.Resize(width, 400);

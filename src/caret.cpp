@@ -315,7 +315,7 @@ bool Caret::IsInsideElement(const ElementId id)
     if (!el)
         return false;
     if (document->IsString(el->id))
-        return id == el->id || IsChild(id, GetParent(el->id));
+        return id == el->id || IsChild(id, el->id);
     return IsChild(id, el->id);
 }
 

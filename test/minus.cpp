@@ -81,8 +81,8 @@ TEST_F(FormulaTest, minus2)
 
     document.InsertMinus(true);
     document.InsertMinus(true);
-    document.InsertMinus(true);
-    document.WaitMainLoop();
+    document.WaitTask(document.InsertMinus(true));
+    std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\

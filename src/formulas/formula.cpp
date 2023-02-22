@@ -26,11 +26,6 @@ bool Formula::DeleteElements(bool left, bool with_undo)
     return Element::DeleteElements(left, with_undo);
 }
 
-bool Formula::ChangeStringFormat(const StringFormatPtr format, bool with_undo)
-{
-    return false;
-}
-
 bool Formula::ChangeParagraphFormat(const ParagraphFormatPtr format, bool with_undo)
 {
     return false;
