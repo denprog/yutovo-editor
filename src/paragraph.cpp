@@ -14,6 +14,8 @@ Paragraph::Paragraph(Element* parent, bool with_row) :
 {
     type = ElementType::PARAGRAPH;
 
+    current_string_format = format->string_format;
+
     if (with_row)
         AddEmptyElement(); //paragraph has to have at least one row
 }
@@ -24,6 +26,7 @@ Paragraph::Paragraph(Document* _document, bool with_row) :
     type = ElementType::PARAGRAPH;
 
     document->GetCurrentParagraphFormat(format);
+    document->GetCurrentStringFormat(current_string_format);
     if (with_row)
         AddEmptyElement(); //paragraph has to have at least one row
 }
@@ -310,7 +313,7 @@ void Paragraph::AddEmptyElement()
 
 StringFormatPtr Paragraph::GetStringFormat()
 {
-    return format->string_format;
+    return current_string_format;
 }
 
 std::string Paragraph::ToHtml()

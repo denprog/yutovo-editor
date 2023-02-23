@@ -327,8 +327,7 @@ TEST_F(ParagraphTest, paragraph1)
     document.InsertString("Text", document.GetStringFormat("Arial", 22, false, false, false), true);
     document.InsertString("Italic", document.GetStringFormat("Times New Roman", 18, false, true, false), true);
     document.InsertString("Bold", document.GetStringFormat("Times New Roman", 34, true, false, false), true);
-    document.InsertString("String1 String2 String3", document.GetStringFormat("Arial", 20, false, false, false), true);
-    document.WaitMainLoop();
+    document.WaitTask(document.InsertString("String1 String2 String3", document.GetStringFormat("Arial", 20, false, false, false), true));
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body><p>"\
@@ -340,8 +339,7 @@ TEST_F(ParagraphTest, paragraph1)
         document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 3, 23)) << document.GetEditorState().ToString();
 
-    document.InsertParagraph(true);
-    document.WaitMainLoop();
+    document.WaitTask(document.InsertParagraph(true));
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
@@ -352,7 +350,7 @@ TEST_F(ParagraphTest, paragraph1)
                 "<span style=\"font-family:'Arial';font-size:20px;\">String1 String2 String3</span>"\
             "</p>"\
             "<p>"\
-                "<span style=\"font-family:'Arial';font-size:14px;\"></span>"\
+                "<span style=\"font-family:'Arial';font-size:20px;\"></span>"\
             "</p>"\
         "</body>") << 
         document.ToHtml();
@@ -383,7 +381,7 @@ TEST_F(ParagraphTest, paragraph1)
                 "<span style=\"font-family:'Arial';font-size:20px;\">String1 String2 String3</span>"\
             "</p>"\
             "<p>"\
-                "<span style=\"font-family:'Arial';font-size:14px;\"></span>"\
+                "<span style=\"font-family:'Arial';font-size:20px;\"></span>"\
             "</p>"\
         "</body>") << 
         document.ToHtml();
@@ -397,8 +395,7 @@ TEST_F(ParagraphTest, paragraph1)
     document.WaitCaretMoving();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 4)) << document.GetEditorState().ToString();
 
-    document.InsertParagraph(true);
-    document.WaitMainLoop();
+    document.WaitTask(document.InsertParagraph(true));
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
@@ -411,7 +408,7 @@ TEST_F(ParagraphTest, paragraph1)
                 "<span style=\"font-family:'Arial';font-size:20px;\">String1 String2 String3</span>"\
             "</p>"\
             "<p>"\
-                "<span style=\"font-family:'Arial';font-size:14px;\"></span>"\
+                "<span style=\"font-family:'Arial';font-size:20px;\"></span>"\
             "</p>"\
         "</body>") << 
         document.ToHtml();
@@ -429,7 +426,7 @@ TEST_F(ParagraphTest, paragraph1)
                 "<span style=\"font-family:'Arial';font-size:20px;\">String1 String2 String3</span>"\
             "</p>"\
             "<p>"\
-                "<span style=\"font-family:'Arial';font-size:14px;\"></span>"\
+                "<span style=\"font-family:'Arial';font-size:20px;\"></span>"\
             "</p>"\
         "</body>") << 
         document.ToHtml();
@@ -448,7 +445,7 @@ TEST_F(ParagraphTest, paragraph1)
                 "<span style=\"font-family:'Arial';font-size:20px;\">String1 String2 String3</span>"\
             "</p>"\
             "<p>"\
-                "<span style=\"font-family:'Arial';font-size:14px;\"></span>"\
+                "<span style=\"font-family:'Arial';font-size:20px;\"></span>"\
             "</p>"\
         "</body>") << 
         document.ToHtml();
@@ -456,8 +453,7 @@ TEST_F(ParagraphTest, paragraph1)
 
     for (int i = 0; i < 3; ++i)
         document.MoveCaretRight(false);
-    document.InsertParagraph(true);
-    document.WaitMainLoop();
+    document.WaitTask(document.InsertParagraph(true));
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
@@ -473,7 +469,7 @@ TEST_F(ParagraphTest, paragraph1)
                 "<span style=\"font-family:'Arial';font-size:20px;\">String1 String2 String3</span>"\
             "</p>"\
             "<p>"\
-                "<span style=\"font-family:'Arial';font-size:14px;\"></span>"\
+                "<span style=\"font-family:'Arial';font-size:20px;\"></span>"\
             "</p>"\
         "</body>") << 
         document.ToHtml();
@@ -493,7 +489,7 @@ TEST_F(ParagraphTest, paragraph1)
                 "<span style=\"font-family:'Arial';font-size:20px;\">String1 String2 String3</span>"\
             "</p>"\
             "<p>"\
-                "<span style=\"font-family:'Arial';font-size:14px;\"></span>"\
+                "<span style=\"font-family:'Arial';font-size:20px;\"></span>"\
             "</p>"\
         "</body>") << 
         document.ToHtml();
@@ -501,8 +497,7 @@ TEST_F(ParagraphTest, paragraph1)
 
     document.MoveCaretUp(false);
     document.MoveCaretEnd(false);
-    document.DeleteElements(false, true, false);
-    document.WaitMainLoop();
+    document.WaitTask(document.DeleteElements(false, true, false));
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
@@ -513,7 +508,7 @@ TEST_F(ParagraphTest, paragraph1)
                 "<span style=\"font-family:'Arial';font-size:20px;\">String1 String2 String3</span>"\
             "</p>"\
             "<p>"\
-                "<span style=\"font-family:'Arial';font-size:14px;\"></span>"\
+                "<span style=\"font-family:'Arial';font-size:20px;\"></span>"\
             "</p>"\
         "</body>") << 
         document.ToHtml();
@@ -533,20 +528,19 @@ TEST_F(ParagraphTest, paragraph1)
                 "<span style=\"font-family:'Arial';font-size:20px;\">String1 String2 String3</span>"\
             "</p>"\
             "<p>"\
-                "<span style=\"font-family:'Arial';font-size:14px;\"></span>"\
+                "<span style=\"font-family:'Arial';font-size:20px;\"></span>"\
             "</p>"\
         "</body>") << 
         document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 4)) << document.GetEditorState().ToString();
 
     document.MoveCaretToDocumentBegin(false);
-    document.InsertParagraph(true);
-    document.WaitMainLoop();
+    document.WaitTask(document.InsertParagraph(true));
     std::this_thread::sleep_for(200ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
-                "<span style=\"font-family:'Arial';font-size:14px;\"></span>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\"></span>"\
             "</p>"\
             "<p>"\
                 "<span style=\"font-family:'Arial';font-size:22px;\">Text</span>"\
@@ -557,7 +551,7 @@ TEST_F(ParagraphTest, paragraph1)
                 "<span style=\"font-family:'Arial';font-size:20px;\">String1 String2 String3</span>"\
             "</p>"\
             "<p>"\
-                "<span style=\"font-family:'Arial';font-size:14px;\"></span>"\
+                "<span style=\"font-family:'Arial';font-size:20px;\"></span>"\
             "</p>"\
         "</body>") << 
         document.ToHtml();
@@ -577,7 +571,7 @@ TEST_F(ParagraphTest, paragraph1)
                 "<span style=\"font-family:'Arial';font-size:20px;\">String1 String2 String3</span>"\
             "</p>"\
             "<p>"\
-                "<span style=\"font-family:'Arial';font-size:14px;\"></span>"\
+                "<span style=\"font-family:'Arial';font-size:20px;\"></span>"\
             "</p>"\
         "</body>") << 
         document.ToHtml();
@@ -589,7 +583,7 @@ TEST_F(ParagraphTest, paragraph1)
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
-                "<span style=\"font-family:'Arial';font-size:14px;\"></span>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\"></span>"\
             "</p>"\
             "<p>"\
                 "<span style=\"font-family:'Arial';font-size:22px;\">Text</span>"\
@@ -600,7 +594,7 @@ TEST_F(ParagraphTest, paragraph1)
                 "<span style=\"font-family:'Arial';font-size:20px;\">String1 String2 String3</span>"\
             "</p>"\
             "<p>"\
-                "<span style=\"font-family:'Arial';font-size:14px;\"></span>"\
+                "<span style=\"font-family:'Arial';font-size:20px;\"></span>"\
             "</p>"\
         "</body>") << 
         document.ToHtml();
@@ -609,19 +603,18 @@ TEST_F(ParagraphTest, paragraph1)
     document.MoveCaretToDocumentEnd(false);
     document.MoveCaretHome(false);
     document.MoveCaretUp(false);
-    document.InsertParagraph(true);
-    document.WaitMainLoop();
+    document.WaitTask(document.InsertParagraph(true));
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
-                "<span style=\"font-family:'Arial';font-size:14px;\"></span>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\"></span>"\
             "</p>"\
             "<p>"\
                 "<span style=\"font-family:'Arial';font-size:22px;\">Text</span>"\
             "</p>"\
             "<p>"\
-                "<span style=\"font-family:'Arial';font-size:14px;\"></span>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\"></span>"\
             "</p>"\
             "<p>"\
                 "<span style=\"font-family:'Times New Roman';font-size:18px;\"><em>Italic</em></span>"\
@@ -629,7 +622,7 @@ TEST_F(ParagraphTest, paragraph1)
                 "<span style=\"font-family:'Arial';font-size:20px;\">String1 String2 String3</span>"\
             "</p>"\
             "<p>"\
-                "<span style=\"font-family:'Arial';font-size:14px;\"></span>"\
+                "<span style=\"font-family:'Arial';font-size:20px;\"></span>"\
             "</p>"\
         "</body>") << 
         document.ToHtml();
@@ -640,7 +633,7 @@ TEST_F(ParagraphTest, paragraph1)
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
-                "<span style=\"font-family:'Arial';font-size:14px;\"></span>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\"></span>"\
             "</p>"\
             "<p>"\
                 "<span style=\"font-family:'Arial';font-size:22px;\">Text</span>"\
@@ -651,7 +644,7 @@ TEST_F(ParagraphTest, paragraph1)
                 "<span style=\"font-family:'Arial';font-size:20px;\">String1 String2 String3</span>"\
             "</p>"\
             "<p>"\
-                "<span style=\"font-family:'Arial';font-size:14px;\"></span>"\
+                "<span style=\"font-family:'Arial';font-size:20px;\"></span>"\
             "</p>"\
         "</body>") << 
         document.ToHtml();
@@ -662,13 +655,13 @@ TEST_F(ParagraphTest, paragraph1)
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
-                "<span style=\"font-family:'Arial';font-size:14px;\"></span>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\"></span>"\
             "</p>"\
             "<p>"\
                 "<span style=\"font-family:'Arial';font-size:22px;\">Text</span>"\
             "</p>"\
             "<p>"\
-                "<span style=\"font-family:'Arial';font-size:14px;\"></span>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\"></span>"\
             "</p>"\
             "<p>"\
                 "<span style=\"font-family:'Times New Roman';font-size:18px;\"><em>Italic</em></span>"\
@@ -676,7 +669,7 @@ TEST_F(ParagraphTest, paragraph1)
                 "<span style=\"font-family:'Arial';font-size:20px;\">String1 String2 String3</span>"\
             "</p>"\
             "<p>"\
-                "<span style=\"font-family:'Arial';font-size:14px;\"></span>"\
+                "<span style=\"font-family:'Arial';font-size:20px;\"></span>"\
             "</p>"\
         "</body>") << 
         document.ToHtml();
@@ -685,19 +678,18 @@ TEST_F(ParagraphTest, paragraph1)
     for (int i = 0; i < 7; ++i)
         document.MoveCaretRight(false);
     document.WaitCaretMoving();
-    document.InsertParagraph(true);
-    document.WaitMainLoop();
+    document.WaitTask(document.InsertParagraph(true));
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
-                "<span style=\"font-family:'Arial';font-size:14px;\"></span>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\"></span>"\
             "</p>"\
             "<p>"\
                 "<span style=\"font-family:'Arial';font-size:22px;\">Text</span>"\
             "</p>"\
             "<p>"\
-                "<span style=\"font-family:'Arial';font-size:14px;\"></span>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\"></span>"\
             "</p>"\
             "<p>"\
                 "<span style=\"font-family:'Times New Roman';font-size:18px;\"><em>Italic</em></span>"\
@@ -707,7 +699,7 @@ TEST_F(ParagraphTest, paragraph1)
                 "<span style=\"font-family:'Arial';font-size:20px;\">String1 String2 String3</span>"\
             "</p>"\
             "<p>"\
-                "<span style=\"font-family:'Arial';font-size:14px;\"></span>"\
+                "<span style=\"font-family:'Arial';font-size:20px;\"></span>"\
             "</p>"\
         "</body>") << 
         document.ToHtml();

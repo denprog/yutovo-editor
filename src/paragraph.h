@@ -61,6 +61,7 @@ public:
 protected:
     friend class Document;
     ParagraphFormatPtr format;
+    StringFormatPtr current_string_format;
 };
 
 }
