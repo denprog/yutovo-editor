@@ -206,6 +206,7 @@ bool String::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo)
             format = s->format;
             caret->SetState(elements->GetElementId(elements->Count()));
             parent->Normalize(with_undo);
+            on_change_subscribers = parent->on_change_subscribers;
             parent->EmitChanged();
 #ifdef DEBUG
             to_str = ToText();
@@ -223,6 +224,8 @@ bool String::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo)
             elements->Insert(_elements[0], caret->GetPos());
             caret->SetState(elements->GetElementId(caret->GetPos() + s->elements->Count()));
             parent->Normalize(with_undo);
+            on_change_subscribers = parent->on_change_subscribers;
+            parent->EmitChanged();
 #ifdef DEBUG
             to_str = ToText();
 #endif

@@ -170,6 +170,9 @@ public:
     bool editable = true;
 
 protected:
+    friend class Elements;
+    friend class String;
+    
     CaretPtr caret;
     Selection* selection = nullptr;
 
