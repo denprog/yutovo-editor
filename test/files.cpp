@@ -306,4 +306,36 @@ TEST_F(DocumentTest, files4)
     ASSERT_TRUE(f.name == "Monospace") << f.name;
 }
 
+//Load a text file
+TEST_F(DocumentTest, files5)
+{
+    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
+        {
+            return Rect{0, 0, 600, 400};
+        });
+
+    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::string& text, const StringFormatPtr format)
+        {
+            return GetTextSizeMock(text, format);
+        });
+
+    EXPECT_CALL(window_mock, OnLoadResult).WillOnce([&](const uint task_id, IOResult result)
+        {
+            ASSERT_TRUE(result == IOResult::Success);
+        });
+
+    document.Load("../test/tests/file1.txt");
+    document.WaitLoad();
+    std::this_thread::sleep_for(2000ms);
+
+    auto el = document.GetElement(ElementId{0, 0, 0, 0, 0});
+    ASSERT_TRUE(el->type == ElementType::STRING && el->ToText().rfind("Арифме́тика", 0) == 0);
+
+    auto page = document.GetElement(ElementId{0, 0});
+    auto paragraph = document.GetElement(ElementId{0, 0, page->elements->Count() - 1});
+    el = paragraph->elements->Get(0)->elements->Get(0);
+    ASSERT_TRUE(el->type == ElementType::STRING && el->ToText().rfind("Основам арифметики", 0) == 0);
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 0)) << document.GetEditorState().ToString();
+}
+
 }
