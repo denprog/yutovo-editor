@@ -519,4 +519,191 @@ TEST_F(SolverAutoTest, solver6)
         document.ToHtml();
 }
 
+//Solve with errors
+TEST_F(SolverAutoTest, solver7)
+{
+    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
+        {
+            return Rect{0, 0, 600, 400};
+        });
+
+    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::string& text, const StringFormatPtr format)
+        {
+            return GetTextSizeMock(text, format);
+        });
+
+    document.InsertCode(false, true);
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.MoveCaretLeft(false);
+    document.WaitCaretMoving();
+    document.WaitTask(document.InsertString("3", true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mrow>"\
+                            "<mi>3</mi>"\
+                        "</mrow>"\
+                        "<mo>=</mo>"\
+                        "<mrow>"\
+                            "<mrow>"\
+                                "<mi>3.</mi>"\
+                            "</mrow>"\
+                        "</mrow>"\
+                    "</mrow>"\
+                "</math>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+
+    document.WaitTask(document.InsertDivision(true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mrow>"\
+                            "<mfrac>"\
+                                "<mrow>"\
+                                    "<mi>3</mi>"\
+                                "</mrow>"\
+                                "<mrow>"\
+                                    "<mi>Null</mi>"\
+                                "</mrow>"\
+                            "</mfrac>"\
+                        "</mrow>"\
+                        "<mo>=</mo>"\
+                        "<mrow>"\
+                            "<mrow>"\
+                                "<mi>Syntax error</mi>"\
+                            "</mrow>"\
+                        "</mrow>"\
+                    "</mrow>"\
+                "</math>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+
+    document.WaitTask(document.InsertString("4", true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mrow>"\
+                            "<mfrac>"\
+                                "<mrow>"\
+                                    "<mi>3</mi>"\
+                                "</mrow>"\
+                                "<mrow>"\
+                                    "<mi>4</mi>"\
+                                "</mrow>"\
+                            "</mfrac>"\
+                        "</mrow>"\
+                        "<mo>=</mo>"\
+                        "<mrow>"\
+                            "<mrow>"\
+                                "<mi>0.75</mi>"\
+                            "</mrow>"\
+                        "</mrow>"\
+                    "</mrow>"\
+                "</math>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    
+    document.MoveCaretRight(false);
+    document.MoveCaretRight(false);
+    document.WaitCaretMoving();
+    document.WaitTask(document.DeleteElements(false, true, false));
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mfrac>"\
+                            "<mrow>"\
+                                "<mi>3</mi>"\
+                            "</mrow>"\
+                            "<mrow>"\
+                                "<mi>4</mi>"\
+                            "</mrow>"\
+                        "</mfrac>"\
+                    "</mrow>"\
+                "</math>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    
+    document.Undo();
+    document.WaitUndo();
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mrow>"\
+                            "<mfrac>"\
+                                "<mrow>"\
+                                    "<mi>3</mi>"\
+                                "</mrow>"\
+                                "<mrow>"\
+                                    "<mi>4</mi>"\
+                                "</mrow>"\
+                            "</mfrac>"\
+                        "</mrow>"\
+                        "<mo>=</mo>"\
+                        "<mrow>"\
+                            "<mrow>"\
+                                "<mi>0.75</mi>"\
+                            "</mrow>"\
+                        "</mrow>"\
+                    "</mrow>"\
+                "</math>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+
+    document.Undo();
+    document.WaitUndo();
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mrow>"\
+                            "<mfrac>"\
+                                "<mrow>"\
+                                    "<mi>3</mi>"\
+                                "</mrow>"\
+                                "<mrow>"\
+                                    "<mi>Null</mi>"\
+                                "</mrow>"\
+                            "</mfrac>"\
+                        "</mrow>"\
+                        "<mo>=</mo>"\
+                        "<mrow>"\
+                            "<mrow>"\
+                                "<mi>Syntax error</mi>"\
+                            "</mrow>"\
+                        "</mrow>"\
+                    "</mrow>"\
+                "</math>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+}
+
 }

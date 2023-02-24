@@ -29,6 +29,8 @@ Element::Element(Element* _parent) :
     selection(document ? &document->selection : nullptr),
     elements(new Elements(this))
 {
+    if (parent)
+        on_change_subscribers = parent->on_change_subscribers;
 }
 
 Element::Element(const Element& source) :
@@ -828,6 +830,9 @@ void Elements::Insert(ElementPtr element, const uint pos)
     element->parent = parent;
     element->document = parent->document;
     element->window = parent->window;
+    for (auto _id : parent->on_change_subscribers)
+        element->SubscribeOnChange(_id);
+
     UpdateIds(); //set id
 
     selection->InsertElement(element->id); //update selection positions after inserting new element

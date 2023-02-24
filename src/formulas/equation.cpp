@@ -133,6 +133,7 @@ bool Equation::AfterInsert(bool with_undo)
     }
     caret->SetState(shape->id);
     first->SubscribeOnChange(id);
+    ReSolve();
     return true;
 }
 
