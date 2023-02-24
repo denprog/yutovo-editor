@@ -162,12 +162,10 @@ bool InsertElementsTask::Execute()
                     std::u32string u_part = u_str.substr(p1, p2 - p1);
                     std::string s = boost::locale::conv::utf_to_utf<char>(u_part);
                     _elements.emplace_back(new String(document, s, t->GetStringFormat()));
-                    if (p2 < u_str.size())
-                    {
+                    if (p2 + k < u_str.size())
                         _elements.emplace_back(new Paragraph(document));
-                        p2 += k;
-                        p1 = p2;
-                    }
+                    p2 += k;
+                    p1 = p2;
                 }
                 continue;
             }
@@ -808,23 +806,53 @@ LoadTask::LoadTask(ElementPtr _text, const std::string _filename) :
 bool LoadTask::Execute()
 {
     std::ifstream file(filename);
-    DocumentUserData user_data{document};
     ElementPtr t;
+    std::string str;
 
-    try
+    if (filename.substr(filename.find_last_of(".") + 1) == "yut")
     {
-        UserDataAdapter<DocumentUserData, boost::archive::binary_iarchive> iarchive(user_data, file);
-        RegisterTypes(iarchive);
+        DocumentUserData user_data{document};
 
-        iarchive >> document->string_formats; //restore string formats
-        iarchive >> document->paragraph_formats; //restore paragraph formats
-        iarchive >> t; //restore text
+        try
+        {
+            UserDataAdapter<DocumentUserData, boost::archive::binary_iarchive> iarchive(user_data, file);
+            RegisterTypes(iarchive);
+
+            iarchive >> document->string_formats; //restore string formats
+            iarchive >> document->paragraph_formats; //restore paragraph formats
+            iarchive >> t; //restore text
+        }
+        catch (boost::archive::archive_exception& ex)
+        {
+            window->OnLoadResult(id, ToIOResult(ex.code));
+            logger->Error("Error loading file '{}': {}, {}", filename, ex.code, ex.what());
+            return false;
+        }
+        catch (const std::ifstream::failure& ex)
+        {
+            window->OnLoadResult(id, IOResult::InputStreamError);
+            logger->Error("Error loading file '{}': {}", filename, ex.what());
+            return false;
+        }
     }
-    catch (boost::archive::archive_exception& ex)
+    else //".txt" and others load as text
     {
-        window->OnLoadResult(id, ToIOResult(ex.code));
-        logger->Error("Error loading document '{}': {}", filename, ex.code);
-        return false;
+        try
+        {
+            file.seekg(0, std::ios::end);
+            size_t size = file.tellg();
+            str = std::string(size, ' ');
+            file.seekg(0);
+            file.read(&str[0], size);
+        }
+        catch (const std::ifstream::failure& ex)
+        {
+            window->OnLoadResult(id, IOResult::InputStreamError);
+            logger->Error("Error loading file '{}': {}", filename, ex.what());
+            return false;
+        }
+
+        t.reset(new Text(document));
     }
 
     if (!t)
@@ -833,8 +861,11 @@ bool LoadTask::Execute()
     document->ResetTasks();
     document->text = t;
     document->MoveCaretToDocumentBegin(false);
+    if (!str.empty())
+        document->InsertString(str, false);
     document->Remake(text->id, true, false, false);
     document->text->ReSolve();
+    document->MoveCaretToDocumentBegin(false);
     window->OnLoadResult(id, IOResult::Success);
     return true;
 }
