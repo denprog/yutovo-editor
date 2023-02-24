@@ -114,18 +114,20 @@ public:
     bool GetStringFormat(const ElementId id, StringFormat& format);
     bool GetParagraphFormat(const ElementId id, ParagraphFormat& format);
 
-    void MoveCaret(MoveCaretTask::MoveCaretDir dir, bool select, bool with_last_task_id = false);
-    void MoveCaretLeft(bool select, bool with_last_task_id = false);
-    void MoveCaretRight(bool select, bool with_last_task_id = false);
-    void MoveCaretUp(bool select);
-    void MoveCaretDown(bool select);
-    void MoveCaretHome(bool select);
-    void MoveCaretEnd(bool select);
-    void MoveCaretWordLeft(bool select);
-    void MoveCaretWordRight(bool select);
-    void MoveCaretToDocumentBegin(bool select);
-    void MoveCaretToDocumentEnd(bool select);
-    void MoveCaret(const int x, const int y);
+    uint MoveCaret(MoveCaretTask::MoveCaretDir dir, bool select, bool with_last_task_id = false);
+    uint MoveCaretLeft(bool select, bool with_last_task_id = false);
+    uint MoveCaretRight(bool select, bool with_last_task_id = false);
+    uint MoveCaretUp(bool select);
+    uint MoveCaretDown(bool select);
+    uint MoveCaretHome(bool select);
+    uint MoveCaretEnd(bool select);
+    uint MoveCaretPageUp(bool select);
+    uint MoveCaretPageDown(bool select);
+    uint MoveCaretWordLeft(bool select);
+    uint MoveCaretWordRight(bool select);
+    uint MoveCaretToDocumentBegin(bool select);
+    uint MoveCaretToDocumentEnd(bool select);
+    uint MoveCaret(const int x, const int y);
 
     void SetCaretVisible(bool visible);
 

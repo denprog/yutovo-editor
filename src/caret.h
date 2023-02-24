@@ -51,6 +51,8 @@ public:
     void MoveDown(Selection* selection);
     void MoveWordLeft(Selection* selection);
     void MoveWordRight(Selection* selection);
+    void MovePageUp(Selection* selection);
+    void MovePageDown(Selection* selection);
 
     bool IsInsideElement(const ElementId id);
     bool IsOnElement(const ElementId id);

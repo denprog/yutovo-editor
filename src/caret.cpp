@@ -309,6 +309,98 @@ void Caret::MoveWordRight(Selection* selection)
     }
 }
 
+void Caret::MovePageUp(Selection* selection)
+{
+    auto el = GetElement();
+    auto page = document->FindParent(el->id, ElementType::PAGE);
+    auto paragraph = document->FindParent(el->id, ElementType::PARAGRAPH);
+    auto row = document->FindParent(el->id, ElementType::ROW);
+    Rect view_port = window->GetViewPort(0);
+    Point p = window->GetDocumentPoint();
+    Rect cur = document->GetCaretRect(GetCaretState());
+
+    CaretState next, last;
+    int paragraph_pos = page->elements->GetChildPos(paragraph->id);
+    int row_pos = paragraph->elements->GetChildPos(row->id);
+    for (int i = paragraph_pos; i >= 0; --i)
+    {
+        paragraph = page->elements->Get(i);
+        for (int j = (row_pos == -1 ? paragraph->elements->Count() - 1 : row_pos); j >= 0; --j)
+        {
+            row = paragraph->elements->Get(j);
+            Rect r = row->GetAbsoluteRect();
+            if (r.top <= cur.top - view_port.height)
+            {
+                if (!row->GetFirstCaretState(next, nullptr) || !row->GetLastCaretState(last, nullptr))
+                    continue;
+                while (next != last)
+                {
+                    Rect r = document->GetCaretRect(next);
+                    if (r.GetRight() > cur.left)
+                        break;
+                    ElementPtr el = document->GetParent(next.id);
+                    if (!el->GetRightCaretState(next, nullptr))
+                        break;
+                }
+
+                SetState(next);
+                window->MoveDocument(p.x, p.y - view_port.height);
+                document->UpdateCaretView();
+                return;
+            }
+        }
+        row_pos = -1;
+    }
+
+    MoveToDocumentBegin(selection);
+}
+
+void Caret::MovePageDown(Selection* selection)
+{
+    auto el = GetElement();
+    auto page = document->FindParent(el->id, ElementType::PAGE);
+    auto paragraph = document->FindParent(el->id, ElementType::PARAGRAPH);
+    auto row = document->FindParent(el->id, ElementType::ROW);
+    Rect view_port = window->GetViewPort(0);
+    Point p = window->GetDocumentPoint();
+    Rect cur = document->GetCaretRect(GetCaretState());
+
+    CaretState next, last;
+    int paragraph_pos = page->elements->GetChildPos(paragraph->id);
+    int row_pos = paragraph->elements->GetChildPos(row->id);
+    for (int i = paragraph_pos; i < page->elements->Count(); ++i)
+    {
+        paragraph = page->elements->Get(i);
+        for (int j = row_pos; j < paragraph->elements->Count(); ++j)
+        {
+            row = paragraph->elements->Get(j);
+            Rect r = row->GetAbsoluteRect();
+            if (r.GetBottom() >= cur.top + view_port.height)
+            {
+                if (!row->GetFirstCaretState(next, nullptr) || !row->GetLastCaretState(last, nullptr))
+                    continue;
+                while (next != last)
+                {
+                    Rect r = document->GetCaretRect(next);
+                    if (r.GetRight() > cur.left)
+                        break;
+                    ElementPtr el = document->GetParent(next.id);
+                    if (!el->GetRightCaretState(next, nullptr))
+                        break;
+                }
+
+                SetState(next);
+                window->MoveDocument(p.x, p.y + view_port.height);
+                document->UpdateCaretView();
+                return;
+            }
+        }
+        row_pos = 0;
+    }
+
+    MoveToDocumentEnd(selection);
+}
+
 bool Caret::IsInsideElement(const ElementId id)
 {
     auto el = GetElement();

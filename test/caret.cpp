@@ -437,4 +437,54 @@ TEST_F(DocumentTest, caret6)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 2, 0, 0, 3})) << document.GetEditorState().ToString();
 }
 
+//PageUp/PageDown
+TEST_F(DocumentTest, caret7)
+{
+    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
+        {
+            return Rect{0, 0, 670, 400};
+        });
+
+    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::string& text, const StringFormatPtr format)
+        {
+            return GetTextSizeMock(text, format);
+        });
+
+    EXPECT_CALL(window_mock, OnLoadResult).WillOnce([&](const uint task_id, IOResult result)
+        {
+            ASSERT_TRUE(result == IOResult::Success);
+        });
+
+    EXPECT_CALL(window_mock, GetViewPort).WillRepeatedly([&](const int)
+        {
+            return Rect{0, 0, 630, 255};
+        });
+
+    document.Load("../test/tests/file1.txt");
+    document.WaitLoad();
+    std::this_thread::sleep_for(2000ms);
+
+    document.MoveCaretWordRight(false);
+    document.WaitTask(document.MoveCaretPageDown(false));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 9, 0, 12})) << document.GetEditorState().ToString();
+
+    document.MoveCaretPageUp(false);
+    document.WaitTask(document.MoveCaretPageUp(false));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0, 0})) << document.GetEditorState().ToString();
+
+    document.MoveCaretDown(false);
+    document.MoveCaretDown(false);
+    document.MoveCaretWordRight(false);
+    document.WaitTask(document.MoveCaretPageDown(false));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 11, 0, 8})) << document.GetEditorState().ToString();
+
+    for (int i = 0; i < 6; ++i)
+        document.MoveCaretPageDown(false);
+    document.WaitTask(document.MoveCaretPageDown(false));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 5, 1, 0, 42})) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.MoveCaretPageUp(false));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 3, 10, 0, 38})) << document.GetEditorState().ToString();
+}
+
 }
