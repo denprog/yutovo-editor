@@ -4,7 +4,6 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS ON)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
-set(CMAKE_WARN_DEPRECATED OFF CACHE BOOL "" FORCE)
 
 find_package(yutovo_service REQUIRED PATHS ${INSTALL_PATH}/cmake/)
 
@@ -50,6 +49,8 @@ add_library(${PROJECT_NAME}
     formulas/assignment.cpp
     formulas/subscript.cpp
 )
+
+target_compile_options(${PROJECT_NAME} PUBLIC -Wno-deprecated-declarations)
 
 set_target_properties(${PROJECT_NAME} PROPERTIES
 	CXX_STANDARD 17

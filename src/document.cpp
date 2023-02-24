@@ -594,7 +594,7 @@ ElementPtr Document::GetParent(const ElementId& _id)
     ElementPtr el = text->elements->Get(_id[1]);
     for (uint i = 2; i < _id.size() - 1; ++i)
     {
-        if (el->elements->Count() <= _id[i])
+        if (!el || el->elements->Count() <= _id[i])
             return nullptr;
         el = el->elements->Get(_id[i]);
     }
@@ -853,7 +853,7 @@ bool Document::GetParagraphFormat(const ElementId id, ParagraphFormat& format)
     return true;
 }
 
-void Document::MoveCaret(MoveCaretTask::MoveCaretDir dir, bool select, bool with_last_task_id)
+uint Document::MoveCaret(MoveCaretTask::MoveCaretDir dir, bool select, bool with_last_task_id)
 {
     {
         std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
@@ -861,75 +861,88 @@ void Document::MoveCaret(MoveCaretTask::MoveCaretDir dir, bool select, bool with
             tasks.emplace_back(new MoveCaretTask(text, caret, dir, true, select, last_task_id));
         else
             tasks.emplace_back(new MoveCaretTask(text, caret, dir, true, select));
+        last_task_id = tasks[tasks.size() - 1]->id;
     }
     next_circle.notify_one();
 
 #ifdef DEBUG
     last_caret_moved = false;
 #endif
+    return last_task_id;
 }
 
-void Document::MoveCaretLeft(bool select, bool with_last_task_id)
+uint Document::MoveCaretLeft(bool select, bool with_last_task_id)
 {
-    MoveCaret(MoveCaretTask::MoveCaretDir::LEFT, select, with_last_task_id);
+    return MoveCaret(MoveCaretTask::MoveCaretDir::LEFT, select, with_last_task_id);
 }
 
-void Document::MoveCaretRight(bool select, bool with_last_task_id)
+uint Document::MoveCaretRight(bool select, bool with_last_task_id)
 {
-    MoveCaret(MoveCaretTask::MoveCaretDir::RIGHT, select, with_last_task_id);
+    return MoveCaret(MoveCaretTask::MoveCaretDir::RIGHT, select, with_last_task_id);
 }
 
-void Document::MoveCaretUp(bool select)
+uint Document::MoveCaretUp(bool select)
 {
-    MoveCaret(MoveCaretTask::MoveCaretDir::UP, select);
+    return MoveCaret(MoveCaretTask::MoveCaretDir::UP, select);
 }
 
-void Document::MoveCaretDown(bool select)
+uint Document::MoveCaretDown(bool select)
 {
-    MoveCaret(MoveCaretTask::MoveCaretDir::DOWN, select);
+    return MoveCaret(MoveCaretTask::MoveCaretDir::DOWN, select);
 }
 
-void Document::MoveCaretHome(bool select)
+uint Document::MoveCaretHome(bool select)
 {
-    MoveCaret(MoveCaretTask::MoveCaretDir::HOME, select);
+    return MoveCaret(MoveCaretTask::MoveCaretDir::HOME, select);
 }
 
-void Document::MoveCaretEnd(bool select)
+uint Document::MoveCaretEnd(bool select)
 {
-    MoveCaret(MoveCaretTask::MoveCaretDir::END, select);
+    return MoveCaret(MoveCaretTask::MoveCaretDir::END, select);
 }
 
-void Document::MoveCaretWordLeft(bool select)
+uint Document::MoveCaretPageUp(bool select)
 {
-    MoveCaret(MoveCaretTask::MoveCaretDir::WORD_LEFT, select);
+    return MoveCaret(MoveCaretTask::MoveCaretDir::PAGE_UP, select);
 }
 
-void Document::MoveCaretWordRight(bool select)
+uint Document::MoveCaretPageDown(bool select)
 {
-    MoveCaret(MoveCaretTask::MoveCaretDir::WORD_RIGHT, select);
+    return MoveCaret(MoveCaretTask::MoveCaretDir::PAGE_DOWN, select);
 }
 
-void Document::MoveCaretToDocumentBegin(bool select)
+uint Document::MoveCaretWordLeft(bool select)
 {
-    MoveCaret(MoveCaretTask::MoveCaretDir::DOCUMENT_BEGIN, select);
+    return MoveCaret(MoveCaretTask::MoveCaretDir::WORD_LEFT, select);
 }
 
-void Document::MoveCaretToDocumentEnd(bool select)
+uint Document::MoveCaretWordRight(bool select)
 {
-    MoveCaret(MoveCaretTask::MoveCaretDir::DOCUMENT_END, select);
+    return MoveCaret(MoveCaretTask::MoveCaretDir::WORD_RIGHT, select);
 }
 
-void Document::MoveCaret(const int x, const int y)
+uint Document::MoveCaretToDocumentBegin(bool select)
+{
+    return MoveCaret(MoveCaretTask::MoveCaretDir::DOCUMENT_BEGIN, select);
+}
+
+uint Document::MoveCaretToDocumentEnd(bool select)
+{
+    return MoveCaret(MoveCaretTask::MoveCaretDir::DOCUMENT_END, select);
+}
+
+uint Document::MoveCaret(const int x, const int y)
 {
     {
         std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
         tasks.emplace_back(new MoveCaretTask(text, caret, Point{x, y}));
+        last_task_id = tasks[tasks.size() - 1]->id;
     }
     next_circle.notify_one();
-
 #ifdef DEBUG
     last_caret_moved = false;
 #endif
+    return last_task_id;
 }
 
 void Document::SetCaretVisible(bool visible)

@@ -167,6 +167,8 @@ struct MoveCaretTask : Task
         END,
         WORD_LEFT,
         WORD_RIGHT,
+        PAGE_UP,
+        PAGE_DOWN,
         DOCUMENT_BEGIN,
         DOCUMENT_END
     };

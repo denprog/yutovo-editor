@@ -698,6 +698,12 @@ bool MoveCaretTask::Execute()
     case MoveCaretDir::WORD_RIGHT:
         caret->MoveWordRight(selection);
         break;
+    case MoveCaretDir::PAGE_UP:
+        caret->MovePageUp(selection);
+        break;
+    case MoveCaretDir::PAGE_DOWN:
+        caret->MovePageDown(selection);
+        break;
     case MoveCaretDir::DOCUMENT_BEGIN:
         caret->MoveToDocumentBegin(selection);
         break;
@@ -805,7 +811,6 @@ LoadTask::LoadTask(ElementPtr _text, const std::string _filename) :
 
 bool LoadTask::Execute()
 {
-    std::ifstream file(filename);
     ElementPtr t;
     std::string str;
 
@@ -815,6 +820,13 @@ bool LoadTask::Execute()
 
         try
         {
+            std::ifstream file(filename);
+            if (!file.is_open())
+            {
+                window->OnLoadResult(id, IOResult::InputStreamError);
+                logger->Error("Error loading file '{}': File not open", filename);
+                return false;
+            }
             UserDataAdapter<DocumentUserData, boost::archive::binary_iarchive> iarchive(user_data, file);
             RegisterTypes(iarchive);
 
@@ -839,6 +851,13 @@ bool LoadTask::Execute()
     {
         try
         {
+            std::ifstream file(filename);
+            if (!file.is_open())
+            {
+                window->OnLoadResult(id, IOResult::InputStreamError);
+                logger->Error("Error loading file '{}': File not open", filename);
+                return false;
+            }
             file.seekg(0, std::ios::end);
             size_t size = file.tellg();
             str = std::string(size, ' ');
