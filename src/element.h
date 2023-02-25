@@ -130,7 +130,7 @@ public:
     Point GetAbsolutePoint(const Point& point) const;
 
     virtual ParagraphFormatPtr GetParagraphFormat();
-    virtual StringFormatPtr GetStringFormat();
+    virtual StringFormatPtr GetStringFormat() const;
     virtual FormulaFormatPtr GetFormulaFormat() const;
 
     virtual void UpdateFormat(StringFormatPtr& _format);

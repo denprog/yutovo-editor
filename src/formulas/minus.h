@@ -17,8 +17,6 @@ public:
 
     virtual Element* Create(Element* _parent);
 
-    virtual void Draw() const;
-
     virtual std::string ToHtml();
 
     template <class Archive>

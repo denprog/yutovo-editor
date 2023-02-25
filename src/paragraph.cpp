@@ -311,7 +311,7 @@ void Paragraph::AddEmptyElement()
     AddElement(ElementPtr(new Row(this)));
 }
 
-StringFormatPtr Paragraph::GetStringFormat()
+StringFormatPtr Paragraph::GetStringFormat() const
 {
     return current_string_format;
 }

@@ -66,7 +66,13 @@ void OpenFence::Draw() const
             window->DrawBezierPath(path, document->selection.IsSelected(id) ? formula_format->selection_color : formula_format->color);
         };
 
-    OnlyShapeFormula::Draw();
+    if (document->selection.IsSelected(id))
+    {
+        Rect abs_rect = GetAbsoluteRect();
+        parent->window->DrawFillRect(abs_rect.left, abs_rect.top, abs_rect.width, abs_rect.height, Color::Blue());
+    }
+
+    Formula::Draw();
 }
 
 void OpenFence::Remake(bool with_elements, bool with_parent, bool with_undo)
@@ -74,7 +80,12 @@ void OpenFence::Remake(bool with_elements, bool with_parent, bool with_undo)
     OnlyShapeFormula::Remake(with_elements, with_parent, with_undo);
 
     if (parent->elements->IsLast(id))
+    {
+        Size s = window->GetTextSize(" ", GetStringFormat());
+        shape->rect.SetRect(0, 0, 1 + (int)lround(s.height / 5), (int)lround((1 + 2 * BRACES_Y_OFFSET) * s.height));
+        rect = shape->rect;
         return;
+    }
     
     //set rect of the shape by the next elements until close fence
     int pos = parent->elements->GetElementPos(id);
@@ -166,7 +177,13 @@ void CloseFence::Draw() const
             window->DrawBezierPath(path, document->selection.IsSelected(id) ? formula_format->selection_color : formula_format->color);
         };
 
-    OnlyShapeFormula::Draw();
+    if (document->selection.IsSelected(id))
+    {
+        Rect abs_rect = GetAbsoluteRect();
+        parent->window->DrawFillRect(abs_rect.left, abs_rect.top, abs_rect.width, abs_rect.height, Color::Blue());
+    }
+
+    Formula::Draw();
 }
 
 void CloseFence::Remake(bool with_elements, bool with_parent, bool with_undo)
@@ -174,7 +191,12 @@ void CloseFence::Remake(bool with_elements, bool with_parent, bool with_undo)
     OnlyShapeFormula::Remake(with_elements, with_parent, with_undo);
 
     if (parent->elements->IsFirst(id))
+    {
+        Size s = window->GetTextSize(" ", GetStringFormat());
+        shape->rect.SetRect(0, 0, 1 + (int)lround(s.height / 5), (int)lround((1 + 2 * BRACES_Y_OFFSET) * s.height));
+        rect = shape->rect;
         return;
+    }
     
     //set rect of the shape by the previous elements until open fence
     int pos = parent->elements->GetElementPos(id);

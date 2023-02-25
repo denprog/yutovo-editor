@@ -7,7 +7,7 @@ namespace yutovo
 
 //OnlyShapeFormula
 
-OnlyShapeFormula::OnlyShapeFormula(Element* _parent, char _symbol) :
+OnlyShapeFormula::OnlyShapeFormula(Element* _parent, char32_t _symbol) :
     Formula(_parent),
     symbol(_symbol)
 {
@@ -16,7 +16,7 @@ OnlyShapeFormula::OnlyShapeFormula(Element* _parent, char _symbol) :
     elements->Add(ElementPtr(shape));
 }
 
-OnlyShapeFormula::OnlyShapeFormula(Document* _document, char _symbol) :
+OnlyShapeFormula::OnlyShapeFormula(Document* _document, char32_t _symbol) :
     Formula(_document),
     symbol(_symbol)
 {
@@ -34,6 +34,13 @@ OnlyShapeFormula::OnlyShapeFormula(const OnlyShapeFormula& source) :
 
 void OnlyShapeFormula::Draw() const
 {
+    shape->draw_func = 
+        [&](const Rect& r)
+        {
+            window->DrawText(ToBasicString(std::u32string(1, symbol)), GetStringFormat(), r, 
+                document->selection.IsSelected(id) ? formula_format->selection_color : formula_format->color);
+        };
+
     if (document->selection.IsSelected(id))
     {
         Rect abs_rect = GetAbsoluteRect();

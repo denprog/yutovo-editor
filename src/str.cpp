@@ -108,8 +108,8 @@ void String::Remake(bool with_elements, bool with_parent, bool with_undo)
 
     UpdateRect();
 
-    if (rect != last_rect && with_parent)
-        document->Remake(parent->id, false, with_undo, false);
+    // if (rect != last_rect && with_parent)
+    //     document->Remake(parent->id, false, with_undo, false);
     last_rect = rect;
 }
 
@@ -470,7 +470,7 @@ bool String::AfterInsert(bool with_undo)
     return true;
 }
 
-StringFormatPtr String::GetStringFormat()
+StringFormatPtr String::GetStringFormat() const
 {
     return format;
 }

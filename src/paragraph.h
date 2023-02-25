@@ -34,7 +34,7 @@ public:
 
     virtual void AddEmptyElement();
 
-    virtual StringFormatPtr GetStringFormat();
+    virtual StringFormatPtr GetStringFormat() const;
     
     virtual std::string ToHtml();
 

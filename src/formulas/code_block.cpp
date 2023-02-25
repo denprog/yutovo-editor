@@ -144,7 +144,7 @@ bool CodeBlock::CanContinueVerticalMoving()
     return true;
 }
 
-StringFormatPtr CodeBlock::GetStringFormat()
+StringFormatPtr CodeBlock::GetStringFormat() const
 {
     return formula_format->string_format;
 }

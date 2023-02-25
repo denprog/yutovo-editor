@@ -64,7 +64,7 @@ bool Formula::HasLastCaretState()
     return true;
 }
 
-StringFormatPtr Formula::GetStringFormat()
+StringFormatPtr Formula::GetStringFormat() const
 {
     return formula_format->string_format;
 }
