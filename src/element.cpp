@@ -489,6 +489,7 @@ uint Element::GetChildPos(const Element* element)
             return i;
     }
     assert(false);
+    return 0;
 }
 
 Rect Element::GetAbsoluteRect(const Rect& _rect) const
