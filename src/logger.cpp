@@ -28,12 +28,8 @@ Logger::Logger(const std::string& path, const std::string& name, bool in_console
             char szPath[MAX_PATH];
             if (SUCCEEDED(SHGetFolderPathA(NULL, CSIDL_COMMON_APPDATA, NULL, 0, szPath)))
                 p = std::string(szPath);
-#else
-            auto home = getenv("HOME");
-            if (home != nullptr)
-                p = std::string(home) + "/";
 #endif
-            p += path + name + ".log";
+            p += path + "/" + name + ".log";
             sinks.push_back(std::make_shared<spdlog::sinks::daily_file_sink_mt>(p, 0, 0, false, 10));
         }
         log = std::make_shared<spdlog::logger>(name, begin(sinks), end(sinks));
