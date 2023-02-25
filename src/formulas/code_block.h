@@ -35,7 +35,7 @@ public:
     virtual bool CanContinueSelection();
     virtual bool CanContinueVerticalMoving();
 
-    virtual StringFormatPtr GetStringFormat();
+    virtual StringFormatPtr GetStringFormat() const;
     virtual FormulaFormatPtr GetFormulaFormat() const;
     virtual ParagraphFormatPtr GetParagraphFormat();
 

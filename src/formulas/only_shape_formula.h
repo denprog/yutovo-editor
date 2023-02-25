@@ -10,8 +10,8 @@ namespace yutovo
 class OnlyShapeFormula : public Formula
 {
 public:
-    OnlyShapeFormula(Element* _parent, char _symbol);
-    OnlyShapeFormula(Document* _document, char _symbol);
+    OnlyShapeFormula(Element* _parent, char32_t _symbol);
+    OnlyShapeFormula(Document* _document, char32_t _symbol);
     OnlyShapeFormula(const OnlyShapeFormula& source);
 
     virtual void Draw() const;
@@ -27,7 +27,7 @@ public:
 
 protected:
     Shape *shape;
-    char symbol;
+    char32_t symbol;
 };
 
 }

@@ -44,7 +44,7 @@ public:
 
     virtual bool AfterInsert(bool with_undo);
 
-    virtual StringFormatPtr GetStringFormat();
+    virtual StringFormatPtr GetStringFormat() const;
     virtual void UpdateStringFormat(const StringFormatPtr base_format, const StringFormatPtr new_format);
     virtual void UpdateFormat(StringFormatPtr& _format);
     int GetFontSize(const uint size);

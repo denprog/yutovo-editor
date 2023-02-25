@@ -25,7 +25,7 @@ public:
     virtual bool HasCaretState();
     virtual bool HasLastCaretState();
 
-    virtual StringFormatPtr GetStringFormat();
+    virtual StringFormatPtr GetStringFormat() const;
 
     virtual bool IsFormula();
 
