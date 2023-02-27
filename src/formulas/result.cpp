@@ -206,7 +206,7 @@ void AutoResult::Remake(bool with_elements, bool with_parent, bool with_undo)
     document->Remake(parent->id, false, false, false);
 }
 
-void AutoResult::Solve(const std::string& expression, yutovo_service::ResultType result_type)
+void AutoResult::Solve(const std::u32string& expression, yutovo_service::ResultType result_type)
 {
     if (last_expression == expression)
         return;

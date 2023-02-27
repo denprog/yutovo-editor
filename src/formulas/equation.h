@@ -32,7 +32,7 @@ public:
     virtual void ReSolve();
     
     virtual std::string ToHtml();
-    virtual std::string ToText();
+    virtual std::u32string ToText();
 
     virtual void OnChanged(const ElementId _id);
 

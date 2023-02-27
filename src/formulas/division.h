@@ -28,7 +28,7 @@ public:
     virtual bool GetBottomCaretState(const int x, const int y, CaretState& caret_state, Selection* select);
 
     virtual std::string ToHtml();
-    virtual std::string ToText();
+    virtual std::u32string ToText();
 
     void AddNumerator(ElementPtr numerator);
     void AddDenomerator(ElementPtr denomerator);

@@ -16,7 +16,7 @@ TEST_F(AssignmentTest, assignment1)
             return Rect{0, 0, 600, 400};
         });
 
-    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::string& text, const StringFormatPtr format)
+    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
         {
             return GetTextSizeMock(text, format);
         });
@@ -97,7 +97,7 @@ TEST_F(AssignmentTest, assignment2)
             return Rect{0, 0, 600, 400};
         });
 
-    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::string& text, const StringFormatPtr format)
+    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
         {
             return GetTextSizeMock(text, format);
         });
@@ -183,7 +183,7 @@ TEST_F(AssignmentTest, assignment3)
             return Rect{0, 0, 600, 400};
         });
 
-    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::string& text, const StringFormatPtr format)
+    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
         {
             return GetTextSizeMock(text, format);
         });

@@ -28,7 +28,7 @@ Solver::~Solver()
 }
 
 void Solver::Solve(ElementId id, uint code_id, yutovo_service::ResultType result_type, const uint precision, 
-    AngleMeasure angle_measure, Notation notation, const std::string& expression)
+    AngleMeasure angle_measure, Notation notation, const std::u32string& expression)
 {
     {
         std::unique_lock<std::mutex> lock(tasks_mutex);
@@ -55,7 +55,7 @@ void Solver::Solve(ElementId id, uint code_id, yutovo_service::ResultType result
     next_circle.notify_one();
 }
 
-void Solver::SetUserIdentifier(ElementId id, uint code_id, const std::string& expression)
+void Solver::SetUserIdentifier(ElementId id, uint code_id, const std::u32string& expression)
 {
     std::unique_lock<std::mutex> lock(tasks_mutex);
     tasks.emplace(new RealSolverTask(id, guid, code_id, ExpressionType::USER_SYMBOL, 0, AngleMeasure::RADIAN, expression));
@@ -65,7 +65,7 @@ void Solver::SetUserIdentifier(ElementId id, uint code_id, const std::string& ex
     next_circle.notify_one();
 }
 
-void Solver::RemoveIdentifier(ElementId id, uint code_id, const std::string& identifier)
+void Solver::RemoveIdentifier(ElementId id, uint code_id, const std::u32string& identifier)
 {
     std::unique_lock<std::mutex> lock(tasks_mutex);
     tasks.emplace(new RemoveIdentifierSolverTask(id, guid, code_id, ResultType::REAL, identifier));

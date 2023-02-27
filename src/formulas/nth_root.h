@@ -23,7 +23,7 @@ public:
     virtual void UpdateLevel(uint8_t _level);
 
     virtual std::string ToHtml();
-    virtual std::string ToText();
+    virtual std::u32string ToText();
 
     template <class Archive>
     void save(Archive& ar, const unsigned int version) const

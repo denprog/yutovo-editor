@@ -47,8 +47,6 @@ void Paragraph::Remake(bool with_elements, bool with_parent, bool with_undo)
         Element::Remake(with_elements, with_parent, with_undo);
 
     ElementPtr clone;
-    if (with_undo)
-        clone.reset(Clone());
     bool remake = false;
 
     if (format->word_wrap == ParagraphFormat::WordWrap::Normal)
@@ -66,6 +64,9 @@ void Paragraph::Remake(bool with_elements, bool with_parent, bool with_undo)
             //move or split element if it's more then row width
             while (row->rect.width + format->indent_before > page->page_width)
             {
+                if (with_undo && !clone)
+                    clone.reset(Clone());
+                
                 ElementPtr el = row->elements->Get(row->elements->Count() - 1);
                 if (!el)
                     break;
@@ -98,6 +99,9 @@ void Paragraph::Remake(bool with_elements, bool with_parent, bool with_undo)
             //move elements above if they are narrower to be placed in the row
             while (next_row && next_row->elements->Count() > 0 && next_row->elements->Get(0)->rect.width < page->page_width - row->rect.width - format->indent_before)
             {
+                if (with_undo && !clone)
+                    clone.reset(Clone());
+
                 //move the element from the next row in the current one
                 row->elements->Move(next_row->elements->Get(0), row->elements->Count());
                 row->Remake(true, false, with_undo);
@@ -122,6 +126,9 @@ void Paragraph::Remake(bool with_elements, bool with_parent, bool with_undo)
                 ElementPtr el = next_row->elements->Get(0);
                 while (el && el->Split(page->page_width - row->rect.width - format->indent_before))
                 {
+                    if (with_undo && !clone)
+                        clone.reset(Clone());
+                    
                     row->elements->Move(next_row->elements->Get(0), row->elements->Count());
                     row->Remake(true, false, with_undo);
                     next_row->Remake(true, false, with_undo);
@@ -157,7 +164,7 @@ void Paragraph::Remake(bool with_elements, bool with_parent, bool with_undo)
         h += row->rect.height + format->line_spacing + top_m + bottom_m;
     }
 
-    if (with_undo && remake)
+    if (with_undo && clone)
     {
         document->CallFunc(ElementId{}, 
             [d = document](const ElementId id)

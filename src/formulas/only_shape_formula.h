@@ -23,7 +23,7 @@ public:
 
     virtual void UpdateRect(bool with_elements = false);
 
-    virtual std::string ToText();
+    virtual std::u32string ToText();
 
 protected:
     Shape *shape;

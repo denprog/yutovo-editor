@@ -117,9 +117,9 @@ std::string NthRoot::ToHtml()
     return s;
 }
 
-std::string NthRoot::ToText()
+std::u32string NthRoot::ToText()
 {
-    return "root(" + last->ToText() + "," + first->ToText() + ")";
+    return U"root(" + last->ToText() + U"," + first->ToText() + U")";
 }
 
 }

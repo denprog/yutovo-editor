@@ -30,7 +30,7 @@ public:
     virtual void ReSolve();
 
     virtual std::string ToHtml();
-    virtual std::string ToText();
+    virtual std::u32string ToText();
 
     template <class Archive>
     void save(Archive& ar, const unsigned int version) const
@@ -51,8 +51,8 @@ public:
 	BOOST_SERIALIZATION_SPLIT_MEMBER()
 
 private:
-    std::string last_identifier;
-    std::string last_expression;
+    std::u32string last_identifier;
+    std::u32string last_expression;
 };
 
 }

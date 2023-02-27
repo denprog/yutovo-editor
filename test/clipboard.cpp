@@ -16,7 +16,7 @@ TEST_F(DocumentTest, clipboard1)
             return Rect{0, 0, 600, 400};
         });
 
-    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::string& text, const StringFormatPtr format)
+    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
         {
             return GetTextSizeMock(text, format);
         });
@@ -33,17 +33,12 @@ TEST_F(DocumentTest, clipboard1)
 
     document.SetFontSize(22);
     std::stringstream clipboard_array;
-    std::string clipboard_text;
-    document.InsertString("Text", true);
-    document.WaitMainLoop();
-    document.MoveCaretHome(true);
-    document.WaitCaretMoving();
-    document.Copy(clipboard_array, clipboard_text);
-    document.WaitMainLoop();
-    document.MoveCaretEnd(false);
-    document.WaitCaretMoving();
-    document.Paste(clipboard_array);
-    document.WaitMainLoop();
+    std::u32string clipboard_text;
+    document.WaitTask(document.InsertString("Text", true));
+    document.WaitTask(document.MoveCaretHome(true));
+    document.WaitTask(document.Copy(clipboard_array, clipboard_text));
+    document.WaitTask(document.MoveCaretEnd(false));
+    document.WaitTask(document.Paste(clipboard_array));
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -51,19 +46,16 @@ TEST_F(DocumentTest, clipboard1)
             "</p>"\
         "</body>") << 
         document.ToHtml();
-    ASSERT_TRUE(clipboard_text == "Text") << clipboard_text;
+    ASSERT_TRUE(clipboard_text == U"Text") << ToBasicString(clipboard_text);
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 8)) << document.GetEditorState().ToString();
 
     clipboard_array.clear();
-    clipboard_text = "";
+    clipboard_text = U"";
     for (int i = 0; i < 3; ++i)
         document.MoveCaretLeft(true);
-    document.Copy(clipboard_array, clipboard_text);
-    document.WaitMainLoop();
-    document.MoveCaretEnd(false);
-    document.WaitCaretMoving();
-    document.Paste(clipboard_array);
-    document.WaitMainLoop();
+    document.WaitTask(document.Copy(clipboard_array, clipboard_text));
+    document.WaitTask(document.MoveCaretEnd(false));
+    document.WaitTask(document.Paste(clipboard_array));
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -71,7 +63,7 @@ TEST_F(DocumentTest, clipboard1)
             "</p>"\
         "</body>") << 
         document.ToHtml();
-    ASSERT_TRUE(clipboard_text == "ext") << clipboard_text;
+    ASSERT_TRUE(clipboard_text == U"ext") << ToBasicString(clipboard_text);
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 11)) << document.GetEditorState().ToString();
 }
 
@@ -82,7 +74,7 @@ TEST_F(DocumentTest, clipboard2)
             return Rect{0, 0, 600, 400};
         });
 
-    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::string& text, const StringFormatPtr format)
+    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
         {
             return GetTextSizeMock(text, format);
         });
@@ -99,7 +91,7 @@ TEST_F(DocumentTest, clipboard2)
 
     document.SetFontSize(22);
     std::stringstream clipboard_array;
-    std::string clipboard_text;
+    std::u32string clipboard_text;
     document.InsertString("The source of ", true);
     document.SetBold(true);
     document.SetFontFamily("Courier New");
@@ -127,7 +119,7 @@ TEST_F(DocumentTest, clipboard2)
         << document.ToHtml();
     
     clipboard_array.clear();
-    clipboard_text = "";
+    clipboard_text = U"";
     document.MoveCaretToDocumentBegin(false);
     document.MoveCaretWordRight(false);
     document.MoveCaretWordRight(false);
@@ -156,7 +148,7 @@ TEST_F(DocumentTest, clipboard2)
             "</p>"\
         "</body>") 
         << document.ToHtml();
-    ASSERT_TRUE(clipboard_text == " of the") << clipboard_text;
+    ASSERT_TRUE(clipboard_text == U" of the") << ToBasicString(clipboard_text);
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 1, 2, 3)) << document.GetEditorState().ToString();
 }
 
@@ -167,7 +159,7 @@ TEST_F(DocumentTest, clipboard3)
             return Rect{0, 0, 600, 400};
         });
 
-    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::string& text, const StringFormatPtr format)
+    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
         {
             return GetTextSizeMock(text, format);
         });
@@ -184,7 +176,7 @@ TEST_F(DocumentTest, clipboard3)
 
     document.SetFontSize(22);
     std::stringstream clipboard_array;
-    std::string clipboard_text;
+    std::u32string clipboard_text;
     document.InsertString("The source of the text itself is a little ", true);
     document.WaitMainLoop();
     document.MoveCaretHome(true);
@@ -196,7 +188,7 @@ TEST_F(DocumentTest, clipboard3)
     document.Paste(clipboard_text);
     document.WaitMainLoop();
     std::this_thread::sleep_for(100ms);
-    ASSERT_TRUE(document.ToText() == "The source of the text itself is a little The source of the text itself is a little ") << document.ToText();
+    ASSERT_TRUE(document.ToText() == U"The source of the text itself is a little The source of the text itself is a little ") << ToBasicString(document.ToText());
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 1, 0, 38)) << document.GetEditorState().ToString();
 }
 
@@ -207,7 +199,7 @@ TEST_F(DocumentTest, clipboard4)
             return Rect{0, 0, 620, 400};
         });
 
-    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::string& text, const StringFormatPtr format)
+    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
         {
             return GetTextSizeMock(text, format);
         });
@@ -224,7 +216,7 @@ TEST_F(DocumentTest, clipboard4)
 
     document.SetFontSize(22);
     std::stringstream clipboard_array;
-    std::string clipboard_text;
+    std::u32string clipboard_text;
     document.WaitTask(document.InsertString("The source of the text itself is a little strange", true));
     document.MoveCaretWordLeft(true);
     document.WaitCaretMoving();
@@ -232,14 +224,14 @@ TEST_F(DocumentTest, clipboard4)
         ElementSelectionState{ElementId{0, 0, 0, 0, 0}, 42, 7})) << document.GetEditorState().ToString();
     document.WaitTask(document.Cut(clipboard_array, clipboard_text));
     std::this_thread::sleep_for(200ms);
-    ASSERT_TRUE(document.ToText() == "The source of the text itself is a little ") << document.ToText();
+    ASSERT_TRUE(document.ToText() == U"The source of the text itself is a little ") << ToBasicString(document.ToText());
 
     for (int i = 0; i < 5; ++i)
         document.MoveCaretWordLeft(false);
     document.Paste(clipboard_array);
     document.WaitMainLoop();
     std::this_thread::sleep_for(200ms);
-    ASSERT_TRUE(document.ToText() == "The source of the strangetext itself is a little ") << document.ToText();
+    ASSERT_TRUE(document.ToText() == U"The source of the strangetext itself is a little ") << ToBasicString(document.ToText());
 }
 
 TEST_F(DocumentTest, clipboard5)
@@ -250,7 +242,7 @@ TEST_F(DocumentTest, clipboard5)
             return Rect{0, 0, width, 400};
         });
 
-    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::string& text, const StringFormatPtr format)
+    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
         {
             return GetTextSizeMock(text, format);
         });
@@ -266,7 +258,7 @@ TEST_F(DocumentTest, clipboard5)
         });
 
     document.SetFontSize(22);
-    document.WaitTask(document.Paste("The <mrow> MathML element is used to group sub-expressions"));
+    document.WaitTask(document.Paste(U"The <mrow> MathML element is used to group sub-expressions"));
     std::this_thread::sleep_for(200ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
@@ -295,12 +287,12 @@ TEST_F(DocumentTest, clipboard5)
     document.Redo();
     document.WaitRedo();
     std::this_thread::sleep_for(100ms);
-    ASSERT_TRUE(document.ToText() == "The <mrow> MathML element is used to group sub-expressions") << document.ToText();
+    ASSERT_TRUE(document.ToText() == U"The <mrow> MathML element is used to group sub-expressions") << ToBasicString(document.ToText());
 
     document.Undo();
     document.WaitUndo();
     std::this_thread::sleep_for(100ms);
-    ASSERT_TRUE(document.ToText() == "") << document.ToText();
+    ASSERT_TRUE(document.ToText() == U"") << ToBasicString(document.ToText());
 
     document.Redo();
     document.WaitRedo();
@@ -311,12 +303,12 @@ TEST_F(DocumentTest, clipboard5)
     document.Undo();
     document.WaitUndo();
     std::this_thread::sleep_for(100ms);
-    ASSERT_TRUE(document.ToText() == "") << document.ToText();
+    ASSERT_TRUE(document.ToText() == U"") << ToBasicString(document.ToText());
 
     document.Redo();
     document.WaitRedo();
     std::this_thread::sleep_for(100ms);
-    ASSERT_TRUE(document.ToText() == "The <mrow> MathML element is used to group sub-expressions") << document.ToText();
+    ASSERT_TRUE(document.ToText() == U"The <mrow> MathML element is used to group sub-expressions") << ToBasicString(document.ToText());
 }
 
 //Paste with paragraph
@@ -327,7 +319,7 @@ TEST_F(DocumentTest, clipboard6)
             return Rect{0, 0, 400, 400};
         });
 
-    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::string& text, const StringFormatPtr format)
+    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
         {
             return GetTextSizeMock(text, format);
         });
@@ -338,7 +330,7 @@ TEST_F(DocumentTest, clipboard6)
         });
 
     document.SetFontSize(22);
-    document.WaitTask(document.Paste("Tradicionalmente, el medio de un documento era el papel y la información era ingresada a mano.\r\n"\
+    document.WaitTask(document.Paste(U"Tradicionalmente, el medio de un documento era el papel y la información era ingresada a mano.\r\n"\
         "Desde el punto de vista de la informática, es un archivo."));
     std::this_thread::sleep_for(200ms);
     ASSERT_TRUE(document.ToHtml() == 
@@ -362,7 +354,7 @@ TEST_F(DocumentTest, clipboard6)
     document.WaitTask(document.New());
     std::this_thread::sleep_for(200ms);
     document.SetFontSize(22);
-    document.Paste("Tradicionalmente, el medio de un documento era el papel y la información era ingresada a mano.\n"\
+    document.Paste(U"Tradicionalmente, el medio de un documento era el papel y la información era ingresada a mano.\n"\
         "Desde el punto de vista de la informática, es un archivo.");
     document.WaitMainLoop();
     std::this_thread::sleep_for(200ms);
@@ -426,7 +418,7 @@ TEST_F(DocumentTest, clipboard7)
             return Rect{0, 0, 400, 400};
         });
 
-    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::string& text, const StringFormatPtr format)
+    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
         {
             return GetTextSizeMock(text, format);
         });
@@ -437,7 +429,7 @@ TEST_F(DocumentTest, clipboard7)
         });
 
     document.SetFontSize(22);
-    document.Paste("Paragraph1.\r\n"\
+    document.Paste(U"Paragraph1.\r\n"\
         "Paragraph2");
     document.WaitMainLoop();
     std::this_thread::sleep_for(100ms);
@@ -457,7 +449,7 @@ TEST_F(DocumentTest, clipboard7)
     std::this_thread::sleep_for(100ms);
 
     document.SetFontSize(22);
-    document.Paste("Paragraph1.\r\n"\
+    document.Paste(U"Paragraph1.\r\n"\
         "Paragraph2.\r\n"\
         "Paragraph3");
     document.WaitMainLoop();
@@ -481,7 +473,7 @@ TEST_F(DocumentTest, clipboard7)
     std::this_thread::sleep_for(100ms);
 
     document.SetFontSize(22);
-    document.Paste("Paragraph1.\n"\
+    document.Paste(U"Paragraph1.\n"\
         "Paragraph2.\n"\
         "Paragraph3");
     document.WaitMainLoop();
@@ -504,7 +496,7 @@ TEST_F(DocumentTest, clipboard7)
     document.WaitTask(document.New());
     std::this_thread::sleep_for(100ms);
 
-    document.Paste("Paragraph1.\n"\
+    document.Paste(U"Paragraph1.\n"\
         "\n"\
         "Paragraph3");
     document.WaitMainLoop();
@@ -563,7 +555,7 @@ TEST_F(DocumentTest, clipboard8)
             return Rect{0, 0, 600, 400};
         });
 
-    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::string& text, const StringFormatPtr format)
+    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
         {
             return GetTextSizeMock(text, format);
         });
@@ -580,7 +572,7 @@ TEST_F(DocumentTest, clipboard8)
 
     document.SetFontSize(22);
     std::stringstream clipboard_array;
-    std::string clipboard_text;
+    std::u32string clipboard_text;
     document.WaitTask(document.InsertString("The source of the text itself is a little strange", true));
     document.MoveCaretWordLeft(true);
     document.WaitCaretMoving();
@@ -589,25 +581,25 @@ TEST_F(DocumentTest, clipboard8)
     
     document.WaitTask(document.Cut(clipboard_array, clipboard_text));
     std::this_thread::sleep_for(200ms);
-    ASSERT_TRUE(document.ToText() == "The source of the text itself is a little ") << document.ToText();
+    ASSERT_TRUE(document.ToText() == U"The source of the text itself is a little ") << ToBasicString(document.ToText());
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0, 42})) << document.GetEditorState().ToString();
 
     document.Undo();
     document.WaitUndo();
     std::this_thread::sleep_for(400ms);
-    ASSERT_TRUE(document.ToText() == "The source of the text itself is a little strange") << document.ToText();
+    ASSERT_TRUE(document.ToText() == U"The source of the text itself is a little strange") << ToBasicString(document.ToText());
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 1, 0, 0}, 
         ElementSelectionState{ElementId{0, 0, 0, 1, 0}, 0, 7})) << document.GetEditorState().ToString();
     
     document.Redo();
     document.WaitRedo();
     std::this_thread::sleep_for(200ms);
-    ASSERT_TRUE(document.ToText() == "The source of the text itself is a little ") << document.ToText();
+    ASSERT_TRUE(document.ToText() == U"The source of the text itself is a little ") << ToBasicString(document.ToText());
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0, 42})) << document.GetEditorState().ToString();
 
     document.WaitTask(document.Paste(clipboard_array));
     std::this_thread::sleep_for(200ms);
-    ASSERT_TRUE(document.ToText() == "The source of the text itself is a little strange") << document.ToText();
+    ASSERT_TRUE(document.ToText() == U"The source of the text itself is a little strange") << ToBasicString(document.ToText());
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 1, 0, 7})) << document.GetEditorState().ToString();
 }
 
@@ -619,7 +611,7 @@ TEST_F(DocumentTest, clipboard9)
             return Rect{0, 0, 600, 400};
         });
 
-    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::string& text, const StringFormatPtr format)
+    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
         {
             return GetTextSizeMock(text, format);
         });
@@ -643,7 +635,7 @@ TEST_F(DocumentTest, clipboard9)
     document.WaitCaretMoving();
 
     std::stringstream clipboard_array;
-    std::string clipboard_text;
+    std::u32string clipboard_text;
     document.WaitTask(document.Copy(clipboard_array, clipboard_text));
 
     document.MoveCaretRight(false);
@@ -749,7 +741,7 @@ TEST_F(DocumentTest, clipboard10)
             return Rect{0, 0, 600, 400};
         });
 
-    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::string& text, const StringFormatPtr format)
+    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
         {
             return GetTextSizeMock(text, format);
         });
@@ -773,7 +765,7 @@ TEST_F(DocumentTest, clipboard10)
     document.WaitCaretMoving();
 
     std::stringstream clipboard_array;
-    std::string clipboard_text;
+    std::u32string clipboard_text;
     document.WaitTask(document.Copy(clipboard_array, clipboard_text));
     std::this_thread::sleep_for(200ms);
 
@@ -848,7 +840,7 @@ TEST_F(DocumentTest, clipboard11)
             return Rect{0, 0, 600, 400};
         });
 
-    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::string& text, const StringFormatPtr format)
+    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
         {
             return GetTextSizeMock(text, format);
         });
@@ -876,7 +868,7 @@ TEST_F(DocumentTest, clipboard11)
     document.MoveCaretRight(true);
 
     std::stringstream clipboard_array;
-    std::string clipboard_text;
+    std::u32string clipboard_text;
     document.WaitTask(document.Copy(clipboard_array, clipboard_text));
     std::this_thread::sleep_for(200ms);
 
@@ -995,7 +987,7 @@ TEST_F(DocumentTest, clipboard12)
             return Rect{0, 0, 600, 400};
         });
 
-    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::string& text, const StringFormatPtr format)
+    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
         {
             return GetTextSizeMock(text, format);
         });
@@ -1026,7 +1018,7 @@ TEST_F(DocumentTest, clipboard12)
     document.WaitCaretMoving();
 
     std::stringstream clipboard_array;
-    std::string clipboard_text;
+    std::u32string clipboard_text;
     document.WaitTask(document.Copy(clipboard_array, clipboard_text));
     std::this_thread::sleep_for(200ms);
 
@@ -1065,7 +1057,7 @@ TEST_F(DocumentTest, clipboard13)
             return Rect{0, 0, 600, 400};
         });
 
-    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::string& text, const StringFormatPtr format)
+    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
         {
             return GetTextSizeMock(text, format);
         });
@@ -1087,7 +1079,7 @@ TEST_F(DocumentTest, clipboard13)
     document.WaitCaretMoving();
 
     std::stringstream clipboard_array;
-    std::string clipboard_text;
+    std::u32string clipboard_text;
     document.WaitTask(document.Copy(clipboard_array, clipboard_text));
     std::this_thread::sleep_for(200ms);
 
@@ -1132,7 +1124,7 @@ TEST_F(DocumentTest, clipboard14)
             return Rect{0, 0, 600, 400};
         });
 
-    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::string& text, const StringFormatPtr format)
+    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
         {
             return GetTextSizeMock(text, format);
         });
@@ -1154,7 +1146,7 @@ TEST_F(DocumentTest, clipboard14)
     document.WaitCaretMoving();
 
     std::stringstream clipboard_array;
-    std::string clipboard_text;
+    std::u32string clipboard_text;
     document.WaitTask(document.Copy(clipboard_array, clipboard_text));
     std::this_thread::sleep_for(200ms);
 

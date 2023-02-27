@@ -28,7 +28,7 @@ public:
     virtual bool DeleteElements(bool left, bool with_undo);
 
     virtual std::string ToHtml();
-    virtual std::string ToText();
+    virtual std::u32string ToText();
 
     template <class Archive>
     void save(Archive& ar, const unsigned int version) const

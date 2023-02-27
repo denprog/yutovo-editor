@@ -141,8 +141,7 @@ bool InsertElementsTask::Execute()
         if (t->type == ElementType::STRING)
         {
             //divide string by paragraphs
-            std::string str = t->ToText();
-            std::u32string u_str = boost::locale::conv::utf_to_utf<char32_t>(str);
+            std::u32string u_str = t->ToText();
             if (u_str.size() > 0)
             {
                 size_t p1 = 0, p2 = 0, k = 0;
@@ -191,8 +190,8 @@ bool InsertElementsTask::Execute()
 
         if (with_undo)
             document->PushEditorState(true);
-        document->Remake(el->parent->id, true, with_undo, false, true); //move into view
     }
+    document->Remake(el->parent->id, true, with_undo, false, true); //move into view
     document->pasting = false;
     return true;
 }
@@ -891,7 +890,7 @@ bool LoadTask::Execute()
 
 //CopyTask
 
-CopyTask::CopyTask(ElementPtr _text, std::stringstream& _out_array, std::string& _out_text, bool _cut) :
+CopyTask::CopyTask(ElementPtr _text, std::stringstream& _out_array, std::u32string& _out_text, bool _cut) :
     Task(_text),
     out_array(_out_array),
     out_text(_out_text),

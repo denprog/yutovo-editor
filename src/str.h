@@ -18,6 +18,7 @@ public:
     String(Element* parent, const std::string _str, const StringFormatPtr _format);
     String(Element* parent, const std::u32string _str, const StringFormatPtr _format);
     String(Document* _document, const std::string _str, const StringFormatPtr _format);
+    String(Document* _document, const std::u32string _str, const StringFormatPtr _format);
 
     virtual Element* Clone();
     virtual bool Copy(std::vector<ElementPtr>& copy);
@@ -119,7 +120,7 @@ public:
     virtual bool GetWordRightCaretState(CaretState& caret_state, Selection* select);
 
     virtual std::string ToHtml();
-    virtual std::string ToText();
+    virtual std::u32string ToText();
 
     template <class Archive>
     void save(Archive& ar, const unsigned int version) const

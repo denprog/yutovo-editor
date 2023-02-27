@@ -129,9 +129,9 @@ std::string Power::ToHtml()
     return s;
 }
 
-std::string Power::ToText()
+std::u32string Power::ToText()
 {
-    return "pow(" + first->ToText() + "," + last->ToText() + ")";
+    return U"pow(" + first->ToText() + U"," + last->ToText() + U")";
 }
 
 void Power::AddBase(ElementPtr base)

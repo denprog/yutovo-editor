@@ -417,10 +417,10 @@ std::string Element::ToHtml()
     return elements->ToHtml();
 }
 
-std::string Element::ToText()
+std::u32string Element::ToText()
 {
     if (!elements)
-        return "";
+        return U"";
     return elements->ToText();
 }
 
@@ -1266,9 +1266,9 @@ std::string Elements::ToHtml()
     return html;
 }
 
-std::string Elements::ToText()
+std::u32string Elements::ToText()
 {
-    std::string t;
+    std::u32string t;
     for (auto it = elements.begin(); it != elements.end(); ++it)
         t += (*it)->ToText();
     return t;

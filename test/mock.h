@@ -48,7 +48,7 @@ public:
     MOCK_METHOD(void, StoreRect, (const Rect& rect), (override));
     MOCK_METHOD(void, RestoreRect, (), (override));
 
-    MOCK_METHOD(Size, GetTextSize, (const std::string& text, const StringFormatPtr format), (override));
+    MOCK_METHOD(Size, GetTextSize, (const std::u32string& text, const StringFormatPtr format), (override));
     MOCK_METHOD(int, GetCharPos, (const std::string& text, const StringFormatPtr format, int pos), (override));
 
     MOCK_METHOD(void, Update, (const Rect& rect), (override));
@@ -77,18 +77,16 @@ struct DocumentTest : public testing::Test
         document.Start(config);
     }
 
-    Size GetTextSizeMock(const std::string text, const StringFormatPtr format)
+    Size GetTextSizeMock(const std::u32string& text, const StringFormatPtr format)
     {
         QFont font(format->family.c_str(), format->size);
         font.setBold(format->bold);
         font.setItalic(format->italic);
         font.setUnderline(format->underline);
         QFontMetrics m(font);
-        QString str = QString::fromStdString(text);
-        auto l = str.length();
-        auto f = m.lineWidth();
-        int cx = m.horizontalAdvance(str);
+        QString str = QString::fromUcs4(text.c_str());
         QSize s = m.size(Qt::TextSingleLine, str);
+        int cx = m.horizontalAdvance(str);
         return Size{cx > s.width() ? cx : s.width(), s.height()};
     }
 
