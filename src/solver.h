@@ -21,9 +21,9 @@ public:
     ~Solver();
 
     void Solve(ElementId id, uint code_id, yutovo_service::ResultType result_type, const uint precision, 
-        AngleMeasure angle_measure, Notation notation, const std::string& expression);
-    void SetUserIdentifier(ElementId id, uint code_id, const std::string& expression);
-    void RemoveIdentifier(ElementId id, uint code_id, const std::string& identifier);
+        AngleMeasure angle_measure, Notation notation, const std::u32string& expression);
+    void SetUserIdentifier(ElementId id, uint code_id, const std::u32string& expression);
+    void RemoveIdentifier(ElementId id, uint code_id, const std::u32string& identifier);
 
 private:
     void MessageLoop();

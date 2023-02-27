@@ -64,7 +64,7 @@ void Assignment::Draw() const
 
 void Assignment::UpdateRect(bool with_elements)
 {
-    Size s = parent->window->GetTextSize(std::string(":="), GetStringFormat());
+    Size s = parent->window->GetTextSize(std::u32string(U":="), GetStringFormat());
     shape->rect.SetSize(s.width, s.height);
     shape->baseline = shape->rect.height / 2;
 
@@ -91,11 +91,11 @@ void Assignment::Remake(bool with_elements, bool with_parent, bool with_undo)
         parent->Remake(false, true, with_undo);
     last_rect = rect;
 
-    std::string expr = first->ToText() + "=" + last->ToText();
+    std::u32string expr = first->ToText() + U"=" + last->ToText();
     if (last_expression != expr)
     {
         auto code = document->FindParent(id, ElementType::CODE_BLOCK);
-        if (last_identifier != "")
+        if (last_identifier != U"")
             document->RemoveIdentifier(id, ((CodeBlock*)code.get())->code_id, last_identifier);
         document->SetUserIdentifier(id, ((CodeBlock*)code.get())->code_id, expr);
         last_identifier = first->ToText();
@@ -136,7 +136,7 @@ bool Assignment::AfterInsert(bool with_undo)
 
 void Assignment::ReSolve()
 {
-    last_expression = "";
+    last_expression = U"";
     document->Remake(id, true, false, false);
 }
 
@@ -149,10 +149,10 @@ std::string Assignment::ToHtml()
     return s;
 }
 
-std::string Assignment::ToText()
+std::u32string Assignment::ToText()
 {
-    std::string s = first->ToText();
-    s += "=";
+    std::u32string s = first->ToText();
+    s += U"=";
     if (last)
         s += last->ToText();
     return s;

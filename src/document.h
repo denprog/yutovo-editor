@@ -33,6 +33,7 @@ public:
     uint InsertPage(bool with_undo);
     uint InsertParagraph(bool with_undo, bool undo = false);
     uint InsertString(const std::string& str, bool with_undo);
+    uint InsertString(const std::u32string& str, bool with_undo);
     uint InsertString(const std::string& str, const StringFormatPtr string_format, bool with_undo);
     uint InsertString(const std::string& str, const StringFormatPtr string_format, ElementId element_id);
 
@@ -151,13 +152,13 @@ public:
     uint Save(const std::string& filename);
     uint Load(const std::string& filename);
 
-    uint Copy(std::stringstream& out_array, std::string& out_text);
+    uint Copy(std::stringstream& out_array, std::u32string& out_text);
     uint Paste(std::stringstream& in_array);
-    uint Paste(const std::string& str);
-    uint Cut(std::stringstream& out_array, std::string& out_text);
+    uint Paste(const std::u32string& str);
+    uint Cut(std::stringstream& out_array, std::u32string& out_text);
 
     std::string ToHtml();
-    std::string ToText();
+    std::u32string ToText();
 
     TextFormatPtr GetDefaultTextFormat();
     PageFormatPtr GetDefaultPageFormat();
@@ -178,11 +179,11 @@ public:
     void SetEditorState(EditorState& state);
 
     void Solve(ElementId _id, uint code_id, yutovo_service::ResultType result_type, const uint precision, 
-        AngleMeasure angle_measure, Notation notation, const std::string& expression);
+        AngleMeasure angle_measure, Notation notation, const std::u32string& expression);
     void ReSolve(ElementId _id);
     void PutResult(ElementId _id, Result result);
-    void SetUserIdentifier(ElementId _id, uint code_id, const std::string& expression);
-    void RemoveIdentifier(ElementId _id, uint code_id, const std::string& identifier);
+    void SetUserIdentifier(ElementId _id, uint code_id, const std::u32string& expression);
+    void RemoveIdentifier(ElementId _id, uint code_id, const std::u32string& identifier);
 
 private:
     void MainLoop();

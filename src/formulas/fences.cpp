@@ -81,7 +81,7 @@ void OpenFence::Remake(bool with_elements, bool with_parent, bool with_undo)
 
     if (parent->elements->IsLast(id))
     {
-        Size s = window->GetTextSize(" ", GetStringFormat());
+        Size s = window->GetTextSize(U" ", GetStringFormat());
         shape->rect.SetRect(0, 0, 1 + (int)lround(s.height / 5), (int)lround((1 + 2 * BRACES_Y_OFFSET) * s.height));
         rect = shape->rect;
         return;
@@ -192,7 +192,7 @@ void CloseFence::Remake(bool with_elements, bool with_parent, bool with_undo)
 
     if (parent->elements->IsFirst(id))
     {
-        Size s = window->GetTextSize(" ", GetStringFormat());
+        Size s = window->GetTextSize(U" ", GetStringFormat());
         shape->rect.SetRect(0, 0, 1 + (int)lround(s.height / 5), (int)lround((1 + 2 * BRACES_Y_OFFSET) * s.height));
         rect = shape->rect;
         return;

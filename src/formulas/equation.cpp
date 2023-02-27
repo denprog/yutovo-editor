@@ -63,7 +63,7 @@ void Equation::Draw() const
 
 void Equation::UpdateRect(bool with_elements)
 {
-    Size s = parent->window->GetTextSize(std::string(1, '='), GetStringFormat());
+    Size s = parent->window->GetTextSize(std::u32string(1, '='), GetStringFormat());
     shape->rect.SetSize(s.width, s.height);
     shape->baseline = shape->rect.height / 2;
 
@@ -140,10 +140,10 @@ std::string Equation::ToHtml()
     return s;
 }
 
-std::string Equation::ToText()
+std::u32string Equation::ToText()
 {
-    std::string s = first->ToText();
-    s += "=";
+    std::u32string s = first->ToText();
+    s += U"=";
     if (last)
         s += last->ToText();
     return s;

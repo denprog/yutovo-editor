@@ -19,7 +19,7 @@ TEST_F(CodeTest, code1)
             return Rect{0, 0, 600, 400};
         });
 
-    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::string& text, const StringFormatPtr format)
+    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
         {
             return GetTextSizeMock(text, format);
         });
@@ -148,7 +148,7 @@ TEST_F(CodeTest, code2)
             return Rect{0, 0, 600, 400};
         });
 
-    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::string& text, const StringFormatPtr format)
+    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
         {
             return GetTextSizeMock(text, format);
         });
@@ -201,7 +201,7 @@ TEST_F(CodeTest, code3)
             return Rect{0, 0, 600, 400};
         });
 
-    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::string& text, const StringFormatPtr format)
+    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
         {
             return GetTextSizeMock(text, format);
         });
@@ -260,7 +260,7 @@ TEST_F(CodeTest, code4)
             return Rect{0, 0, 600, 400};
         });
 
-    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::string& text, const StringFormatPtr format)
+    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
         {
             return GetTextSizeMock(text, format);
         });
@@ -383,7 +383,7 @@ TEST_F(CodeTest, code5)
             return Rect{0, 0, 600, 400};
         });
 
-    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::string& text, const StringFormatPtr format)
+    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
         {
             return GetTextSizeMock(text, format);
         });
@@ -392,8 +392,7 @@ TEST_F(CodeTest, code5)
     document.WaitMainLoop();
     document.MoveCaretLeft(false);
     document.WaitCaretMoving();
-    document.DeleteElements(false, true, false);
-    document.WaitMainLoop();
+    document.WaitTask(document.DeleteElements(false, true, false));
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -435,8 +434,7 @@ TEST_F(CodeTest, code5)
     document.MoveCaretRight(false);
     document.MoveCaretRight(false);
     document.WaitCaretMoving();
-    document.InsertCode(false, true);
-    document.WaitMainLoop();
+    document.WaitTask(document.InsertCode(false, true));
     std::this_thread::sleep_for(200ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
@@ -457,8 +455,7 @@ TEST_F(CodeTest, code5)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 1, 0, 0, 0, 0})) << document.GetEditorState().ToString();
 
     document.MoveCaretLeft(false);
-    document.DeleteElements(false, true, false);
-    document.WaitMainLoop();
+    document.WaitTask(document.DeleteElements(false, true, false));
     std::this_thread::sleep_for(200ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
@@ -518,7 +515,7 @@ TEST_F(CodeTest, code6)
             return Rect{0, 0, 600, 400};
         });
 
-    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::string& text, const StringFormatPtr format)
+    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
         {
             return GetTextSizeMock(text, format);
         });
@@ -527,16 +524,13 @@ TEST_F(CodeTest, code6)
     document.WaitMainLoop();
     document.MoveCaretLeft(false);
     document.WaitCaretMoving();
-    document.MoveCaretRight(true);
-    document.WaitCaretMoving();
+    document.WaitTask(document.MoveCaretRight(true));
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 1}, ElementSelectionState{{0, 0, 0, 0}, 0, 1})) << document.GetEditorState().ToString();
 
-    document.MoveCaretRight(true);
-    document.WaitCaretMoving();
+    document.WaitTask(document.MoveCaretRight(true));
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 1}, ElementSelectionState{{0, 0, 0, 0}, 0, 1})) << document.GetEditorState().ToString();
 
-    document.MoveCaretLeft(true);
-    document.WaitCaretMoving();
+    document.WaitTask(document.MoveCaretLeft(true));
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0})) << document.GetEditorState().ToString();
 
     document.MoveCaretEnd(false);
@@ -545,8 +539,7 @@ TEST_F(CodeTest, code6)
     document.MoveCaretLeft(false);
     document.MoveCaretHome(false);
     document.WaitCaretMoving();
-    document.MoveCaretRight(true);
-    document.WaitCaretMoving();
+    document.WaitTask(document.MoveCaretRight(true));
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 1}, ElementSelectionState{{0, 0, 0, 0}, 0, 1})) << document.GetEditorState().ToString();
 
     document.MoveCaretRight(true);
@@ -576,7 +569,7 @@ TEST_F(CodeTest, code7)
             return Rect{0, 0, 327, 400};
         });
 
-    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::string& text, const StringFormatPtr format)
+    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
         {
             return GetTextSizeMock(text, format);
         });
@@ -586,8 +579,7 @@ TEST_F(CodeTest, code7)
     document.MoveCaretRight(false);
     document.WaitCaretMoving();
     document.SetFontSize(22);
-    document.InsertString("The source of the text itself is a little mysterious.", true);
-    document.WaitMainLoop();
+    document.WaitTask(document.InsertString("The source of the text itself is a little mysterious.", true));
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
@@ -723,7 +715,7 @@ TEST_F(CodeTest, code8)
             return Rect{0, 0, 600, 400};
         });
 
-    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::string& text, const StringFormatPtr format)
+    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
         {
             return GetTextSizeMock(text, format);
         });
@@ -776,7 +768,7 @@ TEST_F(CodeTest, code9)
             return Rect{0, 0, 600, 400};
         });
 
-    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::string& text, const StringFormatPtr format)
+    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
         {
             return GetTextSizeMock(text, format);
         });
@@ -846,7 +838,7 @@ TEST_F(CodeTest, code10)
             return Rect{0, 0, 600, 400};
         });
 
-    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::string& text, const StringFormatPtr format)
+    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
         {
             return GetTextSizeMock(text, format);
         });

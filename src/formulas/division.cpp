@@ -139,9 +139,9 @@ std::string Division::ToHtml()
     return s;
 }
 
-std::string Division::ToText()
+std::u32string Division::ToText()
 {
-    return "(" + first->ToText() + ")/(" + last->ToText() + ")";
+    return U"(" + first->ToText() + U")/(" + last->ToText() + U")";
 }
 
 void Division::AddNumerator(ElementPtr numerator)

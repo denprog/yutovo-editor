@@ -17,7 +17,7 @@ public:
 
     virtual Element* Create(Element* _parent);
 
-    virtual std::string ToText();
+    virtual std::u32string ToText();
     virtual std::string ToHtml();
 
     template <class Archive>

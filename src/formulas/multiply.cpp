@@ -33,9 +33,9 @@ Element* Multiply::Create(Element* _parent)
     return new Multiply(_parent);
 }
 
-std::string Multiply::ToText()
+std::u32string Multiply::ToText()
 {
-    return "*";
+    return U"*";
 }
 
 std::string Multiply::ToHtml()

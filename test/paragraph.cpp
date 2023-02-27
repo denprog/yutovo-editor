@@ -21,7 +21,7 @@ TEST_F(ParagraphTest, resizing1)
             return Rect{0, 0, width, 400};
         });
 
-    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::string& text, const StringFormatPtr format)
+    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
         {
             return GetTextSizeMock(text, format);
         });
@@ -29,9 +29,8 @@ TEST_F(ParagraphTest, resizing1)
     document.InsertString("Text", document.GetStringFormat("Arial", 22, false, false, false), true);
     document.InsertString("Italic", document.GetStringFormat("Times New Roman", 18, false, true, false), true);
     document.InsertString("Bold", document.GetStringFormat("Times New Roman", 34, true, false, false), true);
-    document.InsertString("String1 String2 String3", document.GetStringFormat("Arial", 20, false, false, false), true);
-    document.WaitMainLoop();
-    std::this_thread::sleep_for(100ms);
+    document.WaitTask(document.InsertString("String1 String2 String3", document.GetStringFormat("Arial", 20, false, false, false), true));
+    std::this_thread::sleep_for(200ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body><p>"\
         "<span style=\"font-family:'Arial';font-size:22px;\">Text</span>"\
@@ -46,7 +45,7 @@ TEST_F(ParagraphTest, resizing1)
     width = 420;
     document.Resize(width, 400);
     document.WaitMainLoop();
-    std::this_thread::sleep_for(100ms);
+    std::this_thread::sleep_for(400ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body><p>"\
         "<span style=\"font-family:'Arial';font-size:22px;\">Text</span>"\
@@ -61,7 +60,7 @@ TEST_F(ParagraphTest, resizing1)
     width = 450;
     document.Resize(width, 400);
     document.WaitMainLoop();
-    std::this_thread::sleep_for(100ms);
+    std::this_thread::sleep_for(200ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body><p>"\
         "<span style=\"font-family:'Arial';font-size:22px;\">Text</span>"\
@@ -76,7 +75,7 @@ TEST_F(ParagraphTest, resizing1)
     width = 330;
     document.Resize(width, 400);
     document.WaitMainLoop();
-    std::this_thread::sleep_for(100ms);
+    std::this_thread::sleep_for(200ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body><p>"\
         "<span style=\"font-family:'Arial';font-size:22px;\">Text</span>"\
@@ -205,7 +204,7 @@ TEST_F(ParagraphTest, resizing2)
             return Rect{0, 0, width, 400};
         });
 
-    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::string& text, const StringFormatPtr format)
+    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
         {
             return GetTextSizeMock(text, format);
         });
@@ -319,7 +318,7 @@ TEST_F(ParagraphTest, paragraph1)
             return Rect{0, 0, width, 400};
         });
 
-    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::string& text, const StringFormatPtr format)
+    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
         {
             return GetTextSizeMock(text, format);
         });
@@ -416,7 +415,7 @@ TEST_F(ParagraphTest, paragraph1)
 
     document.Undo();
     document.WaitUndo();
-    std::this_thread::sleep_for(100ms);
+    std::this_thread::sleep_for(400ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -714,14 +713,14 @@ TEST_F(ParagraphTest, paragraph2)
             return Rect{0, 0, width, 400};
         });
 
-    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::string& text, const StringFormatPtr format)
+    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
         {
             return GetTextSizeMock(text, format);
         });
 
     document.InsertString("The source of the text itself is a little mysterious.", true);
     document.WaitMainLoop();
-    ASSERT_TRUE(document.ToText() == "The source of the text itself is a little mysterious.") << document.ToText();
+    ASSERT_TRUE(document.ToText() == U"The source of the text itself is a little mysterious.") << ToBasicString(document.ToText());
 
     document.SetCurrentParagraphFormat("Header 1");
     document.WaitMainLoop();
@@ -893,7 +892,7 @@ TEST_F(ParagraphTest, paragraph3)
             return Rect{0, 0, width, 400};
         });
 
-    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::string& text, const StringFormatPtr format)
+    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
         {
             return GetTextSizeMock(text, format);
         });
@@ -931,7 +930,7 @@ TEST_F(ParagraphTest, paragraph4)
             return Rect{0, 0, 380, 400};
         });
 
-    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::string& text, const StringFormatPtr format)
+    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
         {
             return GetTextSizeMock(text, format);
         });

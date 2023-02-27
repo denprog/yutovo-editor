@@ -16,7 +16,7 @@ TEST_F(DocumentTest, strings1)
             return Rect{0, 0, 600, 400};
         });
 
-    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::string& text, const StringFormatPtr format)
+    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
         {
             return GetTextSizeMock(text, format);
         });
@@ -79,7 +79,7 @@ TEST_F(DocumentTest, strings2)
             return Rect{0, 0, 600, 400};
         });
 
-    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::string& text, const StringFormatPtr format)
+    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
         {
             return GetTextSizeMock(text, format);
         });
@@ -136,29 +136,29 @@ TEST_F(DocumentTest, strings2)
     document.InsertString("Str", true);
     document.WaitMainLoop();
     std::this_thread::sleep_for(100ms);
-    ASSERT_TRUE(document.ToText() == "TextStr") << document.ToText();
+    ASSERT_TRUE(document.ToText() == U"TextStr") << ToBasicString(document.ToText());
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 7)) << document.GetEditorState().ToString();
     document.InsertString("i", true);
     document.InsertString("n", true);
     document.InsertString("g", true);
     document.WaitMainLoop();
     std::this_thread::sleep_for(100ms);
-    ASSERT_TRUE(document.ToText() == "TextString") << document.ToText();
+    ASSERT_TRUE(document.ToText() == U"TextString") << ToBasicString(document.ToText());
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 10)) << document.GetEditorState().ToString();
 
     document.Undo();
     document.WaitUndo();
-    ASSERT_TRUE(document.ToText() == "TextStrin") << document.ToText();
+    ASSERT_TRUE(document.ToText() == U"TextStrin") << ToBasicString(document.ToText());
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 9)) << document.GetEditorState().ToString();
 
     document.Undo();
     document.WaitUndo();
-    ASSERT_TRUE(document.ToText() == "TextStri") << document.ToText();
+    ASSERT_TRUE(document.ToText() == U"TextStri") << ToBasicString(document.ToText());
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 8)) << document.GetEditorState().ToString();
 
     document.Undo();
     document.WaitUndo();
-    ASSERT_TRUE(document.ToText() == "TextStr") << document.ToText();
+    ASSERT_TRUE(document.ToText() == U"TextStr") << ToBasicString(document.ToText());
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 7)) << document.GetEditorState().ToString();
 
     document.Undo();
@@ -168,18 +168,18 @@ TEST_F(DocumentTest, strings2)
 
     document.Redo();
     document.WaitRedo();
-    ASSERT_TRUE(document.ToText() == "TextStr") << document.ToText();
+    ASSERT_TRUE(document.ToText() == U"TextStr") << ToBasicString(document.ToText());
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 7)) << document.GetEditorState().ToString();
 
     document.Redo();
     document.WaitRedo();
-    ASSERT_TRUE(document.ToText() == "TextStri") << document.ToText();
+    ASSERT_TRUE(document.ToText() == U"TextStri") << ToBasicString(document.ToText());
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 8)) << document.GetEditorState().ToString();
 
     document.InsertString("Str", true);
     document.WaitMainLoop();
     std::this_thread::sleep_for(100ms);
-    ASSERT_TRUE(document.ToText() == "TextStriStr") << document.ToText();
+    ASSERT_TRUE(document.ToText() == U"TextStriStr") << ToBasicString(document.ToText());
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 11)) << document.GetEditorState().ToString();
 }
 
@@ -190,72 +190,62 @@ TEST_F(DocumentTest, selections1)
             return Rect{0, 0, 600, 400};
         });
 
-    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::string& text, const StringFormatPtr format)
+    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
         {
             return GetTextSizeMock(text, format);
         });
 
-    document.InsertString("TestString", true);
-    document.WaitMainLoop();
-    ASSERT_TRUE(document.ToText() == "TestString") << document.ToText();
+    document.WaitTask(document.InsertString("TestString", true));
+    ASSERT_TRUE(document.ToText() == U"TestString") << ToBasicString(document.ToText());
 
-    document.MoveCaretLeft(true);
-    document.WaitCaretMoving();
+    document.WaitTask(document.MoveCaretLeft(true));
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 9, 9, 1)) << document.GetEditorState().ToString();
 
-    document.DeleteElements(true, true, false);
-    document.WaitMainLoop();
-    ASSERT_TRUE(document.ToText() == "TestStrin") << document.ToText();
+    document.WaitTask(document.DeleteElements(true, true, false));
+    ASSERT_TRUE(document.ToText() == U"TestStrin") << ToBasicString(document.ToText());
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 9)) << document.GetEditorState().ToString();
 
     document.MoveCaretLeft(true);
-    document.WaitCaretMoving();
-    document.MoveCaretLeft(true);
-    document.WaitCaretMoving();
+    document.WaitTask(document.MoveCaretLeft(true));
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 7, 7, 2)) << document.GetEditorState().ToString();
 
-    document.DeleteElements(true, true, false);
-    document.WaitMainLoop();
-    ASSERT_TRUE(document.ToText() == "TestStr") << document.ToText();
+    document.WaitTask(document.DeleteElements(true, true, false));
+    ASSERT_TRUE(document.ToText() == U"TestStr") << ToBasicString(document.ToText());
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 7)) << document.GetEditorState().ToString();
 
     document.MoveCaretLeft(true);
-    document.WaitCaretMoving();
     document.MoveCaretLeft(true);
-    document.WaitCaretMoving();
-    document.MoveCaretLeft(true);
-    document.WaitCaretMoving();
+    document.WaitTask(document.MoveCaretLeft(true));
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 4, 4, 3)) << document.GetEditorState().ToString();
 
-    document.DeleteElements(false, true, false);
-    document.WaitMainLoop();
-    ASSERT_TRUE(document.ToText() == "Test") << document.ToText();
+    document.WaitTask(document.DeleteElements(false, true, false));
+    ASSERT_TRUE(document.ToText() == U"Test") << ToBasicString(document.ToText());
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 4)) << document.GetEditorState().ToString();
 
     document.Undo();
     document.WaitUndo();
     std::this_thread::sleep_for(100ms);
-    ASSERT_TRUE(document.ToText() == "TestStr") << document.ToText();
+    ASSERT_TRUE(document.ToText() == U"TestStr") << ToBasicString(document.ToText());
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 4, 4, 3)) << document.GetEditorState().ToString();
 
     document.Redo();
     document.WaitRedo();
-    ASSERT_TRUE(document.ToText() == "Test") << document.ToText();
+    ASSERT_TRUE(document.ToText() == U"Test") << ToBasicString(document.ToText());
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 4)) << document.GetEditorState().ToString();
 
     document.Undo();
     document.WaitUndo();
-    ASSERT_TRUE(document.ToText() == "TestStr") << document.ToText();
+    ASSERT_TRUE(document.ToText() == U"TestStr") << ToBasicString(document.ToText());
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 4, 4, 3)) << document.GetEditorState().ToString();
 
     document.Undo();
     document.WaitUndo();
-    ASSERT_TRUE(document.ToText() == "TestStrin") << document.ToText();
+    ASSERT_TRUE(document.ToText() == U"TestStrin") << ToBasicString(document.ToText());
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 7, 7, 2)) << document.GetEditorState().ToString();
 
     document.Undo();
     document.WaitUndo();
-    ASSERT_TRUE(document.ToText() == "TestString") << document.ToText();
+    ASSERT_TRUE(document.ToText() == U"TestString") << ToBasicString(document.ToText());
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 9, 9, 1)) << document.GetEditorState().ToString();
 }
 
@@ -266,7 +256,7 @@ TEST_F(DocumentTest, selections2)
             return Rect{0, 0, 600, 400};
         });
 
-    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::string& text, const StringFormatPtr format)
+    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
         {
             return GetTextSizeMock(text, format);
         });
@@ -358,7 +348,7 @@ TEST_F(DocumentTest, selections3)
             return Rect{0, 0, 600, 400};
         });
 
-    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::string& text, const StringFormatPtr format)
+    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
         {
             return GetTextSizeMock(text, format);
         });
@@ -460,7 +450,7 @@ TEST_F(DocumentTest, inserts1)
             return Rect{0, 0, 600, 400};
         });
 
-    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::string& text, const StringFormatPtr format)
+    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
         {
             return GetTextSizeMock(text, format);
         });
@@ -491,7 +481,7 @@ TEST_F(DocumentTest, inserts2)
             return Rect{0, 0, 600, 400};
         });
 
-    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::string& text, const StringFormatPtr format)
+    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
         {
             return GetTextSizeMock(text, format);
         });
@@ -570,7 +560,7 @@ TEST_F(DocumentTest, inserts3)
             return Rect{0, 0, 600, 400};
         });
 
-    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::string& text, const StringFormatPtr format)
+    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
         {
             return GetTextSizeMock(text, format);
         });
@@ -635,7 +625,7 @@ TEST_F(DocumentTest, inserts4)
             return Rect{0, 0, 600, 400};
         });
 
-    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::string& text, const StringFormatPtr format)
+    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
         {
             return GetTextSizeMock(text, format);
         });
@@ -679,7 +669,7 @@ TEST_F(DocumentTest, inserts5)
             return Rect{0, 0, 600, 400};
         });
 
-    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::string& text, const StringFormatPtr format)
+    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
         {
             return GetTextSizeMock(text, format);
         });
@@ -729,7 +719,7 @@ TEST_F(DocumentTest, inserts6)
             return Rect{0, 0, 600, 400};
         });
 
-    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::string& text, const StringFormatPtr format)
+    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
         {
             return GetTextSizeMock(text, format);
         });
@@ -776,7 +766,7 @@ TEST_F(DocumentTest, inserts7)
             return Rect{0, 0, 600, 400};
         });
 
-    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::string& text, const StringFormatPtr format)
+    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
         {
             return GetTextSizeMock(text, format);
         });
@@ -865,7 +855,7 @@ TEST_F(DocumentTest, fonts1)
             return Rect{0, 0, 600, 400};
         });
 
-    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::string& text, const StringFormatPtr format)
+    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
         {
             return GetTextSizeMock(text, format);
         });
@@ -988,16 +978,14 @@ TEST_F(DocumentTest, fonts2)
             return Rect{0, 0, 600, 400};
         });
 
-    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::string& text, const StringFormatPtr format)
+    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
         {
             return GetTextSizeMock(text, format);
         });
 
-    document.InsertString("Text", document.GetStringFormat("Arial", 24, false, false, false), true);
-    document.WaitMainLoop();
+    document.WaitTask(document.InsertString("Text", document.GetStringFormat("Arial", 24, false, false, false), true));
     document.MoveCaretLeft(true);
-    document.ChangeStringFormat("Times New Roman", 22, false, false, false, true, false);
-    document.WaitMainLoop();
+    document.WaitTask(document.ChangeStringFormat("Times New Roman", 22, false, false, false, true, false));
     ASSERT_TRUE(document.ToHtml() == 
         "<body><p>"\
         "<span style=\"font-family:'Arial';font-size:24px;\">Tex</span>"\
@@ -1016,10 +1004,8 @@ TEST_F(DocumentTest, fonts2)
         document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 3, 3, 1)) << document.GetEditorState().ToString();
 
-    document.MoveCaretHome(true);
-    document.WaitCaretMoving();
-    document.SetBold(true);
-    document.WaitMainLoop();
+    document.WaitTask(document.MoveCaretHome(true));
+    document.WaitTask(document.SetBold(true));
     ASSERT_TRUE(document.ToHtml() == 
         "<body><p>"\
         "<span style=\"font-family:'Arial';font-size:24px;\"><strong>Text</strong></span>"\
@@ -1027,8 +1013,7 @@ TEST_F(DocumentTest, fonts2)
         document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 0, 0, 4)) << document.GetEditorState().ToString();
 
-    document.SetItalic(true);
-    document.WaitMainLoop();
+    document.WaitTask(document.SetItalic(true));
     ASSERT_TRUE(document.ToHtml() == 
         "<body><p>"\
         "<span style=\"font-family:'Arial';font-size:24px;\"><strong><em>Text</em></strong></span>"\
@@ -1036,8 +1021,7 @@ TEST_F(DocumentTest, fonts2)
         document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 0, 0, 4)) << document.GetEditorState().ToString();
 
-    document.SetUnderline(true);
-    document.WaitMainLoop();
+    document.WaitTask(document.SetUnderline(true));
     ASSERT_TRUE(document.ToHtml() == 
         "<body><p>"\
         "<span style=\"font-family:'Arial';font-size:24px;text-decoration: underline;\"><strong><em>Text</em></strong></span>"\
@@ -1125,7 +1109,7 @@ TEST_F(DocumentTest, fonts3)
             return Rect{0, 0, 600, 400};
         });
 
-    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::string& text, const StringFormatPtr format)
+    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
         {
             return GetTextSizeMock(text, format);
         });
@@ -1170,7 +1154,7 @@ TEST_F(DocumentTest, delete1)
             return Rect{0, 0, 600, 400};
         });
 
-    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::string& text, const StringFormatPtr format)
+    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
         {
             return GetTextSizeMock(text, format);
         });
@@ -1263,7 +1247,7 @@ TEST_F(DocumentTest, delete2)
             return Rect{0, 0, 600, 400};
         });
 
-    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::string& text, const StringFormatPtr format)
+    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
         {
             return GetTextSizeMock(text, format);
         });
@@ -1381,7 +1365,7 @@ TEST_F(DocumentTest, delete3)
             return Rect{0, 0, 600, 400};
         });
 
-    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::string& text, const StringFormatPtr format)
+    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
         {
             return GetTextSizeMock(text, format);
         });
@@ -1469,7 +1453,7 @@ TEST_F(DocumentTest, delete4)
             return Rect{0, 0, 600, 400};
         });
 
-    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::string& text, const StringFormatPtr format)
+    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
         {
             return GetTextSizeMock(text, format);
         });
@@ -1481,14 +1465,14 @@ TEST_F(DocumentTest, delete4)
         document.MoveCaretRight(false);
     document.WaitCaretMoving();
     document.WaitTask(document.DeleteElements(false, true, false));
-    ASSERT_TRUE(document.ToText() == "La versin 3 de la especificación MathML fue lanzada como Recomendación de W3C el 20 de octubre de 2010.") << 
-        document.ToText();
+    ASSERT_TRUE(document.ToText() == U"La versin 3 de la especificación MathML fue lanzada como Recomendación de W3C el 20 de octubre de 2010.") << 
+        ToBasicString(document.ToText());
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 8)) << document.GetEditorState().ToString();
 
     document.Undo();
     document.WaitUndo();
-    ASSERT_TRUE(document.ToText() == "La versión 3 de la especificación MathML fue lanzada como Recomendación de W3C el 20 de octubre de 2010.") << 
-        document.ToText();
+    ASSERT_TRUE(document.ToText() == U"La versión 3 de la especificación MathML fue lanzada como Recomendación de W3C el 20 de octubre de 2010.") << 
+        ToBasicString(document.ToText());
 }
 
 }

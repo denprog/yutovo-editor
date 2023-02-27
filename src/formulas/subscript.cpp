@@ -129,10 +129,10 @@ std::string Subscript::ToHtml()
     return s;
 }
 
-std::string Subscript::ToText()
+std::u32string Subscript::ToText()
 {
-    if (first->ToText() == "log") //TODO: get names of functions from the parser
-        return first->ToText() + "%" + last->ToText() + ",";
+    if (first->ToText() == U"log") //TODO: get names of functions from the parser
+        return first->ToText() + U"%" + last->ToText() + U",";
     return first->ToText() + last->ToText();
 }
 

@@ -36,7 +36,7 @@ public:
     virtual void StoreRect(const Rect& rect) = 0;
     virtual void RestoreRect() = 0;
 
-    virtual Size GetTextSize(const std::string& text, const StringFormatPtr format) = 0;
+    virtual Size GetTextSize(const std::u32string& text, const StringFormatPtr format) = 0;
     virtual int GetCharPos(const std::string& text, const StringFormatPtr format, int pos) = 0;
     virtual int GetFontAscent(const StringFormatPtr format) = 0;
 

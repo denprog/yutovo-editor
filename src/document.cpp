@@ -237,6 +237,14 @@ uint Document::InsertString(const std::string& str, bool with_undo)
     return 0;
 }
 
+uint Document::InsertString(const std::u32string& str, bool with_undo)
+{
+    StringFormatPtr format;
+    if (GetCurrentStringFormat(format))
+        return InsertElement(new String(this, str, format), with_undo);
+    return 0;
+}
+
 uint Document::InsertString(const std::string& str, const StringFormatPtr string_format, bool with_undo)
 {
     return InsertElement(new String(this, str, string_format), with_undo);
@@ -1142,10 +1150,10 @@ uint Document::Load(const std::string& filename)
     return tasks[tasks.size() - 1]->id;
 }
 
-uint Document::Copy(std::stringstream& out_array, std::string& out_text)
+uint Document::Copy(std::stringstream& out_array, std::u32string& out_text)
 {
     out_array.str("");
-    out_text = "";
+    out_text = U"";
     std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
     tasks.emplace_back(new CopyTask(text, out_array, out_text, false));
     last_task_id = tasks[tasks.size() - 1]->id;
@@ -1191,7 +1199,7 @@ uint Document::Paste(std::stringstream& in_array)
     return last_task_id;
 }
 
-uint Document::Paste(const std::string& str)
+uint Document::Paste(const std::u32string& str)
 {
     if (str.empty())
     {
@@ -1204,7 +1212,7 @@ uint Document::Paste(const std::string& str)
     return last_task_id;
 }
 
-uint Document::Cut(std::stringstream& out_array, std::string& out_text)
+uint Document::Cut(std::stringstream& out_array, std::u32string& out_text)
 {
     std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
     tasks.emplace_back(new CopyTask(text, out_array, out_text, true));
@@ -1218,7 +1226,7 @@ std::string Document::ToHtml()
     return text->ToHtml();
 }
 
-std::string Document::ToText()
+std::u32string Document::ToText()
 {
     std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
     return text->ToText();
@@ -1256,7 +1264,7 @@ void Document::SetEditorState(EditorState& state)
 }
 
 void Document::Solve(ElementId _id, uint code_id, yutovo_service::ResultType result_type, const uint precision, 
-    AngleMeasure angle_measure, Notation notation, const std::string& expression)
+    AngleMeasure angle_measure, Notation notation, const std::u32string& expression)
 {
     solver.Solve(_id, code_id, result_type, precision, angle_measure, notation, expression);
 }
@@ -1276,12 +1284,12 @@ void Document::PutResult(ElementId _id, Result result)
 #endif
 }
 
-void Document::SetUserIdentifier(ElementId _id, uint code_id, const std::string& expression)
+void Document::SetUserIdentifier(ElementId _id, uint code_id, const std::u32string& expression)
 {
     solver.SetUserIdentifier(_id, code_id, expression);
 }
 
-void Document::RemoveIdentifier(ElementId _id, uint code_id, const std::string& identifier)
+void Document::RemoveIdentifier(ElementId _id, uint code_id, const std::u32string& identifier)
 {
     solver.RemoveIdentifier(_id, code_id, identifier);
 }

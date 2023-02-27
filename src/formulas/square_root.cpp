@@ -158,9 +158,9 @@ std::string SquareRoot::ToHtml()
     return s;
 }
 
-std::string SquareRoot::ToText()
+std::u32string SquareRoot::ToText()
 {
-    return "sqrt(" + last->ToText() + ")";
+    return U"sqrt(" + last->ToText() + U")";
 }
 
 }

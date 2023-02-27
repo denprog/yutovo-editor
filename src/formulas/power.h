@@ -25,7 +25,7 @@ public:
     virtual void UpdateLevel(uint8_t _level);
 
     virtual std::string ToHtml();
-    virtual std::string ToText();
+    virtual std::u32string ToText();
 
     void AddBase(ElementPtr base);
     void AddExponent(ElementPtr exponent);

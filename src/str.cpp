@@ -72,6 +72,19 @@ String::String(Document* _document, const std::string _str, const StringFormatPt
 #endif
 }
 
+String::String(Document* _document, const std::u32string _str, const StringFormatPtr _format) :
+    Element(_document), 
+    format(_format)
+{
+    type = ElementType::STRING;
+
+    elements.reset(new StringElements(this, _str));
+
+#ifdef DEBUG
+    to_str = ToText();
+#endif
+}
+
 Element* String::Clone()
 {
     return new String(*this);
@@ -103,13 +116,13 @@ Element* String::Create(Element* parent, const std::u32string _str, const String
 
 void String::Remake(bool with_elements, bool with_parent, bool with_undo)
 {
-    Size s = window->GetTextSize(ToBasicString(((StringElements*)elements.get())->str), format);
+    Size s = window->GetTextSize(((StringElements*)elements.get())->str, format);
     rect.SetSize(s.width, s.height);
 
     UpdateRect();
 
-    // if (rect != last_rect && with_parent)
-    //     document->Remake(parent->id, false, with_undo, false);
+    if (rect != last_rect && with_parent)
+        document->Remake(parent->id, false, with_undo, false);
     last_rect = rect;
 }
 
@@ -119,7 +132,7 @@ void String::Normalize(bool with_undo)
 
 void String::UpdateRect(bool with_elements)
 {
-    Size s = parent->window->GetTextSize(ToBasicString(((StringElements*)elements.get())->str), format);
+    Size s = parent->window->GetTextSize(((StringElements*)elements.get())->str, format);
     rect.SetSize(s.width, s.height);
     baseline = parent->window->GetFontAscent(format);
 }
@@ -202,7 +215,7 @@ bool String::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo)
                 document->DeleteElements(false, false, true);
                 document->PushEditorState(CaretState(id), SelectionState(id, 0, s->elements->Count()), true);
             }
-            elements.reset(new StringElements(this, ToUtfString(s->elements->ToText())));
+            elements.reset(new StringElements(this, s->elements->ToText()));
             format = s->format;
             caret->SetState(elements->GetElementId(elements->Count()));
             parent->Normalize(with_undo);
@@ -336,54 +349,59 @@ bool String::Split(const uint max_left_width)
     if (!editable)
         return false;
 
+    int i = 0;
     std::u32string& str = ((StringElements*)elements.get())->str;
-    for (int i = str.size() - 2; i > 0; --i) //at least one character in the splitted string
+    for (int j = 1; j < (int)str.size() - 2; ++j) //at least one character in the splitted string
     {
-        if (str[i] == ' ')
+        if (str[j] == ' ')
         {
-            Size s = window->GetTextSize(ToBasicString(str.substr(0, i + 1)), format);
+            Size s = window->GetTextSize(str.substr(0, j + 1), format);
             if (s.width <= max_left_width)
-            {
-                //create new string and insert it after this one
-                ElementPtr el(Create(parent, str.substr(i + 1), format));
-                int pos = parent->elements->GetElementPos(id);
-                parent->elements->Insert(el, pos + 1);
-                str = str.substr(0, i + 1);
-                UpdateRect();
-
-                if (caret->IsInsideElement(id))
-                {
-                    //update caret state
-                    if (caret->GetPos() > i + 1)
-                        caret->SetState(el->id, caret->GetPos() - i - 1, true);
-                }
-
-                uint start, size;
-                if (selection->Has(id, start, size))
-                {
-                    if (start > i + 1)
-                    {
-                        //move selection into the new element
-                        selection->Add(el->id, start - i - 1, size);
-                        selection->Remove(id, start, size);
-                    }
-                    else if (start < str.length() && start + size > str.length())
-                    {
-                        //split the selection
-                        selection->Remove(id, start, size);
-                        selection->Add(id, start, str.length() - start);
-                        selection->Add(el->id, 0, size - str.length() + start);
-                    }
-                }
-#ifdef DEBUG
-                parent->to_str = parent->ToText();
-                to_str = ToText();
-#endif
-                return true;
-            }
+                i = j;
+            else
+                break;
         }
     }
-    return false;
+
+    if (i == 0)
+        return false;
+
+    //create new string and insert it after this one
+    ElementPtr el(Create(parent, str.substr(i + 1), format));
+    int pos = parent->elements->GetElementPos(id);
+    parent->elements->Insert(el, pos + 1);
+    str = str.substr(0, i + 1);
+    UpdateRect();
+
+    if (caret->IsInsideElement(id))
+    {
+        //update caret state
+        if (caret->GetPos() > i + 1)
+            caret->SetState(el->id, caret->GetPos() - i - 1, true);
+    }
+
+    uint start, size;
+    if (selection->Has(id, start, size))
+    {
+        if (start > i + 1)
+        {
+            //move selection into the new element
+            selection->Add(el->id, start - i - 1, size);
+            selection->Remove(id, start, size);
+        }
+        else if (start < str.length() && start + size > str.length())
+        {
+            //split the selection
+            selection->Remove(id, start, size);
+            selection->Add(id, start, str.length() - start);
+            selection->Add(el->id, 0, size - str.length() + start);
+        }
+    }
+#ifdef DEBUG
+    parent->to_str = parent->ToText();
+    to_str = ToText();
+#endif
+    return true;
 }
 
 bool String::SplitAt(const uint pos)
@@ -615,7 +633,7 @@ void StringElements::Insert(ElementPtr element, const uint pos)
     assert(parent->document->IsString(element));
     assert(str.length() >= pos);
     CaretState caret_state = caret->GetCaretState();
-    std::u32string s = ToUtfString(dynamic_cast<String*>(element.get())->ToText());
+    std::u32string s = dynamic_cast<String*>(element.get())->ToText();
     if (caret_state.IsInsideElement(parent->id))
     {
         if (caret_state.GetPos() >= pos)
@@ -676,9 +694,7 @@ uint StringElements::Count() const
 
 Rect StringElements::GetCaretRect(const uint pos) const
 {
-    std::u32string u_part = boost::locale::conv::utf_to_utf<char32_t>(str).substr(0, pos);
-    std::string sub = boost::locale::conv::utf_to_utf<char>(u_part);
-    Size s = parent->window->GetTextSize(sub, ((String*)parent)->format);
+    Size s = parent->window->GetTextSize(str.substr(0, pos), ((String*)parent)->format);
     return Rect(s.width, 0, 1, s.height);
 }
 
@@ -693,7 +709,7 @@ void StringElements::DrawCaret(const uint pos) const
 
 Rect StringElements::GetRect()
 {
-    Size s = parent->window->GetTextSize(ToBasicString(str), ((String*)parent)->format);
+    Size s = parent->window->GetTextSize(str, ((String*)parent)->format);
     return Rect{0, 0, s.width, s.height};
 }
 
@@ -776,9 +792,9 @@ std::string StringElements::ToHtml()
     return ToBasicString(str);
 }
 
-std::string StringElements::ToText()
+std::u32string StringElements::ToText()
 {
-    return ToBasicString(str);
+    return str;
 }
 
 }

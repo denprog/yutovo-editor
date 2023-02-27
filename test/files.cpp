@@ -16,7 +16,7 @@ TEST_F(DocumentTest, files1)
             return Rect{0, 0, 600, 400};
         });
 
-    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::string& text, const StringFormatPtr format)
+    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
         {
             return GetTextSizeMock(text, format);
         });
@@ -65,7 +65,7 @@ TEST_F(DocumentTest, files2)
             return Rect{0, 0, 600, 400};
         });
 
-    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::string& text, const StringFormatPtr format)
+    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
         {
             return GetTextSizeMock(text, format);
         });
@@ -132,41 +132,54 @@ TEST_F(DocumentTest, files3)
             return Rect{0, 0, 630, 400};
         });
 
-    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::string& text, const StringFormatPtr format)
+    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
         {
             return GetTextSizeMock(text, format);
         });
 
     document.SetFontSize(22);
-    document.InsertString("In literary theory, a text is any object that can be read, whether this object is a work of literature, "\
-        "a street sign, an arrangement of buildings on a city block, or styles of clothing.", true);
-    document.WaitMainLoop();
+    document.WaitTask(document.InsertString("In literary theory, a text is any object that can be read, whether this object is a work of literature, "\
+        "a street sign, an arrangement of buildings on a city block, or styles of clothing.", true));
     std::this_thread::sleep_for(100ms);
     document.MoveCaretToDocumentBegin(false);
     for (int i = 0; i < 3; ++i)
         document.MoveCaretRight(false);
-    for (int i = 0; i < 8; ++i)
-        document.MoveCaretRight(true);
-    document.WaitCaretMoving();
-    std::this_thread::sleep_for(100ms);
-    document.SetBold(true);
-    document.WaitMainLoop();
-    std::this_thread::sleep_for(100ms);
-    for (int i = 0; i < 10; ++i)
-        document.MoveCaretRight(false);
-    document.WaitCaretMoving();
-    document.InsertParagraph(true);
-    document.WaitMainLoop();
     for (int i = 0; i < 7; ++i)
         document.MoveCaretRight(true);
-    document.WaitCaretMoving();
+    document.WaitTask(document.MoveCaretRight(true));
     std::this_thread::sleep_for(100ms);
-    document.SetFontFamily("Courier New");
-    document.WaitMainLoop();
+    document.WaitTask(document.SetBold(true));
     std::this_thread::sleep_for(100ms);
-    for (int i = 0; i < 21; ++i)
+    for (int i = 0; i < 9; ++i)
         document.MoveCaretRight(false);
-    document.WaitCaretMoving();
+    document.WaitTask(document.MoveCaretRight(false));
+    document.WaitTask(document.InsertParagraph(true));
+    std::this_thread::sleep_for(100ms);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\">In </span>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\"><strong>literary</strong></span>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\"> theory,</span>"\
+            "</p>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\"> a text is any object that can be read, </span>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\">whether this object is a work of literature, a </span>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\">street sign, an arrangement of buildings on a </span>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\">city block, or styles of clothing.</span>"
+            "</p>"\
+        "</body>") 
+        << document.ToHtml();
+    
+    for (int i = 0; i < 6; ++i)
+        document.MoveCaretRight(true);
+    document.WaitTask(document.MoveCaretRight(true));
+    std::this_thread::sleep_for(100ms);
+    document.WaitTask(document.SetFontFamily("Courier New"));
+    std::this_thread::sleep_for(100ms);
+    for (int i = 0; i < 20; ++i)
+        document.MoveCaretRight(false);
+    document.WaitTask(document.MoveCaretRight(false));
     document.WaitTask(document.InsertParagraph(true));
     std::this_thread::sleep_for(1000ms);
     ASSERT_TRUE(document.ToHtml() == 
@@ -231,7 +244,7 @@ TEST_F(DocumentTest, files4)
             return Rect{0, 0, 610, 400};
         });
 
-    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::string& text, const StringFormatPtr format)
+    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
         {
             return GetTextSizeMock(text, format);
         });
@@ -314,7 +327,7 @@ TEST_F(DocumentTest, files5)
             return Rect{0, 0, 600, 400};
         });
 
-    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::string& text, const StringFormatPtr format)
+    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
         {
             return GetTextSizeMock(text, format);
         });
@@ -329,12 +342,12 @@ TEST_F(DocumentTest, files5)
     std::this_thread::sleep_for(2000ms);
 
     auto el = document.GetElement(ElementId{0, 0, 0, 0, 0});
-    ASSERT_TRUE(el->type == ElementType::STRING && el->ToText().rfind("Арифме́тика", 0) == 0);
+    ASSERT_TRUE(el->type == ElementType::STRING && el->ToText().rfind(U"Арифме́тика", 0) == 0);
 
     auto page = document.GetElement(ElementId{0, 0});
     auto paragraph = document.GetElement(ElementId{0, 0, page->elements->Count() - 1});
     el = paragraph->elements->Get(0)->elements->Get(0);
-    ASSERT_TRUE(el->type == ElementType::STRING && el->ToText().rfind("Основам арифметики", 0) == 0);
+    ASSERT_TRUE(el->type == ElementType::STRING && el->ToText().rfind(U"Основам арифметики", 0) == 0);
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 0)) << document.GetEditorState().ToString();
 }
 
