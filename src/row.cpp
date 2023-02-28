@@ -156,7 +156,7 @@ void Row::Normalize(bool with_undo)
                         if (with_undo)
                         {
                             document->CallFunc(ElementId{},
-                                [d = document](const ElementId id)
+                                [d = document, _id = id](const ElementId id)
                                 {
                                     d->can_normalize = true;
                                 },
@@ -166,12 +166,20 @@ void Row::Normalize(bool with_undo)
                             document->InsertElement(el2);
                             document->PushEditorState(CaretState(id, elements->GetElementPos(el->id)), true);
                             document->CallFunc(ElementId{},
-                                [d = document](const ElementId id)
+                                [d = document, _id = id](const ElementId id)
                                 {
+                                    d->can_normalize = true;
+                                    d->GetElement(_id)->Normalize(false);
                                     d->can_normalize = false;
                                 },
                                 true);
                             document->DeleteElements(false, false, true);
+                            document->CallFunc(ElementId{},
+                                [d = document, _id = id](const ElementId id)
+                                {
+                                    d->can_normalize = false;
+                                },
+                                true);
                             document->PushEditorState(SelectionState(id, elements->GetElementPos(el->id), 1), true);
                         }
                         window->OnCaretMoved(document->GetEditorState());

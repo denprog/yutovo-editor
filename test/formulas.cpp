@@ -940,13 +940,11 @@ TEST_F(FormulaTest, select4)
 
     document.WaitTask(document.InsertString("The source of the text itself is a little strange", true));
     document.MoveCaretUp(false);
-    document.MoveCaretEnd(false);
-    document.WaitCaretMoving();
+    document.WaitTask(document.MoveCaretEnd(false));
     document.InsertDivision(true);
     document.WaitTask(document.InsertString("123", true));
     document.MoveCaretLeft(true);
-    document.MoveCaretLeft(true);
-    document.WaitCaretMoving();
+    document.WaitTask(document.MoveCaretLeft(true));
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1}, 
         ElementSelectionState{ElementId{0, 0, 0, 1, 0, 0, 0, 0, 0, 0}, 1, 2})) << document.GetEditorState().ToString();
 
@@ -974,14 +972,13 @@ TEST_F(FormulaTest, select5)
 
     document.WaitTask(document.InsertString("The source of the text itself is a little strange", true));
     document.MoveCaretUp(false);
-    document.MoveCaretEnd(false);
-    document.WaitCaretMoving();
+    document.WaitTask(document.MoveCaretEnd(false));
     document.WaitTask(document.InsertDivision(true));
     for (int i = 0; i < 6; ++i)
         document.MoveCaretLeft(false);
-    for (int i = 0; i < 8; ++i)
+    for (int i = 0; i < 7; ++i)
         document.MoveCaretRight(true);
-    document.WaitCaretMoving();
+    document.WaitTask(document.MoveCaretRight(true));
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 1, 0, 4}, 
         ElementSelectionState{ElementId{0, 0, 0, 0, 0}, 39, 3},
         ElementSelectionState{ElementId{0, 0, 0, 0}, 1, 1},

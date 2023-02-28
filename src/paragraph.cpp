@@ -290,7 +290,7 @@ bool Paragraph::GetTopCaretState(const int x, const int y, CaretState& caret_sta
         row = el;
     }
     if (!row)
-        return parent->GetTopCaretState(x, y, caret_state, select);
+        return parent->GetTopCaretState(x, GetAbsoluteRect().top, caret_state, select);
     return row->GetTopCaretState(x, y, caret_state, select);
 }
 
@@ -306,7 +306,7 @@ bool Paragraph::GetBottomCaretState(const int x, const int y, CaretState& caret_
         row = el;
     }
     if (!row)
-        return parent->GetBottomCaretState(x, y, caret_state, select);
+        return parent->GetBottomCaretState(x, GetAbsoluteRect().GetBottom(), caret_state, select);
     return row->GetBottomCaretState(x, y, caret_state, select);
 }
 
