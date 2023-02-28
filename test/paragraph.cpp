@@ -1118,4 +1118,61 @@ TEST_F(ParagraphTest, paragraph6)
         << document.ToHtml();
 }
 
+//Backspace at the beginning of a paragraph
+TEST_F(ParagraphTest, paragraph7)
+{
+    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
+        {
+            return Rect{0, 0, 400, 400};
+        });
+
+    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
+        {
+            return GetTextSizeMock(text, format);
+        });
+
+    document.WaitTask(document.InsertString("In literary theory, a text is any object that can be read, whether this object is a work of literature", true));
+    std::this_thread::sleep_for(100ms);
+    document.WaitTask(document.MoveCaretUp(false));
+    document.WaitTask(document.InsertParagraph(true));
+    std::this_thread::sleep_for(100ms);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">In literary theory, a text is any object that </span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">can be read, wh</span>"\
+            "</p>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">ether this object is a work of literature</span>"
+            "</p>"\
+        "</body>") 
+        << document.ToHtml();
+    
+    document.WaitTask(document.DeleteElements(true, true, false));
+    std::this_thread::sleep_for(100ms);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">In literary theory, a text is any object that </span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">can be read, whether this object is a </span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">work of literature</span>"
+            "</p>"\
+        "</body>") 
+        << document.ToHtml();
+    
+    document.Undo();
+    document.WaitUndo();
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">In literary theory, a text is any object that </span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">can be read, wh</span>"\
+            "</p>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">ether this object is a work of literature</span>"
+            "</p>"\
+        "</body>") 
+        << document.ToHtml();
+}
+
 }
