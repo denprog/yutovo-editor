@@ -140,8 +140,7 @@ TEST_F(FormulaTest, nth_root2)
     document.MoveCaretLeft(false);
     document.MoveCaretLeft(false);
     document.WaitCaretMoving();
-    document.DeleteElements(false, true, false);
-    document.WaitMainLoop();
+    document.WaitTask(document.DeleteElements(false, true, false));
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
@@ -187,8 +186,7 @@ TEST_F(FormulaTest, nth_root2)
     for (int i = 0; i < 4; ++i)
         document.MoveCaretRight(false);
     document.WaitCaretMoving();
-    document.DeleteElements(false, true, false);
-    document.WaitMainLoop();
+    document.WaitTask(document.DeleteElements(false, true, false));
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
@@ -227,8 +225,7 @@ TEST_F(FormulaTest, nth_root2)
         document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 1, 1})) << document.GetEditorState().ToString();
 
-    document.DeleteElements(false, true, false);
-    document.WaitMainLoop();
+    document.WaitTask(document.DeleteElements(false, true, false));
     std::this_thread::sleep_for(200ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
@@ -269,8 +266,7 @@ TEST_F(FormulaTest, nth_root2)
 
     document.MoveCaretEnd(false);
     document.WaitCaretMoving();
-    document.InsertString("7", true);
-    document.WaitMainLoop();
+    document.WaitTask(document.InsertString("7", true));
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\

@@ -909,8 +909,7 @@ TEST_F(FormulaTest, select3)
     document.MoveCaretLeft(false);
     document.MoveCaretRight(true);
     document.MoveCaretRight(true);
-    document.MoveCaretRight(true);
-    document.WaitCaretMoving();
+    document.WaitTask(document.MoveCaretRight(true));
     std::this_thread::sleep_for(200ms);
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 1, 0, 2}, 
         ElementSelectionState{ElementId{0, 0, 0, 0}, 1, 1},

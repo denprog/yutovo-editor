@@ -211,7 +211,7 @@ void Paragraph::Normalize(bool with_undo)
 
     if (elements->Count() == 0)
     {
-        AddElement(ElementPtr(new Row(this))); //paragraph has to have at least one row
+        AddEmptyElement(); //paragraph has to have at least one row
         if (with_undo)
         {
             document->DeleteElements(false, false, true);
@@ -219,22 +219,24 @@ void Paragraph::Normalize(bool with_undo)
         }
     }
 
-    if (elements->Count() > 1)
+    for (int i = 0; i < elements->Count();)
     {
-        for (int i = 0; i < elements->Count();)
+        auto el = elements->Get(i);
+        if (elements->Count() == 1)
+            break;
+        if (el->elements->Count() == 1 && document->IsString(el->elements->Get(0)) && el->elements->Get(0)->elements->Count() == 0)
         {
-            auto el = elements->Get(i);
-            if (el->elements->Count() == 1 && el->elements->Get(0)->type == ElementType::STRING && el->elements->Get(0)->elements->Count() == 0)
-                elements->RemoveAt(i, 1);
-            else
-                ++i;
+            elements->RemoveAt(i, 1);
+            window->OnCaretMoved(document->GetEditorState());
         }
+        else
+            ++i;
     }
 }
 
 bool Paragraph::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo)
 {
-    if (_elements.size() == 1 && _elements[0]->type == ElementType::ROW)
+    if (_elements.size() == 1 && document->IsRow(_elements[0]))
     {
         if (!Element::InsertElements(_elements, with_undo))
             return false;

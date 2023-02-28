@@ -569,8 +569,7 @@ TEST_F(DocumentTest, inserts3)
     document.InsertString("Text", document.GetStringFormat("Arial", 24, false, false, false), true);
     document.InsertString("Italic", document.GetStringFormat("Times New Roman", 18, false, true, false), true);
     document.InsertString("Bold", document.GetStringFormat("Times New Roman", 34, true, false, false), true);
-    document.InsertString("String1 String2 String3", document.GetStringFormat("Arial", 20, false, false, false), true);
-    document.WaitMainLoop();
+    document.WaitTask(document.InsertString("String1 String2 String3", document.GetStringFormat("Arial", 20, false, false, false), true));
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body><p>"\
@@ -634,8 +633,7 @@ TEST_F(DocumentTest, inserts4)
     for (int i = 0; i < 4; ++i)
         document.DeleteElements(true, true, false);
     document.InsertString("Text", document.GetStringFormat("Arial", 24, false, false, false), true);
-    document.InsertString("Italic", document.GetStringFormat("Times New Roman", 18, false, true, false), true);
-    document.WaitMainLoop();
+    document.WaitTask(document.InsertString("Italic", document.GetStringFormat("Times New Roman", 18, false, true, false), true));
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body><p>"\
@@ -677,8 +675,7 @@ TEST_F(DocumentTest, inserts5)
     document.InsertString("Text", document.GetStringFormat("Arial", 24, false, false, false), true);
     for (int i = 0; i < 2; ++i)
         document.MoveCaretLeft(false);
-    document.InsertString("Bold", document.GetStringFormat("Arial", 24, true, false, false), true);
-    document.WaitMainLoop();
+    document.WaitTask(document.InsertString("Bold", document.GetStringFormat("Arial", 24, true, false, false), true));
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body><p>"\
@@ -726,8 +723,7 @@ TEST_F(DocumentTest, inserts6)
 
     document.InsertString("Text", document.GetStringFormat("Arial", 24, false, false, false), true);
     document.MoveCaretHome(false);
-    document.InsertString("Bold", document.GetStringFormat("Arial", 24, true, false, false), true);
-    document.WaitMainLoop();
+    document.WaitTask(document.InsertString("Bold", document.GetStringFormat("Arial", 24, true, false, false), true));
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body><p>"\
@@ -773,8 +769,7 @@ TEST_F(DocumentTest, inserts7)
 
     document.InsertString("Text", document.GetStringFormat("Arial", 24, false, false, false), true);
     document.MoveCaretEnd(false);
-    document.InsertString("Bold", document.GetStringFormat("Arial", 24, true, false, false), true);
-    document.WaitMainLoop();
+    document.WaitTask(document.InsertString("Bold", document.GetStringFormat("Arial", 24, true, false, false), true));
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body><p>"\
@@ -808,10 +803,8 @@ TEST_F(DocumentTest, inserts7)
     document.MoveCaretToDocumentBegin(false);
     document.WaitCaretMoving();
     document.InsertString("T", true);
-    document.MoveCaretToDocumentEnd(false);
-    document.WaitCaretMoving();
-    document.InsertString("d", true);
-    document.WaitMainLoop();
+    document.WaitTask(document.MoveCaretToDocumentEnd(false));
+    document.WaitTask(document.InsertString("d", true));
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body><p>"\
@@ -862,8 +855,7 @@ TEST_F(DocumentTest, fonts1)
 
     document.SetFontFamily("Courier New");
     document.SetFontSize(12);
-    document.InsertString("C", true);
-    document.WaitMainLoop();
+    document.WaitTask(document.InsertString("C", true));
     ASSERT_TRUE(document.ToHtml() == 
         "<body><p>"\
         "<span style=\"font-family:'Courier New';font-size:12px;\">C</span>"\
@@ -876,8 +868,7 @@ TEST_F(DocumentTest, fonts1)
     document.InsertString("r", true);
     document.InsertString("i", true);
     document.InsertString("e", true);
-    document.InsertString("r", true);
-    document.WaitMainLoop();
+    document.WaitTask(document.InsertString("r", true));
     ASSERT_TRUE(document.ToHtml() == 
         "<body><p>"\
         "<span style=\"font-family:'Courier New';font-size:12px;\">Courier</span>"\

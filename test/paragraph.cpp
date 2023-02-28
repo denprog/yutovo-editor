@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 #include "mock.h"
 #include <QPainter>
+#include "util.h"
 
 namespace yutovo_test
 {
@@ -558,7 +559,7 @@ TEST_F(ParagraphTest, paragraph1)
 
     document.Undo();
     document.WaitUndo();
-    std::this_thread::sleep_for(100ms);
+    std::this_thread::sleep_for(200ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -578,7 +579,7 @@ TEST_F(ParagraphTest, paragraph1)
 
     document.Redo();
     document.WaitRedo();
-    std::this_thread::sleep_for(100ms);
+    std::this_thread::sleep_for(200ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -1012,6 +1013,109 @@ TEST_F(ParagraphTest, paragraph4)
         "</body>") << 
         document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 1, 0, 0})) << document.GetEditorState().ToString();
+}
+
+//Insert paragraphs in a loaded file
+TEST_F(ParagraphTest, paragraph5)
+{
+    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
+        {
+            return Rect{0, 0, 600, 400};
+        });
+
+    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
+        {
+            return GetTextSizeMock(text, format);
+        });
+
+    document.Load("../test/tests/file1.txt");
+    document.WaitLoad();
+    std::this_thread::sleep_for(2000ms);
+
+    document.WaitTask(document.MoveCaretWordRight(false));
+    document.WaitTask(document.InsertParagraph(true));
+    std::this_thread::sleep_for(100ms);
+
+    auto el = document.GetElement(ElementId{0, 0, 0});
+    ASSERT_TRUE(el->type == ElementType::PARAGRAPH && el->ToText() == U"Арифме́тика") << ToBasicString(el->ToText());
+    ASSERT_TRUE(el->elements->Count() == 1) << el->elements->Count();
+
+    el = document.GetElement(ElementId{0, 0, 1});
+    ASSERT_TRUE(el->type == ElementType::PARAGRAPH && el->ToText().rfind(U" (др.-греч.", 0) == 0) << ToBasicString(el->ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(1, 0, 0, 0)) << document.GetEditorState().ToString();
+    ASSERT_TRUE(el->elements->Count() == 16) << el->elements->Count();
+
+    document.WaitTask(document.MoveCaretUp(false));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 0)) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    std::this_thread::sleep_for(100ms);
+    el = document.GetElement(ElementId{0, 0, 0});
+    ASSERT_TRUE(el->type == ElementType::PARAGRAPH && el->ToText().rfind(U"Арифме́тика (др.-греч.", 0) == 0) << ToBasicString(el->ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 11)) << document.GetEditorState().ToString();
+}
+
+//Insert paragraphs in a multiline text
+TEST_F(ParagraphTest, paragraph6)
+{
+    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
+        {
+            return Rect{0, 0, 390, 400};
+        });
+
+    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
+        {
+            return GetTextSizeMock(text, format);
+        });
+
+    document.WaitTask(document.InsertString("In literary theory, a text is any object that can be read, whether this object is a work of literature", true));
+    document.MoveCaretToDocumentBegin(false);
+    document.MoveCaretWordRight(false);
+    document.WaitTask(document.MoveCaretWordRight(false));
+    document.WaitTask(document.InsertParagraph(true));
+    std::this_thread::sleep_for(100ms);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">In literary</span>"\
+            "</p>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\"> theory, a text is any object that can be </span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">read, whether this object is a work of </span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">literature</span>"
+            "</p>"\
+        "</body>") 
+        << document.ToHtml();
+
+    document.Undo();
+    document.WaitUndo();
+    std::this_thread::sleep_for(100ms);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">In literary theory, a text is any object </span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">that can be read, whether this object is </span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">a work of literature</span>"
+            "</p>"\
+        "</body>") 
+        << document.ToHtml();
+
+    document.Redo();
+    document.WaitRedo();
+    std::this_thread::sleep_for(100ms);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">In literary</span>"\
+            "</p>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\"> theory, a text is any object that can be </span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">read, whether this object is a work of </span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">literature</span>"
+            "</p>"\
+        "</body>") 
+        << document.ToHtml();
 }
 
 }
