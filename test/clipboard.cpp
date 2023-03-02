@@ -459,10 +459,9 @@ TEST_F(DocumentTest, clipboard7)
     std::this_thread::sleep_for(100ms);
 
     document.SetFontSize(22);
-    document.Paste(U"Paragraph1.\n"\
+    document.WaitTask(document.Paste(U"Paragraph1.\n"\
         "Paragraph2.\n"\
-        "Paragraph3");
-    document.WaitMainLoop();
+        "Paragraph3"));
     std::this_thread::sleep_for(200ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
@@ -482,10 +481,9 @@ TEST_F(DocumentTest, clipboard7)
     document.WaitTask(document.New());
     std::this_thread::sleep_for(100ms);
 
-    document.Paste(U"Paragraph1.\n"\
+    document.WaitTask(document.Paste(U"Paragraph1.\n"\
         "\n"\
-        "Paragraph3");
-    document.WaitMainLoop();
+        "Paragraph3"));
     std::this_thread::sleep_for(200ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
@@ -504,7 +502,7 @@ TEST_F(DocumentTest, clipboard7)
 
     document.Undo();
     document.WaitUndo();
-    std::this_thread::sleep_for(100ms);
+    std::this_thread::sleep_for(400ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\

@@ -443,6 +443,52 @@ TEST_F(DocumentTest, selections3)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 0)) << document.GetEditorState().ToString();
 }
 
+//Selection of rows
+TEST_F(DocumentTest, selections4)
+{
+    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
+        {
+            return Rect{0, 0, 600, 400};
+        });
+
+    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
+        {
+            return GetTextSizeMock(text, format);
+        });
+
+    document.Load("../test/tests/file1.txt");
+    document.WaitLoad();
+    std::this_thread::sleep_for(2000ms);
+
+    document.WaitTask(document.MoveCaretDown(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 1, 0, 0}, 
+        ElementSelectionState{ElementId{0, 0, 0, 0, 0}, 0, 61})) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.MoveCaretUp(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0, 0},
+        ElementSelectionState{ElementId{0, 0, 0, 1, 0}, 0, 0})) << document.GetEditorState().ToString();
+
+    document.MoveCaretWordRight(false);
+    document.WaitTask(document.MoveCaretDown(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 1, 0, 12}, 
+        ElementSelectionState{ElementId{0, 0, 0, 0, 0}, 11, 50}, 
+        ElementSelectionState{ElementId{0, 0, 0, 1, 0}, 0, 12})) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.MoveCaretDown(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 2, 0, 11}, 
+        ElementSelectionState{ElementId{0, 0, 0, 0, 0}, 11, 50}, 
+        ElementSelectionState{ElementId{0, 0, 0, 1, 0}, 0, 56}, 
+        ElementSelectionState{ElementId{0, 0, 0, 2, 0}, 0, 11})) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.MoveCaretUp(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 1, 0, 12}, 
+        ElementSelectionState{ElementId{0, 0, 0, 0, 0}, 11, 50}, 
+        ElementSelectionState{ElementId{0, 0, 0, 1, 0}, 0, 12})) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.MoveCaretUp(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0, 11})) << document.GetEditorState().ToString();
+}
+
 TEST_F(DocumentTest, inserts1)
 {
     EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
