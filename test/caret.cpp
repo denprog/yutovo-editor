@@ -413,27 +413,24 @@ TEST_F(DocumentTest, caret6)
     document.InsertParagraph(true);
     document.WaitTask(document.InsertDivision(true));
     document.MoveCaretEnd(false);
-    document.MoveCaretEnd(false);
-    document.WaitCaretMoving();
+    document.WaitTask(document.MoveCaretEnd(false));
     document.InsertParagraph(true);
     document.WaitTask(document.InsertString("String", true));
     document.MoveCaretLeft(false);
     document.MoveCaretLeft(false);
     document.MoveCaretLeft(false);
-    document.MoveCaretUp(false);
-    document.WaitCaretMoving();
+    document.WaitTask(document.MoveCaretUp(false));
+    std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 0, 0, 0, 0, 0})) << document.GetEditorState().ToString();
 
-    document.MoveCaretUp(false);
-    document.WaitCaretMoving();
+    document.WaitTask(document.MoveCaretUp(false));
+    std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0, 2})) << document.GetEditorState().ToString();
 
-    document.MoveCaretDown(false);
-    document.WaitCaretMoving();
+    document.WaitTask(document.MoveCaretDown(false));
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 0, 0, 0, 0, 0})) << document.GetEditorState().ToString();
 
-    document.MoveCaretDown(false);
-    document.WaitCaretMoving();
+    document.WaitTask(document.MoveCaretDown(false));
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 2, 0, 0, 3})) << document.GetEditorState().ToString();
 }
 
