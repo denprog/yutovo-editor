@@ -67,6 +67,19 @@ bool Block::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo)
                 new_row->elements->Move(row->elements->Get(i), new_row->elements->Count());
         }
     }
+    else
+    {
+        el = document->GetElement(before_state.id);
+        if (el)
+        {
+            p = row->elements->GetElementPos(el->id);
+            if (p >= 0)
+            {
+                for (int i = p; i < row->elements->Count();) //move all elements at the right side of the row
+                    new_row->elements->Move(row->elements->Get(i), new_row->elements->Count());
+            }
+        }
+    }
 
     int r_pos = paragraph->elements->GetElementPos(row->id);
     for (int i = r_pos + 1; i < paragraph->elements->Count();) //move the rest rows of the paragraph
