@@ -351,4 +351,50 @@ TEST_F(DocumentTest, files5)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 0)) << document.GetEditorState().ToString();
 }
 
+//Load a broken file
+TEST_F(DocumentTest, files6)
+{
+    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
+        {
+            return Rect{0, 0, 600, 400};
+        });
+
+    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
+        {
+            return GetTextSizeMock(text, format);
+        });
+
+    EXPECT_CALL(window_mock, OnLoadResult).WillOnce([&](const uint task_id, IOResult result)
+        {
+            ASSERT_TRUE(result == IOResult::InputStreamError);
+        });
+
+    document.Load("../test/tests/broken_1.yut");
+    document.WaitLoad();
+    std::this_thread::sleep_for(2000ms);
+}
+
+//Load an abcent file
+TEST_F(DocumentTest, files7)
+{
+    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
+        {
+            return Rect{0, 0, 600, 400};
+        });
+
+    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
+        {
+            return GetTextSizeMock(text, format);
+        });
+
+    EXPECT_CALL(window_mock, OnLoadResult).WillOnce([&](const uint task_id, IOResult result)
+        {
+            ASSERT_TRUE(result == IOResult::InputStreamError);
+        });
+
+    document.Load("../test/tests/abcent.yut");
+    document.WaitLoad();
+    std::this_thread::sleep_for(2000ms);
+}
+
 }
