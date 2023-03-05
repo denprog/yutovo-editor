@@ -72,6 +72,11 @@ public:
         ar & string_formats;
     }
 
+    void Clear()
+    {
+        string_formats.clear();
+    }
+
 private:
     std::vector<StringFormatPtr> string_formats;
 };
@@ -147,18 +152,10 @@ public:
     void GetFormats(std::vector<ParagraphFormatPtr>& formats);
 
     template <class Archive>
-    void save(Archive& ar, const unsigned int version) const
+    void serialize(Archive& ar, const unsigned int version)
     {
-        ar << paragraph_formats;
+        ar & paragraph_formats;
     }
-
-    template <class Archive>
-    void load(Archive& ar, const unsigned int version)
-    {
-        ar >> paragraph_formats;
-    }
-
-    BOOST_SERIALIZATION_SPLIT_MEMBER()
     
 private:
     StringFormatsPtr string_formats;

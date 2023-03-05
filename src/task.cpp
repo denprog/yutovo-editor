@@ -794,6 +794,24 @@ bool SaveTask::Execute()
         logger->Error("Error saving document '{}': {}", filename, ex.code);
         return false;
     }
+    catch (const std::ifstream::failure& ex)
+    {
+        window->OnSaveResult(id, IOResult::InputStreamError);
+        logger->Error("Error saving file '{}': {}", filename, ex.what());
+        return false;
+    }
+    catch (const std::exception& ex)
+    {
+        window->OnSaveResult(id, IOResult::InputStreamError);
+        logger->Error("Error saving file '{}': {}", filename, ex.what());
+        return false;
+    }
+    catch (...)
+    {
+        window->OnSaveResult(id, IOResult::InputStreamError);
+        logger->Error("Error saving file '{}'", filename);
+        return false;
+    }
 
     window->OnSaveResult(id, IOResult::Success);
     return true;
@@ -842,6 +860,18 @@ bool LoadTask::Execute()
         {
             window->OnLoadResult(id, IOResult::InputStreamError);
             logger->Error("Error loading file '{}': {}", filename, ex.what());
+            return false;
+        }
+        catch (const std::exception& ex)
+        {
+            window->OnLoadResult(id, IOResult::InputStreamError);
+            logger->Error("Error loading file '{}': {}", filename, ex.what());
+            return false;
+        }
+        catch (...)
+        {
+            window->OnLoadResult(id, IOResult::InputStreamError);
+            logger->Error("Error loading file '{}'", filename);
             return false;
         }
     }
