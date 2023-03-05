@@ -226,8 +226,8 @@ TEST_F(ParagraphTest, resizing2)
         "</p></body>") << 
         document.ToHtml();
     std::this_thread::sleep_for(100ms);
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 3, 21}, 
-        ElementSelectionState{ElementId{0, 0, 0, 0, 3}, 21, 2})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 3, 21}, 
+        ElementSelectionState{ElementId{0, 0, 0, 3}, 21, 2})) << document.GetEditorState().ToString();
 
     width = 440;
     document.Resize(width, 400);
@@ -241,8 +241,8 @@ TEST_F(ParagraphTest, resizing2)
         "<span style=\"font-family:'Arial';font-size:20px;\">String3</span>"\
         "</p></body>") << 
         document.ToHtml();
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 1, 0, 5}, 
-        ElementSelectionState{ElementId{0, 0, 0, 1, 0}, 5, 2})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 0, 5}, 
+        ElementSelectionState{ElementId{0, 0, 1, 0}, 5, 2})) << document.GetEditorState().ToString();
 
     width = 530;
     document.Resize(width, 400);
@@ -290,9 +290,9 @@ TEST_F(ParagraphTest, resizing2)
         "<span style=\"font-family:'Arial';font-size:20px;\">String2 String3</span>"\
         "</p></body>") << 
         document.ToHtml();
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 3, 3}, 
-        ElementSelectionState{ElementId{0, 0, 0, 0, 3}, 3, 5}, 
-        ElementSelectionState{ElementId{0, 0, 0, 1, 0}, 0, 7})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 3, 3}, 
+        ElementSelectionState{ElementId{0, 0, 0, 3}, 3, 5}, 
+        ElementSelectionState{ElementId{0, 0, 1, 0}, 0, 7})) << document.GetEditorState().ToString();
 
     width = 420;
     document.Resize(width, 400);
@@ -306,9 +306,9 @@ TEST_F(ParagraphTest, resizing2)
         "<span style=\"font-family:'Arial';font-size:20px;\">String2 String3</span>"\
         "</p></body>") << 
         document.ToHtml();
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 3, 3}, 
-        ElementSelectionState{ElementId{0, 0, 0, 0, 3}, 3, 5}, 
-        ElementSelectionState{ElementId{0, 0, 0, 1, 0}, 0, 7})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 3, 3}, 
+        ElementSelectionState{ElementId{0, 0, 0, 3}, 3, 5}, 
+        ElementSelectionState{ElementId{0, 0, 1, 0}, 0, 7})) << document.GetEditorState().ToString();
 }
 
 TEST_F(ParagraphTest, paragraph1)
@@ -920,7 +920,7 @@ TEST_F(ParagraphTest, paragraph3)
             "</p>"\
         "</body>") << 
         document.ToHtml();
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 1, 0, 0, 0, 0, 0, 0, 0})) << document.GetEditorState().ToString();
 }
 
 //Insert a formula at the beginning of a row and insert a paragraph at the beginning
@@ -963,7 +963,7 @@ TEST_F(ParagraphTest, paragraph4)
             "</p>"\
         "</body>") << 
         document.ToHtml();
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 1, 0, 0})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 1, 0, 0})) << document.GetEditorState().ToString();
 
     document.Undo();
     document.WaitUndo();
@@ -986,7 +986,7 @@ TEST_F(ParagraphTest, paragraph4)
             "</p>"\
         "</body>") << 
         document.ToHtml();
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0})) << document.GetEditorState().ToString();
 
     document.Redo();
     document.WaitRedo();
@@ -1012,7 +1012,7 @@ TEST_F(ParagraphTest, paragraph4)
             "</p>"\
         "</body>") << 
         document.ToHtml();
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 1, 0, 0})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 1, 0, 0})) << document.GetEditorState().ToString();
 }
 
 //Insert paragraphs in a loaded file
@@ -1036,11 +1036,11 @@ TEST_F(ParagraphTest, paragraph5)
     document.WaitTask(document.InsertParagraph(true));
     std::this_thread::sleep_for(100ms);
 
-    auto el = document.GetElement(ElementId{0, 0, 0});
+    auto el = document.GetElement(ElementId{0, 0});
     ASSERT_TRUE(el->type == ElementType::PARAGRAPH && el->ToText() == U"Арифме́тика") << ToBasicString(el->ToText());
     ASSERT_TRUE(el->elements->Count() == 1) << el->elements->Count();
 
-    el = document.GetElement(ElementId{0, 0, 1});
+    el = document.GetElement(ElementId{0, 1});
     ASSERT_TRUE(el->type == ElementType::PARAGRAPH && el->ToText().rfind(U" (др.-греч.", 0) == 0) << ToBasicString(el->ToText());
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(1, 0, 0, 0)) << document.GetEditorState().ToString();
     ASSERT_TRUE(el->elements->Count() == 16) << el->elements->Count();
@@ -1051,7 +1051,7 @@ TEST_F(ParagraphTest, paragraph5)
     document.Undo();
     document.WaitUndo();
     std::this_thread::sleep_for(100ms);
-    el = document.GetElement(ElementId{0, 0, 0});
+    el = document.GetElement(ElementId{0, 0});
     ASSERT_TRUE(el->type == ElementType::PARAGRAPH && el->ToText().rfind(U"Арифме́тика (др.-греч.", 0) == 0) << ToBasicString(el->ToText());
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 11)) << document.GetEditorState().ToString();
 }

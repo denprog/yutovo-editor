@@ -312,7 +312,6 @@ void Caret::MoveWordRight(Selection* selection)
 void Caret::MovePageUp(Selection* selection)
 {
     auto el = GetElement();
-    auto page = document->FindParent(el->id, ElementType::PAGE);
     auto paragraph = document->FindParent(el->id, ElementType::PARAGRAPH);
     auto row = document->FindParent(el->id, ElementType::ROW);
     Rect view_port = window->GetViewPort(0);
@@ -320,11 +319,11 @@ void Caret::MovePageUp(Selection* selection)
     Rect cur = document->GetCaretRect(GetCaretState());
 
     CaretState next, last;
-    int paragraph_pos = page->elements->GetChildPos(paragraph->id);
+    int paragraph_pos = document->text->elements->GetChildPos(paragraph->id);
     int row_pos = paragraph->elements->GetChildPos(row->id);
     for (int i = paragraph_pos; i >= 0; --i)
     {
-        paragraph = page->elements->Get(i);
+        paragraph = document->text->elements->Get(i);
         for (int j = (row_pos == -1 ? paragraph->elements->Count() - 1 : row_pos); j >= 0; --j)
         {
             row = paragraph->elements->Get(j);
@@ -358,7 +357,6 @@ void Caret::MovePageUp(Selection* selection)
 void Caret::MovePageDown(Selection* selection)
 {
     auto el = GetElement();
-    auto page = document->FindParent(el->id, ElementType::PAGE);
     auto paragraph = document->FindParent(el->id, ElementType::PARAGRAPH);
     auto row = document->FindParent(el->id, ElementType::ROW);
     Rect view_port = window->GetViewPort(0);
@@ -366,11 +364,11 @@ void Caret::MovePageDown(Selection* selection)
     Rect cur = document->GetCaretRect(GetCaretState());
 
     CaretState next, last;
-    int paragraph_pos = page->elements->GetChildPos(paragraph->id);
+    int paragraph_pos = document->text->elements->GetChildPos(paragraph->id);
     int row_pos = paragraph->elements->GetChildPos(row->id);
-    for (int i = paragraph_pos; i < page->elements->Count(); ++i)
+    for (int i = paragraph_pos; i < document->text->elements->Count(); ++i)
     {
-        paragraph = page->elements->Get(i);
+        paragraph = document->text->elements->Get(i);
         for (int j = row_pos; j < paragraph->elements->Count(); ++j)
         {
             row = paragraph->elements->Get(j);

@@ -21,7 +21,11 @@ Block::Block(Document* _document) :
 bool Block::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo)
 {
     if (_elements.size() != 1 || !document->IsParagraph(_elements[0]))
+    {
+        if (!parent)
+            return false;
         return parent->InsertElements(_elements, with_undo);
+    }
 
     CaretState before_state = caret->GetCaretState();
     ElementPtr insert_element(_elements[0]->Clone());
@@ -75,7 +79,7 @@ bool Block::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo)
 
     if (with_undo)
     {
-        document->CallFunc(parent->id, 
+        document->CallFunc(id, 
             [d = document, clone](const ElementId id)
             {
                 d->GetElement(clone->id)->Normalize(false);
@@ -98,7 +102,7 @@ bool Block::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo)
                 d->can_normalize = false;
             },
             true);
-        document->CallFunc(parent->id, 
+        document->CallFunc(id, 
             [d = document, clone](const ElementId id)
             {
                 d->GetElement(clone->id)->Normalize(false);
@@ -152,7 +156,11 @@ bool Block::DeleteElements(bool left, bool with_undo)
     CaretState before_state = caret->GetCaretState();
     ElementPtr el = document->GetElement(before_state.id);
     if (!el)
+    {
+        if (!parent)
+            return false;
         return parent->DeleteElements(left, with_undo);
+    }
     int p = 0;
     ElementPtr dest_row;
     if (document->IsParagraph(el))
@@ -211,7 +219,11 @@ bool Block::GetTopCaretState(const int x, const int y, CaretState& caret_state, 
         p = el;
     }
     if (!p)
+    {
+        if (!parent)
+            return false;
         return parent->GetTopCaretState(x, y, caret_state, select);
+    }
     return p->GetTopCaretState(x, y, caret_state, select);
 }
 
@@ -227,7 +239,11 @@ bool Block::GetBottomCaretState(const int x, const int y, CaretState& caret_stat
         p = el;
     }
     if (!p)
+    {
+        if (!parent)
+            return false;
         return parent->GetBottomCaretState(x, y, caret_state, select);
+    }
     return p->GetBottomCaretState(x, y, caret_state, select);
 }
 

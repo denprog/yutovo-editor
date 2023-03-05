@@ -30,7 +30,6 @@ public:
 
     void Start(Config& _config);
 
-    uint InsertPage(bool with_undo);
     uint InsertParagraph(bool with_undo, bool undo = false);
     uint InsertString(const std::string& str, bool with_undo);
     uint InsertString(const std::u32string& str, bool with_undo);

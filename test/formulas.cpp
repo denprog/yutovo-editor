@@ -38,7 +38,7 @@ TEST_F(FormulaTest, delete1)
             "</p>"\
         "</body>") << 
         document.ToHtml();
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 0, 3})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 3})) << document.GetEditorState().ToString();
 
     document.Undo();
     document.WaitUndo();
@@ -54,7 +54,7 @@ TEST_F(FormulaTest, delete1)
             "</p>"\
         "</body>") << 
         document.ToHtml();
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 2})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 2})) << document.GetEditorState().ToString();
 
     document.Redo();
     document.WaitRedo();
@@ -64,26 +64,6 @@ TEST_F(FormulaTest, delete1)
                 "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
                     "<mrow>"\
                         "<mi>123</mi>"\
-                    "</mrow>"\
-                "</math>"\
-            "</p>"\
-        "</body>") << 
-        document.ToHtml();
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 0, 3})) << document.GetEditorState().ToString();
-
-    document.InsertPlus(true);
-    document.InsertPlus(true);
-    document.DeleteElements(false, true, false);
-    document.WaitMainLoop();
-    std::this_thread::sleep_for(100ms);
-    ASSERT_TRUE(document.ToHtml() == 
-        "<body>"\
-            "<p>"\
-                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
-                    "<mrow>"\
-                        "<mi>123</mi>"\
-                        "<mo>+</mo>"\
-                        "<mo>+</mo>"\
                     "</mrow>"\
                 "</math>"\
             "</p>"\
@@ -91,6 +71,26 @@ TEST_F(FormulaTest, delete1)
         document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 3})) << document.GetEditorState().ToString();
 
+    document.InsertPlus(true);
+    document.InsertPlus(true);
+    document.DeleteElements(false, true, false);
+    document.WaitMainLoop();
+    std::this_thread::sleep_for(100ms);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mi>123</mi>"\
+                        "<mo>+</mo>"\
+                        "<mo>+</mo>"\
+                    "</mrow>"\
+                "</math>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 3})) << document.GetEditorState().ToString();
+
     document.MoveCaretLeft(false);
     document.DeleteElements(false, true, false);
     document.WaitMainLoop();
@@ -107,7 +107,7 @@ TEST_F(FormulaTest, delete1)
             "</p>"\
         "</body>") << 
         document.ToHtml();
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 2})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 2})) << document.GetEditorState().ToString();
 
     document.MoveCaretLeft(false);
     document.DeleteElements(false, true, false);
@@ -124,7 +124,7 @@ TEST_F(FormulaTest, delete1)
             "</p>"\
         "</body>") << 
         document.ToHtml();
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 0, 3})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 3})) << document.GetEditorState().ToString();
 
     document.Undo();
     document.WaitUndo();
@@ -140,7 +140,7 @@ TEST_F(FormulaTest, delete1)
             "</p>"\
         "</body>") << 
         document.ToHtml();
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 1})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 1})) << document.GetEditorState().ToString();
 
     document.Undo();
     document.WaitUndo();
@@ -157,7 +157,7 @@ TEST_F(FormulaTest, delete1)
             "</p>"\
         "</body>") << 
         document.ToHtml();
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 2})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 2})) << document.GetEditorState().ToString();
 
     document.Redo();
     document.WaitRedo();
@@ -173,7 +173,7 @@ TEST_F(FormulaTest, delete1)
             "</p>"\
         "</body>") << 
         document.ToHtml();
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 2})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 2})) << document.GetEditorState().ToString();
 
     document.Redo();
     document.WaitRedo();
@@ -188,7 +188,7 @@ TEST_F(FormulaTest, delete1)
             "</p>"\
         "</body>") << 
         document.ToHtml();
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 0, 3})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 3})) << document.GetEditorState().ToString();
 }
 
 //Delete with undo a text and a code block
@@ -215,9 +215,9 @@ TEST_F(FormulaTest, delete2)
     document.MoveCaretRight(true);
     document.MoveCaretRight(true);
     document.WaitCaretMoving();
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 2}, 
-        ElementSelectionState{ElementId{0, 0, 0, 0, 0}, 2, 2}, 
-        ElementSelectionState{ElementId{0, 0, 0, 0}, 1, 1})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 2}, 
+        ElementSelectionState{ElementId{0, 0, 0, 0}, 2, 2}, 
+        ElementSelectionState{ElementId{0, 0, 0}, 1, 1})) << document.GetEditorState().ToString();
     document.WaitTask(document.DeleteElements(true, true, false));
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
@@ -242,9 +242,9 @@ TEST_F(FormulaTest, delete2)
             "</p>"\
         "</body>") << 
         document.ToHtml();
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 2}, 
-        ElementSelectionState{ElementId{0, 0, 0, 0, 0}, 2, 2}, 
-        ElementSelectionState{ElementId{0, 0, 0, 0}, 1, 1})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 2}, 
+        ElementSelectionState{ElementId{0, 0, 0, 0}, 2, 2}, 
+        ElementSelectionState{ElementId{0, 0, 0}, 1, 1})) << document.GetEditorState().ToString();
     
     document.MoveCaretEnd(false);
     document.MoveCaretLeft(true);
@@ -273,13 +273,13 @@ TEST_F(FormulaTest, delete2)
             "</p>"\
         "</body>") << 
         document.ToHtml();
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0, 2}, 
-        ElementSelectionState{ElementId{0, 0, 0, 0}, 1, 1},
-        ElementSelectionState{ElementId{0, 0, 0, 0, 0}, 2, 2})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 2}, 
+        ElementSelectionState{ElementId{0, 0, 0}, 1, 1},
+        ElementSelectionState{ElementId{0, 0, 0, 0}, 2, 2})) << document.GetEditorState().ToString();
     
     document.MoveCaretRight(false);
     document.WaitCaretMoving();
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 2})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 2})) << document.GetEditorState().ToString();
 }
 
 //Delete with undo a text and a code block and a text
@@ -308,10 +308,10 @@ TEST_F(FormulaTest, delete3)
     for (int i = 0; i < 6; ++i)
         document.MoveCaretRight(true);
     document.WaitCaretMoving();
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 2, 3}, 
-        ElementSelectionState{ElementId{0, 0, 0, 0, 0}, 2, 2}, 
-        ElementSelectionState{ElementId{0, 0, 0, 0}, 1, 1},
-        ElementSelectionState{ElementId{0, 0, 0, 0, 2}, 0, 3})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 2, 3}, 
+        ElementSelectionState{ElementId{0, 0, 0, 0}, 2, 2}, 
+        ElementSelectionState{ElementId{0, 0, 0}, 1, 1},
+        ElementSelectionState{ElementId{0, 0, 0, 2}, 0, 3})) << document.GetEditorState().ToString();
     document.WaitTask(document.DeleteElements(true, true, false));
     std::this_thread::sleep_for(200ms);
     ASSERT_TRUE(document.ToHtml() == 
@@ -339,10 +339,10 @@ TEST_F(FormulaTest, delete3)
             "</p>"\
         "</body>") << 
         document.ToHtml();
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 2, 3}, 
-        ElementSelectionState{ElementId{0, 0, 0, 0, 0}, 2, 2}, 
-        ElementSelectionState{ElementId{0, 0, 0, 0}, 1, 1},
-        ElementSelectionState{ElementId{0, 0, 0, 0, 2}, 0, 3})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 2, 3}, 
+        ElementSelectionState{ElementId{0, 0, 0, 0}, 2, 2}, 
+        ElementSelectionState{ElementId{0, 0, 0}, 1, 1},
+        ElementSelectionState{ElementId{0, 0, 0, 2}, 0, 3})) << document.GetEditorState().ToString();
     
     document.MoveCaretEnd(false);
     document.MoveCaretLeft(false);
@@ -350,10 +350,10 @@ TEST_F(FormulaTest, delete3)
     for (int i = 0; i < 6; ++i)
         document.MoveCaretLeft(true);
     document.WaitCaretMoving();
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0, 2}, 
-        ElementSelectionState{ElementId{0, 0, 0, 0, 0}, 2, 2}, 
-        ElementSelectionState{ElementId{0, 0, 0, 0}, 1, 1},
-        ElementSelectionState{ElementId{0, 0, 0, 0, 2}, 0, 3})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 2}, 
+        ElementSelectionState{ElementId{0, 0, 0, 0}, 2, 2}, 
+        ElementSelectionState{ElementId{0, 0, 0}, 1, 1},
+        ElementSelectionState{ElementId{0, 0, 0, 2}, 0, 3})) << document.GetEditorState().ToString();
     document.WaitTask(document.DeleteElements(true, true, false));
     std::this_thread::sleep_for(200ms);
     ASSERT_TRUE(document.ToHtml() == 
@@ -381,10 +381,10 @@ TEST_F(FormulaTest, delete3)
             "</p>"\
         "</body>") << 
         document.ToHtml();
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0, 2}, 
-        ElementSelectionState{ElementId{0, 0, 0, 0, 0}, 2, 2}, 
-        ElementSelectionState{ElementId{0, 0, 0, 0}, 1, 1},
-        ElementSelectionState{ElementId{0, 0, 0, 0, 2}, 0, 3})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 2}, 
+        ElementSelectionState{ElementId{0, 0, 0, 0}, 2, 2}, 
+        ElementSelectionState{ElementId{0, 0, 0}, 1, 1},
+        ElementSelectionState{ElementId{0, 0, 0, 2}, 0, 3})) << document.GetEditorState().ToString();
 }
 
 //Delete a selected code block at the beginning of the text
@@ -439,7 +439,7 @@ TEST_F(FormulaTest, delete4)
             "</p>"\
         "</body>") << 
         document.ToHtml();
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0})) << document.GetEditorState().ToString();
 
     document.Undo();
     document.WaitUndo();
@@ -463,12 +463,12 @@ TEST_F(FormulaTest, delete4)
             "</p>"\
         "</body>") << 
         document.ToHtml();
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 1, 0}, 
-        ElementSelectionState{ElementId{0, 0, 0, 0}, 0, 1})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 1, 0}, 
+        ElementSelectionState{ElementId{0, 0, 0}, 0, 1})) << document.GetEditorState().ToString();
     
     document.MoveCaretRight(false);
     document.WaitCaretMoving();
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 1, 0})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 1, 0})) << document.GetEditorState().ToString();
 }
 
 //Deletion of a selected formula
@@ -490,8 +490,8 @@ TEST_F(FormulaTest, delete5)
     document.WaitCaretMoving();
     document.MoveCaretRight(true);
     document.WaitCaretMoving();
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 1}, 
-        ElementSelectionState{ElementId{0, 0, 0, 0}, 0, 1})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 1}, 
+        ElementSelectionState{ElementId{0, 0, 0}, 0, 1})) << document.GetEditorState().ToString();
 
     document.WaitTask(document.DeleteElements(false, true, false));
     ASSERT_TRUE(document.ToHtml() == 
@@ -522,8 +522,8 @@ TEST_F(FormulaTest, delete5)
             "</p>"\
         "</body>") << 
         document.ToHtml();
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 1}, 
-        ElementSelectionState{ElementId{0, 0, 0, 0}, 0, 1})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 1}, 
+        ElementSelectionState{ElementId{0, 0, 0}, 0, 1})) << document.GetEditorState().ToString();
 }
 
 //Deletion of a selected formula with a text
@@ -572,7 +572,7 @@ TEST_F(FormulaTest, delete6)
             "</p>"\
         "</body>") << 
         document.ToHtml();
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 1, 2})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 1, 2})) << document.GetEditorState().ToString();
 
     document.Undo();
     document.WaitUndo();
@@ -610,10 +610,10 @@ TEST_F(FormulaTest, delete6)
             "</p>"\
         "</body>") << 
         document.ToHtml();
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 3, 4}, 
-        ElementSelectionState{ElementId{0, 0, 0, 0, 1}, 2, 11},
-        ElementSelectionState{ElementId{0, 0, 0, 0}, 2, 1},
-        ElementSelectionState{ElementId{0, 0, 0, 0, 3}, 0, 4})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 3, 4}, 
+        ElementSelectionState{ElementId{0, 0, 0, 1}, 2, 11},
+        ElementSelectionState{ElementId{0, 0, 0}, 2, 1},
+        ElementSelectionState{ElementId{0, 0, 0, 3}, 0, 4})) << document.GetEditorState().ToString();
 }
 
 TEST_F(FormulaTest, insert1)
@@ -652,7 +652,7 @@ TEST_F(FormulaTest, insert1)
             "</p>"\
         "</body>") << 
         document.ToHtml();
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 1, 1, 0, 0, 0, 0})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 1, 1, 0, 0, 0, 0})) << document.GetEditorState().ToString();
 
     document.Undo();
     document.WaitUndo();
@@ -665,7 +665,7 @@ TEST_F(FormulaTest, insert1)
             "</p>"\
         "</body>") << 
         document.ToHtml();
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 1, 0, 2})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 1, 0, 2})) << document.GetEditorState().ToString();
 
     document.Redo();
     document.WaitRedo();
@@ -685,7 +685,7 @@ TEST_F(FormulaTest, insert1)
             "</p>"\
         "</body>") << 
         document.ToHtml();
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 1, 1, 0, 0, 0, 0})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 1, 1, 0, 0, 0, 0})) << document.GetEditorState().ToString();
 }
 
 //Insert code in text and reformat text
@@ -726,12 +726,12 @@ TEST_F(FormulaTest, insert2)
             "</p>"\
         "</body>") << 
         document.ToHtml();
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 1, 0, 0, 0, 0, 0, 0})) << document.GetEditorState().ToString();
     document.MoveCaretEnd(false);
     document.MoveCaretEnd(false);
     document.MoveCaretRight(false);
     document.WaitCaretMoving();
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 1, 0, 0})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 1, 0, 0})) << document.GetEditorState().ToString();
 
     document.Undo();
     document.WaitUndo();
@@ -743,7 +743,7 @@ TEST_F(FormulaTest, insert2)
             "</p>"\
         "</body>") << 
         document.ToHtml();
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 42})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 42})) << document.GetEditorState().ToString();
 
     document.Redo();
     document.WaitRedo();
@@ -768,7 +768,7 @@ TEST_F(FormulaTest, insert2)
             "</p>"\
         "</body>") << 
         document.ToHtml();
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 1, 0, 0, 0, 0, 0, 0})) << document.GetEditorState().ToString();
 }
 
 //Insert formula, remake and undo
@@ -791,7 +791,7 @@ TEST_F(FormulaTest, insert3)
     document.WaitTask(document.InsertDivision(true));
     document.Undo();
     document.WaitUndo();
-    std::this_thread::sleep_for(200ms);
+    std::this_thread::sleep_for(400ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -800,7 +800,7 @@ TEST_F(FormulaTest, insert3)
             "</p>"\
         "</body>") << 
         document.ToHtml();
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 42})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 42})) << document.GetEditorState().ToString();
 
     document.Redo();
     document.WaitRedo();
@@ -825,7 +825,7 @@ TEST_F(FormulaTest, insert3)
             "</p>"\
         "</body>") << 
         document.ToHtml();
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 1, 0, 0, 0, 0, 0, 0, 0})) << document.GetEditorState().ToString();
 }
 
 //Selection of a formula
@@ -851,14 +851,14 @@ TEST_F(FormulaTest, select1)
     document.MoveCaretRight(true);
     document.MoveCaretRight(true);
     document.WaitCaretMoving();
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0, 0, 0, 1}, 
-        ElementSelectionState{ElementId{0, 0, 0, 0, 0, 0, 0}, 0, 1})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0, 0, 1}, 
+        ElementSelectionState{ElementId{0, 0, 0, 0, 0, 0}, 0, 1})) << document.GetEditorState().ToString();
 
     document.MoveCaretRight(true);
     document.WaitCaretMoving();
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 1}, 
-        ElementSelectionState{ElementId{0, 0, 0, 0, 0, 0, 0}, 0, 1},
-        ElementSelectionState{ElementId{0, 0, 0, 0}, 0, 1})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 1}, 
+        ElementSelectionState{ElementId{0, 0, 0, 0, 0, 0}, 0, 1},
+        ElementSelectionState{ElementId{0, 0, 0}, 0, 1})) << document.GetEditorState().ToString();
 }
 
 //Selection of a formula at the beginning of a text
@@ -882,8 +882,8 @@ TEST_F(FormulaTest, select2)
     document.MoveCaretHome(false);
     document.MoveCaretRight(true);
     document.WaitCaretMoving();
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 1, 0}, 
-        ElementSelectionState{ElementId{0, 0, 0, 0}, 0, 1})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 1, 0}, 
+        ElementSelectionState{ElementId{0, 0, 0}, 0, 1})) << document.GetEditorState().ToString();
 }
 
 //Selection of a formula at the end of a row
@@ -911,17 +911,17 @@ TEST_F(FormulaTest, select3)
     document.MoveCaretRight(true);
     document.WaitTask(document.MoveCaretRight(true));
     std::this_thread::sleep_for(200ms);
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 1, 0, 2}, 
-        ElementSelectionState{ElementId{0, 0, 0, 0}, 1, 1},
-        ElementSelectionState{ElementId{0, 0, 0, 1, 0}, 0, 2})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 0, 2}, 
+        ElementSelectionState{ElementId{0, 0, 0}, 1, 1},
+        ElementSelectionState{ElementId{0, 0, 1, 0}, 0, 2})) << document.GetEditorState().ToString();
 
     width = 380;
     document.Resize(width, 400);
     document.WaitMainLoop();
     std::this_thread::sleep_for(200ms);
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 1, 1, 2}, 
-        ElementSelectionState{ElementId{0, 0, 0, 1}, 0, 1},
-        ElementSelectionState{ElementId{0, 0, 0, 1, 1}, 0, 2})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 1, 2}, 
+        ElementSelectionState{ElementId{0, 0, 1}, 0, 1},
+        ElementSelectionState{ElementId{0, 0, 1, 1}, 0, 2})) << document.GetEditorState().ToString();
 }
 
 //Selection of a child element of a formula at the end of a row
@@ -945,15 +945,15 @@ TEST_F(FormulaTest, select4)
     document.WaitTask(document.InsertString("123", true));
     document.MoveCaretLeft(true);
     document.WaitTask(document.MoveCaretLeft(true));
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1}, 
-        ElementSelectionState{ElementId{0, 0, 0, 1, 0, 0, 0, 0, 0, 0}, 1, 2})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 0, 0, 0, 0, 0, 0, 1}, 
+        ElementSelectionState{ElementId{0, 0, 1, 0, 0, 0, 0, 0, 0}, 1, 2})) << document.GetEditorState().ToString();
 
     width = 410;
     document.Resize(width, 400);
     document.WaitMainLoop();
     std::this_thread::sleep_for(100ms);
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1}, 
-        ElementSelectionState{ElementId{0, 0, 0, 1, 1, 0, 0, 0, 0, 0}, 1, 2})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 1, 0, 0, 0, 0, 0, 1}, 
+        ElementSelectionState{ElementId{0, 0, 1, 1, 0, 0, 0, 0, 0}, 1, 2})) << document.GetEditorState().ToString();
 }
 
 //Selection of a part of row, a formula and a part of row
@@ -979,37 +979,37 @@ TEST_F(FormulaTest, select5)
     for (int i = 0; i < 7; ++i)
         document.MoveCaretRight(true);
     document.WaitTask(document.MoveCaretRight(true));
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 1, 0, 4}, 
-        ElementSelectionState{ElementId{0, 0, 0, 0, 0}, 39, 3},
-        ElementSelectionState{ElementId{0, 0, 0, 0}, 1, 1},
-        ElementSelectionState{ElementId{0, 0, 0, 1, 0}, 0, 4})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 0, 4}, 
+        ElementSelectionState{ElementId{0, 0, 0, 0}, 39, 3},
+        ElementSelectionState{ElementId{0, 0, 0}, 1, 1},
+        ElementSelectionState{ElementId{0, 0, 1, 0}, 0, 4})) << document.GetEditorState().ToString();
 
     width = 380;
     document.Resize(width, 400);
     document.WaitMainLoop();
     std::this_thread::sleep_for(200ms);
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 1, 1, 4}, 
-        ElementSelectionState{ElementId{0, 0, 0, 0, 0}, 39, 3},
-        ElementSelectionState{ElementId{0, 0, 0, 1}, 0, 1},
-        ElementSelectionState{ElementId{0, 0, 0, 1, 1}, 0, 4})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 1, 4}, 
+        ElementSelectionState{ElementId{0, 0, 0, 0}, 39, 3},
+        ElementSelectionState{ElementId{0, 0, 1}, 0, 1},
+        ElementSelectionState{ElementId{0, 0, 1, 1}, 0, 4})) << document.GetEditorState().ToString();
 
     width = 350;
     document.Resize(width, 400);
     document.WaitMainLoop();
     std::this_thread::sleep_for(200ms);
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 1, 2, 4}, 
-        ElementSelectionState{ElementId{0, 0, 0, 1, 0}, 4, 3},
-        ElementSelectionState{ElementId{0, 0, 0, 1}, 1, 1},
-        ElementSelectionState{ElementId{0, 0, 0, 1, 2}, 0, 4})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 2, 4}, 
+        ElementSelectionState{ElementId{0, 0, 1, 0}, 4, 3},
+        ElementSelectionState{ElementId{0, 0, 1}, 1, 1},
+        ElementSelectionState{ElementId{0, 0, 1, 2}, 0, 4})) << document.GetEditorState().ToString();
 
     width = 380;
     document.Resize(width, 400);
     document.WaitMainLoop();
     std::this_thread::sleep_for(400ms);
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 1, 1, 4}, 
-        ElementSelectionState{ElementId{0, 0, 0, 0, 0}, 39, 3},
-        ElementSelectionState{ElementId{0, 0, 0, 1}, 0, 1},
-        ElementSelectionState{ElementId{0, 0, 0, 1, 1}, 0, 4})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 1, 4}, 
+        ElementSelectionState{ElementId{0, 0, 0, 0}, 39, 3},
+        ElementSelectionState{ElementId{0, 0, 1}, 0, 1},
+        ElementSelectionState{ElementId{0, 0, 1, 1}, 0, 4})) << document.GetEditorState().ToString();
 }
 
 TEST_F(FormulaTest, fonts1)
@@ -1051,10 +1051,10 @@ TEST_F(FormulaTest, fonts1)
             "</p>"\
         "</body>") << 
         document.ToHtml();
-    auto s = document.GetElement(ElementId{0, 0, 0, 0, 0, 0, 0, 0, 0, 0});
+    auto s = document.GetElement(ElementId{0, 0, 0, 0, 0, 0, 0, 0, 0});
     ASSERT_TRUE(s->type == ElementType::CODE_STRING && ((CodeString*)s.get())->GetStringFormat()->size == 12);
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 1}, 
-        ElementSelectionState{ElementId{0, 0, 0, 0}, 0, 1})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 1}, 
+        ElementSelectionState{ElementId{0, 0, 0}, 0, 1})) << document.GetEditorState().ToString();
     
     document.Undo();
     document.WaitUndo();
@@ -1077,10 +1077,10 @@ TEST_F(FormulaTest, fonts1)
             "</p>"\
         "</body>") << 
         document.ToHtml();
-    s = document.GetElement(ElementId{0, 0, 0, 0, 0, 0, 0, 0, 0, 0});
+    s = document.GetElement(ElementId{0, 0, 0, 0, 0, 0, 0, 0, 0});
     ASSERT_TRUE(s->type == ElementType::CODE_STRING && ((CodeString*)s.get())->GetStringFormat()->size == 14);
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 1}, 
-        ElementSelectionState{ElementId{0, 0, 0, 0}, 0, 1})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 1}, 
+        ElementSelectionState{ElementId{0, 0, 0}, 0, 1})) << document.GetEditorState().ToString();
 }
 
 }

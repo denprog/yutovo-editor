@@ -93,7 +93,7 @@ struct DocumentTest : public testing::Test
     EditorState MakeEditorState(uint paragraph_id, uint row_id, uint string_id, uint string_pos)
     {
         CaretState r;
-        ElementId id{0, 0};
+        ElementId id{0};
         id.push_back(paragraph_id);
         id.push_back(row_id);
         id.push_back(string_id);
@@ -107,7 +107,7 @@ struct DocumentTest : public testing::Test
     EditorState MakeEditorState(uint paragraph_id, uint row_id, uint string_id, uint string_pos, uint selection_start, uint selection_size)
     {
         CaretState r;
-        ElementId id{0, 0};
+        ElementId id{0};
         id.push_back(paragraph_id);
         id.push_back(row_id);
         id.push_back(string_id);
@@ -124,7 +124,7 @@ struct DocumentTest : public testing::Test
     {
         EditorState res = MakeEditorState(paragraph_id, row_id, string_id, string_pos, selection1_start, selection1_size);
 
-        ElementId id2{0, 0};
+        ElementId id2{0};
         id2.push_back(paragraph_id);
         id2.push_back(row_id);
         id2.push_back(string2_id);
@@ -138,7 +138,7 @@ struct DocumentTest : public testing::Test
         EditorState res = MakeEditorState(paragraph_id, row_id, string_id, string_pos, selection1_start, selection1_size,
             string2_id, selection2_start, selection2_size);
 
-        ElementId id3{0, 0};
+        ElementId id3{0};
         id3.push_back(paragraph_id);
         id3.push_back(row_id);
         id3.push_back(string3_id);

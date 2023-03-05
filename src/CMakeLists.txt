@@ -18,7 +18,6 @@ add_library(${PROJECT_NAME}
     document.cpp
     element.cpp
     block.cpp
-    page.cpp
     paragraph.cpp
     row.cpp
     str.cpp
@@ -98,6 +97,7 @@ install(
         result_codes.h
         caret.h
         element.h
+        block.h
         text.h
         logger.h
         solver.h
