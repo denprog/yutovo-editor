@@ -210,8 +210,8 @@ TEST_F(DocumentTest, clipboard4)
     std::u32string clipboard_text;
     document.WaitTask(document.InsertString("The source of the text itself is a little strange", true));
     document.WaitTask(document.MoveCaretWordLeft(true));
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0, 42}, 
-        ElementSelectionState{ElementId{0, 0, 0, 0, 0}, 42, 7})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 42}, 
+        ElementSelectionState{ElementId{0, 0, 0, 0}, 42, 7})) << document.GetEditorState().ToString();
     document.WaitTask(document.Cut(clipboard_array, clipboard_text));
     std::this_thread::sleep_for(200ms);
     ASSERT_TRUE(document.ToText() == U"The source of the text itself is a little ") << ToBasicString(document.ToText());
@@ -271,7 +271,7 @@ TEST_F(DocumentTest, clipboard5)
             "</p>"\
         "</body>") << 
         document.ToHtml();
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0, 0})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0})) << document.GetEditorState().ToString();
 
     document.Redo();
     document.WaitRedo();
@@ -374,7 +374,7 @@ TEST_F(DocumentTest, clipboard6)
             "</p>"\
         "</body>") << 
         document.ToHtml();
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0, 0})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0})) << document.GetEditorState().ToString();
 
     document.Redo();
     document.WaitRedo();
@@ -510,7 +510,7 @@ TEST_F(DocumentTest, clipboard7)
             "</p>"\
         "</body>") << 
         document.ToHtml();
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0, 0})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0})) << document.GetEditorState().ToString();
 
     document.Redo();
     document.WaitRedo();
@@ -559,31 +559,31 @@ TEST_F(DocumentTest, clipboard8)
     std::u32string clipboard_text;
     document.WaitTask(document.InsertString("The source of the text itself is a little strange", true));
     document.WaitTask(document.MoveCaretWordLeft(true));
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 1, 0, 0}, 
-        ElementSelectionState{ElementId{0, 0, 0, 1, 0}, 0, 7})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 0, 0}, 
+        ElementSelectionState{ElementId{0, 0, 1, 0}, 0, 7})) << document.GetEditorState().ToString();
     
     document.WaitTask(document.Cut(clipboard_array, clipboard_text));
     std::this_thread::sleep_for(200ms);
     ASSERT_TRUE(document.ToText() == U"The source of the text itself is a little ") << ToBasicString(document.ToText());
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0, 42})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 42})) << document.GetEditorState().ToString();
 
     document.Undo();
     document.WaitUndo();
     std::this_thread::sleep_for(400ms);
     ASSERT_TRUE(document.ToText() == U"The source of the text itself is a little strange") << ToBasicString(document.ToText());
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 1, 0, 0}, 
-        ElementSelectionState{ElementId{0, 0, 0, 1, 0}, 0, 7})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 0, 0}, 
+        ElementSelectionState{ElementId{0, 0, 1, 0}, 0, 7})) << document.GetEditorState().ToString();
     
     document.Redo();
     document.WaitRedo();
     std::this_thread::sleep_for(200ms);
     ASSERT_TRUE(document.ToText() == U"The source of the text itself is a little ") << ToBasicString(document.ToText());
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0, 42})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 42})) << document.GetEditorState().ToString();
 
     document.WaitTask(document.Paste(clipboard_array));
     std::this_thread::sleep_for(200ms);
     ASSERT_TRUE(document.ToText() == U"The source of the text itself is a little strange") << ToBasicString(document.ToText());
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 1, 0, 7})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 0, 7})) << document.GetEditorState().ToString();
 }
 
 //Copy/Paste of a code block
@@ -655,7 +655,7 @@ TEST_F(DocumentTest, clipboard9)
             "</p>"\
         "</body>") << 
         document.ToHtml();
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 2})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 2})) << document.GetEditorState().ToString();
 
     document.Undo();
     document.WaitUndo();
@@ -678,7 +678,7 @@ TEST_F(DocumentTest, clipboard9)
             "</p>"\
         "</body>") << 
         document.ToHtml();
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 1})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 1})) << document.GetEditorState().ToString();
 
     document.Redo();
     document.WaitRedo();
@@ -713,7 +713,7 @@ TEST_F(DocumentTest, clipboard9)
             "</p>"\
         "</body>") << 
         document.ToHtml();
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 2})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 2})) << document.GetEditorState().ToString();
 }
 
 //Copy/Paste of a code block after a text
@@ -776,7 +776,7 @@ TEST_F(DocumentTest, clipboard10)
             "</p>"\
         "</body>") << 
         document.ToHtml();
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 2})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 2})) << document.GetEditorState().ToString();
 
     document.Undo();
     document.WaitUndo();
@@ -788,7 +788,7 @@ TEST_F(DocumentTest, clipboard10)
             "</p>"\
         "</body>") << 
         document.ToHtml();
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 4})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 4})) << document.GetEditorState().ToString();
 
     document.Redo();
     document.WaitRedo();
@@ -812,7 +812,7 @@ TEST_F(DocumentTest, clipboard10)
             "</p>"\
         "</body>") << 
         document.ToHtml();
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 2})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 2})) << document.GetEditorState().ToString();
 }
 
 //Copy/Paste of different code blocks
@@ -902,7 +902,7 @@ TEST_F(DocumentTest, clipboard11)
             "</p>"\
         "</body>") << 
         document.ToHtml();
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 3})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 3})) << document.GetEditorState().ToString();
 
     document.Undo();
     document.WaitUndo();
@@ -959,7 +959,7 @@ TEST_F(DocumentTest, clipboard11)
             "</p>"\
         "</body>") << 
         document.ToHtml();
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 3})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 3})) << document.GetEditorState().ToString();
 }
 
 //Copy/Paste of a code block inside text
@@ -1029,7 +1029,7 @@ TEST_F(DocumentTest, clipboard12)
             "</p>"\
         "</body>") << 
         document.ToHtml();
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 2, 3})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 2, 3})) << document.GetEditorState().ToString();
 }
 
 //Insert a part of a formula into text
@@ -1096,7 +1096,7 @@ TEST_F(DocumentTest, clipboard13)
             "</p>"\
         "</body>") << 
         document.ToHtml();
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 1, 0, 0, 0, 2})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 1, 0, 0, 0, 2})) << document.GetEditorState().ToString();
 }
 
 //Insert a part of a formula into text
@@ -1170,7 +1170,7 @@ TEST_F(DocumentTest, clipboard14)
             "</p>"\
         "</body>") << 
         document.ToHtml();
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 1, 0, 0, 1})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 1, 0, 0, 1})) << document.GetEditorState().ToString();
 }
 
 }

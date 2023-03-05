@@ -25,7 +25,6 @@ enum class ElementType
 {
     NONE = 0,
     TEXT,
-    PAGE,
     PARAGRAPH,
     ROW,
     STRING,

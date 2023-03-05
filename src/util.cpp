@@ -4,7 +4,6 @@
 #include <boost/archive/binary_iarchive.hpp>
 #include "row.h"
 #include "str.h"
-#include "page.h"
 #include "paragraph.h"
 #include "element.h"
 #include "formulas/code_block.h"
@@ -187,7 +186,6 @@ ElementId GetCommonParent(const std::vector<ElementId>& ids)
 void RegisterTypes()
 {
     boost::serialization::void_cast_register<yutovo::Text, yutovo::Element>(static_cast<yutovo::Text*>(NULL), static_cast<yutovo::Element*>(NULL));
-    boost::serialization::void_cast_register<yutovo::Page, yutovo::Element>(static_cast<yutovo::Page*>(NULL), static_cast<yutovo::Element*>(NULL));
     boost::serialization::void_cast_register<yutovo::Paragraph, yutovo::Element>(static_cast<yutovo::Paragraph*>(NULL), static_cast<yutovo::Element*>(NULL));
     boost::serialization::void_cast_register<yutovo::Row, yutovo::Element>(static_cast<yutovo::Row*>(NULL), static_cast<yutovo::Element*>(NULL));
     boost::serialization::void_cast_register<yutovo::String, yutovo::Element>(static_cast<yutovo::String*>(NULL), static_cast<yutovo::Element*>(NULL));
@@ -217,7 +215,6 @@ void RegisterTypes(UserDataAdapter<DocumentUserData, boost::archive::binary_iarc
     RegisterTypes();
 
     archive.template register_type<yutovo::Text>();
-    archive.template register_type<yutovo::Page>();
     archive.template register_type<yutovo::Paragraph>();
     archive.template register_type<yutovo::Row>();
     archive.template register_type<yutovo::String>();
@@ -247,7 +244,6 @@ void RegisterTypes(boost::archive::binary_iarchive& archive)
     RegisterTypes();
 
     archive.template register_type<yutovo::Text>();
-    archive.template register_type<yutovo::Page>();
     archive.template register_type<yutovo::Paragraph>();
     archive.template register_type<yutovo::Row>();
     archive.template register_type<yutovo::String>();
@@ -277,7 +273,6 @@ void RegisterTypes(boost::archive::binary_oarchive& archive)
     RegisterTypes();
 
     archive.template register_type<yutovo::Text>();
-    archive.template register_type<yutovo::Page>();
     archive.template register_type<yutovo::Paragraph>();
     archive.template register_type<yutovo::Row>();
     archive.template register_type<yutovo::String>();

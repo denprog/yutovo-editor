@@ -344,8 +344,8 @@ TEST_F(DocumentTest, files5)
     auto el = document.GetElement(ElementId{0, 0, 0, 0, 0});
     ASSERT_TRUE(el->type == ElementType::STRING && el->ToText().rfind(U"Арифме́тика", 0) == 0);
 
-    auto page = document.GetElement(ElementId{0, 0});
-    auto paragraph = document.GetElement(ElementId{0, 0, page->elements->Count() - 1});
+    auto text = document.GetElement(ElementId{0});
+    auto paragraph = document.GetElement(ElementId{0, text->elements->Count() - 1});
     el = paragraph->elements->Get(0)->elements->Get(0);
     ASSERT_TRUE(el->type == ElementType::STRING && el->ToText().rfind(U"Основам арифметики", 0) == 0);
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 0)) << document.GetEditorState().ToString();

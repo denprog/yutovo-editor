@@ -2,7 +2,6 @@
 #include "str.h"
 #include "paragraph.h"
 #include "row.h"
-#include "page.h"
 #include "formulas/code_block.h"
 #include "formulas/code_string.h"
 #include "formulas/plus.h"
@@ -217,11 +216,6 @@ void Document::MainLoop()
             }
         }
     }
-}
-
-uint Document::InsertPage(bool with_undo)
-{
-    return InsertElement(new Page(text.get()), with_undo);
 }
 
 uint Document::InsertParagraph(bool with_undo, bool undo)

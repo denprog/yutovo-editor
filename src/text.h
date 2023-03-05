@@ -2,7 +2,7 @@
 #define __TEXT_H__
 
 #include <vector>
-#include "element.h"
+#include "block.h"
 #include "util.h"
 #include <boost/serialization/split_member.hpp>
 #include <boost/serialization/shared_ptr.hpp>
@@ -13,7 +13,7 @@ namespace yutovo
 {
 
 //The root element of the editor
-class Text : public Element
+class Text : public Block
 {
 public:
     Text(Document* _document);
@@ -24,10 +24,11 @@ public:
 
     virtual void Draw() const;
 
+    virtual void Remake(bool with_elements, bool with_parent, bool with_undo);
+
     virtual void UpdateRect(bool with_elements = false);
 
-    virtual bool InsertElements(std::vector<ElementPtr>& _elements, bool with_undo);
-    virtual bool DeleteElements(bool left, bool with_undo);
+    virtual ParagraphFormatPtr GetParagraphFormat();
 
     virtual std::string ToHtml();
 
@@ -47,8 +48,12 @@ public:
 
 	BOOST_SERIALIZATION_SPLIT_MEMBER()
 
+public:
+    int page_width = 0;
+
 private:
     TextFormatPtr format;
+    PageFormatPtr page_format;
 };
 
 }

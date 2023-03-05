@@ -376,15 +376,15 @@ TEST_F(DocumentTest, caret5)
     document.WaitCaretMoving();
     document.MoveCaretLeft(true);
     document.WaitCaretMoving();
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 3, 7}, 
-        ElementSelectionState{ElementId{0, 0, 0, 0, 3}, 7, 1}, 
-        ElementSelectionState{ElementId{0, 0, 1, 0, 0}, 0, 1})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 3, 7}, 
+        ElementSelectionState{ElementId{0, 0, 0, 3}, 7, 1}, 
+        ElementSelectionState{ElementId{0, 1, 0, 0}, 0, 1})) << document.GetEditorState().ToString();
 
     document.MoveCaretLeft(true);
     document.WaitCaretMoving();
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 3, 6}, 
-        ElementSelectionState{ElementId{0, 0, 0, 0, 3}, 6, 2}, 
-        ElementSelectionState{ElementId{0, 0, 1, 0, 0}, 0, 1})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 3, 6}, 
+        ElementSelectionState{ElementId{0, 0, 0, 3}, 6, 2}, 
+        ElementSelectionState{ElementId{0, 1, 0, 0}, 0, 1})) << document.GetEditorState().ToString();
     
     document.MoveCaretLeft(false);
     document.WaitCaretMoving();
@@ -392,9 +392,9 @@ TEST_F(DocumentTest, caret5)
     for (int i = 0; i < 4; ++i)
         document.MoveCaretRight(true);
     document.WaitCaretMoving();
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 0, 0, 2}, 
-        ElementSelectionState{ElementId{0, 0, 0, 0, 3}, 6, 2}, 
-        ElementSelectionState{ElementId{0, 0, 1, 0, 0}, 0, 2})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 1, 0, 0, 2}, 
+        ElementSelectionState{ElementId{0, 0, 0, 3}, 6, 2}, 
+        ElementSelectionState{ElementId{0, 1, 0, 0}, 0, 2})) << document.GetEditorState().ToString();
 }
 
 TEST_F(DocumentTest, caret6)
@@ -421,17 +421,17 @@ TEST_F(DocumentTest, caret6)
     document.MoveCaretLeft(false);
     document.WaitTask(document.MoveCaretUp(false));
     std::this_thread::sleep_for(100ms);
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 0, 0, 0, 0, 0})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 1, 0, 0, 0, 0, 0})) << document.GetEditorState().ToString();
 
     document.WaitTask(document.MoveCaretUp(false));
     std::this_thread::sleep_for(100ms);
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0, 2})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 2})) << document.GetEditorState().ToString();
 
     document.WaitTask(document.MoveCaretDown(false));
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 0, 0, 0, 0, 0})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 1, 0, 0, 0, 0, 0})) << document.GetEditorState().ToString();
 
     document.WaitTask(document.MoveCaretDown(false));
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 2, 0, 0, 3})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 2, 0, 0, 3})) << document.GetEditorState().ToString();
 }
 
 //PageUp/PageDown
@@ -463,25 +463,25 @@ TEST_F(DocumentTest, caret7)
 
     document.MoveCaretWordRight(false);
     document.WaitTask(document.MoveCaretPageDown(false));
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 9, 0, 12})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 9, 0, 12})) << document.GetEditorState().ToString();
 
     document.MoveCaretPageUp(false);
     document.WaitTask(document.MoveCaretPageUp(false));
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0, 0})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0})) << document.GetEditorState().ToString();
 
     document.MoveCaretDown(false);
     document.MoveCaretDown(false);
     document.MoveCaretWordRight(false);
     document.WaitTask(document.MoveCaretPageDown(false));
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 11, 0, 8})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 11, 0, 8})) << document.GetEditorState().ToString();
 
     for (int i = 0; i < 6; ++i)
         document.MoveCaretPageDown(false);
     document.WaitTask(document.MoveCaretPageDown(false));
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 5, 1, 0, 42})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 5, 1, 0, 42})) << document.GetEditorState().ToString();
 
     document.WaitTask(document.MoveCaretPageUp(false));
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 3, 10, 0, 38})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 3, 10, 0, 38})) << document.GetEditorState().ToString();
 }
 
 }

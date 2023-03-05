@@ -2,7 +2,6 @@
 #include "text.h"
 #include "str.h"
 #include "paragraph.h"
-#include "page.h"
 #include "row.h"
 #include "formulas/code_block.h"
 #include "formulas/code_paragraph.h"
@@ -573,7 +572,7 @@ bool RedrawTask::Execute()
     element->UpdateDrawRect();
 
     document->caret->Show();
-    window->SetDocumentSize({text->elements->Get(0)->rect.width, text->elements->Get(0)->rect.height});
+    window->SetDocumentSize({text->rect.width, text->rect.height});
     window->Update(element->GetAbsoluteRect());
     if (move_into_view)
         document->UpdateCaretView();

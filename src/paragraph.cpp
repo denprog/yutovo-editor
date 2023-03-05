@@ -1,6 +1,5 @@
 #include "paragraph.h"
 #include "document.h"
-#include "page.h"
 #include "row.h"
 
 namespace yutovo
@@ -51,7 +50,7 @@ void Paragraph::Remake(bool with_elements, bool with_parent, bool with_undo)
 
     if (format->word_wrap == ParagraphFormat::WordWrap::Normal)
     {
-        Page* page = (Page*)parent;
+        int page_width = ((Text*)parent)->page_width;
 
         for (int i = 0; i < elements->Count(); ++i)
         {
@@ -62,7 +61,7 @@ void Paragraph::Remake(bool with_elements, bool with_parent, bool with_undo)
 
             bool b = true;
             //move or split element if it's more then row width
-            while (row->rect.width + format->indent_before > page->page_width)
+            while (row->rect.width + format->indent_before > page_width)
             {
                 if (with_undo && !clone)
                     clone.reset(Clone());
@@ -70,7 +69,7 @@ void Paragraph::Remake(bool with_elements, bool with_parent, bool with_undo)
                 ElementPtr el = row->elements->Get(row->elements->Count() - 1);
                 if (!el)
                     break;
-                if (el->Split(page->page_width - format->indent_before))
+                if (el->Split(page_width - format->indent_before))
                     el = row->elements->Get(row->elements->Count() - 1);
 
                 if (row->elements->Count() == 1)
@@ -97,7 +96,7 @@ void Paragraph::Remake(bool with_elements, bool with_parent, bool with_undo)
                 continue;
             
             //move elements above if they are narrower to be placed in the row
-            while (next_row && next_row->elements->Count() > 0 && next_row->elements->Get(0)->rect.width < page->page_width - row->rect.width - format->indent_before)
+            while (next_row && next_row->elements->Count() > 0 && next_row->elements->Get(0)->rect.width < page_width - row->rect.width - format->indent_before)
             {
                 if (with_undo && !clone)
                     clone.reset(Clone());
@@ -124,7 +123,7 @@ void Paragraph::Remake(bool with_elements, bool with_parent, bool with_undo)
             {
                 //try to split the first element and move it above
                 ElementPtr el = next_row->elements->Get(0);
-                while (el && el->Split(page->page_width - row->rect.width - format->indent_before))
+                while (el && el->Split(page_width - row->rect.width - format->indent_before))
                 {
                     if (with_undo && !clone)
                         clone.reset(Clone());
