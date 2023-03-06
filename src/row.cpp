@@ -402,9 +402,20 @@ bool Row::DeleteElements(bool left, bool with_undo)
                     p = elements->GetElementPos(before_state.id);
                     if (p > 0)
                     {
+                        if (before_state != last_state)
+                            --p;
+                        auto el = elements->Get(p);
+                        if (el->CanContinueSelection())
+                        {
+                            CaretState c;
+                            if (!el->GetLastCaretState(c, nullptr))
+                                return false;
+                            caret->SetState(c);
+                            return el->DeleteElements(left, with_undo);
+                        }
                         if (with_undo)
                         {
-                            document->InsertElement(elements->Get(p)->Clone(), false, true);
+                            document->InsertElement(el->Clone(), false, true);
                             document->PushEditorState(CaretState(id, p), true);
                         }
                         elements->RemoveAt(p, 1);
