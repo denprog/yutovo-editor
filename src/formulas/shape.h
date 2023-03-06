@@ -25,6 +25,8 @@ public:
 
     virtual bool HasCaretState();
 
+    virtual bool GetElementAtCoords(const int x, const int y, ElementId& _id);
+
     template <class Archive>
     void save(Archive& ar, const unsigned int version) const
     {

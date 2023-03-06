@@ -36,4 +36,15 @@ bool Shape::HasCaretState()
     return true;
 }
 
+bool Shape::GetElementAtCoords(const int x, const int y, ElementId& _id)
+{
+    Rect r = parent->GetAbsoluteRect(GetCaretRect());
+    if (r.IsPointInside(x, y))
+    {
+        _id = id;
+        return true;
+    }
+   return false;
+}
+
 }

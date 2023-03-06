@@ -106,6 +106,7 @@ public:
     virtual bool CanContinueVerticalMoving(); //will pass caret into this element from up and down
 
     virtual Rect GetCaretRect(const uint pos) const;
+    virtual Rect GetCaretRect() const;
     virtual void DrawCaret(const uint pos) const;
 
     virtual void GetMargin(int& left, int& top, int& right, int& bottom) const;

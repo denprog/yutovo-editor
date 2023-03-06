@@ -25,6 +25,8 @@ public:
     virtual bool HasCaretState();
     virtual bool HasLastCaretState();
 
+    virtual bool GetElementAtCoords(const int x, const int y, ElementId& _id);
+
     virtual StringFormatPtr GetStringFormat() const;
 
     virtual bool IsFormula();
