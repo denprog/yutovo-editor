@@ -227,7 +227,7 @@ bool Block::GetTopCaretState(const int x, const int y, CaretState& caret_state, 
     for (int i = 0; i < elements->Count(); ++i)
     {
         ElementPtr el = elements->Get(i);
-        if (y < el->GetAbsoluteRect().GetBottom())
+        if (y < el->GetAbsoluteRect().GetBottom() || el->rect.height == 0)
             break;
         p = el;
     }
@@ -247,7 +247,7 @@ bool Block::GetBottomCaretState(const int x, const int y, CaretState& caret_stat
     for (int i = elements->Count() - 1; i >= 0; --i)
     {
         ElementPtr el = elements->Get(i);
-        if (y > el->GetAbsoluteRect().top)
+        if (y > el->GetAbsoluteRect().top || el->rect.height == 0)
             break;
         p = el;
     }

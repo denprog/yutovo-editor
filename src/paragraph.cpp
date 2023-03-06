@@ -284,7 +284,7 @@ bool Paragraph::GetTopCaretState(const int x, const int y, CaretState& caret_sta
     for (int i = 0; i < elements->Count(); ++i)
     {
         ElementPtr el = elements->Get(i);
-        if (y < el->GetAbsoluteRect().GetBottom())
+        if (y < el->GetAbsoluteRect().GetBottom() || el->rect.height == 0)
             break;
         row = el;
     }
@@ -300,7 +300,7 @@ bool Paragraph::GetBottomCaretState(const int x, const int y, CaretState& caret_
     for (int i = elements->Count() - 1; i >= 0; --i)
     {
         ElementPtr el = elements->Get(i);
-        if (y > el->GetAbsoluteRect().top)
+        if (y > el->GetAbsoluteRect().top || el->rect.height == 0)
             break;
         row = el;
     }
