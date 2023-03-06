@@ -30,27 +30,11 @@ Element* Assignment::Create(Element* _parent)
 
 void Assignment::Draw() const
 {
+    const auto f = GetStringFormat();
     shape->draw_func = 
         [&](const Rect& r)
         {
-            Color c = document->selection.IsSelected(id) ? formula_format->selection_color : formula_format->color;
-            float w = float(r.width);
-
-            window->DrawFillEllipse((int)lround(r.left + w * 0.25), (int)lround(r.GetBottom() - r.height * 0.3), (int)lround(w * 0.05), (int)lround(w * 0.05), c);
-            window->DrawFillEllipse((int)lround(r.left + w * 0.25), (int)lround(r.GetBottom() - r.height * 0.543), (int)lround(w * 0.05), (int)lround(w * 0.05), c);
-
-            Rect s{(int)lround(r.left + w * 0.5), (int)lround(r.GetBottom() - r.height * 0.35), (int)lround(r.width * 0.45), (int)lround(r.height * 0.1)};
-            if (s.height == 0)
-                s.height = 1;
-            if (s.width == 0)
-                s.width = 1;
-            window->DrawFillRect(s, c);
-            s = Rect{(int)lround(r.left + w * 0.5), (int)lround(r.GetBottom() - r.height * 0.593), (int)lround(r.width * 0.45), (int)lround(r.height * 0.1)};
-            if (s.height == 0)
-                s.height = 1;
-            if (s.width == 0)
-                s.width = 1;
-            window->DrawFillRect(s, c);
+            window->DrawText(":=", f, r, document->selection.IsSelected(id) ? formula_format->selection_color : formula_format->color);
         };
     
     if (document->selection.IsSelected(id))
