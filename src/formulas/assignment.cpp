@@ -87,16 +87,6 @@ void Assignment::Remake(bool with_elements, bool with_parent, bool with_undo)
     }
 }
 
-bool Assignment::DeleteElements(bool left, bool with_undo)
-{
-    if (caret->IsOnElement(shape->id))
-    {
-        last = nullptr;
-        elements->RemoveAt(2, 1);
-    }
-    return MiddleShapeFormula::DeleteElements(left, with_undo);
-}
-
 bool Assignment::AfterInsert(bool with_undo)
 {
     int pos = parent->elements->GetElementPos(id);
