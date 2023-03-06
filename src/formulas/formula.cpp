@@ -64,6 +64,24 @@ bool Formula::HasLastCaretState()
     return true;
 }
 
+bool Formula::GetElementAtCoords(const int x, const int y, ElementId& _id)
+{
+    //look in the child elements
+    for (int i = 0; i < elements->Count(); ++i)
+    {
+        ElementPtr el = elements->Get(i);
+        if (el->GetElementAtCoords(x, y, _id))
+            return true;
+    }
+    Rect r = parent->GetAbsoluteRect(GetCaretRect());
+    if (r.IsPointInside(x, y))
+    {
+        _id = id;
+        return true;
+    }
+    return false;
+}
+
 StringFormatPtr Formula::GetStringFormat() const
 {
     return formula_format->string_format;

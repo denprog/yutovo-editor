@@ -402,6 +402,11 @@ Rect Element::GetCaretRect(const uint pos) const
     return elements->GetCaretRect(pos);
 }
 
+Rect Element::GetCaretRect() const
+{
+    return parent->GetCaretRect(parent->elements->GetElementPos(id));
+}
+
 void Element::DrawCaret(const uint pos) const
 {
     elements->DrawCaret(pos);
