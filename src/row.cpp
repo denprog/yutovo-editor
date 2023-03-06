@@ -381,6 +381,21 @@ bool Row::DeleteElements(bool left, bool with_undo)
                             return true;
                         }
                     }
+                    else
+                    {
+                        if (with_undo)
+                        {
+                            document->InsertElement(elements->Get(p - 1)->Clone(), false, true);
+                            document->PushEditorState(CaretState(id, p - 1), true);
+                        }
+                        elements->RemoveAt(p - 1, 1);
+                        Normalize(with_undo);
+                        parent->Remake(true, true, with_undo);
+#ifdef DEBUG
+                        to_str = ToText();
+#endif
+                        return true;
+                    }
                 }
                 else
                 {
