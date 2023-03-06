@@ -447,7 +447,7 @@ TEST_F(FormulaTest, division5)
     document.MoveCaretDown(false);
     document.WaitCaretMoving();
     document.WaitTask(document.InsertDivision(true));
-    std::this_thread::sleep_for(100ms);
+    std::this_thread::sleep_for(200ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\

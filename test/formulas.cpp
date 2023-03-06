@@ -616,6 +616,74 @@ TEST_F(FormulaTest, delete6)
         ElementSelectionState{ElementId{0, 0, 0, 3}, 0, 4})) << document.GetEditorState().ToString();
 }
 
+//Delete an element on the left of a string
+TEST_F(FormulaTest, delete7)
+{
+    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
+        {
+            return Rect{0, 0, 380, 400};
+        });
+
+    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
+        {
+            return GetTextSizeMock(text, format);
+        });
+    
+    document.InsertCode(false, true);
+    document.InsertString("d", true);
+    document.InsertPlus(true);
+    document.InsertString("55", true);
+    document.MoveCaretLeft(false);
+    document.MoveCaretLeft(false);
+    document.WaitTask(document.DeleteElements(true, true, false));
+    std::this_thread::sleep_for(100ms);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mi>d55</mi>"\
+                    "</mrow>"\
+                "</math>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 1})) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    std::this_thread::sleep_for(100ms);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mi>d</mi>"\
+                        "<mo>+</mo>"\
+                        "<mi>55</mi>"\
+                    "</mrow>"\
+                "</math>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 2, 0})) << document.GetEditorState().ToString();
+
+    document.Redo();
+    document.WaitRedo();
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mi>d55</mi>"\
+                    "</mrow>"\
+                "</math>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 1})) << document.GetEditorState().ToString();
+}
+
 TEST_F(FormulaTest, insert1)
 {
     EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
@@ -636,7 +704,7 @@ TEST_F(FormulaTest, insert1)
     document.MoveCaretRight(false);
     document.WaitCaretMoving();
     document.WaitTask(document.InsertCode(false, true));
-    std::this_thread::sleep_for(100ms);
+    std::this_thread::sleep_for(200ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -785,6 +853,7 @@ TEST_F(FormulaTest, insert3)
         });
 
     document.WaitTask(document.InsertString("The source of the text itself is a little strange", true));
+    std::this_thread::sleep_for(100ms);
     document.MoveCaretUp(false);
     document.MoveCaretEnd(false);
     document.WaitCaretMoving();
@@ -979,6 +1048,7 @@ TEST_F(FormulaTest, select5)
     for (int i = 0; i < 7; ++i)
         document.MoveCaretRight(true);
     document.WaitTask(document.MoveCaretRight(true));
+    std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 0, 4}, 
         ElementSelectionState{ElementId{0, 0, 0, 0}, 39, 3},
         ElementSelectionState{ElementId{0, 0, 0}, 1, 1},
