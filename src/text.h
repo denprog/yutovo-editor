@@ -52,7 +52,7 @@ public:
     int page_width = 0;
 
 private:
-    TextFormatPtr format;
+    TextFormatPtr text_format;
     PageFormatPtr page_format;
 };
 
