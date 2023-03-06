@@ -10,7 +10,7 @@ namespace yutovo
 
 Text::Text(Document* _document) : 
     Block(_document),
-    format(document->GetDefaultTextFormat()),
+    text_format(document->GetDefaultTextFormat()),
     page_format(document->GetDefaultPageFormat())
 {
     type = ElementType::TEXT;
@@ -32,18 +32,18 @@ Element* Text::Create(Element* parent)
 
 void Text::Draw() const
 {
+    Rect v = window->GetRect();
     window->BeginDrawOutside();
-    window->DrawFillRect(window->GetRect(), Color::White());
+    window->DrawFillRect(v, Color::White());
     window->EndDrawOutside();
 
-    Rect v = window->GetRect();
     v.left += page_format->left_indent;
     v.top += page_format->top_indent;
     v.width -= page_format->right_indent + page_format->left_indent;
     v.height -= page_format->bottom_indent + page_format->top_indent;
     window->SetViewPort(v);
 
-    Element::Draw();
+    Block::Draw();
 
     window->BeginDrawOutside();
     window->DrawRect(Rect(v.left - 1, v.top - 1, v.width + 2, v.height + 2), Color::Blue());
@@ -56,21 +56,19 @@ void Text::Remake(bool with_elements, bool with_parent, bool with_undo)
     page_width = v.width - page_format->right_indent - page_format->left_indent;
 
     if (with_elements)
-        Element::Remake(true, with_parent, with_undo);
+        Block::Remake(true, with_parent, with_undo);
 
     int left_m = 0, top_m = 0, right_m = 0, bottom_m = 0;
-    int h = 0;
+    int h = page_format->top_indent;
     for (int i = 0; i < elements->Count(); ++i) //arrange paragraphs
     {
         ElementPtr p = elements->Get(i);
         p->GetMargin(left_m, top_m, right_m, bottom_m); //consider the margins
-        p->rect.Move(p->rect.left, h + top_m);
+        p->rect.Move(page_format->left_indent, h + top_m);
         h += p->rect.height + page_format->paragraph_spacing + bottom_m;
     }
 
-    Element::UpdateRect(false);
-    rect.left = page_format->left_indent;
-    rect.top = page_format->top_indent;
+    Block::UpdateRect(false);
 
     bool remake = (rect != last_rect && with_parent);
     last_rect = rect;
@@ -83,9 +81,11 @@ void Text::Remake(bool with_elements, bool with_parent, bool with_undo)
 
 void Text::UpdateRect(bool with_elements)
 {
-    Element::UpdateRect(with_elements);
+    Block::UpdateRect(with_elements);
 
     Rect v = window->GetRect();
+    v.width -= page_format->right_indent + page_format->left_indent;
+    v.height -= page_format->bottom_indent + page_format->right_indent;
     if (rect.width < v.width)
         rect.width = v.width;
     if (rect.height < v.height)
@@ -106,13 +106,13 @@ ParagraphFormatPtr Text::GetParagraphFormat()
 
 std::string Text::ToHtml()
 {
-    return "<body>" + Element::ToHtml() + "</body>";
+    return "<body>" + Block::ToHtml() + "</body>";
 }
 
 Rect Text::GetAbsoluteRect() const
 {
     Rect w = window->GetRect();
-    Rect r = Element::GetAbsoluteRect();
+    Rect r = Block::GetAbsoluteRect();
     if (r.width < w.width)
         r.width = w.width;
     if (r.height < w.height)
