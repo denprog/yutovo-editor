@@ -136,9 +136,9 @@ ElementId GetPrevPos(const ElementId& id)
 
 ElementId GetWithParent(const ElementId id, const ElementId parent_id)
 {
-    ElementId _id(id);
-    for (int i = 0; i < parent_id.size() && i < id.size(); ++i)
-        _id[i] = parent_id[i];
+    ElementId _id(parent_id);
+    for (int i = _id.size(); i < id.size(); ++i)
+        _id.push_back(id[i]);
     return _id;
 }
 
