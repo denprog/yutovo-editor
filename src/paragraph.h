@@ -20,6 +20,8 @@ public:
 
     virtual Element* Create(Element* parent);
 
+    virtual void Draw() const;
+
     virtual void Remake(bool with_elements, bool with_parent, bool with_undo);
     virtual void Normalize(bool with_undo);
 

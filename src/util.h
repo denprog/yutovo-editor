@@ -97,6 +97,7 @@ struct Rect
     int DistToPoint(const int x, const int y);
     int DistToSegment(const int x, const int y, const int seg_x1, const int seg_y1, const int seg_x2, const int seg_y2);
     bool IsPointInside(const int x, const int y);
+    bool Intersects(const Rect& rect);
 
     int left = 0;
     int top = 0;

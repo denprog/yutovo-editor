@@ -797,6 +797,18 @@ bool Elements::IsLast(ElementId id)
     return Get(Count() - 1)->id == id;
 }
 
+ElementId Elements::FindUpper(int y)
+{
+    auto it = std::lower_bound(elements.begin(), elements.end(), y, 
+        [](const ElementPtr& el, int val)
+        {
+            return el->GetAbsoluteRect().GetBottom() < val;
+        });
+    if (it != elements.end())
+        return (*it)->id;
+    return {};
+}
+
 void Elements::Add(ElementPtr element)
 {
     elements.push_back(ElementPtr(element));

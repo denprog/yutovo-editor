@@ -40,6 +40,19 @@ Element* Paragraph::Create(Element* parent)
     return new Paragraph(parent);
 }
 
+void Paragraph::Draw() const
+{
+    auto _id = document->GetFirstVisibleRow(id);
+    int pos = elements->GetChildPos(_id);
+    for (int i = pos; i < elements->Count(); ++i)
+    {
+        auto el = elements->Get(i);
+        if (!document->IsVisible(el->id))
+            break;
+        el->Draw();
+    }
+}
+
 void Paragraph::Remake(bool with_elements, bool with_parent, bool with_undo)
 {
     if (with_elements)

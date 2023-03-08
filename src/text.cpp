@@ -44,6 +44,15 @@ void Text::Draw() const
     window->SetViewPort(v);
 
     Block::Draw();
+    auto _id = document->GetFirstVisibleParagraph();
+    int pos = elements->GetChildPos(_id);
+    for (int i = pos; i < elements->Count(); ++i)
+    {
+        auto el = elements->Get(i);
+        if (!document->IsVisible(el->id))
+            break;
+        el->Draw();
+    }
 
     window->BeginDrawOutside();
     window->DrawRect(Rect(v.left - 1, v.top - 1, v.width + 2, v.height + 2), Color::Blue());
@@ -56,7 +65,9 @@ void Text::Remake(bool with_elements, bool with_parent, bool with_undo)
     page_width = v.width - page_format->right_indent - page_format->left_indent;
 
     if (with_elements)
+    {
         Block::Remake(true, with_parent, with_undo);
+    }
 
     int left_m = 0, top_m = 0, right_m = 0, bottom_m = 0;
     int h = page_format->top_indent;
@@ -96,6 +107,13 @@ void Text::UpdateRect(bool with_elements)
         rect.width = p.x + v.width;
 }
 
+void Text::UpdateDrawRect()
+{
+    Block::UpdateDrawRect();
+    draw_rect.width += page_format->right_indent + page_format->left_indent;
+    draw_rect.height += page_format->bottom_indent + page_format->right_indent;
+}
+
 ParagraphFormatPtr Text::GetParagraphFormat()
 {
     ParagraphFormatPtr format;
@@ -121,6 +139,7 @@ Rect Text::GetAbsoluteRect() const
     Point p = window->GetDocumentPoint();
     if (p.x + w.width > r.width)
         r.width = p.x + w.width;
+    r.height += page_format->bottom_indent + page_format->right_indent;
     return r;
 }
 
