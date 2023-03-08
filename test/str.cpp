@@ -1556,4 +1556,51 @@ TEST_F(DocumentTest, delete4)
         ToBasicString(document.ToText());
 }
 
+//Delete 3 rows
+TEST_F(DocumentTest, delete5)
+{
+    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
+        {
+            return Rect{0, 0, 390, 400};
+        });
+
+    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
+        {
+            return GetTextSizeMock(text, format);
+        });
+
+    document.WaitTask(document.InsertString("In literary theory, a text is any object that can be read, whether this object is a work of literature", true));
+    document.MoveCaretToDocumentBegin(false);
+    document.MoveCaretDown(true);
+    document.MoveCaretDown(true);
+    document.WaitTask(document.MoveCaretEnd(true));
+    document.WaitTask(document.DeleteElements(false, true, false));
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\"></span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 0)) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    std::this_thread::sleep_for(100ms);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">In literary theory, a text is any object </span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">that can be read, whether this object is </span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">a work of literature</span>"
+            "</p>"\
+        "</body>") 
+        << document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 2, 0, 20}, 
+        ElementSelectionState{ElementId{0, 0, 0, 0}, 0, 41}, 
+        ElementSelectionState{ElementId{0, 0, 1, 0}, 0, 41},
+        ElementSelectionState{ElementId{0, 0, 2, 0}, 0, 20})) << document.GetEditorState().ToString();
+}
+
 }

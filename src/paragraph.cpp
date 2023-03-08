@@ -121,6 +121,7 @@ void Paragraph::Remake(bool with_elements, bool with_parent, bool with_undo)
                 if (next_row->elements->Count() == 0)
                 {
                     elements->RemoveAt(i + 1, 1);
+                    --i;
                     next_row.reset();
                 }
                 else
