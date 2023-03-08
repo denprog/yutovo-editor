@@ -590,10 +590,14 @@ ResizeTask::ResizeTask(ElementPtr _text, const uint _width, const uint _height) 
 
 bool ResizeTask::Execute()
 {
+    if (document->WillResize()) //don't resize if it will be resized later
+        return false;
     logger->Debug("Execute ResizeTask width={}, height={}", width, height);
     text->window->Resize(width, height);
     return true;
 }
+
+//CallFuncTask
 
 CallFuncTask::CallFuncTask(ElementPtr _text, const ElementId& _id, CallFuncPtr _func, const uint task_id) :
     Task(_text, task_id),
