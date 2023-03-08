@@ -36,14 +36,14 @@ bool Block::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo)
     int k = elements->GetElementPos(paragraph->id);
     int p = row->elements->GetElementPos(el->id);
     bool caret_next_row = false;
-    CaretState c;
-    row->GetFirstCaretState(c, nullptr);
+    CaretState start;
+    row->GetFirstCaretState(start, nullptr);
 
     ElementPtr clone;
     if (with_undo)
         clone.reset(paragraph->Clone());
 
-    if (caret->GetCaretState() == c)
+    if (caret->GetCaretState() == start)
     {
         elements->Insert(insert_element, k);
     }
@@ -53,41 +53,45 @@ bool Block::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo)
         caret_next_row = true;
     }
 
-    ElementPtr new_row = insert_element->elements->Get(0); //move elements into this one row, which will be splitted during paragraph formatting
-    if (new_row->elements->Count() == 0)
-        new_row->AddEmptyElement();
+    ElementPtr new_row;
+    if (caret_next_row)
+    {
+        new_row = insert_element->elements->Get(0); //move elements into this one row, which will be splitted during paragraph formatting
+        if (new_row->elements->Count() == 0)
+            new_row->AddEmptyElement();
 
-    if (p >= 0)
-    {
-        if (!el->SplitAt(before_state.GetPos()) && before_state.GetPos() == 0) //try to split current element
-            --p;
-        if (before_state.GetPos() != 0 || p >= 0)
+        if (p >= 0)
         {
-            for (int i = p + 1; i < row->elements->Count();) //move all elements at the right side of the row
-                new_row->elements->Move(row->elements->Get(i), new_row->elements->Count());
-        }
-    }
-    else
-    {
-        el = document->GetElement(before_state.id);
-        if (el)
-        {
-            p = row->elements->GetElementPos(el->id);
-            if (p >= 0)
+            if (!el->SplitAt(before_state.GetPos()) && before_state.GetPos() == 0) //try to split current element
+                --p;
+            if (before_state.GetPos() != 0 || p >= 0)
             {
-                for (int i = p; i < row->elements->Count();) //move all elements at the right side of the row
+                for (int i = p + 1; i < row->elements->Count();) //move all elements at the right side of the row
                     new_row->elements->Move(row->elements->Get(i), new_row->elements->Count());
             }
         }
-    }
+        else
+        {
+            el = document->GetElement(before_state.id);
+            if (el)
+            {
+                p = row->elements->GetElementPos(el->id);
+                if (p >= 0)
+                {
+                    for (int i = p; i < row->elements->Count();) //move all elements at the right side of the row
+                        new_row->elements->Move(row->elements->Get(i), new_row->elements->Count());
+                }
+            }
+        }
 
-    int r_pos = paragraph->elements->GetElementPos(row->id);
-    for (int i = r_pos + 1; i < paragraph->elements->Count();) //move the rest rows of the paragraph
-    {
-        ElementPtr r = paragraph->elements->Get(i);
-        for (int j = 0; j < r->elements->Count();)
-            new_row->elements->Move(r->elements->Get(j), new_row->elements->Count());
-        paragraph->elements->RemoveAt(i, 1);
+        int r_pos = paragraph->elements->GetElementPos(row->id);
+        for (int i = r_pos + 1; i < paragraph->elements->Count();) //move the rest rows of the paragraph
+        {
+            ElementPtr r = paragraph->elements->Get(i);
+            for (int j = 0; j < r->elements->Count();)
+                new_row->elements->Move(r->elements->Get(j), new_row->elements->Count());
+            paragraph->elements->RemoveAt(i, 1);
+        }
     }
 
     if (with_undo)
@@ -140,7 +144,8 @@ bool Block::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo)
     }
 
     paragraph->Normalize(with_undo);
-    new_row->parent->Normalize(with_undo);
+    if (new_row)
+        new_row->parent->Normalize(with_undo);
 
     CaretState after;
     if (caret_next_row)
@@ -156,7 +161,8 @@ bool Block::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo)
     
     document->Remake(id, true, with_undo, false);
 
-    new_row->Normalize(with_undo);
+    if (new_row)
+        new_row->Normalize(with_undo);
     
 #ifdef DEBUG
     to_str = ToText();
