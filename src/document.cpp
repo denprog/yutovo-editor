@@ -1114,6 +1114,18 @@ bool Document::WillRedraw(const ElementId& id, bool move_into_view)
     return false;
 }
 
+bool Document::WillResize()
+{
+    std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
+    for (int i = tasks.size() - 1; i >= 0; --i)
+    {
+        TaskPtr t = tasks[i];
+        if (dynamic_cast<ResizeTask*>(t.get()))
+            return true;
+    }
+    return false;
+}
+
 uint Document::New()
 {
     std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
