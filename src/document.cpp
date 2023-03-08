@@ -1300,6 +1300,81 @@ void Document::RemoveIdentifier(ElementId _id, uint code_id, const std::u32strin
     solver.RemoveIdentifier(_id, code_id, identifier);
 }
 
+bool Document::IsVisible(ElementId _id)
+{
+    auto el = GetElement(_id);
+    if (el->type == ElementType::TEXT)
+        return true;
+    
+    Rect w = window->GetRect();
+    w.left += window->document_point.x;
+    w.top += window->document_point.y;
+    Rect r = el->GetAbsoluteRect();
+    return r.Intersects(w);
+}
+
+ElementId Document::GetFirstVisibleParagraph()
+{
+    ElementId res;
+    if (!cur_visible_row.empty())
+    {
+        auto p = GetParent(cur_visible_row);
+        int pos = GetChildPos(p->id);
+        if (IsVisible(p->id))
+        {
+            //the most simple variant - go above and find first invisible paragraph
+            res = p->id;
+            while (--pos >= 0)
+            {
+                auto el = p->parent->elements->Get(pos);
+                if (!IsVisible(el->id))
+                    break;
+                res = el->id;
+            }
+            return res;
+        }
+
+        //try to find a visible paragraph above
+        for (int i = 0; i < 10 && pos >= 0; ++i, --pos)
+        {
+            auto el = p->parent->elements->Get(pos);
+            if (IsVisible(el->id))
+            {
+                res = el->id;
+                while (--pos >= 0)
+                {
+                    auto el = p->parent->elements->Get(pos);
+                    if (!IsVisible(el->id))
+                        break;
+                    res = el->id;
+                }
+                return res;
+            }
+        }
+
+        //try to find a visible paragraph below
+        for (int i = 0; i < 10 && pos >= 0; ++i, ++pos)
+        {
+            auto el = p->parent->elements->Get(pos);
+            if (IsVisible(el->id))
+                return el->id;
+        }
+    }
+
+    cur_visible_row.clear();
+
+    //the most comprehensive variant: find in the whole document
+    return text->elements->FindUpper(window->document_point.y);
+}
+
+ElementId Document::GetFirstVisibleRow(ElementId paragraph_id)
+{
+    ElementId res;
+    auto el = GetElement(paragraph_id);
+    cur_visible_row = el->elements->FindUpper(window->document_point.y);
+    return cur_visible_row;
+}
+
 #ifdef DEBUG
 void Document::WaitMainLoop()
 {

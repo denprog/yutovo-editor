@@ -27,6 +27,7 @@ public:
     virtual void Remake(bool with_elements, bool with_parent, bool with_undo);
 
     virtual void UpdateRect(bool with_elements = false);
+    virtual void UpdateDrawRect();
 
     virtual ParagraphFormatPtr GetParagraphFormat();
 

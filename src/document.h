@@ -185,6 +185,10 @@ public:
     void SetUserIdentifier(ElementId _id, uint code_id, const std::u32string& expression);
     void RemoveIdentifier(ElementId _id, uint code_id, const std::u32string& identifier);
 
+    bool IsVisible(ElementId _id);
+    ElementId GetFirstVisibleParagraph();
+    ElementId GetFirstVisibleRow(ElementId paragraph_id);
+
 private:
     void MainLoop();
 
@@ -275,6 +279,8 @@ private:
     CaretSettings caret_settings;
 
     uint cur_task_id = 0;
+
+    ElementId cur_visible_row; //any row which is visible
 
     Logger* logger;
 };

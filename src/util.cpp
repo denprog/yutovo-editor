@@ -84,6 +84,11 @@ bool Rect::IsPointInside(const int x, const int y)
     return x >= left && x <= left + width && y >= top && y <= top + height;
 }
 
+bool Rect::Intersects(const Rect& rect)
+{
+    return !(left > rect.GetRight() || rect.left > GetRight() || top > rect.GetBottom() || rect.top > GetBottom());
+}
+
 std::string IdToString(const ElementId& id)
 {
 	std::string res;

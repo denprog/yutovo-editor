@@ -210,6 +210,7 @@ public:
     virtual int GetChildPos(ElementId id);
     virtual bool IsFirst(ElementId id);
     virtual bool IsLast(ElementId id);
+    virtual ElementId FindUpper(int y);
 
     virtual void Add(ElementPtr element);
     virtual void Insert(ElementPtr element, const uint pos);
