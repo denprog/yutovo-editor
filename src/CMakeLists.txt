@@ -9,6 +9,11 @@ set(CMAKE_DEBUG_POSTFIX d)
 
 find_package(yutovo_service REQUIRED PATHS ${INSTALL_PATH}/cmake/)
 
+set(Boost_USE_STATIC_LIBS ON)
+set(Boost_USE_MULTITHREADED ON)
+find_package(Boost 1.81.0 REQUIRED PATHS ${INSTALL_PATH}/lib/cmake/)
+find_package(Boost 1.81.0 COMPONENTS serialization)
+
 add_library(${PROJECT_NAME}
     caret.cpp
     caret_state.cpp
@@ -64,7 +69,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
     stdc++
     stdc++fs
     pthread
-    boost_serialization
+    boost_serialization.a
     zmq
 )
 
