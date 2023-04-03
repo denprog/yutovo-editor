@@ -2,6 +2,10 @@
 #define __RESULT_CODES_H__
 
 #include <boost/archive/archive_exception.hpp>
+#include <yutovo_service/types.h>
+#include <yutovo_calculator/parser_exception.h>
+#include <map>
+#include <vector>
 
 namespace yutovo
 {
@@ -39,6 +43,34 @@ enum class PasteResult
 };
 
 IOResult ToIOResult(boost::archive::archive_exception::exception_code code);
+
+struct Error
+{
+    yutovo_service::ErrorCode error_code = yutovo_service::ErrorCode::OK;
+    yutovo_calculator::ParserExceptionCode parser_error_code = yutovo_calculator::ParserExceptionCode::None;
+    int solver_error_code = -1;
+    int pos = -1;
+    int line = -1;
+};
+
+enum class WarningCode
+{
+    NONE = 0
+};
+
+struct Warning
+{
+    WarningCode code;
+    int pos;
+};
+
+struct Result
+{
+    yutovo_service::ResultType type;
+    std::map<std::string, std::string> values;
+    Error error;
+    std::vector<Warning> warnings;
+};
 
 }
 

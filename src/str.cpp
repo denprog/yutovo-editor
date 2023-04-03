@@ -599,11 +599,11 @@ void StringElements::Draw() const
         std::u32string u_part = str.substr(0, start);
         parent->window->DrawText(ToBasicString(u_part), format, r, format->color);
 
-        int p = parent->window->GetCharPos(ToBasicString(str), format, start);
+        int p = parent->window->GetCharPos(str, format, start);
         u_part = str.substr(start, size);
         parent->window->DrawText(ToBasicString(u_part), format, Rect{r.left + p, r.top, r.width - p, r.height}, format->selection_color);
 
-        p = parent->window->GetCharPos(ToBasicString(str), format, start + size);
+        p = parent->window->GetCharPos(str, format, start + size);
         u_part = str.substr(start + size, str.length() - size);
         parent->window->DrawText(ToBasicString(u_part), format, Rect{r.left + p, r.top, r.width - p, r.height}, format->color);
     }

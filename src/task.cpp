@@ -17,6 +17,7 @@
 #include <sstream>
 #include <vector>
 #include <boost/locale.hpp>
+#include <yutovo_service/types.h>
 
 namespace yutovo
 {
@@ -68,7 +69,7 @@ InsertElementsTask::InsertElementsTask(ElementPtr _text, std::vector<ElementPtr>
 
 bool InsertElementsTask::Execute()
 {
-    logger->Debug("Execute InsertElementsTask");
+    //logger->Debug("Execute InsertElementsTask");
 
     if (with_undo)
         document->PushEditorState(true);
@@ -226,7 +227,7 @@ DeleteElementsTask::DeleteElementsTask(ElementPtr _text, ElementId _element_id, 
 
 bool DeleteElementsTask::Execute()
 {
-    logger->Debug("Execute DeleteElementsTask");
+    //logger->Debug("Execute DeleteElementsTask");
 
     if (with_undo)
         document->PushEditorState(true);
@@ -309,7 +310,7 @@ InsertFormulasTask::InsertFormulasTask(ElementPtr _text, uint _id, std::vector<E
 
 bool InsertFormulasTask::Execute()
 {
-    logger->Debug("Execute InsertFormulasTask");
+    //logger->Debug("Execute InsertFormulasTask");
 
     if (before_state.IsEmpty())
         before_state = document->GetEditorState();
@@ -407,7 +408,7 @@ ChangeStringFormatTask::ChangeStringFormatTask(ElementPtr _text, const StringFor
 
 bool ChangeStringFormatTask::Execute()
 {
-    logger->Debug("Execute ChangeStringFormatTask");
+    //logger->Debug("Execute ChangeStringFormatTask");
     if (with_undo)
         text->document->PushEditorState(true);
 
@@ -489,7 +490,7 @@ ChangeParagraphFormatTask::ChangeParagraphFormatTask(ElementPtr _text, const Par
 
 bool ChangeParagraphFormatTask::Execute()
 {
-    logger->Debug("Execute ChangeParagraphFormatTask");
+    //logger->Debug("Execute ChangeParagraphFormatTask");
     if (before_state.IsEmpty())
         before_state = document->GetEditorState();
 
@@ -538,7 +539,7 @@ RemakeTask::RemakeTask(ElementPtr _text, const ElementId& _element_id, bool _wit
 
 bool RemakeTask::Execute()
 {
-    logger->Debug("Execute RemakeTask element_id={}", IdToString(element_id));
+    //logger->Debug("Execute RemakeTask element_id={}", IdToString(element_id));
     auto el = document->GetElement(element_id);
     if (!el)
         return false;
@@ -562,7 +563,7 @@ bool RedrawTask::Execute()
     if (!element || document->WillRedraw(element_id, move_into_view)) //don't redraw if it will be redrawn later
         return false;
     
-    logger->Debug("Execute RedrawTask element_id={}", IdToString(element_id));
+    //logger->Debug("Execute RedrawTask element_id={}", IdToString(element_id));
 
     document->caret->Hide();
 
@@ -592,7 +593,7 @@ bool ResizeTask::Execute()
 {
     if (document->WillResize()) //don't resize if it will be resized later
         return false;
-    logger->Debug("Execute ResizeTask width={}, height={}", width, height);
+    //logger->Debug("Execute ResizeTask width={}, height={}", width, height);
     text->window->Resize(width, height);
     return true;
 }

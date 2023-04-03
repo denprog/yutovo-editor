@@ -70,4 +70,13 @@ void Window::OnPasteResult(PasteResult result)
 {
 }
 
+int Window::CreateSocket(const std::string& addr)
+{
+    return 0;
+}
+
+void Window::CloseSocket(const int socket)
+{
+}
+
 }

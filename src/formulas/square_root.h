@@ -40,7 +40,7 @@ public:
     void load(Archive& ar, const unsigned int version)
     {
         ar >> last;
-        elements->Replace(ElementPtr(last), 1);
+        elements->Replace(ElementPtr((Element*)last), 1);
     }
 
 	BOOST_SERIALIZATION_SPLIT_MEMBER()

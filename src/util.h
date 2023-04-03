@@ -6,6 +6,8 @@
 #include "solver_task.h"
 #include <boost/locale.hpp>
 
+typedef unsigned int uint;
+
 namespace yutovo
 {
 
@@ -107,7 +109,7 @@ struct Rect
 
 struct Color
 {
-    bool operator==(const Color& compare)
+    bool operator==(const Color& compare) const
     {
         return a == compare.a && r == compare.b && g == compare.g && b == compare.b;
     }

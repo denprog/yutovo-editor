@@ -9,6 +9,8 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+set(GTest_DIR "/usr/lib/x86_64-linux-gnu/cmake/GTest")
+
 enable_testing()
 find_package(GTest REQUIRED)
 include_directories(${GTEST_INCLUDE_DIR})
@@ -42,7 +44,7 @@ add_executable(${PROJECT_NAME}_tests
 	subscript.cpp
 )
 
-target_link_libraries(${PROJECT_NAME}_tests PRIVATE
+target_link_libraries(${PROJECT_NAME}_tests PUBLIC
 	stdc++
     pthread
 	gtest

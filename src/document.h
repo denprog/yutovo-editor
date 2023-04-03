@@ -3,7 +3,6 @@
 
 #include <thread>
 #include <mutex>
-#include <condition_variable>
 #include <vector>
 #include <stack>
 #include <memory>
@@ -17,7 +16,7 @@
 #include "editor_state.h"
 #include "config.h"
 #include "logger.h"
-#include <yutovo_service/solver.h>
+#include <yutovo_service/types.h>
 
 namespace yutovo
 {
@@ -273,7 +272,7 @@ private:
 
     bool exit = false;
 
-    std::condition_variable_any next_circle;
+    std::atomic<bool> next_circle{false};
     std::thread main_loop;
 
     CaretSettings caret_settings;

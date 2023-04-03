@@ -250,7 +250,8 @@ void AutoResult::PutResult(Result result)
         }
     }
 
-    elements->Get(0)->SetEditable(false);
+    if (elements->Count() > 0)
+        elements->Get(0)->SetEditable(false);
     Remake(true, false, false);
     document->Remake(parent->parent->id, true, false, false);
 }
