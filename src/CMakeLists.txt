@@ -1,18 +1,32 @@
 cmake_minimum_required(VERSION 3.17)
 
-set(CMAKE_CXX_STANDARD 20)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_EXTENSIONS ON)
-set(CMAKE_INCLUDE_CURRENT_DIR ON)
-
 set(CMAKE_DEBUG_POSTFIX d)
 
-find_package(yutovo_service REQUIRED PATHS ${INSTALL_PATH}/cmake/)
+find_package(PkgConfig REQUIRED)
 
 set(Boost_USE_STATIC_LIBS ON)
 set(Boost_USE_MULTITHREADED ON)
-find_package(Boost 1.81.0 REQUIRED PATHS ${INSTALL_PATH}/lib/cmake/)
-find_package(Boost 1.81.0 COMPONENTS serialization)
+
+if(EMSCRIPTEN)
+    set(CMAKE_FIND_ROOT_PATH ${INSTALL_PATH}/wasm/cmake/)
+endif()
+
+set(Boost_INCLUDE_DIR "/home/denis/programs/Math/yutovo/deploy/include")
+message("CMAKE_FIND_ROOT_PATH is ${CMAKE_FIND_ROOT_PATH}")
+message("INSTALL_PATH is ${INSTALL_PATH}")
+
+if(EMSCRIPTEN)
+    find_package(Boost 1.81.0 REQUIRED PATHS ${INSTALL_PATH}/wasm/cmake/)
+    find_package(Boost 1.81.0 COMPONENTS serialization)
+else()
+    find_package(Boost 1.81.0 REQUIRED PATHS ${INSTALL_PATH}/lib/cmake/)
+    find_package(Boost 1.81.0 COMPONENTS serialization)
+endif()
+
+if(EMSCRIPTEN)
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O0 -g")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread -s USE_PTHREADS=1 -s PTHREAD_POOL_SIZE=4")
+endif()
 
 add_library(${PROJECT_NAME}
     caret.cpp
@@ -34,6 +48,7 @@ add_library(${PROJECT_NAME}
     result_codes.cpp
     solver.cpp
     solver_task.cpp
+    web_socket.cpp
     formulas/formula.cpp
     formulas/code_block.cpp
     formulas/code_paragraph.cpp
@@ -59,22 +74,29 @@ add_library(${PROJECT_NAME}
 target_compile_options(${PROJECT_NAME} PUBLIC -Wno-deprecated-declarations)
 
 set_target_properties(${PROJECT_NAME} PROPERTIES
-	CXX_STANDARD 17
+	CXX_STANDARD 20
 	CXX_STANDARD_REQUIRED ON
 	CXX_EXTENSIONS OFF
 	POSITION_INDEPENDENT_CODE ON
+    CMAKE_INCLUDE_CURRENT_DIR ON
 )
 
-target_link_libraries(${PROJECT_NAME} PRIVATE 
-    stdc++
-    stdc++fs
-    pthread
-    boost_serialization.a
-    zmq
-)
+if(EMSCRIPTEN)
+    target_link_libraries(${PROJECT_NAME} PRIVATE 
+        stdc++
+        pthread
+        ${Boost_SERIALIZATION_LIBRARY_RELEASE}
+    )
+else()
+    target_link_libraries(${PROJECT_NAME} PRIVATE 
+        stdc++
+        pthread
+        ${Boost_SERIALIZATION_LIBRARY_RELEASE}
+    )
+endif()
 
 target_include_directories(${PROJECT_NAME} PUBLIC
-	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
     ${INSTALL_PATH}/include
 )
 
@@ -86,12 +108,21 @@ target_include_directories(${PROJECT_NAME} PRIVATE
     ../third_party
 )
 
-install(
-    TARGETS ${PROJECT_NAME}
-    EXPORT ${PROJECT_NAME}
-    DESTINATION ${INSTALL_PATH}/lib
-    COMPONENT ${PROJECT_NAME}
-)
+if(EMSCRIPTEN)
+    install(
+        TARGETS ${PROJECT_NAME}
+        EXPORT ${PROJECT_NAME}
+        DESTINATION ${INSTALL_PATH}/wasm
+        COMPONENT ${PROJECT_NAME}
+    )
+else()
+    install(
+        TARGETS ${PROJECT_NAME}
+        EXPORT ${PROJECT_NAME}
+        DESTINATION ${INSTALL_PATH}/lib
+        COMPONENT ${PROJECT_NAME}
+    )
+endif()
 
 install(
     FILES 
@@ -112,19 +143,37 @@ install(
         style.h
         util.h
         config.h
+        web_socket.h
     DESTINATION ${INSTALL_PATH}/include/${PROJECT_NAME}
     COMPONENT ${PROJECT_NAME}
 )
 
-install(
-    EXPORT ${PROJECT_NAME}
-    DESTINATION ${INSTALL_PATH}/cmake/${PROJECT_NAME}
-    COMPONENT ${PROJECT_NAME}
-    FILE ${PROJECT_NAME}.cmake
-)
+if(EMSCRIPTEN)
+    install(
+        EXPORT ${PROJECT_NAME}
+        DESTINATION ${INSTALL_PATH}/wasm/cmake/${PROJECT_NAME}
+        COMPONENT ${PROJECT_NAME}
+        FILE ${PROJECT_NAME}.cmake
+    )
+else()
+    install(
+        EXPORT ${PROJECT_NAME}
+        DESTINATION ${INSTALL_PATH}/lib/cmake/${PROJECT_NAME}
+        COMPONENT ${PROJECT_NAME}
+        FILE ${PROJECT_NAME}.cmake
+    )
+endif()
 
-install(
-    FILES ${PROJECT_NAME}-config.cmake
-    DESTINATION ${INSTALL_PATH}/cmake/${PROJECT_NAME}
-    COMPONENT ${PROJECT_NAME}
-)
+if(EMSCRIPTEN)
+    install(
+        FILES ${PROJECT_NAME}-config.cmake
+        DESTINATION ${INSTALL_PATH}/wasm/cmake/${PROJECT_NAME}
+        COMPONENT ${PROJECT_NAME}
+    )
+else()
+    install(
+        FILES ${PROJECT_NAME}-config.cmake
+        DESTINATION ${INSTALL_PATH}/lib/cmake/${PROJECT_NAME}
+        COMPONENT ${PROJECT_NAME}
+    )
+endif()

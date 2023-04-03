@@ -6,6 +6,8 @@
 namespace yutovo
 {
 
+typedef unsigned int uint;
+
 struct Config
 {
     std::string service_ip = "localhost";

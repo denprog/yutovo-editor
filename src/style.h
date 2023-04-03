@@ -18,8 +18,9 @@ struct StringFormat
     StringFormat() = default;
     StringFormat(const uint _id, const std::string _family, uint _size, bool _bold, bool _italic, bool _underline, Color _color, Color _selection_color);
     StringFormat(const std::string _family, uint _size, bool _bold, bool _italic, bool _underline, Color _color, Color _selection_color);
+    ~StringFormat();
  
-    bool operator==(const StringFormat& f);
+    bool operator==(const StringFormat& f) const;
 
     template <class Archive>
     void save(Archive& ar, const unsigned int version) const
@@ -61,6 +62,8 @@ typedef std::shared_ptr<StringFormat> StringFormatPtr;
 class StringFormats
 {
 public:
+    ~StringFormats();
+    
     StringFormatPtr GetFormat(const std::string _family, uint _size, bool _bold, bool _italic, bool _underline);
     StringFormatPtr GetFormat(const std::string _family, uint _size, bool _bold, bool _italic, bool _underline, Color _color, Color _selection_color);
     StringFormatPtr GetFormat(const StringFormat& source);
@@ -170,7 +173,7 @@ struct FormulaFormat
     FormulaFormat(const std::string& _name, StringFormatPtr _string_format, uint _inter_spacing, 
         int _left_margin, int _top_margin, int _right_margin, int _bottom_margin, Color _color, Color _selection_color);
 
-    bool operator==(const FormulaFormat& f);
+    bool operator==(const FormulaFormat& f) const;
 
     std::string name;
     StringFormatPtr string_format;
@@ -210,7 +213,7 @@ struct CodeFormat
     CodeFormat(const std::string& _name, uint _left_indent, uint _top_indent, uint _right_indent, uint _bottom_indent, 
         uint left_margin, uint top_margin, uint right_margin, uint bottom_margin, uint _paragraph_spacing);
 
-    bool operator==(const CodeFormat& c);
+    bool operator==(const CodeFormat& c) const;
 
     std::string name;
 

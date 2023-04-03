@@ -1,5 +1,4 @@
 #include "solver_task.h"
-#include "rapidjson/document.h"
 #include "rapidjson/writer.h"
 #include "rapidjson/stringbuffer.h"
 #include "logger.h"
@@ -22,23 +21,13 @@ SolverTask::SolverTask(ElementId _id, std::string& _guid, uint _code_id, Express
 {
 }
 
-bool SolverTask::SendRequest(const rapidjson::Document& json, Result& result, zmq::socket_t& socket)
+bool SolverTask::SendRequest(const rapidjson::Document& json, Result& result, WebSocketPtr& socket)
 {
     rapidjson::StringBuffer buffer;
     rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
     json.Accept(writer);
     std::string str = buffer.GetString();
-
-    logger->Info("Sending request:\n{}", str);
-    zmq::message_t request(str.size());
-    std::memcpy(request.data(), str.data(), str.size());
-    if (socket.send(request) == 0)
-    {
-        logger->Error("Send timeout");
-        result.error.error_code = ErrorCode::SOLVER_TIMEOUT_ERROR;
-        return false;
-    }
-    return true;
+    return socket->Send(str, result);
 }
 
 //RealSolverTask
@@ -51,7 +40,7 @@ RealSolverTask::RealSolverTask(ElementId _id, std::string& _guid, uint _code_id,
 {
 }
 
-bool RealSolverTask::Execute(zmq::socket_t& socket, Result& result)
+bool RealSolverTask::Execute(WebSocketPtr socket, Result& result)
 {
     //request
     rapidjson::Document doc;
@@ -71,17 +60,10 @@ bool RealSolverTask::Execute(zmq::socket_t& socket, Result& result)
     if (!SendRequest(doc, result, socket))
         return false;
 
-    //reply
-    zmq::message_t reply;
-    if (socket.recv(&reply) == 0)
-    {
-        logger->Error("Receive timeout");
-        result.error.error_code = ErrorCode::SOLVER_TIMEOUT_ERROR;
+    std::string json;
+    if (!socket->Receive(json, result))
         return false;
-    }
 
-    std::string json = std::string((const char*)reply.data(), reply.size());
-    logger->Info("Got reply:\n{}", json);
     doc.Parse<0>(json.c_str());
     if (doc.HasParseError())
     {
@@ -94,7 +76,6 @@ bool RealSolverTask::Execute(zmq::socket_t& socket, Result& result)
 
     if (doc.HasMember("error"))
     {
-        logger->Error("Solver error");
         if (doc["error"].IsObject())
         {
             rapidjson::Value error = doc["error"].GetObject();
@@ -102,8 +83,11 @@ bool RealSolverTask::Execute(zmq::socket_t& socket, Result& result)
                 result.error.error_code = (ErrorCode)error["error_code"].GetInt();
             if (error.HasMember("parser_error_code") && error["parser_error_code"].IsInt())
                 result.error.parser_error_code = (yutovo_calculator::ParserExceptionCode)error["parser_error_code"].GetInt();
+            if (result.error.error_code != ErrorCode::SOLVER_RESTARTED_ERROR)
+                logger->Error("Solver error: {}", (int)result.error.error_code);
             return false;
         }
+        logger->Error("Solver error: {}", (int)result.error.error_code);
         result.error.error_code = ErrorCode::PARSER_ERROR;
         return false;
     }
@@ -130,7 +114,7 @@ IntegerSolverTask::IntegerSolverTask(ElementId _id, std::string& _guid, uint _co
 {
 }
 
-bool IntegerSolverTask::Execute(zmq::socket_t& socket, Result& result)
+bool IntegerSolverTask::Execute(WebSocketPtr socket, Result& result)
 {
     //request
     rapidjson::Document doc;
@@ -147,16 +131,10 @@ bool IntegerSolverTask::Execute(zmq::socket_t& socket, Result& result)
         return false;
 
     //reply
-    zmq::message_t reply;
-    if (socket.recv(&reply) == 0)
-    {
-        logger->Error("Receive timeout");
-        result.error.error_code = ErrorCode::SOLVER_TIMEOUT_ERROR;
+    std::string json;
+    if (!socket->Receive(json, result))
         return false;
-    }
     
-    std::string json = std::string((const char*)reply.data(), reply.size());
-    logger->Info("Got reply:\n{}", json);
     doc.Parse<0>(json.c_str());
     if (doc.HasParseError())
     {
@@ -201,7 +179,7 @@ RationalSolverTask::RationalSolverTask(ElementId _id, std::string& _guid, uint _
 {
 }
 
-bool RationalSolverTask::Execute(zmq::socket_t& socket, Result& result)
+bool RationalSolverTask::Execute(WebSocketPtr socket, Result& result)
 {
     //request
     rapidjson::Document doc;
@@ -218,16 +196,10 @@ bool RationalSolverTask::Execute(zmq::socket_t& socket, Result& result)
         return false;
 
     //reply
-    zmq::message_t reply;
-    if (socket.recv(&reply) == 0)
-    {
-        logger->Error("Receive timeout");
-        result.error.error_code = ErrorCode::SOLVER_TIMEOUT_ERROR;
+    std::string json;
+    if (!socket->Receive(json, result))
         return false;
-    }
     
-    std::string json = std::string((const char*)reply.data(), reply.size());
-    logger->Info("Got reply:\n{}", json);
     doc.Parse<0>(json.c_str());
     if (doc.HasParseError())
     {
@@ -275,7 +247,7 @@ RemoveIdentifierSolverTask::RemoveIdentifierSolverTask(ElementId _id, std::strin
 {
 }
 
-bool RemoveIdentifierSolverTask::Execute(zmq::socket_t& socket, Result& result)
+bool RemoveIdentifierSolverTask::Execute(WebSocketPtr socket, Result& result)
 {
     //request
     rapidjson::Document doc;
@@ -291,16 +263,10 @@ bool RemoveIdentifierSolverTask::Execute(zmq::socket_t& socket, Result& result)
         return false;
     
     //reply
-    zmq::message_t reply;
-    if (socket.recv(&reply) == 0)
-    {
-        logger->Error("Receive timeout");
-        result.error.error_code = ErrorCode::SOLVER_TIMEOUT_ERROR;
+    std::string json;
+    if (!socket->Receive(json, result))
         return false;
-    }
     
-    std::string json = std::string((const char*)reply.data(), reply.size());
-    logger->Info("Got reply:\n{}", json);
     doc.Parse<0>(json.c_str());
     if (doc.HasParseError())
     {

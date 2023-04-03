@@ -12,8 +12,6 @@ namespace yutovo
 
 class Document;
 
-typedef std::shared_ptr<zmq::socket_t> SocketPtr;
-
 class Solver
 {
 public:
@@ -27,7 +25,6 @@ public:
 
 private:
     void MessageLoop();
-    void CreateSocket(SocketPtr& socket, zmq::context_t& context);
 
 private:
     Document* document;
@@ -38,10 +35,14 @@ private:
     bool exit = false;
 
     std::mutex tasks_mutex;
-    std::condition_variable_any next_circle;
+    std::atomic_bool next_circle;
     std::thread message_loop;
 
     std::string guid;
+
+    Logger* logger;
+
+    const int reconnect_period = 2; //seconds
 };
 
 }

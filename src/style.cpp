@@ -26,7 +26,11 @@ StringFormat::StringFormat(const std::string _family, uint _size, bool _bold, bo
 {
 }
 
-bool StringFormat::operator==(const StringFormat& f)
+StringFormat::~StringFormat()
+{
+}
+
+bool StringFormat::operator==(const StringFormat& f) const
 {
     return family == f.family && size == f.size && bold == f.bold && italic == f.italic && underline == f.underline && 
         color == f.color && selection_color == f.selection_color;
@@ -43,6 +47,10 @@ void StringFormat::Reset()
 
 //StringFormats
 
+StringFormats::~StringFormats()
+{
+}
+
 StringFormatPtr StringFormats::GetFormat(const std::string _family, uint _size, bool _bold, bool _italic, bool _underline)
 {
     return GetFormat(_family, _size, _bold, _italic, _underline, Color::Black(), Color::White());
@@ -52,7 +60,7 @@ StringFormatPtr StringFormats::GetFormat(const std::string _family, uint _size, 
 {
     StringFormatPtr format(new StringFormat(_family, _size, _bold, _italic, _underline, _color, _selection_color));
     //return the present format
-    for (auto& f : string_formats)
+    for (StringFormatPtr& f : string_formats)
     {
         if (*f == *format)
             return f;
@@ -66,8 +74,10 @@ StringFormatPtr StringFormats::GetFormat(const std::string _family, uint _size, 
 StringFormatPtr StringFormats::GetFormat(const StringFormat& source)
 {
     //return the present format
-    for (auto& f : string_formats)
+    for (StringFormatPtr& f : string_formats)
     {
+        std::string s = f->family;
+        int size = f->size;
         if (*f == source)
             return f;
     }
@@ -135,7 +145,7 @@ ParagraphFormatPtr ParagraphFormats::GetFormat(std::string _name, ParagraphForma
     for (auto& p : paragraph_formats)
     {
         if (p->name == _name && p->alignment == _alignment && p->word_wrap == _word_wrap && p->line_spacing == _line_spacing && 
-            p->indent_before == _indent_before, p->indent_after == _indent_after && p->indent_first_line == _indent_first_line && 
+            p->indent_before == _indent_before && p->indent_after == _indent_after && p->indent_first_line == _indent_first_line && 
             p->spacing_before == _spacing_before && p->spacing_after == _spacing_after && *p->string_format == *_string_format)
             return p;
     }
@@ -180,7 +190,7 @@ FormulaFormat::FormulaFormat(const std::string& _name, StringFormatPtr _string_f
 {
 }
 
-bool FormulaFormat::operator==(const FormulaFormat& f)
+bool FormulaFormat::operator==(const FormulaFormat& f) const
 {
     return name == f.name && *string_format == *f.string_format && inter_spacing == f.inter_spacing &&
         left_margin == f.left_margin &&  top_margin == f.top_margin && right_margin == f.right_margin && bottom_margin == f.bottom_margin &&
@@ -242,7 +252,7 @@ CodeFormat::CodeFormat(const std::string& _name, uint _left_indent, uint _top_in
 {
 }
 
-bool CodeFormat::operator==(const CodeFormat& c)
+bool CodeFormat::operator==(const CodeFormat& c) const
 {
     return name == c.name && left_indent == c.left_indent && top_indent == c.top_indent && bottom_indent == c.bottom_indent && 
         paragraph_spacing == c.paragraph_spacing;

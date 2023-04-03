@@ -18,6 +18,8 @@ class Window
 public:
     Window();
 
+    virtual void Init() = 0;
+
     virtual void DrawText(const std::string& text, const StringFormatPtr format, const Rect& rect, const Color color) = 0;
     virtual void DrawLine(const int x1, const int y1, const int x2, const int y2, const Color color) = 0;
     void DrawRect(const Rect& rect, const Color color);
@@ -37,7 +39,7 @@ public:
     virtual void RestoreRect() = 0;
 
     virtual Size GetTextSize(const std::u32string& text, const StringFormatPtr format) = 0;
-    virtual int GetCharPos(const std::string& text, const StringFormatPtr format, int pos) = 0;
+    virtual int GetCharPos(const std::u32string& text, const StringFormatPtr format, int pos) = 0;
     virtual int GetFontAscent(const StringFormatPtr format) = 0;
 
     virtual void SetViewPort(const Rect view_port) = 0;
@@ -64,6 +66,9 @@ public:
 
     virtual void OnCopyResult(CopyResult result);
     virtual void OnPasteResult(PasteResult result);
+
+    virtual int CreateSocket(const std::string& addr);
+    virtual void CloseSocket(const int socket);
 
 public:
     Point document_point;

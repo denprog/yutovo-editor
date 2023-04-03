@@ -3,9 +3,9 @@
 
 #include "caret_state.h"
 #include <memory>
-#include <zmq.hpp>
-#include <map>
-#include <yutovo_service/solver.h>
+#include "rapidjson/document.h"
+#include "web_socket.h"
+#include "result_codes.h"
 
 namespace yutovo
 {
@@ -34,43 +34,15 @@ enum class ExpressionType
 	USER_SYMBOL //symbol of user variable or function
 };
 
-struct Error
-{
-    yutovo_service::ErrorCode error_code = yutovo_service::ErrorCode::OK;
-    yutovo_calculator::ParserExceptionCode parser_error_code = yutovo_calculator::ParserExceptionCode::None;
-    int solver_error_code = -1;
-    int pos = -1;
-    int line = -1;
-};
-
-enum class WarningCode
-{
-    NONE = 0
-};
-
-struct Warning
-{
-    WarningCode code;
-    int pos;
-};
-
-struct Result
-{
-    yutovo_service::ResultType type;
-    std::map<std::string, std::string> values;
-    Error error;
-    std::vector<Warning> warnings;
-};
-
 class Logger;
 
 struct SolverTask
 {
     SolverTask(ElementId _id, std::string& _guid, uint _code_id, ExpressionType _expression_type, const std::u32string& _expression);
 
-    virtual bool Execute(zmq::socket_t& socket, Result& result) = 0;
+    virtual bool Execute(WebSocketPtr socket, Result& result) = 0;
 
-    bool SendRequest(const rapidjson::Document& json, Result& result, zmq::socket_t& socket);
+    bool SendRequest(const rapidjson::Document& json, Result& result, WebSocketPtr& socket);
 
     ElementId id;
     std::string guid;
@@ -85,7 +57,7 @@ struct RealSolverTask : SolverTask
     RealSolverTask(ElementId _id, std::string& _guid, uint _code_id, ExpressionType _expression_type, const uint _precision, 
         AngleMeasure _angle_measure, const std::u32string& _expression);
 
-    virtual bool Execute(zmq::socket_t& socket, Result& result);
+    virtual bool Execute(WebSocketPtr socket, Result& result);
 
     uint precision;
     AngleMeasure angle_measure;
@@ -96,7 +68,7 @@ struct IntegerSolverTask : SolverTask
     IntegerSolverTask(ElementId _id, std::string& _guid, uint _code_id, ExpressionType _expression_type, Notation _notation, 
         const std::u32string& _expression);
 
-    virtual bool Execute(zmq::socket_t& socket, Result& result);
+    virtual bool Execute(WebSocketPtr socket, Result& result);
 
     Notation notation;
 };
@@ -105,14 +77,14 @@ struct RationalSolverTask : SolverTask
 {
     RationalSolverTask(ElementId _id, std::string& _guid, uint _code_id, ExpressionType _expression_type, const std::u32string& _expression);
 
-    virtual bool Execute(zmq::socket_t& socket, Result& result);
+    virtual bool Execute(WebSocketPtr socket, Result& result);
 };
 
 struct RemoveIdentifierSolverTask : SolverTask
 {
     RemoveIdentifierSolverTask(ElementId _id, std::string& _guid, uint _code_id, const ResultType _result_type, const std::u32string& _expression);
 
-    virtual bool Execute(zmq::socket_t& socket, Result& result);
+    virtual bool Execute(WebSocketPtr socket, Result& result);
 
     ResultType result_type;
 };

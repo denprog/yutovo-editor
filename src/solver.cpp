@@ -1,7 +1,7 @@
 #include "solver.h"
 #include "document.h"
 #include "config.h"
-#include <zmq.hpp>
+#include "web_socket.h"
 #include <chrono>
 #include <boost/uuid/uuid.hpp>
 #include <boost/uuid/uuid_generators.hpp>
@@ -13,10 +13,13 @@ namespace yutovo
 using namespace std::chrono_literals;
 using namespace yutovo_service;
 
+//Solver
+
 Solver::Solver(Document* _document) :
     document(_document),
     message_loop(std::thread(&Solver::MessageLoop, this)),
-    guid(boost::uuids::to_string(boost::uuids::random_generator()()))
+    guid(boost::uuids::to_string(boost::uuids::random_generator()())),
+    logger(Logger::GetInstance("programs/Math/bin/", "yutovo", true, true))
 {
     result_types_seq = {ResultType::REAL, ResultType::INTEGER, ResultType::RATIONAL, ResultType::COMPLEX};
 }
@@ -24,6 +27,7 @@ Solver::Solver(Document* _document) :
 Solver::~Solver()
 {
     exit = true;
+    next_circle = true;
     message_loop.join();
 }
 
@@ -52,7 +56,7 @@ void Solver::Solve(ElementId id, uint code_id, yutovo_service::ResultType result
 
         tasks.emplace(nullptr);
     }
-    next_circle.notify_one();
+    next_circle = true;
 }
 
 void Solver::SetUserIdentifier(ElementId id, uint code_id, const std::u32string& expression)
@@ -62,7 +66,7 @@ void Solver::SetUserIdentifier(ElementId id, uint code_id, const std::u32string&
     tasks.emplace(new IntegerSolverTask(id, guid, code_id, ExpressionType::USER_SYMBOL, Notation::DECIMAL, expression));
     tasks.emplace(new RationalSolverTask(id, guid, code_id, ExpressionType::USER_SYMBOL, expression));
     tasks.emplace(nullptr);
-    next_circle.notify_one();
+    next_circle = true;
 }
 
 void Solver::RemoveIdentifier(ElementId id, uint code_id, const std::u32string& identifier)
@@ -74,25 +78,57 @@ void Solver::RemoveIdentifier(ElementId id, uint code_id, const std::u32string& 
     tasks.emplace(nullptr);
     tasks.emplace(new RemoveIdentifierSolverTask(id, guid, code_id, ResultType::RATIONAL, identifier));
     tasks.emplace(nullptr);
-    next_circle.notify_one();
+    next_circle = true;
 }
 
 void Solver::MessageLoop()
 {
-    zmq::context_t context(1);
-    SocketPtr socket;
-    CreateSocket(socket, context);
+    WebSocketPtr socket(new WebSocket(document->config));
+    if (!socket->Connect())
+    {
+        logger->Error("Error connecting to the server: {}:{}", document->config.service_ip, document->config.service_port);
+    }
 
+    time_t now = time(0);
+    time_t next = now;
+    
     std::vector<SolverTaskPtr> temp_tasks;
     while (!exit)
     {
         {
-            std::unique_lock<std::mutex> lock(tasks_mutex);
-            if (tasks.empty())
+            bool empty = false;
             {
-                if (next_circle.wait_for(lock, 100ms) == std::cv_status::timeout) //wait for tasks
-                    continue;
+                std::unique_lock<std::mutex> lock(tasks_mutex);
+                empty = tasks.empty();
             }
+            if (empty)
+            {
+                while (!next_circle) //wait for tasks
+                {
+                    std::this_thread::sleep_for(10ms);
+                    if (!socket->IsOpen())
+                    {
+                        next = time(0);
+                        if (next - now >= reconnect_period)
+                            break;
+                    }
+                }
+            }
+
+            if (!socket->IsOpen())
+            {
+                if (next - now >= reconnect_period)
+                {
+                    now = time(0);
+                    if (!socket->Connect())
+                    {
+                        logger->Error("Error connecting to the server: {}:{}", document->config.service_ip, document->config.service_port);
+                        continue;
+                    }
+                }
+            }
+
+            std::unique_lock<std::mutex> lock(tasks_mutex);
             while (!tasks.empty() && tasks.front() == nullptr)
                 tasks.pop();
             if (tasks.empty())
@@ -107,11 +143,15 @@ void Solver::MessageLoop()
         Result result;
         for (SolverTaskPtr t : temp_tasks) //try all variants of parsers until one of them solves
         {
-            if (t->Execute(*socket.get(), result) && t->expression_type == ExpressionType::SOLVE)
+            if (t->Execute(socket, result) && t->expression_type == ExpressionType::SOLVE)
                 break;
-            if (result.error.error_code == yutovo_service::ErrorCode::SOLVER_TIMEOUT_ERROR)
+            if (result.error.error_code == yutovo_service::ErrorCode::OPERATION_ERROR)
             {
-                CreateSocket(socket, context); //recreate the socket
+                socket.reset(new WebSocket(document->config)); //recreate the socket
+                if (!socket->Connect())
+                {
+                    logger->Error("Error connecting to the server");
+                }
                 break;
             }
             if (result.error.error_code == ErrorCode::SOLVER_RESTARTED_ERROR)
@@ -125,23 +165,6 @@ void Solver::MessageLoop()
         
         temp_tasks.clear();
     }
-
-    socket->setsockopt(ZMQ_LINGER, 0);
-    socket->close();
-}
-
-void Solver::CreateSocket(SocketPtr& socket, zmq::context_t& context)
-{
-    if (socket)
-    {
-        socket->setsockopt(ZMQ_LINGER, 0);
-        socket->close();
-    }
-    Config& config = document->config;
-    socket.reset(new zmq::socket_t(context, ZMQ_REQ));
-    socket->setsockopt(ZMQ_SNDTIMEO, config.service_timeout * 1000);
-    socket->setsockopt(ZMQ_RCVTIMEO, config.service_timeout * 1000);
-    socket->connect("tcp://" + config.service_ip + ":" + std::to_string(config.service_port));
 }
 
 }

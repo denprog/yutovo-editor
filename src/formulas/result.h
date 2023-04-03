@@ -2,6 +2,7 @@
 #define __RESULT_H__
 
 #include "code_row.h"
+#include "yutovo_calculator/parser_exception.h"
 #include <variant>
 
 namespace yutovo

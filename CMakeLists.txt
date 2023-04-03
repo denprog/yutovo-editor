@@ -10,4 +10,6 @@ add_compile_definitions(DEBUG)
 set(INSTALL_PATH "$ENV{YUTOVO_DEPLOY}")
 
 add_subdirectory(src)
-add_subdirectory(test)
+if(NOT DEFINED EMSCRIPTEN)
+    add_subdirectory(test)
+endif()

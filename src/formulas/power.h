@@ -41,9 +41,9 @@ public:
     void load(Archive& ar, const unsigned int version)
     {
         ar >> first;
-        elements->Replace(ElementPtr(first), 0);
+        elements->Replace(ElementPtr((Element*)first), 0);
         ar >> last;
-        elements->Replace(ElementPtr(last), 2);
+        elements->Replace(ElementPtr((Element*)last), 2);
     }
 
 	BOOST_SERIALIZATION_SPLIT_MEMBER()

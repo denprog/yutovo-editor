@@ -29,25 +29,26 @@ using namespace std::chrono_literals;
 
 Document::Document(Window* _window) :
     window(_window),
-    string_formats(new StringFormats()),
-    paragraph_formats(new ParagraphFormats(string_formats)),
-    code_formats(new CodeFormats()),
-    formula_formats(new FormulaFormats(string_formats)),
-    current_paragraph_format(paragraph_formats->GetFormat("Text body")),
-    current_code_format(code_formats->GetFormat("Calculator")),
-    current_formula_format(formula_formats->GetFormat("Code")),
     selection(this),
     last_selection(this),
     solver(this),
     logger(Logger::GetInstance(".", "yutovo", true, true))
 {
+    string_formats.reset(new StringFormats());
+    paragraph_formats.reset(new ParagraphFormats(string_formats));
+    code_formats.reset(new CodeFormats());
+    formula_formats.reset(new FormulaFormats(string_formats));
+    current_paragraph_format = paragraph_formats->GetFormat("Text body");
+    current_code_format = code_formats->GetFormat("Calculator");
+    current_formula_format = formula_formats->GetFormat("Code");
+
     logger->Debug("Document start");
 }
 
 Document::~Document()
 {
     exit = true;
-    next_circle.notify_one();
+    next_circle = true;
     main_loop.join();
     logger->Debug("Document end");
 }
@@ -55,7 +56,11 @@ Document::~Document()
 void Document::Start(Config& _config)
 {
     config = _config;
-    
+
+    window->Init();
+
+    caret_settings.blink_delay = 500;
+
     caret.reset(new Caret(this));
     text.reset(new Text(this));
 
@@ -73,15 +78,28 @@ void Document::MainLoop()
 
     while (!exit)
     {
+        //printf("MainLoop\n");
         {
-            std::unique_lock<std::recursive_mutex> lock(tasks_mutex);
-            if (tasks.empty() && undos.empty() && redos.empty())
+            bool empty = false;
             {
-                if (next_circle.wait_for(lock, caret_settings.blink_delay * 1ms) == std::cv_status::timeout) //wait for tasks
+                std::unique_lock<std::recursive_mutex> lock(tasks_mutex);
+                empty = tasks.empty() && undos.empty() && redos.empty();
+            }
+            if (empty)
+            {
+                auto now = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch());
+                auto next = now;
+                while (!next_circle && next - now < caret_settings.blink_delay * 1ms) //wait for tasks
+                {
+                    std::this_thread::sleep_for(1ms);
+                    next = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch());
+                }
+                if (!next_circle)
                 {
                     caret->Blink();
                     continue;
                 }
+                next_circle = false;
             }
         }
 
@@ -285,7 +303,7 @@ uint Document::InsertElements(std::vector<ElementPtr>& elements, bool with_undo,
             last_task_id = tasks[tasks.size() - 1]->id;
         }
     }
-    next_circle.notify_one();
+    next_circle = true;
     return last_task_id;
 }
 
@@ -304,7 +322,7 @@ uint Document::DeleteElements(bool left, bool with_undo, bool undo)
             last_task_id = tasks[tasks.size() - 1]->id;
         }
     }
-    next_circle.notify_one();
+    next_circle = true;
     return last_task_id;
 }
 
@@ -323,7 +341,7 @@ uint Document::ClearElements(ElementId element_id, bool with_undo, bool undo)
             last_task_id = tasks[tasks.size() - 1]->id;
         }
     }
-    next_circle.notify_one();
+    next_circle = true;
     return last_task_id;
 }
 
@@ -459,7 +477,7 @@ uint Document::InsertFormulas(std::vector<ElementPtr>& elements, bool with_undo,
             last_task_id = tasks[tasks.size() - 1]->id;
         }
     }
-    next_circle.notify_one();
+    next_circle = true;
     return last_task_id;
 }
 
@@ -477,7 +495,7 @@ uint Document::ChangeStringFormat(const StringFormatPtr format, bool set_family,
         tasks.emplace_back(new ChangeStringFormatTask(text, format, set_family, set_size, set_bold, set_italic, set_underline, with_undo));
         last_task_id = tasks[tasks.size() - 1]->id;
     }
-    next_circle.notify_one();
+    next_circle = true;
     return last_task_id;
 }
 
@@ -496,7 +514,7 @@ uint Document::ChangeStringFormat(const StringFormatPtr format, bool with_undo, 
             last_task_id = tasks[tasks.size() - 1]->id;
         }
     }
-    next_circle.notify_one();
+    next_circle = true;
     return last_task_id;
 }
 
@@ -515,7 +533,7 @@ uint Document::ChangeParagraphFormat(const ParagraphFormatPtr format, bool with_
             last_task_id = tasks[tasks.size() - 1]->id;
         }
     }
-    next_circle.notify_one();
+    next_circle = true;
     return last_task_id;
 }
 
@@ -548,7 +566,7 @@ void Document::PushEditorState(const CaretState& caret_state, const SelectionSta
         else
             tasks.emplace_back(new SetEditorStateTask(text, caret_state, selection_state, cur_task_id));
     }
-    next_circle.notify_one();
+    next_circle = true;
 }
 
 void Document::CallFunc(const ElementId& _id, CallFuncPtr func, bool undo)
@@ -560,7 +578,7 @@ void Document::CallFunc(const ElementId& _id, CallFuncPtr func, bool undo)
         else
             tasks.emplace_back(new CallFuncTask(text, _id, func, cur_task_id));
     }
-    next_circle.notify_one();
+    next_circle = true;
 }
 
 void Document::ResetTasks()
@@ -865,7 +883,7 @@ uint Document::MoveCaret(MoveCaretTask::MoveCaretDir dir, bool select, bool with
             tasks.emplace_back(new MoveCaretTask(text, caret, dir, true, select));
         last_task_id = tasks[tasks.size() - 1]->id;
     }
-    next_circle.notify_one();
+    next_circle = true;
 
 #ifdef DEBUG
     last_caret_moved = false;
@@ -940,7 +958,7 @@ uint Document::MoveCaret(const int x, const int y)
         tasks.emplace_back(new MoveCaretTask(text, caret, Point{x, y}));
         last_task_id = tasks[tasks.size() - 1]->id;
     }
-    next_circle.notify_one();
+    next_circle = true;
 #ifdef DEBUG
     last_caret_moved = false;
 #endif
@@ -953,7 +971,7 @@ void Document::SetCaretVisible(bool visible)
         std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
         tasks.emplace_back(new MoveCaretTask(text, caret, MoveCaretTask::MoveCaretDir::NONE, visible));
     }
-    next_circle.notify_one();
+    next_circle = true;
 }
 
 void Document::Undo()
@@ -964,7 +982,7 @@ void Document::Undo()
         std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
         undos.push_back(true);
     }
-    next_circle.notify_one();
+    next_circle = true;
 }
 
 void Document::Redo()
@@ -975,7 +993,7 @@ void Document::Redo()
         std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
         redos.push_back(true);
     }
-    next_circle.notify_one();
+    next_circle = true;
 }
 
 bool Document::CanUndo()
@@ -1032,7 +1050,7 @@ void Document::Resize(uint width, uint height)
 #ifdef DEBUG
     last_task_id = tasks[tasks.size() - 1]->id;
 #endif
-    next_circle.notify_one();
+    next_circle = true;
     Remake(text->id, true, false, false);
 }
 
@@ -1057,7 +1075,7 @@ void Document::Redraw(const ElementId& id, bool move_into_view)
             tasks.emplace_back(new RedrawTask(text, id, move_into_view));
         }
     }
-    next_circle.notify_one();
+    next_circle = true;
 }
 
 void Document::Redraw()
@@ -1088,7 +1106,7 @@ void Document::Remake(const ElementId& id, bool with_elements, bool with_undo, b
             }
         }
     }
-    next_circle.notify_one();
+    next_circle = true;
 }
 
 bool Document::WillRedraw(const ElementId& id, bool move_into_view)
