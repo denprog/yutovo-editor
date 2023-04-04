@@ -1,7 +1,5 @@
 #include "web_socket.h"
-#include <mutex>
-#include <condition_variable>
-#include <boost/asio/buffers_iterator.hpp>
+#include "window.h"
 #include "logger.h"
 
 namespace yutovo
@@ -9,11 +7,22 @@ namespace yutovo
 
 //WebSocket
 
-WebSocket::WebSocket(Config& _config) :
+WebSocket::WebSocket(Config& _config, Window* _window) :
     config(_config),
+    window(_window),
+#ifndef EMSCRIPTEN
     ws(ioc),
+#endif
     logger(Logger::GetInstance("programs/Math/bin/", "yutovo", true, true))
 {
+}
+
+WebSocket::~WebSocket()
+{
+#ifdef EMSCRIPTEN
+    if (socket_id > 0)
+        window->Close(socket_id);
+#endif
 }
 
 bool WebSocket::Connect()
@@ -21,10 +30,14 @@ bool WebSocket::Connect()
     host = config.service_ip;
     port = std::to_string(config.service_port);
 
+#ifdef EMSCRIPTEN
+    socket_id = window->Connect(host + ":" + port);
+    return socket_id > 0;
+#else
     connection = true;
     connected = false;
 
-    net::ip::tcp::resolver resolver(ioc);
+    asio::ip::tcp::resolver resolver(ioc);
     beast::get_lowest_layer(ws).expires_after(config.service_timeout * std::chrono::seconds(1));
     ioc.restart();
     
@@ -35,14 +48,18 @@ bool WebSocket::Connect()
         ioc.run_one();
     }
     return connected;
+#endif
 }
 
 bool WebSocket::Send(const std::string& message, Result& result)
 {
+#ifdef EMSCRIPTEN
+    return window->Send(socket_id, message);
+#else
     writing = true;
     beast::get_lowest_layer(ws).expires_after(config.service_timeout * std::chrono::seconds(1));
     ioc.restart();
-    ws.async_write(net::buffer(message), beast::bind_front_handler(&WebSocket::OnWrite, shared_from_this()));
+    ws.async_write(asio::buffer(message), beast::bind_front_handler(&WebSocket::OnWrite, shared_from_this()));
 
     while (writing)
     {
@@ -54,10 +71,14 @@ bool WebSocket::Send(const std::string& message, Result& result)
         return false;
     }
     return true;
+#endif
 }
 
 bool WebSocket::Receive(std::string& message, Result& result)
 {
+#ifdef EMSCRIPTEN
+    return window->Receive(socket_id, message);
+#else
     beast::flat_buffer buffer;
     reading = true;
     beast::get_lowest_layer(ws).expires_after(config.service_timeout * std::chrono::seconds(1));
@@ -75,13 +96,19 @@ bool WebSocket::Receive(std::string& message, Result& result)
     }
     result.error.error_code == yutovo_service::ErrorCode::OPERATION_ERROR;
     return false;
+#endif
 }
 
 bool WebSocket::IsOpen()
 {
+#ifdef EMSCRIPTEN
+    return window->IsOpen(socket_id);
+#else
     return ws.is_open();
+#endif
 }
 
+#ifndef EMSCRIPTEN
 void WebSocket::OnConnect(beast::error_code ec, tcp::resolver::results_type::endpoint_type ep)
 {
     if (ec)
@@ -137,5 +164,6 @@ void WebSocket::OnRead(beast::error_code ec, std::size_t bytes_transferred)
     }
     reading = false;
 }
+#endif
 
 }
