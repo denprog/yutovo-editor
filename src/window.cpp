@@ -70,13 +70,29 @@ void Window::OnPasteResult(PasteResult result)
 {
 }
 
-int Window::CreateSocket(const std::string& addr)
+int Window::Connect(const std::string& addr)
 {
     return 0;
 }
 
-void Window::CloseSocket(const int socket)
+bool Window::Send(const int socket_id, const std::string& message)
 {
+    return false;
+}
+
+bool Window::Receive(const int socket_id, std::string& message)
+{
+    return false;
+}
+
+bool Window::IsOpen(const int socket_id)
+{
+    return false;
+}
+
+bool Window::Close(const int socket_id)
+{
+    return false;
 }
 
 }

@@ -83,7 +83,7 @@ void Solver::RemoveIdentifier(ElementId id, uint code_id, const std::u32string& 
 
 void Solver::MessageLoop()
 {
-    WebSocketPtr socket(new WebSocket(document->config));
+    WebSocketPtr socket(new WebSocket(document->config, document->window));
     if (!socket->Connect())
     {
         logger->Error("Error connecting to the server: {}:{}", document->config.service_ip, document->config.service_port);
@@ -147,7 +147,7 @@ void Solver::MessageLoop()
                 break;
             if (result.error.error_code == yutovo_service::ErrorCode::OPERATION_ERROR)
             {
-                socket.reset(new WebSocket(document->config)); //recreate the socket
+                socket.reset(new WebSocket(document->config, document->window)); //recreate the socket
                 if (!socket->Connect())
                 {
                     logger->Error("Error connecting to the server");
