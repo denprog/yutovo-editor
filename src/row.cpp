@@ -432,10 +432,10 @@ bool Row::DeleteElements(bool left, bool with_undo)
             {
                 if (with_undo)
                 {
-                    document->InsertElement(elements->Get(pos - 1)->Clone(), false, true);
-                    document->PushEditorState(CaretState(id, pos - 1), true);
+                    document->InsertElement(elements->Get(pos)->Clone(), false, true);
+                    document->PushEditorState(CaretState(id, pos), true);
                 }
-                elements->RemoveAt(pos - 1, 1);
+                elements->RemoveAt(pos, 1);
             }
         }
         else
