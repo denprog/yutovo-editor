@@ -70,6 +70,7 @@ void Window::OnPasteResult(PasteResult result)
 {
 }
 
+#ifdef EMSCRIPTEN
 int Window::Connect(const std::string& addr)
 {
     return 0;
@@ -94,5 +95,6 @@ bool Window::Close(const int socket_id)
 {
     return false;
 }
+#endif
 
 }
