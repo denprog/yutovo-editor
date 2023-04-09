@@ -47,9 +47,8 @@ void Paragraph::Draw() const
     for (int i = pos; i < elements->Count(); ++i)
     {
         auto el = elements->Get(i);
-        if (!document->IsVisible(el->id))
-            break;
-        el->Draw();
+        if (document->IsVisible(el->id))
+            el->Draw();
     }
 }
 
