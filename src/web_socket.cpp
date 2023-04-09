@@ -23,6 +23,7 @@ WebSocket::~WebSocket()
     if (socket_id > 0)
         window->Close(socket_id);
 #endif
+    logger->Info("WebSocket closed");
 }
 
 bool WebSocket::Connect()
@@ -47,6 +48,7 @@ bool WebSocket::Connect()
     {
         ioc.run_one();
     }
+    logger->Info("WebSocket conntected to {}:{}", config.service_ip, config.service_port);
     return connected;
 #endif
 }
@@ -67,7 +69,7 @@ bool WebSocket::Send(const std::string& message, Result& result)
     }
     if (last_error != boost::system::errc::success)
     {
-        result.error.error_code == yutovo_service::ErrorCode::OPERATION_ERROR;
+        result.error.error_code = yutovo_service::ErrorCode::OPERATION_ERROR;
         return false;
     }
     return true;
@@ -94,7 +96,7 @@ bool WebSocket::Receive(std::string& message, Result& result)
         message = std::string(boost::asio::buffers_begin(buffer.data()), boost::asio::buffers_end(buffer.data()));
         return true;
     }
-    result.error.error_code == yutovo_service::ErrorCode::OPERATION_ERROR;
+    result.error.error_code = yutovo_service::ErrorCode::OPERATION_ERROR;
     return false;
 #endif
 }

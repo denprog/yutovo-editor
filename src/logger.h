@@ -27,21 +27,21 @@ public:
     template<typename... Args>
     void Info(fmt::format_string<Args...> format, Args... args)
     {
-        log->info(format, args...);
+        log->info(format, std::forward<Args>(args)...);
         log->flush();
     }
 
     template<typename... Args>
     void Debug(fmt::format_string<Args...> format, Args... args)
     {
-        log->debug(format, args...);
+        log->debug(format, std::forward<Args>(args)...);
         log->flush();
     }
 
     template<typename... Args>
     void Warning(fmt::format_string<Args...> format, Args... args)
     {
-        log->warn(format, args...);
+        log->warn(format, std::forward<Args>(args)...);
         log->flush();
     }
 

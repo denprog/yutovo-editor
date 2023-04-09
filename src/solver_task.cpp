@@ -51,7 +51,8 @@ bool RealSolverTask::Execute(WebSocketPtr socket, Result& result)
     doc.AddMember("code_id", code_id, alloc);
     doc.AddMember("solver_type", (int)SolverType::CALCULATOR, alloc);
     doc.AddMember("result_type", (int)ResultType::REAL, alloc);
-    doc.AddMember("expression", rapidjson::StringRef(ToBasicString(expression).c_str()), alloc);
+    std::string s = ToBasicString(expression);
+    doc.AddMember("expression", rapidjson::StringRef(s.c_str()), alloc);
     doc.AddMember("precision", precision, alloc);
     doc.AddMember("angle_measure", (int)angle_measure, alloc);
     doc.AddMember("accuracy_size", 6, alloc);
