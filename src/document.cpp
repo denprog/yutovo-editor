@@ -716,7 +716,7 @@ void Document::UpdateFormats()
         return;
     }
     StringFormat f;
-    if (GetStringFormat(el->id, f))
+    if (GetStringFormat(c.id, f))
         current_string_format = string_formats->GetFormat(f);
 }
 
@@ -853,9 +853,45 @@ bool Document::IsParagraph(ElementId id)
 bool Document::GetStringFormat(const ElementId id, StringFormat& format)
 {
     std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
-    ElementPtr el = GetElement(id);
-    if (IsString(el) || IsRow(el))
+    ElementPtr el = GetParent(id);
+    if (IsString(el))
     {
+        auto f = el->GetStringFormat();
+        format = *f;
+        return true;
+    }
+    else if (IsRow(el))
+    {
+        CaretState c;
+        if (el->GetLastCaretState(c, nullptr) && c.id == id)
+        {
+            //find previous string format
+            for (int i = el->elements->Count() - 1; i >= 0; --i)
+            {
+                auto s = el->elements->Get(i);
+                if (IsString(s))
+                {
+                    auto f = s->GetStringFormat();
+                    format = *f;
+                    return true;
+                }
+            }
+        }
+        else if (el->GetFirstCaretState(c, nullptr) && c.id == id)
+        {
+            //find next string format
+            for (int i = 0; i < el->elements->Count(); ++i)
+            {
+                auto s = el->elements->Get(i);
+                if (IsString(s))
+                {
+                    auto f = s->GetStringFormat();
+                    format = *f;
+                    return true;
+                }
+            }
+        }
+
         auto f = el->GetStringFormat();
         format = *f;
         return true;
