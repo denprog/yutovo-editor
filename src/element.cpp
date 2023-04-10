@@ -133,8 +133,12 @@ bool Element::DeleteElements(bool left, bool with_undo)
         {
             std::vector<ElementPtr> clone;
             elements->Clone(clone, start, size);
-            document->InsertElements(clone, false, true);
-            document->PushEditorState(CaretState(id, start), true);
+            for (int i = 0; i < clone.size(); ++i)
+                document->InsertElement(clone[i]);
+            if (size == elements->Count())
+                document->PushEditorState(CaretState(id), true);
+            else
+                document->PushEditorState(CaretState(id, start), true);
         }
 
         elements->RemoveAt(start, size);

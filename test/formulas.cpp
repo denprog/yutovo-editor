@@ -865,7 +865,7 @@ TEST_F(FormulaTest, delete10)
     document.WaitTask(document.InsertCode(false, true));
     document.WaitTask(document.MoveCaretRight(false));
     document.WaitTask(document.DeleteElements(true, true, false));
-    std::this_thread::sleep_for(400ms);
+    std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\

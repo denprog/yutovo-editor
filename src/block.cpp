@@ -2,6 +2,7 @@
 #include "caret.h"
 #include "document.h"
 #include "str.h"
+#include "paragraph.h"
 
 namespace yutovo
 {
@@ -18,6 +19,38 @@ Block::Block(Document* _document) :
 {
 }
 
+void Block::Normalize(bool with_undo)
+{
+    if (!document->can_normalize)
+        return;
+
+    Element::Normalize(with_undo);
+
+    if (elements->Count() == 0)
+    {
+        AddEmptyElement(); //block has to have at least one paragraph
+        CaretState c;
+        GetFirstCaretState(c, nullptr);
+        caret->SetState(c);
+        if (with_undo)
+        {
+            document->CallFunc(ElementId{}, 
+                [d = document](const ElementId id)
+                {
+                    d->can_normalize = true;
+                },
+                true);
+            document->ClearElements(id, false, true);
+            document->CallFunc(ElementId{}, 
+                [d = document](const ElementId id)
+                {
+                    d->can_normalize = false;
+                },
+                true);
+        }
+    }
+}
+
 bool Block::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo)
 {
     if (_elements.size() != 1 || !document->IsParagraph(_elements[0]))
@@ -31,70 +64,79 @@ bool Block::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo)
     ElementPtr insert_element(_elements[0]->Clone());
     ElementPtr el = document->GetParent(before_state.id);
     ElementPtr paragraph = document->FindParentParagraph(el->id);
-    ElementPtr row = document->FindParentRow(el->id);
-
-    int k = elements->GetElementPos(paragraph->id);
-    int p = row->elements->GetElementPos(el->id);
-    bool caret_next_row = false;
-    CaretState start;
-    row->GetFirstCaretState(start, nullptr);
-
     ElementPtr clone;
-    if (with_undo)
-        clone.reset(paragraph->Clone());
+    ElementPtr new_row, row;
+    bool caret_next_row = false;
 
-    if (caret->GetCaretState() == start)
+    if (!paragraph)
     {
-        elements->Insert(insert_element, k);
+        elements->Insert(insert_element, 0);
+        row = insert_element->elements->Get(0);
     }
     else
     {
-        elements->Insert(insert_element, k + 1);
-        caret_next_row = true;
-    }
+        row = document->FindParentRow(el->id);
 
-    ElementPtr new_row;
-    if (caret_next_row)
-    {
-        new_row = insert_element->elements->Get(0); //move elements into this one row, which will be splitted during paragraph formatting
-        if (new_row->elements->Count() == 0)
-            new_row->AddEmptyElement();
+        int k = elements->GetElementPos(paragraph->id);
+        int p = row->elements->GetElementPos(el->id);
+        CaretState start;
+        row->GetFirstCaretState(start, nullptr);
 
-        if (p >= 0)
+        if (with_undo)
+            clone.reset(paragraph->Clone());
+
+        if (caret->GetCaretState() == start)
         {
-            if (!el->SplitAt(before_state.GetPos()) && before_state.GetPos() == 0) //try to split current element
-                --p;
-            if (before_state.GetPos() != 0 || p >= 0)
-            {
-                for (int i = p + 1; i < row->elements->Count();) //move all elements at the right side of the row
-                    new_row->elements->Move(row->elements->Get(i), new_row->elements->Count());
-            }
+            elements->Insert(insert_element, k);
         }
         else
         {
-            el = document->GetElement(before_state.id);
-            if (el)
+            elements->Insert(insert_element, k + 1);
+            caret_next_row = true;
+        }
+
+        if (caret_next_row)
+        {
+            new_row = insert_element->elements->Get(0); //move elements into this one row, which will be splitted during paragraph formatting
+            if (new_row->elements->Count() == 0)
+                new_row->AddEmptyElement();
+
+            if (p >= 0)
             {
-                p = row->elements->GetElementPos(el->id);
-                if (p >= 0)
+                if (!el->SplitAt(before_state.GetPos()) && before_state.GetPos() == 0) //try to split current element
+                    --p;
+                if (before_state.GetPos() != 0 || p >= 0)
                 {
-                    for (int i = p; i < row->elements->Count();) //move all elements at the right side of the row
+                    for (int i = p + 1; i < row->elements->Count();) //move all elements at the right side of the row
                         new_row->elements->Move(row->elements->Get(i), new_row->elements->Count());
                 }
             }
-        }
+            else
+            {
+                el = document->GetElement(before_state.id);
+                if (el)
+                {
+                    p = row->elements->GetElementPos(el->id);
+                    if (p >= 0)
+                    {
+                        for (int i = p; i < row->elements->Count();) //move all elements at the right side of the row
+                            new_row->elements->Move(row->elements->Get(i), new_row->elements->Count());
+                    }
+                }
+            }
 
-        int r_pos = paragraph->elements->GetElementPos(row->id);
-        for (int i = r_pos + 1; i < paragraph->elements->Count();) //move the rest rows of the paragraph
-        {
-            ElementPtr r = paragraph->elements->Get(i);
-            for (int j = 0; j < r->elements->Count();)
-                new_row->elements->Move(r->elements->Get(j), new_row->elements->Count());
-            paragraph->elements->RemoveAt(i, 1);
+            int r_pos = paragraph->elements->GetElementPos(row->id);
+            for (int i = r_pos + 1; i < paragraph->elements->Count();) //move the rest rows of the paragraph
+            {
+                ElementPtr r = paragraph->elements->Get(i);
+                for (int j = 0; j < r->elements->Count();)
+                    new_row->elements->Move(r->elements->Get(j), new_row->elements->Count());
+                paragraph->elements->RemoveAt(i, 1);
+            }
         }
     }
 
-    if (with_undo)
+    if (with_undo && clone)
     {
         document->CallFunc(id, 
             [d = document, clone](const ElementId id)
@@ -143,7 +185,8 @@ bool Block::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo)
             true);
     }
 
-    paragraph->Normalize(with_undo);
+    if (paragraph)
+        paragraph->Normalize(with_undo);
     if (new_row)
         new_row->parent->Normalize(with_undo);
 
@@ -172,6 +215,13 @@ bool Block::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo)
 
 bool Block::DeleteElements(bool left, bool with_undo)
 {
+    uint start, size;
+    if (selection->Has(id, start, size))
+    {
+        if (Element::DeleteElements(left, with_undo))
+            return true;
+    }
+
     CaretState before_state = caret->GetCaretState();
     ElementPtr el = document->GetElement(before_state.id);
     if (!el)
@@ -264,6 +314,11 @@ bool Block::GetBottomCaretState(const int x, const int y, CaretState& caret_stat
         return parent->GetBottomCaretState(x, y, caret_state, select);
     }
     return p->GetBottomCaretState(x, y, caret_state, select);
+}
+
+void Block::AddEmptyElement()
+{
+    AddElement(ElementPtr(new Paragraph(this, true)));
 }
 
 }
