@@ -186,6 +186,7 @@ struct MoveCaretTask : Task
     Point point{-1, -1};
     bool visible = false;
     bool select = false;
+    bool move_into_view = true;
 };
 
 struct SetEditorStateTask : Task

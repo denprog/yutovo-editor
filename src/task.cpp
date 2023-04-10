@@ -715,7 +715,8 @@ bool MoveCaretTask::Execute()
         break;
     }
 
-    text->document->UpdateCaretView();
+    if (move_into_view)
+        text->document->UpdateCaretView();
     text->document->UpdateLastSelection();
     text->document->caret->Show();
 

@@ -873,14 +873,17 @@ bool Document::GetParagraphFormat(const ElementId id, ParagraphFormat& format)
     return true;
 }
 
-uint Document::MoveCaret(MoveCaretTask::MoveCaretDir dir, bool select, bool with_last_task_id)
+uint Document::MoveCaret(MoveCaretTask::MoveCaretDir dir, bool select, bool with_last_task_id, bool move_into_view)
 {
     {
         std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
+        MoveCaretTask* t;
         if (with_last_task_id)
-            tasks.emplace_back(new MoveCaretTask(text, caret, dir, true, select, last_task_id));
+            t = new MoveCaretTask(text, caret, dir, true, select, last_task_id);
         else
-            tasks.emplace_back(new MoveCaretTask(text, caret, dir, true, select));
+            t = new MoveCaretTask(text, caret, dir, true, select);
+        t->move_into_view = move_into_view;
+        tasks.emplace_back(t);
         last_task_id = tasks[tasks.size() - 1]->id;
     }
     next_circle = true;
@@ -951,6 +954,11 @@ uint Document::MoveCaretToDocumentEnd(bool select)
     return MoveCaret(MoveCaretTask::MoveCaretDir::DOCUMENT_END, select);
 }
 
+uint Document::MoveCaretToDocumentEnd(bool select, bool move_into_view)
+{
+    return MoveCaret(MoveCaretTask::MoveCaretDir::DOCUMENT_END, select, false, move_into_view);
+}
+
 uint Document::MoveCaret(const int x, const int y)
 {
     {
@@ -963,6 +971,14 @@ uint Document::MoveCaret(const int x, const int y)
     last_caret_moved = false;
 #endif
     return last_task_id;
+}
+
+uint Document::SelectAll()
+{
+    uint t = MoveCaretToDocumentEnd(true, false);
+    selection.Clear();
+    selection.Add(text, 0, text->elements->Count());
+    return t;
 }
 
 void Document::SetCaretVisible(bool visible)
