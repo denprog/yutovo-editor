@@ -484,4 +484,30 @@ TEST_F(DocumentTest, caret7)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 3, 10, 0, 38})) << document.GetEditorState().ToString();
 }
 
+//Select all
+TEST_F(DocumentTest, caret8)
+{
+    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
+        {
+            return Rect{0, 0, 368, 400};
+        });
+
+    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
+        {
+            return GetTextSizeMock(text, format);
+        });
+    
+    document.WaitTask(document.InsertString("The source of the text itself is a little mysterious.", true));
+    document.WaitTask(document.SelectAll());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 0, 11}, 
+        ElementSelectionState{ElementId{0}, 0, 1})) << document.GetEditorState().ToString();
+    
+    document.WaitTask(document.MoveCaretEnd(false));
+    document.InsertParagraph(true);
+    document.WaitTask(document.InsertString("Text.", true));
+    document.WaitTask(document.SelectAll());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 1, 0, 0, 5}, 
+        ElementSelectionState{ElementId{0}, 0, 2})) << document.GetEditorState().ToString();
+}
+
 }
