@@ -114,6 +114,11 @@ void Text::UpdateDrawRect()
     draw_rect.height += page_format->bottom_indent + page_format->right_indent;
 }
 
+Rect Text::GetCaretRect(const uint pos) const
+{
+    return Rect{0, 0, 0, 0};
+}
+
 ParagraphFormatPtr Text::GetParagraphFormat()
 {
     ParagraphFormatPtr format;

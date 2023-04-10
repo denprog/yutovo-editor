@@ -19,6 +19,12 @@ Caret::Caret(Document* _document) :
 
 void Caret::SetState(const CaretState& caret_state, bool update_x_pos)
 {
+    if (caret_state.id == document->text->id)
+    {
+        element = document->text;
+        str_pos = -1;
+        return;
+    }
     auto el = document->GetParent(caret_state.id);
     if (!el)
     {
@@ -145,6 +151,8 @@ Element* Caret::GetElement() const
         return element.get();
     if (!element)
         return nullptr;
+    if (element->id == document->text->id)
+        return element.get();
     return element->parent;
 }
 

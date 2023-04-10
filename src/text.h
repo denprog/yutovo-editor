@@ -29,6 +29,8 @@ public:
     virtual void UpdateRect(bool with_elements = false);
     virtual void UpdateDrawRect();
 
+    virtual Rect GetCaretRect(const uint pos) const;
+
     virtual ParagraphFormatPtr GetParagraphFormat();
 
     virtual std::string ToHtml();
