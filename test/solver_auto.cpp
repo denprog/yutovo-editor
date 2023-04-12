@@ -706,4 +706,114 @@ TEST_F(SolverAutoTest, solver7)
         document.ToHtml();
 }
 
+//Remove the equation sign
+TEST_F(SolverAutoTest, solver8)
+{
+    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
+        {
+            return Rect{0, 0, 600, 400};
+        });
+
+    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
+        {
+            return GetTextSizeMock(text, format);
+        });
+    
+    document.InsertCode(false, true);
+    document.InsertString("12", true);
+    document.InsertPlus(true);
+    document.InsertString("15", true);
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mrow>"\
+                            "<mi>12</mi>"\
+                            "<mo>+</mo>"\
+                            "<mi>15</mi>"\
+                        "</mrow>"\
+                        "<mo>=</mo>"\
+                        "<mrow>"\
+                            "<mrow>"\
+                                "<mi>27.</mi>"\
+                            "</mrow>"\
+                        "</mrow>"\
+                    "</mrow>"\
+                "</math>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 1})) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.DeleteElements(true, true, false));
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mrow>"\
+                            "<mi>12</mi>"\
+                            "<mo>+</mo>"\
+                            "<mi>15</mi>"\
+                        "</mrow>"\
+                        "<mo>=</mo>"\
+                        "<mrow>"\
+                            "<mrow>"\
+                                "<mi>27.</mi>"\
+                            "</mrow>"\
+                        "</mrow>"\
+                    "</mrow>"\
+                "</math>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 1})) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.DeleteElements(false, true, false));
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mi>12</mi>"\
+                        "<mo>+</mo>"\
+                        "<mi>15</mi>"\
+                    "</mrow>"\
+                "</math>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 2, 2})) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mrow>"\
+                            "<mi>12</mi>"\
+                            "<mo>+</mo>"\
+                            "<mi>15</mi>"\
+                        "</mrow>"\
+                        "<mo>=</mo>"\
+                        "<mrow>"\
+                            "<mrow>"\
+                                "<mi>27.</mi>"\
+                            "</mrow>"\
+                        "</mrow>"\
+                    "</mrow>"\
+                "</math>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 1})) << document.GetEditorState().ToString();
+}
+
 }

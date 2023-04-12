@@ -96,7 +96,7 @@ void Equation::Remake(bool with_elements, bool with_parent, bool with_undo)
 
 bool Equation::DeleteElements(bool left, bool with_undo)
 {
-    if (caret->IsOnElement(shape->id))
+    if (caret->IsOnElement(shape->id) && !left)
     {
         last = nullptr;
         elements->RemoveAt(2, 1);
