@@ -49,8 +49,8 @@ void Assignment::Draw() const
 void Assignment::UpdateRect(bool with_elements)
 {
     Size s = parent->window->GetTextSize(std::u32string(U":="), GetStringFormat());
-    shape->rect.SetSize(s.width, s.height);
-    shape->baseline = shape->rect.height / 2;
+    shape->rect.SetSize(s.width, s.height * 3 / 4);
+    shape->baseline = shape->rect.height / 3 * 2;
 
     MiddleShapeFormula::UpdateRect(false);
 }
@@ -87,6 +87,17 @@ void Assignment::Remake(bool with_elements, bool with_parent, bool with_undo)
     }
 }
 
+bool Assignment::DeleteElements(bool left, bool with_undo)
+{
+    if (caret->GetPos() == 1 && last_identifier != U"")
+    {
+        auto code = document->FindParent(id, ElementType::CODE_BLOCK);
+        document->RemoveIdentifier(id, ((CodeBlock*)code.get())->code_id, last_identifier);
+    }
+
+    return MiddleShapeFormula::DeleteElements(left, with_undo);
+}
+
 bool Assignment::AfterInsert(bool with_undo)
 {
     int pos = parent->elements->GetElementPos(id);
@@ -105,6 +116,7 @@ bool Assignment::AfterInsert(bool with_undo)
     CaretState c;
     last->GetFirstCaretState(c, nullptr);
     caret->SetState(c);
+    last_expression = U"";
     return true;
 }
 
