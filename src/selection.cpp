@@ -169,6 +169,14 @@ void Selection::Add(const ElementPtr element, uint start, uint size)
         });
     if (it == selection.end())
     {
+        ElementSelection s;
+        //remove selections which will be included in the new item
+        for (int i = start; i < start + size; ++i)
+        {
+            auto el = element->elements->Get(i);
+            if (el && HasChild(el->id, s))
+                Remove(s.element->id, s.start, s.size);
+        }
         selection.emplace_back(ElementSelection{element, start, size}); //add new selection
     }
     else

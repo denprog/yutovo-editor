@@ -955,4 +955,52 @@ TEST_F(CodeTest, code10)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 1, 1, 0, 0, 0})) << document.GetEditorState().ToString();
 }
 
+//Deletion of code block
+TEST_F(CodeTest, code11)
+{
+    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
+        {
+            return Rect{0, 0, 600, 400};
+        });
+
+    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
+        {
+            return GetTextSizeMock(text, format);
+        });
+    
+    document.InsertCode(false, true);
+    document.WaitTask(document.InsertString("123", true));
+    document.MoveCaretLeft(false);
+    document.MoveCaretRight(true);
+    document.WaitTask(document.MoveCaretRight(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 1}, 
+        ElementSelectionState{{0, 0, 0}, 0, 1})) << document.GetEditorState().ToString();
+    
+    document.WaitTask(document.DeleteElements(false, true, false));
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\"></span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0})) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mi>123</mi>"\
+                    "</mrow>"\
+                "</math>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 1}, 
+        ElementSelectionState{{0, 0, 0}, 0, 1})) << document.GetEditorState().ToString();
+}
+
 }
