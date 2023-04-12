@@ -186,7 +186,6 @@ void Document::MainLoop()
 
         {
             std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
-            //logger->Info("tasks={}", tasks.size());
             for (auto it = tasks.begin(); it != tasks.end();) //firstly get elements with high priority
             {
                 TaskPtr& t = *it;
@@ -198,15 +197,10 @@ void Document::MainLoop()
                 else
                     ++it;
             }
-            // if (!temp_tasks.empty())
-            // {
-            //     logger->Info("high tasks={}", temp_tasks.size());
-            // }
             if (temp_tasks.empty() && !tasks.empty()) //if there are no high priority tasks, get first element with low priority
             {
                 temp_tasks.push_back(*tasks.begin());
                 tasks.erase(tasks.begin());
-                //logger->Info("low tasks={}", temp_tasks.size());
             }
         }
 
