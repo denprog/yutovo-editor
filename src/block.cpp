@@ -53,14 +53,19 @@ void Block::Normalize(bool with_undo)
 
 bool Block::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo)
 {
+    CaretState before_state = caret->GetCaretState();
     if (_elements.size() != 1 || !document->IsParagraph(_elements[0]))
     {
+        if (document->IsParagraph(before_state.id) && document->IsRow(_elements[0]))
+        {
+            ElementPtr el = document->GetElement(before_state.id);
+            return el->InsertElements(_elements, with_undo);
+        }
         if (!parent)
             return false;
         return parent->InsertElements(_elements, with_undo);
     }
 
-    CaretState before_state = caret->GetCaretState();
     ElementPtr insert_element(_elements[0]->Clone());
     ElementPtr el = document->GetParent(before_state.id);
     ElementPtr paragraph = document->FindParentParagraph(el->id);

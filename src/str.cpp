@@ -116,7 +116,13 @@ Element* String::Create(Element* parent, const std::u32string _str, const String
 
 void String::Remake(bool with_elements, bool with_parent, bool with_undo)
 {
-    Size s = window->GetTextSize(((StringElements*)elements.get())->str, format);
+    Size s;
+    auto& str = ((StringElements*)elements.get())->str;
+    if (!FindCachedSize(str, s))
+    {
+        s = window->GetTextSize(str, format);
+        AddCachedSize(str, s);
+    }
     rect.SetSize(s.width, s.height);
 
     UpdateRect();
@@ -132,9 +138,15 @@ void String::Normalize(bool with_undo)
 
 void String::UpdateRect(bool with_elements)
 {
-    Size s = parent->window->GetTextSize(((StringElements*)elements.get())->str, format);
+    Size s;
+    auto& str = ((StringElements*)elements.get())->str;
+    if (!FindCachedSize(str, s))
+    {
+        s = window->GetTextSize(str, format);
+        AddCachedSize(str, s);
+    }
     rect.SetSize(s.width, s.height);
-    baseline = parent->window->GetFontAscent(format);
+    baseline = window->GetFontAscent(format);
 }
 
 bool String::GetElementAtCoords(const int x, const int y, ElementId& _id)
@@ -217,6 +229,7 @@ bool String::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo)
             }
             elements.reset(new StringElements(this, s->elements->ToText()));
             format = s->format;
+            ResetCache();
             caret->SetState(elements->GetElementId(elements->Count()));
             parent->Normalize(with_undo);
             on_change_subscribers = parent->on_change_subscribers;
@@ -321,6 +334,7 @@ bool String::ChangeStringFormat(const StringFormatPtr _format, bool with_undo)
             if (with_undo)
                 document->ChangeStringFormat(format, false, true);
             format = _format;
+            ResetCache();
             parent->Normalize(with_undo);
             return true;
         }
@@ -336,6 +350,7 @@ bool String::ChangeStringFormat(const StringFormatPtr _format, bool with_undo)
                 document->PushEditorState(SelectionState(el->id, 0, el->elements->Count()), true);
             }
             ((String*)el.get())->format = _format;
+            ((String*)el.get())->ResetCache();
             parent->Normalize(with_undo);
             parent->Remake(true, false, with_undo);
             return true;
@@ -355,7 +370,13 @@ bool String::Split(const uint max_left_width)
     {
         if (str[j] == ' ')
         {
-            Size s = window->GetTextSize(str.substr(0, j + 1), format);
+            std::u32string substr = str.substr(0, j + 1);
+            Size s;
+            if (!FindCachedSize(substr, s)) //search in the cache
+            {
+                s = window->GetTextSize(substr, format);
+                AddCachedSize(substr, s);
+            }
             if (s.width <= max_left_width)
                 i = j;
             else
@@ -508,6 +529,7 @@ void String::UpdateStringFormat(const StringFormatPtr base_format, const StringF
     if (base_format->underline == format->underline)
         f.underline = new_format->underline;
     format = document->GetStringFormat(f.family, f.size, f.bold, f.italic, f.underline);
+    ResetCache();
 }
 
 void String::UpdateFormat(StringFormatPtr& _format)
@@ -564,6 +586,37 @@ void String::SubscribeOnChange(const ElementId _id)
         return;
     if (std::find(on_change_subscribers.begin(), on_change_subscribers.end(), _id) == on_change_subscribers.end())
         on_change_subscribers.push_back(_id);
+}
+
+bool String::FindCachedSize(const std::u32string& str, Size& size)
+{
+    auto it = size_cache.find(str);
+    if (it == size_cache.end())
+        return false;
+    it->second.second = time(nullptr);
+    size = it->second.first;
+    return true;
+}
+
+void String::AddCachedSize(const std::u32string& str, const Size& size)
+{
+    size_cache[str] = std::pair{size, time(nullptr)};
+    while (size_cache.size() > max_cache_size) //remove the oldest cache items
+    {
+        auto it = std::min_element(size_cache.begin(), size_cache.end(), 
+            [](auto& first, auto& second)
+            {
+                return first.second.second < second.second.second;
+            });
+        if (it == size_cache.end())
+            return;
+        size_cache.erase(it);
+    }
+}
+
+void String::ResetCache()
+{
+    size_cache.clear();
 }
 
 //StringElements

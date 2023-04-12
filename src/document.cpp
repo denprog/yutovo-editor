@@ -78,7 +78,6 @@ void Document::MainLoop()
 
     while (!exit)
     {
-        //printf("MainLoop\n");
         {
             bool empty = false;
             {
@@ -187,12 +186,33 @@ void Document::MainLoop()
 
         {
             std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
-            temp_tasks = tasks;
-            tasks.clear();
+            //logger->Info("tasks={}", tasks.size());
+            for (auto it = tasks.begin(); it != tasks.end();) //firstly get elements with high priority
+            {
+                TaskPtr& t = *it;
+                if (t->priority == 1)
+                {
+                    temp_tasks.push_back(t);
+                    it = tasks.erase(it);
+                }
+                else
+                    ++it;
+            }
+            // if (!temp_tasks.empty())
+            // {
+            //     logger->Info("high tasks={}", temp_tasks.size());
+            // }
+            if (temp_tasks.empty() && !tasks.empty()) //if there are no high priority tasks, get first element with low priority
+            {
+                temp_tasks.push_back(*tasks.begin());
+                tasks.erase(tasks.begin());
+                //logger->Info("low tasks={}", temp_tasks.size());
+            }
         }
 
         if (!temp_tasks.empty())
         {
+            std::lock_guard<std::recursive_mutex> lock(edit_mutex);
             caret->Hide(); //caret will be shown on Redraw or caret moving
             //execute all the tasks
             for (auto& t : temp_tasks)
@@ -232,6 +252,8 @@ void Document::MainLoop()
                 last_tasks.push_back(t->id);
 #endif
             }
+
+            temp_tasks.clear();
         }
     }
 }
@@ -300,7 +322,7 @@ uint Document::InsertElements(std::vector<ElementPtr>& elements, bool with_undo,
         else
         {
             tasks.emplace_back(new InsertElementsTask(text, elements, with_undo, pasting));
-            last_task_id = tasks[tasks.size() - 1]->id;
+            last_task_id = tasks.back()->id;
         }
     }
     next_circle = true;
@@ -319,7 +341,7 @@ uint Document::DeleteElements(bool left, bool with_undo, bool undo)
         else
         {
             tasks.emplace_back(new DeleteElementsTask(text, left, with_undo));
-            last_task_id = tasks[tasks.size() - 1]->id;
+            last_task_id = tasks.back()->id;
         }
     }
     next_circle = true;
@@ -338,7 +360,7 @@ uint Document::ClearElements(ElementId element_id, bool with_undo, bool undo)
         else
         {
             tasks.emplace_back(new DeleteElementsTask(text, element_id, with_undo));
-            last_task_id = tasks[tasks.size() - 1]->id;
+            last_task_id = tasks.back()->id;
         }
     }
     next_circle = true;
@@ -474,7 +496,7 @@ uint Document::InsertFormulas(std::vector<ElementPtr>& elements, bool with_undo,
                 tasks.emplace_back(new InsertFormulasTask(text, last_task_id, elements, with_undo));
             else
                 tasks.emplace_back(new InsertFormulasTask(text, elements, with_undo, pasting));
-            last_task_id = tasks[tasks.size() - 1]->id;
+            last_task_id = tasks.back()->id;
         }
     }
     next_circle = true;
@@ -493,7 +515,7 @@ uint Document::ChangeStringFormat(const StringFormatPtr format, bool set_family,
     {
         std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
         tasks.emplace_back(new ChangeStringFormatTask(text, format, set_family, set_size, set_bold, set_italic, set_underline, with_undo));
-        last_task_id = tasks[tasks.size() - 1]->id;
+        last_task_id = tasks.back()->id;
     }
     next_circle = true;
     return last_task_id;
@@ -511,7 +533,7 @@ uint Document::ChangeStringFormat(const StringFormatPtr format, bool with_undo, 
         else
         {
             tasks.emplace_back(new ChangeStringFormatTask(text, format, with_undo));
-            last_task_id = tasks[tasks.size() - 1]->id;
+            last_task_id = tasks.back()->id;
         }
     }
     next_circle = true;
@@ -530,7 +552,7 @@ uint Document::ChangeParagraphFormat(const ParagraphFormatPtr format, bool with_
         else
         {
             tasks.emplace_back(new ChangeParagraphFormatTask(text, format, with_undo));
-            last_task_id = tasks[tasks.size() - 1]->id;
+            last_task_id = tasks.back()->id;
         }
     }
     next_circle = true;
@@ -852,7 +874,7 @@ bool Document::IsParagraph(ElementId id)
 
 bool Document::GetStringFormat(const ElementId id, StringFormat& format)
 {
-    std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
+    std::lock_guard<std::recursive_mutex> lock(edit_mutex);
     ElementPtr el = GetParent(id);
     if (IsString(el))
     {
@@ -920,7 +942,7 @@ uint Document::MoveCaret(MoveCaretTask::MoveCaretDir dir, bool select, bool with
             t = new MoveCaretTask(text, caret, dir, true, select);
         t->move_into_view = move_into_view;
         tasks.emplace_back(t);
-        last_task_id = tasks[tasks.size() - 1]->id;
+        last_task_id = tasks.back()->id;
     }
     next_circle = true;
 
@@ -1000,7 +1022,7 @@ uint Document::MoveCaret(const int x, const int y)
     {
         std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
         tasks.emplace_back(new MoveCaretTask(text, caret, Point{x, y}));
-        last_task_id = tasks[tasks.size() - 1]->id;
+        last_task_id = tasks.back()->id;
     }
     next_circle = true;
 #ifdef DEBUG
@@ -1100,7 +1122,7 @@ void Document::Resize(uint width, uint height)
         tasks.emplace_back(new ResizeTask(text, width, height));
     }
 #ifdef DEBUG
-    last_task_id = tasks[tasks.size() - 1]->id;
+    last_task_id = tasks.back()->id;
 #endif
     next_circle = true;
     Remake(text->id, true, false, false);
@@ -1114,7 +1136,7 @@ void Document::Redraw(const ElementId& id, bool move_into_view)
         {
             if (!WillRedraw(id, move_into_view))
             {
-                TaskPtr last = tasks[tasks.size() - 1];
+                TaskPtr last = tasks.back();
                 RedrawTask* t = dynamic_cast<RedrawTask*>(last.get());
                 if (!t || t->element_id != id)
                     tasks.emplace_back(new RedrawTask(text, id, move_into_view));
@@ -1139,22 +1161,23 @@ void Document::Remake(const ElementId& id, bool with_elements, bool with_undo, b
 {
     {
         std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
+        uint priority = IsVisible(id) ? 1 : 0;
         if (undo)
         {
-            undo_tasks.push(TaskPtr(new RemakeTask(text, id, with_elements, with_undo, move_into_view, cur_task_id)));
+            undo_tasks.push(TaskPtr(new RemakeTask(text, id, with_elements, with_undo, move_into_view, cur_task_id, priority)));
         }
         else
         {
             if (!tasks.empty())
             {
-                TaskPtr last = tasks[tasks.size() - 1];
+                TaskPtr last = tasks.back();
                 RemakeTask* t = dynamic_cast<RemakeTask*>(last.get());
                 if (!t || t->element_id != id || t->with_elements != with_elements)
-                    tasks.emplace_back(new RemakeTask(text, id, with_elements, with_undo, move_into_view, cur_task_id));
+                    tasks.emplace_back(new RemakeTask(text, id, with_elements, with_undo, move_into_view, cur_task_id, priority));
             }
             else
             {
-                tasks.emplace_back(new RemakeTask(text, id, with_elements, with_undo, move_into_view, cur_task_id));
+                tasks.emplace_back(new RemakeTask(text, id, with_elements, with_undo, move_into_view, cur_task_id, priority));
             }
         }
     }
@@ -1164,9 +1187,10 @@ void Document::Remake(const ElementId& id, bool with_elements, bool with_undo, b
 bool Document::WillRedraw(const ElementId& id, bool move_into_view)
 {
     std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
-    for (int i = tasks.size() - 1; i >= 0; --i)
+    int i = 0;
+    for (auto it = tasks.rbegin(); it != tasks.rend() && i < 10; ++it, ++i)
     {
-        TaskPtr t = tasks[i];
+        TaskPtr& t = *it;
         RedrawTask* redraw_task = dynamic_cast<RedrawTask*>(t.get());
         if (redraw_task && IsChild(redraw_task->element_id, id))
         {
@@ -1187,9 +1211,9 @@ bool Document::WillRedraw(const ElementId& id, bool move_into_view)
 bool Document::WillResize()
 {
     std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
-    for (int i = tasks.size() - 1; i >= 0; --i)
+    for (auto it = tasks.rbegin(); it != tasks.rend(); ++it)
     {
-        TaskPtr t = tasks[i];
+        TaskPtr& t = *it;
         if (dynamic_cast<ResizeTask*>(t.get()))
             return true;
     }
@@ -1201,9 +1225,9 @@ uint Document::New()
     std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
     tasks.emplace_back(new NewTask(text));
 #ifdef DEBUG
-    last_task_id = tasks[tasks.size() - 1]->id;
+    last_task_id = tasks.back()->id;
 #endif
-    return tasks[tasks.size() - 1]->id;
+    return tasks.back()->id;
 }
 
 uint Document::Save(const std::string& filename)
@@ -1211,9 +1235,9 @@ uint Document::Save(const std::string& filename)
     std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
     tasks.emplace_back(new SaveTask(text, filename));
 #ifdef DEBUG
-    last_task_id = tasks[tasks.size() - 1]->id;
+    last_task_id = tasks.back()->id;
 #endif
-    return tasks[tasks.size() - 1]->id;
+    return tasks.back()->id;
 }
 
 uint Document::Load(const std::string& filename)
@@ -1221,9 +1245,9 @@ uint Document::Load(const std::string& filename)
     std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
     tasks.emplace_back(new LoadTask(text, filename));
 #ifdef DEBUG
-    last_load_task_id = tasks[tasks.size() - 1]->id;
+    last_load_task_id = tasks.back()->id;
 #endif
-    return tasks[tasks.size() - 1]->id;
+    return tasks.back()->id;
 }
 
 uint Document::Copy(std::stringstream& out_array, std::u32string& out_text)
@@ -1232,7 +1256,7 @@ uint Document::Copy(std::stringstream& out_array, std::u32string& out_text)
     out_text = U"";
     std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
     tasks.emplace_back(new CopyTask(text, out_array, out_text, false));
-    last_task_id = tasks[tasks.size() - 1]->id;
+    last_task_id = tasks.back()->id;
     return last_task_id;
 }
 
@@ -1292,7 +1316,7 @@ uint Document::Cut(std::stringstream& out_array, std::u32string& out_text)
 {
     std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
     tasks.emplace_back(new CopyTask(text, out_array, out_text, true));
-    last_task_id = tasks[tasks.size() - 1]->id;
+    last_task_id = tasks.back()->id;
     return last_task_id;
 }
 
@@ -1356,7 +1380,7 @@ void Document::PutResult(ElementId _id, Result result)
     std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
     tasks.emplace_back(new ResultTask(text, _id, result));
 #ifdef DEBUG
-    last_solver_task_id = tasks[tasks.size() - 1]->id;
+    last_solver_task_id = tasks.back()->id;
 #endif
 }
 
@@ -1373,6 +1397,8 @@ void Document::RemoveIdentifier(ElementId _id, uint code_id, const std::u32strin
 bool Document::IsVisible(ElementId _id)
 {
     auto el = GetElement(_id);
+    if (!el)
+        return false;
     if (el->type == ElementType::TEXT)
         return true;
     

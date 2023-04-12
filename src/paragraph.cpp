@@ -201,7 +201,7 @@ void Paragraph::Remake(bool with_elements, bool with_parent, bool with_undo)
     if (elements->Count() > 0)
         baseline = elements->Get(0)->baseline;
 
-    if (rect != last_rect)
+    if (rect != last_rect && document->IsVisible(id))
     {
         if (with_parent)
         {

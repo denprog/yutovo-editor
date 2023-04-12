@@ -719,13 +719,10 @@ TEST_F(ParagraphTest, paragraph2)
             return GetTextSizeMock(text, format);
         });
 
-    document.InsertString("The source of the text itself is a little mysterious.", true);
-    document.WaitMainLoop();
+    document.WaitTask(document.InsertString("The source of the text itself is a little mysterious.", true));
     ASSERT_TRUE(document.ToText() == U"The source of the text itself is a little mysterious.") << ToBasicString(document.ToText());
 
-    document.SetCurrentParagraphFormat("Header 1");
-    document.WaitMainLoop();
-    std::this_thread::sleep_for(100ms);
+    document.WaitTask(document.SetCurrentParagraphFormat("Header 1"));
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -780,10 +777,8 @@ TEST_F(ParagraphTest, paragraph2)
         document.MoveCaretRight(false);
     document.MoveCaretWordRight(true);
     document.WaitCaretMoving();
-    document.SetBold(true);
-    document.WaitMainLoop();
-    document.SetCurrentParagraphFormat("Monospace");
-    document.WaitMainLoop();
+    document.WaitTask(document.SetBold(true));
+    document.WaitTask(document.SetCurrentParagraphFormat("Monospace"));
     std::this_thread::sleep_for(400ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
@@ -852,8 +847,7 @@ TEST_F(ParagraphTest, paragraph2)
         << document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 1, 6, 0, 6)) << document.GetEditorState().ToString();
 
-    document.SetCurrentParagraphFormat("Monospace");
-    document.WaitMainLoop();
+    document.WaitTask(document.SetCurrentParagraphFormat("Monospace"));
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
@@ -867,8 +861,7 @@ TEST_F(ParagraphTest, paragraph2)
         << document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 1, 6, 0, 6)) << document.GetEditorState().ToString();
 
-    document.SetCurrentParagraphFormat("Monospace");
-    document.WaitMainLoop();
+    document.WaitTask(document.SetCurrentParagraphFormat("Monospace"));
     document.Undo();
     document.WaitUndo();
     std::this_thread::sleep_for(100ms);
