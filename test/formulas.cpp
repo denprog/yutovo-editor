@@ -1129,15 +1129,12 @@ TEST_F(FormulaTest, select1)
     document.WaitTask(document.InsertString("25", true));
     document.MoveCaretLeft(false);
     document.MoveCaretRight(true);
-    document.MoveCaretRight(true);
-    document.WaitCaretMoving();
+    document.WaitTask(document.MoveCaretRight(true));
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0, 0, 1}, 
         ElementSelectionState{ElementId{0, 0, 0, 0, 0, 0}, 0, 1})) << document.GetEditorState().ToString();
 
-    document.MoveCaretRight(true);
-    document.WaitCaretMoving();
+    document.WaitTask(document.MoveCaretRight(true));
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 1}, 
-        ElementSelectionState{ElementId{0, 0, 0, 0, 0, 0}, 0, 1},
         ElementSelectionState{ElementId{0, 0, 0}, 0, 1})) << document.GetEditorState().ToString();
 }
 
@@ -1160,8 +1157,7 @@ TEST_F(FormulaTest, select2)
     document.WaitTask(document.InsertDivision(true));
     document.MoveCaretHome(false);
     document.MoveCaretHome(false);
-    document.MoveCaretRight(true);
-    document.WaitCaretMoving();
+    document.WaitTask(document.MoveCaretRight(true));
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 1, 0}, 
         ElementSelectionState{ElementId{0, 0, 0}, 0, 1})) << document.GetEditorState().ToString();
 }
