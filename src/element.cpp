@@ -148,6 +148,8 @@ bool Element::DeleteElements(bool left, bool with_undo)
             CaretState c;
             if (GetFirstCaretState(c, nullptr))
                 caret->SetState(c);
+            else
+                caret->SetState(id);
         }
         else
         {

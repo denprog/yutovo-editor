@@ -32,6 +32,7 @@ struct Task
 
     static uint next_id;
     uint id; //for syncing with undo/redo
+    uint priority = 1;
 };
 
 typedef std::shared_ptr<Task> TaskPtr;
@@ -111,7 +112,7 @@ struct ChangeParagraphFormatTask : Task
 struct RemakeTask : Task
 {
     RemakeTask(ElementPtr _text, const ElementId& _element_id, bool _with_elements, bool _with_undo);
-    RemakeTask(ElementPtr _text, const ElementId& _element_id, bool _with_elements, bool _with_undo, bool _move_into_view, uint id);
+    RemakeTask(ElementPtr _text, const ElementId& _element_id, bool _with_elements, bool _with_undo, bool _move_into_view, uint id, uint _priority = 0);
 
     virtual bool Execute();
 

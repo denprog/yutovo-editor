@@ -233,6 +233,7 @@ private:
 private:
     std::recursive_mutex tasks_mutex;
     std::recursive_mutex solver_tasks_mutex;
+    std::recursive_mutex edit_mutex;
 
 public:
     Window* window;
@@ -264,7 +265,7 @@ public:
     uint cur_code_id = 1;
 
 private:
-    std::vector<TaskPtr> tasks;
+    std::list<TaskPtr> tasks;
     std::stack<TaskPtr> undo_tasks;
     std::vector<TaskPtr> redo_tasks;
     std::vector<bool> undos;

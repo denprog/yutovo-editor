@@ -191,7 +191,8 @@ bool InsertElementsTask::Execute()
         if (with_undo)
             document->PushEditorState(true);
     }
-    document->Remake(el->parent->id, true, with_undo, false, true); //move into view
+    if (el->parent)
+        document->Remake(el->parent->id, true, with_undo, false, true); //move into view
     document->pasting = false;
     return true;
 }
@@ -282,7 +283,8 @@ bool DeleteElementsTask::Execute()
         }
         if (with_undo)
             document->PushEditorState(true);
-        document->Remake(document->caret->GetElement()->id, true, with_undo, false, true); //move into view
+        if (document->caret->GetElement())
+            document->Remake(document->caret->GetElement()->id, true, with_undo, false, true); //move into view
         return true;
     }
 
@@ -528,13 +530,14 @@ RemakeTask::RemakeTask(ElementPtr _text, const ElementId& _element_id, bool _wit
 {
 }
 
-RemakeTask::RemakeTask(ElementPtr _text, const ElementId& _element_id, bool _with_elements, bool _with_undo, bool _move_into_view, uint id) :
+RemakeTask::RemakeTask(ElementPtr _text, const ElementId& _element_id, bool _with_elements, bool _with_undo, bool _move_into_view, uint id, uint _priority) :
     Task(_text, id), 
     element_id(_element_id),
     with_elements(_with_elements),
     with_undo(_with_undo),
     move_into_view(_move_into_view)
 {
+    priority = _priority;
 }
 
 bool RemakeTask::Execute()

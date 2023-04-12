@@ -79,12 +79,21 @@ public:
 
 	BOOST_SERIALIZATION_SPLIT_MEMBER()
 
+private:
+    bool FindCachedSize(const std::u32string& str, Size& size);
+    void AddCachedSize(const std::u32string& str, const Size& size);
+    void ResetCache();
+
 protected:
     friend class Document;
     friend class ChangeStringFormatTask;
     friend class StringElements;
     friend class InsertElementsTask;
     StringFormatPtr format;
+
+private:
+    std::map<std::u32string, std::pair<Size, time_t>> size_cache; //cache of string sizes
+    static const int max_cache_size = 2;
 };
 
 class StringElements : public Elements
