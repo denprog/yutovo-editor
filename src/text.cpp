@@ -44,15 +44,6 @@ void Text::Draw() const
     window->SetViewPort(v);
 
     Block::Draw();
-    auto _id = document->GetFirstVisibleParagraph();
-    int pos = elements->GetChildPos(_id);
-    for (int i = pos; i < elements->Count(); ++i)
-    {
-        auto el = elements->Get(i);
-        if (!document->IsVisible(el->id))
-            break;
-        el->Draw();
-    }
 
     window->BeginDrawOutside();
     window->DrawRect(Rect(v.left - 1, v.top - 1, v.width + 2, v.height + 2), Color::Blue());
