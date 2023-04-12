@@ -64,8 +64,8 @@ void Equation::Draw() const
 void Equation::UpdateRect(bool with_elements)
 {
     Size s = parent->window->GetTextSize(std::u32string(1, '='), GetStringFormat());
-    shape->rect.SetSize(s.width, s.height);
-    shape->baseline = shape->rect.height / 2;
+    shape->rect.SetSize(s.width, s.height * 3 / 4);
+    shape->baseline = shape->rect.height / 3 * 2;
 
     MiddleShapeFormula::UpdateRect(false);
 }

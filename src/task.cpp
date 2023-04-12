@@ -597,7 +597,7 @@ bool ResizeTask::Execute()
     if (document->WillResize()) //don't resize if it will be resized later
         return false;
     //logger->Debug("Execute ResizeTask width={}, height={}", width, height);
-    text->window->Resize(width, height);
+    window->Resize(width, height);
     return true;
 }
 
