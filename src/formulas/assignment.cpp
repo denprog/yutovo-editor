@@ -18,16 +18,6 @@ Assignment::Assignment(Document* _document) :
     type = ElementType::ASSIGNMENT;
 }
 
-Assignment::~Assignment()
-{
-    if (!id.empty())
-    {
-        auto code = document->FindParent(id, ElementType::CODE_BLOCK);
-        if (code)
-            document->RemoveIdentifier(id, ((CodeBlock*)code.get())->code_id, last_identifier);
-    }
-}
-
 Element* Assignment::Clone()
 {
     return new Assignment(*this);
@@ -128,6 +118,16 @@ bool Assignment::AfterInsert(bool with_undo)
     caret->SetState(c);
     last_expression = U"";
     return true;
+}
+
+void Assignment::BeforeDelete()
+{
+    if (!id.empty())
+    {
+        auto code = document->FindParent(id, ElementType::CODE_BLOCK);
+        if (code)
+            document->RemoveIdentifier(id, ((CodeBlock*)code.get())->code_id, last_identifier);
+    }
 }
 
 void Assignment::ReSolve()

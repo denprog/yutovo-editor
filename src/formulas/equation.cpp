@@ -125,6 +125,16 @@ bool Equation::AfterInsert(bool with_undo)
     return true;
 }
 
+void Equation::BeforeReplace()
+{
+    first->UnsubscribeOnChange(id);
+}
+
+void Equation::AfterReplace()
+{
+    first->SubscribeOnChange(id);
+}
+
 void Equation::ReSolve()
 {
     auto_result.reset();
@@ -164,7 +174,8 @@ void Equation::OnChanged(const ElementId _id)
         last->elements->Clear();
         last->elements->Add(auto_result);
     }
-    auto_result->Solve(first->ToText(), result_type); //solve the expression in the left part
+    if (last)
+        auto_result->Solve(first->ToText(), result_type); //solve the expression in the left part
 }
 
 }

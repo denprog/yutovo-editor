@@ -229,6 +229,24 @@ void Element::AfterChildInsert(const ElementId child_id, bool with_undo)
         parent->AfterChildInsert(child_id, with_undo);
 }
 
+void Element::BeforeDelete()
+{
+    for (int i = 0; i < elements->Count(); ++i)
+        elements->Get(i)->BeforeDelete();
+}
+
+void Element::BeforeReplace()
+{
+    for (int i = 0; i < elements->Count(); ++i)
+        elements->Get(i)->BeforeReplace();
+}
+
+void Element::AfterReplace()
+{
+    for (int i = 0; i < elements->Count(); ++i)
+        elements->Get(i)->AfterReplace();
+}
+
 bool Element::GetFirstCaretState(CaretState& caret_state, Selection* select)
 {
     return elements->GetFirstCaretState(caret_state, select);
@@ -688,6 +706,14 @@ void Element::SubscribeOnChange(const ElementId _id)
         on_change_subscribers.push_back(_id);
 }
 
+void Element::UnsubscribeOnChange(const ElementId _id)
+{
+    auto it = std::find(on_change_subscribers.begin(), on_change_subscribers.end(), _id);
+    if (it == on_change_subscribers.end())
+        return;
+    on_change_subscribers.erase(it);
+}
+
 void Element::EmitChanged()
 {
     for (auto it = on_change_subscribers.begin(); it != on_change_subscribers.end();)
@@ -872,15 +898,22 @@ void Elements::Insert(ElementPtr element, const uint pos)
     if (selection->HasChild(element->id, p_s))
         selection->Remove(p_s.element->id, p_s.start, p_s.size);
     
+    for (int i = pos; i < Count(); ++i) //elements after pos will be replaced
+        elements[i]->BeforeReplace();
+    
     elements.insert(elements.begin() + pos, element);
 
     element->parent = parent;
     element->document = parent->document;
     element->window = parent->window;
+
     for (auto _id : parent->on_change_subscribers)
         element->SubscribeOnChange(_id);
 
     UpdateIds(); //set id
+
+    for (int i = pos + 1; i < Count(); ++i) //elements after pos were replaced
+        elements[i]->AfterReplace();
 
     selection->InsertElement(element->id); //update selection positions after inserting new element
 
@@ -930,8 +963,19 @@ void Elements::RemoveAt(const uint pos, const int size)
 
     for (int i = 0; i < size; ++i) //update selection positions before deleting elements
         selection->RemoveElement(GetElementId(pos + i));
+    
+    for (uint i = pos; i < pos + size; ++i)
+        elements[i]->BeforeDelete();
+
+    for (int i = pos + size + 1; i < Count(); ++i) //elements after will be replaced
+        elements[i]->BeforeReplace();
+
     elements.erase(elements.begin() + pos, elements.begin() + pos + size);
+
     UpdateIds();
+
+    for (int i = pos + 1; i < Count(); ++i) //elements after were replaced
+        elements[i]->AfterReplace();
 
     if (cs_pos != -1 && Count() > 0)
     {

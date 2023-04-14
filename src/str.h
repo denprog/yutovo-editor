@@ -44,6 +44,9 @@ public:
     virtual bool Merge(const ElementPtr with_element);
 
     virtual bool AfterInsert(bool with_undo);
+    virtual void BeforeDelete();
+    virtual void BeforeReplace();
+    virtual void AfterReplace();
 
     virtual StringFormatPtr GetStringFormat() const;
     virtual void UpdateStringFormat(const StringFormatPtr base_format, const StringFormatPtr new_format);

@@ -509,6 +509,18 @@ bool String::AfterInsert(bool with_undo)
     return true;
 }
 
+void String::BeforeDelete()
+{
+}
+
+void String::BeforeReplace()
+{
+}
+
+void String::AfterReplace()
+{
+}
+
 StringFormatPtr String::GetStringFormat() const
 {
     return format;

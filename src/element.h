@@ -88,6 +88,9 @@ public:
 
     virtual bool AfterInsert(bool with_undo);
     virtual void AfterChildInsert(const ElementId child_id, bool with_undo);
+    virtual void BeforeDelete();
+    virtual void BeforeReplace();
+    virtual void AfterReplace();
 
     virtual bool GetFirstCaretState(CaretState& caret_state, Selection* select);
     virtual bool GetLastCaretState(CaretState& caret_state, Selection* select);
@@ -151,6 +154,7 @@ public:
     virtual void ReSolve();
 
     virtual void SubscribeOnChange(const ElementId _id);
+    virtual void UnsubscribeOnChange(const ElementId _id);
     void EmitChanged();
     virtual void OnChanged(const ElementId _id);
 
