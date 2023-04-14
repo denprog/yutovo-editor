@@ -316,7 +316,7 @@ bool Element::GetTopCaretState(const int x, const int y, CaretState& caret_state
     }
 
     auto el = document->GetElement(caret_state.id);
-    if (el->CanContinueVerticalMoving())
+    if (el && el->CanContinueVerticalMoving())
         el->GetTopCaretState(x, y, caret_state, select);
 
     return true;
@@ -357,7 +357,7 @@ bool Element::GetBottomCaretState(const int x, const int y, CaretState& caret_st
     }
 
     auto el = document->GetElement(caret_state.id);
-    if (el->CanContinueVerticalMoving())
+    if (el && el->CanContinueVerticalMoving())
         el->GetBottomCaretState(x, y, caret_state, select);
 
     return true;
