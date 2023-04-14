@@ -30,6 +30,8 @@ public:
     virtual bool AfterInsert(bool with_undo);
 
     virtual void ReSolve();
+
+    virtual bool Depends(const std::string& identifier);
     
     virtual std::string ToHtml();
     virtual std::u32string ToText();

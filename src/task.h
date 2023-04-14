@@ -262,6 +262,16 @@ struct ResolveTask : Task
     ElementId id;
 };
 
+struct ResolveDependeciesTask : Task
+{
+    ResolveDependeciesTask(ElementPtr _text, ElementId _after_id, const std::string& _identifier);
+
+    virtual bool Execute();
+
+    ElementId after_id;
+    std::string identifier;
+};
+
 }
 
 #endif

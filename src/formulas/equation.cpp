@@ -131,6 +131,13 @@ void Equation::ReSolve()
     OnChanged({});
 }
 
+bool Equation::Depends(const std::string& identifier)
+{
+    if (!auto_result)
+        return false;
+    return auto_result->Depends(identifier);
+}
+
 std::string Equation::ToHtml()
 {
     std::string s = first->ToHtml();

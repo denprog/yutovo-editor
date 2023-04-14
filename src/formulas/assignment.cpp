@@ -18,6 +18,16 @@ Assignment::Assignment(Document* _document) :
     type = ElementType::ASSIGNMENT;
 }
 
+Assignment::~Assignment()
+{
+    if (!id.empty())
+    {
+        auto code = document->FindParent(id, ElementType::CODE_BLOCK);
+        if (code)
+            document->RemoveIdentifier(id, ((CodeBlock*)code.get())->code_id, last_identifier);
+    }
+}
+
 Element* Assignment::Clone()
 {
     return new Assignment(*this);
@@ -81,7 +91,7 @@ void Assignment::Remake(bool with_elements, bool with_parent, bool with_undo)
         auto code = document->FindParent(id, ElementType::CODE_BLOCK);
         if (last_identifier != U"")
             document->RemoveIdentifier(id, ((CodeBlock*)code.get())->code_id, last_identifier);
-        document->SetUserIdentifier(id, ((CodeBlock*)code.get())->code_id, expr);
+        document->SetUserIdentifier(id, ((CodeBlock*)code.get())->code_id, first->ToText(), last->ToText());
         last_identifier = first->ToText();
         last_expression = expr;
     }

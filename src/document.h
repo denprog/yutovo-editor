@@ -182,8 +182,9 @@ public:
     void Solve(ElementId _id, uint code_id, yutovo_service::ResultType result_type, const uint precision, 
         AngleMeasure angle_measure, Notation notation, const std::u32string& expression);
     void ReSolve(ElementId _id);
+    void ReSolveDependencies(ElementId after_id, const std::u32string& identifier);
     void PutResult(ElementId _id, Result result);
-    void SetUserIdentifier(ElementId _id, uint code_id, const std::u32string& expression);
+    void SetUserIdentifier(ElementId _id, uint code_id, const std::u32string& identifier, const std::u32string& expression);
     void RemoveIdentifier(ElementId _id, uint code_id, const std::u32string& identifier);
 
     bool IsVisible(ElementId _id);

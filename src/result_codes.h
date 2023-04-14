@@ -64,10 +64,13 @@ struct Warning
     int pos;
 };
 
+typedef std::vector<std::string> Dependencies;
+
 struct Result
 {
     yutovo_service::ResultType type;
     std::map<std::string, std::string> values;
+    Dependencies dependencies;
     Error error;
     std::vector<Warning> warnings;
 };

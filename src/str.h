@@ -58,7 +58,8 @@ public:
 
     virtual void SetEditable(bool _editable);
 
-    virtual void FindElements(ElementType _type, std::vector<ElementId>& _elements);
+    virtual void GetElements(ElementType _type, std::vector<ElementId>& _elements);
+    virtual void GetElementsBelow(const ElementId from_id, ElementType _type, std::vector<ElementId>& _elements);
 
     virtual void ReSolve();
 

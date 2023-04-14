@@ -570,10 +570,14 @@ void String::SetEditable(bool _editable)
     editable = _editable;
 }
 
-void String::FindElements(ElementType _type, std::vector<ElementId>& _elements)
+void String::GetElements(ElementType _type, std::vector<ElementId>& _elements)
 {
     if (type == _type)
         _elements.push_back(id);
+}
+
+void String::GetElementsBelow(const ElementId from_id, ElementType _type, std::vector<ElementId>& _elements)
+{
 }
 
 void String::ReSolve()

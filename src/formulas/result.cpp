@@ -33,11 +33,13 @@ RealResult::RealResult(Document* _document) :
     type = ElementType::REAL_RESULT;
 }
 
-RealResult::RealResult(Element* parent, const std::string& mantissa, const std::string& exponent) :
+RealResult::RealResult(Element* parent, const std::string& mantissa, const std::string& exponent, const Dependencies& _dependencies) :
     ResultRow(parent)
 {
     type = ElementType::REAL_RESULT;
     elements->Clear();
+
+    dependencies = _dependencies;
 
     AddElement(ElementPtr(new CodeString(this, mantissa)));
     if (exponent.empty() || exponent == "0")
@@ -64,7 +66,7 @@ Element* RealResult::Clone()
 
 Element* RealResult::Create(Element* _parent)
 {
-    return new RealResult(_parent, "", "");
+    return new RealResult(_parent, "", "", Dependencies());
 }
 
 //IntegerResult
@@ -75,7 +77,7 @@ IntegerResult::IntegerResult(Document* _document) :
     type = ElementType::INTEGER_RESULT;
 }
 
-IntegerResult::IntegerResult(Element* parent, const std::string& value) :
+IntegerResult::IntegerResult(Element* parent, const std::string& value, const Dependencies& _dependencies) :
     ResultRow(parent)
 {
     type = ElementType::INTEGER_RESULT;
@@ -87,6 +89,8 @@ IntegerResult::IntegerResult(Element* parent, const std::string& value) :
     }
     else
         AddElement(ElementPtr(new CodeString(this, value)));
+    
+    dependencies = _dependencies;
 }
 
 //RationalResult
@@ -97,7 +101,7 @@ RationalResult::RationalResult(Document* _document) :
     type = ElementType::RATIONAL_RESULT;
 }
 
-RationalResult::RationalResult(Element* parent, const std::string& numerator, const std::string& denomerator) :
+RationalResult::RationalResult(Element* parent, const std::string& numerator, const std::string& denomerator, const Dependencies& _dependencies) :
     ResultRow(parent)
 {
     type = ElementType::RATIONAL_RESULT;
@@ -112,6 +116,8 @@ RationalResult::RationalResult(Element* parent, const std::string& numerator, co
     else
         d->AddNumerator(ElementPtr(new CodeString(this, numerator)));
     d->AddDenomerator(ElementPtr(new CodeString(this, denomerator)));
+
+    dependencies = _dependencies;
 }
 
 //ComplexResult
@@ -136,20 +142,24 @@ ErrorResult::ErrorResult(Document* _document) :
     type = ElementType::ERROR_RESULT;
 }
 
-ErrorResult::ErrorResult(Element* parent, const yutovo_service::ErrorCode error_code) :
+ErrorResult::ErrorResult(Element* parent, const yutovo_service::ErrorCode error_code, const Dependencies& _dependencies) :
     ResultRow(parent)
 {
     type = ElementType::ERROR_RESULT;
     elements->Clear();
     AddElement(ElementPtr(new CodeString(this, ErrorCodeToString(error_code))));
+
+    dependencies = _dependencies;
 }
 
-ErrorResult::ErrorResult(Element* parent, const yutovo_calculator::ParserExceptionCode parser_error_code) :
+ErrorResult::ErrorResult(Element* parent, const yutovo_calculator::ParserExceptionCode parser_error_code, const Dependencies& _dependencies) :
     ResultRow(parent)
 {
     type = ElementType::ERROR_RESULT;
     elements->Clear();
     AddElement(ElementPtr(new CodeString(this, ErrorCodeToString(parser_error_code))));
+
+    dependencies = _dependencies;
 }
 
 //AutoResult
@@ -227,9 +237,9 @@ void AutoResult::PutResult(Result result)
     {
         //put error message
         if (result.error.parser_error_code != yutovo_calculator::ParserExceptionCode::None)
-            elements->Add(ElementPtr(new ErrorResult(this, result.error.parser_error_code)));
+            elements->Add(ElementPtr(new ErrorResult(this, result.error.parser_error_code, result.dependencies)));
         else
-            elements->Add(ElementPtr(new ErrorResult(this, result.error.error_code)));
+            elements->Add(ElementPtr(new ErrorResult(this, result.error.error_code, result.dependencies)));
     }
     else
     {
@@ -237,13 +247,13 @@ void AutoResult::PutResult(Result result)
         switch (result.type)
         {
         case ResultType::REAL:
-            elements->Add(ResultPtr(new RealResult(this, result.values["mantissa"], result.values["exponent"])));
+            elements->Add(ResultPtr(new RealResult(this, result.values["mantissa"], result.values["exponent"], result.dependencies)));
             break;
         case ResultType::INTEGER:
-            elements->Add(ResultPtr(new IntegerResult(this, result.values["value"])));
+            elements->Add(ResultPtr(new IntegerResult(this, result.values["value"], result.dependencies)));
             break;
         case ResultType::RATIONAL:
-            elements->Add(ResultPtr(new RationalResult(this, result.values["numerator"], result.values["denomerator"])));
+            elements->Add(ResultPtr(new RationalResult(this, result.values["numerator"], result.values["denomerator"], result.dependencies)));
             break;
         case ResultType::COMPLEX:
             break;
@@ -254,6 +264,20 @@ void AutoResult::PutResult(Result result)
         elements->Get(0)->SetEditable(false);
     Remake(true, false, false);
     document->Remake(parent->parent->id, true, false, false);
+}
+
+bool AutoResult::Depends(const std::string& identifier)
+{
+    for (int i = 0; i < elements->Count(); ++i)
+    {
+        ResultRow* r = dynamic_cast<ResultRow*>(elements->Get(i).get());
+        if (r)
+        {
+            if (std::find(r->dependencies.begin(), r->dependencies.end(), identifier) != r->dependencies.end())
+                return true;
+        }
+    }
+    return false;
 }
 
 }
