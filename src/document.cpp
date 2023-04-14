@@ -1369,6 +1369,12 @@ void Document::ReSolve(ElementId _id)
     tasks.emplace_back(new ResolveTask(text, _id));
 }
 
+void Document::ReSolveDependencies(ElementId after_id, const std::u32string& identifier)
+{
+    std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
+    tasks.emplace_back(new ResolveDependeciesTask(text, after_id, ToBasicString(identifier)));
+}
+
 void Document::PutResult(ElementId _id, Result result)
 {
     std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
@@ -1378,14 +1384,16 @@ void Document::PutResult(ElementId _id, Result result)
 #endif
 }
 
-void Document::SetUserIdentifier(ElementId _id, uint code_id, const std::u32string& expression)
+void Document::SetUserIdentifier(ElementId _id, uint code_id, const std::u32string& identifier, const std::u32string& expression)
 {
-    solver.SetUserIdentifier(_id, code_id, expression);
+    solver.SetUserIdentifier(_id, code_id, identifier + U"=" + expression);
+    ReSolveDependencies(_id, identifier);
 }
 
 void Document::RemoveIdentifier(ElementId _id, uint code_id, const std::u32string& identifier)
 {
     solver.RemoveIdentifier(_id, code_id, identifier);
+    ReSolveDependencies(_id, identifier);
 }
 
 bool Document::IsVisible(ElementId _id)

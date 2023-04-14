@@ -44,6 +44,8 @@ struct SolverTask
 
     bool SendRequest(const rapidjson::Document& json, Result& result, WebSocketPtr& socket);
 
+    void GetDependencies(const rapidjson::Document& json, Result& result);
+
     ElementId id;
     std::string guid;
     uint code_id;

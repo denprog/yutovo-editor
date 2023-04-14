@@ -623,14 +623,37 @@ int Element::FindElement(const ElementId from_id, bool forward, const ElementTyp
     return -1;
 }
 
-void Element::FindElements(ElementType _type, std::vector<ElementId>& _elements)
+void Element::GetElements(ElementType _type, std::vector<ElementId>& _elements)
 {
     for (int i = 0; i < elements->Count(); ++i)
     {
         auto el = elements->Get(i);
         if (el->type == _type)
             _elements.push_back(el->id);
-        el->FindElements(_type, _elements);
+        el->GetElements(_type, _elements);
+    }
+}
+
+void Element::GetElementsBelow(const ElementId from_id, ElementType _type, std::vector<ElementId>& _elements)
+{
+    ElementPtr el = document->GetElement(from_id);
+    if (!el)
+        return;
+    
+    Element* parent = el->parent;
+    ElementId _id = from_id;
+    while (parent)
+    {
+        int pos = parent->elements->GetElementPos(_id);
+        for (int i = pos + 1; i < parent->elements->Count(); ++i)
+        {
+            auto c = parent->elements->Get(i);
+            if (c->type == _type)
+                _elements.push_back(c->id);
+            c->GetElements(_type, _elements);
+        }
+        _id = parent->id;
+        parent = parent->parent;
     }
 }
 

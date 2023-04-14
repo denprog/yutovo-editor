@@ -250,6 +250,10 @@ struct AssignmentTest : DocumentTest
 {
 };
 
+struct VariablesTest : DocumentTest
+{
+};
+
 }
 
 #endif

@@ -12,6 +12,7 @@ class Assignment : public MiddleShapeFormula
 public:
     Assignment(Element* _parent);
     Assignment(Document* _document);
+    virtual ~Assignment();
 
     virtual Element* Clone();
 
