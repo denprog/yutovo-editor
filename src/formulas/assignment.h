@@ -12,7 +12,6 @@ class Assignment : public MiddleShapeFormula
 public:
     Assignment(Element* _parent);
     Assignment(Document* _document);
-    virtual ~Assignment();
 
     virtual Element* Clone();
 
@@ -27,6 +26,7 @@ public:
     virtual bool DeleteElements(bool left, bool with_undo);
     
     virtual bool AfterInsert(bool with_undo);
+    virtual void BeforeDelete();
 
     virtual void ReSolve();
 

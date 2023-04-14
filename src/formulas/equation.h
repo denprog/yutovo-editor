@@ -28,6 +28,8 @@ public:
     virtual bool DeleteElements(bool left, bool with_undo);
     
     virtual bool AfterInsert(bool with_undo);
+    virtual void BeforeReplace();
+    virtual void AfterReplace();
 
     virtual void ReSolve();
 

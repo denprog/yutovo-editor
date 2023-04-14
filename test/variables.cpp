@@ -26,6 +26,7 @@ TEST_F(VariablesTest, variables1)
     document.InsertString("d", true);
     document.InsertAssignment(true);
     document.InsertString("4", true);
+    document.WaitSolver();
     document.MoveCaretRight(false);
     document.InsertParagraph(true);
     document.InsertString("d", true);
