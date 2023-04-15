@@ -1360,7 +1360,7 @@ void Document::SetEditorState(EditorState& state)
 void Document::Solve(ElementId _id, uint code_id, yutovo_service::ResultType result_type, const uint precision, 
     AngleMeasure angle_measure, Notation notation, const std::u32string& expression)
 {
-    solver.Solve(_id, code_id, result_type, precision, angle_measure, notation, expression);
+    solver.Solve(_id, code_id, result_type, precision, angle_measure, notation, expression + U";");
 }
 
 void Document::ReSolve(ElementId _id)
@@ -1386,7 +1386,7 @@ void Document::PutResult(ElementId _id, Result result)
 
 void Document::SetUserIdentifier(ElementId _id, uint code_id, const std::u32string& identifier, const std::u32string& expression)
 {
-    solver.SetUserIdentifier(_id, code_id, identifier + U"=" + expression);
+    solver.SetUserIdentifier(_id, code_id, identifier + U"=" + expression + U";");
     ReSolveDependencies(_id, identifier);
 }
 
