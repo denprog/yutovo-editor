@@ -312,7 +312,19 @@ bool String::DeleteElements(bool left, bool with_undo)
     }
 
     Remake(false, true, with_undo);
-    parent->Normalize(with_undo);
+
+    CaretState before_state = caret->GetCaretState();
+    auto row = document->FindParentRow(id);
+    if (row)
+    {
+        CaretState first_state, last_state;
+        row->GetFirstCaretState(first_state, nullptr);
+        row->GetLastCaretState(last_state, nullptr);
+        if (before_state == first_state || before_state == last_state)
+            parent->parent->Normalize(with_undo);
+        else
+            parent->Normalize(with_undo);
+    }
 
 #ifdef DEBUG
     to_str = ToText();

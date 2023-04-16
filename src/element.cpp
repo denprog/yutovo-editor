@@ -106,7 +106,7 @@ bool Element::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo)
     {
         int pos = c.GetPosInElement(id);
         for (int i = 0; i < _elements.size(); ++i)
-            elements->Insert(_elements[i], i);
+            elements->Insert(_elements[i], pos + i);
         return true;
     }
     return false;
