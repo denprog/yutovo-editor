@@ -229,7 +229,28 @@ bool Row::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo)
 
     CaretState c;
     ElementPtr el = document->GetParent(caret_state.id);
-    if (el->id == id)
+    if (caret_state.id == id)
+    {
+        for (size_t i = 0; i < _elements.size(); ++i)
+        {
+            auto ins = _elements[i];
+            elements->Insert(ins, i);
+            if (with_undo)
+            {
+                document->DeleteElements(false, false, true);
+                document->PushEditorState(SelectionState(id, i, 1), true);
+            }
+            if (i == 0 && elements->Get(i)->AfterInsert(with_undo))
+            {
+                parent->Normalize(with_undo);
+                continue;
+            }
+            if (elements->Get(i)->GetLastCaretState(c, nullptr))
+                caret->SetState(c);
+            parent->Normalize(with_undo);
+        }
+    }
+    else if (el->id == id)
     {
         for (size_t i = 0; i < _elements.size(); ++i)
         {

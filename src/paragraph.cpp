@@ -238,11 +238,77 @@ void Paragraph::Normalize(bool with_undo)
             break;
         if (el->elements->Count() == 1 && document->IsString(el->elements->Get(0)) && el->elements->Get(0)->elements->Count() == 0)
         {
+            if (with_undo)
+            {
+                ElementPtr _row(el->Clone());
+                document->CallFunc(ElementId{},
+                    [d = document](const ElementId id)
+                    {
+                        d->can_normalize = true;
+                    },
+                    true);
+                document->InsertElement(_row);
+                document->PushEditorState(CaretState(id, i), true);
+                document->CallFunc(ElementId{},
+                    [d = document](const ElementId id)
+                    {
+                        d->can_normalize = false;
+                    },
+                    true);
+            }
             elements->RemoveAt(i, 1);
             window->OnCaretMoved(document->GetEditorState());
         }
         else
             ++i;
+    }
+
+    //try to merge end of a row above and begin of a row below
+    for (int i = 0; i < elements->Count() - 1; ++i)
+    {
+        auto above = elements->Get(i);
+        auto below = elements->Get(i + 1);
+        auto el1 = above->elements->Get(above->elements->Count() - 1);
+        auto el2 = below->elements->Get(0);
+        if (document->IsString(el1) && document->IsString(el2))
+        {
+            auto str = el1->ToText();
+            if (str.length() > 0 && str[str.size() - 1] != U' ')
+            {
+                ElementPtr _el1, _el2;
+                if (with_undo)
+                {
+                    _el1.reset(el1->Clone());
+                    _el2.reset(el2->Clone());
+                }
+                if (el1->Merge(el2))
+                {
+                    if (with_undo)
+                    {
+                        document->CallFunc(ElementId{},
+                            [d = document](const ElementId id)
+                            {
+                                d->can_normalize = true;
+                            },
+                            true);
+                        document->InsertElement(_el2);
+                        document->PushEditorState(CaretState(below->id), true);
+                        document->InsertElement(_el1);
+                        document->DeleteElements(false, false, true);
+                        document->PushEditorState(CaretState(el1->id, 0), 
+                            SelectionState(_el1->id, 0, _el1->elements->Count() + _el2->elements->Count()), true);
+                        document->CallFunc(ElementId{},
+                            [d = document](const ElementId id)
+                            {
+                                d->can_normalize = false;
+                            },
+                            true);
+                    }
+                    above->Remake(true, false, with_undo);
+                    below->Remake(true, true, with_undo);
+                }
+            }
+        }
     }
 }
 
@@ -255,6 +321,10 @@ bool Paragraph::InsertElements(std::vector<ElementPtr>& _elements, bool with_und
         Normalize(with_undo);
         return true;
     }
+
+    auto el = document->GetElement(caret->GetCaretState().id);
+    if (el && document->IsRow(el->id))
+        return el->InsertElements(_elements, with_undo); //insert in the beginning of current row
 
     return parent->InsertElements(_elements, with_undo);
 }

@@ -48,7 +48,7 @@ bool WebSocket::Connect()
     {
         ioc.run_one();
     }
-    logger->Info("WebSocket conntected to {}:{}", config.service_ip, config.service_port);
+    logger->Info("WebSocket connected to {}:{}", config.service_ip, config.service_port);
     return connected;
 #endif
 }
