@@ -2008,4 +2008,87 @@ TEST_F(DocumentTest, delete9)
         document.ToHtml();
 }
 
+//Delete at the end of a string
+TEST_F(DocumentTest, delete10)
+{
+    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
+        {
+            return Rect{0, 0, 300, 400};
+        });
+
+    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
+        {
+            return GetTextSizeMock(text, format);
+        });
+    
+    document.WaitTask(document.InsertString("The source of the text itself is a little mysterious.", true));
+    document.MoveCaretUp(false);
+    document.WaitTask(document.MoveCaretEnd(false));
+    document.WaitTask(document.DeleteElements(false, true, false));
+    std::this_thread::sleep_for(100ms);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">The source of the text itself </span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">s a little mysterious.</span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 0, 0})) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    std::this_thread::sleep_for(100ms);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">The source of the text itself </span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">is a little mysterious.</span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 30})) << document.GetEditorState().ToString();
+}
+
+//Backspace at the beginning of a string
+TEST_F(DocumentTest, delete11)
+{
+    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
+        {
+            return Rect{0, 0, 288, 400};
+        });
+
+    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
+        {
+            return GetTextSizeMock(text, format);
+        });
+    
+    document.WaitTask(document.InsertString("The source of the text itself is a little mysterious.", true));
+    document.WaitTask(document.MoveCaretHome(false));
+    document.WaitTask(document.DeleteElements(true, true, false));
+    std::this_thread::sleep_for(100ms);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">The source of the text </span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">itselfis a little mysterious.</span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 0, 6})) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    std::this_thread::sleep_for(100ms);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">The source of the text itself </span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">is a little mysterious.</span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 0, 0})) << document.GetEditorState().ToString();
+}
+
 }
