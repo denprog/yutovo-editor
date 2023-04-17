@@ -887,6 +887,72 @@ TEST_F(DocumentTest, inserts7)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 1, 5)) << document.GetEditorState().ToString();
 }
 
+//Insert a string wider than the screen and add chars
+TEST_F(DocumentTest, inserts8)
+{
+    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
+        {
+            return Rect{0, 0, 300, 400};
+        });
+
+    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
+        {
+            return GetTextSizeMock(text, format);
+        });
+
+    document.WaitTask(document.InsertString("The_source_of_the_text_itself_isa", true));
+    std::this_thread::sleep_for(200ms);
+    document.WaitTask(document.InsertString(" ", true));
+    std::this_thread::sleep_for(200ms);
+    document.WaitTask(document.InsertString("l", true));
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">The_source_of_the_text_itself_isa </span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">l</span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+
+    document.Undo();
+    document.WaitUndo();
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">The_source_of_the_text_itself_isa </span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+}
+
+//Insert a string wider than the screen
+TEST_F(DocumentTest, inserts9)
+{
+    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
+        {
+            return Rect{0, 0, 300, 400};
+        });
+
+    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
+        {
+            return GetTextSizeMock(text, format);
+        });
+
+    document.WaitTask(document.InsertString("The_source_of_the_text_itself_isa", true));
+    document.Undo();
+    document.WaitUndo();
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\"></span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+}
+
 TEST_F(DocumentTest, fonts1)
 {
     EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
@@ -1825,6 +1891,121 @@ TEST_F(DocumentTest, delete7)
         "</body>") << 
         document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0})) << document.GetEditorState().ToString();
+}
+
+//Concatinate a row below with a row wider then the window
+TEST_F(DocumentTest, delete8)
+{
+    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
+        {
+            return Rect{0, 0, 227, 400};
+        });
+
+    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
+        {
+            return GetTextSizeMock(text, format);
+        });
+    
+    document.WaitTask(document.InsertString("The_source_of_the_text_itself_is a little mysterious.", true));
+    std::this_thread::sleep_for(100ms);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">The_source_of_the_text_itself_is </span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">a little mysterious.</span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    
+    document.MoveCaretUp(false);
+    document.MoveCaretEnd(false);
+    document.WaitTask(document.MoveCaretLeft(false));
+    document.WaitTask(document.DeleteElements(false, true, false));
+    std::this_thread::sleep_for(100ms);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">The_source_of_the_text_itself_isa </span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">little mysterious.</span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+
+    document.Undo();
+    document.WaitUndo();
+    std::this_thread::sleep_for(100ms);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">The_source_of_the_text_itself_is </span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">a little mysterious.</span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+}
+
+//Concatinate a row below with a row wider then the window
+TEST_F(DocumentTest, delete9)
+{
+    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
+        {
+            return Rect{0, 0, 300, 400};
+        });
+
+    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
+        {
+            return GetTextSizeMock(text, format);
+        });
+    
+    document.WaitTask(document.InsertString("The_source_of_the_text_itself_is a little mysterious.", true));
+    document.MoveCaretUp(false);
+    document.WaitTask(document.MoveCaretEnd(false));
+    document.WaitTask(document.DeleteElements(true, true, false));
+    std::this_thread::sleep_for(100ms);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">The_source_of_the_text_itself_isa </span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">little mysterious.</span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+
+    document.WaitTask(document.MoveCaretEnd(false));
+    document.WaitTask(document.DeleteElements(true, true, false));
+    std::this_thread::sleep_for(100ms);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">The_source_of_the_text_itself_isalittle </span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">mysterious.</span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+
+    document.Undo();
+    document.WaitUndo();
+    std::this_thread::sleep_for(100ms);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">The_source_of_the_text_itself_isa </span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">little mysterious.</span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+
+    document.Undo();
+    document.WaitUndo();
+    std::this_thread::sleep_for(100ms);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">The_source_of_the_text_itself_is </span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">a little mysterious.</span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
 }
 
 }

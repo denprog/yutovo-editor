@@ -31,11 +31,6 @@ bool Formula::ChangeParagraphFormat(const ParagraphFormatPtr format, bool with_u
     return false;
 }
 
-bool Formula::Split(const uint max_left_width)
-{
-    return false;
-}
-
 bool Formula::SplitAt(const uint pos)
 {
     return false;

@@ -246,6 +246,8 @@ bool String::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo)
                 document->DeleteElements(true, false, true);
                 if (s->elements->Count() > 1)
                     document->PushEditorState(SelectionState(id, caret->GetPos(), s->elements->Count()), true);
+                else
+                    document->PushEditorState(CaretState(id, caret->GetPos() + 1), true);
             }
             elements->Insert(_elements[0], caret->GetPos());
             caret->SetState(elements->GetElementId(caret->GetPos() + s->elements->Count()));
@@ -371,14 +373,14 @@ bool String::ChangeStringFormat(const StringFormatPtr _format, bool with_undo)
     return parent->ChangeStringFormat(_format, with_undo);
 }
 
-bool String::Split(const uint max_left_width)
+bool String::Split(const uint width, bool split_more)
 {
     if (!editable)
         return false;
 
     int i = 0;
     std::u32string& str = ((StringElements*)elements.get())->str;
-    for (int j = 1; j < (int)str.size() - 2; ++j) //at least one character in the splitted string
+    for (int j = 1; j < (int)str.size() - 1; ++j) //at least one character in the splitted string
     {
         if (str[j] == ' ')
         {
@@ -389,10 +391,14 @@ bool String::Split(const uint max_left_width)
                 s = window->GetTextSize(substr, format);
                 AddCachedSize(substr, s);
             }
-            if (s.width <= max_left_width)
+            if (s.width <= width)
                 i = j;
             else
+            {
+                if (split_more)
+                    i = j;
                 break;
+            }
         }
     }
 

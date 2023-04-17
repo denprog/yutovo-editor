@@ -81,7 +81,7 @@ void Paragraph::Remake(bool with_elements, bool with_parent, bool with_undo)
                 ElementPtr el = row->elements->Get(row->elements->Count() - 1);
                 if (!el)
                     break;
-                if (el->Split(page_width - format->indent_before))
+                if (el->Split(page_width - format->indent_before, true))
                     el = row->elements->Get(row->elements->Count() - 1);
 
                 if (row->elements->Count() == 1)
@@ -136,7 +136,7 @@ void Paragraph::Remake(bool with_elements, bool with_parent, bool with_undo)
             {
                 //try to split the first element and move it above
                 ElementPtr el = next_row->elements->Get(0);
-                while (el && el->Split(page_width - row->rect.width - format->indent_before))
+                while (el && el->Split(page_width - row->rect.width - format->indent_before, false))
                 {
                     if (with_undo && !clone)
                         clone.reset(Clone());
