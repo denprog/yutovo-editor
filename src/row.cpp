@@ -207,7 +207,7 @@ void Row::Normalize(bool with_undo)
 bool Row::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo)
 {
     CaretState caret_state = caret->GetCaretState();
-    if (!caret_state.IsInsideElement(id))
+    if (!caret_state.IsInsideElement(id) && caret_state.id != id)
         return parent->InsertElements(_elements, with_undo);
 
     for (auto& el : _elements)

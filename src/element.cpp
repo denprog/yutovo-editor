@@ -109,6 +109,12 @@ bool Element::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo)
             elements->Insert(_elements[i], pos + i);
         return true;
     }
+    else if (c.id == id)
+    {
+        for (int i = 0; i < _elements.size(); ++i)
+            elements->Insert(_elements[i], i);
+        return true;
+    }
     return false;
 }
 
@@ -156,7 +162,7 @@ bool Element::DeleteElements(bool left, bool with_undo)
             Normalize(with_undo);
         }
 
-        document->Remake(id, true, true, false);
+        document->Remake(id, true, with_undo, false);
 
 #ifdef DEBUG
         to_str = ToText();
@@ -188,7 +194,7 @@ bool Element::ChangeParagraphFormat(const ParagraphFormatPtr format, bool with_u
     return parent->ChangeParagraphFormat(format, with_undo);
 }
 
-bool Element::Split(const uint max_left_width)
+bool Element::Split(const uint width, bool split_more)
 {
     return false;
 }
@@ -455,6 +461,12 @@ std::u32string Element::ToText()
 
 void Element::UpdateRect(bool with_elements)
 {
+    if (elements->Count() == 0)
+    {
+        rect.SetSize(0, 0);
+        return;
+    }
+
     if (with_elements)
     {
         for (int i = 0; i < elements->Count(); ++i)

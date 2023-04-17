@@ -80,7 +80,7 @@ public:
     virtual bool ChangeStringFormat(const StringFormatPtr format, bool with_undo);
     virtual bool ChangeParagraphFormat(const ParagraphFormatPtr format, bool with_undo);
 
-    virtual bool Split(const uint max_left_width);
+    virtual bool Split(const uint width, bool split_more);
     virtual bool SplitAt(const uint pos);
     virtual bool Merge(const ElementPtr with_element);
 
