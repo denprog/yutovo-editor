@@ -340,6 +340,48 @@ bool Paragraph::DeleteElements(bool left, bool with_undo)
             return true;
         }
     }
+
+    CaretState c = caret->GetCaretState();
+    auto row = document->FindParentRow(c.id);
+    if (row)
+    {
+        CaretState first_state, last_state;
+        if (!left && row->GetLastCaretState(last_state, nullptr))
+        {
+            if (c == last_state)
+            {
+                int p = elements->GetElementPos(row->id);
+                if (p < elements->Count() - 1)
+                {
+                    //delete first element at the next row
+                    auto next_row = elements->Get(p + 1);
+                    if (next_row->GetFirstCaretState(first_state, nullptr))
+                    {
+                        caret->SetState(first_state);
+                        return caret->GetElement()->DeleteElements(false, with_undo);
+                    }
+                }
+            }
+        }
+        else if (left && row->GetFirstCaretState(first_state, nullptr))
+        {
+            if (c == first_state)
+            {
+                int p = elements->GetElementPos(row->id);
+                if (p > 0)
+                {
+                    //delete last element at the previous row
+                    auto prev_row = elements->Get(p - 1);
+                    if (prev_row->GetLastCaretState(last_state, nullptr))
+                    {
+                        caret->SetState(last_state);
+                        return caret->GetElement()->DeleteElements(true, with_undo);
+                    }
+                }
+            }
+        }
+    }
+
     return parent->DeleteElements(left, with_undo);
 }
 
