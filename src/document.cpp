@@ -1563,9 +1563,6 @@ void Document::UpdateCaretView()
     Rect r = element->GetAbsoluteRect(element->GetCaretRect(caret->GetPos()));
     Rect view_port = window->GetViewPort(0);
     Point p = window->GetDocumentPoint();
-
-    if (r.height > view_port.height || r.width > view_port.width)
-        return;
     
     //move view port in the view if the caret is outside of it
     if (r.left < p.x + view_port.left)
@@ -1574,7 +1571,7 @@ void Document::UpdateCaretView()
         window->MoveDocument(r.left - view_port.left - 1, p.y);
         Redraw(text->id, false);
     }
-    else if (r.GetRight() > view_port.GetRight() + p.x)
+    else if (r.width < view_port.width && r.GetRight() > view_port.GetRight() + p.x)
     {
         caret->Hide();
         window->MoveDocument(r.GetRight() - view_port.GetRight(), p.y);
@@ -1587,7 +1584,7 @@ void Document::UpdateCaretView()
         window->MoveDocument(p.x, r.top - view_port.top - 1);
         Redraw(text->id, false);
     }
-    else if (r.GetBottom() > view_port.GetBottom() + p.y)
+    else if (r.height < view_port.height && r.GetBottom() > view_port.GetBottom() + p.y)
     {
         caret->Hide();
         window->MoveDocument(p.x, r.GetBottom() - view_port.GetBottom());
