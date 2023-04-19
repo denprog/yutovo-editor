@@ -383,35 +383,17 @@ bool Row::DeleteElements(bool left, bool with_undo)
         int pos = before_state.GetElementPos(id);
         if (left)
         {
-            if (pos == 0)
+            int p = elements->GetElementPos(document->GetParent(before_state.id)->id);
+            if (p > 0)
             {
-                int p = elements->GetElementPos(document->GetParent(before_state.id)->id);
-                if (p > 0)
+                auto el = elements->Get(p - 1);
+                if (el->CanContinueSelection())
                 {
-                    auto el = elements->Get(p - 1);
-                    if (el->CanContinueSelection())
+                    CaretState c;
+                    if (el->GetLastCaretState(c, nullptr))
                     {
-                        CaretState c;
-                        if (el->GetLastCaretState(c, nullptr))
-                        {
-                            caret->SetState(c);
-                            el->DeleteElements(left, with_undo);
-#ifdef DEBUG
-                            to_str = ToText();
-#endif
-                            return true;
-                        }
-                    }
-                    else
-                    {
-                        if (with_undo)
-                        {
-                            document->InsertElement(elements->Get(p - 1)->Clone(), false, true);
-                            document->PushEditorState(CaretState(id, p - 1), true);
-                        }
-                        elements->RemoveAt(p - 1, 1);
-                        Normalize(with_undo);
-                        parent->Remake(true, true, with_undo);
+                        caret->SetState(c);
+                        el->DeleteElements(left, with_undo);
 #ifdef DEBUG
                         to_str = ToText();
 #endif
@@ -420,43 +402,49 @@ bool Row::DeleteElements(bool left, bool with_undo)
                 }
                 else
                 {
-                    p = elements->GetElementPos(before_state.id);
-                    if (p > 0)
+                    if (with_undo)
                     {
-                        if (before_state != last_state)
-                            --p;
-                        auto el = elements->Get(p);
-                        if (el->CanContinueSelection())
-                        {
-                            CaretState c;
-                            if (!el->GetLastCaretState(c, nullptr))
-                                return false;
-                            caret->SetState(c);
-                            return el->DeleteElements(left, with_undo);
-                        }
-                        if (with_undo)
-                        {
-                            document->InsertElement(el->Clone(), false, true);
-                            document->PushEditorState(CaretState(id, p), true);
-                        }
-                        elements->RemoveAt(p, 1);
-                        parent->Remake(true, true, with_undo);
-#ifdef DEBUG
-                        to_str = ToText();
-#endif
-                        return true;
+                        document->InsertElement(elements->Get(p - 1)->Clone(), false, true);
+                        document->PushEditorState(CaretState(id, p - 1), true);
                     }
-                    return parent->DeleteElements(left, with_undo);
+                    elements->RemoveAt(p - 1, 1);
+                    Normalize(with_undo);
+                    parent->Remake(true, true, with_undo);
+#ifdef DEBUG
+                    to_str = ToText();
+#endif
+                    return true;
                 }
             }
             else
             {
-                if (with_undo)
+                p = elements->GetElementPos(before_state.id);
+                if (p > 0)
                 {
-                    document->InsertElement(elements->Get(pos)->Clone(), false, true);
-                    document->PushEditorState(CaretState(id, pos), true);
+                    if (before_state != last_state)
+                        --p;
+                    auto el = elements->Get(p);
+                    if (el->CanContinueSelection())
+                    {
+                        CaretState c;
+                        if (!el->GetLastCaretState(c, nullptr))
+                            return false;
+                        caret->SetState(c);
+                        return el->DeleteElements(left, with_undo);
+                    }
+                    if (with_undo)
+                    {
+                        document->InsertElement(el->Clone(), false, true);
+                        document->PushEditorState(CaretState(id, p), true);
+                    }
+                    elements->RemoveAt(p, 1);
+                    parent->Remake(true, true, with_undo);
+#ifdef DEBUG
+                    to_str = ToText();
+#endif
+                    return true;
                 }
-                elements->RemoveAt(pos, 1);
+                return parent->DeleteElements(left, with_undo);
             }
         }
         else
