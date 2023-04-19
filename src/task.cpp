@@ -995,14 +995,6 @@ bool ResultTask::Execute()
     if (!r)
         return false;
     r->PutResult(result);
-    if (result.error.error_code != yutovo_service::ErrorCode::OK)
-    {
-        //mark errors positions
-    }
-    if (!result.warnings.empty())
-    {
-        //mark warnings positions
-    }
     return true;
 }
 

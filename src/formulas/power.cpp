@@ -134,6 +134,15 @@ std::u32string Power::ToText()
     return U"pow(" + first->ToText() + U"," + last->ToText() + U")";
 }
 
+void Power::ToParserString(ParserString& str)
+{
+    str.Add(id, U"pow(");
+    first->ToParserString(str);
+    str.Add(id, U",");
+    last->ToParserString(str);
+    str.Add(id, U")");
+}
+
 void Power::AddBase(ElementPtr base)
 {
     if (first->IsEmpty())

@@ -136,4 +136,20 @@ std::u32string Subscript::ToText()
     return first->ToText() + last->ToText();
 }
 
+void Subscript::ToParserString(ParserString& str)
+{
+    if (first->ToText() == U"log")
+    {
+        first->ToParserString(str);
+        str.Add(id, U"%");
+        last->ToParserString(str);
+        str.Add(id, U",");
+    }
+    else
+    {
+        first->ToParserString(str);
+        last->ToParserString(str);
+    }
+}
+
 }

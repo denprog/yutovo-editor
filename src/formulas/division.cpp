@@ -144,6 +144,15 @@ std::u32string Division::ToText()
     return U"(" + first->ToText() + U")/(" + last->ToText() + U")";
 }
 
+void Division::ToParserString(ParserString& str)
+{
+    str.Add(id, U"(");
+    first->ToParserString(str);
+    str.Add(id, U")/(");
+    last->ToParserString(str);
+    str.Add(id, U")");
+}
+
 void Division::AddNumerator(ElementPtr numerator)
 {
     if (first->IsEmpty())

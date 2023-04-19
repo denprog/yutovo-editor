@@ -34,6 +34,7 @@ public:
     virtual bool GetElementAtCoords(const int x, const int y, ElementId& _id);
 
     virtual std::string ToHtml();
+    virtual void ToParserString(ParserString& str);
 
     virtual bool InsertElements(std::vector<ElementPtr>& _elements, bool with_undo);
     virtual bool DeleteElements(bool left, bool with_undo);

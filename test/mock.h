@@ -42,6 +42,7 @@ public:
     MOCK_METHOD(void, DrawFillEllipse, (const int x1, const int y1, const int width, const int height, const Color color), (override));
     MOCK_METHOD(void, DrawFillPath, (const std::list<Point>& path, const Color color), (override));
     MOCK_METHOD(void, DrawBezierPath, (const std::list<Point>& path, const Color color), (override));
+    MOCK_METHOD(void, DrawWavyLine, (const int x1, const int y1, const int width, const int radius, const Color color), (override));
 
     MOCK_METHOD(void, ClearRect, (const int x1, const int y1, const int width, const int height), (override));
     MOCK_METHOD(int, GetFontAscent, (const StringFormatPtr), (override));

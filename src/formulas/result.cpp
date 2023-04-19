@@ -216,15 +216,14 @@ void AutoResult::Remake(bool with_elements, bool with_parent, bool with_undo)
     document->Remake(parent->id, false, false, false);
 }
 
-void AutoResult::Solve(const std::u32string& expression, yutovo_service::ResultType result_type)
+void AutoResult::Solve(const ParserString& expression, yutovo_service::ResultType result_type)
 {
     if (last_expression == expression)
         return;
+    last_expression = expression;
 
     auto code = document->FindParent(id, ElementType::CODE_BLOCK);
-    document->Solve(id, ((CodeBlock*)code.get())->code_id, result_type, precision, angle_measure, notation, expression);
-
-    last_expression = expression;
+    document->Solve(id, ((CodeBlock*)code.get())->code_id, result_type, precision, angle_measure, notation, last_expression.Text());
 }
 
 void AutoResult::PutResult(Result result)
@@ -240,6 +239,13 @@ void AutoResult::PutResult(Result result)
             elements->Add(ElementPtr(new ErrorResult(this, result.error.parser_error_code, result.dependencies)));
         else
             elements->Add(ElementPtr(new ErrorResult(this, result.error.error_code, result.dependencies)));
+        ElementId err_id = last_expression.GetElement(result.error.pos);
+        if (!err_id.empty())
+        {
+            auto el = document->GetElement(err_id);
+            if (el)
+                document->AddErrorMark(err_id, 0, el->elements->Count());
+        }
     }
     else
     {
