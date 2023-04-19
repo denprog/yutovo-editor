@@ -163,4 +163,11 @@ std::u32string SquareRoot::ToText()
     return U"sqrt(" + last->ToText() + U")";
 }
 
+void SquareRoot::ToParserString(ParserString& str)
+{
+    str.Add(id, U"sqrt(");
+    last->ToParserString(str);
+    str.Add(id, U")");
+}
+
 }

@@ -26,6 +26,7 @@ public:
 
     virtual std::string ToHtml();
     virtual std::u32string ToText();
+    virtual void ToParserString(ParserString& str);
 
     template <class Archive>
     void save(Archive& ar, const unsigned int version) const

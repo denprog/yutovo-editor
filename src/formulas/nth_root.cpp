@@ -122,4 +122,13 @@ std::u32string NthRoot::ToText()
     return U"root(" + last->ToText() + U"," + first->ToText() + U")";
 }
 
+void NthRoot::ToParserString(ParserString& str)
+{
+    str.Add(id, U"root(");
+    last->ToParserString(str);
+    str.Add(id, U",");
+    first->ToParserString(str);
+    str.Add(id, U")");
+}
+
 }

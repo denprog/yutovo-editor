@@ -74,6 +74,16 @@ bool Element::Copy(std::vector<ElementPtr>& copy)
 void Element::Draw() const
 {
     elements->Draw();
+
+    int start, size;
+    if (document->HasErrorMark(id, start, size))
+        DrawErrorMark(start, size);
+}
+
+void Element::DrawErrorMark(const int start, const int size) const
+{
+    Rect r = GetAbsoluteRect();
+    window->DrawWavyLine(r.left, r.GetBottom() - 2, r.width, 1, Color::Red());
 }
 
 void Element::Remake(bool with_elements, bool with_parent, bool with_undo)
@@ -457,6 +467,19 @@ std::u32string Element::ToText()
     if (!elements)
         return U"";
     return elements->ToText();
+}
+
+void Element::ToParserString(ParserString& str)
+{
+    if (elements->Count() > 0)
+    {
+        int start = str.Length();
+        for (int i = 0; i < elements->Count(); ++i)
+            elements->Get(i)->ToParserString(str);
+        str.Annotate(id, start, str.Length());
+    }
+    else
+        str.Add(id, ToText());
 }
 
 void Element::UpdateRect(bool with_elements)

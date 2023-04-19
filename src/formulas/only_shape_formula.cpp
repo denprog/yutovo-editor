@@ -93,4 +93,9 @@ std::u32string OnlyShapeFormula::ToText()
     return std::u32string(1, symbol);
 }
 
+void OnlyShapeFormula::ToParserString(ParserString& str)
+{
+    str.Add(id, ToText());
+}
+
 }

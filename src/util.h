@@ -213,6 +213,13 @@ std::string ToBasicString(const std::u32string& str);
 std::string ErrorCodeToString(const yutovo_service::ErrorCode error_code);
 std::string ErrorCodeToString(const yutovo_calculator::ParserExceptionCode parser_error_code);
 
+struct ErrorMark
+{
+    ElementId id;
+    int start = 0;
+    int size = 0;
+};
+
 }
 
 #endif

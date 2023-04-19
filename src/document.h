@@ -180,7 +180,7 @@ public:
     void SetEditorState(EditorState& state);
 
     void Solve(ElementId _id, uint code_id, yutovo_service::ResultType result_type, const uint precision, 
-        AngleMeasure angle_measure, Notation notation, const std::u32string& expression);
+        AngleMeasure angle_measure, Notation notation, std::u32string& expression);
     void ReSolve(ElementId _id);
     void ReSolveDependencies(ElementId after_id, const std::u32string& identifier);
     void PutResult(ElementId _id, Result result);
@@ -190,6 +190,10 @@ public:
     bool IsVisible(ElementId _id);
     ElementId GetFirstVisibleParagraph();
     ElementId GetFirstVisibleRow(ElementId paragraph_id);
+
+    void AddErrorMark(ElementId _id, int start, int size);
+    void RemoveErrorMarks(ElementId parent_id);
+    bool HasErrorMark(ElementId _id, int& start, int& size);
 
 private:
     void MainLoop();
@@ -284,6 +288,8 @@ private:
     uint cur_task_id = 0;
 
     ElementId cur_visible_row; //any row which is visible
+
+    std::vector<ErrorMark> error_marks;
 
     Logger* logger;
 };

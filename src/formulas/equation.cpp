@@ -138,6 +138,7 @@ void Equation::AfterReplace()
 void Equation::ReSolve()
 {
     auto_result.reset();
+    document->RemoveErrorMarks(id);
     OnChanged({});
 }
 
@@ -168,6 +169,7 @@ std::u32string Equation::ToText()
 
 void Equation::OnChanged(const ElementId _id)
 {
+    document->RemoveErrorMarks(id);
     if (!auto_result)
     {
         auto_result.reset(new AutoResult(last));
@@ -175,7 +177,11 @@ void Equation::OnChanged(const ElementId _id)
         last->elements->Add(auto_result);
     }
     if (last)
-        auto_result->Solve(first->ToText(), result_type); //solve the expression in the left part
+    {
+        ParserString str;
+        first->ToParserString(str);
+        auto_result->Solve(str, result_type); //solve the expression in the left part
+    }
 }
 
 }

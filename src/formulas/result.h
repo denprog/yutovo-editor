@@ -80,7 +80,7 @@ public:
 
     virtual void Remake(bool with_elements, bool with_parent, bool with_undo);
 
-    void Solve(const std::u32string& expression, yutovo_service::ResultType result_type);
+    void Solve(const ParserString& expression, yutovo_service::ResultType result_type);
     void PutResult(Result result);
 
     virtual bool Depends(const std::string& identifier);
@@ -105,7 +105,7 @@ private:
     AngleMeasure angle_measure = AngleMeasure::RADIAN;
     Notation notation = Notation::DECIMAL;
 
-    std::u32string last_expression;
+    ParserString last_expression;
 };
 
 typedef std::shared_ptr<AutoResult> AutoResultPtr;

@@ -46,6 +46,28 @@ void SolverTask::GetDependencies(const rapidjson::Document& json, Result& result
     }
 }
 
+void SolverTask::FillError(rapidjson::Document& doc, Result& result)
+{
+    if (doc["error"].IsObject())
+    {
+        rapidjson::Value error = doc["error"].GetObject();
+        if (error.HasMember("error_code") && error["error_code"].IsInt())
+            result.error.error_code = (ErrorCode)error["error_code"].GetInt();
+        if (error.HasMember("parser_error_code") && error["parser_error_code"].IsInt())
+            result.error.parser_error_code = (yutovo_calculator::ParserExceptionCode)error["parser_error_code"].GetInt();
+        if (result.error.error_code != ErrorCode::SOLVER_RESTARTED_ERROR)
+            logger->Error("Solver error: {}", (int)result.error.error_code);
+        if (error.HasMember("pos") && error["pos"].IsInt())
+            result.error.pos = error["pos"].GetInt();
+        if (error.HasMember("line") && error["line"].IsInt())
+            result.error.line = error["line"].GetInt();
+        return;
+    }
+    if (result.error.error_code != ErrorCode::SOLVER_RESTARTED_ERROR)
+        logger->Error("Solver error: {}", (int)result.error.error_code);
+    result.error.error_code = ErrorCode::PARSER_ERROR;
+}
+
 //RealSolverTask
 
 RealSolverTask::RealSolverTask(ElementId _id, std::string& _guid, uint _code_id, ExpressionType _expression_type, const uint _precision, 
@@ -95,20 +117,7 @@ bool RealSolverTask::Execute(WebSocketPtr socket, Result& result)
 
     if (doc.HasMember("error"))
     {
-        if (doc["error"].IsObject())
-        {
-            rapidjson::Value error = doc["error"].GetObject();
-            if (error.HasMember("error_code") && error["error_code"].IsInt())
-                result.error.error_code = (ErrorCode)error["error_code"].GetInt();
-            if (error.HasMember("parser_error_code") && error["parser_error_code"].IsInt())
-                result.error.parser_error_code = (yutovo_calculator::ParserExceptionCode)error["parser_error_code"].GetInt();
-            if (result.error.error_code != ErrorCode::SOLVER_RESTARTED_ERROR)
-                logger->Error("Solver error: {}", (int)result.error.error_code);
-            return false;
-        }
-        if (result.error.error_code != ErrorCode::SOLVER_RESTARTED_ERROR)
-            logger->Error("Solver error: {}", (int)result.error.error_code);
-        result.error.error_code = ErrorCode::PARSER_ERROR;
+        FillError(doc, result);
         return false;
     }
     if (!doc.HasMember("mantissa") || !doc["mantissa"].IsString())
@@ -169,22 +178,7 @@ bool IntegerSolverTask::Execute(WebSocketPtr socket, Result& result)
 
     if (doc.HasMember("error"))
     {
-        if (doc["error"].IsObject())
-        {
-            rapidjson::Value error = doc["error"].GetObject();
-            if (error.HasMember("error_code") && error["error_code"].IsInt())
-                result.error.error_code = (ErrorCode)error["error_code"].GetInt();
-            if (error.HasMember("parser_error_code") && error["parser_error_code"].IsInt())
-                result.error.parser_error_code = (yutovo_calculator::ParserExceptionCode)error["parser_error_code"].GetInt();
-            if (result.error.error_code == ErrorCode::OK)
-                return true;
-            if (result.error.error_code != ErrorCode::SOLVER_RESTARTED_ERROR)
-                logger->Error("Solver error");
-            return false;
-        }
-        if (result.error.error_code != ErrorCode::SOLVER_RESTARTED_ERROR)
-            logger->Error("Solver error");
-        result.error.error_code = ErrorCode::PARSER_ERROR;
+        FillError(doc, result);
         return false;
     }
     if (!doc.HasMember("value") || !doc["value"].IsString())
@@ -241,22 +235,7 @@ bool RationalSolverTask::Execute(WebSocketPtr socket, Result& result)
 
     if (doc.HasMember("error"))
     {
-        if (doc["error"].IsObject())
-        {
-            rapidjson::Value error = doc["error"].GetObject();
-            if (error.HasMember("error_code") && error["error_code"].IsInt())
-                result.error.error_code = (ErrorCode)error["error_code"].GetInt();
-            if (error.HasMember("parser_error_code") && error["parser_error_code"].IsInt())
-                result.error.parser_error_code = (yutovo_calculator::ParserExceptionCode)error["parser_error_code"].GetInt();
-            if (result.error.error_code == ErrorCode::OK)
-                return true;
-            if (result.error.error_code != ErrorCode::SOLVER_RESTARTED_ERROR)
-                logger->Error("Solver error");
-            return false;
-        }
-        if (result.error.error_code != ErrorCode::SOLVER_RESTARTED_ERROR)
-            logger->Error("Solver error");
-        result.error.error_code = ErrorCode::PARSER_ERROR;
+        FillError(doc, result);
         return false;
     }
     if (!doc.HasMember("numerator") || !doc["numerator"].IsString() || !doc.HasMember("denomerator") || !doc["denomerator"].IsString())
@@ -311,22 +290,7 @@ bool RemoveIdentifierSolverTask::Execute(WebSocketPtr socket, Result& result)
 
     if (doc.HasMember("error"))
     {
-        if (doc["error"].IsObject())
-        {
-            rapidjson::Value error = doc["error"].GetObject();
-            if (error.HasMember("error_code") && error["error_code"].IsInt())
-            {
-                result.error.error_code = (ErrorCode)error["error_code"].GetInt();
-                if (result.error.error_code == ErrorCode::OK)
-                    return true;
-                if (result.error.error_code != ErrorCode::SOLVER_RESTARTED_ERROR)
-                    logger->Error("Solver error");
-                return false;
-            }
-        }
-        if (result.error.error_code != ErrorCode::SOLVER_RESTARTED_ERROR)
-            logger->Error("Solver error");
-        result.error.error_code = ErrorCode::PARSER_ERROR;
+        FillError(doc, result);
         return false;
     }
 

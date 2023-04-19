@@ -1358,7 +1358,7 @@ void Document::SetEditorState(EditorState& state)
 }
 
 void Document::Solve(ElementId _id, uint code_id, yutovo_service::ResultType result_type, const uint precision, 
-    AngleMeasure angle_measure, Notation notation, const std::u32string& expression)
+    AngleMeasure angle_measure, Notation notation, std::u32string& expression)
 {
     solver.Solve(_id, code_id, result_type, precision, angle_measure, notation, expression + U";");
 }
@@ -1471,6 +1471,43 @@ ElementId Document::GetFirstVisibleRow(ElementId paragraph_id)
     auto el = GetElement(paragraph_id);
     cur_visible_row = el->elements->FindUpper(window->document_point.y);
     return cur_visible_row;
+}
+
+void Document::AddErrorMark(ElementId _id, int start, int size)
+{
+    auto it = std::find_if(error_marks.begin(), error_marks.end(), 
+        [_id, start, size](const ErrorMark& m)
+        {
+            return m.id == _id && m.start == start && m.size == size;
+        });
+    if (it != error_marks.end())
+        return;
+    error_marks.emplace_back(ErrorMark{_id, start, size});
+}
+
+void Document::RemoveErrorMarks(ElementId parent_id)
+{
+    for (size_t i = 0; i < error_marks.size();)
+    {
+        if (IsChild(parent_id, error_marks[i].id))
+            error_marks.erase(error_marks.begin() + i);
+        else
+            ++i;
+    }
+}
+
+bool Document::HasErrorMark(ElementId _id, int& start, int& size)
+{
+    auto it = std::find_if(error_marks.begin(), error_marks.end(), 
+        [_id](const ErrorMark& m)
+        {
+            return m.id == _id;
+        });
+    if (it == error_marks.end())
+        return false;
+    start = it->start;
+    size = it->size;
+    return true;
 }
 
 #ifdef DEBUG

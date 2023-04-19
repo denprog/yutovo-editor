@@ -6,6 +6,7 @@
 #include "window.h"
 #include "util.h"
 #include "caret_state.h"
+#include "parser_string.h"
 #include <boost/archive/binary_iarchive.hpp>
 #include <boost/archive/binary_oarchive.hpp>
 #include <boost/serialization/split_member.hpp>
@@ -72,6 +73,7 @@ public:
     virtual Element* Create(Element* parent) = 0;
 
     virtual void Draw() const;
+    virtual void DrawErrorMark(const int start, const int size) const;
     virtual void Remake(bool with_elements, bool with_parent, bool with_undo);
     virtual void Normalize(bool with_undo);
 
@@ -116,6 +118,7 @@ public:
 
     virtual std::string ToHtml();
     virtual std::u32string ToText();
+    virtual void ToParserString(ParserString& str);
 
     virtual void UpdateRect(bool with_elements = false);
 

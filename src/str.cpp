@@ -204,6 +204,11 @@ std::string String::ToHtml()
     return s;
 }
 
+void String::ToParserString(ParserString& str)
+{
+    str.Add(id, elements->ToText());
+}
+
 bool String::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo)
 {
     if (!editable)

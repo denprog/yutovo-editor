@@ -46,6 +46,8 @@ struct SolverTask
 
     void GetDependencies(const rapidjson::Document& json, Result& result);
 
+    void FillError(rapidjson::Document& doc, Result& result);
+
     ElementId id;
     std::string guid;
     uint code_id;
