@@ -75,13 +75,16 @@ void Assignment::Remake(bool with_elements, bool with_parent, bool with_undo)
         parent->Remake(false, true, with_undo);
     last_rect = rect;
 
-    std::u32string expr = first->ToText() + U"=" + last->ToText();
+    ParserString expr;
+    first->ToParserString(expr);
+    expr.Add(id, U"=");
+    last->ToParserString(expr);
     if (last_expression != expr)
     {
         auto code = document->FindParent(id, ElementType::CODE_BLOCK);
         if (last_identifier != U"")
             document->RemoveIdentifier(id, ((CodeBlock*)code.get())->code_id, last_identifier);
-        document->SetUserIdentifier(id, ((CodeBlock*)code.get())->code_id, first->ToText(), last->ToText());
+        document->SetUserIdentifier(id, ((CodeBlock*)code.get())->code_id, first->ToText(), expr.Text());
         last_identifier = first->ToText();
         last_expression = expr;
     }
@@ -116,7 +119,7 @@ bool Assignment::AfterInsert(bool with_undo)
     CaretState c;
     last->GetFirstCaretState(c, nullptr);
     caret->SetState(c);
-    last_expression = U"";
+    last_expression.Reset();
     return true;
 }
 
@@ -132,7 +135,27 @@ void Assignment::BeforeDelete()
 
 void Assignment::ReSolve()
 {
-    last_expression = U"";
+    last_expression.Reset();
+    document->RemoveErrorMarks(id);
+    document->Remake(id, true, false, false);
+}
+
+void Assignment::PutResult(Result result)
+{
+    document->RemoveErrorMarks(id);
+    if (result.error.error_code != ErrorCode::SOLVER_RESTARTED_ERROR && result.error.error_code != ErrorCode::OK)
+    {
+        //put error mark
+        ElementId err_id = last_expression.GetElement(result.error.pos);
+        if (!err_id.empty())
+        {
+            auto el = document->GetElement(err_id);
+            if (el)
+            {
+                document->AddErrorMark(err_id, 0, el->elements->Count());
+            }
+        }
+    }
     document->Remake(id, true, false, false);
 }
 

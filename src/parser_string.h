@@ -16,6 +16,7 @@ public:
 
     void Add(const ElementId id, const std::u32string& _text);
     void Add(const ParserString& str);
+    void Reset();
 
     void Annotate(const ElementId id, const int start, const int size);
 

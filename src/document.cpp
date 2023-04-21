@@ -1386,7 +1386,7 @@ void Document::PutResult(ElementId _id, Result result)
 
 void Document::SetUserIdentifier(ElementId _id, uint code_id, const std::u32string& identifier, const std::u32string& expression)
 {
-    solver.SetUserIdentifier(_id, code_id, identifier + U"=" + expression + U";");
+    solver.SetUserIdentifier(_id, code_id, expression + U";");
     ReSolveDependencies(_id, identifier);
 }
 

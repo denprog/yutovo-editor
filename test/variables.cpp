@@ -254,7 +254,7 @@ TEST_F(VariablesTest, variables3)
                         "<mo>=</mo>"\
                         "<mrow>"\
                             "<mrow>"\
-                                "<mi>Unknown identifier</mi>"\
+                                "<mi>Identifier 'd' not found</mi>"\
                             "</mrow>"\
                         "</mrow>"\
                     "</mrow>"\
@@ -298,6 +298,102 @@ TEST_F(VariablesTest, variables3)
             "</p>"\
         "</body>") << 
         document.ToHtml();
+}
+
+//Define a variable with an empty placeholder
+TEST_F(VariablesTest, errors1)
+{
+    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
+        {
+            return Rect{0, 0, 600, 400};
+        });
+
+    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
+        {
+            return GetTextSizeMock(text, format);
+        });
+    
+    document.InsertCode(false, true);
+    document.InsertString("d", true);
+    document.WaitTask(document.InsertAssignment(true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == U"d=") << ToBasicString(document.ToText());
+    int start, size;
+    ASSERT_TRUE(document.HasErrorMark(ElementId{0, 0, 0, 0, 0, 0, 0, 2}, start, size));
+    ASSERT_TRUE(start == 0 && size == 1);
+
+    document.InsertString("4", true);
+    document.WaitTask(document.InsertPlus(true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == U"d=4+") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.HasErrorMark(ElementId{0, 0, 0, 0, 0, 0, 0, 2}, start, size));
+    ASSERT_TRUE(start == 0 && size == 2);
+}
+
+//Define a variable with unknown variable
+TEST_F(VariablesTest, errors2)
+{
+    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
+        {
+            return Rect{0, 0, 600, 400};
+        });
+
+    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
+        {
+            return GetTextSizeMock(text, format);
+        });
+    
+    document.InsertCode(false, true);
+    document.InsertString("d", true);
+    document.InsertAssignment(true);
+    document.InsertString("4", true);
+    document.InsertPlus(true);
+    document.InsertString("t", true);
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == U"d=4+t") << ToBasicString(document.ToText());
+    int start, size;
+    ASSERT_TRUE(!document.HasErrorMark(ElementId{0, 0, 0, 0, 0, 0, 0, 2, 0, 2}, start, size));
+}
+
+//Define a variable with unknown variable
+TEST_F(VariablesTest, errors3)
+{
+    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
+        {
+            return Rect{0, 0, 600, 400};
+        });
+
+    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
+        {
+            return GetTextSizeMock(text, format);
+        });
+    
+    document.InsertCode(false, true);
+    document.InsertString("d", true);
+    document.InsertAssignment(true);
+    document.InsertString("4", true);
+    document.InsertPlus(true);
+    document.InsertString("t", true);
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    document.MoveCaretRight(false);
+    document.InsertParagraph(true);
+    document.InsertString("d", true);
+    document.InsertPlus(true);
+    document.InsertString("5", true);
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"d=4+t\n" \
+        U"d+5=Identifier 't' not found"
+        ) << ToBasicString(document.ToText());
+    int start, size;
+    ASSERT_TRUE(document.HasErrorMark(ElementId{0, 0, 0, 0, 0, 0, 0, 2, 2}, start, size));
+    ASSERT_TRUE(start == 0 && size == 1);
 }
 
 }

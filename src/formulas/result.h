@@ -61,8 +61,7 @@ class ErrorResult : public ResultRow
 {
 public:
     ErrorResult(Document* _document);
-    ErrorResult(Element* parent, const yutovo_service::ErrorCode error_code, const Dependencies& _dependencies);
-    ErrorResult(Element* parent, const yutovo_calculator::ParserExceptionCode parser_error_code, const Dependencies& _dependencies);
+    ErrorResult(Element* parent, const Error& error, const Dependencies& _dependencies);
     ErrorResult(const ErrorResult& source) = default;
 };
 

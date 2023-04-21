@@ -22,6 +22,8 @@ public:
     virtual bool GetBottomCaretState(const int x, const int y, CaretState& caret_state, Selection* select);
 
     virtual void AddEmptyElement();
+
+    virtual std::u32string ToText();
 };
 
 }

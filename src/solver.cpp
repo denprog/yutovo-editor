@@ -149,15 +149,15 @@ void Solver::MessageLoop()
             {
                 socket.reset(new WebSocket(document->config, document->window)); //recreate the socket
                 if (!socket->Connect())
-                {
                     logger->Error("Error connecting to the server");
-                }
                 break;
             }
             if (result.error.error_code == ErrorCode::SOLVER_RESTARTED_ERROR)
                 break;
         }
 
+        if (!result.error.id.empty())
+            document->PutResult(result.error.id, result);
         document->PutResult(temp_tasks[0]->id, result);
 
         if (result.error.error_code == ErrorCode::SOLVER_RESTARTED_ERROR)

@@ -326,4 +326,16 @@ void Block::AddEmptyElement()
     AddElement(ElementPtr(new Paragraph(this, true)));
 }
 
+std::u32string Block::ToText()
+{
+    std::u32string t;
+    for (int i = 0; i < elements->Count(); ++i)
+    {
+        t += elements->Get(i)->ToText();
+        if (i < elements->Count() - 1)
+            t += U"\n";
+    }
+    return t;
+}
+
 }
