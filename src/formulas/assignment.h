@@ -29,6 +29,7 @@ public:
     virtual void BeforeDelete();
 
     virtual void ReSolve();
+    void PutResult(Result result);
 
     virtual std::string ToHtml();
     virtual std::u32string ToText();
@@ -53,7 +54,7 @@ public:
 
 private:
     std::u32string last_identifier;
-    std::u32string last_expression;
+    ParserString last_expression;
 };
 
 }

@@ -6,6 +6,7 @@
 #include <yutovo_calculator/parser_exception.h>
 #include <map>
 #include <vector>
+#include "caret_state.h"
 
 namespace yutovo
 {
@@ -49,8 +50,10 @@ struct Error
     yutovo_service::ErrorCode error_code = yutovo_service::ErrorCode::OK;
     yutovo_calculator::ParserExceptionCode parser_error_code = yutovo_calculator::ParserExceptionCode::None;
     int solver_error_code = -1;
+    ElementId id;
     int pos = -1;
     int line = -1;
+    std::u32string description;
 };
 
 enum class WarningCode

@@ -8,6 +8,7 @@
 #include "formulas/code_string.h"
 #include "formulas/result.h"
 #include "formulas/equation.h"
+#include "formulas/assignment.h"
 #include "logger.h"
 #include "util.h"
 #include "result_codes.h"
@@ -989,12 +990,29 @@ ResultTask::ResultTask(ElementPtr _text, ElementId _id, Result _result) :
 bool ResultTask::Execute()
 {
     ElementPtr el = document->GetElement(id);
-    if (el && el->type != ElementType::AUTO_RESULT)
+    if (!el)
         return false;
-    AutoResult* r = dynamic_cast<AutoResult*>(el.get());
-    if (!r)
+    switch (el->type)
+    {
+    case ElementType::AUTO_RESULT:
+    {
+        AutoResult* r = dynamic_cast<AutoResult*>(el.get());
+        if (!r)
+            return false;
+        r->PutResult(result);
+        break;
+    }
+    case ElementType::ASSIGNMENT:
+    {
+        Assignment* r = dynamic_cast<Assignment*>(el.get());
+        if (!r)
+            return false;
+        r->PutResult(result);
+        break;
+    }
+    default:
         return false;
-    r->PutResult(result);
+    }
     return true;
 }
 

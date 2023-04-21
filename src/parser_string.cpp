@@ -32,6 +32,12 @@ void ParserString::Add(const ParserString& str)
     annotates.insert(annotates.end(), str.annotates.begin(), str.annotates.end());
 }
 
+void ParserString::Reset()
+{
+    text = U"";
+    annotates.clear();
+}
+
 void ParserString::Annotate(const ElementId id, const int start, const int size)
 {
     annotates.emplace_back(StringAnnotate{id, start, size});

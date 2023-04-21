@@ -142,22 +142,18 @@ ErrorResult::ErrorResult(Document* _document) :
     type = ElementType::ERROR_RESULT;
 }
 
-ErrorResult::ErrorResult(Element* parent, const yutovo_service::ErrorCode error_code, const Dependencies& _dependencies) :
+ErrorResult::ErrorResult(Element* parent, const Error& error, const Dependencies& _dependencies) :
     ResultRow(parent)
 {
     type = ElementType::ERROR_RESULT;
     elements->Clear();
-    AddElement(ElementPtr(new CodeString(this, ErrorCodeToString(error_code))));
 
-    dependencies = _dependencies;
-}
-
-ErrorResult::ErrorResult(Element* parent, const yutovo_calculator::ParserExceptionCode parser_error_code, const Dependencies& _dependencies) :
-    ResultRow(parent)
-{
-    type = ElementType::ERROR_RESULT;
-    elements->Clear();
-    AddElement(ElementPtr(new CodeString(this, ErrorCodeToString(parser_error_code))));
+    if (!error.description.empty())
+        AddElement(ElementPtr(new CodeString(this, error.description, GetStringFormat())));
+    else if (error.parser_error_code != yutovo_calculator::ParserExceptionCode::None)
+        AddElement(ElementPtr(new CodeString(this, ErrorCodeToString(error.parser_error_code))));
+    else
+        AddElement(ElementPtr(new CodeString(this, ErrorCodeToString(error.error_code))));
 
     dependencies = _dependencies;
 }
@@ -235,10 +231,7 @@ void AutoResult::PutResult(Result result)
     if (result.error.error_code != ErrorCode::OK)
     {
         //put error message
-        if (result.error.parser_error_code != yutovo_calculator::ParserExceptionCode::None)
-            elements->Add(ElementPtr(new ErrorResult(this, result.error.parser_error_code, result.dependencies)));
-        else
-            elements->Add(ElementPtr(new ErrorResult(this, result.error.error_code, result.dependencies)));
+        elements->Add(ElementPtr(new ErrorResult(this, result.error, result.dependencies)));
         ElementId err_id = last_expression.GetElement(result.error.pos);
         if (!err_id.empty())
         {

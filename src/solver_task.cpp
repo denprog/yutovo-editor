@@ -46,6 +46,15 @@ void SolverTask::GetDependencies(const rapidjson::Document& json, Result& result
     }
 }
 
+void SolverTask::FillId(rapidjson::Document& doc)
+{
+    auto& alloc = doc.GetAllocator();
+    rapidjson::Value d(rapidjson::kArrayType);
+    for (int i : id)
+        d.PushBack(i, alloc);
+    doc.AddMember("id", d, alloc);
+}
+
 void SolverTask::FillError(rapidjson::Document& doc, Result& result)
 {
     if (doc["error"].IsObject())
@@ -61,6 +70,20 @@ void SolverTask::FillError(rapidjson::Document& doc, Result& result)
             result.error.pos = error["pos"].GetInt();
         if (error.HasMember("line") && error["line"].IsInt())
             result.error.line = error["line"].GetInt();
+        if (error.HasMember("description") && error["description"].IsString())
+            result.error.description = ToUtfString(error["description"].GetString());
+
+        if (error.HasMember("id") && error["id"].IsArray())
+        {
+            rapidjson::GenericArray arr = error["id"].GetArray();
+            result.error.id.clear();
+            for (rapidjson::SizeType i = 0; i < arr.Size(); ++i)
+            {
+                if (!arr[i].IsInt())
+                    return;
+                result.error.id.push_back(arr[i].GetInt());
+            }
+        }
         return;
     }
     if (result.error.error_code != ErrorCode::SOLVER_RESTARTED_ERROR)
@@ -86,6 +109,7 @@ bool RealSolverTask::Execute(WebSocketPtr socket, Result& result)
     doc.SetObject();
     doc.AddMember("command", "SOLVE_CODE", alloc);
     doc.AddMember("guid", rapidjson::StringRef(guid.c_str()), alloc);
+    FillId(doc);
     doc.AddMember("code_id", code_id, alloc);
     doc.AddMember("solver_type", (int)SolverType::CALCULATOR, alloc);
     doc.AddMember("result_type", (int)ResultType::REAL, alloc);
@@ -151,6 +175,7 @@ bool IntegerSolverTask::Execute(WebSocketPtr socket, Result& result)
     doc.SetObject();
     doc.AddMember("command", "SOLVE_CODE", alloc);
     doc.AddMember("guid", rapidjson::StringRef(guid.c_str()), alloc);
+    FillId(doc);
     doc.AddMember("code_id", code_id, alloc);
     doc.AddMember("solver_type", (int)SolverType::CALCULATOR, alloc);
     doc.AddMember("result_type", (int)ResultType::INTEGER, alloc);
@@ -208,6 +233,7 @@ bool RationalSolverTask::Execute(WebSocketPtr socket, Result& result)
     doc.SetObject();
     doc.AddMember("command", "SOLVE_CODE", alloc);
     doc.AddMember("guid", rapidjson::StringRef(guid.c_str()), alloc);
+    FillId(doc);
     doc.AddMember("code_id", code_id, alloc);
     doc.AddMember("solver_type", (int)SolverType::CALCULATOR, alloc);
     doc.AddMember("result_type", (int)ResultType::RATIONAL, alloc);
@@ -268,6 +294,7 @@ bool RemoveIdentifierSolverTask::Execute(WebSocketPtr socket, Result& result)
     doc.SetObject();
     doc.AddMember("command", "REMOVE_IDENTIFIER", alloc);
     doc.AddMember("guid", rapidjson::StringRef(guid.c_str()), alloc);
+    FillId(doc);
     doc.AddMember("code_id", code_id, alloc);
     doc.AddMember("solver_type", (int)SolverType::CALCULATOR, alloc);
     doc.AddMember("expression", rapidjson::StringRef(ToBasicString(expression).c_str()), alloc);
