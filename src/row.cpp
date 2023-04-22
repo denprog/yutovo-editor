@@ -223,7 +223,7 @@ bool Row::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo)
             }
             return true;
         }
-        else if (document->IsParagraph(el)) //paragraphs can be inserted above
+        else if (document->IsParagraph(el) || el->type == ElementType::TEXT) //paragraphs can be inserted above
             return parent->InsertElements(_elements, with_undo);
     }
 
@@ -353,6 +353,8 @@ bool Row::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo)
             }
         }
         Normalize(with_undo);
+        //parent->Normalize(with_undo);
+        //parent->Remake(true, true, with_undo);
     }
 
 #ifdef DEBUG
@@ -520,7 +522,7 @@ bool Row::DeleteElements(bool left, bool with_undo)
             }
             elements->RemoveAt(start, size);
             Normalize(with_undo);
-            parent->Remake(true, true, with_undo);
+            Remake(true, true, with_undo);
 #ifdef DEBUG
             to_str = ToText();
 #endif

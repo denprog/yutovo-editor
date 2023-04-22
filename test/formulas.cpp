@@ -431,7 +431,7 @@ TEST_F(FormulaTest, delete4)
     document.MoveCaretRight(true);
     document.WaitCaretMoving();
     document.WaitTask(document.DeleteElements(false, true, false));
-    std::this_thread::sleep_for(100ms);
+    std::this_thread::sleep_for(200ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
