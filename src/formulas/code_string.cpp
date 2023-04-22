@@ -59,6 +59,9 @@ void CodeString::Draw() const
     String::Draw();
     if (elements->Count() == 0)
     {
+        auto row = document->FindParentRow(id);
+        if (row->parent->type == ElementType::CODE_PARAGRAPH)
+            return;
         uint start = 0, size = 0;
         if (document->selection.Has(parent->id, start, size))
         {
