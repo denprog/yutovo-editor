@@ -59,6 +59,7 @@ void Paragraph::Remake(bool with_elements, bool with_parent, bool with_undo)
 
     ElementPtr clone;
     bool remake = false;
+    int left_m = 0, top_m = 0, right_m = 0, bottom_m = 0;
 
     if (format->word_wrap == ParagraphFormat::WordWrap::Normal)
     {
@@ -106,10 +107,15 @@ void Paragraph::Remake(bool with_elements, bool with_parent, bool with_undo)
 
             if (!b)
                 continue;
-            
+
             //move elements above if they are narrower to be placed in the row
-            while (next_row && next_row->elements->Count() > 0 && next_row->elements->Get(0)->rect.width < page_width - row->rect.width - format->indent_before)
+            while (next_row && next_row->elements->Count() > 0)
             {
+                auto el = next_row->elements->Get(0);
+                el->GetMargin(left_m, top_m, right_m, bottom_m);
+                if (el->rect.width + left_m + right_m >= page_width - row->rect.width - format->indent_before)
+                    break;
+                
                 if (with_undo && !clone)
                     clone.reset(Clone());
 
@@ -167,7 +173,6 @@ void Paragraph::Remake(bool with_elements, bool with_parent, bool with_undo)
     }
 
     int h = 0;
-    int left_m = 0, top_m = 0, right_m = 0, bottom_m = 0;
     for (int i = 0; i < elements->Count(); ++i)
     {
         ElementPtr row = elements->Get(i);
