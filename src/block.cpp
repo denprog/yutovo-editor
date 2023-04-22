@@ -3,6 +3,7 @@
 #include "document.h"
 #include "str.h"
 #include "paragraph.h"
+#include "row.h"
 
 namespace yutovo
 {
@@ -60,6 +61,39 @@ bool Block::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo)
         {
             ElementPtr el = document->GetElement(before_state.id);
             return el->InsertElements(_elements, with_undo);
+        }
+        if (_elements[0]->type == ElementType::TEXT) //insert from Paste
+        {
+            if (_elements[0]->elements->Count() == 0)
+                return false;
+            
+            //insert the first paragraph as a row
+            auto el = _elements[0]->elements->Get(0);
+            if (!document->IsParagraph(el))
+                return false;
+            ElementPtr cur = document->GetElement(before_state.id);
+            ElementPtr row(new Row(el.get()));
+            for (int i = 0; i < el->elements->Count(); ++i)
+            {
+                auto r = el->elements->Get(i);
+                for (int j = 0; j < r->elements->Count(); ++j)
+                    row->elements->Add(r->elements->Get(j));
+            }
+            std::vector<ElementPtr> els;
+            els.push_back(row);
+            if (!cur->InsertElements(els, with_undo))
+                return false;
+            
+            //insert the rest of the paragraphs
+            for (int i = 1; i < _elements[0]->elements->Count(); ++i)
+            {
+                els.clear();
+                els.push_back(_elements[0]->elements->Get(i));
+                if (!InsertElements(els, with_undo))
+                    return false;
+            }
+            Remake(true, true, with_undo);
+            return true;
         }
         if (!parent)
             return false;
@@ -196,15 +230,22 @@ bool Block::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo)
         new_row->parent->Normalize(with_undo);
 
     CaretState after;
-    if (caret_next_row)
+    if (document->pasting && insert_element->GetLastCaretState(after, nullptr))
     {
-        if (new_row->GetFirstCaretState(after, nullptr))
-            document->caret->SetState(after);
+        caret->SetState(after);
     }
     else
     {
-        if (row->GetFirstCaretState(after, nullptr))
-            document->caret->SetState(after);
+        if (caret_next_row)
+        {
+            if (new_row->GetFirstCaretState(after, nullptr))
+                document->caret->SetState(after);
+        }
+        else
+        {
+            if (row->GetFirstCaretState(after, nullptr))
+                document->caret->SetState(after);
+        }
     }
     
     document->Remake(id, true, with_undo, false);

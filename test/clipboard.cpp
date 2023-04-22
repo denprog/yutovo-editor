@@ -1173,4 +1173,218 @@ TEST_F(DocumentTest, clipboard14)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 1, 0, 0, 1})) << document.GetEditorState().ToString();
 }
 
+//Copy/Paste of paragraphs
+TEST_F(DocumentTest, clipboard15)
+{
+    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
+        {
+            return Rect{0, 0, 500, 400};
+        });
+
+    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
+        {
+            return GetTextSizeMock(text, format);
+        });
+
+    EXPECT_CALL(window_mock, OnCopyResult).WillRepeatedly([&](CopyResult result)
+        {
+            ASSERT_TRUE(result == CopyResult::Success);
+        });
+
+    EXPECT_CALL(window_mock, OnPasteResult).WillRepeatedly([&](PasteResult result)
+        {
+            ASSERT_TRUE(result == PasteResult::Success);
+        });
+
+    document.SetFontSize(22);
+    std::stringstream clipboard_array;
+    std::u32string clipboard_text;
+    document.InsertString("The source of the text itself is a little strange.", true);
+    document.InsertParagraph(true);
+    document.WaitTask(document.InsertString("Text.", true));
+    document.WaitTask(document.SelectAll());
+    std::this_thread::sleep_for(200ms);
+
+    document.WaitTask(document.Copy(clipboard_array, clipboard_text));
+    std::this_thread::sleep_for(200ms);
+
+    document.WaitTask(document.MoveCaretEnd(false));
+    std::this_thread::sleep_for(200ms);
+    document.WaitTask(document.InsertParagraph(true));
+    std::this_thread::sleep_for(200ms);
+    document.WaitTask(document.Paste(clipboard_array));
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\">The source of the text itself is a </span>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\">little strange.</span>"\
+            "</p>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\">Text.</span>"\
+            "</p>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\">The source of the text itself is a </span>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\">little strange.</span>"\
+            "</p>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\">Text.</span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 3, 0, 0, 5})) << document.GetEditorState().ToString();
+    
+    document.Undo();
+    document.WaitUndo();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\">The source of the text itself is a </span>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\">little strange.</span>"\
+            "</p>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\">Text.</span>"\
+            "</p>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\"></span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 2, 0, 0, 0})) << document.GetEditorState().ToString();
+}
+
+//Copy/Paste of paragraphs
+TEST_F(DocumentTest, clipboard16)
+{
+    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
+        {
+            return Rect{0, 0, 500, 400};
+        });
+
+    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
+        {
+            return GetTextSizeMock(text, format);
+        });
+
+    EXPECT_CALL(window_mock, OnCopyResult).WillRepeatedly([&](CopyResult result)
+        {
+            ASSERT_TRUE(result == CopyResult::Success);
+        });
+
+    EXPECT_CALL(window_mock, OnPasteResult).WillRepeatedly([&](PasteResult result)
+        {
+            ASSERT_TRUE(result == PasteResult::Success);
+        });
+
+    document.SetFontSize(22);
+    std::stringstream clipboard_array;
+    std::u32string clipboard_text;
+    document.WaitTask(document.InsertString("The source of the text itself is a little strange.", true));
+    document.WaitTask(document.InsertParagraph(true));
+    document.WaitTask(document.InsertString("Text.", true));
+    std::this_thread::sleep_for(200ms);
+    document.WaitTask(document.SelectAll());
+    std::this_thread::sleep_for(200ms);
+
+    document.WaitTask(document.Copy(clipboard_array, clipboard_text));
+    std::this_thread::sleep_for(200ms);
+
+    document.WaitTask(document.MoveCaretEnd(false));
+    std::this_thread::sleep_for(200ms);
+    document.WaitTask(document.Paste(clipboard_array));
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\">The source of the text itself is a </span>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\">little strange.</span>"\
+            "</p>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\">Text.The source of the text itself is </span>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\">a little strange.</span>"\
+            "</p>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\">Text.</span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 2, 0, 0, 5})) << document.GetEditorState().ToString();
+    
+    document.Undo();
+    document.WaitUndo();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\">The source of the text itself is a </span>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\">little strange.</span>"\
+            "</p>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\">Text.</span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 1, 0, 0, 5})) << document.GetEditorState().ToString();
+}
+
+//Copy/Paste of paragraphs
+TEST_F(DocumentTest, clipboard17)
+{
+    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
+        {
+            return Rect{0, 0, 340, 400};
+        });
+
+    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
+        {
+            return GetTextSizeMock(text, format);
+        });
+
+    EXPECT_CALL(window_mock, OnCopyResult).WillRepeatedly([&](CopyResult result)
+        {
+            ASSERT_TRUE(result == CopyResult::Success);
+        });
+
+    EXPECT_CALL(window_mock, OnPasteResult).WillRepeatedly([&](PasteResult result)
+        {
+            ASSERT_TRUE(result == PasteResult::Success);
+        });
+
+    std::stringstream clipboard_array;
+    std::u32string clipboard_text;
+    document.WaitTask(document.InsertString("The source of the text itself is a little strange.", true));
+    document.WaitTask(document.SelectAll());
+    std::this_thread::sleep_for(200ms);
+
+    document.WaitTask(document.Copy(clipboard_array, clipboard_text));
+
+    document.WaitTask(document.MoveCaretEnd(false));
+    document.WaitTask(document.Paste(clipboard_array));
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">The source of the text itself is a </span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">little strange.The source of the </span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">text itself is a little strange.</span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 2, 0, 32})) << document.GetEditorState().ToString();
+    
+    document.Undo();
+    document.WaitUndo();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">The source of the text itself is a </span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">little strange.</span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 1, 0, 15})) << document.GetEditorState().ToString();
+}
+
 }

@@ -103,7 +103,8 @@ bool InsertElementsTask::Execute()
             assert(el != nullptr);
             if (el->DeleteElements(true, with_undo))
             {
-                document->Remake(el->parent->id, true, with_undo, false);
+                if (el->parent)
+                    document->Remake(el->parent->id, true, with_undo, false);
                 return true;
             }
             return false;
