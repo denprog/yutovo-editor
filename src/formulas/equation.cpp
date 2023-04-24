@@ -174,14 +174,14 @@ void Equation::OnChanged(const ElementId _id)
     if (!ready)
         return;
     document->RemoveErrorMarks(id);
-    if (!auto_result)
-    {
-        auto_result.reset(new AutoResult(last));
-        last->elements->Clear();
-        last->elements->Add(auto_result);
-    }
     if (last)
     {
+        if (!auto_result)
+        {
+            auto_result.reset(new AutoResult(last));
+            last->elements->Clear();
+            last->elements->Add(auto_result);
+        }
         ParserString str;
         first->ToParserString(str);
         auto_result->Solve(str, result_type); //solve the expression in the left part
