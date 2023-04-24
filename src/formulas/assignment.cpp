@@ -131,6 +131,7 @@ void Assignment::BeforeDelete()
         auto code = document->FindParent(id, ElementType::CODE_BLOCK);
         if (code)
             document->RemoveIdentifier(id, ((CodeBlock*)code.get())->code_id, last_identifier);
+        last->UnsubscribeOnChange(id);
     }
 }
 

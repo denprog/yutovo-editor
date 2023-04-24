@@ -502,7 +502,7 @@ TEST_F(VariablesTest, errors3)
     document.InsertParagraph(true);
     document.InsertString("d", true);
     document.InsertPlus(true);
-    document.InsertString("5", true);
+    document.WaitTask(document.InsertString("5", true));
     document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
     document.WaitSolver();
     std::this_thread::sleep_for(600ms);
@@ -510,6 +510,7 @@ TEST_F(VariablesTest, errors3)
         U"d=4+t\n" \
         U"d+5=Identifier 't' not found"
         ) << ToBasicString(document.ToText());
+    std::this_thread::sleep_for(600ms);
     int start, size;
     ASSERT_TRUE(document.HasErrorMark(ElementId{0, 0, 0, 0, 0, 0, 0, 2, 2}, start, size));
     ASSERT_TRUE(start == 0 && size == 1);
@@ -540,7 +541,7 @@ TEST_F(VariablesTest, errors4)
     document.InsertParagraph(true);
     document.InsertString("d", true);
     document.InsertPlus(true);
-    document.InsertString("5", true);
+    document.WaitTask(document.InsertString("5", true));
     document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
     document.WaitSolver();
     std::this_thread::sleep_for(600ms);

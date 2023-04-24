@@ -382,7 +382,6 @@ bool Row::DeleteElements(bool left, bool with_undo)
         if ((left && before_state == first_state) || (!left && before_state == last_state))
             return parent->DeleteElements(left, with_undo);
 
-        int pos = before_state.GetElementPos(id);
         if (left)
         {
             int p = elements->GetElementPos(document->GetParent(before_state.id)->id);
@@ -451,42 +450,28 @@ bool Row::DeleteElements(bool left, bool with_undo)
         }
         else
         {
-            if (pos == elements->Count())
-                return parent->DeleteElements(left, with_undo);
-            else
+            int p = elements->GetElementPos(before_state.id);
+            if (p == -1)
+                p = elements->GetElementPos(document->GetParent(before_state.id)->id);
+            if (p < elements->Count())
             {
-                int p = elements->GetElementPos(before_state.id);
-                if (p == -1)
-                    p = elements->GetElementPos(document->GetParent(before_state.id)->id);
-                if (p < elements->Count())
+                if (before_state.GetElement() != id)
+                    ++p;
+                auto el = elements->Get(p);
+                if (el && el->CanContinueSelection())
                 {
-                    if (before_state.GetElement() != id)
-                        ++p;
-                    auto el = elements->Get(p);
-                    if (el && el->CanContinueSelection())
+                    CaretState c;
+                    if (el->GetFirstCaretState(c, nullptr))
                     {
-                        CaretState c;
-                        if (el->GetFirstCaretState(c, nullptr))
-                        {
-                            caret->SetState(c);
-                            el->DeleteElements(left, with_undo);
+                        caret->SetState(c);
+                        el->DeleteElements(left, with_undo);
 #ifdef DEBUG
-                            to_str = ToText();
+                        to_str = ToText();
 #endif
-                            return true;
-                        }
-                    }
-                    else if (p < elements->Count())
-                    {
-                        if (with_undo)
-                        {
-                            document->InsertElement(elements->Get(p)->Clone(), false, true);
-                            document->PushEditorState(CaretState(id, p), true);
-                        }
-                        elements->RemoveAt(p, 1);
+                        return true;
                     }
                 }
-                else if (p >= 0)
+                else if (p < elements->Count())
                 {
                     if (with_undo)
                     {
@@ -495,9 +480,18 @@ bool Row::DeleteElements(bool left, bool with_undo)
                     }
                     elements->RemoveAt(p, 1);
                 }
-
-                Normalize(with_undo);
             }
+            else if (p >= 0)
+            {
+                if (with_undo)
+                {
+                    document->InsertElement(elements->Get(p)->Clone(), false, true);
+                    document->PushEditorState(CaretState(id, p), true);
+                }
+                elements->RemoveAt(p, 1);
+            }
+
+            Normalize(with_undo);
         }
 
         parent->Remake(true, true, with_undo);
