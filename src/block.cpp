@@ -165,12 +165,15 @@ bool Block::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo)
             }
 
             int r_pos = paragraph->elements->GetElementPos(row->id);
-            for (int i = r_pos + 1; i < paragraph->elements->Count();) //move the rest rows of the paragraph
+            if (r_pos >= 0)
             {
-                ElementPtr r = paragraph->elements->Get(i);
-                for (int j = 0; j < r->elements->Count();)
-                    new_row->elements->Move(r->elements->Get(j), new_row->elements->Count());
-                paragraph->elements->RemoveAt(i, 1);
+                for (int i = r_pos + 1; i < paragraph->elements->Count();) //move the rest rows of the paragraph
+                {
+                    ElementPtr r = paragraph->elements->Get(i);
+                    for (int j = 0; j < r->elements->Count();)
+                        new_row->elements->Move(r->elements->Get(j), new_row->elements->Count());
+                    paragraph->elements->RemoveAt(i, 1);
+                }
             }
         }
     }

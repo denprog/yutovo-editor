@@ -18,7 +18,7 @@ Formula::Formula(Document* _document) :
 
 bool Formula::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo)
 {
-    return false;
+    return parent->InsertElements(_elements, with_undo);
 }
 
 bool Formula::DeleteElements(bool left, bool with_undo)
