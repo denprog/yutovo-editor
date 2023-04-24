@@ -120,6 +120,7 @@ bool Assignment::AfterInsert(bool with_undo)
     last->GetFirstCaretState(c, nullptr);
     caret->SetState(c);
     last_expression.Reset();
+    last->SubscribeOnChange(id);
     return true;
 }
 
@@ -131,6 +132,16 @@ void Assignment::BeforeDelete()
         if (code)
             document->RemoveIdentifier(id, ((CodeBlock*)code.get())->code_id, last_identifier);
     }
+}
+
+void Assignment::BeforeReplace()
+{
+    last->UnsubscribeOnChange(id);
+}
+
+void Assignment::AfterReplace()
+{
+    last->SubscribeOnChange(id);
 }
 
 void Assignment::ReSolve()
@@ -175,6 +186,11 @@ std::u32string Assignment::ToText()
     if (last)
         s += last->ToText();
     return s;
+}
+
+void Assignment::OnChanged(const ElementId _id)
+{
+    ReSolve();
 }
 
 }

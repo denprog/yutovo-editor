@@ -27,12 +27,16 @@ public:
     
     virtual bool AfterInsert(bool with_undo);
     virtual void BeforeDelete();
+    virtual void BeforeReplace();
+    virtual void AfterReplace();
 
     virtual void ReSolve();
     void PutResult(Result result);
 
     virtual std::string ToHtml();
     virtual std::u32string ToText();
+
+    virtual void OnChanged(const ElementId _id);
 
     template <class Archive>
     void save(Archive& ar, const unsigned int version) const
