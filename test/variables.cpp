@@ -372,6 +372,53 @@ TEST_F(VariablesTest, variables4)
         ) << ToBasicString(document.ToText());
 }
 
+//Recalculate after changing a variable
+TEST_F(VariablesTest, variables5)
+{
+    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
+        {
+            return Rect{0, 0, 600, 400};
+        });
+
+    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
+        {
+            return GetTextSizeMock(text, format);
+        });
+    
+    document.InsertCode(false, true);
+    document.InsertString("d", true);
+    document.InsertAssignment(true);
+    document.InsertString("5", true);
+    document.InsertDivision(true);
+    document.InsertString("4", true);
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+
+    document.MoveCaretEnd(false);
+    document.MoveCaretEnd(false);
+    document.InsertParagraph(true);
+    document.InsertString("d", true);
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"d=(5)/(4)\n" \
+        U"d=1.25"
+        ) << ToBasicString(document.ToText());
+    
+    document.MoveCaretUp(false);
+    document.MoveCaretEnd(false);
+    document.MoveCaretLeft(false);
+    document.WaitTask(document.MoveCaretLeft(false));
+    document.WaitTask(document.DeleteElements(true, true, false));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"d=(5)/()\n" \
+        U"d=Identifier 'd' not found"
+        ) << ToBasicString(document.ToText());
+}
+
 //Define a variable with an empty placeholder
 TEST_F(VariablesTest, errors1)
 {
