@@ -300,6 +300,78 @@ TEST_F(VariablesTest, variables3)
         document.ToHtml();
 }
 
+//Redefine a variable
+TEST_F(VariablesTest, variables4)
+{
+    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
+        {
+            return Rect{0, 0, 600, 400};
+        });
+
+    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
+        {
+            return GetTextSizeMock(text, format);
+        });
+    
+    document.InsertCode(false, true);
+    document.InsertString("d", true);
+    document.InsertAssignment(true);
+    document.InsertString("4", true);
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+
+    document.MoveCaretRight(false);
+    document.InsertParagraph(true);
+    document.InsertString("d", true);
+    document.InsertPlus(true);
+    document.InsertString("5", true);
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+
+    document.WaitTask(document.MoveCaretEnd(false));
+    document.WaitTask(document.InsertParagraph(true));
+    std::this_thread::sleep_for(100ms);
+    document.InsertString("d", true);
+    document.InsertAssignment(true);
+    document.InsertString("45", true);
+    document.InsertPlus(true);
+    document.InsertString("d", true);
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+
+    document.WaitTask(document.MoveCaretRight(false));
+    std::this_thread::sleep_for(100ms);
+    document.InsertParagraph(true);
+    document.InsertString("d", true);
+    document.InsertPlus(true);
+    document.InsertString("7", true);
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"d=4\n" \
+        U"d+5=9.\n" \
+        U"d=45+d\n" \
+        U"d+7=56."
+        ) << ToBasicString(document.ToText());
+    
+    for (int i = 0; i < 3; ++i)
+        document.MoveCaretUp(false);
+    document.MoveCaretEnd(false);
+    document.WaitTask(document.MoveCaretLeft(false));
+    std::this_thread::sleep_for(100ms);
+    document.WaitTask(document.InsertString("2", true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"d=42\n" \
+        U"d+5=47.\n" \
+        U"d=45+d\n" \
+        U"d+7=94."
+        ) << ToBasicString(document.ToText());
+}
+
 //Define a variable with an empty placeholder
 TEST_F(VariablesTest, errors1)
 {
@@ -390,6 +462,44 @@ TEST_F(VariablesTest, errors3)
     ASSERT_TRUE(document.ToText() == 
         U"d=4+t\n" \
         U"d+5=Identifier 't' not found"
+        ) << ToBasicString(document.ToText());
+    int start, size;
+    ASSERT_TRUE(document.HasErrorMark(ElementId{0, 0, 0, 0, 0, 0, 0, 2, 2}, start, size));
+    ASSERT_TRUE(start == 0 && size == 1);
+}
+
+//Define a variable with recursion
+TEST_F(VariablesTest, errors4)
+{
+    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
+        {
+            return Rect{0, 0, 600, 400};
+        });
+
+    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
+        {
+            return GetTextSizeMock(text, format);
+        });
+    
+    document.InsertCode(false, true);
+    document.InsertString("d", true);
+    document.InsertAssignment(true);
+    document.InsertString("4", true);
+    document.InsertPlus(true);
+    document.InsertString("d", true);
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    document.MoveCaretRight(false);
+    document.InsertParagraph(true);
+    document.InsertString("d", true);
+    document.InsertPlus(true);
+    document.InsertString("5", true);
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"d=4+d\n" \
+        U"d+5=Identifier 'd' not found"
         ) << ToBasicString(document.ToText());
     int start, size;
     ASSERT_TRUE(document.HasErrorMark(ElementId{0, 0, 0, 0, 0, 0, 0, 2, 2}, start, size));
