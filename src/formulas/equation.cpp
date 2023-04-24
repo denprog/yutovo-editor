@@ -109,6 +109,7 @@ bool Equation::AfterInsert(bool with_undo)
     int pos = parent->elements->GetElementPos(id);
     if (pos > 0)
         first->elements->Clear();
+    ready = false;
     for (int i = 0; i < pos; ++i)
     {
         auto el = parent->elements->Get(0);
@@ -119,6 +120,7 @@ bool Equation::AfterInsert(bool with_undo)
         }
         first->elements->Move(el, i);
     }
+    ready = true;
     caret->SetState(shape->id);
     first->SubscribeOnChange(id);
     ReSolve();
@@ -169,6 +171,8 @@ std::u32string Equation::ToText()
 
 void Equation::OnChanged(const ElementId _id)
 {
+    if (!ready)
+        return;
     document->RemoveErrorMarks(id);
     if (!auto_result)
     {
