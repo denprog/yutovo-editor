@@ -149,7 +149,7 @@ void Assignment::ReSolve()
 {
     last_expression.Reset();
     document->RemoveErrorMarks(id);
-    document->Remake(id, true, false, false);
+    Remake(false, false, false);
 }
 
 void Assignment::PutResult(Result result)

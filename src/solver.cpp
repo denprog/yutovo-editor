@@ -85,14 +85,15 @@ void Solver::MessageLoop()
 {
     WebSocketPtr socket(new WebSocket(document->config, document->window));
     if (!socket->Connect())
-    {
         logger->Error("Error connecting to the server: {}:{}", document->config.service_ip, document->config.service_port);
-    }
+    else
+        logger->Info("Solver connected to the server: {}:{}", document->config.service_ip, document->config.service_port);
 
     time_t now = time(0);
     time_t next = now;
     
     std::vector<SolverTaskPtr> temp_tasks;
+    int tries = 0;
     while (!exit)
     {
         {
@@ -125,8 +126,12 @@ void Solver::MessageLoop()
                         logger->Error("Error connecting to the server: {}:{}", document->config.service_ip, document->config.service_port);
                         continue;
                     }
+                    else
+                        logger->Info("Solver connected to the server: {}:{}", document->config.service_ip, document->config.service_port);
                 }
             }
+
+            next = time(0);
 
             std::unique_lock<std::mutex> lock(tasks_mutex);
             while (!tasks.empty() && tasks.front() == nullptr)
@@ -149,7 +154,9 @@ void Solver::MessageLoop()
             {
                 socket.reset(new WebSocket(document->config, document->window)); //recreate the socket
                 if (!socket->Connect())
-                    logger->Error("Error connecting to the server");
+                    logger->Error("Error connecting to the server: {}:{}", document->config.service_ip, document->config.service_port);
+                else
+                    logger->Info("Solver connected to the server: {}:{}", document->config.service_ip, document->config.service_port);
                 break;
             }
             if (result.error.error_code == ErrorCode::SOLVER_RESTARTED_ERROR)
@@ -158,12 +165,26 @@ void Solver::MessageLoop()
 
         if (!result.error.id.empty())
             document->PutResult(result.error.id, result);
-        document->PutResult(temp_tasks[0]->id, result);
+        
+        if (result.error.error_code != ErrorCode::OPERATION_ERROR)
+            document->PutResult(temp_tasks[0]->id, result);
+        else
+        {
+            for (SolverTaskPtr t : temp_tasks)
+                document->PutResult(t->id, result);
+            if (socket->IsOpen() && tries < 1)
+            {
+                ++tries; //it just connected, try one more
+                continue;
+            }
+        }
 
         if (result.error.error_code == ErrorCode::SOLVER_RESTARTED_ERROR)
             document->ReSolve(temp_tasks[0]->id); //re-solve the expressions above and later this one
         
         temp_tasks.clear();
+        
+        tries = 0;
     }
 }
 

@@ -48,7 +48,6 @@ bool WebSocket::Connect()
     {
         ioc.run_one();
     }
-    logger->Info("WebSocket connected to {}:{}", config.service_ip, config.service_port);
     return connected;
 #endif
 }
@@ -115,7 +114,6 @@ void WebSocket::OnConnect(beast::error_code ec, tcp::resolver::results_type::end
 {
     if (ec)
     {
-        logger->Error("Connection to {} failed", host + ":" + port);
         connection = false;
         return;
     }
