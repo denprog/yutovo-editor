@@ -179,7 +179,8 @@ bool IntegerSolverTask::Execute(WebSocketPtr socket, Result& result)
     doc.AddMember("code_id", code_id, alloc);
     doc.AddMember("solver_type", (int)SolverType::CALCULATOR, alloc);
     doc.AddMember("result_type", (int)ResultType::INTEGER, alloc);
-    doc.AddMember("expression", rapidjson::StringRef(ToBasicString(expression).c_str()), alloc);
+    std::string s = ToBasicString(expression);
+    doc.AddMember("expression", rapidjson::StringRef(s.c_str()), alloc);
 
     if (!SendRequest(doc, result, socket))
         return false;
@@ -237,7 +238,8 @@ bool RationalSolverTask::Execute(WebSocketPtr socket, Result& result)
     doc.AddMember("code_id", code_id, alloc);
     doc.AddMember("solver_type", (int)SolverType::CALCULATOR, alloc);
     doc.AddMember("result_type", (int)ResultType::RATIONAL, alloc);
-    doc.AddMember("expression", rapidjson::StringRef(ToBasicString(expression).c_str()), alloc);
+    std::string s = ToBasicString(expression);
+    doc.AddMember("expression", rapidjson::StringRef(s.c_str()), alloc);
 
     if (!SendRequest(doc, result, socket))
         return false;
