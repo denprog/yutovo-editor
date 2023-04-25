@@ -419,6 +419,37 @@ TEST_F(VariablesTest, variables5)
         ) << ToBasicString(document.ToText());
 }
 
+//Variable with a long number
+TEST_F(VariablesTest, variables6)
+{
+    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
+        {
+            return Rect{0, 0, 600, 400};
+        });
+
+    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
+        {
+            return GetTextSizeMock(text, format);
+        });
+    
+    document.InsertCode(false, true);
+    document.InsertString("d", true);
+    document.InsertAssignment(true);
+    document.InsertString("2244444444444", true);
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+
+    document.InsertParagraph(true);
+    document.InsertString("d", true);
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"d=2244444444444\n" \
+        U"d=2.244*pow(10,12)"
+        ) << ToBasicString(document.ToText());
+}
+
 //Define a variable with an empty placeholder
 TEST_F(VariablesTest, errors1)
 {
