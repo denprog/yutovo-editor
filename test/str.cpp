@@ -2091,4 +2091,50 @@ TEST_F(DocumentTest, delete11)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 0, 0})) << document.GetEditorState().ToString();
 }
 
+//Restrict Undo
+TEST_F(DocumentTest, undo1)
+{
+    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
+        {
+            return Rect{0, 0, 600, 400};
+        });
+
+    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
+        {
+            return GetTextSizeMock(text, format);
+        });
+    
+    Config config;
+    document.GetConfig(config);
+    config.undo_size = 4;
+    document.SetConfig(config);
+
+    document.InsertString("T", true);
+    document.InsertString("h", true);
+    document.InsertString("e", true);
+    document.InsertString(" ", true);
+    document.InsertString("s", true);
+    document.InsertString("o", true);
+    document.WaitTask(document.InsertString("u", true));
+
+    for (int i = 0; i < 4; ++i)
+    {
+        document.Undo();
+        document.WaitUndo();
+    }
+    document.Undo();
+    std::this_thread::sleep_for(200ms);
+    document.Undo();
+    std::this_thread::sleep_for(200ms);
+    document.Undo();
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">The</span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+}
+
 }
