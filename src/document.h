@@ -29,6 +29,9 @@ public:
 
     void Start(Config& _config);
 
+    void GetConfig(Config& _config);
+    void SetConfig(const Config& _config);
+
     uint InsertParagraph(bool with_undo, bool undo = false);
     uint InsertString(const std::string& str, bool with_undo);
     uint InsertString(const std::u32string& str, bool with_undo);
@@ -198,6 +201,8 @@ public:
 private:
     void MainLoop();
 
+    void RestrictUndo();
+
 #ifdef DEBUG
 public:
     void WaitMainLoop();
@@ -231,6 +236,7 @@ private:
     friend class LoadTask;
     friend class RedrawTask;
     friend class Caret;
+    friend class Solver;
 
     void UpdateCaretView();
     void UpdateLastSelection();
@@ -265,16 +271,16 @@ public:
 
     bool pasting = false;
 
-    Config config;
-
     uint cur_code_id = 1;
 
 private:
     std::list<TaskPtr> tasks;
-    std::stack<TaskPtr> undo_tasks;
+    std::deque<TaskPtr> undo_tasks;
     std::vector<TaskPtr> redo_tasks;
-    std::vector<bool> undos;
-    std::vector<bool> redos;
+    std::vector<bool> undos; //requieres for undo
+    std::vector<bool> redos; //requieres for redo
+
+    Config config;
 
     Solver solver;
 
@@ -282,8 +288,6 @@ private:
 
     std::atomic<bool> next_circle{false};
     std::thread main_loop;
-
-    CaretSettings caret_settings;
 
     uint cur_task_id = 0;
 

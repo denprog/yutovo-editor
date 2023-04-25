@@ -59,8 +59,6 @@ void Document::Start(Config& _config)
 
     window->Init();
 
-    caret_settings.blink_delay = 500;
-
     caret.reset(new Caret(this));
     text.reset(new Text(this));
 
@@ -70,6 +68,18 @@ void Document::Start(Config& _config)
 
     Remake(text->id, false, false, false);
     Remake(text->elements->Get(0)->id, false, false, false);
+}
+
+void Document::GetConfig(Config& _config)
+{
+    std::unique_lock<std::recursive_mutex> lock(tasks_mutex);
+    _config = config;
+}
+
+void Document::SetConfig(const Config& _config)
+{
+    std::unique_lock<std::recursive_mutex> lock(tasks_mutex);
+    config = _config;
 }
 
 void Document::MainLoop()
@@ -88,7 +98,7 @@ void Document::MainLoop()
             {
                 auto now = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch());
                 auto next = now;
-                while (!next_circle && next - now < caret_settings.blink_delay * 1ms) //wait for tasks
+                while (!next_circle && next - now < config.caret_blink_delay * 1ms) //wait for tasks
                 {
                     std::this_thread::sleep_for(1ms);
                     next = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch());
@@ -112,15 +122,15 @@ void Document::MainLoop()
                     if (!undo_tasks.empty())
                     {
                         //collect tasks with one id
-                        TaskPtr t = undo_tasks.top();
+                        TaskPtr t = undo_tasks.back();
                         uint id = t->id;
                         while (id == t->id)
                         {
                             temp_undo_tasks.push_back(t);
-                            undo_tasks.pop();
+                            undo_tasks.pop_back();
                             if (undo_tasks.empty())
                                 break;
-                            t = undo_tasks.top();
+                            t = undo_tasks.back();
                         }
                     }
                     undos.clear();
@@ -149,7 +159,7 @@ void Document::MainLoop()
                     //execute one redo: collect all redo tasks for first absent undo
                     uint last_undo_task_id = 0;
                     if (!undo_tasks.empty())
-                        last_undo_task_id = undo_tasks.top()->id;
+                        last_undo_task_id = undo_tasks.back()->id;
                     
                     int i = 0;
                     for (i = redo_tasks.size() - 1; i >=0; --i)
@@ -214,7 +224,7 @@ void Document::MainLoop()
                 cur_task_id = t->id;
                 uint last_undo_task_id = 0;
                 if (!undo_tasks.empty())
-                    last_undo_task_id = undo_tasks.top()->id;
+                    last_undo_task_id = undo_tasks.back()->id;
                 
                 if (t->Execute() && t->with_undo)
                 {
@@ -310,7 +320,8 @@ uint Document::InsertElements(std::vector<ElementPtr>& elements, bool with_undo,
         std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
         if (undo)
         {
-            undo_tasks.push(TaskPtr(new InsertElementsTask(text, elements, cur_task_id, element_id)));
+            RestrictUndo();
+            undo_tasks.push_back(TaskPtr(new InsertElementsTask(text, elements, cur_task_id, element_id)));
             last_task_id = cur_task_id;
         }
         else
@@ -329,7 +340,8 @@ uint Document::DeleteElements(bool left, bool with_undo, bool undo)
         std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
         if (undo)
         {
-            undo_tasks.push(TaskPtr(new DeleteElementsTask(text, left, cur_task_id)));
+            RestrictUndo();
+            undo_tasks.push_back(TaskPtr(new DeleteElementsTask(text, left, cur_task_id)));
             last_task_id = cur_task_id;
         }
         else
@@ -348,7 +360,8 @@ uint Document::ClearElements(ElementId element_id, bool with_undo, bool undo)
         std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
         if (undo)
         {
-            undo_tasks.push(TaskPtr(new DeleteElementsTask(text, element_id, with_undo, cur_task_id)));
+            RestrictUndo();
+            undo_tasks.push_back(TaskPtr(new DeleteElementsTask(text, element_id, with_undo, cur_task_id)));
             last_task_id = cur_task_id;
         }
         else
@@ -481,7 +494,8 @@ uint Document::InsertFormulas(std::vector<ElementPtr>& elements, bool with_undo,
         std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
         if (undo)
         {
-            undo_tasks.push(TaskPtr(new InsertFormulasTask(text, cur_task_id, elements, false)));
+            RestrictUndo();
+            undo_tasks.push_back(TaskPtr(new InsertFormulasTask(text, cur_task_id, elements, false)));
             last_task_id = cur_task_id;
         }
         else
@@ -521,7 +535,8 @@ uint Document::ChangeStringFormat(const StringFormatPtr format, bool with_undo, 
         std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
         if (undo)
         {
-            undo_tasks.push(TaskPtr(new ChangeStringFormatTask(text, format, cur_task_id)));
+            RestrictUndo();
+            undo_tasks.push_back(TaskPtr(new ChangeStringFormatTask(text, format, cur_task_id)));
             last_task_id = cur_task_id;
         }
         else
@@ -540,7 +555,8 @@ uint Document::ChangeParagraphFormat(const ParagraphFormatPtr format, bool with_
         std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
         if (undo)
         {
-            undo_tasks.push(TaskPtr(new ChangeParagraphFormatTask(text, format, cur_task_id)));
+            RestrictUndo();
+            undo_tasks.push_back(TaskPtr(new ChangeParagraphFormatTask(text, format, cur_task_id)));
             last_task_id = cur_task_id;
         }
         else
@@ -578,7 +594,10 @@ void Document::PushEditorState(const CaretState& caret_state, const SelectionSta
     {
         std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
         if (undo)
-            undo_tasks.push(TaskPtr(new SetEditorStateTask(text, caret_state, selection_state, cur_task_id)));
+        {
+            RestrictUndo();
+            undo_tasks.push_back(TaskPtr(new SetEditorStateTask(text, caret_state, selection_state, cur_task_id)));
+        }
         else
             tasks.emplace_back(new SetEditorStateTask(text, caret_state, selection_state, cur_task_id));
     }
@@ -590,7 +609,10 @@ void Document::CallFunc(const ElementId& _id, CallFuncPtr func, bool undo)
     {
         std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
         if (undo)
-            undo_tasks.push(TaskPtr(new CallFuncTask(text, _id, func, cur_task_id)));
+        {
+            RestrictUndo();
+            undo_tasks.push_back(TaskPtr(new CallFuncTask(text, _id, func, cur_task_id)));
+        }
         else
             tasks.emplace_back(new CallFuncTask(text, _id, func, cur_task_id));
     }
@@ -601,7 +623,7 @@ void Document::ResetTasks()
 {
     std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
     tasks.clear();
-    undo_tasks = std::stack<TaskPtr>();
+    undo_tasks.clear();
     redo_tasks.clear();
 }
 
@@ -1075,7 +1097,7 @@ bool Document::CanRedo()
     std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
     uint last_undo_task_id = 0;
     if (!undo_tasks.empty())
-        last_undo_task_id = undo_tasks.top()->id;
+        last_undo_task_id = undo_tasks.back()->id;
     
     int i = 0;
     for (i = redo_tasks.size() - 1; i >=0; --i)
@@ -1098,14 +1120,14 @@ void Document::RollbackUndo()
     //remove last undo tasks with one id
     if (undo_tasks.empty())
         return;
-    TaskPtr t = undo_tasks.top();
+    TaskPtr t = undo_tasks.back();
     uint id = t->id;
     while (id == t->id)
     {
-        undo_tasks.pop();
+        undo_tasks.pop_back();
         if (undo_tasks.empty())
             break;
-        t = undo_tasks.top();
+        t = undo_tasks.back();
     }
 }
 
@@ -1158,7 +1180,8 @@ void Document::Remake(const ElementId& id, bool with_elements, bool with_undo, b
         uint priority = IsVisible(id) ? 1 : 0;
         if (undo)
         {
-            undo_tasks.push(TaskPtr(new RemakeTask(text, id, with_elements, with_undo, move_into_view, cur_task_id, priority)));
+            RestrictUndo();
+            undo_tasks.push_back(TaskPtr(new RemakeTask(text, id, with_elements, with_undo, move_into_view, cur_task_id, priority)));
         }
         else
         {
@@ -1508,6 +1531,36 @@ bool Document::HasErrorMark(ElementId _id, int& start, int& size)
     start = it->start;
     size = it->size;
     return true;
+}
+
+void Document::RestrictUndo()
+{
+    if (undo_tasks.empty() || undo_tasks.back()->id == cur_task_id) //restrict only if a group has ended
+        return;
+    
+    uint groups_count = 0;
+    uint group_id = 0;
+    for (auto it = undo_tasks.begin(); it != undo_tasks.end(); ++it) //count groups
+    {
+        auto& t = *it;
+        if (t->id != group_id)
+        {
+            if (++groups_count > config.undo_size - 1)
+            {
+                //restrict
+                group_id = (*undo_tasks.begin())->id;
+                for (auto _it = undo_tasks.begin(); _it != undo_tasks.end();)
+                {
+                    auto& t = *_it;
+                    if (t->id != group_id)
+                        break;
+                    _it = undo_tasks.erase(_it);
+                }
+                return;
+            }
+            group_id = t->id;
+        }
+    }
 }
 
 #ifdef DEBUG

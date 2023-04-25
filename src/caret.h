@@ -14,11 +14,6 @@ namespace yutovo
 
 class Text;
 
-struct CaretSettings
-{
-    uint blink_delay = 500;
-};
-
 //Caret of the document
 class Caret
 {
