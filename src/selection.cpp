@@ -305,7 +305,8 @@ bool Selection::Has(const ElementId id, ElementSelection& s) const
                 return true;
             for (int i = s.start; i < s.start + s.size; ++i)
             {
-                if (IsChild(GetChild(s.element->id, i), id))
+                ElementId child_id = GetChild(s.element->id, i);
+                if (child_id == id || IsChild(child_id, id))
                     return true;
             }
             return false;

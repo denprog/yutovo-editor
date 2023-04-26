@@ -344,4 +344,16 @@ std::string ErrorCodeToString(const yutovo_calculator::ParserExceptionCode parse
     return error_code_str[parser_error_code];
 }
 
+bool IsLess(const ElementId& id1, const ElementId& id2)
+{
+	for (size_t i = 0, j = 0; i < id1.size() && j < id2.size(); ++i, ++j)
+	{
+		if (id1[i] > id2[j])
+			return false;
+		if (id1[i] < id2[j])
+			return true;
+	}
+	return id1.size() < id2.size();
+}
+
 }

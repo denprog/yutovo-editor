@@ -465,8 +465,7 @@ TEST_F(DocumentTest, selections4)
         ElementSelectionState{ElementId{0, 0, 0, 0}, 0, 61})) << document.GetEditorState().ToString();
 
     document.WaitTask(document.MoveCaretUp(true));
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0},
-        ElementSelectionState{ElementId{0, 0, 1, 0}, 0, 0})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0})) << document.GetEditorState().ToString();
 
     document.MoveCaretWordRight(false);
     document.WaitTask(document.MoveCaretDown(true));
