@@ -106,16 +106,6 @@ bool CodeBlock::AfterInsert(bool with_undo)
     return true;
 }
 
-bool CodeBlock::GetTopCaretState(const int x, const int y, CaretState& caret_state, Selection* select)
-{
-    return Block::GetTopCaretState(x, y, caret_state, select);
-}
-
-bool CodeBlock::GetBottomCaretState(const int x, const int y, CaretState& caret_state, Selection* select)
-{
-    return Block::GetBottomCaretState(x, y, caret_state, select);
-}
-
 void CodeBlock::GetMargin(int& left, int& top, int& right, int& bottom) const
 {
     left = code_format->left_margin;

@@ -41,6 +41,11 @@ bool CaretState::operator!=(const CaretState& c)
     return id != c.id;
 }
 
+bool CaretState::operator<(const CaretState& c)
+{
+    return IsLess(id, c.id);
+}
+
 void CaretState::SetState(ElementPtr element)
 {
     id = element->id;

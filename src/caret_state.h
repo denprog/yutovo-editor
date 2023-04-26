@@ -25,6 +25,7 @@ struct CaretState
 
     bool operator==(const CaretState& c);
     bool operator!=(const CaretState& c);
+    bool operator<(const CaretState& c);
 
     void SetState(ElementPtr element);
     void SetState(const ElementId _id, const ElementId tail_id);

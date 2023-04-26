@@ -220,6 +220,8 @@ struct ErrorMark
     int size = 0;
 };
 
+bool IsLess(const ElementId& id1, const ElementId& id2);
+
 }
 
 #endif
