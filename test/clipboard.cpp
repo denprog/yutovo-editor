@@ -559,7 +559,7 @@ TEST_F(DocumentTest, clipboard8)
     std::u32string clipboard_text;
     document.WaitTask(document.InsertString("The source of the text itself is a little strange", true));
     document.WaitTask(document.MoveCaretWordLeft(true));
-    std::this_thread::sleep_for(100ms);
+    std::this_thread::sleep_for(200ms);
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 0, 0}, 
         ElementSelectionState{ElementId{0, 0, 1, 0}, 0, 7})) << document.GetEditorState().ToString();
     

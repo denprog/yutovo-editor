@@ -1403,11 +1403,6 @@ TEST_F(FormulaTest, select7)
 
     document.WaitTask(document.MoveCaretDown(true));
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 1}, 
-        ElementSelectionState{ElementId{0, 0, 0, 0, 0, 0}, 1, 1},
-        ElementSelectionState{ElementId{0, 0, 0, 0, 0, 0, 2}, 0, 2}, 
-        ElementSelectionState{ElementId{0, 0, 0, 0, 1, 0, 0}, 0, 2},
-        ElementSelectionState{ElementId{0, 0, 0, 0, 1, 0}, 1, 1},
-        ElementSelectionState{ElementId{0, 0, 0, 0, 1, 0, 2}, 0, 9}, 
         ElementSelectionState{ElementId{0, 0, 0}, 0, 1})) << document.GetEditorState().ToString();
 }
 
@@ -1444,11 +1439,6 @@ TEST_F(FormulaTest, select8)
 
     document.WaitTask(document.MoveCaretDown(true));
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 1}, 
-        ElementSelectionState{ElementId{0, 0, 0, 0, 0, 0}, 1, 1},
-        ElementSelectionState{ElementId{0, 0, 0, 0, 0, 0, 2}, 0, 2}, 
-        ElementSelectionState{ElementId{0, 0, 0, 0, 1, 0, 0}, 0, 2}, 
-        ElementSelectionState{ElementId{0, 0, 0, 0, 1, 0}, 1, 1}, 
-        ElementSelectionState{ElementId{0, 0, 0, 0, 1, 0, 2}, 0, 9}, 
         ElementSelectionState{ElementId{0, 0, 0}, 0, 1})) << document.GetEditorState().ToString();
 }
 

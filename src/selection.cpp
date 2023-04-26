@@ -218,7 +218,64 @@ void Selection::Add(const ElementPtr element, uint start, uint size)
         if (it->size == 0)
             selection.erase(it);
     }
+
     std::sort(selection.begin(), selection.end());
+
+    bool optimize = true;
+    while (optimize)
+    {
+        optimize = false;
+        //try to merge selections
+        for (size_t i = 0; i < selection.size(); ++i)
+        {
+            ElementSelection& s1 = selection[i];
+            for (size_t j = i + 1; j < selection.size(); ++j)
+            {
+                ElementSelection& s2 = selection[j];
+                if (s1.element->id == s2.element->id && s1.start + s1.size == s2.start)
+                {
+                    s1.size += s2.size;
+                    selection.erase(selection.begin() + j);
+                    optimize = true;
+                    break;
+                }
+            }
+            if (optimize)
+                break;
+        }
+
+        if (!optimize)
+        {
+            //remove selections which are inside another selections
+            for (size_t i = 0; i < selection.size(); ++i)
+            {
+                ElementSelection& s1 = selection[i];
+                for (size_t j = 0; j < selection.size(); ++j)
+                {
+                    if (j == i)
+                        continue;
+                    ElementSelection& s2 = selection[j];
+                    if (IsChild(s1.element->id, s2.element->id))
+                    {
+                        for (int k = s1.start; k < s1.start + s1.size; ++k)
+                        {
+                            auto child_id = GetChild(s1.element->id, k);
+                            if (IsChild(child_id, s2.element->id) || child_id == s2.element->id)
+                            {
+                                selection.erase(selection.begin() + j);
+                                optimize = true;
+                                break;
+                            }
+                        }
+                        if (optimize)
+                            break;
+                    }
+                }
+                if (optimize)
+                    break;
+            }
+        }
+    }
 }
 
 void Selection::Add(const ElementId id, uint start, uint size)
