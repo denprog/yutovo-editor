@@ -128,7 +128,7 @@ void String::Remake(bool with_elements, bool with_parent, bool with_undo)
     UpdateRect();
 
     if (rect != last_rect && with_parent)
-        document->Remake(parent->id, false, with_undo, false);
+        parent->Remake(false, false, with_undo);
     last_rect = rect;
 }
 
@@ -705,6 +705,8 @@ void StringElements::Draw() const
 
 ElementPtr StringElements::Get(uint pos)
 {
+    if (pos > str.length())
+        return nullptr;
     return parent->document->GetElement(parent->id);
 }
 
