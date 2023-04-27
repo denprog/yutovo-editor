@@ -43,6 +43,16 @@ void MiddleShapeFormula::Init()
     elements->Add(ElementPtr(last));
 }
 
+bool MiddleShapeFormula::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo)
+{
+    for (auto el : _elements)
+    {
+        if (el->type == ElementType::CODE_PARAGRAPH)
+            return false;
+    }
+    return Formula::InsertElements(_elements, with_undo);
+}
+
 bool MiddleShapeFormula::DeleteElements(bool left, bool with_undo)
 {
     uint start, size;

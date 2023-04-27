@@ -40,6 +40,8 @@ bool CodeRow::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo)
     {
         if (el->type == ElementType::CODE_BLOCK)
             return false;
+        if (el->type == ElementType::CODE_PARAGRAPH && parent->type != ElementType::CODE_PARAGRAPH)
+            return false;
     }
     return Row::InsertElements(_elements, with_undo);
 }
