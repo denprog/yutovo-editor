@@ -1049,10 +1049,7 @@ uint Document::MoveCaret(const int x, const int y)
 
 uint Document::SelectAll()
 {
-    uint t = MoveCaretToDocumentEnd(true, false);
-    selection.Clear();
-    selection.Add(text, 0, text->elements->Count());
-    return t;
+    return MoveCaret(MoveCaretTask::MoveCaretDir::SELECT_ALL, true, false, false);
 }
 
 void Document::SetCaretVisible(bool visible)
