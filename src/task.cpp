@@ -675,6 +675,16 @@ bool MoveCaretTask::Execute()
         if (!document->selection.IsEmpty() && !select)
         {
             ElementSelection& s = document->selection.selection[0];
+            auto el = s.element->elements->Get(0);
+            if (el)
+            {
+                CaretState c;
+                if (el->GetFirstCaretState(c, nullptr))
+                {
+                    caret->SetState(c);
+                    break;
+                }
+            }
             caret->SetState(s.element->id, s.start);
             break;
         }
@@ -684,6 +694,16 @@ bool MoveCaretTask::Execute()
         if (!document->selection.IsEmpty() && !select)
         {
             ElementSelection& s = document->selection.selection[document->selection.selection.size() - 1];
+            auto el = s.element->elements->Get(s.start + s.size - 1);
+            if (el)
+            {
+                CaretState c;
+                if (el->GetLastCaretState(c, nullptr))
+                {
+                    caret->SetState(c);
+                    break;
+                }
+            }
             caret->SetState(s.element->id, s.start + s.size);
             break;
         }
@@ -719,22 +739,39 @@ bool MoveCaretTask::Execute()
     case MoveCaretDir::DOCUMENT_END:
         caret->MoveToDocumentEnd(selection);
         break;
+    case MoveCaretDir::SELECT_ALL:
+        caret->MoveToDocumentEnd(nullptr);
+        document->selection.Clear();
+        for (int i = 0; i < text->elements->Count(); ++i)
+        {
+            auto paragraph = text->elements->Get(i);
+            for (int j = 0; j < paragraph->elements->Count(); ++j)
+            {
+                auto row = paragraph->elements->Get(j);
+                for (int k = 0; k < row->elements->Count(); ++k)
+                {
+                    auto el = row->elements->Get(k);
+                    document->selection.Add(el, 0, el->elements->Count());
+                }
+            }
+        }
+        break;
     }
 
     if (move_into_view)
-        text->document->UpdateCaretView();
-    text->document->UpdateLastSelection();
-    text->document->caret->Show();
+        document->UpdateCaretView();
+    document->UpdateLastSelection();
+    document->caret->Show();
 
     if (!select)
     {
-        text->document->selection.Clear();
-        text->document->UpdateLastSelection();
-        text->window->OnCaretMoved(text->document->GetEditorState());
+        document->selection.Clear();
+        document->UpdateLastSelection();
+        text->window->OnCaretMoved(document->GetEditorState());
     }
 
 #ifdef DEBUG
-    text->document->last_caret_moved = true;
+    document->last_caret_moved = true;
 #endif
 
     return true;
