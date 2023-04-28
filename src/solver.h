@@ -32,6 +32,8 @@ private:
     std::queue<SolverTaskPtr> tasks;
     std::vector<yutovo_service::ResultType> result_types_seq;
 
+    Logger* logger;
+
     bool exit = false;
 
     std::mutex tasks_mutex;
@@ -39,8 +41,6 @@ private:
     std::thread message_loop;
 
     std::string guid;
-
-    Logger* logger;
 
     const int reconnect_period = 2; //seconds
 };

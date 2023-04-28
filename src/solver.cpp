@@ -17,9 +17,9 @@ using namespace yutovo_service;
 
 Solver::Solver(Document* _document) :
     document(_document),
+    logger(Logger::GetInstance("programs/Math/bin/", "yutovo", true, true)),
     message_loop(std::thread(&Solver::MessageLoop, this)),
-    guid(boost::uuids::to_string(boost::uuids::random_generator()())),
-    logger(Logger::GetInstance("programs/Math/bin/", "yutovo", true, true))
+    guid(boost::uuids::to_string(boost::uuids::random_generator()()))
 {
     result_types_seq = {ResultType::REAL, ResultType::INTEGER, ResultType::RATIONAL, ResultType::COMPLEX};
 }
