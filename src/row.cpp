@@ -557,12 +557,28 @@ bool Row::ChangeStringFormat(const StringFormatPtr format, bool with_undo)
 
 bool Row::GetBeginCaretState(CaretState& caret_state, Selection* select)
 {
-    return GetFirstCaretState(caret_state, select);
+    if (!select)
+        return GetFirstCaretState(caret_state, nullptr);
+    if (!GetFirstCaretState(caret_state, nullptr))
+        return false;
+    CaretState c = caret->GetCaretState();
+    int p = c.GetPosInElement(id);
+    if (p > 0)
+        select->Add(id, 0, p);
+    return true;
 }
 
 bool Row::GetEndCaretState(CaretState& caret_state, Selection* select)
 {
-    return GetLastCaretState(caret_state, select);
+    if (!select)
+        return GetLastCaretState(caret_state, nullptr);
+    if (!GetLastCaretState(caret_state, nullptr))
+        return false;
+    CaretState c = caret->GetCaretState();
+    int p = c.GetPosInElement(id);
+    if (p + 1 < elements->Count())
+        select->Add(id, p + 1, elements->Count() - p - 1);
+    return true;
 }
 
 bool Row::GetTopCaretState(const int x, const int y, CaretState& caret_state, Selection* select)

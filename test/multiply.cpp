@@ -20,8 +20,7 @@ TEST_F(FormulaTest, multiply1)
             return GetTextSizeMock(text, format);
         });
 
-    document.InsertMultiply(true);
-    document.WaitMainLoop();
+    document.WaitTask(document.InsertMultiply(true));
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -55,16 +54,14 @@ TEST_F(FormulaTest, multiply1)
         document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 1})) << document.GetEditorState().ToString();
 
-    document.MoveCaretLeft(true);
-    document.WaitCaretMoving();
+    document.WaitTask(document.MoveCaretLeft(true));
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0, 0, 0}, 
-        ElementSelectionState{{0, 0, 0, 0, 0, 0}, 0, 1})) << document.GetEditorState().ToString();
+        ElementSelectionState{{0}, 0, 1})) << document.GetEditorState().ToString();
     
     document.MoveCaretLeft(false);
-    document.MoveCaretRight(true);
-    document.WaitCaretMoving();
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0, 0, 1}, 
-        ElementSelectionState{{0, 0, 0, 0, 0, 0}, 0, 1})) << document.GetEditorState().ToString();
+    document.WaitTask(document.MoveCaretRight(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 1}, 
+        ElementSelectionState{{0}, 0, 1})) << document.GetEditorState().ToString();
 }
 
 //Save/Load

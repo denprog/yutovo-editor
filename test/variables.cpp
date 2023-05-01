@@ -439,6 +439,7 @@ TEST_F(VariablesTest, variables6)
     document.WaitSolver();
     std::this_thread::sleep_for(600ms);
 
+    document.WaitTask(document.MoveCaretRight(false));
     document.InsertParagraph(true);
     document.InsertString("d", true);
     document.WaitTask(document.InsertEquation(ResultType::AUTO, true));

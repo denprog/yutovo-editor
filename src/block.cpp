@@ -73,6 +73,7 @@ bool Block::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo)
                 return false;
             ElementPtr cur = document->GetElement(before_state.id);
             ElementPtr row(new Row(el.get()));
+            row->elements->Clear();
             for (int i = 0; i < el->elements->Count(); ++i)
             {
                 auto r = el->elements->Get(i);
@@ -81,7 +82,9 @@ bool Block::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo)
             }
             std::vector<ElementPtr> els;
             els.push_back(row);
-            if (!cur->InsertElements(els, with_undo))
+            if (!cur)
+                cur = document->GetParent(before_state.id);
+            if (!cur || !cur->InsertElements(els, with_undo))
                 return false;
             
             //insert the rest of the paragraphs

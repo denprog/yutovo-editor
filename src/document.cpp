@@ -139,11 +139,13 @@ void Document::MainLoop()
             if (!temp_undo_tasks.empty())
             {
                 caret->Hide(); //caret will be shown on Redraw or caret moving
+                selection.can_optimize = false;
                 for (TaskPtr t : temp_undo_tasks)
                 {
                     if (!t->Execute())
                         break;
                 }
+                selection.can_optimize = true;
 #ifdef DEBUG
                 last_undo_executed = true;
 #endif

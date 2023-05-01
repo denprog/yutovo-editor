@@ -87,6 +87,8 @@ private:
 
 public:
     std::vector<ElementSelection> selection;
+
+    bool can_optimize = true;
 };
 
 }

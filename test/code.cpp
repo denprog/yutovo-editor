@@ -520,46 +520,38 @@ TEST_F(CodeTest, code6)
             return GetTextSizeMock(text, format);
         });
     
-    document.InsertCode(false, true);
-    document.WaitMainLoop();
+    document.WaitTask(document.InsertCode(false, true));
     document.MoveCaretLeft(false);
-    document.WaitCaretMoving();
     document.WaitTask(document.MoveCaretRight(true));
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 1}, ElementSelectionState{{0, 0, 0}, 0, 1})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 1}, ElementSelectionState{{0}, 0, 1})) << document.GetEditorState().ToString();
 
     document.WaitTask(document.MoveCaretRight(true));
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 1}, ElementSelectionState{{0, 0, 0}, 0, 1})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 1}, ElementSelectionState{{0}, 0, 1})) << document.GetEditorState().ToString();
 
     document.WaitTask(document.MoveCaretLeft(true));
+    std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0})) << document.GetEditorState().ToString();
 
     document.MoveCaretEnd(false);
-    document.InsertCode(false, true);
-    document.WaitMainLoop();
+    document.WaitTask(document.InsertCode(false, true));
     document.MoveCaretLeft(false);
     document.MoveCaretHome(false);
-    document.WaitCaretMoving();
     document.WaitTask(document.MoveCaretRight(true));
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 1}, ElementSelectionState{{0, 0, 0}, 0, 1})) << document.GetEditorState().ToString();
 
-    document.MoveCaretRight(true);
-    document.WaitCaretMoving();
+    document.WaitTask(document.MoveCaretRight(true));
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 2}, 
-        ElementSelectionState{{0, 0, 0}, 0, 2})) << document.GetEditorState().ToString();
+        ElementSelectionState{{0}, 0, 1})) << document.GetEditorState().ToString();
     
     document.MoveCaretEnd(false);
-    document.WaitCaretMoving();
-    document.MoveCaretLeft(true);
-    document.WaitCaretMoving();
+    document.WaitTask(document.MoveCaretLeft(true));
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 1}, ElementSelectionState{{0, 0, 0}, 1, 1})) << document.GetEditorState().ToString();
 
-    document.MoveCaretLeft(true);
-    document.WaitCaretMoving();
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0}, ElementSelectionState{{0, 0, 0}, 0, 2})) << document.GetEditorState().ToString();
+    document.WaitTask(document.MoveCaretLeft(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0}, ElementSelectionState{{0}, 0, 1})) << document.GetEditorState().ToString();
 
-    document.MoveCaretLeft(true);
-    document.WaitCaretMoving();
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0}, ElementSelectionState{{0, 0, 0}, 0, 2})) << document.GetEditorState().ToString();
+    document.WaitTask(document.MoveCaretLeft(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0}, ElementSelectionState{{0}, 0, 1})) << document.GetEditorState().ToString();
 }
 
 TEST_F(CodeTest, code7)
@@ -974,7 +966,7 @@ TEST_F(CodeTest, code11)
     document.MoveCaretRight(true);
     document.WaitTask(document.MoveCaretRight(true));
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 1}, 
-        ElementSelectionState{{0, 0, 0}, 0, 1})) << document.GetEditorState().ToString();
+        ElementSelectionState{{0}, 0, 1})) << document.GetEditorState().ToString();
     
     document.WaitTask(document.DeleteElements(false, true, false));
     ASSERT_TRUE(document.ToHtml() == 
@@ -1000,7 +992,7 @@ TEST_F(CodeTest, code11)
         "</body>") << 
         document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 1}, 
-        ElementSelectionState{{0, 0, 0}, 0, 1})) << document.GetEditorState().ToString();
+        ElementSelectionState{{0}, 0, 1})) << document.GetEditorState().ToString();
 }
 
 }

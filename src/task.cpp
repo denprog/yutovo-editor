@@ -98,13 +98,14 @@ bool InsertElementsTask::Execute()
     if (with_undo && !selection_state.IsEmpty())
     {
         //remove selection before insert
-        auto DeleteElements = [&](ElementPtr el)
+        auto DeleteElements = [&](ElementPtr _el)
         {
-            assert(el != nullptr);
-            if (el->DeleteElements(true, with_undo))
+            assert(_el != nullptr);
+            if (_el->DeleteElements(true, with_undo))
             {
-                if (el->parent)
-                    document->Remake(el->parent->id, true, with_undo, false);
+                if (_el->parent)
+                    document->Remake(_el->parent->id, true, with_undo, false);
+                el = document->GetElement(document->caret->GetElement()->id);
                 return true;
             }
             return false;
@@ -675,14 +676,17 @@ bool MoveCaretTask::Execute()
         if (!document->selection.IsEmpty() && !select)
         {
             ElementSelection& s = document->selection.selection[0];
-            auto el = s.element->elements->Get(0);
-            if (el)
+            if (document->IsParagraph(s.element) || s.element->type == ElementType::CODE_ROW || s.element->type == ElementType::TEXT)
             {
-                CaretState c;
-                if (el->GetFirstCaretState(c, nullptr))
+                auto el = s.element->elements->Get(0);
+                if (el)
                 {
-                    caret->SetState(c);
-                    break;
+                    CaretState c;
+                    if (el->GetFirstCaretState(c, nullptr))
+                    {
+                        caret->SetState(c);
+                        break;
+                    }
                 }
             }
             caret->SetState(s.element->id, s.start);
@@ -694,14 +698,17 @@ bool MoveCaretTask::Execute()
         if (!document->selection.IsEmpty() && !select)
         {
             ElementSelection& s = document->selection.selection[document->selection.selection.size() - 1];
-            auto el = s.element->elements->Get(s.start + s.size - 1);
-            if (el)
+            if (document->IsParagraph(s.element) || s.element->type == ElementType::CODE_ROW || s.element->type == ElementType::TEXT)
             {
-                CaretState c;
-                if (el->GetLastCaretState(c, nullptr))
+                auto el = s.element->elements->Get(s.start + s.size - 1);
+                if (el)
                 {
-                    caret->SetState(c);
-                    break;
+                    CaretState c;
+                    if (el->GetLastCaretState(c, nullptr))
+                    {
+                        caret->SetState(c);
+                        break;
+                    }
                 }
             }
             caret->SetState(s.element->id, s.start + s.size);
@@ -742,19 +749,7 @@ bool MoveCaretTask::Execute()
     case MoveCaretDir::SELECT_ALL:
         caret->MoveToDocumentEnd(nullptr);
         document->selection.Clear();
-        for (int i = 0; i < text->elements->Count(); ++i)
-        {
-            auto paragraph = text->elements->Get(i);
-            for (int j = 0; j < paragraph->elements->Count(); ++j)
-            {
-                auto row = paragraph->elements->Get(j);
-                for (int k = 0; k < row->elements->Count(); ++k)
-                {
-                    auto el = row->elements->Get(k);
-                    document->selection.Add(el, 0, el->elements->Count());
-                }
-            }
-        }
+        document->selection.Add(text, 0, text->elements->Count());
         break;
     }
 
