@@ -172,7 +172,7 @@ bool Element::DeleteElements(bool left, bool with_undo)
             Normalize(with_undo);
         }
 
-        Remake(true, true, with_undo);
+        document->Remake(id, true, with_undo, false);
 
 #ifdef DEBUG
         to_str = ToText();
@@ -381,6 +381,8 @@ bool Element::GetBottomCaretState(const int x, const int y, CaretState& caret_st
 
 bool Element::GetBeginCaretState(CaretState& caret_state, Selection* select)
 {
+    if (select && caret_state.IsInsideElement(id))
+        select->Add(id, 0, caret_state.GetPos());
     if (parent)
         return parent->GetBeginCaretState(caret_state, select);
     return false;
@@ -388,6 +390,8 @@ bool Element::GetBeginCaretState(CaretState& caret_state, Selection* select)
 
 bool Element::GetEndCaretState(CaretState& caret_state, Selection* select)
 {
+    if (select && caret_state.IsInsideElement(id))
+        select->Add(id, caret_state.GetPos(), elements->Count() - caret_state.GetPos());
     if (parent)
         return parent->GetEndCaretState(caret_state, select);
     return false;
@@ -1288,9 +1292,14 @@ bool Elements::GetRightCaretState(CaretState& caret_state, Selection* select)
 
     if (elements[p - 1]->HasLastCaretState())
     {
+        ElementId last_id = caret_state.id;
         caret_state.SetState(parent->id, p);
         if (select)
-            select->Add(parent->id, p - 1, 1);
+        {
+            ElementSelection s;
+            if (last_id.size() == caret_state.id.size() || (!selection->Has(elements[p - 1]->id, s) || s.size != elements[p - 1]->elements->Count()))
+                select->Add(parent->id, p - 1, 1);
+        }
         return true;
     }
     return false;
@@ -1405,7 +1414,11 @@ void Elements::UpdateIds()
     {
         auto& el = elements[i];
         if (el->parent->id.empty())
+        {
+            el->id.clear();
+            el->elements->UpdateIds();
             continue;
+        }
         el->id = el->parent->id;
         el->id.push_back(i);
         el->elements->UpdateIds();

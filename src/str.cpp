@@ -128,7 +128,7 @@ void String::Remake(bool with_elements, bool with_parent, bool with_undo)
     UpdateRect();
 
     if (rect != last_rect && with_parent)
-        parent->Remake(false, false, with_undo);
+        document->Remake(parent->id, false, with_undo, false);
     last_rect = rect;
 }
 
@@ -860,7 +860,9 @@ bool StringElements::GetWordLeftCaretState(CaretState& caret_state, Selection* s
             return true;
         }
     }
-    return GetFirstCaretState(caret_state, select);
+    if (select)
+        select->Add(parent->id, 0, pos);
+    return GetFirstCaretState(caret_state, nullptr);
 }
 
 bool StringElements::GetWordRightCaretState(CaretState& caret_state, Selection* select)
@@ -878,7 +880,9 @@ bool StringElements::GetWordRightCaretState(CaretState& caret_state, Selection* 
             return true;
         }
     }
-    return GetLastCaretState(caret_state, select);
+    if (select)
+        select->Add(parent->id, pos, Count() - pos);
+    return GetLastCaretState(caret_state, nullptr);
 }
 
 std::string StringElements::ToHtml()

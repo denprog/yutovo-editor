@@ -426,6 +426,7 @@ TEST_F(AssignmentTest, assignment5)
     document.InsertString("x", true);
     document.InsertAssignment(true);
     document.InsertString("5", true);
+    document.WaitTask(document.MoveCaretRight(false));
     document.WaitTask(document.InsertParagraph(true));
     document.WaitSolver();
     std::this_thread::sleep_for(600ms);
@@ -473,7 +474,7 @@ TEST_F(AssignmentTest, assignment5)
             "</p>"\
         "</body>") << 
         document.ToHtml();
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 2, 0, 1})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 1})) << document.GetEditorState().ToString();
 }
 
 //Deletion of assignment

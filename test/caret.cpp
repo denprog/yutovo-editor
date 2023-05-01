@@ -21,108 +21,88 @@ TEST_F(DocumentTest, caret1)
         });
 
     document.SetFontSize(22);
-    document.InsertString("Text", true);
-    document.WaitMainLoop();
+    document.WaitTask(document.InsertString("Text", true));
     ASSERT_TRUE(document.ToText() == U"Text") << ToBasicString(document.ToText());
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 4)) << document.GetEditorState().ToString();
 
-    document.MoveCaretWordLeft(false);
-    document.WaitCaretMoving();
+    document.WaitTask(document.MoveCaretWordLeft(false));
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 0)) << document.GetEditorState().ToString();
 
-    document.MoveCaretWordRight(false);
-    document.WaitCaretMoving();
+    document.WaitTask(document.MoveCaretWordRight(false));
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 4)) << document.GetEditorState().ToString();
 
-    document.MoveCaretWordLeft(true);
-    document.WaitCaretMoving();
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 0, 0, 4)) << document.GetEditorState().ToString();
+    document.WaitTask(document.MoveCaretWordLeft(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0}, 
+        ElementSelectionState{ElementId{0}, 0, 1})) << document.GetEditorState().ToString();
 
     document.MoveCaretLeft(false);
     document.MoveCaretRight(false);
-    document.MoveCaretWordRight(true);
-    document.WaitCaretMoving();
+    document.WaitTask(document.MoveCaretWordRight(true));
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 4, 1, 3)) << document.GetEditorState().ToString();
 
     document.MoveCaretRight(false);
     document.MoveCaretLeft(false);
-    document.MoveCaretWordLeft(true);
-    document.WaitCaretMoving();
+    document.WaitTask(document.MoveCaretWordLeft(true));
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 0, 0, 3)) << document.GetEditorState().ToString();
 
     document.MoveCaretEnd(false);
     document.InsertString(" Word2", true);
-    document.MoveCaretWordLeft(false);
-    document.WaitCaretMoving();
-    document.WaitMainLoop();
+    document.WaitTask(document.MoveCaretWordLeft(false));
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 5)) << document.GetEditorState().ToString();
 
-    document.MoveCaretWordLeft(false);
-    document.WaitCaretMoving();
+    document.WaitTask(document.MoveCaretWordLeft(false));
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 0)) << document.GetEditorState().ToString();
 
-    document.MoveCaretWordRight(false);
-    document.WaitCaretMoving();
+    document.WaitTask(document.MoveCaretWordRight(false));
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 4)) << document.GetEditorState().ToString();
 
-    document.MoveCaretWordRight(false);
-    document.WaitCaretMoving();
+    document.WaitTask(document.MoveCaretWordRight(false));
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 10)) << document.GetEditorState().ToString();
 
     document.InsertString(" Word3", true);
     document.InsertString("Bold", document.GetStringFormat("Times New Roman", 34, true, false, false), true);
-    document.InsertString("Italic", document.GetStringFormat("Courier", 24, false, true, false), true);
-    document.WaitMainLoop();
+    document.WaitTask(document.InsertString("Italic", document.GetStringFormat("Courier", 24, false, true, false), true));
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 2, 6)) << document.GetEditorState().ToString();
 
-    document.MoveCaretWordRight(false);
-    document.WaitCaretMoving();
+    document.WaitTask(document.MoveCaretWordRight(false));
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 2, 6)) << document.GetEditorState().ToString();
 
-    document.MoveCaretWordLeft(false);
-    document.WaitCaretMoving();
+    document.WaitTask(document.MoveCaretWordLeft(false));
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 2, 0)) << document.GetEditorState().ToString();
 
-    document.MoveCaretWordLeft(false);
-    document.WaitCaretMoving();
+    document.WaitTask(document.MoveCaretWordLeft(false));
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 1, 0)) << document.GetEditorState().ToString();
 
-    document.MoveCaretWordLeft(false);
-    document.WaitCaretMoving();
+    document.WaitTask(document.MoveCaretWordLeft(false));
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 11)) << document.GetEditorState().ToString();
 
-    document.MoveCaretWordLeft(false);
-    document.WaitCaretMoving();
+    document.WaitTask(document.MoveCaretWordLeft(false));
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 5)) << document.GetEditorState().ToString();
 
-    document.MoveCaretWordLeft(false);
-    document.WaitCaretMoving();
+    document.WaitTask(document.MoveCaretWordLeft(false));
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 0)) << document.GetEditorState().ToString();
 
-    document.MoveCaretWordRight(false);
-    document.WaitCaretMoving();
+    document.WaitTask(document.MoveCaretWordRight(false));
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 4)) << document.GetEditorState().ToString();
 
     document.MoveCaretWordRight(false);
     document.MoveCaretWordRight(false);
-    document.MoveCaretWordRight(false);
-    document.WaitCaretMoving();
+    document.WaitTask(document.MoveCaretWordRight(false));
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 1, 4)) << document.GetEditorState().ToString();
 
-    document.MoveCaretWordRight(false);
-    document.WaitCaretMoving();
+    document.WaitTask(document.MoveCaretWordRight(false));
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 2, 6)) << document.GetEditorState().ToString();
 
-    document.MoveCaretWordLeft(true);
-    document.WaitCaretMoving();
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 2, 0, 0, 6)) << document.GetEditorState().ToString();
+    document.WaitTask(document.MoveCaretWordLeft(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 2, 0}, 
+        ElementSelectionState{ElementId{0, 0, 0}, 2, 1})) << document.GetEditorState().ToString();
 
-    document.MoveCaretWordLeft(true);
-    document.WaitCaretMoving();
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 1, 0, 0, 4, 2, 0, 6)) << document.GetEditorState().ToString();
+    document.WaitTask(document.MoveCaretWordLeft(true));
     std::this_thread::sleep_for(100ms);
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 1, 0}, 
+        ElementSelectionState{ElementId{0, 0, 0}, 1, 2})) << document.GetEditorState().ToString();
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -133,52 +113,51 @@ TEST_F(DocumentTest, caret1)
         "</body>") 
         << document.ToHtml();
 
-    document.MoveCaretWordLeft(true);
-    document.WaitCaretMoving();
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 11, 11, 5, 1, 0, 4, 2, 0, 6)) << document.GetEditorState().ToString();
+    document.WaitTask(document.MoveCaretWordLeft(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 11}, 
+        ElementSelectionState{ElementId{0, 0, 0, 0}, 11, 5},
+        ElementSelectionState{ElementId{0, 0, 0}, 1, 2})) << document.GetEditorState().ToString();
 
-    document.MoveCaretWordLeft(true);
-    document.WaitCaretMoving();
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 5, 5, 11, 1, 0, 4, 2, 0, 6)) << document.GetEditorState().ToString();
+    document.WaitTask(document.MoveCaretWordLeft(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 5}, 
+        ElementSelectionState{ElementId{0, 0, 0, 0}, 5, 11},
+        ElementSelectionState{ElementId{0, 0, 0}, 1, 2})) << document.GetEditorState().ToString();
 
-    document.MoveCaretWordLeft(true);
-    document.WaitCaretMoving();
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 0, 0, 16, 1, 0, 4, 2, 0, 6)) << document.GetEditorState().ToString();
+    document.WaitTask(document.MoveCaretWordLeft(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0}, 
+        ElementSelectionState{ElementId{0}, 0, 1})) << document.GetEditorState().ToString();
 
     document.MoveCaretHome(false);
-    document.MoveCaretWordRight(true);
-    document.WaitCaretMoving();
+    document.WaitTask(document.MoveCaretWordRight(true));
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 4, 0, 4)) << document.GetEditorState().ToString();
 
-    document.MoveCaretWordRight(true);
-    document.WaitCaretMoving();
+    document.WaitTask(document.MoveCaretWordRight(true));
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 10, 0, 10)) << document.GetEditorState().ToString();
 
-    document.MoveCaretWordRight(true);
-    document.WaitCaretMoving();
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 16, 0, 16)) << document.GetEditorState().ToString();
+    document.WaitTask(document.MoveCaretWordRight(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 16}, 
+        ElementSelectionState{ElementId{0, 0, 0}, 0, 1})) << document.GetEditorState().ToString();
 
-    document.MoveCaretWordRight(true);
-    document.WaitCaretMoving();
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 1, 4, 0, 4, 0, 0, 16)) << document.GetEditorState().ToString();
+    document.WaitTask(document.MoveCaretWordRight(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 1, 4}, 
+        ElementSelectionState{ElementId{0, 0, 0}, 0, 2})) << document.GetEditorState().ToString();
 
-    document.MoveCaretWordRight(true);
-    document.WaitCaretMoving();
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 2, 6, 0, 6, 0, 0, 16, 1, 0, 4)) << document.GetEditorState().ToString();
+    document.WaitTask(document.MoveCaretWordRight(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 2, 6}, 
+        ElementSelectionState{ElementId{0}, 0, 1})) << document.GetEditorState().ToString();
 
     document.MoveCaretHome(false);
     document.MoveCaretWordRight(false);
-    document.MoveCaretWordRight(false);
-    document.WaitCaretMoving();
+    document.WaitTask(document.MoveCaretWordRight(false));
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 10)) << document.GetEditorState().ToString();
 
-    document.MoveCaretWordRight(true);
-    document.WaitCaretMoving();
+    document.WaitTask(document.MoveCaretWordRight(true));
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 16, 10, 6)) << document.GetEditorState().ToString();
 
-    document.MoveCaretWordRight(true);
-    document.WaitCaretMoving();
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 1, 4, 0, 4, 0, 10, 6)) << document.GetEditorState().ToString();
+    document.WaitTask(document.MoveCaretWordRight(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 1, 4}, 
+        ElementSelectionState{ElementId{0, 0, 0, 0}, 10, 6},
+        ElementSelectionState{ElementId{0, 0, 0}, 1, 1})) << document.GetEditorState().ToString();
 }
 
 TEST_F(DocumentTest, caret2)
@@ -304,17 +283,17 @@ TEST_F(DocumentTest, caret4)
 
     document.InsertString("Text Word2 Word3 ", true);
     document.InsertString("Bold", document.GetStringFormat("Times New Roman", 34, true, false, false), true);
-    document.InsertString("Italic", document.GetStringFormat("Courier", 24, false, true, false), true);
-    document.WaitMainLoop();
+    document.WaitTask(document.InsertString("Italic", document.GetStringFormat("Courier", 24, false, true, false), true));
     document.MoveCaretToDocumentBegin(false);
     document.MoveCaretWordRight(false);
     document.MoveCaretWordRight(false);
     document.MoveCaretWordRight(true);
     document.MoveCaretWordRight(true);
-    document.MoveCaretWordRight(true);
-    document.WaitCaretMoving();
+    document.WaitTask(document.MoveCaretWordRight(true));
     std::this_thread::sleep_for(100ms);
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 1, 4, 0, 4, 0, 10, 7)) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 1, 4}, 
+        ElementSelectionState{ElementId{0, 0, 0, 0}, 10, 7},
+        ElementSelectionState{ElementId{0, 0, 0}, 1, 1})) << document.GetEditorState().ToString();
 }
 
 TEST_F(DocumentTest, caret5)
@@ -336,8 +315,7 @@ TEST_F(DocumentTest, caret5)
     document.MoveCaretWordLeft(false);
     document.MoveCaretWordLeft(false);
     document.MoveCaretWordLeft(true);
-    document.MoveCaretWordLeft(true);
-    document.WaitCaretMoving();
+    document.WaitTask(document.MoveCaretWordLeft(true));
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
@@ -354,8 +332,7 @@ TEST_F(DocumentTest, caret5)
     document.MoveCaretWordLeft(false);
     document.MoveCaretWordLeft(false);
     document.WaitCaretMoving();
-    document.InsertParagraph(true);
-    document.WaitMainLoop();
+    document.WaitTask(document.InsertParagraph(true));
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
@@ -374,20 +351,17 @@ TEST_F(DocumentTest, caret5)
     document.MoveCaretRight(false);
     document.MoveCaretLeft(true);
     document.WaitCaretMoving();
-    document.MoveCaretLeft(true);
-    document.WaitCaretMoving();
+    document.WaitTask(document.MoveCaretLeft(true));
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 3, 7}, 
         ElementSelectionState{ElementId{0, 0, 0, 3}, 7, 1}, 
         ElementSelectionState{ElementId{0, 1, 0, 0}, 0, 1})) << document.GetEditorState().ToString();
 
-    document.MoveCaretLeft(true);
-    document.WaitCaretMoving();
+    document.WaitTask(document.MoveCaretLeft(true));
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 3, 6}, 
         ElementSelectionState{ElementId{0, 0, 0, 3}, 6, 2}, 
         ElementSelectionState{ElementId{0, 1, 0, 0}, 0, 1})) << document.GetEditorState().ToString();
     
-    document.MoveCaretLeft(false);
-    document.WaitCaretMoving();
+    document.WaitTask(document.MoveCaretLeft(false));
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 3, 6)) << document.GetEditorState().ToString();
     for (int i = 0; i < 4; ++i)
         document.MoveCaretRight(true);
@@ -508,6 +482,255 @@ TEST_F(DocumentTest, caret8)
     document.WaitTask(document.SelectAll());
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 1, 0, 0, 5}, 
         ElementSelectionState{ElementId{0}, 0, 2})) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.MoveCaretLeft(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 1, 0, 0, 4}, 
+        ElementSelectionState{ElementId{0}, 0, 1},
+        ElementSelectionState{ElementId{0, 1, 0, 0}, 0, 4})) << document.GetEditorState().ToString();
+}
+
+//Select all
+TEST_F(DocumentTest, caret9)
+{
+    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
+        {
+            return Rect{0, 0, 600, 400};
+        });
+
+    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
+        {
+            return GetTextSizeMock(text, format);
+        });
+
+    document.InsertString("1234", true);
+    document.WaitTask(document.SelectAll());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 4}, 
+        ElementSelectionState{ElementId{0}, 0, 1})) << document.GetEditorState().ToString();
+    
+    document.WaitTask(document.MoveCaretLeft(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 3}, 
+        ElementSelectionState{ElementId{0, 0, 0, 0}, 0, 3})) << document.GetEditorState().ToString();
+    
+    document.WaitTask(document.MoveCaretRight(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 4}, 
+        ElementSelectionState{ElementId{0}, 0, 1})) << document.GetEditorState().ToString();
+
+    document.MoveCaretLeft(true);
+    document.WaitTask(document.MoveCaretLeft(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 2}, 
+        ElementSelectionState{ElementId{0, 0, 0, 0}, 0, 2})) << document.GetEditorState().ToString();
+
+    document.MoveCaretHome(true);
+    document.WaitTask(document.MoveCaretLeft(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0})) << document.GetEditorState().ToString();
+}
+
+TEST_F(DocumentTest, caret10)
+{
+    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
+        {
+            return Rect{0, 0, 600, 400};
+        });
+
+    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
+        {
+            return GetTextSizeMock(text, format);
+        });
+
+    document.InsertString("1234", true);
+    document.WaitTask(document.MoveCaretHome(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0}, 
+        ElementSelectionState{ElementId{0}, 0, 1})) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.MoveCaretRight(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 1}, 
+        ElementSelectionState{ElementId{0, 0, 0, 0}, 1, 3})) << document.GetEditorState().ToString();
+}
+
+//Select all
+TEST_F(DocumentTest, caret11)
+{
+    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
+        {
+            return Rect{0, 0, 600, 400};
+        });
+
+    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
+        {
+            return GetTextSizeMock(text, format);
+        });
+
+    document.InsertString("12345", true);
+    document.InsertString("Bold", document.GetStringFormat("Times New Roman", 34, true, false, false), true);
+    document.WaitTask(document.SelectAll());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 1, 4}, 
+        ElementSelectionState{ElementId{0}, 0, 1})) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.MoveCaretLeft(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 1, 3}, 
+        ElementSelectionState{ElementId{0, 0, 0}, 0, 1},
+        ElementSelectionState{ElementId{0, 0, 0, 1}, 0, 3})) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.MoveCaretLeft(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 1, 2}, 
+        ElementSelectionState{ElementId{0, 0, 0}, 0, 1},
+        ElementSelectionState{ElementId{0, 0, 0, 1}, 0, 2})) << document.GetEditorState().ToString();
+    
+    document.WaitTask(document.MoveCaretRight(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 1, 3}, 
+        ElementSelectionState{ElementId{0, 0, 0}, 0, 1},
+        ElementSelectionState{ElementId{0, 0, 0, 1}, 0, 3})) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.MoveCaretRight(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 1, 4}, 
+        ElementSelectionState{ElementId{0}, 0, 1})) << document.GetEditorState().ToString();
+}
+
+TEST_F(DocumentTest, caret12)
+{
+    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
+        {
+            return Rect{0, 0, 600, 400};
+        });
+
+    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
+        {
+            return GetTextSizeMock(text, format);
+        });
+
+    document.InsertString("12345", true);
+    document.InsertString("Bold", document.GetStringFormat("Times New Roman", 34, true, false, false), true);
+    document.WaitTask(document.MoveCaretHome(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0}, 
+        ElementSelectionState{ElementId{0}, 0, 1})) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.MoveCaretRight(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 1}, 
+        ElementSelectionState{ElementId{0, 0, 0}, 1, 1},
+        ElementSelectionState{ElementId{0, 0, 0, 0}, 1, 4})) << document.GetEditorState().ToString();
+
+    for (int i = 0; i < 3; ++i)
+        document.WaitTask(document.MoveCaretRight(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 4}, 
+        ElementSelectionState{ElementId{0, 0, 0}, 1, 1},
+        ElementSelectionState{ElementId{0, 0, 0, 0}, 4, 1})) << document.GetEditorState().ToString();
+    
+    document.WaitTask(document.MoveCaretRight(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 5}, 
+        ElementSelectionState{ElementId{0, 0, 0}, 1, 1})) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.MoveCaretRight(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 1, 1}, 
+        ElementSelectionState{ElementId{0, 0, 0, 1}, 1, 3})) << document.GetEditorState().ToString();
+}
+
+//Select all
+TEST_F(DocumentTest, caret13)
+{
+    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
+        {
+            return Rect{0, 0, 368, 400};
+        });
+
+    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
+        {
+            return GetTextSizeMock(text, format);
+        });
+    
+    document.WaitTask(document.InsertString("The source of the text itself is a little mysterious.", true));
+    document.InsertParagraph(true);
+    document.WaitTask(document.InsertString("Text.", true));
+    document.WaitTask(document.MoveCaretUp(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 0, 4}, 
+        ElementSelectionState{ElementId{0, 0, 1, 0}, 4, 7},
+        ElementSelectionState{ElementId{0}, 1, 1})) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.MoveCaretUp(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 4}, 
+        ElementSelectionState{ElementId{0, 0, 0, 0}, 4, 38},
+        ElementSelectionState{ElementId{0, 0}, 1, 1},
+        ElementSelectionState{ElementId{0}, 1, 1})) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.MoveCaretHome(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0}, 
+        ElementSelectionState{ElementId{0}, 0, 2})) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.MoveCaretRight(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 1}, 
+        ElementSelectionState{ElementId{0, 0, 0, 0}, 1, 41},
+        ElementSelectionState{ElementId{0, 0}, 1, 1},
+        ElementSelectionState{ElementId{0}, 1, 1})) << document.GetEditorState().ToString();
+}
+
+TEST_F(DocumentTest, caret14)
+{
+    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
+        {
+            return Rect{0, 0, 600, 400};
+        });
+
+    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
+        {
+            return GetTextSizeMock(text, format);
+        });
+
+    document.InsertString("12345", true);
+    document.InsertString("Bold", document.GetStringFormat("Times New Roman", 34, true, false, false), true);
+    document.InsertString("Italic", document.GetStringFormat("Times New Roman", 24, false, true, false), true);
+    document.MoveCaretHome(false);
+    document.WaitTask(document.MoveCaretEnd(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 2, 6}, 
+        ElementSelectionState{ElementId{0}, 0, 1})) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.MoveCaretLeft(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 2, 5}, 
+        ElementSelectionState{ElementId{0, 0, 0}, 0, 2},
+        ElementSelectionState{ElementId{0, 0, 0, 2}, 0, 5})) << document.GetEditorState().ToString();
+
+    for (int i = 0; i < 5; ++i)
+        document.WaitTask(document.MoveCaretLeft(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 2, 0}, 
+        ElementSelectionState{ElementId{0, 0, 0}, 0, 2})) << document.GetEditorState().ToString();
+    
+    document.WaitTask(document.MoveCaretLeft(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 1, 3}, 
+        ElementSelectionState{ElementId{0, 0, 0}, 0, 1},
+        ElementSelectionState{ElementId{0, 0, 0, 1}, 0, 3})) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.MoveCaretLeft(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 1, 2}, 
+        ElementSelectionState{ElementId{0, 0, 0}, 0, 1},
+        ElementSelectionState{ElementId{0, 0, 0, 1}, 0, 2})) << document.GetEditorState().ToString();
+    
+    document.MoveCaretLeft(true);
+    document.MoveCaretLeft(true);
+    document.MoveCaretLeft(true);
+    document.WaitTask(document.MoveCaretLeft(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 3}, 
+        ElementSelectionState{ElementId{0, 0, 0, 0}, 0, 3})) << document.GetEditorState().ToString();
+}
+
+TEST_F(DocumentTest, caret15)
+{
+    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
+        {
+            return Rect{0, 0, 600, 400};
+        });
+
+    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
+        {
+            return GetTextSizeMock(text, format);
+        });
+
+    document.InsertString("12345", true);
+    document.WaitTask(document.MoveCaretWordLeft(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0}, 
+        ElementSelectionState{ElementId{0}, 0, 1})) << document.GetEditorState().ToString();
+    
+    document.MoveCaretHome(false);
+    document.WaitTask(document.MoveCaretWordRight(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 5}, 
+        ElementSelectionState{ElementId{0}, 0, 1})) << document.GetEditorState().ToString();
 }
 
 }

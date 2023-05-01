@@ -561,7 +561,7 @@ TEST_F(DocumentTest, clipboard8)
     document.WaitTask(document.MoveCaretWordLeft(true));
     std::this_thread::sleep_for(200ms);
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 0, 0}, 
-        ElementSelectionState{ElementId{0, 0, 1, 0}, 0, 7})) << document.GetEditorState().ToString();
+        ElementSelectionState{ElementId{0, 0}, 1, 1})) << document.GetEditorState().ToString();
     
     document.WaitTask(document.Cut(clipboard_array, clipboard_text));
     std::this_thread::sleep_for(200ms);
@@ -573,7 +573,7 @@ TEST_F(DocumentTest, clipboard8)
     std::this_thread::sleep_for(400ms);
     ASSERT_TRUE(document.ToText() == U"The source of the text itself is a little strange") << ToBasicString(document.ToText());
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 0, 0}, 
-        ElementSelectionState{ElementId{0, 0, 1, 0}, 0, 7})) << document.GetEditorState().ToString();
+        ElementSelectionState{ElementId{0, 0}, 1, 1})) << document.GetEditorState().ToString();
     
     document.Redo();
     document.WaitRedo();
@@ -1171,7 +1171,7 @@ TEST_F(DocumentTest, clipboard14)
             "</p>"\
         "</body>") << 
         document.ToHtml();
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 1, 0, 0, 1})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 2})) << document.GetEditorState().ToString();
 }
 
 //Copy/Paste of paragraphs

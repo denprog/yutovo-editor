@@ -64,7 +64,7 @@ void SolverTask::FillError(rapidjson::Document& doc, Result& result)
             result.error.error_code = (ErrorCode)error["error_code"].GetInt();
         if (error.HasMember("parser_error_code") && error["parser_error_code"].IsInt())
             result.error.parser_error_code = (yutovo_calculator::ParserExceptionCode)error["parser_error_code"].GetInt();
-        if (result.error.error_code != ErrorCode::SOLVER_RESTARTED_ERROR)
+        if (result.error.error_code != ErrorCode::SOLVER_RESTARTED_ERROR && result.error.error_code != ErrorCode::OK)
             logger->Error("Solver error: {}", (int)result.error.error_code);
         if (error.HasMember("pos") && error["pos"].IsInt())
             result.error.pos = error["pos"].GetInt();
