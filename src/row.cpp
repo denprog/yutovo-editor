@@ -595,14 +595,14 @@ bool Row::GetTopCaretState(const int x, const int y, CaretState& caret_state, Se
             if (GetFirstCaretState(next, nullptr))
             {
                 last = caret->GetCaretState();
-                while (next != last)
+                while (next < last)
                 {
                     ElementPtr el = document->GetElement(next.id);
                     if (!el || !el->GetRightCaretState(next, select))
                         break;
                 }
                 caret_state = next;
-                caret->SetState(next);
+                caret->SetState(next, false);
             }
         }
         return parent->GetTopCaretState(x, y, caret_state, select);
@@ -633,7 +633,7 @@ bool Row::GetTopCaretState(const int x, const int y, CaretState& caret_state, Se
     }
 
     GetLastCaretState(next, nullptr);
-    while (next != caret_state)
+    while (caret_state < next)
     {
         ElementPtr el = document->GetParent(next.id);
         if (!el->GetLeftCaretState(next, select))
@@ -657,7 +657,7 @@ bool Row::GetBottomCaretState(const int x, const int y, CaretState& caret_state,
             if (GetLastCaretState(last, nullptr))
             {
                 next = caret->GetCaretState();
-                while (next != last)
+                while (next < last)
                 {
                     ElementPtr el = document->GetElement(next.id);
                     if (!el || !el->GetRightCaretState(next, select))
