@@ -36,6 +36,7 @@ public:
 
     virtual void AddEmptyElement();
 
+    virtual ParagraphFormatPtr GetParagraphFormat();
     virtual StringFormatPtr GetStringFormat() const;
     
     virtual std::string ToHtml();

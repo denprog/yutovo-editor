@@ -1349,4 +1349,29 @@ TEST_F(ParagraphTest, paragraph10)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 11})) << document.GetEditorState().ToString();
 }
 
+//Check format
+TEST_F(ParagraphTest, format1)
+{
+    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
+        {
+            return Rect{0, 0, 600, 400};
+        });
+
+    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
+        {
+            return GetTextSizeMock(text, format);
+        });
+
+    document.InsertString("In literary theory", true);
+    document.SetCurrentParagraphFormat("Header 1");
+    document.InsertParagraph(true);
+    document.WaitTask(document.InsertString("a text is any object", true));
+    document.WaitTask(document.SetCurrentParagraphFormat("Monospace"));
+    ParagraphFormat format;
+    ASSERT_TRUE(document.GetParagraphFormat(ElementId{0, 0, 0, 0, 4}, format));
+    ASSERT_TRUE(format.name == "Header 1");
+    ASSERT_TRUE(document.GetParagraphFormat(ElementId{0, 1, 0, 0, 4}, format));
+    ASSERT_TRUE(format.name == "Monospace");
+}
+
 }

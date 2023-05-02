@@ -893,14 +893,17 @@ bool Document::IsParagraph(ElementId id)
 bool Document::GetStringFormat(const ElementId id, StringFormat& format)
 {
     std::lock_guard<std::recursive_mutex> lock(edit_mutex);
-    ElementPtr el = GetParent(id);
-    if (IsString(el))
+    ElementPtr el = GetElement(id);
+    ElementPtr p = GetParent(id);
+    if ((IsString(el) && el->elements->Count() > 0) || (IsString(p) && p->elements->Count() > 0))
     {
-        auto f = el->GetStringFormat();
+        auto f = el ? el->GetStringFormat() : p->GetStringFormat();
         format = *f;
         return true;
     }
-    else if (IsRow(el))
+
+    el = FindParentRow(id);
+    if (el)
     {
         CaretState c;
         if (el->GetLastCaretState(c, nullptr) && c.id == id)
@@ -942,10 +945,13 @@ bool Document::GetStringFormat(const ElementId id, StringFormat& format)
 bool Document::GetParagraphFormat(const ElementId id, ParagraphFormat& format)
 {
     std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
-    auto el = FindParent(id, ElementType::PARAGRAPH);
+    auto el = GetElement(id);
     if (!el)
         return false;
-    format = *((Paragraph*)el.get())->format;
+    ParagraphFormatPtr p = el->GetParagraphFormat();
+    if (!p)
+        return false;
+    format = *p;
     return true;
 }
 
