@@ -1285,6 +1285,17 @@ TEST_F(DocumentTest, clipboard16)
     document.WaitTask(document.InsertParagraph(true));
     document.WaitTask(document.InsertString("Text.", true));
     std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\">The source of the text itself is a </span>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\">little strange.</span>"\
+            "</p>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\">Text.</span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
     document.WaitTask(document.SelectAll());
     std::this_thread::sleep_for(200ms);
 

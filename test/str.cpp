@@ -1408,6 +1408,27 @@ TEST_F(DocumentTest, fonts5)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 1)) << document.GetEditorState().ToString();
 }
 
+//Check font
+TEST_F(DocumentTest, fonts6)
+{
+    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
+        {
+            return Rect{0, 0, 600, 400};
+        });
+
+    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
+        {
+            return GetTextSizeMock(text, format);
+        });
+
+    document.SetFontSize(22);
+    document.InsertString("Text", true);
+    std::this_thread::sleep_for(100ms);
+    StringFormat format;
+    ASSERT_TRUE(document.GetStringFormat(ElementId{0, 0, 0, 0, 4}, format));
+    ASSERT_TRUE(format.size == 22);
+}
+
 TEST_F(DocumentTest, delete1)
 {
     EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
