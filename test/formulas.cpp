@@ -1800,6 +1800,40 @@ TEST_F(FormulaTest, select10)
         ElementSelectionState{ElementId{0}, 0, 1})) << document.GetEditorState().ToString();
 }
 
+//Selection rows in a code block
+TEST_F(FormulaTest, select11)
+{
+    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
+        {
+            return Rect{0, 0, 600, 400};
+        });
+
+    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
+        {
+            return GetTextSizeMock(text, format);
+        });
+    
+    document.InsertCode(false, true);
+    document.InsertString("123", true);
+    document.InsertPlus(true);
+    document.InsertString("234", true);
+    document.InsertParagraph(true);
+    document.InsertString("434", true);
+    document.InsertPlus(true);
+    document.WaitTask(document.InsertString("3453", true));
+    for (int i = 0; i < 5; ++i)
+        document.MoveCaretLeft(false);
+    document.WaitTask(document.MoveCaretUp(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0, 0, 0, 3}, 
+        ElementSelectionState{ElementId{0, 0, 0, 0, 0, 0, 0}, 2, 1},
+        ElementSelectionState{ElementId{0, 0, 0, 0, 0, 0}, 1, 2},
+        ElementSelectionState{ElementId{0, 0, 0, 0, 1, 0}, 0, 2})) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.MoveCaretUp(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 1}, 
+        ElementSelectionState{ElementId{0}, 0, 1})) << document.GetEditorState().ToString();
+}
+
 TEST_F(FormulaTest, fonts1)
 {
     EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
