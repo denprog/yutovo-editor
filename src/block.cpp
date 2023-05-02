@@ -112,7 +112,7 @@ bool Block::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo)
 
     if (!paragraph)
     {
-        elements->Insert(insert_element, 0);
+        elements->Insert(insert_element, caret->GetPos());
         row = insert_element->elements->Get(0);
     }
     else
