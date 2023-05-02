@@ -420,7 +420,7 @@ bool Row::DeleteElements(bool left, bool with_undo)
             else
             {
                 p = elements->GetElementPos(before_state.id);
-                if (p > 0)
+                if (p > 0 || before_state == last_state)
                 {
                     if (before_state != last_state)
                         --p;
@@ -439,6 +439,10 @@ bool Row::DeleteElements(bool left, bool with_undo)
                         document->PushEditorState(CaretState(id, p), true);
                     }
                     elements->RemoveAt(p, 1);
+
+                    if (elements->Count() == 0)
+                        Normalize(with_undo);
+                    
                     parent->Remake(true, true, with_undo);
 #ifdef DEBUG
                     to_str = ToText();
