@@ -1212,9 +1212,14 @@ bool Elements::GetLeftCaretState(CaretState& caret_state, Selection* select)
     {
         if (caret_state != CaretState(Get(0)->id))
         {
+            ElementId last_id = caret_state.id;
             caret_state.SetState(Get(0));
             if (select)
-                select->Add(parent->id, 0, 1);
+            {
+                ElementSelection s;
+                if (last_id.size() == caret_state.id.size() || (!selection->Has(elements[0]->id, s) || s.size != elements[0]->elements->Count()))
+                    select->Add(parent->id, 0, 1);
+            }
             return true;
         }
     }
