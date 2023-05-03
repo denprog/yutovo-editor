@@ -220,6 +220,20 @@ struct DocumentTest : public testing::Test
         return EditorState{CaretState{id}, SelectionState{}};
     }
 
+    std::string ErrorMarks()
+    {
+        std::string res = "[";
+        for (size_t i = 0; i < document.error_marks.size(); ++i)
+        {
+            ErrorMark& m = document.error_marks[i];
+            res += "{{" + IdToString(m.id) + "}," + std::to_string(m.start) + "," + std::to_string(m.size) + "}";
+            if (i < document.error_marks.size() - 1)
+                res += ",";
+        }
+        res += "]";
+        return res;
+    }
+
     QApplication app;
     MainWindow main_window;
     ::testing::NiceMock<WindowMock> window_mock;

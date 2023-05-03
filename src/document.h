@@ -273,6 +273,8 @@ public:
 
     uint cur_code_id = 1;
 
+    std::vector<ErrorMark> error_marks;
+
 private:
     std::list<TaskPtr> tasks;
     std::deque<TaskPtr> undo_tasks;
@@ -292,8 +294,6 @@ private:
     uint cur_task_id = 0;
 
     ElementId cur_visible_row; //any row which is visible
-
-    std::vector<ErrorMark> error_marks;
 
     Logger* logger;
 };

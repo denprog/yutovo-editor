@@ -145,22 +145,31 @@ void Solver::MessageLoop()
             }
         }
 
-        Result result;
+        Result result, cur_result;
         for (SolverTaskPtr t : temp_tasks) //try all variants of parsers until one of them solves
         {
-            if (t->Execute(socket, result) && t->expression_type == ExpressionType::SOLVE)
+            if (t->Execute(socket, cur_result) && t->expression_type == ExpressionType::SOLVE)
+            {
+                result = cur_result;
                 break;
-            if (result.error.error_code == yutovo_service::ErrorCode::OPERATION_ERROR)
+            }
+            if (cur_result.error.error_code == yutovo_service::ErrorCode::OPERATION_ERROR)
             {
                 socket.reset(new WebSocket(document->config, document->window)); //recreate the socket
                 if (!socket->Connect())
                     logger->Error("Error connecting to the server: {}:{}", document->config.service_ip, document->config.service_port);
                 else
                     logger->Info("Solver connected to the server: {}:{}", document->config.service_ip, document->config.service_port);
+                result = cur_result;
                 break;
             }
-            if (result.error.error_code == ErrorCode::SOLVER_RESTARTED_ERROR)
+            if (cur_result.error.error_code == ErrorCode::SOLVER_RESTARTED_ERROR)
+            {
+                result = cur_result;
                 break;
+            }
+            if (result.error.error_code == ErrorCode::OK && cur_result.error.error_code != ErrorCode::OK)
+                result = cur_result;
         }
 
         if (!result.error.id.empty())
