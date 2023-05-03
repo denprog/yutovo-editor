@@ -146,7 +146,7 @@ bool SquareRoot::DeleteElements(bool left, bool with_undo)
     auto t = parent->elements->Get(p + c1); //for not removing this element until this function ends
     parent->elements->Remove(id);
     parent->Normalize(with_undo);
-    document->Remake(parent->id, true, with_undo, false);
+    parent->Remake(true, true, with_undo);
     return true;
 }
 
