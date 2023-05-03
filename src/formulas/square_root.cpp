@@ -79,7 +79,7 @@ void SquareRoot::Remake(bool with_elements, bool with_parent, bool with_undo)
         elements->Remake(with_parent, with_undo);
 
     //recalc shape rect
-    shape->rect.SetRect(0, 0, round(last->rect.height * 5 / 11), std::max(last->rect.height + ROOT_Y_OFFSET * 2, shape->rect.height));
+    shape->rect.SetRect(0, 0, round(last->rect.height * 5 / 11), last->rect.height + ROOT_Y_OFFSET * 2);
 
     //recalc item's rect
     int x_offset = ROOT_X_LEFT_OFFSET + shape->rect.width;
