@@ -6,6 +6,7 @@
 #include <boost/uuid/uuid.hpp>
 #include <boost/uuid/uuid_generators.hpp>
 #include <boost/uuid/uuid_io.hpp>
+#include <boost/algorithm/string.hpp>
 
 namespace yutovo
 {
@@ -71,14 +72,20 @@ void Solver::SetUserIdentifier(ElementId id, uint code_id, const std::u32string&
 
 void Solver::RemoveIdentifier(ElementId id, uint code_id, const std::u32string& identifier)
 {
-    std::unique_lock<std::mutex> lock(tasks_mutex);
-    tasks.emplace(new RemoveIdentifierSolverTask(id, guid, code_id, ResultType::REAL, identifier));
-    tasks.emplace(nullptr);
-    tasks.emplace(new RemoveIdentifierSolverTask(id, guid, code_id, ResultType::INTEGER, identifier));
-    tasks.emplace(nullptr);
-    tasks.emplace(new RemoveIdentifierSolverTask(id, guid, code_id, ResultType::RATIONAL, identifier));
-    tasks.emplace(nullptr);
-    next_circle = true;
+    std::vector<std::u32string> id_arr;
+    boost::split(id_arr, identifier, boost::is_any_of("()"));
+
+    if (!id_arr.empty())
+    {
+        std::unique_lock<std::mutex> lock(tasks_mutex);
+        tasks.emplace(new RemoveIdentifierSolverTask(id, guid, code_id, ResultType::REAL, id_arr[0]));
+        tasks.emplace(nullptr);
+        tasks.emplace(new RemoveIdentifierSolverTask(id, guid, code_id, ResultType::INTEGER, id_arr[0]));
+        tasks.emplace(nullptr);
+        tasks.emplace(new RemoveIdentifierSolverTask(id, guid, code_id, ResultType::RATIONAL, id_arr[0]));
+        tasks.emplace(nullptr);
+        next_circle = true;
+    }
 }
 
 void Solver::MessageLoop()
