@@ -138,6 +138,7 @@ void Document::MainLoop()
             }
             if (!temp_undo_tasks.empty())
             {
+                std::lock_guard<std::recursive_mutex> lock(edit_mutex);
                 caret->Hide(); //caret will be shown on Redraw or caret moving
                 selection.can_optimize = false;
                 for (TaskPtr t : temp_undo_tasks)
@@ -183,6 +184,7 @@ void Document::MainLoop()
             }
             if (!temp_redo_tasks.empty())
             {
+                std::lock_guard<std::recursive_mutex> lock(edit_mutex);
                 caret->Hide(); //caret will be shown on Redraw or caret moving
                 for (TaskPtr t : temp_redo_tasks)
                 {
