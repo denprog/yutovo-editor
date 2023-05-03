@@ -237,11 +237,15 @@ void AutoResult::PutResult(Result result)
         {
             auto el = document->GetElement(err_id);
             if (el)
+            {
+                document->RemoveErrorMarks(parent->parent->id);
                 document->AddErrorMark(err_id, 0, el->elements->Count());
+            }
         }
     }
     else
     {
+        document->RemoveErrorMarks(parent->parent->id);
         //put element of returned result type
         switch (result.type)
         {

@@ -1519,7 +1519,7 @@ void Document::RemoveErrorMarks(ElementId parent_id)
 {
     for (size_t i = 0; i < error_marks.size();)
     {
-        if (IsChild(parent_id, error_marks[i].id))
+        if (parent_id == error_marks[i].id || IsChild(parent_id, error_marks[i].id))
             error_marks.erase(error_marks.begin() + i);
         else
             ++i;
