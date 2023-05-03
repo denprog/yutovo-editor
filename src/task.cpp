@@ -16,6 +16,7 @@
 #include <boost/archive/binary_oarchive.hpp>
 #include <boost/archive/binary_iarchive.hpp>
 #include <boost/serialization/shared_ptr.hpp>
+#include <boost/algorithm/string.hpp>
 #include <sstream>
 #include <vector>
 #include <boost/locale.hpp>
@@ -1095,14 +1096,20 @@ bool ResolveDependeciesTask::Execute()
     CodeBlock* c = dynamic_cast<CodeBlock*>(el.get());
     uint code_id = c->code_id;
 
+    std::vector<std::string> id_arr;
+    boost::split(id_arr, identifier, boost::is_any_of("()"));
+
     std::vector<ElementId> equations;
     c->GetElementsBelow(after_id, ElementType::EQUATION, equations); //get equations below in the current code block
     for (ElementId _id : equations)
     {
         auto _el = document->GetElement(_id);
         Equation* eq = dynamic_cast<Equation*>(_el.get());
-        if (eq->Depends(identifier))
-            eq->ReSolve();
+        for (auto& s : id_arr)
+        {
+            if (eq->Depends(s))
+                eq->ReSolve();
+        }
     }
 
     std::vector<ElementId> code_blocks;
@@ -1119,8 +1126,11 @@ bool ResolveDependeciesTask::Execute()
             {
                 auto _el = document->GetElement(_id);
                 Equation* eq = dynamic_cast<Equation*>(_el.get());
-                if (eq->Depends(identifier))
-                    eq->ReSolve();
+                for (auto& s : id_arr)
+                {
+                    if (eq->Depends(s))
+                        eq->ReSolve();
+                }
             }
         }
     }
