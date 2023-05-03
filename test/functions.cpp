@@ -110,4 +110,90 @@ TEST_F(FormulaTest, functions2)
         U"f(5)=110.") << ToBasicString(document.ToText());
 }
 
+//Recalculate a dependent expression
+TEST_F(FormulaTest, functions3)
+{
+    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
+        {
+            return Rect{0, 0, 600, 400};
+        });
+
+    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
+        {
+            return GetTextSizeMock(text, format);
+        });
+    
+    document.InsertCode(false, true);
+    document.InsertString("f", true);
+    document.InsertOpenFence(true);
+    document.InsertString("x", true);
+    document.InsertCloseFence(true);
+    document.InsertAssignment(true);
+    document.WaitTask(document.InsertString("x", true));
+    document.WaitSolver();
+
+    document.MoveCaretRight(false);
+    document.InsertParagraph(true);
+    document.InsertString("f", true);
+    document.InsertOpenFence(true);
+    document.InsertString("2", true);
+    document.InsertCloseFence(true);
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+
+    document.MoveCaretEnd(false);
+    document.InsertParagraph(true);
+    document.InsertString("f", true);
+    document.InsertOpenFence(true);
+    document.InsertString("x", true);
+    document.InsertCloseFence(true);
+    document.InsertAssignment(true);
+    document.InsertString("x", true);
+    document.InsertPlus(true);
+    document.WaitTask(document.InsertString("5", true));
+    document.WaitSolver();
+
+    document.MoveCaretRight(false);
+    document.InsertParagraph(true);
+    document.InsertString("f", true);
+    document.InsertOpenFence(true);
+    document.InsertString("3", true);
+    document.InsertCloseFence(true);
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"f(x)=x\n" \
+        U"f(2)=2.\n" \
+        U"f(x)=x+5\n" \
+        U"f(3)=8.") << ToBasicString(document.ToText());
+    
+    document.MoveCaretUp(false);
+    for (int i = 0; i < 5; ++i)
+        document.WaitTask(document.MoveCaretRight(false));
+    document.WaitTask(document.InsertString("2", true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"f(x)=x\n" \
+        U"f(2)=2.\n" \
+        U"f(x)=x+25\n" \
+        U"f(3)=28.") << ToBasicString(document.ToText());
+    
+    document.MoveCaretUp(false);
+    document.MoveCaretUp(false);
+    document.MoveCaretEnd(false);
+    document.MoveCaretLeft(false);
+    document.InsertPlus(true);
+    document.WaitTask(document.InsertString("4", true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"f(x)=x+4\n" \
+        U"f(2)=6.\n" \
+        U"f(x)=x+25\n" \
+        U"f(3)=28.") << ToBasicString(document.ToText());
+}
+
 }
