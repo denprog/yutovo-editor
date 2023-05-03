@@ -64,7 +64,7 @@ void Power::Remake(bool with_elements, bool with_parent, bool with_undo)
         parent->Remake(false, true, with_undo);
     last_rect = rect;
 
-    document->Remake(parent->id, false, with_undo, false);
+    parent->Remake(false, true, with_undo);
 }
 
 void Power::AfterChildInsert(const ElementId child_id, bool with_undo)
