@@ -1704,7 +1704,7 @@ TEST_F(FormulaTest, select11)
         ElementSelectionState{ElementId{0, 0, 0, 0, 1, 0}, 0, 2})) << document.GetEditorState().ToString();
 
     document.WaitTask(document.MoveCaretUp(true));
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 1}, 
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0}, 
         ElementSelectionState{ElementId{0}, 0, 1})) << document.GetEditorState().ToString();
 }
 

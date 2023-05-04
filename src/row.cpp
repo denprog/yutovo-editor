@@ -603,6 +603,7 @@ bool Row::GetTopCaretState(const int x, const int y, CaretState& caret_state, Se
                     if (!el || !el->GetRightCaretState(next, select))
                         break;
                 }
+                GetFirstCaretState(next, nullptr);
                 caret_state = next;
                 caret->SetState(next, false);
             }
