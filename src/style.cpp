@@ -113,7 +113,7 @@ ParagraphFormat::ParagraphFormat(std::string _name, Alignment _alignment, WordWr
     indent_first_line(_indent_first_line), 
     spacing_before(_spacing_before),
     spacing_after(_spacing_after),
-    string_format(_string_format)
+    default_string_format(_string_format)
 {
 }
 
@@ -146,7 +146,7 @@ ParagraphFormatPtr ParagraphFormats::GetFormat(std::string _name, ParagraphForma
     {
         if (p->name == _name && p->alignment == _alignment && p->word_wrap == _word_wrap && p->line_spacing == _line_spacing && 
             p->indent_before == _indent_before && p->indent_after == _indent_after && p->indent_first_line == _indent_first_line && 
-            p->spacing_before == _spacing_before && p->spacing_after == _spacing_after && *p->string_format == *_string_format)
+            p->spacing_before == _spacing_before && p->spacing_after == _spacing_after && *p->default_string_format == *_string_format)
             return p;
     }
 

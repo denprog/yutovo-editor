@@ -1349,6 +1349,40 @@ TEST_F(ParagraphTest, paragraph10)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 11})) << document.GetEditorState().ToString();
 }
 
+//Insert a paragraph and a text after a code block
+TEST_F(ParagraphTest, paragraph11)
+{
+    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
+        {
+            return Rect{0, 0, 400, 400};
+        });
+
+    document.InsertCode(false, true);
+    document.WaitTask(document.MoveCaretRight(false));
+    ParagraphFormat format;
+    ASSERT_TRUE(document.GetParagraphFormat(ElementId{0, 0, 0, 1}, format));
+    ASSERT_TRUE(format.name == "Text body");
+    document.WaitTask(document.InsertParagraph(true));
+    document.WaitTask(document.InsertString("The source of the text itself is a little mysterious.", true));
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mi>Null</mi>"\
+                    "</mrow>"\
+                "</math>"\
+            "</p>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">The source of the text itself is a little </span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">mysterious.</span>"\
+            "</p>"\
+        "</body>") 
+        << document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 1, 1, 0, 11})) << document.GetEditorState().ToString();
+}
+
 //Check format
 TEST_F(ParagraphTest, format1)
 {

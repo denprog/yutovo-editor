@@ -502,7 +502,7 @@ bool ChangeParagraphFormatTask::Execute()
         before_state = document->GetEditorState();
 
     CaretState& caret_state = before_state.caret_state;
-    auto el = document->FindParent(caret_state.id, ElementType::PARAGRAPH);
+    auto el = document->FindParentParagraph(caret_state.id);
     if (!el)
         return false;
 

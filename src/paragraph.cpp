@@ -13,7 +13,7 @@ Paragraph::Paragraph(Element* parent, bool with_row) :
 {
     type = ElementType::PARAGRAPH;
 
-    current_string_format = format->string_format;
+    current_string_format = format->default_string_format;
 
     if (with_row)
         AddEmptyElement(); //paragraph has to have at least one row
@@ -399,7 +399,7 @@ bool Paragraph::ChangeParagraphFormat(const ParagraphFormatPtr _format, bool wit
         document->ChangeParagraphFormat(format, false, true);
 
     for (int i = 0; i < elements->Count(); ++i)
-        elements->Get(i)->UpdateStringFormat(format->string_format, _format->string_format);
+        elements->Get(i)->UpdateStringFormat(format->default_string_format, _format->default_string_format);
 
     format = _format;
     Remake(true, true, with_undo);

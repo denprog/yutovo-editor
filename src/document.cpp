@@ -947,7 +947,7 @@ bool Document::GetStringFormat(const ElementId id, StringFormat& format)
 bool Document::GetParagraphFormat(const ElementId id, ParagraphFormat& format)
 {
     std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
-    auto el = GetElement(id);
+    auto el = GetParent(id);
     if (!el)
         return false;
     ParagraphFormatPtr p = el->GetParagraphFormat();

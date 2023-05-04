@@ -118,7 +118,7 @@ struct ParagraphFormat
         ar << indent_first_line;
         ar << spacing_before;
         ar << spacing_after;
-        ar << string_format->id;
+        ar << default_string_format->id;
     }
 
     template <class Archive>
@@ -138,7 +138,7 @@ struct ParagraphFormat
     uint spacing_before;
     uint spacing_after;
 
-    StringFormatPtr string_format;
+    StringFormatPtr default_string_format;
 };
 
 typedef std::shared_ptr<ParagraphFormat> ParagraphFormatPtr;
