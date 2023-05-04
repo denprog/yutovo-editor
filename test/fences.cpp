@@ -10,16 +10,6 @@ using namespace std::chrono_literals;
 
 TEST_F(FormulaTest, fences1)
 {
-    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
-        {
-            return Rect{0, 0, 600, 400};
-        });
-
-    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
-        {
-            return GetTextSizeMock(text, format);
-        });
-    
     document.InsertOpenFence(true);
     document.WaitMainLoop();
     ASSERT_TRUE(document.ToHtml() == 
@@ -114,16 +104,6 @@ TEST_F(FormulaTest, fences1)
 //Inserting open fence in text
 TEST_F(FormulaTest, fences2)
 {
-    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
-        {
-            return Rect{0, 0, 600, 400};
-        });
-
-    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
-        {
-            return GetTextSizeMock(text, format);
-        });
-    
     document.InsertCode(false, true);
     document.InsertString("123", true);
     document.WaitTask(document.InsertOpenFence(true));
@@ -225,16 +205,6 @@ TEST_F(FormulaTest, fences2)
 //Inserting close fence in text
 TEST_F(FormulaTest, fences3)
 {
-    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
-        {
-            return Rect{0, 0, 600, 400};
-        });
-
-    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
-        {
-            return GetTextSizeMock(text, format);
-        });
-    
     document.InsertCode(false, true);
     document.InsertString("123", true);
     document.WaitTask(document.InsertCloseFence(true));
@@ -336,16 +306,6 @@ TEST_F(FormulaTest, fences3)
 //Inserting fences in text
 TEST_F(FormulaTest, fences4)
 {
-    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
-        {
-            return Rect{0, 0, 600, 400};
-        });
-
-    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
-        {
-            return GetTextSizeMock(text, format);
-        });
-    
     document.InsertCode(false, true);
     document.InsertOpenFence(true);
     document.InsertString("123", true);
@@ -373,16 +333,6 @@ TEST_F(FormulaTest, fences4)
 //Inserting fences in power element
 TEST_F(FormulaTest, fences5)
 {
-    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
-        {
-            return Rect{0, 0, 600, 400};
-        });
-
-    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
-        {
-            return GetTextSizeMock(text, format);
-        });
-    
     document.InsertCode(false, true);
     document.InsertString("2", true);
     document.InsertPlus(true);
@@ -552,16 +502,6 @@ TEST_F(FormulaTest, fences5)
 //Inserting fences in power element
 TEST_F(FormulaTest, fences6)
 {
-    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
-        {
-            return Rect{0, 0, 600, 400};
-        });
-
-    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
-        {
-            return GetTextSizeMock(text, format);
-        });
-    
     document.InsertCode(false, true);
     document.InsertString("2", true);
     document.InsertPlus(true);
@@ -636,16 +576,6 @@ TEST_F(FormulaTest, fences6)
 //Inserting fences in power element
 TEST_F(FormulaTest, fences7)
 {
-    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
-        {
-            return Rect{0, 0, 600, 400};
-        });
-
-    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
-        {
-            return GetTextSizeMock(text, format);
-        });
-    
     document.InsertCode(false, true);
     document.InsertString("2", true);
     document.InsertPower(true);
@@ -706,16 +636,6 @@ TEST_F(FormulaTest, fences7)
 //Inserting open and close fences
 TEST_F(FormulaTest, fences8)
 {
-    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
-        {
-            return Rect{0, 0, 600, 400};
-        });
-
-    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
-        {
-            return GetTextSizeMock(text, format);
-        });
-    
     document.WaitTask(document.InsertFences(true));
     std::this_thread::sleep_for(200ms);
     ASSERT_TRUE(document.ToHtml() == 
