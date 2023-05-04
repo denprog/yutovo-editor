@@ -10,16 +10,6 @@ using namespace std::chrono_literals;
 
 TEST_F(FormulaTest, square_root1)
 {
-    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
-        {
-            return Rect{0, 0, 600, 400};
-        });
-
-    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
-        {
-            return GetTextSizeMock(text, format);
-        });
-
     document.WaitTask(document.InsertSquareRoot(true));
     std::this_thread::sleep_for(200ms);
     ASSERT_TRUE(document.ToHtml() == 
@@ -84,16 +74,6 @@ TEST_F(FormulaTest, square_root1)
 
 TEST_F(FormulaTest, square_root2)
 {
-    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
-        {
-            return Rect{0, 0, 600, 400};
-        });
-
-    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
-        {
-            return GetTextSizeMock(text, format);
-        });
-
     document.InsertSquareRoot(true);
     document.InsertString("12", true);
     document.MoveCaretLeft(false);
@@ -153,16 +133,6 @@ TEST_F(FormulaTest, square_root2)
 
 TEST_F(FormulaTest, square_root3)
 {
-    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
-        {
-            return Rect{0, 0, 600, 400};
-        });
-
-    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
-        {
-            return GetTextSizeMock(text, format);
-        });
-
     document.InsertSquareRoot(true);
     document.InsertString("12", true);
     document.InsertPlus(true);
@@ -249,16 +219,6 @@ TEST_F(FormulaTest, square_root3)
 //Save/Load
 TEST_F(FormulaTest, square_root4)
 {
-    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
-        {
-            return Rect{0, 0, 600, 400};
-        });
-
-    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
-        {
-            return GetTextSizeMock(text, format);
-        });
-
     document.InsertString("Square root", true);
     document.InsertSquareRoot(true);
     document.InsertString("12", true);
@@ -314,16 +274,6 @@ TEST_F(FormulaTest, square_root4)
 //Insert a char in the operation sign
 TEST_F(FormulaTest, square_root5)
 {
-    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
-        {
-            return Rect{0, 0, 600, 400};
-        });
-
-    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
-        {
-            return GetTextSizeMock(text, format);
-        });
-
     document.WaitTask(document.InsertSquareRoot(true));
     document.WaitTask(document.MoveCaretLeft(false));
     std::this_thread::sleep_for(200ms);

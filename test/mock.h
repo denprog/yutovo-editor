@@ -78,6 +78,11 @@ struct DocumentTest : public testing::Test
         document(&window_mock)
     {
         document.Start(config);
+
+        EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
+            {
+                return GetTextSizeMock(text, format);
+            });
     }
 
     Size GetTextSizeMock(const std::u32string& text, const StringFormatPtr format)
@@ -243,16 +248,11 @@ struct DocumentTest : public testing::Test
 
 struct FormulaTest : DocumentTest
 {
-    FormulaTest()
+    void SetUp() override
     {
         EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
             {
                 return Rect{0, 0, 600, 400};
-            });
-
-        EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
-            {
-                return GetTextSizeMock(text, format);
             });
     }
 };
