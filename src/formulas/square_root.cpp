@@ -98,6 +98,13 @@ void SquareRoot::Remake(bool with_elements, bool with_parent, bool with_undo)
     last_rect = rect;
 }
 
+bool SquareRoot::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo)
+{
+    if (caret->GetPos() == 0 && caret->GetElement()->id == id)
+        return false;
+    return Formula::InsertElements(_elements, with_undo);
+}
+
 bool SquareRoot::AfterInsert(bool with_undo)
 {
     CaretState c;
