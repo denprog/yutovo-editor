@@ -243,7 +243,7 @@ struct DocumentTest : public testing::Test
 
 struct FormulaTest : DocumentTest
 {
-    FormulaTest()
+    void SetUp() override
     {
         EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
             {

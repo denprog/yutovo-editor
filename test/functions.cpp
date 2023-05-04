@@ -11,16 +11,6 @@ using namespace std::chrono_literals;
 //sin
 TEST_F(FormulaTest, functions1)
 {
-    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
-        {
-            return Rect{0, 0, 600, 400};
-        });
-
-    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
-        {
-            return GetTextSizeMock(text, format);
-        });
-    
     document.InsertFunction("sin", true);
     document.WaitMainLoop();
     std::this_thread::sleep_for(100ms);
@@ -65,16 +55,6 @@ TEST_F(FormulaTest, functions1)
 //Recalculate a dependent expression
 TEST_F(FormulaTest, functions2)
 {
-    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
-        {
-            return Rect{0, 0, 600, 400};
-        });
-
-    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
-        {
-            return GetTextSizeMock(text, format);
-        });
-    
     document.InsertCode(false, true);
     document.InsertString("f", true);
     document.InsertOpenFence(true);
@@ -113,16 +93,6 @@ TEST_F(FormulaTest, functions2)
 //Recalculate a dependent expression
 TEST_F(FormulaTest, functions3)
 {
-    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
-        {
-            return Rect{0, 0, 600, 400};
-        });
-
-    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
-        {
-            return GetTextSizeMock(text, format);
-        });
-    
     document.InsertCode(false, true);
     document.InsertString("f", true);
     document.InsertOpenFence(true);
