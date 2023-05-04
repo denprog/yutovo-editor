@@ -353,8 +353,6 @@ bool Row::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo)
             }
         }
         Normalize(with_undo);
-        //parent->Normalize(with_undo);
-        //parent->Remake(true, true, with_undo);
     }
 
 #ifdef DEBUG
