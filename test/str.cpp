@@ -537,6 +537,48 @@ TEST_F(DocumentTest, selections5)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 2})) << document.GetEditorState().ToString();
 }
 
+//Select all with rows
+TEST_F(DocumentTest, selections6)
+{
+    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
+        {
+            return Rect{0, 0, 370, 400};
+        });
+
+    document.WaitTask(document.InsertString("The source of the text itself is a little mysterious.", true));
+    document.MoveCaretUp(true);
+    document.WaitTask(document.MoveCaretUp(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0}, 
+        ElementSelectionState{ElementId{0}, 0, 1})) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.MoveCaretRight(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 1}, 
+        ElementSelectionState{ElementId{0, 0, 0, 0}, 1, 41},
+        ElementSelectionState{ElementId{0, 0}, 1, 1})) << document.GetEditorState().ToString();
+}
+
+//Select all with rows
+TEST_F(DocumentTest, selections7)
+{
+    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
+        {
+            return Rect{0, 0, 370, 400};
+        });
+
+    document.WaitTask(document.InsertString("The source of the text itself is a little mysterious.", true));
+    document.MoveCaretToDocumentBegin(false);
+    document.MoveCaretWordRight(false);
+    document.WaitTask(document.MoveCaretDown(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 0, 3}, 
+        ElementSelectionState{ElementId{0, 0, 0, 0}, 3, 39},
+        ElementSelectionState{ElementId{0, 0, 1, 0}, 0, 3})) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.MoveCaretDown(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 0, 11}, 
+        ElementSelectionState{ElementId{0, 0, 0, 0}, 3, 39},
+        ElementSelectionState{ElementId{0, 0}, 1, 1})) << document.GetEditorState().ToString();
+}
+
 TEST_F(DocumentTest, inserts1)
 {
     EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
