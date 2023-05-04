@@ -16,11 +16,6 @@ TEST_F(DocumentTest, clipboard1)
             return Rect{0, 0, 600, 400};
         });
 
-    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
-        {
-            return GetTextSizeMock(text, format);
-        });
-
     EXPECT_CALL(window_mock, OnCopyResult).WillRepeatedly([&](CopyResult result)
         {
             ASSERT_TRUE(result == CopyResult::Success);
@@ -72,11 +67,6 @@ TEST_F(DocumentTest, clipboard2)
     EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
         {
             return Rect{0, 0, 600, 400};
-        });
-
-    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
-        {
-            return GetTextSizeMock(text, format);
         });
 
     EXPECT_CALL(window_mock, OnCopyResult).WillRepeatedly([&](CopyResult result)
@@ -155,11 +145,6 @@ TEST_F(DocumentTest, clipboard3)
             return Rect{0, 0, 600, 400};
         });
 
-    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
-        {
-            return GetTextSizeMock(text, format);
-        });
-
     EXPECT_CALL(window_mock, OnCopyResult).WillRepeatedly([&](CopyResult result)
         {
             ASSERT_TRUE(result == CopyResult::Success);
@@ -188,11 +173,6 @@ TEST_F(DocumentTest, clipboard4)
     EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
         {
             return Rect{0, 0, 620, 400};
-        });
-
-    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
-        {
-            return GetTextSizeMock(text, format);
         });
 
     EXPECT_CALL(window_mock, OnCopyResult).WillRepeatedly([&](CopyResult result)
@@ -229,11 +209,6 @@ TEST_F(DocumentTest, clipboard5)
     EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
         {
             return Rect{0, 0, width, 400};
-        });
-
-    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
-        {
-            return GetTextSizeMock(text, format);
         });
 
     EXPECT_CALL(window_mock, OnCopyResult).WillRepeatedly([&](CopyResult result)
@@ -306,11 +281,6 @@ TEST_F(DocumentTest, clipboard6)
     EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
         {
             return Rect{0, 0, 400, 400};
-        });
-
-    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
-        {
-            return GetTextSizeMock(text, format);
         });
 
     EXPECT_CALL(window_mock, OnPasteResult).WillRepeatedly([&](PasteResult result)
@@ -404,11 +374,6 @@ TEST_F(DocumentTest, clipboard7)
     EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
         {
             return Rect{0, 0, 400, 400};
-        });
-
-    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
-        {
-            return GetTextSizeMock(text, format);
         });
 
     EXPECT_CALL(window_mock, OnPasteResult).WillRepeatedly([&](PasteResult result)
@@ -539,11 +504,6 @@ TEST_F(DocumentTest, clipboard8)
             return Rect{0, 0, 600, 400};
         });
 
-    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
-        {
-            return GetTextSizeMock(text, format);
-        });
-
     EXPECT_CALL(window_mock, OnCopyResult).WillRepeatedly([&](CopyResult result)
         {
             ASSERT_TRUE(result == CopyResult::Success);
@@ -593,11 +553,6 @@ TEST_F(DocumentTest, clipboard9)
     EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
         {
             return Rect{0, 0, 600, 400};
-        });
-
-    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
-        {
-            return GetTextSizeMock(text, format);
         });
 
     EXPECT_CALL(window_mock, OnCopyResult).WillRepeatedly([&](CopyResult result)
@@ -725,11 +680,6 @@ TEST_F(DocumentTest, clipboard10)
             return Rect{0, 0, 600, 400};
         });
 
-    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
-        {
-            return GetTextSizeMock(text, format);
-        });
-
     EXPECT_CALL(window_mock, OnCopyResult).WillRepeatedly([&](CopyResult result)
         {
             ASSERT_TRUE(result == CopyResult::Success);
@@ -822,11 +772,6 @@ TEST_F(DocumentTest, clipboard11)
     EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
         {
             return Rect{0, 0, 600, 400};
-        });
-
-    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
-        {
-            return GetTextSizeMock(text, format);
         });
 
     EXPECT_CALL(window_mock, OnCopyResult).WillRepeatedly([&](CopyResult result)
@@ -971,11 +916,6 @@ TEST_F(DocumentTest, clipboard12)
             return Rect{0, 0, 600, 400};
         });
 
-    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
-        {
-            return GetTextSizeMock(text, format);
-        });
-
     EXPECT_CALL(window_mock, OnCopyResult).WillRepeatedly([&](CopyResult result)
         {
             ASSERT_TRUE(result == CopyResult::Success);
@@ -1041,11 +981,6 @@ TEST_F(DocumentTest, clipboard13)
             return Rect{0, 0, 600, 400};
         });
 
-    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
-        {
-            return GetTextSizeMock(text, format);
-        });
-
     EXPECT_CALL(window_mock, OnCopyResult).WillRepeatedly([&](CopyResult result)
         {
             ASSERT_TRUE(result == CopyResult::Success);
@@ -1106,11 +1041,6 @@ TEST_F(DocumentTest, clipboard14)
     EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
         {
             return Rect{0, 0, 600, 400};
-        });
-
-    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
-        {
-            return GetTextSizeMock(text, format);
         });
 
     EXPECT_CALL(window_mock, OnCopyResult).WillRepeatedly([&](CopyResult result)
@@ -1180,11 +1110,6 @@ TEST_F(DocumentTest, clipboard15)
     EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
         {
             return Rect{0, 0, 500, 400};
-        });
-
-    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
-        {
-            return GetTextSizeMock(text, format);
         });
 
     EXPECT_CALL(window_mock, OnCopyResult).WillRepeatedly([&](CopyResult result)
@@ -1261,11 +1186,6 @@ TEST_F(DocumentTest, clipboard16)
     EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
         {
             return Rect{0, 0, 500, 400};
-        });
-
-    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
-        {
-            return GetTextSizeMock(text, format);
         });
 
     EXPECT_CALL(window_mock, OnCopyResult).WillRepeatedly([&](CopyResult result)
@@ -1346,11 +1266,6 @@ TEST_F(DocumentTest, clipboard17)
     EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
         {
             return Rect{0, 0, 340, 400};
-        });
-
-    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
-        {
-            return GetTextSizeMock(text, format);
         });
 
     EXPECT_CALL(window_mock, OnCopyResult).WillRepeatedly([&](CopyResult result)

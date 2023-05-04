@@ -10,16 +10,6 @@ using namespace std::chrono_literals;
 
 TEST_F(FormulaTest, power1)
 {
-    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
-        {
-            return Rect{0, 0, 600, 400};
-        });
-
-    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
-        {
-            return GetTextSizeMock(text, format);
-        });
-
     document.InsertPower(true);
     document.WaitMainLoop();
     ASSERT_TRUE(document.ToHtml() == 
@@ -121,16 +111,6 @@ TEST_F(FormulaTest, power1)
 
 TEST_F(FormulaTest, power2)
 {
-    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
-        {
-            return Rect{0, 0, 600, 400};
-        });
-
-    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
-        {
-            return GetTextSizeMock(text, format);
-        });
-
     document.InsertCode(false, true);
     document.InsertString("123", true);
     document.InsertPower(true);
@@ -196,16 +176,6 @@ TEST_F(FormulaTest, power2)
 
 TEST_F(FormulaTest, power3)
 {
-    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
-        {
-            return Rect{0, 0, 600, 400};
-        });
-
-    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
-        {
-            return GetTextSizeMock(text, format);
-        });
-
     document.InsertCode(false, true);
     document.InsertString("123", true);
     document.InsertPower(true);
@@ -270,16 +240,6 @@ TEST_F(FormulaTest, power3)
 
 TEST_F(FormulaTest, power4)
 {
-    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
-        {
-            return Rect{0, 0, 600, 400};
-        });
-
-    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
-        {
-            return GetTextSizeMock(text, format);
-        });
-
     document.InsertCode(false, true);
     document.InsertString("123", true);
     document.WaitMainLoop();
@@ -326,16 +286,6 @@ TEST_F(FormulaTest, power4)
 
 TEST_F(FormulaTest, power5)
 {
-    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
-        {
-            return Rect{0, 0, 600, 400};
-        });
-
-    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
-        {
-            return GetTextSizeMock(text, format);
-        });
-
     document.InsertCode(false, true);
     document.InsertString("123", true);
     document.WaitMainLoop();
@@ -493,16 +443,6 @@ TEST_F(FormulaTest, power5)
 //Save/Load
 TEST_F(FormulaTest, power6)
 {
-    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
-        {
-            return Rect{0, 0, 600, 400};
-        });
-
-    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
-        {
-            return GetTextSizeMock(text, format);
-        });
-
     document.InsertCode(false, true);
     document.InsertString("123", true);
     document.WaitMainLoop();
@@ -564,16 +504,6 @@ TEST_F(FormulaTest, power6)
 //Power element in a division
 TEST_F(FormulaTest, power7)
 {
-    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
-        {
-            return Rect{0, 0, 600, 400};
-        });
-
-    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
-        {
-            return GetTextSizeMock(text, format);
-        });
-
     document.WaitTask(document.InsertDivision(true));
     document.MoveCaretDown(false);
     document.WaitTask(document.MoveCaretDown(false));

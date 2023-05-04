@@ -10,16 +10,6 @@ using namespace std::chrono_literals;
 
 TEST_F(FormulaTest, nth_root1)
 {
-    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
-        {
-            return Rect{0, 0, 600, 400};
-        });
-
-    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
-        {
-            return GetTextSizeMock(text, format);
-        });
-
     document.InsertNthRoot(true);
     document.WaitMainLoop();
     ASSERT_TRUE(document.ToHtml() == 
@@ -121,16 +111,6 @@ TEST_F(FormulaTest, nth_root1)
 
 TEST_F(FormulaTest, nth_root2)
 {
-    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
-        {
-            return Rect{0, 0, 600, 400};
-        });
-
-    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
-        {
-            return GetTextSizeMock(text, format);
-        });
-
     document.InsertNthRoot(true);
     document.InsertString("3", true);
     document.MoveCaretRight(false);
@@ -294,16 +274,6 @@ TEST_F(FormulaTest, nth_root2)
 //Save/Load
 TEST_F(FormulaTest, nth_root3)
 {
-    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
-        {
-            return Rect{0, 0, 600, 400};
-        });
-
-    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
-        {
-            return GetTextSizeMock(text, format);
-        });
-
     document.InsertNthRoot(true);
     document.InsertString("3", true);
     document.InsertPlus(true);
