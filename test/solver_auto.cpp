@@ -340,9 +340,9 @@ TEST_F(SolverAutoTest, solver5)
     document.WaitSolver();
     document.MoveCaretLeft(false);
     document.MoveCaretLeft(false);
-    document.InsertString("2", true);
+    document.WaitTask(document.InsertString("2", true));
     document.WaitSolver();
-    std::this_thread::sleep_for(200ms);
+    std::this_thread::sleep_for(400ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
