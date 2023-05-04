@@ -45,6 +45,8 @@ void MiddleShapeFormula::Init()
 
 bool MiddleShapeFormula::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo)
 {
+    if (caret->GetPos() == 1 && caret->GetElement()->id == id)
+        return false;
     for (auto el : _elements)
     {
         if (el->type == ElementType::CODE_PARAGRAPH)
