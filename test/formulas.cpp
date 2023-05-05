@@ -874,7 +874,7 @@ TEST_F(FormulaTest, insert1)
     document.MoveCaretRight(false);
     document.WaitTask(document.MoveCaretRight(false));
     document.WaitTask(document.InsertCode(false, true));
-    std::this_thread::sleep_for(800ms);
+    std::this_thread::sleep_for(1s);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\

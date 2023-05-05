@@ -18,6 +18,11 @@ Assignment::Assignment(Document* _document) :
     type = ElementType::ASSIGNMENT;
 }
 
+Assignment::Assignment(const Assignment& source) :
+    MiddleShapeFormula(source)
+{
+}
+
 Element* Assignment::Clone()
 {
     return new Assignment(*this);
