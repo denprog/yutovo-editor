@@ -49,7 +49,7 @@ bool MiddleShapeFormula::InsertElements(std::vector<ElementPtr>& _elements, bool
         return false;
     for (auto el : _elements)
     {
-        if (el->type == ElementType::CODE_PARAGRAPH)
+        if (el->type == ElementType::CODE_PARAGRAPH && type != ElementType::ASSIGNMENT && type != ElementType::EQUATION)
             return false;
     }
     return Formula::InsertElements(_elements, with_undo);
