@@ -79,7 +79,7 @@ void OpenFence::Remake(bool with_elements, bool with_parent, bool with_undo)
 {
     OnlyShapeFormula::Remake(with_elements, with_parent, with_undo);
 
-    if (parent->elements->IsLast(id))
+    if (parent->elements->IsLast(id) || (parent->elements->Count() == 2 && parent->elements->Get(1)->type == ElementType::CLOSE_FENCE))
     {
         Size s = window->GetTextSize(U" ", GetStringFormat());
         shape->rect.SetRect(0, 0, 1 + (int)lround(s.height / 5), (int)lround((1 + 2 * BRACES_Y_OFFSET) * s.height));
@@ -190,7 +190,7 @@ void CloseFence::Remake(bool with_elements, bool with_parent, bool with_undo)
 {
     OnlyShapeFormula::Remake(with_elements, with_parent, with_undo);
 
-    if (parent->elements->IsFirst(id))
+    if (parent->elements->IsFirst(id) || (parent->elements->Count() == 2 && parent->elements->Get(0)->type == ElementType::OPEN_FENCE))
     {
         Size s = window->GetTextSize(U" ", GetStringFormat());
         shape->rect.SetRect(0, 0, 1 + (int)lround(s.height / 5), (int)lround((1 + 2 * BRACES_Y_OFFSET) * s.height));
