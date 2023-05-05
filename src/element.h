@@ -154,7 +154,7 @@ public:
 
     virtual bool IsFormula();
 
-    virtual void ReSolve();
+    virtual void ReSolve(bool if_error = false);
 
     virtual void SubscribeOnChange(const ElementId _id);
     virtual void UnsubscribeOnChange(const ElementId _id);

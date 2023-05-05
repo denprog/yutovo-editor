@@ -186,6 +186,7 @@ public:
         AngleMeasure angle_measure, Notation notation, std::u32string& expression);
     void ReSolve(ElementId _id);
     void ReSolveDependencies(ElementId after_id, const std::u32string& identifier);
+    void ReSolveErrors();
     void PutResult(ElementId _id, Result result);
     void SetUserIdentifier(ElementId _id, uint code_id, const std::u32string& identifier, const std::u32string& expression);
     void RemoveIdentifier(ElementId _id, uint code_id, const std::u32string& identifier);

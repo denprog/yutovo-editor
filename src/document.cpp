@@ -1405,6 +1405,12 @@ void Document::ReSolveDependencies(ElementId after_id, const std::u32string& ide
     tasks.emplace_back(new ResolveDependeciesTask(text, after_id, ToBasicString(identifier)));
 }
 
+void Document::ReSolveErrors()
+{
+    std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
+    tasks.emplace_back(new ResolveErrorsTask(text));
+}
+
 void Document::PutResult(ElementId _id, Result result)
 {
     std::lock_guard<std::recursive_mutex> lock(tasks_mutex);

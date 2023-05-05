@@ -728,10 +728,10 @@ bool Element::IsFormula()
     return false;
 }
 
-void Element::ReSolve()
+void Element::ReSolve(bool if_error)
 {
     for (int i = 0; i < elements->Count(); ++i)
-        elements->Get(i)->ReSolve();
+        elements->Get(i)->ReSolve(if_error);
 }
 
 void Element::SubscribeOnChange(const ElementId _id)

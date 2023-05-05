@@ -145,8 +145,10 @@ void Assignment::AfterReplace()
     last->SubscribeOnChange(id);
 }
 
-void Assignment::ReSolve()
+void Assignment::ReSolve(bool if_error)
 {
+    if (if_error && !last_error)
+        return;
     last_expression.Reset();
     document->RemoveErrorMarks(id);
     Remake(false, false, false);
@@ -154,6 +156,7 @@ void Assignment::ReSolve()
 
 void Assignment::PutResult(Result result)
 {
+    last_error = result.error.error_code != ErrorCode::OK;
     document->RemoveErrorMarks(id);
     if (result.error.error_code != ErrorCode::SOLVER_RESTARTED_ERROR && result.error.error_code != ErrorCode::OK)
     {

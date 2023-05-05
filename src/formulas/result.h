@@ -99,6 +99,9 @@ public:
 
 	BOOST_SERIALIZATION_SPLIT_MEMBER()
 
+public:
+    bool last_error = false;
+    
 private:
     uint precision = 3;
     AngleMeasure angle_measure = AngleMeasure::RADIAN;

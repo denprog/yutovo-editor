@@ -615,7 +615,7 @@ void String::GetElementsBelow(const ElementId from_id, ElementType _type, std::v
 {
 }
 
-void String::ReSolve()
+void String::ReSolve(bool if_error)
 {
 }
 

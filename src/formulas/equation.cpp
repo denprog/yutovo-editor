@@ -137,8 +137,10 @@ void Equation::AfterReplace()
     first->SubscribeOnChange(id);
 }
 
-void Equation::ReSolve()
+void Equation::ReSolve(bool if_error)
 {
+    if (if_error && auto_result && !auto_result->last_error)
+        return;
     auto_result.reset();
     document->RemoveErrorMarks(id);
     OnChanged({});
