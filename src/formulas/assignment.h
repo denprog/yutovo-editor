@@ -30,7 +30,7 @@ public:
     virtual void BeforeReplace();
     virtual void AfterReplace();
 
-    virtual void ReSolve();
+    virtual void ReSolve(bool if_error = false);
     void PutResult(Result result);
 
     virtual std::string ToHtml();
@@ -59,6 +59,7 @@ public:
 private:
     std::u32string last_identifier;
     ParserString last_expression;
+    bool last_error = false;
 };
 
 }

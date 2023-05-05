@@ -103,44 +103,48 @@ void Solver::MessageLoop()
     int tries = 0;
     while (!exit)
     {
+        bool empty = false;
         {
-            bool empty = false;
-            {
-                std::unique_lock<std::mutex> lock(tasks_mutex);
-                empty = tasks.empty();
-            }
-            if (empty)
-            {
-                while (!next_circle) //wait for tasks
-                {
-                    std::this_thread::sleep_for(10ms);
-                    if (!socket->IsOpen())
-                    {
-                        next = time(0);
-                        if (next - now >= reconnect_period)
-                            break;
-                    }
-                }
-            }
-
-            if (!socket->IsOpen())
-            {
-                if (next - now >= reconnect_period)
-                {
-                    now = time(0);
-                    if (!socket->Connect())
-                    {
-                        logger->Error("Error connecting to the server: {}:{}", document->config.service_ip, document->config.service_port);
-                        continue;
-                    }
-                    else
-                        logger->Info("Solver connected to the server: {}:{}", document->config.service_ip, document->config.service_port);
-                }
-            }
-
-            next = time(0);
-
             std::unique_lock<std::mutex> lock(tasks_mutex);
+            empty = tasks.empty();
+        }
+        if (empty)
+        {
+            while (!next_circle) //wait for tasks
+            {
+                std::this_thread::sleep_for(10ms);
+                if (!socket->IsOpen())
+                {
+                    next = time(0);
+                    if (next - now >= reconnect_period)
+                        break;
+                }
+            }
+        }
+
+        if (!socket->IsOpen())
+        {
+            if (next - now >= reconnect_period)
+            {
+                now = time(0);
+                if (!socket->Connect())
+                {
+                    logger->Error("Error connecting to the server: {}:{}", document->config.service_ip, document->config.service_port);
+                    continue;
+                }
+                else
+                {
+                    logger->Info("Solver connected to the server: {}:{}", document->config.service_ip, document->config.service_port);
+                    document->ReSolveErrors();
+                }
+            }
+        }
+
+        next = time(0);
+
+        std::unique_lock<std::mutex> lock(tasks_mutex);
+        if (temp_tasks.empty())
+        {
             while (!tasks.empty() && tasks.front() == nullptr)
                 tasks.pop();
             if (tasks.empty())
@@ -166,7 +170,10 @@ void Solver::MessageLoop()
                 if (!socket->Connect())
                     logger->Error("Error connecting to the server: {}:{}", document->config.service_ip, document->config.service_port);
                 else
+                {
                     logger->Info("Solver connected to the server: {}:{}", document->config.service_ip, document->config.service_port);
+                    document->ReSolveErrors();
+                }
                 result = cur_result;
                 break;
             }

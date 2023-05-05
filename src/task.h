@@ -273,6 +273,13 @@ struct ResolveDependeciesTask : Task
     std::string identifier;
 };
 
+struct ResolveErrorsTask : Task
+{
+    ResolveErrorsTask(ElementPtr _text);
+
+    virtual bool Execute();
+};
+
 }
 
 #endif

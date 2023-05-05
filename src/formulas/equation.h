@@ -31,7 +31,7 @@ public:
     virtual void BeforeReplace();
     virtual void AfterReplace();
 
-    virtual void ReSolve();
+    virtual void ReSolve(bool if_error = false);
 
     virtual bool Depends(const std::string& identifier);
     

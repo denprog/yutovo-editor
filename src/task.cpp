@@ -1137,4 +1137,25 @@ bool ResolveDependeciesTask::Execute()
     return true;
 }
 
+//ResolveErrorsTask
+
+ResolveErrorsTask::ResolveErrorsTask(ElementPtr _text) :
+    Task(_text)
+{
+}
+
+bool ResolveErrorsTask::Execute()
+{
+    std::vector<ElementId> code_blocks;
+    text->GetElements(ElementType::CODE_BLOCK, code_blocks); //find all code blocks
+    for (ElementId _id : code_blocks)
+    {
+        auto el = document->GetElement(_id);
+        CodeBlock* c = dynamic_cast<CodeBlock*>(el.get());
+        if (c)
+            c->ReSolve(true); //resolve all the expressions with errors
+    }
+    return true;
+}
+
 }

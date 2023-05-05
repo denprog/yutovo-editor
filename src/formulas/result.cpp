@@ -224,6 +224,7 @@ void AutoResult::Solve(const ParserString& expression, yutovo_service::ResultTyp
 
 void AutoResult::PutResult(Result result)
 {
+    last_error = result.error.error_code != ErrorCode::OK;
     if (result.error.error_code == ErrorCode::SOLVER_RESTARTED_ERROR)
         return;
 

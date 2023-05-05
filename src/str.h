@@ -65,7 +65,7 @@ public:
     virtual void GetElements(ElementType _type, std::vector<ElementId>& _elements);
     virtual void GetElementsBelow(const ElementId from_id, ElementType _type, std::vector<ElementId>& _elements);
 
-    virtual void ReSolve();
+    virtual void ReSolve(bool if_error = false);
 
     virtual void SubscribeOnChange(const ElementId _id);
 
