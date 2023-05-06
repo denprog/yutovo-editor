@@ -63,6 +63,9 @@ protected:
     AutoResultPtr auto_result;
     yutovo_service::ResultType result_type;
     bool ready = true;
+
+    friend class AutoResult;
+    Dependencies dependencies;
 };
 
 }

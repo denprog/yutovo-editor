@@ -12,6 +12,7 @@ namespace yutovo
 {
 
 using namespace std::chrono_literals;
+using namespace std::chrono;
 using namespace yutovo_service;
 
 //Solver
@@ -33,57 +34,89 @@ Solver::~Solver()
 }
 
 void Solver::Solve(ElementId id, uint code_id, yutovo_service::ResultType result_type, const uint precision, 
-    AngleMeasure angle_measure, Notation notation, const std::u32string& expression)
+    AngleMeasure angle_measure, Notation notation, const std::u32string& expression, const uint delay)
 {
+    {
+        std::unique_lock<std::mutex> lock(tasks_mutex);
+        tasks.erase(std::remove_if(tasks.begin(), tasks.end(), 
+            [id](SolverTaskPtr& task)
+            {
+                return task && task->id == id && task->expression_type == ExpressionType::SOLVE && 
+                    (dynamic_cast<RealSolverTask*>(task.get()) || dynamic_cast<IntegerSolverTask*>(task.get()) || dynamic_cast<RationalSolverTask*>(task.get()));
+            }
+            ), tasks.end());
+    }
+
     {
         std::unique_lock<std::mutex> lock(tasks_mutex);
         switch (result_type)
         {
         case yutovo_service::ResultType::AUTO:
-            tasks.emplace(new RealSolverTask(id, guid, code_id, ExpressionType::SOLVE, precision, angle_measure, expression));
-            tasks.emplace(new IntegerSolverTask(id, guid, code_id, ExpressionType::SOLVE, notation, expression));
-            tasks.emplace(new RationalSolverTask(id, guid, code_id, ExpressionType::SOLVE, expression));
+            tasks.emplace_back(new RealSolverTask(id, guid, code_id, ExpressionType::SOLVE, precision, angle_measure, expression, delay));
+            tasks.emplace_back(new IntegerSolverTask(id, guid, code_id, ExpressionType::SOLVE, notation, expression, delay));
+            tasks.emplace_back(new RationalSolverTask(id, guid, code_id, ExpressionType::SOLVE, expression, delay));
             break;
         case yutovo_service::ResultType::REAL:
-            tasks.emplace(new RealSolverTask(id, guid, code_id, ExpressionType::SOLVE, precision, angle_measure, expression));
+            tasks.emplace_back(new RealSolverTask(id, guid, code_id, ExpressionType::SOLVE, precision, angle_measure, expression, delay));
             break;
         case yutovo_service::ResultType::INTEGER:
-            tasks.emplace(new IntegerSolverTask(id, guid, code_id, ExpressionType::SOLVE, notation, expression));
+            tasks.emplace_back(new IntegerSolverTask(id, guid, code_id, ExpressionType::SOLVE, notation, expression, delay));
             break;
         case yutovo_service::ResultType::RATIONAL:
-            tasks.emplace(new RationalSolverTask(id, guid, code_id, ExpressionType::SOLVE, expression));
+            tasks.emplace_back(new RationalSolverTask(id, guid, code_id, ExpressionType::SOLVE, expression, delay));
             break;
         }
 
-        tasks.emplace(nullptr);
+        tasks.emplace_back(nullptr);
     }
     next_circle = true;
 }
 
-void Solver::SetUserIdentifier(ElementId id, uint code_id, const std::u32string& expression)
+void Solver::SetUserIdentifier(ElementId id, uint code_id, const std::u32string& expression, const uint delay)
 {
+    {
+        std::unique_lock<std::mutex> lock(tasks_mutex);
+        tasks.erase(std::remove_if(tasks.begin(), tasks.end(), 
+            [id](SolverTaskPtr& task)
+            {
+                return task && task->id == id && task->expression_type == ExpressionType::USER_SYMBOL && 
+                    (dynamic_cast<RealSolverTask*>(task.get()) || dynamic_cast<IntegerSolverTask*>(task.get()) || dynamic_cast<RationalSolverTask*>(task.get()));
+            }
+            ), tasks.end());
+    }
+
     std::unique_lock<std::mutex> lock(tasks_mutex);
-    tasks.emplace(new RealSolverTask(id, guid, code_id, ExpressionType::USER_SYMBOL, 0, AngleMeasure::RADIAN, expression));
-    tasks.emplace(new IntegerSolverTask(id, guid, code_id, ExpressionType::USER_SYMBOL, Notation::DECIMAL, expression));
-    tasks.emplace(new RationalSolverTask(id, guid, code_id, ExpressionType::USER_SYMBOL, expression));
-    tasks.emplace(nullptr);
+    tasks.emplace_back(new RealSolverTask(id, guid, code_id, ExpressionType::USER_SYMBOL, 0, AngleMeasure::RADIAN, expression, delay));
+    tasks.emplace_back(new IntegerSolverTask(id, guid, code_id, ExpressionType::USER_SYMBOL, Notation::DECIMAL, expression, delay));
+    tasks.emplace_back(new RationalSolverTask(id, guid, code_id, ExpressionType::USER_SYMBOL, expression, delay));
+    tasks.emplace_back(nullptr);
     next_circle = true;
 }
 
-void Solver::RemoveIdentifier(ElementId id, uint code_id, const std::u32string& identifier)
+void Solver::RemoveIdentifier(ElementId id, uint code_id, const std::u32string& identifier, const uint delay)
 {
+    {
+        std::unique_lock<std::mutex> lock(tasks_mutex);
+        tasks.erase(std::remove_if(tasks.begin(), tasks.end(), 
+            [id](SolverTaskPtr& task)
+            {
+                return task && task->id == id && dynamic_cast<RemoveIdentifierSolverTask*>(task.get());
+            }
+            ), tasks.end());
+    }
+
     std::vector<std::u32string> id_arr;
     boost::split(id_arr, identifier, boost::is_any_of("()"));
 
     if (!id_arr.empty())
     {
         std::unique_lock<std::mutex> lock(tasks_mutex);
-        tasks.emplace(new RemoveIdentifierSolverTask(id, guid, code_id, ResultType::REAL, id_arr[0]));
-        tasks.emplace(nullptr);
-        tasks.emplace(new RemoveIdentifierSolverTask(id, guid, code_id, ResultType::INTEGER, id_arr[0]));
-        tasks.emplace(nullptr);
-        tasks.emplace(new RemoveIdentifierSolverTask(id, guid, code_id, ResultType::RATIONAL, id_arr[0]));
-        tasks.emplace(nullptr);
+        tasks.emplace_back(new RemoveIdentifierSolverTask(id, guid, code_id, ResultType::REAL, id_arr[0], delay));
+        tasks.emplace_back(nullptr);
+        tasks.emplace_back(new RemoveIdentifierSolverTask(id, guid, code_id, ResultType::INTEGER, id_arr[0], delay));
+        tasks.emplace_back(nullptr);
+        tasks.emplace_back(new RemoveIdentifierSolverTask(id, guid, code_id, ResultType::RATIONAL, id_arr[0], delay));
+        tasks.emplace_back(nullptr);
         next_circle = true;
     }
 }
@@ -121,6 +154,10 @@ void Solver::MessageLoop()
                 }
             }
         }
+        else
+        {
+            std::this_thread::sleep_for(10ms);
+        }
 
         if (!socket->IsOpen())
         {
@@ -146,13 +183,24 @@ void Solver::MessageLoop()
         if (temp_tasks.empty())
         {
             while (!tasks.empty() && tasks.front() == nullptr)
-                tasks.pop();
+                tasks.pop_front();
             if (tasks.empty())
                 continue;
-            while (tasks.front() != nullptr)
+            while (!tasks.empty() && tasks.front() != nullptr)
             {
-                temp_tasks.push_back(tasks.front());
-                tasks.pop();
+                SolverTaskPtr& t = tasks.front();
+                uint64_t now_m = duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
+                t->delay -= now_m - t->cur_time;
+                if (t->delay <= 0)
+                {
+                    temp_tasks.push_back(t);
+                    tasks.pop_front();
+                }
+                else
+                {
+                    t->cur_time = now_m;
+                    break;
+                }
             }
         }
 
@@ -189,7 +237,7 @@ void Solver::MessageLoop()
         if (!result.error.id.empty())
             document->PutResult(result.error.id, result);
         
-        if (result.error.error_code != ErrorCode::OPERATION_ERROR)
+        if (result.error.error_code != ErrorCode::OPERATION_ERROR && !temp_tasks.empty())
             document->PutResult(temp_tasks[0]->id, result);
         else
         {
@@ -202,7 +250,7 @@ void Solver::MessageLoop()
             }
         }
 
-        if (result.error.error_code == ErrorCode::SOLVER_RESTARTED_ERROR)
+        if (result.error.error_code == ErrorCode::SOLVER_RESTARTED_ERROR && !temp_tasks.empty())
             document->ReSolve(temp_tasks[0]->id); //re-solve the expressions above and later this one
         
         temp_tasks.clear();

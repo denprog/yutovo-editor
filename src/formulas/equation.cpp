@@ -148,9 +148,9 @@ void Equation::ReSolve(bool if_error)
 
 bool Equation::Depends(const std::string& identifier)
 {
-    if (!auto_result)
-        return false;
-    return auto_result->Depends(identifier);
+    if (std::find(dependencies.begin(), dependencies.end(), identifier) != dependencies.end())
+        return true;
+    return false;
 }
 
 std::string Equation::ToHtml()

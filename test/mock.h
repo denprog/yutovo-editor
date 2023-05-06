@@ -257,27 +257,35 @@ struct FormulaTest : DocumentTest
     }
 };
 
-struct SolverAutoTest : DocumentTest
+struct SolverTest : DocumentTest
+{
+    SolverTest()
+    {
+        document.config.solve_delay = 0;
+    }
+};
+
+struct SolverAutoTest : SolverTest
 {
 };
 
-struct SolverRealTest : DocumentTest
+struct SolverRealTest : SolverTest
 {
 };
 
-struct SolverIntegerTest : DocumentTest
+struct SolverIntegerTest : SolverTest
 {
 };
 
-struct SolverRationalTest : DocumentTest
+struct SolverRationalTest : SolverTest
 {
 };
 
-struct AssignmentTest : DocumentTest
+struct AssignmentTest : SolverTest
 {
 };
 
-struct VariablesTest : DocumentTest
+struct VariablesTest : SolverTest
 {
 };
 

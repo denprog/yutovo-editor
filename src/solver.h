@@ -19,9 +19,9 @@ public:
     ~Solver();
 
     void Solve(ElementId id, uint code_id, yutovo_service::ResultType result_type, const uint precision, 
-        AngleMeasure angle_measure, Notation notation, const std::u32string& expression);
-    void SetUserIdentifier(ElementId id, uint code_id, const std::u32string& expression);
-    void RemoveIdentifier(ElementId id, uint code_id, const std::u32string& identifier);
+        AngleMeasure angle_measure, Notation notation, const std::u32string& expression, const uint delay);
+    void SetUserIdentifier(ElementId id, uint code_id, const std::u32string& expression, const uint delay);
+    void RemoveIdentifier(ElementId id, uint code_id, const std::u32string& identifier, const uint delay);
 
 private:
     void MessageLoop();
@@ -29,7 +29,7 @@ private:
 private:
     Document* document;
 
-    std::queue<SolverTaskPtr> tasks;
+    std::deque<SolverTaskPtr> tasks;
     std::vector<yutovo_service::ResultType> result_types_seq;
 
     Logger* logger;
