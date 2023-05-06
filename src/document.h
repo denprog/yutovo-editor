@@ -183,13 +183,14 @@ public:
     void SetEditorState(EditorState& state);
 
     void Solve(ElementId _id, uint code_id, yutovo_service::ResultType result_type, const uint precision, 
-        AngleMeasure angle_measure, Notation notation, std::u32string& expression);
+        AngleMeasure angle_measure, Notation notation, std::u32string& expression, const uint delay);
+    void SetUserIdentifier(ElementId _id, uint code_id, const std::u32string& identifier, const std::u32string& expression, const uint delay);
+    void RemoveIdentifier(ElementId _id, uint code_id, const std::u32string& identifier, const uint delay);
+
     void ReSolve(ElementId _id);
     void ReSolveDependencies(ElementId after_id, const std::u32string& identifier);
     void ReSolveErrors();
     void PutResult(ElementId _id, Result result);
-    void SetUserIdentifier(ElementId _id, uint code_id, const std::u32string& identifier, const std::u32string& expression);
-    void RemoveIdentifier(ElementId _id, uint code_id, const std::u32string& identifier);
 
     bool IsVisible(ElementId _id);
     ElementId GetFirstVisibleParagraph();
@@ -237,7 +238,6 @@ private:
     friend class LoadTask;
     friend class RedrawTask;
     friend class Caret;
-    friend class Solver;
 
     void UpdateCaretView();
     void UpdateLastSelection();
@@ -276,14 +276,14 @@ public:
 
     std::vector<ErrorMark> error_marks;
 
+    Config config;
+
 private:
     std::list<TaskPtr> tasks;
     std::deque<TaskPtr> undo_tasks;
     std::vector<TaskPtr> redo_tasks;
     std::vector<bool> undos; //requieres for undo
     std::vector<bool> redos; //requieres for redo
-
-    Config config;
 
     Solver solver;
 

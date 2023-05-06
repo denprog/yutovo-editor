@@ -88,8 +88,9 @@ void Assignment::Remake(bool with_elements, bool with_parent, bool with_undo)
     {
         auto code = document->FindParent(id, ElementType::CODE_BLOCK);
         if (last_identifier != U"")
-            document->RemoveIdentifier(id, ((CodeBlock*)code.get())->code_id, last_identifier);
-        document->SetUserIdentifier(id, ((CodeBlock*)code.get())->code_id, first->ToText(), expr.Text());
+            document->RemoveIdentifier(id, ((CodeBlock*)code.get())->code_id, last_identifier, delay ? document->config.solve_delay : 0);
+        document->SetUserIdentifier(id, ((CodeBlock*)code.get())->code_id, first->ToText(), expr.Text(), delay ? document->config.solve_delay : 0);
+        delay = true;
         last_identifier = first->ToText();
         last_expression = expr;
     }
@@ -100,7 +101,8 @@ bool Assignment::DeleteElements(bool left, bool with_undo)
     if (caret->GetPos() == 1 && last_identifier != U"")
     {
         auto code = document->FindParent(id, ElementType::CODE_BLOCK);
-        document->RemoveIdentifier(id, ((CodeBlock*)code.get())->code_id, last_identifier);
+        document->RemoveIdentifier(id, ((CodeBlock*)code.get())->code_id, last_identifier, delay ? document->config.solve_delay : 0);
+        delay = true;
     }
 
     return MiddleShapeFormula::DeleteElements(left, with_undo);
@@ -135,7 +137,10 @@ void Assignment::BeforeDelete()
     {
         auto code = document->FindParent(id, ElementType::CODE_BLOCK);
         if (code)
-            document->RemoveIdentifier(id, ((CodeBlock*)code.get())->code_id, last_identifier);
+        {
+            document->RemoveIdentifier(id, ((CodeBlock*)code.get())->code_id, last_identifier, delay ? document->config.solve_delay : 0);
+            delay = true;
+        }
         last->UnsubscribeOnChange(id);
     }
 }

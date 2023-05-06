@@ -1388,9 +1388,21 @@ void Document::SetEditorState(EditorState& state)
 }
 
 void Document::Solve(ElementId _id, uint code_id, yutovo_service::ResultType result_type, const uint precision, 
-    AngleMeasure angle_measure, Notation notation, std::u32string& expression)
+    AngleMeasure angle_measure, Notation notation, std::u32string& expression, const uint delay)
 {
-    solver.Solve(_id, code_id, result_type, precision, angle_measure, notation, expression + U";");
+    solver.Solve(_id, code_id, result_type, precision, angle_measure, notation, expression + U";", delay);
+}
+
+void Document::SetUserIdentifier(ElementId _id, uint code_id, const std::u32string& identifier, const std::u32string& expression, const uint delay)
+{
+    solver.SetUserIdentifier(_id, code_id, expression + U";", delay);
+    ReSolveDependencies(_id, identifier);
+}
+
+void Document::RemoveIdentifier(ElementId _id, uint code_id, const std::u32string& identifier, const uint delay)
+{
+    solver.RemoveIdentifier(_id, code_id, identifier, delay);
+    ReSolveDependencies(_id, identifier);
 }
 
 void Document::ReSolve(ElementId _id)
@@ -1418,18 +1430,6 @@ void Document::PutResult(ElementId _id, Result result)
 #ifdef DEBUG
     last_solver_task_id = tasks.back()->id;
 #endif
-}
-
-void Document::SetUserIdentifier(ElementId _id, uint code_id, const std::u32string& identifier, const std::u32string& expression)
-{
-    solver.SetUserIdentifier(_id, code_id, expression + U";");
-    ReSolveDependencies(_id, identifier);
-}
-
-void Document::RemoveIdentifier(ElementId _id, uint code_id, const std::u32string& identifier)
-{
-    solver.RemoveIdentifier(_id, code_id, identifier);
-    ReSolveDependencies(_id, identifier);
 }
 
 bool Document::IsVisible(ElementId _id)

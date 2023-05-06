@@ -7,6 +7,7 @@
 #include "../solver.h"
 #include "code_string.h"
 #include "code_block.h"
+#include "equation.h"
 
 namespace yutovo
 {
@@ -33,15 +34,14 @@ RealResult::RealResult(Document* _document) :
     type = ElementType::REAL_RESULT;
 }
 
-RealResult::RealResult(Element* parent, const std::string& mantissa, const std::string& exponent, const Dependencies& _dependencies) :
+RealResult::RealResult(Element* parent, const std::string& mantissa, const std::string& exponent) :
     ResultRow(parent)
 {
     type = ElementType::REAL_RESULT;
     elements->Clear();
 
-    dependencies = _dependencies;
-
     AddElement(ElementPtr(new CodeString(this, mantissa)));
+
     if (exponent.empty() || exponent == "0")
         return;
     
@@ -66,7 +66,7 @@ Element* RealResult::Clone()
 
 Element* RealResult::Create(Element* _parent)
 {
-    return new RealResult(_parent, "", "", Dependencies());
+    return new RealResult(_parent, "", "");
 }
 
 //IntegerResult
@@ -77,7 +77,7 @@ IntegerResult::IntegerResult(Document* _document) :
     type = ElementType::INTEGER_RESULT;
 }
 
-IntegerResult::IntegerResult(Element* parent, const std::string& value, const Dependencies& _dependencies) :
+IntegerResult::IntegerResult(Element* parent, const std::string& value) :
     ResultRow(parent)
 {
     type = ElementType::INTEGER_RESULT;
@@ -89,8 +89,6 @@ IntegerResult::IntegerResult(Element* parent, const std::string& value, const De
     }
     else
         AddElement(ElementPtr(new CodeString(this, value)));
-    
-    dependencies = _dependencies;
 }
 
 //RationalResult
@@ -101,7 +99,7 @@ RationalResult::RationalResult(Document* _document) :
     type = ElementType::RATIONAL_RESULT;
 }
 
-RationalResult::RationalResult(Element* parent, const std::string& numerator, const std::string& denomerator, const Dependencies& _dependencies) :
+RationalResult::RationalResult(Element* parent, const std::string& numerator, const std::string& denomerator) :
     ResultRow(parent)
 {
     type = ElementType::RATIONAL_RESULT;
@@ -116,8 +114,6 @@ RationalResult::RationalResult(Element* parent, const std::string& numerator, co
     else
         d->AddNumerator(ElementPtr(new CodeString(this, numerator)));
     d->AddDenomerator(ElementPtr(new CodeString(this, denomerator)));
-
-    dependencies = _dependencies;
 }
 
 //ComplexResult
@@ -142,7 +138,7 @@ ErrorResult::ErrorResult(Document* _document) :
     type = ElementType::ERROR_RESULT;
 }
 
-ErrorResult::ErrorResult(Element* parent, const Error& error, const Dependencies& _dependencies) :
+ErrorResult::ErrorResult(Element* parent, const Error& error) :
     ResultRow(parent)
 {
     type = ElementType::ERROR_RESULT;
@@ -154,8 +150,6 @@ ErrorResult::ErrorResult(Element* parent, const Error& error, const Dependencies
         AddElement(ElementPtr(new CodeString(this, ErrorCodeToString(error.parser_error_code))));
     else
         AddElement(ElementPtr(new CodeString(this, ErrorCodeToString(error.error_code))));
-
-    dependencies = _dependencies;
 }
 
 //AutoResult
@@ -218,12 +212,20 @@ void AutoResult::Solve(const ParserString& expression, yutovo_service::ResultTyp
         return;
     last_expression = expression;
 
+    elements->Clear();
+    Remake(true, true, false);
+
     auto code = document->FindParent(id, ElementType::CODE_BLOCK);
-    document->Solve(id, ((CodeBlock*)code.get())->code_id, result_type, precision, angle_measure, notation, last_expression.Text());
+    document->Solve(id, ((CodeBlock*)code.get())->code_id, result_type, precision, angle_measure, notation, last_expression.Text(), 
+        delay ? document->config.solve_delay : 0);
+    delay = true;
 }
 
 void AutoResult::PutResult(Result result)
 {
+    ElementPtr eq = document->FindParent(id, ElementType::EQUATION);
+    ((Equation*)eq.get())->dependencies = result.dependencies;
+
     last_error = result.error.error_code != ErrorCode::OK;
     if (result.error.error_code == ErrorCode::SOLVER_RESTARTED_ERROR)
         return;
@@ -232,7 +234,7 @@ void AutoResult::PutResult(Result result)
     if (result.error.error_code != ErrorCode::OK)
     {
         //put error message
-        elements->Add(ElementPtr(new ErrorResult(this, result.error, result.dependencies)));
+        elements->Add(ElementPtr(new ErrorResult(this, result.error)));
         ElementId err_id = last_expression.GetElement(result.error.pos);
         if (!err_id.empty())
         {
@@ -251,13 +253,13 @@ void AutoResult::PutResult(Result result)
         switch (result.type)
         {
         case ResultType::REAL:
-            elements->Add(ResultPtr(new RealResult(this, result.values["mantissa"], result.values["exponent"], result.dependencies)));
+            elements->Add(ResultPtr(new RealResult(this, result.values["mantissa"], result.values["exponent"])));
             break;
         case ResultType::INTEGER:
-            elements->Add(ResultPtr(new IntegerResult(this, result.values["value"], result.dependencies)));
+            elements->Add(ResultPtr(new IntegerResult(this, result.values["value"])));
             break;
         case ResultType::RATIONAL:
-            elements->Add(ResultPtr(new RationalResult(this, result.values["numerator"], result.values["denomerator"], result.dependencies)));
+            elements->Add(ResultPtr(new RationalResult(this, result.values["numerator"], result.values["denomerator"])));
             break;
         case ResultType::COMPLEX:
             break;
@@ -268,20 +270,6 @@ void AutoResult::PutResult(Result result)
         elements->Get(0)->SetEditable(false);
     Remake(true, false, false);
     document->Remake(parent->parent->id, true, false, false);
-}
-
-bool AutoResult::Depends(const std::string& identifier)
-{
-    for (int i = 0; i < elements->Count(); ++i)
-    {
-        ResultRow* r = dynamic_cast<ResultRow*>(elements->Get(i).get());
-        if (r)
-        {
-            if (std::find(r->dependencies.begin(), r->dependencies.end(), identifier) != r->dependencies.end())
-                return true;
-        }
-    }
-    return false;
 }
 
 }

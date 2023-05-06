@@ -8,17 +8,20 @@ namespace yutovo
 {
 
 using namespace yutovo_service;
+using namespace std::chrono;
 
 //SolverTask
 
-SolverTask::SolverTask(ElementId _id, std::string& _guid, uint _code_id, ExpressionType _expression_type, const std::u32string& _expression) :
+SolverTask::SolverTask(ElementId _id, std::string& _guid, uint _code_id, ExpressionType _expression_type, const std::u32string& _expression, const uint _delay) :
     id(_id),
     guid(_guid),
     code_id(_code_id),
     expression_type(_expression_type),
     expression(_expression),
+    delay(_delay),
     logger(Logger::GetInstance("programs/Math/bin/", "yutovo", true, true))
 {
+    cur_time = duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
 }
 
 bool SolverTask::SendRequest(const rapidjson::Document& json, Result& result, WebSocketPtr& socket)
@@ -94,8 +97,8 @@ void SolverTask::FillError(rapidjson::Document& doc, Result& result)
 //RealSolverTask
 
 RealSolverTask::RealSolverTask(ElementId _id, std::string& _guid, uint _code_id, ExpressionType _expression_type, const uint _precision, 
-    AngleMeasure _angle_measure, const std::u32string& _expression) :
-    SolverTask(_id, _guid, _code_id, _expression_type, _expression),
+    AngleMeasure _angle_measure, const std::u32string& _expression, const uint _delay) :
+    SolverTask(_id, _guid, _code_id, _expression_type, _expression, _delay),
     precision(_precision),
     angle_measure(_angle_measure)
 {
@@ -161,8 +164,8 @@ bool RealSolverTask::Execute(WebSocketPtr socket, Result& result)
 //IntegerSolverTask
 
 IntegerSolverTask::IntegerSolverTask(ElementId _id, std::string& _guid, uint _code_id, ExpressionType _expression_type, 
-    Notation _notation, const std::u32string& _expression) :
-    SolverTask(_id, _guid, _code_id, _expression_type, _expression),
+    Notation _notation, const std::u32string& _expression, const uint _delay) :
+    SolverTask(_id, _guid, _code_id, _expression_type, _expression, _delay),
     notation(_notation)
 {
 }
@@ -221,8 +224,9 @@ bool IntegerSolverTask::Execute(WebSocketPtr socket, Result& result)
 
 //RationalSolverTask
 
-RationalSolverTask::RationalSolverTask(ElementId _id, std::string& _guid, uint _code_id, ExpressionType _expression_type, const std::u32string& _expression) :
-    SolverTask(_id, _guid, _code_id, _expression_type, _expression)
+RationalSolverTask::RationalSolverTask(ElementId _id, std::string& _guid, uint _code_id, ExpressionType _expression_type, const std::u32string& _expression, 
+    const uint _delay) :
+    SolverTask(_id, _guid, _code_id, _expression_type, _expression, _delay)
 {
 }
 
@@ -282,8 +286,8 @@ bool RationalSolverTask::Execute(WebSocketPtr socket, Result& result)
 //RemoveIdentifierSolverTask
 
 RemoveIdentifierSolverTask::RemoveIdentifierSolverTask(ElementId _id, std::string& _guid, uint _code_id, const ResultType _result_type, 
-    const std::u32string& _expression) :
-    SolverTask(_id, _guid, _code_id, ExpressionType::USER_SYMBOL, _expression),
+    const std::u32string& _expression, const uint _delay) :
+    SolverTask(_id, _guid, _code_id, ExpressionType::USER_SYMBOL, _expression, _delay),
     result_type(_result_type)
 {
 }

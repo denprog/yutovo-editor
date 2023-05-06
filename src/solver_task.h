@@ -38,7 +38,7 @@ class Logger;
 
 struct SolverTask
 {
-    SolverTask(ElementId _id, std::string& _guid, uint _code_id, ExpressionType _expression_type, const std::u32string& _expression);
+    SolverTask(ElementId _id, std::string& _guid, uint _code_id, ExpressionType _expression_type, const std::u32string& _expression, const uint _delay);
 
     virtual bool Execute(WebSocketPtr socket, Result& result) = 0;
 
@@ -54,13 +54,15 @@ struct SolverTask
     uint code_id;
     ExpressionType expression_type;
     std::u32string expression;
+    int delay; //in milliseconds
+    uint64_t cur_time;
     Logger* logger;
 };
 
 struct RealSolverTask : SolverTask
 {
     RealSolverTask(ElementId _id, std::string& _guid, uint _code_id, ExpressionType _expression_type, const uint _precision, 
-        AngleMeasure _angle_measure, const std::u32string& _expression);
+        AngleMeasure _angle_measure, const std::u32string& _expression, const uint _delay);
 
     virtual bool Execute(WebSocketPtr socket, Result& result);
 
@@ -71,7 +73,7 @@ struct RealSolverTask : SolverTask
 struct IntegerSolverTask : SolverTask
 {
     IntegerSolverTask(ElementId _id, std::string& _guid, uint _code_id, ExpressionType _expression_type, Notation _notation, 
-        const std::u32string& _expression);
+        const std::u32string& _expression, const uint _delay);
 
     virtual bool Execute(WebSocketPtr socket, Result& result);
 
@@ -80,14 +82,14 @@ struct IntegerSolverTask : SolverTask
 
 struct RationalSolverTask : SolverTask
 {
-    RationalSolverTask(ElementId _id, std::string& _guid, uint _code_id, ExpressionType _expression_type, const std::u32string& _expression);
+    RationalSolverTask(ElementId _id, std::string& _guid, uint _code_id, ExpressionType _expression_type, const std::u32string& _expression, const uint _delay);
 
     virtual bool Execute(WebSocketPtr socket, Result& result);
 };
 
 struct RemoveIdentifierSolverTask : SolverTask
 {
-    RemoveIdentifierSolverTask(ElementId _id, std::string& _guid, uint _code_id, const ResultType _result_type, const std::u32string& _expression);
+    RemoveIdentifierSolverTask(ElementId _id, std::string& _guid, uint _code_id, const ResultType _result_type, const std::u32string& _expression, const uint _delay);
 
     virtual bool Execute(WebSocketPtr socket, Result& result);
 

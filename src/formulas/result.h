@@ -14,9 +14,6 @@ public:
     ResultRow(Document* _document);
     ResultRow(Element* parent);
     ResultRow(const ResultRow& source) = default;
-
-public:
-    Dependencies dependencies;
 };
 
 typedef std::shared_ptr<ResultRow> ResultPtr;
@@ -25,7 +22,7 @@ class RealResult : public ResultRow
 {
 public:
     RealResult(Document* _document);
-    RealResult(Element* parent, const std::string& mantissa, const std::string& exponent, const Dependencies& _dependencies);
+    RealResult(Element* parent, const std::string& mantissa, const std::string& exponent);
     RealResult(const RealResult& source) = default;
 
     virtual Element* Clone();
@@ -37,7 +34,7 @@ class IntegerResult : public ResultRow
 {
 public:
     IntegerResult(Document* _document);
-    IntegerResult(Element* parent, const std::string& value, const Dependencies& _dependencies);
+    IntegerResult(Element* parent, const std::string& value);
     IntegerResult(const IntegerResult& source) = default;
 };
 
@@ -45,7 +42,7 @@ class RationalResult : public ResultRow
 {
 public:
     RationalResult(Document* _document);
-    RationalResult(Element* parent, const std::string& numerator, const std::string& denomerator, const Dependencies& _dependencies);
+    RationalResult(Element* parent, const std::string& numerator, const std::string& denomerator);
     RationalResult(const RationalResult& source) = default;
 };
 
@@ -61,7 +58,7 @@ class ErrorResult : public ResultRow
 {
 public:
     ErrorResult(Document* _document);
-    ErrorResult(Element* parent, const Error& error, const Dependencies& _dependencies);
+    ErrorResult(Element* parent, const Error& error);
     ErrorResult(const ErrorResult& source) = default;
 };
 
@@ -81,8 +78,6 @@ public:
 
     void Solve(const ParserString& expression, yutovo_service::ResultType result_type);
     void PutResult(Result result);
-
-    virtual bool Depends(const std::string& identifier);
 
     template <class Archive>
     void save(Archive& ar, const unsigned int version) const
@@ -108,6 +103,8 @@ private:
     Notation notation = Notation::DECIMAL;
 
     ParserString last_expression;
+
+    bool delay = false; //don't delay on the first calculation
 };
 
 typedef std::shared_ptr<AutoResult> AutoResultPtr;
