@@ -1847,7 +1847,7 @@ TEST_F(DocumentTest, delete5)
 
     document.Undo();
     document.WaitUndo();
-    std::this_thread::sleep_for(400ms);
+    std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -1942,7 +1942,7 @@ TEST_F(DocumentTest, delete7)
         });
     
     document.WaitTask(document.InsertString("The source of the text itself is a little mysterious.", true));
-    std::this_thread::sleep_for(200ms);
+    std::this_thread::sleep_for(400ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -1955,7 +1955,7 @@ TEST_F(DocumentTest, delete7)
     document.MoveCaretUp(false);
     document.WaitTask(document.MoveCaretEnd(false));
     document.WaitTask(document.DeleteElements(true, true, false));
-    std::this_thread::sleep_for(100ms);
+    std::this_thread::sleep_for(200ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\

@@ -181,7 +181,7 @@ void Assignment::PutResult(Result result)
             }
         }
     }
-    document->Remake(id, true, false, false);
+    Remake(true, false, false);
 }
 
 std::string Assignment::ToHtml()

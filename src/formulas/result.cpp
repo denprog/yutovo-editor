@@ -203,7 +203,7 @@ void AutoResult::Remake(bool with_elements, bool with_parent, bool with_undo)
         Element::Remake(true, false, false);
     }
     baseline = elements->Get(0)->baseline;
-    document->Remake(parent->id, false, false, false);
+    parent->Remake(false, false, false);
 }
 
 void AutoResult::Solve(const ParserString& expression, yutovo_service::ResultType result_type)
@@ -269,7 +269,7 @@ void AutoResult::PutResult(Result result)
     if (elements->Count() > 0)
         elements->Get(0)->SetEditable(false);
     Remake(true, false, false);
-    document->Remake(parent->parent->id, true, false, false);
+    parent->Remake(true, true, false);
 }
 
 }
