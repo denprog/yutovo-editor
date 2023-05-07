@@ -173,8 +173,7 @@ TEST_F(DocumentTest, caret2)
         });
 
     document.SetFontSize(22);
-    document.InsertString("The source of the text itself is a little mysterious.", true);
-    document.WaitMainLoop();
+    document.WaitTask(document.InsertString("The source of the text itself is a little mysterious.", true));
     std::this_thread::sleep_for(400ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
@@ -186,42 +185,33 @@ TEST_F(DocumentTest, caret2)
         << document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 1, 0, 11)) << document.GetEditorState().ToString();
 
-    document.MoveCaretHome(false);
-    document.WaitCaretMoving();
+    document.WaitTask(document.MoveCaretHome(false));
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 1, 0, 0)) << document.GetEditorState().ToString();
 
-    document.MoveCaretLeft(false);
-    document.WaitCaretMoving();
+    document.WaitTask(document.MoveCaretLeft(false));
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 42)) << document.GetEditorState().ToString();
 
-    document.MoveCaretLeft(false);
-    document.WaitCaretMoving();
+    document.WaitTask(document.MoveCaretLeft(false));
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 41)) << document.GetEditorState().ToString();
 
     document.MoveCaretRight(false);
-    document.MoveCaretRight(false);
-    document.WaitCaretMoving();
+    document.WaitTask(document.MoveCaretRight(false));
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 1, 0, 0)) << document.GetEditorState().ToString();
 
-    document.MoveCaretRight(false);
-    document.WaitCaretMoving();
+    document.WaitTask(document.MoveCaretRight(false));
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 1, 0, 1)) << document.GetEditorState().ToString();
 
-    document.MoveCaretEnd(false);
-    document.WaitCaretMoving();
+    document.WaitTask(document.MoveCaretEnd(false));
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 1, 0, 11)) << document.GetEditorState().ToString();
 
-    document.MoveCaretUp(false);
-    document.WaitCaretMoving();
+    document.WaitTask(document.MoveCaretUp(false));
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 10)) << document.GetEditorState().ToString();
 
-    document.MoveCaretDown(false);
-    document.WaitCaretMoving();
+    document.WaitTask(document.MoveCaretDown(false));
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 1, 0, 11)) << document.GetEditorState().ToString();
 
     document.MoveCaretHome(false);
-    document.MoveCaretUp(false);
-    document.WaitCaretMoving();
+    document.WaitTask(document.MoveCaretUp(false));
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 0)) << document.GetEditorState().ToString();
 }
 
@@ -472,7 +462,7 @@ TEST_F(DocumentTest, caret8)
         });
     
     document.WaitTask(document.InsertString("The source of the text itself is a little mysterious.", true));
-    std::this_thread::sleep_for(100ms);
+    std::this_thread::sleep_for(200ms);
     document.WaitTask(document.SelectAll());
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 0, 11}, 
         ElementSelectionState{ElementId{0}, 0, 1})) << document.GetEditorState().ToString();
