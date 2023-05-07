@@ -107,7 +107,7 @@ void OpenFence::Remake(bool with_elements, bool with_parent, bool with_undo)
     if (rect != last_rect)
     {
         if (with_parent)
-            document->Remake(parent->id, false, with_undo, false);
+            parent->Remake(false, false, with_undo);
         document->Redraw(id, false);
     }
     last_rect = rect;
@@ -218,7 +218,7 @@ void CloseFence::Remake(bool with_elements, bool with_parent, bool with_undo)
     if (rect != last_rect)
     {
         if (with_parent)
-            document->Remake(parent->id, false, with_undo, false);
+            parent->Remake(false, false, with_undo);
         document->Redraw(id, false);
     }
     last_rect = rect;

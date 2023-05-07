@@ -251,10 +251,7 @@ struct FormulaTest : DocumentTest
     FormulaTest()
     {
         document.config.solve_delay = 0;
-    }
 
-    void SetUp() override
-    {
         EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
             {
                 return Rect{0, 0, 600, 400};

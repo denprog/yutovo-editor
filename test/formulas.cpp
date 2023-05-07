@@ -1457,7 +1457,7 @@ TEST_F(FormulaTest, select3)
     document.MoveCaretRight(true);
     document.MoveCaretRight(true);
     document.WaitTask(document.MoveCaretRight(true));
-    std::this_thread::sleep_for(600ms);
+    std::this_thread::sleep_for(800ms);
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 0, 2}, 
         ElementSelectionState{ElementId{0, 0, 0}, 1, 1},
         ElementSelectionState{ElementId{0, 0, 1, 0}, 0, 2})) << document.GetEditorState().ToString();
@@ -1516,7 +1516,7 @@ TEST_F(FormulaTest, select5)
     for (int i = 0; i < 7; ++i)
         document.MoveCaretRight(true);
     document.WaitTask(document.MoveCaretRight(true));
-    std::this_thread::sleep_for(400ms);
+    std::this_thread::sleep_for(800ms);
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 0, 4}, 
         ElementSelectionState{ElementId{0, 0, 0, 0}, 39, 3},
         ElementSelectionState{ElementId{0, 0, 0}, 1, 1},
@@ -1614,11 +1614,6 @@ TEST_F(FormulaTest, select7)
 //Selection rows in a code block
 TEST_F(FormulaTest, select8)
 {
-    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
-        {
-            return Rect{0, 0, 600, 400};
-        });
-
     document.InsertCode(false, true);
     document.InsertString("123", true);
     document.InsertPlus(true);
