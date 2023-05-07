@@ -174,13 +174,13 @@ void Row::Normalize(bool with_undo)
                                 },
                                 true);
                             document->DeleteElements(false, false, true);
+                            document->PushEditorState(SelectionState(id, elements->GetElementPos(el->id), 1), true);
                             document->CallFunc(ElementId{},
                                 [d = document, _id = id](const ElementId id)
                                 {
                                     d->can_normalize = false;
                                 },
                                 true);
-                            document->PushEditorState(SelectionState(id, elements->GetElementPos(el->id), 1), true);
                         }
                         window->OnCaretMoved(document->GetEditorState());
                         continue;

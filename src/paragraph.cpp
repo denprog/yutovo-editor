@@ -323,9 +323,8 @@ bool Paragraph::InsertElements(std::vector<ElementPtr>& _elements, bool with_und
     {
         if (!Element::InsertElements(_elements, with_undo))
             return false;
-        for (int i = 0; i < _elements[0]->elements->Count(); ++i)
-            _elements[0]->elements->Get(i)->AfterInsert(with_undo);
         Normalize(with_undo);
+        ReSolve();
         return true;
     }
 

@@ -463,15 +463,6 @@ uint Document::InsertFences(bool with_undo)
 
 uint Document::InsertFunction(const std::string& name, bool with_undo)
 {
-    // FormulaFormatPtr format;
-    // if (!GetCurrentFormulaFormat(format))
-    //     return 0;
-    // std::vector<ElementPtr> elements;
-    // elements.emplace_back(new CodeString(this, name, format->string_format));
-    // elements.emplace_back(new OpenFence(this));
-    // elements.emplace_back(new CloseFence(this));
-    // return InsertFormulas(elements, with_undo, false);
-
     InsertCodeString(name, true);
     InsertFormula(new OpenFence(this), with_undo, false, true);
     uint r = InsertFormula(new CloseFence(this), with_undo, false, true);

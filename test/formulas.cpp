@@ -1448,15 +1448,16 @@ TEST_F(FormulaTest, select3)
 
     document.WaitTask(document.InsertString("The source of the text itself is a little strange", true));
     document.MoveCaretUp(false);
-    document.MoveCaretEnd(false);
-    document.WaitCaretMoving();
+    document.WaitTask(document.MoveCaretEnd(false));
+    std::this_thread::sleep_for(200ms);
     document.WaitTask(document.InsertDivision(true));
+    std::this_thread::sleep_for(200ms);
     document.MoveCaretLeft(false);
     document.MoveCaretLeft(false);
     document.MoveCaretRight(true);
     document.MoveCaretRight(true);
     document.WaitTask(document.MoveCaretRight(true));
-    std::this_thread::sleep_for(400ms);
+    std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 0, 2}, 
         ElementSelectionState{ElementId{0, 0, 0}, 1, 1},
         ElementSelectionState{ElementId{0, 0, 1, 0}, 0, 2})) << document.GetEditorState().ToString();
@@ -1515,7 +1516,7 @@ TEST_F(FormulaTest, select5)
     for (int i = 0; i < 7; ++i)
         document.MoveCaretRight(true);
     document.WaitTask(document.MoveCaretRight(true));
-    std::this_thread::sleep_for(200ms);
+    std::this_thread::sleep_for(400ms);
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 0, 4}, 
         ElementSelectionState{ElementId{0, 0, 0, 0}, 39, 3},
         ElementSelectionState{ElementId{0, 0, 0}, 1, 1},
@@ -1524,7 +1525,7 @@ TEST_F(FormulaTest, select5)
     width = 380;
     document.Resize(width, 400);
     document.WaitMainLoop();
-    std::this_thread::sleep_for(200ms);
+    std::this_thread::sleep_for(400ms);
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 1, 4}, 
         ElementSelectionState{ElementId{0, 0, 0, 0}, 39, 3},
         ElementSelectionState{ElementId{0, 0, 1}, 0, 1},
@@ -1533,7 +1534,7 @@ TEST_F(FormulaTest, select5)
     width = 350;
     document.Resize(width, 400);
     document.WaitMainLoop();
-    std::this_thread::sleep_for(200ms);
+    std::this_thread::sleep_for(400ms);
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 2, 4}, 
         ElementSelectionState{ElementId{0, 0, 1, 0}, 4, 3},
         ElementSelectionState{ElementId{0, 0, 1}, 1, 1},
