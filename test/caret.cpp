@@ -472,6 +472,7 @@ TEST_F(DocumentTest, caret8)
         });
     
     document.WaitTask(document.InsertString("The source of the text itself is a little mysterious.", true));
+    std::this_thread::sleep_for(100ms);
     document.WaitTask(document.SelectAll());
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 0, 11}, 
         ElementSelectionState{ElementId{0}, 0, 1})) << document.GetEditorState().ToString();

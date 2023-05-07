@@ -528,7 +528,13 @@ bool String::AfterInsert(bool with_undo)
         return false;
     CaretState c;
     if (GetLastCaretState(c, nullptr))
+    {
+        if (with_undo)
+        {
+            document->PushEditorState(true);
+        }
         caret->SetState(c);
+    }
     return true;
 }
 

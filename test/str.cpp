@@ -566,6 +566,7 @@ TEST_F(DocumentTest, selections7)
         });
 
     document.WaitTask(document.InsertString("The source of the text itself is a little mysterious.", true));
+    std::this_thread::sleep_for(100ms);
     document.MoveCaretToDocumentBegin(false);
     document.MoveCaretWordRight(false);
     document.WaitTask(document.MoveCaretDown(true));
