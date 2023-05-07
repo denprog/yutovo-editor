@@ -254,7 +254,7 @@ bool Block::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo)
         }
     }
     
-    document->Remake(id, true, with_undo, false);
+    Remake(true, true, with_undo);
 
     if (new_row)
         new_row->Normalize(with_undo);
@@ -314,13 +314,17 @@ bool Block::DeleteElements(bool left, bool with_undo)
     }
 
     elements->RemoveAt(left ? p : p + 1, 1);
-    document->Remake(id, true, with_undo, false);
 
     if (with_undo)
         document->InsertParagraph(true, true);
     
     if (dest_row)
         dest_row->Normalize(with_undo);
+
+    if (parent)
+        parent->Remake(true, false, with_undo);
+    else
+        Remake(true, false, with_undo);
 
 #ifdef DEBUG
     to_str = ToText();
