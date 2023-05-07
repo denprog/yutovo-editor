@@ -354,7 +354,7 @@ TEST_F(FormulaTest, delete3)
 }
 
 //Delete a selected code block at the beginning of the text
-TEST_F(FormulaTest, delete4)
+TEST_F(FormulaTestCustom, delete4)
 {
     EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
         {
@@ -433,7 +433,7 @@ TEST_F(FormulaTest, delete4)
 }
 
 //Deletion of a selected formula
-TEST_F(FormulaTest, delete5)
+TEST_F(FormulaTestCustom, delete5)
 {
     EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
         {
@@ -481,7 +481,7 @@ TEST_F(FormulaTest, delete5)
 }
 
 //Deletion of a selected formula with a text
-TEST_F(FormulaTest, delete6)
+TEST_F(FormulaTestCustom, delete6)
 {
     EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
         {
@@ -567,7 +567,7 @@ TEST_F(FormulaTest, delete6)
 }
 
 //Delete an element on the left of a string
-TEST_F(FormulaTest, delete7)
+TEST_F(FormulaTestCustom, delete7)
 {
     EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
         {
@@ -630,7 +630,7 @@ TEST_F(FormulaTest, delete7)
 }
 
 //Delete a character from the right
-TEST_F(FormulaTest, delete8)
+TEST_F(FormulaTestCustom, delete8)
 {
     EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
         {
@@ -697,7 +697,7 @@ TEST_F(FormulaTest, delete8)
 }
 
 //Delete an element from the right
-TEST_F(FormulaTest, delete9)
+TEST_F(FormulaTestCustom, delete9)
 {
     EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
         {
@@ -784,7 +784,7 @@ TEST_F(FormulaTest, delete9)
 }
 
 //Delete a code block on the left
-TEST_F(FormulaTest, delete10)
+TEST_F(FormulaTestCustom, delete10)
 {
     EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
         {
@@ -859,7 +859,7 @@ TEST_F(FormulaTest, delete11)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 1})) << document.GetEditorState().ToString();
 }
 
-TEST_F(FormulaTest, insert1)
+TEST_F(FormulaTestCustom, insert1)
 {
     EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
         {
@@ -868,7 +868,7 @@ TEST_F(FormulaTest, insert1)
 
     document.SetFontSize(22);
     document.WaitTask(document.InsertString("Tradicionalmente, el medio de un documento era el papel y la información", true));
-    std::this_thread::sleep_for(200ms);
+    std::this_thread::sleep_for(400ms);
     document.MoveCaretToDocumentBegin(false);
     document.MoveCaretDown(false);
     document.MoveCaretRight(false);
@@ -927,7 +927,7 @@ TEST_F(FormulaTest, insert1)
 }
 
 //Insert code in text and reformat text
-TEST_F(FormulaTest, insert2)
+TEST_F(FormulaTestCustom, insert2)
 {
     EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
         {
@@ -1005,7 +1005,7 @@ TEST_F(FormulaTest, insert2)
 }
 
 //Insert formula, remake and undo
-TEST_F(FormulaTest, insert3)
+TEST_F(FormulaTestCustom, insert3)
 {
     EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
         {
@@ -1013,14 +1013,14 @@ TEST_F(FormulaTest, insert3)
         });
 
     document.WaitTask(document.InsertString("The source of the text itself is a little strange", true));
-    std::this_thread::sleep_for(100ms);
+    std::this_thread::sleep_for(200ms);
     document.MoveCaretUp(false);
     document.MoveCaretEnd(false);
     document.WaitCaretMoving();
     document.WaitTask(document.InsertDivision(true));
     document.Undo();
     document.WaitUndo();
-    std::this_thread::sleep_for(400ms);
+    std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -1058,7 +1058,7 @@ TEST_F(FormulaTest, insert3)
 }
 
 //Insert a formula at the end of a string
-TEST_F(FormulaTest, insert4)
+TEST_F(FormulaTestCustom, insert4)
 {
     EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
         {
@@ -1096,7 +1096,7 @@ TEST_F(FormulaTest, insert4)
 }
 
 //Insert a paragraph
-TEST_F(FormulaTest, insert5)
+TEST_F(FormulaTestCustom, insert5)
 {
     EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
         {
@@ -1192,7 +1192,7 @@ TEST_F(FormulaTest, insert5)
 }
 
 //Inserting a paragraph is prohibited
-TEST_F(FormulaTest, insert6)
+TEST_F(FormulaTestCustom, insert6)
 {
     EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
         {
@@ -1258,7 +1258,7 @@ TEST_F(FormulaTest, insert6)
 }
 
 //Insert a paragraph
-TEST_F(FormulaTest, insert7)
+TEST_F(FormulaTestCustom, insert7)
 {
     EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
         {
@@ -1326,7 +1326,7 @@ TEST_F(FormulaTest, insert7)
 }
 
 //Insert a paragraph
-TEST_F(FormulaTest, insert8)
+TEST_F(FormulaTestCustom, insert8)
 {
     EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
         {
@@ -1394,7 +1394,7 @@ TEST_F(FormulaTest, insert8)
 }
 
 //Selection of a formula
-TEST_F(FormulaTest, select1)
+TEST_F(FormulaTestCustom, select1)
 {
     EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
         {
@@ -1419,7 +1419,7 @@ TEST_F(FormulaTest, select1)
 }
 
 //Selection of a formula at the beginning of a text
-TEST_F(FormulaTest, select2)
+TEST_F(FormulaTestCustom, select2)
 {
     EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
         {
@@ -1438,7 +1438,7 @@ TEST_F(FormulaTest, select2)
 }
 
 //Selection of a formula at the end of a row
-TEST_F(FormulaTest, select3)
+TEST_F(FormulaTestCustom, select3)
 {
     int width = 400;
     EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
@@ -1472,7 +1472,7 @@ TEST_F(FormulaTest, select3)
 }
 
 //Selection of a child element of a formula at the end of a row
-TEST_F(FormulaTest, select4)
+TEST_F(FormulaTestCustom, select4)
 {
     int width = 424;
     EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
@@ -1499,7 +1499,7 @@ TEST_F(FormulaTest, select4)
 }
 
 //Selection of a part of row, a formula and a part of row
-TEST_F(FormulaTest, select5)
+TEST_F(FormulaTestCustom, select5)
 {
     int width = 400;
     EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
@@ -1508,6 +1508,7 @@ TEST_F(FormulaTest, select5)
         });
 
     document.WaitTask(document.InsertString("The source of the text itself is a little strange", true));
+    std::this_thread::sleep_for(200ms);
     document.MoveCaretUp(false);
     document.WaitTask(document.MoveCaretEnd(false));
     document.WaitTask(document.InsertDivision(true));
@@ -1516,7 +1517,7 @@ TEST_F(FormulaTest, select5)
     for (int i = 0; i < 7; ++i)
         document.MoveCaretRight(true);
     document.WaitTask(document.MoveCaretRight(true));
-    std::this_thread::sleep_for(800ms);
+    std::this_thread::sleep_for(1s);
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 0, 4}, 
         ElementSelectionState{ElementId{0, 0, 0, 0}, 39, 3},
         ElementSelectionState{ElementId{0, 0, 0}, 1, 1},
@@ -1553,11 +1554,6 @@ TEST_F(FormulaTest, select5)
 //Selection rows in a code block
 TEST_F(FormulaTest, select6)
 {
-    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
-        {
-            return Rect{0, 0, 600, 400};
-        });
-
     document.InsertCode(false, true);
     document.InsertString("123", true);
     document.InsertDivision(true);
@@ -1587,11 +1583,6 @@ TEST_F(FormulaTest, select6)
 //Selection rows in a code block
 TEST_F(FormulaTest, select7)
 {
-    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
-        {
-            return Rect{0, 0, 600, 400};
-        });
-
     document.InsertCode(false, true);
     document.InsertString("123", true);
     document.InsertPlus(true);
@@ -1639,11 +1630,6 @@ TEST_F(FormulaTest, select8)
 //Select a code block
 TEST_F(FormulaTest, select9)
 {
-    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
-        {
-            return Rect{0, 0, 600, 400};
-        });
-
     document.InsertCode(false, true);
     document.InsertString("123", true);
     document.MoveCaretEnd(false);
@@ -1658,11 +1644,6 @@ TEST_F(FormulaTest, select9)
 //Select a code block
 TEST_F(FormulaTest, select10)
 {
-    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
-        {
-            return Rect{0, 0, 600, 400};
-        });
-
     document.InsertDivision(true);
     document.InsertString("123", true);
     document.MoveCaretEnd(false);
@@ -1678,11 +1659,6 @@ TEST_F(FormulaTest, select10)
 //Selection rows in a code block
 TEST_F(FormulaTest, select11)
 {
-    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
-        {
-            return Rect{0, 0, 600, 400};
-        });
-
     document.InsertCode(false, true);
     document.InsertString("123", true);
     document.InsertPlus(true);

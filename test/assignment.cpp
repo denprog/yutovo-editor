@@ -16,11 +16,6 @@ TEST_F(AssignmentTest, assignment1)
             return Rect{0, 0, 600, 400};
         });
 
-    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
-        {
-            return GetTextSizeMock(text, format);
-        });
-    
     document.InsertCode(false, true);
     document.InsertString("x", true);
     document.InsertAssignment(true);
@@ -97,11 +92,6 @@ TEST_F(AssignmentTest, assignment2)
             return Rect{0, 0, 600, 400};
         });
 
-    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
-        {
-            return GetTextSizeMock(text, format);
-        });
-    
     document.InsertCode(false, true);
     document.InsertString("x", true);
     document.InsertAssignment(true);
@@ -183,11 +173,6 @@ TEST_F(AssignmentTest, assignment3)
             return Rect{0, 0, 600, 400};
         });
 
-    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
-        {
-            return GetTextSizeMock(text, format);
-        });
-    
     document.InsertCode(false, true);
     document.InsertString("f", true);
     document.InsertOpenFence(true);
@@ -284,11 +269,6 @@ TEST_F(AssignmentTest, assignment4)
             return Rect{0, 0, 600, 400};
         });
 
-    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
-        {
-            return GetTextSizeMock(text, format);
-        });
-    
     document.InsertCode(false, true);
     document.InsertString("x", true);
     document.InsertAssignment(true);
@@ -417,11 +397,6 @@ TEST_F(AssignmentTest, assignment5)
             return Rect{0, 0, 600, 400};
         });
 
-    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
-        {
-            return GetTextSizeMock(text, format);
-        });
-    
     document.InsertCode(false, true);
     document.InsertString("x", true);
     document.InsertAssignment(true);
@@ -484,11 +459,6 @@ TEST_F(AssignmentTest, delete1)
             return Rect{0, 0, 600, 400};
         });
 
-    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
-        {
-            return GetTextSizeMock(text, format);
-        });
-    
     document.InsertCode(false, true);
     document.InsertString("x", true);
     document.InsertAssignment(true);
@@ -542,11 +512,6 @@ TEST_F(AssignmentTest, delete2)
             return Rect{0, 0, 600, 400};
         });
 
-    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
-        {
-            return GetTextSizeMock(text, format);
-        });
-    
     document.InsertCode(false, true);
     document.InsertString("x", true);
     document.InsertAssignment(true);

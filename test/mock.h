@@ -259,6 +259,14 @@ struct FormulaTest : DocumentTest
     }
 };
 
+struct FormulaTestCustom : DocumentTest
+{
+    FormulaTestCustom()
+    {
+        document.config.solve_delay = 0;
+    }
+};
+
 struct SolverTest : DocumentTest
 {
     SolverTest()
