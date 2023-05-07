@@ -16,11 +16,6 @@ TEST_F(DocumentTest, strings1)
             return Rect{0, 0, 600, 400};
         });
 
-    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
-        {
-            return GetTextSizeMock(text, format);
-        });
-
     document.WaitTask(document.SetFontSize(22));
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == "<body><p><span style=\"font-family:'Arial';font-size:14px;\"></span></p></body>") << document.ToHtml();
@@ -74,11 +69,6 @@ TEST_F(DocumentTest, strings2)
     EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
         {
             return Rect{0, 0, 600, 400};
-        });
-
-    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
-        {
-            return GetTextSizeMock(text, format);
         });
 
     ASSERT_TRUE(document.ToHtml() == "<body><p><span style=\"font-family:'Arial';font-size:14px;\"></span></p></body>") << document.ToHtml();
@@ -187,11 +177,6 @@ TEST_F(DocumentTest, selections1)
             return Rect{0, 0, 600, 400};
         });
 
-    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
-        {
-            return GetTextSizeMock(text, format);
-        });
-
     document.WaitTask(document.InsertString("TestString", true));
     ASSERT_TRUE(document.ToText() == U"TestString") << ToBasicString(document.ToText());
 
@@ -251,11 +236,6 @@ TEST_F(DocumentTest, selections2)
     EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
         {
             return Rect{0, 0, 600, 400};
-        });
-
-    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
-        {
-            return GetTextSizeMock(text, format);
         });
 
     document.SetFontSize(22);
@@ -343,11 +323,6 @@ TEST_F(DocumentTest, selections3)
     EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
         {
             return Rect{0, 0, 600, 400};
-        });
-
-    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
-        {
-            return GetTextSizeMock(text, format);
         });
 
     document.InsertString("Normal", document.GetStringFormat("Arial", 16, false, false, false), true);
@@ -466,11 +441,6 @@ TEST_F(DocumentTest, selections4)
             return Rect{0, 0, 600, 400};
         });
 
-    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
-        {
-            return GetTextSizeMock(text, format);
-        });
-
     document.Load("../test/tests/file1.txt");
     document.WaitLoad();
     std::this_thread::sleep_for(2000ms);
@@ -509,11 +479,6 @@ TEST_F(DocumentTest, selections5)
     EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
         {
             return Rect{0, 0, 600, 400};
-        });
-
-    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
-        {
-            return GetTextSizeMock(text, format);
         });
 
     document.InsertString("1234", true);
@@ -566,7 +531,7 @@ TEST_F(DocumentTest, selections7)
         });
 
     document.WaitTask(document.InsertString("The source of the text itself is a little mysterious.", true));
-    std::this_thread::sleep_for(100ms);
+    std::this_thread::sleep_for(200ms);
     document.MoveCaretToDocumentBegin(false);
     document.MoveCaretWordRight(false);
     document.WaitTask(document.MoveCaretDown(true));
@@ -585,11 +550,6 @@ TEST_F(DocumentTest, inserts1)
     EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
         {
             return Rect{0, 0, 600, 400};
-        });
-
-    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
-        {
-            return GetTextSizeMock(text, format);
         });
 
     document.SetFontSize(22);
@@ -616,11 +576,6 @@ TEST_F(DocumentTest, inserts2)
     EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
         {
             return Rect{0, 0, 600, 400};
-        });
-
-    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
-        {
-            return GetTextSizeMock(text, format);
         });
 
     document.SetFontSize(22);
@@ -697,11 +652,6 @@ TEST_F(DocumentTest, inserts3)
             return Rect{0, 0, 600, 400};
         });
 
-    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
-        {
-            return GetTextSizeMock(text, format);
-        });
-
     document.SetFontSize(22);
     document.InsertString("Text", document.GetStringFormat("Arial", 24, false, false, false), true);
     document.InsertString("Italic", document.GetStringFormat("Times New Roman", 18, false, true, false), true);
@@ -761,11 +711,6 @@ TEST_F(DocumentTest, inserts4)
             return Rect{0, 0, 600, 400};
         });
 
-    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
-        {
-            return GetTextSizeMock(text, format);
-        });
-
     document.InsertString("Text", document.GetStringFormat("Arial", 24, false, false, false), true);
     for (int i = 0; i < 4; ++i)
         document.DeleteElements(true, true, false);
@@ -802,11 +747,6 @@ TEST_F(DocumentTest, inserts5)
     EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
         {
             return Rect{0, 0, 600, 400};
-        });
-
-    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
-        {
-            return GetTextSizeMock(text, format);
         });
 
     document.InsertString("Text", document.GetStringFormat("Arial", 24, false, false, false), true);
@@ -853,11 +793,6 @@ TEST_F(DocumentTest, inserts6)
             return Rect{0, 0, 600, 400};
         });
 
-    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
-        {
-            return GetTextSizeMock(text, format);
-        });
-
     document.InsertString("Text", document.GetStringFormat("Arial", 24, false, false, false), true);
     document.MoveCaretHome(false);
     document.WaitTask(document.InsertString("Bold", document.GetStringFormat("Arial", 24, true, false, false), true));
@@ -897,11 +832,6 @@ TEST_F(DocumentTest, inserts7)
     EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
         {
             return Rect{0, 0, 600, 400};
-        });
-
-    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
-        {
-            return GetTextSizeMock(text, format);
         });
 
     document.InsertString("Text", document.GetStringFormat("Arial", 24, false, false, false), true);
@@ -986,11 +916,6 @@ TEST_F(DocumentTest, inserts8)
             return Rect{0, 0, 300, 400};
         });
 
-    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
-        {
-            return GetTextSizeMock(text, format);
-        });
-
     document.WaitTask(document.InsertString("The_source_of_the_text_itself_isa", true));
     std::this_thread::sleep_for(200ms);
     document.WaitTask(document.InsertString(" ", true));
@@ -1026,11 +951,6 @@ TEST_F(DocumentTest, inserts9)
             return Rect{0, 0, 300, 400};
         });
 
-    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
-        {
-            return GetTextSizeMock(text, format);
-        });
-
     document.WaitTask(document.InsertString("The_source_of_the_text_itself_isa", true));
     document.Undo();
     document.WaitUndo();
@@ -1049,11 +969,6 @@ TEST_F(DocumentTest, fonts1)
     EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
         {
             return Rect{0, 0, 600, 400};
-        });
-
-    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
-        {
-            return GetTextSizeMock(text, format);
         });
 
     document.SetFontFamily("Courier New");
@@ -1170,11 +1085,6 @@ TEST_F(DocumentTest, fonts2)
     EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
         {
             return Rect{0, 0, 600, 400};
-        });
-
-    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
-        {
-            return GetTextSizeMock(text, format);
         });
 
     document.WaitTask(document.InsertString("Text", document.GetStringFormat("Arial", 24, false, false, false), true));
@@ -1340,11 +1250,6 @@ TEST_F(DocumentTest, fonts3)
             return Rect{0, 0, 600, 400};
         });
 
-    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
-        {
-            return GetTextSizeMock(text, format);
-        });
-
     document.InsertString("Text", document.GetStringFormat("Arial", 24, false, false, false), true);
     document.InsertString("Italic", document.GetStringFormat("Courier New", 14, false, true, false), true);
     for (int i = 0; i < 3; ++i)
@@ -1390,11 +1295,6 @@ TEST_F(DocumentTest, fonts4)
             return Rect{0, 0, 600, 400};
         });
 
-    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
-        {
-            return GetTextSizeMock(text, format);
-        });
-
     document.SetFontSize(22);
     document.InsertString("Text", true);
     document.WaitTask(document.InsertCode(false, true));
@@ -1422,11 +1322,6 @@ TEST_F(DocumentTest, fonts5)
     EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
         {
             return Rect{0, 0, 600, 400};
-        });
-
-    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
-        {
-            return GetTextSizeMock(text, format);
         });
 
     document.SetFontSize(22);
@@ -1459,11 +1354,6 @@ TEST_F(DocumentTest, fonts6)
             return Rect{0, 0, 600, 400};
         });
 
-    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
-        {
-            return GetTextSizeMock(text, format);
-        });
-
     document.SetFontSize(22);
     document.InsertString("Text", true);
     std::this_thread::sleep_for(100ms);
@@ -1477,11 +1367,6 @@ TEST_F(DocumentTest, delete1)
     EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
         {
             return Rect{0, 0, 600, 400};
-        });
-
-    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
-        {
-            return GetTextSizeMock(text, format);
         });
 
     document.InsertString("Text", document.GetStringFormat("Arial", 24, false, false, false), true);
@@ -1586,11 +1471,6 @@ TEST_F(DocumentTest, delete2)
     EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
         {
             return Rect{0, 0, 600, 400};
-        });
-
-    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
-        {
-            return GetTextSizeMock(text, format);
         });
 
     document.InsertString("Text", document.GetStringFormat("Arial", 24, false, false, false), true);
@@ -1706,11 +1586,6 @@ TEST_F(DocumentTest, delete3)
             return Rect{0, 0, 600, 400};
         });
 
-    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
-        {
-            return GetTextSizeMock(text, format);
-        });
-
     document.InsertString("Text", document.GetStringFormat("Arial", 24, false, false, false), true);
     document.InsertString("Italic", document.GetStringFormat("Times New Roman", 18, false, true, false), true);
     document.InsertString("Normal", document.GetStringFormat("Arial", 22, false, false, false), true);
@@ -1794,11 +1669,6 @@ TEST_F(DocumentTest, delete4)
             return Rect{0, 0, 600, 400};
         });
 
-    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
-        {
-            return GetTextSizeMock(text, format);
-        });
-
     document.InsertString("La versión 3 de la especificación MathML fue lanzada como Recomendación de W3C el 20 de octubre de 2010.", true);
     document.WaitMainLoop();
     document.MoveCaretToDocumentBegin(false);
@@ -1822,11 +1692,6 @@ TEST_F(DocumentTest, delete5)
     EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
         {
             return Rect{0, 0, 390, 400};
-        });
-
-    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
-        {
-            return GetTextSizeMock(text, format);
         });
 
     document.WaitTask(document.InsertString("In literary theory, a text is any object that can be read, whether this object is a work of literature", true));
@@ -1869,11 +1734,6 @@ TEST_F(DocumentTest, delete6)
             return Rect{0, 0, 368, 400};
         });
 
-    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
-        {
-            return GetTextSizeMock(text, format);
-        });
-    
     document.WaitTask(document.InsertString("The source of the text itself is a little mysterious.", true));
     document.WaitTask(document.SelectAll());
     std::this_thread::sleep_for(200ms);
@@ -1936,11 +1796,6 @@ TEST_F(DocumentTest, delete7)
             return Rect{0, 0, 330, 400};
         });
 
-    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
-        {
-            return GetTextSizeMock(text, format);
-        });
-    
     document.WaitTask(document.InsertString("The source of the text itself is a little mysterious.", true));
     std::this_thread::sleep_for(400ms);
     ASSERT_TRUE(document.ToHtml() == 
@@ -2026,11 +1881,6 @@ TEST_F(DocumentTest, delete8)
             return Rect{0, 0, 227, 400};
         });
 
-    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
-        {
-            return GetTextSizeMock(text, format);
-        });
-    
     document.WaitTask(document.InsertString("The_source_of_the_text_itself_is a little mysterious.", true));
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
@@ -2077,11 +1927,6 @@ TEST_F(DocumentTest, delete9)
             return Rect{0, 0, 300, 400};
         });
 
-    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
-        {
-            return GetTextSizeMock(text, format);
-        });
-    
     document.WaitTask(document.InsertString("The_source_of_the_text_itself_is a little mysterious.", true));
     document.MoveCaretUp(false);
     document.WaitTask(document.MoveCaretEnd(false));
@@ -2141,11 +1986,6 @@ TEST_F(DocumentTest, delete10)
             return Rect{0, 0, 300, 400};
         });
 
-    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
-        {
-            return GetTextSizeMock(text, format);
-        });
-    
     document.WaitTask(document.InsertString("The source of the text itself is a little mysterious.", true));
     document.MoveCaretUp(false);
     document.WaitTask(document.MoveCaretEnd(false));
@@ -2183,11 +2023,6 @@ TEST_F(DocumentTest, delete11)
             return Rect{0, 0, 288, 400};
         });
 
-    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
-        {
-            return GetTextSizeMock(text, format);
-        });
-    
     document.WaitTask(document.InsertString("The source of the text itself is a little mysterious.", true));
     document.WaitTask(document.MoveCaretHome(false));
     document.WaitTask(document.DeleteElements(true, true, false));
@@ -2224,11 +2059,6 @@ TEST_F(DocumentTest, undo1)
             return Rect{0, 0, 600, 400};
         });
 
-    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
-        {
-            return GetTextSizeMock(text, format);
-        });
-    
     Config config;
     document.GetConfig(config);
     config.undo_size = 4;
