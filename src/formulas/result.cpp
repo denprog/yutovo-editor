@@ -263,6 +263,8 @@ void AutoResult::PutResult(Result result)
             break;
         case ResultType::COMPLEX:
             break;
+        default:
+            break;
         }
     }
 

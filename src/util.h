@@ -2,9 +2,9 @@
 #define __UTIL_H__
 
 #include <stdint.h>
-#include "caret_state.h"
-#include "solver_task.h"
 #include <boost/locale.hpp>
+#include <yutovo_calculator/parser_exception.h>
+#include <yutovo_service/types.h>
 
 typedef unsigned int uint;
 
@@ -13,6 +13,8 @@ namespace yutovo
 
 class Document;
 class Element;
+
+typedef std::vector<uint> ElementId;
 
 struct Point
 {

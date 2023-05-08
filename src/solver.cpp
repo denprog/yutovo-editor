@@ -65,6 +65,8 @@ void Solver::Solve(ElementId id, uint code_id, yutovo_service::ResultType result
         case yutovo_service::ResultType::RATIONAL:
             tasks.emplace_back(new RationalSolverTask(id, guid, code_id, ExpressionType::SOLVE, expression, delay));
             break;
+        default:
+            break;
         }
 
         tasks.emplace_back(nullptr);
