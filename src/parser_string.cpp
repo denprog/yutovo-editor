@@ -17,6 +17,11 @@ bool ParserString::operator==(const ParserString& str)
     return text == str.text;
 }
 
+bool ParserString::operator!=(const ParserString& str)
+{
+    return text != str.text;
+}
+
 void ParserString::Add(const ElementId id, const std::u32string& _text)
 {
     if (_text.empty())

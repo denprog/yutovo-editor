@@ -4,7 +4,6 @@
 #include <string>
 #include <vector>
 #include <list>
-#include "util.h"
 #include "style.h"
 #include "editor_state.h"
 #include "result_codes.h"

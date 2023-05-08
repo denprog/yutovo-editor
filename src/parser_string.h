@@ -3,6 +3,7 @@
 
 #include "caret_state.h"
 #include <vector>
+#include <string>
 
 namespace yutovo
 {
@@ -13,6 +14,7 @@ public:
     ParserString& operator=(const ParserString& str);
 
     bool operator==(const ParserString& str);
+    bool operator!=(const ParserString& str);
 
     void Add(const ElementId id, const std::u32string& _text);
     void Add(const ParserString& str);
