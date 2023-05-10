@@ -573,18 +573,16 @@ bool RedrawTask::Execute()
     
     //logger->Debug("Execute RedrawTask element_id={}", IdToString(element_id));
 
-    document->caret->Hide();
-
     Rect clear_rect = element->draw_rect.IsEmpty() ? element->GetAbsoluteRect() : element->draw_rect;
     window->ClearRect(clear_rect); //clear last rect before drawing
     element->Draw(); //draw element and update its rect
     element->UpdateDrawRect();
 
-    document->caret->Show();
     window->SetDocumentSize({text->rect.width, text->rect.height});
     window->Update(element->GetAbsoluteRect());
     if (move_into_view)
         document->UpdateCaretView();
+    document->caret->Show();
     return true;
 }
 
@@ -757,14 +755,15 @@ bool MoveCaretTask::Execute()
     if (move_into_view)
         document->UpdateCaretView();
     document->UpdateLastSelection();
-    document->caret->Show();
 
     if (!select)
     {
         document->selection.Clear();
         document->UpdateLastSelection();
-        text->window->OnCaretMoved(document->GetEditorState());
+        window->OnCaretMoved(document->GetEditorState());
     }
+
+    document->caret->Show();
 
 #ifdef DEBUG
     document->last_caret_moved = true;
