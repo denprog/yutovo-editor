@@ -11,11 +11,6 @@ using namespace std::chrono_literals;
 
 TEST_F(SolverAutoTest, solver1)
 {
-    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
-        {
-            return Rect{0, 0, 600, 400};
-        });
-
     document.InsertCode(false, true);
     document.InsertString("1", true);
     document.InsertEquation(ResultType::AUTO, true);
@@ -87,11 +82,6 @@ TEST_F(SolverAutoTest, solver1)
 
 TEST_F(SolverAutoTest, solver2)
 {
-    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
-        {
-            return Rect{0, 0, 600, 400};
-        });
-
     document.InsertCode(false, true);
     document.InsertString("2", true);
     document.InsertPlus(true);
@@ -171,11 +161,6 @@ TEST_F(SolverAutoTest, solver2)
 
 TEST_F(SolverAutoTest, solver3)
 {
-    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
-        {
-            return Rect{0, 0, 600, 400};
-        });
-
     document.InsertCode(false, true);
     document.InsertString("2", true);
     document.InsertPlus(true);
@@ -229,11 +214,6 @@ TEST_F(SolverAutoTest, solver3)
 //log
 TEST_F(SolverAutoTest, solver4)
 {
-    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
-        {
-            return Rect{0, 0, 600, 400};
-        });
-
     document.InsertSubscriptFunction("log", true);
     document.WaitMainLoop();
     std::this_thread::sleep_for(100ms);
@@ -297,11 +277,6 @@ TEST_F(SolverAutoTest, solver4)
 //Solve after changing element
 TEST_F(SolverAutoTest, solver5)
 {
-    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
-        {
-            return Rect{0, 0, 600, 400};
-        });
-
     document.InsertDivision(true);
     document.InsertString("3345", true);
     document.WaitMainLoop();
@@ -349,11 +324,6 @@ TEST_F(SolverAutoTest, solver5)
 //Solve with errors
 TEST_F(SolverAutoTest, solver6)
 {
-    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
-        {
-            return Rect{0, 0, 600, 400};
-        });
-
     document.WaitTask(document.InsertDivision(true));
     document.WaitMainLoop();
     document.MoveCaretRight(false);
@@ -492,11 +462,6 @@ TEST_F(SolverAutoTest, solver6)
 //Remove the equation sign
 TEST_F(SolverAutoTest, solver7)
 {
-    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
-        {
-            return Rect{0, 0, 600, 400};
-        });
-
     document.InsertCode(false, true);
     document.InsertString("12", true);
     document.InsertPlus(true);
@@ -597,11 +562,6 @@ TEST_F(SolverAutoTest, solver7)
 //Replace the row with equation below and change it
 TEST_F(SolverAutoTest, solver8)
 {
-    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
-        {
-            return Rect{0, 0, 600, 400};
-        });
-
     document.InsertCode(false, true);
     document.InsertString("2", true);
     document.InsertPlus(true);
@@ -678,11 +638,6 @@ TEST_F(SolverAutoTest, solver8)
 //Insert a paragraph in the row with equation
 TEST_F(SolverAutoTest, solver9)
 {
-    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
-        {
-            return Rect{0, 0, 600, 400};
-        });
-    
     document.InsertCode(false, true);
     document.InsertString("235", true);
     document.InsertPlus(true);
@@ -710,14 +665,60 @@ TEST_F(SolverAutoTest, solver9)
         ) << ToBasicString(document.ToText());
 }
 
+//Solve a big number, result must be uneditable
+TEST_F(SolverAutoTest, solver10)
+{
+    document.InsertCode(false, true);
+    document.InsertString("235235435345", true);
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"235235435345=2.352*pow(10,11)"
+        ) << ToBasicString(document.ToText());
+    
+    for (int i = 0; i < 5; ++i)
+        document.MoveCaretRight(false);
+    document.WaitTask(document.MoveCaretRight(false));
+    document.WaitTask(document.DeleteElements(true, true, false));
+    document.WaitTask(document.MoveCaretRight(false));
+    document.WaitTask(document.DeleteElements(false, true, false));
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"235235435345=2.352*pow(10,11)"
+        ) << ToBasicString(document.ToText());
+
+    document.Undo();
+    document.WaitUndo();
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"235235435345"
+        ) << ToBasicString(document.ToText());
+
+    document.Redo();
+    document.WaitRedo();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"235235435345=2.352*pow(10,11)"
+        ) << ToBasicString(document.ToText());
+
+    document.WaitTask(document.MoveCaretRight(false));
+    document.WaitTask(document.DeleteElements(false, true, false));
+    ASSERT_TRUE(document.ToText() == 
+        U"235235435345=2.352*pow(10,11)"
+        ) << ToBasicString(document.ToText());
+
+    document.Undo();
+    document.WaitUndo();
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"235235435345"
+        ) << ToBasicString(document.ToText());
+}
+
 //Solve with errors
 TEST_F(SolverAutoTest, errors1)
 {
-    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
-        {
-            return Rect{0, 0, 600, 400};
-        });
-
     document.InsertCode(false, true);
     document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
     document.MoveCaretLeft(false);
@@ -895,11 +896,6 @@ TEST_F(SolverAutoTest, errors1)
 //Solve with errors
 TEST_F(SolverAutoTest, errors2)
 {
-    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
-        {
-            return Rect{0, 0, 600, 400};
-        });
-
     document.InsertCode(false, true);
     document.InsertSquareRoot(true);
     document.InsertString("2", true);
@@ -934,11 +930,6 @@ TEST_F(SolverAutoTest, errors2)
 //Solve with errors
 TEST_F(SolverAutoTest, errors3)
 {
-    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
-        {
-            return Rect{0, 0, 600, 400};
-        });
-
     document.InsertCode(false, true);
     document.InsertSquareRoot(true);
     document.MoveCaretRight(false);
