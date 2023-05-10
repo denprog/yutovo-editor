@@ -182,7 +182,7 @@ bool InsertElementsTask::Execute()
     {
         _el->parent = nullptr;
         std::vector<ElementPtr> t{_el};
-        if (!el->InsertElements(t, with_undo))
+        if (el->editable && !el->InsertElements(t, with_undo))
         {
             if (with_undo)
                 document->RollbackUndo();
@@ -261,7 +261,7 @@ bool DeleteElementsTask::Execute()
     auto DeleteElements = [&](ElementPtr el)
     {
         assert(el != nullptr);
-        return el->DeleteElements(left, with_undo);
+        return el->editable && el->DeleteElements(left, with_undo);
     };
 
     if (selection_state.IsEmpty())
