@@ -16,11 +16,6 @@ TEST_F(SolverAutoTest, solver1)
             return Rect{0, 0, 600, 400};
         });
 
-    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
-        {
-            return GetTextSizeMock(text, format);
-        });
-    
     document.InsertCode(false, true);
     document.InsertString("1", true);
     document.InsertEquation(ResultType::AUTO, true);
@@ -97,11 +92,6 @@ TEST_F(SolverAutoTest, solver2)
             return Rect{0, 0, 600, 400};
         });
 
-    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
-        {
-            return GetTextSizeMock(text, format);
-        });
-    
     document.InsertCode(false, true);
     document.InsertString("2", true);
     document.InsertPlus(true);
@@ -186,11 +176,6 @@ TEST_F(SolverAutoTest, solver3)
             return Rect{0, 0, 600, 400};
         });
 
-    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
-        {
-            return GetTextSizeMock(text, format);
-        });
-    
     document.InsertCode(false, true);
     document.InsertString("2", true);
     document.InsertPlus(true);
@@ -249,11 +234,6 @@ TEST_F(SolverAutoTest, solver4)
             return Rect{0, 0, 600, 400};
         });
 
-    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
-        {
-            return GetTextSizeMock(text, format);
-        });
-    
     document.InsertSubscriptFunction("log", true);
     document.WaitMainLoop();
     std::this_thread::sleep_for(100ms);
@@ -322,11 +302,6 @@ TEST_F(SolverAutoTest, solver5)
             return Rect{0, 0, 600, 400};
         });
 
-    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
-        {
-            return GetTextSizeMock(text, format);
-        });
-    
     document.InsertDivision(true);
     document.InsertString("3345", true);
     document.WaitMainLoop();
@@ -379,11 +354,6 @@ TEST_F(SolverAutoTest, solver6)
             return Rect{0, 0, 600, 400};
         });
 
-    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
-        {
-            return GetTextSizeMock(text, format);
-        });
-    
     document.WaitTask(document.InsertDivision(true));
     document.WaitMainLoop();
     document.MoveCaretRight(false);
@@ -527,11 +497,6 @@ TEST_F(SolverAutoTest, solver7)
             return Rect{0, 0, 600, 400};
         });
 
-    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
-        {
-            return GetTextSizeMock(text, format);
-        });
-    
     document.InsertCode(false, true);
     document.InsertString("12", true);
     document.InsertPlus(true);
@@ -637,11 +602,6 @@ TEST_F(SolverAutoTest, solver8)
             return Rect{0, 0, 600, 400};
         });
 
-    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
-        {
-            return GetTextSizeMock(text, format);
-        });
-    
     document.InsertCode(false, true);
     document.InsertString("2", true);
     document.InsertPlus(true);
@@ -756,11 +716,6 @@ TEST_F(SolverAutoTest, errors1)
     EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
         {
             return Rect{0, 0, 600, 400};
-        });
-
-    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
-        {
-            return GetTextSizeMock(text, format);
         });
 
     document.InsertCode(false, true);
@@ -945,11 +900,6 @@ TEST_F(SolverAutoTest, errors2)
             return Rect{0, 0, 600, 400};
         });
 
-    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
-        {
-            return GetTextSizeMock(text, format);
-        });
-
     document.InsertCode(false, true);
     document.InsertSquareRoot(true);
     document.InsertString("2", true);
@@ -987,11 +937,6 @@ TEST_F(SolverAutoTest, errors3)
     EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
         {
             return Rect{0, 0, 600, 400};
-        });
-
-    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
-        {
-            return GetTextSizeMock(text, format);
         });
 
     document.InsertCode(false, true);
