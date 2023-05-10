@@ -148,7 +148,15 @@ void Division::ToParserString(ParserString& str)
 {
     str.Add(id, U"(");
     first->ToParserString(str);
-    str.Add(id, U")/(");
+    if (first->elements->Count() == 1 && document->IsString(first->elements->Get(0)->id) && 
+        last->elements->Count() == 1 && document->IsString(last->elements->Get(0)->id))
+    {
+        str.Add(id, U"/");
+    }
+    else
+    {
+        str.Add(id, U")/(");
+    }
     last->ToParserString(str);
     str.Add(id, U")");
 }
