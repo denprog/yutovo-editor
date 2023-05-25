@@ -958,7 +958,7 @@ void Elements::Insert(ElementPtr element, const uint pos)
     //update caret state on the new position of the element
     if (!c.IsEmpty())
     {
-        auto _id = GetWithParent(c.GetElement(), element->id);
+        auto _id = GetWithParent(c.GetParent(), element->id);
         auto _el = parent->document->GetElement(_id);
         if (_el)
             caret->SetState(_id, c.GetPos(), true);

@@ -35,7 +35,7 @@ struct CaretState
     void SetPos(const uint pos);
 
     uint GetPos() const;
-    ElementId GetElement() const;
+    ElementId GetParent() const;
     int GetPos(const ElementId& _id) const;
     int GetElementPos(const ElementId& _id) const;
     int GetPosInElement(const ElementId& _id) const;

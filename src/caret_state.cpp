@@ -79,7 +79,7 @@ uint CaretState::GetPos() const
     return id[id.size() - 1];
 }
 
-ElementId CaretState::GetElement() const
+ElementId CaretState::GetParent() const
 {
     ElementId _id(id);
     _id.erase(_id.end() - 1);
