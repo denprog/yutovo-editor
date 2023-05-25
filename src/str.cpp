@@ -114,7 +114,7 @@ Element* String::Create(Element* parent, const std::u32string _str, const String
     return new String(parent, _str, _format);
 }
 
-void String::Remake(bool with_elements, bool with_parent, bool with_undo)
+bool String::Remake(bool with_elements)
 {
     Size s;
     auto& str = ((StringElements*)elements.get())->str;
@@ -127,12 +127,12 @@ void String::Remake(bool with_elements, bool with_parent, bool with_undo)
 
     UpdateRect();
 
-    if (rect != last_rect && with_parent)
-        document->Remake(parent->id, false, with_undo, false);
+    bool changed = (rect != last_rect);
     last_rect = rect;
+    return changed;
 }
 
-void String::Normalize(bool with_undo)
+void String::Normalize()
 {
 }
 
@@ -209,13 +209,13 @@ void String::ToParserString(ParserString& str)
     str.Add(id, elements->ToText());
 }
 
-bool String::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo)
+bool String::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo, ElementId& changed_element)
 {
     if (!editable)
         return false;
     
     if (!document->caret->IsInsideElement(id))
-        return parent->InsertElements(_elements, with_undo);
+        return parent->InsertElements(_elements, with_undo, changed_element);
     
     if (_elements.size() == 1 && document->IsString(_elements[0]))
     {
@@ -226,19 +226,15 @@ bool String::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo)
             if (document->caret->GetPos() != 0)
                 return false;
             if (with_undo)
-            {
-                document->PushEditorState(true);
-                document->InsertElement(Clone(), false, true);
-                document->DeleteElements(false, false, true);
-                document->PushEditorState(CaretState(id), SelectionState(id, 0, s->elements->Count()), true);
-            }
+                document->StoreUndo(id);
             elements.reset(new StringElements(this, s->elements->ToText()));
             format = s->format;
             ResetCache();
             caret->SetState(elements->GetElementId(elements->Count()));
-            parent->Normalize(with_undo);
+            parent->Normalize();
             on_change_subscribers = parent->on_change_subscribers;
             parent->EmitChanged();
+            changed_element = id;
 #ifdef DEBUG
             to_str = ToText();
 #endif
@@ -247,18 +243,13 @@ bool String::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo)
         else if (!s->format || s->format == format)
         {
             if (with_undo)
-            {
-                document->DeleteElements(true, false, true);
-                if (s->elements->Count() > 1)
-                    document->PushEditorState(SelectionState(id, caret->GetPos(), s->elements->Count()), true);
-                else
-                    document->PushEditorState(CaretState(id, caret->GetPos() + 1), true);
-            }
+                document->StoreUndo(id);
             elements->Insert(_elements[0], caret->GetPos());
             caret->SetState(elements->GetElementId(caret->GetPos() + s->elements->Count()));
-            parent->Normalize(with_undo);
+            parent->Normalize();
             on_change_subscribers = parent->on_change_subscribers;
             parent->EmitChanged();
+            changed_element = id;
 #ifdef DEBUG
             to_str = ToText();
 #endif
@@ -266,10 +257,10 @@ bool String::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo)
         }
     }
 
-    return parent->InsertElements(_elements, with_undo);
+    return parent->InsertElements(_elements, with_undo, changed_element);
 }
 
-bool String::DeleteElements(bool left, bool with_undo)
+bool String::DeleteElements(bool left, bool with_undo, ElementId& changed_element)
 {
     if (!editable)
         return false;
@@ -278,47 +269,46 @@ bool String::DeleteElements(bool left, bool with_undo)
     if (caret->IsInsideElement(id) && selection->IsEmpty())
     {
         if ((caret_pos == 0 && left) || (caret_pos == elements->Count() && !left))
-            return parent->DeleteElements(left, with_undo);
+            return parent->DeleteElements(left, with_undo, changed_element);
     }
     
-    std::u32string undo_str;
     std::u32string& str = ((StringElements*)elements.get())->str;
 
     uint pos = 0;
     uint start, size;
     if (selection->Has(id, start, size))
     {
-        undo_str = str.substr(start, size);
+        if (with_undo)
+        {
+            if (selection->selection.size() > 1)
+                document->StoreUndo(parent->id);
+            else
+                document->StoreUndo(id);
+        }
         elements->RemoveAt(start, size);
         pos = start;
     }
     else if (caret->IsInsideElement(id))
     {
+        if (with_undo)
+        {
+            if (str.size() == 1)
+                document->StoreUndo(parent->id);
+            else
+                document->StoreUndo(id);
+        }
         if (left)
         {
-            undo_str = str.substr(caret_pos - 1, 1);
             elements->RemoveAt(caret_pos - 1, 1);
             pos = caret_pos - 1;
         }
         else
         {
-            undo_str = str.substr(caret_pos, 1);
             elements->RemoveAt(caret_pos, 1);
             pos = caret_pos;
         }
         caret->SetPos(pos, true);
     }
-
-    if (with_undo)
-    {
-        if ((left && caret_pos == 1) || (!left && caret_pos == 0 && elements->Count() == 0))
-            document->InsertString(ToBasicString(undo_str), format, ElementId{});
-        else
-            document->InsertString(ToBasicString(undo_str), format, elements->GetElementId(pos));
-        document->PushEditorState(CaretState(elements->GetElementId(pos)), true);
-    }
-
-    Remake(false, true, with_undo);
 
     CaretState before_state = caret->GetCaretState();
     auto row = document->FindParentRow(id);
@@ -328,10 +318,12 @@ bool String::DeleteElements(bool left, bool with_undo)
         row->GetFirstCaretState(first_state, nullptr);
         row->GetLastCaretState(last_state, nullptr);
         if (before_state == first_state || before_state == last_state)
-            parent->parent->Normalize(with_undo);
+            parent->parent->Normalize();
         else
-            parent->Normalize(with_undo);
+            parent->Normalize();
     }
+
+    changed_element = id;
 
 #ifdef DEBUG
     to_str = ToText();
@@ -339,7 +331,7 @@ bool String::DeleteElements(bool left, bool with_undo)
     return true;
 }
 
-bool String::ChangeStringFormat(const StringFormatPtr _format, bool with_undo)
+bool String::ChangeStringFormat(const StringFormatPtr _format, bool with_undo, ElementId& changed_element)
 {
     if (!editable)
         return false;
@@ -347,14 +339,15 @@ bool String::ChangeStringFormat(const StringFormatPtr _format, bool with_undo)
     uint start, size;
     if (selection->Has(id, start, size))
     {
+        if (with_undo)
+            document->StoreUndo(parent->id);
         if (start == 0 && size == elements->Count())
         {
             //change format of the whole string
-            if (with_undo)
-                document->ChangeStringFormat(format, false, true);
             format = _format;
             ResetCache();
-            parent->Normalize(with_undo);
+            parent->Normalize();
+            changed_element = id;
             return true;
         }
         else
@@ -363,19 +356,14 @@ bool String::ChangeStringFormat(const StringFormatPtr _format, bool with_undo)
             if (SplitAt(start))
                 el = parent->elements->Get(parent->elements->GetElementPos(id) + 1);
             el->SplitAt(size);
-            if (with_undo)
-            {
-                document->ChangeStringFormat(format, false, true);
-                document->PushEditorState(SelectionState(el->id, 0, el->elements->Count()), true);
-            }
             ((String*)el.get())->format = _format;
             ((String*)el.get())->ResetCache();
-            parent->Normalize(with_undo);
-            parent->Remake(true, false, with_undo);
+            parent->Normalize();
+            changed_element = id;
             return true;
         }
     }
-    return parent->ChangeStringFormat(_format, with_undo);
+    return parent->ChangeStringFormat(_format, with_undo, changed_element);
 }
 
 bool String::Split(const uint width, bool split_more)
@@ -522,19 +510,25 @@ bool String::Merge(const ElementPtr with_element)
     return true;
 }
 
+bool String::CanMerge(const ElementPtr with_element)
+{
+    if (!editable)
+        return false;
+    if (!document->IsString(with_element))
+        return false;
+    String* el = (String*)with_element.get();
+    if (el->format != format)
+        return false;
+    return true;
+}
+
 bool String::AfterInsert(bool with_undo)
 {
     if (!caret)
         return false;
     CaretState c;
     if (GetLastCaretState(c, nullptr))
-    {
-        if (with_undo)
-        {
-            document->PushEditorState(true);
-        }
         caret->SetState(c);
-    }
     return true;
 }
 
@@ -732,13 +726,7 @@ void StringElements::Insert(ElementPtr element, const uint pos)
 {
     assert(parent->document->IsString(element));
     assert(str.length() >= pos);
-    CaretState caret_state = caret->GetCaretState();
     std::u32string s = dynamic_cast<String*>(element.get())->ToText();
-    if (caret_state.IsInsideElement(parent->id))
-    {
-        if (caret_state.GetPos() >= pos)
-            caret_state.SetState(parent->id, caret_state.GetPos() + s.length());
-    }
     str.insert(pos, s);
 
     parent->EmitChanged();
@@ -757,13 +745,11 @@ void StringElements::RemoveAt(const uint pos, const int size)
 {
     assert(str.length() >= pos + size);
     int p = -1;
-    CaretState caret_state = caret->GetCaretState();
-    if (caret_state.IsInsideElement(parent->id))
+    if (caret->IsInsideElement(parent->id))
     {
-        p = caret_state.GetPos();
+        p = caret->GetPos();
         if (p >= pos + size)
-            caret_state.SetPos(p - size);
-        caret->SetState(caret_state);
+            caret->SetPos(p - size);
     }
 
     str.erase(str.begin() + pos, str.begin() + pos + size);

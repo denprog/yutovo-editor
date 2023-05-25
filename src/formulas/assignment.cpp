@@ -60,9 +60,9 @@ void Assignment::UpdateRect(bool with_elements)
     MiddleShapeFormula::UpdateRect(false);
 }
 
-void Assignment::Remake(bool with_elements, bool with_parent, bool with_undo)
+bool Assignment::Remake(bool with_elements)
 {
-    MiddleShapeFormula::Remake(with_elements, with_parent, with_undo);
+    bool changed = MiddleShapeFormula::Remake(with_elements);
 
     baseline = 0;
     for (uint i = 0; i < elements->Count(); ++i)
@@ -76,8 +76,6 @@ void Assignment::Remake(bool with_elements, bool with_parent, bool with_undo)
     shape->rect.Move(first->rect.width, baseline - shape->baseline);
     last->rect.Move(first->rect.width + shape->rect.width, baseline - last->baseline);
 
-    if (rect != last_rect && with_parent)
-        parent->Remake(false, true, with_undo);
     last_rect = rect;
 
     ParserString expr;
@@ -94,9 +92,11 @@ void Assignment::Remake(bool with_elements, bool with_parent, bool with_undo)
         last_identifier = first->ToText();
         last_expression = expr;
     }
+
+    return changed;
 }
 
-bool Assignment::DeleteElements(bool left, bool with_undo)
+bool Assignment::DeleteElements(bool left, bool with_undo, ElementId& changed_element)
 {
     if (caret->GetPos() == 1 && last_identifier != U"")
     {
@@ -105,7 +105,7 @@ bool Assignment::DeleteElements(bool left, bool with_undo)
         delay = true;
     }
 
-    return MiddleShapeFormula::DeleteElements(left, with_undo);
+    return MiddleShapeFormula::DeleteElements(left, with_undo, changed_element);
 }
 
 bool Assignment::AfterInsert(bool with_undo)
@@ -117,10 +117,7 @@ bool Assignment::AfterInsert(bool with_undo)
     {
         auto el = parent->elements->Get(0);
         if (with_undo)
-        {
-            document->InsertElement(el->Clone(), false, true);
-            document->PushEditorState(CaretState(parent->id, 0), true);
-        }
+            document->StoreUndo(id);
         first->elements->Move(el, i);
     }
     CaretState c;
@@ -161,7 +158,7 @@ void Assignment::ReSolve(bool if_error)
         return;
     last_expression.Reset();
     document->RemoveErrorMarks(id);
-    Remake(false, false, false);
+    Remake(false);
 }
 
 void Assignment::PutResult(Result result)
@@ -181,7 +178,7 @@ void Assignment::PutResult(Result result)
             }
         }
     }
-    Remake(true, false, false);
+    Remake(false);
 }
 
 std::string Assignment::ToHtml()

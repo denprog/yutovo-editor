@@ -11,10 +11,43 @@ typedef unsigned int uint;
 namespace yutovo
 {
 
+enum class ElementType
+{
+    NONE = 0,
+    TEXT,
+    PARAGRAPH,
+    ROW,
+    STRING,
+    CODE_BLOCK,
+    CODE_PARAGRAPH,
+    CODE_ROW,
+    CODE_STRING,
+    SHAPE,
+    PLUS,
+    MINUS,
+    MULTIPLY,
+    DIVISION,
+    POWER,
+    SQUARE_ROOT,
+    NTH_ROOT,
+    EQUATION,
+    OPEN_FENCE,
+    CLOSE_FENCE,
+    REAL_RESULT,
+    INTEGER_RESULT,
+    RATIONAL_RESULT,
+    COMPLEX_RESULT,
+    AUTO_RESULT,
+    ERROR_RESULT,
+    ASSIGNMENT,
+    SUBSCRIPT
+};
+
 class Document;
 class Element;
 
 typedef std::vector<uint> ElementId;
+typedef ElementId LogicalId; //logical Id does not include row id, so it does not depend on the formatting of rows
 
 struct Point
 {
@@ -168,6 +201,7 @@ bool IsChild(const ElementId& parent_id, const ElementId& child_id);
 ElementId GetParent(const ElementId& id);
 ElementId GetChild(const ElementId& id, uint pos);
 int GetChildPos(const ElementId& id);
+int GetChildPos(const ElementId& parent_id, const ElementId& child_id);
 ElementId GetPrevPos(const ElementId& id);
 
 ElementId GetWithParent(const ElementId id, const ElementId parent_id);

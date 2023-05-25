@@ -10,8 +10,9 @@ using namespace std::chrono_literals;
 
 TEST_F(FormulaTest, fences1)
 {
-    document.InsertOpenFence(true);
-    document.WaitMainLoop();
+    Start(600);
+
+    document.WaitTask(document.InsertOpenFence(true));
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -45,8 +46,7 @@ TEST_F(FormulaTest, fences1)
         document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 1})) << document.GetEditorState().ToString();
 
-    document.InsertCloseFence(true);
-    document.WaitMainLoop();
+    document.WaitTask(document.InsertCloseFence(true));
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
@@ -104,6 +104,8 @@ TEST_F(FormulaTest, fences1)
 //Inserting open fence in text
 TEST_F(FormulaTest, fences2)
 {
+    Start(600);
+
     document.InsertCode(false, true);
     document.InsertString("123", true);
     document.WaitTask(document.InsertOpenFence(true));
@@ -137,7 +139,6 @@ TEST_F(FormulaTest, fences2)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 3})) << document.GetEditorState().ToString();
 
     document.MoveCaretHome(false);
-    document.WaitCaretMoving();
     document.WaitTask(document.InsertOpenFence(true));
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
@@ -169,7 +170,6 @@ TEST_F(FormulaTest, fences2)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 0})) << document.GetEditorState().ToString();
 
     document.MoveCaretRight(false);
-    document.WaitCaretMoving();
     document.WaitTask(document.InsertOpenFence(true));
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
@@ -205,6 +205,8 @@ TEST_F(FormulaTest, fences2)
 //Inserting close fence in text
 TEST_F(FormulaTest, fences3)
 {
+    Start(600);
+
     document.InsertCode(false, true);
     document.InsertString("123", true);
     document.WaitTask(document.InsertCloseFence(true));
@@ -238,7 +240,6 @@ TEST_F(FormulaTest, fences3)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 3})) << document.GetEditorState().ToString();
 
     document.MoveCaretHome(false);
-    document.WaitCaretMoving();
     document.WaitTask(document.InsertCloseFence(true));
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
@@ -270,7 +271,6 @@ TEST_F(FormulaTest, fences3)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 0})) << document.GetEditorState().ToString();
 
     document.MoveCaretRight(false);
-    document.WaitCaretMoving();
     document.WaitTask(document.InsertCloseFence(true));
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
@@ -306,6 +306,8 @@ TEST_F(FormulaTest, fences3)
 //Inserting fences in text
 TEST_F(FormulaTest, fences4)
 {
+    Start(600);
+
     document.InsertCode(false, true);
     document.InsertOpenFence(true);
     document.InsertString("123", true);
@@ -333,14 +335,14 @@ TEST_F(FormulaTest, fences4)
 //Inserting fences in power element
 TEST_F(FormulaTest, fences5)
 {
+    Start(600);
+
     document.InsertCode(false, true);
     document.InsertString("2", true);
     document.InsertPlus(true);
     document.InsertString("33", true);
     document.InsertPower(true);
-    document.WaitMainLoop();
     document.InsertString("3", true);
-    document.WaitMainLoop();
     document.MoveCaretLeft(false);
     document.MoveCaretLeft(false);
     document.MoveCaretLeft(false);
@@ -371,7 +373,6 @@ TEST_F(FormulaTest, fences5)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 0, 4})) << document.GetEditorState().ToString();
 
     document.MoveCaretHome(false);
-    document.WaitCaretMoving();
     document.WaitTask(document.InsertOpenFence(true));
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
@@ -502,6 +503,8 @@ TEST_F(FormulaTest, fences5)
 //Inserting fences in power element
 TEST_F(FormulaTest, fences6)
 {
+    Start(600);
+
     document.InsertCode(false, true);
     document.InsertString("2", true);
     document.InsertPlus(true);
@@ -576,6 +579,8 @@ TEST_F(FormulaTest, fences6)
 //Inserting fences in power element
 TEST_F(FormulaTest, fences7)
 {
+    Start(600);
+
     document.InsertCode(false, true);
     document.InsertString("2", true);
     document.InsertPower(true);
@@ -636,6 +641,8 @@ TEST_F(FormulaTest, fences7)
 //Inserting open and close fences
 TEST_F(FormulaTest, fences8)
 {
+    Start(600);
+
     document.WaitTask(document.InsertFences(true));
     std::this_thread::sleep_for(200ms);
     ASSERT_TRUE(document.ToHtml() == 

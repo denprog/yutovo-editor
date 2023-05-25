@@ -16,6 +16,7 @@ Text::Text(Document* _document) :
     type = ElementType::TEXT;
 
     id.push_back(0);
+    logical_id = id;
 
     AddElement(ElementPtr(new Paragraph(this))); //text has to have at least one paragraph
 }
@@ -50,15 +51,12 @@ void Text::Draw() const
     window->EndDrawOutside();
 }
 
-void Text::Remake(bool with_elements, bool with_parent, bool with_undo)
+bool Text::Remake(bool with_elements)
 {
     Rect v = window->GetRect();
     page_width = v.width - page_format->right_indent - page_format->left_indent;
 
-    if (with_elements)
-    {
-        Block::Remake(true, with_parent, with_undo);
-    }
+    Block::Remake(with_elements);
 
     int left_m = 0, top_m = 0, right_m = 0, bottom_m = 0;
     int h = page_format->top_indent;
@@ -70,15 +68,9 @@ void Text::Remake(bool with_elements, bool with_parent, bool with_undo)
         h += p->rect.height + page_format->paragraph_spacing + bottom_m;
     }
 
-    Block::UpdateRect(false);
-
-    bool remake = (rect != last_rect && with_parent);
-    last_rect = rect;
-
     UpdateRect();
 
-    if (remake)
-        document->Redraw(id, false);
+    return false;
 }
 
 void Text::UpdateRect(bool with_elements)
@@ -86,6 +78,8 @@ void Text::UpdateRect(bool with_elements)
     Block::UpdateRect(with_elements);
 
     Rect v = window->GetRect();
+    page_width = v.width - page_format->right_indent - page_format->left_indent;
+
     v.width -= page_format->right_indent + page_format->left_indent;
     v.height -= page_format->bottom_indent + page_format->right_indent;
     if (rect.width < v.width)

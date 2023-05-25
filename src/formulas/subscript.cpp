@@ -46,10 +46,9 @@ void Subscript::Draw() const
     Formula::Draw();
 }
 
-void Subscript::Remake(bool with_elements, bool with_parent, bool with_undo)
+bool Subscript::Remake(bool with_elements)
 {
-    if (with_elements)
-        elements->Remake(with_parent, with_undo);
+    bool changed = MiddleShapeFormula::Remake(with_elements);
 
     first->rect.Move(0, 0);
     shape->rect.SetRect(0, 0, 1, last->rect.height + first->rect.height / 2);
@@ -60,11 +59,12 @@ void Subscript::Remake(bool with_elements, bool with_parent, bool with_undo)
 
     UpdateRect();
 
-    if (rect != last_rect && with_parent)
-        parent->Remake(false, true, with_undo);
-    last_rect = rect;
-
-    parent->Remake(false, true, with_undo);
+    if (rect != last_rect)
+    {
+        last_rect = rect;
+        return true;
+    }
+    return changed;
 }
 
 void Subscript::AfterChildInsert(const ElementId child_id, bool with_undo)
@@ -90,25 +90,6 @@ void Subscript::AfterChildInsert(const ElementId child_id, bool with_undo)
     {
         auto _el = parent->elements->Get(i);
         first->elements->Move(_el, 0);
-        if (with_undo)
-        {
-            document->CallFunc(parent->id, 
-                [d = document](const ElementId id)
-                {
-                    d->GetElement(id)->Normalize(true);
-                },
-                true);
-            document->InsertElement(_el->Clone(), false, true);
-            document->PushEditorState(CaretState(parent->id, parent->elements->GetElementPos(id)), true);
-            document->DeleteElements(false, false, true);
-            document->PushEditorState(CaretState(first->id, 0), true);
-            document->CallFunc(parent->id, 
-                [d = document](const ElementId id)
-                {
-                    d->GetElement(id)->Normalize(false);
-                },
-                true);
-        }
     }
 }
 

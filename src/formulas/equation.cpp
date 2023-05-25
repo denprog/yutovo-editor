@@ -70,10 +70,9 @@ void Equation::UpdateRect(bool with_elements)
     MiddleShapeFormula::UpdateRect(false);
 }
 
-void Equation::Remake(bool with_elements, bool with_parent, bool with_undo)
+bool Equation::Remake(bool with_elements)
 {
-    if (with_elements)
-        elements->Remake(with_parent, with_undo);
+    bool changed = MiddleShapeFormula::Remake(with_elements);
 
     UpdateRect();
 
@@ -89,19 +88,22 @@ void Equation::Remake(bool with_elements, bool with_parent, bool with_undo)
     shape->rect.Move(first->rect.width, baseline - shape->baseline);
     last->rect.Move(first->rect.width + shape->rect.width, baseline - last->baseline);
 
-    if (rect != last_rect && with_parent)
-        parent->Remake(false, true, with_undo);
-    last_rect = rect;
+    if (rect != last_rect)
+    {
+        last_rect = rect;
+        return true;
+    }
+    return changed;
 }
 
-bool Equation::DeleteElements(bool left, bool with_undo)
+bool Equation::DeleteElements(bool left, bool with_undo, ElementId& changed_element)
 {
     if (caret->IsOnElement(shape->id) && !left)
     {
         last = nullptr;
         elements->RemoveAt(2, 1);
     }
-    return MiddleShapeFormula::DeleteElements(left, with_undo);
+    return MiddleShapeFormula::DeleteElements(left, with_undo, changed_element);
 }
 
 bool Equation::AfterInsert(bool with_undo)
@@ -113,11 +115,6 @@ bool Equation::AfterInsert(bool with_undo)
     for (int i = 0; i < pos; ++i)
     {
         auto el = parent->elements->Get(0);
-        if (with_undo)
-        {
-            document->InsertElement(el->Clone(), false, true);
-            document->PushEditorState(CaretState(parent->id, 0), true);
-        }
         first->elements->Move(el, i);
     }
     ready = true;

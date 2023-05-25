@@ -26,8 +26,8 @@ public:
     virtual Element* Create(Element* parent);
     virtual Element* Create(Element* parent, const std::u32string _str, const StringFormatPtr _format);
 
-    virtual void Remake(bool with_elements, bool with_parent, bool with_undo);
-    virtual void Normalize(bool with_undo);
+    virtual bool Remake(bool with_elements = false);
+    virtual void Normalize();
 
     virtual void UpdateRect(bool with_elements = false);
 
@@ -36,13 +36,14 @@ public:
     virtual std::string ToHtml();
     virtual void ToParserString(ParserString& str);
 
-    virtual bool InsertElements(std::vector<ElementPtr>& _elements, bool with_undo);
-    virtual bool DeleteElements(bool left, bool with_undo);
-    virtual bool ChangeStringFormat(const StringFormatPtr format, bool with_undo);
+    virtual bool InsertElements(std::vector<ElementPtr>& _elements, bool with_undo, ElementId& changed_element);
+    virtual bool DeleteElements(bool left, bool with_undo, ElementId& changed_element);
+    virtual bool ChangeStringFormat(const StringFormatPtr format, bool with_undo, ElementId& changed_element);
 
     virtual bool Split(const uint width, bool split_more);
     virtual bool SplitAt(const uint pos);
     virtual bool Merge(const ElementPtr with_element);
+    virtual bool CanMerge(const ElementPtr with_element);
 
     virtual bool AfterInsert(bool with_undo);
     virtual void BeforeDelete();
@@ -89,11 +90,7 @@ private:
     void AddCachedSize(const std::u32string& str, const Size& size);
     void ResetCache();
 
-protected:
-    friend class Document;
-    friend class ChangeStringFormatTask;
-    friend class StringElements;
-    friend class InsertElementsTask;
+public:
     StringFormatPtr format;
 
 private:

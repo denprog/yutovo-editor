@@ -27,24 +27,23 @@ Element* CodeRow::Create(Element* parent)
     return new CodeRow(parent);
 }
 
-void CodeRow::Remake(bool with_elements, bool with_parent, bool with_undo)
-{
-    Row::Remake(with_elements, with_parent, with_undo);
-    
-    parent->Remake(false, true, with_undo);
-}
-
-bool CodeRow::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo)
+bool CodeRow::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo, ElementId& changed_element)
 {
     for (auto el : _elements)
     {
         if (el->type == ElementType::CODE_BLOCK)
+        {
+            document->StoreUndo(id); //to rollback something
             return false;
+        }
         if (el->type == ElementType::CODE_PARAGRAPH && 
             (parent->type != ElementType::CODE_PARAGRAPH && parent->type != ElementType::ASSIGNMENT && parent->type != ElementType::EQUATION))
+        {
+            document->StoreUndo(id);
             return false;
+        }
     }
-    return Row::InsertElements(_elements, with_undo);
+    return Row::InsertElements(_elements, with_undo, changed_element);
 }
 
 bool CodeRow::GetBeginCaretState(CaretState& caret_state, Selection* select)

@@ -11,6 +11,8 @@ using namespace std::chrono_literals;
 
 TEST_F(FormulaTest, delete1)
 {
+    Start(600);
+
     document.InsertCode(false, true);
     document.InsertString("123", true);
     document.WaitTask(document.InsertPlus(true));
@@ -179,6 +181,8 @@ TEST_F(FormulaTest, delete1)
 //Delete with undo a text and a code block
 TEST_F(FormulaTest, delete2)
 {
+    Start(600);
+
     document.InsertString("Text", true);
     document.InsertCode(false, true);
     document.WaitTask(document.InsertString("123", true));
@@ -188,8 +192,7 @@ TEST_F(FormulaTest, delete2)
     document.MoveCaretRight(false);
     document.MoveCaretRight(true);
     document.MoveCaretRight(true);
-    document.MoveCaretRight(true);
-    document.WaitCaretMoving();
+    document.WaitTask(document.MoveCaretRight(true));
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 2}, 
         ElementSelectionState{ElementId{0, 0, 0, 0}, 2, 2}, 
         ElementSelectionState{ElementId{0, 0, 0}, 1, 1})) << document.GetEditorState().ToString();
@@ -259,19 +262,20 @@ TEST_F(FormulaTest, delete2)
 //Delete with undo a text and a code block and a text
 TEST_F(FormulaTest, delete3)
 {
+    Start(600);
+
     document.InsertString("Text", true);
     document.InsertCode(false, true);
     document.WaitTask(document.InsertString("123", true));
-    document.MoveCaretEnd(false);
-    document.WaitCaretMoving();
+    document.WaitTask(document.MoveCaretEnd(false));
     document.InsertString("Block", true);
     document.MoveCaretHome(false);
     document.MoveCaretHome(false);
     document.MoveCaretRight(false);
     document.MoveCaretRight(false);
-    for (int i = 0; i < 6; ++i)
+    for (int i = 0; i < 5; ++i)
         document.MoveCaretRight(true);
-    document.WaitCaretMoving();
+    document.WaitTask(document.MoveCaretRight(true));
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 2, 3}, 
         ElementSelectionState{ElementId{0, 0, 0, 0}, 2, 2}, 
         ElementSelectionState{ElementId{0, 0, 0}, 1, 1},
@@ -312,9 +316,9 @@ TEST_F(FormulaTest, delete3)
     document.MoveCaretEnd(false);
     document.MoveCaretLeft(false);
     document.MoveCaretLeft(false);
-    for (int i = 0; i < 6; ++i)
+    for (int i = 0; i < 5; ++i)
         document.MoveCaretLeft(true);
-    document.WaitCaretMoving();
+    document.WaitTask(document.MoveCaretLeft(true));
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 2}, 
         ElementSelectionState{ElementId{0, 0, 0, 0}, 2, 2}, 
         ElementSelectionState{ElementId{0, 0, 0}, 1, 1},
@@ -356,14 +360,10 @@ TEST_F(FormulaTest, delete3)
 //Delete a selected code block at the beginning of the text
 TEST_F(FormulaTestCustom, delete4)
 {
-    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
-        {
-            return Rect{0, 0, 433, 400};
-        });
+    Start(433);
 
     document.WaitTask(document.InsertString("The source of the text itself is a little strange", true));
-    document.MoveCaretHome(false);
-    document.WaitCaretMoving();
+    document.WaitTask(document.MoveCaretHome(false));
     document.WaitTask(document.InsertDivision(true));
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
@@ -389,8 +389,7 @@ TEST_F(FormulaTestCustom, delete4)
 
     document.MoveCaretHome(false);
     document.MoveCaretHome(false);
-    document.MoveCaretRight(true);
-    document.WaitCaretMoving();
+    document.WaitTask(document.MoveCaretRight(true));
     document.WaitTask(document.DeleteElements(false, true, false));
     std::this_thread::sleep_for(200ms);
     ASSERT_TRUE(document.ToHtml() == 
@@ -427,18 +426,14 @@ TEST_F(FormulaTestCustom, delete4)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 1, 0}, 
         ElementSelectionState{ElementId{0, 0, 0}, 0, 1})) << document.GetEditorState().ToString();
     
-    document.MoveCaretRight(false);
-    document.WaitCaretMoving();
+    document.WaitTask(document.MoveCaretRight(false));
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 1, 0})) << document.GetEditorState().ToString();
 }
 
 //Deletion of a selected formula
 TEST_F(FormulaTestCustom, delete5)
 {
-    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
-        {
-            return Rect{0, 0, 450, 400};
-        });
+    Start(450);
 
     document.WaitTask(document.InsertDivision(true));
     document.MoveCaretHome(false);
@@ -483,15 +478,11 @@ TEST_F(FormulaTestCustom, delete5)
 //Deletion of a selected formula with a text
 TEST_F(FormulaTestCustom, delete6)
 {
-    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
-        {
-            return Rect{0, 0, 380, 400};
-        });
+    Start(380);
 
     document.WaitTask(document.InsertString("The source of the text itself is a little strange", true));
     document.MoveCaretUp(false);
-    document.MoveCaretHome(false);
-    document.WaitCaretMoving();
+    document.WaitTask(document.MoveCaretHome(false));
     document.WaitTask(document.InsertDivision(true));
     for (int i = 0; i < 17; ++i)
         document.MoveCaretRight(false);
@@ -569,10 +560,7 @@ TEST_F(FormulaTestCustom, delete6)
 //Delete an element on the left of a string
 TEST_F(FormulaTestCustom, delete7)
 {
-    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
-        {
-            return Rect{0, 0, 380, 400};
-        });
+    Start(380);
 
     document.InsertCode(false, true);
     document.InsertString("d", true);
@@ -632,10 +620,7 @@ TEST_F(FormulaTestCustom, delete7)
 //Delete a character from the right
 TEST_F(FormulaTestCustom, delete8)
 {
-    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
-        {
-            return Rect{0, 0, 380, 400};
-        });
+    Start(380);
 
     document.InsertCode(false, true);
     document.InsertString("45", true);
@@ -676,7 +661,7 @@ TEST_F(FormulaTestCustom, delete8)
             "</p>"\
         "</body>") << 
         document.ToHtml();
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 1})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 2})) << document.GetEditorState().ToString();
 
     document.Redo();
     document.WaitRedo();
@@ -699,10 +684,7 @@ TEST_F(FormulaTestCustom, delete8)
 //Delete an element from the right
 TEST_F(FormulaTestCustom, delete9)
 {
-    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
-        {
-            return Rect{0, 0, 380, 400};
-        });
+    Start(380);
 
     document.InsertCode(false, true);
     document.InsertString("45", true);
@@ -786,10 +768,7 @@ TEST_F(FormulaTestCustom, delete9)
 //Delete a code block on the left
 TEST_F(FormulaTestCustom, delete10)
 {
-    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
-        {
-            return Rect{0, 0, 368, 400};
-        });
+    Start(368);
 
     document.InsertString("The source of the text itself is a little mysterious.", true);
     document.WaitTask(document.InsertCode(false, true));
@@ -827,6 +806,8 @@ TEST_F(FormulaTestCustom, delete10)
 
 TEST_F(FormulaTest, delete11)
 {
+    Start(600);
+
     document.InsertCode(false, true);
     document.InsertPlus(true);
     document.WaitTask(document.DeleteElements(true, true, false));
@@ -861,10 +842,7 @@ TEST_F(FormulaTest, delete11)
 
 TEST_F(FormulaTestCustom, insert1)
 {
-    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
-        {
-            return Rect{0, 0, 450, 400};
-        });
+    Start(450);
 
     document.SetFontSize(22);
     document.WaitTask(document.InsertString("Tradicionalmente, el medio de un documento era el papel y la información", true));
@@ -929,14 +907,10 @@ TEST_F(FormulaTestCustom, insert1)
 //Insert code in text and reformat text
 TEST_F(FormulaTestCustom, insert2)
 {
-    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
-        {
-            return Rect{0, 0, 433, 400};
-        });
+    Start(433);
 
     document.WaitTask(document.InsertString("The source of the text itself is a little strange", true));
-    document.MoveCaretWordLeft(false);
-    document.WaitCaretMoving();
+    document.WaitTask(document.MoveCaretWordLeft(false));
     document.WaitTask(document.InsertDivision(true));
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
@@ -962,8 +936,7 @@ TEST_F(FormulaTestCustom, insert2)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 1, 0, 0, 0, 0, 0, 0})) << document.GetEditorState().ToString();
     document.MoveCaretEnd(false);
     document.MoveCaretEnd(false);
-    document.MoveCaretRight(false);
-    document.WaitCaretMoving();
+    document.WaitTask(document.MoveCaretRight(false));
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 1, 0, 0})) << document.GetEditorState().ToString();
 
     document.Undo();
@@ -1007,16 +980,12 @@ TEST_F(FormulaTestCustom, insert2)
 //Insert formula, remake and undo
 TEST_F(FormulaTestCustom, insert3)
 {
-    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
-        {
-            return Rect{0, 0, 380, 400};
-        });
+    Start(380);
 
     document.WaitTask(document.InsertString("The source of the text itself is a little strange", true));
     std::this_thread::sleep_for(200ms);
     document.MoveCaretUp(false);
-    document.MoveCaretEnd(false);
-    document.WaitCaretMoving();
+    document.WaitTask(document.MoveCaretEnd(false));
     document.WaitTask(document.InsertDivision(true));
     document.Undo();
     document.WaitUndo();
@@ -1060,10 +1029,7 @@ TEST_F(FormulaTestCustom, insert3)
 //Insert a formula at the end of a string
 TEST_F(FormulaTestCustom, insert4)
 {
-    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
-        {
-            return Rect{0, 0, 432, 400};
-        });
+    Start(432);
 
     document.WaitTask(document.InsertString("Text Text Text Text Text Text Text Text 3", true));
     document.WaitTask(document.InsertDivision(true));
@@ -1098,10 +1064,7 @@ TEST_F(FormulaTestCustom, insert4)
 //Insert a paragraph
 TEST_F(FormulaTestCustom, insert5)
 {
-    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
-        {
-            return Rect{0, 0, 432, 400};
-        });
+    Start(432);
 
     document.InsertCode(false, true);
     document.InsertString("123", true);
@@ -1194,10 +1157,7 @@ TEST_F(FormulaTestCustom, insert5)
 //Inserting a paragraph is prohibited
 TEST_F(FormulaTestCustom, insert6)
 {
-    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
-        {
-            return Rect{0, 0, 432, 400};
-        });
+    Start(432);
 
     document.InsertCode(false, true);
     document.InsertString("123", true);
@@ -1260,10 +1220,7 @@ TEST_F(FormulaTestCustom, insert6)
 //Insert a paragraph
 TEST_F(FormulaTestCustom, insert7)
 {
-    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
-        {
-            return Rect{0, 0, 432, 400};
-        });
+    Start(432);
 
     document.InsertCode(false, true);
     document.InsertString("3", true);
@@ -1328,10 +1285,7 @@ TEST_F(FormulaTestCustom, insert7)
 //Insert a paragraph
 TEST_F(FormulaTestCustom, insert8)
 {
-    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
-        {
-            return Rect{0, 0, 432, 400};
-        });
+    Start(432);
 
     document.InsertCode(false, true);
     document.InsertString("3", true);
@@ -1396,16 +1350,12 @@ TEST_F(FormulaTestCustom, insert8)
 //Selection of a formula
 TEST_F(FormulaTestCustom, select1)
 {
-    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
-        {
-            return Rect{0, 0, 450, 400};
-        });
+    Start(600);
 
     document.InsertDivision(true);
     document.WaitTask(document.InsertString("3", true));
     document.MoveCaretDown(false);
-    document.MoveCaretDown(false);
-    document.WaitCaretMoving();
+    document.WaitTask(document.MoveCaretDown(false));
     document.WaitTask(document.InsertString("25", true));
     document.MoveCaretLeft(false);
     document.MoveCaretRight(true);
@@ -1421,14 +1371,10 @@ TEST_F(FormulaTestCustom, select1)
 //Selection of a formula at the beginning of a text
 TEST_F(FormulaTestCustom, select2)
 {
-    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
-        {
-            return Rect{0, 0, 450, 400};
-        });
+    Start(600);
 
     document.InsertString("text", true);
-    document.MoveCaretHome(false);
-    document.WaitCaretMoving();
+    document.WaitTask(document.MoveCaretHome(false));
     document.WaitTask(document.InsertDivision(true));
     document.MoveCaretHome(false);
     document.MoveCaretHome(false);
@@ -1440,6 +1386,8 @@ TEST_F(FormulaTestCustom, select2)
 //Selection of a formula at the end of a row
 TEST_F(FormulaTestCustom, select3)
 {
+    Start(400);
+
     int width = 400;
     EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
         {
@@ -1474,6 +1422,8 @@ TEST_F(FormulaTestCustom, select3)
 //Selection of a child element of a formula at the end of a row
 TEST_F(FormulaTestCustom, select4)
 {
+    Start(424);
+
     int width = 424;
     EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
         {
@@ -1501,6 +1451,8 @@ TEST_F(FormulaTestCustom, select4)
 //Selection of a part of row, a formula and a part of row
 TEST_F(FormulaTestCustom, select5)
 {
+    Start(400);
+
     int width = 400;
     EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
         {
@@ -1554,6 +1506,8 @@ TEST_F(FormulaTestCustom, select5)
 //Selection rows in a code block
 TEST_F(FormulaTest, select6)
 {
+    Start(600);
+
     document.InsertCode(false, true);
     document.InsertString("123", true);
     document.InsertDivision(true);
@@ -1583,6 +1537,8 @@ TEST_F(FormulaTest, select6)
 //Selection rows in a code block
 TEST_F(FormulaTest, select7)
 {
+    Start(600);
+
     document.InsertCode(false, true);
     document.InsertString("123", true);
     document.InsertPlus(true);
@@ -1605,6 +1561,8 @@ TEST_F(FormulaTest, select7)
 //Selection rows in a code block
 TEST_F(FormulaTest, select8)
 {
+    Start(600);
+
     document.InsertCode(false, true);
     document.InsertString("123", true);
     document.InsertPlus(true);
@@ -1630,6 +1588,8 @@ TEST_F(FormulaTest, select8)
 //Select a code block
 TEST_F(FormulaTest, select9)
 {
+    Start(600);
+
     document.InsertCode(false, true);
     document.InsertString("123", true);
     document.MoveCaretEnd(false);
@@ -1644,6 +1604,8 @@ TEST_F(FormulaTest, select9)
 //Select a code block
 TEST_F(FormulaTest, select10)
 {
+    Start(600);
+
     document.InsertDivision(true);
     document.InsertString("123", true);
     document.MoveCaretEnd(false);
@@ -1659,6 +1621,8 @@ TEST_F(FormulaTest, select10)
 //Selection rows in a code block
 TEST_F(FormulaTest, select11)
 {
+    Start(600);
+
     document.InsertCode(false, true);
     document.InsertString("123", true);
     document.InsertPlus(true);
@@ -1682,13 +1646,14 @@ TEST_F(FormulaTest, select11)
 
 TEST_F(FormulaTest, fonts1)
 {
+    Start(600);
+
     document.InsertDivision(true);
     document.WaitTask(document.InsertString("123", true));
     document.MoveCaretHome(false);
     document.MoveCaretHome(false);
     document.MoveCaretHome(false);
-    document.MoveCaretRight(true);
-    document.WaitCaretMoving();
+    document.WaitTask(document.MoveCaretRight(true));
     document.WaitTask(document.SetFontSize(12));
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 

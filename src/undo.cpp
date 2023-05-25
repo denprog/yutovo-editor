@@ -1,0 +1,591 @@
+#include "undo.h"
+#include "str.h"
+#include "paragraph.h"
+#include "row.h"
+#include "text.h"
+#include "formulas/code_row.h"
+#include "formulas/code_paragraph.h"
+#include "formulas/code_block.h"
+#include "formulas/code_string.h"
+#include "formulas/plus.h"
+#include "formulas/minus.h"
+#include "formulas/multiply.h"
+#include "formulas/division.h"
+#include "formulas/square_root.h"
+#include "formulas/nth_root.h"
+#include "formulas/power.h"
+#include "formulas/equation.h"
+#include "formulas/fences.h"
+#include "formulas/assignment.h"
+#include "formulas/equation.h"
+#include "formulas/subscript.h"
+
+namespace yutovo
+{
+
+//UndoElement
+
+UndoElement::UndoElement(ElementType _type) :
+    type(_type)
+{
+}
+
+bool UndoElement::operator==(const UndoElement& el) const
+{
+    if (type != el.type || elements.size() != el.elements.size())
+        return false;
+    for (size_t i = 0; i < elements.size(); ++i)
+    {
+        if (*elements[i] != *el.elements[i])
+            return false;
+    }
+    return true;
+}
+
+bool UndoElement::operator==(const Element& el) const
+{
+    if (type != el.type || elements.size() != el.elements->Count())
+        return false;
+    for (size_t i = 0; i < elements.size(); ++i)
+    {
+        if (*elements[i] != *el.elements->Get(i))
+            return false;
+    }
+    return true;
+}
+
+//UndoString
+
+UndoString::UndoString(std::u32string _str, StringFormatPtr _format) :
+    UndoElement(ElementType::STRING),
+    str(_str),
+    format(_format)
+{
+}
+
+bool UndoString::operator==(const UndoString& el) const
+{
+    if (!UndoElement::operator==(el))
+        return false;
+    return str == el.str && *format == *el.format;
+}
+
+bool UndoString::operator==(const String& el) const
+{
+    if (!UndoElement::operator==(el))
+        return false;
+    return str == el.elements->ToText() && *format == *el.format;
+}
+
+Element* UndoString::Restore(Document* document, Element* parent)
+{
+    return new String(parent, str, format);
+}
+
+//UndoParagraph
+
+UndoParagraph::UndoParagraph(ParagraphFormatPtr _format) :
+    UndoElement(ElementType::PARAGRAPH),
+    format(_format)
+{
+}
+
+bool UndoParagraph::operator==(const UndoParagraph& el) const
+{
+    if (!UndoElement::operator==(el))
+        return false;
+    return *format == *el.format;
+}
+
+bool UndoParagraph::operator==(const Paragraph& el) const
+{
+    if (!UndoElement::operator==(el))
+        return false;
+    return *format == *el.format;
+}
+
+Element* UndoParagraph::Restore(Document* document, Element* parent)
+{
+    Paragraph* p;
+    if (parent)
+        p = new Paragraph(parent);
+    else
+        p = new Paragraph(document);
+    p->format = format;
+    p->current_string_format = format->default_string_format;
+    auto r = p->elements->Get(0);
+    r->elements->Clear();
+    for (size_t i = 0; i < elements.size(); ++i)
+        r->elements->Add(ElementPtr(elements[i]->Restore(document, r.get())));
+    return p;
+}
+
+//UndoFormula
+
+UndoFormula::UndoFormula(ElementType _type, FormulaFormatPtr _formula_format) :
+    UndoElement(_type),
+    formula_format(_formula_format)
+{
+}
+
+bool UndoFormula::operator==(const UndoFormula& el) const
+{
+    if (!UndoElement::operator==(el))
+        return false;
+    return *formula_format == *el.formula_format;
+}
+
+bool UndoFormula::operator==(const Formula& el) const
+{
+    if (!UndoElement::operator==(el))
+        return false;
+    return *formula_format == *el.formula_format;
+}
+
+Element* UndoFormula::Restore(Document* document, Element* parent)
+{
+    Formula* el = nullptr;
+    switch (type)
+    {
+    case ElementType::PLUS:
+        el = new Plus(parent);
+        break;
+    case ElementType::MINUS:
+        el = new Minus(parent);
+        break;
+    case ElementType::MULTIPLY:
+        el = new Multiply(parent);
+        break;
+    case ElementType::POWER:
+    case ElementType::DIVISION:
+    case ElementType::NTH_ROOT:
+    case ElementType::SUBSCRIPT:
+    case ElementType::ASSIGNMENT:
+        {
+            assert(elements.size() == 2);
+            switch (type)
+            {
+            case ElementType::POWER:
+                el = parent ? new Power(parent) : new Power(document);
+                break;
+            case ElementType::DIVISION:
+                el = parent ? new Division(parent) : new Division(document);
+                break;
+            case ElementType::NTH_ROOT:
+                el = parent ? new NthRoot(parent) : new NthRoot(document);
+                break;
+            case ElementType::SUBSCRIPT:
+                el = parent ? new Subscript(parent) : new Subscript(document);
+                break;
+            case ElementType::ASSIGNMENT:
+                el = parent ? new Assignment(parent) : new Assignment(document);
+                break;
+            }
+            ElementPtr first(elements[0]->Restore(document, el));
+            ElementPtr last(elements[1]->Restore(document, el));
+            el->elements->Get(0)->elements->ReplaceAll(*first->elements);
+            el->elements->Get(2)->elements->ReplaceAll(*last->elements);
+        }
+        break;
+    case ElementType::SQUARE_ROOT:
+        {
+            el = parent ? new SquareRoot(parent) : new SquareRoot(document);
+            ElementPtr last(elements[0]->Restore(document, el));
+            el->elements->Get(1)->elements->ReplaceAll(*last->elements);
+        }
+        break;
+    case ElementType::OPEN_FENCE:
+        el = parent ? new OpenFence(parent) : new OpenFence(document);
+        break;
+    case ElementType::CLOSE_FENCE:
+        el = parent ? new CloseFence(parent) : new CloseFence(document);
+        break;
+    }
+
+    el->formula_format = formula_format;
+
+    return el;
+}
+
+//UndoCodeRow
+
+UndoCodeRow::UndoCodeRow() :
+    UndoElement(ElementType::CODE_ROW)
+{
+}
+
+bool UndoCodeRow::operator==(const UndoCodeRow& el) const
+{
+    return UndoElement::operator==(el);
+}
+
+bool UndoCodeRow::operator==(const CodeRow& el) const
+{
+    return UndoElement::operator==(el);
+}
+
+Element* UndoCodeRow::Restore(Document* document, Element* parent)
+{
+    CodeRow* r = parent ? new CodeRow(parent) : new CodeRow(document);
+    r->elements->Clear();
+    for (size_t i = 0; i < elements.size(); ++i)
+        r->elements->Add(ElementPtr(elements[i]->Restore(document, r)));
+    return r;
+}
+
+//UndoCodeParagraph
+
+UndoCodeParagraph::UndoCodeParagraph(ParagraphFormatPtr _format) :
+    UndoParagraph(_format)
+{
+    type = ElementType::CODE_PARAGRAPH;
+}
+
+bool UndoCodeParagraph::operator==(const UndoCodeParagraph& el) const
+{
+    if (!UndoElement::operator==(el))
+        return false;
+    return *format == *el.format;
+}
+
+bool UndoCodeParagraph::operator==(const CodeParagraph& el) const
+{
+    if (!UndoElement::operator==(el))
+        return false;
+    return *format == *el.format;
+}
+
+Element* UndoCodeParagraph::Restore(Document* document, Element* parent)
+{
+    CodeParagraph* p = parent ? new CodeParagraph(parent) : new CodeParagraph(document);
+    p->format = format;
+    p->elements->Clear();
+    for (size_t i = 0; i < elements.size(); ++i)
+        p->elements->Add(ElementPtr(elements[i]->Restore(document, p)));
+    return p;
+}
+
+//UndoCodeBlock
+
+UndoCodeBlock::UndoCodeBlock(uint _code_id, CodeFormatPtr _code_format, ParagraphFormatPtr _paragraph_format, FormulaFormatPtr _formula_format) :
+    UndoElement(ElementType::CODE_BLOCK),
+    code_id(_code_id),
+    code_format(_code_format),
+    paragraph_format(_paragraph_format),
+    formula_format(_formula_format)
+{
+}
+
+bool UndoCodeBlock::operator==(const UndoCodeBlock& el) const
+{
+    if (!UndoElement::operator==(el))
+        return false;
+    return *code_format == *el.code_format && *paragraph_format == *el.paragraph_format && *formula_format == *el.formula_format;
+}
+
+bool UndoCodeBlock::operator==(const CodeBlock& el) const
+{
+    if (!UndoElement::operator==(el))
+        return false;
+    return *code_format == *el.code_format && *paragraph_format == *el.paragraph_format && *formula_format == *el.formula_format;
+}
+
+Element* UndoCodeBlock::Restore(Document* document, Element* parent)
+{
+    CodeBlock* c = parent ? new CodeBlock(parent, code_id) : new CodeBlock(document, code_id);
+    c->code_format = code_format;
+    c->paragraph_format = paragraph_format;
+    c->formula_format = formula_format;
+    c->elements->Clear();
+    for (size_t i = 0; i < elements.size(); ++i)
+        c->elements->Add(ElementPtr(elements[i]->Restore(document, c)));
+    return c;
+}
+
+//UndoCodeString
+
+UndoCodeString::UndoCodeString(std::u32string _str, StringFormatPtr _format) :
+    UndoString(_str, _format)
+{
+}
+
+Element* UndoCodeString::Restore(Document* document, Element* parent)
+{
+    return new CodeString(parent, str, format);
+}
+
+//UndoEquation
+
+UndoEquation::UndoEquation(FormulaFormatPtr _formula_format, yutovo_service::ResultType _result_type) : 
+    UndoFormula(ElementType::EQUATION, _formula_format),
+    result_type(_result_type)
+{
+}
+
+bool UndoEquation::operator==(const UndoEquation& el) const
+{
+    if (!UndoFormula::operator==(el))
+        return false;
+    return result_type == el.result_type;
+}
+
+bool UndoEquation::operator==(const Equation& el) const
+{
+    if (!UndoFormula::operator==(el))
+        return false;
+    return result_type == el.result_type;
+}
+
+Element* UndoEquation::Restore(Document* document, Element* parent)
+{
+    Equation* el = parent ? new Equation(parent, result_type) : new Equation(document, result_type);
+    el->formula_format = formula_format;
+    ElementPtr first(elements[0]->Restore(document, el));
+    el->elements->Get(0)->elements->ReplaceAll(*first->elements);
+    return el;
+}
+
+//UndoBase
+
+UndoBase::UndoBase(Document* _document) :
+    document(_document)
+{
+}
+
+int UndoBase::Store(const ElementId& id)
+{
+    std::vector<LogicalId> ids;
+    auto el = document->GetElement(id);
+    if (el->logical_id.empty())
+    {
+        for (int i = 0; i < el->elements->Count(); ++i)
+        {
+            LogicalId _id = el->elements->Get(i)->logical_id;
+            if (ids.empty() || ids[ids.size() - 1] != _id)
+                ids.push_back(_id);
+        }
+    }
+    else
+        ids.push_back(el->logical_id);
+    for (auto& id : ids)
+    {
+        if (!Store(next_undo_id, id))
+            return -1;
+    }
+    return next_undo_id++;
+}
+
+int UndoBase::Store(const ElementId& parent_id, const int pos, const int size)
+{
+    std::vector<LogicalId> ids;
+    for (int i = pos; i < pos + size; ++i)
+    {
+        auto el = document->GetElement(GetChild(parent_id, i));
+        if (ids.empty() || ids[i - 1] != el->logical_id)
+        {
+            if (el->logical_id.empty())
+            {
+                for (int j = 0; j < el->elements->Count(); ++j)
+                {
+                    LogicalId _id = el->elements->Get(j)->logical_id;
+                    if (ids.empty() || ids[ids.size() - 1] != _id)
+                        ids.push_back(_id);
+                }
+            }
+            else
+                ids.push_back(el->logical_id);
+        }
+    }
+    for (auto& id : ids)
+    {
+        if (!Store(next_undo_id, id))
+            return -1;
+    }
+    return next_undo_id++;
+}
+
+bool UndoBase::Restore(int undo_id, std::vector<ElementPtr>& elements)
+{
+    auto it = undo_items.find(undo_id);
+    if (it == undo_items.end())
+        return false;
+    
+    std::function<void (ElementPtr)> update_fields = 
+        [&](ElementPtr el)
+        {
+            el->document = document;
+            el->window = document->window;
+            el->caret = document->caret;
+            el->selection = &document->selection;
+            el->elements->caret = document->caret;
+            el->elements->selection = &document->selection;
+            if (!document->IsString(el))
+            {
+                for (int i = 0; i < el->elements->Count(); ++i)
+                    update_fields(el->elements->Get(i));
+            }
+        };
+
+    for (UndoElementPtr& el : it->second)
+    {
+        ElementPtr _el(el->Restore(document, nullptr));
+        update_fields(_el);
+        elements.push_back(_el);
+    }
+    return true;
+}
+
+int UndoBase::Store(const int undo_id, const LogicalId& id)
+{
+    std::vector<ElementPtr> elements;
+    document->GetElements(id, elements);
+    if (elements.empty())
+        return false;
+    
+    for (ElementPtr el : elements)
+    {
+        UndoElementPtr undo_el = StoreElement(id, el);
+        if (!undo_el)
+            return false;
+        undo_items[undo_id].push_back(undo_el);
+    }
+    return true;
+}
+
+UndoElementPtr UndoBase::StoreElement(const LogicalId id, ElementPtr el)
+{
+    auto undo_store_it = std::find_if(undo_store.begin(), undo_store.end(), 
+        [id](UndoItem& item)
+        {
+            return item.id == id;
+        });
+    if (undo_store_it != undo_store.end())
+    {
+        UndoItem& item = *undo_store_it;
+        auto _it = std::find_if(item.undo_elements.begin(), item.undo_elements.end(), 
+            [el](UndoElementPtr& undo_element)
+            {
+                return *el == *undo_element;
+            });
+        if (_it != item.undo_elements.end())
+        {
+            item.refs++;
+            return *_it; //this element is already saved
+        }
+    }
+
+    auto store_element = 
+        [this](ElementPtr el, UndoElementPtr& undo_element)
+        {
+            UndoElementPtr undo_ch = StoreElement(el->logical_id, el);
+            if (!undo_ch)
+                return false;
+            undo_element->elements.push_back(undo_ch);
+            return true;
+        };
+
+    //add a new undo item
+    UndoElementPtr undo_element;
+    switch (el->type)
+    {
+    case ElementType::STRING:
+        undo_element.reset(new UndoString(el->ToText(), ((String*)el.get())->format));
+        break;
+    case ElementType::PARAGRAPH:
+        undo_element.reset(new UndoParagraph(((Paragraph*)el.get())->format));
+        for (int i = 0; i < el->elements->Count(); ++i)
+        {
+            ElementPtr row = el->elements->Get(i);
+            for (int j = 0; j < row->elements->Count(); ++j)
+            {
+                auto ch = row->elements->Get(j);
+                UndoElementPtr undo_ch = StoreElement(ch->logical_id, ch);
+                if (!undo_ch)
+                    return nullptr;
+                undo_element->elements.push_back(undo_ch);
+            }
+        }
+        break;
+    case ElementType::CODE_BLOCK:
+        {
+            CodeBlock* c = (CodeBlock*)el.get();
+            undo_element.reset(new UndoCodeBlock(c->code_id, c->code_format, c->paragraph_format, c->formula_format));
+            for (int i = 0; i < c->elements->Count(); ++i)
+            {
+                ElementPtr ch = c->elements->Get(i);
+                UndoElementPtr undo_ch = StoreElement(ch->logical_id, ch);
+                if (!undo_ch)
+                    return nullptr;
+                undo_element->elements.push_back(undo_ch);
+            }
+        }
+        break;
+    case ElementType::CODE_ROW:
+        undo_element.reset(new UndoCodeRow());
+        for (int i = 0; i < el->elements->Count(); ++i)
+        {
+            ElementPtr ch = el->elements->Get(i);
+            UndoElementPtr undo_ch = StoreElement(ch->logical_id, ch);
+            if (!undo_ch)
+                return nullptr;
+            undo_element->elements.push_back(undo_ch);
+        }
+        break;
+    case ElementType::CODE_PARAGRAPH:
+        undo_element.reset(new UndoCodeParagraph(((CodeParagraph*)el.get())->format));
+        for (int i = 0; i < el->elements->Count(); ++i)
+        {
+            ElementPtr row = el->elements->Get(i);
+            UndoElementPtr undo_ch = StoreElement(row->logical_id, row);
+            if (!undo_ch)
+                return nullptr;
+            undo_element->elements.push_back(undo_ch);
+        }
+        break;
+    case ElementType::CODE_STRING:
+        undo_element.reset(new UndoCodeString(el->ToText(), ((CodeString*)el.get())->format));
+        break;
+    case ElementType::PLUS:
+    case ElementType::MINUS:
+    case ElementType::MULTIPLY:
+    case ElementType::OPEN_FENCE:
+    case ElementType::CLOSE_FENCE:
+        undo_element.reset(new UndoFormula(el->type, ((Formula*)el.get())->formula_format));
+        break;
+    case ElementType::SQUARE_ROOT:
+        undo_element.reset(new UndoFormula(el->type, ((Formula*)el.get())->formula_format));
+        if (!store_element(el->elements->Get(1), undo_element))
+            return nullptr;
+        break;
+    case ElementType::POWER:
+    case ElementType::NTH_ROOT:
+    case ElementType::DIVISION:
+    case ElementType::SUBSCRIPT:
+    case ElementType::ASSIGNMENT:
+        undo_element.reset(new UndoFormula(el->type, ((Formula*)el.get())->formula_format));
+        if (!store_element(el->elements->Get(0), undo_element))
+            return nullptr;
+        if (!store_element(el->elements->Get(2), undo_element))
+            return nullptr;
+        break;
+    case ElementType::EQUATION:
+        {
+            Equation* _el((Equation*)el.get());
+            undo_element.reset(new UndoEquation(_el->formula_format, _el->result_type));
+            if (!store_element(el->elements->Get(0), undo_element))
+                return nullptr;
+        }
+        break;
+    default:
+        assert(false);
+    }
+
+    if (!undo_element)
+        return nullptr;
+    
+    UndoItem item{id, 1, std::vector{undo_element}};
+    undo_store.emplace_back(item);
+    return undo_element;
+}
+
+}

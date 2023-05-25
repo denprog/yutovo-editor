@@ -77,12 +77,24 @@ struct DocumentTest : public testing::Test
         app(argc, argv),
         document(&window_mock)
     {
-        document.Start(config);
+    }
 
-        EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
+    void Start(int width)
+    {
+        EXPECT_CALL(window_mock, GetRect).WillRepeatedly(
+            [width]()
+            {
+                return Rect{0, 0, width, 400};
+            });
+            
+        EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly(
+            [&](const std::u32string& text, const StringFormatPtr format)
             {
                 return GetTextSizeMock(text, format);
             });
+        
+        document.Start(config);
+        document.config.solve_delay = 0;
     }
 
     Size GetTextSizeMock(const std::u32string& text, const StringFormatPtr format)
@@ -250,8 +262,6 @@ struct FormulaTest : DocumentTest
 {
     FormulaTest()
     {
-        document.config.solve_delay = 0;
-
         EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
             {
                 return Rect{0, 0, 600, 400};
@@ -261,18 +271,10 @@ struct FormulaTest : DocumentTest
 
 struct FormulaTestCustom : DocumentTest
 {
-    FormulaTestCustom()
-    {
-        document.config.solve_delay = 0;
-    }
 };
 
 struct SolverTest : DocumentTest
 {
-    SolverTest()
-    {
-        document.config.solve_delay = 0;
-    }
 };
 
 struct SolverAutoTest : SolverTest

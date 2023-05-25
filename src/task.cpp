@@ -47,6 +47,30 @@ Task::Task(ElementPtr _text, const uint _id) :
 {
 }
 
+void Task::Remake(ElementId _id, bool move_into_view)
+{
+    auto el = document->GetElement(_id);
+    while (!el && !_id.empty())
+    {
+        el = document->GetElement(GetParent(_id));
+    }
+
+    if (!el)
+        return;
+    Element* _el = el.get();
+    if (_el->Remake(true))
+    {
+        _el = _el->parent;
+        while (_el->Remake())
+        {
+            _el = _el->parent;
+        }
+    }
+    _el->Normalize();
+    if (document->IsVisible(_el->id))
+        document->Redraw(_el->id, move_into_view);
+}
+
 //InsertElementsTask
 
 InsertElementsTask::InsertElementsTask(ElementPtr _text, std::vector<ElementPtr>& _elements, bool _with_undo, bool _pasting) :
@@ -72,11 +96,6 @@ InsertElementsTask::InsertElementsTask(ElementPtr _text, std::vector<ElementPtr>
 
 bool InsertElementsTask::Execute()
 {
-    //logger->Debug("Execute InsertElementsTask");
-
-    if (with_undo)
-        document->PushEditorState(true);
-
     if (before_state.IsEmpty())
         before_state = document->GetEditorState();
     else
@@ -102,10 +121,11 @@ bool InsertElementsTask::Execute()
         auto DeleteElements = [&](ElementPtr _el)
         {
             assert(_el != nullptr);
-            if (_el->DeleteElements(true, with_undo))
+            ElementId changed_element;
+            if (_el->DeleteElements(true, with_undo, changed_element))
             {
-                if (_el->parent)
-                    document->Remake(_el->parent->id, true, with_undo, false);
+                if (document->can_normalize)
+                    Remake(changed_element, false);
                 el = document->GetElement(document->caret->GetElement()->id);
                 return true;
             }
@@ -182,7 +202,8 @@ bool InsertElementsTask::Execute()
     {
         _el->parent = nullptr;
         std::vector<ElementPtr> t{_el};
-        if (el->editable && !el->InsertElements(t, with_undo))
+        ElementId changed_element;
+        if (el->editable && !el->InsertElements(t, with_undo, changed_element))
         {
             if (with_undo)
                 document->RollbackUndo();
@@ -193,11 +214,9 @@ bool InsertElementsTask::Execute()
         if (document->caret->GetElement())
             el = document->GetElement(document->caret->GetElement()->id);
 
-        if (with_undo)
-            document->PushEditorState(true);
+        if (document->can_normalize)
+            Remake(changed_element, true); //move into view
     }
-    if (el->parent)
-        document->Remake(el->parent->id, true, with_undo, false, true); //move into view
     document->pasting = false;
     return true;
 }
@@ -233,11 +252,6 @@ DeleteElementsTask::DeleteElementsTask(ElementPtr _text, ElementId _element_id, 
 
 bool DeleteElementsTask::Execute()
 {
-    //logger->Debug("Execute DeleteElementsTask");
-
-    if (with_undo)
-        document->PushEditorState(true);
-
     SelectionState selection_state;
     if (element_id.empty())
     {
@@ -258,38 +272,64 @@ bool DeleteElementsTask::Execute()
 
     CaretState caret_state = before_state.caret_state;
 
-    auto DeleteElements = [&](ElementPtr el)
+    auto DeleteElements = [&](ElementPtr el, ElementId& changed_element, bool _with_undo)
     {
         assert(el != nullptr);
-        return el->editable && el->DeleteElements(left, with_undo);
+        return el->DeleteElements(left, _with_undo, changed_element);
     };
 
+    ElementId changed_element;
     if (selection_state.IsEmpty())
     {
-        if (DeleteElements(document->GetParent(caret_state.id)))
+        auto el = document->GetParent(caret_state.id);
+        if (!el->editable)
+            return false;
+        if (DeleteElements(el, changed_element, with_undo))
         {
-            if (with_undo)
-                document->PushEditorState(true);
-            document->Remake(document->caret->GetElement()->id, true, with_undo, false, true); //move into view
+            if (document->can_normalize)
+                Remake(changed_element, true); //move into view
             return true;
         }
     }
     else
     {
+        if (with_undo)
+        {
+            uint start = 0, size = 0;
+            ElementId p_id = selection_state.GetCommonElement(start, size);
+            auto p = document->GetElement(p_id);
+            if (document->IsString(p))
+            {
+                document->StoreUndo(p->parent->id);
+            }
+            else
+            {
+                if (start == 0)
+                {
+                    if (size == p->elements->Count())
+                        document->StoreUndo(p_id, start, size, 1);
+                    else
+                        document->StoreUndo(p_id, start, size, UndoTask::UndoOperation::INSERT);
+                }
+                else
+                    document->StoreUndo(p_id, start, size, UndoTask::UndoOperation::INSERT);
+            }
+        }
         for (int i = selection_state.state.size() - 1; i >= 0; --i)
         {
             ElementSelectionState& s = selection_state.state[i];
-            if (!DeleteElements(document->GetElement(s.id)))
+            auto el = document->GetElement(s.id);
+            if (!el->editable)
+                continue;
+            if (!DeleteElements(el, changed_element, false))
             {
                 if (with_undo)
                     document->RollbackUndo();
                 return false;
             }
+            if (document->can_normalize)
+                Remake(changed_element, true); //move into view
         }
-        if (with_undo)
-            document->PushEditorState(true);
-        if (document->caret->GetElement())
-            document->Remake(document->caret->GetElement()->id, true, with_undo, false, true); //move into view
         return true;
     }
 
@@ -317,8 +357,6 @@ InsertFormulasTask::InsertFormulasTask(ElementPtr _text, uint _id, std::vector<E
 
 bool InsertFormulasTask::Execute()
 {
-    //logger->Debug("Execute InsertFormulasTask");
-
     if (before_state.IsEmpty())
         before_state = document->GetEditorState();
     else
@@ -331,6 +369,7 @@ bool InsertFormulasTask::Execute()
     assert(el);
 
     bool insert_code_block = false;
+    ElementId changed_element;
     if (elements[0]->type != ElementType::CODE_BLOCK)
     {
         if (document->FindParent(caret_state.id, ElementType::CODE_BLOCK) == nullptr)
@@ -344,12 +383,9 @@ bool InsertFormulasTask::Execute()
                 return false;
             }
             
-            if (with_undo)
-                document->PushEditorState(true);
-            
             ElementPtr code(new CodeBlock(row.get(), document->cur_code_id));
             std::vector v{code};
-            if (!row->InsertElements(v, with_undo))
+            if (!row->InsertElements(v, with_undo, changed_element))
             {
                 if (with_undo)
                     document->RollbackUndo();
@@ -360,9 +396,6 @@ bool InsertFormulasTask::Execute()
         }
     }
 
-    if (with_undo)
-        document->PushEditorState(true);
-
     std::vector<ElementPtr> _elements;
     for (int i = 0; i < elements.size(); ++i)
     {
@@ -372,11 +405,10 @@ bool InsertFormulasTask::Execute()
     }
     
     document->pasting = pasting;
-    if (el->InsertElements(_elements, insert_code_block ? false : with_undo))
+    if (el->InsertElements(_elements, insert_code_block ? false : with_undo, changed_element))
     {
-        if (with_undo)
-            document->PushEditorState(true);
-        document->Remake(el->parent->parent->id, true, with_undo, false, true); //move into view
+        if (document->can_normalize)
+            Remake(changed_element, true); //move into view
         document->pasting = false;
         return true;
     }
@@ -415,11 +447,6 @@ ChangeStringFormatTask::ChangeStringFormatTask(ElementPtr _text, const StringFor
 
 bool ChangeStringFormatTask::Execute()
 {
-    //logger->Debug("Execute ChangeStringFormatTask");
-    if (with_undo)
-        text->document->PushEditorState(true);
-
-    if (before_state.IsEmpty())
         before_state = text->document->GetEditorState();
 
     CaretState& caret_state = before_state.caret_state;
@@ -459,25 +486,23 @@ bool ChangeStringFormatTask::Execute()
             _format = format;
         }
 
-        if (!el->ChangeStringFormat(_format, with_undo))
+        ElementId changed_element;
+        if (!el->ChangeStringFormat(_format, with_undo, changed_element))
         {
             if (with_undo)
                 document->RollbackUndo();
             return false;
         }
 
+        Remake(changed_element, false);
         document->UpdateFormats();
     }
-
-    if (with_undo)
-        document->PushEditorState(true);
 
     if (!selection_state.IsEmpty())
     {
         auto p_id = selection_state.state.size() == 1 ? GetParent(selection_state.state[0].id) : selection_state.GetCommonElement();
-        document->Remake(p_id, true, with_undo, false);
+        Remake(p_id, false);
     }
-    document->Redraw(caret_state.id, true); //move into view
 
     return true;
 }
@@ -497,7 +522,6 @@ ChangeParagraphFormatTask::ChangeParagraphFormatTask(ElementPtr _text, const Par
 
 bool ChangeParagraphFormatTask::Execute()
 {
-    //logger->Debug("Execute ChangeParagraphFormatTask");
     if (before_state.IsEmpty())
         before_state = document->GetEditorState();
 
@@ -506,53 +530,17 @@ bool ChangeParagraphFormatTask::Execute()
     if (!el)
         return false;
 
-    if (with_undo)
-        document->PushEditorState(true);
-
-    if (!el->ChangeParagraphFormat(format, with_undo))
+    ElementId changed_element;
+    if (!el->ChangeParagraphFormat(format, with_undo, changed_element))
     {
         if (with_undo)
             document->RollbackUndo();
         return false;
     }
 
-    if (with_undo)
-        document->PushEditorState(true);
-
+    Remake(changed_element, true);
     document->UpdateFormats();
-    document->Redraw(el->parent->id, true); //move into view
 
-    return true;
-}
-
-//RemakeTask
-
-RemakeTask::RemakeTask(ElementPtr _text, const ElementId& _element_id, bool _with_elements, bool _with_undo) : 
-    Task(_text), 
-    element_id(_element_id),
-    with_elements(_with_elements),
-    with_undo(_with_undo)
-{
-}
-
-RemakeTask::RemakeTask(ElementPtr _text, const ElementId& _element_id, bool _with_elements, bool _with_undo, bool _move_into_view, uint id, uint _priority) :
-    Task(_text, id), 
-    element_id(_element_id),
-    with_elements(_with_elements),
-    with_undo(_with_undo),
-    move_into_view(_move_into_view)
-{
-    priority = _priority;
-}
-
-bool RemakeTask::Execute()
-{
-    //logger->Debug("Execute RemakeTask element_id={}", IdToString(element_id));
-    auto el = document->GetElement(element_id);
-    if (!el)
-        return false;
-    el->Remake(with_elements, true, with_undo);
-    document->Redraw(element_id, move_into_view);
     return true;
 }
 
@@ -571,8 +559,6 @@ bool RedrawTask::Execute()
     if (!element || document->WillRedraw(element_id, move_into_view)) //don't redraw if it will be redrawn later
         return false;
     
-    //logger->Debug("Execute RedrawTask element_id={}", IdToString(element_id));
-
     Rect clear_rect = element->draw_rect.IsEmpty() ? element->GetAbsoluteRect() : element->draw_rect;
     window->ClearRect(clear_rect); //clear last rect before drawing
     element->Draw(); //draw element and update its rect
@@ -599,23 +585,102 @@ bool ResizeTask::Execute()
 {
     if (document->WillResize()) //don't resize if it will be resized later
         return false;
-    //logger->Debug("Execute ResizeTask width={}, height={}", width, height);
     window->Resize(width, height);
     return true;
 }
 
-//CallFuncTask
+//UndoTask
 
-CallFuncTask::CallFuncTask(ElementPtr _text, const ElementId& _id, CallFuncPtr _func, const uint task_id) :
+UndoTask::UndoTask(ElementPtr _text, int _undo_id, ElementId _id, const int _delete_size, const uint task_id) :
     Task(_text, task_id),
+    undo_id(_undo_id),
     id(_id),
-    func(_func)
+    delete_size(_delete_size)
 {
+    before_state = document->GetEditorState();
 }
 
-bool CallFuncTask::Execute()
+UndoTask::UndoTask(ElementPtr _text, int _undo_id, ElementId _id, const int _pos, const int _size, UndoOperation _undo_operation, const uint task_id) :
+    Task(_text, task_id),
+    undo_id(_undo_id),
+    id(_id),
+    undo_operation(_undo_operation),
+    pos(_pos),
+    size(_size)
 {
-    func(id);
+    before_state = document->GetEditorState();
+}
+
+bool UndoTask::Execute()
+{
+    if (undo_operation == UndoOperation::DELETE)
+    {
+        auto p = document->GetElement(id);
+        p->elements->RemoveAt(pos, size);
+        Remake(p->id, true);
+        return true;
+    }
+
+    std::vector<ElementPtr> undo_elements;
+    if (!document->RestoreUndo(undo_id, undo_elements))
+        return false;
+
+    document->caret->block = true;
+
+    ElementPtr p;
+    if (id.size() == 1)
+        p = document->GetElement(id);
+    else
+        p = document->GetParent(id);
+    if (p->type == ElementType::PARAGRAPH)
+    {
+        p->elements->Clear();
+        p->AddEmptyElement();
+        auto r = p->elements->Get(0);
+        r->elements->Clear();
+        for (int i = 0; i < undo_elements.size(); ++i)
+            r->elements->Insert(undo_elements[i], i);
+    }
+    else
+    {
+        int pos = GetChildPos(id);
+        if (p->type == ElementType::ROW)
+        {
+            auto _el = document->GetElement(id);
+            std::vector<ElementPtr> elements;
+            document->GetElements(_el->logical_id, elements);
+            for (int j = elements.size() - 1; j >= 0; --j)
+                elements[j]->parent->elements->Remove(elements[j]);
+            for (int i = 0; i < undo_elements.size(); ++i)
+                p->elements->Insert(undo_elements[i], pos + i);
+        }
+        else if (document->IsFormula(p) && undo_elements.size() == 1)
+        {
+            auto ch = p->elements->Get(pos);
+            ch->elements->ReplaceAll(*undo_elements[0]->elements);
+        }
+        else
+        {
+            if (undo_operation != UndoOperation::INSERT)
+            {
+                if (delete_size > 0)
+                {
+                    if (delete_size <= pos + p->elements->Count())
+                        p->elements->RemoveAt(pos, delete_size);
+                }
+                else if (pos < p->elements->Count())
+                    p->elements->RemoveAt(pos, undo_elements.size() < p->elements->Count() - pos ? undo_elements.size() : p->elements->Count() - pos);
+            }
+            for (int i = 0; i < undo_elements.size(); ++i)
+                p->elements->Insert(undo_elements[i], pos + i);
+        }
+    }
+
+    Remake(p->id, true);
+
+    document->caret->block = false;
+    document->SetEditorState(before_state);
+    document->ReSolve(p->id);
     return true;
 }
 
@@ -760,6 +825,7 @@ bool MoveCaretTask::Execute()
     {
         document->selection.Clear();
         document->UpdateLastSelection();
+        document->UpdateFormats();
         window->OnCaretMoved(document->GetEditorState());
     }
 
@@ -807,7 +873,7 @@ bool NewTask::Execute()
     document->caret->MoveToDocumentBegin(nullptr);
     document->ResetTasks();
     document->text.reset(new Text(text->document));
-    document->Remake(text->id, true, false, false);
+    document->text->Remake(false);
     document->MoveCaretToDocumentBegin(false);
     return true;
 }
@@ -954,7 +1020,7 @@ bool LoadTask::Execute()
     document->MoveCaretToDocumentBegin(false);
     if (!str.empty())
         document->InsertString(str, false);
-    document->Remake(text->id, true, false, false);
+    document->text->Remake(true);
     document->text->ReSolve();
     document->MoveCaretToDocumentBegin(false);
     window->OnLoadResult(id, IOResult::Success);

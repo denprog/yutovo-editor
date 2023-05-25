@@ -11,18 +11,14 @@ using namespace std::chrono_literals;
 
 TEST_F(DocumentTest, files1)
 {
-    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
-        {
-            return Rect{0, 0, 600, 400};
-        });
+    Start(600);
 
     EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
         {
             return GetTextSizeMock(text, format);
         });
 
-    document.InsertString("Text", true);
-    document.WaitMainLoop();
+    document.WaitTask(document.InsertString("Text", true));
     document.Save("1.yut");
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
@@ -33,8 +29,7 @@ TEST_F(DocumentTest, files1)
         document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 4)) << document.GetEditorState().ToString();
 
-    document.New();
-    document.WaitMainLoop();
+    document.WaitTask(document.New());
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -60,10 +55,7 @@ TEST_F(DocumentTest, files1)
 
 TEST_F(DocumentTest, files2)
 {
-    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
-        {
-            return Rect{0, 0, 600, 400};
-        });
+    Start(600);
 
     EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
         {
@@ -97,8 +89,7 @@ TEST_F(DocumentTest, files2)
         << document.ToHtml();
 
     document.Save("2.yut");
-    document.New();
-    document.WaitMainLoop();
+    document.WaitTask(document.New());
     std::this_thread::sleep_for(1000ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
@@ -127,15 +118,7 @@ TEST_F(DocumentTest, files2)
 
 TEST_F(DocumentTest, files3)
 {
-    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
-        {
-            return Rect{0, 0, 630, 400};
-        });
-
-    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
-        {
-            return GetTextSizeMock(text, format);
-        });
+    Start(630);
 
     document.SetFontSize(22);
     document.WaitTask(document.InsertString("In literary theory, a text is any object that can be read, whether this object is a work of literature, "\
@@ -201,10 +184,8 @@ TEST_F(DocumentTest, files3)
         "</body>") 
         << document.ToHtml();
 
-    document.Save("3.yut");
-    document.WaitMainLoop();
-    document.New();
-    document.WaitMainLoop();
+    document.WaitTask(document.Save("3.yut"));
+    document.WaitTask(document.New());
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -239,26 +220,8 @@ TEST_F(DocumentTest, files3)
 
 TEST_F(DocumentTest, files4)
 {
-    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
-        {
-            return Rect{0, 0, 610, 400};
-        });
+    Start(610);
 
-    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
-        {
-            return GetTextSizeMock(text, format);
-        });
-
-    EXPECT_CALL(window_mock, OnSaveResult).WillOnce([&](const uint task_id, IOResult result)
-        {
-            ASSERT_TRUE(result == IOResult::Success);
-        });
-
-    EXPECT_CALL(window_mock, OnLoadResult).WillOnce([&](const uint task_id, IOResult result)
-        {
-            ASSERT_TRUE(result == IOResult::Success);
-        });
-    
     document.InsertString("In literary theory, a text is any object that can be read, whether this object is a work of literature, "\
         "a street sign, an arrangement of buildings on a city block, or styles of clothing.", true);
     document.MoveCaretToDocumentBegin(false);
@@ -283,10 +246,18 @@ TEST_F(DocumentTest, files4)
         "</body>") 
         << document.ToHtml();
 
-    document.Save("4.yut");
-    document.WaitMainLoop();
-    document.New();
-    document.WaitMainLoop();
+    EXPECT_CALL(window_mock, OnSaveResult).WillOnce([&](const uint task_id, IOResult result)
+        {
+            ASSERT_TRUE(result == IOResult::Success);
+        });
+
+    EXPECT_CALL(window_mock, OnLoadResult).WillOnce([&](const uint task_id, IOResult result)
+        {
+            ASSERT_TRUE(result == IOResult::Success);
+        });
+    
+    document.WaitTask(document.Save("4.yut"));
+    document.WaitTask(document.New());
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -322,15 +293,7 @@ TEST_F(DocumentTest, files4)
 //Load a text file
 TEST_F(DocumentTest, files5)
 {
-    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
-        {
-            return Rect{0, 0, 600, 400};
-        });
-
-    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
-        {
-            return GetTextSizeMock(text, format);
-        });
+    Start(600);
 
     EXPECT_CALL(window_mock, OnLoadResult).WillOnce([&](const uint task_id, IOResult result)
         {
@@ -354,15 +317,7 @@ TEST_F(DocumentTest, files5)
 //Load a broken file
 TEST_F(DocumentTest, files6)
 {
-    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
-        {
-            return Rect{0, 0, 600, 400};
-        });
-
-    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
-        {
-            return GetTextSizeMock(text, format);
-        });
+    Start(600);
 
     EXPECT_CALL(window_mock, OnLoadResult).WillOnce([&](const uint task_id, IOResult result)
         {
@@ -377,15 +332,7 @@ TEST_F(DocumentTest, files6)
 //Load an abcent file
 TEST_F(DocumentTest, files7)
 {
-    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
-        {
-            return Rect{0, 0, 600, 400};
-        });
-
-    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
-        {
-            return GetTextSizeMock(text, format);
-        });
+    Start(600);
 
     EXPECT_CALL(window_mock, OnLoadResult).WillOnce([&](const uint task_id, IOResult result)
         {

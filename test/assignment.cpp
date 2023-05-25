@@ -11,16 +11,12 @@ using namespace std::chrono_literals;
 
 TEST_F(AssignmentTest, assignment1)
 {
-    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
-        {
-            return Rect{0, 0, 600, 400};
-        });
+    Start(600);
 
     document.InsertCode(false, true);
     document.InsertString("x", true);
     document.InsertAssignment(true);
-    document.InsertString("5", true);
-    document.WaitMainLoop();
+    document.WaitTask(document.InsertString("5", true));
     document.WaitSolver();
     std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToHtml() == 
@@ -87,18 +83,14 @@ TEST_F(AssignmentTest, assignment1)
 //User variable
 TEST_F(AssignmentTest, assignment2)
 {
-    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
-        {
-            return Rect{0, 0, 600, 400};
-        });
+    Start(600);
 
     document.InsertCode(false, true);
     document.InsertString("x", true);
     document.InsertAssignment(true);
     document.InsertString("5", true);
     document.InsertPlus(true);
-    document.InsertString("67", true);
-    document.WaitMainLoop();
+    document.WaitTask(document.InsertString("67", true));
     document.WaitSolver();
     std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToHtml() == 
@@ -126,8 +118,7 @@ TEST_F(AssignmentTest, assignment2)
     document.WaitCaretMoving();
     document.InsertParagraph(true);
     document.InsertString("x", true);
-    document.InsertEquation(ResultType::AUTO, true);
-    document.WaitMainLoop();
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
     document.WaitSolver();
     std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToHtml() == 
@@ -168,10 +159,7 @@ TEST_F(AssignmentTest, assignment2)
 //User function
 TEST_F(AssignmentTest, assignment3)
 {
-    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
-        {
-            return Rect{0, 0, 600, 400};
-        });
+    Start(600);
 
     document.InsertCode(false, true);
     document.InsertString("f", true);
@@ -181,8 +169,7 @@ TEST_F(AssignmentTest, assignment3)
     document.InsertAssignment(true);
     document.InsertString("5", true);
     document.InsertPlus(true);
-    document.InsertString("x", true);
-    document.WaitMainLoop();
+    document.WaitTask(document.InsertString("x", true));
     document.WaitSolver();
     std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToHtml() == 
@@ -216,8 +203,7 @@ TEST_F(AssignmentTest, assignment3)
     document.InsertOpenFence(true);
     document.InsertString("4", true);
     document.InsertCloseFence(true);
-    document.InsertEquation(ResultType::AUTO, true);
-    document.WaitMainLoop();
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
     document.WaitSolver();
     std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToHtml() == 
@@ -264,10 +250,7 @@ TEST_F(AssignmentTest, assignment3)
 //Edit an assignment
 TEST_F(AssignmentTest, assignment4)
 {
-    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
-        {
-            return Rect{0, 0, 600, 400};
-        });
+    Start(600);
 
     document.InsertCode(false, true);
     document.InsertString("x", true);
@@ -392,10 +375,7 @@ TEST_F(AssignmentTest, assignment4)
 //Insert a paragraph after assignment
 TEST_F(AssignmentTest, assignment5)
 {
-    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
-        {
-            return Rect{0, 0, 600, 400};
-        });
+    Start(600);
 
     document.InsertCode(false, true);
     document.InsertString("x", true);
@@ -454,10 +434,7 @@ TEST_F(AssignmentTest, assignment5)
 //Deletion of assignment
 TEST_F(AssignmentTest, delete1)
 {
-    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
-        {
-            return Rect{0, 0, 600, 400};
-        });
+    Start(600);
 
     document.InsertCode(false, true);
     document.InsertString("x", true);
@@ -507,10 +484,7 @@ TEST_F(AssignmentTest, delete1)
 //Deletion of assignment
 TEST_F(AssignmentTest, delete2)
 {
-    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
-        {
-            return Rect{0, 0, 600, 400};
-        });
+    Start(600);
 
     document.InsertCode(false, true);
     document.InsertString("x", true);

@@ -10,6 +10,8 @@ using namespace std::chrono_literals;
 
 TEST_F(FormulaTest, square_root1)
 {
+    Start(600);
+
     document.WaitTask(document.InsertSquareRoot(true));
     std::this_thread::sleep_for(200ms);
     ASSERT_TRUE(document.ToHtml() == 
@@ -74,6 +76,8 @@ TEST_F(FormulaTest, square_root1)
 
 TEST_F(FormulaTest, square_root2)
 {
+    Start(600);
+
     document.InsertSquareRoot(true);
     document.InsertString("12", true);
     document.MoveCaretLeft(false);
@@ -133,6 +137,8 @@ TEST_F(FormulaTest, square_root2)
 
 TEST_F(FormulaTest, square_root3)
 {
+    Start(600);
+
     document.InsertSquareRoot(true);
     document.InsertString("12", true);
     document.InsertPlus(true);
@@ -219,6 +225,8 @@ TEST_F(FormulaTest, square_root3)
 //Save/Load
 TEST_F(FormulaTest, square_root4)
 {
+    Start(600);
+
     document.InsertString("Square root", true);
     document.InsertSquareRoot(true);
     document.InsertString("12", true);
@@ -229,8 +237,7 @@ TEST_F(FormulaTest, square_root4)
     document.WaitMainLoop();
     document.Save("square_root4_1.yut");
 
-    document.New();
-    document.WaitMainLoop();
+    document.WaitTask(document.New());
     std::this_thread::sleep_for(200ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
@@ -274,6 +281,8 @@ TEST_F(FormulaTest, square_root4)
 //Insert a char in the operation sign
 TEST_F(FormulaTest, square_root5)
 {
+    Start(600);
+
     document.WaitTask(document.InsertSquareRoot(true));
     document.WaitTask(document.MoveCaretLeft(false));
     std::this_thread::sleep_for(200ms);

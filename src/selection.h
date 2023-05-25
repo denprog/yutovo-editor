@@ -44,6 +44,7 @@ struct SelectionState
     void Merge(const SelectionState& s);
     
     ElementId GetCommonElement() const;
+    ElementId GetCommonElement(uint& start, uint& size) const;
 
     bool IsEmpty() const;
 

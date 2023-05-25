@@ -22,38 +22,6 @@ class Elements;
 class Caret;
 class Selection;
 
-enum class ElementType
-{
-    NONE = 0,
-    TEXT,
-    PARAGRAPH,
-    ROW,
-    STRING,
-    CODE_BLOCK,
-    CODE_PARAGRAPH,
-    CODE_ROW,
-    CODE_STRING,
-    SHAPE,
-    PLUS,
-    MINUS,
-    MULTIPLY,
-    DIVISION,
-    POWER,
-    SQUARE_ROOT,
-    NTH_ROOT,
-    EQUATION,
-    OPEN_FENCE,
-    CLOSE_FENCE,
-    REAL_RESULT,
-    INTEGER_RESULT,
-    RATIONAL_RESULT,
-    COMPLEX_RESULT,
-    AUTO_RESULT,
-    ERROR_RESULT,
-    ASSIGNMENT,
-    SUBSCRIPT
-};
-
 #define MAX_LEVEL 3
 
 class Element;
@@ -74,17 +42,18 @@ public:
 
     virtual void Draw() const;
     virtual void DrawErrorMark(const int start, const int size) const;
-    virtual void Remake(bool with_elements, bool with_parent, bool with_undo);
-    virtual void Normalize(bool with_undo);
+    virtual bool Remake(bool with_elements = false);
+    virtual void Normalize();
 
-    virtual bool InsertElements(std::vector<ElementPtr>& _elements, bool with_undo);
-    virtual bool DeleteElements(bool left, bool with_undo);
-    virtual bool ChangeStringFormat(const StringFormatPtr format, bool with_undo);
-    virtual bool ChangeParagraphFormat(const ParagraphFormatPtr format, bool with_undo);
+    virtual bool InsertElements(std::vector<ElementPtr>& _elements, bool with_undo, ElementId& changed_element);
+    virtual bool DeleteElements(bool left, bool with_undo, ElementId& changed_element);
+    virtual bool ChangeStringFormat(const StringFormatPtr format, bool with_undo, ElementId& changed_element);
+    virtual bool ChangeParagraphFormat(const ParagraphFormatPtr format, bool with_undo, ElementId& changed_element);
 
     virtual bool Split(const uint width, bool split_more);
     virtual bool SplitAt(const uint pos);
     virtual bool Merge(const ElementPtr with_element);
+    virtual bool CanMerge(const ElementPtr with_element);
 
     virtual void UpdateStringFormat(const StringFormatPtr base_format, const StringFormatPtr new_format);
 
@@ -169,6 +138,7 @@ public:
 
     ElementType type = ElementType::NONE;
     ElementId id; //hierarchic unique id
+    LogicalId logical_id; //hierarchic id without rows and splitting elements
     Rect rect; //relative bounding rect
     Rect last_rect; //for determining of necessity of remaking parent
     Rect draw_rect;
@@ -180,11 +150,10 @@ public:
 protected:
     friend class Elements;
     friend class String;
+    friend class UndoBase;
     
     CaretPtr caret;
     Selection* selection = nullptr;
-
-    bool remake_always = false;
 
     std::vector<ElementId> on_change_subscribers;
 
@@ -209,7 +178,6 @@ public:
     virtual void Clone(std::vector<ElementPtr>& _elements, const uint start, const uint size);
     
     virtual void Draw() const;
-    virtual void Remake(bool with_parent, bool with_undo);
 
     virtual ElementPtr Get(uint pos);
     virtual ElementPtr Get(ElementId id);
@@ -228,6 +196,7 @@ public:
     virtual void Move(const ElementPtr element, const uint pos);
     virtual void Move(const Elements& _elements, const uint pos);
     virtual void Replace(ElementPtr element, const uint pos);
+    virtual void ReplaceAll(const Elements& _elements);
     virtual void Clear();
 
     virtual uint Count() const;
@@ -268,6 +237,8 @@ protected:
     virtual void UpdateIds();
 
 protected:
+    friend class UndoBase;
+    
     Element* parent = nullptr;
     CaretPtr caret;
     Selection* selection = nullptr;

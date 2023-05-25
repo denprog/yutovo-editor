@@ -117,6 +117,13 @@ ParagraphFormat::ParagraphFormat(std::string _name, Alignment _alignment, WordWr
 {
 }
 
+bool ParagraphFormat::operator==(const ParagraphFormat& f) const
+{
+    return name == f.name && alignment == f.alignment && word_wrap == f.word_wrap && line_spacing == f.line_spacing && indent_before == f.indent_before && 
+        indent_after == f.indent_after && indent_first_line == f.indent_first_line && spacing_before == f.spacing_before && spacing_after == f.spacing_after && 
+        *default_string_format == *f.default_string_format;
+}
+
 //ParagraphFormats
 
 ParagraphFormats::ParagraphFormats(StringFormatsPtr _string_formats) :
@@ -295,6 +302,12 @@ CodeFormatPtr CodeFormats::GetFormat(const std::string& name, uint left_indent, 
 
 //PageFormats
 
+bool PageFormat::operator==(const PageFormat& p) const
+{
+    return left_indent == p.left_indent && top_indent == p.top_indent && right_indent == p.right_indent && 
+        bottom_indent == p.bottom_indent && paragraph_spacing == p.paragraph_spacing;
+}
+
 std::vector<PageFormatPtr> PageFormats::page_formats;
 
 PageFormatPtr PageFormats::GetFormat(uint left_indent, uint top_indent, uint right_indent, uint bottom_indent, uint paragraph_spacing)
@@ -312,6 +325,11 @@ PageFormatPtr PageFormats::GetFormat(uint left_indent, uint top_indent, uint rig
 }
 
 //TextFormat
+
+bool TextFormat::operator==(const TextFormat& t) const
+{
+    return paging == t.paging;
+}
 
 std::vector<TextFormatPtr> TextFormats::text_formats;
 

@@ -19,12 +19,12 @@ public:
 
     virtual Element* Create(Element* parent);
 
-    virtual void Remake(bool with_elements, bool with_parent, bool with_undo);
-    virtual void Normalize(bool with_undo);
+    virtual bool Remake(bool with_elements = false);
+    virtual void Normalize();
 
-    virtual bool InsertElements(std::vector<ElementPtr>& _elements, bool with_undo);
-    virtual bool DeleteElements(bool left, bool with_undo);
-    virtual bool ChangeStringFormat(const StringFormatPtr format, bool with_undo);
+    virtual bool InsertElements(std::vector<ElementPtr>& _elements, bool with_undo, ElementId& changed_element);
+    virtual bool DeleteElements(bool left, bool with_undo, ElementId& changed_element);
+    virtual bool ChangeStringFormat(const StringFormatPtr format, bool with_undo, ElementId& changed_element);
 
     virtual bool GetBeginCaretState(CaretState& caret_state, Selection* select);
     virtual bool GetEndCaretState(CaretState& caret_state, Selection* select);

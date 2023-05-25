@@ -20,12 +20,12 @@ Block::Block(Document* _document) :
 {
 }
 
-void Block::Normalize(bool with_undo)
+void Block::Normalize()
 {
     if (!document->can_normalize)
         return;
 
-    Element::Normalize(with_undo);
+    Element::Normalize();
 
     if (elements->Count() == 0)
     {
@@ -33,26 +33,10 @@ void Block::Normalize(bool with_undo)
         CaretState c;
         GetFirstCaretState(c, nullptr);
         caret->SetState(c);
-        if (with_undo)
-        {
-            document->CallFunc(ElementId{}, 
-                [d = document](const ElementId id)
-                {
-                    d->can_normalize = true;
-                },
-                true);
-            document->ClearElements(id, false, true);
-            document->CallFunc(ElementId{}, 
-                [d = document](const ElementId id)
-                {
-                    d->can_normalize = false;
-                },
-                true);
-        }
     }
 }
 
-bool Block::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo)
+bool Block::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo, ElementId& changed_element)
 {
     CaretState before_state = caret->GetCaretState();
     if (_elements.size() != 1 || !document->IsParagraph(_elements[0]))
@@ -60,7 +44,7 @@ bool Block::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo)
         if (document->IsParagraph(before_state.id) && document->IsRow(_elements[0]))
         {
             ElementPtr el = document->GetElement(before_state.id);
-            return el->InsertElements(_elements, with_undo);
+            return el->InsertElements(_elements, with_undo, changed_element);
         }
         if (_elements[0]->type == ElementType::TEXT) //insert from Paste
         {
@@ -84,7 +68,7 @@ bool Block::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo)
             els.push_back(row);
             if (!cur)
                 cur = document->GetParent(before_state.id);
-            if (!cur || !cur->InsertElements(els, with_undo))
+            if (!cur || !cur->InsertElements(els, with_undo, changed_element))
                 return false;
             
             //insert the rest of the paragraphs
@@ -92,21 +76,20 @@ bool Block::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo)
             {
                 els.clear();
                 els.push_back(_elements[0]->elements->Get(i));
-                if (!InsertElements(els, with_undo))
+                if (!InsertElements(els, with_undo, changed_element))
                     return false;
             }
-            Remake(true, true, with_undo);
+            changed_element = id;
             return true;
         }
         if (!parent)
             return false;
-        return parent->InsertElements(_elements, with_undo);
+        return parent->InsertElements(_elements, with_undo, changed_element);
     }
 
     ElementPtr insert_element(_elements[0]->Clone());
     ElementPtr el = document->GetParent(before_state.id);
     ElementPtr paragraph = document->FindParentParagraph(el->id);
-    ElementPtr clone;
     ElementPtr new_row, row;
     bool caret_next_row = false;
 
@@ -117,19 +100,29 @@ bool Block::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo)
     }
     else
     {
-        row = document->FindParentRow(el->id);
+        if (with_undo)
+            document->StoreUndo(paragraph->id);
 
+        row = document->FindParentRow(el->id);
         int k = elements->GetElementPos(paragraph->id);
         int p = row->elements->GetElementPos(el->id);
-        CaretState start;
-        row->GetFirstCaretState(start, nullptr);
+        CaretState row_start;
+        row->GetFirstCaretState(row_start, nullptr);
 
-        if (with_undo)
-            clone.reset(paragraph->Clone());
-
-        if (caret->GetCaretState() == start)
+        if (caret->GetCaretState() == row_start)
         {
-            elements->Insert(insert_element, k);
+            if (paragraph->elements->GetElementPos(row->id) == 0)
+                elements->Insert(insert_element, k);
+            else
+            {
+                elements->Insert(insert_element, k + 1);
+                new_row = insert_element->elements->Get(0); //move elements into this one row, which will be splitted during paragraph formatting
+                if (new_row->elements->Count() == 0)
+                    new_row->AddEmptyElement();
+                for (int i = 0; i < row->elements->Count();) //move all elements at the right side of the row
+                    new_row->elements->Move(row->elements->Get(i), new_row->elements->Count());
+                caret_next_row = true;
+            }
         }
         else
         {
@@ -181,59 +174,13 @@ bool Block::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo)
         }
     }
 
-    if (with_undo && clone)
-    {
-        document->CallFunc(id, 
-            [d = document, clone](const ElementId id)
-            {
-                d->GetElement(clone->id)->Normalize(false);
-            },
-            true);
-        document->CallFunc(ElementId{}, 
-            [d = document](const ElementId id)
-            {
-                d->can_normalize = true;
-            },
-            true);
-        for (int i = 0; i < clone->elements->Count(); ++i)
-        {
-            document->InsertElement(clone->elements->Get(i)->Clone());
-            document->PushEditorState(CaretState(clone->id, 0), true);
-        }
-        document->CallFunc(ElementId{}, 
-            [d = document](const ElementId id)
-            {
-                d->can_normalize = false;
-            },
-            true);
-        document->CallFunc(id, 
-            [d = document, clone](const ElementId id)
-            {
-                d->GetElement(clone->id)->Normalize(false);
-            },
-            true);
-        document->CallFunc(ElementId{}, 
-            [d = document](const ElementId id)
-            {
-                d->can_normalize = true;
-            },
-            true);
-        document->ClearElements(clone->id, false, true);
-        document->DeleteElements(false, false, true);
-        document->PushEditorState(insert_element->id, true);
-        document->ClearElements(insert_element->id, false, true);
-        document->CallFunc(ElementId{}, 
-            [d = document](const ElementId id)
-            {
-                d->can_normalize = false;
-            },
-            true);
-    }
-
     if (paragraph)
-        paragraph->Normalize(with_undo);
+        paragraph->Normalize();
     if (new_row)
-        new_row->parent->Normalize(with_undo);
+        new_row->parent->Normalize();
+
+    if (with_undo)
+        document->StoreUndo(id, elements->GetElementPos(insert_element->id), 1, UndoTask::UndoOperation::DELETE);
 
     CaretState after;
     if (document->pasting && insert_element->GetLastCaretState(after, nullptr))
@@ -254,10 +201,10 @@ bool Block::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo)
         }
     }
     
-    Remake(true, true, with_undo);
-
     if (new_row)
-        new_row->Normalize(with_undo);
+        new_row->Normalize();
+    
+    changed_element = id;
     
 #ifdef DEBUG
     to_str = ToText();
@@ -265,12 +212,12 @@ bool Block::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo)
     return true;
 }
 
-bool Block::DeleteElements(bool left, bool with_undo)
+bool Block::DeleteElements(bool left, bool with_undo, ElementId& changed_element)
 {
     uint start, size;
     if (selection->Has(id, start, size))
     {
-        if (Element::DeleteElements(left, with_undo))
+        if (Element::DeleteElements(left, with_undo, changed_element))
             return true;
     }
 
@@ -280,7 +227,7 @@ bool Block::DeleteElements(bool left, bool with_undo)
     {
         if (!parent)
             return false;
-        return parent->DeleteElements(left, with_undo);
+        return parent->DeleteElements(left, with_undo, changed_element);
     }
     int p = 0;
     ElementPtr dest_row;
@@ -298,6 +245,9 @@ bool Block::DeleteElements(bool left, bool with_undo)
         if (!left && p == elements->Count() - 1)
             return false;
         
+        if (with_undo)
+            document->StoreUndo(id, left ? p - 1 : p, 2, 1);
+
         //merge current paragraph with the above one
         auto dest_p = left ? elements->Get(p - 1) : elements->Get(p);
         dest_row = dest_p->elements->Get(dest_p->elements->Count() - 1);
@@ -314,17 +264,11 @@ bool Block::DeleteElements(bool left, bool with_undo)
     }
 
     elements->RemoveAt(left ? p : p + 1, 1);
-
-    if (with_undo)
-        document->InsertParagraph(true, true);
     
     if (dest_row)
-        dest_row->Normalize(with_undo);
-
-    if (parent)
-        parent->Remake(true, false, with_undo);
-    else
-        Remake(true, false, with_undo);
+        dest_row->Normalize();
+    
+    changed_element = id;
 
 #ifdef DEBUG
     to_str = ToText();

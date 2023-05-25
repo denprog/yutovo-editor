@@ -192,18 +192,19 @@ Element* AutoResult::Create(Element* _parent)
     return new AutoResult(_parent);
 }
 
-void AutoResult::Remake(bool with_elements, bool with_parent, bool with_undo)
+bool AutoResult::Remake(bool with_elements)
 {
-    Element::Remake(with_elements, with_parent, with_undo);
+    bool changed = Element::Remake(with_elements);
+
     if (elements->Count() == 0)
     {
         //put waiting symbol
         elements->Add(ElementPtr(new CodeString(this, "~")));
         elements->Get(0)->SetEditable(false);
-        Element::Remake(true, false, false);
+        changed = true;
     }
     baseline = elements->Get(0)->baseline;
-    parent->Remake(false, false, false);
+    return changed;
 }
 
 void AutoResult::Solve(const ParserString& expression, yutovo_service::ResultType result_type)
@@ -213,7 +214,7 @@ void AutoResult::Solve(const ParserString& expression, yutovo_service::ResultTyp
     last_expression = expression;
 
     elements->Clear();
-    Remake(true, true, false);
+    Remake(false);
 
     auto code = document->FindParent(id, ElementType::CODE_BLOCK);
     document->Solve(id, ((CodeBlock*)code.get())->code_id, result_type, precision, angle_measure, notation, last_expression.Text(), 
@@ -270,8 +271,8 @@ void AutoResult::PutResult(Result result)
 
     if (elements->Count() > 0)
         elements->Get(0)->SetEditable(false);
-    Remake(true, false, false);
-    parent->Remake(true, true, false);
+    Remake(true);
+    parent->Remake(true);
 }
 
 }

@@ -56,6 +56,9 @@ public:
 
     void Reset();
 
+public:
+    bool block = false; //don't do any operations with caret
+
 private:
     ElementPtr element = nullptr;
     int str_pos = -1; //if element is string, then it is position in the element

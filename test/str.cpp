@@ -11,10 +11,7 @@ using namespace std::chrono_literals;
 
 TEST_F(DocumentTest, strings1)
 {
-    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
-        {
-            return Rect{0, 0, 600, 400};
-        });
+    Start(600);
 
     document.WaitTask(document.SetFontSize(22));
     std::this_thread::sleep_for(100ms);
@@ -28,7 +25,7 @@ TEST_F(DocumentTest, strings1)
     document.Undo();
     document.WaitUndo();
     std::this_thread::sleep_for(100ms);
-    ASSERT_TRUE(document.ToHtml() == "<body><p><span style=\"font-family:'Arial';font-size:22px;\"></span></p></body>") << document.ToHtml();
+    ASSERT_TRUE(document.ToHtml() == "<body><p><span style=\"font-family:'Arial';font-size:14px;\"></span></p></body>") << document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 0)) << document.GetEditorState().ToString();
 
     document.Redo();
@@ -66,10 +63,7 @@ TEST_F(DocumentTest, strings1)
 
 TEST_F(DocumentTest, strings2)
 {
-    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
-        {
-            return Rect{0, 0, 600, 400};
-        });
+    Start(600);
 
     ASSERT_TRUE(document.ToHtml() == "<body><p><span style=\"font-family:'Arial';font-size:14px;\"></span></p></body>") << document.ToHtml();
 
@@ -172,10 +166,7 @@ TEST_F(DocumentTest, strings2)
 
 TEST_F(DocumentTest, selections1)
 {
-    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
-        {
-            return Rect{0, 0, 600, 400};
-        });
+    Start(600);
 
     document.WaitTask(document.InsertString("TestString", true));
     ASSERT_TRUE(document.ToText() == U"TestString") << ToBasicString(document.ToText());
@@ -233,10 +224,7 @@ TEST_F(DocumentTest, selections1)
 
 TEST_F(DocumentTest, selections2)
 {
-    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
-        {
-            return Rect{0, 0, 600, 400};
-        });
+    Start(600);
 
     document.SetFontSize(22);
     document.InsertString("Test", true);
@@ -320,10 +308,7 @@ TEST_F(DocumentTest, selections2)
 
 TEST_F(DocumentTest, selections3)
 {
-    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
-        {
-            return Rect{0, 0, 600, 400};
-        });
+    Start(600);
 
     document.InsertString("Normal", document.GetStringFormat("Arial", 16, false, false, false), true);
     document.InsertString("Bold", document.GetStringFormat("Times New Roman", 34, true, false, false), true);
@@ -436,10 +421,7 @@ TEST_F(DocumentTest, selections3)
 //Selection of rows
 TEST_F(DocumentTest, selections4)
 {
-    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
-        {
-            return Rect{0, 0, 600, 400};
-        });
+    Start(600);
 
     document.Load("../test/tests/file1.txt");
     document.WaitLoad();
@@ -476,10 +458,7 @@ TEST_F(DocumentTest, selections4)
 //Select all
 TEST_F(DocumentTest, selections5)
 {
-    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
-        {
-            return Rect{0, 0, 600, 400};
-        });
+    Start(600);
 
     document.InsertString("1234", true);
     document.WaitTask(document.SelectAll());
@@ -505,10 +484,7 @@ TEST_F(DocumentTest, selections5)
 //Select all with rows
 TEST_F(DocumentTest, selections6)
 {
-    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
-        {
-            return Rect{0, 0, 370, 400};
-        });
+    Start(370);
 
     document.WaitTask(document.InsertString("The source of the text itself is a little mysterious.", true));
     document.MoveCaretUp(true);
@@ -525,10 +501,7 @@ TEST_F(DocumentTest, selections6)
 //Select all with rows
 TEST_F(DocumentTest, selections7)
 {
-    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
-        {
-            return Rect{0, 0, 370, 400};
-        });
+    Start(370);
 
     document.WaitTask(document.InsertString("The source of the text itself is a little mysterious.", true));
     std::this_thread::sleep_for(200ms);
@@ -547,84 +520,86 @@ TEST_F(DocumentTest, selections7)
 
 TEST_F(DocumentTest, inserts1)
 {
-    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
-        {
-            return Rect{0, 0, 600, 400};
-        });
+    Start(600);
 
     document.SetFontSize(22);
-    document.InsertString("Test", true);
-    document.WaitMainLoop();
+    document.WaitTask(document.InsertString("Test", true));
     ASSERT_TRUE(document.ToHtml() == 
-        "<body><p>"\
-        "<span style=\"font-family:'Arial';font-size:22px;\">Test</span>"\
-        "</p></body>") << 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\">Test</span>"\
+            "</p>"\
+        "</body>") << 
         document.ToHtml();
     
-    document.InsertString("Bold", document.GetStringFormat("Times New Roman", 34, true, false, false), true);
-    document.WaitMainLoop();
+    document.WaitTask(document.InsertString("Bold", document.GetStringFormat("Times New Roman", 34, true, false, false), true));
     ASSERT_TRUE(document.ToHtml() == 
-        "<body><p>"\
-        "<span style=\"font-family:'Arial';font-size:22px;\">Test</span>"\
-        "<span style=\"font-family:'Times New Roman';font-size:34px;\"><strong>Bold</strong></span>"\
-        "</p></body>") << 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\">Test</span>"\
+                "<span style=\"font-family:'Times New Roman';font-size:34px;\"><strong>Bold</strong></span>"\
+            "</p>"\
+        "</body>") << 
         document.ToHtml();
 }
 
 TEST_F(DocumentTest, inserts2)
 {
-    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
-        {
-            return Rect{0, 0, 600, 400};
-        });
+    Start(600);
 
     document.SetFontSize(22);
-    document.InsertString("Test", true);
-    document.WaitMainLoop();
+    document.WaitTask(document.InsertString("Test", true));
     ASSERT_TRUE(document.ToHtml() == 
-        "<body><p>"\
-        "<span style=\"font-family:'Arial';font-size:22px;\">Test</span>"\
-        "</p></body>") << 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\">Test</span>"\
+            "</p>"\
+        "</body>") << 
         document.ToHtml();
 
     document.MoveCaretLeft(true);
-    document.MoveCaretLeft(true);
-    document.InsertString("X", true);
-    document.WaitCaretMoving();
-    document.WaitMainLoop();
+    document.WaitTask(document.MoveCaretLeft(true));
+    document.WaitTask(document.InsertString("X", true));
     ASSERT_TRUE(document.ToHtml() == 
-        "<body><p>"\
-        "<span style=\"font-family:'Arial';font-size:22px;\">TeX</span>"\
-        "</p></body>") << 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\">TeX</span>"\
+            "</p>"\
+        "</body>") << 
         document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 3)) << document.GetEditorState().ToString();
 
     document.Undo();
     document.WaitUndo();
     ASSERT_TRUE(document.ToHtml() == 
-        "<body><p>"\
-        "<span style=\"font-family:'Arial';font-size:22px;\">Test</span>"\
-        "</p></body>") << 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\">Test</span>"\
+            "</p>"\
+        "</body>") << 
         document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 2, 2, 2)) << document.GetEditorState().ToString();
 
     document.Redo();
     document.WaitRedo();
     ASSERT_TRUE(document.ToHtml() == 
-        "<body><p>"\
-        "<span style=\"font-family:'Arial';font-size:22px;\">TeX</span>"\
-        "</p></body>") << 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\">TeX</span>"\
+            "</p>"\
+        "</body>") << 
         document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 3)) << document.GetEditorState().ToString();
 
-    document.InsertString("Bold", document.GetStringFormat("Times New Roman", 34, true, false, false), true);
-    document.WaitMainLoop();
+    document.WaitTask(document.InsertString("Bold", document.GetStringFormat("Times New Roman", 34, true, false, false), true));
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
-        "<body><p>"\
-        "<span style=\"font-family:'Arial';font-size:22px;\">TeX</span>"\
-        "<span style=\"font-family:'Times New Roman';font-size:34px;\"><strong>Bold</strong></span>"\
-        "</p></body>") << 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\">TeX</span>"\
+                "<span style=\"font-family:'Times New Roman';font-size:34px;\"><strong>Bold</strong></span>"\
+            "</p>"\
+        "</body>") << 
         document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 1, 4)) << document.GetEditorState().ToString();
 
@@ -633,24 +608,22 @@ TEST_F(DocumentTest, inserts2)
     for (int i = 0; i < 3; ++i)
         document.MoveCaretLeft(true);
     document.WaitCaretMoving();
-    document.InsertString("h", true);
-    document.WaitMainLoop();
+    document.WaitTask(document.InsertString("h", true));
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
-        "<body><p>"\
-        "<span style=\"font-family:'Arial';font-size:22px;\">Teh</span>"\
-        "<span style=\"font-family:'Times New Roman';font-size:34px;\"><strong>ld</strong></span>"\
-        "</p></body>") << 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\">Teh</span>"\
+                "<span style=\"font-family:'Times New Roman';font-size:34px;\"><strong>ld</strong></span>"\
+            "</p>"\
+        "</body>") << 
         document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 3)) << document.GetEditorState().ToString();
 }
 
 TEST_F(DocumentTest, inserts3)
 {
-    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
-        {
-            return Rect{0, 0, 600, 400};
-        });
+    Start(600);
 
     document.SetFontSize(22);
     document.InsertString("Text", document.GetStringFormat("Arial", 24, false, false, false), true);
@@ -659,57 +632,64 @@ TEST_F(DocumentTest, inserts3)
     document.WaitTask(document.InsertString("String1 String2 String3", document.GetStringFormat("Arial", 20, false, false, false), true));
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
-        "<body><p>"\
-        "<span style=\"font-family:'Arial';font-size:24px;\">Text</span>"\
-        "<span style=\"font-family:'Times New Roman';font-size:18px;\"><em>Italic</em></span>"\
-        "<span style=\"font-family:'Times New Roman';font-size:34px;\"><strong>Bold</strong></span>"\
-        "<span style=\"font-family:'Arial';font-size:20px;\">String1 String2 String3</span>"\
-        "</p></body>") << 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:24px;\">Text</span>"\
+                "<span style=\"font-family:'Times New Roman';font-size:18px;\"><em>Italic</em></span>"\
+                "<span style=\"font-family:'Times New Roman';font-size:34px;\"><strong>Bold</strong></span>"\
+                "<span style=\"font-family:'Arial';font-size:20px;\">String1 String2 String3</span>"\
+            "</p>"\
+        "</body>") << 
         document.ToHtml();
     
     document.Undo();
     document.WaitUndo();
     ASSERT_TRUE(document.ToHtml() == 
-        "<body><p>"\
-        "<span style=\"font-family:'Arial';font-size:24px;\">Text</span>"\
-        "<span style=\"font-family:'Times New Roman';font-size:18px;\"><em>Italic</em></span>"\
-        "<span style=\"font-family:'Times New Roman';font-size:34px;\"><strong>Bold</strong></span>"\
-        "</p></body>") << 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:24px;\">Text</span>"\
+                "<span style=\"font-family:'Times New Roman';font-size:18px;\"><em>Italic</em></span>"\
+                "<span style=\"font-family:'Times New Roman';font-size:34px;\"><strong>Bold</strong></span>"\
+            "</p>"\
+        "</body>") << 
         document.ToHtml();
 
     document.Undo();
     document.WaitUndo();
     ASSERT_TRUE(document.ToHtml() == 
-        "<body><p>"\
-        "<span style=\"font-family:'Arial';font-size:24px;\">Text</span>"\
-        "<span style=\"font-family:'Times New Roman';font-size:18px;\"><em>Italic</em></span>"\
-        "</p></body>") << 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:24px;\">Text</span>"\
+                "<span style=\"font-family:'Times New Roman';font-size:18px;\"><em>Italic</em></span>"\
+            "</p>"\
+        "</body>") << 
         document.ToHtml();
 
     document.Undo();
     document.WaitUndo();
     ASSERT_TRUE(document.ToHtml() == 
-        "<body><p>"\
-        "<span style=\"font-family:'Arial';font-size:24px;\">Text</span>"\
-        "</p></body>") << 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:24px;\">Text</span>"\
+            "</p>"\
+        "</body>") << 
         document.ToHtml();
 
     document.Undo();
     document.WaitUndo();
     ASSERT_TRUE(document.ToHtml() == 
-        "<body><p>"\
-        "<span style=\"font-family:'Arial';font-size:24px;\"></span>"\
-        "</p></body>") << 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\"></span>"\
+            "</p>"\
+        "</body>") << 
         document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 0)) << document.GetEditorState().ToString();
 }
 
 TEST_F(DocumentTest, inserts4)
 {
-    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
-        {
-            return Rect{0, 0, 600, 400};
-        });
+    Start(600);
 
     document.InsertString("Text", document.GetStringFormat("Arial", 24, false, false, false), true);
     for (int i = 0; i < 4; ++i)
@@ -718,36 +698,39 @@ TEST_F(DocumentTest, inserts4)
     document.WaitTask(document.InsertString("Italic", document.GetStringFormat("Times New Roman", 18, false, true, false), true));
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
-        "<body><p>"\
-        "<span style=\"font-family:'Arial';font-size:24px;\">Text</span>"\
-        "<span style=\"font-family:'Times New Roman';font-size:18px;\"><em>Italic</em></span>"\
-        "</p></body>") << 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:24px;\">Text</span>"\
+                "<span style=\"font-family:'Times New Roman';font-size:18px;\"><em>Italic</em></span>"\
+            "</p>"\
+        "</body>") << 
         document.ToHtml();
     
     document.Undo();
     document.WaitUndo();
     ASSERT_TRUE(document.ToHtml() == 
-        "<body><p>"\
-        "<span style=\"font-family:'Arial';font-size:24px;\">Text</span>"\
-        "</p></body>") << 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:24px;\">Text</span>"\
+            "</p>"\
+        "</body>") << 
         document.ToHtml();
 
     document.Undo();
     document.WaitUndo();
     ASSERT_TRUE(document.ToHtml() == 
-        "<body><p>"\
-        "<span style=\"font-family:'Arial';font-size:24px;\"></span>"\
-        "</p></body>") << 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\"></span>"\
+            "</p>"\
+        "</body>") << 
         document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 0)) << document.GetEditorState().ToString();
 }
 
 TEST_F(DocumentTest, inserts5)
 {
-    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
-        {
-            return Rect{0, 0, 600, 400};
-        });
+    Start(600);
 
     document.InsertString("Text", document.GetStringFormat("Arial", 24, false, false, false), true);
     for (int i = 0; i < 2; ++i)
@@ -755,11 +738,13 @@ TEST_F(DocumentTest, inserts5)
     document.WaitTask(document.InsertString("Bold", document.GetStringFormat("Arial", 24, true, false, false), true));
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
-        "<body><p>"\
-        "<span style=\"font-family:'Arial';font-size:24px;\">Te</span>"\
-        "<span style=\"font-family:'Arial';font-size:24px;\"><strong>Bold</strong></span>"\
-        "<span style=\"font-family:'Arial';font-size:24px;\">xt</span>"\
-        "</p></body>") << 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:24px;\">Te</span>"\
+                "<span style=\"font-family:'Arial';font-size:24px;\"><strong>Bold</strong></span>"\
+                "<span style=\"font-family:'Arial';font-size:24px;\">xt</span>"\
+            "</p>"\
+        "</body>") << 
         document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 1, 4)) << document.GetEditorState().ToString();
 
@@ -767,9 +752,11 @@ TEST_F(DocumentTest, inserts5)
     document.WaitUndo();
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
-        "<body><p>"\
-        "<span style=\"font-family:'Arial';font-size:24px;\">Text</span>"\
-        "</p></body>") << 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:24px;\">Text</span>"\
+            "</p>"\
+        "</body>") << 
         document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 2)) << document.GetEditorState().ToString();
 
@@ -777,31 +764,32 @@ TEST_F(DocumentTest, inserts5)
     document.WaitRedo();
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
-        "<body><p>"\
-        "<span style=\"font-family:'Arial';font-size:24px;\">Te</span>"\
-        "<span style=\"font-family:'Arial';font-size:24px;\"><strong>Bold</strong></span>"\
-        "<span style=\"font-family:'Arial';font-size:24px;\">xt</span>"\
-        "</p></body>") << 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:24px;\">Te</span>"\
+                "<span style=\"font-family:'Arial';font-size:24px;\"><strong>Bold</strong></span>"\
+                "<span style=\"font-family:'Arial';font-size:24px;\">xt</span>"\
+            "</p>"\
+        "</body>") << 
         document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 1, 4)) << document.GetEditorState().ToString();
 }
 
 TEST_F(DocumentTest, inserts6)
 {
-    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
-        {
-            return Rect{0, 0, 600, 400};
-        });
+    Start(600);
 
     document.InsertString("Text", document.GetStringFormat("Arial", 24, false, false, false), true);
     document.MoveCaretHome(false);
     document.WaitTask(document.InsertString("Bold", document.GetStringFormat("Arial", 24, true, false, false), true));
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
-        "<body><p>"\
-        "<span style=\"font-family:'Arial';font-size:24px;\"><strong>Bold</strong></span>"\
-        "<span style=\"font-family:'Arial';font-size:24px;\">Text</span>"\
-        "</p></body>") << 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:24px;\"><strong>Bold</strong></span>"\
+                "<span style=\"font-family:'Arial';font-size:24px;\">Text</span>"\
+            "</p>"\
+        "</body>") << 
         document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 4)) << document.GetEditorState().ToString();
 
@@ -809,9 +797,11 @@ TEST_F(DocumentTest, inserts6)
     document.WaitUndo();
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
-        "<body><p>"\
-        "<span style=\"font-family:'Arial';font-size:24px;\">Text</span>"\
-        "</p></body>") << 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:24px;\">Text</span>"\
+            "</p>"\
+        "</body>") << 
         document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 0)) << document.GetEditorState().ToString();
 
@@ -819,30 +809,31 @@ TEST_F(DocumentTest, inserts6)
     document.WaitRedo();
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
-        "<body><p>"\
-        "<span style=\"font-family:'Arial';font-size:24px;\"><strong>Bold</strong></span>"\
-        "<span style=\"font-family:'Arial';font-size:24px;\">Text</span>"\
-        "</p></body>") << 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:24px;\"><strong>Bold</strong></span>"\
+                "<span style=\"font-family:'Arial';font-size:24px;\">Text</span>"\
+            "</p>"\
+        "</body>") << 
         document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 4)) << document.GetEditorState().ToString();
 }
 
 TEST_F(DocumentTest, inserts7)
 {
-    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
-        {
-            return Rect{0, 0, 600, 400};
-        });
+    Start(600);
 
     document.InsertString("Text", document.GetStringFormat("Arial", 24, false, false, false), true);
     document.MoveCaretEnd(false);
     document.WaitTask(document.InsertString("Bold", document.GetStringFormat("Arial", 24, true, false, false), true));
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
-        "<body><p>"\
-        "<span style=\"font-family:'Arial';font-size:24px;\">Text</span>"\
-        "<span style=\"font-family:'Arial';font-size:24px;\"><strong>Bold</strong></span>"\
-        "</p></body>") << 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:24px;\">Text</span>"\
+                "<span style=\"font-family:'Arial';font-size:24px;\"><strong>Bold</strong></span>"\
+            "</p>"\
+        "</body>") << 
         document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 1, 4)) << document.GetEditorState().ToString();
 
@@ -850,9 +841,11 @@ TEST_F(DocumentTest, inserts7)
     document.WaitUndo();
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
-        "<body><p>"\
-        "<span style=\"font-family:'Arial';font-size:24px;\">Text</span>"\
-        "</p></body>") << 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:24px;\">Text</span>"\
+            "</p>"\
+        "</body>") << 
         document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 4)) << document.GetEditorState().ToString();
 
@@ -860,24 +853,27 @@ TEST_F(DocumentTest, inserts7)
     document.WaitRedo();
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
-        "<body><p>"\
-        "<span style=\"font-family:'Arial';font-size:24px;\">Text</span>"\
-        "<span style=\"font-family:'Arial';font-size:24px;\"><strong>Bold</strong></span>"\
-        "</p></body>") << 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:24px;\">Text</span>"\
+                "<span style=\"font-family:'Arial';font-size:24px;\"><strong>Bold</strong></span>"\
+            "</p>"\
+        "</body>") << 
         document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 1, 4)) << document.GetEditorState().ToString();
 
-    document.MoveCaretToDocumentBegin(false);
-    document.WaitCaretMoving();
+    document.WaitTask(document.MoveCaretToDocumentBegin(false));
     document.InsertString("T", true);
     document.WaitTask(document.MoveCaretToDocumentEnd(false));
     document.WaitTask(document.InsertString("d", true));
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
-        "<body><p>"\
-        "<span style=\"font-family:'Arial';font-size:24px;\">TText</span>"\
-        "<span style=\"font-family:'Arial';font-size:24px;\"><strong>Boldd</strong></span>"\
-        "</p></body>") << 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:24px;\">TText</span>"\
+                "<span style=\"font-family:'Arial';font-size:24px;\"><strong>Boldd</strong></span>"\
+            "</p>"\
+        "</body>") << 
         document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 1, 5)) << document.GetEditorState().ToString();
 
@@ -887,10 +883,12 @@ TEST_F(DocumentTest, inserts7)
     document.WaitUndo();
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
-        "<body><p>"\
-        "<span style=\"font-family:'Arial';font-size:24px;\">Text</span>"\
-        "<span style=\"font-family:'Arial';font-size:24px;\"><strong>Bold</strong></span>"\
-        "</p></body>") << 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:24px;\">Text</span>"\
+                "<span style=\"font-family:'Arial';font-size:24px;\"><strong>Bold</strong></span>"\
+            "</p>"\
+        "</body>") << 
         document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 0)) << document.GetEditorState().ToString();
 
@@ -900,10 +898,12 @@ TEST_F(DocumentTest, inserts7)
     document.WaitRedo();
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
-        "<body><p>"\
-        "<span style=\"font-family:'Arial';font-size:24px;\">TText</span>"\
-        "<span style=\"font-family:'Arial';font-size:24px;\"><strong>Boldd</strong></span>"\
-        "</p></body>") << 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:24px;\">TText</span>"\
+                "<span style=\"font-family:'Arial';font-size:24px;\"><strong>Boldd</strong></span>"\
+            "</p>"\
+        "</body>") << 
         document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 1, 5)) << document.GetEditorState().ToString();
 }
@@ -911,10 +911,7 @@ TEST_F(DocumentTest, inserts7)
 //Insert a string wider than the screen and add chars
 TEST_F(DocumentTest, inserts8)
 {
-    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
-        {
-            return Rect{0, 0, 300, 400};
-        });
+    Start(300);
 
     document.WaitTask(document.InsertString("The_source_of_the_text_itself_isa", true));
     std::this_thread::sleep_for(200ms);
@@ -946,10 +943,7 @@ TEST_F(DocumentTest, inserts8)
 //Insert a string wider than the screen
 TEST_F(DocumentTest, inserts9)
 {
-    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
-        {
-            return Rect{0, 0, 300, 400};
-        });
+    Start(300);
 
     document.WaitTask(document.InsertString("The_source_of_the_text_itself_isa", true));
     document.Undo();
@@ -966,18 +960,17 @@ TEST_F(DocumentTest, inserts9)
 
 TEST_F(DocumentTest, fonts1)
 {
-    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
-        {
-            return Rect{0, 0, 600, 400};
-        });
+    Start(600);
 
     document.SetFontFamily("Courier New");
     document.SetFontSize(12);
     document.WaitTask(document.InsertString("C", true));
     ASSERT_TRUE(document.ToHtml() == 
-        "<body><p>"\
-        "<span style=\"font-family:'Courier New';font-size:12px;\">C</span>"\
-        "</p></body>") << 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Courier New';font-size:12px;\">C</span>"\
+            "</p>"\
+        "</body>") << 
         document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 1)) << document.GetEditorState().ToString();
 
@@ -988,9 +981,11 @@ TEST_F(DocumentTest, fonts1)
     document.InsertString("e", true);
     document.WaitTask(document.InsertString("r", true));
     ASSERT_TRUE(document.ToHtml() == 
-        "<body><p>"\
-        "<span style=\"font-family:'Courier New';font-size:12px;\">Courier</span>"\
-        "</p></body>") << 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Courier New';font-size:12px;\">Courier</span>"\
+            "</p>"\
+        "</body>") << 
         document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 7)) << document.GetEditorState().ToString();
 
@@ -1001,9 +996,11 @@ TEST_F(DocumentTest, fonts1)
     }
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
-        "<body><p>"\
-        "<span style=\"font-family:'Courier New';font-size:12px;\">Co</span>"\
-        "</p></body>") << 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Courier New';font-size:12px;\">Co</span>"\
+            "</p>"\
+        "</body>") << 
         document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 2)) << document.GetEditorState().ToString();
 
@@ -1013,9 +1010,11 @@ TEST_F(DocumentTest, fonts1)
         std::this_thread::sleep_for(10ms);
     }
     ASSERT_TRUE(document.ToHtml() == 
-        "<body><p>"\
-        "<span style=\"font-family:'Courier New';font-size:12px;\"></span>"\
-        "</p></body>") << 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\"></span>"\
+            "</p>"\
+        "</body>") << 
         document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 0)) << document.GetEditorState().ToString();
 
@@ -1025,9 +1024,11 @@ TEST_F(DocumentTest, fonts1)
         std::this_thread::sleep_for(10ms);
     }
     ASSERT_TRUE(document.ToHtml() == 
-        "<body><p>"\
-        "<span style=\"font-family:'Courier New';font-size:12px;\">Courier</span>"\
-        "</p></body>") << 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Courier New';font-size:12px;\">Courier</span>"\
+            "</p>"\
+        "</body>") << 
         document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 7)) << document.GetEditorState().ToString();
 
@@ -1040,10 +1041,12 @@ TEST_F(DocumentTest, fonts1)
     document.WaitMainLoop();
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
-        "<body><p>"\
-        "<span style=\"font-family:'Courier New';font-size:12px;\">Courier</span>"\
-        "<span style=\"font-family:'Times New Roman';font-size:22px;text-decoration: underline;\"><strong><em> New</em></strong></span>"\
-        "</p></body>") << 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Courier New';font-size:12px;\">Courier</span>"\
+                "<span style=\"font-family:'Times New Roman';font-size:22px;text-decoration: underline;\"><strong><em> New</em></strong></span>"\
+            "</p>"\
+        "</body>") << 
         document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 1, 4)) << document.GetEditorState().ToString();
 
@@ -1051,9 +1054,11 @@ TEST_F(DocumentTest, fonts1)
     document.WaitUndo();
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
-        "<body><p>"\
-        "<span style=\"font-family:'Courier New';font-size:12px;\">Courier</span>"\
-        "</p></body>") << 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Courier New';font-size:12px;\">Courier</span>"\
+            "</p>"\
+        "</body>") << 
         document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 7)) << document.GetEditorState().ToString();
 
@@ -1061,10 +1066,12 @@ TEST_F(DocumentTest, fonts1)
     document.WaitRedo();
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
-        "<body><p>"\
-        "<span style=\"font-family:'Courier New';font-size:12px;\">Courier</span>"\
-        "<span style=\"font-family:'Times New Roman';font-size:22px;text-decoration: underline;\"><strong><em> New</em></strong></span>"\
-        "</p></body>") << 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Courier New';font-size:12px;\">Courier</span>"\
+                "<span style=\"font-family:'Times New Roman';font-size:22px;text-decoration: underline;\"><strong><em> New</em></strong></span>"\
+            "</p>"\
+        "</body>") << 
         document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 1, 4)) << document.GetEditorState().ToString();
 
@@ -1072,20 +1079,19 @@ TEST_F(DocumentTest, fonts1)
         document.Redo();
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
-        "<body><p>"\
-        "<span style=\"font-family:'Courier New';font-size:12px;\">Courier</span>"\
-        "<span style=\"font-family:'Times New Roman';font-size:22px;text-decoration: underline;\"><strong><em> New</em></strong></span>"\
-        "</p></body>") << 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Courier New';font-size:12px;\">Courier</span>"\
+                "<span style=\"font-family:'Times New Roman';font-size:22px;text-decoration: underline;\"><strong><em> New</em></strong></span>"\
+            "</p>"\
+        "</body>") << 
         document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 1, 4)) << document.GetEditorState().ToString();
 }
 
 TEST_F(DocumentTest, fonts2)
 {
-    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
-        {
-            return Rect{0, 0, 600, 400};
-        });
+    Start(600);
 
     document.WaitTask(document.InsertString("Text", document.GetStringFormat("Arial", 24, false, false, false), true));
     document.MoveCaretLeft(true);
@@ -1236,7 +1242,7 @@ TEST_F(DocumentTest, fonts2)
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
-                "<span style=\"font-family:'Arial';font-size:24px;\"></span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\"></span>"\
             "</p>"\
         "</body>") << 
         document.ToHtml();
@@ -1245,10 +1251,7 @@ TEST_F(DocumentTest, fonts2)
 
 TEST_F(DocumentTest, fonts3)
 {
-    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
-        {
-            return Rect{0, 0, 600, 400};
-        });
+    Start(600);
 
     document.InsertString("Text", document.GetStringFormat("Arial", 24, false, false, false), true);
     document.InsertString("Italic", document.GetStringFormat("Courier New", 14, false, true, false), true);
@@ -1290,10 +1293,7 @@ TEST_F(DocumentTest, fonts3)
 //Insert text, code and text with the same font as previous text
 TEST_F(DocumentTest, fonts4)
 {
-    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
-        {
-            return Rect{0, 0, 600, 400};
-        });
+    Start(600);
 
     document.SetFontSize(22);
     document.InsertString("Text", true);
@@ -1319,10 +1319,7 @@ TEST_F(DocumentTest, fonts4)
 //Insert code and text with the same font as next text
 TEST_F(DocumentTest, fonts5)
 {
-    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
-        {
-            return Rect{0, 0, 600, 400};
-        });
+    Start(600);
 
     document.SetFontSize(22);
     document.InsertString("Text", true);
@@ -1349,10 +1346,7 @@ TEST_F(DocumentTest, fonts5)
 //Check font
 TEST_F(DocumentTest, fonts6)
 {
-    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
-        {
-            return Rect{0, 0, 600, 400};
-        });
+    Start(600);
 
     document.SetFontSize(22);
     document.InsertString("Text", true);
@@ -1364,10 +1358,7 @@ TEST_F(DocumentTest, fonts6)
 
 TEST_F(DocumentTest, delete1)
 {
-    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
-        {
-            return Rect{0, 0, 600, 400};
-        });
+    Start(600);
 
     document.InsertString("Text", document.GetStringFormat("Arial", 24, false, false, false), true);
     document.WaitTask(document.InsertString("Italic", document.GetStringFormat("Times New Roman", 18, false, true, false), true));
@@ -1404,7 +1395,7 @@ TEST_F(DocumentTest, delete1)
             "</p>"\
         "</body>") << 
         document.ToHtml();
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 1, 0)) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 4)) << document.GetEditorState().ToString();
 
     document.Undo();
     document.WaitUndo();
@@ -1468,10 +1459,7 @@ TEST_F(DocumentTest, delete1)
 
 TEST_F(DocumentTest, delete2)
 {
-    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
-        {
-            return Rect{0, 0, 600, 400};
-        });
+    Start(600);
 
     document.InsertString("Text", document.GetStringFormat("Arial", 24, false, false, false), true);
     document.InsertString("Italic", document.GetStringFormat("Times New Roman", 18, false, true, false), true);
@@ -1537,7 +1525,7 @@ TEST_F(DocumentTest, delete2)
             "</p>"\
         "</body>") << 
         document.ToHtml();
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 4)) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 1, 0)) << document.GetEditorState().ToString();
 
     document.Redo();
     document.WaitRedo();
@@ -1581,10 +1569,7 @@ TEST_F(DocumentTest, delete2)
 
 TEST_F(DocumentTest, delete3)
 {
-    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
-        {
-            return Rect{0, 0, 600, 400};
-        });
+    Start(600);
 
     document.InsertString("Text", document.GetStringFormat("Arial", 24, false, false, false), true);
     document.InsertString("Italic", document.GetStringFormat("Times New Roman", 18, false, true, false), true);
@@ -1641,11 +1626,8 @@ TEST_F(DocumentTest, delete3)
         document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 2, 0)) << document.GetEditorState().ToString();
 
-    document.MoveCaretEnd(false);
-    document.WaitCaretMoving();
-    document.InsertString("orm", true);
-    document.WaitMainLoop();
-    document.WaitTask(document.DeleteElements(false, true, false));
+    document.WaitTask(document.MoveCaretEnd(false));
+    document.WaitTask(document.InsertString("orm", true));
     document.Undo();
     document.WaitUndo();
     std::this_thread::sleep_for(200ms);
@@ -1664,13 +1646,9 @@ TEST_F(DocumentTest, delete3)
 //Delete of Utf-8 characters
 TEST_F(DocumentTest, delete4)
 {
-    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
-        {
-            return Rect{0, 0, 600, 400};
-        });
+    Start(600);
 
-    document.InsertString("La versión 3 de la especificación MathML fue lanzada como Recomendación de W3C el 20 de octubre de 2010.", true);
-    document.WaitMainLoop();
+    document.WaitTask(document.InsertString("La versión 3 de la especificación MathML fue lanzada como Recomendación de W3C el 20 de octubre de 2010.", true));
     document.MoveCaretToDocumentBegin(false);
     for (int i = 0; i < 8; ++i)
         document.MoveCaretRight(false);
@@ -1689,10 +1667,7 @@ TEST_F(DocumentTest, delete4)
 //Delete 3 rows
 TEST_F(DocumentTest, delete5)
 {
-    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
-        {
-            return Rect{0, 0, 390, 400};
-        });
+    Start(390);
 
     document.WaitTask(document.InsertString("In literary theory, a text is any object that can be read, whether this object is a work of literature", true));
     document.MoveCaretToDocumentBegin(false);
@@ -1729,10 +1704,7 @@ TEST_F(DocumentTest, delete5)
 //Delete all
 TEST_F(DocumentTest, delete6)
 {
-    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
-        {
-            return Rect{0, 0, 368, 400};
-        });
+    Start(368);
 
     document.WaitTask(document.InsertString("The source of the text itself is a little mysterious.", true));
     document.WaitTask(document.SelectAll());
@@ -1791,10 +1763,7 @@ TEST_F(DocumentTest, delete6)
 //Concatinate a row below, with result wider then the window
 TEST_F(DocumentTest, delete7)
 {
-    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
-        {
-            return Rect{0, 0, 330, 400};
-        });
+    Start(330);
 
     document.WaitTask(document.InsertString("The source of the text itself is a little mysterious.", true));
     std::this_thread::sleep_for(400ms);
@@ -1876,10 +1845,7 @@ TEST_F(DocumentTest, delete7)
 //Concatinate a row below with a row wider then the window
 TEST_F(DocumentTest, delete8)
 {
-    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
-        {
-            return Rect{0, 0, 227, 400};
-        });
+    Start(227);
 
     document.WaitTask(document.InsertString("The_source_of_the_text_itself_is a little mysterious.", true));
     std::this_thread::sleep_for(100ms);
@@ -1922,10 +1888,7 @@ TEST_F(DocumentTest, delete8)
 //Concatinate a row below with a row wider then the window
 TEST_F(DocumentTest, delete9)
 {
-    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
-        {
-            return Rect{0, 0, 300, 400};
-        });
+    Start(300);
 
     document.WaitTask(document.InsertString("The_source_of_the_text_itself_is a little mysterious.", true));
     document.MoveCaretUp(false);
@@ -1981,10 +1944,7 @@ TEST_F(DocumentTest, delete9)
 //Delete at the end of a string
 TEST_F(DocumentTest, delete10)
 {
-    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
-        {
-            return Rect{0, 0, 300, 400};
-        });
+    Start(300);
 
     document.WaitTask(document.InsertString("The source of the text itself is a little mysterious.", true));
     document.MoveCaretUp(false);
@@ -2012,16 +1972,13 @@ TEST_F(DocumentTest, delete10)
             "</p>"\
         "</body>") << 
         document.ToHtml();
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 30})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 0, 0})) << document.GetEditorState().ToString();
 }
 
 //Backspace at the beginning of a string
 TEST_F(DocumentTest, delete11)
 {
-    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
-        {
-            return Rect{0, 0, 288, 400};
-        });
+    Start(288);
 
     document.WaitTask(document.InsertString("The source of the text itself is a little mysterious.", true));
     document.WaitTask(document.MoveCaretHome(false));
@@ -2048,16 +2005,13 @@ TEST_F(DocumentTest, delete11)
             "</p>"\
         "</body>") << 
         document.ToHtml();
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 0, 0})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 30})) << document.GetEditorState().ToString();
 }
 
 //Restrict Undo
 TEST_F(DocumentTest, undo1)
 {
-    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
-        {
-            return Rect{0, 0, 600, 400};
-        });
+    Start(600);
 
     Config config;
     document.GetConfig(config);

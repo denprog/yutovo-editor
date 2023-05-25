@@ -23,9 +23,9 @@ public:
 
     virtual void UpdateRect(bool with_elements = false);
 
-    virtual void Remake(bool with_elements, bool with_parent, bool with_undo);
+    virtual bool Remake(bool with_elements = false);
 
-    virtual bool DeleteElements(bool left, bool with_undo);
+    virtual bool DeleteElements(bool left, bool with_undo, ElementId& changed_element);
     
     virtual bool AfterInsert(bool with_undo);
     virtual void BeforeReplace();
@@ -59,9 +59,11 @@ public:
 
 	BOOST_SERIALIZATION_SPLIT_MEMBER()
 
+public:
+    yutovo_service::ResultType result_type;
+
 protected:
     AutoResultPtr auto_result;
-    yutovo_service::ResultType result_type;
     bool ready = true;
 
     friend class AutoResult;

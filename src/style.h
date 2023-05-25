@@ -105,6 +105,8 @@ struct ParagraphFormat
     ParagraphFormat() = default;
     ParagraphFormat(std::string _name, Alignment _alignment, WordWrap _word_wrap, uint _line_spacing, uint _indent_before, uint _indent_after, 
         uint _indent_first_line, uint _spacing_before, uint _spacing_after, StringFormatPtr _string_format);
+    
+    bool operator==(const ParagraphFormat& f) const;
 
     template <class Archive>
     void save(Archive& ar, const unsigned int version) const
@@ -249,6 +251,8 @@ typedef std::unique_ptr<CodeFormats> CodeFormatsPtr;
 
 struct PageFormat
 {
+    bool operator==(const PageFormat& p) const;
+
     uint left_indent;
     uint top_indent;
     uint right_indent;
@@ -273,6 +277,8 @@ struct TextFormat
     {
         ONE_PAGE = 0 //there is only one variant for now
     };
+
+    bool operator==(const TextFormat& t) const;
 
     Paging paging = Paging::ONE_PAGE;
 };

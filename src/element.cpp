@@ -39,6 +39,7 @@ Element::Element(const Element& source) :
     window(source.window),
     type(source.type),
     id(source.id),
+    logical_id(source.logical_id),
     level(source.level),
     editable(source.editable),
     caret(document->caret),
@@ -86,30 +87,29 @@ void Element::DrawErrorMark(const int start, const int size) const
     window->DrawWavyLine(r.left, r.GetBottom() - 2, r.width, 1, Color::Red());
 }
 
-void Element::Remake(bool with_elements, bool with_parent, bool with_undo)
+bool Element::Remake(bool with_elements)
 {
+    bool changed = false;
     if (with_elements)
-        elements->Remake(with_parent, with_undo);
-    else
     {
         for (int i = 0; i < elements->Count(); ++i)
         {
-            auto el = elements->Get(i);
-            if (el->remake_always)
-                el->Remake(false, false, with_undo);
+            bool r = elements->Get(i)->Remake(true);
+            if (!changed && r)
+                changed = true;
         }
     }
-
     UpdateRect();
+    return changed;
 }
 
-void Element::Normalize(bool with_undo)
+void Element::Normalize()
 {
     for (int i = 0; i < elements->Count(); ++i)
-        elements->Get(i)->Normalize(with_undo);
+        elements->Get(i)->Normalize();
 }
 
-bool Element::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo)
+bool Element::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo, ElementId& changed_element)
 {
     auto c = caret->GetCaretState();
     if (c.IsInsideElement(id))
@@ -117,24 +117,28 @@ bool Element::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo)
         int pos = c.GetPosInElement(id);
         for (int i = 0; i < _elements.size(); ++i)
             elements->Insert(_elements[i], pos + i);
+        changed_element = id;
         return true;
     }
     else if (c.id == id)
     {
         for (int i = 0; i < _elements.size(); ++i)
             elements->Insert(_elements[i], i);
+        changed_element = id;
         return true;
     }
     return false;
 }
 
-bool Element::DeleteElements(bool left, bool with_undo)
+bool Element::DeleteElements(bool left, bool with_undo, ElementId& changed_element)
 {
     if (selection->IsEmpty())
     {
         if ((left && caret->GetPos() == 0) || (!left && caret->GetPos() == elements->Count()))
-            return parent->DeleteElements(left, with_undo);
+            return parent->DeleteElements(left, with_undo, changed_element);
         elements->RemoveAt(left ? caret->GetPos() - 1 : caret->GetPos(), 1);
+
+        changed_element = id;
 
 #ifdef DEBUG
         to_str = ToText();
@@ -146,21 +150,12 @@ bool Element::DeleteElements(bool left, bool with_undo)
     if (selection->Has(id, start, size))
     {
         if (with_undo)
-        {
-            std::vector<ElementPtr> clone;
-            elements->Clone(clone, start, size);
-            for (int i = 0; i < clone.size(); ++i)
-                document->InsertElement(clone[i]);
-            if (size == elements->Count())
-                document->PushEditorState(CaretState(id), true);
-            else
-                document->PushEditorState(CaretState(id, start), true);
-        }
+            document->StoreUndo(id);
 
         elements->RemoveAt(start, size);
         if (elements->Count() == 0)
         {
-            Normalize(with_undo);
+            Normalize();
             CaretState c;
             if (GetFirstCaretState(c, nullptr))
                 caret->SetState(c);
@@ -169,10 +164,10 @@ bool Element::DeleteElements(bool left, bool with_undo)
         }
         else
         {
-            Normalize(with_undo);
+            Normalize();
         }
 
-        document->Remake(id, true, with_undo, false);
+        changed_element = id;
 
 #ifdef DEBUG
         to_str = ToText();
@@ -186,22 +181,22 @@ bool Element::DeleteElements(bool left, bool with_undo)
     return false;
 }
 
-bool Element::ChangeStringFormat(const StringFormatPtr format, bool with_undo)
+bool Element::ChangeStringFormat(const StringFormatPtr format, bool with_undo, ElementId& changed_element)
 {
     for (uint i = 0; i < elements->Count(); ++i)
     {
         auto el = elements->Get(i);
-        if (!el->ChangeStringFormat(format, with_undo))
+        if (!el->ChangeStringFormat(format, with_undo, changed_element))
             return false;
     }
     return true;
 }
 
-bool Element::ChangeParagraphFormat(const ParagraphFormatPtr format, bool with_undo)
+bool Element::ChangeParagraphFormat(const ParagraphFormatPtr format, bool with_undo, ElementId& changed_element)
 {
     if (!parent)
         return false;
-    return parent->ChangeParagraphFormat(format, with_undo);
+    return parent->ChangeParagraphFormat(format, with_undo, changed_element);
 }
 
 bool Element::Split(const uint width, bool split_more)
@@ -224,6 +219,11 @@ bool Element::SplitAt(const uint pos)
 }
 
 bool Element::Merge(const ElementPtr with_element)
+{
+    return false;
+}
+
+bool Element::CanMerge(const ElementPtr with_element)
 {
     return false;
 }
@@ -262,6 +262,11 @@ void Element::AfterReplace()
     for (int i = 0; i < elements->Count(); ++i)
         elements->Get(i)->AfterReplace();
 }
+
+// void Element::RestoreFromUndo(UndoElementPtr undo_element)
+// {
+
+// }
 
 bool Element::GetFirstCaretState(CaretState& caret_state, Selection* select)
 {
@@ -815,12 +820,6 @@ void Elements::Draw() const
         el->Draw();
 }
 
-void Elements::Remake(bool with_parent, bool with_undo)
-{
-    for (auto el : elements)
-        el->Remake(true, with_parent, with_undo);
-}
-
 ElementPtr Elements::Get(uint pos)
 {
     if (pos >= elements.size())
@@ -1003,7 +1002,6 @@ void Elements::RemoveAt(const uint pos, const int size)
         if (caret->IsInsideElement(elements[pos]->id) || caret->IsOnElement(elements[pos]->id))
             cs_pos = pos;
     }
-    CaretState c = caret->GetCaretState();
 
     for (int i = 0; i < size; ++i) //update selection positions before deleting elements
         selection->RemoveElement(GetElementId(pos + i));
@@ -1074,6 +1072,13 @@ void Elements::Replace(ElementPtr element, const uint pos)
 {
     RemoveAt(pos, 1);
     Insert(element, pos);
+}
+
+void Elements::ReplaceAll(const Elements& _elements)
+{
+    Clear();
+    for (auto _el : _elements.elements)
+        Add(_el);
 }
 
 void Elements::Clear()
@@ -1426,11 +1431,57 @@ void Elements::UpdateIds()
         if (el->parent->id.empty())
         {
             el->id.clear();
+            el->logical_id.clear();
             el->elements->UpdateIds();
             continue;
         }
         el->id = el->parent->id;
         el->id.push_back(i);
+
+        if (el->type == ElementType::PARAGRAPH)
+        {
+            el->logical_id = el->parent->logical_id;
+            el->logical_id.push_back(i);
+        }
+        else if (el->type == ElementType::ROW)
+        {
+        }
+        else if (el->parent->type == ElementType::ROW)
+        {
+            if (el->parent->parent->elements)
+            {
+                el->logical_id = el->parent->parent->logical_id;
+
+                int p = el->parent->parent->elements->GetChildPos(el->parent->id);
+                if (p > 0 && i == 0)
+                {
+                    auto row = el->parent->parent->elements->Get(p - 1);
+                    auto last = row->elements->Get(row->elements->Count() - 1);
+                    if (last && last->CanMerge(el))
+                        el->logical_id = last->logical_id;
+                    else
+                        el->logical_id.push_back(i);
+                }
+                else if (i > 0)
+                {
+                    auto prev = elements[i - 1];
+                    if (prev->CanMerge(el))
+                        el->logical_id = prev->logical_id;
+                    else
+                        el->logical_id.push_back(i);
+                }
+                else
+                {
+                    el->logical_id.push_back(i);
+                }
+            }
+        }
+        else
+        {
+            el->logical_id = el->parent->logical_id;
+            el->logical_id.push_back(i);
+        }
+
         el->elements->UpdateIds();
     }
 }

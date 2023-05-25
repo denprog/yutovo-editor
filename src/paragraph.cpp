@@ -52,13 +52,10 @@ void Paragraph::Draw() const
     }
 }
 
-void Paragraph::Remake(bool with_elements, bool with_parent, bool with_undo)
+bool Paragraph::Remake(bool with_elements)
 {
-    if (with_elements)
-        Element::Remake(with_elements, with_parent, with_undo);
+    bool changed = Element::Remake(with_elements);
 
-    ElementPtr clone;
-    bool remake = false;
     int left_m = 0, top_m = 0, right_m = 0, bottom_m = 0;
 
     if (format->word_wrap == ParagraphFormat::WordWrap::Normal)
@@ -76,9 +73,6 @@ void Paragraph::Remake(bool with_elements, bool with_parent, bool with_undo)
             //move or split element if it's more then row width
             while (row->rect.width + format->indent_before > page_width)
             {
-                if (with_undo && !clone)
-                    clone.reset(Clone());
-                
                 ElementPtr el = row->elements->Get(row->elements->Count() - 1);
                 if (!el)
                     break;
@@ -100,9 +94,9 @@ void Paragraph::Remake(bool with_elements, bool with_parent, bool with_undo)
 
                 //move the element in the next row
                 next_row->elements->Move(el, 0);
-                row->Remake(true, false, with_undo);
-                next_row->Remake(true, false, with_undo);
-                remake = true;
+                row->Remake();
+                next_row->Remake(true);
+                changed = true;
             }
 
             if (!b)
@@ -116,13 +110,10 @@ void Paragraph::Remake(bool with_elements, bool with_parent, bool with_undo)
                 if (el->rect.width + left_m + right_m >= page_width - row->rect.width - format->indent_before)
                     break;
                 
-                if (with_undo && !clone)
-                    clone.reset(Clone());
-
                 //move the element from the next row in the current one
                 row->elements->Move(next_row->elements->Get(0), row->elements->Count());
-                row->Remake(true, false, with_undo);
-                row->Normalize(false);
+                row->Remake(true);
+                row->Normalize();
                 if (next_row->elements->Count() == 0)
                 {
                     elements->RemoveAt(i + 1, 1);
@@ -131,11 +122,11 @@ void Paragraph::Remake(bool with_elements, bool with_parent, bool with_undo)
                 }
                 else
                 {
-                    next_row->Remake(true, false, with_undo);
-                    next_row->Normalize(false);
+                    next_row->Remake(true);
+                    next_row->Normalize();
                 }
                 row->UpdateRect();
-                remake = true;
+                changed = true;
             }
 
             if (next_row)
@@ -144,28 +135,25 @@ void Paragraph::Remake(bool with_elements, bool with_parent, bool with_undo)
                 ElementPtr el = next_row->elements->Get(0);
                 while (el && el->Split(page_width - row->rect.width - format->indent_before, false))
                 {
-                    if (with_undo && !clone)
-                        clone.reset(Clone());
-                    
                     row->elements->Move(next_row->elements->Get(0), row->elements->Count());
-                    row->Remake(true, false, with_undo);
-                    next_row->Remake(true, false, with_undo);
-                    row->Normalize(false);
-                    next_row->Normalize(false);
+                    row->Remake(true);
+                    next_row->Remake(true);
+                    row->Normalize();
+                    next_row->Normalize();
                     el = next_row->elements->Get(0);
-                    remake = true;
+                    changed = true;
                 }
             }
 
-            if (remake)
+            if (changed)
             {
-                row->Remake(true, false, with_undo);
+                row->Remake();
                 if (next_row)
-                    next_row->Remake(true, false, with_undo);
+                    next_row->Remake();
 
-                row->Normalize(false);
+                row->Normalize();
                 if (next_row)
-                    next_row->Normalize(false);
+                    next_row->Normalize();
             }
 
             UpdateRect();
@@ -181,60 +169,28 @@ void Paragraph::Remake(bool with_elements, bool with_parent, bool with_undo)
         h += row->rect.height + format->line_spacing + top_m + bottom_m;
     }
 
-    if (with_undo && clone)
-    {
-        document->CallFunc(ElementId{}, 
-            [d = document](const ElementId id)
-            {
-                d->can_normalize = true;
-            },
-            true);
-        for (int i = 0; i < clone->elements->Count(); ++i)
-            document->InsertElement(clone->elements->Get(i));
-        document->ClearElements(id, false, true);
-        document->PushEditorState(CaretState(id, 0), true);
-        document->CallFunc(ElementId{}, 
-            [d = document](const ElementId id)
-            {
-                d->can_normalize = false;
-            },
-            true);
-    }
-
     UpdateRect();
 
     if (elements->Count() > 0)
         baseline = elements->Get(0)->baseline;
 
-    if (rect != last_rect && document->IsVisible(id))
+    if (rect != last_rect)
     {
-        if (with_parent)
-        {
-            parent->Remake(false, true, with_undo);
-            document->Redraw(parent->id, false);
-        }
-        else
-            document->Redraw(id, false);
+        last_rect = rect;
+        return true;
     }
-    last_rect = rect;
+    return changed;
 }
 
-void Paragraph::Normalize(bool with_undo)
+void Paragraph::Normalize()
 {
     if (!document->can_normalize)
         return;
     
-    Element::Normalize(with_undo);
+    Element::Normalize();
 
     if (elements->Count() == 0)
-    {
         AddEmptyElement(); //paragraph has to have at least one row
-        if (with_undo)
-        {
-            document->DeleteElements(false, false, true);
-            document->PushEditorState(SelectionState(id, 0, elements->Count()), true);
-        }
-    }
 
     for (int i = 0; i < elements->Count();)
     {
@@ -243,24 +199,6 @@ void Paragraph::Normalize(bool with_undo)
             break;
         if (el->elements->Count() == 1 && document->IsString(el->elements->Get(0)) && el->elements->Get(0)->elements->Count() == 0)
         {
-            if (with_undo)
-            {
-                ElementPtr _row(el->Clone());
-                document->CallFunc(ElementId{},
-                    [d = document](const ElementId id)
-                    {
-                        d->can_normalize = true;
-                    },
-                    true);
-                document->InsertElement(_row);
-                document->PushEditorState(CaretState(id, i), true);
-                document->CallFunc(ElementId{},
-                    [d = document](const ElementId id)
-                    {
-                        d->can_normalize = false;
-                    },
-                    true);
-            }
             elements->RemoveAt(i, 1);
             window->OnCaretMoved(document->GetEditorState());
         }
@@ -280,69 +218,44 @@ void Paragraph::Normalize(bool with_undo)
             auto str = el1->ToText();
             if (str.length() > 0 && str[str.size() - 1] != U' ')
             {
-                ElementPtr _el1, _el2;
-                if (with_undo)
-                {
-                    _el1.reset(el1->Clone());
-                    _el2.reset(el2->Clone());
-                }
                 if (el1->Merge(el2))
                 {
-                    if (with_undo)
-                    {
-                        document->CallFunc(ElementId{},
-                            [d = document](const ElementId id)
-                            {
-                                d->can_normalize = true;
-                            },
-                            true);
-                        document->InsertElement(_el2);
-                        document->PushEditorState(CaretState(below->id), true);
-                        document->InsertElement(_el1);
-                        document->DeleteElements(false, false, true);
-                        document->PushEditorState(CaretState(el1->id, 0), 
-                            SelectionState(_el1->id, 0, _el1->elements->Count() + _el2->elements->Count()), true);
-                        document->CallFunc(ElementId{},
-                            [d = document](const ElementId id)
-                            {
-                                d->can_normalize = false;
-                            },
-                            true);
-                    }
-                    above->Remake(true, false, with_undo);
-                    below->Remake(true, true, with_undo);
+                    above->Remake();
+                    below->Remake();
                 }
             }
         }
     }
 }
 
-bool Paragraph::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo)
+bool Paragraph::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo, ElementId& changed_element)
 {
     if (_elements.size() == 1 && document->IsRow(_elements[0]))
     {
-        if (!Element::InsertElements(_elements, with_undo))
+        if (!Element::InsertElements(_elements, with_undo, changed_element))
             return false;
-        Normalize(with_undo);
+        Normalize();
         ReSolve();
+        changed_element = id;
         return true;
     }
 
     auto el = document->GetElement(caret->GetCaretState().id);
     if (el && document->IsRow(el->id))
-        return el->InsertElements(_elements, with_undo); //insert in the beginning of current row
+        return el->InsertElements(_elements, with_undo, changed_element); //insert in the beginning of current row
 
-    return parent->InsertElements(_elements, with_undo);
+    return parent->InsertElements(_elements, with_undo, changed_element);
 }
 
-bool Paragraph::DeleteElements(bool left, bool with_undo)
+bool Paragraph::DeleteElements(bool left, bool with_undo, ElementId& changed_element)
 {
     uint start, size;
     if (selection->Has(id, start, size))
     {
-        if (Element::DeleteElements(left, with_undo))
+        if (Element::DeleteElements(left, with_undo, changed_element))
         {
-            Normalize(with_undo);
+            Normalize();
+            changed_element = id;
             return true;
         }
     }
@@ -364,7 +277,7 @@ bool Paragraph::DeleteElements(bool left, bool with_undo)
                     if (next_row->GetFirstCaretState(first_state, nullptr))
                     {
                         caret->SetState(first_state);
-                        return caret->GetElement()->DeleteElements(false, with_undo);
+                        return caret->GetElement()->DeleteElements(false, with_undo, changed_element);
                     }
                 }
             }
@@ -381,29 +294,29 @@ bool Paragraph::DeleteElements(bool left, bool with_undo)
                     if (prev_row->GetLastCaretState(last_state, nullptr))
                     {
                         caret->SetState(last_state);
-                        return caret->GetElement()->DeleteElements(true, with_undo);
+                        return caret->GetElement()->DeleteElements(true, with_undo, changed_element);
                     }
                 }
             }
         }
     }
 
-    return parent->DeleteElements(left, with_undo);
+    return parent->DeleteElements(left, with_undo, changed_element);
 }
 
-bool Paragraph::ChangeParagraphFormat(const ParagraphFormatPtr _format, bool with_undo)
+bool Paragraph::ChangeParagraphFormat(const ParagraphFormatPtr _format, bool with_undo, ElementId& changed_element)
 {
+    if (with_undo)
+        document->StoreUndo(id);
+    
     if (format->name == _format->name)
         return false;
     
-    if (with_undo)
-        document->ChangeParagraphFormat(format, false, true);
-
     for (int i = 0; i < elements->Count(); ++i)
         elements->Get(i)->UpdateStringFormat(format->default_string_format, _format->default_string_format);
 
     format = _format;
-    Remake(true, true, with_undo);
+    changed_element = id;
     
     return true;
 }

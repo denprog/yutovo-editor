@@ -14,13 +14,9 @@ struct CodeTest : DocumentTest
 
 TEST_F(CodeTest, code1)
 {
-    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
-        {
-            return Rect{0, 0, 600, 400};
-        });
+    Start(600);
 
-    document.InsertCode(false, true);
-    document.WaitMainLoop();
+    document.WaitTask(document.InsertCode(false, true));
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
@@ -35,8 +31,7 @@ TEST_F(CodeTest, code1)
         document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 0})) << document.GetEditorState().ToString();
 
-    document.InsertString("m", true);
-    document.WaitMainLoop();
+    document.WaitTask(document.InsertString("m", true));
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -94,11 +89,11 @@ TEST_F(CodeTest, code1)
         document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 1})) << document.GetEditorState().ToString();
 
-    for (int i = 0; i < 3; ++i)
-        document.MoveCaretLeft(false);
-    document.WaitCaretMoving();
-    document.InsertString("Text", true);
-    document.WaitMainLoop();
+    document.MoveCaretLeft(false);
+    document.MoveCaretLeft(false);
+    document.WaitTask(document.MoveCaretLeft(false));
+    std::this_thread::sleep_for(100ms);
+    document.WaitTask(document.InsertString("Text", true));
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
@@ -117,8 +112,7 @@ TEST_F(CodeTest, code1)
     for (int i = 0; i < 4; ++i)
         document.MoveCaretRight(false);
     document.WaitCaretMoving();
-    document.InsertString("Normal", true);
-    document.WaitMainLoop();
+    document.WaitTask(document.InsertString("Normal", true));
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
@@ -138,14 +132,10 @@ TEST_F(CodeTest, code1)
 
 TEST_F(CodeTest, code2)
 {
-    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
-        {
-            return Rect{0, 0, 600, 400};
-        });
+    Start(600);
 
     document.InsertString("Text", true);
-    document.InsertCode(false, true);
-    document.WaitMainLoop();
+    document.WaitTask(document.InsertCode(false, true));
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
@@ -161,10 +151,8 @@ TEST_F(CodeTest, code2)
         document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 1, 0, 0, 0, 0})) << document.GetEditorState().ToString();
 
-    document.MoveCaretRight(false);
-    document.WaitCaretMoving();
-    document.InsertParagraph(true);
-    document.WaitMainLoop();
+    document.WaitTask(document.MoveCaretRight(false));
+    document.WaitTask(document.InsertParagraph(true));
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
@@ -186,13 +174,9 @@ TEST_F(CodeTest, code2)
 
 TEST_F(CodeTest, code3)
 {
-    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
-        {
-            return Rect{0, 0, 600, 400};
-        });
+    Start(600);
 
-    document.InsertCode(false, true);
-    document.WaitMainLoop();
+    document.WaitTask(document.InsertCode(false, true));
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
@@ -227,12 +211,10 @@ TEST_F(CodeTest, code3)
         document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 0})) << document.GetEditorState().ToString();
 
-    document.MoveCaretLeft(false);
-    document.WaitCaretMoving();
+    document.WaitTask(document.MoveCaretLeft(false));
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0})) << document.GetEditorState().ToString();
 
-    document.DeleteElements(false, true, false);
-    document.WaitMainLoop();
+    document.WaitTask(document.DeleteElements(false, true, false));
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == "<body><p><span style=\"font-family:'Arial';font-size:14px;\"></span></p></body>") << document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0})) << document.GetEditorState().ToString();
@@ -240,13 +222,9 @@ TEST_F(CodeTest, code3)
 
 TEST_F(CodeTest, code4)
 {
-    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
-        {
-            return Rect{0, 0, 600, 400};
-        });
+    Start(600);
 
-    document.InsertCode(false, true);
-    document.WaitMainLoop();
+    document.WaitTask(document.InsertCode(false, true));
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
@@ -261,8 +239,7 @@ TEST_F(CodeTest, code4)
         document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 0})) << document.GetEditorState().ToString();
 
-    document.InsertCode(false, true);
-    document.WaitMainLoop();
+    document.WaitTask(document.InsertCode(false, true));
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
@@ -297,10 +274,8 @@ TEST_F(CodeTest, code4)
         document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 0})) << document.GetEditorState().ToString();
 
-    document.MoveCaretRight(false);
-    document.WaitCaretMoving();
-    document.InsertCode(false, true);
-    document.WaitMainLoop();
+    document.WaitTask(document.MoveCaretRight(false));
+    document.WaitTask(document.InsertCode(false, true));
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
@@ -358,15 +333,10 @@ TEST_F(CodeTest, code4)
 
 TEST_F(CodeTest, code5)
 {
-    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
-        {
-            return Rect{0, 0, 600, 400};
-        });
+    Start(600);
 
-    document.InsertCode(false, true);
-    document.WaitMainLoop();
-    document.MoveCaretLeft(false);
-    document.WaitCaretMoving();
+    document.WaitTask(document.InsertCode(false, true));
+    document.WaitTask(document.MoveCaretLeft(false));
     document.WaitTask(document.DeleteElements(false, true, false));
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
@@ -407,8 +377,7 @@ TEST_F(CodeTest, code5)
     document.Undo();
     document.WaitUndo();
     document.MoveCaretRight(false);
-    document.MoveCaretRight(false);
-    document.WaitCaretMoving();
+    document.WaitTask(document.MoveCaretRight(false));
     document.WaitTask(document.InsertCode(false, true));
     std::this_thread::sleep_for(200ms);
     ASSERT_TRUE(document.ToHtml() == 
@@ -485,10 +454,7 @@ TEST_F(CodeTest, code5)
 
 TEST_F(CodeTest, code6)
 {
-    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
-        {
-            return Rect{0, 0, 600, 400};
-        });
+    Start(600);
 
     document.WaitTask(document.InsertCode(false, true));
     document.MoveCaretLeft(false);
@@ -526,15 +492,10 @@ TEST_F(CodeTest, code6)
 
 TEST_F(CodeTest, code7)
 {
-    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
-        {
-            return Rect{0, 0, 327, 400};
-        });
+    Start(327);
 
-    document.InsertCode(false, true);
-    document.WaitMainLoop();
-    document.MoveCaretRight(false);
-    document.WaitCaretMoving();
+    document.WaitTask(document.InsertCode(false, true));
+    document.WaitTask(document.MoveCaretRight(false));
     document.SetFontSize(22);
     document.WaitTask(document.InsertString("The source of the text itself is a little mysterious.", true));
     std::this_thread::sleep_for(100ms);
@@ -554,8 +515,7 @@ TEST_F(CodeTest, code7)
         document.ToHtml();
     
     document.MoveCaretUp(false);
-    document.MoveCaretUp(false);
-    document.WaitCaretMoving();
+    document.WaitTask(document.MoveCaretUp(false));
     document.WaitTask(document.InsertCode(false, true));
     std::this_thread::sleep_for(400ms);
     ASSERT_TRUE(document.ToHtml() == 
@@ -579,10 +539,8 @@ TEST_F(CodeTest, code7)
         "</body>") << 
         document.ToHtml();
     
-    document.MoveCaretToDocumentEnd(false);
-    document.WaitCaretMoving();
-    document.InsertCode(false, true);
-    document.WaitMainLoop();
+    document.WaitTask(document.MoveCaretToDocumentEnd(false));
+    document.WaitTask(document.InsertCode(false, true));
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
@@ -610,8 +568,7 @@ TEST_F(CodeTest, code7)
         "</body>") << 
         document.ToHtml();
     
-    document.MoveCaretRight(false);
-    document.WaitCaretMoving();
+    document.WaitTask(document.MoveCaretRight(false));
     document.Undo();
     document.WaitUndo();
     ASSERT_TRUE(document.ToHtml() == 
@@ -667,13 +624,9 @@ TEST_F(CodeTest, code7)
 
 TEST_F(CodeTest, code8)
 {
-    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
-        {
-            return Rect{0, 0, 600, 400};
-        });
+    Start(600);
 
-    document.InsertCode(false, true);
-    document.WaitMainLoop();
+    document.WaitTask(document.InsertCode(false, true));
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
@@ -688,12 +641,10 @@ TEST_F(CodeTest, code8)
         document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 0})) << document.GetEditorState().ToString();
 
-    document.MoveCaretRight(false);
-    document.WaitCaretMoving();
+    document.WaitTask(document.MoveCaretRight(false));
     document.InsertString("Text", true);
     document.InsertCode(false, true);
-    document.MoveCaretRight(false);
-    document.WaitCaretMoving();
+    document.WaitTask(document.MoveCaretRight(false));
     document.Undo();
     document.WaitUndo();
     std::this_thread::sleep_for(200ms);
@@ -715,10 +666,7 @@ TEST_F(CodeTest, code8)
 //Multiline code
 TEST_F(CodeTest, code9)
 {
-    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
-        {
-            return Rect{0, 0, 600, 400};
-        });
+    Start(600);
 
     document.InsertCode(false, true);
     document.WaitTask(document.InsertParagraph(true));
@@ -780,15 +728,11 @@ TEST_F(CodeTest, code9)
 //Multiline code
 TEST_F(CodeTest, code10)
 {
-    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
-        {
-            return Rect{0, 0, 600, 400};
-        });
+    Start(600);
 
     document.InsertString("Text", true);
     document.InsertCode(false, true);
-    document.InsertString("1234", true);
-    document.WaitMainLoop();
+    document.WaitTask(document.InsertString("1234", true));
     document.MoveCaretLeft(false);
     document.WaitTask(document.InsertParagraph(true));
     ASSERT_TRUE(document.ToHtml() == 
@@ -900,10 +844,7 @@ TEST_F(CodeTest, code10)
 //Deletion of code block
 TEST_F(CodeTest, code11)
 {
-    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
-        {
-            return Rect{0, 0, 600, 400};
-        });
+    Start(600);
 
     document.InsertCode(false, true);
     document.WaitTask(document.InsertString("123", true));

@@ -16,17 +16,17 @@ Formula::Formula(Document* _document) :
     document->GetCurrentFormulaFormat(formula_format);
 }
 
-bool Formula::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo)
+bool Formula::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo, ElementId& changed_element)
 {
-    return parent->InsertElements(_elements, with_undo);
+    return parent->InsertElements(_elements, with_undo, changed_element);
 }
 
-bool Formula::DeleteElements(bool left, bool with_undo)
+bool Formula::DeleteElements(bool left, bool with_undo, ElementId& changed_element)
 {
-    return Element::DeleteElements(left, with_undo);
+    return Element::DeleteElements(left, with_undo, changed_element);
 }
 
-bool Formula::ChangeParagraphFormat(const ParagraphFormatPtr format, bool with_undo)
+bool Formula::ChangeParagraphFormat(const ParagraphFormatPtr format, bool with_undo, ElementId& changed_element)
 {
     return false;
 }

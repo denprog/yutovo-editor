@@ -38,9 +38,9 @@ Element* Row::Create(Element* parent)
     return new Row(parent);
 }
 
-void Row::Remake(bool with_elements, bool with_parent, bool with_undo)
+bool Row::Remake(bool with_elements)
 {
-    Element::Remake(with_elements, with_parent, with_undo);
+    bool changed = Element::Remake(with_elements);
 
     int cx = 0;
     int left_m, top_m, right_m, bottom_m;
@@ -95,19 +95,18 @@ void Row::Remake(bool with_elements, bool with_parent, bool with_undo)
 
     if (rect != last_rect)
     {
-        if (with_parent)
-            document->Remake(parent->id, false, with_undo, false);
-        document->Redraw(id, false);
+        last_rect = rect;
+        return true;
     }
-    last_rect = rect;
+    return changed;
 }
 
-void Row::Normalize(bool with_undo)
+void Row::Normalize()
 {
     if (!document->can_normalize)
         return;
     
-    Element::Normalize(with_undo);
+    Element::Normalize();
 
     if (elements->Count() > 1)
     {
@@ -118,24 +117,6 @@ void Row::Normalize(bool with_undo)
             {
                 if (el->elements->Count() == 0 && elements->Count() > 1)
                 {
-                    if (with_undo)
-                    {
-                        auto t = elements->Get(i)->Clone();
-                        document->CallFunc(ElementId{}, 
-                            [d = document](const ElementId id)
-                            {
-                                d->can_normalize = true;
-                            },
-                            true);
-                        document->InsertElement(t);
-                        document->PushEditorState(CaretState(id, i), true);
-                        document->CallFunc(ElementId{}, 
-                            [d = document](const ElementId id)
-                            {
-                                d->can_normalize = false;
-                            },
-                            true);
-                    }
                     elements->RemoveAt(i, 1); //remove empty strings
                     window->OnCaretMoved(document->GetEditorState());
                     if (i > 0)
@@ -144,44 +125,9 @@ void Row::Normalize(bool with_undo)
                 }
                 if (i < elements->Count() - 1)
                 {
-                    ElementPtr el1, el2;
-                    if (with_undo)
-                    {
-                        el1.reset(el->Clone());
-                        el2.reset(elements->Get(i + 1)->Clone());
-                    }
                     if (el->Merge(elements->Get(i + 1)))
                     {
                         el->UpdateRect(true);
-                        if (with_undo)
-                        {
-                            document->CallFunc(ElementId{},
-                                [d = document, _id = id](const ElementId id)
-                                {
-                                    d->can_normalize = true;
-                                },
-                                true);
-                            document->InsertElement(el1);
-                            document->PushEditorState(CaretState(id, elements->GetElementPos(el->id)), true);
-                            document->InsertElement(el2);
-                            document->PushEditorState(CaretState(id, elements->GetElementPos(el->id)), true);
-                            document->CallFunc(ElementId{},
-                                [d = document, _id = id](const ElementId id)
-                                {
-                                    d->can_normalize = true;
-                                    d->GetElement(_id)->Normalize(false);
-                                    d->can_normalize = false;
-                                },
-                                true);
-                            document->DeleteElements(false, false, true);
-                            document->PushEditorState(SelectionState(id, elements->GetElementPos(el->id), 1), true);
-                            document->CallFunc(ElementId{},
-                                [d = document, _id = id](const ElementId id)
-                                {
-                                    d->can_normalize = false;
-                                },
-                                true);
-                        }
                         window->OnCaretMoved(document->GetEditorState());
                         continue;
                     }
@@ -192,11 +138,6 @@ void Row::Normalize(bool with_undo)
     }
     else if (elements->Count() == 0)
     {
-        if (with_undo)
-        {
-            document->DeleteElements(false, false, true);
-            document->PushEditorState(CaretState(id), SelectionState(parent->id, parent->elements->GetElementPos(id), 1), true);
-        }
         AddEmptyElement(); //insert empty string
         CaretState c;
         if (GetFirstCaretState(c, nullptr))
@@ -204,11 +145,11 @@ void Row::Normalize(bool with_undo)
     }
 }
 
-bool Row::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo)
+bool Row::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo, ElementId& changed_element)
 {
     CaretState caret_state = caret->GetCaretState();
     if (!caret_state.IsInsideElement(id) && caret_state.id != id)
-        return parent->InsertElements(_elements, with_undo);
+        return parent->InsertElements(_elements, with_undo, changed_element);
 
     for (auto& el : _elements)
     {
@@ -218,71 +159,68 @@ bool Row::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo)
             {
                 std::vector<ElementPtr> v;
                 v.push_back(el->elements->Get(i));
-                if (!InsertElements(v, with_undo))
+                if (!InsertElements(v, with_undo, changed_element))
                     return false;
             }
+            changed_element = id;
             return true;
         }
         else if (document->IsParagraph(el) || el->type == ElementType::TEXT) //paragraphs can be inserted above
-            return parent->InsertElements(_elements, with_undo);
+            return parent->InsertElements(_elements, with_undo, changed_element);
     }
 
     CaretState c;
     ElementPtr el = document->GetParent(caret_state.id);
     if (caret_state.id == id)
     {
+        if (with_undo)
+            document->StoreUndo(id);
         for (size_t i = 0; i < _elements.size(); ++i)
         {
             auto ins = _elements[i];
             elements->Insert(ins, i);
-            if (with_undo)
-            {
-                document->DeleteElements(false, false, true);
-                document->PushEditorState(SelectionState(id, i, 1), true);
-            }
             if (i == 0 && elements->Get(i)->AfterInsert(with_undo))
             {
-                parent->Normalize(with_undo);
+                parent->Normalize();
                 continue;
             }
             if (elements->Get(i)->GetLastCaretState(c, nullptr))
                 caret->SetState(c);
-            parent->Normalize(with_undo);
+            parent->Normalize();
         }
     }
     else if (el->id == id)
     {
+        if (with_undo)
+            document->StoreUndo(id);
         for (size_t i = 0; i < _elements.size(); ++i)
         {
             auto ins = _elements[i];
             uint p = caret_state.GetPosInElement(id);
             elements->Insert(ins, p + i);
-            if (with_undo)
-            {
-                document->DeleteElements(false, false, true);
-                document->PushEditorState(SelectionState(id, p + i, 1), true);
-            }
             if (document->pasting)
             {
                 if (ins->HasLastCaretState())
                     caret->SetState(id, p + i + 1, true);
                 else if (ins->GetLastCaretState(c, nullptr))
                     caret->SetState(c);
-                parent->Normalize(with_undo);
+                parent->Normalize();
                 continue;
             }
             if (i == 0 && elements->Get(p + i)->AfterInsert(with_undo))
             {
-                parent->Normalize(with_undo);
+                parent->Normalize();
                 continue;
             }
             if (elements->Get(p + i)->GetLastCaretState(c, nullptr))
                 caret->SetState(c);
-            parent->Normalize(with_undo);
+            parent->Normalize();
         }
     }
     else
     {
+        if (with_undo)
+            document->StoreUndo(parent->id);
         for (size_t i = 0; i < _elements.size(); ++i)
         {
             ElementPtr ins(_elements[i]);
@@ -291,11 +229,6 @@ bool Row::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo)
             if (el->GetLastCaretState(c, nullptr) && c == caret_state)
             {
                 elements->Insert(ins, p + i + 1);
-                if (with_undo)
-                {
-                    document->DeleteElements(false, false, true);
-                    document->PushEditorState(SelectionState(id, p + i + 1, 1), true);
-                }
                 if (i == 0 && !document->pasting)
                     b = ins->AfterInsert(with_undo);
                 if (!b)
@@ -324,11 +257,6 @@ bool Row::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo)
                 elements->Insert(ins, p + i);
                 if (i == 0 && !document->pasting)
                     b = ins->AfterInsert(with_undo);
-                if (with_undo)
-                {
-                    document->DeleteElements(false, false, true);
-                    document->PushEditorState(SelectionState(id, p + i, 1), true);
-                }
                 if (!b)
                 {
                     if (elements->Get(elements->Count() > p + i + 1 ? p + i + 1 : p + i)->GetLastCaretState(c, nullptr))
@@ -345,15 +273,12 @@ bool Row::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo)
                     if (!b && elements->Get(p + i + 1)->GetLastCaretState(c, nullptr))
                         caret->SetState(c);
                 }
-                if (with_undo)
-                {
-                    document->DeleteElements(false, false, true);
-                    document->PushEditorState(SelectionState(id, elements->GetElementPos(ins->id), 1), true);
-                }
             }
         }
-        Normalize(with_undo);
+        Normalize();
     }
+
+    changed_element = id;
 
 #ifdef DEBUG
     to_str = ToText();
@@ -361,7 +286,7 @@ bool Row::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo)
     return true;
 }
 
-bool Row::DeleteElements(bool left, bool with_undo)
+bool Row::DeleteElements(bool left, bool with_undo, ElementId& changed_element)
 {
     CaretState before_state = caret->GetCaretState();
     if (selection->IsEmpty())
@@ -370,7 +295,7 @@ bool Row::DeleteElements(bool left, bool with_undo)
         {
             if (before_state.GetPos() == 0 && elements->Count() == 1 && document->IsString(elements->Get(0)) && elements->Get(0)->elements->Count() == 0)
             {
-                return parent->DeleteElements(left, with_undo);
+                return parent->DeleteElements(left, with_undo, changed_element);
             }
         }
 
@@ -378,7 +303,7 @@ bool Row::DeleteElements(bool left, bool with_undo)
         GetFirstCaretState(first_state, nullptr);
         GetLastCaretState(last_state, nullptr);
         if ((left && before_state == first_state) || (!left && before_state == last_state))
-            return parent->DeleteElements(left, with_undo);
+            return parent->DeleteElements(left, with_undo, changed_element);
 
         if (left)
         {
@@ -392,7 +317,8 @@ bool Row::DeleteElements(bool left, bool with_undo)
                     if (el->GetLastCaretState(c, nullptr))
                     {
                         caret->SetState(c);
-                        el->DeleteElements(left, with_undo);
+                        el->DeleteElements(left, with_undo, changed_element);
+                        changed_element = id;
 #ifdef DEBUG
                         to_str = ToText();
 #endif
@@ -402,13 +328,10 @@ bool Row::DeleteElements(bool left, bool with_undo)
                 else
                 {
                     if (with_undo)
-                    {
-                        document->InsertElement(elements->Get(p - 1)->Clone(), false, true);
-                        document->PushEditorState(CaretState(id, p - 1), true);
-                    }
+                        document->StoreUndo(id);
                     elements->RemoveAt(p - 1, 1);
-                    Normalize(with_undo);
-                    parent->Remake(true, true, with_undo);
+                    Normalize();
+                    changed_element = id;
 #ifdef DEBUG
                     to_str = ToText();
 #endif
@@ -429,25 +352,21 @@ bool Row::DeleteElements(bool left, bool with_undo)
                         if (!el->GetLastCaretState(c, nullptr))
                             return false;
                         caret->SetState(c);
-                        return el->DeleteElements(left, with_undo);
+                        return el->DeleteElements(left, with_undo, changed_element);
                     }
                     if (with_undo)
-                    {
-                        document->InsertElement(el->Clone(), false, true);
-                        document->PushEditorState(CaretState(id, p), true);
-                    }
+                        document->StoreUndo(id);
                     elements->RemoveAt(p, 1);
 
                     if (elements->Count() == 0)
-                        Normalize(with_undo);
-                    
-                    parent->Remake(true, true, with_undo);
+                        Normalize();
+                    changed_element = id;
 #ifdef DEBUG
                     to_str = ToText();
 #endif
                     return true;
                 }
-                return parent->DeleteElements(left, with_undo);
+                return parent->DeleteElements(left, with_undo, changed_element);
             }
         }
         else
@@ -466,7 +385,8 @@ bool Row::DeleteElements(bool left, bool with_undo)
                     if (el->GetFirstCaretState(c, nullptr))
                     {
                         caret->SetState(c);
-                        el->DeleteElements(left, with_undo);
+                        el->DeleteElements(left, with_undo, changed_element);
+                        changed_element = id;
 #ifdef DEBUG
                         to_str = ToText();
 #endif
@@ -476,28 +396,21 @@ bool Row::DeleteElements(bool left, bool with_undo)
                 else if (p < elements->Count())
                 {
                     if (with_undo)
-                    {
-                        document->InsertElement(elements->Get(p)->Clone(), false, true);
-                        document->PushEditorState(CaretState(id, p), true);
-                    }
+                        document->StoreUndo(id);
                     elements->RemoveAt(p, 1);
                 }
             }
             else if (p >= 0)
             {
                 if (with_undo)
-                {
-                    document->InsertElement(elements->Get(p)->Clone(), false, true);
-                    document->PushEditorState(CaretState(id, p), true);
-                }
+                    document->StoreUndo(id);
                 elements->RemoveAt(p, 1);
             }
 
-            Normalize(with_undo);
+            Normalize();
         }
 
-        parent->Remake(true, true, with_undo);
-        document->Redraw(parent->id, true);
+        changed_element = id;
 
 #ifdef DEBUG
         to_str = ToText();
@@ -510,15 +423,10 @@ bool Row::DeleteElements(bool left, bool with_undo)
         if (selection->Has(id, start, size))
         {
             if (with_undo)
-            {
-                std::vector<ElementPtr> clone;
-                elements->Clone(clone, start, size);
-                document->InsertElements(clone, false, true);
-                document->PushEditorState(CaretState(id, start), true);
-            }
+                document->StoreUndo(parent->id);
             elements->RemoveAt(start, size);
-            Normalize(with_undo);
-            Remake(true, true, with_undo);
+            Normalize();
+            changed_element = id;
 #ifdef DEBUG
             to_str = ToText();
 #endif
@@ -532,9 +440,9 @@ bool Row::DeleteElements(bool left, bool with_undo)
     return false;
 }
 
-bool Row::ChangeStringFormat(const StringFormatPtr format, bool with_undo)
+bool Row::ChangeStringFormat(const StringFormatPtr format, bool with_undo, ElementId& changed_element)
 {
-    Element::ChangeStringFormat(format, with_undo);
+    Element::ChangeStringFormat(format, with_undo, changed_element);
     
     SelectionState s = selection->GetState();
     for (auto& t : s.state)
@@ -547,9 +455,11 @@ bool Row::ChangeStringFormat(const StringFormatPtr format, bool with_undo)
         if (el)
         {
             el->SplitAt(t.size);
-            el->ChangeStringFormat(format, with_undo);
+            el->ChangeStringFormat(format, with_undo, changed_element);
         }
     }
+
+    changed_element = id;
 
 #ifdef DEBUG
     to_str = ToText();

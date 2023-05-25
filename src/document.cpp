@@ -32,6 +32,7 @@ Document::Document(Window* _window) :
     selection(this),
     last_selection(this),
     solver(this),
+    undo_base(this),
     logger(Logger::GetInstance(".", "yutovo", true, true))
 {
     string_formats.reset(new StringFormats());
@@ -66,8 +67,8 @@ void Document::Start(Config& _config)
 
     main_loop = std::thread(&Document::MainLoop, this);
 
-    Remake(text->id, false, false, false);
-    Remake(text->elements->Get(0)->id, false, false, false);
+    text->Remake(true);
+    Redraw(text->id, false);
 }
 
 void Document::GetConfig(Config& _config)
@@ -141,8 +142,9 @@ void Document::MainLoop()
                 std::lock_guard<std::recursive_mutex> lock(edit_mutex);
                 caret->Hide(); //caret will be shown on Redraw or caret moving
                 selection.can_optimize = false;
-                for (TaskPtr t : temp_undo_tasks)
+                for (size_t i = 0; i < temp_undo_tasks.size(); ++i)
                 {
+                    TaskPtr& t = temp_undo_tasks[i];
                     if (!t->Execute())
                         break;
                 }
@@ -186,8 +188,9 @@ void Document::MainLoop()
             {
                 std::lock_guard<std::recursive_mutex> lock(edit_mutex);
                 caret->Hide(); //caret will be shown on Redraw or caret moving
-                for (TaskPtr t : temp_redo_tasks)
+                for (size_t i = 0; i < temp_redo_tasks.size(); ++i)
                 {
+                    TaskPtr& t = temp_redo_tasks[i];
                     cur_task_id = t->id;
                     if (!t->Execute())
                         break;
@@ -223,8 +226,9 @@ void Document::MainLoop()
             std::lock_guard<std::recursive_mutex> lock(edit_mutex);
             caret->Hide(); //caret will be shown on Redraw or caret moving
             //execute all the tasks
-            for (auto& t : temp_tasks)
+            for (size_t i = 0; i < temp_tasks.size(); ++i)
             {
+                TaskPtr& t = temp_tasks[i];
                 cur_task_id = t->id;
                 uint last_undo_task_id = 0;
                 if (!undo_tasks.empty())
@@ -254,7 +258,6 @@ void Document::MainLoop()
                 if (last_solver_task_id == t->id)
                     last_solver_executed = true;
                 
-                std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
                 if (last_tasks.size() > 1000)
                     last_tasks.clear();
                 last_tasks.push_back(t->id);
@@ -599,19 +602,77 @@ void Document::PushEditorState(const CaretState& caret_state, const SelectionSta
     next_circle = true;
 }
 
-void Document::CallFunc(const ElementId& _id, CallFuncPtr func, bool undo)
+bool Document::StoreUndo(const ElementId& _id)
 {
+    if (_id.size() == 1)
+        return StoreUndo(_id, 0, text->elements->Count());
+    RestrictUndo();
+
+    int undo_id = undo_base.Store(_id);
+    if (undo_id < 0)
+        return false;
+    undo_tasks.push_back(TaskPtr(new UndoTask(text, undo_id, _id, 0, cur_task_id)));
+    return true;
+}
+
+bool Document::StoreUndo(const ElementId& parent_id, const int pos, const int size, const int delete_size)
+{
+    RestrictUndo();
+
+    int undo_id;
+    ElementId _id;
+    if (IsRow(parent_id))
     {
-        std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
-        if (undo)
-        {
-            RestrictUndo();
-            undo_tasks.push_back(TaskPtr(new CallFuncTask(text, _id, func, cur_task_id)));
-        }
-        else
-            tasks.emplace_back(new CallFuncTask(text, _id, func, cur_task_id));
+        auto p = GetParent(parent_id);
+        undo_id = undo_base.Store(p->id, 0, p->elements->Count());
+        _id = yutovo::GetChild(p->id, 0);
     }
-    next_circle = true;
+    else
+    {
+        undo_id = undo_base.Store(parent_id, pos, size);
+        _id = yutovo::GetChild(parent_id, pos);
+    }
+    if (undo_id < 0)
+        return false;
+    undo_tasks.push_back(TaskPtr(new UndoTask(text, undo_id, _id, delete_size, cur_task_id)));
+    return true;
+}
+
+bool Document::StoreUndo(const ElementId& parent_id, const int pos, const int size, UndoTask::UndoOperation undo_operation)
+{
+    RestrictUndo();
+
+    int undo_id;
+    ElementId _id;
+    auto p = GetParent(parent_id);
+    if (IsRow(parent_id))
+    {
+        undo_id = undo_base.Store(p->id, 0, p->elements->Count());
+        _id = yutovo::GetChild(p->id, 0);
+    }
+    else if (IsParagraph(parent_id))
+    {
+        int _pos = p->elements->GetChildPos(parent_id);
+        undo_id = undo_base.Store(p->id, _pos, 1);
+        if (undo_id < 0)
+            return false;
+        undo_tasks.push_back(TaskPtr(new UndoTask(text, undo_id, p->id, _pos, 1, UndoTask::UndoOperation::CHANGE, cur_task_id)));
+        return true;
+    }
+    else
+    {
+        undo_id = undo_base.Store(parent_id, pos, size);
+        _id = yutovo::GetChild(parent_id, pos);
+    }
+    if (undo_id < 0)
+        return false;
+    undo_tasks.push_back(TaskPtr(new UndoTask(text, undo_id, parent_id, pos, size, undo_operation, cur_task_id)));
+    return true;
+}
+
+bool Document::RestoreUndo(const int undo_id, std::vector<ElementPtr>& elements)
+{
+    return undo_base.Restore(undo_id, elements);
 }
 
 void Document::ResetTasks()
@@ -636,6 +697,159 @@ ElementPtr Document::GetElement(const ElementId& _id)
         el = el->elements->Get(_id[i]);
     }
     return el;
+}
+
+void Document::GetElements(const LogicalId& _id, std::vector<ElementPtr>& elements)
+{
+    if (_id.empty())
+        return;
+    if (_id.size() == 1)
+    {
+        elements.push_back(text);
+        return;
+    }
+    ElementPtr el = text->elements->Get(_id[1]);
+    if (_id.size() == 2)
+    {
+        elements.push_back(el);
+        return;
+    }
+    
+    auto find_in_paragraph = 
+        [_id](ElementPtr el, int pos)
+        {
+            ElementPtr res;
+            LogicalId part_id(_id.begin(), _id.begin() + pos);
+
+            for (size_t i = 0; i < el->elements->Count(); ++i)
+            {
+                auto row = el->elements->Get(i);
+                if (row->elements->Count() == 0)
+                    continue;
+                if (row->elements->Get(0)->logical_id == part_id)
+                {
+                    res = row->elements->Get(0);
+                    break;
+                }
+                if (row->elements->Get(row->elements->Count() - 1)->logical_id[2] >= part_id[2])
+                {
+                    for (size_t j = 1; j < row->elements->Count(); ++j)
+                    {
+                        auto ch = row->elements->Get(j);
+                        if (ch->logical_id == part_id)
+                        {
+                            res = ch;
+                            break;
+                        }
+                    }
+                    break;
+                }
+            }
+            return res;
+        };
+    
+    el = find_in_paragraph(el, 3);
+    
+    assert(!IsParagraph(el));
+
+    for (uint i = 3; i < _id.size(); ++i)
+    {
+        if (!el || el->elements->Count() < _id[i])
+            return;
+        el = el->elements->Get(_id[i]);
+        //if (IsParagraph(el))
+        if (el->type == ElementType::PARAGRAPH)
+        {
+            el = find_in_paragraph(el, i);
+            ++i;
+        }
+    }
+
+    elements.push_back(el);
+
+    int pos = GetChildPos(el->id);
+    bool found = true;
+    auto p = el->parent;
+
+    if (IsParagraph(p->parent->id))
+    {
+        for (int i = pos - 1; i >= 0; --i) //look for the same logical ids backward
+        {
+            auto ch = p->elements->Get(i);
+            if (ch->logical_id != el->logical_id)
+            {
+                found = false;
+                break;
+            }
+            elements.insert(elements.begin(), ch);
+        }
+        if (found)
+        {
+            int p_pos = GetChildPos(p->id);
+            for (int i = p_pos - 1; i >= 0; --i)
+            {
+                auto r = p->parent->elements->Get(i);
+                for (int j = r->elements->Count() - 1; j >= 0; --j)
+                {
+                    auto ch = r->elements->Get(j);
+                    if (ch->logical_id != el->logical_id)
+                    {
+                        found = false;
+                        break;
+                    }
+                    elements.insert(elements.begin(), ch);
+                }
+                if (!found)
+                    break;
+            }
+        }
+    }
+
+    pos = GetChildPos(el->id) + 1;
+    found = true;
+    if (IsParagraph(p->parent->id))
+    {
+        for (int i = pos; i < p->elements->Count(); ++i) //look for the same logical ids forward
+        {
+            auto ch = p->elements->Get(i);
+            if (ch->logical_id != el->logical_id)
+            {
+                found = false;
+                break;
+            }
+            elements.push_back(ch);
+        }
+        if (!found)
+            return;
+
+        int p_pos = GetChildPos(p->id);
+        for (int i = p_pos + 1; i < p->parent->elements->Count(); ++i)
+        {
+            auto r = p->parent->elements->Get(i);
+            for (int j = 0; j < r->elements->Count(); ++j)
+            {
+                auto ch = r->elements->Get(j);
+                if (ch->logical_id != el->logical_id)
+                {
+                    found = false;
+                    break;
+                }
+                elements.push_back(ch);
+            }
+            if (!found)
+                break;
+        }
+    }
+    else
+    {
+        while (pos + 1 < p->elements->Count())
+        {
+            auto ch = p->elements->Get(pos + 1);
+            if (ch->logical_id != el->logical_id)
+                break;
+            elements.push_back(ch);
+        }
+    }
 }
 
 ElementPtr Document::GetParent(const ElementId& _id)
@@ -881,6 +1095,11 @@ bool Document::IsParagraph(ElementId id)
 {
     auto el = GetElement(id);
     return IsParagraph(el);
+}
+
+bool Document::IsFormula(ElementPtr el)
+{
+    return dynamic_cast<Formula*>(el.get());
 }
 
 bool Document::GetStringFormat(const ElementId id, StringFormat& format)
@@ -1139,7 +1358,8 @@ void Document::Resize(uint width, uint height)
     last_task_id = tasks.back()->id;
 #endif
     next_circle = true;
-    Remake(text->id, true, false, false);
+    text->Remake(true);
+    Redraw(text->id, false);
 }
 
 void Document::Redraw(const ElementId& id, bool move_into_view)
@@ -1171,34 +1391,6 @@ void Document::Redraw()
     Redraw(text->id, false);
 }
 
-void Document::Remake(const ElementId& id, bool with_elements, bool with_undo, bool undo, bool move_into_view)
-{
-    {
-        std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
-        uint priority = IsVisible(id) ? 1 : 0;
-        if (undo)
-        {
-            RestrictUndo();
-            undo_tasks.push_back(TaskPtr(new RemakeTask(text, id, with_elements, with_undo, move_into_view, cur_task_id, priority)));
-        }
-        else
-        {
-            if (!tasks.empty())
-            {
-                TaskPtr last = tasks.back();
-                RemakeTask* t = dynamic_cast<RemakeTask*>(last.get());
-                if (!t || t->element_id != id || t->with_elements != with_elements)
-                    tasks.emplace_back(new RemakeTask(text, id, with_elements, with_undo, move_into_view, cur_task_id, priority));
-            }
-            else
-            {
-                tasks.emplace_back(new RemakeTask(text, id, with_elements, with_undo, move_into_view, cur_task_id, priority));
-            }
-        }
-    }
-    next_circle = true;
-}
-
 bool Document::WillRedraw(const ElementId& id, bool move_into_view)
 {
     std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
@@ -1212,12 +1404,6 @@ bool Document::WillRedraw(const ElementId& id, bool move_into_view)
             if (!redraw_task->move_into_view)
                 redraw_task->move_into_view = move_into_view;
             return true;
-        }
-        RemakeTask* remake_task = dynamic_cast<RemakeTask*>(t.get());
-        if (remake_task && IsChild(remake_task->element_id, id))
-        {
-            if (remake_task->move_into_view == move_into_view)
-                return true;
         }
     }
     return false;
@@ -1628,7 +1814,7 @@ void Document::WaitSolver()
         std::this_thread::sleep_for(10ms);
     }
 
-    std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
+    std::lock_guard<std::recursive_mutex> lock(edit_mutex);
     last_solver_task_id = 0;
     last_solver_executed = false;
 }
@@ -1641,7 +1827,7 @@ void Document::WaitTask(uint task_id)
     {
         std::this_thread::sleep_for(100ms);
 
-        std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
+        std::lock_guard<std::recursive_mutex> lock(edit_mutex);
         if (std::find(last_tasks.begin(), last_tasks.end(), task_id) != last_tasks.end())
             return;
         last_tasks.clear();
