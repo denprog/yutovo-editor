@@ -376,7 +376,7 @@ bool Row::DeleteElements(bool left, bool with_undo, ElementId& changed_element)
                 p = elements->GetElementPos(document->GetParent(before_state.id)->id);
             if (p < elements->Count())
             {
-                if (before_state.GetElement() != id)
+                if (before_state.GetParent() != id)
                     ++p;
                 auto el = elements->Get(p);
                 if (el && el->CanContinueSelection())
