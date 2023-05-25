@@ -2008,6 +2008,36 @@ TEST_F(DocumentTest, delete11)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 30})) << document.GetEditorState().ToString();
 }
 
+//Backspace at the end of a string on the second row
+TEST_F(DocumentTest, delete12)
+{
+    Start(400);
+
+    document.WaitTask(document.InsertString("The source of the text itself is a little mysterious.", true));
+    document.WaitTask(document.DeleteElements(true, true, false));
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">The source of the text itself is a little </span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">mysterious</span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 0, 10})) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">The source of the text itself is a little </span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">mysterious.</span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 0, 11})) << document.GetEditorState().ToString();
+}
+
 //Restrict Undo
 TEST_F(DocumentTest, undo1)
 {
