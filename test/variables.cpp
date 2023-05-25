@@ -12,16 +12,8 @@ using namespace std::chrono_literals;
 //Changing value of a variable and resolve a dependent expression
 TEST_F(VariablesTest, variables1)
 {
-    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
-        {
-            return Rect{0, 0, 600, 400};
-        });
+    Start(600);
 
-    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
-        {
-            return GetTextSizeMock(text, format);
-        });
-    
     document.InsertCode(false, true);
     document.InsertString("d", true);
     document.InsertAssignment(true);
@@ -110,15 +102,7 @@ TEST_F(VariablesTest, variables1)
 //Insert unknown variable and add it above later
 TEST_F(VariablesTest, variables2)
 {
-    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
-        {
-            return Rect{0, 0, 600, 400};
-        });
-
-    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
-        {
-            return GetTextSizeMock(text, format);
-        });
+    Start(600);
     
     document.InsertCode(false, true);
     document.InsertString("d", true);
@@ -211,15 +195,7 @@ TEST_F(VariablesTest, variables2)
 //Delete a paragraph with a variable
 TEST_F(VariablesTest, variables3)
 {
-    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
-        {
-            return Rect{0, 0, 600, 400};
-        });
-
-    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
-        {
-            return GetTextSizeMock(text, format);
-        });
+    Start(600);
     
     document.InsertCode(false, true);
     document.InsertString("d", true);
@@ -303,15 +279,7 @@ TEST_F(VariablesTest, variables3)
 //Redefine a variable
 TEST_F(VariablesTest, variables4)
 {
-    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
-        {
-            return Rect{0, 0, 600, 400};
-        });
-
-    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
-        {
-            return GetTextSizeMock(text, format);
-        });
+    Start(600);
     
     document.InsertCode(false, true);
     document.InsertString("d", true);
@@ -375,15 +343,7 @@ TEST_F(VariablesTest, variables4)
 //Recalculate after changing a variable
 TEST_F(VariablesTest, variables5)
 {
-    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
-        {
-            return Rect{0, 0, 600, 400};
-        });
-
-    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
-        {
-            return GetTextSizeMock(text, format);
-        });
+    Start(600);
     
     document.InsertCode(false, true);
     document.InsertString("d", true);
@@ -422,15 +382,7 @@ TEST_F(VariablesTest, variables5)
 //Variable with a long number
 TEST_F(VariablesTest, variables6)
 {
-    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
-        {
-            return Rect{0, 0, 600, 400};
-        });
-
-    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
-        {
-            return GetTextSizeMock(text, format);
-        });
+    Start(600);
     
     document.InsertCode(false, true);
     document.InsertString("d", true);
@@ -454,10 +406,7 @@ TEST_F(VariablesTest, variables6)
 //Insert a paragraph in a variable's value
 TEST_F(VariablesTest, variables7)
 {
-    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
-        {
-            return Rect{0, 0, 600, 400};
-        });
+    Start(600);
     
     document.InsertCode(false, true);
     document.InsertString("d", true);
@@ -502,15 +451,7 @@ TEST_F(VariablesTest, variables7)
 //Define a variable with an empty placeholder
 TEST_F(VariablesTest, errors1)
 {
-    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
-        {
-            return Rect{0, 0, 600, 400};
-        });
-
-    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
-        {
-            return GetTextSizeMock(text, format);
-        });
+    Start(600);
     
     document.InsertCode(false, true);
     document.InsertString("d", true);
@@ -534,16 +475,8 @@ TEST_F(VariablesTest, errors1)
 //Define a variable with unknown variable
 TEST_F(VariablesTest, errors2)
 {
-    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
-        {
-            return Rect{0, 0, 600, 400};
-        });
+    Start(600);
 
-    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
-        {
-            return GetTextSizeMock(text, format);
-        });
-    
     document.InsertCode(false, true);
     document.InsertString("d", true);
     document.InsertAssignment(true);
@@ -560,16 +493,8 @@ TEST_F(VariablesTest, errors2)
 //Define a variable with unknown variable
 TEST_F(VariablesTest, errors3)
 {
-    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
-        {
-            return Rect{0, 0, 600, 400};
-        });
+    Start(600);
 
-    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
-        {
-            return GetTextSizeMock(text, format);
-        });
-    
     document.InsertCode(false, true);
     document.InsertString("d", true);
     document.InsertAssignment(true);
@@ -599,16 +524,8 @@ TEST_F(VariablesTest, errors3)
 //Define a variable with recursion
 TEST_F(VariablesTest, errors4)
 {
-    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
-        {
-            return Rect{0, 0, 600, 400};
-        });
+    Start(600);
 
-    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
-        {
-            return GetTextSizeMock(text, format);
-        });
-    
     document.InsertCode(false, true);
     document.InsertString("d", true);
     document.InsertAssignment(true);

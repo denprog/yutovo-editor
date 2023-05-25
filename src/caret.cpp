@@ -19,6 +19,8 @@ Caret::Caret(Document* _document) :
 
 void Caret::SetState(const CaretState& caret_state, bool update_x_pos)
 {
+    if (block)
+        return;
     if (caret_state.id == document->text->id)
     {
         element = document->text;
@@ -59,6 +61,8 @@ void Caret::SetState(const CaretState& caret_state, bool update_x_pos)
 
 void Caret::SetState(const ElementId id, const uint pos, bool update_x_pos)
 {
+    if (block)
+        return;
     element = document->GetElement(id);
     if (!element)
     {
@@ -100,6 +104,8 @@ void Caret::SetState(const ElementId id, const uint pos, bool update_x_pos)
 
 void Caret::SetState(const ElementId id, bool update_x_pos)
 {
+    if (block)
+        return;
     element = document->GetElement(id);
     if (!element)
     {
@@ -121,6 +127,8 @@ void Caret::SetState(const ElementId id, bool update_x_pos)
 
 void Caret::SetPos(const uint pos, bool update_x_pos)
 {
+    if (block)
+        return;
     last_pos = false;
     str_pos = -1;
     if (document->IsString(element->id))
@@ -147,17 +155,21 @@ void Caret::SetPos(const uint pos, bool update_x_pos)
 
 Element* Caret::GetElement() const
 {
+    if (block)
+        nullptr;
     if (str_pos >= 0)
         return element.get();
     if (!element)
         return nullptr;
     if (element->id == document->text->id)
         return element.get();
-    return element->parent;
+    return document->GetElement(yutovo::GetParent(element->id)).get();
 }
 
 int Caret::GetPos() const
 {
+    if (block)
+        return -1;
     if (str_pos >= 0)
         return str_pos;
     if (!element)
@@ -167,11 +179,15 @@ int Caret::GetPos() const
 
 CaretState Caret::GetCaretState()
 {
+    if (block)
+        return CaretState(ElementId{});
     return CaretState(GetElement(), GetPos());
 }
 
 void Caret::SetVisible(bool _visible)
 {
+    if (block)
+        return;
     if (!_visible)
         Hide();
     visible = _visible;
@@ -179,6 +195,8 @@ void Caret::SetVisible(bool _visible)
 
 void Caret::Show()
 {
+    if (block)
+        return;
     auto el = GetElement();
     if (!visible || !el)
         return;
@@ -193,6 +211,8 @@ void Caret::Show()
 
 void Caret::Hide()
 {
+    if (block)
+        return;
     if (!visible)
         return;
     
@@ -211,6 +231,8 @@ void Caret::Blink()
 
 void Caret::MoveToDocumentBegin(Selection* selection)
 {
+    if (block)
+        return;
     CaretState c;
     if (document->text->GetFirstCaretState(c, selection))
     {
@@ -221,6 +243,8 @@ void Caret::MoveToDocumentBegin(Selection* selection)
 
 void Caret::MoveToDocumentEnd(Selection* selection)
 {
+    if (block)
+        return;
     CaretState c;
     if (document->text->GetLastCaretState(c, selection))
     {
@@ -231,6 +255,8 @@ void Caret::MoveToDocumentEnd(Selection* selection)
 
 void Caret::MoveHome(Selection* selection)
 {
+    if (block)
+        return;
     CaretState c = GetCaretState();
     if (GetElement()->GetBeginCaretState(c, selection))
     {
@@ -241,6 +267,8 @@ void Caret::MoveHome(Selection* selection)
 
 void Caret::MoveEnd(Selection* selection)
 {
+    if (block)
+        return;
     CaretState c = GetCaretState();
     if (GetElement()->GetEndCaretState(c, selection))
     {
@@ -251,6 +279,8 @@ void Caret::MoveEnd(Selection* selection)
 
 void Caret::MoveLeft(Selection* selection)
 {
+    if (block)
+        return;
     CaretState c = GetCaretState();
     if (GetElement()->GetLeftCaretState(c, selection))
     {
@@ -261,6 +291,8 @@ void Caret::MoveLeft(Selection* selection)
 
 void Caret::MoveRight(Selection* selection)
 {
+    if (block)
+        return;
     CaretState c = GetCaretState();
     if (GetElement()->GetRightCaretState(c, selection))
     {
@@ -271,6 +303,8 @@ void Caret::MoveRight(Selection* selection)
 
 void Caret::MoveUp(Selection* selection)
 {
+    if (block)
+        return;
     Rect r = GetElement()->GetAbsoluteRect(GetElement()->GetCaretRect(GetPos()));
     if (last_x_element)
     {
@@ -285,6 +319,8 @@ void Caret::MoveUp(Selection* selection)
 
 void Caret::MoveDown(Selection* selection)
 {
+    if (block)
+        return;
     Rect r = GetElement()->GetAbsoluteRect(GetElement()->GetCaretRect(GetPos()));
     if (last_x_element)
     {
@@ -299,6 +335,8 @@ void Caret::MoveDown(Selection* selection)
 
 void Caret::MoveWordLeft(Selection* selection)
 {
+    if (block)
+        return;
     CaretState c = GetCaretState();
     if (GetElement()->GetWordLeftCaretState(c, selection))
     {
@@ -309,6 +347,8 @@ void Caret::MoveWordLeft(Selection* selection)
 
 void Caret::MoveWordRight(Selection* selection)
 {
+    if (block)
+        return;
     CaretState c = GetCaretState();
     if (GetElement()->GetWordRightCaretState(c, selection))
     {
@@ -319,6 +359,8 @@ void Caret::MoveWordRight(Selection* selection)
 
 void Caret::MovePageUp(Selection* selection)
 {
+    if (block)
+        return;
     auto el = GetElement();
     auto paragraph = document->FindParent(el->id, ElementType::PARAGRAPH);
     auto row = document->FindParent(el->id, ElementType::ROW);
@@ -364,6 +406,8 @@ void Caret::MovePageUp(Selection* selection)
 
 void Caret::MovePageDown(Selection* selection)
 {
+    if (block)
+        return;
     auto el = GetElement();
     auto paragraph = document->FindParent(el->id, ElementType::PARAGRAPH);
     auto row = document->FindParent(el->id, ElementType::ROW);
@@ -409,6 +453,8 @@ void Caret::MovePageDown(Selection* selection)
 
 bool Caret::IsInsideElement(const ElementId id)
 {
+    if (block)
+        false;
     auto el = GetElement();
     if (!el)
         return false;
@@ -419,15 +465,24 @@ bool Caret::IsInsideElement(const ElementId id)
 
 bool Caret::IsOnElement(const ElementId id)
 {
-    if (GetCaretState() == id)
+    if (block)
+        return false;
+    auto el = GetElement();
+    if (!el)
+        return false;
+    ElementId _id = el->id;
+    _id.push_back(GetPos());
+    if (_id == id)
         return true;
-    if (last_pos && GetPrevPos(GetCaretState().id) == id)
+    if (last_pos && GetPrevPos(_id) == id)
         return true;
     return false;
 }
 
 void Caret::UpdateXPos()
 {
+    if (block)
+        return;
     if (!element)
         return;
     if (document->IsString(element->id))

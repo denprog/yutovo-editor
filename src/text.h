@@ -24,7 +24,7 @@ public:
 
     virtual void Draw() const;
 
-    virtual void Remake(bool with_elements, bool with_parent, bool with_undo);
+    virtual bool Remake(bool with_elements = false);
 
     virtual void UpdateRect(bool with_elements = false);
     virtual void UpdateDrawRect();
@@ -54,7 +54,6 @@ public:
 public:
     int page_width = 0;
 
-private:
     TextFormatPtr text_format;
     PageFormatPtr page_format;
 };

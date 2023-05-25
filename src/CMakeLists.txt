@@ -50,6 +50,7 @@ add_library(${PROJECT_NAME}
     solver_task.cpp
     web_socket.cpp
     parser_string.cpp
+    undo.cpp
     formulas/formula.cpp
     formulas/code_block.cpp
     formulas/code_paragraph.cpp
@@ -147,6 +148,7 @@ install(
         config.h
         web_socket.h
         parser_string.h
+        undo.h
     DESTINATION ${INSTALL_PATH}/include/${PROJECT_NAME}
     COMPONENT ${PROJECT_NAME}
 )

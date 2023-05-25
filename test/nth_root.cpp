@@ -10,6 +10,8 @@ using namespace std::chrono_literals;
 
 TEST_F(FormulaTest, nth_root1)
 {
+    Start(600);
+
     document.InsertNthRoot(true);
     document.WaitMainLoop();
     ASSERT_TRUE(document.ToHtml() == 
@@ -111,6 +113,8 @@ TEST_F(FormulaTest, nth_root1)
 
 TEST_F(FormulaTest, nth_root2)
 {
+    Start(600);
+
     document.InsertNthRoot(true);
     document.InsertString("3", true);
     document.MoveCaretRight(false);
@@ -161,8 +165,7 @@ TEST_F(FormulaTest, nth_root2)
     for (int i = 0; i < 3; ++i)
         document.MoveCaretLeft(false);
     document.WaitCaretMoving();
-    document.InsertString("5", true);
-    document.WaitMainLoop();
+    document.WaitTask(document.InsertString("5", true));
     for (int i = 0; i < 4; ++i)
         document.MoveCaretRight(false);
     document.WaitCaretMoving();
@@ -274,11 +277,12 @@ TEST_F(FormulaTest, nth_root2)
 //Save/Load
 TEST_F(FormulaTest, nth_root3)
 {
+    Start(600);
+
     document.InsertNthRoot(true);
     document.InsertString("3", true);
     document.InsertPlus(true);
-    document.InsertString("1.4", true);
-    document.WaitMainLoop();
+    document.WaitTask(document.InsertString("1.4", true));
     document.MoveCaretRight(false);
     document.MoveCaretRight(false);
     document.WaitCaretMoving();
@@ -287,8 +291,7 @@ TEST_F(FormulaTest, nth_root3)
     document.InsertDivision(true);
     document.WaitTask(document.InsertString("5", true));
     document.MoveCaretDown(false);
-    document.MoveCaretDown(false);
-    document.WaitCaretMoving();
+    document.WaitTask(document.MoveCaretDown(false));
     std::this_thread::sleep_for(100ms);
     document.WaitTask(document.InsertString("67", true));
     document.WaitTask(document.Save("nth_root3_1.yut"));

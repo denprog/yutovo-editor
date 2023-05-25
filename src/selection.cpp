@@ -101,6 +101,25 @@ ElementId SelectionState::GetCommonElement() const
     return GetCommonParent(ids);
 }
 
+ElementId SelectionState::GetCommonElement(uint& start, uint& size) const
+{
+    ElementId parent_id = GetCommonElement();
+    if (state[0].id == parent_id)
+        start = state[0].start;
+    else
+        start = yutovo::GetChildPos(parent_id, state[0].id);
+    int p;
+    auto& last = state[state.size() - 1];
+    if (last.id == parent_id)
+       size = last.start + last.size;
+    else
+    {
+        p = yutovo::GetChildPos(parent_id, last.id);
+        size = p - start + 1;
+    }
+    return parent_id;
+}
+
 bool SelectionState::IsEmpty() const
 {
     return state.empty();
@@ -304,9 +323,16 @@ void Selection::Add(const ElementPtr element, uint start, uint size)
                     int pos = s1.element->parent->elements->GetChildPos(s1.element->id);
                     auto p = document->GetElement(s1.element->parent->id);
                     selection.erase(selection.begin() + i);
-                    ElementSelection s{p, (uint)pos, 1};
-                    if (std::find(selection.begin(), selection.end(), s) == selection.end())
+                    auto it = std::find_if(selection.begin(), selection.end(), 
+                        [p, pos](ElementSelection& s)
+                        {
+                            return s.element == p && s.start <= pos && s.start + s.size > pos;
+                        });
+                    if (it == selection.end())
+                    {
+                        ElementSelection s{p, (uint)pos, 1};
                         selection.emplace_back(s);
+                    }
                     optimize = true;
                     break;
                 }

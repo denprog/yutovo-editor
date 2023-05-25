@@ -64,10 +64,9 @@ void NthRoot::Draw() const
     Formula::Draw();
 }
 
-void NthRoot::Remake(bool with_elements, bool with_parent, bool with_undo)
+bool NthRoot::Remake(bool with_elements)
 {
-    if (with_elements)
-        elements->Remake(with_parent, with_undo);
+    bool changed = MiddleShapeFormula::Remake(with_elements);
 
     //recalc shape rect
     int left_up = first->baseline;
@@ -95,9 +94,12 @@ void NthRoot::Remake(bool with_elements, bool with_parent, bool with_undo)
 
     UpdateRect();
 
-    if (rect != last_rect && with_parent)
-        parent->Remake(false, true, with_undo);
-    last_rect = rect;
+    if (rect != last_rect)
+    {
+        last_rect = rect;
+        return true;
+    }
+    return changed;
 }
 
 void NthRoot::UpdateLevel(uint8_t _level)

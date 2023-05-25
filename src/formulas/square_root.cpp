@@ -73,10 +73,9 @@ void SquareRoot::Draw() const
     Formula::Draw();
 }
 
-void SquareRoot::Remake(bool with_elements, bool with_parent, bool with_undo)
+bool SquareRoot::Remake(bool with_elements)
 {
-    if (with_elements)
-        elements->Remake(with_parent, with_undo);
+    bool changed = Formula::Remake(with_elements);
 
     //recalc shape rect
     shape->rect.SetRect(0, 0, round(last->rect.height * 5 / 11), last->rect.height + ROOT_Y_OFFSET * 2);
@@ -93,16 +92,19 @@ void SquareRoot::Remake(bool with_elements, bool with_parent, bool with_undo)
 
     UpdateRect();
 
-    if (rect != last_rect && with_parent)
-        parent->Remake(false, true, with_undo);
-    last_rect = rect;
+    if (rect != last_rect)
+    {
+        last_rect = rect;
+        return true;
+    }
+    return changed;
 }
 
-bool SquareRoot::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo)
+bool SquareRoot::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo, ElementId& changed_element)
 {
     if (caret->GetPos() == 0 && caret->GetElement()->id == id)
         return false;
-    return Formula::InsertElements(_elements, with_undo);
+    return Formula::InsertElements(_elements, with_undo, changed_element);
 }
 
 bool SquareRoot::AfterInsert(bool with_undo)
@@ -113,7 +115,7 @@ bool SquareRoot::AfterInsert(bool with_undo)
     return true;
 }
 
-bool SquareRoot::DeleteElements(bool left, bool with_undo)
+bool SquareRoot::DeleteElements(bool left, bool with_undo, ElementId& changed_element)
 {
     uint start, size;
     if (selection->Has(id, start, size))
@@ -121,7 +123,8 @@ bool SquareRoot::DeleteElements(bool left, bool with_undo)
         if (start == 1 && size == 1)
         {
             last->elements->Clear();
-            Normalize(with_undo);
+            Normalize();
+            changed_element = id;
             return true;
         }
         return false;
@@ -129,12 +132,12 @@ bool SquareRoot::DeleteElements(bool left, bool with_undo)
     else if (!selection->IsEmpty() || left || caret->GetPos() != 0)
         return false;
     
+    if (with_undo)
+        document->StoreUndo(parent->id);
+
     //remove this element by deleting its shape
     int p = parent->elements->GetElementPos(id);
     uint c1 = elements->Get(1)->elements->Count();
-    Element* undo_el = nullptr;
-    if (with_undo)
-        undo_el = Clone();
 
     caret->SetState(id);
     parent->elements->Move(*elements->Get(1)->elements, p);
@@ -142,18 +145,10 @@ bool SquareRoot::DeleteElements(bool left, bool with_undo)
     if (parent->elements->Get(p)->GetFirstCaretState(c, nullptr))
         caret->SetState(c);
 
-    if (with_undo)
-    {
-        document->InsertElement(undo_el, false, true);
-        document->PushEditorState(CaretState(parent->id, p), true);
-        document->DeleteElements(false, false, true);
-        document->PushEditorState(CaretState(parent->id, p), SelectionState(parent->id, p, c1), true);
-    }
-
     auto t = parent->elements->Get(p + c1); //for not removing this element until this function ends
     parent->elements->Remove(id);
-    parent->Normalize(with_undo);
-    parent->Remake(true, true, with_undo);
+    parent->Normalize();
+    changed_element = id;
     return true;
 }
 

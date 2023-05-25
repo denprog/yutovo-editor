@@ -15,6 +15,7 @@
 #include "util.h"
 #include "editor_state.h"
 #include "config.h"
+#include "undo.h"
 #include "logger.h"
 #include <yutovo_service/types.h>
 
@@ -83,11 +84,15 @@ public:
     void PushEditorState(const SelectionState& selection_state, bool undo);
     void PushEditorState(const CaretState& caret_state, const SelectionState& selection_state, bool undo);
 
-    void CallFunc(const ElementId& _id, CallFuncPtr func, bool undo);
+    bool StoreUndo(const ElementId& _id);
+    bool StoreUndo(const ElementId& parent_id, const int pos, const int size, const int delete_size = 0);
+    bool StoreUndo(const ElementId& parent_id, const int pos, const int size, UndoTask::UndoOperation undo_operation);
+    bool RestoreUndo(const int undo_id, std::vector<ElementPtr>& elements);
 
     void ResetTasks();
 
     ElementPtr GetElement(const ElementId& _id);
+    void GetElements(const LogicalId& _id, std::vector<ElementPtr>& elements);
     ElementPtr GetParent(const ElementId& _id);
     bool GetElementAtCoords(const int x, const int y, ElementId& id);
 
@@ -112,6 +117,7 @@ public:
     bool IsRow(ElementId id);
     bool IsParagraph(ElementPtr el);
     bool IsParagraph(ElementId id);
+    bool IsFormula(ElementPtr el);
 
     bool GetStringFormat(const ElementId id, StringFormat& format);
     bool GetParagraphFormat(const ElementId id, ParagraphFormat& format);
@@ -147,7 +153,6 @@ public:
 
     void Redraw(const ElementId& id, bool move_into_view);
     void Redraw();
-    void Remake(const ElementId& id, bool with_elements, bool with_undo, bool undo, bool move_into_view = false);
 
     bool WillRedraw(const ElementId& id, bool move_into_view);
     bool WillResize();
@@ -295,6 +300,8 @@ private:
     uint cur_task_id = 0;
 
     ElementId cur_visible_row; //any row which is visible
+
+    UndoBase undo_base;
 
     Logger* logger;
 };

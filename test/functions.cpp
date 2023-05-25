@@ -11,6 +11,8 @@ using namespace std::chrono_literals;
 //sin
 TEST_F(FormulaTest, functions1)
 {
+    Start(600);
+
     document.InsertFunction("sin", true);
     document.WaitMainLoop();
     std::this_thread::sleep_for(100ms);
@@ -55,6 +57,8 @@ TEST_F(FormulaTest, functions1)
 //Recalculate a dependent expression
 TEST_F(FormulaTest, functions2)
 {
+    Start(600);
+
     document.InsertCode(false, true);
     document.InsertString("f", true);
     document.InsertOpenFence(true);
@@ -72,7 +76,7 @@ TEST_F(FormulaTest, functions2)
     document.InsertOpenFence(true);
     document.InsertString("5", true);
     document.InsertCloseFence(true);
-    document.InsertEquation(ResultType::AUTO, true);
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
     document.WaitSolver();
     std::this_thread::sleep_for(1s);
     ASSERT_TRUE(document.ToText() == 
@@ -80,11 +84,11 @@ TEST_F(FormulaTest, functions2)
         U"f(5)=10.") << ToBasicString(document.ToText());
     
     document.MoveCaretUp(false);
-    for (int i = 0; i < 5; ++i)
+    for (int i = 0; i < 6; ++i)
         document.MoveCaretRight(false);
-    document.InsertString("2", true);
+    document.WaitTask(document.InsertString("2", true));
     document.WaitSolver();
-    std::this_thread::sleep_for(1s);
+    std::this_thread::sleep_for(2s);
     ASSERT_TRUE(document.ToText() == 
         U"f(x)=x*22\n"\
         U"f(5)=110.") << ToBasicString(document.ToText());
@@ -93,6 +97,8 @@ TEST_F(FormulaTest, functions2)
 //Recalculate a dependent expression
 TEST_F(FormulaTest, functions3)
 {
+    Start(600);
+
     document.InsertCode(false, true);
     document.InsertString("f", true);
     document.InsertOpenFence(true);
@@ -140,7 +146,7 @@ TEST_F(FormulaTest, functions3)
         U"f(3)=8.") << ToBasicString(document.ToText());
     
     document.MoveCaretUp(false);
-    for (int i = 0; i < 5; ++i)
+    for (int i = 0; i < 6; ++i)
         document.WaitTask(document.MoveCaretRight(false));
     document.WaitTask(document.InsertString("2", true));
     document.WaitSolver();

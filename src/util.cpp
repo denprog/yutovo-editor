@@ -132,6 +132,11 @@ int GetChildPos(const ElementId& id)
     return id[id.size() - 1];
 }
 
+int GetChildPos(const ElementId& parent_id, const ElementId& child_id)
+{
+    return child_id[parent_id.size()];
+}
+
 ElementId GetPrevPos(const ElementId& id)
 {
     ElementId _id(id);

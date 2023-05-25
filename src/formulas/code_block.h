@@ -21,7 +21,7 @@ public:
     virtual Element* Create(Element* parent);
 
     virtual void Draw() const;
-    virtual void Remake(bool with_elements, bool with_parent, bool with_undo);
+    virtual bool Remake(bool with_elements = false);
 
     virtual bool AfterInsert(bool with_undo);
 
@@ -58,7 +58,6 @@ public:
 public:
     uint code_id = 0; //id for unification of code blocks
 
-protected:
     CodeFormatPtr code_format;
     ParagraphFormatPtr paragraph_format;
     FormulaFormatPtr formula_format;

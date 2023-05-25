@@ -11,10 +11,7 @@ using namespace std::chrono_literals;
 
 TEST_F(DocumentTest, clipboard1)
 {
-    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
-        {
-            return Rect{0, 0, 600, 400};
-        });
+    Start(600);
 
     EXPECT_CALL(window_mock, OnCopyResult).WillRepeatedly([&](CopyResult result)
         {
@@ -64,10 +61,7 @@ TEST_F(DocumentTest, clipboard1)
 
 TEST_F(DocumentTest, clipboard2)
 {
-    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
-        {
-            return Rect{0, 0, 600, 400};
-        });
+    Start(600);
 
     EXPECT_CALL(window_mock, OnCopyResult).WillRepeatedly([&](CopyResult result)
         {
@@ -140,10 +134,7 @@ TEST_F(DocumentTest, clipboard2)
 
 TEST_F(DocumentTest, clipboard3)
 {
-    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
-        {
-            return Rect{0, 0, 600, 400};
-        });
+    Start(600);
 
     EXPECT_CALL(window_mock, OnCopyResult).WillRepeatedly([&](CopyResult result)
         {
@@ -170,10 +161,7 @@ TEST_F(DocumentTest, clipboard3)
 
 TEST_F(DocumentTest, clipboard4)
 {
-    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
-        {
-            return Rect{0, 0, 620, 400};
-        });
+    Start(620);
 
     EXPECT_CALL(window_mock, OnCopyResult).WillRepeatedly([&](CopyResult result)
         {
@@ -205,6 +193,7 @@ TEST_F(DocumentTest, clipboard4)
 
 TEST_F(DocumentTest, clipboard5)
 {
+    Start(327);
     int width = 327;
     EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
         {
@@ -242,7 +231,7 @@ TEST_F(DocumentTest, clipboard5)
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
-                "<span style=\"font-family:'Arial';font-size:22px;\"></span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\"></span>"\
             "</p>"\
         "</body>") << 
         document.ToHtml();
@@ -278,10 +267,7 @@ TEST_F(DocumentTest, clipboard5)
 //Paste with paragraph
 TEST_F(DocumentTest, clipboard6)
 {
-    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
-        {
-            return Rect{0, 0, 400, 400};
-        });
+    Start(400);
 
     EXPECT_CALL(window_mock, OnPasteResult).WillRepeatedly([&](PasteResult result)
         {
@@ -340,7 +326,7 @@ TEST_F(DocumentTest, clipboard6)
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
-                "<span style=\"font-family:'Arial';font-size:22px;\"></span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\"></span>"\
             "</p>"\
         "</body>") << 
         document.ToHtml();
@@ -371,10 +357,7 @@ TEST_F(DocumentTest, clipboard6)
 //Paste with paragraph
 TEST_F(DocumentTest, clipboard7)
 {
-    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
-        {
-            return Rect{0, 0, 400, 400};
-        });
+    Start(400);
 
     EXPECT_CALL(window_mock, OnPasteResult).WillRepeatedly([&](PasteResult result)
         {
@@ -499,10 +482,7 @@ TEST_F(DocumentTest, clipboard7)
 //Cut/Paste at the beginning of the second row
 TEST_F(DocumentTest, clipboard8)
 {
-    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
-        {
-            return Rect{0, 0, 600, 400};
-        });
+    Start(600);
 
     EXPECT_CALL(window_mock, OnCopyResult).WillRepeatedly([&](CopyResult result)
         {
@@ -550,10 +530,7 @@ TEST_F(DocumentTest, clipboard8)
 //Copy/Paste of a code block
 TEST_F(DocumentTest, clipboard9)
 {
-    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
-        {
-            return Rect{0, 0, 600, 400};
-        });
+    Start(600);
 
     EXPECT_CALL(window_mock, OnCopyResult).WillRepeatedly([&](CopyResult result)
         {
@@ -570,15 +547,13 @@ TEST_F(DocumentTest, clipboard9)
     document.MoveCaretHome(false);
     document.MoveCaretHome(false);
     document.MoveCaretHome(false);
-    document.MoveCaretRight(true);
-    document.WaitCaretMoving();
+    document.WaitTask(document.MoveCaretRight(true));
 
     std::stringstream clipboard_array;
     std::u32string clipboard_text;
     document.WaitTask(document.Copy(clipboard_array, clipboard_text));
 
-    document.MoveCaretRight(false);
-    document.WaitCaretMoving();
+    document.WaitTask(document.MoveCaretRight(false));
     document.WaitTask(document.Paste(clipboard_array));
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
@@ -675,10 +650,7 @@ TEST_F(DocumentTest, clipboard9)
 //Copy/Paste of a code block after a text
 TEST_F(DocumentTest, clipboard10)
 {
-    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
-        {
-            return Rect{0, 0, 600, 400};
-        });
+    Start(600);
 
     EXPECT_CALL(window_mock, OnCopyResult).WillRepeatedly([&](CopyResult result)
         {
@@ -769,10 +741,7 @@ TEST_F(DocumentTest, clipboard10)
 //Copy/Paste of different code blocks
 TEST_F(DocumentTest, clipboard11)
 {
-    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
-        {
-            return Rect{0, 0, 600, 400};
-        });
+    Start(600);
 
     EXPECT_CALL(window_mock, OnCopyResult).WillRepeatedly([&](CopyResult result)
         {
@@ -911,10 +880,7 @@ TEST_F(DocumentTest, clipboard11)
 //Copy/Paste of a code block inside text
 TEST_F(DocumentTest, clipboard12)
 {
-    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
-        {
-            return Rect{0, 0, 600, 400};
-        });
+    Start(600);
 
     EXPECT_CALL(window_mock, OnCopyResult).WillRepeatedly([&](CopyResult result)
         {
@@ -976,10 +942,7 @@ TEST_F(DocumentTest, clipboard12)
 //Insert a part of a formula into text
 TEST_F(DocumentTest, clipboard13)
 {
-    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
-        {
-            return Rect{0, 0, 600, 400};
-        });
+    Start(600);
 
     EXPECT_CALL(window_mock, OnCopyResult).WillRepeatedly([&](CopyResult result)
         {
@@ -1038,10 +1001,7 @@ TEST_F(DocumentTest, clipboard13)
 //Insert a part of a formula into text
 TEST_F(DocumentTest, clipboard14)
 {
-    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
-        {
-            return Rect{0, 0, 600, 400};
-        });
+    Start(600);
 
     EXPECT_CALL(window_mock, OnCopyResult).WillRepeatedly([&](CopyResult result)
         {
@@ -1107,10 +1067,7 @@ TEST_F(DocumentTest, clipboard14)
 //Copy/Paste of paragraphs
 TEST_F(DocumentTest, clipboard15)
 {
-    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
-        {
-            return Rect{0, 0, 500, 400};
-        });
+    Start(500);
 
     EXPECT_CALL(window_mock, OnCopyResult).WillRepeatedly([&](CopyResult result)
         {
@@ -1183,10 +1140,7 @@ TEST_F(DocumentTest, clipboard15)
 //Copy/Paste of paragraphs
 TEST_F(DocumentTest, clipboard16)
 {
-    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
-        {
-            return Rect{0, 0, 500, 400};
-        });
+    Start(500);
 
     EXPECT_CALL(window_mock, OnCopyResult).WillRepeatedly([&](CopyResult result)
         {
@@ -1263,10 +1217,7 @@ TEST_F(DocumentTest, clipboard16)
 //Copy/Paste of paragraphs
 TEST_F(DocumentTest, clipboard17)
 {
-    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
-        {
-            return Rect{0, 0, 340, 400};
-        });
+    Start(340);
 
     EXPECT_CALL(window_mock, OnCopyResult).WillRepeatedly([&](CopyResult result)
         {

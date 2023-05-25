@@ -10,6 +10,8 @@ using namespace std::chrono_literals;
 
 TEST_F(FormulaTest, minus1)
 {
+    Start(600);
+
     document.WaitTask(document.InsertMinus(true));
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
@@ -56,6 +58,8 @@ TEST_F(FormulaTest, minus1)
 
 TEST_F(FormulaTest, minus2)
 {
+    Start(600);
+
     document.InsertMinus(true);
     document.InsertMinus(true);
     document.WaitTask(document.InsertMinus(true));
@@ -87,6 +91,8 @@ TEST_F(FormulaTest, minus2)
 //Save/Load
 TEST_F(FormulaTest, minus3)
 {
+    Start(600);
+
     document.InsertString("123", true);
     document.WaitMainLoop();
     document.MoveCaretHome(false);

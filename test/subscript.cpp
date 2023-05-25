@@ -10,6 +10,8 @@ using namespace std::chrono_literals;
 
 TEST_F(FormulaTest, subscript1)
 {
+    Start(600);
+
     EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
         {
             return Rect{0, 0, 600, 400};
@@ -118,6 +120,8 @@ TEST_F(FormulaTest, subscript1)
 
 TEST_F(FormulaTest, subscript2)
 {
+    Start(600);
+
     EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
         {
             return Rect{0, 0, 600, 400};

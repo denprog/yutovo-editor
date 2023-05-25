@@ -10,20 +10,17 @@ OpenFence::OpenFence(Element* _parent) :
     OnlyShapeFormula(_parent, '(')
 {
     type = ElementType::OPEN_FENCE;
-    remake_always = true;
 }
 
 OpenFence::OpenFence(Document* _document) :
     OnlyShapeFormula(_document, '(')
 {
     type = ElementType::OPEN_FENCE;
-    remake_always = true;
 }
 
 OpenFence::OpenFence(const OpenFence& source) :
     OnlyShapeFormula(source)
 {
-    remake_always = true;
 }
 
 Element* OpenFence::Clone()
@@ -75,23 +72,23 @@ void OpenFence::Draw() const
     Formula::Draw();
 }
 
-void OpenFence::Remake(bool with_elements, bool with_parent, bool with_undo)
+bool OpenFence::Remake(bool with_elements)
 {
-    OnlyShapeFormula::Remake(with_elements, with_parent, with_undo);
+    bool changed = OnlyShapeFormula::Remake(with_elements);
 
     if (parent->elements->IsLast(id) || (parent->elements->Count() == 2 && parent->elements->Get(1)->type == ElementType::CLOSE_FENCE))
     {
         Size s = window->GetTextSize(U" ", GetStringFormat());
         shape->rect.SetRect(0, 0, 1 + (int)lround(s.height / 5), (int)lround((1 + 2 * BRACES_Y_OFFSET) * s.height));
         rect = shape->rect;
-        return;
+        return changed;
     }
     
     //set rect of the shape by the next elements until close fence
     int pos = parent->elements->GetElementPos(id);
     int close_pos = parent->FindElement(id, true, ElementType::CLOSE_FENCE);
     if (close_pos == pos + 1)
-        return;
+        return changed;
     int max_height = 0;
     for (int i = pos + 1; i < (close_pos == -1 ? parent->elements->Count() : close_pos); ++i)
     {
@@ -106,11 +103,10 @@ void OpenFence::Remake(bool with_elements, bool with_parent, bool with_undo)
 
     if (rect != last_rect)
     {
-        if (with_parent)
-            parent->Remake(false, false, with_undo);
-        document->Redraw(id, false);
+        last_rect = rect;
+        return true;
     }
-    last_rect = rect;
+    return changed;
 }
 
 std::string OpenFence::ToHtml()
@@ -124,20 +120,17 @@ CloseFence::CloseFence(Element* _parent) :
     OnlyShapeFormula(_parent, ')')
 {
     type = ElementType::CLOSE_FENCE;
-    remake_always = true;
 }
 
 CloseFence::CloseFence(Document* _document) :
     OnlyShapeFormula(_document, ')')
 {
     type = ElementType::CLOSE_FENCE;
-    remake_always = true;
 }
 
 CloseFence::CloseFence(const CloseFence& source) :
     OnlyShapeFormula(source)
 {
-    remake_always = true;
 }
 
 Element* CloseFence::Clone()
@@ -186,23 +179,23 @@ void CloseFence::Draw() const
     Formula::Draw();
 }
 
-void CloseFence::Remake(bool with_elements, bool with_parent, bool with_undo)
+bool CloseFence::Remake(bool with_elements)
 {
-    OnlyShapeFormula::Remake(with_elements, with_parent, with_undo);
+    bool changed = OnlyShapeFormula::Remake(with_elements);
 
     if (parent->elements->IsFirst(id) || (parent->elements->Count() == 2 && parent->elements->Get(0)->type == ElementType::OPEN_FENCE))
     {
         Size s = window->GetTextSize(U" ", GetStringFormat());
         shape->rect.SetRect(0, 0, 1 + (int)lround(s.height / 5), (int)lround((1 + 2 * BRACES_Y_OFFSET) * s.height));
         rect = shape->rect;
-        return;
+        return changed;
     }
     
     //set rect of the shape by the previous elements until open fence
     int pos = parent->elements->GetElementPos(id);
     int open_pos = parent->FindElement(id, false, ElementType::OPEN_FENCE);
     if (open_pos == pos - 1)
-        return;
+        return changed;
     int max_height = 0;
     for (int i = (open_pos == -1 ? 0 : open_pos + 1); i < pos; ++i)
     {
@@ -217,11 +210,10 @@ void CloseFence::Remake(bool with_elements, bool with_parent, bool with_undo)
 
     if (rect != last_rect)
     {
-        if (with_parent)
-            parent->Remake(false, false, with_undo);
-        document->Redraw(id, false);
+        last_rect = rect;
+        return true;
     }
-    last_rect = rect;
+    return changed;
 }
 
 std::string CloseFence::ToHtml()

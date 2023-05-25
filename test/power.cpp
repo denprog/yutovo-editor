@@ -10,6 +10,8 @@ using namespace std::chrono_literals;
 
 TEST_F(FormulaTest, power1)
 {
+    Start(600);
+
     document.InsertPower(true);
     document.WaitMainLoop();
     ASSERT_TRUE(document.ToHtml() == 
@@ -111,6 +113,8 @@ TEST_F(FormulaTest, power1)
 
 TEST_F(FormulaTest, power2)
 {
+    Start(600);
+
     document.InsertCode(false, true);
     document.InsertString("123", true);
     document.InsertPower(true);
@@ -176,6 +180,8 @@ TEST_F(FormulaTest, power2)
 
 TEST_F(FormulaTest, power3)
 {
+    Start(600);
+
     document.InsertCode(false, true);
     document.InsertString("123", true);
     document.InsertPower(true);
@@ -240,6 +246,8 @@ TEST_F(FormulaTest, power3)
 
 TEST_F(FormulaTest, power4)
 {
+    Start(600);
+
     document.InsertCode(false, true);
     document.InsertString("123", true);
     document.WaitMainLoop();
@@ -286,6 +294,8 @@ TEST_F(FormulaTest, power4)
 
 TEST_F(FormulaTest, power5)
 {
+    Start(600);
+
     document.InsertCode(false, true);
     document.InsertString("123", true);
     document.WaitMainLoop();
@@ -443,6 +453,8 @@ TEST_F(FormulaTest, power5)
 //Save/Load
 TEST_F(FormulaTest, power6)
 {
+    Start(600);
+
     document.InsertCode(false, true);
     document.InsertString("123", true);
     document.WaitMainLoop();
@@ -457,8 +469,7 @@ TEST_F(FormulaTest, power6)
     document.WaitMainLoop();
     document.Save("power6_1.yut");
 
-    document.New();
-    document.WaitMainLoop();
+    document.WaitTask(document.New());
     std::this_thread::sleep_for(200ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
@@ -504,6 +515,8 @@ TEST_F(FormulaTest, power6)
 //Power element in a division
 TEST_F(FormulaTest, power7)
 {
+    Start(600);
+
     document.WaitTask(document.InsertDivision(true));
     document.MoveCaretDown(false);
     document.WaitTask(document.MoveCaretDown(false));

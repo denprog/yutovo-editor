@@ -11,6 +11,8 @@ using namespace std::chrono_literals;
 
 TEST_F(SolverAutoTest, solver1)
 {
+    Start(600);
+    
     document.InsertCode(false, true);
     document.InsertString("1", true);
     document.InsertEquation(ResultType::AUTO, true);
@@ -82,6 +84,8 @@ TEST_F(SolverAutoTest, solver1)
 
 TEST_F(SolverAutoTest, solver2)
 {
+    Start(600);
+
     document.InsertCode(false, true);
     document.InsertString("2", true);
     document.InsertPlus(true);
@@ -161,6 +165,8 @@ TEST_F(SolverAutoTest, solver2)
 
 TEST_F(SolverAutoTest, solver3)
 {
+    Start(600);
+
     document.InsertCode(false, true);
     document.InsertString("2", true);
     document.InsertPlus(true);
@@ -170,8 +176,7 @@ TEST_F(SolverAutoTest, solver3)
     document.WaitSolver();
 
     document.Save("solver3_1.yut");
-    document.New();
-    document.WaitMainLoop();
+    document.WaitTask(document.New());
     std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
@@ -214,6 +219,8 @@ TEST_F(SolverAutoTest, solver3)
 //log
 TEST_F(SolverAutoTest, solver4)
 {
+    Start(600);
+    
     document.InsertSubscriptFunction("log", true);
     document.WaitMainLoop();
     std::this_thread::sleep_for(100ms);
@@ -277,6 +284,8 @@ TEST_F(SolverAutoTest, solver4)
 //Solve after changing element
 TEST_F(SolverAutoTest, solver5)
 {
+    Start(600);
+    
     document.InsertDivision(true);
     document.InsertString("3345", true);
     document.WaitMainLoop();
@@ -324,6 +333,8 @@ TEST_F(SolverAutoTest, solver5)
 //Solve with errors
 TEST_F(SolverAutoTest, solver6)
 {
+    Start(600);
+    
     document.WaitTask(document.InsertDivision(true));
     document.WaitMainLoop();
     document.MoveCaretRight(false);
@@ -462,6 +473,8 @@ TEST_F(SolverAutoTest, solver6)
 //Remove the equation sign
 TEST_F(SolverAutoTest, solver7)
 {
+    Start(600);
+    
     document.InsertCode(false, true);
     document.InsertString("12", true);
     document.InsertPlus(true);
@@ -562,6 +575,8 @@ TEST_F(SolverAutoTest, solver7)
 //Replace the row with equation below and change it
 TEST_F(SolverAutoTest, solver8)
 {
+    Start(600);
+    
     document.InsertCode(false, true);
     document.InsertString("2", true);
     document.InsertPlus(true);
@@ -638,6 +653,8 @@ TEST_F(SolverAutoTest, solver8)
 //Insert a paragraph in the row with equation
 TEST_F(SolverAutoTest, solver9)
 {
+    Start(600);
+    
     document.InsertCode(false, true);
     document.InsertString("235", true);
     document.InsertPlus(true);
@@ -668,6 +685,8 @@ TEST_F(SolverAutoTest, solver9)
 //Solve a big number, result must be uneditable
 TEST_F(SolverAutoTest, solver10)
 {
+    Start(600);
+    
     document.InsertCode(false, true);
     document.InsertString("235235435345", true);
     document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
@@ -719,6 +738,8 @@ TEST_F(SolverAutoTest, solver10)
 //Solve with errors
 TEST_F(SolverAutoTest, errors1)
 {
+    Start(600);
+    
     document.InsertCode(false, true);
     document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
     document.MoveCaretLeft(false);
@@ -896,6 +917,8 @@ TEST_F(SolverAutoTest, errors1)
 //Solve with errors
 TEST_F(SolverAutoTest, errors2)
 {
+    Start(600);
+    
     document.InsertCode(false, true);
     document.InsertSquareRoot(true);
     document.InsertString("2", true);
@@ -930,6 +953,8 @@ TEST_F(SolverAutoTest, errors2)
 //Solve with errors
 TEST_F(SolverAutoTest, errors3)
 {
+    Start(600);
+    
     document.InsertCode(false, true);
     document.InsertSquareRoot(true);
     document.MoveCaretRight(false);

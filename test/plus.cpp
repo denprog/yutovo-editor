@@ -10,8 +10,9 @@ using namespace std::chrono_literals;
 
 TEST_F(FormulaTest, plus1)
 {
-    document.InsertPlus(true);
-    document.WaitMainLoop();
+    Start(600);
+
+    document.WaitTask(document.InsertPlus(true));
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -57,6 +58,8 @@ TEST_F(FormulaTest, plus1)
 
 TEST_F(FormulaTest, plus2)
 {
+    Start(600);
+
     document.InsertCode(false, true);
     document.InsertString("123", true);
     document.InsertPlus(true);
@@ -103,6 +106,8 @@ TEST_F(FormulaTest, plus2)
 
 TEST_F(FormulaTest, plus3)
 {
+    Start(600);
+
     document.InsertCode(false, true);
     document.InsertPlus(true);
     document.WaitTask(document.InsertPlus(true));
@@ -141,6 +146,8 @@ TEST_F(FormulaTest, plus3)
 
 TEST_F(FormulaTest, plus4)
 {
+    Start(600);
+    
     document.InsertCode(false, true);
     document.InsertString("123", true);
     document.InsertPlus(true);
@@ -228,6 +235,8 @@ TEST_F(FormulaTest, plus4)
 
 TEST_F(FormulaTest, plus5)
 {
+    Start(600);
+    
     document.InsertCode(false, true);
     document.InsertString("123", true);
     document.WaitMainLoop();
@@ -268,14 +277,14 @@ TEST_F(FormulaTest, plus5)
 //Save/Load
 TEST_F(FormulaTest, plus6)
 {
+    Start(600);
+    
     document.InsertString("123", true);
     document.InsertCode(false, true);
-    document.InsertPlus(true);
-    document.WaitMainLoop();
+    document.WaitTask(document.InsertPlus(true));
     document.Save("plus6_1.yut");
 
-    document.New();
-    document.WaitMainLoop();
+    document.WaitTask(document.New());
     std::this_thread::sleep_for(200ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
@@ -313,13 +322,11 @@ TEST_F(FormulaTest, plus6)
     document.MoveCaretRight(false);
     document.MoveCaretRight(false);
     document.WaitCaretMoving();
-    document.InsertString("67", true);
-    document.WaitMainLoop();
+    document.WaitTask(document.InsertString("67", true));
 
     document.Save("plus6_2.yut");
 
-    document.New();
-    document.WaitMainLoop();
+    document.WaitTask(document.New());
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\

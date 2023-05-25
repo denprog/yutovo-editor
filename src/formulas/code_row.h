@@ -17,9 +17,7 @@ public:
 
     virtual Element* Create(Element* parent);
 
-    virtual void Remake(bool with_elements, bool with_parent, bool with_undo);
-
-    virtual bool InsertElements(std::vector<ElementPtr>& _elements, bool with_undo);
+    virtual bool InsertElements(std::vector<ElementPtr>& _elements, bool with_undo, ElementId& changed_element);
 
     virtual bool GetBeginCaretState(CaretState& caret_state, Selection* select);
     virtual bool GetEndCaretState(CaretState& caret_state, Selection* select);

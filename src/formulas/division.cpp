@@ -55,9 +55,9 @@ void Division::Draw() const
     MiddleShapeFormula::Draw();
 }
 
-void Division::Remake(bool with_elements, bool with_parent, bool with_undo)
+bool Division::Remake(bool with_elements)
 {
-    MiddleShapeFormula::Remake(with_elements, with_parent, with_undo);
+    bool changed = MiddleShapeFormula::Remake(with_elements);
     
     int w = std::max(first->rect.width + 2, last->rect.width + 2);
     if (w < 200)
@@ -71,9 +71,12 @@ void Division::Remake(bool with_elements, bool with_parent, bool with_undo)
 
     UpdateRect();
 
-    if (rect != last_rect && with_parent)
-        parent->Remake(false, true, with_undo);
-    last_rect = rect;
+    if (rect != last_rect)
+    {
+        last_rect = rect;
+        return true;
+    }
+    return changed;
 }
 
 bool Division::GetLeftCaretState(CaretState& caret_state, Selection* select)

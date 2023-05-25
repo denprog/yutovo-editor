@@ -60,10 +60,9 @@ void CodeBlock::Draw() const
     window->DrawRect(GetAbsoluteRect(), Color::Red());
 }
 
-void CodeBlock::Remake(bool with_elements, bool with_parent, bool with_undo)
+bool CodeBlock::Remake(bool with_elements)
 {
-    if (with_elements)
-        Element::Remake(true, with_parent, with_undo);
+    bool changed = Element::Remake(with_elements);
 
     int left_m = 0, top_m = 0, right_m = 0, bottom_m = 0;
     int h = code_format->top_indent;
@@ -90,12 +89,12 @@ void CodeBlock::Remake(bool with_elements, bool with_parent, bool with_undo)
             baseline = el->baseline;
     }
 
-    if (rect != last_rect && with_parent)
+    if (rect != last_rect)
     {
-        parent->Remake(false, with_parent, with_undo);
-        document->Redraw(id, false);
         last_rect = rect;
+        return true;
     }
+    return changed;
 }
 
 bool CodeBlock::AfterInsert(bool with_undo)

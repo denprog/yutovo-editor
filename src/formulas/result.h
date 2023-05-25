@@ -74,7 +74,7 @@ public:
 
     virtual Element* Create(Element* _parent);
 
-    virtual void Remake(bool with_elements, bool with_parent, bool with_undo);
+    virtual bool Remake(bool with_elements = false);
 
     void Solve(const ParserString& expression, yutovo_service::ResultType result_type);
     void PutResult(Result result);

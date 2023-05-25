@@ -20,7 +20,7 @@ public:
     virtual Element* Create(Element* parent);
 
     virtual void Draw() const;
-    virtual void Remake(bool with_elements, bool with_parent, bool with_undo);
+    virtual bool Remake(bool with_elements = false);
 
     virtual bool GetLeftCaretState(CaretState& caret_state, Selection* select);
     virtual bool GetRightCaretState(CaretState& caret_state, Selection* select);

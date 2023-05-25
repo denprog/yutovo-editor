@@ -22,6 +22,8 @@ struct Task
 
     virtual bool Execute() = 0;
 
+    void Remake(ElementId _id, bool move_into_view);
+
     ElementPtr text;
     Document* document;
     Window* window;
@@ -109,19 +111,6 @@ struct ChangeParagraphFormatTask : Task
     EditorState before_state;
 };
 
-struct RemakeTask : Task
-{
-    RemakeTask(ElementPtr _text, const ElementId& _element_id, bool _with_elements, bool _with_undo);
-    RemakeTask(ElementPtr _text, const ElementId& _element_id, bool _with_elements, bool _with_undo, bool _move_into_view, uint id, uint _priority = 0);
-
-    virtual bool Execute();
-
-    ElementId element_id;
-    bool with_elements;
-    bool with_undo;
-    bool move_into_view = false;
-};
-
 struct RedrawTask : Task
 {
     RedrawTask(ElementPtr _text, const ElementId& _id, bool _move_into_view);
@@ -144,14 +133,27 @@ struct ResizeTask : Task
 
 typedef std::function<void (const ElementId)> CallFuncPtr;
 
-struct CallFuncTask : Task
+struct UndoTask : Task
 {
-    CallFuncTask(ElementPtr _text, const ElementId& _id, CallFuncPtr _func, const uint task_id);
+    enum class UndoOperation
+    {
+        CHANGE = 1,
+        INSERT,
+        DELETE
+    };
+
+    UndoTask(ElementPtr _text, int _undo_id, ElementId _id, const int _delete_size, const uint task_id);
+    UndoTask(ElementPtr _text, int _undo_id, ElementId _id, const int _pos, const int _size, UndoOperation _undo_operation, const uint task_id);
 
     virtual bool Execute();
 
-    const ElementId id;
-    CallFuncPtr func;
+    int undo_id;
+    ElementId id;
+    int delete_size = 0;
+    EditorState before_state;
+    UndoOperation undo_operation = UndoOperation::CHANGE;
+    int pos = 0;
+    int size = 0;
 };
 
 struct MoveCaretTask : Task

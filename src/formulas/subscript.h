@@ -18,7 +18,7 @@ public:
     virtual Element* Create(Element* _parent);
 
     virtual void Draw() const;
-    virtual void Remake(bool with_elements, bool with_parent, bool with_undo);
+    virtual bool Remake(bool with_elements = false);
 
     virtual void AfterChildInsert(const ElementId child_id, bool with_undo);
 
