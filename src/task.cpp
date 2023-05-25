@@ -873,8 +873,9 @@ bool NewTask::Execute()
     document->caret->MoveToDocumentBegin(nullptr);
     document->ResetTasks();
     document->text.reset(new Text(text->document));
-    document->text->Remake(false);
+    document->text->Remake(true);
     document->MoveCaretToDocumentBegin(false);
+    document->Redraw();
     return true;
 }
 
@@ -1022,6 +1023,7 @@ bool LoadTask::Execute()
         document->InsertString(str, false);
     document->text->Remake(true);
     document->text->ReSolve();
+    document->Redraw();
     document->MoveCaretToDocumentBegin(false);
     window->OnLoadResult(id, IOResult::Success);
     return true;
