@@ -59,6 +59,14 @@ void Caret::SetState(const CaretState& caret_state, bool update_x_pos)
     document->UpdateFormats();
 }
 
+void Caret::SetState(const LogicalCaretState& caret_state, bool update_x_pos)
+{
+    if (block)
+        return;
+    ElementId _id = document->GetElementId(caret_state.id, last_pos);
+    SetState(yutovo::GetParent(_id), yutovo::GetChildPos(_id), update_x_pos);
+}
+
 void Caret::SetState(const ElementId id, const uint pos, bool update_x_pos)
 {
     if (block)
@@ -182,6 +190,13 @@ CaretState Caret::GetCaretState()
     if (block)
         return CaretState(ElementId{});
     return CaretState(GetElement(), GetPos());
+}
+
+LogicalCaretState Caret::GetLogicalCaretState()
+{
+    if (block)
+        return LogicalCaretState(LogicalId{});
+    return LogicalCaretState(document->GetLogicalId(GetElement()->id, GetPos()));
 }
 
 void Caret::SetVisible(bool _visible)

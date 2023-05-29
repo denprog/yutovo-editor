@@ -300,7 +300,7 @@ bool DeleteElementsTask::Execute()
             auto p = document->GetElement(p_id);
             if (document->IsString(p))
             {
-                document->StoreUndo(p->parent->id);
+                document->StoreUndo(p->parent->parent->id);
             }
             else
             {
@@ -447,7 +447,7 @@ ChangeStringFormatTask::ChangeStringFormatTask(ElementPtr _text, const StringFor
 
 bool ChangeStringFormatTask::Execute()
 {
-        before_state = text->document->GetEditorState();
+    before_state = text->document->GetEditorState();
 
     CaretState& caret_state = before_state.caret_state;
     SelectionState& selection_state = before_state.selection_state;
@@ -594,28 +594,28 @@ bool ResizeTask::Execute()
 UndoTask::UndoTask(ElementPtr _text, int _undo_id, ElementId _id, const int _delete_size, const uint task_id) :
     Task(_text, task_id),
     undo_id(_undo_id),
-    id(_id),
+    id(document->GetLogicalId(_id)),
     delete_size(_delete_size)
 {
-    before_state = document->GetEditorState();
+    before_state = document->GetLogicalEditorState();
 }
 
 UndoTask::UndoTask(ElementPtr _text, int _undo_id, ElementId _id, const int _pos, const int _size, UndoOperation _undo_operation, const uint task_id) :
     Task(_text, task_id),
     undo_id(_undo_id),
-    id(_id),
+    id(document->GetLogicalId(_id)),
     undo_operation(_undo_operation),
     pos(_pos),
     size(_size)
 {
-    before_state = document->GetEditorState();
+    before_state = document->GetLogicalEditorState();
 }
 
 bool UndoTask::Execute()
 {
     if (undo_operation == UndoOperation::DELETE)
     {
-        auto p = document->GetElement(id);
+        auto p = document->GetLogicalElement(id);
         p->elements->RemoveAt(pos, size);
         Remake(p->id, true);
         return true;
@@ -628,29 +628,41 @@ bool UndoTask::Execute()
     document->caret->block = true;
 
     ElementPtr p;
-    if (id.size() == 1)
-        p = document->GetElement(id);
+    if (id.size() <= 2)
+        p = document->GetLogicalElement(id);
     else
-        p = document->GetParent(id);
+        p = document->GetLogicalParent(id);
     if (p->type == ElementType::PARAGRAPH)
     {
-        p->elements->Clear();
-        p->AddEmptyElement();
-        auto r = p->elements->Get(0);
-        r->elements->Clear();
-        for (int i = 0; i < undo_elements.size(); ++i)
-            r->elements->Insert(undo_elements[i], i);
+        if (undo_elements[0]->type == ElementType::PARAGRAPH)
+        {
+            if (delete_size > 0)
+                p->parent->elements->RemoveAt(pos, delete_size);
+            else
+                p->parent->elements->RemoveAt(GetChildPos(id), undo_elements.size());
+            for (size_t i = 0; i < undo_elements.size(); ++i)
+                p->parent->elements->Insert(undo_elements[i], GetChildPos(id) + i);
+        }
+        else
+        {
+            p->elements->Clear();
+            p->AddEmptyElement();
+            auto r = p->elements->Get(0);
+            r->elements->Clear();
+            for (int i = 0; i < undo_elements.size(); ++i)
+                r->elements->Insert(undo_elements[i], i);
+        }
     }
     else
     {
         int pos = GetChildPos(id);
         if (p->type == ElementType::ROW)
         {
-            auto _el = document->GetElement(id);
             std::vector<ElementPtr> elements;
-            document->GetElements(_el->logical_id, elements);
+            document->GetElements(id, elements);
             for (int j = elements.size() - 1; j >= 0; --j)
                 elements[j]->parent->elements->Remove(elements[j]);
+            // p->elements->Clear();
             for (int i = 0; i < undo_elements.size(); ++i)
                 p->elements->Insert(undo_elements[i], pos + i);
         }
@@ -1023,8 +1035,8 @@ bool LoadTask::Execute()
         document->InsertString(str, false);
     document->text->Remake(true);
     document->text->ReSolve();
-    document->Redraw();
     document->MoveCaretToDocumentBegin(false);
+    document->Redraw();
     window->OnLoadResult(id, IOResult::Success);
     return true;
 }

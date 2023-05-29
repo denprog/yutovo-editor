@@ -47,7 +47,7 @@ class Document;
 class Element;
 
 typedef std::vector<uint> ElementId;
-typedef ElementId LogicalId; //logical Id does not include row id, so it does not depend on the formatting of rows
+typedef std::vector<uint> LogicalId; //logical Id does not include row id, so it does not depend on the formatting of rows
 
 struct Point
 {

@@ -178,6 +178,51 @@ void Selection::Set(SelectionState& state)
         Add(s.id, s.start, s.size);
 }
 
+void Selection::Set(LogicalSelectionState& state)
+{
+    selection.clear();
+    for (ElementLogicalSelectionState& s : state.state)
+    {
+        std::vector<ElementPtr> elements;
+        document->GetElements(s.id, elements);
+        int p = 0;
+        for (size_t i = 0; i < elements.size(); ++i)
+        {
+            ElementPtr _el = elements[i];
+            if (_el->type == ElementType::PARAGRAPH)
+            {
+                for (int j = 0; j < _el->elements->Count(); ++j)
+                {
+                    auto r = _el->elements->Get(j);
+                    if (s.start - p + s.size <= r->elements->Count())
+                    {
+                        Add(r->id, s.start - p, s.size);
+                        break;
+                    }
+                    else if (s.start - p < r->elements->Count())
+                    {
+                        Add(r->id, s.start - p, r->elements->Count() - p);
+                    }
+                    p += r->elements->Count();
+                }
+            }
+            else if (s.start - p <= _el->elements->Count())
+            {
+                if (s.start - p + s.size <= _el->elements->Count())
+                {
+                    Add(_el->id, s.start - p, s.size);
+                    break;
+                }
+                else
+                {
+                    Add(_el->id, s.start - p, _el->elements->Count() - s.start - p);
+                }
+            }
+            p += _el->elements->Count();
+        }
+    }
+}
+
 void Selection::Add(const ElementPtr element, uint start, uint size)
 {
     if (!element)
@@ -305,7 +350,7 @@ void Selection::Add(const ElementPtr element, uint start, uint size)
 
     std::sort(selection.begin(), selection.end());
 
-    if (can_optimize && !document->pasting)
+    if (!document->pasting)
     {
         bool optimize = true;
         while (optimize)
@@ -567,6 +612,27 @@ SelectionState Selection::GetState() const
     SelectionState state;
     for (auto& s : selection)
         state.state.push_back(ElementSelectionState{s.element->id, s.start, s.size});
+    return state;
+}
+
+LogicalSelectionState Selection::GetLogicalState() const
+{
+    LogicalSelectionState state;
+    for (auto& s : selection)
+    {
+        ElementId _id = s.element->id;
+        if (_id.size() <= 2)
+        {
+            LogicalId logical_id = document->GetLogicalId(_id);
+            state.state.push_back(ElementLogicalSelectionState{logical_id, s.start, s.size});
+        }
+        else
+        {
+            _id.push_back(s.start);
+            LogicalId logical_id = document->GetLogicalId(_id);
+            state.state.push_back(ElementLogicalSelectionState{yutovo::GetParent(logical_id), (uint)yutovo::GetChildPos(logical_id), s.size});
+        }
+    }
     return state;
 }
 

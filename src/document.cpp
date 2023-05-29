@@ -625,7 +625,10 @@ bool Document::StoreUndo(const ElementId& parent_id, const int pos, const int si
     {
         auto p = GetParent(parent_id);
         undo_id = undo_base.Store(p->id, 0, p->elements->Count());
-        _id = yutovo::GetChild(p->id, 0);
+        if (undo_id < 0)
+            return false;
+        undo_tasks.push_back(TaskPtr(new UndoTask(text, undo_id, p->id, p->elements->Count(), cur_task_id)));
+        return true;
     }
     else
     {
@@ -699,6 +702,15 @@ ElementPtr Document::GetElement(const ElementId& _id)
     return el;
 }
 
+ElementPtr Document::GetLogicalElement(const LogicalId& _id)
+{
+    std::vector<ElementPtr> elements;
+    GetElements(_id, elements);
+    if (elements.empty())
+        return nullptr;
+    return elements[0];
+}
+
 void Document::GetElements(const LogicalId& _id, std::vector<ElementPtr>& elements)
 {
     if (_id.empty())
@@ -749,6 +761,8 @@ void Document::GetElements(const LogicalId& _id, std::vector<ElementPtr>& elemen
         };
     
     el = find_in_paragraph(el, 3);
+    if (!el)
+        return;
     
     assert(!IsParagraph(el));
 
@@ -756,8 +770,15 @@ void Document::GetElements(const LogicalId& _id, std::vector<ElementPtr>& elemen
     {
         if (!el || el->elements->Count() < _id[i])
             return;
-        el = el->elements->Get(_id[i]);
-        //if (IsParagraph(el))
+        if (_id[i] > 0 && _id[i] == el->elements->Count())
+        {
+            auto ch = el->elements->Get(_id[i - 1]);
+            if (!ch->HasLastCaretState())
+                return;
+            el = el->elements->Get(_id[i - 1]);
+        }
+        else
+            el = el->elements->Get(_id[i]);
         if (el->type == ElementType::PARAGRAPH)
         {
             el = find_in_paragraph(el, i);
@@ -868,10 +889,131 @@ ElementPtr Document::GetParent(const ElementId& _id)
     return el;
 }
 
+ElementPtr Document::GetLogicalParent(const LogicalId& _id)
+{
+    std::vector<ElementPtr> elements;
+    GetElements(_id, elements);
+    if (elements.empty())
+        return nullptr;
+    return GetElement(elements[0]->parent->id);
+}
+
 bool Document::GetElementAtCoords(const int x, const int y, ElementId& id)
 {
     std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
     return text->GetElementAtCoords(x, y, id);
+}
+
+LogicalId Document::GetLogicalId(const ElementId& _id)
+{
+    if (_id.size() <= 2)
+        return _id;
+    return GetLogicalId(yutovo::GetParent(_id), yutovo::GetChildPos(_id));
+}
+
+LogicalId Document::GetLogicalId(const ElementId& _id, const int pos)
+{
+    LogicalId res;
+    auto el = GetElement(_id);
+    if (IsString(el))
+    {
+        int _pos = pos;
+        auto r = el->parent;
+        auto p = r->parent;
+        int r_p = GetChildPos(el->id);
+        for (int i = r_p - 1; i >= 0; --i)
+        {
+            auto ch = r->elements->Get(i);
+            if (ch->logical_id == el->logical_id)
+                _pos += ch->elements->Count();
+            else
+                break;
+        }
+        int p_p = GetChildPos(p->id, r->id);
+        for (int i = p_p - 1; i >= 0; --i)
+        {
+            auto r = p->elements->Get(i);
+            for (int j = r->elements->Count() - 1; j >= 0; --j)
+            {
+                auto ch = r->elements->Get(j);
+                if (ch->logical_id == el->logical_id)
+                    _pos += ch->elements->Count();
+                else
+                {
+                    res = el->logical_id;
+                    res.push_back(_pos);
+                    return res;
+                }
+            }
+        }
+        res = el->logical_id;
+        res.push_back(_pos);
+        return res;
+    }
+    else if (el->type == ElementType::PARAGRAPH)
+    {
+        return el->logical_id;
+    }
+
+    if (pos > 0 && pos == el->elements->Count() && el->elements->Get(el->elements->Count() - 1)->HasLastCaretState())
+    {
+        res = GetElement(GetChild(_id, pos - 1))->logical_id;
+        ++res[res.size() - 1];
+        return res;
+    }
+    return GetElement(GetChild(_id, pos))->logical_id;
+}
+
+ElementId Document::GetElementId(const LogicalId& _id, bool& last_pos)
+{
+    return GetElementId(yutovo::GetParent(_id), yutovo::GetChildPos(_id), last_pos);
+}
+
+ElementId Document::GetElementId(const LogicalId& _id, const int pos, bool& last_pos)
+{
+    ElementId res;
+    std::vector<ElementPtr> elements;
+    GetElements(_id, elements);
+    int p = 0;
+    for (size_t i = 0; i < elements.size(); ++i)
+    {
+        auto& _el = elements[i];
+        res = _el->id;
+        if (_el->type == ElementType::PARAGRAPH)
+        {
+            LogicalId last_id;
+            for (size_t j = 0; j < _el->elements->Count(); ++j)
+            {
+                auto r = _el->elements->Get(j);
+                for (int k = 0; k < r->elements->Count(); ++k)
+                {
+                    auto ch = r->elements->Get(k);
+                    if (last_id.empty())
+                        last_id = ch->logical_id;
+                    if (pos - p <= r->elements->Count())
+                    {
+                        res = r->id;
+                        res.push_back(pos - p);
+                        if (pos - p == r->elements->Count())
+                            last_pos = true;
+                        break;
+                    }
+                    if (ch->logical_id != last_id)
+                    {
+                        last_id = ch->logical_id;
+                        ++p;
+                    }
+                }
+            }
+        }
+        else if (pos - p <= _el->elements->Count())
+        {
+            res.push_back(pos - p);
+            break;
+        }
+        p += _el->elements->Count();
+    }
+    return res;
 }
 
 ElementPtr Document::FindParent(const ElementId& id, const ElementType type)
@@ -1348,7 +1490,7 @@ void Document::RollbackUndo()
     }
 }
 
-void Document::Resize(uint width, uint height)
+uint Document::Resize(uint width, uint height)
 {
     {
         std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
@@ -1360,6 +1502,7 @@ void Document::Resize(uint width, uint height)
     next_circle = true;
     text->Remake(true);
     Redraw(text->id, false);
+    return last_task_id;
 }
 
 void Document::Redraw(const ElementId& id, bool move_into_view)
@@ -1558,7 +1701,18 @@ EditorState Document::GetEditorState()
     return {caret->GetCaretState(), selection.GetState()};
 }
 
+LogicalEditorState Document::GetLogicalEditorState()
+{
+    return {caret->GetLogicalCaretState(), selection.GetLogicalState()};
+}
+
 void Document::SetEditorState(EditorState& state)
+{
+    caret->SetState(state.caret_state);
+    selection.Set(state.selection_state);
+}
+
+void Document::SetEditorState(LogicalEditorState& state)
 {
     caret->SetState(state.caret_state);
     selection.Set(state.selection_state);

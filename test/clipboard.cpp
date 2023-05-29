@@ -250,7 +250,7 @@ TEST_F(DocumentTest, clipboard5)
     document.Redo();
     document.WaitRedo();
     width = 480;
-    document.Resize(width, 400);
+    document.WaitTask(document.Resize(width, 400));
     std::this_thread::sleep_for(100ms);
 
     document.Undo();
@@ -512,7 +512,7 @@ TEST_F(DocumentTest, clipboard8)
     document.WaitUndo();
     std::this_thread::sleep_for(400ms);
     ASSERT_TRUE(document.ToText() == U"The source of the text itself is a little strange") << ToBasicString(document.ToText());
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 0, 0}, 
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 42}, 
         ElementSelectionState{ElementId{0, 0}, 1, 1})) << document.GetEditorState().ToString();
     
     document.Redo();
