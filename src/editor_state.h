@@ -22,6 +22,12 @@ struct EditorState
     SelectionState selection_state;
 };
 
+struct LogicalEditorState
+{
+    LogicalCaretState caret_state;
+    LogicalSelectionState selection_state;
+};
+
 }
 
 #endif

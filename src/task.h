@@ -148,9 +148,9 @@ struct UndoTask : Task
     virtual bool Execute();
 
     int undo_id;
-    ElementId id;
+    LogicalId id;
     int delete_size = 0;
-    EditorState before_state;
+    LogicalEditorState before_state;
     UndoOperation undo_operation = UndoOperation::CHANGE;
     int pos = 0;
     int size = 0;

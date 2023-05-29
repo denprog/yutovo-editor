@@ -309,7 +309,6 @@ TEST_F(FormulaTest, delete3)
         document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 2, 3}, 
         ElementSelectionState{ElementId{0, 0, 0, 0}, 2, 2}, 
-        ElementSelectionState{ElementId{0, 0, 0, 1}, 0, 1},
         ElementSelectionState{ElementId{0, 0, 0}, 1, 1},
         ElementSelectionState{ElementId{0, 0, 0, 2}, 0, 3})) << document.GetEditorState().ToString();
     
@@ -352,7 +351,6 @@ TEST_F(FormulaTest, delete3)
         document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 2}, 
         ElementSelectionState{ElementId{0, 0, 0, 0}, 2, 2}, 
-        ElementSelectionState{ElementId{0, 0, 0, 1}, 0, 1},
         ElementSelectionState{ElementId{0, 0, 0}, 1, 1},
         ElementSelectionState{ElementId{0, 0, 0, 2}, 0, 3})) << document.GetEditorState().ToString();
 }
@@ -552,7 +550,6 @@ TEST_F(FormulaTestCustom, delete6)
         document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 3, 4}, 
         ElementSelectionState{ElementId{0, 0, 0, 1}, 2, 11},
-        ElementSelectionState{ElementId{0, 0, 0, 2}, 0, 1},
         ElementSelectionState{ElementId{0, 0, 0}, 2, 1},
         ElementSelectionState{ElementId{0, 0, 0, 3}, 0, 4})) << document.GetEditorState().ToString();
 }
@@ -1411,8 +1408,7 @@ TEST_F(FormulaTestCustom, select3)
         ElementSelectionState{ElementId{0, 0, 1, 0}, 0, 2})) << document.GetEditorState().ToString();
 
     width = 380;
-    document.Resize(width, 400);
-    document.WaitMainLoop();
+    document.WaitTask(document.Resize(width, 400));
     std::this_thread::sleep_for(200ms);
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 1, 2}, 
         ElementSelectionState{ElementId{0, 0, 1}, 0, 1},
@@ -1441,8 +1437,7 @@ TEST_F(FormulaTestCustom, select4)
         ElementSelectionState{ElementId{0, 0, 1, 0, 0, 0, 0, 0, 0}, 1, 2})) << document.GetEditorState().ToString();
 
     width = 410;
-    document.Resize(width, 400);
-    document.WaitMainLoop();
+    document.WaitTask(document.Resize(width, 400));
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 1, 0, 0, 0, 0, 0, 1}, 
         ElementSelectionState{ElementId{0, 0, 1, 1, 0, 0, 0, 0, 0}, 1, 2})) << document.GetEditorState().ToString();
@@ -1476,8 +1471,7 @@ TEST_F(FormulaTestCustom, select5)
         ElementSelectionState{ElementId{0, 0, 1, 0}, 0, 4})) << document.GetEditorState().ToString();
 
     width = 380;
-    document.Resize(width, 400);
-    document.WaitMainLoop();
+    document.WaitTask(document.Resize(width, 400));
     std::this_thread::sleep_for(400ms);
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 1, 4}, 
         ElementSelectionState{ElementId{0, 0, 0, 0}, 39, 3},
@@ -1485,8 +1479,7 @@ TEST_F(FormulaTestCustom, select5)
         ElementSelectionState{ElementId{0, 0, 1, 1}, 0, 4})) << document.GetEditorState().ToString();
 
     width = 350;
-    document.Resize(width, 400);
-    document.WaitMainLoop();
+    document.WaitTask(document.Resize(width, 400));
     std::this_thread::sleep_for(400ms);
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 2, 4}, 
         ElementSelectionState{ElementId{0, 0, 1, 0}, 4, 3},
@@ -1494,8 +1487,7 @@ TEST_F(FormulaTestCustom, select5)
         ElementSelectionState{ElementId{0, 0, 1, 2}, 0, 4})) << document.GetEditorState().ToString();
 
     width = 380;
-    document.Resize(width, 400);
-    document.WaitMainLoop();
+    document.WaitTask(document.Resize(width, 400));
     std::this_thread::sleep_for(400ms);
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 1, 4}, 
         ElementSelectionState{ElementId{0, 0, 0, 0}, 39, 3},

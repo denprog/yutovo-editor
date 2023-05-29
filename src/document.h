@@ -92,9 +92,16 @@ public:
     void ResetTasks();
 
     ElementPtr GetElement(const ElementId& _id);
+    ElementPtr GetLogicalElement(const LogicalId& _id);
     void GetElements(const LogicalId& _id, std::vector<ElementPtr>& elements);
     ElementPtr GetParent(const ElementId& _id);
+    ElementPtr GetLogicalParent(const LogicalId& _id);
     bool GetElementAtCoords(const int x, const int y, ElementId& id);
+
+    LogicalId GetLogicalId(const ElementId& _id);
+    LogicalId GetLogicalId(const ElementId& _id, const int pos);
+    ElementId GetElementId(const LogicalId& _id, bool& last_pos);
+    ElementId GetElementId(const LogicalId& _id, const int pos, bool& last_pos);
 
     ElementPtr FindParent(const ElementId& id, const ElementType type);
     ElementPtr FindParentParagraph(const ElementId& id);
@@ -149,7 +156,7 @@ public:
 
     void RollbackUndo();
 
-    void Resize(uint width, uint height);
+    uint Resize(uint width, uint height);
 
     void Redraw(const ElementId& id, bool move_into_view);
     void Redraw();
@@ -185,7 +192,9 @@ public:
     uint SetCurrentParagraphFormat(const std::string& name);
 
     EditorState GetEditorState();
+    LogicalEditorState GetLogicalEditorState();
     void SetEditorState(EditorState& state);
+    void SetEditorState(LogicalEditorState& state);
 
     void Solve(ElementId _id, uint code_id, yutovo_service::ResultType result_type, const uint precision, 
         AngleMeasure angle_measure, Notation notation, std::u32string& expression, const uint delay);

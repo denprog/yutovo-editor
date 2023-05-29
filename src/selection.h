@@ -31,6 +31,13 @@ struct ElementSelectionState
     uint size = 0;
 };
 
+struct ElementLogicalSelectionState
+{
+    LogicalId id;
+    uint start = 0;
+    uint size = 0;
+};
+
 struct SelectionState
 {
     SelectionState() = default;
@@ -55,6 +62,11 @@ struct SelectionState
     std::vector<ElementSelectionState> state;
 };
 
+struct LogicalSelectionState
+{
+    std::vector<ElementLogicalSelectionState> state;
+};
+
 class Selection
 {
 public:
@@ -65,6 +77,8 @@ public:
 
 public:
     void Set(SelectionState& state);
+    void Set(LogicalSelectionState& state);
+
     void Add(const ElementPtr element, uint start, uint size);
     void Add(const ElementId id, uint start, uint size);
     void Remove(const ElementId id, uint start, uint size);
@@ -82,6 +96,7 @@ public:
     bool IsEmpty() const;
 
     SelectionState GetState() const;
+    LogicalSelectionState GetLogicalState() const;
 
 private:
     Document* document;

@@ -12,6 +12,7 @@ class Caret;
 
 typedef unsigned int uint;
 typedef std::vector<uint> ElementId;
+typedef std::vector<uint> LogicalId;
 typedef std::shared_ptr<Element> ElementPtr;
 typedef std::shared_ptr<Caret> CaretPtr;
 
@@ -51,6 +52,14 @@ struct CaretState
 #endif
 
     ElementId id;
+};
+
+struct LogicalCaretState
+{
+    LogicalCaretState() = default;
+    LogicalCaretState(const LogicalId _id);
+
+    LogicalId id;
 };
 
 }

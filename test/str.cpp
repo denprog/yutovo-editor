@@ -229,14 +229,15 @@ TEST_F(DocumentTest, selections2)
     document.SetFontSize(22);
     document.InsertString("Test", true);
     document.MoveCaretHome(false);
-    document.InsertString("Bold", document.GetStringFormat("Times New Roman", 34, true, false, false), true);
-    document.WaitMainLoop();
+    document.WaitTask(document.InsertString("Bold", document.GetStringFormat("Times New Roman", 34, true, false, false), true));
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
-        "<body><p>"\
-        "<span style=\"font-family:'Times New Roman';font-size:34px;\"><strong>Bold</strong></span>"\
-        "<span style=\"font-family:'Arial';font-size:22px;\">Test</span>"\
-        "</p></body>") << 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Times New Roman';font-size:34px;\"><strong>Bold</strong></span>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\">Test</span>"\
+            "</p>"\
+        "</body>") << 
         document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 4)) << document.GetEditorState().ToString();
 
@@ -249,24 +250,27 @@ TEST_F(DocumentTest, selections2)
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 2, 2, 2, 1, 0, 2)) << document.GetEditorState().ToString();
 
-    document.DeleteElements(true, true, false);
-    document.WaitMainLoop();
+    document.WaitTask(document.DeleteElements(true, true, false));
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
-        "<body><p>"\
-        "<span style=\"font-family:'Times New Roman';font-size:34px;\"><strong>Bo</strong></span>"\
-        "<span style=\"font-family:'Arial';font-size:22px;\">st</span>"\
-        "</p></body>") << 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Times New Roman';font-size:34px;\"><strong>Bo</strong></span>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\">st</span>"\
+            "</p>"\
+        "</body>") << 
         document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 2)) << document.GetEditorState().ToString();
     
     document.Undo();
     document.WaitUndo();
     ASSERT_TRUE(document.ToHtml() == 
-        "<body><p>"\
-        "<span style=\"font-family:'Times New Roman';font-size:34px;\"><strong>Bold</strong></span>"\
-        "<span style=\"font-family:'Arial';font-size:22px;\">Test</span>"\
-        "</p></body>") << 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Times New Roman';font-size:34px;\"><strong>Bold</strong></span>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\">Test</span>"\
+            "</p>"\
+        "</body>") << 
         document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 2, 2, 2, 1, 0, 2)) << document.GetEditorState().ToString();
 
@@ -280,29 +284,31 @@ TEST_F(DocumentTest, selections2)
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 1, 2, 0, 2, 0, 1, 3)) << document.GetEditorState().ToString();
 
-    document.DeleteElements(true, true, false);
-    document.WaitMainLoop();
+    document.WaitTask(document.DeleteElements(true, true, false));
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
-        "<body><p>"\
-        "<span style=\"font-family:'Times New Roman';font-size:34px;\"><strong>B</strong></span>"\
-        "<span style=\"font-family:'Arial';font-size:22px;\">st</span>"\
-        "</p></body>") << 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Times New Roman';font-size:34px;\"><strong>B</strong></span>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\">st</span>"\
+            "</p>"\
+        "</body>") << 
         document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 1, 0)) << document.GetEditorState().ToString();
 
     document.Undo();
     document.WaitUndo();
     ASSERT_TRUE(document.ToHtml() == 
-        "<body><p>"\
-        "<span style=\"font-family:'Times New Roman';font-size:34px;\"><strong>Bold</strong></span>"\
-        "<span style=\"font-family:'Arial';font-size:22px;\">Test</span>"\
-        "</p></body>") << 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Times New Roman';font-size:34px;\"><strong>Bold</strong></span>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\">Test</span>"\
+            "</p>"\
+        "</body>") << 
         document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 1, 2, 0, 2, 0, 1, 3)) << document.GetEditorState().ToString();
 
-    document.MoveCaretRight(false);
-    document.WaitCaretMoving();
+    document.WaitTask(document.MoveCaretRight(false));
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 1, 2)) << document.GetEditorState().ToString();
 }
 
@@ -312,8 +318,7 @@ TEST_F(DocumentTest, selections3)
 
     document.InsertString("Normal", document.GetStringFormat("Arial", 16, false, false, false), true);
     document.InsertString("Bold", document.GetStringFormat("Times New Roman", 34, true, false, false), true);
-    document.InsertString("Italic", document.GetStringFormat("Courier", 24, false, true, false), true);
-    document.WaitMainLoop();
+    document.WaitTask(document.InsertString("Italic", document.GetStringFormat("Courier", 24, false, true, false), true));
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
@@ -338,8 +343,7 @@ TEST_F(DocumentTest, selections3)
         ElementSelectionState{ElementId{0, 0, 0}, 1, 1},
         ElementSelectionState{ElementId{0, 0, 0, 2}, 0, 3})) << document.GetEditorState().ToString();
 
-    document.DeleteElements(true, true, false);
-    document.WaitMainLoop();
+    document.WaitTask(document.DeleteElements(true, true, false));
     std::this_thread::sleep_for(200ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
@@ -370,8 +374,7 @@ TEST_F(DocumentTest, selections3)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 6}, 
         ElementSelectionState{ElementId{0, 0, 0}, 0, 1})) << document.GetEditorState().ToString();
 
-    document.DeleteElements(true, true, false);
-    document.WaitMainLoop();
+    document.WaitTask(document.DeleteElements(true, true, false));
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
@@ -405,8 +408,7 @@ TEST_F(DocumentTest, selections3)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 2, 6}, 
         ElementSelectionState{ElementId{0}, 0, 1})) << document.GetEditorState().ToString();
 
-    document.DeleteElements(true, true, false);
-    document.WaitMainLoop();
+    document.WaitTask(document.DeleteElements(true, true, false));
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
@@ -1972,7 +1974,7 @@ TEST_F(DocumentTest, delete10)
             "</p>"\
         "</body>") << 
         document.ToHtml();
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 0, 0})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 30})) << document.GetEditorState().ToString();
 }
 
 //Backspace at the beginning of a string

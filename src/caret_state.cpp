@@ -157,4 +157,11 @@ std::string CaretState::ToString() const
     return res;
 }
 
+//LogicalCaretState
+
+LogicalCaretState::LogicalCaretState(const LogicalId _id) :
+    id(_id)
+{
+}
+
 }

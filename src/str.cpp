@@ -340,7 +340,7 @@ bool String::ChangeStringFormat(const StringFormatPtr _format, bool with_undo, E
     if (selection->Has(id, start, size))
     {
         if (with_undo)
-            document->StoreUndo(parent->id);
+            document->StoreUndo(parent->parent->id);
         if (start == 0 && size == elements->Count())
         {
             //change format of the whole string
@@ -358,6 +358,7 @@ bool String::ChangeStringFormat(const StringFormatPtr _format, bool with_undo, E
             el->SplitAt(size);
             ((String*)el.get())->format = _format;
             ((String*)el.get())->ResetCache();
+            parent->elements->UpdateIds();
             parent->Normalize();
             changed_element = id;
             return true;

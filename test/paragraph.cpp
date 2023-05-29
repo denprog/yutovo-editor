@@ -43,8 +43,7 @@ TEST_F(ParagraphTest, resizing1)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 3, 23)) << document.GetEditorState().ToString();
 
     width = 420;
-    document.Resize(width, 400);
-    document.WaitMainLoop();
+    document.WaitTask(document.Resize(width, 400));
     std::this_thread::sleep_for(400ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
@@ -60,8 +59,7 @@ TEST_F(ParagraphTest, resizing1)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 1, 0, 15)) << document.GetEditorState().ToString();
 
     width = 450;
-    document.Resize(width, 400);
-    document.WaitMainLoop();
+    document.WaitTask(document.Resize(width, 400));
     std::this_thread::sleep_for(200ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
@@ -77,8 +75,7 @@ TEST_F(ParagraphTest, resizing1)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 1, 0, 7)) << document.GetEditorState().ToString();
 
     width = 330;
-    document.Resize(width, 400);
-    document.WaitMainLoop();
+    document.WaitTask(document.Resize(width, 400));
     std::this_thread::sleep_for(200ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
@@ -93,8 +90,7 @@ TEST_F(ParagraphTest, resizing1)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 1, 0, 23)) << document.GetEditorState().ToString();
 
     width = 250;
-    document.Resize(width, 400);
-    document.WaitMainLoop();
+    document.WaitTask(document.Resize(width, 400));
     std::this_thread::sleep_for(200ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
@@ -112,8 +108,7 @@ TEST_F(ParagraphTest, resizing1)
     document.MoveCaretHome(false);
     document.WaitCaretMoving();
     width = 240;
-    document.Resize(width, 400);
-    document.WaitMainLoop();
+    document.WaitTask(document.Resize(width, 400));
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
@@ -131,8 +126,7 @@ TEST_F(ParagraphTest, resizing1)
     document.MoveCaretRight(false);
     document.WaitCaretMoving();
     width = 220;
-    document.Resize(width, 400);
-    document.WaitMainLoop();
+    document.WaitTask(document.Resize(width, 400));
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
@@ -149,8 +143,7 @@ TEST_F(ParagraphTest, resizing1)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 4, 0, 1)) << document.GetEditorState().ToString();
 
     width = 240;
-    document.Resize(width, 400);
-    document.WaitMainLoop();
+    document.WaitTask(document.Resize(width, 400));
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
@@ -166,8 +159,7 @@ TEST_F(ParagraphTest, resizing1)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 2, 0, 9)) << document.GetEditorState().ToString();
 
     width = 335;
-    document.Resize(width, 400);
-    document.WaitMainLoop();
+    document.WaitTask(document.Resize(width, 400));
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
@@ -182,8 +174,7 @@ TEST_F(ParagraphTest, resizing1)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 1, 0, 17)) << document.GetEditorState().ToString();
 
     width = 330;
-    document.Resize(width, 400);
-    document.WaitMainLoop();
+    document.WaitTask(document.Resize(width, 400));
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
@@ -198,8 +189,7 @@ TEST_F(ParagraphTest, resizing1)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 1, 0, 17)) << document.GetEditorState().ToString();
 
     width = 200;
-    document.Resize(width, 400);
-    document.WaitMainLoop();
+    document.WaitTask(document.Resize(width, 400));
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
@@ -247,7 +237,7 @@ TEST_F(ParagraphTest, resizing2)
         ElementSelectionState{ElementId{0, 0, 0, 3}, 21, 2})) << document.GetEditorState().ToString();
 
     width = 440;
-    document.Resize(width, 400);
+    document.WaitTask(document.Resize(width, 400));
     std::this_thread::sleep_for(200ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
@@ -264,7 +254,7 @@ TEST_F(ParagraphTest, resizing2)
         ElementSelectionState{ElementId{0, 0, 1, 0}, 5, 2})) << document.GetEditorState().ToString();
 
     width = 530;
-    document.Resize(width, 400);
+    document.WaitTask(document.Resize(width, 400));
     for (int i = 0; i < 7; ++i)
         document.MoveCaretLeft(false);
     for (int i = 0; i < 7; ++i)
@@ -284,7 +274,7 @@ TEST_F(ParagraphTest, resizing2)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 3, 8, 8, 7)) << document.GetEditorState().ToString();
 
     width = 440;
-    document.Resize(width, 400);
+    document.WaitTask(document.Resize(width, 400));
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
@@ -303,7 +293,7 @@ TEST_F(ParagraphTest, resizing2)
         document.MoveCaretLeft(true);
     document.WaitTask(document.MoveCaretLeft(true));
     width = 390;
-    document.Resize(width, 400);
+    document.WaitTask(document.Resize(width, 400));
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
@@ -321,7 +311,7 @@ TEST_F(ParagraphTest, resizing2)
         ElementSelectionState{ElementId{0, 0, 1, 0}, 0, 7})) << document.GetEditorState().ToString();
 
     width = 420;
-    document.Resize(width, 400);
+    document.WaitTask(document.Resize(width, 400));
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
@@ -337,6 +327,34 @@ TEST_F(ParagraphTest, resizing2)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 3, 3}, 
         ElementSelectionState{ElementId{0, 0, 0, 3}, 3, 5}, 
         ElementSelectionState{ElementId{0, 0, 1, 0}, 0, 7})) << document.GetEditorState().ToString();
+}
+
+//Delete, resize and undo.
+TEST_F(ParagraphTest, resizing3)
+{
+    Start(400);
+
+    int width = 400;
+    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
+        {
+            return Rect{0, 0, width, 400};
+        });
+
+    document.InsertString("The source of the text itself is a little mysterious.", true);
+    document.WaitTask(document.DeleteElements(true, true, false));
+    width = 600;
+    document.WaitTask(document.Resize(width, 400));
+
+    document.Undo();
+    document.WaitUndo();
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">The source of the text itself is a little mysterious.</span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 53})) << document.GetEditorState().ToString();
 }
 
 TEST_F(ParagraphTest, paragraph1)
@@ -827,7 +845,8 @@ TEST_F(ParagraphTest, paragraph2)
             "</p>"\
         "</body>") 
         << document.ToHtml();
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 1, 6, 0, 6)) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 1, 6}, 
+        ElementSelectionState{ElementId{0, 0, 0}, 1, 1})) << document.GetEditorState().ToString();
 
     document.Undo();
     document.WaitUndo();
@@ -897,7 +916,8 @@ TEST_F(ParagraphTest, paragraph2)
             "</p>"\
         "</body>") 
         << document.ToHtml();
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 1, 6, 0, 6)) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 1, 6}, 
+        ElementSelectionState{ElementId{0, 0, 0}, 1, 1})) << document.GetEditorState().ToString();
 }
 
 //Divide by rows with a code block
