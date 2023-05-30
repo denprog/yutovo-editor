@@ -157,6 +157,8 @@ protected:
 
     std::vector<ElementId> on_change_subscribers;
 
+    bool remake_always = false;
+
 public:
     std::unique_ptr<Elements> elements; //child nodes
 
