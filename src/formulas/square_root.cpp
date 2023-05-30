@@ -59,8 +59,8 @@ void SquareRoot::Draw() const
             path.push_back(Point{(int)lround(r.left + r.width * 0.703), (int)lround(r.top + r.height * 0.869)});
             path.push_back(Point{(int)lround(r.left + r.width * 0.934), r.top});
             path.push_back(Point{r.GetRight() + last->rect.width, r.top});
-            path.push_back(Point{r.GetRight() + last->rect.width, (int)lround(r.top + r.height * 0.001)});
-            path.push_back(Point{r.GetRight(), (int)lround(r.top + r.height * 0.001)});
+            path.push_back(Point{r.GetRight() + last->rect.width, (int)lround(r.top + r.height * 0.01 + 1)});
+            path.push_back(Point{r.GetRight(), (int)lround(r.top + r.height * 0.01 + 1)});
             window->DrawFillPath(path, document->selection.IsSelected(id) ? formula_format->selection_color : formula_format->color);
         };
     
