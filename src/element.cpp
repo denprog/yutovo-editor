@@ -99,6 +99,16 @@ bool Element::Remake(bool with_elements)
                 changed = true;
         }
     }
+    for (int i = 0; i < elements->Count(); ++i)
+    {
+        auto el = elements->Get(i);
+        if (el->remake_always)
+        {
+            bool r = el->Remake(false);
+            if (!changed && r)
+                changed = true;
+        }
+    }
     UpdateRect();
     return changed;
 }

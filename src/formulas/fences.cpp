@@ -10,17 +10,20 @@ OpenFence::OpenFence(Element* _parent) :
     OnlyShapeFormula(_parent, '(')
 {
     type = ElementType::OPEN_FENCE;
+    remake_always = true;
 }
 
 OpenFence::OpenFence(Document* _document) :
     OnlyShapeFormula(_document, '(')
 {
     type = ElementType::OPEN_FENCE;
+    remake_always = true;
 }
 
 OpenFence::OpenFence(const OpenFence& source) :
     OnlyShapeFormula(source)
 {
+    remake_always = true;
 }
 
 Element* OpenFence::Clone()
@@ -120,17 +123,20 @@ CloseFence::CloseFence(Element* _parent) :
     OnlyShapeFormula(_parent, ')')
 {
     type = ElementType::CLOSE_FENCE;
+    remake_always = true;
 }
 
 CloseFence::CloseFence(Document* _document) :
     OnlyShapeFormula(_document, ')')
 {
     type = ElementType::CLOSE_FENCE;
+    remake_always = true;
 }
 
 CloseFence::CloseFence(const CloseFence& source) :
     OnlyShapeFormula(source)
 {
+    remake_always = true;
 }
 
 Element* CloseFence::Clone()
