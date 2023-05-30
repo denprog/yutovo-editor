@@ -568,7 +568,6 @@ bool RedrawTask::Execute()
     window->Update(element->GetAbsoluteRect());
     if (move_into_view)
         document->UpdateCaretView();
-    document->caret->Show();
     return true;
 }
 
@@ -840,8 +839,6 @@ bool MoveCaretTask::Execute()
         document->UpdateFormats();
         window->OnCaretMoved(document->GetEditorState());
     }
-
-    document->caret->Show();
 
 #ifdef DEBUG
     document->last_caret_moved = true;

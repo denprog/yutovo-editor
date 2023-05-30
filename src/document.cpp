@@ -187,7 +187,7 @@ void Document::MainLoop()
             if (!temp_redo_tasks.empty())
             {
                 std::lock_guard<std::recursive_mutex> lock(edit_mutex);
-                caret->Hide(); //caret will be shown on Redraw or caret moving
+                caret->Hide();
                 for (size_t i = 0; i < temp_redo_tasks.size(); ++i)
                 {
                     TaskPtr& t = temp_redo_tasks[i];
@@ -195,6 +195,7 @@ void Document::MainLoop()
                     if (!t->Execute())
                         break;
                 }
+                caret->Show();
 #ifdef DEBUG
                 last_redo_executed = true;
 #endif
@@ -224,7 +225,7 @@ void Document::MainLoop()
         if (!temp_tasks.empty())
         {
             std::lock_guard<std::recursive_mutex> lock(edit_mutex);
-            caret->Hide(); //caret will be shown on Redraw or caret moving
+            caret->Hide();
             //execute all the tasks
             for (size_t i = 0; i < temp_tasks.size(); ++i)
             {
@@ -263,6 +264,8 @@ void Document::MainLoop()
                 last_tasks.push_back(t->id);
 #endif
             }
+
+            caret->Show();
 
             temp_tasks.clear();
         }
