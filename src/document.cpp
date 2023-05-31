@@ -1109,7 +1109,10 @@ void Document::UpdateFormats()
     }
     StringFormat f;
     if (GetStringFormat(c.id, f))
+    {
         current_string_format = string_formats->GetFormat(f);
+        window->OnFormatChanged(GetEditorState());
+    }
 }
 
 uint Document::SetFontFamily(const std::string& family)
@@ -1252,9 +1255,15 @@ bool Document::GetStringFormat(const ElementId id, StringFormat& format)
     std::lock_guard<std::recursive_mutex> lock(edit_mutex);
     ElementPtr el = GetElement(id);
     ElementPtr p = GetParent(id);
-    if ((IsString(el) && el->elements->Count() > 0) || (IsString(p) && p->elements->Count() > 0))
+    if (IsString(el))
     {
-        auto f = el ? el->GetStringFormat() : p->GetStringFormat();
+        auto f = el->GetStringFormat();
+        format = *f;
+        return true;
+    }
+    else if (IsString(p))
+    {
+        auto f = p->GetStringFormat();
         format = *f;
         return true;
     }

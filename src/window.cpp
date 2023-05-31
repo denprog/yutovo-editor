@@ -54,6 +54,10 @@ void Window::OnCaretMoved(const EditorState editor_state)
 {
 }
 
+void Window::OnFormatChanged(const EditorState editor_state)
+{
+}
+
 void Window::OnSaveResult(const uint task_id, IOResult result)
 {
 }
