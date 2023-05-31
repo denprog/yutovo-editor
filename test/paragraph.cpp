@@ -1386,6 +1386,24 @@ TEST_F(ParagraphTest, format1)
     ASSERT_TRUE(format.name == "Monospace");
 }
 
+//Check format
+TEST_F(ParagraphTest, format2)
+{
+    Start(600);
+
+    document.InsertString("theory", true);
+    document.SetCurrentParagraphFormat("Monospace");
+    for (int i = 0; i < 5; ++i)
+        document.DeleteElements(true, true, false);
+    document.WaitTask(document.DeleteElements(true, true, false));
+    ParagraphFormat format;
+    ASSERT_TRUE(document.GetParagraphFormat(ElementId{0, 0, 0, 0, 0}, format));
+    ASSERT_TRUE(format.name == "Monospace");
+    StringFormat str_format;
+    ASSERT_TRUE(document.GetStringFormat(ElementId{0, 0, 0, 0, 0}, str_format));
+    ASSERT_TRUE(str_format.family == "Courier New");
+}
+
 //Delete a paragraph
 TEST_F(ParagraphTest, delete1)
 {

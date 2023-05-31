@@ -261,7 +261,7 @@ TEST_F(DocumentTest, files4)
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
-                "<span style=\"font-family:'Courier New';font-size:12px;\"></span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\"></span>"\
             "</p>"\
         "</body>") << 
         document.ToHtml();
