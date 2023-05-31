@@ -881,6 +881,9 @@ bool NewTask::Execute()
 {
     document->caret->MoveToDocumentBegin(nullptr);
     document->ResetTasks();
+    document->current_paragraph_format = document->paragraph_formats->GetFormat("Text body");
+    document->current_code_format = document->code_formats->GetFormat("Calculator");
+    document->current_formula_format = document->formula_formats->GetFormat("Code");
     document->text.reset(new Text(text->document));
     document->text->Remake(true);
     document->MoveCaretToDocumentBegin(false);

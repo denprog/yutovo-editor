@@ -344,4 +344,21 @@ TEST_F(DocumentTest, files7)
     std::this_thread::sleep_for(2000ms);
 }
 
+//Check paragraph style after New
+TEST_F(DocumentTest, files8)
+{
+    Start(600);
+
+    document.InsertDivision(true);
+    document.WaitTask(document.New());
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\"></span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 0)) << document.GetEditorState().ToString();
+}
+
 }
