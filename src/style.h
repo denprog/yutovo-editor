@@ -8,6 +8,10 @@
 #include <boost/serialization/shared_ptr.hpp>
 #include <boost/serialization/unique_ptr.hpp>
 #include <boost/serialization/vector.hpp>
+#include <boost/uuid/uuid.hpp>
+#include <boost/uuid/uuid_generators.hpp>
+#include <boost/uuid/uuid_io.hpp>
+#include <boost/uuid/uuid_serialize.hpp>
 #include "util.h"
 
 namespace yutovo
@@ -16,9 +20,8 @@ namespace yutovo
 struct StringFormat
 {
     StringFormat() = default;
-    StringFormat(const uint _id, const std::string _family, uint _size, bool _bold, bool _italic, bool _underline, Color _color, Color _selection_color);
+    StringFormat(const boost::uuids::uuid _id, const std::string _family, uint _size, bool _bold, bool _italic, bool _underline, Color _color, Color _selection_color);
     StringFormat(const std::string _family, uint _size, bool _bold, bool _italic, bool _underline, Color _color, Color _selection_color);
-    ~StringFormat();
  
     bool operator==(const StringFormat& f) const;
 
@@ -44,8 +47,7 @@ struct StringFormat
 
     void Reset();
 
-    uint id = 0; //for serialization
-    static uint next_id;
+    boost::uuids::uuid id; //for serialization
 
     std::string family;
     uint size = 0;
@@ -67,7 +69,8 @@ public:
     StringFormatPtr GetFormat(const std::string _family, uint _size, bool _bold, bool _italic, bool _underline);
     StringFormatPtr GetFormat(const std::string _family, uint _size, bool _bold, bool _italic, bool _underline, Color _color, Color _selection_color);
     StringFormatPtr GetFormat(const StringFormat& source);
-    StringFormatPtr GetFormat(const uint _id);
+    StringFormatPtr GetFormat(const boost::uuids::uuid& _id);
+    void AddFormats(const StringFormats& source);
 
     template <class Archive>
     void serialize(Archive& ar, const unsigned int version)

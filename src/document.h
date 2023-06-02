@@ -178,8 +178,8 @@ public:
 
     TextFormatPtr GetDefaultTextFormat();
     PageFormatPtr GetDefaultPageFormat();
-    StringFormatPtr GetStringFormat(const std::string family, uint size, bool bold, bool italic, bool underline);
-    StringFormatPtr GetStringFormat(const uint id);
+    StringFormatPtr GetStringFormat(const std::string& family, uint size, bool bold, bool italic, bool underline);
+    StringFormatPtr GetStringFormat(const boost::uuids::uuid& id);
 
     void UpdateFormats();
 

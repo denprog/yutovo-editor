@@ -1622,9 +1622,13 @@ uint Document::Paste(std::stringstream& in_array)
     UserDataAdapter<DocumentUserData, boost::archive::binary_iarchive> iarchive(user_data, in_array);
     std::vector<ElementPtr> elements;
     RegisterTypes(iarchive);
-    
+
+    StringFormatsPtr _string_formats;
+
     try
     {
+        iarchive >> _string_formats;
+        string_formats->AddFormats(*_string_formats);
         iarchive >> elements;
     }
     catch (boost::archive::archive_exception& ex)
@@ -1698,12 +1702,12 @@ PageFormatPtr Document::GetDefaultPageFormat()
     return PageFormats::GetFormat(20, 20, 20, 20, 10);
 }
 
-StringFormatPtr Document::GetStringFormat(const std::string family, uint size, bool bold, bool italic, bool underline)
+StringFormatPtr Document::GetStringFormat(const std::string& family, uint size, bool bold, bool italic, bool underline)
 {
     return string_formats->GetFormat(family, size, bold, italic, underline);
 }
 
-StringFormatPtr Document::GetStringFormat(const uint id)
+StringFormatPtr Document::GetStringFormat(const boost::uuids::uuid& id)
 {
     return string_formats->GetFormat(id);
 }

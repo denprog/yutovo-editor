@@ -7,9 +7,8 @@ namespace yutovo
 
 //StringFormat
 
-uint StringFormat::next_id = 1;
-
-StringFormat::StringFormat(const uint _id, const std::string _family, uint _size, bool _bold, bool _italic, bool _underline, Color _color, Color _selection_color) :
+StringFormat::StringFormat(const boost::uuids::uuid _id, const std::string _family, uint _size, bool _bold, bool _italic, bool _underline, 
+    Color _color, Color _selection_color) :
     id(_id),
     family(_family), 
     size(_size),
@@ -22,11 +21,7 @@ StringFormat::StringFormat(const uint _id, const std::string _family, uint _size
 }
 
 StringFormat::StringFormat(const std::string _family, uint _size, bool _bold, bool _italic, bool _underline, Color _color, Color _selection_color) :
-    StringFormat(next_id++, _family, _size, _bold, _italic, _underline, _color, _selection_color)
-{
-}
-
-StringFormat::~StringFormat()
+    StringFormat(boost::uuids::random_generator()(), _family, _size, _bold, _italic, _underline, _color, _selection_color)
 {
 }
 
@@ -88,7 +83,7 @@ StringFormatPtr StringFormats::GetFormat(const StringFormat& source)
     return f;
 }
 
-StringFormatPtr StringFormats::GetFormat(const uint _id)
+StringFormatPtr StringFormats::GetFormat(const boost::uuids::uuid& _id)
 {
     auto it = std::find_if(string_formats.begin(), string_formats.end(), 
         [_id](auto& f)
@@ -98,6 +93,20 @@ StringFormatPtr StringFormats::GetFormat(const uint _id)
     if (it != string_formats.end())
         return *it;
     return nullptr;
+}
+
+void StringFormats::AddFormats(const StringFormats& source)
+{
+    for (auto& f : source.string_formats)
+    {
+        auto it = std::find_if(string_formats.begin(), string_formats.end(), 
+            [f](const StringFormatPtr format)
+            {
+                return format->id == f->id;
+            });
+        if (it == string_formats.end())
+            string_formats.push_back(f);
+    }
 }
 
 //ParagraphFormat
@@ -356,7 +365,7 @@ namespace serialization
 template <>
 void load_construct_data(boost::archive::binary_iarchive& ar, yutovo::StringFormat* t, const unsigned int version)
 {
-    uint id;
+    boost::uuids::uuid id;
     std::string family;
     uint size;
     bool bold;
@@ -397,7 +406,7 @@ void load_construct_data(boost::archive::binary_iarchive& ar, yutovo::ParagraphF
     ar >> indent_first_line;
     ar >> spacing_before;
     ar >> spacing_after;
-    uint string_format_id;
+    boost::uuids::uuid string_format_id;
     ar >> string_format_id;
     yutovo::DocumentUserData& user_data = yutovo::GetUserData<yutovo::DocumentUserData>(ar);
     auto string_format = user_data.document->string_formats->GetFormat(string_format_id);
