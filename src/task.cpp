@@ -1127,6 +1127,8 @@ bool ResultTask::Execute()
     default:
         return false;
     }
+    el = document->FindParent(el->id, ElementType::EQUATION);
+    Remake(el->id, true);
     return true;
 }
 

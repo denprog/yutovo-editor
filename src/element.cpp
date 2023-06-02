@@ -44,6 +44,7 @@ Element::Element(const Element& source) :
     editable(source.editable),
     caret(document->caret),
     selection(&document->selection),
+    remake_always(source.remake_always),
     on_change_subscribers(source.on_change_subscribers)
 {
     elements.reset(source.elements->Clone(this)); //deep copy

@@ -14,6 +14,9 @@ public:
     ResultRow(Document* _document);
     ResultRow(Element* parent);
     ResultRow(const ResultRow& source) = default;
+
+    virtual bool CanSetPrecision();
+    virtual void SetPrecision(const int precision);
 };
 
 typedef std::shared_ptr<ResultRow> ResultPtr;
@@ -28,6 +31,9 @@ public:
     virtual Element* Clone();
 
     virtual Element* Create(Element* _parent);
+
+    virtual bool CanSetPrecision();
+    virtual void SetPrecision(const int precision);
 };
 
 class IntegerResult : public ResultRow
