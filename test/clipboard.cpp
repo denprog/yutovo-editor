@@ -1265,4 +1265,67 @@ TEST_F(DocumentTest, clipboard17)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 1, 0, 15})) << document.GetEditorState().ToString();
 }
 
+//Copy/Paste between documents
+TEST_F(TwoDocumentsTest, clipboard18)
+{
+    Start(600);
+
+    EXPECT_CALL(window_mock, OnCopyResult).WillRepeatedly([&](CopyResult result)
+        {
+            ASSERT_TRUE(result == CopyResult::Success);
+        });
+
+    EXPECT_CALL(window_mock, OnPasteResult).WillRepeatedly([&](PasteResult result)
+        {
+            ASSERT_TRUE(result == PasteResult::Success);
+        });
+
+    EXPECT_CALL(window_mock2, OnCopyResult).WillRepeatedly([&](CopyResult result)
+        {
+            ASSERT_TRUE(result == CopyResult::Success);
+        });
+
+    EXPECT_CALL(window_mock2, OnPasteResult).WillRepeatedly([&](PasteResult result)
+        {
+            ASSERT_TRUE(result == PasteResult::Success);
+        });
+
+    document.SetFontSize(22);
+    std::stringstream clipboard_array;
+    std::u32string clipboard_text;
+    document.WaitTask(document.InsertString("Text", true));
+    document.WaitTask(document.MoveCaretHome(true));
+    document.WaitTask(document.Copy(clipboard_array, clipboard_text));
+    document.WaitTask(document.MoveCaretEnd(false));
+
+    document2.WaitTask(document2.Paste(clipboard_array));
+    ASSERT_TRUE(document2.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\">Text</span>"\
+            "</p>"\
+        "</body>") << 
+        document2.ToHtml();
+    ASSERT_TRUE(clipboard_text == U"Text") << ToBasicString(clipboard_text);
+    ASSERT_TRUE(document2.GetEditorState() == MakeEditorState(0, 0, 0, 4)) << document2.GetEditorState().ToString();
+
+    clipboard_array.clear();
+    clipboard_text = U"";
+    for (int i = 0; i < 3; ++i)
+        document.MoveCaretLeft(true);
+    document.WaitTask(document.Copy(clipboard_array, clipboard_text));
+    document.WaitTask(document.MoveCaretEnd(false));
+
+    document2.WaitTask(document2.Paste(clipboard_array));
+    ASSERT_TRUE(document2.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\">Textext</span>"\
+            "</p>"\
+        "</body>") << 
+        document2.ToHtml();
+    ASSERT_TRUE(clipboard_text == U"ext") << ToBasicString(clipboard_text);
+    ASSERT_TRUE(document2.GetEditorState() == MakeEditorState(0, 0, 0, 7)) << document2.GetEditorState().ToString();
+}
+
 }

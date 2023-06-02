@@ -1076,6 +1076,7 @@ bool CopyTask::Execute()
 
     try
     {
+        oarchive << document->string_formats; //store string formats
         oarchive << copy;
     }
     catch (boost::archive::archive_exception& ex)

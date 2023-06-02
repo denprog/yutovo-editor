@@ -174,7 +174,7 @@ void load_construct_data(Archive& ar, yutovo::String* t, const unsigned int vers
 {
     yutovo::Element* p;
     ar >> p;
-    uint format_id;
+    boost::uuids::uuid format_id;
     ar >> format_id;
     yutovo::DocumentUserData& user_data = yutovo::GetUserData<yutovo::DocumentUserData>(ar);
     auto f = user_data.document->GetStringFormat(format_id);

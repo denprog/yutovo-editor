@@ -308,6 +308,39 @@ struct VariablesTest : SolverTest
 {
 };
 
+struct TwoDocumentsTest : DocumentTest
+{
+    TwoDocumentsTest() :
+        document2(&window_mock2)
+    {
+    }
+
+    void Start(int width)
+    {
+        DocumentTest::Start(width);
+
+        EXPECT_CALL(window_mock2, GetRect).WillRepeatedly(
+            [width]()
+            {
+                return Rect{0, 0, width, 400};
+            });
+            
+        EXPECT_CALL(window_mock2, GetTextSize).WillRepeatedly(
+            [&](const std::u32string& text, const StringFormatPtr format)
+            {
+                return GetTextSizeMock(text, format);
+            });
+        
+        document2.Start(config2);
+        document2.config.solve_delay = 0;
+    }
+
+    MainWindow main_window2;
+    ::testing::NiceMock<WindowMock> window_mock2;
+    yutovo::Config config2;
+    Document document2;
+};
+
 }
 
 #endif
