@@ -26,6 +26,15 @@ ResultRow::ResultRow(Element* parent) :
 {
 }
 
+bool ResultRow::CanSetPrecision()
+{
+    return false;
+}
+
+void ResultRow::SetPrecision(const int precision)
+{
+}
+
 //RealResult
 
 RealResult::RealResult(Document* _document) :
@@ -67,6 +76,15 @@ Element* RealResult::Clone()
 Element* RealResult::Create(Element* _parent)
 {
     return new RealResult(_parent, "", "");
+}
+
+bool RealResult::CanSetPrecision()
+{
+    return true;
+}
+
+void RealResult::SetPrecision(const int precision)
+{
 }
 
 //IntegerResult
@@ -158,12 +176,14 @@ AutoResult::AutoResult(Document* _document) :
     Element(_document)
 {
     type = ElementType::AUTO_RESULT;
+    remake_always = true;
 }
 
 AutoResult::AutoResult(Element* parent) :
     Element(parent)
 {
     type = ElementType::AUTO_RESULT;
+    remake_always = true;
 }
 
 AutoResult::AutoResult(Element* parent, uint _precision, AngleMeasure _angle_measure, Notation _notation) :
@@ -172,6 +192,8 @@ AutoResult::AutoResult(Element* parent, uint _precision, AngleMeasure _angle_mea
     angle_measure(_angle_measure),
     notation(_notation)
 {
+    type = ElementType::AUTO_RESULT;
+    remake_always = true;
 }
 
 AutoResult::AutoResult(const AutoResult& source) :
@@ -201,6 +223,7 @@ bool AutoResult::Remake(bool with_elements)
         //put waiting symbol
         elements->Add(ElementPtr(new CodeString(this, "~")));
         elements->Get(0)->SetEditable(false);
+        Element::Remake(true);
         changed = true;
     }
     baseline = elements->Get(0)->baseline;

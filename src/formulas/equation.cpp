@@ -11,6 +11,7 @@ Equation::Equation(Element* _parent) :
     MiddleShapeFormula(_parent)
 {
     type = ElementType::EQUATION;
+    remake_always = true;
 }
 
 Equation::Equation(Element* _parent, yutovo_service::ResultType _result_type) :
@@ -18,6 +19,7 @@ Equation::Equation(Element* _parent, yutovo_service::ResultType _result_type) :
     result_type(_result_type)
 {
     type = ElementType::EQUATION;
+    remake_always = true;
 }
 
 Equation::Equation(Document* _document, yutovo_service::ResultType _result_type) :
@@ -25,6 +27,7 @@ Equation::Equation(Document* _document, yutovo_service::ResultType _result_type)
     result_type(_result_type)
 {
     type = ElementType::EQUATION;
+    remake_always = true;
 }
 
 Equation::Equation(const Equation& source) :
@@ -73,6 +76,8 @@ void Equation::UpdateRect(bool with_elements)
 bool Equation::Remake(bool with_elements)
 {
     bool changed = MiddleShapeFormula::Remake(with_elements);
+    if (!with_elements)
+        last->Remake(true);
 
     UpdateRect();
 
@@ -87,6 +92,8 @@ bool Equation::Remake(bool with_elements)
     first->rect.Move(0, baseline - first->baseline);
     shape->rect.Move(first->rect.width, baseline - shape->baseline);
     last->rect.Move(first->rect.width + shape->rect.width, baseline - last->baseline);
+
+    UpdateRect();
 
     if (rect != last_rect)
     {
