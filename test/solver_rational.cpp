@@ -16,16 +16,11 @@ TEST_F(SolverRationalTest, rational1)
     document.InsertCode(false, true);
     document.InsertDivision(true);
     document.InsertString("1", true);
-    document.WaitMainLoop();
     document.MoveCaretDown(false);
-    document.MoveCaretDown(false);
-    document.WaitCaretMoving();
+    document.WaitTask(document.MoveCaretDown(false));
     document.InsertString("2", true);
-    document.WaitMainLoop();
     document.MoveCaretRight(false);
-    document.WaitCaretMoving();
-    document.InsertEquation(ResultType::RATIONAL, true);
-    document.WaitMainLoop();
+    document.WaitTask(document.InsertEquation(ResultType::RATIONAL, true));
     document.WaitSolver();
     std::this_thread::sleep_for(1s);
     ASSERT_TRUE(document.ToHtml() == 
@@ -85,6 +80,87 @@ TEST_F(SolverRationalTest, rational1)
         "</body>") << 
         document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 1})) << document.GetEditorState().ToString();
+}
+
+//Present Auto result as Rational result
+TEST_F(SolverRationalTest, rational2)
+{
+    Start(600);
+    
+    document.InsertDivision(true);
+    document.InsertString("1", true);
+    document.MoveCaretDown(false);
+    document.MoveCaretDown(false);
+    document.InsertString("2", true);
+    document.MoveCaretRight(false);
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mrow>"\
+                            "<mfrac>"\
+                                "<mrow>"\
+                                    "<mi>1</mi>"\
+                                "</mrow>"\
+                                "<mrow>"\
+                                    "<mi>2</mi>"\
+                                "</mrow>"\
+                            "</mfrac>"\
+                        "</mrow>"\
+                        "<mo>=</mo>"\
+                        "<mrow>"\
+                            "<mrow>"\
+                                "<mi>0.5</mi>"\
+                            "</mrow>"\
+                        "</mrow>"\
+                    "</mrow>"\
+                "</math>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 1})) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.SetResult({0, 0, 0, 0, 0, 0, 0, 2, 0, 0}, ResultType::RATIONAL));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mrow>"\
+                            "<mfrac>"\
+                                "<mrow>"\
+                                    "<mi>1</mi>"\
+                                "</mrow>"\
+                                "<mrow>"\
+                                    "<mi>2</mi>"\
+                                "</mrow>"\
+                            "</mfrac>"\
+                        "</mrow>"\
+                        "<mo>=</mo>"\
+                        "<mrow>"\
+                            "<mrow>"\
+                                "<mfrac>"\
+                                    "<mrow>"\
+                                        "<mi>1</mi>"\
+                                    "</mrow>"\
+                                    "<mrow>"\
+                                        "<mi>2</mi>"\
+                                    "</mrow>"\
+                                "</mfrac>"\
+                            "</mrow>"\
+                        "</mrow>"\
+                    "</mrow>"\
+                "</math>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 1})) << document.GetEditorState().ToString();
 }
 
 }

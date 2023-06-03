@@ -143,9 +143,8 @@ void Equation::AfterReplace()
 
 void Equation::ReSolve(bool if_error)
 {
-    if (if_error && auto_result && !auto_result->last_error)
+    if (if_error && result && !result->last_error)
         return;
-    auto_result.reset();
     document->RemoveErrorMarks(id);
     OnChanged({});
 }
@@ -155,6 +154,17 @@ bool Equation::Depends(const std::string& identifier)
     if (std::find(dependencies.begin(), dependencies.end(), identifier) != dependencies.end())
         return true;
     return false;
+}
+
+void Equation::SetResult(ResultType _result_type)
+{
+    if (result_type == _result_type)
+        return;
+    result_type = _result_type;
+    caret->SetState(id, 1, true);
+    result.reset();
+    document->RemoveErrorMarks(id);
+    OnChanged({});
 }
 
 std::string Equation::ToHtml()
@@ -182,15 +192,38 @@ void Equation::OnChanged(const ElementId _id)
     document->RemoveErrorMarks(id);
     if (last)
     {
-        if (!auto_result)
+        if (!result)
         {
-            auto_result.reset(new AutoResult(last));
+            switch (result_type)
+            {
+        	case ResultType::REAL:
+                result.reset(new RealResult(last));
+                break;
+        	case ResultType::INTEGER:
+                result.reset(new IntegerResult(last));
+                break;
+        	case ResultType::RATIONAL:
+                result.reset(new RationalResult(last));
+                break;
+            case ResultType::AUTO:
+                result.reset(new AutoResult(last));
+                break;
+            default:
+                return;
+            }
             last->elements->Clear();
-            last->elements->Add(auto_result);
+            last->elements->Add(result);
         }
+        else
+        {
+            result->Reset();
+        }
+
         ParserString str;
         first->ToParserString(str);
-        auto_result->Solve(str, result_type); //solve the expression in the left part
+        result->Solve(str); //solve the expression in the left part
+        //parent->Remake(true);
+        // document->Redraw(parent->id, true);
     }
 }
 

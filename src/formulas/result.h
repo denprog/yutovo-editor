@@ -15,8 +15,25 @@ public:
     ResultRow(Element* parent);
     ResultRow(const ResultRow& source) = default;
 
+    virtual bool Remake(bool with_elements = false);
+
+    virtual void Solve(const ParserString& expression);
+
+    virtual void PutResult(Result result);
+    virtual void PutError(Error error);
+    
+    virtual void Reset();
+
     virtual bool CanSetPrecision();
     virtual void SetPrecision(const int precision);
+
+public:
+    bool last_error = false;
+
+protected:
+    ParserString last_expression;
+
+    bool delay = false; //don't delay on the first calculation
 };
 
 typedef std::shared_ptr<ResultRow> ResultPtr;
@@ -25,31 +42,50 @@ class RealResult : public ResultRow
 {
 public:
     RealResult(Document* _document);
-    RealResult(Element* parent, const std::string& mantissa, const std::string& exponent);
+    RealResult(Element* parent);
     RealResult(const RealResult& source) = default;
 
     virtual Element* Clone();
 
     virtual Element* Create(Element* _parent);
 
+    virtual void Solve(const ParserString& expression);
+
+    virtual void PutResult(Result result);
+
     virtual bool CanSetPrecision();
-    virtual void SetPrecision(const int precision);
+    virtual void SetPrecision(const uint _precision);
+
+protected:
+    uint precision = 3;
+    AngleMeasure angle_measure = AngleMeasure::RADIAN;
 };
 
 class IntegerResult : public ResultRow
 {
 public:
     IntegerResult(Document* _document);
-    IntegerResult(Element* parent, const std::string& value);
+    IntegerResult(Element* parent);
     IntegerResult(const IntegerResult& source) = default;
+
+    virtual void Solve(const ParserString& expression);
+
+    virtual void PutResult(Result result);
+
+protected:
+    Notation notation = Notation::DECIMAL;
 };
 
 class RationalResult : public ResultRow
 {
 public:
     RationalResult(Document* _document);
-    RationalResult(Element* parent, const std::string& numerator, const std::string& denomerator);
+    RationalResult(Element* parent);
     RationalResult(const RationalResult& source) = default;
+
+    virtual void Solve(const ParserString& expression);
+
+    virtual void PutResult(Result result);
 };
 
 class ComplexResult : public ResultRow
@@ -68,7 +104,7 @@ public:
     ErrorResult(const ErrorResult& source) = default;
 };
 
-class AutoResult : public Element
+class AutoResult : public ResultRow
 {
 public:
     AutoResult(Document* _document);
@@ -80,10 +116,11 @@ public:
 
     virtual Element* Create(Element* _parent);
 
-    virtual bool Remake(bool with_elements = false);
+    virtual void Solve(const ParserString& expression);
 
-    void Solve(const ParserString& expression, yutovo_service::ResultType result_type);
-    void PutResult(Result result);
+    virtual void PutResult(Result result);
+
+    virtual std::string ToHtml();
 
     template <class Archive>
     void save(Archive& ar, const unsigned int version) const
@@ -100,17 +137,10 @@ public:
 
 	BOOST_SERIALIZATION_SPLIT_MEMBER()
 
-public:
-    bool last_error = false;
-    
 private:
     uint precision = 3;
     AngleMeasure angle_measure = AngleMeasure::RADIAN;
     Notation notation = Notation::DECIMAL;
-
-    ParserString last_expression;
-
-    bool delay = false; //don't delay on the first calculation
 };
 
 typedef std::shared_ptr<AutoResult> AutoResultPtr;

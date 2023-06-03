@@ -34,6 +34,8 @@ public:
     virtual void ReSolve(bool if_error = false);
 
     virtual bool Depends(const std::string& identifier);
+
+    void SetResult(ResultType _result_type);
     
     virtual std::string ToHtml();
     virtual std::u32string ToText();
@@ -61,13 +63,11 @@ public:
 
 public:
     yutovo_service::ResultType result_type;
+    Dependencies dependencies;
 
 protected:
-    AutoResultPtr auto_result;
+    ResultPtr result;
     bool ready = true;
-
-    friend class AutoResult;
-    Dependencies dependencies;
 };
 
 }

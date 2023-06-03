@@ -104,6 +104,7 @@ public:
     ElementId GetElementId(const LogicalId& _id, const int pos, bool& last_pos);
 
     ElementPtr FindParent(const ElementId& id, const ElementType type);
+    ElementId FindCurrentParentByType(const ElementType type);
     ElementPtr FindParentParagraph(const ElementId& id);
     ElementPtr FindParentRow(const ElementId& id);
 
@@ -201,6 +202,7 @@ public:
     void SetUserIdentifier(ElementId _id, uint code_id, const std::u32string& identifier, const std::u32string& expression, const uint delay);
     void RemoveIdentifier(ElementId _id, uint code_id, const std::u32string& identifier, const uint delay);
 
+    uint SetResult(ElementId _id, ResultType result_type);
     void ReSolve(ElementId _id);
     void ReSolveDependencies(ElementId after_id, const std::u32string& identifier);
     void ReSolveErrors();
@@ -213,6 +215,8 @@ public:
     void AddErrorMark(ElementId _id, int start, int size);
     void RemoveErrorMarks(ElementId parent_id);
     bool HasErrorMark(ElementId _id, int& start, int& size);
+
+    void WaitTask(uint task_id, uint64_t timeout = 0);
 
 private:
     void MainLoop();
@@ -227,7 +231,6 @@ public:
     void WaitCaretMoving();
     void WaitLoad();
     void WaitSolver();
-    void WaitTask(uint task_id);
 
 private:
     int last_task_id = -1;

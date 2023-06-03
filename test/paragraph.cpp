@@ -105,8 +105,7 @@ TEST_F(ParagraphTest, resizing1)
         document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 2, 0, 7)) << document.GetEditorState().ToString();
 
-    document.MoveCaretHome(false);
-    document.WaitCaretMoving();
+    document.WaitTask(document.MoveCaretHome(false));
     width = 240;
     document.WaitTask(document.Resize(width, 400));
     std::this_thread::sleep_for(100ms);
@@ -123,8 +122,7 @@ TEST_F(ParagraphTest, resizing1)
         document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 2, 0, 8)) << document.GetEditorState().ToString();
 
-    document.MoveCaretRight(false);
-    document.WaitCaretMoving();
+    document.WaitTask(document.MoveCaretRight(false));
     width = 220;
     document.WaitTask(document.Resize(width, 400));
     std::this_thread::sleep_for(100ms);
@@ -257,9 +255,9 @@ TEST_F(ParagraphTest, resizing2)
     document.WaitTask(document.Resize(width, 400));
     for (int i = 0; i < 7; ++i)
         document.MoveCaretLeft(false);
-    for (int i = 0; i < 7; ++i)
+    for (int i = 0; i < 6; ++i)
         document.MoveCaretLeft(true);
-    document.WaitCaretMoving();
+    document.WaitTask(document.MoveCaretLeft(true));
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\

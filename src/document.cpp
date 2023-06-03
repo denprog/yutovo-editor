@@ -1030,6 +1030,16 @@ ElementPtr Document::FindParent(const ElementId& id, const ElementType type)
     return el;
 }
 
+ElementId Document::FindCurrentParentByType(const ElementType type)
+{
+    std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
+    auto el = caret->GetElement();
+    if (!el)
+        return ElementId{};
+    auto p = FindParent(el->id, type);
+    return p ? p->id : ElementId{};
+}
+
 ElementPtr Document::FindParentParagraph(const ElementId& id)
 {
     ElementPtr el = GetElement(id);
@@ -1512,8 +1522,6 @@ uint Document::Resize(uint width, uint height)
     last_task_id = tasks.back()->id;
 #endif
     next_circle = true;
-    text->Remake(true);
-    Redraw(text->id, false);
     return last_task_id;
 }
 
@@ -1752,6 +1760,16 @@ void Document::RemoveIdentifier(ElementId _id, uint code_id, const std::u32strin
     ReSolveDependencies(_id, identifier);
 }
 
+uint Document::SetResult(ElementId _id, ResultType result_type)
+{
+    std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
+    tasks.emplace_back(new SetResultTask(text, _id, result_type));
+#ifdef DEBUG
+    last_task_id = tasks.back()->id;
+#endif
+    return tasks.back()->id;
+}
+
 void Document::ReSolve(ElementId _id)
 {
     std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
@@ -1893,6 +1911,26 @@ bool Document::HasErrorMark(ElementId _id, int& start, int& size)
     return true;
 }
 
+void Document::WaitTask(uint task_id, uint64_t timeout)
+{
+    if (task_id == 0)
+        return;
+    auto now = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch());
+    auto cur_time = now;
+    while (cur_time - now <= timeout * 1ms)
+    {
+        std::this_thread::sleep_for(100ms);
+
+        std::lock_guard<std::recursive_mutex> lock(edit_mutex);
+        if (std::find(last_tasks.begin(), last_tasks.end(), task_id) != last_tasks.end())
+            return;
+        last_tasks.clear();
+
+        if (timeout > 0)
+            cur_time = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch());
+    }
+}
+
 void Document::RestrictUndo()
 {
     if (undo_tasks.empty() || undo_tasks.back()->id == cur_task_id) //restrict only if a group has ended
@@ -1987,21 +2025,6 @@ void Document::WaitSolver()
     std::lock_guard<std::recursive_mutex> lock(edit_mutex);
     last_solver_task_id = 0;
     last_solver_executed = false;
-}
-
-void Document::WaitTask(uint task_id)
-{
-    if (task_id == 0)
-        return;
-    while (true)
-    {
-        std::this_thread::sleep_for(100ms);
-
-        std::lock_guard<std::recursive_mutex> lock(edit_mutex);
-        if (std::find(last_tasks.begin(), last_tasks.end(), task_id) != last_tasks.end())
-            return;
-        last_tasks.clear();
-    }
 }
 #endif
 
