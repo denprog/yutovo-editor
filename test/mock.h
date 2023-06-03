@@ -279,13 +279,6 @@ struct SolverTest : DocumentTest
 
 struct SolverAutoTest : SolverTest
 {
-    SolverAutoTest()
-    {
-        EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
-            {
-                return Rect{0, 0, 600, 400};
-            });
-    }
 };
 
 struct SolverRealTest : SolverTest

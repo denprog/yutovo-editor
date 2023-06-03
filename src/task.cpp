@@ -585,6 +585,7 @@ bool ResizeTask::Execute()
     if (document->WillResize()) //don't resize if it will be resized later
         return false;
     window->Resize(width, height);
+    Remake(text->id, false);
     return true;
 }
 
@@ -1109,8 +1110,11 @@ bool ResultTask::Execute()
     switch (el->type)
     {
     case ElementType::AUTO_RESULT:
+    case ElementType::REAL_RESULT:
+    case ElementType::INTEGER_RESULT:
+    case ElementType::RATIONAL_RESULT:
     {
-        AutoResult* r = dynamic_cast<AutoResult*>(el.get());
+        ResultRow* r = dynamic_cast<ResultRow*>(el.get());
         if (!r)
             return false;
         r->PutResult(result);
@@ -1128,7 +1132,8 @@ bool ResultTask::Execute()
         return false;
     }
     el = document->FindParent(el->id, ElementType::EQUATION);
-    Remake(el->id, true);
+    if (el)
+        Remake(el->id, true);
     return true;
 }
 
@@ -1237,6 +1242,25 @@ bool ResolveErrorsTask::Execute()
         if (c)
             c->ReSolve(true); //resolve all the expressions with errors
     }
+    return true;
+}
+
+//SetResultTask
+
+SetResultTask::SetResultTask(ElementPtr _text, ElementId _id, ResultType _result_type) :
+    Task(_text),
+    id(_id),
+    result_type(_result_type)
+{
+}
+
+bool SetResultTask::Execute()
+{
+    auto el = document->FindParent(id, ElementType::EQUATION);
+    if (!el)
+        return false;
+    ((Equation*)el.get())->SetResult(result_type);
+    Remake(el->id, true);
     return true;
 }
 

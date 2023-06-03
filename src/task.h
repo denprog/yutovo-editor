@@ -282,6 +282,16 @@ struct ResolveErrorsTask : Task
     virtual bool Execute();
 };
 
+struct SetResultTask : Task
+{
+    SetResultTask(ElementPtr _text, ElementId _id, ResultType _result_type);
+
+    virtual bool Execute();
+
+    ElementId id;
+    ResultType result_type;
+};
+
 }
 
 #endif

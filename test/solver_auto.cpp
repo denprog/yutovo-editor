@@ -15,8 +15,7 @@ TEST_F(SolverAutoTest, solver1)
     
     document.InsertCode(false, true);
     document.InsertString("1", true);
-    document.InsertEquation(ResultType::AUTO, true);
-    document.WaitMainLoop();
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
     document.WaitSolver();
     std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToHtml() == 
