@@ -1367,6 +1367,53 @@ TEST_F(ParagraphTest, paragraph11)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 1, 1, 0, 11})) << document.GetEditorState().ToString();
 }
 
+//Insert a paragraph before a code block
+TEST_F(ParagraphTest, paragraph12)
+{
+    Start(400);
+
+    document.InsertString("Text", true);
+    document.InsertCode(false, true);
+    document.InsertString("123", true);
+    for (int i = 0; i < 7; ++i)
+        document.MoveCaretLeft(false);
+    document.WaitTask(document.InsertParagraph(true));
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">Te</span>"\
+            "</p>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">xt</span>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mi>123</mi>"\
+                    "</mrow>"\
+                "</math>"\
+            "</p>"\
+        "</body>") 
+        << document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 1, 0, 0, 0})) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    std::this_thread::sleep_for(100ms);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">Text</span>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mi>123</mi>"\
+                    "</mrow>"\
+                "</math>"\
+            "</p>"\
+        "</body>") 
+        << document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 2})) << document.GetEditorState().ToString();
+}
+
 //Check format
 TEST_F(ParagraphTest, format1)
 {
@@ -1400,6 +1447,59 @@ TEST_F(ParagraphTest, format2)
     StringFormat str_format;
     ASSERT_TRUE(document.GetStringFormat(ElementId{0, 0, 0, 0, 0}, str_format));
     ASSERT_TRUE(str_format.family == "Courier New");
+}
+
+//Change style of a paragraph with a code block
+TEST_F(ParagraphTest, format3)
+{
+    Start(400);
+
+    document.InsertString("Text", true);
+    document.InsertCode(false, true);
+    document.InsertString("123", true);
+    for (int i = 0; i < 7; ++i)
+        document.MoveCaretLeft(false);
+    document.WaitTask(document.SetCurrentParagraphFormat("Header 1"));
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:30px;\"><strong>Text</strong></span>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mi>123</mi>"\
+                    "</mrow>"\
+                "</math>"\
+            "</p>"\
+        "</body>") 
+        << document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 2})) << document.GetEditorState().ToString();
+    ParagraphFormat format;
+    ASSERT_TRUE(document.GetParagraphFormat(ElementId{0, 0, 0, 0, 0}, format));
+    ASSERT_TRUE(format.name == "Header 1");
+    ASSERT_TRUE(document.GetParagraphFormat(ElementId{0, 0, 0, 1, 0, 0, 0}, format));
+    ASSERT_TRUE(format.name == "Code") << format.name;
+
+    document.Undo();
+    document.WaitUndo();
+    std::this_thread::sleep_for(100ms);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">Text</span>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mi>123</mi>"\
+                    "</mrow>"\
+                "</math>"\
+            "</p>"\
+        "</body>") 
+        << document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 2})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetParagraphFormat(ElementId{0, 0, 0, 0, 0}, format));
+    ASSERT_TRUE(format.name == "Text body");
+    ASSERT_TRUE(document.GetParagraphFormat(ElementId{0, 0, 0, 1, 0, 0, 0}, format));
+    ASSERT_TRUE(format.name == "Code") << format.name;
 }
 
 //Delete a paragraph
