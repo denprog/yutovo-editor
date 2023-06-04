@@ -242,7 +242,11 @@ bool Element::CanMerge(const ElementPtr with_element)
 void Element::UpdateStringFormat(const StringFormatPtr base_format, const StringFormatPtr new_format)
 {
     for (int i = 0; i < elements->Count(); ++i)
-        elements->Get(i)->UpdateStringFormat(base_format, new_format);
+    {
+        auto el = elements->Get(i);
+        if (el->type != ElementType::CODE_BLOCK)
+            el->UpdateStringFormat(base_format, new_format);
+    }
 }
 
 bool Element::AfterInsert(bool with_undo)
