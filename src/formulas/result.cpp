@@ -284,16 +284,22 @@ void RationalResult::PutResult(Result result)
         std::string numerator = result.values["numerator"];
         std::string denomerator = result.values["denomerator"];
         elements->Clear();
-        Division* d = new Division(this);
-        AddElement(ElementPtr(d));
         if (numerator[0] == '-')
         {
             elements->Insert(ElementPtr(new Minus(this)), 0);
-            d->AddNumerator(ElementPtr(new CodeString(this, numerator.substr(1, numerator.size() - 1))));
+            numerator = numerator.substr(1, numerator.size() - 1);
+        }
+        if (denomerator == "1")
+        {
+            AddElement(ElementPtr(ElementPtr(new CodeString(this, numerator))));
         }
         else
+        {
+            Division* d = new Division(this);
+            AddElement(ElementPtr(d));
             d->AddNumerator(ElementPtr(new CodeString(this, numerator)));
-        d->AddDenomerator(ElementPtr(new CodeString(this, denomerator)));
+            d->AddDenomerator(ElementPtr(new CodeString(this, denomerator)));
+        }
     }
 
     if (elements->Count() > 0)
