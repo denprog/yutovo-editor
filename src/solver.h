@@ -18,13 +18,19 @@ public:
     Solver(Document* _document);
     ~Solver();
 
-    void Solve(ElementId id, uint code_id, yutovo_service::ResultType result_type, const uint precision, 
-        AngleMeasure angle_measure, Notation notation, const std::u32string& expression, const uint delay);
+    void Solve(const ElementId id, const uint code_id, Config::AutoResult& config, const std::u32string& expression, const uint delay);
+    void Solve(const ElementId id, const uint code_id, Config::RealResult& config, const std::u32string& expression, const uint delay);
+    void Solve(const ElementId id, const uint code_id, Config::IntegerResult& config, const std::u32string& expression, const uint delay);
+    void Solve(const ElementId id, const uint code_id, Config::RationalResult& config, const std::u32string& expression, const uint delay);
+    void Solve(const ElementId id, const uint code_id, Config::ComplexResult& config, const std::u32string& expression, const uint delay);
+
     void SetUserIdentifier(ElementId id, uint code_id, const std::u32string& expression, const uint delay);
     void RemoveIdentifier(ElementId id, uint code_id, const std::u32string& identifier, const uint delay);
 
 private:
     void MessageLoop();
+
+    void EraseSolveTasks(const ElementId id);
 
 private:
     Document* document;

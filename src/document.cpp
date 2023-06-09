@@ -1742,10 +1742,29 @@ void Document::SetEditorState(LogicalEditorState& state)
     selection.Set(state.selection_state);
 }
 
-void Document::Solve(ElementId _id, uint code_id, yutovo_service::ResultType result_type, const uint precision, 
-    AngleMeasure angle_measure, Notation notation, std::u32string& expression, const uint delay)
+void Document::Solve(ElementId _id, uint code_id, Config::AutoResult& config, std::u32string& expression, const uint delay)
 {
-    solver.Solve(_id, code_id, result_type, precision, angle_measure, notation, expression + U";", delay);
+    solver.Solve(_id, code_id, config, expression + U";", delay);
+}
+
+void Document::Solve(ElementId _id, uint code_id, Config::RealResult& config, const std::u32string& expression, const uint delay)
+{
+    solver.Solve(_id, code_id, config, expression + U";", delay);
+}
+
+void Document::Solve(ElementId _id, uint code_id, Config::IntegerResult& config, const std::u32string& expression, const uint delay)
+{
+    solver.Solve(_id, code_id, config, expression + U";", delay);
+}
+
+void Document::Solve(ElementId _id, uint code_id, Config::RationalResult& config, const std::u32string& expression, const uint delay)
+{
+    solver.Solve(_id, code_id, config, expression + U";", delay);
+}
+
+void Document::Solve(ElementId _id, uint code_id, Config::ComplexResult& config, const std::u32string& expression, const uint delay)
+{
+    solver.Solve(_id, code_id, config, expression + U";", delay);
 }
 
 void Document::SetUserIdentifier(ElementId _id, uint code_id, const std::u32string& identifier, const std::u32string& expression, const uint delay)

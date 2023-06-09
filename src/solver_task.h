@@ -12,21 +12,6 @@ namespace yutovo
 
 using namespace yutovo_service;
 
-enum class AngleMeasure
-{
-    RADIAN = 1,
-    DEGREE,
-    GRAD
-};
-
-enum class Notation
-{
-    BINARY = 1,
-    OCTAL,
-    DECIMAL,
-    HEXADECIMAL
-};
-
 enum class ExpressionType
 {
     NONE = 0,
@@ -61,30 +46,35 @@ struct SolverTask
 
 struct RealSolverTask : SolverTask
 {
-    RealSolverTask(ElementId _id, std::string& _guid, uint _code_id, ExpressionType _expression_type, const uint _precision, 
-        AngleMeasure _angle_measure, const std::u32string& _expression, const uint _delay);
+    RealSolverTask(ElementId _id, std::string& _guid, uint _code_id, ExpressionType _expression_type, const uint _precision, const uint _exp, 
+        AngleMeasure _default_angle_measure, AngleMeasure _result_angle_measure, const std::u32string& _expression, const uint _delay);
 
     virtual bool Execute(WebSocketPtr socket, Result& result);
 
     uint precision;
-    AngleMeasure angle_measure;
+    uint exp;
+    AngleMeasure default_angle_measure;
+    AngleMeasure result_angle_measure;
 };
 
 struct IntegerSolverTask : SolverTask
 {
-    IntegerSolverTask(ElementId _id, std::string& _guid, uint _code_id, ExpressionType _expression_type, Notation _notation, 
+    IntegerSolverTask(ElementId _id, std::string& _guid, uint _code_id, ExpressionType _expression_type, Notation _result_notation, 
         const std::u32string& _expression, const uint _delay);
 
     virtual bool Execute(WebSocketPtr socket, Result& result);
 
-    Notation notation;
+    Notation result_notation;
 };
 
 struct RationalSolverTask : SolverTask
 {
-    RationalSolverTask(ElementId _id, std::string& _guid, uint _code_id, ExpressionType _expression_type, const std::u32string& _expression, const uint _delay);
+    RationalSolverTask(ElementId _id, std::string& _guid, uint _code_id, ExpressionType _expression_type, FractionForm _fraction_form, 
+        const std::u32string& _expression, const uint _delay);
 
     virtual bool Execute(WebSocketPtr socket, Result& result);
+
+    FractionForm fraction_form;
 };
 
 struct RemoveIdentifierSolverTask : SolverTask

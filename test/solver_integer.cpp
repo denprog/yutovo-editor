@@ -12,7 +12,12 @@ using namespace std::chrono_literals;
 TEST_F(SolverIntegerTest, solver1)
 {
     Start(600);
-    
+
+    Config config;
+    document.GetConfig(config);
+    config.integer_result.show_notation = false;
+    document.SetConfig(config);
+
     document.InsertCode(false, true);
     document.InsertString("2345", true);
     document.InsertPlus(true);
@@ -65,7 +70,12 @@ TEST_F(SolverIntegerTest, solver1)
 TEST_F(SolverIntegerTest, solver2)
 {
     Start(600);
-    
+
+    Config config;
+    document.GetConfig(config);
+    config.integer_result.show_notation = false;
+    document.SetConfig(config);
+
     document.InsertCode(false, true);
     document.InsertMinus(true);
     document.InsertString("23", true);
@@ -123,7 +133,12 @@ TEST_F(SolverIntegerTest, solver2)
 TEST_F(SolverIntegerTest, solver3)
 {
     Start(600);
-    
+
+    Config config;
+    document.GetConfig(config);
+    config.integer_result.show_notation = false;
+    document.SetConfig(config);
+
     document.InsertCode(false, true);
     document.InsertString("2345", true);
     document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
@@ -173,6 +188,77 @@ TEST_F(SolverIntegerTest, solver3)
         "</body>") << 
         document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 1})) << document.GetEditorState().ToString();
+}
+
+//Check result notation
+TEST_F(SolverIntegerTest, solver4)
+{
+    Start(600);
+    
+    Config config;
+    document.GetConfig(config);
+    config.integer_result.result_notation = Notation::BINARY;
+    config.integer_result.show_notation = true;
+    document.SetConfig(config);
+
+    document.InsertCode(false, true);
+    document.InsertString("2345", true);
+    document.WaitTask(document.InsertEquation(ResultType::INTEGER, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"2345=100100101001(bin)"
+        ) << ToBasicString(document.ToText());
+
+    document.GetConfig(config);
+    config.integer_result.result_notation = Notation::OCTAL;
+    config.integer_result.show_notation = false;
+    document.SetConfig(config);
+
+    document.MoveCaretEnd(false);
+    document.InsertParagraph(true);
+    document.InsertString("2345", true);
+    document.WaitTask(document.InsertEquation(ResultType::INTEGER, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"2345=100100101001(bin)\n"
+        U"2345=4451"
+        ) << ToBasicString(document.ToText());
+
+    document.GetConfig(config);
+    config.integer_result.result_notation = Notation::DECIMAL;
+    config.integer_result.show_notation = true;
+    document.SetConfig(config);
+
+    document.MoveCaretEnd(false);
+    document.InsertParagraph(true);
+    document.InsertString("2345", true);
+    document.WaitTask(document.InsertEquation(ResultType::INTEGER, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"2345=100100101001(bin)\n"
+        U"2345=4451\n"
+        U"2345=2345(dec)"
+        ) << ToBasicString(document.ToText());
+
+    document.GetConfig(config);
+    config.integer_result.result_notation = Notation::HEXADECIMAL;
+    document.SetConfig(config);
+
+    document.MoveCaretEnd(false);
+    document.InsertParagraph(true);
+    document.InsertString("2345", true);
+    document.WaitTask(document.InsertEquation(ResultType::INTEGER, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"2345=100100101001(bin)\n"
+        U"2345=4451\n"
+        U"2345=2345(dec)\n"
+        U"2345=929(hex)"
+        ) << ToBasicString(document.ToText());
 }
 
 }

@@ -33,45 +33,68 @@ Solver::~Solver()
     message_loop.join();
 }
 
-void Solver::Solve(ElementId id, uint code_id, yutovo_service::ResultType result_type, const uint precision, 
-    AngleMeasure angle_measure, Notation notation, const std::u32string& expression, const uint delay)
+void Solver::Solve(const ElementId id, const uint code_id, Config::AutoResult& config, const std::u32string& expression, const uint delay)
 {
-    {
-        std::unique_lock<std::mutex> lock(tasks_mutex);
-        tasks.erase(std::remove_if(tasks.begin(), tasks.end(), 
-            [id](SolverTaskPtr& task)
-            {
-                return task && task->id == id && task->expression_type == ExpressionType::SOLVE && 
-                    (dynamic_cast<RealSolverTask*>(task.get()) || dynamic_cast<IntegerSolverTask*>(task.get()) || dynamic_cast<RationalSolverTask*>(task.get()));
-            }
-            ), tasks.end());
-    }
+    EraseSolveTasks(id);
 
+    std::unique_lock<std::mutex> lock(tasks_mutex);
+    for (size_t i = 0; i < sizeof(config.results_order); ++i)
     {
-        std::unique_lock<std::mutex> lock(tasks_mutex);
-        switch (result_type)
+        switch (config.results_order[i])
         {
-        case yutovo_service::ResultType::AUTO:
-            tasks.emplace_back(new RealSolverTask(id, guid, code_id, ExpressionType::SOLVE, precision, angle_measure, expression, delay));
-            tasks.emplace_back(new IntegerSolverTask(id, guid, code_id, ExpressionType::SOLVE, notation, expression, delay));
-            tasks.emplace_back(new RationalSolverTask(id, guid, code_id, ExpressionType::SOLVE, expression, delay));
+        case ElementType::REAL_RESULT:
+            tasks.emplace_back(new RealSolverTask(id, guid, code_id, ExpressionType::SOLVE, config.real_result.precision, config.real_result.exp, 
+                config.real_result.default_angle_measure, config.real_result.result_angle_measure, expression, delay));
             break;
-        case yutovo_service::ResultType::REAL:
-            tasks.emplace_back(new RealSolverTask(id, guid, code_id, ExpressionType::SOLVE, precision, angle_measure, expression, delay));
+        case ElementType::INTEGER_RESULT:
+            tasks.emplace_back(new IntegerSolverTask(id, guid, code_id, ExpressionType::SOLVE, config.integer_result.result_notation, expression, delay));
             break;
-        case yutovo_service::ResultType::INTEGER:
-            tasks.emplace_back(new IntegerSolverTask(id, guid, code_id, ExpressionType::SOLVE, notation, expression, delay));
+        case ElementType::RATIONAL_RESULT:
+            tasks.emplace_back(new RationalSolverTask(id, guid, code_id, ExpressionType::SOLVE, config.rational_result.fraction_form, expression, delay));
             break;
-        case yutovo_service::ResultType::RATIONAL:
-            tasks.emplace_back(new RationalSolverTask(id, guid, code_id, ExpressionType::SOLVE, expression, delay));
-            break;
-        default:
+        case ElementType::COMPLEX_RESULT:
             break;
         }
-
-        tasks.emplace_back(nullptr);
     }
+
+    tasks.emplace_back(nullptr);
     next_circle = true;
+}
+
+void Solver::Solve(const ElementId id, const uint code_id, Config::RealResult& config, const std::u32string& expression, const uint delay)
+{
+    EraseSolveTasks(id);
+
+    std::unique_lock<std::mutex> lock(tasks_mutex);
+    tasks.emplace_back(new RealSolverTask(id, guid, code_id, ExpressionType::SOLVE, config.precision, config.exp, 
+        config.default_angle_measure, config.result_angle_measure, expression, delay));
+    tasks.emplace_back(nullptr);
+    next_circle = true;
+}
+
+void Solver::Solve(const ElementId id, const uint code_id, Config::IntegerResult& config, const std::u32string& expression, const uint delay)
+{
+    EraseSolveTasks(id);
+
+    std::unique_lock<std::mutex> lock(tasks_mutex);
+    tasks.emplace_back(new IntegerSolverTask(id, guid, code_id, ExpressionType::SOLVE, config.result_notation, expression, delay));
+    tasks.emplace_back(nullptr);
+    next_circle = true;
+}
+
+void Solver::Solve(const ElementId id, const uint code_id, Config::RationalResult& config, const std::u32string& expression, const uint delay)
+{
+    EraseSolveTasks(id);
+
+    std::unique_lock<std::mutex> lock(tasks_mutex);
+    tasks.emplace_back(new RationalSolverTask(id, guid, code_id, ExpressionType::SOLVE, config.fraction_form, expression, delay));
+    tasks.emplace_back(nullptr);
+    next_circle = true;
+}
+
+void Solver::Solve(const ElementId id, const uint code_id, Config::ComplexResult& config, const std::u32string& expression, const uint delay)
+{
+    EraseSolveTasks(id);
 }
 
 void Solver::SetUserIdentifier(ElementId id, uint code_id, const std::u32string& expression, const uint delay)
@@ -88,9 +111,9 @@ void Solver::SetUserIdentifier(ElementId id, uint code_id, const std::u32string&
     }
 
     std::unique_lock<std::mutex> lock(tasks_mutex);
-    tasks.emplace_back(new RealSolverTask(id, guid, code_id, ExpressionType::USER_SYMBOL, 0, AngleMeasure::RADIAN, expression, delay));
+    tasks.emplace_back(new RealSolverTask(id, guid, code_id, ExpressionType::USER_SYMBOL, 0, 0, AngleMeasure::RADIAN, AngleMeasure::RADIAN, expression, delay));
     tasks.emplace_back(new IntegerSolverTask(id, guid, code_id, ExpressionType::USER_SYMBOL, Notation::DECIMAL, expression, delay));
-    tasks.emplace_back(new RationalSolverTask(id, guid, code_id, ExpressionType::USER_SYMBOL, expression, delay));
+    tasks.emplace_back(new RationalSolverTask(id, guid, code_id, ExpressionType::USER_SYMBOL, FractionForm::IMPROPER, expression, delay));
     tasks.emplace_back(nullptr);
     next_circle = true;
 }
@@ -259,6 +282,18 @@ void Solver::MessageLoop()
         
         tries = 0;
     }
+}
+
+void Solver::EraseSolveTasks(const ElementId id)
+{
+    std::unique_lock<std::mutex> lock(tasks_mutex);
+    tasks.erase(std::remove_if(tasks.begin(), tasks.end(), 
+        [id](SolverTaskPtr& task)
+        {
+            return task && task->id == id && task->expression_type == ExpressionType::SOLVE && 
+                (dynamic_cast<RealSolverTask*>(task.get()) || dynamic_cast<IntegerSolverTask*>(task.get()) || dynamic_cast<RationalSolverTask*>(task.get()));
+        }
+        ), tasks.end());
 }
 
 }

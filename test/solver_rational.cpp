@@ -257,4 +257,92 @@ TEST_F(SolverRationalTest, rational4)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 1})) << document.GetEditorState().ToString();
 }
 
+//Check proper and improper fractions
+TEST_F(SolverRationalTest, rational5)
+{
+    Start(600);
+    
+    Config config;
+    document.GetConfig(config);
+    config.rational_result.fraction_form = FractionForm::PROPER;
+    document.SetConfig(config);
+
+    document.InsertDivision(true);
+    document.InsertString("9", true);
+    document.MoveCaretDown(false);
+    document.WaitTask(document.MoveCaretDown(false));
+    document.InsertString("7", true);
+    document.MoveCaretRight(false);
+    document.WaitTask(document.InsertEquation(ResultType::RATIONAL, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"(9)/(7)=1(2)/(7)"
+        ) << ToBasicString(document.ToText());
+
+    document.GetConfig(config);
+    config.rational_result.fraction_form = FractionForm::IMPROPER;
+    document.SetConfig(config);
+
+    document.MoveCaretEnd(false);
+    document.InsertParagraph(true);
+    document.InsertDivision(true);
+    document.InsertString("9", true);
+    document.MoveCaretDown(false);
+    document.WaitTask(document.MoveCaretDown(false));
+    document.InsertString("7", true);
+    document.MoveCaretRight(false);
+    document.WaitTask(document.InsertEquation(ResultType::RATIONAL, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"(9)/(7)=1(2)/(7)\n"
+        U"(9)/(7)=(9)/(7)"
+        ) << ToBasicString(document.ToText());
+}
+
+//Check proper and improper fractions
+TEST_F(SolverRationalTest, rational6)
+{
+    Start(600);
+    
+    Config config;
+    document.GetConfig(config);
+    config.rational_result.fraction_form = FractionForm::PROPER;
+    document.SetConfig(config);
+
+    document.InsertDivision(true);
+    document.InsertString("42", true);
+    document.MoveCaretDown(false);
+    document.WaitTask(document.MoveCaretDown(false));
+    document.InsertString("3", true);
+    document.MoveCaretRight(false);
+    document.WaitTask(document.InsertEquation(ResultType::RATIONAL, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"(42)/(3)=14"
+        ) << ToBasicString(document.ToText());
+
+    document.GetConfig(config);
+    config.rational_result.fraction_form = FractionForm::IMPROPER;
+    document.SetConfig(config);
+
+    document.MoveCaretEnd(false);
+    document.InsertParagraph(true);
+    document.InsertDivision(true);
+    document.InsertString("42", true);
+    document.MoveCaretDown(false);
+    document.WaitTask(document.MoveCaretDown(false));
+    document.InsertString("3", true);
+    document.MoveCaretRight(false);
+    document.WaitTask(document.InsertEquation(ResultType::RATIONAL, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"(42)/(3)=14\n"
+        U"(42)/(3)=14"
+        ) << ToBasicString(document.ToText());
+}
+
 }

@@ -89,8 +89,7 @@ TEST_F(SolverAutoTest, solver2)
     document.InsertString("2", true);
     document.InsertPlus(true);
     document.InsertString("3", true);
-    document.InsertEquation(ResultType::AUTO, true);
-    document.WaitMainLoop();
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
     document.WaitSolver();
     std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToHtml() == 
@@ -170,8 +169,7 @@ TEST_F(SolverAutoTest, solver3)
     document.InsertString("2", true);
     document.InsertPlus(true);
     document.InsertString("3", true);
-    document.InsertEquation(ResultType::AUTO, true);
-    document.WaitMainLoop();
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
     document.WaitSolver();
 
     document.Save("solver3_1.yut");
@@ -187,8 +185,7 @@ TEST_F(SolverAutoTest, solver3)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 0)) << document.GetEditorState().ToString();
 
     std::this_thread::sleep_for(100ms);
-    document.Load("solver3_1.yut");
-    document.WaitLoad();
+    document.WaitTask(document.Load("solver3_1.yut"));
     document.WaitSolver();
     std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToHtml() == 
@@ -220,8 +217,7 @@ TEST_F(SolverAutoTest, solver4)
 {
     Start(600);
     
-    document.InsertSubscriptFunction("log", true);
-    document.WaitMainLoop();
+    document.WaitTask(document.InsertSubscriptFunction("log", true));
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
@@ -287,7 +283,6 @@ TEST_F(SolverAutoTest, solver5)
     
     document.InsertDivision(true);
     document.InsertString("3345", true);
-    document.WaitMainLoop();
     document.MoveCaretDown(false);
     document.MoveCaretDown(false);
     document.WaitCaretMoving();
@@ -335,7 +330,6 @@ TEST_F(SolverAutoTest, solver6)
     Start(600);
     
     document.WaitTask(document.InsertDivision(true));
-    document.WaitMainLoop();
     document.MoveCaretRight(false);
     document.MoveCaretRight(false);
     document.MoveCaretRight(false);
@@ -731,6 +725,68 @@ TEST_F(SolverAutoTest, solver10)
     std::this_thread::sleep_for(200ms);
     ASSERT_TRUE(document.ToText() == 
         U"235235435345"
+        ) << ToBasicString(document.ToText());
+}
+
+//Change the order of results
+TEST_F(SolverAutoTest, solver11)
+{
+    Start(600);
+
+    document.InsertDivision(true);
+    document.InsertString("1", true);
+    document.MoveCaretDown(false);
+    document.MoveCaretDown(false);
+    document.InsertString("2", true);
+    document.MoveCaretRight(false);
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"(1)/(2)=0.5"
+        ) << ToBasicString(document.ToText());
+
+    document.GetConfig(config);
+    ElementType order1[4] = {ElementType::RATIONAL_RESULT, ElementType::INTEGER_RESULT, ElementType::REAL_RESULT, ElementType::COMPLEX_RESULT};
+    std::copy(order1, order1 + 4, config.auto_result.results_order);
+    document.SetConfig(config);
+
+    document.MoveCaretEnd(false);
+    document.InsertParagraph(true);
+    document.InsertDivision(true);
+    document.InsertString("1", true);
+    document.MoveCaretDown(false);
+    document.MoveCaretDown(false);
+    document.InsertString("2", true);
+    document.MoveCaretRight(false);
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"(1)/(2)=0.5\n"
+        U"(1)/(2)=(1)/(2)"
+        ) << ToBasicString(document.ToText());
+
+    document.GetConfig(config);
+    ElementType order2[4] = {ElementType::INTEGER_RESULT, ElementType::RATIONAL_RESULT, ElementType::REAL_RESULT, ElementType::COMPLEX_RESULT};
+    std::copy(order2, order2 + 4, config.auto_result.results_order);
+    document.SetConfig(config);
+
+    document.MoveCaretEnd(false);
+    document.InsertParagraph(true);
+    document.InsertDivision(true);
+    document.InsertString("3", true);
+    document.MoveCaretDown(false);
+    document.MoveCaretDown(false);
+    document.InsertString("2", true);
+    document.MoveCaretRight(false);
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"(1)/(2)=0.5\n"
+        U"(1)/(2)=(1)/(2)\n"
+        U"(3)/(2)=1(dec)"
         ) << ToBasicString(document.ToText());
 }
 

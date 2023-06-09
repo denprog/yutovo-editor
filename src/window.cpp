@@ -50,6 +50,11 @@ void Window::EndDrawOutside()
     draw_doc = true;
 }
 
+std::u32string Window::GetString(const std::u32string& str)
+{
+    return str;
+}
+
 void Window::OnCaretMoved(const EditorState editor_state)
 {
 }

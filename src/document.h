@@ -197,8 +197,12 @@ public:
     void SetEditorState(EditorState& state);
     void SetEditorState(LogicalEditorState& state);
 
-    void Solve(ElementId _id, uint code_id, yutovo_service::ResultType result_type, const uint precision, 
-        AngleMeasure angle_measure, Notation notation, std::u32string& expression, const uint delay);
+    void Solve(ElementId _id, uint code_id, Config::AutoResult& auto_config, std::u32string& expression, const uint delay);
+    void Solve(ElementId _id, uint code_id, Config::RealResult& config, const std::u32string& expression, const uint delay);
+    void Solve(ElementId _id, uint code_id, Config::IntegerResult& config, const std::u32string& expression, const uint delay);
+    void Solve(ElementId _id, uint code_id, Config::RationalResult& config, const std::u32string& expression, const uint delay);
+    void Solve(ElementId _id, uint code_id, Config::ComplexResult& config, const std::u32string& expression, const uint delay);
+
     void SetUserIdentifier(ElementId _id, uint code_id, const std::u32string& identifier, const std::u32string& expression, const uint delay);
     void RemoveIdentifier(ElementId _id, uint code_id, const std::u32string& identifier, const uint delay);
 

@@ -82,7 +82,8 @@ void ResultRow::SetPrecision(const int precision)
 //RealResult
 
 RealResult::RealResult(Document* _document) :
-    ResultRow(_document)
+    ResultRow(_document),
+    config(_document->config.real_result)
 {
     type = ElementType::REAL_RESULT;
 }
@@ -91,6 +92,9 @@ RealResult::RealResult(Element* parent) :
     ResultRow(parent)
 {
     type = ElementType::REAL_RESULT;
+
+    if (parent)
+        config = parent->document->config.real_result;
 }
 
 Element* RealResult::Clone()
@@ -113,8 +117,7 @@ void RealResult::Solve(const ParserString& expression)
     Remake(false);
 
     auto code = document->FindParent(id, ElementType::CODE_BLOCK);
-    document->Solve(id, ((CodeBlock*)code.get())->code_id, ResultType::REAL, precision, angle_measure, Notation::DECIMAL, last_expression.Text(), 
-        delay ? document->config.solve_delay : 0);
+    document->Solve(id, ((CodeBlock*)code.get())->code_id, config, last_expression.Text(), delay ? document->config.solve_delay : 0);
     delay = true;
 }
 
@@ -141,21 +144,28 @@ void RealResult::PutResult(Result result)
 
         AddElement(ElementPtr(new CodeString(this, mantissa)));
 
-        if (exponent.empty() || exponent == "0")
-            return;
-        
-        //make mantissa*10^exponent
-        AddElement(ElementPtr(new Multiply(this)));
-        PowerPtr p(new Power(this));
-        AddElement(p);
-        p->AddBase(CodeStringPtr(new CodeString(p.get(), "10")));
-        if (exponent[0] == '-')
+        if (!exponent.empty() && exponent != "0")
         {
-            p->AddExponent(ElementPtr(new Minus(p.get())));
-            p->AddExponent(CodeStringPtr(new CodeString(p.get(), exponent.substr(1, exponent.size() - 1))));
+            //make mantissa*10^exponent
+            AddElement(ElementPtr(new Multiply(this)));
+            PowerPtr p(new Power(this));
+            AddElement(p);
+            p->AddBase(CodeStringPtr(new CodeString(p.get(), "10")));
+            if (exponent[0] == '-')
+            {
+                p->AddExponent(ElementPtr(new Minus(p.get())));
+                p->AddExponent(CodeStringPtr(new CodeString(p.get(), exponent.substr(1, exponent.size() - 1))));
+            }
+            else
+                p->AddExponent(CodeStringPtr(new CodeString(p.get(), exponent)));
         }
-        else
-            p->AddExponent(CodeStringPtr(new CodeString(p.get(), exponent)));
+        
+        if (config.show_angle_measure)
+        {
+            std::u32string angle_measure = ToUtfString(result.values["angle_measure"]);
+            if (!angle_measure.empty())
+                AddElement(ElementPtr(new CodeString(this, U"(" + window->GetString(angle_measure) + U")", GetStringFormat())));
+        }
     }
 
     if (elements->Count() > 0)
@@ -176,7 +186,8 @@ void RealResult::SetPrecision(const uint _precision)
 //IntegerResult
 
 IntegerResult::IntegerResult(Document* _document) :
-    ResultRow(_document)
+    ResultRow(_document),
+    config(_document->config.integer_result)
 {
     type = ElementType::INTEGER_RESULT;
 }
@@ -185,6 +196,9 @@ IntegerResult::IntegerResult(Element* parent) :
     ResultRow(parent)
 {
     type = ElementType::INTEGER_RESULT;
+
+    if (parent)
+        config = parent->document->config.integer_result;
 }
 
 void IntegerResult::Solve(const ParserString& expression)
@@ -197,8 +211,7 @@ void IntegerResult::Solve(const ParserString& expression)
     Remake(false);
 
     auto code = document->FindParent(id, ElementType::CODE_BLOCK);
-    document->Solve(id, ((CodeBlock*)code.get())->code_id, ResultType::INTEGER, 0, AngleMeasure::RADIAN, notation, last_expression.Text(), 
-        delay ? document->config.solve_delay : 0);
+    document->Solve(id, ((CodeBlock*)code.get())->code_id, config, last_expression.Text(), delay ? document->config.solve_delay : 0);
     delay = true;
 }
 
@@ -227,6 +240,13 @@ void IntegerResult::PutResult(Result result)
         }
         else
             AddElement(ElementPtr(new CodeString(this, value)));
+        
+        if (config.show_notation)
+        {
+            std::u32string notation = ToUtfString(result.values["notation"]);
+            if (!notation.empty())
+                AddElement(ElementPtr(new CodeString(this, U"(" + window->GetString(notation) + U")", GetStringFormat())));
+        }
     }
 
     if (elements->Count() > 0)
@@ -238,7 +258,8 @@ void IntegerResult::PutResult(Result result)
 //RationalResult
 
 RationalResult::RationalResult(Document* _document) :
-    ResultRow(_document)
+    ResultRow(_document),
+    config(_document->config.rational_result)
 {
     type = ElementType::RATIONAL_RESULT;
 }
@@ -247,6 +268,9 @@ RationalResult::RationalResult(Element* parent) :
     ResultRow(parent)
 {
     type = ElementType::RATIONAL_RESULT;
+
+    if (parent)
+        config = parent->document->config.rational_result;
 }
 
 void RationalResult::Solve(const ParserString& expression)
@@ -259,8 +283,7 @@ void RationalResult::Solve(const ParserString& expression)
     Remake(false);
 
     auto code = document->FindParent(id, ElementType::CODE_BLOCK);
-    document->Solve(id, ((CodeBlock*)code.get())->code_id, ResultType::RATIONAL, 0, AngleMeasure::RADIAN, Notation::DECIMAL, last_expression.Text(), 
-        delay ? document->config.solve_delay : 0);
+    document->Solve(id, ((CodeBlock*)code.get())->code_id, config, last_expression.Text(), delay ? document->config.solve_delay : 0);
     delay = true;
 }
 
@@ -281,24 +304,36 @@ void RationalResult::PutResult(Result result)
     else
     {
         document->RemoveErrorMarks(parent->parent->id);
+
+        std::string integer = result.values["integer"];
         std::string numerator = result.values["numerator"];
         std::string denomerator = result.values["denomerator"];
+
         elements->Clear();
         if (numerator[0] == '-')
         {
             elements->Insert(ElementPtr(new Minus(this)), 0);
             numerator = numerator.substr(1, numerator.size() - 1);
         }
-        if (denomerator == "1")
+
+        if (!integer.empty())
         {
-            AddElement(ElementPtr(ElementPtr(new CodeString(this, numerator))));
+            AddElement(ElementPtr(ElementPtr(new CodeString(this, integer))));
         }
-        else
+
+        if (numerator != "0")
         {
-            Division* d = new Division(this);
-            AddElement(ElementPtr(d));
-            d->AddNumerator(ElementPtr(new CodeString(this, numerator)));
-            d->AddDenomerator(ElementPtr(new CodeString(this, denomerator)));
+            if (denomerator == "1")
+            {
+                AddElement(ElementPtr(ElementPtr(new CodeString(this, numerator))));
+            }
+            else
+            {
+                Division* d = new Division(this);
+                AddElement(ElementPtr(d));
+                d->AddNumerator(ElementPtr(new CodeString(this, numerator)));
+                d->AddDenomerator(ElementPtr(new CodeString(this, denomerator)));
+            }
         }
     }
 
@@ -347,7 +382,8 @@ ErrorResult::ErrorResult(Element* parent, const Error& error) :
 //AutoResult
 
 AutoResult::AutoResult(Document* _document) :
-    ResultRow(_document)
+    ResultRow(_document),
+    auto_config(_document->config.auto_result)
 {
     type = ElementType::AUTO_RESULT;
     remake_always = true;
@@ -358,24 +394,17 @@ AutoResult::AutoResult(Element* parent) :
 {
     type = ElementType::AUTO_RESULT;
     remake_always = true;
+
+    if (parent)
+        auto_config = parent->document->config.auto_result;
 }
 
-AutoResult::AutoResult(Element* parent, uint _precision, AngleMeasure _angle_measure, Notation _notation) :
+AutoResult::AutoResult(Element* parent, Config::AutoResult _auto_config) :
     ResultRow(parent),
-    precision(_precision),
-    angle_measure(_angle_measure),
-    notation(_notation)
+    auto_config(_auto_config)
 {
     type = ElementType::AUTO_RESULT;
     remake_always = true;
-}
-
-AutoResult::AutoResult(const AutoResult& source) :
-    ResultRow(source),
-    precision(source.precision),
-    angle_measure(source.angle_measure),
-    notation(source.notation)
-{
 }
 
 Element* AutoResult::Clone()
@@ -398,8 +427,7 @@ void AutoResult::Solve(const ParserString& expression)
     Remake(false);
 
     auto code = document->FindParent(id, ElementType::CODE_BLOCK);
-    document->Solve(id, ((CodeBlock*)code.get())->code_id, ResultType::AUTO, precision, angle_measure, notation, last_expression.Text(), 
-        delay ? document->config.solve_delay : 0);
+    document->Solve(id, ((CodeBlock*)code.get())->code_id, auto_config, last_expression.Text(), delay ? document->config.solve_delay : 0);
     delay = true;
 }
 

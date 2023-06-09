@@ -43,6 +43,35 @@ enum class ElementType
     SUBSCRIPT
 };
 
+enum class AngleMeasure
+{
+    NONE = -1,
+    RADIAN = 0,
+    DEGREE,
+    GRAD
+};
+
+enum class Notation
+{
+    BINARY = 0,
+    OCTAL,
+    DECIMAL,
+    HEXADECIMAL
+};
+
+enum class FractionForm
+{
+    PROPER = 0,
+    IMPROPER
+};
+
+enum class ComplexForm
+{
+    ARITHMETIC = 0,
+    TRIGONOMETRIC,
+    SCIENTIFIC
+};
+
 class Document;
 class Element;
 
@@ -248,6 +277,9 @@ std::string ToBasicString(const std::u32string& str);
 
 std::string ErrorCodeToString(const yutovo_service::ErrorCode error_code);
 std::string ErrorCodeToString(const yutovo_calculator::ParserExceptionCode parser_error_code);
+
+std::string AngleMeasureToString(const AngleMeasure angle_measure);
+std::string NotationToString(const Notation notation);
 
 struct ErrorMark
 {

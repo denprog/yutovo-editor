@@ -96,11 +96,13 @@ void SolverTask::FillError(rapidjson::Document& doc, Result& result)
 
 //RealSolverTask
 
-RealSolverTask::RealSolverTask(ElementId _id, std::string& _guid, uint _code_id, ExpressionType _expression_type, const uint _precision, 
-    AngleMeasure _angle_measure, const std::u32string& _expression, const uint _delay) :
+RealSolverTask::RealSolverTask(ElementId _id, std::string& _guid, uint _code_id, ExpressionType _expression_type, const uint _precision, uint _exp, 
+    AngleMeasure _default_angle_measure, AngleMeasure _result_angle_measure, const std::u32string& _expression, const uint _delay) :
     SolverTask(_id, _guid, _code_id, _expression_type, _expression, _delay),
     precision(_precision),
-    angle_measure(_angle_measure)
+    exp(_exp),
+    default_angle_measure(_default_angle_measure),
+    result_angle_measure(_result_angle_measure)
 {
 }
 
@@ -119,9 +121,9 @@ bool RealSolverTask::Execute(WebSocketPtr socket, Result& result)
     std::string s = ToBasicString(expression);
     doc.AddMember("expression", rapidjson::StringRef(s.c_str()), alloc);
     doc.AddMember("precision", precision, alloc);
-    doc.AddMember("angle_measure", (int)angle_measure, alloc);
-    doc.AddMember("accuracy_size", 6, alloc);
-    doc.AddMember("exponent_size", 3, alloc);
+    doc.AddMember("default_angle_measure", (int)default_angle_measure, alloc);
+    doc.AddMember("result_angle_measure", (int)result_angle_measure, alloc);
+    doc.AddMember("exponent_size", exp, alloc);
 
     if (!SendRequest(doc, result, socket))
         return false;
@@ -157,6 +159,8 @@ bool RealSolverTask::Execute(WebSocketPtr socket, Result& result)
     result.values["mantissa"] = doc["mantissa"].GetString();
     if (doc.HasMember("exponent") && doc["exponent"].IsString())
         result.values["exponent"] = doc["exponent"].GetString();
+    if (doc.HasMember("angle_measure") && doc["angle_measure"].IsInt())
+        result.values["angle_measure"] = AngleMeasureToString((AngleMeasure)doc["angle_measure"].GetInt());
     
     return true;
 }
@@ -164,9 +168,9 @@ bool RealSolverTask::Execute(WebSocketPtr socket, Result& result)
 //IntegerSolverTask
 
 IntegerSolverTask::IntegerSolverTask(ElementId _id, std::string& _guid, uint _code_id, ExpressionType _expression_type, 
-    Notation _notation, const std::u32string& _expression, const uint _delay) :
+    Notation _result_notation, const std::u32string& _expression, const uint _delay) :
     SolverTask(_id, _guid, _code_id, _expression_type, _expression, _delay),
-    notation(_notation)
+    result_notation(_result_notation)
 {
 }
 
@@ -182,6 +186,7 @@ bool IntegerSolverTask::Execute(WebSocketPtr socket, Result& result)
     doc.AddMember("code_id", code_id, alloc);
     doc.AddMember("solver_type", (int)SolverType::CALCULATOR, alloc);
     doc.AddMember("result_type", (int)ResultType::INTEGER, alloc);
+    doc.AddMember("result_notation", (int)result_notation, alloc);
     std::string s = ToBasicString(expression);
     doc.AddMember("expression", rapidjson::StringRef(s.c_str()), alloc);
 
@@ -218,15 +223,18 @@ bool IntegerSolverTask::Execute(WebSocketPtr socket, Result& result)
     }
 
     result.values["value"] = doc["value"].GetString();
+    if (doc.HasMember("notation") && doc["notation"].IsInt())
+        result.values["notation"] = NotationToString((Notation)doc["notation"].GetInt());
 
     return true;
 }
 
 //RationalSolverTask
 
-RationalSolverTask::RationalSolverTask(ElementId _id, std::string& _guid, uint _code_id, ExpressionType _expression_type, const std::u32string& _expression, 
-    const uint _delay) :
-    SolverTask(_id, _guid, _code_id, _expression_type, _expression, _delay)
+RationalSolverTask::RationalSolverTask(ElementId _id, std::string& _guid, uint _code_id, ExpressionType _expression_type, FractionForm _fraction_form, 
+    const std::u32string& _expression, const uint _delay) :
+    SolverTask(_id, _guid, _code_id, _expression_type, _expression, _delay),
+    fraction_form(_fraction_form)
 {
 }
 
@@ -242,6 +250,7 @@ bool RationalSolverTask::Execute(WebSocketPtr socket, Result& result)
     doc.AddMember("code_id", code_id, alloc);
     doc.AddMember("solver_type", (int)SolverType::CALCULATOR, alloc);
     doc.AddMember("result_type", (int)ResultType::RATIONAL, alloc);
+    doc.AddMember("fraction_form", (int)fraction_form, alloc);
     std::string s = ToBasicString(expression);
     doc.AddMember("expression", rapidjson::StringRef(s.c_str()), alloc);
 
@@ -277,6 +286,8 @@ bool RationalSolverTask::Execute(WebSocketPtr socket, Result& result)
         return false;
     }
 
+    if (doc.HasMember("integer") && doc["integer"].IsString())
+        result.values["integer"] = doc["integer"].GetString();
     result.values["numerator"] = doc["numerator"].GetString();
     result.values["denomerator"] = doc["denomerator"].GetString();
 

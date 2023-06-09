@@ -349,6 +349,36 @@ std::string ErrorCodeToString(const yutovo_calculator::ParserExceptionCode parse
     return error_code_str[parser_error_code];
 }
 
+std::string AngleMeasureToString(const AngleMeasure angle_measure)
+{
+    switch (angle_measure)
+    {
+    case AngleMeasure::RADIAN:
+        return "rad";
+    case AngleMeasure::DEGREE:
+        return "deg";
+    case AngleMeasure::GRAD:
+        return "grad";
+    }
+    return "";
+}
+
+std::string NotationToString(const Notation notation)
+{
+    switch (notation)
+    {
+    case Notation::BINARY:
+        return "bin";
+    case Notation::OCTAL:
+        return "oct";
+    case Notation::DECIMAL:
+        return "dec";
+    case Notation::HEXADECIMAL:
+        return "hex";
+    }
+    return "";
+}
+
 bool IsLess(const ElementId& id1, const ElementId& id2)
 {
 	for (size_t i = 0, j = 0; i < id1.size() && j < id2.size(); ++i, ++j)
