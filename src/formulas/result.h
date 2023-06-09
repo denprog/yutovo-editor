@@ -57,8 +57,7 @@ public:
     virtual void SetPrecision(const uint _precision);
 
 protected:
-    uint precision = 3;
-    AngleMeasure angle_measure = AngleMeasure::RADIAN;
+    Config::RealResult config;
 };
 
 class IntegerResult : public ResultRow
@@ -73,7 +72,7 @@ public:
     virtual void PutResult(Result result);
 
 protected:
-    Notation notation = Notation::DECIMAL;
+    Config::IntegerResult config;
 };
 
 class RationalResult : public ResultRow
@@ -86,6 +85,9 @@ public:
     virtual void Solve(const ParserString& expression);
 
     virtual void PutResult(Result result);
+
+protected:
+    Config::RationalResult config;
 };
 
 class ComplexResult : public ResultRow
@@ -94,6 +96,9 @@ public:
     ComplexResult(Document* _document);
     ComplexResult(Element* parent);
     ComplexResult(const ComplexResult& source) = default;
+
+protected:
+    Config::ComplexResult config;
 };
 
 class ErrorResult : public ResultRow
@@ -109,8 +114,8 @@ class AutoResult : public ResultRow
 public:
     AutoResult(Document* _document);
     AutoResult(Element* parent);
-    AutoResult(Element* parent, uint _precision, AngleMeasure _angle_measure, Notation _notation);
-    AutoResult(const AutoResult& source);
+    AutoResult(Element* parent, Config::AutoResult _auto_config);
+    AutoResult(const AutoResult& source) = default;
 
     virtual Element* Clone();
 
@@ -125,9 +130,7 @@ public:
     template <class Archive>
     void save(Archive& ar, const unsigned int version) const
     {
-        ar << precision;
-        ar << angle_measure;
-        ar << notation;
+        ar << auto_config;
     }
 
     template <class Archive>
@@ -138,9 +141,7 @@ public:
 	BOOST_SERIALIZATION_SPLIT_MEMBER()
 
 private:
-    uint precision = 3;
-    AngleMeasure angle_measure = AngleMeasure::RADIAN;
-    Notation notation = Notation::DECIMAL;
+    Config::AutoResult auto_config;
 };
 
 typedef std::shared_ptr<AutoResult> AutoResultPtr;
@@ -149,6 +150,7 @@ typedef std::shared_ptr<AutoResult> AutoResultPtr;
 
 namespace boost
 {
+
 namespace serialization
 {
 
@@ -163,14 +165,10 @@ void load_construct_data(Archive& ar, yutovo::AutoResult* t, const unsigned int 
 {
     yutovo::Element* p;
     ar >> p;
-    uint precision;
-    ar >> precision;
-    yutovo::AngleMeasure angle_measure;
-    ar >> angle_measure;
-    yutovo::Notation notation;
-    ar >> notation;
+    yutovo::Config::AutoResult auto_config;
+    ar >> auto_config;
     yutovo::DocumentUserData& user_data = yutovo::GetUserData<yutovo::DocumentUserData>(ar);
-    ::new(t)yutovo::AutoResult(p, precision, angle_measure, notation);
+    ::new(t)yutovo::AutoResult(p, auto_config);
 }
 
 }

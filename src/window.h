@@ -59,6 +59,8 @@ public:
     void BeginDrawOutside();
     void EndDrawOutside();
 
+    virtual std::u32string GetString(const std::u32string& str);
+
     virtual void OnCaretMoved(const EditorState editor_state);
 
     virtual void OnFormatChanged(const EditorState editor_state);
