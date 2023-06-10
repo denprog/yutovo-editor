@@ -289,8 +289,6 @@ public:
     Selection selection;
     Selection last_selection;
 
-    bool can_normalize = true;
-
     bool pasting = false;
 
     uint cur_code_id = 1;
@@ -298,6 +296,8 @@ public:
     std::vector<ErrorMark> error_marks;
 
     Config config;
+
+    ElementId changed_element;
 
 private:
     std::list<TaskPtr> tasks;

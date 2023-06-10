@@ -32,13 +32,18 @@ bool ResultRow::Remake(bool with_elements)
 
     if (elements->Count() == 0)
     {
-        //put waiting symbol
-        elements->Add(ElementPtr(new CodeString(this, "~")));
-        elements->Get(0)->SetEditable(false);
+        PutWaitingSymbol();
         parent->Remake(true);
         changed = true;
     }
     return changed;
+}
+
+void ResultRow::PutWaitingSymbol()
+{
+    elements->Clear();
+    elements->Add(ElementPtr(new CodeString(this, "~")));
+    elements->Get(0)->SetEditable(false);
 }
 
 void ResultRow::Solve(const ParserString& expression)
@@ -113,8 +118,7 @@ void RealResult::Solve(const ParserString& expression)
         return;
     last_expression = expression;
 
-    elements->Clear();
-    Remake(false);
+    PutWaitingSymbol();
 
     auto code = document->FindParent(id, ElementType::CODE_BLOCK);
     document->Solve(id, ((CodeBlock*)code.get())->code_id, config, last_expression.Text(), delay ? document->config.solve_delay : 0);
@@ -207,8 +211,7 @@ void IntegerResult::Solve(const ParserString& expression)
         return;
     last_expression = expression;
 
-    elements->Clear();
-    Remake(false);
+    PutWaitingSymbol();
 
     auto code = document->FindParent(id, ElementType::CODE_BLOCK);
     document->Solve(id, ((CodeBlock*)code.get())->code_id, config, last_expression.Text(), delay ? document->config.solve_delay : 0);
@@ -279,8 +282,7 @@ void RationalResult::Solve(const ParserString& expression)
         return;
     last_expression = expression;
 
-    elements->Clear();
-    Remake(false);
+    PutWaitingSymbol();
 
     auto code = document->FindParent(id, ElementType::CODE_BLOCK);
     document->Solve(id, ((CodeBlock*)code.get())->code_id, config, last_expression.Text(), delay ? document->config.solve_delay : 0);
@@ -423,8 +425,7 @@ void AutoResult::Solve(const ParserString& expression)
         return;
     last_expression = expression;
 
-    elements->Clear();
-    Remake(false);
+    PutWaitingSymbol();
 
     auto code = document->FindParent(id, ElementType::CODE_BLOCK);
     document->Solve(id, ((CodeBlock*)code.get())->code_id, auto_config, last_expression.Text(), delay ? document->config.solve_delay : 0);

@@ -222,8 +222,7 @@ void Equation::OnChanged(const ElementId _id)
         ParserString str;
         first->ToParserString(str);
         result->Solve(str); //solve the expression in the left part
-        //parent->Remake(true);
-        // document->Redraw(parent->id, true);
+        document->changed_element = id;
     }
 }
 

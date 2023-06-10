@@ -184,9 +184,6 @@ bool Paragraph::Remake(bool with_elements)
 
 void Paragraph::Normalize()
 {
-    if (!document->can_normalize)
-        return;
-    
     Element::Normalize();
 
     if (elements->Count() == 0)

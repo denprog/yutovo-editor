@@ -144,6 +144,7 @@ void Document::MainLoop()
                 selection.can_optimize = false;
                 for (size_t i = 0; i < temp_undo_tasks.size(); ++i)
                 {
+                    changed_element.clear();
                     TaskPtr& t = temp_undo_tasks[i];
                     if (!t->Execute())
                         break;
@@ -190,6 +191,7 @@ void Document::MainLoop()
                 caret->Hide();
                 for (size_t i = 0; i < temp_redo_tasks.size(); ++i)
                 {
+                    changed_element.clear();
                     TaskPtr& t = temp_redo_tasks[i];
                     cur_task_id = t->id;
                     if (!t->Execute())
@@ -235,6 +237,7 @@ void Document::MainLoop()
                 if (!undo_tasks.empty())
                     last_undo_task_id = undo_tasks.back()->id;
                 
+                changed_element.clear();
                 if (t->Execute() && t->with_undo)
                 {
                     //shrink the redo vector to the size of the undo stack

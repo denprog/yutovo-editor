@@ -19,6 +19,7 @@ public:
 
     virtual void Solve(const ParserString& expression);
 
+    virtual void PutWaitingSymbol();
     virtual void PutResult(Result result);
     virtual void PutError(Error error);
     

@@ -22,9 +22,6 @@ Block::Block(Document* _document) :
 
 void Block::Normalize()
 {
-    if (!document->can_normalize)
-        return;
-
     Element::Normalize();
 
     if (elements->Count() == 0)
