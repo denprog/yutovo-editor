@@ -49,6 +49,12 @@ Task::Task(ElementPtr _text, const uint _id) :
 
 void Task::Remake(ElementId _id, bool move_into_view)
 {
+    if (!document->changed_element.empty())
+    {
+        if (IsChild(document->changed_element, _id))
+            _id = document->changed_element;
+    }
+    
     auto el = document->GetElement(_id);
     while (!el && !_id.empty())
     {
@@ -124,8 +130,7 @@ bool InsertElementsTask::Execute()
             ElementId changed_element;
             if (_el->DeleteElements(true, with_undo, changed_element))
             {
-                if (document->can_normalize)
-                    Remake(changed_element, false);
+                Remake(changed_element, false);
                 el = document->GetElement(document->caret->GetElement()->id);
                 return true;
             }
@@ -214,8 +219,7 @@ bool InsertElementsTask::Execute()
         if (document->caret->GetElement())
             el = document->GetElement(document->caret->GetElement()->id);
 
-        if (document->can_normalize)
-            Remake(changed_element, true); //move into view
+        Remake(changed_element, true); //move into view
     }
     document->pasting = false;
     return true;
@@ -286,8 +290,7 @@ bool DeleteElementsTask::Execute()
             return false;
         if (DeleteElements(el, changed_element, with_undo))
         {
-            if (document->can_normalize)
-                Remake(changed_element, true); //move into view
+            Remake(changed_element, true); //move into view
             return true;
         }
     }
@@ -327,8 +330,7 @@ bool DeleteElementsTask::Execute()
                     document->RollbackUndo();
                 return false;
             }
-            if (document->can_normalize)
-                Remake(changed_element, true); //move into view
+            Remake(changed_element, true); //move into view
         }
         return true;
     }
@@ -407,8 +409,7 @@ bool InsertFormulasTask::Execute()
     document->pasting = pasting;
     if (el->InsertElements(_elements, insert_code_block ? false : with_undo, changed_element))
     {
-        if (document->can_normalize)
-            Remake(changed_element, true); //move into view
+        Remake(changed_element, true); //move into view
         document->pasting = false;
         return true;
     }
@@ -1162,6 +1163,8 @@ bool ResolveTask::Execute()
         if (c && c->code_id == code_id)
             c->ReSolve(); //resolve all the connected code blocks above and the current one
     }
+    if (!document->changed_element.empty())
+        Remake(document->changed_element, true);
     return true;
 }
 

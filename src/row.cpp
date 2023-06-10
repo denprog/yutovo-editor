@@ -103,9 +103,6 @@ bool Row::Remake(bool with_elements)
 
 void Row::Normalize()
 {
-    if (!document->can_normalize)
-        return;
-    
     Element::Normalize();
 
     if (elements->Count() > 1)
