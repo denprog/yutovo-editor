@@ -28,9 +28,8 @@ public:
     virtual bool DeleteElements(bool left, bool with_undo, ElementId& changed_element);
     
     virtual bool AfterInsert(bool with_undo);
-    virtual void BeforeReplace();
-    virtual void AfterReplace();
 
+    virtual void Solve();
     virtual void ReSolve(bool if_error = false);
 
     virtual bool Depends(const std::string& identifier);
@@ -39,8 +38,6 @@ public:
     
     virtual std::string ToHtml();
     virtual std::u32string ToText();
-
-    virtual void OnChanged(const ElementId _id);
 
     template <class Archive>
     void save(Archive& ar, const unsigned int version) const
@@ -61,9 +58,13 @@ public:
 
 	BOOST_SERIALIZATION_SPLIT_MEMBER()
 
+protected:
+    void UpdateResult(ParserString& str);
+
 public:
     yutovo_service::ResultType result_type;
     Dependencies dependencies;
+    ParserString last_expression;
 
 protected:
     ResultPtr result;

@@ -211,6 +211,8 @@ public:
     void ReSolveDependencies(ElementId after_id, const std::u32string& identifier);
     void ReSolveErrors();
     void PutResult(ElementId _id, Result result);
+    void AddResolveElement(ElementId _id);
+    void AddChangedElement(ElementId _id);
 
     bool IsVisible(ElementId _id);
     ElementId GetFirstVisibleParagraph();
@@ -297,7 +299,8 @@ public:
 
     Config config;
 
-    ElementId changed_element;
+    std::vector<ElementId> changed_elements;
+    std::vector<ElementId> resolve_elements;
 
 private:
     std::list<TaskPtr> tasks;

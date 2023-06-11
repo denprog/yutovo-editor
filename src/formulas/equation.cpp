@@ -127,26 +127,28 @@ bool Equation::AfterInsert(bool with_undo)
     ready = true;
     caret->SetState(shape->id);
     first->SubscribeOnChange(id);
-    ReSolve();
     return true;
 }
 
-void Equation::BeforeReplace()
+void Equation::Solve()
 {
-    first->UnsubscribeOnChange(id);
-}
-
-void Equation::AfterReplace()
-{
-    first->SubscribeOnChange(id);
+    MiddleShapeFormula::Solve();
+    document->AddResolveElement(id);
 }
 
 void Equation::ReSolve(bool if_error)
 {
     if (if_error && result && !result->last_error)
         return;
+    
+    ParserString str;
+    first->ToParserString(str);
+    if (last_expression == str)
+        return;
+    
+    last_expression = str;
     document->RemoveErrorMarks(id);
-    OnChanged({});
+    UpdateResult(str);
 }
 
 bool Equation::Depends(const std::string& identifier)
@@ -164,7 +166,10 @@ void Equation::SetResult(ResultType _result_type)
     caret->SetState(id, 1, true);
     result.reset();
     document->RemoveErrorMarks(id);
-    OnChanged({});
+
+    ParserString str;
+    first->ToParserString(str);
+    UpdateResult(str);
 }
 
 std::string Equation::ToHtml()
@@ -185,11 +190,10 @@ std::u32string Equation::ToText()
     return s;
 }
 
-void Equation::OnChanged(const ElementId _id)
+void Equation::UpdateResult(ParserString& str)
 {
     if (!ready)
         return;
-    document->RemoveErrorMarks(id);
     if (last)
     {
         if (!result)
@@ -219,10 +223,8 @@ void Equation::OnChanged(const ElementId _id)
             result->Reset();
         }
 
-        ParserString str;
-        first->ToParserString(str);
         result->Solve(str); //solve the expression in the left part
-        document->changed_element = id;
+        document->AddChangedElement(id);
     }
 }
 
