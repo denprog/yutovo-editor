@@ -111,6 +111,7 @@ bool Element::Remake(bool with_elements)
         }
     }
     UpdateRect();
+    Solve();
     return changed;
 }
 
@@ -746,6 +747,12 @@ ElementId Element::FindParent(const ElementType _type)
 bool Element::IsFormula()
 {
     return false;
+}
+
+void Element::Solve()
+{
+    if (parent)
+        parent->Solve();
 }
 
 void Element::ReSolve(bool if_error)

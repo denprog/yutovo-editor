@@ -114,7 +114,7 @@ Element* RealResult::Create(Element* _parent)
 
 void RealResult::Solve(const ParserString& expression)
 {
-    if (last_expression == expression)
+    if (last_expression == expression && last_expression.Text() != U"")
         return;
     last_expression = expression;
 
@@ -127,12 +127,16 @@ void RealResult::Solve(const ParserString& expression)
 
 void RealResult::PutResult(Result result)
 {
-    ElementPtr eq = document->FindParent(id, ElementType::EQUATION);
-    ((Equation*)eq.get())->dependencies = result.dependencies;
+    ElementPtr el = document->FindParent(id, ElementType::EQUATION);
+    Equation* eq = (Equation*)el.get();
+    eq->dependencies = result.dependencies;
 
     last_error = result.error.error_code != ErrorCode::OK;
     if (result.error.error_code == ErrorCode::SOLVER_RESTARTED_ERROR)
+    {
+        eq->last_expression.Reset();
         return;
+    }
 
     elements->Clear();
     if (result.error.error_code != ErrorCode::OK)
@@ -207,7 +211,7 @@ IntegerResult::IntegerResult(Element* parent) :
 
 void IntegerResult::Solve(const ParserString& expression)
 {
-    if (last_expression == expression)
+    if (last_expression == expression && last_expression.Text() != U"")
         return;
     last_expression = expression;
 
@@ -220,12 +224,16 @@ void IntegerResult::Solve(const ParserString& expression)
 
 void IntegerResult::PutResult(Result result)
 {
-    ElementPtr eq = document->FindParent(id, ElementType::EQUATION);
-    ((Equation*)eq.get())->dependencies = result.dependencies;
+    ElementPtr el = document->FindParent(id, ElementType::EQUATION);
+    Equation* eq = (Equation*)el.get();
+    eq->dependencies = result.dependencies;
 
     last_error = result.error.error_code != ErrorCode::OK;
     if (result.error.error_code == ErrorCode::SOLVER_RESTARTED_ERROR)
+    {
+        eq->last_expression.Reset();
         return;
+    }
 
     elements->Clear();
     if (result.error.error_code != ErrorCode::OK)
@@ -278,7 +286,7 @@ RationalResult::RationalResult(Element* parent) :
 
 void RationalResult::Solve(const ParserString& expression)
 {
-    if (last_expression == expression)
+    if (last_expression == expression && last_expression.Text() != U"")
         return;
     last_expression = expression;
 
@@ -291,12 +299,16 @@ void RationalResult::Solve(const ParserString& expression)
 
 void RationalResult::PutResult(Result result)
 {
-    ElementPtr eq = document->FindParent(id, ElementType::EQUATION);
-    ((Equation*)eq.get())->dependencies = result.dependencies;
+    ElementPtr el = document->FindParent(id, ElementType::EQUATION);
+    Equation* eq = (Equation*)el.get();
+    eq->dependencies = result.dependencies;
 
     last_error = result.error.error_code != ErrorCode::OK;
     if (result.error.error_code == ErrorCode::SOLVER_RESTARTED_ERROR)
+    {
+        eq->last_expression.Reset();
         return;
+    }
 
     elements->Clear();
     if (result.error.error_code != ErrorCode::OK)
@@ -421,7 +433,7 @@ Element* AutoResult::Create(Element* _parent)
 
 void AutoResult::Solve(const ParserString& expression)
 {
-    if (last_expression == expression)
+    if (last_expression == expression && last_expression.Text() != U"")
         return;
     last_expression = expression;
 
@@ -434,12 +446,16 @@ void AutoResult::Solve(const ParserString& expression)
 
 void AutoResult::PutResult(Result result)
 {
-    ElementPtr eq = document->FindParent(id, ElementType::EQUATION);
-    ((Equation*)eq.get())->dependencies = result.dependencies;
+    ElementPtr el = document->FindParent(id, ElementType::EQUATION);
+    Equation* eq = (Equation*)el.get();
+    eq->dependencies = result.dependencies;
 
     last_error = result.error.error_code != ErrorCode::OK;
     if (result.error.error_code == ErrorCode::SOLVER_RESTARTED_ERROR)
+    {
+        eq->last_expression.Reset();
         return;
+    }
 
     elements->Clear();
     if (result.error.error_code != ErrorCode::OK)

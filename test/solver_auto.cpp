@@ -790,6 +790,107 @@ TEST_F(SolverAutoTest, solver11)
         ) << ToBasicString(document.ToText());
 }
 
+//Change a sub-element of an equation
+TEST_F(SolverAutoTest, solver12)
+{
+    Start(600);
+
+    document.InsertDivision(true);
+    document.InsertString("1234", true);
+    document.MoveCaretDown(false);
+    document.MoveCaretDown(false);
+    document.InsertString("2", true);
+    document.MoveCaretRight(false);
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"(1234)/(2)=617."
+        ) << ToBasicString(document.ToText());
+    
+    document.MoveCaretLeft(false);
+    document.MoveCaretLeft(false);
+    document.WaitTask(document.InsertString("2", true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"(1234)/(22)=56.091"
+        ) << ToBasicString(document.ToText());
+}
+
+//Solve after deleting a division and undo
+TEST_F(SolverAutoTest, solver13)
+{
+    Start(600);
+
+    document.InsertDivision(true);
+    document.InsertString("1234", true);
+    document.MoveCaretDown(false);
+    document.MoveCaretDown(false);
+    document.InsertString("2", true);
+    document.MoveCaretRight(false);
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"(1234)/(2)=617."
+        ) << ToBasicString(document.ToText());
+    
+    document.MoveCaretLeft(false);
+    document.MoveCaretLeft(false);
+    document.MoveCaretUp(false);
+    document.WaitTask(document.DeleteElements(false, true, false));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"12342=12342."
+        ) << ToBasicString(document.ToText());
+
+    document.Undo();
+    document.WaitUndo();
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"(1234)/(2)=617."
+        ) << ToBasicString(document.ToText());
+}
+
+//Solve after deleting a division and undo
+TEST_F(SolverAutoTest, solver14)
+{
+    Start(600);
+
+    document.InsertDivision(true);
+    document.InsertString("12", true);
+    document.MoveCaretDown(false);
+    document.MoveCaretDown(false);
+    document.InsertString("2", true);
+    document.MoveCaretRight(false);
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"(12)/(2)=6."
+        ) << ToBasicString(document.ToText());
+    
+    document.MoveCaretLeft(false);
+    document.MoveCaretHome(false);
+    document.WaitTask(document.DeleteElements(false, true, false));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"=Expression expected"
+        ) << ToBasicString(document.ToText());
+
+    document.Undo();
+    document.WaitUndo();
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"(12)/(2)=6."
+        ) << ToBasicString(document.ToText());
+}
+
 //Solve with errors
 TEST_F(SolverAutoTest, errors1)
 {

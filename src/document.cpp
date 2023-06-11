@@ -144,7 +144,8 @@ void Document::MainLoop()
                 selection.can_optimize = false;
                 for (size_t i = 0; i < temp_undo_tasks.size(); ++i)
                 {
-                    changed_element.clear();
+                    changed_elements.clear();
+                    resolve_elements.clear();
                     TaskPtr& t = temp_undo_tasks[i];
                     if (!t->Execute())
                         break;
@@ -191,7 +192,8 @@ void Document::MainLoop()
                 caret->Hide();
                 for (size_t i = 0; i < temp_redo_tasks.size(); ++i)
                 {
-                    changed_element.clear();
+                    changed_elements.clear();
+                    resolve_elements.clear();
                     TaskPtr& t = temp_redo_tasks[i];
                     cur_task_id = t->id;
                     if (!t->Execute())
@@ -237,7 +239,8 @@ void Document::MainLoop()
                 if (!undo_tasks.empty())
                     last_undo_task_id = undo_tasks.back()->id;
                 
-                changed_element.clear();
+                changed_elements.clear();
+                resolve_elements.clear();
                 if (t->Execute() && t->with_undo)
                 {
                     //shrink the redo vector to the size of the undo stack
@@ -1817,6 +1820,18 @@ void Document::PutResult(ElementId _id, Result result)
 #ifdef DEBUG
     last_solver_task_id = tasks.back()->id;
 #endif
+}
+
+void Document::AddResolveElement(ElementId _id)
+{
+    if (std::find(resolve_elements.begin(), resolve_elements.end(), _id) == resolve_elements.end())
+        resolve_elements.push_back(_id);
+}
+
+void Document::AddChangedElement(ElementId _id)
+{
+    if (std::find(changed_elements.begin(), changed_elements.end(), _id) == changed_elements.end())
+        changed_elements.push_back(_id);
 }
 
 bool Document::IsVisible(ElementId _id)

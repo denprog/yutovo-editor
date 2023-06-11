@@ -76,21 +76,12 @@ bool Assignment::Remake(bool with_elements)
     shape->rect.Move(first->rect.width, baseline - shape->baseline);
     last->rect.Move(first->rect.width + shape->rect.width, baseline - last->baseline);
 
-    last_rect = rect;
+    UpdateRect();
 
-    ParserString expr;
-    first->ToParserString(expr);
-    expr.Add(id, U"=");
-    last->ToParserString(expr);
-    if (last_expression != expr)
+    if (rect != last_rect)
     {
-        auto code = document->FindParent(id, ElementType::CODE_BLOCK);
-        if (last_identifier != U"")
-            document->RemoveIdentifier(id, ((CodeBlock*)code.get())->code_id, last_identifier, delay ? document->config.solve_delay : 0);
-        document->SetUserIdentifier(id, ((CodeBlock*)code.get())->code_id, first->ToText(), expr.Text(), delay ? document->config.solve_delay : 0);
-        delay = true;
-        last_identifier = first->ToText();
-        last_expression = expr;
+        last_rect = rect;
+        return true;
     }
 
     return changed;
@@ -142,14 +133,10 @@ void Assignment::BeforeDelete()
     }
 }
 
-void Assignment::BeforeReplace()
+void Assignment::Solve()
 {
-    last->UnsubscribeOnChange(id);
-}
-
-void Assignment::AfterReplace()
-{
-    last->SubscribeOnChange(id);
+    MiddleShapeFormula::Solve();
+    document->AddResolveElement(id);
 }
 
 void Assignment::ReSolve(bool if_error)
@@ -158,7 +145,21 @@ void Assignment::ReSolve(bool if_error)
         return;
     last_expression.Reset();
     document->RemoveErrorMarks(id);
-    Remake(false);
+
+    ParserString expr;
+    first->ToParserString(expr);
+    expr.Add(id, U"=");
+    last->ToParserString(expr);
+    if (last_expression != expr)
+    {
+        auto code = document->FindParent(id, ElementType::CODE_BLOCK);
+        if (last_identifier != U"")
+            document->RemoveIdentifier(id, ((CodeBlock*)code.get())->code_id, last_identifier, delay ? document->config.solve_delay : 0);
+        document->SetUserIdentifier(id, ((CodeBlock*)code.get())->code_id, first->ToText(), expr.Text(), delay ? document->config.solve_delay : 0);
+        delay = true;
+        last_identifier = first->ToText();
+        last_expression = expr;
+    }
 }
 
 void Assignment::PutResult(Result result)
@@ -178,7 +179,7 @@ void Assignment::PutResult(Result result)
             }
         }
     }
-    Remake(false);
+    Remake(true);
 }
 
 std::string Assignment::ToHtml()
@@ -197,11 +198,6 @@ std::u32string Assignment::ToText()
     if (last)
         s += last->ToText();
     return s;
-}
-
-void Assignment::OnChanged(const ElementId _id)
-{
-    ReSolve();
 }
 
 }

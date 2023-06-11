@@ -232,7 +232,6 @@ bool Paragraph::InsertElements(std::vector<ElementPtr>& _elements, bool with_und
         if (!Element::InsertElements(_elements, with_undo, changed_element))
             return false;
         Normalize();
-        ReSolve();
         changed_element = id;
         return true;
     }

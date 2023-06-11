@@ -49,12 +49,12 @@ Task::Task(ElementPtr _text, const uint _id) :
 
 void Task::Remake(ElementId _id, bool move_into_view)
 {
-    if (!document->changed_element.empty())
+    for (auto ch : document->changed_elements)
     {
-        if (IsChild(document->changed_element, _id))
-            _id = document->changed_element;
+        if (IsChild(ch, _id))
+            _id = ch;
     }
-    
+
     auto el = document->GetElement(_id);
     while (!el && !_id.empty())
     {
@@ -72,9 +72,29 @@ void Task::Remake(ElementId _id, bool move_into_view)
             _el = _el->parent;
         }
     }
+
     _el->Normalize();
     if (document->IsVisible(_el->id))
         document->Redraw(_el->id, move_into_view);
+
+    for (auto r : document->resolve_elements)
+    {
+        auto el = document->GetElement(r);
+        el->ReSolve();
+
+        Element* _el = el.get();
+        if (_el->Remake(true))
+        {
+            _el = _el->parent;
+            while (_el->Remake())
+            {
+                _el = _el->parent;
+            }
+        }
+
+        if (document->IsVisible(_el->id))
+            document->Redraw(_el->id, move_into_view);
+    }
 }
 
 //InsertElementsTask
@@ -1161,10 +1181,16 @@ bool ResolveTask::Execute()
         auto el = document->GetElement(_id);
         CodeBlock* c = dynamic_cast<CodeBlock*>(el.get());
         if (c && c->code_id == code_id)
+        {
             c->ReSolve(); //resolve all the connected code blocks above and the current one
+            if (!document->changed_elements.empty())
+            {
+                for (auto ch : document->changed_elements)
+                    Remake(ch, true);
+                document->changed_elements.clear();
+            }
+        }
     }
-    if (!document->changed_element.empty())
-        Remake(document->changed_element, true);
     return true;
 }
 
@@ -1198,7 +1224,11 @@ bool ResolveDependeciesTask::Execute()
         for (auto& s : id_arr)
         {
             if (eq->Depends(s))
+            {
+                eq->last_expression.Reset();
                 eq->ReSolve();
+                Remake(eq->id, false);
+            }
         }
     }
 
