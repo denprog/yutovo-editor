@@ -1785,10 +1785,10 @@ void Document::RemoveIdentifier(ElementId _id, uint code_id, const std::u32strin
     ReSolveDependencies(_id, identifier);
 }
 
-uint Document::SetResult(ElementId _id, ResultType result_type)
+uint Document::SetResult(ElementId _id, ResultType result_type, bool with_undo)
 {
     std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
-    tasks.emplace_back(new SetResultTask(text, _id, result_type));
+    tasks.emplace_back(new SetResultTask(text, _id, result_type, with_undo));
 #ifdef DEBUG
     last_task_id = tasks.back()->id;
 #endif
@@ -1805,10 +1805,10 @@ Notation Document::GetNotation(ElementId _id)
     return r->config.result_notation;
 }
 
-uint Document::SetNotation(ElementId _id, Notation notation)
+uint Document::SetNotation(ElementId _id, Notation notation, bool with_undo)
 {
     std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
-    tasks.emplace_back(new SetResultParams(text, _id, notation));
+    tasks.emplace_back(new SetResultParams(text, _id, notation, with_undo));
 #ifdef DEBUG
     last_task_id = tasks.back()->id;
 #endif
@@ -1825,10 +1825,10 @@ FractionForm Document::GetFractionForm(ElementId _id)
     return r->config.fraction_form;
 }
 
-uint Document::SetFractionForm(ElementId _id, FractionForm fraction_form)
+uint Document::SetFractionForm(ElementId _id, FractionForm fraction_form, bool with_undo)
 {
     std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
-    tasks.emplace_back(new SetResultParams(text, _id, fraction_form));
+    tasks.emplace_back(new SetResultParams(text, _id, fraction_form, with_undo));
 #ifdef DEBUG
     last_task_id = tasks.back()->id;
 #endif

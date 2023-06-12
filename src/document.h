@@ -206,11 +206,11 @@ public:
     void SetUserIdentifier(ElementId _id, uint code_id, const std::u32string& identifier, const std::u32string& expression, const uint delay);
     void RemoveIdentifier(ElementId _id, uint code_id, const std::u32string& identifier, const uint delay);
 
-    uint SetResult(ElementId _id, ResultType result_type);
+    uint SetResult(ElementId _id, ResultType result_type, bool with_undo);
     Notation GetNotation(ElementId _id);
-    uint SetNotation(ElementId _id, Notation notation);
+    uint SetNotation(ElementId _id, Notation notation, bool with_undo);
     FractionForm GetFractionForm(ElementId _id);
-    uint SetFractionForm(ElementId _id, FractionForm fraction_form);
+    uint SetFractionForm(ElementId _id, FractionForm fraction_form, bool with_undo);
 
     void ReSolve(ElementId _id);
     void ReSolveDependencies(ElementId after_id, const std::u32string& identifier);

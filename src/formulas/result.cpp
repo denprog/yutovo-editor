@@ -102,6 +102,13 @@ RealResult::RealResult(Element* parent) :
         config = parent->document->config.real_result;
 }
 
+RealResult::RealResult(Element* parent, Config::RealResult _config) :
+    ResultRow(parent), 
+    config(_config)
+{
+    type = ElementType::REAL_RESULT;
+}
+
 Element* RealResult::Clone()
 {
     return new RealResult(*this);
@@ -209,6 +216,13 @@ IntegerResult::IntegerResult(Element* parent) :
         config = parent->document->config.integer_result;
 }
 
+IntegerResult::IntegerResult(Element* parent, Config::IntegerResult _config) :
+    ResultRow(parent)
+{
+    type = ElementType::INTEGER_RESULT;
+    config = _config;
+}
+
 void IntegerResult::Solve(const ParserString& expression)
 {
     if (last_expression == expression && last_expression.Text() != U"")
@@ -293,6 +307,13 @@ RationalResult::RationalResult(Element* parent) :
 
     if (parent)
         config = parent->document->config.rational_result;
+}
+
+RationalResult::RationalResult(Element* parent, Config::RationalResult _config) :
+    ResultRow(parent)
+{
+    type = ElementType::RATIONAL_RESULT;
+    config = _config;
 }
 
 void RationalResult::Solve(const ParserString& expression)
@@ -419,7 +440,7 @@ ErrorResult::ErrorResult(Element* parent, const Error& error) :
 
 AutoResult::AutoResult(Document* _document) :
     ResultRow(_document),
-    auto_config(_document->config.auto_result)
+    config(_document->config.auto_result)
 {
     type = ElementType::AUTO_RESULT;
     remake_always = true;
@@ -432,12 +453,12 @@ AutoResult::AutoResult(Element* parent) :
     remake_always = true;
 
     if (parent)
-        auto_config = parent->document->config.auto_result;
+        config = parent->document->config.auto_result;
 }
 
-AutoResult::AutoResult(Element* parent, Config::AutoResult _auto_config) :
+AutoResult::AutoResult(Element* parent, Config::AutoResult _config) :
     ResultRow(parent),
-    auto_config(_auto_config)
+    config(_config)
 {
     type = ElementType::AUTO_RESULT;
     remake_always = true;
@@ -462,7 +483,7 @@ void AutoResult::Solve(const ParserString& expression)
     PutWaitingSymbol();
 
     auto code = document->FindParent(id, ElementType::CODE_BLOCK);
-    document->Solve(id, ((CodeBlock*)code.get())->code_id, auto_config, last_expression.Text(), delay ? document->config.solve_delay : 0);
+    document->Solve(id, ((CodeBlock*)code.get())->code_id, config, last_expression.Text(), delay ? document->config.solve_delay : 0);
     delay = true;
 }
 

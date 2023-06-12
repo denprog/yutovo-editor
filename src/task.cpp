@@ -1280,11 +1280,12 @@ bool ResolveErrorsTask::Execute()
 
 //SetResultTask
 
-SetResultTask::SetResultTask(ElementPtr _text, ElementId _id, ResultType _result_type) :
+SetResultTask::SetResultTask(ElementPtr _text, ElementId _id, ResultType _result_type, bool _with_undo) :
     Task(_text),
     id(_id),
     result_type(_result_type)
 {
+    with_undo = _with_undo;
 }
 
 bool SetResultTask::Execute()
@@ -1292,7 +1293,7 @@ bool SetResultTask::Execute()
     auto el = document->FindParent(id, ElementType::EQUATION);
     if (!el)
         return false;
-    if (!((Equation*)el.get())->SetResult(result_type))
+    if (!((Equation*)el.get())->SetResult(result_type, with_undo))
         return false;
     Remake(el->id, true);
     return true;
@@ -1300,18 +1301,20 @@ bool SetResultTask::Execute()
 
 //SetResultParams
 
-SetResultParams::SetResultParams(ElementPtr _text, ElementId _id, Notation _notation) :
+SetResultParams::SetResultParams(ElementPtr _text, ElementId _id, Notation _notation, bool _with_undo) :
     Task(_text),
     id(_id),
     notation(_notation)
 {
+    with_undo = _with_undo;
 }
 
-SetResultParams::SetResultParams(ElementPtr _text, ElementId _id, FractionForm _fraction_form) :
+SetResultParams::SetResultParams(ElementPtr _text, ElementId _id, FractionForm _fraction_form, bool _with_undo) :
     Task(_text),
     id(_id),
     fraction_form(_fraction_form)
 {
+    with_undo = _with_undo;
 }
 
 bool SetResultParams::Execute()
@@ -1323,12 +1326,12 @@ bool SetResultParams::Execute()
     Equation* eq = (Equation*)el.get();
     if (notation != Notation::NONE)
     {
-        if (!eq->SetConfig(notation))
+        if (!eq->SetConfig(notation, with_undo))
             return false;
     }
     else if (fraction_form != FractionForm::NONE)
     {
-        if (!eq->SetConfig(fraction_form))
+        if (!eq->SetConfig(fraction_form, with_undo))
             return false;
     }
     else
