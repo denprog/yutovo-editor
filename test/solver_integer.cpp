@@ -261,4 +261,46 @@ TEST_F(SolverIntegerTest, solver4)
         ) << ToBasicString(document.ToText());
 }
 
+//Set result notation
+TEST_F(SolverIntegerTest, solver5)
+{
+    Start(600);
+    
+    Config config;
+    document.GetConfig(config);
+    config.integer_result.result_notation = Notation::DECIMAL;
+    config.integer_result.show_notation = true;
+    document.SetConfig(config);
+
+    document.InsertCode(false, true);
+    document.InsertString("2345", true);
+    document.WaitTask(document.InsertEquation(ResultType::INTEGER, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"2345=2345(dec)"
+        ) << ToBasicString(document.ToText());
+
+    document.WaitTask(document.SetNotation({0, 0, 0, 0, 0, 0, 0, 2, 0, 0}, Notation::BINARY));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"2345=100100101001(bin)"
+        ) << ToBasicString(document.ToText());
+
+    document.WaitTask(document.SetNotation({0, 0, 0, 0, 0, 0, 0, 2, 0, 0}, Notation::OCTAL));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"2345=4451(oct)"
+        ) << ToBasicString(document.ToText());
+
+    document.WaitTask(document.SetNotation({0, 0, 0, 0, 0, 0, 0, 2, 0, 0}, Notation::HEXADECIMAL));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"2345=929(hex)"
+        ) << ToBasicString(document.ToText());
+}
+
 }

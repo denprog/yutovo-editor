@@ -294,11 +294,13 @@ struct SetResultTask : Task
 
 struct SetResultParams : Task
 {
+    SetResultParams(ElementPtr _text, ElementId _id, Notation _notation);
     SetResultParams(ElementPtr _text, ElementId _id, FractionForm _fraction_form);
 
     virtual bool Execute();
 
     ElementId id;
+    Notation notation = Notation::NONE;
     FractionForm fraction_form = FractionForm::NONE;
 };
 

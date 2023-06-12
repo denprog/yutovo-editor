@@ -72,6 +72,8 @@ public:
 
     virtual void PutResult(Result result);
 
+    bool SetConfig(Notation result_notation);
+
 public:
     Config::IntegerResult config;
 };

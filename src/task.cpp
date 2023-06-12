@@ -1300,6 +1300,13 @@ bool SetResultTask::Execute()
 
 //SetResultParams
 
+SetResultParams::SetResultParams(ElementPtr _text, ElementId _id, Notation _notation) :
+    Task(_text),
+    id(_id),
+    notation(_notation)
+{
+}
+
 SetResultParams::SetResultParams(ElementPtr _text, ElementId _id, FractionForm _fraction_form) :
     Task(_text),
     id(_id),
@@ -1312,16 +1319,23 @@ bool SetResultParams::Execute()
     auto el = document->FindParent(id, ElementType::EQUATION);
     if (!el)
         return false;
+    
     Equation* eq = (Equation*)el.get();
-    if (fraction_form != FractionForm::NONE)
+    if (notation != Notation::NONE)
     {
-        if (eq->SetConfig(fraction_form))
-        {
-            Remake(el->id, true);
-            return true;
-        }
+        if (!eq->SetConfig(notation))
+            return false;
     }
-    return false;
+    else if (fraction_form != FractionForm::NONE)
+    {
+        if (!eq->SetConfig(fraction_form))
+            return false;
+    }
+    else
+        return false;
+    
+    Remake(el->id, true);
+    return true;
 }
 
 }

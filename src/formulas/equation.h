@@ -35,6 +35,7 @@ public:
     virtual bool Depends(const std::string& identifier);
 
     bool SetResult(ResultType _result_type);
+    bool SetConfig(Notation notation);
     bool SetConfig(FractionForm fraction_form);
     
     virtual std::string ToHtml();

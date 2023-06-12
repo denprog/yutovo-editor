@@ -53,6 +53,7 @@ enum class AngleMeasure
 
 enum class Notation
 {
+    NONE = -1,
     BINARY = 0,
     OCTAL,
     DECIMAL,
