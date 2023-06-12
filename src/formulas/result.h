@@ -44,6 +44,7 @@ class RealResult : public ResultRow
 public:
     RealResult(Document* _document);
     RealResult(Element* parent);
+    RealResult(Element* parent, Config::RealResult _config);
     RealResult(const RealResult& source) = default;
 
     virtual Element* Clone();
@@ -66,6 +67,7 @@ class IntegerResult : public ResultRow
 public:
     IntegerResult(Document* _document);
     IntegerResult(Element* parent);
+    IntegerResult(Element* parent, Config::IntegerResult _config);
     IntegerResult(const IntegerResult& source) = default;
 
     virtual void Solve(const ParserString& expression);
@@ -83,6 +85,7 @@ class RationalResult : public ResultRow
 public:
     RationalResult(Document* _document);
     RationalResult(Element* parent);
+    RationalResult(Element* parent, Config::RationalResult _config);
     RationalResult(const RationalResult& source) = default;
 
     virtual void Solve(const ParserString& expression);
@@ -119,7 +122,7 @@ class AutoResult : public ResultRow
 public:
     AutoResult(Document* _document);
     AutoResult(Element* parent);
-    AutoResult(Element* parent, Config::AutoResult _auto_config);
+    AutoResult(Element* parent, Config::AutoResult _config);
     AutoResult(const AutoResult& source) = default;
 
     virtual Element* Clone();
@@ -135,7 +138,7 @@ public:
     template <class Archive>
     void save(Archive& ar, const unsigned int version) const
     {
-        ar << auto_config;
+        ar << config;
     }
 
     template <class Archive>
@@ -146,7 +149,7 @@ public:
 	BOOST_SERIALIZATION_SPLIT_MEMBER()
 
 public:
-    Config::AutoResult auto_config;
+    Config::AutoResult config;
 };
 
 typedef std::shared_ptr<AutoResult> AutoResultPtr;
@@ -170,10 +173,10 @@ void load_construct_data(Archive& ar, yutovo::AutoResult* t, const unsigned int 
 {
     yutovo::Element* p;
     ar >> p;
-    yutovo::Config::AutoResult auto_config;
-    ar >> auto_config;
+    yutovo::Config::AutoResult config;
+    ar >> config;
     yutovo::DocumentUserData& user_data = yutovo::GetUserData<yutovo::DocumentUserData>(ar);
-    ::new(t)yutovo::AutoResult(p, auto_config);
+    ::new(t)yutovo::AutoResult(p, config);
 }
 
 }

@@ -107,6 +107,8 @@ bool Equation::DeleteElements(bool left, bool with_undo, ElementId& changed_elem
 {
     if (caret->IsOnElement(shape->id) && !left)
     {
+        if (with_undo)
+            document->StoreUndo(parent->id);
         last = nullptr;
         elements->RemoveAt(2, 1);
     }
@@ -158,10 +160,42 @@ bool Equation::Depends(const std::string& identifier)
     return false;
 }
 
-bool Equation::SetResult(ResultType _result_type)
+void Equation::SetResult(Config::AutoResult config)
+{
+    result.reset(new AutoResult(last, config));
+    last->elements->Clear();
+    last->elements->Add(result);
+}
+
+void Equation::SetResult(Config::RealResult config)
+{
+    result.reset(new RealResult(last, config));
+    last->elements->Clear();
+    last->elements->Add(result);
+}
+
+void Equation::SetResult(Config::IntegerResult config)
+{
+    result.reset(new IntegerResult(last, config));
+    last->elements->Clear();
+    last->elements->Add(result);
+}
+
+void Equation::SetResult(Config::RationalResult config)
+{
+    result.reset(new RationalResult(last, config));
+    last->elements->Clear();
+    last->elements->Add(result);
+}
+
+bool Equation::SetResult(ResultType _result_type, bool with_undo)
 {
     if (result_type == _result_type)
         return false;
+    
+    if (with_undo)
+        document->StoreUndo(id);
+    
     result_type = _result_type;
     caret->SetState(id, 1, true);
     result.reset();
@@ -173,19 +207,27 @@ bool Equation::SetResult(ResultType _result_type)
     return true;
 }
 
-bool Equation::SetConfig(Notation notation)
+bool Equation::SetConfig(Notation notation, bool with_undo)
 {
     if (result->type != ElementType::INTEGER_RESULT)
         return false;
+    
+    if (with_undo)
+        document->StoreUndo(id);
+    
     caret->SetState(id, 1, true);
     IntegerResult* r = (IntegerResult*)result.get();
     return r->SetConfig(notation);
 }
 
-bool Equation::SetConfig(FractionForm fraction_form)
+bool Equation::SetConfig(FractionForm fraction_form, bool with_undo)
 {
     if (result->type != ElementType::RATIONAL_RESULT)
         return false;
+    
+    if (with_undo)
+        document->StoreUndo(id);
+    
     caret->SetState(id, 1, true);
     RationalResult* r = (RationalResult*)result.get();
     return r->SetConfig(fraction_form);

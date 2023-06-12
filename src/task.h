@@ -284,7 +284,7 @@ struct ResolveErrorsTask : Task
 
 struct SetResultTask : Task
 {
-    SetResultTask(ElementPtr _text, ElementId _id, ResultType _result_type);
+    SetResultTask(ElementPtr _text, ElementId _id, ResultType _result_type, bool _with_undo);
 
     virtual bool Execute();
 
@@ -294,8 +294,8 @@ struct SetResultTask : Task
 
 struct SetResultParams : Task
 {
-    SetResultParams(ElementPtr _text, ElementId _id, Notation _notation);
-    SetResultParams(ElementPtr _text, ElementId _id, FractionForm _fraction_form);
+    SetResultParams(ElementPtr _text, ElementId _id, Notation _notation, bool _with_undo);
+    SetResultParams(ElementPtr _text, ElementId _id, FractionForm _fraction_form, bool _with_undo);
 
     virtual bool Execute();
 

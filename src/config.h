@@ -28,6 +28,12 @@ struct Config
 
     struct RealResult
     {
+        bool operator==(const RealResult& other)
+        {
+            return precision == other.precision && exp == other.exp && default_angle_measure == other.default_angle_measure &&
+                result_angle_measure == other.result_angle_measure && show_angle_measure == other.show_angle_measure;
+        }
+
         template <class Archive>
         void serialize(Archive& ar, const unsigned int version)
         {
@@ -49,6 +55,11 @@ struct Config
 
     struct IntegerResult
     {
+        bool operator==(const IntegerResult& other)
+        {
+            return result_notation == other.result_notation && show_notation == other.show_notation;
+        }
+
         template <class Archive>
         void serialize(Archive& ar, const unsigned int version)
         {
@@ -64,6 +75,11 @@ struct Config
 
     struct RationalResult
     {
+        bool operator==(const RationalResult& other)
+        {
+            return fraction_form == other.fraction_form;
+        }
+
         template <class Archive>
         void serialize(Archive& ar, const unsigned int version)
         {
@@ -77,6 +93,13 @@ struct Config
 
     struct ComplexResult
     {
+        bool operator==(const ComplexResult& other)
+        {
+            return precision == other.precision && exp == other.exp && default_angle_measure == other.default_angle_measure && 
+                result_angle_measure == other.result_angle_measure && show_angle_measure == other.show_angle_measure && 
+                form == other.form && max_count == other.max_count;
+        }
+
         template <class Archive>
         void serialize(Archive& ar, const unsigned int version)
         {
@@ -102,6 +125,13 @@ struct Config
 
     struct AutoResult
     {
+        bool operator==(const AutoResult& other)
+        {
+            return result_auto_advance == other.result_auto_advance && results_order == other.results_order && 
+                real_result == other.real_result && integer_result == other.integer_result && 
+                rational_result == other.rational_result && complex_result == other.complex_result;
+        }
+
         template <class Archive>
         void serialize(Archive& ar, const unsigned int version)
         {

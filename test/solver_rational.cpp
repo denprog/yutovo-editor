@@ -124,7 +124,7 @@ TEST_F(SolverRationalTest, rational2)
         document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 1})) << document.GetEditorState().ToString();
 
-    document.WaitTask(document.SetResult({0, 0, 0, 0, 0, 0, 0, 2, 0, 0}, ResultType::RATIONAL));
+    document.WaitTask(document.SetResult({0, 0, 0, 0, 0, 0, 0, 2, 0, 0}, ResultType::RATIONAL, true));
     document.WaitSolver();
     std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToHtml() == 
@@ -161,6 +161,14 @@ TEST_F(SolverRationalTest, rational2)
         "</body>") << 
         document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 1})) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"(1)/(2)=0.5"
+        ) << ToBasicString(document.ToText());
 }
 
 TEST_F(SolverRationalTest, rational3)
@@ -367,11 +375,19 @@ TEST_F(SolverRationalTest, rational7)
         U"(11)/(5)=(11)/(5)"
         ) << ToBasicString(document.ToText());
 
-    document.WaitTask(document.SetFractionForm({0, 0, 0, 0, 0, 0, 0, 2, 0, 0}, FractionForm::PROPER));
+    document.WaitTask(document.SetFractionForm({0, 0, 0, 0, 0, 0, 0, 2, 0, 0}, FractionForm::PROPER, true));
     document.WaitSolver();
     std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToText() == 
         U"(11)/(5)=2(1)/(5)"
+        ) << ToBasicString(document.ToText());
+
+    document.Undo();
+    document.WaitUndo();
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"(11)/(5)=(11)/(5)"
         ) << ToBasicString(document.ToText());
 }
 

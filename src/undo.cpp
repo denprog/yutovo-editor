@@ -316,24 +316,55 @@ Element* UndoCodeString::Restore(Document* document, Element* parent)
 
 //UndoEquation
 
-UndoEquation::UndoEquation(FormulaFormatPtr _formula_format, yutovo_service::ResultType _result_type) : 
-    UndoFormula(ElementType::EQUATION, _formula_format),
-    result_type(_result_type)
+UndoEquation::UndoEquation(Equation* equation) :
+    UndoFormula(ElementType::EQUATION, equation->formula_format),
+    result_type(equation->result_type)
 {
+    if (equation->elements->Count() != 3)
+        return;
+    auto el = equation->elements->Get(2)->elements->Get(0);
+    auto result = el.get();
+    switch (result_type)
+    {
+    case ResultType::REAL:
+        config = ((RealResult*)result)->config;
+        return;
+	case ResultType::INTEGER:
+        config = ((IntegerResult*)result)->config;
+        return;
+	case ResultType::RATIONAL:
+        config = ((RationalResult*)result)->config;
+        return;
+	case ResultType::COMPLEX:
+        config = ((ComplexResult*)result)->config;
+        return;
+	case ResultType::AUTO:
+        config = ((AutoResult*)result)->config;
+        return;
+    }
 }
 
 bool UndoEquation::operator==(const UndoEquation& el) const
 {
-    if (!UndoFormula::operator==(el))
+    if (!UndoFormula::operator==(el) || result_type != el.result_type)
         return false;
-    return result_type == el.result_type;
-}
-
-bool UndoEquation::operator==(const Equation& el) const
-{
-    if (!UndoFormula::operator==(el))
+    if (config.has_value() != el.config.has_value())
         return false;
-    return result_type == el.result_type;
+    if (!config.has_value())
+        return true;
+    
+    switch (result_type)
+    {
+    case ResultType::AUTO:
+        return std::any_cast<Config::AutoResult>(config) == std::any_cast<Config::AutoResult>(el.config);
+    case ResultType::REAL:
+        return std::any_cast<Config::RealResult>(config) == std::any_cast<Config::RealResult>(el.config);
+    case ResultType::INTEGER:
+        return std::any_cast<Config::IntegerResult>(config) == std::any_cast<Config::IntegerResult>(el.config);
+    case ResultType::RATIONAL:
+        return std::any_cast<Config::RationalResult>(config) == std::any_cast<Config::RationalResult>(el.config);
+    }
+    return false;
 }
 
 Element* UndoEquation::Restore(Document* document, Element* parent)
@@ -342,6 +373,26 @@ Element* UndoEquation::Restore(Document* document, Element* parent)
     el->formula_format = formula_format;
     ElementPtr first(elements[0]->Restore(document, el));
     el->elements->Get(0)->elements->ReplaceAll(*first->elements);
+
+    if (!config.has_value())
+        return el;
+    
+    ElementPtr last;
+    switch (result_type)
+    {
+    case ResultType::AUTO:
+        el->SetResult(std::any_cast<Config::AutoResult>(config));
+        break;
+    case ResultType::REAL:
+        el->SetResult(std::any_cast<Config::RealResult>(config));
+        break;
+    case ResultType::INTEGER:
+        el->SetResult(std::any_cast<Config::IntegerResult>(config));
+        break;
+    case ResultType::RATIONAL:
+        el->SetResult(std::any_cast<Config::RationalResult>(config));
+        break;
+    }
     return el;
 }
 
@@ -571,7 +622,7 @@ UndoElementPtr UndoBase::StoreElement(const LogicalId id, ElementPtr el)
     case ElementType::EQUATION:
         {
             Equation* _el((Equation*)el.get());
-            undo_element.reset(new UndoEquation(_el->formula_format, _el->result_type));
+            undo_element.reset(new UndoEquation(_el));
             if (!store_element(el->elements->Get(0), undo_element))
                 return nullptr;
         }

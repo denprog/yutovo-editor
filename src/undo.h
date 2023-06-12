@@ -1,8 +1,10 @@
 #ifndef __UNDO_H__
 #define __UNDO_H__
 
+#include <any>
 #include "caret_state.h"
 #include "style.h"
+#include "config.h"
 
 namespace yutovo
 {
@@ -127,14 +129,14 @@ struct UndoCodeString : UndoString
 
 struct UndoEquation : UndoFormula
 {
-    UndoEquation(FormulaFormatPtr _formula_format, yutovo_service::ResultType _result_type);
+    UndoEquation(Equation* equation);
 
     virtual bool operator==(const UndoEquation& el) const;
-    virtual bool operator==(const Equation& el) const;
 
     virtual Element* Restore(Document* document, Element* parent);
 
     yutovo_service::ResultType result_type;
+    std::any config;
 };
 
 class UndoBase

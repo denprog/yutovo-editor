@@ -34,9 +34,14 @@ public:
 
     virtual bool Depends(const std::string& identifier);
 
-    bool SetResult(ResultType _result_type);
-    bool SetConfig(Notation notation);
-    bool SetConfig(FractionForm fraction_form);
+    void SetResult(Config::AutoResult config);
+    void SetResult(Config::RealResult config);
+    void SetResult(Config::IntegerResult config);
+    void SetResult(Config::RationalResult config);
+
+    bool SetResult(ResultType _result_type, bool with_undo);
+    bool SetConfig(Notation notation, bool with_undo);
+    bool SetConfig(FractionForm fraction_form, bool with_undo);
     
     virtual std::string ToHtml();
     virtual std::u32string ToText();
