@@ -1795,6 +1795,26 @@ uint Document::SetResult(ElementId _id, ResultType result_type)
     return tasks.back()->id;
 }
 
+Notation Document::GetNotation(ElementId _id)
+{
+    std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
+    auto el = GetElement(_id);
+    IntegerResult* r = (IntegerResult*)el.get();
+    if (!r)
+        return Notation::NONE;
+    return r->config.result_notation;
+}
+
+uint Document::SetNotation(ElementId _id, Notation notation)
+{
+    std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
+    tasks.emplace_back(new SetResultParams(text, _id, notation));
+#ifdef DEBUG
+    last_task_id = tasks.back()->id;
+#endif
+    return tasks.back()->id;
+}
+
 FractionForm Document::GetFractionForm(ElementId _id)
 {
     std::lock_guard<std::recursive_mutex> lock(tasks_mutex);

@@ -173,6 +173,15 @@ bool Equation::SetResult(ResultType _result_type)
     return true;
 }
 
+bool Equation::SetConfig(Notation notation)
+{
+    if (result->type != ElementType::INTEGER_RESULT)
+        return false;
+    caret->SetState(id, 1, true);
+    IntegerResult* r = (IntegerResult*)result.get();
+    return r->SetConfig(notation);
+}
+
 bool Equation::SetConfig(FractionForm fraction_form)
 {
     if (result->type != ElementType::RATIONAL_RESULT)

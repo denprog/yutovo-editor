@@ -266,6 +266,17 @@ void IntegerResult::PutResult(Result result)
     parent->Remake(true);
 }
 
+bool IntegerResult::SetConfig(Notation result_notation)
+{
+    if (config.result_notation == result_notation)
+        return false;
+    config.result_notation = result_notation;
+    ParserString expr = last_expression;
+    last_expression.Reset();
+    Solve(expr);
+    return true;
+}
+
 //RationalResult
 
 RationalResult::RationalResult(Document* _document) :

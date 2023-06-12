@@ -207,6 +207,8 @@ public:
     void RemoveIdentifier(ElementId _id, uint code_id, const std::u32string& identifier, const uint delay);
 
     uint SetResult(ElementId _id, ResultType result_type);
+    Notation GetNotation(ElementId _id);
+    uint SetNotation(ElementId _id, Notation notation);
     FractionForm GetFractionForm(ElementId _id);
     uint SetFractionForm(ElementId _id, FractionForm fraction_form);
 
