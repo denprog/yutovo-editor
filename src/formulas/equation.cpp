@@ -158,10 +158,10 @@ bool Equation::Depends(const std::string& identifier)
     return false;
 }
 
-void Equation::SetResult(ResultType _result_type)
+bool Equation::SetResult(ResultType _result_type)
 {
     if (result_type == _result_type)
-        return;
+        return false;
     result_type = _result_type;
     caret->SetState(id, 1, true);
     result.reset();
@@ -170,6 +170,16 @@ void Equation::SetResult(ResultType _result_type)
     ParserString str;
     first->ToParserString(str);
     UpdateResult(str);
+    return true;
+}
+
+bool Equation::SetConfig(FractionForm fraction_form)
+{
+    if (result->type != ElementType::RATIONAL_RESULT)
+        return false;
+    caret->SetState(id, 1, true);
+    RationalResult* r = (RationalResult*)result.get();
+    return r->SetConfig(fraction_form);
 }
 
 std::string Equation::ToHtml()

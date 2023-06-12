@@ -357,6 +357,17 @@ void RationalResult::PutResult(Result result)
     parent->Remake(true);
 }
 
+bool RationalResult::SetConfig(FractionForm fraction_form)
+{
+    if (config.fraction_form == fraction_form)
+        return false;
+    config.fraction_form = fraction_form;
+    ParserString expr = last_expression;
+    last_expression.Reset();
+    Solve(expr);
+    return true;
+}
+
 //ComplexResult
 
 ComplexResult::ComplexResult(Document* _document) :

@@ -57,7 +57,7 @@ public:
     virtual bool CanSetPrecision();
     virtual void SetPrecision(const uint _precision);
 
-protected:
+public:
     Config::RealResult config;
 };
 
@@ -72,7 +72,7 @@ public:
 
     virtual void PutResult(Result result);
 
-protected:
+public:
     Config::IntegerResult config;
 };
 
@@ -87,7 +87,9 @@ public:
 
     virtual void PutResult(Result result);
 
-protected:
+    bool SetConfig(FractionForm fraction_form);
+
+public:
     Config::RationalResult config;
 };
 
@@ -98,7 +100,7 @@ public:
     ComplexResult(Element* parent);
     ComplexResult(const ComplexResult& source) = default;
 
-protected:
+public:
     Config::ComplexResult config;
 };
 
@@ -141,7 +143,7 @@ public:
 
 	BOOST_SERIALIZATION_SPLIT_MEMBER()
 
-private:
+public:
     Config::AutoResult auto_config;
 };
 

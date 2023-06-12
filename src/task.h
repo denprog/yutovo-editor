@@ -292,6 +292,16 @@ struct SetResultTask : Task
     ResultType result_type;
 };
 
+struct SetResultParams : Task
+{
+    SetResultParams(ElementPtr _text, ElementId _id, FractionForm _fraction_form);
+
+    virtual bool Execute();
+
+    ElementId id;
+    FractionForm fraction_form = FractionForm::NONE;
+};
+
 }
 
 #endif
