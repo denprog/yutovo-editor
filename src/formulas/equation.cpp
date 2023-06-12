@@ -192,12 +192,13 @@ bool Equation::SetResult(ResultType _result_type, bool with_undo)
 {
     if (result_type == _result_type)
         return false;
-    
+
+    caret->SetState(id, 1, true);
+
     if (with_undo)
         document->StoreUndo(id);
     
     result_type = _result_type;
-    caret->SetState(id, 1, true);
     result.reset();
     document->RemoveErrorMarks(id);
 
@@ -211,11 +212,12 @@ bool Equation::SetConfig(Notation notation, bool with_undo)
 {
     if (result->type != ElementType::INTEGER_RESULT)
         return false;
-    
+
+    caret->SetState(id, 1, true);
+
     if (with_undo)
         document->StoreUndo(id);
     
-    caret->SetState(id, 1, true);
     IntegerResult* r = (IntegerResult*)result.get();
     return r->SetConfig(notation);
 }
@@ -225,10 +227,11 @@ bool Equation::SetConfig(FractionForm fraction_form, bool with_undo)
     if (result->type != ElementType::RATIONAL_RESULT)
         return false;
     
+    caret->SetState(id, 1, true);
+    
     if (with_undo)
         document->StoreUndo(id);
     
-    caret->SetState(id, 1, true);
     RationalResult* r = (RationalResult*)result.get();
     return r->SetConfig(fraction_form);
 }

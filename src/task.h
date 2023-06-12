@@ -290,6 +290,7 @@ struct SetResultTask : Task
 
     ElementId id;
     ResultType result_type;
+    EditorState before_state;
 };
 
 struct SetResultParams : Task
@@ -302,6 +303,7 @@ struct SetResultParams : Task
     ElementId id;
     Notation notation = Notation::NONE;
     FractionForm fraction_form = FractionForm::NONE;
+    EditorState before_state;
 };
 
 }

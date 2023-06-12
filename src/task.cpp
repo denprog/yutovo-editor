@@ -382,7 +382,7 @@ bool InsertFormulasTask::Execute()
     if (before_state.IsEmpty())
         before_state = document->GetEditorState();
     else
-        text->document->SetEditorState(before_state); //it is redo
+        document->SetEditorState(before_state); //it is redo
     
     CaretState& caret_state = before_state.caret_state;
     SelectionState& selection_state = before_state.selection_state;
@@ -1290,6 +1290,11 @@ SetResultTask::SetResultTask(ElementPtr _text, ElementId _id, ResultType _result
 
 bool SetResultTask::Execute()
 {
+    if (before_state.IsEmpty())
+        before_state = document->GetEditorState();
+    else
+        document->SetEditorState(before_state); //it is redo
+
     auto el = document->FindParent(id, ElementType::EQUATION);
     if (!el)
         return false;
@@ -1319,6 +1324,11 @@ SetResultParams::SetResultParams(ElementPtr _text, ElementId _id, FractionForm _
 
 bool SetResultParams::Execute()
 {
+    if (before_state.IsEmpty())
+        before_state = document->GetEditorState();
+    else
+        document->SetEditorState(before_state); //it is redo
+    
     auto el = document->FindParent(id, ElementType::EQUATION);
     if (!el)
         return false;
