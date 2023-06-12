@@ -289,7 +289,29 @@ TEST_F(SolverIntegerTest, solver5)
         U"2345=2345(dec)"
         ) << ToBasicString(document.ToText());
 
-    document.WaitTask(document.SetNotation({0, 0, 0, 0, 0, 0, 0, 2, 0, 0}, Notation::BINARY, true));
+    for (int i = 0; i < 7; ++i)
+        document.MoveCaretRight(false);
+    document.WaitTask(document.SetNotation({0, 0, 0, 0, 0, 0, 0, 2, 0, 1, 2}, Notation::BINARY, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"2345=100100101001(bin)"
+        ) << ToBasicString(document.ToText());
+
+    document.Undo();
+    document.WaitUndo();
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"2345=2345(dec)"
+        ) << ToBasicString(document.ToText());
+
+    document.GetConfig(config);
+    config.solve_delay = 0;
+    document.SetConfig(config);
+
+    document.Redo();
+    document.WaitRedo();
     document.WaitSolver();
     std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToText() == 
@@ -339,7 +361,7 @@ TEST_F(SolverIntegerTest, solver6)
         U"567=567(dec)"
         ) << ToBasicString(document.ToText());
 
-    document.WaitTask(document.SetNotation({0, 0, 0, 0, 0, 0, 0, 2, 0, 0}, Notation::HEXADECIMAL, true));
+    document.WaitTask(document.SetNotation({0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 3}, Notation::HEXADECIMAL, true));
     document.WaitSolver();
     std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToText() == 
