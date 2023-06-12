@@ -61,6 +61,7 @@ enum class Notation
 
 enum class FractionForm
 {
+    NONE = -1,
     PROPER = 0,
     IMPROPER
 };

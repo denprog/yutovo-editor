@@ -207,6 +207,9 @@ public:
     void RemoveIdentifier(ElementId _id, uint code_id, const std::u32string& identifier, const uint delay);
 
     uint SetResult(ElementId _id, ResultType result_type);
+    FractionForm GetFractionForm(ElementId _id);
+    uint SetFractionForm(ElementId _id, FractionForm fraction_form);
+
     void ReSolve(ElementId _id);
     void ReSolveDependencies(ElementId after_id, const std::u32string& identifier);
     void ReSolveErrors();

@@ -1292,9 +1292,36 @@ bool SetResultTask::Execute()
     auto el = document->FindParent(id, ElementType::EQUATION);
     if (!el)
         return false;
-    ((Equation*)el.get())->SetResult(result_type);
+    if (!((Equation*)el.get())->SetResult(result_type))
+        return false;
     Remake(el->id, true);
     return true;
+}
+
+//SetResultParams
+
+SetResultParams::SetResultParams(ElementPtr _text, ElementId _id, FractionForm _fraction_form) :
+    Task(_text),
+    id(_id),
+    fraction_form(_fraction_form)
+{
+}
+
+bool SetResultParams::Execute()
+{
+    auto el = document->FindParent(id, ElementType::EQUATION);
+    if (!el)
+        return false;
+    Equation* eq = (Equation*)el.get();
+    if (fraction_form != FractionForm::NONE)
+    {
+        if (eq->SetConfig(fraction_form))
+        {
+            Remake(el->id, true);
+            return true;
+        }
+    }
+    return false;
 }
 
 }

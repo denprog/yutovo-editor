@@ -1795,6 +1795,26 @@ uint Document::SetResult(ElementId _id, ResultType result_type)
     return tasks.back()->id;
 }
 
+FractionForm Document::GetFractionForm(ElementId _id)
+{
+    std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
+    auto el = GetElement(_id);
+    RationalResult* r = (RationalResult*)el.get();
+    if (!r)
+        return FractionForm::NONE;
+    return r->config.fraction_form;
+}
+
+uint Document::SetFractionForm(ElementId _id, FractionForm fraction_form)
+{
+    std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
+    tasks.emplace_back(new SetResultParams(text, _id, fraction_form));
+#ifdef DEBUG
+    last_task_id = tasks.back()->id;
+#endif
+    return tasks.back()->id;
+}
+
 void Document::ReSolve(ElementId _id)
 {
     std::lock_guard<std::recursive_mutex> lock(tasks_mutex);

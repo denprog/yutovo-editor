@@ -345,4 +345,34 @@ TEST_F(SolverRationalTest, rational6)
         ) << ToBasicString(document.ToText());
 }
 
+//Set proper and improper fractions
+TEST_F(SolverRationalTest, rational7)
+{
+    Start(600);
+    
+    document.GetConfig(config);
+    config.rational_result.fraction_form = FractionForm::IMPROPER;
+    document.SetConfig(config);
+
+    document.InsertDivision(true);
+    document.InsertString("11", true);
+    document.MoveCaretDown(false);
+    document.WaitTask(document.MoveCaretDown(false));
+    document.InsertString("5", true);
+    document.MoveCaretRight(false);
+    document.WaitTask(document.InsertEquation(ResultType::RATIONAL, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"(11)/(5)=(11)/(5)"
+        ) << ToBasicString(document.ToText());
+
+    document.WaitTask(document.SetFractionForm({0, 0, 0, 0, 0, 0, 0, 2, 0, 0}, FractionForm::PROPER));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"(11)/(5)=2(1)/(5)"
+        ) << ToBasicString(document.ToText());
+}
+
 }
