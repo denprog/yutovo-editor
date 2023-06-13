@@ -75,15 +75,6 @@ void ResultRow::Reset()
     last_expression.Reset();
 }
 
-bool ResultRow::CanSetPrecision()
-{
-    return false;
-}
-
-void ResultRow::SetPrecision(const int precision)
-{
-}
-
 //RealResult
 
 RealResult::RealResult(Document* _document) :
@@ -189,13 +180,19 @@ void RealResult::PutResult(Result result)
     parent->Remake(true);
 }
 
-bool RealResult::CanSetPrecision()
+bool RealResult::SetConfig(const int precision, const int exp, const AngleMeasure result_angle_measure)
 {
+    if (precision != -1 && config.precision != precision)
+        config.precision = precision;
+    if (exp != -1 && config.exp != exp)
+        config.exp = exp;
+    if (result_angle_measure != AngleMeasure::NONE && config.result_angle_measure != result_angle_measure)
+        config.result_angle_measure = result_angle_measure;
+    
+    ParserString expr = last_expression;
+    last_expression.Reset();
+    Solve(expr);
     return true;
-}
-
-void RealResult::SetPrecision(const uint _precision)
-{
 }
 
 //IntegerResult
@@ -414,6 +411,21 @@ ComplexResult::ComplexResult(Element* parent) :
     type = ElementType::COMPLEX_RESULT;
 }
 
+bool ComplexResult::SetConfig(const int precision, const int exp, const AngleMeasure result_angle_measure)
+{
+    if (precision != -1 && config.precision != precision)
+        config.precision = precision;
+    if (exp != -1 && config.exp != exp)
+        config.exp = exp;
+    if (result_angle_measure != AngleMeasure::NONE && config.result_angle_measure != result_angle_measure)
+        config.result_angle_measure = result_angle_measure;
+    
+    ParserString expr = last_expression;
+    last_expression.Reset();
+    Solve(expr);
+    return true;
+}
+
 //ErrorResult
 
 ErrorResult::ErrorResult(Document* _document) :
@@ -544,6 +556,65 @@ void AutoResult::PutResult(Result result)
         elements->Get(0)->SetEditable(false);
     Remake(true);
     parent->Remake(true);
+}
+
+bool AutoResult::SetConfig(const int precision, const int exp, const AngleMeasure result_angle_measure)
+{
+    if (precision != -1 && config.real_result.precision != precision)
+        config.real_result.precision = precision;
+    if (exp != -1 && config.real_result.exp != exp)
+        config.real_result.exp = exp;
+    if (result_angle_measure != AngleMeasure::NONE && config.real_result.result_angle_measure != result_angle_measure)
+        config.real_result.result_angle_measure = result_angle_measure;
+    
+    ParserString expr = last_expression;
+    last_expression.Reset();
+    Solve(expr);
+    return true;
+}
+
+bool AutoResult::SetConfig(Notation result_notation)
+{
+    if (config.integer_result.result_notation == result_notation)
+        return false;
+    
+    config.integer_result.result_notation = result_notation;
+
+    ParserString expr = last_expression;
+    last_expression.Reset();
+    Solve(expr);
+    return true;
+}
+
+bool AutoResult::SetConfig(FractionForm fraction_form)
+{
+    if (config.rational_result.fraction_form == fraction_form)
+        return false;
+    
+    config.rational_result.fraction_form = fraction_form;
+    
+    ParserString expr = last_expression;
+    last_expression.Reset();
+    Solve(expr);
+    return true;
+}
+
+ResultType AutoResult::GetResultType()
+{
+    if (elements->Count() == 0)
+        return ResultType::NONE;
+    switch (elements->Get(0)->type)
+    {
+    case ElementType::REAL_RESULT:
+        return ResultType::REAL;
+    case ElementType::INTEGER_RESULT:
+        return ResultType::INTEGER;
+    case ElementType::RATIONAL_RESULT:
+        return ResultType::RATIONAL;
+    case ElementType::COMPLEX_RESULT:
+        return ResultType::COMPLEX;
+    }
+    return ResultType::NONE;
 }
 
 std::string AutoResult::ToHtml()

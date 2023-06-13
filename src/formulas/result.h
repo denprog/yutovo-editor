@@ -25,9 +25,6 @@ public:
     
     virtual void Reset();
 
-    virtual bool CanSetPrecision();
-    virtual void SetPrecision(const int precision);
-
 public:
     bool last_error = false;
 
@@ -55,8 +52,7 @@ public:
 
     virtual void PutResult(Result result);
 
-    virtual bool CanSetPrecision();
-    virtual void SetPrecision(const uint _precision);
+    bool SetConfig(const int precision, const int exp, const AngleMeasure result_angle_measure);
 
 public:
     Config::RealResult config;
@@ -105,6 +101,8 @@ public:
     ComplexResult(Element* parent);
     ComplexResult(const ComplexResult& source) = default;
 
+    bool SetConfig(const int precision, const int exp, const AngleMeasure result_angle_measure);
+
 public:
     Config::ComplexResult config;
 };
@@ -132,6 +130,12 @@ public:
     virtual void Solve(const ParserString& expression);
 
     virtual void PutResult(Result result);
+
+    bool SetConfig(const int precision, const int exp, const AngleMeasure result_angle_measure);
+    bool SetConfig(Notation result_notation);
+    bool SetConfig(FractionForm fraction_form);
+
+    ResultType GetResultType();
 
     virtual std::string ToHtml();
 

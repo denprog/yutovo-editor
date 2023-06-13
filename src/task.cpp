@@ -1322,6 +1322,16 @@ SetResultParams::SetResultParams(ElementPtr _text, ElementId _id, FractionForm _
     with_undo = _with_undo;
 }
 
+SetResultParams::SetResultParams(ElementPtr _text, ElementId _id, uint _precision, uint _exp, AngleMeasure _result_angle_measure, bool _with_undo) :
+    Task(_text),
+    id(_id),
+    precision(_precision),
+    exp(_exp),
+    result_angle_measure(_result_angle_measure)
+{
+    with_undo = _with_undo;
+}
+
 bool SetResultParams::Execute()
 {
     if (before_state.IsEmpty())
@@ -1334,21 +1344,32 @@ bool SetResultParams::Execute()
         return false;
     
     Equation* eq = (Equation*)el.get();
+    if (precision != -1 || exp != -1 || result_angle_measure != AngleMeasure::NONE)
+    {
+        if (eq->SetConfig(precision, exp, result_angle_measure, with_undo))
+        {
+            Remake(el->id, true);
+            return true;
+        }
+    }
     if (notation != Notation::NONE)
     {
-        if (!eq->SetConfig(notation, with_undo))
-            return false;
+        if (eq->SetConfig(notation, with_undo))
+        {
+            Remake(el->id, true);
+            return true;
+        }
     }
-    else if (fraction_form != FractionForm::NONE)
+    if (fraction_form != FractionForm::NONE)
     {
-        if (!eq->SetConfig(fraction_form, with_undo))
-            return false;
+        if (eq->SetConfig(fraction_form, with_undo))
+        {
+            Remake(el->id, true);
+            return true;
+        }
     }
-    else
-        return false;
-    
-    Remake(el->id, true);
-    return true;
+
+    return false;
 }
 
 }

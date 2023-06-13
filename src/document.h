@@ -206,7 +206,14 @@ public:
     void SetUserIdentifier(ElementId _id, uint code_id, const std::u32string& identifier, const std::u32string& expression, const uint delay);
     void RemoveIdentifier(ElementId _id, uint code_id, const std::u32string& identifier, const uint delay);
 
+    ResultType GetResultType(ElementId _id);
     uint SetResult(ElementId _id, ResultType result_type, bool with_undo);
+    int GetPrecision(ElementId _id);
+    uint SetPrecision(ElementId _id, uint precision, bool with_undo);
+    int GetExp(ElementId _id);
+    uint SetExp(ElementId _id, uint exp, bool with_undo);
+    AngleMeasure GetResultAngleMeasure(ElementId _id);
+    uint SetResultAngleMeasure(ElementId _id, AngleMeasure result_angle_measure, bool with_undo);
     Notation GetNotation(ElementId _id);
     uint SetNotation(ElementId _id, Notation notation, bool with_undo);
     FractionForm GetFractionForm(ElementId _id);
