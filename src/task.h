@@ -297,12 +297,18 @@ struct SetResultParams : Task
 {
     SetResultParams(ElementPtr _text, ElementId _id, Notation _notation, bool _with_undo);
     SetResultParams(ElementPtr _text, ElementId _id, FractionForm _fraction_form, bool _with_undo);
+    SetResultParams(ElementPtr _text, ElementId _id, uint _precision, uint _exp, AngleMeasure _result_angle_measure, bool _with_undo);
 
     virtual bool Execute();
 
     ElementId id;
+
+    int precision = -1;
+    int exp = -1;
+    AngleMeasure result_angle_measure = AngleMeasure::NONE;
     Notation notation = Notation::NONE;
     FractionForm fraction_form = FractionForm::NONE;
+
     EditorState before_state;
 };
 

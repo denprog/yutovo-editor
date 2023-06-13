@@ -1785,6 +1785,16 @@ void Document::RemoveIdentifier(ElementId _id, uint code_id, const std::u32strin
     ReSolveDependencies(_id, identifier);
 }
 
+ResultType Document::GetResultType(ElementId _id)
+{
+    std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
+    auto el = GetElement(_id);
+    AutoResult* r = (AutoResult*)el.get();
+    if (!r)
+        return ResultType::NONE;
+    return r->GetResultType();
+}
+
 uint Document::SetResult(ElementId _id, ResultType result_type, bool with_undo)
 {
     std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
@@ -1795,13 +1805,93 @@ uint Document::SetResult(ElementId _id, ResultType result_type, bool with_undo)
     return tasks.back()->id;
 }
 
+int Document::GetPrecision(ElementId _id)
+{
+    std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
+    auto el = GetElement(_id);
+    RealResult* r = dynamic_cast<RealResult*>(el.get());
+    if (!r)
+    {
+        AutoResult* a_r = dynamic_cast<AutoResult*>(el.get());
+        if (a_r)
+            return a_r->config.real_result.precision;
+        return -1;
+    }
+    return r->config.precision;
+}
+
+uint Document::SetPrecision(ElementId _id, uint precision, bool with_undo)
+{
+    std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
+    tasks.emplace_back(new SetResultParams(text, _id, precision, -1, AngleMeasure::NONE, with_undo));
+#ifdef DEBUG
+    last_task_id = tasks.back()->id;
+#endif
+    return tasks.back()->id;
+}
+
+int Document::GetExp(ElementId _id)
+{
+    std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
+    auto el = GetElement(_id);
+    RealResult* r = dynamic_cast<RealResult*>(el.get());
+    if (!r)
+    {
+        AutoResult* a_r = dynamic_cast<AutoResult*>(el.get());
+        if (a_r)
+            return a_r->config.real_result.exp;
+        return -1;
+    }
+    return r->config.exp;
+}
+
+uint Document::SetExp(ElementId _id, uint exp, bool with_undo)
+{
+    std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
+    tasks.emplace_back(new SetResultParams(text, _id, -1, exp, AngleMeasure::NONE, with_undo));
+#ifdef DEBUG
+    last_task_id = tasks.back()->id;
+#endif
+    return tasks.back()->id;
+}
+
+AngleMeasure Document::GetResultAngleMeasure(ElementId _id)
+{
+    std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
+    auto el = GetElement(_id);
+    RealResult* r = dynamic_cast<RealResult*>(el.get());
+    if (!r)
+    {
+        AutoResult* a_r = dynamic_cast<AutoResult*>(el.get());
+        if (a_r)
+            return a_r->config.real_result.result_angle_measure;
+        return AngleMeasure::NONE;
+    }
+    return r->config.result_angle_measure;
+}
+
+uint Document::SetResultAngleMeasure(ElementId _id, AngleMeasure result_angle_measure, bool with_undo)
+{
+    std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
+    tasks.emplace_back(new SetResultParams(text, _id, -1, -1, result_angle_measure, with_undo));
+#ifdef DEBUG
+    last_task_id = tasks.back()->id;
+#endif
+    return tasks.back()->id;
+}
+
 Notation Document::GetNotation(ElementId _id)
 {
     std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
     auto el = GetElement(_id);
-    IntegerResult* r = (IntegerResult*)el.get();
+    IntegerResult* r = dynamic_cast<IntegerResult*>(el.get());
     if (!r)
+    {
+        AutoResult* a_r = dynamic_cast<AutoResult*>(el.get());
+        if (a_r)
+            return a_r->config.integer_result.result_notation;
         return Notation::NONE;
+    }
     return r->config.result_notation;
 }
 
@@ -1819,9 +1909,14 @@ FractionForm Document::GetFractionForm(ElementId _id)
 {
     std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
     auto el = GetElement(_id);
-    RationalResult* r = (RationalResult*)el.get();
+    RationalResult* r = dynamic_cast<RationalResult*>(el.get());
     if (!r)
+    {
+        AutoResult* a_r = dynamic_cast<AutoResult*>(el.get());
+        if (a_r)
+            return a_r->config.rational_result.fraction_form;
         return FractionForm::NONE;
+    }
     return r->config.fraction_form;
 }
 

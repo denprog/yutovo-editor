@@ -891,6 +891,108 @@ TEST_F(SolverAutoTest, solver14)
         ) << ToBasicString(document.ToText());
 }
 
+//Change precision
+TEST_F(SolverAutoTest, solver16)
+{
+    Start(600);
+    
+    document.InsertCode(false, true);
+    document.InsertString("12.3456789012345", true);
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"12.3456789012345=12.346"
+        ) << ToBasicString(document.ToText());
+
+    document.WaitTask(document.SetPrecision({0, 0, 0, 0, 0, 0, 0, 2, 0, 0}, 7, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"12.3456789012345=12.3456789"
+        ) << ToBasicString(document.ToText());
+}
+
+//Change exponential threshold
+TEST_F(SolverAutoTest, solver17)
+{
+    Start(600);
+    
+    document.InsertCode(false, true);
+    document.InsertString("123456789012", true);
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"123456789012=1.235*pow(10,11)"
+        ) << ToBasicString(document.ToText());
+
+    document.WaitTask(document.SetExp({0, 0, 0, 0, 0, 0, 0, 2, 0, 0}, 12, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"123456789012=123456789012."
+        ) << ToBasicString(document.ToText());
+}
+
+//Change angle measure
+TEST_F(SolverAutoTest, solver18)
+{
+    Start(600);
+    
+    document.InsertCode(false, true);
+    document.InsertString("arcsin", true);
+    document.InsertOpenFence(true);
+    document.InsertString("1", true);
+    document.InsertCloseFence(true);
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"arcsin(1)=1.571(rad)"
+        ) << ToBasicString(document.ToText());
+
+    document.WaitTask(document.SetResultAngleMeasure({0, 0, 0, 0, 0, 0, 0, 2, 0, 0}, AngleMeasure::DEGREE, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"arcsin(1)=90.(deg)"
+        ) << ToBasicString(document.ToText());
+}
+
+//Change fraction form on auto result
+TEST_F(SolverAutoTest, solver19)
+{
+    Start(600);
+
+    document.GetConfig(config);
+    ElementType order[4] = {ElementType::RATIONAL_RESULT, ElementType::INTEGER_RESULT, ElementType::REAL_RESULT, ElementType::COMPLEX_RESULT};
+    std::copy(order, order + 4, config.auto_result.results_order);
+    config.auto_result.rational_result.fraction_form = FractionForm::IMPROPER;
+    document.SetConfig(config);
+
+    document.InsertDivision(true);
+    document.InsertString("11", true);
+    document.MoveCaretDown(false);
+    document.WaitTask(document.MoveCaretDown(false));
+    document.InsertString("5", true);
+    document.MoveCaretRight(false);
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"(11)/(5)=(11)/(5)"
+        ) << ToBasicString(document.ToText());
+
+    document.WaitTask(document.SetFractionForm({0, 0, 0, 0, 0, 0, 0, 2, 0, 0}, FractionForm::PROPER, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"(11)/(5)=2(1)/(5)"
+        ) << ToBasicString(document.ToText());
+}
+
+
 //Solve with errors
 TEST_F(SolverAutoTest, errors1)
 {

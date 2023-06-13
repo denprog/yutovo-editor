@@ -225,4 +225,73 @@ TEST_F(SolverRealTest, solver5)
         ) << ToBasicString(document.ToText());
 }
 
+//Change precision
+TEST_F(SolverRealTest, solver6)
+{
+    Start(600);
+    
+    document.InsertCode(false, true);
+    document.InsertString("12.3456789012345", true);
+    document.WaitTask(document.InsertEquation(ResultType::REAL, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"12.3456789012345=12.346"
+        ) << ToBasicString(document.ToText());
+
+    document.WaitTask(document.SetPrecision({0, 0, 0, 0, 0, 0, 0, 2, 0, 0}, 7, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"12.3456789012345=12.3456789"
+        ) << ToBasicString(document.ToText());
+}
+
+//Change exponential threshold
+TEST_F(SolverRealTest, solver7)
+{
+    Start(600);
+    
+    document.InsertCode(false, true);
+    document.InsertString("123456789012", true);
+    document.WaitTask(document.InsertEquation(ResultType::REAL, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"123456789012=1.235*pow(10,11)"
+        ) << ToBasicString(document.ToText());
+
+    document.WaitTask(document.SetExp({0, 0, 0, 0, 0, 0, 0, 2, 0, 0}, 12, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"123456789012=123456789012."
+        ) << ToBasicString(document.ToText());
+}
+
+//Change angle measure
+TEST_F(SolverRealTest, solver8)
+{
+    Start(600);
+    
+    document.InsertCode(false, true);
+    document.InsertString("arcsin", true);
+    document.InsertOpenFence(true);
+    document.InsertString("1", true);
+    document.InsertCloseFence(true);
+    document.WaitTask(document.InsertEquation(ResultType::REAL, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"arcsin(1)=1.571(rad)"
+        ) << ToBasicString(document.ToText());
+
+    document.WaitTask(document.SetResultAngleMeasure({0, 0, 0, 0, 0, 0, 0, 2, 0, 0}, AngleMeasure::DEGREE, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"arcsin(1)=90.(deg)"
+        ) << ToBasicString(document.ToText());
+}
+
 }

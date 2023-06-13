@@ -208,32 +208,87 @@ bool Equation::SetResult(ResultType _result_type, bool with_undo)
     return true;
 }
 
+bool Equation::SetConfig(int precision, int exp, AngleMeasure result_angle_measure, bool with_undo)
+{
+    switch (result->type)
+    {
+    case ElementType::AUTO_RESULT:
+    {
+        caret->SetState(id, 1, true);
+        if (with_undo)
+            document->StoreUndo(id);
+        AutoResult* r = (AutoResult*)result.get();
+        return r->SetConfig(precision, exp, result_angle_measure);
+    }
+    case ElementType::REAL_RESULT:
+    {
+        caret->SetState(id, 1, true);
+        if (with_undo)
+            document->StoreUndo(id);
+        RealResult* r = (RealResult*)result.get();
+        return r->SetConfig(precision, exp, result_angle_measure);
+    }
+    case ElementType::COMPLEX_RESULT:
+    {
+        caret->SetState(id, 1, true);
+        if (with_undo)
+            document->StoreUndo(id);
+        ComplexResult* r = (ComplexResult*)result.get();
+        return r->SetConfig(precision, exp, result_angle_measure);
+    }
+    default:
+        return false;
+    }
+}
+
 bool Equation::SetConfig(Notation notation, bool with_undo)
 {
-    if (result->type != ElementType::INTEGER_RESULT)
+    switch (result->type)
+    {
+    case ElementType::INTEGER_RESULT:
+    {
+        caret->SetState(id, 1, true);
+        if (with_undo)
+            document->StoreUndo(id);
+        IntegerResult* r = (IntegerResult*)result.get();
+        return r->SetConfig(notation);
+    }
+    case ElementType::AUTO_RESULT:
+    {
+        caret->SetState(id, 1, true);
+        if (with_undo)
+            document->StoreUndo(id);
+        AutoResult* r = (AutoResult*)result.get();
+        return r->SetConfig(notation);
+    }
+    default:
         return false;
-
-    caret->SetState(id, 1, true);
-
-    if (with_undo)
-        document->StoreUndo(id);
-    
-    IntegerResult* r = (IntegerResult*)result.get();
-    return r->SetConfig(notation);
+    }
 }
 
 bool Equation::SetConfig(FractionForm fraction_form, bool with_undo)
 {
-    if (result->type != ElementType::RATIONAL_RESULT)
+    switch (result->type)
+    {
+    case ElementType::RATIONAL_RESULT:
+    {
+        caret->SetState(id, 1, true);
+        if (with_undo)
+            document->StoreUndo(id);
+        RationalResult* r = (RationalResult*)result.get();
+        return r->SetConfig(fraction_form);
+    }
+    case ElementType::AUTO_RESULT:
+    {
+        caret->SetState(id, 1, true);
+        if (with_undo)
+            document->StoreUndo(id);
+        AutoResult* r = (AutoResult*)result.get();
+        return r->SetConfig(fraction_form);
+    }
+    default:
         return false;
-    
-    caret->SetState(id, 1, true);
-    
-    if (with_undo)
-        document->StoreUndo(id);
-    
-    RationalResult* r = (RationalResult*)result.get();
-    return r->SetConfig(fraction_form);
+    }
 }
 
 std::string Equation::ToHtml()

@@ -40,6 +40,7 @@ public:
     void SetResult(Config::RationalResult config);
 
     bool SetResult(ResultType _result_type, bool with_undo);
+    bool SetConfig(int precision, int exp, AngleMeasure result_angle_measure, bool with_undo);
     bool SetConfig(Notation notation, bool with_undo);
     bool SetConfig(FractionForm fraction_form, bool with_undo);
     
