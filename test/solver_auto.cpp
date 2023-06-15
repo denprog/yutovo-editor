@@ -747,7 +747,7 @@ TEST_F(SolverAutoTest, solver11)
         ) << ToBasicString(document.ToText());
 
     document.GetConfig(config);
-    ElementType order1[4] = {ElementType::RATIONAL_RESULT, ElementType::INTEGER_RESULT, ElementType::REAL_RESULT, ElementType::COMPLEX_RESULT};
+    ResultType order1[4] = {ResultType::RATIONAL, ResultType::INTEGER, ResultType::REAL, ResultType::COMPLEX};
     std::copy(order1, order1 + 4, config.auto_result.results_order);
     document.SetConfig(config);
 
@@ -768,7 +768,7 @@ TEST_F(SolverAutoTest, solver11)
         ) << ToBasicString(document.ToText());
 
     document.GetConfig(config);
-    ElementType order2[4] = {ElementType::INTEGER_RESULT, ElementType::RATIONAL_RESULT, ElementType::REAL_RESULT, ElementType::COMPLEX_RESULT};
+    ResultType order2[4] = {ResultType::INTEGER, ResultType::RATIONAL, ResultType::REAL, ResultType::COMPLEX};
     std::copy(order2, order2 + 4, config.auto_result.results_order);
     document.SetConfig(config);
 
@@ -966,7 +966,7 @@ TEST_F(SolverAutoTest, solver19)
     Start(600);
 
     document.GetConfig(config);
-    ElementType order[4] = {ElementType::RATIONAL_RESULT, ElementType::INTEGER_RESULT, ElementType::REAL_RESULT, ElementType::COMPLEX_RESULT};
+    ResultType order[4] = {ResultType::RATIONAL, ResultType::INTEGER, ResultType::REAL, ResultType::COMPLEX};
     std::copy(order, order + 4, config.auto_result.results_order);
     config.auto_result.rational_result.fraction_form = FractionForm::IMPROPER;
     document.SetConfig(config);
@@ -992,6 +992,31 @@ TEST_F(SolverAutoTest, solver19)
         ) << ToBasicString(document.ToText());
 }
 
+//Change the order of results
+TEST_F(SolverAutoTest, solver20)
+{
+    Start(600);
+
+    document.GetConfig(config);
+    ResultType order1[4] = {ResultType::RATIONAL, ResultType::INTEGER, ResultType::REAL, ResultType::COMPLEX};
+    std::copy(order1, order1 + 4, config.auto_result.results_order);
+    document.SetConfig(config);
+
+    document.InsertDivision(true);
+    document.InsertString("1", true);
+    document.MoveCaretDown(false);
+    document.MoveCaretDown(false);
+    document.InsertString("2", true);
+    document.MoveCaretRight(false);
+    document.InsertPlus(true);
+    document.InsertString("1.2", true);
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"(1)/(2)+1.2=1.7"
+        ) << ToBasicString(document.ToText());
+}
 
 //Solve with errors
 TEST_F(SolverAutoTest, errors1)

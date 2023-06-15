@@ -165,20 +165,6 @@ void Assignment::ReSolve(bool if_error)
 void Assignment::PutResult(Result result)
 {
     last_error = result.error.error_code != ErrorCode::OK;
-    document->RemoveErrorMarks(id);
-    if (result.error.error_code != ErrorCode::SOLVER_RESTARTED_ERROR && result.error.error_code != ErrorCode::OK)
-    {
-        //put error mark
-        ElementId err_id = last_expression.GetElement(result.error.pos);
-        if (!err_id.empty())
-        {
-            auto el = document->GetElement(err_id);
-            if (el)
-            {
-                document->AddErrorMark(err_id, 0, el->elements->Count());
-            }
-        }
-    }
     Remake(true);
 }
 

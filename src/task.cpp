@@ -1152,6 +1152,25 @@ bool ResultTask::Execute()
     default:
         return false;
     }
+
+    if (!result.error.id.empty() && result.error.error_code != ErrorCode::SOLVER_RESTARTED_ERROR && result.error.error_code != ErrorCode::OK)
+    {
+        ElementPtr p = document->FindParent(result.error.id, ElementType::ASSIGNMENT);
+        if (p)
+        {
+            document->RemoveErrorMarks(p->id);
+            //put error mark
+            Assignment* el = (Assignment*)p.get();
+            ElementId err_id = el->last_expression.GetElement(result.error.pos);
+            if (!err_id.empty())
+            {
+                auto el = document->GetElement(err_id);
+                if (el)
+                    document->AddErrorMark(err_id, 0, el->elements->Count());
+            }
+        }
+    }
+
     el = document->FindParent(el->id, ElementType::EQUATION);
     if (el)
         Remake(el->id, true);

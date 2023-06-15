@@ -129,15 +129,15 @@ void RealResult::PutResult(Result result)
     Equation* eq = (Equation*)el.get();
     eq->dependencies = result.dependencies;
 
-    last_error = result.error.error_code != ErrorCode::OK;
-    if (result.error.error_code == ErrorCode::SOLVER_RESTARTED_ERROR)
+    last_error = result.error.error_code != yutovo_service::ErrorCode::OK;
+    if (result.error.error_code == yutovo_service::ErrorCode::SOLVER_RESTARTED_ERROR)
     {
         eq->last_expression.Reset();
         return;
     }
 
     elements->Clear();
-    if (result.error.error_code != ErrorCode::OK)
+    if (result.error.error_code != yutovo_service::ErrorCode::OK)
     {
         PutError(result.error); //put error message
     }
@@ -239,15 +239,15 @@ void IntegerResult::PutResult(Result result)
     Equation* eq = (Equation*)el.get();
     eq->dependencies = result.dependencies;
 
-    last_error = result.error.error_code != ErrorCode::OK;
-    if (result.error.error_code == ErrorCode::SOLVER_RESTARTED_ERROR)
+    last_error = result.error.error_code != yutovo_service::ErrorCode::OK;
+    if (result.error.error_code == yutovo_service::ErrorCode::SOLVER_RESTARTED_ERROR)
     {
         eq->last_expression.Reset();
         return;
     }
 
     elements->Clear();
-    if (result.error.error_code != ErrorCode::OK)
+    if (result.error.error_code != yutovo_service::ErrorCode::OK)
     {
         PutError(result.error); //put error message
     }
@@ -332,15 +332,15 @@ void RationalResult::PutResult(Result result)
     Equation* eq = (Equation*)el.get();
     eq->dependencies = result.dependencies;
 
-    last_error = result.error.error_code != ErrorCode::OK;
-    if (result.error.error_code == ErrorCode::SOLVER_RESTARTED_ERROR)
+    last_error = result.error.error_code != yutovo_service::ErrorCode::OK;
+    if (result.error.error_code == yutovo_service::ErrorCode::SOLVER_RESTARTED_ERROR)
     {
         eq->last_expression.Reset();
         return;
     }
 
     elements->Clear();
-    if (result.error.error_code != ErrorCode::OK)
+    if (result.error.error_code != yutovo_service::ErrorCode::OK)
     {
         PutError(result.error); //put error message
     }
@@ -505,29 +505,16 @@ void AutoResult::PutResult(Result result)
     Equation* eq = (Equation*)el.get();
     eq->dependencies = result.dependencies;
 
-    last_error = result.error.error_code != ErrorCode::OK;
-    if (result.error.error_code == ErrorCode::SOLVER_RESTARTED_ERROR)
+    last_error = result.error.error_code != yutovo_service::ErrorCode::OK;
+    if (result.error.error_code == yutovo_service::ErrorCode::SOLVER_RESTARTED_ERROR)
     {
         eq->last_expression.Reset();
         return;
     }
 
     elements->Clear();
-    if (result.error.error_code != ErrorCode::OK)
-    {
-        //put error message
-        elements->Add(ElementPtr(new ErrorResult(this, result.error)));
-        ElementId err_id = last_expression.GetElement(result.error.pos);
-        if (!err_id.empty())
-        {
-            auto el = document->GetElement(err_id);
-            if (el)
-            {
-                document->RemoveErrorMarks(parent->parent->id);
-                document->AddErrorMark(err_id, 0, el->elements->Count());
-            }
-        }
-    }
+    if (result.error.error_code != yutovo_service::ErrorCode::OK)
+        PutError(result.error); //put error message
     else
     {
         document->RemoveErrorMarks(parent->parent->id);

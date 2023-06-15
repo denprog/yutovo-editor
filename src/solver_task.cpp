@@ -33,6 +33,12 @@ bool SolverTask::SendRequest(const rapidjson::Document& json, Result& result, We
     return socket->Send(str, result);
 }
 
+void SolverTask::GetResultType(const rapidjson::Document& json, Result& result)
+{
+    if (json.HasMember("result_type") && json["result_type"].IsInt())
+        result.type = (yutovo_service::ResultType)json["result_type"].GetInt();
+}
+
 void SolverTask::GetDependencies(const rapidjson::Document& json, Result& result)
 {
     if (json.HasMember("dependencies"))
@@ -68,7 +74,7 @@ void SolverTask::FillError(rapidjson::Document& doc, Result& result)
         if (error.HasMember("parser_error_code") && error["parser_error_code"].IsInt())
             result.error.parser_error_code = (yutovo_calculator::ParserExceptionCode)error["parser_error_code"].GetInt();
         if (result.error.error_code != ErrorCode::SOLVER_RESTARTED_ERROR && result.error.error_code != ErrorCode::OK)
-            logger->Error("Solver error: {}", (int)result.error.error_code);
+            logger->Error("Solver error: {}", ErrorCodeToString(result.error.error_code));
         if (error.HasMember("pos") && error["pos"].IsInt())
             result.error.pos = error["pos"].GetInt();
         if (error.HasMember("line") && error["line"].IsInt())
@@ -94,15 +100,136 @@ void SolverTask::FillError(rapidjson::Document& doc, Result& result)
     result.error.error_code = ErrorCode::PARSER_ERROR;
 }
 
+bool SolverTask::FillRealResult(rapidjson::Document& doc, Result& result)
+{
+    if (!doc.HasMember("mantissa") || !doc["mantissa"].IsString())
+    {
+        logger->Error("mantissa error");
+        result.error.error_code = ErrorCode::JSON_ERROR;
+        return false;
+    }
+    result.values["mantissa"] = doc["mantissa"].GetString();
+    if (doc.HasMember("exponent") && doc["exponent"].IsString())
+        result.values["exponent"] = doc["exponent"].GetString();
+    if (doc.HasMember("angle_measure") && doc["angle_measure"].IsInt())
+        result.values["angle_measure"] = AngleMeasureToString((AngleMeasure)doc["angle_measure"].GetInt());
+    return true;
+}
+
+bool SolverTask::FillIntegerResult(rapidjson::Document& doc, Result& result)
+{
+    if (!doc.HasMember("value") || !doc["value"].IsString())
+    {
+        logger->Error("value error");
+        result.error.error_code = ErrorCode::JSON_ERROR;
+        return false;
+    }
+    result.values["value"] = doc["value"].GetString();
+    if (doc.HasMember("notation") && doc["notation"].IsInt())
+        result.values["notation"] = NotationToString((Notation)doc["notation"].GetInt());
+    return true;
+}
+
+bool SolverTask::FillRationalResult(rapidjson::Document& doc, Result& result)
+{
+    if (!doc.HasMember("numerator") || !doc["numerator"].IsString() || !doc.HasMember("denomerator") || !doc["denomerator"].IsString())
+    {
+        logger->Error("value error");
+        result.error.error_code = ErrorCode::JSON_ERROR;
+        return false;
+    }
+    if (doc.HasMember("integer") && doc["integer"].IsString())
+        result.values["integer"] = doc["integer"].GetString();
+    result.values["numerator"] = doc["numerator"].GetString();
+    result.values["denomerator"] = doc["denomerator"].GetString();
+    return true;
+}
+
+//AutoSolverTask
+
+AutoSolverTask::AutoSolverTask(ElementId _id, std::string& _guid, uint _code_id, ExpressionType _expression_type, Config::AutoResult _config, 
+    const std::u32string& _expression, const uint _delay) :
+    SolverTask(_id, _guid, _code_id, _expression_type, _expression, _delay),
+    config(_config)
+{
+}
+
+bool AutoSolverTask::Execute(WebSocketPtr socket, Result& result)
+{
+    //request
+    rapidjson::Document doc;
+    auto& alloc = doc.GetAllocator();
+    doc.SetObject();
+    doc.AddMember("command", "SOLVE_CODE", alloc);
+    doc.AddMember("guid", rapidjson::StringRef(guid.c_str()), alloc);
+    FillId(doc);
+    doc.AddMember("code_id", code_id, alloc);
+    doc.AddMember("solver_type", (int)SolverType::CALCULATOR, alloc);
+    doc.AddMember("result_type", (int)ResultType::AUTO, alloc);
+    std::string s = ToBasicString(expression);
+    doc.AddMember("expression", rapidjson::StringRef(s.c_str()), alloc);
+
+    //auto config
+    rapidjson::Value d(rapidjson::kArrayType);
+    for (auto t : config.results_order)
+        d.PushBack((int)t, alloc);
+    doc.AddMember("results_order", d, alloc);
+
+    //real config
+    doc.AddMember("precision", config.real_result.precision, alloc);
+    doc.AddMember("default_angle_measure", (int)config.real_result.default_angle_measure, alloc);
+    doc.AddMember("result_angle_measure", (int)config.real_result.result_angle_measure, alloc);
+    doc.AddMember("exponent_size", config.real_result.exp, alloc);
+
+    //integer config
+    doc.AddMember("result_notation", (int)config.integer_result.result_notation, alloc);
+
+    //rational config
+    doc.AddMember("fraction_form", (int)config.rational_result.fraction_form, alloc);
+
+    if (!SendRequest(doc, result, socket))
+        return false;
+
+    std::string json;
+    if (!socket->Receive(json, result))
+        return false;
+
+    doc.Parse<0>(json.c_str());
+    if (doc.HasParseError())
+    {
+        logger->Error("Json error");
+        result.error.error_code = ErrorCode::JSON_ERROR;
+        return false;
+    }
+
+    GetDependencies(doc, result);
+
+    if (doc.HasMember("error"))
+    {
+        FillError(doc, result);
+        return false;
+    }
+
+    GetResultType(doc, result);
+    switch (result.type)
+    {
+    case ResultType::REAL:
+        return FillRealResult(doc, result);
+    case ResultType::INTEGER:
+        return FillIntegerResult(doc, result);
+    case ResultType::RATIONAL:
+        return FillRationalResult(doc, result);
+    default:
+        return false;
+    }
+}
+
 //RealSolverTask
 
-RealSolverTask::RealSolverTask(ElementId _id, std::string& _guid, uint _code_id, ExpressionType _expression_type, const uint _precision, uint _exp, 
-    AngleMeasure _default_angle_measure, AngleMeasure _result_angle_measure, const std::u32string& _expression, const uint _delay) :
+RealSolverTask::RealSolverTask(ElementId _id, std::string& _guid, uint _code_id, ExpressionType _expression_type, Config::RealResult _config, 
+    const std::u32string& _expression, const uint _delay) :
     SolverTask(_id, _guid, _code_id, _expression_type, _expression, _delay),
-    precision(_precision),
-    exp(_exp),
-    default_angle_measure(_default_angle_measure),
-    result_angle_measure(_result_angle_measure)
+    config(_config)
 {
 }
 
@@ -120,10 +247,10 @@ bool RealSolverTask::Execute(WebSocketPtr socket, Result& result)
     doc.AddMember("result_type", (int)ResultType::REAL, alloc);
     std::string s = ToBasicString(expression);
     doc.AddMember("expression", rapidjson::StringRef(s.c_str()), alloc);
-    doc.AddMember("precision", precision, alloc);
-    doc.AddMember("default_angle_measure", (int)default_angle_measure, alloc);
-    doc.AddMember("result_angle_measure", (int)result_angle_measure, alloc);
-    doc.AddMember("exponent_size", exp, alloc);
+    doc.AddMember("precision", config.precision, alloc);
+    doc.AddMember("default_angle_measure", (int)config.default_angle_measure, alloc);
+    doc.AddMember("result_angle_measure", (int)config.result_angle_measure, alloc);
+    doc.AddMember("exponent_size", config.exp, alloc);
 
     if (!SendRequest(doc, result, socket))
         return false;
@@ -140,8 +267,6 @@ bool RealSolverTask::Execute(WebSocketPtr socket, Result& result)
         return false;
     }
 
-    result.type = ResultType::REAL;
-
     GetDependencies(doc, result);
 
     if (doc.HasMember("error"))
@@ -149,28 +274,20 @@ bool RealSolverTask::Execute(WebSocketPtr socket, Result& result)
         FillError(doc, result);
         return false;
     }
-    if (!doc.HasMember("mantissa") || !doc["mantissa"].IsString())
-    {
-        logger->Error("mantissa error");
-        result.error.error_code = ErrorCode::JSON_ERROR;
-        return false;
-    }
 
-    result.values["mantissa"] = doc["mantissa"].GetString();
-    if (doc.HasMember("exponent") && doc["exponent"].IsString())
-        result.values["exponent"] = doc["exponent"].GetString();
-    if (doc.HasMember("angle_measure") && doc["angle_measure"].IsInt())
-        result.values["angle_measure"] = AngleMeasureToString((AngleMeasure)doc["angle_measure"].GetInt());
-    
-    return true;
+    GetResultType(doc, result);
+    if (result.type != ResultType::REAL)
+        return false;
+
+    return FillRealResult(doc, result);
 }
 
 //IntegerSolverTask
 
 IntegerSolverTask::IntegerSolverTask(ElementId _id, std::string& _guid, uint _code_id, ExpressionType _expression_type, 
-    Notation _result_notation, const std::u32string& _expression, const uint _delay) :
+    Config::IntegerResult _config, const std::u32string& _expression, const uint _delay) :
     SolverTask(_id, _guid, _code_id, _expression_type, _expression, _delay),
-    result_notation(_result_notation)
+    config(_config)
 {
 }
 
@@ -186,7 +303,7 @@ bool IntegerSolverTask::Execute(WebSocketPtr socket, Result& result)
     doc.AddMember("code_id", code_id, alloc);
     doc.AddMember("solver_type", (int)SolverType::CALCULATOR, alloc);
     doc.AddMember("result_type", (int)ResultType::INTEGER, alloc);
-    doc.AddMember("result_notation", (int)result_notation, alloc);
+    doc.AddMember("result_notation", (int)config.result_notation, alloc);
     std::string s = ToBasicString(expression);
     doc.AddMember("expression", rapidjson::StringRef(s.c_str()), alloc);
 
@@ -206,8 +323,6 @@ bool IntegerSolverTask::Execute(WebSocketPtr socket, Result& result)
         return false;
     }
 
-    result.type = ResultType::INTEGER;
-
     GetDependencies(doc, result);
 
     if (doc.HasMember("error"))
@@ -215,26 +330,20 @@ bool IntegerSolverTask::Execute(WebSocketPtr socket, Result& result)
         FillError(doc, result);
         return false;
     }
-    if (!doc.HasMember("value") || !doc["value"].IsString())
-    {
-        logger->Error("value error");
-        result.error.error_code = ErrorCode::JSON_ERROR;
+
+    GetResultType(doc, result);
+    if (result.type != ResultType::INTEGER)
         return false;
-    }
 
-    result.values["value"] = doc["value"].GetString();
-    if (doc.HasMember("notation") && doc["notation"].IsInt())
-        result.values["notation"] = NotationToString((Notation)doc["notation"].GetInt());
-
-    return true;
+    return FillIntegerResult(doc, result);
 }
 
 //RationalSolverTask
 
-RationalSolverTask::RationalSolverTask(ElementId _id, std::string& _guid, uint _code_id, ExpressionType _expression_type, FractionForm _fraction_form, 
+RationalSolverTask::RationalSolverTask(ElementId _id, std::string& _guid, uint _code_id, ExpressionType _expression_type, Config::RationalResult _config, 
     const std::u32string& _expression, const uint _delay) :
     SolverTask(_id, _guid, _code_id, _expression_type, _expression, _delay),
-    fraction_form(_fraction_form)
+    config(_config)
 {
 }
 
@@ -250,7 +359,7 @@ bool RationalSolverTask::Execute(WebSocketPtr socket, Result& result)
     doc.AddMember("code_id", code_id, alloc);
     doc.AddMember("solver_type", (int)SolverType::CALCULATOR, alloc);
     doc.AddMember("result_type", (int)ResultType::RATIONAL, alloc);
-    doc.AddMember("fraction_form", (int)fraction_form, alloc);
+    doc.AddMember("fraction_form", (int)config.fraction_form, alloc);
     std::string s = ToBasicString(expression);
     doc.AddMember("expression", rapidjson::StringRef(s.c_str()), alloc);
 
@@ -270,8 +379,6 @@ bool RationalSolverTask::Execute(WebSocketPtr socket, Result& result)
         return false;
     }
 
-    result.type = ResultType::RATIONAL;
-
     GetDependencies(doc, result);
 
     if (doc.HasMember("error"))
@@ -279,19 +386,12 @@ bool RationalSolverTask::Execute(WebSocketPtr socket, Result& result)
         FillError(doc, result);
         return false;
     }
-    if (!doc.HasMember("numerator") || !doc["numerator"].IsString() || !doc.HasMember("denomerator") || !doc["denomerator"].IsString())
-    {
-        logger->Error("value error");
-        result.error.error_code = ErrorCode::JSON_ERROR;
+
+    GetResultType(doc, result);
+    if (result.type != ResultType::RATIONAL)
         return false;
-    }
 
-    if (doc.HasMember("integer") && doc["integer"].IsString())
-        result.values["integer"] = doc["integer"].GetString();
-    result.values["numerator"] = doc["numerator"].GetString();
-    result.values["denomerator"] = doc["denomerator"].GetString();
-
-    return true;
+    return FillRationalResult(doc, result);
 }
 
 //RemoveIdentifierSolverTask
