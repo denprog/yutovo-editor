@@ -29,10 +29,15 @@ struct SolverTask
 
     bool SendRequest(const rapidjson::Document& json, Result& result, WebSocketPtr& socket);
 
+    void GetResultType(const rapidjson::Document& json, Result& result);
     void GetDependencies(const rapidjson::Document& json, Result& result);
 
     void FillId(rapidjson::Document& doc);
     void FillError(rapidjson::Document& doc, Result& result);
+
+    bool FillRealResult(rapidjson::Document& doc, Result& result);
+    bool FillIntegerResult(rapidjson::Document& doc, Result& result);
+    bool FillRationalResult(rapidjson::Document& doc, Result& result);
 
     ElementId id;
     std::string guid;
@@ -44,37 +49,44 @@ struct SolverTask
     Logger* logger;
 };
 
-struct RealSolverTask : SolverTask
+struct AutoSolverTask : SolverTask
 {
-    RealSolverTask(ElementId _id, std::string& _guid, uint _code_id, ExpressionType _expression_type, const uint _precision, const uint _exp, 
-        AngleMeasure _default_angle_measure, AngleMeasure _result_angle_measure, const std::u32string& _expression, const uint _delay);
+    AutoSolverTask(ElementId _id, std::string& _guid, uint _code_id, ExpressionType _expression_type, Config::AutoResult _config, 
+        const std::u32string& _expression, const uint _delay);
 
     virtual bool Execute(WebSocketPtr socket, Result& result);
 
-    uint precision;
-    uint exp;
-    AngleMeasure default_angle_measure;
-    AngleMeasure result_angle_measure;
+    Config::AutoResult config;
+};
+
+struct RealSolverTask : SolverTask
+{
+    RealSolverTask(ElementId _id, std::string& _guid, uint _code_id, ExpressionType _expression_type, Config::RealResult _config, 
+        const std::u32string& _expression, const uint _delay);
+
+    virtual bool Execute(WebSocketPtr socket, Result& result);
+
+    Config::RealResult config;
 };
 
 struct IntegerSolverTask : SolverTask
 {
-    IntegerSolverTask(ElementId _id, std::string& _guid, uint _code_id, ExpressionType _expression_type, Notation _result_notation, 
+    IntegerSolverTask(ElementId _id, std::string& _guid, uint _code_id, ExpressionType _expression_type, Config::IntegerResult _config, 
         const std::u32string& _expression, const uint _delay);
 
     virtual bool Execute(WebSocketPtr socket, Result& result);
 
-    Notation result_notation;
+    Config::IntegerResult config;
 };
 
 struct RationalSolverTask : SolverTask
 {
-    RationalSolverTask(ElementId _id, std::string& _guid, uint _code_id, ExpressionType _expression_type, FractionForm _fraction_form, 
+    RationalSolverTask(ElementId _id, std::string& _guid, uint _code_id, ExpressionType _expression_type, Config::RationalResult _config, 
         const std::u32string& _expression, const uint _delay);
 
     virtual bool Execute(WebSocketPtr socket, Result& result);
 
-    FractionForm fraction_form;
+    Config::RationalResult config;
 };
 
 struct RemoveIdentifierSolverTask : SolverTask

@@ -10,6 +10,8 @@ namespace yutovo
 
 typedef unsigned int uint;
 
+using namespace yutovo_service;
+
 struct Config
 {
     //solver
@@ -144,7 +146,7 @@ struct Config
         }
 
         bool result_auto_advance = true;
-        ElementType results_order[4] = {ElementType::REAL_RESULT, ElementType::INTEGER_RESULT, ElementType::RATIONAL_RESULT, ElementType::COMPLEX_RESULT};
+        yutovo_service::ResultType results_order[4] = {ResultType::REAL, ResultType::INTEGER, ResultType::RATIONAL, ResultType::COMPLEX};
 
         RealResult real_result;
         IntegerResult integer_result;

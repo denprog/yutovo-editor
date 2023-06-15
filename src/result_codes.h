@@ -71,7 +71,7 @@ typedef std::vector<std::string> Dependencies;
 
 struct Result
 {
-    yutovo_service::ResultType type;
+    yutovo_service::ResultType type = yutovo_service::ResultType::NONE;
     std::map<std::string, std::string> values;
     Dependencies dependencies;
     Error error;

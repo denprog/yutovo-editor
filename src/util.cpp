@@ -322,7 +322,9 @@ std::string ErrorCodeToString(const yutovo_service::ErrorCode error_code)
         {
             {ErrorCode::OK, "Ok"},
             {ErrorCode::UNKNOWN_COMMAND, "Unknown command"},
+            {ErrorCode::JSON_ERROR, "JSON error"},
             {ErrorCode::NO_FIELD_ERROR, "No field"},
+            {ErrorCode::FIELD_ERROR, "Field error"},
             {ErrorCode::JSON_ERROR, "Json error"},
             {ErrorCode::PARSER_ERROR, "Parser error"},
             {ErrorCode::OPERATION_ERROR, "Operation error"},

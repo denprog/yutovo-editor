@@ -55,6 +55,8 @@ public:
 	BOOST_SERIALIZATION_SPLIT_MEMBER()
 
 private:
+    friend class ResultTask;
+    
     std::u32string last_identifier;
     ParserString last_expression;
     bool last_error = false;

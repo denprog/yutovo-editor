@@ -38,25 +38,7 @@ void Solver::Solve(const ElementId id, const uint code_id, Config::AutoResult& c
     EraseSolveTasks(id);
 
     std::unique_lock<std::mutex> lock(tasks_mutex);
-    for (size_t i = 0; i < sizeof(config.results_order); ++i)
-    {
-        switch (config.results_order[i])
-        {
-        case ElementType::REAL_RESULT:
-            tasks.emplace_back(new RealSolverTask(id, guid, code_id, ExpressionType::SOLVE, config.real_result.precision, config.real_result.exp, 
-                config.real_result.default_angle_measure, config.real_result.result_angle_measure, expression, delay));
-            break;
-        case ElementType::INTEGER_RESULT:
-            tasks.emplace_back(new IntegerSolverTask(id, guid, code_id, ExpressionType::SOLVE, config.integer_result.result_notation, expression, delay));
-            break;
-        case ElementType::RATIONAL_RESULT:
-            tasks.emplace_back(new RationalSolverTask(id, guid, code_id, ExpressionType::SOLVE, config.rational_result.fraction_form, expression, delay));
-            break;
-        case ElementType::COMPLEX_RESULT:
-            break;
-        }
-    }
-
+    tasks.emplace_back(new AutoSolverTask(id, guid, code_id, ExpressionType::SOLVE, config, expression, delay));
     tasks.emplace_back(nullptr);
     next_circle = true;
 }
@@ -66,8 +48,7 @@ void Solver::Solve(const ElementId id, const uint code_id, Config::RealResult& c
     EraseSolveTasks(id);
 
     std::unique_lock<std::mutex> lock(tasks_mutex);
-    tasks.emplace_back(new RealSolverTask(id, guid, code_id, ExpressionType::SOLVE, config.precision, config.exp, 
-        config.default_angle_measure, config.result_angle_measure, expression, delay));
+    tasks.emplace_back(new RealSolverTask(id, guid, code_id, ExpressionType::SOLVE, config, expression, delay));
     tasks.emplace_back(nullptr);
     next_circle = true;
 }
@@ -77,7 +58,7 @@ void Solver::Solve(const ElementId id, const uint code_id, Config::IntegerResult
     EraseSolveTasks(id);
 
     std::unique_lock<std::mutex> lock(tasks_mutex);
-    tasks.emplace_back(new IntegerSolverTask(id, guid, code_id, ExpressionType::SOLVE, config.result_notation, expression, delay));
+    tasks.emplace_back(new IntegerSolverTask(id, guid, code_id, ExpressionType::SOLVE, config, expression, delay));
     tasks.emplace_back(nullptr);
     next_circle = true;
 }
@@ -87,7 +68,7 @@ void Solver::Solve(const ElementId id, const uint code_id, Config::RationalResul
     EraseSolveTasks(id);
 
     std::unique_lock<std::mutex> lock(tasks_mutex);
-    tasks.emplace_back(new RationalSolverTask(id, guid, code_id, ExpressionType::SOLVE, config.fraction_form, expression, delay));
+    tasks.emplace_back(new RationalSolverTask(id, guid, code_id, ExpressionType::SOLVE, config, expression, delay));
     tasks.emplace_back(nullptr);
     next_circle = true;
 }
@@ -111,9 +92,7 @@ void Solver::SetUserIdentifier(ElementId id, uint code_id, const std::u32string&
     }
 
     std::unique_lock<std::mutex> lock(tasks_mutex);
-    tasks.emplace_back(new RealSolverTask(id, guid, code_id, ExpressionType::USER_SYMBOL, 0, 0, AngleMeasure::RADIAN, AngleMeasure::RADIAN, expression, delay));
-    tasks.emplace_back(new IntegerSolverTask(id, guid, code_id, ExpressionType::USER_SYMBOL, Notation::DECIMAL, expression, delay));
-    tasks.emplace_back(new RationalSolverTask(id, guid, code_id, ExpressionType::USER_SYMBOL, FractionForm::IMPROPER, expression, delay));
+    tasks.emplace_back(new AutoSolverTask(id, guid, code_id, ExpressionType::USER_SYMBOL, Config::AutoResult{}, expression, delay));
     tasks.emplace_back(nullptr);
     next_circle = true;
 }
@@ -158,7 +137,6 @@ void Solver::MessageLoop()
     time_t next = now;
     
     std::vector<SolverTaskPtr> temp_tasks;
-    int tries = 0;
     while (!exit)
     {
         bool empty = false;
@@ -229,58 +207,37 @@ void Solver::MessageLoop()
             }
         }
 
-        Result result, cur_result;
-        for (SolverTaskPtr t : temp_tasks) //try all variants of parsers until one of them solves
+        Result result;
+        int tries = 2;
+        for (int i = 0; i < temp_tasks.size(); ++i)
         {
-            if (t->Execute(socket, cur_result) && t->expression_type == ExpressionType::SOLVE)
+            SolverTaskPtr t = temp_tasks[i];
+            if (!t->Execute(socket, result))
             {
-                result = cur_result;
-                break;
-            }
-            if (cur_result.error.error_code == yutovo_service::ErrorCode::OPERATION_ERROR)
-            {
-                socket.reset(new WebSocket(document->config, document->window)); //recreate the socket
-                if (!socket->Connect())
-                    logger->Error("Error connecting to the server: {}:{}", document->config.service_ip, document->config.service_port);
-                else
+                if (result.error.error_code == yutovo_service::ErrorCode::OPERATION_ERROR)
                 {
-                    logger->Info("Solver connected to the server: {}:{}", document->config.service_ip, document->config.service_port);
-                    document->ReSolveErrors();
+                    socket.reset(new WebSocket(document->config, document->window)); //recreate the socket
+                    if (!socket->Connect())
+                        logger->Error("Error connecting to the server: {}:{}", document->config.service_ip, document->config.service_port);
+                    else
+                    {
+                        logger->Info("Solver connected to the server: {}:{}", document->config.service_ip, document->config.service_port);
+                        document->ReSolveErrors();
+                    }
+                    if (socket->IsOpen() && tries-- > 0)
+                    {
+                        --i; //it's just connected, try one more
+                        continue;
+                    }
                 }
-                result = cur_result;
-                break;
             }
-            if (cur_result.error.error_code == ErrorCode::SOLVER_RESTARTED_ERROR)
-            {
-                result = cur_result;
-                break;
-            }
-            if (result.error.error_code == ErrorCode::OK && cur_result.error.error_code != ErrorCode::OK)
-                result = cur_result;
+
+            document->PutResult(t->id, result);
+            if (result.error.error_code == yutovo_service::ErrorCode::SOLVER_RESTARTED_ERROR)
+                document->ReSolve(t->id); //re-solve the expression
         }
 
-        if (!result.error.id.empty())
-            document->PutResult(result.error.id, result);
-        
-        if (result.error.error_code != ErrorCode::OPERATION_ERROR && !temp_tasks.empty())
-            document->PutResult(temp_tasks[0]->id, result);
-        else
-        {
-            for (SolverTaskPtr t : temp_tasks)
-                document->PutResult(t->id, result);
-            if (socket->IsOpen() && tries < 1)
-            {
-                ++tries; //it just connected, try one more
-                continue;
-            }
-        }
-
-        if (result.error.error_code == ErrorCode::SOLVER_RESTARTED_ERROR && !temp_tasks.empty())
-            document->ReSolve(temp_tasks[0]->id); //re-solve the expressions above and later this one
-        
         temp_tasks.clear();
-        
-        tries = 0;
     }
 }
 
@@ -291,7 +248,8 @@ void Solver::EraseSolveTasks(const ElementId id)
         [id](SolverTaskPtr& task)
         {
             return task && task->id == id && task->expression_type == ExpressionType::SOLVE && 
-                (dynamic_cast<RealSolverTask*>(task.get()) || dynamic_cast<IntegerSolverTask*>(task.get()) || dynamic_cast<RationalSolverTask*>(task.get()));
+                (dynamic_cast<RealSolverTask*>(task.get()) || dynamic_cast<IntegerSolverTask*>(task.get()) || 
+                dynamic_cast<RationalSolverTask*>(task.get()) || dynamic_cast<AutoSolverTask*>(task.get()));
         }
         ), tasks.end());
 }
