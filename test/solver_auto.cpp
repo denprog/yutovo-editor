@@ -284,11 +284,9 @@ TEST_F(SolverAutoTest, solver5)
     document.InsertDivision(true);
     document.InsertString("3345", true);
     document.MoveCaretDown(false);
-    document.MoveCaretDown(false);
-    document.WaitCaretMoving();
+    document.WaitTask(document.MoveCaretDown(false));
     document.InsertString("2", true);
-    document.MoveCaretRight(false);
-    document.WaitCaretMoving();
+    document.WaitTask(document.MoveCaretRight(false));
     document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
     document.WaitSolver();
     document.MoveCaretLeft(false);
@@ -1248,6 +1246,138 @@ TEST_F(SolverAutoTest, errors3)
     int start, size;
     ASSERT_TRUE(document.HasErrorMark(ElementId{0, 0, 0, 0, 0, 0, 0, 0, 0}, start, size)) << ErrorMarks();
     ASSERT_TRUE(start == 0 && size == 2);
+}
+
+TEST_F(SolverAutoTest, units1)
+{
+    Start(600);
+    
+    document.InsertCode(false, true);
+    document.InsertString("1m", true);
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mrow>"\
+                            "<mi>1m</mi>"\
+                        "</mrow>"\
+                        "<mo>=</mo>"\
+                        "<mrow>"\
+                            "<mrow>"\
+                                "<mi>1.</mi>"\
+                                "<mi>m</mi>"\
+                            "</mrow>"\
+                        "</mrow>"\
+                    "</mrow>"\
+                "</math>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 1})) << document.GetEditorState().ToString();
+}
+
+TEST_F(SolverAutoTest, units2)
+{
+    Start(600);
+    
+    document.InsertCode(false, true);
+    document.InsertString("2cm", true);
+    document.InsertMultiply(true);
+    document.InsertString("3cm", true);
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mrow>"\
+                            "<mi>2cm</mi>"\
+                            "<mo>×</mo>"\
+                            "<mi>3cm</mi>"\
+                        "</mrow>"\
+                        "<mo>=</mo>"\
+                        "<mrow>"\
+                            "<mrow>"\
+                                "<mi>6.</mi>"\
+                                "<msup>"\
+                                    "<mrow>"\
+                                        "<mi>cm</mi>"\
+                                    "</mrow>"\
+                                    "<mrow>"\
+                                        "<mi>2</mi>"\
+                                    "</mrow>"\
+                                "</msup>"\
+                            "</mrow>"\
+                        "</mrow>"\
+                    "</mrow>"\
+                "</math>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 1})) << document.GetEditorState().ToString();
+}
+
+TEST_F(SolverAutoTest, units3)
+{
+    Start(600);
+    
+    document.InsertDivision(true);
+    document.InsertString("2m", true);
+    document.MoveCaretDown(false);
+    document.MoveCaretDown(false);
+    document.InsertString("4s", true);
+    document.MoveCaretRight(false);
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == U"(2m)/(4s)=0.5(m)/(s)") << ToBasicString(document.ToText());
+}
+
+TEST_F(SolverAutoTest, units4)
+{
+    Start(600);
+    
+    document.InsertDivision(true);
+    document.InsertString("6kg", true);
+    document.InsertMultiply(true);
+    document.InsertString("2m", true);
+    document.MoveCaretDown(false);
+    document.MoveCaretDown(false);
+    document.InsertString("4s", true);
+    document.MoveCaretRight(false);
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == U"(6kg*2m)/(4s)=3.(kg*m)/(s)") << ToBasicString(document.ToText());
+}
+
+TEST_F(SolverAutoTest, units5)
+{
+    Start(600);
+    
+    document.InsertDivision(true);
+    document.InsertString("6kg", true);
+    document.InsertMultiply(true);
+    document.InsertString("2m", true);
+    document.MoveCaretDown(false);
+    document.MoveCaretDown(false);
+    document.InsertString("4", true);
+    document.InsertMultiply(true);
+    document.InsertString("s", true);
+    document.InsertPower(true);
+    document.InsertString("2", true);
+    document.MoveCaretRight(false);
+    document.MoveCaretRight(false);
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == U"(6kg*2m)/(4*pow(s,2))=3.N") << ToBasicString(document.ToText());
 }
 
 }

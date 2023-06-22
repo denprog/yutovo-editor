@@ -25,6 +25,8 @@ public:
     
     virtual void Reset();
 
+    void PutUnit(const Result& result);
+
 public:
     bool last_error = false;
 

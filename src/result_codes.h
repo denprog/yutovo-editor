@@ -4,6 +4,7 @@
 #include <boost/archive/archive_exception.hpp>
 #include <yutovo_service/types.h>
 #include <yutovo_calculator/parser_exception.h>
+#include <yutovo_calculator/unit.h>
 #include <map>
 #include <vector>
 #include "caret_state.h"
@@ -73,6 +74,7 @@ struct Result
 {
     yutovo_service::ResultType type = yutovo_service::ResultType::NONE;
     std::map<std::string, std::string> values;
+    yutovo_calculator::Unit unit;
     Dependencies dependencies;
     Error error;
     std::vector<Warning> warnings;

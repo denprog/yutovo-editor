@@ -114,7 +114,7 @@ std::u32string Subscript::ToText()
 {
     if (first->ToText() == U"log") //TODO: get names of functions from the parser
         return first->ToText() + U"%" + last->ToText() + U",";
-    return first->ToText() + last->ToText();
+    return first->ToText() + U"{" + last->ToText() + U"}";
 }
 
 void Subscript::ToParserString(ParserString& str)

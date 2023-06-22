@@ -64,6 +64,24 @@ void SolverTask::FillId(rapidjson::Document& doc)
     doc.AddMember("id", d, alloc);
 }
 
+void SolverTask::FillUnit(rapidjson::Document& doc, Result& result)
+{
+    if (!doc.HasMember("unit") || !doc["unit"].IsArray())
+        return;
+    
+    yutovo_calculator::Unit unit;
+    rapidjson::GenericArray arr = doc["unit"].GetArray();
+    for (rapidjson::SizeType i = 0; i < arr.Size(); ++i)
+    {
+        if (!arr[i].IsObject())
+            return;
+        rapidjson::Value u = arr[i].GetObject();
+        if (u.HasMember("name") && u["name"].IsString() && u.HasMember("power") && u["power"].IsInt())
+            unit.unit.push_back(std::make_pair(ToUtfString(u["name"].GetString()), u["power"].GetInt()));
+    }
+    result.unit = unit;
+}
+
 void SolverTask::FillError(rapidjson::Document& doc, Result& result)
 {
     if (doc["error"].IsObject())
@@ -113,6 +131,7 @@ bool SolverTask::FillRealResult(rapidjson::Document& doc, Result& result)
         result.values["exponent"] = doc["exponent"].GetString();
     if (doc.HasMember("angle_measure") && doc["angle_measure"].IsInt())
         result.values["angle_measure"] = AngleMeasureToString((AngleMeasure)doc["angle_measure"].GetInt());
+    FillUnit(doc, result);
     return true;
 }
 
@@ -142,6 +161,7 @@ bool SolverTask::FillRationalResult(rapidjson::Document& doc, Result& result)
         result.values["integer"] = doc["integer"].GetString();
     result.values["numerator"] = doc["numerator"].GetString();
     result.values["denomerator"] = doc["denomerator"].GetString();
+    FillUnit(doc, result);
     return true;
 }
 

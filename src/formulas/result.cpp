@@ -75,6 +75,70 @@ void ResultRow::Reset()
     last_expression.Reset();
 }
 
+void ResultRow::PutUnit(const Result& result)
+{
+    if (result.unit.IsEmpty())
+        return;
+    
+    const yutovo_calculator::Unit& unit = result.unit;
+
+    ElementPtr numerator(new CodeRow(this));
+    numerator->elements->Clear();
+    ElementPtr denomerator;
+    for (auto& u : unit.unit)
+    {
+        auto s = ToBasicString(u.first);
+        if (u.second > 0)
+        {
+            if (numerator->elements->Count() > 0)
+                numerator->AddElement(ElementPtr(new Multiply(this)));
+            if (u.second == 1)
+                numerator->AddElement(CodeStringPtr(new CodeString(this, s)));
+            else
+            {
+                PowerPtr p(new Power(this));
+                p->AddBase(CodeStringPtr(new CodeString(p.get(), s)));
+                p->AddExponent(CodeStringPtr(new CodeString(p.get(), std::to_string(u.second))));
+                numerator->AddElement(p);
+            }
+        }
+        else
+        {
+            if (!denomerator)
+            {
+                denomerator.reset(new CodeRow(this));
+                denomerator->elements->Clear();
+            }
+            if (denomerator->elements->Count() > 0)
+                denomerator->AddElement(ElementPtr(new Multiply(this)));
+            if (u.second == -1)
+                denomerator->AddElement(CodeStringPtr(new CodeString(this, s)));
+            else
+            {
+                PowerPtr p(new Power(this));
+                p->AddBase(CodeStringPtr(new CodeString(p.get(), s)));
+                p->AddExponent(CodeStringPtr(new CodeString(p.get(), std::to_string(-u.second))));
+                denomerator->AddElement(p);
+            }
+        }
+    }
+
+    if (denomerator)
+    {
+        auto* d = new Division(this);
+        d->AddNumerator(numerator);
+        d->AddDenomerator(denomerator);
+        AddElement(ElementPtr(d));
+    }
+    else
+    {
+        for (int i = 0; i < numerator->elements->Count(); ++i)
+            AddElement(numerator->elements->Get(i));
+    }
+
+    elements->Get(0)->SetEditable(false);
+}
+
 //RealResult
 
 RealResult::RealResult(Document* _document) :
@@ -165,7 +229,9 @@ void RealResult::PutResult(Result result)
             else
                 p->AddExponent(CodeStringPtr(new CodeString(p.get(), exponent)));
         }
-        
+
+        PutUnit(result);
+
         if (config.show_angle_measure)
         {
             std::u32string angle_measure = ToUtfString(result.values["angle_measure"]);
