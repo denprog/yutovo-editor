@@ -55,9 +55,11 @@ public:
     virtual void PutResult(Result result);
 
     bool SetConfig(const int precision, const int exp, const AngleMeasure result_angle_measure);
+    bool SetConfig(const yutovo_calculator::Unit unit);
 
 public:
     Config::RealResult config;
+    std::vector<yutovo_calculator::Unit> cast_units;
 };
 
 class IntegerResult : public ResultRow
@@ -91,9 +93,11 @@ public:
     virtual void PutResult(Result result);
 
     bool SetConfig(FractionForm fraction_form);
+    bool SetConfig(const yutovo_calculator::Unit unit);
 
 public:
     Config::RationalResult config;
+    std::vector<yutovo_calculator::Unit> cast_units;
 };
 
 class ComplexResult : public ResultRow
@@ -136,6 +140,7 @@ public:
     bool SetConfig(const int precision, const int exp, const AngleMeasure result_angle_measure);
     bool SetConfig(Notation result_notation);
     bool SetConfig(FractionForm fraction_form);
+    bool SetConfig(const yutovo_calculator::Unit unit);
 
     ResultType GetResultType();
 

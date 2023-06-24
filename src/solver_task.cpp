@@ -66,20 +66,82 @@ void SolverTask::FillId(rapidjson::Document& doc)
 
 void SolverTask::FillUnit(rapidjson::Document& doc, Result& result)
 {
-    if (!doc.HasMember("unit") || !doc["unit"].IsArray())
+    if (!doc.HasMember("unit") || !doc["unit"].IsObject())
         return;
     
     yutovo_calculator::Unit unit;
-    rapidjson::GenericArray arr = doc["unit"].GetArray();
+    rapidjson::Value _unit = doc["unit"].GetObject();
+    if (!_unit.HasMember("value") || !_unit["value"].IsArray())
+        return;
+    if (_unit.HasMember("system"))
+        unit.system = ToUtfString(_unit["system"].GetString());
+    rapidjson::GenericArray arr = _unit["value"].GetArray();
     for (rapidjson::SizeType i = 0; i < arr.Size(); ++i)
     {
         if (!arr[i].IsObject())
             return;
         rapidjson::Value u = arr[i].GetObject();
-        if (u.HasMember("name") && u["name"].IsString() && u.HasMember("power") && u["power"].IsInt())
-            unit.unit.push_back(std::make_pair(ToUtfString(u["name"].GetString()), u["power"].GetInt()));
+        std::u32string name;
+        int power = 1;
+        if (u.HasMember("name") && u["name"].IsString())
+            name = ToUtfString(u["name"].GetString());
+        if (u.HasMember("power") && u["power"].IsInt())
+            power = u["power"].GetInt();
+        unit.unit.push_back(std::make_pair(name, power));
     }
     result.unit = unit;
+}
+
+void SolverTask::FillCastUnits(rapidjson::Document& doc, Result& result)
+{
+    if (!doc.HasMember("cast_units") || !doc["cast_units"].IsArray())
+        return;
+
+    rapidjson::GenericArray cast_units = doc["cast_units"].GetArray();
+    for (rapidjson::SizeType i = 0; i < cast_units.Size(); ++i)
+    {
+        if (!cast_units[i].IsArray())
+            return;
+        
+        rapidjson::GenericArray systems = cast_units[i].GetArray();
+        for (rapidjson::SizeType j = 0; i < systems.Size(); ++i)
+        {
+            if (!systems[j].IsObject())
+                return;
+            
+            rapidjson::Value s_arr = systems[j].GetObject();
+            if (!s_arr.HasMember("system") && !s_arr["system"].IsString())
+                return;
+            auto s = ToUtfString(s_arr["system"].GetString());
+            if (!s_arr.HasMember("units") && !s_arr["units"].IsArray())
+                return;
+            rapidjson::GenericArray units_arr = s_arr["units"].GetArray();
+            for (rapidjson::SizeType k = 0; k < s_arr.Size(); ++k)
+            {
+                if (!units_arr[k].IsArray())
+                    return;
+                
+                yutovo_calculator::Unit unit;
+                rapidjson::Value u_arr = units_arr[k].GetArray();
+                for (rapidjson::SizeType n = 0; n < u_arr.Size(); ++n)
+                {
+                    if (!u_arr[n].IsObject())
+                        return;
+                    rapidjson::Value u = u_arr[n].GetObject();
+
+                    std::u32string name;
+                    int power = 1;
+                    if (u.HasMember("name") && u["name"].IsString())
+                        name = ToUtfString(u["name"].GetString());
+                    if (u.HasMember("power") && u["power"].IsInt())
+                        power = u["power"].GetInt();
+                    unit.unit.push_back(std::make_pair(name, power));
+                    unit.system = s;
+                }
+                result.cast_units.push_back(unit);
+            }
+        }
+    }
 }
 
 void SolverTask::FillError(rapidjson::Document& doc, Result& result)
@@ -126,12 +188,15 @@ bool SolverTask::FillRealResult(rapidjson::Document& doc, Result& result)
         result.error.error_code = ErrorCode::JSON_ERROR;
         return false;
     }
+
     result.values["mantissa"] = doc["mantissa"].GetString();
     if (doc.HasMember("exponent") && doc["exponent"].IsString())
         result.values["exponent"] = doc["exponent"].GetString();
     if (doc.HasMember("angle_measure") && doc["angle_measure"].IsInt())
         result.values["angle_measure"] = AngleMeasureToString((AngleMeasure)doc["angle_measure"].GetInt());
+    
     FillUnit(doc, result);
+    FillCastUnits(doc, result);
     return true;
 }
 
@@ -143,6 +208,7 @@ bool SolverTask::FillIntegerResult(rapidjson::Document& doc, Result& result)
         result.error.error_code = ErrorCode::JSON_ERROR;
         return false;
     }
+
     result.values["value"] = doc["value"].GetString();
     if (doc.HasMember("notation") && doc["notation"].IsInt())
         result.values["notation"] = NotationToString((Notation)doc["notation"].GetInt());
@@ -157,11 +223,14 @@ bool SolverTask::FillRationalResult(rapidjson::Document& doc, Result& result)
         result.error.error_code = ErrorCode::JSON_ERROR;
         return false;
     }
+
     if (doc.HasMember("integer") && doc["integer"].IsString())
         result.values["integer"] = doc["integer"].GetString();
     result.values["numerator"] = doc["numerator"].GetString();
     result.values["denomerator"] = doc["denomerator"].GetString();
+
     FillUnit(doc, result);
+    FillCastUnits(doc, result);
     return true;
 }
 

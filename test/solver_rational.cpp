@@ -391,4 +391,35 @@ TEST_F(SolverRationalTest, rational7)
         ) << ToBasicString(document.ToText());
 }
 
+TEST_F(SolverRationalTest, units1)
+{
+    Start(600);
+    
+    document.InsertDivision(true);
+    document.InsertString("1m", true);
+    document.MoveCaretDown(false);
+    document.MoveCaretDown(false);
+    document.InsertString("3s", true);
+    document.MoveCaretRight(false);
+    document.WaitTask(document.InsertEquation(ResultType::RATIONAL, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == U"(1m)/(3s)=(1)/(3)(m)/(s)") << ToBasicString(document.ToText());
+}
+
+TEST_F(SolverRationalTest, units2)
+{
+    Start(600);
+
+    document.InsertCode(1, true);
+    document.InsertString("fut", true);
+    document.WaitTask(document.InsertSubscript(true));
+    document.InsertString("rus", true);
+    document.MoveCaretRight(false);
+    document.WaitTask(document.InsertEquation(ResultType::RATIONAL, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == U"fut{rus}=1fut{rus}") << ToBasicString(document.ToText());
+}
+
 }

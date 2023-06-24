@@ -4,6 +4,7 @@
 #include <string>
 #include <boost/serialization/serialization.hpp>
 #include "util.h"
+#include <yutovo_calculator/unit.h>
 
 namespace yutovo
 {
@@ -51,6 +52,7 @@ struct Config
         AngleMeasure default_angle_measure = AngleMeasure::RADIAN;
         AngleMeasure result_angle_measure = AngleMeasure::RADIAN;
         bool show_angle_measure = true;
+        yutovo_calculator::Unit unit;
     };
 
     RealResult real_result;
@@ -89,6 +91,7 @@ struct Config
         }
 
         FractionForm fraction_form = FractionForm::PROPER;
+        yutovo_calculator::Unit unit;
     };
 
     RationalResult rational_result;

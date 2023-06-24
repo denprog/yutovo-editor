@@ -1930,6 +1930,31 @@ uint Document::SetFractionForm(ElementId _id, FractionForm fraction_form, bool w
     return tasks.back()->id;
 }
 
+void Document::GetCastUnits(ElementId _id, std::vector<yutovo_calculator::Unit>& cast_units)
+{
+    std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
+    auto el = GetElement(_id);
+    RealResult* r = dynamic_cast<RealResult*>(el.get());
+    if (!r)
+    {
+        RationalResult* r_r = dynamic_cast<RationalResult*>(el.get());
+        if (r_r)
+            cast_units = r_r->cast_units;
+        return;
+    }
+    cast_units = r->cast_units;
+}
+
+uint Document::SetUnit(ElementId _id, yutovo_calculator::Unit unit, bool with_undo)
+{
+    std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
+    tasks.emplace_back(new SetResultParams(text, _id, unit, with_undo));
+#ifdef DEBUG
+    last_task_id = tasks.back()->id;
+#endif
+    return tasks.back()->id;
+}
+
 void Document::ReSolve(ElementId _id)
 {
     std::lock_guard<std::recursive_mutex> lock(tasks_mutex);

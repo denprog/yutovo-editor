@@ -291,6 +291,39 @@ bool Equation::SetConfig(FractionForm fraction_form, bool with_undo)
     }
 }
 
+bool Equation::SetConfig(yutovo_calculator::Unit unit, bool with_undo)
+{
+    switch (result->type)
+    {
+    case ElementType::RATIONAL_RESULT:
+    {
+        caret->SetState(id, 1, true);
+        if (with_undo)
+            document->StoreUndo(id);
+        RationalResult* r = (RationalResult*)result.get();
+        return r->SetConfig(unit);
+    }
+    case ElementType::REAL_RESULT:
+    {
+        caret->SetState(id, 1, true);
+        if (with_undo)
+            document->StoreUndo(id);
+        RealResult* r = (RealResult*)result.get();
+        return r->SetConfig(unit);
+    }
+    case ElementType::AUTO_RESULT:
+    {
+        caret->SetState(id, 1, true);
+        if (with_undo)
+            document->StoreUndo(id);
+        AutoResult* r = (AutoResult*)result.get();
+        return r->SetConfig(unit);
+    }
+    default:
+        return false;
+    }
+}
+
 std::string Equation::ToHtml()
 {
     std::string s = first->ToHtml();

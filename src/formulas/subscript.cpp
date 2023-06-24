@@ -48,6 +48,8 @@ void Subscript::Draw() const
 
 bool Subscript::Remake(bool with_elements)
 {
+    UpdateLevel(level);
+
     bool changed = MiddleShapeFormula::Remake(with_elements);
 
     first->rect.Move(0, 0);
@@ -129,7 +131,9 @@ void Subscript::ToParserString(ParserString& str)
     else
     {
         first->ToParserString(str);
+        str.Add(id, U"{");
         last->ToParserString(str);
+        str.Add(id, U"}");
     }
 }
 
