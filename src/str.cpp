@@ -46,6 +46,19 @@ String::String(Element* parent, const std::string _str, const StringFormatPtr _f
 #endif
 }
 
+String::String(Element* parent, const std::u32string _str) :
+    Element(parent), 
+    format(parent->GetStringFormat())
+{
+    type = ElementType::STRING;
+
+    elements.reset(new StringElements(this, _str));
+
+#ifdef DEBUG
+    to_str = ToText();
+#endif
+}
+
 String::String(Element* parent, const std::u32string _str, const StringFormatPtr _format) :
     Element(parent), 
     format(_format)

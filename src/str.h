@@ -16,6 +16,7 @@ public:
     String(Element* parent);
     String(Element* parent, const std::string _str);
     String(Element* parent, const std::string _str, const StringFormatPtr _format);
+    String(Element* parent, const std::u32string _str);
     String(Element* parent, const std::u32string _str, const StringFormatPtr _format);
     String(Document* _document, const std::string _str, const StringFormatPtr _format);
     String(Document* _document, const std::u32string _str, const StringFormatPtr _format);

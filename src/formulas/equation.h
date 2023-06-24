@@ -43,6 +43,7 @@ public:
     bool SetConfig(int precision, int exp, AngleMeasure result_angle_measure, bool with_undo);
     bool SetConfig(Notation notation, bool with_undo);
     bool SetConfig(FractionForm fraction_form, bool with_undo);
+    bool SetConfig(yutovo_calculator::Unit unit, bool with_undo);
     
     virtual std::string ToHtml();
     virtual std::u32string ToText();

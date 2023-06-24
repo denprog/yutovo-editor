@@ -8,6 +8,7 @@
 #include "code_string.h"
 #include "code_block.h"
 #include "equation.h"
+#include "subscript.h"
 
 namespace yutovo
 {
@@ -123,17 +124,35 @@ void ResultRow::PutUnit(const Result& result)
         }
     }
 
+    ElementPtr s;
+    if (unit.system != U"" && unit.system != U"SI")
+    {
+        s.reset(new Subscript(this));
+        s->elements->Get(0)->elements->Clear();
+        s->elements->Get(2)->elements->Clear();
+        s->elements->Get(2)->elements->Add(CodeStringPtr(new CodeString(s.get(), unit.system)));
+        AddElement(s);
+    }
+
     if (denomerator)
     {
         auto* d = new Division(this);
         d->AddNumerator(numerator);
         d->AddDenomerator(denomerator);
-        AddElement(ElementPtr(d));
+        if (s)
+            s->elements->Get(0)->AddElement(ElementPtr(d));
+        else
+            AddElement(ElementPtr(d));
     }
     else
     {
         for (int i = 0; i < numerator->elements->Count(); ++i)
-            AddElement(numerator->elements->Get(i));
+        {
+            if (s)
+                s->elements->Get(0)->AddElement(numerator->elements->Get(i));
+            else
+                AddElement(numerator->elements->Get(i));
+        }
     }
 
     elements->Get(0)->SetEditable(false);
@@ -255,6 +274,18 @@ bool RealResult::SetConfig(const int precision, const int exp, const AngleMeasur
     if (result_angle_measure != AngleMeasure::NONE && config.result_angle_measure != result_angle_measure)
         config.result_angle_measure = result_angle_measure;
     
+    ParserString expr = last_expression;
+    last_expression.Reset();
+    Solve(expr);
+    return true;
+}
+
+bool RealResult::SetConfig(const yutovo_calculator::Unit unit)
+{
+    if (config.unit == unit)
+        return false;
+    
+    config.unit = unit;
     ParserString expr = last_expression;
     last_expression.Reset();
     Solve(expr);
@@ -444,6 +475,8 @@ void RationalResult::PutResult(Result result)
                 d->AddDenomerator(ElementPtr(new CodeString(this, denomerator)));
             }
         }
+
+        PutUnit(result);
     }
 
     if (elements->Count() > 0)
@@ -457,6 +490,18 @@ bool RationalResult::SetConfig(FractionForm fraction_form)
     if (config.fraction_form == fraction_form)
         return false;
     config.fraction_form = fraction_form;
+    ParserString expr = last_expression;
+    last_expression.Reset();
+    Solve(expr);
+    return true;
+}
+
+bool RationalResult::SetConfig(const yutovo_calculator::Unit unit)
+{
+    if (config.unit == unit)
+        return false;
+    
+    config.unit = unit;
     ParserString expr = last_expression;
     last_expression.Reset();
     Solve(expr);
@@ -646,6 +691,19 @@ bool AutoResult::SetConfig(FractionForm fraction_form)
     
     config.rational_result.fraction_form = fraction_form;
     
+    ParserString expr = last_expression;
+    last_expression.Reset();
+    Solve(expr);
+    return true;
+}
+
+bool AutoResult::SetConfig(const yutovo_calculator::Unit unit)
+{
+    if (config.real_result.unit == unit && config.rational_result.unit == unit)
+        return false;
+    
+    config.real_result.unit = unit;
+    config.rational_result.unit = unit;
     ParserString expr = last_expression;
     last_expression.Reset();
     Solve(expr);

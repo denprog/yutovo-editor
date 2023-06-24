@@ -218,6 +218,8 @@ public:
     uint SetNotation(ElementId _id, Notation notation, bool with_undo);
     FractionForm GetFractionForm(ElementId _id);
     uint SetFractionForm(ElementId _id, FractionForm fraction_form, bool with_undo);
+    void GetCastUnits(ElementId _id, std::vector<yutovo_calculator::Unit>& cast_units);
+    uint SetUnit(ElementId _id, yutovo_calculator::Unit unit, bool with_undo);
 
     void ReSolve(ElementId _id);
     void ReSolveDependencies(ElementId after_id, const std::u32string& identifier);

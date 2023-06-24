@@ -1380,4 +1380,52 @@ TEST_F(SolverAutoTest, units5)
     ASSERT_TRUE(document.ToText() == U"(6kg*2m)/(4*pow(s,2))=3.N") << ToBasicString(document.ToText());
 }
 
+TEST_F(SolverAutoTest, units6)
+{
+    Start(600);
+
+    document.InsertCode(1, true);
+    document.InsertString("fut", true);
+    document.WaitTask(document.InsertSubscript(true));
+    document.InsertString("rus", true);
+    document.MoveCaretRight(false);
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mrow>"\
+                            "<msub>"\
+                                "<mrow>"\
+                                    "<mi>fut</mi>"\
+                                "</mrow>"\
+                                "<mrow>"\
+                                    "<mi>rus</mi>"\
+                                "</mrow>"\
+                            "</msub>"\
+                        "</mrow>"\
+                        "<mo>=</mo>"\
+                        "<mrow>"\
+                            "<mrow>"\
+                                "<mi>1.</mi>"\
+                                "<msub>"\
+                                    "<mrow>"\
+                                        "<mi>fut</mi>"\
+                                    "</mrow>"\
+                                    "<mrow>"\
+                                        "<mi>rus</mi>"\
+                                    "</mrow>"\
+                                "</msub>"\
+                            "</mrow>"\
+                        "</mrow>"\
+                    "</mrow>"\
+                "</math>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+}
+
 }

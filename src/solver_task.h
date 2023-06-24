@@ -34,6 +34,7 @@ struct SolverTask
 
     void FillId(rapidjson::Document& doc);
     void FillUnit(rapidjson::Document& doc, Result& result);
+    void FillCastUnits(rapidjson::Document& doc, Result& result);
     void FillError(rapidjson::Document& doc, Result& result);
 
     bool FillRealResult(rapidjson::Document& doc, Result& result);

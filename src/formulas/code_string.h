@@ -12,6 +12,7 @@ public:
     CodeString(Element* parent);
     CodeString(Element* parent, const std::string str);
     CodeString(Element* parent, const std::string str, const StringFormatPtr _format);
+    CodeString(Element* parent, const std::u32string str);
     CodeString(Element* parent, const std::u32string str, const StringFormatPtr _format);
     CodeString(Document* _document, const std::string str, const StringFormatPtr _format);
     CodeString(const String& source);

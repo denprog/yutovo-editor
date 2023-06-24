@@ -75,6 +75,7 @@ struct Result
     yutovo_service::ResultType type = yutovo_service::ResultType::NONE;
     std::map<std::string, std::string> values;
     yutovo_calculator::Unit unit;
+    std::vector<yutovo_calculator::Unit> cast_units;
     Dependencies dependencies;
     Error error;
     std::vector<Warning> warnings;

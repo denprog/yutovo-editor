@@ -1351,6 +1351,14 @@ SetResultParams::SetResultParams(ElementPtr _text, ElementId _id, uint _precisio
     with_undo = _with_undo;
 }
 
+SetResultParams::SetResultParams(ElementPtr _text, ElementId _id, yutovo_calculator::Unit _unit, bool _with_undo) :
+    Task(_text),
+    id(_id),
+    unit(_unit)
+{
+    with_undo = _with_undo;
+}
+
 bool SetResultParams::Execute()
 {
     if (before_state.IsEmpty())
@@ -1386,6 +1394,10 @@ bool SetResultParams::Execute()
             Remake(el->id, true);
             return true;
         }
+    }
+    if (!unit.IsEmpty())
+    {
+        
     }
 
     return false;

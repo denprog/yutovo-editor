@@ -12,16 +12,6 @@ TEST_F(FormulaTest, subscript1)
 {
     Start(600);
 
-    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
-        {
-            return Rect{0, 0, 600, 400};
-        });
-
-    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
-        {
-            return GetTextSizeMock(text, format);
-        });
-
     document.WaitTask(document.InsertSubscript(true));
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
@@ -121,16 +111,6 @@ TEST_F(FormulaTest, subscript1)
 TEST_F(FormulaTest, subscript2)
 {
     Start(600);
-
-    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
-        {
-            return Rect{0, 0, 600, 400};
-        });
-
-    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
-        {
-            return GetTextSizeMock(text, format);
-        });
 
     document.WaitTask(document.InsertSubscriptFunction("log", true));
     ASSERT_TRUE(document.ToHtml() == 

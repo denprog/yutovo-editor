@@ -21,6 +21,12 @@ CodeString::CodeString(Element* parent, const std::string str, const StringForma
     type = ElementType::CODE_STRING;
 }
 
+CodeString::CodeString(Element* parent, const std::u32string str) :
+    String(parent, str)
+{
+    type = ElementType::CODE_STRING;
+}
+
 CodeString::CodeString(Element* parent, const std::u32string str, const StringFormatPtr _format) :
     String(parent, str, _format)
 {
