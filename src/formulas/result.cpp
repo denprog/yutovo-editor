@@ -137,6 +137,8 @@ void ResultRow::PutUnit(const Result& result)
     if (denomerator)
     {
         auto* d = new Division(this);
+        if (numerator->elements->Count() == 0)
+            numerator->AddElement(CodeStringPtr(new CodeString(this, U"1")));
         d->AddNumerator(numerator);
         d->AddDenomerator(denomerator);
         if (s)
@@ -211,6 +213,7 @@ void RealResult::PutResult(Result result)
     ElementPtr el = document->FindParent(id, ElementType::EQUATION);
     Equation* eq = (Equation*)el.get();
     eq->dependencies = result.dependencies;
+    cast_units = result.cast_units;
 
     last_error = result.error.error_code != yutovo_service::ErrorCode::OK;
     if (result.error.error_code == yutovo_service::ErrorCode::SOLVER_RESTARTED_ERROR)
@@ -428,6 +431,7 @@ void RationalResult::PutResult(Result result)
     ElementPtr el = document->FindParent(id, ElementType::EQUATION);
     Equation* eq = (Equation*)el.get();
     eq->dependencies = result.dependencies;
+    cast_units = result.cast_units;
 
     last_error = result.error.error_code != yutovo_service::ErrorCode::OK;
     if (result.error.error_code == yutovo_service::ErrorCode::SOLVER_RESTARTED_ERROR)

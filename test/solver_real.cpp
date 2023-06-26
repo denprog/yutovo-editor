@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 #include "mock.h"
 #include "style.h"
+#include <yutovo_calculator/unit.h>
 
 namespace yutovo_test
 {
@@ -292,6 +293,31 @@ TEST_F(SolverRealTest, solver8)
     ASSERT_TRUE(document.ToText() == 
         U"arcsin(1)=90.(deg)"
         ) << ToBasicString(document.ToText());
+}
+
+//Changing unit of result
+TEST_F(SolverRealTest, units1)
+{
+    Start(600);
+    
+    document.InsertCode(false, true);
+    document.InsertString("1m", true);
+    document.WaitTask(document.InsertEquation(ResultType::REAL, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == U"1m=1.m") << ToBasicString(document.ToText());
+
+    std::vector<yutovo_calculator::Unit> cast_units;
+    document.GetCastUnits({0, 0, 0, 0, 0, 0, 0, 2, 0, 0}, cast_units);
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(std::find(cast_units.begin(), cast_units.end(), yutovo_calculator::Unit(U"m")) != cast_units.end());
+    ASSERT_TRUE(std::find(cast_units.begin(), cast_units.end(), yutovo_calculator::Unit(U"mm")) != cast_units.end());
+    ASSERT_TRUE(std::find(cast_units.begin(), cast_units.end(), yutovo_calculator::Unit(U"km")) != cast_units.end());
+
+    document.WaitTask(document.SetUnit({0, 0, 0, 0, 0, 0, 0, 2, 0, 0}, yutovo_calculator::Unit(U"mm"), true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == U"1m=1000.mm") << ToBasicString(document.ToText());
 }
 
 }

@@ -33,6 +33,34 @@ bool SolverTask::SendRequest(const rapidjson::Document& json, Result& result, We
     return socket->Send(str, result);
 }
 
+void SolverTask::AddUnit(rapidjson::Document& json, const yutovo_calculator::Unit& unit)
+{
+    if (unit.IsEmpty())
+        return;
+    
+    auto& alloc = json.GetAllocator();
+    rapidjson::Value _unit;
+    _unit.SetObject();
+    rapidjson::Value d(rapidjson::kArrayType);
+    for (auto& u : unit.unit)
+    {
+        rapidjson::Value _u;
+        _u.SetObject();
+        rapidjson::Value s((boost::locale::conv::utf_to_utf<char>(u.first)).c_str(), alloc);
+        _u.AddMember("name", s, alloc);
+        if (u.second != 1)
+            _u.AddMember("power", u.second, alloc);
+        d.PushBack(_u, alloc);
+    }
+    if (unit.system != U"")
+    {
+        rapidjson::Value s((boost::locale::conv::utf_to_utf<char>(unit.system)).c_str(), alloc);
+        _unit.AddMember("system", s, alloc);
+    }
+    _unit.AddMember("value", d, alloc);
+    json.AddMember("unit", _unit, alloc);
+}
+
 void SolverTask::GetResultType(const rapidjson::Document& json, Result& result)
 {
     if (json.HasMember("result_type") && json["result_type"].IsInt())
@@ -83,8 +111,9 @@ void SolverTask::FillUnit(rapidjson::Document& doc, Result& result)
         rapidjson::Value u = arr[i].GetObject();
         std::u32string name;
         int power = 1;
-        if (u.HasMember("name") && u["name"].IsString())
-            name = ToUtfString(u["name"].GetString());
+        if (!u.HasMember("name") && !u["name"].IsString())
+            return;
+        name = ToUtfString(u["name"].GetString());
         if (u.HasMember("power") && u["power"].IsInt())
             power = u["power"].GetInt();
         unit.unit.push_back(std::make_pair(name, power));
@@ -100,46 +129,39 @@ void SolverTask::FillCastUnits(rapidjson::Document& doc, Result& result)
     rapidjson::GenericArray cast_units = doc["cast_units"].GetArray();
     for (rapidjson::SizeType i = 0; i < cast_units.Size(); ++i)
     {
-        if (!cast_units[i].IsArray())
+        if (!cast_units[i].IsObject())
             return;
         
-        rapidjson::GenericArray systems = cast_units[i].GetArray();
-        for (rapidjson::SizeType j = 0; i < systems.Size(); ++i)
+        rapidjson::Value s_arr = cast_units[i].GetObject();
+        if (!s_arr.HasMember("system") || !s_arr["system"].IsString())
+            return;
+        auto s = ToUtfString(s_arr["system"].GetString());
+        if (!s_arr.HasMember("units") || !s_arr["units"].IsArray())
+            return;
+        rapidjson::GenericArray units_arr = s_arr["units"].GetArray();
+        for (rapidjson::SizeType j = 0; j < units_arr.Size(); ++j)
         {
-            if (!systems[j].IsObject())
+            if (!units_arr[j].IsArray())
                 return;
             
-            rapidjson::Value s_arr = systems[j].GetObject();
-            if (!s_arr.HasMember("system") && !s_arr["system"].IsString())
-                return;
-            auto s = ToUtfString(s_arr["system"].GetString());
-            if (!s_arr.HasMember("units") && !s_arr["units"].IsArray())
-                return;
-            rapidjson::GenericArray units_arr = s_arr["units"].GetArray();
-            for (rapidjson::SizeType k = 0; k < s_arr.Size(); ++k)
+            yutovo_calculator::Unit unit;
+            rapidjson::Value u_arr = units_arr[j].GetArray();
+            for (rapidjson::SizeType k = 0; k < u_arr.Size(); ++k)
             {
-                if (!units_arr[k].IsArray())
+                if (!u_arr[k].IsObject())
                     return;
-                
-                yutovo_calculator::Unit unit;
-                rapidjson::Value u_arr = units_arr[k].GetArray();
-                for (rapidjson::SizeType n = 0; n < u_arr.Size(); ++n)
-                {
-                    if (!u_arr[n].IsObject())
-                        return;
-                    rapidjson::Value u = u_arr[n].GetObject();
+                rapidjson::Value u = u_arr[k].GetObject();
 
-                    std::u32string name;
-                    int power = 1;
-                    if (u.HasMember("name") && u["name"].IsString())
-                        name = ToUtfString(u["name"].GetString());
-                    if (u.HasMember("power") && u["power"].IsInt())
-                        power = u["power"].GetInt();
-                    unit.unit.push_back(std::make_pair(name, power));
-                    unit.system = s;
-                }
-                result.cast_units.push_back(unit);
+                std::u32string name;
+                int power = 1;
+                if (u.HasMember("name") && u["name"].IsString())
+                    name = ToUtfString(u["name"].GetString());
+                if (u.HasMember("power") && u["power"].IsInt())
+                    power = u["power"].GetInt();
+                unit.unit.push_back(std::make_pair(name, power));
+                unit.system = s;
             }
+            result.cast_units.push_back(unit);
         }
     }
 }
@@ -276,6 +298,8 @@ bool AutoSolverTask::Execute(WebSocketPtr socket, Result& result)
     //rational config
     doc.AddMember("fraction_form", (int)config.rational_result.fraction_form, alloc);
 
+    AddUnit(doc, config.real_result.unit);
+
     if (!SendRequest(doc, result, socket))
         return false;
 
@@ -340,6 +364,8 @@ bool RealSolverTask::Execute(WebSocketPtr socket, Result& result)
     doc.AddMember("default_angle_measure", (int)config.default_angle_measure, alloc);
     doc.AddMember("result_angle_measure", (int)config.result_angle_measure, alloc);
     doc.AddMember("exponent_size", config.exp, alloc);
+
+    AddUnit(doc, config.unit);
 
     if (!SendRequest(doc, result, socket))
         return false;
@@ -451,6 +477,8 @@ bool RationalSolverTask::Execute(WebSocketPtr socket, Result& result)
     doc.AddMember("fraction_form", (int)config.fraction_form, alloc);
     std::string s = ToBasicString(expression);
     doc.AddMember("expression", rapidjson::StringRef(s.c_str()), alloc);
+
+    AddUnit(doc, config.unit);
 
     if (!SendRequest(doc, result, socket))
         return false;

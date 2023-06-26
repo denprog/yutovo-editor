@@ -1933,10 +1933,11 @@ uint Document::SetFractionForm(ElementId _id, FractionForm fraction_form, bool w
 void Document::GetCastUnits(ElementId _id, std::vector<yutovo_calculator::Unit>& cast_units)
 {
     std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
-    auto el = GetElement(_id);
+    auto el = FindParent(_id, ElementType::REAL_RESULT);
     RealResult* r = dynamic_cast<RealResult*>(el.get());
     if (!r)
     {
+        el = FindParent(_id, ElementType::RATIONAL_RESULT);
         RationalResult* r_r = dynamic_cast<RationalResult*>(el.get());
         if (r_r)
             cast_units = r_r->cast_units;
