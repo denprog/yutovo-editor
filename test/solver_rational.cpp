@@ -404,7 +404,7 @@ TEST_F(SolverRationalTest, units1)
     document.WaitTask(document.InsertEquation(ResultType::RATIONAL, true));
     document.WaitSolver();
     std::this_thread::sleep_for(600ms);
-    ASSERT_TRUE(document.ToText() == U"(1m)/(3s)=(1)/(3)(m)/(s)") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.ToText() == U"(1m)/(3s)=20(m)/(min)") << ToBasicString(document.ToText());
 }
 
 TEST_F(SolverRationalTest, units2)
@@ -420,6 +420,39 @@ TEST_F(SolverRationalTest, units2)
     document.WaitSolver();
     std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToText() == U"fut{rus}=1fut{rus}") << ToBasicString(document.ToText());
+}
+
+//Changing unit of result
+TEST_F(SolverRationalTest, units3)
+{
+    Start(600);
+    
+    document.GetConfig(config);
+    config.rational_result.fraction_form = FractionForm::IMPROPER;
+    document.SetConfig(config);
+
+    document.InsertDivision(true);
+    document.InsertString("50", true);
+    document.MoveCaretDown(false);
+    document.MoveCaretDown(false);
+    document.InsertString("3s", true);
+    document.MoveCaretRight(false);
+    document.WaitTask(document.InsertEquation(ResultType::RATIONAL, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == U"(50)/(3s)=(50)/(3)Hz") << ToBasicString(document.ToText());
+
+    std::vector<yutovo_calculator::Unit> cast_units;
+    document.GetCastUnits({0, 0, 0, 0, 0, 0, 0, 2, 0, 0}, cast_units);
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(std::find(cast_units.begin(), cast_units.end(), yutovo_calculator::Unit(U"Hz")) != cast_units.end());
+    ASSERT_TRUE(std::find(cast_units.begin(), cast_units.end(), yutovo_calculator::Unit(U"kHz")) != cast_units.end());
+    ASSERT_TRUE(std::find(cast_units.begin(), cast_units.end(), yutovo_calculator::Unit(U"MHz")) != cast_units.end());
+
+    document.WaitTask(document.SetUnit({0, 0, 0, 0, 0, 0, 0, 2, 0, 0}, yutovo_calculator::Unit(U"ms", -1), true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == U"(50)/(3s)=(1)/(60)(1)/(ms)") << ToBasicString(document.ToText());
 }
 
 }

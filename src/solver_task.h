@@ -6,6 +6,7 @@
 #include "rapidjson/document.h"
 #include "web_socket.h"
 #include "result_codes.h"
+#include <yutovo_calculator/unit.h>
 
 namespace yutovo
 {
@@ -28,6 +29,8 @@ struct SolverTask
     virtual bool Execute(WebSocketPtr socket, Result& result) = 0;
 
     bool SendRequest(const rapidjson::Document& json, Result& result, WebSocketPtr& socket);
+
+    void AddUnit(rapidjson::Document& json, const yutovo_calculator::Unit& unit);
 
     void GetResultType(const rapidjson::Document& json, Result& result);
     void GetDependencies(const rapidjson::Document& json, Result& result);

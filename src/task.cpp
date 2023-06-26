@@ -1397,7 +1397,11 @@ bool SetResultParams::Execute()
     }
     if (!unit.IsEmpty())
     {
-        
+        if (eq->SetConfig(unit, with_undo))
+        {
+            Remake(el->id, true);
+            return true;
+        }
     }
 
     return false;
