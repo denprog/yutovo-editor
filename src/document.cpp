@@ -39,6 +39,7 @@ Document::Document(Window* _window) :
     paragraph_formats.reset(new ParagraphFormats(string_formats));
     code_formats.reset(new CodeFormats());
     formula_formats.reset(new FormulaFormats(string_formats));
+
     current_paragraph_format = paragraph_formats->GetFormat("Text body");
     current_code_format = code_formats->GetFormat("Calculator");
     current_formula_format = formula_formats->GetFormat("Code");
@@ -265,8 +266,8 @@ void Document::MainLoop()
                 if (last_solver_task_id == t->id)
                     last_solver_executed = true;
                 
-                if (last_tasks.size() > 1000)
-                    last_tasks.clear();
+                // if (last_tasks.size() > 1000)
+                //     last_tasks.clear();
                 last_tasks.push_back(t->id);
 #endif
             }
@@ -516,6 +517,75 @@ uint Document::InsertFormulas(std::vector<ElementPtr>& elements, bool with_undo,
     }
     next_circle = true;
     return last_task_id;
+}
+
+uint Document::InsertUnit(const yutovo_calculator::Unit& unit)
+{
+    FormulaFormatPtr f = formula_formats->GetFormat("Code");
+    StringFormatPtr string_format = f->string_format;
+
+    ElementPtr numerator(new CodeRow(this));
+    numerator->elements->Clear();
+    ElementPtr denomerator;
+    for (auto& u : unit.unit)
+    {
+        auto s = ToBasicString(u.first);
+        if (u.second > 0)
+        {
+            if (numerator->elements->Count() > 0)
+                numerator->AddElement(ElementPtr(new Multiply(this)));
+            if (u.second == 1)
+                numerator->AddElement(CodeStringPtr(new CodeString(numerator.get(), s, string_format)));
+            else
+            {
+                PowerPtr p(new Power(this));
+                p->AddBase(CodeStringPtr(new CodeString(p.get(), s)));
+                p->AddExponent(CodeStringPtr(new CodeString(p.get(), std::to_string(u.second), string_format)));
+                numerator->AddElement(p);
+            }
+        }
+        else
+        {
+            if (!denomerator)
+            {
+                denomerator.reset(new CodeRow(this));
+                denomerator->elements->Clear();
+            }
+            if (denomerator->elements->Count() > 0)
+                denomerator->AddElement(ElementPtr(new Multiply(this)));
+            if (u.second == -1)
+                denomerator->AddElement(CodeStringPtr(new CodeString(denomerator.get(), s, string_format)));
+            else
+            {
+                PowerPtr p(new Power(this));
+                p->AddBase(CodeStringPtr(new CodeString(p.get(), s)));
+                p->AddExponent(CodeStringPtr(new CodeString(p.get(), std::to_string(-u.second), string_format)));
+                denomerator->AddElement(p);
+            }
+        }
+    }
+
+    auto* row = new CodeRow(this);
+
+    if (denomerator)
+    {
+        auto* d = new Division(this);
+        if (numerator->elements->Count() == 0)
+            numerator->AddElement(CodeStringPtr(new CodeString(numerator.get(), U"1")));
+        d->AddNumerator(numerator);
+        d->AddDenomerator(denomerator);
+        row->AddElement(ElementPtr(d));
+    }
+    else
+    {
+        for (int i = 0; i < numerator->elements->Count(); ++i)
+            row->AddElement(numerator->elements->Get(i));
+    }
+
+    auto* code = new CodeBlock(this, 1);
+    code->elements->Clear();
+    code->elements->Add(ElementPtr(row));
+    return InsertFormula(code, false, false);
 }
 
 uint Document::ChangeStringFormat(const std::string family, const uint size, const bool bold, const bool italic, const bool underline, 
@@ -1531,7 +1601,7 @@ uint Document::Resize(uint width, uint height)
     return last_task_id;
 }
 
-void Document::Redraw(const ElementId& id, bool move_into_view)
+uint Document::Redraw(const ElementId& id, bool move_into_view)
 {
     {
         std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
@@ -1553,6 +1623,7 @@ void Document::Redraw(const ElementId& id, bool move_into_view)
         }
     }
     next_circle = true;
+    return tasks.back()->id;
 }
 
 void Document::Redraw()
@@ -1713,7 +1784,9 @@ TextFormatPtr Document::GetDefaultTextFormat()
 
 PageFormatPtr Document::GetDefaultPageFormat()
 {
-    return PageFormats::GetFormat(20, 20, 20, 20, 10);
+    if (config.with_border)
+        return PageFormats::GetFormat(20, 20, 20, 20, 10);
+    return PageFormats::GetFormat(0, 0, 0, 0, 0);
 }
 
 StringFormatPtr Document::GetStringFormat(const std::string& family, uint size, bool bold, bool italic, bool underline)
@@ -1809,6 +1882,8 @@ int Document::GetPrecision(ElementId _id)
 {
     std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
     auto el = GetElement(_id);
+    if (!el)
+        return 0;
     RealResult* r = dynamic_cast<RealResult*>(el.get());
     if (!r)
     {
@@ -1834,6 +1909,8 @@ int Document::GetExp(ElementId _id)
 {
     std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
     auto el = GetElement(_id);
+    if (!el)
+        return 0;
     RealResult* r = dynamic_cast<RealResult*>(el.get());
     if (!r)
     {
@@ -1859,6 +1936,8 @@ AngleMeasure Document::GetResultAngleMeasure(ElementId _id)
 {
     std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
     auto el = GetElement(_id);
+    if (!el)
+        return AngleMeasure::NONE;
     RealResult* r = dynamic_cast<RealResult*>(el.get());
     if (!r)
     {
@@ -1884,6 +1963,8 @@ Notation Document::GetNotation(ElementId _id)
 {
     std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
     auto el = GetElement(_id);
+    if (!el)
+        return Notation::NONE;
     IntegerResult* r = dynamic_cast<IntegerResult*>(el.get());
     if (!r)
     {
@@ -1909,6 +1990,8 @@ FractionForm Document::GetFractionForm(ElementId _id)
 {
     std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
     auto el = GetElement(_id);
+    if (!el)
+        return FractionForm::NONE;
     RationalResult* r = dynamic_cast<RationalResult*>(el.get());
     if (!r)
     {
@@ -1930,23 +2013,55 @@ uint Document::SetFractionForm(ElementId _id, FractionForm fraction_form, bool w
     return tasks.back()->id;
 }
 
+bool Document::HasUnit(ElementId _id)
+{
+    std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
+    auto el = GetElement(_id);
+    if (!el)
+        return false;
+    
+    if (el->type == ElementType::AUTO_RESULT)
+    {
+        AutoResult* r = dynamic_cast<AutoResult*>(el.get());
+        std::vector<yutovo_calculator::Unit> cast_units;
+        r->GetCastUnits(cast_units);
+        return !cast_units.empty();
+    }
+    else if (el->type == ElementType::REAL_RESULT)
+    {
+        RealResult* r = dynamic_cast<RealResult*>(el.get());
+        return !r->cast_units.empty();
+    }
+    else if (el->type == ElementType::RATIONAL_RESULT)
+    {
+        RationalResult* r = dynamic_cast<RationalResult*>(el.get());
+        return !r->cast_units.empty();
+    }
+    return false;
+}
+
 void Document::GetCastUnits(ElementId _id, std::vector<yutovo_calculator::Unit>& cast_units)
 {
     std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
-    auto el = FindParent(_id, ElementType::REAL_RESULT);
-    RealResult* r = dynamic_cast<RealResult*>(el.get());
-    if (!r)
+    auto el = GetElement(_id);
+    if (el->type == ElementType::AUTO_RESULT)
     {
-        el = FindParent(_id, ElementType::RATIONAL_RESULT);
-        RationalResult* r_r = dynamic_cast<RationalResult*>(el.get());
-        if (r_r)
-            cast_units = r_r->cast_units;
-        return;
+        AutoResult* r = dynamic_cast<AutoResult*>(el.get());
+        r->GetCastUnits(cast_units);
     }
-    cast_units = r->cast_units;
+    else if (el->type == ElementType::REAL_RESULT)
+    {
+        RealResult* r = dynamic_cast<RealResult*>(el.get());
+        cast_units = r->cast_units;
+    }
+    else if (el->type == ElementType::RATIONAL_RESULT)
+    {
+        RationalResult* r = dynamic_cast<RationalResult*>(el.get());
+        cast_units = r->cast_units;
+    }
 }
 
-uint Document::SetUnit(ElementId _id, yutovo_calculator::Unit unit, bool with_undo)
+uint Document::SetUnit(ElementId _id, yutovo_calculator::Unit& unit, bool with_undo)
 {
     std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
     tasks.emplace_back(new SetResultParams(text, _id, unit, with_undo));

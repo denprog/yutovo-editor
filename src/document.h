@@ -71,6 +71,8 @@ public:
     uint InsertFormula(Element* element, bool with_undo, bool undo, bool with_last_task_id = false);
     uint InsertFormulas(std::vector<ElementPtr>& elements, bool with_undo, bool undo, bool with_last_task_id = false, bool pasting = false);
 
+    uint InsertUnit(const yutovo_calculator::Unit& unit);
+
     uint ChangeStringFormat(const std::string family, const uint size, const bool bold, const bool italic, const bool underline, bool with_undo, bool undo);
     uint ChangeStringFormat(const StringFormatPtr format, bool set_family, bool set_size, bool set_bold, bool set_italic, bool set_underline, 
         bool with_undo);
@@ -159,7 +161,7 @@ public:
 
     uint Resize(uint width, uint height);
 
-    void Redraw(const ElementId& id, bool move_into_view);
+    uint Redraw(const ElementId& id, bool move_into_view);
     void Redraw();
 
     bool WillRedraw(const ElementId& id, bool move_into_view);
@@ -218,8 +220,9 @@ public:
     uint SetNotation(ElementId _id, Notation notation, bool with_undo);
     FractionForm GetFractionForm(ElementId _id);
     uint SetFractionForm(ElementId _id, FractionForm fraction_form, bool with_undo);
+    bool HasUnit(ElementId _id);
     void GetCastUnits(ElementId _id, std::vector<yutovo_calculator::Unit>& cast_units);
-    uint SetUnit(ElementId _id, yutovo_calculator::Unit unit, bool with_undo);
+    uint SetUnit(ElementId _id, yutovo_calculator::Unit& unit, bool with_undo);
 
     void ReSolve(ElementId _id);
     void ReSolveDependencies(ElementId after_id, const std::u32string& identifier);

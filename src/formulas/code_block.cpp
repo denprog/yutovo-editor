@@ -57,7 +57,8 @@ Element* CodeBlock::Create(Element* parent)
 void CodeBlock::Draw() const
 {
     Element::Draw();
-    window->DrawRect(GetAbsoluteRect(), Color::Red());
+    if (document->config.formula_border)
+        window->DrawRect(GetAbsoluteRect(), Color::Red());
 }
 
 bool CodeBlock::Remake(bool with_elements)

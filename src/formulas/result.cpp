@@ -283,7 +283,7 @@ bool RealResult::SetConfig(const int precision, const int exp, const AngleMeasur
     return true;
 }
 
-bool RealResult::SetConfig(const yutovo_calculator::Unit unit)
+bool RealResult::SetConfig(const yutovo_calculator::Unit& unit)
 {
     if (config.unit == unit)
         return false;
@@ -500,7 +500,7 @@ bool RationalResult::SetConfig(FractionForm fraction_form)
     return true;
 }
 
-bool RationalResult::SetConfig(const yutovo_calculator::Unit unit)
+bool RationalResult::SetConfig(const yutovo_calculator::Unit& unit)
 {
     if (config.unit == unit)
         return false;
@@ -701,7 +701,7 @@ bool AutoResult::SetConfig(FractionForm fraction_form)
     return true;
 }
 
-bool AutoResult::SetConfig(const yutovo_calculator::Unit unit)
+bool AutoResult::SetConfig(const yutovo_calculator::Unit& unit)
 {
     if (config.real_result.unit == unit && config.rational_result.unit == unit)
         return false;
@@ -730,6 +730,24 @@ ResultType AutoResult::GetResultType()
         return ResultType::COMPLEX;
     }
     return ResultType::NONE;
+}
+
+void AutoResult::GetCastUnits(std::vector<yutovo_calculator::Unit>& cast_units)
+{
+    if (elements->Count() == 0)
+        return;
+    auto el = elements->Get(0);
+    switch (el->type)
+    {
+    case ElementType::REAL_RESULT:
+        cast_units = ((RealResult*)el.get())->cast_units;
+        break;
+    case ElementType::RATIONAL_RESULT:
+        cast_units = ((RationalResult*)el.get())->cast_units;
+        break;
+    default:
+        break;
+    }
 }
 
 std::string AutoResult::ToHtml()

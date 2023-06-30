@@ -291,7 +291,7 @@ bool Equation::SetConfig(FractionForm fraction_form, bool with_undo)
     }
 }
 
-bool Equation::SetConfig(yutovo_calculator::Unit unit, bool with_undo)
+bool Equation::SetConfig(const yutovo_calculator::Unit& unit, bool with_undo)
 {
     switch (result->type)
     {
