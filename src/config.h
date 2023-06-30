@@ -21,7 +21,12 @@ struct Config
     uint service_timeout = 10; //seconds
     uint solve_delay = 2000; //milliseconds
 
+    //document
+    bool with_border = true;
+    bool formula_border = true;
+
     //caret
+    bool caret_visible = true;
     uint caret_blink_delay = 500; //milliseconds
 
     //undo

@@ -314,7 +314,8 @@ TEST_F(SolverRealTest, units1)
     ASSERT_TRUE(std::find(cast_units.begin(), cast_units.end(), yutovo_calculator::Unit(U"mm")) != cast_units.end());
     ASSERT_TRUE(std::find(cast_units.begin(), cast_units.end(), yutovo_calculator::Unit(U"km")) != cast_units.end());
 
-    document.WaitTask(document.SetUnit({0, 0, 0, 0, 0, 0, 0, 2, 0, 0}, yutovo_calculator::Unit(U"mm"), true));
+    yutovo_calculator::Unit unit(U"mm");
+    document.WaitTask(document.SetUnit({0, 0, 0, 0, 0, 0, 0, 2, 0, 0}, unit, true));
     document.WaitSolver();
     std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToText() == U"1m=1000.mm") << ToBasicString(document.ToText());

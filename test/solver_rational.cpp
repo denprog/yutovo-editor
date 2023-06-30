@@ -449,7 +449,8 @@ TEST_F(SolverRationalTest, units3)
     ASSERT_TRUE(std::find(cast_units.begin(), cast_units.end(), yutovo_calculator::Unit(U"kHz")) != cast_units.end());
     ASSERT_TRUE(std::find(cast_units.begin(), cast_units.end(), yutovo_calculator::Unit(U"MHz")) != cast_units.end());
 
-    document.WaitTask(document.SetUnit({0, 0, 0, 0, 0, 0, 0, 2, 0, 0}, yutovo_calculator::Unit(U"ms", -1), true));
+    yutovo_calculator::Unit unit(U"ms", -1);
+    document.WaitTask(document.SetUnit({0, 0, 0, 0, 0, 0, 0, 2, 0, 0}, unit, true));
     document.WaitSolver();
     std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToText() == U"(50)/(3s)=(1)/(60)(1)/(ms)") << ToBasicString(document.ToText());

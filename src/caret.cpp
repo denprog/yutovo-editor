@@ -210,7 +210,7 @@ void Caret::SetVisible(bool _visible)
 
 void Caret::Show()
 {
-    if (block)
+    if (block || !document->config.caret_visible)
         return;
     auto el = GetElement();
     if (!visible || !el)
