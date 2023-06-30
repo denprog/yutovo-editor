@@ -443,7 +443,7 @@ TEST_F(SolverRationalTest, units3)
     ASSERT_TRUE(document.ToText() == U"(50)/(3s)=(50)/(3)Hz") << ToBasicString(document.ToText());
 
     std::vector<yutovo_calculator::Unit> cast_units;
-    document.GetCastUnits({0, 0, 0, 0, 0, 0, 0, 2, 0, 0}, cast_units);
+    document.GetCastUnits({0, 0, 0, 0, 0, 0, 0, 2, 0}, cast_units);
     std::this_thread::sleep_for(200ms);
     ASSERT_TRUE(std::find(cast_units.begin(), cast_units.end(), yutovo_calculator::Unit(U"Hz")) != cast_units.end());
     ASSERT_TRUE(std::find(cast_units.begin(), cast_units.end(), yutovo_calculator::Unit(U"kHz")) != cast_units.end());

@@ -308,7 +308,7 @@ TEST_F(SolverRealTest, units1)
     ASSERT_TRUE(document.ToText() == U"1m=1.m") << ToBasicString(document.ToText());
 
     std::vector<yutovo_calculator::Unit> cast_units;
-    document.GetCastUnits({0, 0, 0, 0, 0, 0, 0, 2, 0, 0}, cast_units);
+    document.GetCastUnits({0, 0, 0, 0, 0, 0, 0, 2, 0}, cast_units);
     std::this_thread::sleep_for(200ms);
     ASSERT_TRUE(std::find(cast_units.begin(), cast_units.end(), yutovo_calculator::Unit(U"m")) != cast_units.end());
     ASSERT_TRUE(std::find(cast_units.begin(), cast_units.end(), yutovo_calculator::Unit(U"mm")) != cast_units.end());
