@@ -113,7 +113,6 @@ TEST_F(VariablesTest, variables2)
     document.WaitTask(document.MoveCaretHome(false));
     document.WaitTask(document.InsertParagraph(true));
     document.WaitTask(document.MoveCaretUp(false));
-    std::this_thread::sleep_for(600ms);
     document.InsertString("d", true);
     document.InsertAssignment(true);
     document.WaitTask(document.InsertString("5", true));
@@ -299,7 +298,6 @@ TEST_F(VariablesTest, variables4)
 
     document.WaitTask(document.MoveCaretEnd(false));
     document.WaitTask(document.InsertParagraph(true));
-    std::this_thread::sleep_for(100ms);
     document.InsertString("d", true);
     document.InsertAssignment(true);
     document.InsertString("45", true);
@@ -309,7 +307,6 @@ TEST_F(VariablesTest, variables4)
     std::this_thread::sleep_for(600ms);
 
     document.WaitTask(document.MoveCaretRight(false));
-    std::this_thread::sleep_for(100ms);
     document.InsertParagraph(true);
     document.InsertString("d", true);
     document.InsertPlus(true);
@@ -328,7 +325,6 @@ TEST_F(VariablesTest, variables4)
         document.MoveCaretUp(false);
     document.MoveCaretEnd(false);
     document.WaitTask(document.MoveCaretLeft(false));
-    std::this_thread::sleep_for(100ms);
     document.WaitTask(document.InsertString("2", true));
     document.WaitSolver();
     std::this_thread::sleep_for(600ms);
@@ -389,7 +385,6 @@ TEST_F(VariablesTest, variables6)
     document.InsertAssignment(true);
     document.InsertString("2244444444444", true);
     document.WaitSolver();
-    std::this_thread::sleep_for(600ms);
 
     document.WaitTask(document.MoveCaretRight(false));
     document.InsertParagraph(true);
@@ -413,7 +408,6 @@ TEST_F(VariablesTest, variables7)
     document.InsertAssignment(true);
     document.InsertString("2345", true);
     document.WaitSolver();
-    std::this_thread::sleep_for(600ms);
 
     document.InsertParagraph(true);
     document.InsertString("d", true);
@@ -502,7 +496,7 @@ TEST_F(VariablesTest, errors3)
     document.InsertPlus(true);
     document.InsertString("t", true);
     document.WaitSolver();
-    std::this_thread::sleep_for(600ms);
+    
     document.MoveCaretRight(false);
     document.InsertParagraph(true);
     document.InsertString("d", true);
@@ -549,6 +543,60 @@ TEST_F(VariablesTest, errors4)
     int start, size;
     ASSERT_TRUE(document.HasErrorMark(ElementId{0, 0, 0, 0, 0, 0, 0, 2, 2}, start, size));
     ASSERT_TRUE(start == 0 && size == 1);
+}
+
+//Rational variables
+TEST_F(VariablesTest, variables8)
+{
+    Start(600);
+
+    document.GetConfig(config);
+    ResultType order1[4] = {ResultType::RATIONAL, ResultType::INTEGER, ResultType::REAL, ResultType::COMPLEX};
+    std::copy(order1, order1 + 4, config.auto_result.results_order);
+    document.SetConfig(config);
+
+    document.InsertCode(false, true);
+    document.InsertString("d", true);
+    document.InsertAssignment(true);
+    document.InsertDivision(true);
+    document.InsertString("1", true);
+    document.MoveCaretDown(false);
+    document.WaitTask(document.MoveCaretDown(false));
+    document.InsertString("3", true);
+    document.MoveCaretRight(false);
+    document.WaitSolver();
+
+    document.MoveCaretRight(false);
+    document.InsertParagraph(true);
+    document.InsertString("d", true);
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"d=(1)/(3)\n" \
+        U"d=(1)/(3)"
+        ) << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.error_marks.size() == 0);
+
+    document.MoveCaretUp(false);
+    document.MoveCaretEnd(false);
+    document.InsertParagraph(true);
+    document.InsertString("d", true);
+    document.InsertAssignment(true);
+    document.InsertDivision(true);
+    document.InsertString("4", true);
+    document.MoveCaretDown(false);
+    document.WaitTask(document.MoveCaretDown(false));
+    document.InsertString("5", true);
+    document.MoveCaretRight(false);
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"d=(1)/(3)\n" \
+        U"d=(4)/(5)\n" \
+        U"d=(4)/(5)"
+        ) << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.error_marks.size() == 0);
 }
 
 }

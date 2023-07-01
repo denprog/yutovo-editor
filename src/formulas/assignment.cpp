@@ -141,10 +141,10 @@ void Assignment::Solve()
 
 void Assignment::ReSolve(bool if_error)
 {
+    document->RemoveErrorMarks(id);
     if (if_error && !last_error)
         return;
     last_expression.Reset();
-    document->RemoveErrorMarks(id);
 
     ParserString expr;
     first->ToParserString(expr);
