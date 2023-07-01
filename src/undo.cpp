@@ -180,6 +180,8 @@ Element* UndoFormula::Restore(Document* document, Element* parent)
             case ElementType::ASSIGNMENT:
                 el = parent ? new Assignment(parent) : new Assignment(document);
                 break;
+            default:
+                assert(false);
             }
             ElementPtr first(elements[0]->Restore(document, el));
             ElementPtr last(elements[1]->Restore(document, el));
@@ -200,6 +202,8 @@ Element* UndoFormula::Restore(Document* document, Element* parent)
     case ElementType::CLOSE_FENCE:
         el = parent ? new CloseFence(parent) : new CloseFence(document);
         break;
+    default:
+        assert(false);
     }
 
     el->formula_format = formula_format;
@@ -341,6 +345,8 @@ UndoEquation::UndoEquation(Equation* equation) :
 	case ResultType::AUTO:
         config = ((AutoResult*)result)->config;
         return;
+    default:
+        assert(false);
     }
 }
 
@@ -363,6 +369,8 @@ bool UndoEquation::operator==(const UndoEquation& el) const
         return std::any_cast<Config::IntegerResult>(config) == std::any_cast<Config::IntegerResult>(el.config);
     case ResultType::RATIONAL:
         return std::any_cast<Config::RationalResult>(config) == std::any_cast<Config::RationalResult>(el.config);
+    default:
+        assert(false);
     }
     return false;
 }

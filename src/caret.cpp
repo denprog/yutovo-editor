@@ -4,6 +4,9 @@
 #include "util.h"
 #include <chrono>
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunused-value"
+
 namespace yutovo
 {
 
@@ -519,3 +522,5 @@ void Caret::Reset()
 }
 
 }
+
+#pragma clang diagnostic pop
