@@ -96,11 +96,9 @@ struct RationalSolverTask : SolverTask
 
 struct RemoveIdentifierSolverTask : SolverTask
 {
-    RemoveIdentifierSolverTask(ElementId _id, std::string& _guid, uint _code_id, const ResultType _result_type, const std::u32string& _expression, const uint _delay);
+    RemoveIdentifierSolverTask(ElementId _id, std::string& _guid, uint _code_id, const std::u32string& _expression, const uint _delay);
 
     virtual bool Execute(WebSocketPtr socket, Result& result);
-
-    ResultType result_type;
 };
 
 typedef std::shared_ptr<SolverTask> SolverTaskPtr;

@@ -513,10 +513,9 @@ bool RationalSolverTask::Execute(WebSocketPtr socket, Result& result)
 
 //RemoveIdentifierSolverTask
 
-RemoveIdentifierSolverTask::RemoveIdentifierSolverTask(ElementId _id, std::string& _guid, uint _code_id, const ResultType _result_type, 
+RemoveIdentifierSolverTask::RemoveIdentifierSolverTask(ElementId _id, std::string& _guid, uint _code_id, 
     const std::u32string& _expression, const uint _delay) :
-    SolverTask(_id, _guid, _code_id, ExpressionType::USER_SYMBOL, _expression, _delay),
-    result_type(_result_type)
+    SolverTask(_id, _guid, _code_id, ExpressionType::USER_SYMBOL, _expression, _delay)
 {
 }
 
