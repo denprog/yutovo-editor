@@ -400,6 +400,8 @@ Element* UndoEquation::Restore(Document* document, Element* parent)
     case ResultType::RATIONAL:
         el->SetResult(std::any_cast<Config::RationalResult>(config));
         break;
+    default:
+        assert(false);
     }
     return el;
 }
