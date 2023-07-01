@@ -279,9 +279,9 @@ void Document::MainLoop()
     }
 }
 
-uint Document::InsertParagraph(bool with_undo, bool undo)
+uint Document::InsertParagraph(bool with_undo)
 {
-    return InsertElement(new Paragraph(this), with_undo, undo);
+    return InsertElement(new Paragraph(this), with_undo);
 }
 
 uint Document::InsertString(const std::string& str, bool with_undo)
@@ -305,87 +305,41 @@ uint Document::InsertString(const std::string& str, const StringFormatPtr string
     return InsertElement(new String(this, str, string_format), with_undo);
 }
 
-uint Document::InsertString(const std::string& str, const StringFormatPtr string_format, ElementId element_id)
-{
-    return InsertElement(new String(this, str, string_format), element_id);
-}
-
-uint Document::InsertElement(Element* element, bool with_undo, bool undo, ElementId element_id)
+uint Document::InsertElement(Element* element, bool with_undo, ElementId element_id)
 {
     std::vector<ElementPtr> elements;
     elements.emplace_back(element);
-    return InsertElements(elements, with_undo, undo, element_id);
+    return InsertElements(elements, with_undo, element_id);
 }
 
-uint Document::InsertElement(Element* element, ElementId element_id)
-{
-    std::vector<ElementPtr> elements;
-    elements.emplace_back(element);
-    return InsertElements(elements, false, true, element_id);
-}
-
-uint Document::InsertElement(ElementPtr element, ElementId element_id)
-{
-    std::vector<ElementPtr> elements;
-    elements.push_back(element);
-    return InsertElements(elements, false, true, element_id);
-}
-
-uint Document::InsertElements(std::vector<ElementPtr>& elements, bool with_undo, bool undo, ElementId element_id, bool pasting)
+uint Document::InsertElements(std::vector<ElementPtr>& elements, bool with_undo, ElementId element_id, bool pasting)
 {
     {
         std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
-        if (undo)
-        {
-            RestrictUndo();
-            undo_tasks.push_back(TaskPtr(new InsertElementsTask(text, elements, cur_task_id, element_id)));
-            last_task_id = cur_task_id;
-        }
-        else
-        {
-            tasks.emplace_back(new InsertElementsTask(text, elements, with_undo, pasting));
-            last_task_id = tasks.back()->id;
-        }
+        tasks.emplace_back(new InsertElementsTask(text, elements, with_undo, pasting));
+        last_task_id = tasks.back()->id;
     }
     next_circle = true;
     return last_task_id;
 }
 
-uint Document::DeleteElements(bool left, bool with_undo, bool undo)
+uint Document::DeleteElements(bool left, bool with_undo)
 {
     {
         std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
-        if (undo)
-        {
-            RestrictUndo();
-            undo_tasks.push_back(TaskPtr(new DeleteElementsTask(text, left, cur_task_id)));
-            last_task_id = cur_task_id;
-        }
-        else
-        {
-            tasks.emplace_back(new DeleteElementsTask(text, left, with_undo));
-            last_task_id = tasks.back()->id;
-        }
+        tasks.emplace_back(new DeleteElementsTask(text, left, with_undo));
+        last_task_id = tasks.back()->id;
     }
     next_circle = true;
     return last_task_id;
 }
 
-uint Document::ClearElements(ElementId element_id, bool with_undo, bool undo)
+uint Document::ClearElements(ElementId element_id, bool with_undo)
 {
     {
         std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
-        if (undo)
-        {
-            RestrictUndo();
-            undo_tasks.push_back(TaskPtr(new DeleteElementsTask(text, element_id, with_undo, cur_task_id)));
-            last_task_id = cur_task_id;
-        }
-        else
-        {
-            tasks.emplace_back(new DeleteElementsTask(text, element_id, with_undo));
-            last_task_id = tasks.back()->id;
-        }
+        tasks.emplace_back(new DeleteElementsTask(text, element_id, with_undo));
+        last_task_id = tasks.back()->id;
     }
     next_circle = true;
     return last_task_id;
@@ -395,81 +349,81 @@ uint Document::InsertCode(bool next_code_id, bool with_undo)
 {
     if (next_code_id)
         ++cur_code_id;
-    return InsertFormula(new CodeBlock(this, cur_code_id), with_undo, false);
+    return InsertFormula(new CodeBlock(this, cur_code_id), with_undo);
 }
 
 uint Document::InsertCodeString(const std::string& str, bool with_undo)
 {
     FormulaFormatPtr format;
     if (GetCurrentFormulaFormat(format))
-        return InsertFormula(new CodeString(this, str, format->string_format), with_undo, false);
+        return InsertFormula(new CodeString(this, str, format->string_format), with_undo);
     return 0;
 }
 
 uint Document::InsertPlus(bool with_undo)
 {
-    return InsertFormula(new Plus(this), with_undo, false);
+    return InsertFormula(new Plus(this), with_undo);
 }
 
 uint Document::InsertMinus(bool with_undo)
 {
-    return InsertFormula(new Minus(this), with_undo, false);
+    return InsertFormula(new Minus(this), with_undo);
 }
 
 uint Document::InsertMultiply(bool with_undo)
 {
-    return InsertFormula(new Multiply(this), with_undo, false);
+    return InsertFormula(new Multiply(this), with_undo);
 }
 
 uint Document::InsertDivision(bool with_undo)
 {
-    return InsertFormula(new Division(this), with_undo, false);
+    return InsertFormula(new Division(this), with_undo);
 }
 
 uint Document::InsertPower(bool with_undo)
 {
-    return InsertFormula(new Power(this), with_undo, false);
+    return InsertFormula(new Power(this), with_undo);
 }
 
 uint Document::InsertNthRoot(bool with_undo)
 {
-    return InsertFormula(new NthRoot(this), with_undo, false);
+    return InsertFormula(new NthRoot(this), with_undo);
 }
 
 uint Document::InsertSquareRoot(bool with_undo)
 {
-    return InsertFormula(new SquareRoot(this), with_undo, false);
+    return InsertFormula(new SquareRoot(this), with_undo);
 }
 
 uint Document::InsertEquation(yutovo_service::ResultType result_type, bool with_undo)
 {
-    return InsertFormula(new Equation(this, result_type), with_undo, false);
+    return InsertFormula(new Equation(this, result_type), with_undo);
 }
 
 uint Document::InsertOpenFence(bool with_undo)
 {
-    return InsertFormula(new OpenFence(this), with_undo, false);
+    return InsertFormula(new OpenFence(this), with_undo);
 }
 
 uint Document::InsertCloseFence(bool with_undo)
 {
-    return InsertFormula(new CloseFence(this), with_undo, false);
+    return InsertFormula(new CloseFence(this), with_undo);
 }
 
 uint Document::InsertAssignment(bool with_undo)
 {
-    return InsertFormula(new Assignment(this), with_undo, false);
+    return InsertFormula(new Assignment(this), with_undo);
 }
 
 uint Document::InsertSubscript(bool with_undo)
 {
-    return InsertFormula(new Subscript(this), with_undo, false);
+    return InsertFormula(new Subscript(this), with_undo);
 }
 
 uint Document::InsertFences(bool with_undo)
 {
-    InsertFormula(new OpenFence(this), with_undo, false, false);
-    uint r = InsertFormula(new CloseFence(this), with_undo, false, true);
+    InsertFormula(new OpenFence(this), with_undo, false);
+    uint r = InsertFormula(new CloseFence(this), with_undo, true);
     MoveCaretLeft(false, true);
     return r;
 }
@@ -477,8 +431,8 @@ uint Document::InsertFences(bool with_undo)
 uint Document::InsertFunction(const std::string& name, bool with_undo)
 {
     InsertCodeString(name, true);
-    InsertFormula(new OpenFence(this), with_undo, false, true);
-    uint r = InsertFormula(new CloseFence(this), with_undo, false, true);
+    InsertFormula(new OpenFence(this), with_undo, true);
+    uint r = InsertFormula(new CloseFence(this), with_undo, true);
     MoveCaretLeft(false, true);
     return r;
 }
@@ -486,34 +440,25 @@ uint Document::InsertFunction(const std::string& name, bool with_undo)
 uint Document::InsertSubscriptFunction(const std::string& name, bool with_undo)
 {
     InsertCodeString(name, true);
-    return InsertFormula(new Subscript(this), with_undo, false, true);
+    return InsertFormula(new Subscript(this), with_undo, true);
 }
 
-uint Document::InsertFormula(Element* element, bool with_undo, bool undo, bool with_last_task_id)
+uint Document::InsertFormula(Element* element, bool with_undo, bool with_last_task_id)
 {
     std::vector<ElementPtr> elements;
     elements.emplace_back(element);
-    return InsertFormulas(elements, with_undo, undo, with_last_task_id);
+    return InsertFormulas(elements, with_undo, with_last_task_id);
 }
 
-uint Document::InsertFormulas(std::vector<ElementPtr>& elements, bool with_undo, bool undo, bool with_last_task_id, bool pasting)
+uint Document::InsertFormulas(std::vector<ElementPtr>& elements, bool with_undo, bool with_last_task_id, bool pasting)
 {
     {
         std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
-        if (undo)
-        {
-            RestrictUndo();
-            undo_tasks.push_back(TaskPtr(new InsertFormulasTask(text, cur_task_id, elements, false)));
-            last_task_id = cur_task_id;
-        }
+        if (with_last_task_id)
+            tasks.emplace_back(new InsertFormulasTask(text, last_task_id, elements, with_undo));
         else
-        {
-            if (with_last_task_id)
-                tasks.emplace_back(new InsertFormulasTask(text, last_task_id, elements, with_undo));
-            else
-                tasks.emplace_back(new InsertFormulasTask(text, elements, with_undo, pasting));
-            last_task_id = tasks.back()->id;
-        }
+            tasks.emplace_back(new InsertFormulasTask(text, elements, with_undo, pasting));
+        last_task_id = tasks.back()->id;
     }
     next_circle = true;
     return last_task_id;
@@ -585,13 +530,12 @@ uint Document::InsertUnit(const yutovo_calculator::Unit& unit)
     auto* code = new CodeBlock(this, 1);
     code->elements->Clear();
     code->elements->Add(ElementPtr(row));
-    return InsertFormula(code, false, false);
+    return InsertFormula(code, false);
 }
 
-uint Document::ChangeStringFormat(const std::string family, const uint size, const bool bold, const bool italic, const bool underline, 
-    bool with_undo, bool undo)
+uint Document::ChangeStringFormat(const std::string family, const uint size, const bool bold, const bool italic, const bool underline, bool with_undo)
 {
-    return ChangeStringFormat(string_formats->GetFormat(family, size, bold, italic, underline), with_undo, undo);
+    return ChangeStringFormat(string_formats->GetFormat(family, size, bold, italic, underline), with_undo);
 }
 
 uint Document::ChangeStringFormat(const StringFormatPtr format, bool set_family, bool set_size, bool set_bold, bool set_italic, bool set_underline, 
@@ -606,79 +550,26 @@ uint Document::ChangeStringFormat(const StringFormatPtr format, bool set_family,
     return last_task_id;
 }
 
-uint Document::ChangeStringFormat(const StringFormatPtr format, bool with_undo, bool undo)
+uint Document::ChangeStringFormat(const StringFormatPtr format, bool with_undo)
 {
     {
         std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
-        if (undo)
-        {
-            RestrictUndo();
-            undo_tasks.push_back(TaskPtr(new ChangeStringFormatTask(text, format, cur_task_id)));
-            last_task_id = cur_task_id;
-        }
-        else
-        {
-            tasks.emplace_back(new ChangeStringFormatTask(text, format, with_undo));
-            last_task_id = tasks.back()->id;
-        }
+        tasks.emplace_back(new ChangeStringFormatTask(text, format, with_undo));
+        last_task_id = tasks.back()->id;
     }
     next_circle = true;
     return last_task_id;
 }
 
-uint Document::ChangeParagraphFormat(const ParagraphFormatPtr format, bool with_undo, bool undo)
+uint Document::ChangeParagraphFormat(const ParagraphFormatPtr format, bool with_undo)
 {
     {
         std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
-        if (undo)
-        {
-            RestrictUndo();
-            undo_tasks.push_back(TaskPtr(new ChangeParagraphFormatTask(text, format, cur_task_id)));
-            last_task_id = cur_task_id;
-        }
-        else
-        {
-            tasks.emplace_back(new ChangeParagraphFormatTask(text, format, with_undo));
-            last_task_id = tasks.back()->id;
-        }
+        tasks.emplace_back(new ChangeParagraphFormatTask(text, format, with_undo));
+        last_task_id = tasks.back()->id;
     }
     next_circle = true;
     return last_task_id;
-}
-
-void Document::PushEditorState(bool undo)
-{
-    PushEditorState(caret->GetCaretState(), selection.GetState(), undo);
-}
-
-void Document::PushEditorState(const EditorState& editor_state, bool undo)
-{
-    PushEditorState(editor_state.caret_state, editor_state.selection_state, undo);
-}
-
-void Document::PushEditorState(const CaretState& caret_state, bool undo)
-{
-    PushEditorState(caret_state, selection.GetState(), undo);
-}
-
-void Document::PushEditorState(const SelectionState& selection_state, bool undo)
-{
-    PushEditorState(caret->GetCaretState(), selection_state, undo);
-}
-
-void Document::PushEditorState(const CaretState& caret_state, const SelectionState& selection_state, bool undo)
-{
-    {
-        std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
-        if (undo)
-        {
-            RestrictUndo();
-            undo_tasks.push_back(TaskPtr(new SetEditorStateTask(text, caret_state, selection_state, cur_task_id)));
-        }
-        else
-            tasks.emplace_back(new SetEditorStateTask(text, caret_state, selection_state, cur_task_id));
-    }
-    next_circle = true;
 }
 
 bool Document::StoreUndo(const ElementId& _id)
@@ -1209,7 +1100,7 @@ uint Document::SetFontFamily(const std::string& family)
         if (!selection.IsEmpty())
         {
             return ChangeStringFormat(string_formats->GetFormat(family, current_string_format->size, current_string_format->bold, 
-                current_string_format->italic, current_string_format->underline), true, false);
+                current_string_format->italic, current_string_format->underline), true);
         }
         else
         {
@@ -1258,7 +1149,7 @@ uint Document::SetItalic(const bool enabled)
         auto f = string_formats->GetFormat(current_string_format->family, current_string_format->size, current_string_format->bold, enabled, 
             current_string_format->underline);
         if (!selection.IsEmpty())
-            return ChangeStringFormat(f, true, false);
+            return ChangeStringFormat(f, true);
         else
             current_string_format = f;
     }
@@ -1273,7 +1164,7 @@ uint Document::SetUnderline(const bool enabled)
         auto f = string_formats->GetFormat(current_string_format->family, current_string_format->size, current_string_format->bold, 
             current_string_format->italic, enabled);
         if (!selection.IsEmpty())
-            return ChangeStringFormat(f, true, false);
+            return ChangeStringFormat(f, true);
         else
             current_string_format = f;
     }
@@ -1285,7 +1176,7 @@ uint Document::SetCurrentParagraphFormat(const std::string& name)
     std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
     current_paragraph_format = paragraph_formats->GetFormat(name);
     if (current_paragraph_format)
-        return ChangeParagraphFormat(current_paragraph_format, true, false);
+        return ChangeParagraphFormat(current_paragraph_format, true);
     return 0;
 }
 
@@ -1734,9 +1625,9 @@ uint Document::Paste(std::stringstream& in_array)
             }
         }
         if (only_formulas)
-            InsertFormulas(elements, true, false, false, true);
+            InsertFormulas(elements, true, false, true);
         else
-            InsertElements(elements, true, false, ElementId{}, true);
+            InsertElements(elements, true, ElementId{}, true);
         window->OnPasteResult(PasteResult::Success);
     }
     else

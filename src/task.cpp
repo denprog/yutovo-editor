@@ -1110,7 +1110,7 @@ bool CopyTask::Execute()
     window->OnCopyResult(CopyResult::Success);
 
     if (cut)
-        document->DeleteElements(true, true, false);
+        document->DeleteElements(true, true);
     return true;
 }
 

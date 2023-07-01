@@ -28,7 +28,6 @@ TEST_F(ParagraphTest, resizing1)
     document.InsertString("Italic", document.GetStringFormat("Times New Roman", 18, false, true, false), true);
     document.InsertString("Bold", document.GetStringFormat("Times New Roman", 34, true, false, false), true);
     document.WaitTask(document.InsertString("String1 String2 String3", document.GetStringFormat("Arial", 20, false, false, false), true));
-    std::this_thread::sleep_for(200ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -39,12 +38,10 @@ TEST_F(ParagraphTest, resizing1)
             "</p>"\
         "</body>") << 
         document.ToHtml();
-    std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 3, 23)) << document.GetEditorState().ToString();
 
     width = 420;
     document.WaitTask(document.Resize(width, 400));
-    std::this_thread::sleep_for(400ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -60,7 +57,6 @@ TEST_F(ParagraphTest, resizing1)
 
     width = 450;
     document.WaitTask(document.Resize(width, 400));
-    std::this_thread::sleep_for(200ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -76,7 +72,6 @@ TEST_F(ParagraphTest, resizing1)
 
     width = 330;
     document.WaitTask(document.Resize(width, 400));
-    std::this_thread::sleep_for(200ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -91,7 +86,6 @@ TEST_F(ParagraphTest, resizing1)
 
     width = 250;
     document.WaitTask(document.Resize(width, 400));
-    std::this_thread::sleep_for(200ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -108,7 +102,6 @@ TEST_F(ParagraphTest, resizing1)
     document.WaitTask(document.MoveCaretHome(false));
     width = 240;
     document.WaitTask(document.Resize(width, 400));
-    std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -125,7 +118,6 @@ TEST_F(ParagraphTest, resizing1)
     document.WaitTask(document.MoveCaretRight(false));
     width = 220;
     document.WaitTask(document.Resize(width, 400));
-    std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -142,7 +134,6 @@ TEST_F(ParagraphTest, resizing1)
 
     width = 240;
     document.WaitTask(document.Resize(width, 400));
-    std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -158,7 +149,6 @@ TEST_F(ParagraphTest, resizing1)
 
     width = 335;
     document.WaitTask(document.Resize(width, 400));
-    std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -173,7 +163,6 @@ TEST_F(ParagraphTest, resizing1)
 
     width = 330;
     document.WaitTask(document.Resize(width, 400));
-    std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -188,7 +177,6 @@ TEST_F(ParagraphTest, resizing1)
 
     width = 200;
     document.WaitTask(document.Resize(width, 400));
-    std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -230,13 +218,11 @@ TEST_F(ParagraphTest, resizing2)
             "</p>"\
         "</body>") << 
         document.ToHtml();
-    std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 3, 21}, 
         ElementSelectionState{ElementId{0, 0, 0, 3}, 21, 2})) << document.GetEditorState().ToString();
 
     width = 440;
     document.WaitTask(document.Resize(width, 400));
-    std::this_thread::sleep_for(200ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -258,7 +244,6 @@ TEST_F(ParagraphTest, resizing2)
     for (int i = 0; i < 6; ++i)
         document.MoveCaretLeft(true);
     document.WaitTask(document.MoveCaretLeft(true));
-    std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -273,7 +258,6 @@ TEST_F(ParagraphTest, resizing2)
 
     width = 440;
     document.WaitTask(document.Resize(width, 400));
-    std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -292,7 +276,6 @@ TEST_F(ParagraphTest, resizing2)
     document.WaitTask(document.MoveCaretLeft(true));
     width = 390;
     document.WaitTask(document.Resize(width, 400));
-    std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -310,7 +293,6 @@ TEST_F(ParagraphTest, resizing2)
 
     width = 420;
     document.WaitTask(document.Resize(width, 400));
-    std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -339,7 +321,7 @@ TEST_F(ParagraphTest, resizing3)
         });
 
     document.InsertString("The source of the text itself is a little mysterious.", true);
-    document.WaitTask(document.DeleteElements(true, true, false));
+    document.WaitTask(document.DeleteElements(true, true));
     width = 600;
     document.WaitTask(document.Resize(width, 400));
 
@@ -369,7 +351,6 @@ TEST_F(ParagraphTest, paragraph1)
     document.InsertString("Italic", document.GetStringFormat("Times New Roman", 18, false, true, false), true);
     document.InsertString("Bold", document.GetStringFormat("Times New Roman", 34, true, false, false), true);
     document.WaitTask(document.InsertString("String1 String2 String3", document.GetStringFormat("Arial", 20, false, false, false), true));
-    std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -383,7 +364,6 @@ TEST_F(ParagraphTest, paragraph1)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 3, 23)) << document.GetEditorState().ToString();
 
     document.WaitTask(document.InsertParagraph(true));
-    std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -411,12 +391,10 @@ TEST_F(ParagraphTest, paragraph1)
             "</p>"\
         "</body>") << 
         document.ToHtml();
-    std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 3, 23)) << document.GetEditorState().ToString();
 
     document.Redo();
     document.WaitRedo();
-    std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -439,7 +417,6 @@ TEST_F(ParagraphTest, paragraph1)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 4)) << document.GetEditorState().ToString();
 
     document.WaitTask(document.InsertParagraph(true));
-    std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -459,7 +436,6 @@ TEST_F(ParagraphTest, paragraph1)
 
     document.Undo();
     document.WaitUndo();
-    std::this_thread::sleep_for(400ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -497,7 +473,6 @@ TEST_F(ParagraphTest, paragraph1)
     for (int i = 0; i < 3; ++i)
         document.MoveCaretRight(false);
     document.WaitTask(document.InsertParagraph(true));
-    std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -520,7 +495,6 @@ TEST_F(ParagraphTest, paragraph1)
 
     document.Undo();
     document.WaitUndo();
-    std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -540,8 +514,7 @@ TEST_F(ParagraphTest, paragraph1)
 
     document.MoveCaretUp(false);
     document.MoveCaretEnd(false);
-    document.WaitTask(document.DeleteElements(false, true, false));
-    std::this_thread::sleep_for(100ms);
+    document.WaitTask(document.DeleteElements(false, true));
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -559,7 +532,6 @@ TEST_F(ParagraphTest, paragraph1)
 
     document.Undo();
     document.WaitUndo();
-    std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -579,7 +551,6 @@ TEST_F(ParagraphTest, paragraph1)
 
     document.MoveCaretToDocumentBegin(false);
     document.WaitTask(document.InsertParagraph(true));
-    std::this_thread::sleep_for(200ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -602,7 +573,6 @@ TEST_F(ParagraphTest, paragraph1)
 
     document.Undo();
     document.WaitUndo();
-    std::this_thread::sleep_for(200ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -622,7 +592,6 @@ TEST_F(ParagraphTest, paragraph1)
 
     document.Redo();
     document.WaitRedo();
-    std::this_thread::sleep_for(200ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -647,7 +616,6 @@ TEST_F(ParagraphTest, paragraph1)
     document.MoveCaretHome(false);
     document.MoveCaretUp(false);
     document.WaitTask(document.InsertParagraph(true));
-    std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -722,7 +690,6 @@ TEST_F(ParagraphTest, paragraph1)
         document.MoveCaretRight(false);
     document.WaitCaretMoving();
     document.WaitTask(document.InsertParagraph(true));
-    std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -788,7 +755,6 @@ TEST_F(ParagraphTest, paragraph2)
 
     document.Redo();
     document.WaitRedo();
-    std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -802,7 +768,6 @@ TEST_F(ParagraphTest, paragraph2)
 
     document.Undo();
     document.WaitUndo();
-    std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -833,7 +798,6 @@ TEST_F(ParagraphTest, paragraph2)
 
     document.Undo();
     document.WaitUndo();
-    std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -848,7 +812,6 @@ TEST_F(ParagraphTest, paragraph2)
 
     document.Undo();
     document.WaitUndo();
-    std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -874,7 +837,6 @@ TEST_F(ParagraphTest, paragraph2)
 
     document.Redo();
     document.WaitRedo();
-    std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -888,7 +850,6 @@ TEST_F(ParagraphTest, paragraph2)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 1, 6, 0, 6)) << document.GetEditorState().ToString();
 
     document.WaitTask(document.SetCurrentParagraphFormat("Monospace"));
-    std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -904,7 +865,6 @@ TEST_F(ParagraphTest, paragraph2)
     document.WaitTask(document.SetCurrentParagraphFormat("Monospace"));
     document.Undo();
     document.WaitUndo();
-    std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -931,7 +891,6 @@ TEST_F(ParagraphTest, paragraph3)
 
     document.InsertString("45", document.GetStringFormat("Arial", 14, false, false, false), true);
     document.WaitTask(document.InsertDivision(true));
-    std::this_thread::sleep_for(200ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -968,7 +927,6 @@ TEST_F(ParagraphTest, paragraph4)
     document.MoveCaretHome(false);
     document.WaitTask(document.MoveCaretHome(false));
     document.WaitTask(document.InsertParagraph(true));
-    std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -994,7 +952,6 @@ TEST_F(ParagraphTest, paragraph4)
 
     document.Undo();
     document.WaitUndo();
-    std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -1017,7 +974,6 @@ TEST_F(ParagraphTest, paragraph4)
 
     document.Redo();
     document.WaitRedo();
-    std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -1053,7 +1009,6 @@ TEST_F(ParagraphTest, paragraph5)
 
     document.WaitTask(document.MoveCaretWordRight(false));
     document.WaitTask(document.InsertParagraph(true));
-    std::this_thread::sleep_for(100ms);
 
     auto el = document.GetElement(ElementId{0, 0});
     ASSERT_TRUE(el->type == ElementType::PARAGRAPH && el->ToText() == U"Арифме́тика") << ToBasicString(el->ToText());
@@ -1069,7 +1024,6 @@ TEST_F(ParagraphTest, paragraph5)
 
     document.Undo();
     document.WaitUndo();
-    std::this_thread::sleep_for(100ms);
     el = document.GetElement(ElementId{0, 0});
     ASSERT_TRUE(el->type == ElementType::PARAGRAPH && el->ToText().rfind(U"Арифме́тика (др.-греч.", 0) == 0) << ToBasicString(el->ToText());
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 11)) << document.GetEditorState().ToString();
@@ -1085,7 +1039,6 @@ TEST_F(ParagraphTest, paragraph6)
     document.MoveCaretWordRight(false);
     document.WaitTask(document.MoveCaretWordRight(false));
     document.WaitTask(document.InsertParagraph(true));
-    std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -1101,7 +1054,6 @@ TEST_F(ParagraphTest, paragraph6)
 
     document.Undo();
     document.WaitUndo();
-    std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -1114,7 +1066,6 @@ TEST_F(ParagraphTest, paragraph6)
 
     document.Redo();
     document.WaitRedo();
-    std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -1135,10 +1086,8 @@ TEST_F(ParagraphTest, paragraph7)
     Start(400);
 
     document.WaitTask(document.InsertString("In literary theory, a text is any object that can be read, whether this object is a work of literature", true));
-    std::this_thread::sleep_for(100ms);
     document.WaitTask(document.MoveCaretUp(false));
     document.WaitTask(document.InsertParagraph(true));
-    std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -1151,8 +1100,7 @@ TEST_F(ParagraphTest, paragraph7)
         "</body>") 
         << document.ToHtml();
     
-    document.WaitTask(document.DeleteElements(true, true, false));
-    std::this_thread::sleep_for(100ms);
+    document.WaitTask(document.DeleteElements(true, true));
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -1165,7 +1113,6 @@ TEST_F(ParagraphTest, paragraph7)
     
     document.Undo();
     document.WaitUndo();
-    std::this_thread::sleep_for(200ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -1189,7 +1136,6 @@ TEST_F(ParagraphTest, paragraph8)
     document.WaitTask(document.InsertCode(false, true));
     document.WaitTask(document.MoveCaretLeft(false));
     document.WaitTask(document.InsertParagraph(true));
-    std::this_thread::sleep_for(200ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -1237,7 +1183,6 @@ TEST_F(ParagraphTest, paragraph9)
     document.MoveCaretLeft(false);
     document.MoveCaretLeft(false);
     document.WaitTask(document.InsertParagraph(true));
-    std::this_thread::sleep_for(200ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -1286,7 +1231,6 @@ TEST_F(ParagraphTest, paragraph10)
     document.WaitTask(document.MoveCaretWordRight(false));
     document.WaitTask(document.InsertParagraph(true));
     document.WaitTask(document.InsertParagraph(true));
-    std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -1306,7 +1250,6 @@ TEST_F(ParagraphTest, paragraph10)
 
     document.Undo();
     document.WaitUndo();
-    std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -1323,7 +1266,6 @@ TEST_F(ParagraphTest, paragraph10)
 
     document.Undo();
     document.WaitUndo();
-    std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -1348,7 +1290,6 @@ TEST_F(ParagraphTest, paragraph11)
     ASSERT_TRUE(format.name == "Text body");
     document.WaitTask(document.InsertParagraph(true));
     document.WaitTask(document.InsertString("The source of the text itself is a little mysterious.", true));
-    std::this_thread::sleep_for(200ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -1378,7 +1319,6 @@ TEST_F(ParagraphTest, paragraph12)
     for (int i = 0; i < 7; ++i)
         document.MoveCaretLeft(false);
     document.WaitTask(document.InsertParagraph(true));
-    std::this_thread::sleep_for(200ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -1398,7 +1338,6 @@ TEST_F(ParagraphTest, paragraph12)
 
     document.Undo();
     document.WaitUndo();
-    std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -1439,8 +1378,8 @@ TEST_F(ParagraphTest, format2)
     document.InsertString("theory", true);
     document.SetCurrentParagraphFormat("Monospace");
     for (int i = 0; i < 5; ++i)
-        document.DeleteElements(true, true, false);
-    document.WaitTask(document.DeleteElements(true, true, false));
+        document.DeleteElements(true, true);
+    document.WaitTask(document.DeleteElements(true, true));
     ParagraphFormat format;
     ASSERT_TRUE(document.GetParagraphFormat(ElementId{0, 0, 0, 0, 0}, format));
     ASSERT_TRUE(format.name == "Monospace");
@@ -1460,7 +1399,6 @@ TEST_F(ParagraphTest, format3)
     for (int i = 0; i < 7; ++i)
         document.MoveCaretLeft(false);
     document.WaitTask(document.SetCurrentParagraphFormat("Header 1"));
-    std::this_thread::sleep_for(200ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -1482,7 +1420,6 @@ TEST_F(ParagraphTest, format3)
 
     document.Undo();
     document.WaitUndo();
-    std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -1510,10 +1447,8 @@ TEST_F(ParagraphTest, delete1)
     document.InsertString("The source of the text itself is a little mysterious.", true);
     document.InsertParagraph(true);
     document.WaitTask(document.InsertString("Text.", true));
-    std::this_thread::sleep_for(100ms);
     document.WaitTask(document.MoveCaretUp(true));
-    document.WaitTask(document.DeleteElements(false, true, false));
-    std::this_thread::sleep_for(100ms);
+    document.WaitTask(document.DeleteElements(false, true));
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -1525,7 +1460,6 @@ TEST_F(ParagraphTest, delete1)
 
     document.Undo();
     document.WaitUndo();
-    std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\

@@ -33,20 +33,17 @@ public:
     void GetConfig(Config& _config);
     void SetConfig(const Config& _config);
 
-    uint InsertParagraph(bool with_undo, bool undo = false);
+    uint InsertParagraph(bool with_undo);
     uint InsertString(const std::string& str, bool with_undo);
     uint InsertString(const std::u32string& str, bool with_undo);
     uint InsertString(const std::string& str, const StringFormatPtr string_format, bool with_undo);
-    uint InsertString(const std::string& str, const StringFormatPtr string_format, ElementId element_id);
 
-    uint InsertElement(Element* element, bool with_undo, bool undo = false, ElementId element_id = ElementId{});
-    uint InsertElement(Element* element, ElementId element_id = ElementId{});
-    uint InsertElement(ElementPtr element, ElementId element_id = ElementId{});
-    uint InsertElements(std::vector<ElementPtr>& elements, bool with_undo, bool undo = false, ElementId element_id = ElementId{}, 
+    uint InsertElement(Element* element, bool with_undo, ElementId element_id = ElementId{});
+    uint InsertElements(std::vector<ElementPtr>& elements, bool with_undo, ElementId element_id = ElementId{}, 
         bool pasting = false);
 
-    uint DeleteElements(bool left, bool with_undo, bool undo);
-    uint ClearElements(ElementId element_id, bool with_undo, bool undo);
+    uint DeleteElements(bool left, bool with_undo);
+    uint ClearElements(ElementId element_id, bool with_undo);
 
     uint InsertCode(bool next_code_id, bool with_undo);
     uint InsertCodeString(const std::string& str, bool with_undo);
@@ -68,23 +65,17 @@ public:
     uint InsertFunction(const std::string& name, bool with_undo);
     uint InsertSubscriptFunction(const std::string& name, bool with_undo);
 
-    uint InsertFormula(Element* element, bool with_undo, bool undo, bool with_last_task_id = false);
-    uint InsertFormulas(std::vector<ElementPtr>& elements, bool with_undo, bool undo, bool with_last_task_id = false, bool pasting = false);
+    uint InsertFormula(Element* element, bool with_undo, bool with_last_task_id = false);
+    uint InsertFormulas(std::vector<ElementPtr>& elements, bool with_undo, bool with_last_task_id = false, bool pasting = false);
 
     uint InsertUnit(const yutovo_calculator::Unit& unit);
 
-    uint ChangeStringFormat(const std::string family, const uint size, const bool bold, const bool italic, const bool underline, bool with_undo, bool undo);
+    uint ChangeStringFormat(const std::string family, const uint size, const bool bold, const bool italic, const bool underline, bool with_undo);
     uint ChangeStringFormat(const StringFormatPtr format, bool set_family, bool set_size, bool set_bold, bool set_italic, bool set_underline, 
         bool with_undo);
-    uint ChangeStringFormat(const StringFormatPtr format, bool with_undo, bool undo);
+    uint ChangeStringFormat(const StringFormatPtr format, bool with_undo);
 
-    uint ChangeParagraphFormat(const ParagraphFormatPtr format, bool with_undo, bool undo);
-
-    void PushEditorState(bool undo);
-    void PushEditorState(const EditorState& editor_state, bool undo);
-    void PushEditorState(const CaretState& caret_state, bool undo);
-    void PushEditorState(const SelectionState& selection_state, bool undo);
-    void PushEditorState(const CaretState& caret_state, const SelectionState& selection_state, bool undo);
+    uint ChangeParagraphFormat(const ParagraphFormatPtr format, bool with_undo);
 
     bool StoreUndo(const ElementId& _id);
     bool StoreUndo(const ElementId& parent_id, const int pos, const int size, const int delete_size = 0);

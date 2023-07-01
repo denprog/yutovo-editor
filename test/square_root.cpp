@@ -84,7 +84,7 @@ TEST_F(FormulaTest, square_root2)
     document.MoveCaretLeft(false);
     document.MoveCaretLeft(false);
     document.WaitCaretMoving();
-    document.WaitTask(document.DeleteElements(false, true, false));
+    document.WaitTask(document.DeleteElements(false, true));
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -165,7 +165,7 @@ TEST_F(FormulaTest, square_root3)
     document.MoveCaretHome(false);
     document.MoveCaretLeft(false);
     document.WaitCaretMoving();
-    document.WaitTask(document.DeleteElements(false, true, false));
+    document.WaitTask(document.DeleteElements(false, true));
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\

@@ -368,7 +368,7 @@ TEST_F(SolverIntegerTest, solver6)
         U"567=237(hex)"
         ) << ToBasicString(document.ToText());
     
-    document.WaitTask(document.DeleteElements(false, true, false));
+    document.WaitTask(document.DeleteElements(false, true));
     ASSERT_TRUE(document.ToText() == 
         U"567"
         ) << ToBasicString(document.ToText());

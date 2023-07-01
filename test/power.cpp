@@ -190,7 +190,7 @@ TEST_F(FormulaTest, power3)
     document.MoveCaretLeft(false);
     document.MoveCaretLeft(false);
     document.WaitCaretMoving();
-    document.DeleteElements(false, true, false);
+    document.DeleteElements(false, true);
     document.WaitMainLoop();
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
@@ -396,7 +396,7 @@ TEST_F(FormulaTest, power5)
     document.MoveCaretLeft(false);
     document.MoveCaretLeft(false);
     document.WaitCaretMoving();
-    document.DeleteElements(false, true, false);
+    document.DeleteElements(false, true);
     document.WaitMainLoop();
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 

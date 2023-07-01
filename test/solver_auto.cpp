@@ -399,7 +399,7 @@ TEST_F(SolverAutoTest, solver6)
         "</body>") << 
         document.ToHtml();
 
-    document.WaitTask(document.DeleteElements(true, true, false));
+    document.WaitTask(document.DeleteElements(true, true));
     document.WaitSolver();
     std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToHtml() == 
@@ -496,7 +496,7 @@ TEST_F(SolverAutoTest, solver7)
         document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 1})) << document.GetEditorState().ToString();
 
-    document.WaitTask(document.DeleteElements(true, true, false));
+    document.WaitTask(document.DeleteElements(true, true));
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -520,7 +520,7 @@ TEST_F(SolverAutoTest, solver7)
         document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 1})) << document.GetEditorState().ToString();
 
-    document.WaitTask(document.DeleteElements(false, true, false));
+    document.WaitTask(document.DeleteElements(false, true));
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -690,9 +690,9 @@ TEST_F(SolverAutoTest, solver10)
     for (int i = 0; i < 5; ++i)
         document.MoveCaretRight(false);
     document.WaitTask(document.MoveCaretRight(false));
-    document.WaitTask(document.DeleteElements(true, true, false));
+    document.WaitTask(document.DeleteElements(true, true));
     document.WaitTask(document.MoveCaretRight(false));
-    document.WaitTask(document.DeleteElements(false, true, false));
+    document.WaitTask(document.DeleteElements(false, true));
     std::this_thread::sleep_for(200ms);
     ASSERT_TRUE(document.ToText() == 
         U"235235435345=2.352*pow(10,11)"
@@ -713,7 +713,7 @@ TEST_F(SolverAutoTest, solver10)
         ) << ToBasicString(document.ToText());
 
     document.WaitTask(document.MoveCaretRight(false));
-    document.WaitTask(document.DeleteElements(false, true, false));
+    document.WaitTask(document.DeleteElements(false, true));
     ASSERT_TRUE(document.ToText() == 
         U"235235435345=2.352*pow(10,11)"
         ) << ToBasicString(document.ToText());
@@ -837,7 +837,7 @@ TEST_F(SolverAutoTest, solver13)
     document.MoveCaretLeft(false);
     document.MoveCaretLeft(false);
     document.MoveCaretUp(false);
-    document.WaitTask(document.DeleteElements(false, true, false));
+    document.WaitTask(document.DeleteElements(false, true));
     document.WaitSolver();
     std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToText() == 
@@ -873,7 +873,7 @@ TEST_F(SolverAutoTest, solver14)
     
     document.MoveCaretLeft(false);
     document.MoveCaretHome(false);
-    document.WaitTask(document.DeleteElements(false, true, false));
+    document.WaitTask(document.DeleteElements(false, true));
     document.WaitSolver();
     std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToText() == 
@@ -1111,7 +1111,7 @@ TEST_F(SolverAutoTest, errors1)
     document.MoveCaretRight(false);
     document.MoveCaretRight(false);
     document.WaitCaretMoving();
-    document.WaitTask(document.DeleteElements(false, true, false));
+    document.WaitTask(document.DeleteElements(false, true));
     std::this_thread::sleep_for(200ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
@@ -1224,7 +1224,7 @@ TEST_F(SolverAutoTest, errors2)
     ASSERT_TRUE(document.error_marks.empty());
 
     document.MoveCaretUp(false);
-    document.WaitTask(document.DeleteElements(false, true, false));
+    document.WaitTask(document.DeleteElements(false, true));
     document.WaitSolver();
     std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToText() == U"sqrt(23)=4.796") << ToBasicString(document.ToText());
