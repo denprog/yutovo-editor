@@ -36,7 +36,7 @@ struct Config
 
     struct RealResult
     {
-        bool operator==(const RealResult& other)
+        bool operator==(const RealResult& other) const
         {
             return precision == other.precision && exp == other.exp && default_angle_measure == other.default_angle_measure &&
                 result_angle_measure == other.result_angle_measure && show_angle_measure == other.show_angle_measure;
@@ -64,7 +64,7 @@ struct Config
 
     struct IntegerResult
     {
-        bool operator==(const IntegerResult& other)
+        bool operator==(const IntegerResult& other) const
         {
             return result_notation == other.result_notation && show_notation == other.show_notation;
         }
@@ -84,7 +84,7 @@ struct Config
 
     struct RationalResult
     {
-        bool operator==(const RationalResult& other)
+        bool operator==(const RationalResult& other) const
         {
             return fraction_form == other.fraction_form;
         }
@@ -103,7 +103,7 @@ struct Config
 
     struct ComplexResult
     {
-        bool operator==(const ComplexResult& other)
+        bool operator==(const ComplexResult& other) const
         {
             return precision == other.precision && exp == other.exp && default_angle_measure == other.default_angle_measure && 
                 result_angle_measure == other.result_angle_measure && show_angle_measure == other.show_angle_measure && 
@@ -135,9 +135,10 @@ struct Config
 
     struct AutoResult
     {
-        bool operator==(const AutoResult& other)
+        bool operator==(const AutoResult& other) const
         {
-            return result_auto_advance == other.result_auto_advance && results_order == other.results_order && 
+            return result_auto_advance == other.result_auto_advance && 
+                std::equal(std::begin(results_order), std::end(results_order), std::begin(other.results_order)) && 
                 real_result == other.real_result && integer_result == other.integer_result && 
                 rational_result == other.rational_result && complex_result == other.complex_result;
         }

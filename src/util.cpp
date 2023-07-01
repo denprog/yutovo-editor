@@ -361,6 +361,8 @@ std::string AngleMeasureToString(const AngleMeasure angle_measure)
         return "deg";
     case AngleMeasure::GRAD:
         return "grad";
+    case AngleMeasure::NONE:
+        return "";
     }
     return "";
 }
@@ -377,6 +379,8 @@ std::string NotationToString(const Notation notation)
         return "dec";
     case Notation::HEXADECIMAL:
         return "hex";
+    case Notation::NONE:
+        return "";
     }
     return "";
 }
