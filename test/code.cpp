@@ -214,7 +214,7 @@ TEST_F(CodeTest, code3)
     document.WaitTask(document.MoveCaretLeft(false));
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0})) << document.GetEditorState().ToString();
 
-    document.WaitTask(document.DeleteElements(false, true, false));
+    document.WaitTask(document.DeleteElements(false, true));
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == "<body><p><span style=\"font-family:'Arial';font-size:14px;\"></span></p></body>") << document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0})) << document.GetEditorState().ToString();
@@ -337,7 +337,7 @@ TEST_F(CodeTest, code5)
 
     document.WaitTask(document.InsertCode(false, true));
     document.WaitTask(document.MoveCaretLeft(false));
-    document.WaitTask(document.DeleteElements(false, true, false));
+    document.WaitTask(document.DeleteElements(false, true));
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -399,7 +399,7 @@ TEST_F(CodeTest, code5)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 1, 0, 0, 0, 0})) << document.GetEditorState().ToString();
 
     document.MoveCaretLeft(false);
-    document.WaitTask(document.DeleteElements(false, true, false));
+    document.WaitTask(document.DeleteElements(false, true));
     std::this_thread::sleep_for(200ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
@@ -854,7 +854,7 @@ TEST_F(CodeTest, code11)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 1}, 
         ElementSelectionState{{0}, 0, 1})) << document.GetEditorState().ToString();
     
-    document.WaitTask(document.DeleteElements(false, true, false));
+    document.WaitTask(document.DeleteElements(false, true));
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\

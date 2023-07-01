@@ -16,7 +16,7 @@ TEST_F(FormulaTest, delete1)
     document.InsertCode(false, true);
     document.InsertString("123", true);
     document.WaitTask(document.InsertPlus(true));
-    document.WaitTask(document.DeleteElements(true, true, false));
+    document.WaitTask(document.DeleteElements(true, true));
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -63,7 +63,7 @@ TEST_F(FormulaTest, delete1)
 
     document.InsertPlus(true);
     document.InsertPlus(true);
-    document.WaitTask(document.DeleteElements(false, true, false));
+    document.WaitTask(document.DeleteElements(false, true));
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
@@ -81,7 +81,7 @@ TEST_F(FormulaTest, delete1)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 3})) << document.GetEditorState().ToString();
 
     document.MoveCaretLeft(false);
-    document.WaitTask(document.DeleteElements(false, true, false));
+    document.WaitTask(document.DeleteElements(false, true));
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
@@ -98,7 +98,7 @@ TEST_F(FormulaTest, delete1)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 2})) << document.GetEditorState().ToString();
 
     document.MoveCaretLeft(false);
-    document.WaitTask(document.DeleteElements(false, true, false));
+    document.WaitTask(document.DeleteElements(false, true));
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
@@ -196,7 +196,7 @@ TEST_F(FormulaTest, delete2)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 2}, 
         ElementSelectionState{ElementId{0, 0, 0, 0}, 2, 2}, 
         ElementSelectionState{ElementId{0, 0, 0}, 1, 1})) << document.GetEditorState().ToString();
-    document.WaitTask(document.DeleteElements(true, true, false));
+    document.WaitTask(document.DeleteElements(true, true));
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -228,7 +228,7 @@ TEST_F(FormulaTest, delete2)
     document.MoveCaretLeft(true);
     document.MoveCaretLeft(true);
     document.MoveCaretLeft(true);
-    document.WaitTask(document.DeleteElements(true, true, false));
+    document.WaitTask(document.DeleteElements(true, true));
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -280,7 +280,7 @@ TEST_F(FormulaTest, delete3)
         ElementSelectionState{ElementId{0, 0, 0, 0}, 2, 2}, 
         ElementSelectionState{ElementId{0, 0, 0}, 1, 1},
         ElementSelectionState{ElementId{0, 0, 0, 2}, 0, 3})) << document.GetEditorState().ToString();
-    document.WaitTask(document.DeleteElements(true, true, false));
+    document.WaitTask(document.DeleteElements(true, true));
     std::this_thread::sleep_for(200ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
@@ -322,7 +322,7 @@ TEST_F(FormulaTest, delete3)
         ElementSelectionState{ElementId{0, 0, 0, 0}, 2, 2}, 
         ElementSelectionState{ElementId{0, 0, 0}, 1, 1},
         ElementSelectionState{ElementId{0, 0, 0, 2}, 0, 3})) << document.GetEditorState().ToString();
-    document.WaitTask(document.DeleteElements(true, true, false));
+    document.WaitTask(document.DeleteElements(true, true));
     std::this_thread::sleep_for(200ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
@@ -388,7 +388,7 @@ TEST_F(FormulaTestCustom, delete4)
     document.MoveCaretHome(false);
     document.MoveCaretHome(false);
     document.WaitTask(document.MoveCaretRight(true));
-    document.WaitTask(document.DeleteElements(false, true, false));
+    document.WaitTask(document.DeleteElements(false, true));
     std::this_thread::sleep_for(200ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
@@ -440,7 +440,7 @@ TEST_F(FormulaTestCustom, delete5)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 1}, 
         ElementSelectionState{ElementId{0}, 0, 1})) << document.GetEditorState().ToString();
 
-    document.WaitTask(document.DeleteElements(false, true, false));
+    document.WaitTask(document.DeleteElements(false, true));
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -489,7 +489,7 @@ TEST_F(FormulaTestCustom, delete6)
         document.MoveCaretLeft(false);
     for (int i = 0; i < 16; ++i)
         document.MoveCaretRight(true);
-    document.WaitTask(document.DeleteElements(false, true, false));
+    document.WaitTask(document.DeleteElements(false, true));
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
@@ -565,7 +565,7 @@ TEST_F(FormulaTestCustom, delete7)
     document.InsertString("55", true);
     document.MoveCaretLeft(false);
     document.MoveCaretLeft(false);
-    document.WaitTask(document.DeleteElements(true, true, false));
+    document.WaitTask(document.DeleteElements(true, true));
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
@@ -625,7 +625,7 @@ TEST_F(FormulaTestCustom, delete8)
     document.InsertString("6", true);
     document.MoveCaretLeft(false);
     document.MoveCaretLeft(false);
-    document.WaitTask(document.DeleteElements(true, true, false));
+    document.WaitTask(document.DeleteElements(true, true));
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
@@ -688,7 +688,7 @@ TEST_F(FormulaTestCustom, delete9)
     document.InsertPlus(true);
     document.InsertPlus(true);
     document.InsertMinus(true);
-    document.WaitTask(document.DeleteElements(true, true, false));
+    document.WaitTask(document.DeleteElements(true, true));
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
@@ -725,7 +725,7 @@ TEST_F(FormulaTestCustom, delete9)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 4})) << document.GetEditorState().ToString();
 
     document.MoveCaretLeft(false);
-    document.WaitTask(document.DeleteElements(true, true, false));
+    document.WaitTask(document.DeleteElements(true, true));
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
@@ -770,7 +770,7 @@ TEST_F(FormulaTestCustom, delete10)
     document.InsertString("The source of the text itself is a little mysterious.", true);
     document.WaitTask(document.InsertCode(false, true));
     document.WaitTask(document.MoveCaretRight(false));
-    document.WaitTask(document.DeleteElements(true, true, false));
+    document.WaitTask(document.DeleteElements(true, true));
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
@@ -807,7 +807,7 @@ TEST_F(FormulaTest, delete11)
 
     document.InsertCode(false, true);
     document.InsertPlus(true);
-    document.WaitTask(document.DeleteElements(true, true, false));
+    document.WaitTask(document.DeleteElements(true, true));
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\

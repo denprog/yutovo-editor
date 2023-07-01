@@ -67,7 +67,7 @@ TEST_F(DocumentTest, strings2)
 
     ASSERT_TRUE(document.ToHtml() == "<body><p><span style=\"font-family:'Arial';font-size:14px;\"></span></p></body>") << document.ToHtml();
 
-    document.DeleteElements(true, true, false);
+    document.DeleteElements(true, true);
     document.WaitMainLoop();
     ASSERT_TRUE(document.ToHtml() == "<body><p><span style=\"font-family:'Arial';font-size:14px;\"></span></p></body>") << document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 0)) << document.GetEditorState().ToString();
@@ -77,8 +77,7 @@ TEST_F(DocumentTest, strings2)
     ASSERT_TRUE(document.ToHtml() == "<body><p><span style=\"font-family:'Arial';font-size:14px;\"></span></p></body>") << document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 0)) << document.GetEditorState().ToString();
 
-    document.DeleteElements(false, true, false);
-    document.WaitMainLoop();
+    document.WaitTask(document.DeleteElements(false, true));
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == "<body><p><span style=\"font-family:'Arial';font-size:14px;\"></span></p></body>") << document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 0)) << document.GetEditorState().ToString();
@@ -89,13 +88,11 @@ TEST_F(DocumentTest, strings2)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 0)) << document.GetEditorState().ToString();
 
     document.SetFontSize(22);
-    document.InsertString("Text", true);
-    document.WaitMainLoop();
+    document.WaitTask(document.InsertString("Text", true));
     ASSERT_TRUE(document.ToHtml() == "<body><p><span style=\"font-family:'Arial';font-size:22px;\">Text</span></p></body>") << document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 4)) << document.GetEditorState().ToString();
 
-    document.DeleteElements(true, true, false);
-    document.WaitMainLoop();
+    document.WaitTask(document.DeleteElements(true, true));
     ASSERT_TRUE(document.ToHtml() == "<body><p><span style=\"font-family:'Arial';font-size:22px;\">Tex</span></p></body>") << document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 3)) << document.GetEditorState().ToString();
 
@@ -114,16 +111,12 @@ TEST_F(DocumentTest, strings2)
     ASSERT_TRUE(document.ToHtml() == "<body><p><span style=\"font-family:'Arial';font-size:22px;\">Text</span></p></body>") << document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 4)) << document.GetEditorState().ToString();
 
-    document.InsertString("Str", true);
-    document.WaitMainLoop();
-    std::this_thread::sleep_for(100ms);
+    document.WaitTask(document.InsertString("Str", true));
     ASSERT_TRUE(document.ToText() == U"TextStr") << ToBasicString(document.ToText());
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 7)) << document.GetEditorState().ToString();
     document.InsertString("i", true);
     document.InsertString("n", true);
-    document.InsertString("g", true);
-    document.WaitMainLoop();
-    std::this_thread::sleep_for(100ms);
+    document.WaitTask(document.InsertString("g", true));
     ASSERT_TRUE(document.ToText() == U"TextString") << ToBasicString(document.ToText());
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 10)) << document.GetEditorState().ToString();
 
@@ -174,7 +167,7 @@ TEST_F(DocumentTest, selections1)
     document.WaitTask(document.MoveCaretLeft(true));
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 9, 9, 1)) << document.GetEditorState().ToString();
 
-    document.WaitTask(document.DeleteElements(true, true, false));
+    document.WaitTask(document.DeleteElements(true, true));
     ASSERT_TRUE(document.ToText() == U"TestStrin") << ToBasicString(document.ToText());
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 9)) << document.GetEditorState().ToString();
 
@@ -182,7 +175,7 @@ TEST_F(DocumentTest, selections1)
     document.WaitTask(document.MoveCaretLeft(true));
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 7, 7, 2)) << document.GetEditorState().ToString();
 
-    document.WaitTask(document.DeleteElements(true, true, false));
+    document.WaitTask(document.DeleteElements(true, true));
     ASSERT_TRUE(document.ToText() == U"TestStr") << ToBasicString(document.ToText());
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 7)) << document.GetEditorState().ToString();
 
@@ -191,13 +184,12 @@ TEST_F(DocumentTest, selections1)
     document.WaitTask(document.MoveCaretLeft(true));
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 4, 4, 3)) << document.GetEditorState().ToString();
 
-    document.WaitTask(document.DeleteElements(false, true, false));
+    document.WaitTask(document.DeleteElements(false, true));
     ASSERT_TRUE(document.ToText() == U"Test") << ToBasicString(document.ToText());
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 4)) << document.GetEditorState().ToString();
 
     document.Undo();
     document.WaitUndo();
-    std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToText() == U"TestStr") << ToBasicString(document.ToText());
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 4, 4, 3)) << document.GetEditorState().ToString();
 
@@ -250,7 +242,7 @@ TEST_F(DocumentTest, selections2)
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 2, 2, 2, 1, 0, 2)) << document.GetEditorState().ToString();
 
-    document.WaitTask(document.DeleteElements(true, true, false));
+    document.WaitTask(document.DeleteElements(true, true));
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
@@ -274,8 +266,7 @@ TEST_F(DocumentTest, selections2)
         document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 2, 2, 2, 1, 0, 2)) << document.GetEditorState().ToString();
 
-    document.MoveCaretLeft(false);
-    document.WaitCaretMoving();
+    document.WaitTask(document.MoveCaretLeft(false));
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 2)) << document.GetEditorState().ToString();
     document.MoveCaretLeft(false);
     for (int i = 0; i < 5; ++i)
@@ -284,7 +275,7 @@ TEST_F(DocumentTest, selections2)
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 1, 2, 0, 2, 0, 1, 3)) << document.GetEditorState().ToString();
 
-    document.WaitTask(document.DeleteElements(true, true, false));
+    document.WaitTask(document.DeleteElements(true, true));
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
@@ -319,7 +310,6 @@ TEST_F(DocumentTest, selections3)
     document.InsertString("Normal", document.GetStringFormat("Arial", 16, false, false, false), true);
     document.InsertString("Bold", document.GetStringFormat("Times New Roman", 34, true, false, false), true);
     document.WaitTask(document.InsertString("Italic", document.GetStringFormat("Courier", 24, false, true, false), true));
-    std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -343,8 +333,7 @@ TEST_F(DocumentTest, selections3)
         ElementSelectionState{ElementId{0, 0, 0}, 1, 1},
         ElementSelectionState{ElementId{0, 0, 0, 2}, 0, 3})) << document.GetEditorState().ToString();
 
-    document.WaitTask(document.DeleteElements(true, true, false));
-    std::this_thread::sleep_for(200ms);
+    document.WaitTask(document.DeleteElements(true, true));
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -374,7 +363,7 @@ TEST_F(DocumentTest, selections3)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 6}, 
         ElementSelectionState{ElementId{0, 0, 0}, 0, 1})) << document.GetEditorState().ToString();
 
-    document.WaitTask(document.DeleteElements(true, true, false));
+    document.WaitTask(document.DeleteElements(true, true));
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
@@ -408,8 +397,7 @@ TEST_F(DocumentTest, selections3)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 2, 6}, 
         ElementSelectionState{ElementId{0}, 0, 1})) << document.GetEditorState().ToString();
 
-    document.WaitTask(document.DeleteElements(true, true, false));
-    std::this_thread::sleep_for(100ms);
+    document.WaitTask(document.DeleteElements(true, true));
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -695,7 +683,7 @@ TEST_F(DocumentTest, inserts4)
 
     document.InsertString("Text", document.GetStringFormat("Arial", 24, false, false, false), true);
     for (int i = 0; i < 4; ++i)
-        document.DeleteElements(true, true, false);
+        document.DeleteElements(true, true);
     document.InsertString("Text", document.GetStringFormat("Arial", 24, false, false, false), true);
     document.WaitTask(document.InsertString("Italic", document.GetStringFormat("Times New Roman", 18, false, true, false), true));
     std::this_thread::sleep_for(100ms);
@@ -1097,7 +1085,7 @@ TEST_F(DocumentTest, fonts2)
 
     document.WaitTask(document.InsertString("Text", document.GetStringFormat("Arial", 24, false, false, false), true));
     document.MoveCaretLeft(true);
-    document.WaitTask(document.ChangeStringFormat("Times New Roman", 22, false, false, false, true, false));
+    document.WaitTask(document.ChangeStringFormat("Times New Roman", 22, false, false, false, true));
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -1375,8 +1363,8 @@ TEST_F(DocumentTest, delete1)
     
     for (int i = 0; i < 5; ++i)
         document.MoveCaretLeft(false);
-    document.DeleteElements(true, true, false);
-    document.WaitTask(document.DeleteElements(true, true, false));
+    document.DeleteElements(true, true);
+    document.WaitTask(document.DeleteElements(true, true));
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -1411,7 +1399,7 @@ TEST_F(DocumentTest, delete1)
         document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 1, 1)) << document.GetEditorState().ToString();
 
-    document.WaitTask(document.DeleteElements(false, true, false));
+    document.WaitTask(document.DeleteElements(false, true));
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -1435,7 +1423,7 @@ TEST_F(DocumentTest, delete1)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 1, 1)) << document.GetEditorState().ToString();
 
     document.MoveCaretLeft(false);
-    document.WaitTask(document.DeleteElements(false, true, false));
+    document.WaitTask(document.DeleteElements(false, true));
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -1469,7 +1457,7 @@ TEST_F(DocumentTest, delete2)
     document.WaitMainLoop();
     document.MoveCaretWordLeft(false);
     document.WaitCaretMoving();
-    document.DeleteElements(true, true, false);
+    document.DeleteElements(true, true);
     document.WaitMainLoop();
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
@@ -1485,7 +1473,7 @@ TEST_F(DocumentTest, delete2)
 
     document.MoveCaretRight(false);
     document.WaitCaretMoving();
-    document.DeleteElements(true, true, false);
+    document.DeleteElements(true, true);
     document.WaitMainLoop();
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
@@ -1504,7 +1492,7 @@ TEST_F(DocumentTest, delete2)
     document.WaitCaretMoving();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 4)) << document.GetEditorState().ToString();
 
-    document.WaitTask(document.DeleteElements(false, true, false));
+    document.WaitTask(document.DeleteElements(false, true));
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -1544,9 +1532,9 @@ TEST_F(DocumentTest, delete2)
 
     document.MoveCaretEnd(false);
     for (int i = 0; i < 5; ++i)
-        document.DeleteElements(true, true, false);
+        document.DeleteElements(true, true);
     document.WaitMainLoop();
-    document.WaitTask(document.DeleteElements(true, true, false));
+    document.WaitTask(document.DeleteElements(true, true));
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -1557,7 +1545,7 @@ TEST_F(DocumentTest, delete2)
         document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 1, 3)) << document.GetEditorState().ToString();
 
-    document.WaitTask(document.DeleteElements(true, true, false));
+    document.WaitTask(document.DeleteElements(true, true));
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -1577,9 +1565,9 @@ TEST_F(DocumentTest, delete3)
     document.InsertString("Italic", document.GetStringFormat("Times New Roman", 18, false, true, false), true);
     document.InsertString("Normal", document.GetStringFormat("Arial", 22, false, false, false), true);
     for (int i = 0; i < 5; ++i)
-        document.DeleteElements(true, true, false);
+        document.DeleteElements(true, true);
     document.WaitMainLoop();
-    document.WaitTask(document.DeleteElements(true, true, false));
+    document.WaitTask(document.DeleteElements(true, true));
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -1604,7 +1592,7 @@ TEST_F(DocumentTest, delete3)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 2, 1)) << document.GetEditorState().ToString();
 
     document.MoveCaretLeft(false);
-    document.WaitTask(document.DeleteElements(false, true, false));
+    document.WaitTask(document.DeleteElements(false, true));
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -1655,7 +1643,7 @@ TEST_F(DocumentTest, delete4)
     for (int i = 0; i < 8; ++i)
         document.MoveCaretRight(false);
     document.WaitCaretMoving();
-    document.WaitTask(document.DeleteElements(false, true, false));
+    document.WaitTask(document.DeleteElements(false, true));
     ASSERT_TRUE(document.ToText() == U"La versin 3 de la especificación MathML fue lanzada como Recomendación de W3C el 20 de octubre de 2010.") << 
         ToBasicString(document.ToText());
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 8)) << document.GetEditorState().ToString();
@@ -1676,7 +1664,7 @@ TEST_F(DocumentTest, delete5)
     document.MoveCaretDown(true);
     document.MoveCaretDown(true);
     document.WaitTask(document.MoveCaretEnd(true));
-    document.WaitTask(document.DeleteElements(false, true, false));
+    document.WaitTask(document.DeleteElements(false, true));
     std::this_thread::sleep_for(200ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
@@ -1722,7 +1710,7 @@ TEST_F(DocumentTest, delete6)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 1, 0, 0, 5}, 
         ElementSelectionState{ElementId{0}, 0, 2})) << document.GetEditorState().ToString();
     
-    document.WaitTask(document.DeleteElements(false, true, false));
+    document.WaitTask(document.DeleteElements(false, true));
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -1780,7 +1768,7 @@ TEST_F(DocumentTest, delete7)
     
     document.MoveCaretUp(false);
     document.WaitTask(document.MoveCaretEnd(false));
-    document.WaitTask(document.DeleteElements(true, true, false));
+    document.WaitTask(document.DeleteElements(true, true));
     std::this_thread::sleep_for(200ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
@@ -1806,7 +1794,7 @@ TEST_F(DocumentTest, delete7)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 35})) << document.GetEditorState().ToString();
 
     document.MoveCaretLeft(false);
-    document.WaitTask(document.DeleteElements(false, true, false));
+    document.WaitTask(document.DeleteElements(false, true));
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
@@ -1863,7 +1851,7 @@ TEST_F(DocumentTest, delete8)
     document.MoveCaretUp(false);
     document.MoveCaretEnd(false);
     document.WaitTask(document.MoveCaretLeft(false));
-    document.WaitTask(document.DeleteElements(false, true, false));
+    document.WaitTask(document.DeleteElements(false, true));
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
@@ -1895,7 +1883,7 @@ TEST_F(DocumentTest, delete9)
     document.WaitTask(document.InsertString("The_source_of_the_text_itself_is a little mysterious.", true));
     document.MoveCaretUp(false);
     document.WaitTask(document.MoveCaretEnd(false));
-    document.WaitTask(document.DeleteElements(true, true, false));
+    document.WaitTask(document.DeleteElements(true, true));
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
@@ -1907,7 +1895,7 @@ TEST_F(DocumentTest, delete9)
         document.ToHtml();
 
     document.WaitTask(document.MoveCaretEnd(false));
-    document.WaitTask(document.DeleteElements(true, true, false));
+    document.WaitTask(document.DeleteElements(true, true));
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
@@ -1951,7 +1939,7 @@ TEST_F(DocumentTest, delete10)
     document.WaitTask(document.InsertString("The source of the text itself is a little mysterious.", true));
     document.MoveCaretUp(false);
     document.WaitTask(document.MoveCaretEnd(false));
-    document.WaitTask(document.DeleteElements(false, true, false));
+    document.WaitTask(document.DeleteElements(false, true));
     std::this_thread::sleep_for(200ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
@@ -1984,7 +1972,7 @@ TEST_F(DocumentTest, delete11)
 
     document.WaitTask(document.InsertString("The source of the text itself is a little mysterious.", true));
     document.WaitTask(document.MoveCaretHome(false));
-    document.WaitTask(document.DeleteElements(true, true, false));
+    document.WaitTask(document.DeleteElements(true, true));
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
@@ -2016,7 +2004,7 @@ TEST_F(DocumentTest, delete12)
     Start(400);
 
     document.WaitTask(document.InsertString("The source of the text itself is a little mysterious.", true));
-    document.WaitTask(document.DeleteElements(true, true, false));
+    document.WaitTask(document.DeleteElements(true, true));
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\

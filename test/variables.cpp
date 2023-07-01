@@ -209,7 +209,7 @@ TEST_F(VariablesTest, variables3)
     document.WaitSolver();
     std::this_thread::sleep_for(600ms);
     document.WaitTask(document.MoveCaretUp(false));
-    document.WaitTask(document.DeleteElements(false, true, false));
+    document.WaitTask(document.DeleteElements(false, true));
     std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
@@ -366,7 +366,7 @@ TEST_F(VariablesTest, variables5)
     document.MoveCaretEnd(false);
     document.MoveCaretLeft(false);
     document.WaitTask(document.MoveCaretLeft(false));
-    document.WaitTask(document.DeleteElements(true, true, false));
+    document.WaitTask(document.DeleteElements(true, true));
     document.WaitSolver();
     std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToText() == 

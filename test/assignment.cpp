@@ -281,7 +281,7 @@ TEST_F(AssignmentTest, assignment4)
         document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 2, 2, 1})) << document.GetEditorState().ToString();
 
-    document.WaitTask(document.DeleteElements(true, true, false));
+    document.WaitTask(document.DeleteElements(true, true));
     document.WaitSolver();
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
@@ -303,7 +303,7 @@ TEST_F(AssignmentTest, assignment4)
         document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 2, 2})) << document.GetEditorState().ToString();
 
-    document.WaitTask(document.DeleteElements(true, true, false));
+    document.WaitTask(document.DeleteElements(true, true));
     document.WaitSolver();
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
@@ -445,7 +445,7 @@ TEST_F(AssignmentTest, delete1)
 
     document.MoveCaretLeft(false);
     document.MoveCaretLeft(false);
-    document.WaitTask(document.DeleteElements(false, true, false));
+    document.WaitTask(document.DeleteElements(false, true));
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -496,7 +496,7 @@ TEST_F(AssignmentTest, delete2)
 
     document.MoveCaretLeft(false);
     document.MoveCaretLeft(false);
-    document.WaitTask(document.DeleteElements(false, true, false));
+    document.WaitTask(document.DeleteElements(false, true));
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
