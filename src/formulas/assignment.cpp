@@ -136,7 +136,13 @@ void Assignment::BeforeDelete()
 void Assignment::Solve()
 {
     MiddleShapeFormula::Solve();
-    document->AddResolveElement(id);
+
+    ParserString str;
+    first->ToParserString(str);
+    str.Add(id, U"=");
+    last->ToParserString(str);
+    if (last_expression != str)
+        document->AddResolveElement(id);
 }
 
 void Assignment::ReSolve(bool if_error)

@@ -135,7 +135,11 @@ bool Equation::AfterInsert(bool with_undo)
 void Equation::Solve()
 {
     MiddleShapeFormula::Solve();
-    document->AddResolveElement(id);
+
+    ParserString str;
+    first->ToParserString(str);
+    if (last_expression != str)
+        document->AddResolveElement(id);
 }
 
 void Equation::ReSolve(bool if_error)
