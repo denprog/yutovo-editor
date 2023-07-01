@@ -197,7 +197,7 @@ void SolverTask::FillError(rapidjson::Document& doc, Result& result)
         }
         return;
     }
-    if (result.error.error_code != ErrorCode::SOLVER_RESTARTED_ERROR)
+    if (result.error.error_code != ErrorCode::SOLVER_RESTARTED_ERROR && result.error.error_code != ErrorCode::OK)
         logger->Error("Solver error: {}", (int)result.error.error_code);
     result.error.error_code = ErrorCode::PARSER_ERROR;
 }
@@ -281,10 +281,13 @@ bool AutoSolverTask::Execute(WebSocketPtr socket, Result& result)
     doc.AddMember("expression", rapidjson::StringRef(s.c_str()), alloc);
 
     //auto config
-    rapidjson::Value d(rapidjson::kArrayType);
-    for (auto t : config.results_order)
-        d.PushBack((int)t, alloc);
-    doc.AddMember("results_order", d, alloc);
+    if (expression_type != ExpressionType::USER_SYMBOL) //for user symbols solve with all the result types
+    {
+        rapidjson::Value d(rapidjson::kArrayType);
+        for (auto t : config.results_order)
+            d.PushBack((int)t, alloc);
+        doc.AddMember("results_order", d, alloc);
+    }
 
     //real config
     doc.AddMember("precision", config.real_result.precision, alloc);

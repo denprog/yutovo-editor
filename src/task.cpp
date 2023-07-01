@@ -1146,6 +1146,7 @@ bool ResultTask::Execute()
         Assignment* r = dynamic_cast<Assignment*>(el.get());
         if (!r)
             return false;
+        document->RemoveErrorMarks(r->id);
         r->PutResult(result);
         break;
     }
@@ -1158,7 +1159,6 @@ bool ResultTask::Execute()
         ElementPtr p = document->FindParent(result.error.id, ElementType::ASSIGNMENT);
         if (p)
         {
-            document->RemoveErrorMarks(p->id);
             //put error mark
             Assignment* el = (Assignment*)p.get();
             ElementId err_id = el->last_expression.GetElement(result.error.pos);
