@@ -47,8 +47,6 @@ private:
     std::thread message_loop;
 
     std::string guid;
-
-    const int reconnect_period = 2; //seconds
 };
 
 }

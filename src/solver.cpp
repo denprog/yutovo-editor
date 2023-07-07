@@ -123,11 +123,15 @@ void Solver::RemoveIdentifier(ElementId id, uint code_id, const std::u32string& 
 
 void Solver::MessageLoop()
 {
+    bool connected = false;
     WebSocketPtr socket(new WebSocket(document->config, document->window));
-    if (!socket->Connect())
+    if (!socket->Connect() || !socket->IsOpen())
         logger->Error("Error connecting to the server: {}:{}", document->config.service_ip, document->config.service_port);
     else
+    {
         logger->Info("Solver connected to the server: {}:{}", document->config.service_ip, document->config.service_port);
+        connected = true;
+    }
 
     time_t now = time(0);
     time_t next = now;
@@ -148,8 +152,13 @@ void Solver::MessageLoop()
                 if (!socket->IsOpen())
                 {
                     next = time(0);
-                    if (next - now >= reconnect_period)
+                    if (next - now >= document->config.reconnect_timeout)
                         break;
+                }
+                else if (!connected)
+                {
+                    logger->Info("Solver connected to the server: {}:{}", document->config.service_ip, document->config.service_port);
+                    connected = true;
                 }
             }
         }
@@ -160,10 +169,10 @@ void Solver::MessageLoop()
 
         if (!socket->IsOpen())
         {
-            if (next - now >= reconnect_period)
+            if (next - now >= document->config.reconnect_timeout)
             {
                 now = time(0);
-                if (!socket->Connect())
+                if (!socket->Connect() || !socket->IsOpen())
                 {
                     logger->Error("Error connecting to the server: {}:{}", document->config.service_ip, document->config.service_port);
                     continue;
@@ -213,7 +222,7 @@ void Solver::MessageLoop()
                 if (result.error.error_code == yutovo_service::ErrorCode::OPERATION_ERROR)
                 {
                     socket.reset(new WebSocket(document->config, document->window)); //recreate the socket
-                    if (!socket->Connect())
+                    if (!socket->Connect() || !socket->IsOpen())
                         logger->Error("Error connecting to the server: {}:{}", document->config.service_ip, document->config.service_port);
                     else
                     {
