@@ -19,6 +19,7 @@ struct Config
     std::string service_ip = "localhost";
     uint service_port = 8010;
     uint service_timeout = 10; //seconds
+    uint reconnect_timeout = 10; //seconds
     uint solve_delay = 2000; //milliseconds
 
     //document
