@@ -1,9 +1,13 @@
 #include "web_socket.h"
 #include "window.h"
 #include "logger.h"
+#include <chrono>
 
 namespace yutovo
 {
+
+using namespace std::chrono_literals;
+using namespace std::chrono;
 
 //WebSocket
 
@@ -78,11 +82,22 @@ bool WebSocket::Send(const std::string& message, Result& result)
 bool WebSocket::Receive(std::string& message, Result& result)
 {
 #ifdef EMSCRIPTEN
-    return window->Receive(socket_id, message);
+    auto now = duration_cast<milliseconds>(system_clock::now().time_since_epoch());
+    auto next = now;
+    while (next - now < config.service_timeout * 1s) //wait for message
+    {
+        if (!window->Receive(socket_id, message))
+            return false;
+        if (!message.empty())
+            break;
+        std::this_thread::sleep_for(1ms);
+        next = duration_cast<milliseconds>(system_clock::now().time_since_epoch());
+    }
+    return true;
 #else
     beast::flat_buffer buffer;
     reading = true;
-    beast::get_lowest_layer(ws).expires_after(config.service_timeout * std::chrono::seconds(1));
+    beast::get_lowest_layer(ws).expires_after(config.service_timeout * seconds(1));
     ioc.restart();
     ws.async_read(buffer, beast::bind_front_handler(&WebSocket::OnRead, shared_from_this()));
 
