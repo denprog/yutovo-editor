@@ -24,6 +24,7 @@ namespace yutovo
 {
 
 using namespace std::chrono_literals;
+using namespace std::chrono;
 
 //Document
 
@@ -98,12 +99,12 @@ void Document::MainLoop()
             }
             if (empty)
             {
-                auto now = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch());
+                auto now = duration_cast<milliseconds>(system_clock::now().time_since_epoch());
                 auto next = now;
                 while (!next_circle && next - now < config.caret_blink_delay * 1ms) //wait for tasks
                 {
                     std::this_thread::sleep_for(1ms);
-                    next = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch());
+                    next = duration_cast<milliseconds>(system_clock::now().time_since_epoch());
                 }
                 if (!next_circle)
                 {
@@ -2119,7 +2120,7 @@ void Document::WaitTask(uint task_id, uint64_t timeout)
 {
     if (task_id == 0)
         return;
-    auto now = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch());
+    auto now = duration_cast<milliseconds>(system_clock::now().time_since_epoch());
     auto cur_time = now;
     while (cur_time - now <= timeout * 1ms)
     {
@@ -2131,7 +2132,7 @@ void Document::WaitTask(uint task_id, uint64_t timeout)
         last_tasks.clear();
 
         if (timeout > 0)
-            cur_time = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch());
+            cur_time = duration_cast<milliseconds>(system_clock::now().time_since_epoch());
     }
 }
 
