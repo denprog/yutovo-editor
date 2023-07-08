@@ -649,6 +649,27 @@ bool Document::RestoreUndo(const int undo_id, std::vector<ElementPtr>& elements)
     return undo_base.Restore(undo_id, elements);
 }
 
+void Document::RollbackUndo()
+{
+    //remove last undo tasks with one id
+    if (undo_tasks.empty())
+        return;
+    TaskPtr t = undo_tasks.back();
+    uint id = t->id;
+    while (id == t->id)
+    {
+        undo_tasks.pop_back();
+        if (undo_tasks.empty())
+            break;
+        t = undo_tasks.back();
+    }
+}
+
+size_t Document::GetUndoSize()
+{
+    return undo_tasks.size();
+}
+
 void Document::ResetTasks()
 {
     std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
@@ -1462,22 +1483,6 @@ bool Document::CanRedo()
             return true;
     }
     return false;
-}
-
-void Document::RollbackUndo()
-{
-    //remove last undo tasks with one id
-    if (undo_tasks.empty())
-        return;
-    TaskPtr t = undo_tasks.back();
-    uint id = t->id;
-    while (id == t->id)
-    {
-        undo_tasks.pop_back();
-        if (undo_tasks.empty())
-            break;
-        t = undo_tasks.back();
-    }
 }
 
 uint Document::Resize(uint width, uint height)

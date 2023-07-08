@@ -122,6 +122,8 @@ InsertElementsTask::InsertElementsTask(ElementPtr _text, std::vector<ElementPtr>
 
 bool InsertElementsTask::Execute()
 {
+    size_t last_undo_size = document->GetUndoSize();
+
     if (before_state.IsEmpty())
         before_state = document->GetEditorState();
     else
@@ -162,7 +164,7 @@ bool InsertElementsTask::Execute()
             ElementSelectionState& s = selection_state.state[i];
             if (!DeleteElements(document->GetElement(s.id)))
             {
-                if (with_undo)
+                if (with_undo && last_undo_size < document->GetUndoSize())
                     document->RollbackUndo();
                 return false;
             }
@@ -230,7 +232,7 @@ bool InsertElementsTask::Execute()
         ElementId changed_element;
         if (el->editable && !el->InsertElements(t, with_undo, changed_element))
         {
-            if (with_undo)
+            if (with_undo && last_undo_size < document->GetUndoSize())
                 document->RollbackUndo();
             document->pasting = false;
             return false;
@@ -276,6 +278,8 @@ DeleteElementsTask::DeleteElementsTask(ElementPtr _text, ElementId _element_id, 
 
 bool DeleteElementsTask::Execute()
 {
+    size_t last_undo_size = document->GetUndoSize();
+
     SelectionState selection_state;
     if (element_id.empty())
     {
@@ -346,7 +350,7 @@ bool DeleteElementsTask::Execute()
                 continue;
             if (!DeleteElements(el, changed_element, false))
             {
-                if (with_undo)
+                if (with_undo && last_undo_size < document->GetUndoSize())
                     document->RollbackUndo();
                 return false;
             }
@@ -355,7 +359,7 @@ bool DeleteElementsTask::Execute()
         return true;
     }
 
-    if (with_undo)
+    if (with_undo && last_undo_size < document->GetUndoSize())
         document->RollbackUndo();
     return false;
 }
@@ -379,6 +383,8 @@ InsertFormulasTask::InsertFormulasTask(ElementPtr _text, uint _id, std::vector<E
 
 bool InsertFormulasTask::Execute()
 {
+    size_t last_undo_size = document->GetUndoSize();
+
     if (before_state.IsEmpty())
         before_state = document->GetEditorState();
     else
@@ -400,7 +406,7 @@ bool InsertFormulasTask::Execute()
             auto row = document->FindParentRow(caret_state.id);
             if (!row)
             {
-                if (with_undo)
+                if (with_undo && last_undo_size < document->GetUndoSize())
                     document->RollbackUndo();
                 return false;
             }
@@ -409,7 +415,7 @@ bool InsertFormulasTask::Execute()
             std::vector v{code};
             if (!row->InsertElements(v, with_undo, changed_element))
             {
-                if (with_undo)
+                if (with_undo && last_undo_size < document->GetUndoSize())
                     document->RollbackUndo();
                 return false;
             }
@@ -435,7 +441,7 @@ bool InsertFormulasTask::Execute()
     }
     document->pasting = false;
 
-    if (with_undo)
+    if (with_undo && last_undo_size < document->GetUndoSize())
         document->RollbackUndo();
     return false;
 }
@@ -468,6 +474,8 @@ ChangeStringFormatTask::ChangeStringFormatTask(ElementPtr _text, const StringFor
 
 bool ChangeStringFormatTask::Execute()
 {
+    size_t last_undo_size = document->GetUndoSize();
+
     before_state = text->document->GetEditorState();
 
     CaretState& caret_state = before_state.caret_state;
@@ -510,7 +518,7 @@ bool ChangeStringFormatTask::Execute()
         ElementId changed_element;
         if (!el->ChangeStringFormat(_format, with_undo, changed_element))
         {
-            if (with_undo)
+            if (with_undo && last_undo_size < document->GetUndoSize())
                 document->RollbackUndo();
             return false;
         }
@@ -543,6 +551,8 @@ ChangeParagraphFormatTask::ChangeParagraphFormatTask(ElementPtr _text, const Par
 
 bool ChangeParagraphFormatTask::Execute()
 {
+    size_t last_undo_size = document->GetUndoSize();
+    
     if (before_state.IsEmpty())
         before_state = document->GetEditorState();
 
@@ -554,7 +564,7 @@ bool ChangeParagraphFormatTask::Execute()
     ElementId changed_element;
     if (!el->ChangeParagraphFormat(format, with_undo, changed_element))
     {
-        if (with_undo)
+        if (with_undo && last_undo_size < document->GetUndoSize())
             document->RollbackUndo();
         return false;
     }

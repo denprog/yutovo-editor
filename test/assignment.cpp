@@ -539,6 +539,30 @@ TEST_F(AssignmentTest, delete2)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 2, 0})) << document.GetEditorState().ToString();
 }
 
+//Delete inside empty right element
+TEST_F(AssignmentTest, delete3)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.InsertString("x12", true);
+    document.WaitTask(document.InsertAssignment(true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"x12="
+        ) << ToBasicString(document.ToText());
+    
+    document.WaitTask(document.DeleteElements(true, true));
+    document.Undo();
+    document.WaitUndo();
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"x12"
+        ) << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.error_marks.empty());
+}
+
 //Assign to a number is a error
 TEST_F(AssignmentTest, error1)
 {
