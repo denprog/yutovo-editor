@@ -65,9 +65,6 @@ void CodeString::Draw() const
     String::Draw();
     if (elements->Count() == 0)
     {
-        auto row = document->FindParentRow(id);
-        if (row->parent->type == ElementType::CODE_PARAGRAPH)
-            return;
         uint start = 0, size = 0;
         if (document->selection.Has(parent->id, start, size))
         {
@@ -77,7 +74,11 @@ void CodeString::Draw() const
             window->DrawFillRect(Rect(r.left + 1, r.top + 1, r.width - 2, r.height -2 ), Color::Blue());
         }
         else
-            window->DrawRect(GetAbsoluteRect(), Color::Blue());
+        {
+            auto row = document->FindParentRow(id);
+            if (row->parent->type != ElementType::CODE_PARAGRAPH)
+                window->DrawRect(GetAbsoluteRect(), Color::Blue());
+        }
     }
 }
 
