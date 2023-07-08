@@ -67,8 +67,7 @@ TEST_F(DocumentTest, strings2)
 
     ASSERT_TRUE(document.ToHtml() == "<body><p><span style=\"font-family:'Arial';font-size:14px;\"></span></p></body>") << document.ToHtml();
 
-    document.DeleteElements(true, true);
-    document.WaitMainLoop();
+    document.WaitTask(document.DeleteElements(true, true));
     ASSERT_TRUE(document.ToHtml() == "<body><p><span style=\"font-family:'Arial';font-size:14px;\"></span></p></body>") << document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 0)) << document.GetEditorState().ToString();
 
@@ -150,11 +149,27 @@ TEST_F(DocumentTest, strings2)
     ASSERT_TRUE(document.ToText() == U"TextStri") << ToBasicString(document.ToText());
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 8)) << document.GetEditorState().ToString();
 
-    document.InsertString("Str", true);
-    document.WaitMainLoop();
+    document.WaitTask(document.InsertString("Str", true));
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToText() == U"TextStriStr") << ToBasicString(document.ToText());
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 11)) << document.GetEditorState().ToString();
+}
+
+TEST_F(DocumentTest, strings3)
+{
+    Start(600);
+
+    document.InsertString("Str", true);
+    document.InsertString("i", true);
+    document.InsertString("n", true);
+    document.InsertString("g", true);
+    document.WaitTask(document.DeleteElements(false, true));
+    document.WaitTask(document.DeleteElements(false, true));
+
+    document.Undo();
+    document.WaitUndo();
+    ASSERT_TRUE(document.ToText() == U"Strin") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 5)) << document.GetEditorState().ToString();
 }
 
 TEST_F(DocumentTest, selections1)
