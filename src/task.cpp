@@ -648,6 +648,8 @@ bool UndoTask::Execute()
 
     document->caret->block = true;
 
+    document->RemoveErrorMarks(id);
+
     ElementPtr p;
     if (id.size() <= 2)
         p = document->GetLogicalElement(id);
@@ -1166,7 +1168,10 @@ bool ResultTask::Execute()
             {
                 auto el = document->GetElement(err_id);
                 if (el)
+                {
                     document->AddErrorMark(err_id, 0, el->elements->Count());
+                    document->Redraw(err_id, false);
+                }
             }
         }
     }

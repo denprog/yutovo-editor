@@ -539,4 +539,25 @@ TEST_F(AssignmentTest, delete2)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 2, 0})) << document.GetEditorState().ToString();
 }
 
+//Assign to a number is a error
+TEST_F(AssignmentTest, error1)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.InsertString("123", true);
+    document.InsertAssignment(true);
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"123="
+        ) << ToBasicString(document.ToText());
+    int start, size;
+    ASSERT_TRUE(document.HasErrorMark(ElementId{0, 0, 0, 0, 0, 0, 0}, start, size)) << ErrorMarks();
+
+    document.Undo();
+    document.WaitUndo();
+    ASSERT_TRUE(document.error_marks.empty());
+}
+
 }

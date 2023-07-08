@@ -66,6 +66,7 @@ void ResultRow::PutError(Error error)
         {
             document->RemoveErrorMarks(parent->parent->id);
             document->AddErrorMark(err_id, 0, el->elements->Count());
+            document->Redraw(err_id, false);
         }
     }
 }
