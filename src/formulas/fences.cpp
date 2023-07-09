@@ -11,6 +11,7 @@ OpenFence::OpenFence(Element* _parent) :
 {
     type = ElementType::OPEN_FENCE;
     remake_always = true;
+    formula_format = document->formula_formats->GetFormat("Formula");
 }
 
 OpenFence::OpenFence(Document* _document) :
@@ -18,6 +19,7 @@ OpenFence::OpenFence(Document* _document) :
 {
     type = ElementType::OPEN_FENCE;
     remake_always = true;
+    formula_format = document->formula_formats->GetFormat("Formula");
 }
 
 OpenFence::OpenFence(const OpenFence& source) :
@@ -60,7 +62,6 @@ void OpenFence::Draw() const
             path.push_back(Point{(int)lround(r.left + r.width * 0.549), (int)lround(r.top + r.height * 0.726)});
             path.push_back(Point{(int)lround(r.left + r.width * 0.781), (int)lround(r.top + r.height * 0.926)});
             path.push_back(Point{r.GetRight(), (int)lround(r.top + r.height * 0.977)});
-            path.push_back(Point{r.GetRight(), (int)lround(r.top + r.height * 0.977)});
             path.push_back(Point{r.GetRight(), r.GetBottom()});
 
             window->DrawBezierPath(path, document->selection.IsSelected(id) ? formula_format->selection_color : formula_format->color);
@@ -79,11 +80,18 @@ bool OpenFence::Remake(bool with_elements)
 {
     bool changed = OnlyShapeFormula::Remake(with_elements);
 
+    auto empty_brace = 
+        [&]()
+        {
+            Size s = window->GetTextSize(U" ", GetStringFormat());
+            shape->rect.SetRect(0, 0, 1 + (int)lround(s.height / 5), (int)lround((1 + 2 * BRACES_Y_OFFSET) * s.height));
+            rect = shape->rect;
+            baseline = shape->rect.height / 2;
+        };
+
     if (parent->elements->IsLast(id) || (parent->elements->Count() == 2 && parent->elements->Get(1)->type == ElementType::CLOSE_FENCE))
     {
-        Size s = window->GetTextSize(U" ", GetStringFormat());
-        shape->rect.SetRect(0, 0, 1 + (int)lround(s.height / 5), (int)lround((1 + 2 * BRACES_Y_OFFSET) * s.height));
-        rect = shape->rect;
+        empty_brace();
         return changed;
     }
     
@@ -91,7 +99,11 @@ bool OpenFence::Remake(bool with_elements)
     int pos = parent->elements->GetElementPos(id);
     int close_pos = parent->FindElement(id, true, ElementType::CLOSE_FENCE);
     if (close_pos == pos + 1)
-        return changed;
+    {
+        empty_brace();
+        return true;
+    }
+    
     int max_height = 0;
     for (int i = pos + 1; i < (close_pos == -1 ? parent->elements->Count() : close_pos); ++i)
     {
@@ -124,6 +136,7 @@ CloseFence::CloseFence(Element* _parent) :
 {
     type = ElementType::CLOSE_FENCE;
     remake_always = true;
+    formula_format = document->formula_formats->GetFormat("Formula");
 }
 
 CloseFence::CloseFence(Document* _document) :
@@ -131,6 +144,7 @@ CloseFence::CloseFence(Document* _document) :
 {
     type = ElementType::CLOSE_FENCE;
     remake_always = true;
+    formula_format = document->formula_formats->GetFormat("Formula");
 }
 
 CloseFence::CloseFence(const CloseFence& source) :
@@ -172,6 +186,7 @@ void CloseFence::Draw() const
             path.push_back(Point{(int)lround(r.GetRight() - r.width * 0.549), (int)lround(r.top + r.height * 0.726)});
             path.push_back(Point{(int)lround(r.GetRight() - r.width * 0.781), (int)lround(r.top + r.height * 0.926)});
             path.push_back(Point{r.left, (int)lround(r.top + r.height * 0.977)});
+            path.push_back(Point{r.left, r.GetBottom()});
 
             window->DrawBezierPath(path, document->selection.IsSelected(id) ? formula_format->selection_color : formula_format->color);
         };
@@ -189,11 +204,18 @@ bool CloseFence::Remake(bool with_elements)
 {
     bool changed = OnlyShapeFormula::Remake(with_elements);
 
+    auto empty_brace = 
+        [&]()
+        {
+            Size s = window->GetTextSize(U" ", GetStringFormat());
+            shape->rect.SetRect(0, 0, 1 + (int)lround(s.height / 5), (int)lround((1 + 2 * BRACES_Y_OFFSET) * s.height));
+            rect = shape->rect;
+            baseline = shape->rect.height / 2;
+        };
+
     if (parent->elements->IsFirst(id) || (parent->elements->Count() == 2 && parent->elements->Get(0)->type == ElementType::OPEN_FENCE))
     {
-        Size s = window->GetTextSize(U" ", GetStringFormat());
-        shape->rect.SetRect(0, 0, 1 + (int)lround(s.height / 5), (int)lround((1 + 2 * BRACES_Y_OFFSET) * s.height));
-        rect = shape->rect;
+        empty_brace();
         return changed;
     }
     
@@ -201,7 +223,11 @@ bool CloseFence::Remake(bool with_elements)
     int pos = parent->elements->GetElementPos(id);
     int open_pos = parent->FindElement(id, false, ElementType::OPEN_FENCE);
     if (open_pos == pos - 1)
-        return changed;
+    {
+        empty_brace();
+        return true;
+    }
+    
     int max_height = 0;
     for (int i = (open_pos == -1 ? 0 : open_pos + 1); i < pos; ++i)
     {
