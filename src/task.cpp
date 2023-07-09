@@ -615,8 +615,10 @@ bool ResizeTask::Execute()
 {
     if (document->WillResize()) //don't resize if it will be resized later
         return false;
+    document->caret->block = true;
     window->Resize(width, height);
     Remake(text->id, false);
+    document->caret->block = false;
     return true;
 }
 

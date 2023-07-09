@@ -229,11 +229,6 @@ void Caret::Show()
 
 void Caret::Hide()
 {
-    if (block)
-        return;
-    if (!visible)
-        return;
-    
     window->RestoreRect();
     window->Update(caret_rect);
     show = false;
