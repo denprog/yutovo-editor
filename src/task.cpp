@@ -766,6 +766,7 @@ MoveCaretTask::MoveCaretTask(ElementPtr _text, CaretPtr _caret, Point _point) :
     point(_point),
     select(false)
 {
+    move_into_view = false;
 }
 
 bool MoveCaretTask::Execute()
