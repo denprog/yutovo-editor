@@ -82,12 +82,32 @@ typedef std::vector<uint> LogicalId; //logical Id does not include row id, so it
 
 struct Point
 {
+    bool operator==(const Point& other) const
+    {
+        return x == other.x && y == other.y;
+    }
+
+    bool operator!=(const Point& other) const
+    {
+        return !operator==(other);
+    }
+
     int x = 0;
     int y = 0;
 };
 
 struct Size
 {
+    bool operator==(const Size& other) const
+    {
+        return width == other.width && height == other.height;
+    }
+
+    bool operator!=(const Size& other) const
+    {
+        return !operator==(other);
+    }
+
     int width = 0;
     int height = 0;
 };
