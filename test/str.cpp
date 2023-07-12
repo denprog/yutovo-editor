@@ -1278,8 +1278,7 @@ TEST_F(DocumentTest, fonts3)
         "</body>") << 
         document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 1, 0}, 
-        ElementSelectionState{ElementId{0, 0, 0}, 1, 1},
-        ElementSelectionState{ElementId{0, 0, 0, 2}, 0, 3})) << document.GetEditorState().ToString();
+        ElementSelectionState{ElementId{0, 0, 0}, 1, 2})) << document.GetEditorState().ToString();
 
     document.Undo();
     document.WaitUndo();
@@ -1359,6 +1358,123 @@ TEST_F(DocumentTest, fonts6)
     StringFormat format;
     ASSERT_TRUE(document.GetStringFormat(ElementId{0, 0, 0, 0, 4}, format));
     ASSERT_TRUE(format.size == 22);
+}
+
+TEST_F(DocumentTest, fonts7)
+{
+    Start(600);
+
+    document.InsertString("Italic", true);
+    document.WaitTask(document.MoveCaretHome(true));
+    document.WaitTask(document.SetItalic(true));
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\"><em>Italic</em></span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0}, 
+        ElementSelectionState{ElementId{0}, 0, 1})) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.SetItalic(false));
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">Italic</span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0}, 
+        ElementSelectionState{ElementId{0}, 0, 1})) << document.GetEditorState().ToString();
+}
+
+TEST_F(DocumentTest, fonts8)
+{
+    Start(600);
+
+    document.InsertString("Text", true);
+    document.InsertParagraph(true);
+    document.InsertString("Italic", true);
+    document.WaitTask(document.MoveCaretHome(true));
+    document.WaitTask(document.SetItalic(true));
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">Text</span>"\
+            "</p>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\"><em>Italic</em></span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 1, 0, 0, 0}, 
+        ElementSelectionState{ElementId{0}, 1, 1})) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.SetItalic(false));
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">Text</span>"\
+            "</p>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">Italic</span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 1, 0, 0, 0}, 
+        ElementSelectionState{ElementId{0}, 1, 1})) << document.GetEditorState().ToString();
+}
+
+TEST_F(DocumentTest, fonts9)
+{
+    Start(600);
+
+    document.InsertString("TextItalic", true);
+    document.MoveCaretLeft(false);
+    document.MoveCaretLeft(false);
+    document.MoveCaretLeft(false);
+    document.WaitTask(document.MoveCaretEnd(true));
+    document.WaitTask(document.SetItalic(true));
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">TextIta</span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\"><em>lic</em></span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 1, 3}, 
+        ElementSelectionState{ElementId{0, 0, 0}, 1, 1})) << document.GetEditorState().ToString();
+    
+    document.WaitTask(document.MoveCaretRight(false));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 1, 3})) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.MoveCaretLeft(false));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 1, 2})) << document.GetEditorState().ToString();
+
+    document.MoveCaretHome(false);
+    document.MoveCaretRight(false);
+    document.MoveCaretRight(false);
+    document.WaitTask(document.MoveCaretHome(true));
+    document.WaitTask(document.SetItalic(true));
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\"><em>Te</em></span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">xtIta</span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\"><em>lic</em></span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0}, 
+        ElementSelectionState{ElementId{0, 0, 0}, 0, 1})) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.MoveCaretLeft(false));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0})) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.MoveCaretRight(false));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 1})) << document.GetEditorState().ToString();
 }
 
 TEST_F(DocumentTest, delete1)

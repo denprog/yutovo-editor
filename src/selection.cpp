@@ -351,105 +351,7 @@ void Selection::Add(const ElementPtr element, uint start, uint size)
     std::sort(selection.begin(), selection.end());
 
     if (!document->pasting)
-    {
-        bool optimize = true;
-        while (optimize)
-        {
-            optimize = false;
-
-            //make parent selections if child selections have full size
-            for (size_t i = 0; i < selection.size(); ++i)
-            {
-                ElementSelection& s1 = selection[i];
-                if (s1.start == 0 && s1.size == s1.element->elements->Count())
-                {
-                    if (!s1.element->parent)
-                        continue;
-                    int pos = s1.element->parent->elements->GetChildPos(s1.element->id);
-                    auto p = document->GetElement(s1.element->parent->id);
-                    selection.erase(selection.begin() + i);
-                    auto it = std::find_if(selection.begin(), selection.end(), 
-                        [p, pos](ElementSelection& s)
-                        {
-                            return s.element == p && s.start <= pos && s.start + s.size > pos;
-                        });
-                    if (it == selection.end())
-                    {
-                        ElementSelection s{p, (uint)pos, 1};
-                        selection.emplace_back(s);
-                    }
-                    optimize = true;
-                    break;
-                }
-            }
-
-            if (optimize)
-            {
-                std::sort(selection.begin(), selection.end());
-                continue;
-            }
-            
-            //try to merge selections
-            for (size_t i = 0; i < selection.size(); ++i)
-            {
-                ElementSelection& s1 = selection[i];
-                for (size_t j = i + 1; j < selection.size(); ++j)
-                {
-                    ElementSelection& s2 = selection[j];
-                    if (s1.element->id == s2.element->id && s1.start + s1.size == s2.start)
-                    {
-                        s1.size += s2.size;
-                        selection.erase(selection.begin() + j);
-                        optimize = true;
-                        break;
-                    }
-                }
-                if (optimize)
-                    break;
-            }
-
-            if (!optimize)
-            {
-                //remove selections which are inside another selections
-                for (size_t i = 0; i < selection.size(); ++i)
-                {
-                    ElementSelection& s1 = selection[i];
-                    for (size_t j = 0; j < selection.size(); ++j)
-                    {
-                        if (j == i)
-                            continue;
-                        ElementSelection& s2 = selection[j];
-                        if (IsChild(s1.element->id, s2.element->id))
-                        {
-                            for (int k = s1.start; k < s1.start + s1.size; ++k)
-                            {
-                                auto child_id = GetChild(s1.element->id, k);
-                                if (IsChild(child_id, s2.element->id) || child_id == s2.element->id)
-                                {
-                                    selection.erase(selection.begin() + j);
-                                    optimize = true;
-                                    break;
-                                }
-                            }
-                            if (optimize)
-                                break;
-                        }
-                    }
-                    if (optimize)
-                        break;
-                }
-            }
-
-            selection.erase(std::unique(selection.begin(), selection.end()), selection.end()); //remove dublicates
-
-            if (selection.size() == 1)
-            {
-                auto& s = selection[0];
-                if (s.IsEmpty() || (s.element->elements->Count() > 0 && s.size == 0))
-                    selection.clear();
-            }
-        }
-    }
+        Optimize();
 }
 
 void Selection::Add(const ElementId id, uint start, uint size)
@@ -595,6 +497,107 @@ bool Selection::IsSelected(const ElementId id) const
             return false;
         });
     return it != selection.end();
+}
+
+void Selection::Optimize()
+{
+    bool optimize = true;
+    while (optimize)
+    {
+        optimize = false;
+
+        //make parent selections if child selections have full size
+        for (size_t i = 0; i < selection.size(); ++i)
+        {
+            ElementSelection& s1 = selection[i];
+            if (s1.start == 0 && s1.size == s1.element->elements->Count())
+            {
+                if (!s1.element->parent)
+                    continue;
+                int pos = s1.element->parent->elements->GetChildPos(s1.element->id);
+                auto p = document->GetElement(s1.element->parent->id);
+                selection.erase(selection.begin() + i);
+                auto it = std::find_if(selection.begin(), selection.end(), 
+                    [p, pos](ElementSelection& s)
+                    {
+                        return s.element == p && s.start <= pos && s.start + s.size > pos;
+                    });
+                if (it == selection.end())
+                {
+                    ElementSelection s{p, (uint)pos, 1};
+                    selection.emplace_back(s);
+                }
+                optimize = true;
+                break;
+            }
+        }
+
+        if (optimize)
+        {
+            std::sort(selection.begin(), selection.end());
+            continue;
+        }
+        
+        //try to merge selections
+        for (size_t i = 0; i < selection.size(); ++i)
+        {
+            ElementSelection& s1 = selection[i];
+            for (size_t j = i + 1; j < selection.size(); ++j)
+            {
+                ElementSelection& s2 = selection[j];
+                if (s1.element->id == s2.element->id && s1.start + s1.size == s2.start)
+                {
+                    s1.size += s2.size;
+                    selection.erase(selection.begin() + j);
+                    optimize = true;
+                    break;
+                }
+            }
+            if (optimize)
+                break;
+        }
+
+        if (!optimize)
+        {
+            //remove selections which are inside another selections
+            for (size_t i = 0; i < selection.size(); ++i)
+            {
+                ElementSelection& s1 = selection[i];
+                for (size_t j = 0; j < selection.size(); ++j)
+                {
+                    if (j == i)
+                        continue;
+                    ElementSelection& s2 = selection[j];
+                    if (IsChild(s1.element->id, s2.element->id))
+                    {
+                        for (int k = s1.start; k < s1.start + s1.size; ++k)
+                        {
+                            auto child_id = GetChild(s1.element->id, k);
+                            if (IsChild(child_id, s2.element->id) || child_id == s2.element->id)
+                            {
+                                selection.erase(selection.begin() + j);
+                                optimize = true;
+                                break;
+                            }
+                        }
+                        if (optimize)
+                            break;
+                    }
+                }
+                if (optimize)
+                    break;
+            }
+        }
+
+        selection.erase(std::unique(selection.begin(), selection.end()), selection.end()); //remove dublicates
+
+        if (selection.size() == 1)
+        {
+            auto& s = selection[0];
+            if (s.IsEmpty() || (s.element->elements->Count() > 0 && s.size == 0))
+                selection.clear();
+        }
+    }
 }
 
 void Selection::Clear()

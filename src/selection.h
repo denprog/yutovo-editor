@@ -91,6 +91,8 @@ public:
     bool HasChild(const ElementId id, ElementSelection& s) const;
     bool IsSelected(const ElementId id) const;
 
+    void Optimize();
+    
     void Clear();
 
     bool IsEmpty() const;

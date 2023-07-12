@@ -256,7 +256,7 @@ TEST_F(FormulaTest, delete2)
         ElementSelectionState{ElementId{0, 0, 0, 0}, 2, 2})) << document.GetEditorState().ToString();
     
     document.WaitTask(document.MoveCaretRight(false));
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 2})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 1, 0, 0, 0, 3})) << document.GetEditorState().ToString();
 }
 
 //Delete with undo a text and a code block and a text
@@ -425,7 +425,7 @@ TEST_F(FormulaTestCustom, delete4)
         ElementSelectionState{ElementId{0, 0, 0}, 0, 1})) << document.GetEditorState().ToString();
     
     document.WaitTask(document.MoveCaretRight(false));
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 1, 0})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0, 0, 1})) << document.GetEditorState().ToString();
 }
 
 //Deletion of a selected formula
