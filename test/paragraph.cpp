@@ -794,7 +794,8 @@ TEST_F(ParagraphTest, paragraph2)
             "</p>"\
         "</body>") 
         << document.ToHtml();
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 1, 6, 0, 6)) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 1, 6}, 
+        ElementSelectionState{ElementId{0, 0, 0}, 1, 1})) << document.GetEditorState().ToString();
 
     document.Undo();
     document.WaitUndo();
@@ -833,7 +834,8 @@ TEST_F(ParagraphTest, paragraph2)
             "</p>"\
         "</body>") 
         << document.ToHtml();
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 1, 6, 0, 6)) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 1, 6}, 
+        ElementSelectionState{ElementId{0, 0, 0}, 1, 1})) << document.GetEditorState().ToString();
 
     document.Redo();
     document.WaitRedo();
@@ -847,7 +849,8 @@ TEST_F(ParagraphTest, paragraph2)
             "</p>"\
         "</body>") 
         << document.ToHtml();
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 1, 6, 0, 6)) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 1, 6}, 
+        ElementSelectionState{ElementId{0, 0, 0}, 1, 1})) << document.GetEditorState().ToString();
 
     document.WaitTask(document.SetCurrentParagraphFormat("Monospace"));
     ASSERT_TRUE(document.ToHtml() == 
@@ -860,7 +863,8 @@ TEST_F(ParagraphTest, paragraph2)
             "</p>"\
         "</body>") 
         << document.ToHtml();
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 1, 6, 0, 6)) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 1, 6}, 
+        ElementSelectionState{ElementId{0, 0, 0}, 1, 1})) << document.GetEditorState().ToString();
 
     document.WaitTask(document.SetCurrentParagraphFormat("Monospace"));
     document.Undo();

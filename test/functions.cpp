@@ -146,7 +146,7 @@ TEST_F(FormulaTest, functions3)
         U"f(3)=8.") << ToBasicString(document.ToText());
     
     document.MoveCaretUp(false);
-    for (int i = 0; i < 5; ++i)
+    for (int i = 0; i < 6; ++i)
         document.WaitTask(document.MoveCaretRight(false));
     document.WaitTask(document.InsertString("2", true));
     document.WaitSolver();

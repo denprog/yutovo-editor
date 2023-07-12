@@ -363,21 +363,19 @@ bool String::ChangeStringFormat(const StringFormatPtr _format, bool with_undo, E
             changed_element = id;
             return true;
         }
-        else
-        {
-            ElementPtr el = parent->elements->Get(id);
-            if (SplitAt(start))
-                el = parent->elements->Get(parent->elements->GetElementPos(id) + 1);
-            el->SplitAt(size);
-            ((String*)el.get())->format = _format;
-            ((String*)el.get())->ResetCache();
-            parent->elements->UpdateIds();
-            parent->Normalize();
-            changed_element = id;
-            return true;
-        }
+
+        ElementPtr el = parent->elements->Get(id);
+        if (SplitAt(start))
+            el = parent->elements->Get(parent->elements->GetElementPos(id) + 1);
+        el->SplitAt(size);
+        ((String*)el.get())->format = _format;
+        ((String*)el.get())->ResetCache();
+        parent->elements->UpdateIds();
+        parent->Normalize();
+        changed_element = id;
+        return true;
     }
-    return parent->ChangeStringFormat(_format, with_undo, changed_element);
+    return false;
 }
 
 bool String::Split(const uint width, bool split_more)
@@ -477,6 +475,9 @@ bool String::SplitAt(const uint pos)
             selection->Remove(id, start, size);
             selection->Add(el->id, start - pos, size);
         }
+        else
+            selection->Optimize();
+        
         if (cs_pos == pos && start == pos)
             caret->SetState(el->id, 0, true);
         else if (cs_pos == pos && start + size == pos)
