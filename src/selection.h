@@ -101,6 +101,9 @@ public:
     LogicalSelectionState GetLogicalState() const;
 
 private:
+    bool Decompose(ElementSelection s, ElementId until_id);
+
+private:
     Document* document;
 
 public:

@@ -497,9 +497,7 @@ bool String::SplitAt(const uint pos)
 
 bool String::Merge(const ElementPtr with_element)
 {
-    if (!editable)
-        return false;
-    if (!document->IsString(with_element))
+    if (!editable || !document->IsString(with_element))
         return false;
     //merge two strings if those formats are equal
     String* el = (String*)with_element.get();
