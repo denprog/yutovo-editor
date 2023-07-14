@@ -237,7 +237,6 @@ TEST_F(DocumentTest, selections2)
     document.InsertString("Test", true);
     document.MoveCaretHome(false);
     document.WaitTask(document.InsertString("Bold", document.GetStringFormat("Times New Roman", 34, true, false, false), true));
-    std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -254,11 +253,9 @@ TEST_F(DocumentTest, selections2)
     for (int i = 0; i < 4; ++i)
         document.MoveCaretLeft(true);
     document.WaitCaretMoving();
-    std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 2, 2, 2, 1, 0, 2)) << document.GetEditorState().ToString();
 
     document.WaitTask(document.DeleteElements(true, true));
-    std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -287,11 +284,9 @@ TEST_F(DocumentTest, selections2)
     for (int i = 0; i < 5; ++i)
         document.MoveCaretRight(true);
     document.WaitCaretMoving();
-    std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 1, 2, 0, 2, 0, 1, 3)) << document.GetEditorState().ToString();
 
     document.WaitTask(document.DeleteElements(true, true));
-    std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -342,7 +337,6 @@ TEST_F(DocumentTest, selections3)
     for (int i = 0; i < 9; ++i)
         document.MoveCaretRight(true);
     document.WaitCaretMoving();
-    std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 2, 3}, 
         ElementSelectionState{ElementId{0, 0, 0, 0}, 4, 2},
         ElementSelectionState{ElementId{0, 0, 0}, 1, 1},
@@ -360,7 +354,6 @@ TEST_F(DocumentTest, selections3)
 
     document.Undo();
     document.WaitUndo();
-    std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -408,7 +401,6 @@ TEST_F(DocumentTest, selections3)
     for (int i = 0; i < 20; ++i)
         document.MoveCaretRight(true);
     document.WaitCaretMoving();
-    std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 2, 6}, 
         ElementSelectionState{ElementId{0}, 0, 1})) << document.GetEditorState().ToString();
 
@@ -597,7 +589,6 @@ TEST_F(DocumentTest, inserts2)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 3)) << document.GetEditorState().ToString();
 
     document.WaitTask(document.InsertString("Bold", document.GetStringFormat("Times New Roman", 34, true, false, false), true));
-    std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -635,7 +626,6 @@ TEST_F(DocumentTest, inserts3)
     document.InsertString("Italic", document.GetStringFormat("Times New Roman", 18, false, true, false), true);
     document.InsertString("Bold", document.GetStringFormat("Times New Roman", 34, true, false, false), true);
     document.WaitTask(document.InsertString("String1 String2 String3", document.GetStringFormat("Arial", 20, false, false, false), true));
-    std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -701,7 +691,6 @@ TEST_F(DocumentTest, inserts4)
         document.DeleteElements(true, true);
     document.InsertString("Text", document.GetStringFormat("Arial", 24, false, false, false), true);
     document.WaitTask(document.InsertString("Italic", document.GetStringFormat("Times New Roman", 18, false, true, false), true));
-    std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -741,7 +730,6 @@ TEST_F(DocumentTest, inserts5)
     for (int i = 0; i < 2; ++i)
         document.MoveCaretLeft(false);
     document.WaitTask(document.InsertString("Bold", document.GetStringFormat("Arial", 24, true, false, false), true));
-    std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -755,7 +743,6 @@ TEST_F(DocumentTest, inserts5)
 
     document.Undo();
     document.WaitUndo();
-    std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -767,7 +754,6 @@ TEST_F(DocumentTest, inserts5)
 
     document.Redo();
     document.WaitRedo();
-    std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -787,7 +773,6 @@ TEST_F(DocumentTest, inserts6)
     document.InsertString("Text", document.GetStringFormat("Arial", 24, false, false, false), true);
     document.MoveCaretHome(false);
     document.WaitTask(document.InsertString("Bold", document.GetStringFormat("Arial", 24, true, false, false), true));
-    std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -800,7 +785,6 @@ TEST_F(DocumentTest, inserts6)
 
     document.Undo();
     document.WaitUndo();
-    std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -812,7 +796,6 @@ TEST_F(DocumentTest, inserts6)
 
     document.Redo();
     document.WaitRedo();
-    std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -831,7 +814,6 @@ TEST_F(DocumentTest, inserts7)
     document.InsertString("Text", document.GetStringFormat("Arial", 24, false, false, false), true);
     document.MoveCaretEnd(false);
     document.WaitTask(document.InsertString("Bold", document.GetStringFormat("Arial", 24, true, false, false), true));
-    std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -844,7 +826,6 @@ TEST_F(DocumentTest, inserts7)
 
     document.Undo();
     document.WaitUndo();
-    std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -856,7 +837,6 @@ TEST_F(DocumentTest, inserts7)
 
     document.Redo();
     document.WaitRedo();
-    std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -871,7 +851,6 @@ TEST_F(DocumentTest, inserts7)
     document.InsertString("T", true);
     document.WaitTask(document.MoveCaretToDocumentEnd(false));
     document.WaitTask(document.InsertString("d", true));
-    std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -886,7 +865,6 @@ TEST_F(DocumentTest, inserts7)
     document.WaitUndo();
     document.Undo();
     document.WaitUndo();
-    std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -901,7 +879,6 @@ TEST_F(DocumentTest, inserts7)
     document.WaitRedo();
     document.Redo();
     document.WaitRedo();
-    std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -953,7 +930,6 @@ TEST_F(DocumentTest, inserts9)
     document.WaitTask(document.InsertString("The_source_of_the_text_itself_isa", true));
     document.Undo();
     document.WaitUndo();
-    std::this_thread::sleep_for(200ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -999,7 +975,6 @@ TEST_F(DocumentTest, fonts1)
         document.Undo();
         document.WaitUndo();
     }
-    std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -1042,8 +1017,7 @@ TEST_F(DocumentTest, fonts1)
     document.SetBold(true);
     document.SetItalic(true);
     document.SetUnderline(true);
-    document.InsertString(" New", true);
-    document.WaitMainLoop();
+    document.WaitTask(document.InsertString(" New", true));
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
@@ -1282,7 +1256,6 @@ TEST_F(DocumentTest, fonts3)
 
     document.Undo();
     document.WaitUndo();
-    std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -1353,8 +1326,7 @@ TEST_F(DocumentTest, fonts6)
     Start(600);
 
     document.SetFontSize(22);
-    document.InsertString("Text", true);
-    std::this_thread::sleep_for(100ms);
+    document.WaitTask(document.InsertString("Text", true));
     StringFormat format;
     ASSERT_TRUE(document.GetStringFormat(ElementId{0, 0, 0, 0, 4}, format));
     ASSERT_TRUE(format.size == 22);
@@ -1475,6 +1447,156 @@ TEST_F(DocumentTest, fonts9)
 
     document.WaitTask(document.MoveCaretRight(false));
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 1})) << document.GetEditorState().ToString();
+}
+
+//Check font of a selected string
+TEST_F(DocumentTest, fonts10)
+{
+    Start(600);
+
+    document.InsertString("Text", true);
+    document.WaitTask(document.MoveCaretHome(true));
+    document.WaitTask(document.SetBold(true));
+    StringFormat format;
+    ASSERT_TRUE(document.GetStringFormat(ElementId{0, 0}, format));
+    ASSERT_TRUE(format.bold);
+    ASSERT_TRUE(document.GetStringFormat(ElementId{0, 0, 0}, format));
+    ASSERT_TRUE(format.bold);
+    ASSERT_TRUE(document.GetStringFormat(ElementId{0, 0, 0, 0}, format));
+    ASSERT_TRUE(format.bold);
+
+    document.WaitTask(document.SetItalic(true));
+    ASSERT_TRUE(document.GetStringFormat(ElementId{0, 0}, format));
+    ASSERT_TRUE(format.bold);
+    ASSERT_TRUE(format.italic);
+    ASSERT_TRUE(document.GetStringFormat(ElementId{0, 0, 0}, format));
+    ASSERT_TRUE(format.bold);
+    ASSERT_TRUE(format.italic);
+    ASSERT_TRUE(document.GetStringFormat(ElementId{0, 0, 0, 0}, format));
+    ASSERT_TRUE(format.bold);
+    ASSERT_TRUE(format.italic);
+
+    document.WaitTask(document.SetUnderline(true));
+    ASSERT_TRUE(document.GetStringFormat(ElementId{0, 0}, format));
+    ASSERT_TRUE(format.bold);
+    ASSERT_TRUE(format.italic);
+    ASSERT_TRUE(format.underline);
+    ASSERT_TRUE(document.GetStringFormat(ElementId{0, 0, 0}, format));
+    ASSERT_TRUE(format.bold);
+    ASSERT_TRUE(format.italic);
+    ASSERT_TRUE(format.underline);
+    ASSERT_TRUE(document.GetStringFormat(ElementId{0, 0, 0, 0}, format));
+    ASSERT_TRUE(format.bold);
+    ASSERT_TRUE(format.italic);
+    ASSERT_TRUE(format.underline);
+}
+
+//Set font attributes
+TEST_F(DocumentTest, fonts11)
+{
+    Start(600);
+
+    document.InsertString("TestText", true);
+    document.MoveCaretLeft(true);
+    document.WaitTask(document.MoveCaretLeft(true));
+    document.WaitTask(document.SetBold(true));
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">TestTe</span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\"><strong>xt</strong></span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    StringFormat format;
+    ASSERT_TRUE(document.GetStringFormat(ElementId{0, 0, 0, 1}, format));
+    ASSERT_TRUE(format.bold);
+
+    document.MoveCaretLeft(true);
+    document.WaitTask(document.MoveCaretLeft(true));
+    document.WaitTask(document.SetItalic(true));
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">Test</span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\"><em>Te</em></span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\"><strong><em>xt</em></strong></span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetStringFormat(ElementId{0, 0, 0, 1}, format));
+    ASSERT_TRUE(format.italic);
+    ASSERT_TRUE(document.GetStringFormat(ElementId{0, 0, 0, 2}, format));
+    ASSERT_TRUE(format.bold);
+    ASSERT_TRUE(format.italic);
+
+    document.WaitTask(document.MoveCaretHome(true));
+    document.WaitTask(document.SetUnderline(true));
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;text-decoration: underline;\">Test</span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;text-decoration: underline;\"><em>Te</em></span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;text-decoration: underline;\"><strong><em>xt</em></strong></span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetStringFormat(ElementId{0, 0, 0, 0}, format));
+    ASSERT_TRUE(format.underline);
+    ASSERT_TRUE(document.GetStringFormat(ElementId{0, 0, 0, 1}, format));
+    ASSERT_TRUE(format.italic);
+    ASSERT_TRUE(format.underline);
+    ASSERT_TRUE(document.GetStringFormat(ElementId{0, 0, 0, 2}, format));
+    ASSERT_TRUE(format.bold);
+    ASSERT_TRUE(format.italic);
+    ASSERT_TRUE(format.underline);
+}
+
+//Set font attributes
+TEST_F(DocumentTest, fonts12)
+{
+    Start(600);
+
+    document.InsertString("123456789", true);
+    document.MoveCaretLeft(true);
+    document.WaitTask(document.MoveCaretLeft(true));
+    document.WaitTask(document.SetUnderline(true));
+
+    document.MoveCaretLeft(true);
+    document.MoveCaretLeft(true);
+    document.WaitTask(document.MoveCaretLeft(true));
+    document.WaitTask(document.SetItalic(true));
+
+    document.MoveCaretLeft(true);
+    document.WaitTask(document.MoveCaretLeft(true));
+    document.WaitTask(document.SetBold(true));
+
+    document.WaitTask(document.MoveCaretHome(true));
+    document.WaitTask(document.SetBold(true));
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\"><strong>1234</strong></span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\"><strong><em>567</em></strong></span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;text-decoration: underline;\"><strong><em>89</em></strong></span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0}, 
+        ElementSelectionState{ElementId{0}, 0, 1})) << document.GetEditorState().ToString();
+    
+    document.WaitTask(document.SetBold(false));
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">1234</span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\"><em>567</em></span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;text-decoration: underline;\"><em>89</em></span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0}, 
+        ElementSelectionState{ElementId{0}, 0, 1})) << document.GetEditorState().ToString();
 }
 
 TEST_F(DocumentTest, delete1)
@@ -1983,7 +2105,6 @@ TEST_F(DocumentTest, delete8)
     document.MoveCaretEnd(false);
     document.WaitTask(document.MoveCaretLeft(false));
     document.WaitTask(document.DeleteElements(false, true));
-    std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -1995,7 +2116,6 @@ TEST_F(DocumentTest, delete8)
 
     document.Undo();
     document.WaitUndo();
-    std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -2015,7 +2135,6 @@ TEST_F(DocumentTest, delete9)
     document.MoveCaretUp(false);
     document.WaitTask(document.MoveCaretEnd(false));
     document.WaitTask(document.DeleteElements(true, true));
-    std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -2027,7 +2146,6 @@ TEST_F(DocumentTest, delete9)
 
     document.WaitTask(document.MoveCaretEnd(false));
     document.WaitTask(document.DeleteElements(true, true));
-    std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -2039,7 +2157,6 @@ TEST_F(DocumentTest, delete9)
 
     document.Undo();
     document.WaitUndo();
-    std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -2051,7 +2168,6 @@ TEST_F(DocumentTest, delete9)
 
     document.Undo();
     document.WaitUndo();
-    std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -2071,7 +2187,6 @@ TEST_F(DocumentTest, delete10)
     document.MoveCaretUp(false);
     document.WaitTask(document.MoveCaretEnd(false));
     document.WaitTask(document.DeleteElements(false, true));
-    std::this_thread::sleep_for(200ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -2084,7 +2199,6 @@ TEST_F(DocumentTest, delete10)
 
     document.Undo();
     document.WaitUndo();
-    std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -2104,7 +2218,6 @@ TEST_F(DocumentTest, delete11)
     document.WaitTask(document.InsertString("The source of the text itself is a little mysterious.", true));
     document.WaitTask(document.MoveCaretHome(false));
     document.WaitTask(document.DeleteElements(true, true));
-    std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -2117,7 +2230,6 @@ TEST_F(DocumentTest, delete11)
 
     document.Undo();
     document.WaitUndo();
-    std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\

@@ -234,38 +234,6 @@ void Selection::Add(const ElementPtr element, uint start, uint size)
             return s.element == element;
         });
 
-    std::function<bool (ElementSelection, ElementId)> decompose = 
-        [&](ElementSelection s, ElementId until_id)
-        {
-            if (s.element->id == until_id)
-            {
-                selection.emplace_back(ElementSelection{s.element, 0, s.element->elements->Count()});
-                return true;
-            }
-            if (!IsChild(s.element->id, until_id))
-                return false;
-            for (int i = s.start; i < s.start + s.size; ++i)
-            {
-                auto el = s.element->elements->Get(i);
-                if (IsChild(el->id, until_id) || el->id == until_id)
-                {
-                    if (decompose(ElementSelection{el, 0, el->elements->Count()}, until_id))
-                    {
-                        for (int j = i + 1; j < s.start + s.size; ++j)
-                        {
-                            auto _el = s.element->elements->Get(j);
-                            selection.emplace_back(ElementSelection{_el, 0, _el->elements->Count()});
-                        }
-                        return true;
-                    }
-                    return false;
-                }
-                else
-                    selection.emplace_back(ElementSelection{el, 0, el->elements->Count()});
-            }
-            return false;
-        };
-
     if (it == selection.end())
     {
         //remove selections which will be included in the new item
@@ -280,26 +248,35 @@ void Selection::Add(const ElementPtr element, uint start, uint size)
         bool decomposed = false;
         for (size_t i = 0; i < selection.size(); ++i)
         {
-            if (decompose(selection[i], element->id))
+            if (Decompose(selection[i], element->id))
             {
+                selection.erase(selection.begin() + i);
+
                 auto it = std::find_if(selection.begin(), selection.end(), 
                     [element](const ElementSelection& s)
                     {
                         return s.element->id == element->id;
                     });
                 ElementSelection& cur = *it;
-                if (start == 0)
+
+                //substract or add selection
+                if (start == cur.start && start + size <= cur.start + cur.size)
                 {
                     cur.start += size;
                     cur.size -= size;
                 }
-                else
+                else if (start >= cur.start && start + size == cur.start + cur.size)
                 {
                     cur.size -= size;
                 }
+                else
+                {
+                    if (start < cur.start)
+                        cur.start = start;
+                    if (start + size > cur.start + cur.size)
+                        cur.size = start + size - cur.start;
+                }
 
-                //Remove(selection[i].element->id, i, 1);
-                selection.erase(selection.begin() + i);
                 decomposed = true;
                 break;
             }
@@ -361,6 +338,18 @@ void Selection::Add(const ElementId id, uint start, uint size)
 
 void Selection::Remove(const ElementId id, uint start, uint size)
 {
+    for (size_t i = 0; i < selection.size(); ++i)
+    {
+        ElementSelection& s = selection[i];
+        if (s.element->id == id)
+            break;
+        if (Decompose(s, id))
+        {
+            selection.erase(selection.begin() + i);
+            break;
+        }
+    }
+
     auto it = std::find_if(selection.begin(), selection.end(), 
         [id](auto& s)
         {
@@ -381,6 +370,8 @@ void Selection::Remove(const ElementId id, uint start, uint size)
         s.start = start + size;
         s.size = s.size - size;
     }
+
+    Optimize();
 }
 
 void Selection::InsertElement(const ElementId id)
@@ -406,17 +397,13 @@ void Selection::RemoveElement(const ElementId id)
     if (selection.empty() || id.empty())
         return;
     ElementId p_id = GetParent(id);
-    auto it = std::find_if(selection.begin(), selection.end(), 
-        [p_id](auto& s)
-        {
-            return s.element->id == p_id;
-        });
-    if (it == selection.end())
-        return;
-    
-    auto& s = *it;
-    if (s.start >= GetChildPos(id))
-        --s.start;
+    for (auto& s : selection)
+    {
+        if (s.element->id == p_id && s.start >= GetChildPos(id))
+            --s.start;
+    }
+
+    Optimize();
 }
 
 bool Selection::Has(const ElementPtr element, uint& start, uint& size) const
@@ -637,6 +624,37 @@ LogicalSelectionState Selection::GetLogicalState() const
         }
     }
     return state;
+}
+
+bool Selection::Decompose(ElementSelection s, ElementId until_id)
+{
+    if (s.element->id == until_id)
+    {
+        selection.emplace_back(ElementSelection{s.element, 0, s.element->elements->Count()});
+        return true;
+    }
+    if (!IsChild(s.element->id, until_id))
+        return false;
+    for (int i = s.start; i < s.start + s.size; ++i)
+    {
+        auto el = s.element->elements->Get(i);
+        if (IsChild(el->id, until_id) || el->id == until_id)
+        {
+            if (Decompose(ElementSelection{el, 0, el->elements->Count()}, until_id))
+            {
+                for (int j = i + 1; j < s.start + s.size; ++j)
+                {
+                    auto _el = s.element->elements->Get(j);
+                    selection.emplace_back(ElementSelection{_el, 0, _el->elements->Count()});
+                }
+                return true;
+            }
+            return false;
+        }
+        else
+            selection.emplace_back(ElementSelection{el, 0, el->elements->Count()});
+    }
+    return false;
 }
 
 }

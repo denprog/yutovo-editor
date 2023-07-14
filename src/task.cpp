@@ -476,7 +476,7 @@ bool ChangeStringFormatTask::Execute()
 {
     size_t last_undo_size = document->GetUndoSize();
 
-    before_state = text->document->GetEditorState();
+    before_state = document->GetEditorState();
 
     CaretState& caret_state = before_state.caret_state;
     SelectionState& selection_state = before_state.selection_state;
@@ -485,19 +485,14 @@ bool ChangeStringFormatTask::Execute()
     for (int i = 0; i < selection_state.state.size(); ++i)
     {
         ElementSelectionState& s = selection_state.state[i];
-        elements.push_back(text->document->GetElement(s.id));
+        elements.push_back(document->GetElement(s.id));
     }
 
-    for (int i = 0; i < selection_state.state.size(); ++i)
-    {
-        ElementSelectionState& s = selection_state.state[i];
-        auto el = elements[i];
-
-        StringFormatPtr _format;
-        if (text->document->IsString(el))
+    auto get_string_format = 
+        [&](String* str)
         {
             //set only actual params
-            StringFormat f = *((String*)el.get())->format;
+            StringFormat f = *str->format;
             if (set_family)
                 f.family = format->family;
             if (set_size)
@@ -508,22 +503,57 @@ bool ChangeStringFormatTask::Execute()
                 f.italic = format->italic;
             if (set_underline)
                 f.underline = format->underline;
-            _format = text->document->GetStringFormat(f.family, f.size, f.bold, f.italic, f.underline);
+            return document->GetStringFormat(f.family, f.size, f.bold, f.italic, f.underline);
+        };
+    
+    std::function<bool (ElementPtr el)> change_string_format = 
+        [&](ElementPtr el)
+        {
+            ElementId changed_element;
+            if (document->IsString(el))
+            {
+                StringFormatPtr _format = get_string_format((String*)el.get());
+                if (!el->ChangeStringFormat(_format, with_undo, changed_element))
+                {
+                    if (with_undo && last_undo_size < document->GetUndoSize())
+                        document->RollbackUndo();
+                    return false;
+                }
+
+                Remake(changed_element, false);
+            }
+            else
+            {
+                for (int i = 0; i < el->elements->Count(); ++i)
+                {
+                    auto _el = el->elements->Get(i);
+                    if (!change_string_format(_el))
+                        return false;
+                }
+            }
+            return true;
+        };
+
+    for (int i = selection_state.state.size() - 1; i >= 0; --i)
+    {
+        ElementSelectionState& s = selection_state.state[i];
+        auto el = elements[i];
+
+        StringFormatPtr _format;
+        if (document->IsString(el))
+        {
+            if (!change_string_format(el))
+                return false;
         }
         else
         {
-            _format = format;
+            for (int i = s.start; i < s.start + s.size; ++i)
+            {
+                if (!change_string_format(el->elements->Get(i)))
+                    return false;
+            }
         }
 
-        ElementId changed_element;
-        if (!el->ChangeStringFormat(_format, with_undo, changed_element))
-        {
-            if (with_undo && last_undo_size < document->GetUndoSize())
-                document->RollbackUndo();
-            return false;
-        }
-
-        Remake(changed_element, false);
         document->UpdateFormats();
     }
 

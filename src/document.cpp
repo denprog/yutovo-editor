@@ -267,8 +267,6 @@ void Document::MainLoop()
                 if (last_solver_task_id == t->id)
                     last_solver_executed = true;
                 
-                // if (last_tasks.size() > 1000)
-                //     last_tasks.clear();
                 last_tasks.push_back(t->id);
 #endif
             }
@@ -1171,7 +1169,7 @@ uint Document::SetItalic(const bool enabled)
         auto f = string_formats->GetFormat(current_string_format->family, current_string_format->size, current_string_format->bold, enabled, 
             current_string_format->underline);
         if (!selection.IsEmpty())
-            return ChangeStringFormat(f, true);
+            return ChangeStringFormat(f, false, false, false, true, false, true);
         else
             current_string_format = f;
     }
@@ -1186,7 +1184,7 @@ uint Document::SetUnderline(const bool enabled)
         auto f = string_formats->GetFormat(current_string_format->family, current_string_format->size, current_string_format->bold, 
             current_string_format->italic, enabled);
         if (!selection.IsEmpty())
-            return ChangeStringFormat(f, true);
+            return ChangeStringFormat(f, false, false, false, false, true, true);
         else
             current_string_format = f;
     }
@@ -1264,6 +1262,46 @@ bool Document::GetStringFormat(const ElementId id, StringFormat& format)
     {
         auto f = p->GetStringFormat();
         format = *f;
+        return true;
+    }
+    else if (IsParagraph(el))
+    {
+        //check if the paragraph has strings with only one format
+        for (int i = 0; i < el->elements->Count(); ++i)
+        {
+            auto row = el->elements->Get(i);
+            for (int j = 0; j < row->elements->Count(); ++j)
+            {
+                auto ch = row->elements->Get(j);
+                if (!IsString(ch))
+                    return false;
+                auto f = ch->GetStringFormat();
+                if (i != 0 && j != 0)
+                {
+                    if (*f != format)
+                        return false;
+                }
+                format = *f;
+            }
+        }
+        return true;
+    }
+    else if (IsRow(el))
+    {
+        //check if the row has strings with only one format
+        for (int i = 0; i < el->elements->Count(); ++i)
+        {
+            auto ch = el->elements->Get(i);
+            if (!IsString(ch))
+                return false;
+            auto f = ch->GetStringFormat();
+            if (i != 0)
+            {
+                if (*f != format)
+                    return false;
+            }
+            format = *f;
+        }
         return true;
     }
 
@@ -1490,10 +1528,8 @@ uint Document::Resize(uint width, uint height)
     {
         std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
         tasks.emplace_back(new ResizeTask(text, width, height));
+        last_task_id = tasks.back()->id;
     }
-#ifdef DEBUG
-    last_task_id = tasks.back()->id;
-#endif
     next_circle = true;
     return last_task_id;
 }
@@ -1562,20 +1598,16 @@ uint Document::New()
 {
     std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
     tasks.emplace_back(new NewTask(text));
-#ifdef DEBUG
     last_task_id = tasks.back()->id;
-#endif
-    return tasks.back()->id;
+    return last_task_id;
 }
 
 uint Document::Save(const std::string& filename)
 {
     std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
     tasks.emplace_back(new SaveTask(text, filename));
-#ifdef DEBUG
     last_task_id = tasks.back()->id;
-#endif
-    return tasks.back()->id;
+    return last_task_id;
 }
 
 uint Document::Load(const std::string& filename)
@@ -1769,10 +1801,8 @@ uint Document::SetResult(ElementId _id, ResultType result_type, bool with_undo)
 {
     std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
     tasks.emplace_back(new SetResultTask(text, _id, result_type, with_undo));
-#ifdef DEBUG
     last_task_id = tasks.back()->id;
-#endif
-    return tasks.back()->id;
+    return last_task_id;
 }
 
 int Document::GetPrecision(ElementId _id)
@@ -1796,10 +1826,8 @@ uint Document::SetPrecision(ElementId _id, uint precision, bool with_undo)
 {
     std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
     tasks.emplace_back(new SetResultParams(text, _id, precision, -1, AngleMeasure::NONE, with_undo));
-#ifdef DEBUG
     last_task_id = tasks.back()->id;
-#endif
-    return tasks.back()->id;
+    return last_task_id;
 }
 
 int Document::GetExp(ElementId _id)
@@ -1823,10 +1851,8 @@ uint Document::SetExp(ElementId _id, uint exp, bool with_undo)
 {
     std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
     tasks.emplace_back(new SetResultParams(text, _id, -1, exp, AngleMeasure::NONE, with_undo));
-#ifdef DEBUG
     last_task_id = tasks.back()->id;
-#endif
-    return tasks.back()->id;
+    return last_task_id;
 }
 
 AngleMeasure Document::GetResultAngleMeasure(ElementId _id)
@@ -1850,10 +1876,8 @@ uint Document::SetResultAngleMeasure(ElementId _id, AngleMeasure result_angle_me
 {
     std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
     tasks.emplace_back(new SetResultParams(text, _id, -1, -1, result_angle_measure, with_undo));
-#ifdef DEBUG
     last_task_id = tasks.back()->id;
-#endif
-    return tasks.back()->id;
+    return last_task_id;
 }
 
 Notation Document::GetNotation(ElementId _id)
@@ -1877,10 +1901,8 @@ uint Document::SetNotation(ElementId _id, Notation notation, bool with_undo)
 {
     std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
     tasks.emplace_back(new SetResultParams(text, _id, notation, with_undo));
-#ifdef DEBUG
     last_task_id = tasks.back()->id;
-#endif
-    return tasks.back()->id;
+    return last_task_id;
 }
 
 FractionForm Document::GetFractionForm(ElementId _id)
@@ -1904,10 +1926,8 @@ uint Document::SetFractionForm(ElementId _id, FractionForm fraction_form, bool w
 {
     std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
     tasks.emplace_back(new SetResultParams(text, _id, fraction_form, with_undo));
-#ifdef DEBUG
     last_task_id = tasks.back()->id;
-#endif
-    return tasks.back()->id;
+    return last_task_id;
 }
 
 bool Document::HasUnit(ElementId _id)
@@ -1962,10 +1982,8 @@ uint Document::SetUnit(ElementId _id, yutovo_calculator::Unit& unit, bool with_u
 {
     std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
     tasks.emplace_back(new SetResultParams(text, _id, unit, with_undo));
-#ifdef DEBUG
     last_task_id = tasks.back()->id;
-#endif
-    return tasks.back()->id;
+    return last_task_id;
 }
 
 void Document::ReSolve(ElementId _id)
