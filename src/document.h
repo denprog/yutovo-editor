@@ -172,6 +172,7 @@ public:
 
     TextFormatPtr GetDefaultTextFormat();
     PageFormatPtr GetDefaultPageFormat();
+    uint SetDefaultPageFormat(uint left_indent, uint top_indent, uint right_indent, uint bottom_indent, uint paragraph_spacing);
     StringFormatPtr GetStringFormat(const std::string& family, uint size, bool bold, bool italic, bool underline);
     StringFormatPtr GetStringFormat(const boost::uuids::uuid& id);
 
@@ -285,6 +286,8 @@ public:
     ParagraphFormatsPtr paragraph_formats;
     CodeFormatsPtr code_formats;
     FormulaFormatsPtr formula_formats;
+
+    PageFormatPtr current_page_format;
 
 private:
     StringFormatPtr current_string_format;
