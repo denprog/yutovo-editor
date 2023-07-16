@@ -566,6 +566,8 @@ bool ChangeStringFormatTask::Execute()
     return true;
 }
 
+//ChangeParagraphFormatTask
+
 ChangeParagraphFormatTask::ChangeParagraphFormatTask(ElementPtr _text, const ParagraphFormatPtr& _format, bool _with_undo) :
     Task(_text),
     format(_format)
@@ -600,6 +602,24 @@ bool ChangeParagraphFormatTask::Execute()
     }
 
     Remake(changed_element, true);
+    document->UpdateFormats();
+
+    return true;
+}
+
+//ChangePageFormatTask
+
+ChangePageFormatTask::ChangePageFormatTask(ElementPtr _text, const PageFormatPtr& _format) :
+    Task(_text), 
+    format(_format)
+{
+}
+
+bool ChangePageFormatTask::Execute()
+{
+    document->current_page_format = format;
+
+    Remake(ElementId{0}, true);
     document->UpdateFormats();
 
     return true;

@@ -53,6 +53,8 @@ void Text::Draw() const
 
 bool Text::Remake(bool with_elements)
 {
+    page_format = document->GetDefaultPageFormat();
+
     Rect v = window->GetRect();
     page_width = v.width - page_format->right_indent - page_format->left_indent;
 

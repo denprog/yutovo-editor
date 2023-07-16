@@ -111,6 +111,15 @@ struct ChangeParagraphFormatTask : Task
     EditorState before_state;
 };
 
+struct ChangePageFormatTask : Task
+{
+    ChangePageFormatTask(ElementPtr _text, const PageFormatPtr& _format);
+
+    virtual bool Execute();
+
+    PageFormatPtr format;
+};
+
 struct RedrawTask : Task
 {
     RedrawTask(ElementPtr _text, const ElementId& _id, bool _move_into_view);

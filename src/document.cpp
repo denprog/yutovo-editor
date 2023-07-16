@@ -44,6 +44,7 @@ Document::Document(Window* _window) :
     current_paragraph_format = paragraph_formats->GetFormat("Text body");
     current_code_format = code_formats->GetFormat("Calculator");
     current_formula_format = formula_formats->GetFormat("Code");
+    current_page_format = PageFormats::GetFormat(20, 20, 20, 20, 10);
 
     logger->Debug("Document start");
 }
@@ -1714,8 +1715,16 @@ TextFormatPtr Document::GetDefaultTextFormat()
 PageFormatPtr Document::GetDefaultPageFormat()
 {
     if (config.with_border)
-        return PageFormats::GetFormat(20, 20, 20, 20, 10);
+        return current_page_format;
     return PageFormats::GetFormat(0, 0, 0, 0, 0);
+}
+
+uint Document::SetDefaultPageFormat(uint left_indent, uint top_indent, uint right_indent, uint bottom_indent, uint paragraph_spacing)
+{
+    std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
+    tasks.emplace_back(new ChangePageFormatTask(text, PageFormats::GetFormat(left_indent, top_indent, right_indent, bottom_indent, paragraph_spacing)));
+    last_task_id = tasks.back()->id;
+    return last_task_id;
 }
 
 StringFormatPtr Document::GetStringFormat(const std::string& family, uint size, bool bold, bool italic, bool underline)
