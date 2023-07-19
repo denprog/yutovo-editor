@@ -1,6 +1,6 @@
 #include "web_socket.h"
 #include "window.h"
-#include "logger.h"
+#include <yutovo_logger/logger.h>
 #include <chrono>
 
 namespace yutovo

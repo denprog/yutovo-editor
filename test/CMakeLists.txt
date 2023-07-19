@@ -16,6 +16,7 @@ find_package(GTest REQUIRED)
 include_directories(${GTEST_INCLUDE_DIR})
 
 find_package(Qt5 COMPONENTS Widgets REQUIRED)
+find_package(yutovo_logger REQUIRED PATHS ${INSTALL_PATH}/lib/cmake/)
 
 add_executable(${PROJECT_NAME}_tests
 	main.cpp
@@ -56,6 +57,7 @@ target_link_libraries(${PROJECT_NAME}_tests PUBLIC
 	dl
 	${PROJECT_NAME}
     Qt5::Widgets
+    yutovo_logger
 )
 
 target_include_directories(${PROJECT_NAME}_tests PRIVATE
