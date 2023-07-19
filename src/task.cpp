@@ -9,7 +9,7 @@
 #include "formulas/result.h"
 #include "formulas/equation.h"
 #include "formulas/assignment.h"
-#include "logger.h"
+#include <yutovo_logger/logger.h>
 #include "util.h"
 #include "result_codes.h"
 #include <assert.h>

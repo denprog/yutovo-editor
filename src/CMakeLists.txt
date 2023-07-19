@@ -44,7 +44,6 @@ add_library(${PROJECT_NAME}
     text.cpp
     window.cpp
     util.cpp
-    logger.cpp
     result_codes.cpp
     solver.cpp
     solver_task.cpp
@@ -84,19 +83,11 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
     CMAKE_INCLUDE_CURRENT_DIR ON
 )
 
-if(EMSCRIPTEN)
-    target_link_libraries(${PROJECT_NAME} PRIVATE 
-        stdc++
-        pthread
-        ${Boost_SERIALIZATION_LIBRARY_RELEASE}
-    )
-else()
-    target_link_libraries(${PROJECT_NAME} PRIVATE 
-        stdc++
-        pthread
-        ${Boost_SERIALIZATION_LIBRARY_RELEASE}
-    )
-endif()
+target_link_libraries(${PROJECT_NAME} PRIVATE 
+    stdc++
+    pthread
+    ${Boost_SERIALIZATION_LIBRARY_RELEASE}
+)
 
 target_include_directories(${PROJECT_NAME} PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
@@ -138,7 +129,6 @@ install(
         element.h
         block.h
         text.h
-        logger.h
         solver.h
         solver_task.h
         task.h

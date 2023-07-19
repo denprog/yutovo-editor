@@ -1,7 +1,7 @@
 #include "solver_task.h"
 #include "rapidjson/writer.h"
 #include "rapidjson/stringbuffer.h"
-#include "logger.h"
+#include <yutovo_logger/logger.h>
 #include "util.h"
 
 namespace yutovo

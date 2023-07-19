@@ -16,7 +16,7 @@
 #include "editor_state.h"
 #include "config.h"
 #include "undo.h"
-#include "logger.h"
+#include <yutovo_logger/logger.h>
 #include <yutovo_service/types.h>
 
 namespace yutovo
