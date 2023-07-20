@@ -336,7 +336,10 @@ bool String::DeleteElements(bool left, bool with_undo, ElementId& changed_elemen
             parent->Normalize();
     }
 
-    changed_element = id;
+    if (str.length() == 0)
+        changed_element = parent->id;
+    else
+        changed_element = id;
 
 #ifdef DEBUG
     to_str = ToText();
