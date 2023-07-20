@@ -1636,6 +1636,34 @@ TEST_F(FormulaTest, select11)
         ElementSelectionState{ElementId{0}, 0, 1})) << document.GetEditorState().ToString();
 }
 
+//Selection after a power
+TEST_F(FormulaTest, select12)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.InsertString("123", true);
+    document.InsertPower(true);
+    document.InsertString("2", true);
+    document.MoveCaretRight(false);
+    document.InsertPlus(true);
+    document.InsertString("45", true);
+    document.MoveCaretHome(false);
+    document.WaitTask(document.MoveCaretRight(true));
+    ASSERT_TRUE(document.ToText() == U"pow(123,2)+45") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0, 0, 1}, 
+        ElementSelectionState{ElementId{0, 0, 0, 0, 0, 0}, 0, 1})) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.MoveCaretRight(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0, 0, 2, 0}, 
+        ElementSelectionState{ElementId{0, 0, 0, 0, 0, 0}, 0, 2})) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.MoveCaretRight(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0, 0, 2, 1}, 
+        ElementSelectionState{ElementId{0, 0, 0, 0, 0, 0}, 0, 2}, 
+        ElementSelectionState{ElementId{0, 0, 0, 0, 0, 0, 2}, 0, 1})) << document.GetEditorState().ToString();
+}
+
 TEST_F(FormulaTest, fonts1)
 {
     Start(600);
