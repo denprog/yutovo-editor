@@ -121,22 +121,48 @@ bool MiddleShapeFormula::AfterInsert(bool with_undo)
         int pos = parent->elements->GetElementPos(id);
         ElementPtr el1 = (pos == 0 ? nullptr : parent->elements->Get(pos - 1));
         ElementPtr el2 = (parent->elements->IsLast(id) ? nullptr : parent->elements->Get(pos + 1));
-        if (el2 && dynamic_cast<String*>(el2.get()) && str2 && str2->elements->Count() == 0)
+
+        if (!selection->IsEmpty())
         {
-            //move the second element in the last element
-            last->elements->RemoveAt(0, 1);
-            last->elements->Move(document->GetElement(el2->id), 0);
-        }
-        if (el1 && dynamic_cast<String*>(el1.get()))
-        {
-            String* str = dynamic_cast<String*>(el1.get());
-            if (str->elements->Count() > 0)
+            ElementSelection& select = selection->selection[0];
+            if (select.start > 0)
+                select.element->SplitAt(select.start);
+            if (selection->selection.size() > 1)
             {
-                //move the first element in the upper element
-                first->elements->RemoveAt(0, 1);
-                first->elements->Move(document->GetElement(el1->id), 0);
+                select = selection->selection[selection->selection.size()];
+                select.element->SplitAt(select.start);
+            }
+
+            //move the selected elements in the first element
+            first->elements->RemoveAt(0, 1);
+            for (int i = selection->selection.size() - 1; i >= 0; --i)
+            {
+                ElementSelection& el_s = selection->selection[i];
+                for (int j = el_s.size - 1; j >= 0; --j)
+                    first->elements->Move(document->GetElement(GetChild(el_s.element->id, el_s.start + j)), 0);
             }
         }
+        else
+        {
+            if (el2 && dynamic_cast<String*>(el2.get()) && str2 && str2->elements->Count() == 0)
+            {
+                //move the second element in the last element
+                last->elements->RemoveAt(0, 1);
+                last->elements->Move(document->GetElement(el2->id), 0);
+            }
+            if (el1 && dynamic_cast<String*>(el1.get()))
+            {
+                String* str = dynamic_cast<String*>(el1.get());
+                if (str->elements->Count() > 0)
+                {
+                    //move the first element in the upper element
+                    first->elements->RemoveAt(0, 1);
+                    first->elements->Move(document->GetElement(el1->id), 0);
+                }
+            }
+        }
+
+        selection->Clear();
 
         UpdateFormat(GetFormulaFormat()->string_format);
 

@@ -1066,4 +1066,66 @@ TEST_F(FormulaTest, division12)
         document.ToHtml();
 }
 
+//Insert division after selection
+TEST_F(FormulaTest, division13)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.InsertString("123", true);
+    document.InsertPlus(true);
+    document.InsertString("45", true);
+    document.InsertPlus(true);
+    document.InsertString("7", true);
+    document.MoveCaretHome(false);
+    document.MoveCaretRight(false);
+    for (int i = 0; i < 2; ++i)
+        document.WaitTask(document.MoveCaretRight(true));
+    document.WaitTask(document.InsertDivision(true));
+    ASSERT_TRUE(document.ToText() == U"1(23)/()+45+7") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 1, 2, 0, 0})) << document.GetEditorState().ToString();
+}
+
+//Insert division after selection
+TEST_F(FormulaTest, division14)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.InsertString("123", true);
+    document.InsertPlus(true);
+    document.InsertString("45", true);
+    document.InsertPlus(true);
+    document.InsertString("7", true);
+    document.MoveCaretHome(false);
+    document.MoveCaretRight(false);
+    for (int i = 0; i < 4; ++i)
+        document.WaitTask(document.MoveCaretRight(true));
+    document.WaitTask(document.InsertDivision(true));
+    ASSERT_TRUE(document.ToText() == U"1(23+4)/()5+7") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 1, 2, 0, 0})) << document.GetEditorState().ToString();
+}
+
+//Insert division after selection
+TEST_F(FormulaTest, division15)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.InsertString("123", true);
+    document.InsertPower(true);
+    document.InsertString("2", true);
+    document.MoveCaretRight(false);
+    document.InsertPlus(true);
+    document.InsertString("45", true);
+    document.InsertPlus(true);
+    document.InsertString("7", true);
+    document.MoveCaretHome(false);
+    for (int i = 0; i < 3; ++i)
+        document.WaitTask(document.MoveCaretRight(true));
+    document.WaitTask(document.InsertDivision(true));
+    ASSERT_TRUE(document.ToText() == U"(pow(123,2)+4)/()5+7") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 2, 0, 0})) << document.GetEditorState().ToString();
+}
+
 }

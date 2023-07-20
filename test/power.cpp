@@ -117,9 +117,7 @@ TEST_F(FormulaTest, power2)
 
     document.InsertCode(false, true);
     document.InsertString("123", true);
-    document.InsertPower(true);
-    document.WaitMainLoop();
-    std::this_thread::sleep_for(100ms);
+    document.WaitTask(document.InsertPower(true));
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -572,6 +570,95 @@ TEST_F(FormulaTest, power7)
         "</body>") << 
         document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 2, 0, 4})) << document.GetEditorState().ToString();
+}
+
+//Insert power after selection
+TEST_F(FormulaTest, power8)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.InsertString("123", true);
+    document.InsertPlus(true);
+    document.InsertString("45", true);
+    document.InsertPlus(true);
+    document.InsertString("7", true);
+    document.MoveCaretHome(false);
+    for (int i = 0; i < 3; ++i)
+        document.WaitTask(document.MoveCaretRight(true));
+    document.WaitTask(document.InsertPower(true));
+    ASSERT_TRUE(document.ToText() == U"pow(123,)+45+7") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 2, 0, 0})) << document.GetEditorState().ToString();
+}
+
+//Insert power after selection
+TEST_F(FormulaTest, power9)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.InsertString("123", true);
+    document.InsertPlus(true);
+    document.InsertString("45", true);
+    document.InsertPlus(true);
+    document.InsertString("7", true);
+    document.MoveCaretHome(false);
+    for (int i = 0; i < 4; ++i)
+        document.WaitTask(document.MoveCaretRight(true));
+    document.WaitTask(document.InsertPower(true));
+    ASSERT_TRUE(document.ToText() == U"pow(123+,)45+7") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 2, 0, 0})) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    ASSERT_TRUE(document.ToText() == U"123+45+7") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 2, 0}, 
+        ElementSelectionState{{0, 0, 0, 0, 0, 0}, 0, 2})) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.MoveCaretRight(true));
+    document.WaitTask(document.InsertPower(true));
+    ASSERT_TRUE(document.ToText() == U"pow(123+4,)5+7") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 2, 0, 0})) << document.GetEditorState().ToString();
+}
+
+//Insert power after selection
+TEST_F(FormulaTest, power10)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.InsertString("123", true);
+    document.InsertPlus(true);
+    document.InsertString("45", true);
+    document.InsertPlus(true);
+    document.InsertString("7", true);
+    document.MoveCaretHome(false);
+    document.MoveCaretRight(false);
+    for (int i = 0; i < 2; ++i)
+        document.WaitTask(document.MoveCaretRight(true));
+    document.WaitTask(document.InsertPower(true));
+    ASSERT_TRUE(document.ToText() == U"1pow(23,)+45+7") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 1, 2, 0, 0})) << document.GetEditorState().ToString();
+}
+
+//Insert power after selection
+TEST_F(FormulaTest, power11)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.InsertString("123", true);
+    document.InsertPlus(true);
+    document.InsertString("45", true);
+    document.InsertPlus(true);
+    document.InsertString("7", true);
+    document.MoveCaretHome(false);
+    document.MoveCaretRight(false);
+    for (int i = 0; i < 4; ++i)
+        document.WaitTask(document.MoveCaretRight(true));
+    document.WaitTask(document.InsertPower(true));
+    ASSERT_TRUE(document.ToText() == U"1pow(23+4,)5+7") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 1, 2, 0, 0})) << document.GetEditorState().ToString();
 }
 
 }
