@@ -331,15 +331,10 @@ bool DeleteElementsTask::Execute()
             }
             else
             {
-                if (start == 0)
-                {
-                    if (size == p->elements->Count())
-                        document->StoreUndo(p_id, start, size, 1);
-                    else
-                        document->StoreUndo(p_id, start, size, UndoTask::UndoOperation::INSERT);
-                }
+                if (start == 0 && size == p->elements->Count())
+                    document->StoreUndo(p_id, start, size, 1);
                 else
-                    document->StoreUndo(p_id, start, size, UndoTask::UndoOperation::INSERT);
+                    document->StoreUndo(p_id, start, size, UndoTask::UndoOperation::CHANGE);
             }
         }
         for (int i = selection_state.state.size() - 1; i >= 0; --i)

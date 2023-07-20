@@ -837,6 +837,54 @@ TEST_F(FormulaTest, delete11)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 1})) << document.GetEditorState().ToString();
 }
 
+TEST_F(FormulaTest, delete12)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.InsertString("123", true);
+    document.InsertPlus(true);
+    document.InsertString("45", true);
+    document.MoveCaretHome(false);
+    for (int i = 0; i < 4; ++i)
+        document.WaitTask(document.MoveCaretRight(true));
+    document.WaitTask(document.DeleteElements(true, true));
+    ASSERT_TRUE(document.ToText() == U"45") << ToBasicString(document.ToText());
+
+    document.Undo();
+    document.WaitUndo();
+    ASSERT_TRUE(document.ToText() == U"123+45") << ToBasicString(document.ToText());
+
+    document.Redo();
+    document.WaitRedo();
+    ASSERT_TRUE(document.ToText() == U"45") << ToBasicString(document.ToText());
+}
+
+TEST_F(FormulaTest, delete13)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.InsertString("123", true);
+    document.InsertPlus(true);
+    document.InsertString("45", true);
+    document.MoveCaretHome(false);
+    for (int i = 0; i < 3; ++i)
+        document.MoveCaretRight(false);
+    for (int i = 0; i < 3; ++i)
+        document.WaitTask(document.MoveCaretRight(true));
+    document.WaitTask(document.DeleteElements(true, true));
+    ASSERT_TRUE(document.ToText() == U"123") << ToBasicString(document.ToText());
+
+    document.Undo();
+    document.WaitUndo();
+    ASSERT_TRUE(document.ToText() == U"123+45") << ToBasicString(document.ToText());
+
+    document.Redo();
+    document.WaitRedo();
+    ASSERT_TRUE(document.ToText() == U"123") << ToBasicString(document.ToText());
+}
+
 TEST_F(FormulaTestCustom, insert1)
 {
     Start(450);
