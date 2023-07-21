@@ -56,42 +56,42 @@ struct SolverTask
 
 struct AutoSolverTask : SolverTask
 {
-    AutoSolverTask(ElementId _id, std::string& _guid, uint _code_id, ExpressionType _expression_type, Config::AutoResult _config, 
+    AutoSolverTask(ElementId _id, std::string& _guid, uint _code_id, ExpressionType _expression_type, Config::AutoResultConfig _config, 
         const std::u32string& _expression, const uint _delay);
 
     virtual bool Execute(WebSocketPtr socket, Result& result);
 
-    Config::AutoResult config;
+    Config::AutoResultConfig config;
 };
 
 struct RealSolverTask : SolverTask
 {
-    RealSolverTask(ElementId _id, std::string& _guid, uint _code_id, ExpressionType _expression_type, Config::RealResult _config, 
+    RealSolverTask(ElementId _id, std::string& _guid, uint _code_id, ExpressionType _expression_type, Config::RealResultConfig _config, 
         const std::u32string& _expression, const uint _delay);
 
     virtual bool Execute(WebSocketPtr socket, Result& result);
 
-    Config::RealResult config;
+    Config::RealResultConfig config;
 };
 
 struct IntegerSolverTask : SolverTask
 {
-    IntegerSolverTask(ElementId _id, std::string& _guid, uint _code_id, ExpressionType _expression_type, Config::IntegerResult _config, 
+    IntegerSolverTask(ElementId _id, std::string& _guid, uint _code_id, ExpressionType _expression_type, Config::IntegerResultConfig _config, 
         const std::u32string& _expression, const uint _delay);
 
     virtual bool Execute(WebSocketPtr socket, Result& result);
 
-    Config::IntegerResult config;
+    Config::IntegerResultConfig config;
 };
 
 struct RationalSolverTask : SolverTask
 {
-    RationalSolverTask(ElementId _id, std::string& _guid, uint _code_id, ExpressionType _expression_type, Config::RationalResult _config, 
+    RationalSolverTask(ElementId _id, std::string& _guid, uint _code_id, ExpressionType _expression_type, Config::RationalResultConfig _config, 
         const std::u32string& _expression, const uint _delay);
 
     virtual bool Execute(WebSocketPtr socket, Result& result);
 
-    Config::RationalResult config;
+    Config::RationalResultConfig config;
 };
 
 struct RemoveIdentifierSolverTask : SolverTask

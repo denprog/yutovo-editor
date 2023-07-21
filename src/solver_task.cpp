@@ -258,7 +258,7 @@ bool SolverTask::FillRationalResult(rapidjson::Document& doc, Result& result)
 
 //AutoSolverTask
 
-AutoSolverTask::AutoSolverTask(ElementId _id, std::string& _guid, uint _code_id, ExpressionType _expression_type, Config::AutoResult _config, 
+AutoSolverTask::AutoSolverTask(ElementId _id, std::string& _guid, uint _code_id, ExpressionType _expression_type, Config::AutoResultConfig _config, 
     const std::u32string& _expression, const uint _delay) :
     SolverTask(_id, _guid, _code_id, _expression_type, _expression, _delay),
     config(_config)
@@ -342,7 +342,7 @@ bool AutoSolverTask::Execute(WebSocketPtr socket, Result& result)
 
 //RealSolverTask
 
-RealSolverTask::RealSolverTask(ElementId _id, std::string& _guid, uint _code_id, ExpressionType _expression_type, Config::RealResult _config, 
+RealSolverTask::RealSolverTask(ElementId _id, std::string& _guid, uint _code_id, ExpressionType _expression_type, Config::RealResultConfig _config, 
     const std::u32string& _expression, const uint _delay) :
     SolverTask(_id, _guid, _code_id, _expression_type, _expression, _delay),
     config(_config)
@@ -403,7 +403,7 @@ bool RealSolverTask::Execute(WebSocketPtr socket, Result& result)
 //IntegerSolverTask
 
 IntegerSolverTask::IntegerSolverTask(ElementId _id, std::string& _guid, uint _code_id, ExpressionType _expression_type, 
-    Config::IntegerResult _config, const std::u32string& _expression, const uint _delay) :
+    Config::IntegerResultConfig _config, const std::u32string& _expression, const uint _delay) :
     SolverTask(_id, _guid, _code_id, _expression_type, _expression, _delay),
     config(_config)
 {
@@ -458,7 +458,7 @@ bool IntegerSolverTask::Execute(WebSocketPtr socket, Result& result)
 
 //RationalSolverTask
 
-RationalSolverTask::RationalSolverTask(ElementId _id, std::string& _guid, uint _code_id, ExpressionType _expression_type, Config::RationalResult _config, 
+RationalSolverTask::RationalSolverTask(ElementId _id, std::string& _guid, uint _code_id, ExpressionType _expression_type, Config::RationalResultConfig _config, 
     const std::u32string& _expression, const uint _delay) :
     SolverTask(_id, _guid, _code_id, _expression_type, _expression, _delay),
     config(_config)

@@ -33,7 +33,7 @@ Solver::~Solver()
     message_loop.join();
 }
 
-void Solver::Solve(const ElementId id, const uint code_id, Config::AutoResult& config, const std::u32string& expression, const uint delay)
+void Solver::Solve(const ElementId id, const uint code_id, Config::AutoResultConfig& config, const std::u32string& expression, const uint delay)
 {
     EraseSolveTasks(id);
 
@@ -43,7 +43,7 @@ void Solver::Solve(const ElementId id, const uint code_id, Config::AutoResult& c
     next_circle = true;
 }
 
-void Solver::Solve(const ElementId id, const uint code_id, Config::RealResult& config, const std::u32string& expression, const uint delay)
+void Solver::Solve(const ElementId id, const uint code_id, Config::RealResultConfig& config, const std::u32string& expression, const uint delay)
 {
     EraseSolveTasks(id);
 
@@ -53,7 +53,7 @@ void Solver::Solve(const ElementId id, const uint code_id, Config::RealResult& c
     next_circle = true;
 }
 
-void Solver::Solve(const ElementId id, const uint code_id, Config::IntegerResult& config, const std::u32string& expression, const uint delay)
+void Solver::Solve(const ElementId id, const uint code_id, Config::IntegerResultConfig& config, const std::u32string& expression, const uint delay)
 {
     EraseSolveTasks(id);
 
@@ -63,7 +63,7 @@ void Solver::Solve(const ElementId id, const uint code_id, Config::IntegerResult
     next_circle = true;
 }
 
-void Solver::Solve(const ElementId id, const uint code_id, Config::RationalResult& config, const std::u32string& expression, const uint delay)
+void Solver::Solve(const ElementId id, const uint code_id, Config::RationalResultConfig& config, const std::u32string& expression, const uint delay)
 {
     EraseSolveTasks(id);
 
@@ -73,7 +73,7 @@ void Solver::Solve(const ElementId id, const uint code_id, Config::RationalResul
     next_circle = true;
 }
 
-void Solver::Solve(const ElementId id, const uint code_id, Config::ComplexResult& config, const std::u32string& expression, const uint delay)
+void Solver::Solve(const ElementId id, const uint code_id, Config::ComplexResultConfig& config, const std::u32string& expression, const uint delay)
 {
     EraseSolveTasks(id);
 }
@@ -92,7 +92,7 @@ void Solver::SetUserIdentifier(ElementId id, uint code_id, const std::u32string&
     }
 
     std::unique_lock<std::mutex> lock(tasks_mutex);
-    tasks.emplace_back(new AutoSolverTask(id, guid, code_id, ExpressionType::USER_SYMBOL, Config::AutoResult{}, expression, delay));
+    tasks.emplace_back(new AutoSolverTask(id, guid, code_id, ExpressionType::USER_SYMBOL, Config::AutoResultConfig{}, expression, delay));
     tasks.emplace_back(nullptr);
     next_circle = true;
 }

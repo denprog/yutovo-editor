@@ -35,9 +35,9 @@ struct Config
 
     //calculator
 
-    struct RealResult
+    struct RealResultConfig
     {
-        bool operator==(const RealResult& other) const
+        bool operator==(const RealResultConfig& other) const
         {
             return precision == other.precision && exp == other.exp && default_angle_measure == other.default_angle_measure &&
                 result_angle_measure == other.result_angle_measure && show_angle_measure == other.show_angle_measure;
@@ -61,11 +61,11 @@ struct Config
         yutovo_calculator::Unit unit;
     };
 
-    RealResult real_result;
+    RealResultConfig real_result;
 
-    struct IntegerResult
+    struct IntegerResultConfig
     {
-        bool operator==(const IntegerResult& other) const
+        bool operator==(const IntegerResultConfig& other) const
         {
             return result_notation == other.result_notation && show_notation == other.show_notation;
         }
@@ -81,11 +81,11 @@ struct Config
         bool show_notation = true;
     };
 
-    IntegerResult integer_result;
+    IntegerResultConfig integer_result;
 
-    struct RationalResult
+    struct RationalResultConfig
     {
-        bool operator==(const RationalResult& other) const
+        bool operator==(const RationalResultConfig& other) const
         {
             return fraction_form == other.fraction_form;
         }
@@ -100,11 +100,11 @@ struct Config
         yutovo_calculator::Unit unit;
     };
 
-    RationalResult rational_result;
+    RationalResultConfig rational_result;
 
-    struct ComplexResult
+    struct ComplexResultConfig
     {
-        bool operator==(const ComplexResult& other) const
+        bool operator==(const ComplexResultConfig& other) const
         {
             return precision == other.precision && exp == other.exp && default_angle_measure == other.default_angle_measure && 
                 result_angle_measure == other.result_angle_measure && show_angle_measure == other.show_angle_measure && 
@@ -132,11 +132,11 @@ struct Config
         uint max_count = 10;
     };
 
-    ComplexResult complex_result;
+    ComplexResultConfig complex_result;
 
-    struct AutoResult
+    struct AutoResultConfig
     {
-        bool operator==(const AutoResult& other) const
+        bool operator==(const AutoResultConfig& other) const
         {
             return result_auto_advance == other.result_auto_advance && 
                 std::equal(std::begin(results_order), std::end(results_order), std::begin(other.results_order)) && 
@@ -158,13 +158,13 @@ struct Config
         bool result_auto_advance = true;
         yutovo_service::ResultType results_order[4] = {ResultType::REAL, ResultType::INTEGER, ResultType::RATIONAL, ResultType::COMPLEX};
 
-        RealResult real_result;
-        IntegerResult integer_result;
-        RationalResult rational_result;
-        ComplexResult complex_result;
+        RealResultConfig real_result;
+        IntegerResultConfig integer_result;
+        RationalResultConfig rational_result;
+        ComplexResultConfig complex_result;
     };
 
-    AutoResult auto_result;
+    AutoResultConfig auto_result;
 };
 
 }

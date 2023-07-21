@@ -18,11 +18,11 @@ public:
     Solver(Document* _document);
     ~Solver();
 
-    void Solve(const ElementId id, const uint code_id, Config::AutoResult& config, const std::u32string& expression, const uint delay);
-    void Solve(const ElementId id, const uint code_id, Config::RealResult& config, const std::u32string& expression, const uint delay);
-    void Solve(const ElementId id, const uint code_id, Config::IntegerResult& config, const std::u32string& expression, const uint delay);
-    void Solve(const ElementId id, const uint code_id, Config::RationalResult& config, const std::u32string& expression, const uint delay);
-    void Solve(const ElementId id, const uint code_id, Config::ComplexResult& config, const std::u32string& expression, const uint delay);
+    void Solve(const ElementId id, const uint code_id, Config::AutoResultConfig& config, const std::u32string& expression, const uint delay);
+    void Solve(const ElementId id, const uint code_id, Config::RealResultConfig& config, const std::u32string& expression, const uint delay);
+    void Solve(const ElementId id, const uint code_id, Config::IntegerResultConfig& config, const std::u32string& expression, const uint delay);
+    void Solve(const ElementId id, const uint code_id, Config::RationalResultConfig& config, const std::u32string& expression, const uint delay);
+    void Solve(const ElementId id, const uint code_id, Config::ComplexResultConfig& config, const std::u32string& expression, const uint delay);
 
     void SetUserIdentifier(ElementId id, uint code_id, const std::u32string& expression, const uint delay);
     void RemoveIdentifier(ElementId id, uint code_id, const std::u32string& identifier, const uint delay);

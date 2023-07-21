@@ -1016,6 +1016,27 @@ TEST_F(SolverAutoTest, solver20)
         ) << ToBasicString(document.ToText());
 }
 
+//Save and load with changing a result parameter
+TEST_F(SolverAutoTest, solver21)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.InsertString("234.12345678", true);
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitTask(document.SetPrecision({0, 0, 0, 0, 0, 0, 0, 2, 0, 0}, 7, true));
+    document.WaitSolver();
+    document.Save("solver21_1.yut");
+
+    document.WaitTask(document.New());
+    ASSERT_TRUE(document.ToText() == U"") << ToBasicString(document.ToText());
+
+    document.WaitTask(document.Load("solver21_1.yut"));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == U"234.12345678=234.1234568") << ToBasicString(document.ToText());
+}
+
 //Solve with errors
 TEST_F(SolverAutoTest, errors1)
 {

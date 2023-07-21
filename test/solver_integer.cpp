@@ -388,4 +388,24 @@ TEST_F(SolverIntegerTest, solver6)
         ) << ToBasicString(document.ToText());
 }
 
+//Save and load
+TEST_F(SolverIntegerTest, solver7)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.InsertString("234", true);
+    document.WaitTask(document.InsertEquation(ResultType::INTEGER, true));
+    document.WaitSolver();
+    document.Save("solver6_1.yut");
+
+    document.WaitTask(document.New());
+    ASSERT_TRUE(document.ToText() == U"") << ToBasicString(document.ToText());
+
+    document.WaitTask(document.Load("solver6_1.yut"));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == U"234=234(dec)") << ToBasicString(document.ToText());
+}
+
 }

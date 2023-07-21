@@ -996,7 +996,7 @@ bool SaveTask::Execute()
     catch (boost::archive::archive_exception& ex)
     {
         window->OnSaveResult(id, ToIOResult(ex.code));
-        logger->Error("Error saving document '{}': {}", filename, ex.code);
+        logger->Error("Error saving document '{}': {}, {}", filename, ex.code, ex.what());
         return false;
     }
     catch (const std::ifstream::failure& ex)

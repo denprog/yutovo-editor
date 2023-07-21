@@ -34,10 +34,11 @@ public:
 
     virtual bool Depends(const std::string& identifier);
 
-    void SetResult(Config::AutoResult config);
-    void SetResult(Config::RealResult config);
-    void SetResult(Config::IntegerResult config);
-    void SetResult(Config::RationalResult config);
+    void SetResult(Config::AutoResultConfig config);
+    void SetResult(Config::RealResultConfig config);
+    void SetResult(Config::IntegerResultConfig config);
+    void SetResult(Config::RationalResultConfig config);
+    void SetResult(Config::ComplexResultConfig config);
 
     bool SetResult(ResultType _result_type, bool with_undo);
     bool SetConfig(int precision, int exp, AngleMeasure result_angle_measure, bool with_undo);
@@ -63,6 +64,10 @@ public:
         elements->Replace(ElementPtr(first), 0);
         ar >> last;
         elements->Replace(ElementPtr(last), 2);
+
+        auto* r = last->elements->Get(0).get();
+        result.reset((ResultRow*)r->Clone());
+        last->elements->Replace(result, 0);
     }
 
 	BOOST_SERIALIZATION_SPLIT_MEMBER()

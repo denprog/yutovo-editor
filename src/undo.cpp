@@ -362,13 +362,15 @@ bool UndoEquation::operator==(const UndoEquation& el) const
     switch (result_type)
     {
     case ResultType::AUTO:
-        return std::any_cast<Config::AutoResult>(config) == std::any_cast<Config::AutoResult>(el.config);
+        return std::any_cast<Config::AutoResultConfig>(config) == std::any_cast<Config::AutoResultConfig>(el.config);
     case ResultType::REAL:
-        return std::any_cast<Config::RealResult>(config) == std::any_cast<Config::RealResult>(el.config);
+        return std::any_cast<Config::RealResultConfig>(config) == std::any_cast<Config::RealResultConfig>(el.config);
     case ResultType::INTEGER:
-        return std::any_cast<Config::IntegerResult>(config) == std::any_cast<Config::IntegerResult>(el.config);
+        return std::any_cast<Config::IntegerResultConfig>(config) == std::any_cast<Config::IntegerResultConfig>(el.config);
     case ResultType::RATIONAL:
-        return std::any_cast<Config::RationalResult>(config) == std::any_cast<Config::RationalResult>(el.config);
+        return std::any_cast<Config::RationalResultConfig>(config) == std::any_cast<Config::RationalResultConfig>(el.config);
+    case ResultType::COMPLEX:
+        return std::any_cast<Config::ComplexResultConfig>(config) == std::any_cast<Config::ComplexResultConfig>(el.config);
     default:
         assert(false);
     }
@@ -389,16 +391,19 @@ Element* UndoEquation::Restore(Document* document, Element* parent)
     switch (result_type)
     {
     case ResultType::AUTO:
-        el->SetResult(std::any_cast<Config::AutoResult>(config));
+        el->SetResult(std::any_cast<Config::AutoResultConfig>(config));
         break;
     case ResultType::REAL:
-        el->SetResult(std::any_cast<Config::RealResult>(config));
+        el->SetResult(std::any_cast<Config::RealResultConfig>(config));
         break;
     case ResultType::INTEGER:
-        el->SetResult(std::any_cast<Config::IntegerResult>(config));
+        el->SetResult(std::any_cast<Config::IntegerResultConfig>(config));
         break;
     case ResultType::RATIONAL:
-        el->SetResult(std::any_cast<Config::RationalResult>(config));
+        el->SetResult(std::any_cast<Config::RationalResultConfig>(config));
+        break;
+    case ResultType::COMPLEX:
+        el->SetResult(std::any_cast<Config::ComplexResultConfig>(config));
         break;
     default:
         assert(false);
