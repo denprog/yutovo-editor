@@ -391,6 +391,30 @@ TEST_F(SolverRationalTest, rational7)
         ) << ToBasicString(document.ToText());
 }
 
+//Save and load
+TEST_F(SolverRationalTest, rational8)
+{
+    Start(600);
+
+    document.InsertDivision(true);
+    document.InsertString("234", true);
+    document.MoveCaretDown(false);
+    document.WaitTask(document.MoveCaretDown(false));
+    document.InsertString("5", true);
+    document.MoveCaretRight(false);
+    document.WaitTask(document.InsertEquation(ResultType::RATIONAL, true));
+    document.WaitSolver();
+    document.Save("solver5_1.yut");
+
+    document.WaitTask(document.New());
+    ASSERT_TRUE(document.ToText() == U"") << ToBasicString(document.ToText());
+
+    document.WaitTask(document.Load("solver5_1.yut"));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == U"(234)/(5)=46(4)/(5)") << ToBasicString(document.ToText());
+}
+
 TEST_F(SolverRationalTest, units1)
 {
     Start(600);

@@ -295,6 +295,54 @@ TEST_F(SolverRealTest, solver8)
         ) << ToBasicString(document.ToText());
 }
 
+//Save and load
+TEST_F(SolverRealTest, solver9)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.InsertString("234.45", true);
+    document.WaitTask(document.InsertEquation(ResultType::REAL, true));
+    document.WaitSolver();
+    document.Save("solver4_1.yut");
+
+    document.WaitTask(document.New());
+    ASSERT_TRUE(document.ToText() == U"") << ToBasicString(document.ToText());
+
+    document.WaitTask(document.Load("solver4_1.yut"));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == U"234.45=234.45") << ToBasicString(document.ToText());
+}
+
+//Save and load with changing a result parameter
+TEST_F(SolverRealTest, solver10)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.InsertString("234.12345678", true);
+    document.WaitTask(document.InsertEquation(ResultType::REAL, true));
+    document.WaitTask(document.SetPrecision({0, 0, 0, 0, 0, 0, 0, 2, 0, 0}, 7, true));
+    document.WaitSolver();
+    document.Save("solver10_1.yut");
+
+    document.WaitTask(document.New());
+    ASSERT_TRUE(document.ToText() == U"") << ToBasicString(document.ToText());
+
+    document.WaitTask(document.Load("solver10_1.yut"));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == U"234.12345678=234.1234568") << ToBasicString(document.ToText());
+
+    document.MoveCaretRight(false);
+    document.WaitTask(document.MoveCaretRight(false));
+    document.WaitTask(document.InsertString("1", true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == U"1234.12345678=1234.1234568") << ToBasicString(document.ToText());
+}
+
 //Changing unit of result
 TEST_F(SolverRealTest, units1)
 {

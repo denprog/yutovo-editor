@@ -164,32 +164,36 @@ bool Equation::Depends(const std::string& identifier)
     return false;
 }
 
-void Equation::SetResult(Config::AutoResult config)
+void Equation::SetResult(Config::AutoResultConfig config)
 {
     result.reset(new AutoResult(last, config));
     last->elements->Clear();
     last->elements->Add(result);
 }
 
-void Equation::SetResult(Config::RealResult config)
+void Equation::SetResult(Config::RealResultConfig config)
 {
     result.reset(new RealResult(last, config));
     last->elements->Clear();
     last->elements->Add(result);
 }
 
-void Equation::SetResult(Config::IntegerResult config)
+void Equation::SetResult(Config::IntegerResultConfig config)
 {
     result.reset(new IntegerResult(last, config));
     last->elements->Clear();
     last->elements->Add(result);
 }
 
-void Equation::SetResult(Config::RationalResult config)
+void Equation::SetResult(Config::RationalResultConfig config)
 {
     result.reset(new RationalResult(last, config));
     last->elements->Clear();
     last->elements->Add(result);
+}
+
+void Equation::SetResult(Config::ComplexResultConfig config)
+{
 }
 
 bool Equation::SetResult(ResultType _result_type, bool with_undo)

@@ -179,7 +179,7 @@ RealResult::RealResult(Element* parent) :
         config = parent->document->config.real_result;
 }
 
-RealResult::RealResult(Element* parent, Config::RealResult _config) :
+RealResult::RealResult(Element* parent, Config::RealResultConfig _config) :
     ResultRow(parent), 
     config(_config)
 {
@@ -314,11 +314,16 @@ IntegerResult::IntegerResult(Element* parent) :
         config = parent->document->config.integer_result;
 }
 
-IntegerResult::IntegerResult(Element* parent, Config::IntegerResult _config) :
+IntegerResult::IntegerResult(Element* parent, Config::IntegerResultConfig _config) :
     ResultRow(parent)
 {
     type = ElementType::INTEGER_RESULT;
     config = _config;
+}
+
+Element* IntegerResult::Clone()
+{
+    return new IntegerResult(*this);
 }
 
 void IntegerResult::Solve(const ParserString& expression)
@@ -407,11 +412,16 @@ RationalResult::RationalResult(Element* parent) :
         config = parent->document->config.rational_result;
 }
 
-RationalResult::RationalResult(Element* parent, Config::RationalResult _config) :
+RationalResult::RationalResult(Element* parent, Config::RationalResultConfig _config) :
     ResultRow(parent)
 {
     type = ElementType::RATIONAL_RESULT;
     config = _config;
+}
+
+Element* RationalResult::Clone()
+{
+    return new RationalResult(*this);
 }
 
 void RationalResult::Solve(const ParserString& expression)
@@ -527,6 +537,18 @@ ComplexResult::ComplexResult(Element* parent) :
     type = ElementType::COMPLEX_RESULT;
 }
 
+ComplexResult::ComplexResult(Element* parent, Config::ComplexResultConfig _config) :
+    ResultRow(parent)
+{
+    type = ElementType::COMPLEX_RESULT;
+    config = _config;
+}
+
+Element* ComplexResult::Clone()
+{
+    return new ComplexResult(*this);
+}
+
 bool ComplexResult::SetConfig(const int precision, const int exp, const AngleMeasure result_angle_measure)
 {
     if (precision != -1 && config.precision != precision)
@@ -584,7 +606,7 @@ AutoResult::AutoResult(Element* parent) :
         config = parent->document->config.auto_result;
 }
 
-AutoResult::AutoResult(Element* parent, Config::AutoResult _config) :
+AutoResult::AutoResult(Element* parent, Config::AutoResultConfig _config) :
     ResultRow(parent),
     config(_config)
 {

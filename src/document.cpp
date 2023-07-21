@@ -1759,27 +1759,27 @@ void Document::SetEditorState(LogicalEditorState& state)
     selection.Set(state.selection_state);
 }
 
-void Document::Solve(ElementId _id, uint code_id, Config::AutoResult& config, std::u32string& expression, const uint delay)
+void Document::Solve(ElementId _id, uint code_id, Config::AutoResultConfig& config, std::u32string& expression, const uint delay)
 {
     solver.Solve(_id, code_id, config, expression + U";", delay);
 }
 
-void Document::Solve(ElementId _id, uint code_id, Config::RealResult& config, const std::u32string& expression, const uint delay)
+void Document::Solve(ElementId _id, uint code_id, Config::RealResultConfig& config, const std::u32string& expression, const uint delay)
 {
     solver.Solve(_id, code_id, config, expression + U";", delay);
 }
 
-void Document::Solve(ElementId _id, uint code_id, Config::IntegerResult& config, const std::u32string& expression, const uint delay)
+void Document::Solve(ElementId _id, uint code_id, Config::IntegerResultConfig& config, const std::u32string& expression, const uint delay)
 {
     solver.Solve(_id, code_id, config, expression + U";", delay);
 }
 
-void Document::Solve(ElementId _id, uint code_id, Config::RationalResult& config, const std::u32string& expression, const uint delay)
+void Document::Solve(ElementId _id, uint code_id, Config::RationalResultConfig& config, const std::u32string& expression, const uint delay)
 {
     solver.Solve(_id, code_id, config, expression + U";", delay);
 }
 
-void Document::Solve(ElementId _id, uint code_id, Config::ComplexResult& config, const std::u32string& expression, const uint delay)
+void Document::Solve(ElementId _id, uint code_id, Config::ComplexResultConfig& config, const std::u32string& expression, const uint delay)
 {
     solver.Solve(_id, code_id, config, expression + U";", delay);
 }

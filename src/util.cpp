@@ -214,6 +214,10 @@ void RegisterTypes()
     boost::serialization::void_cast_register<yutovo::Plus, yutovo::Element>(static_cast<yutovo::Plus*>(NULL), static_cast<yutovo::Element*>(NULL));
     boost::serialization::void_cast_register<yutovo::Power, yutovo::Element>(static_cast<yutovo::Power*>(NULL), static_cast<yutovo::Element*>(NULL));
     boost::serialization::void_cast_register<yutovo::AutoResult, yutovo::Element>(static_cast<yutovo::AutoResult*>(NULL), static_cast<yutovo::Element*>(NULL));
+    boost::serialization::void_cast_register<yutovo::RealResult, yutovo::Element>(static_cast<yutovo::RealResult*>(NULL), static_cast<yutovo::Element*>(NULL));
+    boost::serialization::void_cast_register<yutovo::IntegerResult, yutovo::Element>(static_cast<yutovo::IntegerResult*>(NULL), static_cast<yutovo::Element*>(NULL));
+    boost::serialization::void_cast_register<yutovo::RationalResult, yutovo::Element>(static_cast<yutovo::RationalResult*>(NULL), static_cast<yutovo::Element*>(NULL));
+    boost::serialization::void_cast_register<yutovo::ComplexResult, yutovo::Element>(static_cast<yutovo::ComplexResult*>(NULL), static_cast<yutovo::Element*>(NULL));
     boost::serialization::void_cast_register<yutovo::SquareRoot, yutovo::Element>(static_cast<yutovo::SquareRoot*>(NULL), static_cast<yutovo::Element*>(NULL));
     boost::serialization::void_cast_register<yutovo::OpenFence, yutovo::Element>(static_cast<yutovo::OpenFence*>(NULL), static_cast<yutovo::Element*>(NULL));
     boost::serialization::void_cast_register<yutovo::CloseFence, yutovo::Element>(static_cast<yutovo::CloseFence*>(NULL), static_cast<yutovo::Element*>(NULL));
@@ -243,6 +247,10 @@ void RegisterTypes(UserDataAdapter<DocumentUserData, boost::archive::binary_iarc
     archive.template register_type<yutovo::Plus>();
     archive.template register_type<yutovo::Power>();
     archive.template register_type<yutovo::AutoResult>();
+    archive.template register_type<yutovo::RealResult>();
+    archive.template register_type<yutovo::IntegerResult>();
+    archive.template register_type<yutovo::RationalResult>();
+    archive.template register_type<yutovo::ComplexResult>();
     archive.template register_type<yutovo::SquareRoot>();
     archive.template register_type<yutovo::OpenFence>();
     archive.template register_type<yutovo::CloseFence>();
@@ -272,6 +280,10 @@ void RegisterTypes(boost::archive::binary_iarchive& archive)
     archive.template register_type<yutovo::Plus>();
     archive.template register_type<yutovo::Power>();
     archive.template register_type<yutovo::AutoResult>();
+    archive.template register_type<yutovo::RealResult>();
+    archive.template register_type<yutovo::IntegerResult>();
+    archive.template register_type<yutovo::RationalResult>();
+    archive.template register_type<yutovo::ComplexResult>();
     archive.template register_type<yutovo::SquareRoot>();
     archive.template register_type<yutovo::OpenFence>();
     archive.template register_type<yutovo::CloseFence>();
@@ -301,6 +313,10 @@ void RegisterTypes(boost::archive::binary_oarchive& archive)
     archive.template register_type<yutovo::Plus>();
     archive.template register_type<yutovo::Power>();
     archive.template register_type<yutovo::AutoResult>();
+    archive.template register_type<yutovo::RealResult>();
+    archive.template register_type<yutovo::IntegerResult>();
+    archive.template register_type<yutovo::RationalResult>();
+    archive.template register_type<yutovo::ComplexResult>();
     archive.template register_type<yutovo::SquareRoot>();
     archive.template register_type<yutovo::OpenFence>();
     archive.template register_type<yutovo::CloseFence>();
