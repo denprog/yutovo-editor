@@ -696,6 +696,7 @@ void StringElements::Draw() const
 {
     StringFormatPtr format = ((String*)parent)->format;
     uint start = 0, size = 0;
+    parent->window->DrawText(ToBasicString(str), format, parent->GetAbsoluteRect(), format->color); //draw the string
     if (parent->document->selection.Has(parent->id, start, size))
     {
         //draw text with selection
@@ -704,19 +705,10 @@ void StringElements::Draw() const
         parent->window->DrawFillRect(r1.left, r1.top, r2.left - r1.left, r2.GetBottom() - r1.top, Color::Blue());
 
         Rect r = parent->GetAbsoluteRect();
-        std::u32string u_part = str.substr(0, start);
-        parent->window->DrawText(ToBasicString(u_part), format, r, format->color);
-
         int p = parent->window->GetCharPos(str, format, start);
-        u_part = str.substr(start, size);
+        std::u32string u_part = str.substr(start, size);
         parent->window->DrawText(ToBasicString(u_part), format, Rect{r.left + p, r.top, r.width - p, r.height}, format->selection_color);
-
-        p = parent->window->GetCharPos(str, format, start + size);
-        u_part = str.substr(start + size, str.length() - size);
-        parent->window->DrawText(ToBasicString(u_part), format, Rect{r.left + p, r.top, r.width - p, r.height}, format->color);
     }
-    else
-        parent->window->DrawText(ToBasicString(str), format, parent->GetAbsoluteRect(), format->color); //draw the string
 }
 
 ElementPtr StringElements::Get(uint pos)
