@@ -104,19 +104,33 @@ ElementId SelectionState::GetCommonElement() const
 ElementId SelectionState::GetCommonElement(uint& start, uint& size) const
 {
     ElementId parent_id = GetCommonElement();
-    if (state[0].id == parent_id)
-        start = state[0].start;
-    else
-        start = yutovo::GetChildPos(parent_id, state[0].id);
-    int p;
+    auto& first = state[0];
     auto& last = state[state.size() - 1];
+    if (first.id == parent_id)
+        start = first.start;
+    else
+        start = yutovo::GetChildPos(parent_id, first.id);
+    
     if (last.id == parent_id)
-       size = last.start + last.size;
+    {
+        if (state.size() == 1)
+            size = last.size;
+        else
+            size = last.start + last.size - start;
+    }
     else
     {
-        p = yutovo::GetChildPos(parent_id, last.id);
+        int p = yutovo::GetChildPos(parent_id, last.id);
         size = p - start + 1;
     }
+
+    if (parent_id.size() == 2) //for paragraph take its parent
+    {
+        start = yutovo::GetChildPos(parent_id);
+        size = 1;
+        parent_id = yutovo::GetParent(parent_id);
+    }
+
     return parent_id;
 }
 
