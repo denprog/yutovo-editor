@@ -712,7 +712,13 @@ bool UndoTask::Execute()
         p = document->GetLogicalElement(id);
     else
         p = document->GetLogicalParent(id);
-    if (p->type == ElementType::PARAGRAPH)
+
+    if (p->type == ElementType::TEXT)
+    {
+        for (int i = 0; i < undo_elements.size(); ++i)
+            p->elements->Insert(undo_elements[i], pos + i);
+    }
+    else if (p->type == ElementType::PARAGRAPH)
     {
         if (undo_elements[0]->type == ElementType::PARAGRAPH)
         {
@@ -742,7 +748,6 @@ bool UndoTask::Execute()
             document->GetElements(id, elements);
             for (int j = elements.size() - 1; j >= 0; --j)
                 elements[j]->parent->elements->Remove(elements[j]);
-            // p->elements->Clear();
             for (int i = 0; i < undo_elements.size(); ++i)
                 p->elements->Insert(undo_elements[i], pos + i);
         }
