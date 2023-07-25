@@ -177,7 +177,7 @@ bool Block::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo, E
         new_row->parent->Normalize();
 
     if (with_undo)
-        document->StoreUndo(id, elements->GetElementPos(insert_element->id), 1, UndoTask::UndoOperation::DELETE);
+        document->StoreUndo(id, elements->GetElementPos(insert_element->id), 1, 0, UndoTask::UndoOperation::DELETE);
 
     CaretState after;
     if (document->pasting && insert_element->GetLastCaretState(after, nullptr))

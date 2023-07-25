@@ -320,6 +320,14 @@ bool DeleteElementsTask::Execute()
     }
     else
     {
+        bool merge_paragraphs = false;
+        if (selection_state.state.size() >= 2)
+        {
+            ElementId p_id = selection_state.GetCommonElement();
+            if (p_id.size() == 1)
+                merge_paragraphs = true;
+        }
+
         if (with_undo)
         {
             uint start = 0, size = 0;
@@ -334,9 +342,10 @@ bool DeleteElementsTask::Execute()
                 if (start == 0 && size == p->elements->Count())
                     document->StoreUndo(p_id, start, size, 1);
                 else
-                    document->StoreUndo(p_id, start, size, UndoTask::UndoOperation::CHANGE);
+                    document->StoreUndo(p_id, start, size, merge_paragraphs ? 1 : 0, UndoTask::UndoOperation::CHANGE);
             }
         }
+
         for (int i = selection_state.state.size() - 1; i >= 0; --i)
         {
             ElementSelectionState& s = selection_state.state[i];
@@ -351,6 +360,14 @@ bool DeleteElementsTask::Execute()
             }
             Remake(changed_element, true); //move into view
         }
+
+        if (merge_paragraphs)
+        {
+            auto _el = document->caret->GetElement();
+            if (DeleteElements(document->GetElement(_el->id), changed_element, false))
+                Remake(changed_element, true);
+        }
+
         return true;
     }
 
@@ -678,10 +695,12 @@ UndoTask::UndoTask(ElementPtr _text, int _undo_id, ElementId _id, const int _del
     before_state = document->GetLogicalEditorState();
 }
 
-UndoTask::UndoTask(ElementPtr _text, int _undo_id, ElementId _id, const int _pos, const int _size, UndoOperation _undo_operation, const uint task_id) :
+UndoTask::UndoTask(ElementPtr _text, int _undo_id, ElementId _id, const int _pos, const int _size, const int _delete_size, 
+    UndoOperation _undo_operation, const uint task_id) :
     Task(_text, task_id),
     undo_id(_undo_id),
     id(document->GetLogicalId(_id)),
+    delete_size(_delete_size),
     undo_operation(_undo_operation),
     pos(_pos),
     size(_size)
@@ -715,6 +734,8 @@ bool UndoTask::Execute()
 
     if (p->type == ElementType::TEXT)
     {
+        if (delete_size > 0)
+            p->elements->RemoveAt(pos, delete_size);
         for (int i = 0; i < undo_elements.size(); ++i)
             p->elements->Insert(undo_elements[i], pos + i);
     }

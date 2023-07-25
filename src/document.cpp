@@ -611,7 +611,7 @@ bool Document::StoreUndo(const ElementId& parent_id, const int pos, const int si
     return true;
 }
 
-bool Document::StoreUndo(const ElementId& parent_id, const int pos, const int size, UndoTask::UndoOperation undo_operation)
+bool Document::StoreUndo(const ElementId& parent_id, const int pos, const int size, const int delete_size, UndoTask::UndoOperation undo_operation)
 {
     RestrictUndo();
 
@@ -629,7 +629,7 @@ bool Document::StoreUndo(const ElementId& parent_id, const int pos, const int si
         undo_id = undo_base.Store(p->id, _pos, 1);
         if (undo_id < 0)
             return false;
-        undo_tasks.push_back(TaskPtr(new UndoTask(text, undo_id, p->id, _pos, 1, UndoTask::UndoOperation::CHANGE, cur_task_id)));
+        undo_tasks.push_back(TaskPtr(new UndoTask(text, undo_id, p->id, _pos, 1, 0, UndoTask::UndoOperation::CHANGE, cur_task_id)));
         return true;
     }
     else
@@ -639,7 +639,7 @@ bool Document::StoreUndo(const ElementId& parent_id, const int pos, const int si
     }
     if (undo_id < 0)
         return false;
-    undo_tasks.push_back(TaskPtr(new UndoTask(text, undo_id, parent_id, pos, size, undo_operation, cur_task_id)));
+    undo_tasks.push_back(TaskPtr(new UndoTask(text, undo_id, parent_id, pos, size, delete_size, undo_operation, cur_task_id)));
     return true;
 }
 

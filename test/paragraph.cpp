@@ -1543,4 +1543,104 @@ TEST_F(ParagraphTest, delete2)
         ElementSelectionState{ElementId{0}, 1, 1})) << document.GetEditorState().ToString();
 }
 
+//Delete a selection between paragraphs
+TEST_F(ParagraphTest, delete3)
+{
+    Start(600);
+
+    document.InsertString("ParagraphText.", true);
+    document.InsertParagraph(true);
+    document.WaitTask(document.InsertString("String.", true));
+    document.MoveCaretLeft(false);
+    document.MoveCaretLeft(false);
+    document.WaitTask(document.MoveCaretUp(true));
+    document.WaitTask(document.DeleteElements(false, true));
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">Parag.</span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 4})) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">ParagraphText.</span>"\
+            "</p>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">String.</span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 4}, 
+        ElementSelectionState{ElementId{0, 0, 0, 0}, 4, 10}, 
+        ElementSelectionState{ElementId{0, 1, 0, 0}, 0, 5})) << document.GetEditorState().ToString();
+}
+
+TEST_F(ParagraphTest, delete4)
+{
+    Start(600);
+
+    document.InsertString("Paragraph1.", true);
+    document.InsertParagraph(true);
+    document.InsertString("Paragraph2", true);
+    document.InsertParagraph(true);
+    document.InsertString("ParagraphText.", true);
+    document.InsertParagraph(true);
+    document.InsertString("String.", true);
+    document.InsertParagraph(true);
+    document.WaitTask(document.InsertString("Paragraph5.", true));
+    document.MoveCaretUp(false);
+    document.MoveCaretLeft(false);
+    document.MoveCaretLeft(false);
+    document.WaitTask(document.MoveCaretUp(true));
+    document.WaitTask(document.DeleteElements(false, true));
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">Paragraph1.</span>"\
+            "</p>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">Paragraph2</span>"\
+            "</p>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">Parag.</span>"\
+            "</p>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">Paragraph5.</span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 2, 0, 0, 4})) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">Paragraph1.</span>"\
+            "</p>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">Paragraph2</span>"\
+            "</p>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">ParagraphText.</span>"\
+            "</p>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">String.</span>"\
+            "</p>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">Paragraph5.</span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 2, 0, 0, 4}, 
+        ElementSelectionState{ElementId{0, 2, 0, 0}, 4, 10}, 
+        ElementSelectionState{ElementId{0, 3, 0, 0}, 0, 5})) << document.GetEditorState().ToString();
+}
+
 }
