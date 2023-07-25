@@ -79,7 +79,7 @@ public:
 
     bool StoreUndo(const ElementId& _id);
     bool StoreUndo(const ElementId& parent_id, const int pos, const int size, const int delete_size = 0);
-    bool StoreUndo(const ElementId& parent_id, const int pos, const int size, UndoTask::UndoOperation undo_operation);
+    bool StoreUndo(const ElementId& parent_id, const int pos, const int size, const int delete_size, UndoTask::UndoOperation undo_operation);
     bool RestoreUndo(const int undo_id, std::vector<ElementPtr>& elements);
     void RollbackUndo();
     size_t GetUndoSize();

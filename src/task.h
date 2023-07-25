@@ -152,7 +152,8 @@ struct UndoTask : Task
     };
 
     UndoTask(ElementPtr _text, int _undo_id, ElementId _id, const int _delete_size, const uint task_id);
-    UndoTask(ElementPtr _text, int _undo_id, ElementId _id, const int _pos, const int _size, UndoOperation _undo_operation, const uint task_id);
+    UndoTask(ElementPtr _text, int _undo_id, ElementId _id, const int _pos, const int _size, const int _delete_size, 
+        UndoOperation _undo_operation, const uint task_id);
 
     virtual bool Execute();
 
