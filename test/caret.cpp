@@ -600,4 +600,26 @@ TEST_F(DocumentTest, caret15)
         ElementSelectionState{ElementId{0}, 0, 1})) << document.GetEditorState().ToString();
 }
 
+TEST_F(DocumentTest, caret16)
+{
+    Start(600);
+
+    document.InsertString("12345", true);
+    document.InsertParagraph(true);
+    document.InsertString("Text", true);
+    document.WaitTask(document.MoveCaretHome(true));
+    document.WaitTask(document.MoveCaretLeft(false));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 1, 0, 0, 0})) << document.GetEditorState().ToString();
+}
+
+TEST_F(DocumentTest, caret17)
+{
+    Start(380);
+
+    document.InsertString("The source of the text itself is a little mysterious.", true);
+    document.WaitTask(document.MoveCaretHome(true));
+    document.WaitTask(document.MoveCaretLeft(false));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 0, 0})) << document.GetEditorState().ToString();
+}
+
 }

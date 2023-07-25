@@ -861,7 +861,7 @@ bool MoveCaretTask::Execute()
             ElementSelection& s = document->selection.selection[0];
             if (document->IsParagraph(s.element) || document->IsRow(s.element) || s.element->type == ElementType::TEXT)
             {
-                auto el = s.element->elements->Get(0);
+                auto el = s.element->elements->Get(s.start);
                 if (el)
                 {
                     CaretState c;
