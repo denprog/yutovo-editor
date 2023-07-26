@@ -12,8 +12,7 @@ TEST_F(FormulaTest, nth_root1)
 {
     Start(600);
 
-    document.InsertNthRoot(true);
-    document.WaitMainLoop();
+    document.WaitTask(document.InsertNthRoot(true));
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -61,9 +60,7 @@ TEST_F(FormulaTest, nth_root1)
         document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 0, 0, 0})) << document.GetEditorState().ToString();
 
-    document.InsertString("2", true);
-    document.WaitMainLoop();
-    std::this_thread::sleep_for(100ms);
+    document.WaitTask(document.InsertString("2", true));
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -87,9 +84,7 @@ TEST_F(FormulaTest, nth_root1)
     document.MoveCaretRight(false);
     document.MoveCaretRight(false);
     document.WaitCaretMoving();
-    document.InsertString("3", true);
-    document.WaitMainLoop();
-    std::this_thread::sleep_for(100ms);
+    document.WaitTask(document.InsertString("3", true));
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -125,7 +120,6 @@ TEST_F(FormulaTest, nth_root2)
     document.MoveCaretLeft(false);
     document.WaitCaretMoving();
     document.WaitTask(document.DeleteElements(false, true));
-    std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -141,7 +135,6 @@ TEST_F(FormulaTest, nth_root2)
 
     document.Undo();
     document.WaitUndo();
-    std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -170,7 +163,6 @@ TEST_F(FormulaTest, nth_root2)
         document.MoveCaretRight(false);
     document.WaitCaretMoving();
     document.WaitTask(document.DeleteElements(false, true));
-    std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -247,10 +239,8 @@ TEST_F(FormulaTest, nth_root2)
         document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 1, 1})) << document.GetEditorState().ToString();
 
-    document.MoveCaretEnd(false);
-    document.WaitCaretMoving();
+    document.WaitTask(document.MoveCaretEnd(false));
     document.WaitTask(document.InsertString("7", true));
-    std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -284,15 +274,13 @@ TEST_F(FormulaTest, nth_root3)
     document.InsertPlus(true);
     document.WaitTask(document.InsertString("1.4", true));
     document.MoveCaretRight(false);
-    document.MoveCaretRight(false);
-    document.WaitCaretMoving();
+    document.WaitTask(document.MoveCaretRight(false));
     document.InsertString("2", true);
     document.InsertMultiply(true);
     document.InsertDivision(true);
     document.WaitTask(document.InsertString("5", true));
     document.MoveCaretDown(false);
     document.WaitTask(document.MoveCaretDown(false));
-    std::this_thread::sleep_for(100ms);
     document.WaitTask(document.InsertString("67", true));
     document.WaitTask(document.Save("nth_root3_1.yut"));
 

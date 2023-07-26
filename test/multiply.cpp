@@ -62,12 +62,9 @@ TEST_F(FormulaTest, multiply2)
     Start(600);
 
     document.InsertString("123", true);
-    document.WaitMainLoop();
-    document.MoveCaretLeft(false);
-    document.WaitCaretMoving();
+    document.WaitTask(document.MoveCaretLeft(false));
     document.InsertCode(false, true);
-    document.InsertMultiply(true);
-    document.WaitMainLoop();
+    document.WaitTask(document.InsertMultiply(true));
     document.Save("multiply2_1.yut");
 
     document.WaitTask(document.New());
