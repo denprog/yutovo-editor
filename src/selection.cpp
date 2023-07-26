@@ -200,6 +200,8 @@ void Selection::Set(LogicalSelectionState& state)
         std::vector<ElementPtr> elements;
         document->GetElements(s.id, elements);
         int p = 0;
+        int start = s.start;
+        int size = s.size;
         for (size_t i = 0; i < elements.size(); ++i)
         {
             ElementPtr _el = elements[i];
@@ -220,16 +222,18 @@ void Selection::Set(LogicalSelectionState& state)
                     p += r->elements->Count();
                 }
             }
-            else if (s.start - p <= _el->elements->Count())
+            else
             {
-                if (s.start - p + s.size <= _el->elements->Count())
+                if (start + size <= p + (int)_el->elements->Count())
                 {
-                    Add(_el->id, s.start - p, s.size);
+                    Add(_el->id, start - p, size);
                     break;
                 }
-                else
+                else if (start <= p)
                 {
-                    Add(_el->id, s.start - p, _el->elements->Count() - s.start - p);
+                    Add(_el->id, start - p, _el->elements->Count());
+                    start += _el->elements->Count();
+                    size -= _el->elements->Count();
                 }
             }
             p += _el->elements->Count();
@@ -625,12 +629,43 @@ LogicalSelectionState Selection::GetLogicalState() const
     for (auto& s : selection)
     {
         ElementId _id = s.element->id;
-        if (_id.size() <= 2)
+        if (_id.size() == 1) //paragraphs of text
         {
             LogicalId logical_id = document->GetLogicalId(_id);
             state.state.push_back(ElementLogicalSelectionState{logical_id, s.start, s.size});
         }
-        else
+        else if (_id.size() == 2) //rows of paragraph
+        {
+            auto row = document->GetElement(GetChild(_id, s.start));
+            CaretState c1, c2;
+            row->GetFirstCaretState(c1, nullptr);
+            LogicalId p1 = document->GetLogicalId(c1.id);
+            uint size = 0;
+
+            for (int i = s.start; i < s.start + s.size; ++i)
+            {
+                auto row = document->GetElement(GetChild(_id, i));
+                for (int j = 0; j < row->elements->Count(); ++j)
+                {
+                    auto _el = row->elements->Get(j);
+                    _el->GetLastCaretState(c2, nullptr);
+                    LogicalId p2 = document->GetLogicalId(c2.id);
+                    if (GetParent(p1) == GetParent(p2))
+                    {
+                        size = GetChildPos(p2) - GetChildPos(p1);
+                    }
+                    else
+                    {
+                        state.state.push_back(ElementLogicalSelectionState{yutovo::GetParent(p1), (uint)yutovo::GetChildPos(p1), size});
+                        _el->GetFirstCaretState(c1, nullptr);
+                        p1 = document->GetLogicalId(c1.id);
+                    }
+                }
+            }
+
+            state.state.push_back(ElementLogicalSelectionState{yutovo::GetParent(p1), (uint)yutovo::GetChildPos(p1), size});
+        }
+        else //others
         {
             _id.push_back(s.start);
             LogicalId logical_id = document->GetLogicalId(_id);

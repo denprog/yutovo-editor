@@ -1021,8 +1021,11 @@ void Elements::RemoveAt(const uint pos, const int size)
     int cs_pos = -1;
     if (!parent->id.empty())
     {
-        if (caret->IsInsideElement(elements[pos]->id) || caret->IsOnElement(elements[pos]->id))
-            cs_pos = pos;
+        for (int i = pos; i < pos + size; ++i)
+        {
+            if (caret->IsInsideElement(elements[i]->id) || caret->IsOnElement(elements[i]->id))
+                cs_pos = i;
+        }
     }
 
     for (int i = 0; i < size; ++i) //update selection positions before deleting elements
@@ -1489,7 +1492,7 @@ void Elements::UpdateIds()
                     if (last && last->CanMerge(el))
                         el->logical_id = last->logical_id;
                     else
-                        el->logical_id.push_back(i);
+                        el->logical_id.push_back(yutovo::GetChildPos(last->logical_id) + 1);
                 }
                 else if (i > 0)
                 {
@@ -1497,7 +1500,7 @@ void Elements::UpdateIds()
                     if (prev->CanMerge(el))
                         el->logical_id = prev->logical_id;
                     else
-                        el->logical_id.push_back(i);
+                        el->logical_id.push_back(yutovo::GetChildPos(prev->logical_id) + 1);
                 }
                 else
                 {

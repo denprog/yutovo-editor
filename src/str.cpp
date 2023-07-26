@@ -373,7 +373,10 @@ bool String::ChangeStringFormat(const StringFormatPtr _format, bool with_undo, E
         el->SplitAt(size);
         ((String*)el.get())->format = _format;
         ((String*)el.get())->ResetCache();
-        parent->elements->UpdateIds();
+
+        auto p = document->FindParent(id, ElementType::PARAGRAPH);
+        p->elements->UpdateIds();
+        
         parent->Normalize();
         changed_element = id;
         return true;
