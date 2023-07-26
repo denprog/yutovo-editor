@@ -1643,4 +1643,92 @@ TEST_F(ParagraphTest, delete4)
         ElementSelectionState{ElementId{0, 3, 0, 0}, 0, 5})) << document.GetEditorState().ToString();
 }
 
+//Delete rows
+TEST_F(ParagraphTest, delete5)
+{
+    Start(390);
+
+    document.InsertString("In literary theory, a text is any object that can be read, whether this object is a work of literature", true);
+    document.MoveCaretHome(true);
+    document.WaitTask(document.MoveCaretUp(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 0, 0}, 
+        ElementSelectionState{ElementId{0, 0}, 1, 2})) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.DeleteElements(false, true));
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">In literary theory, a text is any object </span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 41})) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">In literary theory, a text is any object </span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">that can be read, whether this object is </span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">a work of literature</span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 41}, 
+        ElementSelectionState{ElementId{0, 0}, 1, 2})) << document.GetEditorState().ToString();
+}
+
+//Delete rows
+TEST_F(ParagraphTest, delete6)
+{
+    Start(390);
+
+    document.InsertString("In literary theory, a text is any object that can be read, whether this object is a work of literature", true);
+    document.MoveCaretHome(false);
+    document.MoveCaretUp(false);
+    document.WaitTask(document.MoveCaretWordRight(true));
+    document.SetBold(true);
+    document.MoveCaretLeft(false);
+    document.MoveCaretDown(true);
+    document.WaitTask(document.MoveCaretEnd(true));
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">In literary theory, a text is any object </span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\"><strong>that</strong></span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\"> can be read, whether this object is </span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">a work of literature</span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 2, 0, 20}, 
+        ElementSelectionState{ElementId{0, 0}, 1, 2})) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.DeleteElements(false, true));
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">In literary theory, a text is any object </span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 41})) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">In literary theory, a text is any object </span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\"><strong>that</strong></span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\"> can be read, whether this object is </span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">a work of literature</span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 2, 0, 20}, 
+        ElementSelectionState{ElementId{0, 0}, 1, 2})) << document.GetEditorState().ToString();
+}
+
 }
