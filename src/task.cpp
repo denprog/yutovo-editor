@@ -300,10 +300,10 @@ bool DeleteElementsTask::Execute()
 
     CaretState caret_state = before_state.caret_state;
 
-    auto DeleteElements = [&](ElementPtr el, ElementId& changed_element, bool _with_undo)
+    auto DeleteElements = [&](ElementPtr el, bool _left, ElementId& changed_element, bool _with_undo)
     {
         assert(el != nullptr);
-        return el->DeleteElements(left, _with_undo, changed_element);
+        return el->DeleteElements(_left, _with_undo, changed_element);
     };
 
     ElementId changed_element;
@@ -312,7 +312,7 @@ bool DeleteElementsTask::Execute()
         auto el = document->GetParent(caret_state.id);
         if (!el->editable)
             return false;
-        if (DeleteElements(el, changed_element, with_undo))
+        if (DeleteElements(el, left, changed_element, with_undo))
         {
             Remake(changed_element, true); //move into view
             return true;
@@ -325,7 +325,13 @@ bool DeleteElementsTask::Execute()
         {
             ElementId p_id = selection_state.GetCommonElement();
             if (p_id.size() == 1)
-                merge_paragraphs = true;
+            {
+                if (selection_state.state[0].id != ElementId{0} && 
+                    selection_state.state[selection_state.state.size() - 1].id != ElementId{0})
+                {
+                    merge_paragraphs = true;
+                }
+            }
         }
 
         if (with_undo)
@@ -352,7 +358,7 @@ bool DeleteElementsTask::Execute()
             auto el = document->GetElement(s.id);
             if (!el->editable)
                 continue;
-            if (!DeleteElements(el, changed_element, false))
+            if (!DeleteElements(el, left, changed_element, false))
             {
                 if (with_undo && last_undo_size < document->GetUndoSize())
                     document->RollbackUndo();
@@ -364,7 +370,7 @@ bool DeleteElementsTask::Execute()
         if (merge_paragraphs)
         {
             auto _el = document->caret->GetElement();
-            if (DeleteElements(document->GetElement(_el->id), changed_element, false))
+            if (DeleteElements(document->GetElement(_el->id), document->caret->GetPos() == 0 ? true : false, changed_element, false))
                 Remake(changed_element, true);
         }
 
@@ -731,6 +737,8 @@ bool UndoTask::Execute()
         p = document->GetLogicalElement(id);
     else
         p = document->GetLogicalParent(id);
+    
+    ElementId remake_id = p->id;
 
     if (p->type == ElementType::TEXT)
     {
@@ -749,6 +757,7 @@ bool UndoTask::Execute()
                 p->parent->elements->RemoveAt(GetChildPos(id), undo_elements.size());
             for (size_t i = 0; i < undo_elements.size(); ++i)
                 p->parent->elements->Insert(undo_elements[i], GetChildPos(id) + i);
+            remake_id = p->parent->id;
         }
         else
         {
@@ -794,11 +803,11 @@ bool UndoTask::Execute()
         }
     }
 
-    Remake(p->id, true);
+    Remake(remake_id, true);
 
     document->caret->block = false;
     document->SetEditorState(before_state);
-    document->ReSolve(p->id);
+    document->ReSolve(remake_id);
     return true;
 }
 
