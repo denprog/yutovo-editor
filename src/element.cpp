@@ -987,7 +987,10 @@ void Elements::Insert(ElementPtr element, const uint pos)
     }
     //move selection onto the placed element
     if (s)
-        selection->Add(element->parent->id, element->parent->elements->GetElementPos(element->id), 1);
+    {
+        if (!selection->IsSelected(element->parent->id))
+            selection->Add(element->parent->id, element->parent->elements->GetElementPos(element->id), 1);
+    }
     if (!p_s.IsEmpty())
         selection->Add(GetWithParent(p_s.element->id, element->id), p_s.start, p_s.size);
 
