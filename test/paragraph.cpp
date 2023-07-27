@@ -1883,4 +1883,93 @@ TEST_F(ParagraphTest, delete8)
         ElementSelectionState{ElementId{0, 0}, 1, 2})) << document.GetEditorState().ToString();
 }
 
+//Delete rows between paragraphs
+TEST_F(ParagraphTest, delete9)
+{
+    Start(390);
+
+    document.InsertString("Text", true);
+    document.InsertParagraph(true);
+    document.InsertString("String", true);
+    document.MoveCaretToDocumentBegin(false);
+    document.MoveCaretRight(false);
+    document.WaitTask(document.MoveCaretDown(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 1, 0, 0, 1}, 
+        ElementSelectionState{ElementId{0, 0, 0, 0}, 1, 3}, 
+        ElementSelectionState{ElementId{0, 1, 0, 0}, 0, 1})) << document.GetEditorState().ToString();
+    
+    document.WaitTask(document.DeleteElements(false, true));
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">Ttring</span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 1})) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">Text</span>"\
+            "</p>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">String</span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 1, 0, 0, 1}, 
+        ElementSelectionState{ElementId{0, 0, 0, 0}, 1, 3}, 
+        ElementSelectionState{ElementId{0, 1, 0, 0}, 0, 1})) << document.GetEditorState().ToString();
+}
+
+//Delete a selection between paragraphs
+TEST_F(ParagraphTest, delete10)
+{
+    Start(600);
+
+    document.InsertString("ParagraphText.", true);
+    document.InsertParagraph(true);
+    document.WaitTask(document.InsertString("String.", true));
+    document.InsertParagraph(true);
+    document.WaitTask(document.InsertString("Paragraph3.", true));
+    document.MoveCaretUp(false);
+    document.MoveCaretLeft(false);
+    document.MoveCaretLeft(false);
+    document.WaitTask(document.MoveCaretUp(true));
+    document.WaitTask(document.DeleteElements(false, true));
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">Parag.</span>"\
+            "</p>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">Paragraph3.</span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 4})) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">ParagraphText.</span>"\
+            "</p>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">String.</span>"\
+            "</p>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">Paragraph3.</span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 4}, 
+        ElementSelectionState{ElementId{0, 0, 0, 0}, 4, 10}, 
+        ElementSelectionState{ElementId{0, 1, 0, 0}, 0, 5})) << document.GetEditorState().ToString();
+}
+
 }
