@@ -337,6 +337,37 @@ TEST_F(ParagraphTest, resizing3)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 53})) << document.GetEditorState().ToString();
 }
 
+//Resize with selection
+TEST_F(ParagraphTest, resizing4)
+{
+    Start(305);
+
+    int width = 305;
+    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
+        {
+            return Rect{0, 0, width, 400};
+        });
+
+    document.WaitTask(document.InsertString("The source of the text itself is a little mysterious.", true));
+    document.MoveCaretToDocumentBegin(false);
+    document.MoveCaretWordRight(false);
+    document.MoveCaretWordRight(false);
+    document.WaitTask(document.MoveCaretDown(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 0, 13}, 
+        ElementSelectionState{ElementId{0, 0, 0, 0}, 10, 23}, 
+        ElementSelectionState{ElementId{0, 0, 1, 0}, 0, 13})) << document.GetEditorState().ToString();
+
+    width = 260;
+    document.WaitTask(document.Resize(width, 400));
+
+    width = 236;
+    document.WaitTask(document.Resize(width, 400));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 2, 0, 4}, 
+        ElementSelectionState{ElementId{0, 0, 0, 0}, 10, 8}, 
+        ElementSelectionState{ElementId{0, 0}, 1, 1}, 
+        ElementSelectionState{ElementId{0, 0, 2, 0}, 0, 4})) << document.GetEditorState().ToString();
+}
+
 TEST_F(ParagraphTest, paragraph1)
 {
     Start(530);
