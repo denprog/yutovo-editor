@@ -1597,6 +1597,63 @@ TEST_F(DocumentTest, fonts12)
         ElementSelectionState{ElementId{0}, 0, 1})) << document.GetEditorState().ToString();
 }
 
+//Set/unset font attributes
+TEST_F(DocumentTest, fonts13)
+{
+    Start(600);
+
+    document.InsertString("In literary theory, a text is any object that can be read", true);
+    document.MoveCaretHome(false);
+    document.WaitTask(document.MoveCaretWordRight(true));
+    document.WaitTask(document.SetBold(true));
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\"><strong>In</strong></span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\"> literary theory, a text is any object that can be read</span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 2}, 
+        ElementSelectionState{ElementId{0, 0, 0}, 0, 1})) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.SetBold(false));
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">In literary theory, a text is any object that can be read</span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 2}, 
+        ElementSelectionState{ElementId{0, 0, 0, 0}, 0, 2})) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\"><strong>In</strong></span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\"> literary theory, a text is any object that can be read</span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 2}, 
+        ElementSelectionState{ElementId{0, 0, 0}, 0, 1})) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">In literary theory, a text is any object that can be read</span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 2}, 
+        ElementSelectionState{ElementId{0, 0, 0, 0}, 0, 2})) << document.GetEditorState().ToString();
+}
+
 TEST_F(DocumentTest, delete1)
 {
     Start(600);
