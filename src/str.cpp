@@ -738,7 +738,22 @@ void StringElements::Insert(ElementPtr element, const uint pos)
     assert(parent->document->IsString(element));
     assert(str.length() >= pos);
     std::u32string s = dynamic_cast<String*>(element.get())->ToText();
-    str.insert(pos, s);
+
+    uint start, size;
+    if (selection->Has(parent->id, start, size))
+    {
+        selection->Remove(parent->id, start, size);
+        str.insert(pos, s);
+        selection->Add(parent->id, start, size);
+    }
+    else
+        str.insert(pos, s);
+
+    if (selection->Has(element, start, size))
+    {
+        selection->Add(parent->id, Count(), size);
+        selection->Remove(element->id, start, size);
+    }
 
     parent->EmitChanged();
 
