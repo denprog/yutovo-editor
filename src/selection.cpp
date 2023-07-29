@@ -207,19 +207,14 @@ void Selection::Set(LogicalSelectionState& state)
             ElementPtr _el = elements[i];
             if (_el->type == ElementType::PARAGRAPH)
             {
-                for (int j = 0; j < _el->elements->Count(); ++j)
+                std::vector<ElementPtr> _elements;
+                LogicalId _id = s.id;
+                _id.push_back(s.start);
+                document->GetElements(_id, _elements);
+                for (size_t j = 0; j < _elements.size(); ++j)
                 {
-                    auto r = _el->elements->Get(j);
-                    if (s.start - p + s.size <= r->elements->Count())
-                    {
-                        Add(r->id, s.start - p, s.size);
-                        break;
-                    }
-                    else if (s.start - p < r->elements->Count())
-                    {
-                        Add(r->id, s.start - p, r->elements->Count() - p);
-                    }
-                    p += r->elements->Count();
+                    auto _el = _elements[j];
+                    Add(_el->parent->id, GetChildPos(_el->id), 1);
                 }
             }
             else

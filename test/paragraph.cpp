@@ -1972,4 +1972,80 @@ TEST_F(ParagraphTest, delete10)
         ElementSelectionState{ElementId{0, 1, 0, 0}, 0, 5})) << document.GetEditorState().ToString();
 }
 
+//Delete rows with a formula
+TEST_F(ParagraphTest, delete11)
+{
+    Start(390);
+
+    document.InsertString("In literary theory, a text is any object that can be read, whether this object is a work of literature", true);
+    document.MoveCaretUp(false);
+    document.MoveCaretWordRight(false);
+    document.WaitTask(document.MoveCaretWordRight(false));
+    document.WaitTask(document.InsertDivision(true));
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">In literary theory, a text is any object </span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">that can be read, whether this</span>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mfrac>"\
+                            "<mrow>"\
+                                "<mi>Null</mi>"\
+                            "</mrow>"\
+                            "<mrow>"\
+                                "<mi>Null</mi>"\
+                            "</mrow>"\
+                        "</mfrac>"\
+                    "</mrow>"\
+                "</math>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\"> object is a work of literature</span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    
+    document.MoveCaretHome(false);
+    document.MoveCaretRight(false);
+    document.MoveCaretWordLeft(false);
+    document.WaitTask(document.MoveCaretDown(true));
+    document.WaitTask(document.DeleteElements(false, true));
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">In literary theory, a text is any object </span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">that can be read, whether re</span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 0, 26})) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">In literary theory, a text is any object </span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">that can be read, whether this</span>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mfrac>"\
+                            "<mrow>"\
+                                "<mi>Null</mi>"\
+                            "</mrow>"\
+                            "<mrow>"\
+                                "<mi>Null</mi>"\
+                            "</mrow>"\
+                        "</mfrac>"\
+                    "</mrow>"\
+                "</math>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\"> object is a work of literature</span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 2, 0, 29}, 
+        ElementSelectionState{ElementId{0, 0, 1, 0}, 26, 4}, 
+        ElementSelectionState{ElementId{0, 0, 1}, 1, 1}, 
+        ElementSelectionState{ElementId{0, 0, 2, 0}, 0, 29})) << document.GetEditorState().ToString();
+}
+
 }
