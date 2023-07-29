@@ -207,14 +207,17 @@ void Selection::Set(LogicalSelectionState& state)
             ElementPtr _el = elements[i];
             if (_el->type == ElementType::PARAGRAPH)
             {
-                std::vector<ElementPtr> _elements;
-                LogicalId _id = s.id;
-                _id.push_back(s.start);
-                document->GetElements(_id, _elements);
-                for (size_t j = 0; j < _elements.size(); ++j)
+                for (int k = s.start; k < s.start + s.size; ++k)
                 {
-                    auto _el = _elements[j];
-                    Add(_el->parent->id, GetChildPos(_el->id), 1);
+                    std::vector<ElementPtr> _elements;
+                    LogicalId _id = s.id;
+                    _id.push_back(k);
+                    document->GetElements(_id, _elements);
+                    for (size_t j = 0; j < _elements.size(); ++j)
+                    {
+                        auto _el = _elements[j];
+                        Add(_el->parent->id, GetChildPos(_el->id), 1);
+                    }
                 }
             }
             else
@@ -660,12 +663,42 @@ LogicalSelectionState Selection::GetLogicalState() const
 
             state.state.push_back(ElementLogicalSelectionState{yutovo::GetParent(p1), (uint)yutovo::GetChildPos(p1), size});
         }
+        else if (_id.size() == 3) //elements of row
+        {
+            LogicalId _logical_id;
+            for (int j = s.start; j < s.start + s.size; ++j)
+            {
+                auto s_id = _id;
+                s_id.push_back(j);
+                LogicalId logical_id = document->GetLogicalId(s_id);
+                std::vector<ElementPtr> _elements;
+                document->GetElements(logical_id, _elements);
+                if (_elements.size() == 1)
+                    state.state.push_back(ElementLogicalSelectionState{yutovo::GetParent(logical_id), (uint)yutovo::GetChildPos(logical_id), 1});
+                else
+                    state.state.push_back(ElementLogicalSelectionState{logical_id, 0, _elements[0]->elements->Count()});
+            }
+        }
         else //others
         {
             _id.push_back(s.start);
             LogicalId logical_id = document->GetLogicalId(_id);
             state.state.push_back(ElementLogicalSelectionState{yutovo::GetParent(logical_id), (uint)yutovo::GetChildPos(logical_id), s.size});
         }
+    }
+
+    //Normalize
+    for (int i = 1; i < state.state.size();)
+    {
+        auto& s1 = state.state[i - 1];
+        auto& s2 = state.state[i];
+        if (s1.id == s2.id)
+        {
+            s1.size += s2.size;
+            state.state.erase(state.state.begin() + i);
+        }
+        else
+            ++i;
     }
     return state;
 }

@@ -2048,4 +2048,32 @@ TEST_F(ParagraphTest, delete11)
         ElementSelectionState{ElementId{0, 0, 2, 0}, 0, 29})) << document.GetEditorState().ToString();
 }
 
+//Delete rows with a formula
+TEST_F(ParagraphTest, delete12)
+{
+    Start(310);
+
+    document.InsertString("In literary theory, a text is any object that can be read, whether this object is a work of literature", true);
+    document.MoveCaretUp(false);
+    document.WaitTask(document.MoveCaretWordRight(false));
+    document.WaitTask(document.InsertDivision(true));
+    document.MoveCaretLeft(false);
+    document.MoveCaretLeft(false);
+    document.MoveCaretWordLeft(false);
+    document.WaitTask(document.MoveCaretDown(true));
+    document.WaitTask(document.DeleteElements(false, true));
+    ASSERT_TRUE(document.ToText() == U"In literary theory, a text is any object that can be read, whether iterature") << 
+        ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 2, 0, 8})) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    ASSERT_TRUE(document.ToText() == U"In literary theory, a text is any object that can be read, whether this()/() object is a work of literature") << 
+        ToBasicString(document.ToText());;
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 3, 0, 9}, 
+        ElementSelectionState{ElementId{0, 0, 2, 0}, 8, 4}, 
+        ElementSelectionState{ElementId{0, 0, 2}, 1, 2}, 
+        ElementSelectionState{ElementId{0, 0, 3, 0}, 0, 9})) << document.GetEditorState().ToString();
+}
+
 }
