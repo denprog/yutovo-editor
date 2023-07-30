@@ -368,6 +368,38 @@ TEST_F(ParagraphTest, resizing4)
         ElementSelectionState{ElementId{0, 0, 2, 0}, 0, 4})) << document.GetEditorState().ToString();
 }
 
+//Resize with selection
+TEST_F(ParagraphTest, resizing5)
+{
+    Start(500);
+
+    int width = 500;
+    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
+        {
+            return Rect{0, 0, width, 400};
+        });
+
+    document.InsertString("In literary theory, a text is any object that can be read, whether this object is a work of literature", true);
+    document.MoveCaretUp(false);
+    document.MoveCaretWordLeft(false);
+    document.WaitTask(document.MoveCaretWordLeft(false));
+    document.InsertDivision(true);
+    document.MoveCaretLeft(false);
+    document.MoveCaretLeft(false);
+    document.MoveCaretWordLeft(false);
+    document.WaitTask(document.MoveCaretDown(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 0, 37}, 
+        ElementSelectionState{ElementId{0, 0, 0, 0}, 41, 5}, 
+        ElementSelectionState{ElementId{0, 0, 0}, 1, 2}, 
+        ElementSelectionState{ElementId{0, 0, 1, 0}, 0, 37})) << document.GetEditorState().ToString();
+
+    width = 390;
+    document.WaitTask(document.Resize(width, 400));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 2, 0, 18}, 
+        ElementSelectionState{ElementId{0, 0}, 1, 1}, 
+        ElementSelectionState{ElementId{0, 0, 2, 0}, 0, 18})) << document.GetEditorState().ToString();
+}
+
 TEST_F(ParagraphTest, paragraph1)
 {
     Start(530);

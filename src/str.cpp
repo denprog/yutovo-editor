@@ -416,6 +416,11 @@ bool String::Split(const uint width, bool split_more)
     if (i == 0)
         return false;
 
+    uint start, size;
+    bool s = selection->Has(id, start, size);
+    if (s)
+        selection->Remove(id, start, size);
+
     //create new string and insert it after this one
     ElementPtr el(Create(parent, str.substr(i + 1), format));
     int pos = parent->elements->GetElementPos(id);
@@ -430,21 +435,22 @@ bool String::Split(const uint width, bool split_more)
             caret->SetState(el->id, caret->GetPos() - i - 1, true);
     }
 
-    uint start, size;
-    if (selection->Has(id, start, size))
+    if (s)
     {
-        if (start > i + 1)
+        if (start >= i + 1)
         {
             //move selection into the new element
             selection->Add(el->id, start - i - 1, size);
-            selection->Remove(id, start, size);
         }
-        else if (start < str.length() && start + size > str.length())
+        else if (start < str.length())
         {
             //split the selection
-            selection->Remove(id, start, size);
-            selection->Add(id, start, str.length() - start);
-            selection->Add(el->id, 0, size - str.length() + start);
+            if (str.length() - start > size)
+                selection->Add(id, start, size);
+            else
+                selection->Add(id, start, str.length() - start);
+            if (start + size > str.length())
+                selection->Add(el->id, 0, size - str.length() + start);
         }
     }
 #ifdef DEBUG
