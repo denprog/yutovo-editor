@@ -668,7 +668,16 @@ LogicalSelectionState Selection::GetLogicalState() const
                 if (_elements.size() == 1)
                     state.state.push_back(ElementLogicalSelectionState{yutovo::GetParent(logical_id), (uint)yutovo::GetChildPos(logical_id), 1});
                 else
-                    state.state.push_back(ElementLogicalSelectionState{logical_id, 0, _elements[0]->elements->Count()});
+                {
+                    for (auto _el : _elements)
+                    {
+                        if (IsChild(_id, _el->id))
+                        {
+                            state.state.push_back(ElementLogicalSelectionState{logical_id, 0, _el->elements->Count()});
+                            break;
+                        }
+                    }
+                }
             }
         }
         else //others
