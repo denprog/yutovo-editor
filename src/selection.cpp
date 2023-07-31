@@ -233,7 +233,7 @@ void Selection::Set(LogicalSelectionState& state)
                     else
                     {
                         Add(_el->id, start - p, c - start + p);
-                        size -= c - start;
+                        size -= c - start + p;
                         start = 0;
                     }
                     p = 0;
