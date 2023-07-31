@@ -2216,4 +2216,73 @@ TEST_F(ParagraphTest, delete14)
         ElementSelectionState{ElementId{0, 0, 1, 1}, 0, 1})) << document.GetEditorState().ToString();
 }
 
+//Delete rows
+TEST_F(ParagraphTest, delete15)
+{
+    Start(490);
+
+    document.InsertString("Арифме́тика (др.-греч. ἀριθμητική, arithmētikḗ — от ἀριθμός, arithmós «число») — раздел математики"\
+        ", изучающий числа, их отношения и свойства. Предметом арифметики является понятие числа (натуральные, целые, рациональные, "\
+        "вещественные, комплексные числа) и его свойства.", true);
+    document.MoveCaretToDocumentBegin(false);
+    document.MoveCaretWordRight(false);
+    document.MoveCaretDown(false);
+    document.MoveCaretDown(true);
+    document.WaitTask(document.MoveCaretDown(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 3, 0, 12}, 
+        ElementSelectionState{ElementId{0, 0, 1, 0}, 13, 26}, 
+        ElementSelectionState{ElementId{0, 0}, 2, 1}, 
+        ElementSelectionState{ElementId{0, 0, 3, 0}, 0, 12})) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.DeleteElements(false, true));
+    ASSERT_TRUE(document.ToText() == U"Арифме́тика (др.-греч. ἀριθμητική, arithmētikḗ — от ἀριθμός, aедметом арифметики является понятие числа "\
+        "(натуральные, целые, рациональные, вещественные, комплексные числа) и его свойства.") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 0, 13})) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    ASSERT_TRUE(document.ToText() == U"Арифме́тика (др.-греч. ἀριθμητική, arithmētikḗ — от ἀριθμός, arithmós «число») — раздел математики"\
+        ", изучающий числа, их отношения и свойства. Предметом арифметики является понятие числа (натуральные, целые, рациональные, "\
+        "вещественные, комплексные числа) и его свойства.") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 3, 0, 12}, 
+        ElementSelectionState{ElementId{0, 0, 1, 0}, 13, 26}, 
+        ElementSelectionState{ElementId{0, 0}, 2, 1}, 
+        ElementSelectionState{ElementId{0, 0, 3, 0}, 0, 12})) << document.GetEditorState().ToString();
+}
+
+//Delete rows
+TEST_F(ParagraphTest, delete16)
+{
+    Start(490);
+
+    document.InsertString("Арифме́тика (др.-греч. ἀριθμητική, arithmētikḗ — от ἀριθμός, arithmós «число») — раздел математики"\
+        ", изучающий числа, их отношения и свойства. Предметом арифметики является понятие числа (натуральные, целые, рациональные, "\
+        "вещественные, комплексные числа) и его свойства.", true);
+    document.MoveCaretToDocumentBegin(false);
+    document.MoveCaretWordRight(false);
+    document.MoveCaretDown(false);
+    document.MoveCaretDown(true);
+    document.MoveCaretDown(true);
+    document.WaitTask(document.MoveCaretDown(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 4, 0, 11}, 
+        ElementSelectionState{ElementId{0, 0, 1, 0}, 13, 26}, 
+        ElementSelectionState{ElementId{0, 0}, 2, 2}, 
+        ElementSelectionState{ElementId{0, 0, 4, 0}, 0, 11})) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.DeleteElements(false, true));
+    ASSERT_TRUE(document.ToText() == U"Арифме́тика (др.-греч. ἀριθμητική, arithmētikḗ — от ἀριθμός, aла "\
+        "(натуральные, целые, рациональные, вещественные, комплексные числа) и его свойства.") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 0, 13})) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    ASSERT_TRUE(document.ToText() == U"Арифме́тика (др.-греч. ἀριθμητική, arithmētikḗ — от ἀριθμός, arithmós «число») — раздел математики"\
+        ", изучающий числа, их отношения и свойства. Предметом арифметики является понятие числа (натуральные, целые, рациональные, "\
+        "вещественные, комплексные числа) и его свойства.") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 4, 0, 11}, 
+        ElementSelectionState{ElementId{0, 0, 1, 0}, 13, 26}, 
+        ElementSelectionState{ElementId{0, 0}, 2, 2}, 
+        ElementSelectionState{ElementId{0, 0, 4, 0}, 0, 11})) << document.GetEditorState().ToString();
+}
+
 }
