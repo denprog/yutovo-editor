@@ -947,12 +947,13 @@ void Elements::Insert(ElementPtr element, const uint pos)
     if (caret->IsInsideElement(element->id))
         c = caret->GetCaretState();
     
+    bool p = selection->IsSelected(parent->id);
     bool s = false;
     if (element->parent)
     {
         s = selection->IsSelected(element->id);
         if (s)
-            selection->Remove(element->parent->id, element->parent->elements->GetElementPos(element->id), 1);
+            selection->Remove(element->parent->id, GetChildPos(element->id), 1);
     }
     ElementSelection p_s;
     if (selection->HasChild(element->id, p_s))
@@ -985,11 +986,14 @@ void Elements::Insert(ElementPtr element, const uint pos)
         if (_el)
             caret->SetState(_id, c.GetPos(), true);
     }
-    //move selection onto the placed element
+    
+    if (p)
+        selection->Remove(parent->id, pos, 1);
+
     if (s)
     {
         if (!selection->IsSelected(element->parent->id))
-            selection->Add(element->parent->id, element->parent->elements->GetElementPos(element->id), 1);
+            selection->Add(element->parent->id, element->parent->elements->GetElementPos(element->id), 1); //move selection onto the placed element
     }
     if (!p_s.IsEmpty())
         selection->Add(GetWithParent(p_s.element->id, element->id), p_s.start, p_s.size);
