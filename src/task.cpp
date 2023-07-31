@@ -224,6 +224,7 @@ bool InsertElementsTask::Execute()
         _elements.push_back(t);
     }
 
+    std::vector<ElementId> changed_elements;
     document->pasting = pasting;
     for (auto& _el : _elements)
     {
@@ -241,7 +242,18 @@ bool InsertElementsTask::Execute()
         if (document->caret->GetElement())
             el = document->GetElement(document->caret->GetElement()->id);
 
-        Remake(changed_element, true); //move into view
+        auto it = std::find_if(changed_elements.begin(), changed_elements.end(), 
+            [changed_element](ElementId& _el)
+            {
+                return _el == changed_element || IsChild(changed_element, _el);
+            });
+        if (it == changed_elements.end())
+            changed_elements.push_back(changed_element);
+    }
+    for (auto ch : changed_elements)
+    {
+        if (document->GetElement(ch))
+            Remake(ch, true); //move into view
     }
     document->pasting = false;
     return true;

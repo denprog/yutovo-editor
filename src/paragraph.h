@@ -57,6 +57,9 @@ public:
         auto f = document->paragraph_formats->GetFormat(format_name);
         if (f)
             format = f;
+#ifdef DEBUG
+        to_str = ToText();
+#endif
     }
 
 	BOOST_SERIALIZATION_SPLIT_MEMBER()

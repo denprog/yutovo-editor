@@ -256,7 +256,9 @@ bool Row::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo, Ele
                     b = ins->AfterInsert(with_undo);
                 if (!b)
                 {
-                    if (elements->Get(elements->Count() > p + i + 1 ? p + i + 1 : p + i)->GetLastCaretState(c, nullptr))
+                    if (document->pasting && ins->GetLastCaretState(c, nullptr))
+                        caret->SetState(c);
+                    else if (elements->Get(elements->Count() > p + i + 1 ? p + i + 1 : p + i)->GetLastCaretState(c, nullptr))
                         caret->SetState(c);
                 }
             }
