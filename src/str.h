@@ -82,6 +82,9 @@ public:
     void load(Archive& ar, const unsigned int version)
     {
         ar >> (boost::serialization::base_object<Element>(*this), elements);
+#ifdef DEBUG
+        to_str = ToText();
+#endif
     }
 
 	BOOST_SERIALIZATION_SPLIT_MEMBER()
