@@ -2138,4 +2138,41 @@ TEST_F(ParagraphTest, delete12)
         ElementSelectionState{ElementId{0, 0, 3, 0}, 0, 9})) << document.GetEditorState().ToString();
 }
 
+//Delete rows in two paragraphs
+TEST_F(ParagraphTest, delete13)
+{
+    Start(610);
+
+    document.InsertString("Арифме́тика (др.-греч. ἀριθμητική, arithmētikḗ — от ἀριθμός, arithmós «число») — "\
+        "раздел математики, изучающий числа, их отношения и свойства.", true);
+    document.InsertParagraph(true);
+    document.InsertString("In literary theory, a text is any object that can be read, whether this object is a work of literature", true);
+    document.MoveCaretToDocumentBegin(false);
+    document.MoveCaretWordRight(false);
+    document.MoveCaretDown(true);
+    document.MoveCaretDown(true);
+    document.MoveCaretDown(true);
+    document.WaitTask(document.MoveCaretDown(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 1, 1, 0, 15}, 
+        ElementSelectionState{ElementId{0, 0, 0, 0}, 11, 50}, 
+        ElementSelectionState{ElementId{0, 0}, 1, 2}, 
+        ElementSelectionState{ElementId{0, 1}, 0, 1}, 
+        ElementSelectionState{ElementId{0, 1, 1, 0}, 0, 15})) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.DeleteElements(false, true));
+    ASSERT_TRUE(document.ToText() == U"Арифме́тикаa work of literature") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 11})) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    ASSERT_TRUE(document.ToText() == U"Арифме́тика (др.-греч. ἀριθμητική, arithmētikḗ — от ἀριθμός, arithmós «число») — "\
+        "раздел математики, изучающий числа, их отношения и свойства.\n"\
+        "In literary theory, a text is any object that can be read, whether this object is a work of literature") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 1, 1, 0, 15}, 
+        ElementSelectionState{ElementId{0, 0, 0, 0}, 11, 50}, 
+        ElementSelectionState{ElementId{0, 0}, 1, 2}, 
+        ElementSelectionState{ElementId{0, 1}, 0, 1}, 
+        ElementSelectionState{ElementId{0, 1, 1, 0}, 0, 15})) << document.GetEditorState().ToString();
+}
+
 }

@@ -222,19 +222,27 @@ void Selection::Set(LogicalSelectionState& state)
             }
             else
             {
-                if (start + size <= p + (int)_el->elements->Count())
+                int c = (int)_el->elements->Count();
+                if (start < c + p)
                 {
-                    Add(_el->id, start - p, size);
-                    break;
+                    if (size <= c - start)
+                    {
+                        Add(_el->id, start, size);
+                        break;
+                    }
+                    else
+                    {
+                        Add(_el->id, start - p, c - start + p);
+                        size -= c - start;
+                        start = 0;
+                    }
+                    p = 0;
                 }
-                else if (start <= p)
+                else
                 {
-                    Add(_el->id, start - p, _el->elements->Count());
-                    start += _el->elements->Count();
-                    size -= _el->elements->Count();
+                    p += _el->elements->Count();
                 }
             }
-            p += _el->elements->Count();
         }
     }
 }
@@ -634,34 +642,18 @@ LogicalSelectionState Selection::GetLogicalState() const
         }
         else if (_id.size() == 2) //rows of paragraph
         {
-            auto row = document->GetElement(GetChild(_id, s.start));
-            CaretState c1, c2;
-            row->GetFirstCaretState(c1, nullptr);
-            LogicalId p1 = document->GetLogicalId(c1.id);
-            uint size = 0;
-
             for (int i = s.start; i < s.start + s.size; ++i)
             {
                 auto row = document->GetElement(GetChild(_id, i));
                 for (int j = 0; j < row->elements->Count(); ++j)
                 {
                     auto _el = row->elements->Get(j);
-                    _el->GetLastCaretState(c2, nullptr);
-                    LogicalId p2 = document->GetLogicalId(c2.id);
-                    if (GetParent(p1) == GetParent(p2))
-                    {
-                        size = GetChildPos(p2) - GetChildPos(p1);
-                    }
-                    else
-                    {
-                        state.state.push_back(ElementLogicalSelectionState{yutovo::GetParent(p1), (uint)yutovo::GetChildPos(p1), size});
-                        _el->GetFirstCaretState(c1, nullptr);
-                        p1 = document->GetLogicalId(c1.id);
-                    }
+                    LogicalId start = document->GetLogicalId(_el->id, 0);
+                    LogicalId end = document->GetLogicalId(_el->id, _el->elements->Count() - 1);
+                    state.state.push_back(ElementLogicalSelectionState{_el->logical_id, (uint)GetChildPos(start), 
+                        uint(GetChildPos(end) - GetChildPos(start)) + 1});
                 }
             }
-
-            state.state.push_back(ElementLogicalSelectionState{yutovo::GetParent(p1), (uint)yutovo::GetChildPos(p1), size});
         }
         else if (_id.size() == 3) //elements of row
         {

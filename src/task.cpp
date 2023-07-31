@@ -352,6 +352,7 @@ bool DeleteElementsTask::Execute()
             }
         }
 
+        std::vector<ElementId> changed_elements;
         for (int i = selection_state.state.size() - 1; i >= 0; --i)
         {
             ElementSelectionState& s = selection_state.state[i];
@@ -364,7 +365,20 @@ bool DeleteElementsTask::Execute()
                     document->RollbackUndo();
                 return false;
             }
-            Remake(changed_element, true); //move into view
+
+            auto it = std::find_if(changed_elements.begin(), changed_elements.end(), 
+                [changed_element](ElementId& _el)
+                {
+                    return _el == changed_element || IsChild(changed_element, _el);
+                });
+            if (it == changed_elements.end())
+                changed_elements.push_back(changed_element);
+        }
+
+        for (auto ch : changed_elements)
+        {
+            if (document->GetElement(ch))
+                Remake(ch, true); //move into view
         }
 
         if (merge_paragraphs)
