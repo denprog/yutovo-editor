@@ -137,7 +137,7 @@ bool MiddleShapeFormula::AfterInsert(bool with_undo)
             first->elements->RemoveAt(0, 1);
             for (int i = selection->selection.size() - 1; i >= 0; --i)
             {
-                ElementSelection& el_s = selection->selection[i];
+                ElementSelection el_s = selection->selection[i];
                 for (int j = el_s.size - 1; j >= 0; --j)
                     first->elements->Move(document->GetElement(GetChild(el_s.element->id, el_s.start + j)), 0);
             }

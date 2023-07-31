@@ -400,6 +400,36 @@ TEST_F(ParagraphTest, resizing5)
         ElementSelectionState{ElementId{0, 0, 2, 0}, 0, 18})) << document.GetEditorState().ToString();
 }
 
+//Resize with selection
+TEST_F(ParagraphTest, resizing6)
+{
+    Start(530);
+
+    int width = 530;
+    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
+        {
+            return Rect{0, 0, width, 400};
+        });
+
+    document.InsertString("Text", document.GetStringFormat("Arial", 22, false, false, false), true);
+    document.InsertString("Italic", document.GetStringFormat("Times New Roman", 18, false, true, false), true);
+    document.InsertString("Bold", document.GetStringFormat("Times New Roman", 34, true, false, false), true);
+    document.WaitTask(document.InsertString("String1 String2 String3", document.GetStringFormat("Arial", 20, false, false, false), true));
+    document.MoveCaretWordLeft(false);
+    document.WaitTask(document.MoveCaretWordLeft(true));
+
+    width = 250;
+    document.WaitTask(document.Resize(width, 400));
+
+    width = 200;
+    document.WaitTask(document.Resize(width, 400));
+
+    width = 150;
+    document.WaitTask(document.Resize(width, 400));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 3, 0, 8}, 
+        ElementSelectionState{ElementId{0, 0}, 4, 1})) << document.GetEditorState().ToString();
+}
+
 TEST_F(ParagraphTest, paragraph1)
 {
     Start(530);
