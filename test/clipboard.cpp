@@ -1453,4 +1453,46 @@ TEST_F(DocumentTest, clipboard21)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 53})) << document.GetEditorState().ToString();
 }
 
+//Copy-paste a paragraph
+TEST_F(DocumentTest, clipboard22)
+{
+    Start(490);
+
+    EXPECT_CALL(window_mock, OnCopyResult).WillRepeatedly([&](CopyResult result)
+        {
+            ASSERT_TRUE(result == CopyResult::Success);
+        });
+
+    EXPECT_CALL(window_mock, OnPasteResult).WillRepeatedly([&](PasteResult result)
+        {
+            ASSERT_TRUE(result == PasteResult::Success);
+        });
+
+    document.InsertString("In literary theory, a text is any object that can be read, whether this object is a work of literature", true);
+    document.InsertParagraph(true);
+    document.InsertString("Text", true);
+    document.MoveCaretToDocumentBegin(false);
+    document.MoveCaretDown(true);
+    document.WaitTask(document.MoveCaretDown(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 1, 0, 0, 0}, 
+        ElementSelectionState{ElementId{0}, 0, 1})) << document.GetEditorState().ToString();
+
+    std::stringstream clipboard_array;
+    std::u32string clipboard_text;
+    document.WaitTask(document.Copy(clipboard_array, clipboard_text));
+
+    document.MoveCaretToDocumentBegin(false);
+    document.WaitTask(document.Paste(clipboard_array));
+    ASSERT_TRUE(document.ToText() == U"In literary theory, a text is any object that can be read, whether this object is a work of literature\n"\
+        "In literary theory, a text is any object that can be read, whether this "\
+        "object is a work of literature\nText") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 0, 49})) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    ASSERT_TRUE(document.ToText() == U"In literary theory, a text is any object that can be read, whether this "\
+        "object is a work of literature\nText") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0})) << document.GetEditorState().ToString();
+}
+
 }

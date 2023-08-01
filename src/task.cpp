@@ -248,7 +248,7 @@ bool InsertElementsTask::Execute()
                 return _el == changed_element || IsChild(changed_element, _el);
             });
         if (it == changed_elements.end())
-            changed_elements.push_back(changed_element);
+            changed_elements.push_back(changed_element); //remake all the changed elements after this circle
     }
     for (auto ch : changed_elements)
     {
@@ -384,7 +384,7 @@ bool DeleteElementsTask::Execute()
                     return _el == changed_element || IsChild(changed_element, _el);
                 });
             if (it == changed_elements.end())
-                changed_elements.push_back(changed_element);
+                changed_elements.push_back(changed_element);  //remake all the changed elements after this circle
         }
 
         for (auto ch : changed_elements)
