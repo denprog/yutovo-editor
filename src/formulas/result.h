@@ -28,7 +28,7 @@ public:
     void PutUnit(const Result& result);
 
 public:
-    bool last_error = false;
+    yutovo_service::ErrorCode last_error_code = yutovo_service::ErrorCode::OK;
 
 protected:
     ParserString last_expression;
