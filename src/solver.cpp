@@ -124,6 +124,8 @@ void Solver::RemoveIdentifier(ElementId id, uint code_id, const std::u32string& 
 void Solver::MessageLoop()
 {
     bool connected = false;
+    bool connection_error = false;
+
     WebSocketPtr socket(new WebSocket(document->config, document->window));
     if (!socket->Connect() || !socket->IsOpen())
         logger->Error("Error connecting to the server: {}:{}", document->config.service_ip, document->config.service_port);
@@ -167,11 +169,14 @@ void Solver::MessageLoop()
             std::this_thread::sleep_for(10ms);
         }
 
-        if (!socket->IsOpen())
+        next = time(0);
+
+        if (connection_error)
         {
             if (next - now >= document->config.reconnect_timeout)
             {
                 now = time(0);
+                socket.reset(new WebSocket(document->config, document->window)); //recreate the socket
                 if (!socket->Connect() || !socket->IsOpen())
                 {
                     logger->Error("Error connecting to the server: {}:{}", document->config.service_ip, document->config.service_port);
@@ -181,11 +186,12 @@ void Solver::MessageLoop()
                 {
                     logger->Info("Solver connected to the server: {}:{}", document->config.service_ip, document->config.service_port);
                     document->ReSolveErrors();
+                    connection_error = false;
                 }
             }
+            else
+                continue;
         }
-
-        next = time(0);
 
         std::unique_lock<std::mutex> lock(tasks_mutex);
         if (temp_tasks.empty())
@@ -214,7 +220,7 @@ void Solver::MessageLoop()
 
         Result result;
         int tries = 2;
-        for (int i = 0; i < temp_tasks.size(); ++i)
+        for (int i = 0; i < temp_tasks.size();)
         {
             SolverTaskPtr t = temp_tasks[i];
             if (!t->Execute(socket, result))
@@ -240,9 +246,15 @@ void Solver::MessageLoop()
             document->PutResult(t->id, result);
             if (result.error.error_code == yutovo_service::ErrorCode::SOLVER_RESTARTED_ERROR)
                 document->ReSolve(t->id); //re-solve the expression
-        }
 
-        temp_tasks.clear();
+            if (result.error.error_code != yutovo_service::ErrorCode::OPERATION_ERROR)
+                temp_tasks.erase(temp_tasks.begin() + i);
+            else
+            {
+                connection_error = true;
+                ++i;
+            }
+        }
     }
 }
 
