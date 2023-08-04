@@ -144,7 +144,7 @@ void Equation::Solve()
 
 void Equation::ReSolve(bool if_error)
 {
-    if (if_error && result && !result->last_error)
+    if (if_error && result && result->last_error_code == yutovo_service::ErrorCode::OK)
         return;
     
     ParserString str;
