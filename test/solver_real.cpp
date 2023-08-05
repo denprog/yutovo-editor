@@ -369,4 +369,35 @@ TEST_F(SolverRealTest, units1)
     ASSERT_TRUE(document.ToText() == U"1m=1000.mm") << ToBasicString(document.ToText());
 }
 
+//Change unit of result and remove the upper paragraph
+TEST_F(SolverRealTest, units2)
+{
+    Start(600);
+    
+    document.InsertCode(false, true);
+    document.WaitTask(document.InsertParagraph(true));
+    document.InsertString("20ms", true);
+    document.WaitTask(document.InsertEquation(ResultType::REAL, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == U"\n20ms=20.ms") << ToBasicString(document.ToText());
+
+    yutovo_calculator::Unit unit(U"s");
+    document.WaitTask(document.SetUnit({0, 0, 0, 0, 1, 0, 0, 2, 0, 0}, unit, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == U"\n20ms=0.02s") << ToBasicString(document.ToText());
+
+    document.WaitTask(document.MoveCaretUp(false));
+    document.WaitTask(document.DeleteElements(false, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == U"20ms=0.02s") << ToBasicString(document.ToText());
+
+    document.Undo();
+    document.WaitUndo();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == U"\n20ms=0.02s") << ToBasicString(document.ToText());
+}
+
 }

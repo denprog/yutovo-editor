@@ -1970,6 +1970,8 @@ void Document::GetCastUnits(ElementId _id, std::vector<yutovo_calculator::Unit>&
 {
     std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
     auto el = GetElement(_id);
+    if (!el)
+        return;
     if (el->type == ElementType::AUTO_RESULT)
     {
         AutoResult* r = dynamic_cast<AutoResult*>(el.get());
