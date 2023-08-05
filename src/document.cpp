@@ -516,7 +516,7 @@ uint Document::InsertUnit(const yutovo_calculator::Unit& unit)
     {
         auto* d = new Division(this);
         if (numerator->elements->Count() == 0)
-            numerator->AddElement(CodeStringPtr(new CodeString(numerator.get(), U"1")));
+            numerator->AddElement(CodeStringPtr(new CodeString(d, U"1")));
         d->AddNumerator(numerator);
         d->AddDenomerator(denomerator);
         row->AddElement(ElementPtr(d));
