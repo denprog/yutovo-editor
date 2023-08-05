@@ -34,6 +34,15 @@ Equation::Equation(const Equation& source) :
     MiddleShapeFormula(source),
     result_type(source.result_type)
 {
+    if (last && last->elements->Count() > 0)
+    {
+        auto* r = last->elements->Get(0).get();
+        if (dynamic_cast<ResultRow*>(r))
+        {
+            result.reset((ResultRow*)r->Clone());
+            last->elements->Replace(result, 0);
+        }
+    }
 }
 
 Element* Equation::Clone()
