@@ -70,6 +70,10 @@ add_library(${PROJECT_NAME}
     formulas/fences.cpp
     formulas/assignment.cpp
     formulas/subscript.cpp
+    formulas/exclamation.cpp
+    formulas/and.cpp
+    formulas/or.cpp
+    formulas/xor.cpp
 )
 
 target_compile_options(${PROJECT_NAME} PUBLIC -Wno-deprecated-declarations)

@@ -15,6 +15,10 @@
 #include "formulas/fences.h"
 #include "formulas/assignment.h"
 #include "formulas/subscript.h"
+#include "formulas/exclamation.h"
+#include "formulas/and.h"
+#include "formulas/or.h"
+#include "formulas/xor.h"
 #include "util.h"
 #include <assert.h>
 #include <chrono>
@@ -418,6 +422,26 @@ uint Document::InsertAssignment(bool with_undo)
 uint Document::InsertSubscript(bool with_undo)
 {
     return InsertFormula(new Subscript(this), with_undo);
+}
+
+uint Document::InsertExclamation(bool with_undo)
+{
+    return InsertFormula(new Exclamation(this), with_undo);
+}
+
+uint Document::InsertAnd(bool with_undo)
+{
+    return InsertFormula(new And(this), with_undo);
+}
+
+uint Document::InsertOr(bool with_undo)
+{
+    return InsertFormula(new Or(this), with_undo);
+}
+
+uint Document::InsertXor(bool with_undo)
+{
+    return InsertFormula(new Xor(this), with_undo);
 }
 
 uint Document::InsertFences(bool with_undo)

@@ -59,6 +59,10 @@ public:
     uint InsertCloseFence(bool with_undo);
     uint InsertAssignment(bool with_undo);
     uint InsertSubscript(bool with_undo);
+    uint InsertExclamation(bool with_undo);
+    uint InsertAnd(bool with_undo);
+    uint InsertOr(bool with_undo);
+    uint InsertXor(bool with_undo);
 
     uint InsertFences(bool with_undo);
     
