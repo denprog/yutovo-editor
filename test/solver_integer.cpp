@@ -408,6 +408,22 @@ TEST_F(SolverIntegerTest, solver7)
     ASSERT_TRUE(document.ToText() == U"234=234(dec)") << ToBasicString(document.ToText());
 }
 
+//Factorial
+TEST_F(SolverIntegerTest, solver8)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.InsertString("5", true);
+    document.InsertExclamation(true);
+    document.WaitTask(document.InsertEquation(ResultType::INTEGER, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"5!=120(dec)"
+        ) << ToBasicString(document.ToText());
+}
+
 //Logical not
 TEST_F(SolverIntegerTest, logical1)
 {

@@ -343,6 +343,22 @@ TEST_F(SolverRealTest, solver10)
     ASSERT_TRUE(document.ToText() == U"1234.12345678=1234.1234568") << ToBasicString(document.ToText());
 }
 
+//Factorial
+TEST_F(SolverRealTest, solver11)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.InsertString("5", true);
+    document.InsertExclamation(true);
+    document.WaitTask(document.InsertEquation(ResultType::REAL, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"5!=120."
+        ) << ToBasicString(document.ToText());
+}
+
 //Changing unit of result
 TEST_F(SolverRealTest, units1)
 {
