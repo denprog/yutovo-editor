@@ -19,6 +19,10 @@
 #include "formulas/assignment.h"
 #include "formulas/equation.h"
 #include "formulas/subscript.h"
+#include "formulas/exclamation.h"
+#include "formulas/and.h"
+#include "formulas/or.h"
+#include "formulas/xor.h"
 
 namespace yutovo
 {
@@ -201,6 +205,18 @@ Element* UndoFormula::Restore(Document* document, Element* parent)
         break;
     case ElementType::CLOSE_FENCE:
         el = parent ? new CloseFence(parent) : new CloseFence(document);
+        break;
+    case ElementType::EXCLAMATION:
+        el = parent ? new Exclamation(parent) : new Exclamation(document);
+        break;
+    case ElementType::AND:
+        el = parent ? new And(parent) : new And(document);
+        break;
+    case ElementType::OR:
+        el = parent ? new Or(parent) : new Or(document);
+        break;
+    case ElementType::XOR:
+        el = parent ? new Xor(parent) : new Xor(document);
         break;
     default:
         assert(false);
@@ -614,6 +630,10 @@ UndoElementPtr UndoBase::StoreElement(const LogicalId id, ElementPtr el)
     case ElementType::PLUS:
     case ElementType::MINUS:
     case ElementType::MULTIPLY:
+    case ElementType::EXCLAMATION:
+    case ElementType::AND:
+    case ElementType::OR:
+    case ElementType::XOR:
     case ElementType::OPEN_FENCE:
     case ElementType::CLOSE_FENCE:
         undo_element.reset(new UndoFormula(el->type, ((Formula*)el.get())->formula_format));

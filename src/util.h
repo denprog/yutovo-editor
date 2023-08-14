@@ -40,7 +40,11 @@ enum class ElementType
     AUTO_RESULT,
     ERROR_RESULT,
     ASSIGNMENT,
-    SUBSCRIPT
+    SUBSCRIPT,
+    EXCLAMATION,
+    AND,
+    OR,
+    XOR
 };
 
 enum class AngleMeasure

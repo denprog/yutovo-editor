@@ -408,4 +408,71 @@ TEST_F(SolverIntegerTest, solver7)
     ASSERT_TRUE(document.ToText() == U"234=234(dec)") << ToBasicString(document.ToText());
 }
 
+//Logical not
+TEST_F(SolverIntegerTest, logical1)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.InsertExclamation(true);
+    document.InsertString("4", true);
+    document.WaitTask(document.InsertEquation(ResultType::INTEGER, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"!4=3(dec)"
+        ) << ToBasicString(document.ToText());
+}
+
+//Logical and
+TEST_F(SolverIntegerTest, logical2)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.InsertString("115", true);
+    document.InsertAnd(true);
+    document.InsertString("234", true);
+    document.WaitTask(document.InsertEquation(ResultType::INTEGER, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"115&234=98(dec)"
+        ) << ToBasicString(document.ToText());
+}
+
+//Logical or
+TEST_F(SolverIntegerTest, logical3)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.InsertString("115", true);
+    document.InsertOr(true);
+    document.InsertString("234", true);
+    document.WaitTask(document.InsertEquation(ResultType::INTEGER, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"115|234=251(dec)"
+        ) << ToBasicString(document.ToText());
+}
+
+//Logical xor
+TEST_F(SolverIntegerTest, logical4)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.InsertString("115", true);
+    document.InsertXor(true);
+    document.InsertString("234", true);
+    document.WaitTask(document.InsertEquation(ResultType::INTEGER, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"115^234=153(dec)"
+        ) << ToBasicString(document.ToText());
+}
+
 }
