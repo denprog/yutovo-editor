@@ -1645,6 +1645,16 @@ uint Document::Load(const std::string& filename)
     return tasks.back()->id;
 }
 
+uint Document::LoadJson(const std::u32string& json_doc)
+{
+    std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
+    tasks.emplace_back(new LoadTask(text, json_doc));
+#ifdef DEBUG
+    last_load_task_id = tasks.back()->id;
+#endif
+    return tasks.back()->id;
+}
+
 uint Document::Copy(std::u32string& out_json, std::u32string& out_text)
 {
     out_json = U"";

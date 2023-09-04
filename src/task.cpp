@@ -1100,12 +1100,32 @@ LoadTask::LoadTask(ElementPtr _text, const std::string _filename) :
 {
 }
 
+LoadTask::LoadTask(ElementPtr _text, const std::u32string& _json_str) :
+    Task(_text),
+    json_str(_json_str)
+{
+}
+
 bool LoadTask::Execute()
 {
     ElementPtr t;
     std::string str;
 
-    if (filename.substr(filename.find_last_of(".") + 1) == "yut")
+    if (!json_str.empty())
+    {
+        rapidjson::Document doc;
+        auto str = ToBasicString(json_str);
+        if (doc.Parse<0>(str.c_str()).HasParseError())
+            return false;
+
+        if (!LoadJson(doc))
+            return false;
+
+        //load text
+        rapidjson::Value _text = doc["text"].GetObject();
+        t = ElementPtr(CreateFromJson(nullptr, document, _text, doc.GetAllocator()));
+    }
+    else if (filename.substr(filename.find_last_of(".") + 1) == "yut")
     {
         std::ifstream file(filename);
         if (!file.is_open())
@@ -1126,24 +1146,8 @@ bool LoadTask::Execute()
             return false;
         }
 
-        if (doc.HasMember("string_formats") && doc["string_formats"].IsArray())
-        {
-            //load string formats
-            document->string_formats->FromJson(doc["string_formats"], doc.GetAllocator());
-        }
-
-        if (doc.HasMember("paragraph_formats"))
-        {
-            //load paragraph formats
-            document->paragraph_formats->FromJson(document, doc["paragraph_formats"], doc.GetAllocator());
-        }
-
-        if (!doc.HasMember("text") || !doc["text"].IsObject())
-        {
-            window->OnLoadResult(id, IOResult::InputStreamError);
-            logger->Error("File '{}' does not contain text", filename);
+        if (!LoadJson(doc))
             return false;
-        }
 
         //load text
         rapidjson::Value _text = doc["text"].GetObject();
@@ -1192,15 +1196,31 @@ bool LoadTask::Execute()
     return true;
 }
 
-//CopyTask
+bool LoadTask::LoadJson(rapidjson::Document& doc)
+{
+    if (doc.HasMember("string_formats") && doc["string_formats"].IsArray())
+    {
+        //load string formats
+        document->string_formats->FromJson(doc["string_formats"], doc.GetAllocator());
+    }
 
-// CopyTask::CopyTask(ElementPtr _text, std::stringstream& _out_array, std::u32string& _out_text, bool _cut) :
-//     Task(_text),
-//     out_array(_out_array),
-//     out_text(_out_text),
-//     cut(_cut)
-// {
-// }
+    if (doc.HasMember("paragraph_formats"))
+    {
+        //load paragraph formats
+        document->paragraph_formats->FromJson(document, doc["paragraph_formats"], doc.GetAllocator());
+    }
+
+    if (!doc.HasMember("text") || !doc["text"].IsObject())
+    {
+        window->OnLoadResult(id, IOResult::InputStreamError);
+        logger->Error("File '{}' does not contain text", filename);
+        return false;
+    }
+
+    return true;
+}
+
+//CopyTask
 
 CopyTask::CopyTask(ElementPtr _text, std::u32string& _out_json, std::u32string& _out_text, bool _cut) :
     Task(_text),

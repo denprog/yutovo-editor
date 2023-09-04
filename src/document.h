@@ -165,6 +165,7 @@ public:
     uint New();
     uint Save(const std::string& filename);
     uint Load(const std::string& filename);
+    uint LoadJson(const std::u32string& json_doc);
 
     uint Copy(std::u32string& out_json, std::u32string& out_text);
     uint Paste(std::u32string& in_json);
