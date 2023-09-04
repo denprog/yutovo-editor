@@ -2,6 +2,7 @@
 #define __UNDO_H__
 
 #include <any>
+#include <map>
 #include "caret_state.h"
 #include "style.h"
 #include "config.h"

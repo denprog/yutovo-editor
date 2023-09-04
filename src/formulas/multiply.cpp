@@ -33,6 +33,21 @@ Element* Multiply::Create(Element* _parent)
     return new Multiply(_parent);
 }
 
+Element* Multiply::FromJson(Element* parent, Document* document, const rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc)
+{
+    Multiply* p = nullptr;
+    if (parent)
+        p = new Multiply(parent);
+    else
+        p = new Multiply(document);
+    if (!p->SymbolFromJson(value, alloc))
+    {
+        delete p;
+        return nullptr;
+    }
+    return p;
+}
+
 std::u32string Multiply::ToText()
 {
     return U"*";

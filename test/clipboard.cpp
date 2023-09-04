@@ -24,13 +24,13 @@ TEST_F(DocumentTest, clipboard1)
         });
 
     document.SetFontSize(22);
-    std::stringstream clipboard_array;
+    std::u32string clipboard_json;
     std::u32string clipboard_text;
     document.WaitTask(document.InsertString("Text", true));
     document.WaitTask(document.MoveCaretHome(true));
-    document.WaitTask(document.Copy(clipboard_array, clipboard_text));
+    document.WaitTask(document.Copy(clipboard_json, clipboard_text));
     document.WaitTask(document.MoveCaretEnd(false));
-    document.WaitTask(document.Paste(clipboard_array));
+    document.WaitTask(document.Paste(clipboard_json));
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -41,13 +41,13 @@ TEST_F(DocumentTest, clipboard1)
     ASSERT_TRUE(clipboard_text == U"Text") << ToBasicString(clipboard_text);
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 8)) << document.GetEditorState().ToString();
 
-    clipboard_array.clear();
+    clipboard_json = U"";
     clipboard_text = U"";
     for (int i = 0; i < 3; ++i)
         document.MoveCaretLeft(true);
-    document.WaitTask(document.Copy(clipboard_array, clipboard_text));
+    document.WaitTask(document.Copy(clipboard_json, clipboard_text));
     document.WaitTask(document.MoveCaretEnd(false));
-    document.WaitTask(document.Paste(clipboard_array));
+    document.WaitTask(document.Paste(clipboard_json));
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -74,19 +74,19 @@ TEST_F(DocumentTest, clipboard2)
         });
 
     document.SetFontSize(22);
-    std::stringstream clipboard_array;
+    std::u32string clipboard_json;
     std::u32string clipboard_text;
     document.InsertString("The source of ", true);
     document.SetBold(true);
     document.SetFontFamily("Courier New");
-    document.InsertString("the text ", true);
+    document.WaitTask(document.InsertString("the text ", true));
     document.SetBold(false);
     document.SetItalic(true);
-    document.SetFontFamily("Times New Roman");
-    document.SetFontSize(14);
-    document.InsertString("itself ", true);
+    document.WaitTask(document.SetFontFamily("Times New Roman"));
+    document.WaitTask(document.SetFontSize(14));
+    document.WaitTask(document.InsertString("itself ", true));
     document.SetFontSize(20);
-    document.SetItalic(false);
+    document.WaitTask(document.SetItalic(false));
     document.WaitTask(document.InsertString("is a little mysterious.", true));
     std::this_thread::sleep_for(400ms);
     ASSERT_TRUE(document.ToHtml() == 
@@ -101,7 +101,7 @@ TEST_F(DocumentTest, clipboard2)
         "</body>") 
         << document.ToHtml();
     
-    clipboard_array.clear();
+    clipboard_json = U"";
     clipboard_text = U"";
     document.MoveCaretToDocumentBegin(false);
     document.MoveCaretWordRight(false);
@@ -110,10 +110,9 @@ TEST_F(DocumentTest, clipboard2)
     document.MoveCaretWordRight(true);
     document.WaitTask(document.MoveCaretWordRight(true));
     std::this_thread::sleep_for(100ms);
-    document.Copy(clipboard_array, clipboard_text);
-    document.WaitMainLoop();
+    document.WaitTask(document.Copy(clipboard_json, clipboard_text));
     document.WaitTask(document.MoveCaretToDocumentEnd(false));
-    document.WaitTask(document.Paste(clipboard_array));
+    document.WaitTask(document.Paste(clipboard_json));
     std::this_thread::sleep_for(200ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
@@ -147,13 +146,13 @@ TEST_F(DocumentTest, clipboard3)
         });
 
     document.SetFontSize(22);
-    std::stringstream clipboard_array;
+    std::u32string clipboard_json;
     std::u32string clipboard_text;
     document.WaitTask(document.InsertString("The source of the text itself is a little ", true));
     document.WaitTask(document.MoveCaretHome(true));
-    document.WaitTask(document.Copy(clipboard_array, clipboard_text));
+    document.WaitTask(document.Copy(clipboard_json, clipboard_text));
     document.WaitTask(document.MoveCaretToDocumentEnd(false));
-    document.WaitTask(document.Paste(clipboard_text));
+    document.WaitTask(document.PasteText(std::move(clipboard_text)));
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToText() == U"The source of the text itself is a little The source of the text itself is a little ") << ToBasicString(document.ToText());
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 1, 0, 38)) << document.GetEditorState().ToString();
@@ -174,19 +173,19 @@ TEST_F(DocumentTest, clipboard4)
         });
 
     document.SetFontSize(22);
-    std::stringstream clipboard_array;
+    std::u32string clipboard_json;
     std::u32string clipboard_text;
     document.WaitTask(document.InsertString("The source of the text itself is a little strange", true));
     document.WaitTask(document.MoveCaretWordLeft(true));
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 42}, 
         ElementSelectionState{ElementId{0, 0, 0, 0}, 42, 7})) << document.GetEditorState().ToString();
-    document.WaitTask(document.Cut(clipboard_array, clipboard_text));
+    document.WaitTask(document.Cut(clipboard_json, clipboard_text));
     std::this_thread::sleep_for(200ms);
     ASSERT_TRUE(document.ToText() == U"The source of the text itself is a little ") << ToBasicString(document.ToText());
 
     for (int i = 0; i < 5; ++i)
         document.MoveCaretWordLeft(false);
-    document.WaitTask(document.Paste(clipboard_array));
+    document.WaitTask(document.Paste(clipboard_json));
     std::this_thread::sleep_for(200ms);
     ASSERT_TRUE(document.ToText() == U"The source of the strangetext itself is a little ") << ToBasicString(document.ToText());
 }
@@ -211,7 +210,7 @@ TEST_F(DocumentTest, clipboard5)
         });
 
     document.SetFontSize(22);
-    document.WaitTask(document.Paste(U"The <mrow> MathML element is used to group sub-expressions"));
+    document.WaitTask(document.PasteText(std::u32string(U"The <mrow> MathML element is used to group sub-expressions")));
     std::this_thread::sleep_for(200ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
@@ -275,7 +274,7 @@ TEST_F(DocumentTest, clipboard6)
         });
 
     document.SetFontSize(22);
-    document.WaitTask(document.Paste(U"Tradicionalmente, el medio de un documento era el papel y la información era ingresada a mano.\r\n"\
+    document.WaitTask(document.PasteText(U"Tradicionalmente, el medio de un documento era el papel y la información era ingresada a mano.\r\n"\
         "Desde el punto de vista de la informática, es un archivo."));
     std::this_thread::sleep_for(200ms);
     ASSERT_TRUE(document.ToHtml() == 
@@ -299,8 +298,8 @@ TEST_F(DocumentTest, clipboard6)
     document.WaitTask(document.New());
     std::this_thread::sleep_for(200ms);
     document.SetFontSize(22);
-    document.WaitTask(document.Paste(U"Tradicionalmente, el medio de un documento era el papel y la información era ingresada a mano.\n"\
-        "Desde el punto de vista de la informática, es un archivo."));
+    document.WaitTask(document.PasteText(std::u32string(U"Tradicionalmente, el medio de un documento era el papel y la información era ingresada a mano.\n"\
+        "Desde el punto de vista de la informática, es un archivo.")));
     std::this_thread::sleep_for(200ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
@@ -365,7 +364,7 @@ TEST_F(DocumentTest, clipboard7)
         });
 
     document.SetFontSize(22);
-    document.WaitTask(document.Paste(U"Paragraph1.\r\n"\
+    document.WaitTask(document.PasteText(U"Paragraph1.\r\n"\
         "Paragraph2"));
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
@@ -384,7 +383,7 @@ TEST_F(DocumentTest, clipboard7)
     std::this_thread::sleep_for(100ms);
 
     document.SetFontSize(22);
-    document.WaitTask(document.Paste(U"Paragraph1.\r\n"\
+    document.WaitTask(document.PasteText(U"Paragraph1.\r\n"\
         "Paragraph2.\r\n"\
         "Paragraph3"));
     std::this_thread::sleep_for(100ms);
@@ -407,7 +406,7 @@ TEST_F(DocumentTest, clipboard7)
     std::this_thread::sleep_for(100ms);
 
     document.SetFontSize(22);
-    document.WaitTask(document.Paste(U"Paragraph1.\n"\
+    document.WaitTask(document.PasteText(U"Paragraph1.\n"\
         "Paragraph2.\n"\
         "Paragraph3"));
     std::this_thread::sleep_for(200ms);
@@ -429,7 +428,7 @@ TEST_F(DocumentTest, clipboard7)
     document.WaitTask(document.New());
     std::this_thread::sleep_for(100ms);
 
-    document.WaitTask(document.Paste(U"Paragraph1.\n"\
+    document.WaitTask(document.PasteText(U"Paragraph1.\n"\
         "\n"\
         "Paragraph3"));
     std::this_thread::sleep_for(200ms);
@@ -495,7 +494,7 @@ TEST_F(DocumentTest, clipboard8)
         });
 
     document.SetFontSize(22);
-    std::stringstream clipboard_array;
+    std::u32string clipboard_json;
     std::u32string clipboard_text;
     document.WaitTask(document.InsertString("The source of the text itself is a little strange", true));
     document.WaitTask(document.MoveCaretWordLeft(true));
@@ -503,7 +502,7 @@ TEST_F(DocumentTest, clipboard8)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 0, 0}, 
         ElementSelectionState{ElementId{0, 0}, 1, 1})) << document.GetEditorState().ToString();
     
-    document.WaitTask(document.Cut(clipboard_array, clipboard_text));
+    document.WaitTask(document.Cut(clipboard_json, clipboard_text));
     std::this_thread::sleep_for(200ms);
     ASSERT_TRUE(document.ToText() == U"The source of the text itself is a little ") << ToBasicString(document.ToText());
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 42})) << document.GetEditorState().ToString();
@@ -521,7 +520,7 @@ TEST_F(DocumentTest, clipboard8)
     ASSERT_TRUE(document.ToText() == U"The source of the text itself is a little ") << ToBasicString(document.ToText());
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 42})) << document.GetEditorState().ToString();
 
-    document.WaitTask(document.Paste(clipboard_array));
+    document.WaitTask(document.Paste(clipboard_json));
     std::this_thread::sleep_for(200ms);
     ASSERT_TRUE(document.ToText() == U"The source of the text itself is a little strange") << ToBasicString(document.ToText());
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 0, 7})) << document.GetEditorState().ToString();
@@ -549,12 +548,12 @@ TEST_F(DocumentTest, clipboard9)
     document.MoveCaretHome(false);
     document.WaitTask(document.MoveCaretRight(true));
 
-    std::stringstream clipboard_array;
+    std::u32string clipboard_json;
     std::u32string clipboard_text;
-    document.WaitTask(document.Copy(clipboard_array, clipboard_text));
+    document.WaitTask(document.Copy(clipboard_json, clipboard_text));
 
     document.WaitTask(document.MoveCaretRight(false));
-    document.WaitTask(document.Paste(clipboard_array));
+    document.WaitTask(document.Paste(clipboard_json));
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
@@ -670,15 +669,15 @@ TEST_F(DocumentTest, clipboard10)
     document.MoveCaretRight(true);
     document.WaitCaretMoving();
 
-    std::stringstream clipboard_array;
+    std::u32string clipboard_json;
     std::u32string clipboard_text;
-    document.WaitTask(document.Copy(clipboard_array, clipboard_text));
+    document.WaitTask(document.Copy(clipboard_json, clipboard_text));
     std::this_thread::sleep_for(200ms);
 
     document.WaitTask(document.New());
     std::this_thread::sleep_for(200ms);
     document.InsertString("Text", true);
-    document.WaitTask(document.Paste(clipboard_array));
+    document.WaitTask(document.Paste(clipboard_json));
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
@@ -765,15 +764,15 @@ TEST_F(DocumentTest, clipboard11)
     document.MoveCaretHome(false);
     document.MoveCaretRight(true);
 
-    std::stringstream clipboard_array;
+    std::u32string clipboard_json;
     std::u32string clipboard_text;
-    document.WaitTask(document.Copy(clipboard_array, clipboard_text));
+    document.WaitTask(document.Copy(clipboard_json, clipboard_text));
     std::this_thread::sleep_for(200ms);
 
     document.MoveCaretEnd(false);
     document.WaitCaretMoving();
 
-    document.WaitTask(document.Paste(clipboard_array));
+    document.WaitTask(document.Paste(clipboard_json));
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
@@ -824,13 +823,13 @@ TEST_F(DocumentTest, clipboard11)
     document.MoveCaretLeft(true);
     document.WaitCaretMoving();
 
-    document.WaitTask(document.Copy(clipboard_array, clipboard_text));
+    document.WaitTask(document.Copy(clipboard_json, clipboard_text));
     std::this_thread::sleep_for(200ms);
 
     document.MoveCaretEnd(false);
     document.WaitCaretMoving();
 
-    document.WaitTask(document.Paste(clipboard_array));
+    document.WaitTask(document.Paste(clipboard_json));
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
@@ -907,14 +906,14 @@ TEST_F(DocumentTest, clipboard12)
         document.MoveCaretRight(true);
     document.WaitCaretMoving();
 
-    std::stringstream clipboard_array;
+    std::u32string clipboard_json;
     std::u32string clipboard_text;
-    document.WaitTask(document.Copy(clipboard_array, clipboard_text));
+    document.WaitTask(document.Copy(clipboard_json, clipboard_text));
     std::this_thread::sleep_for(200ms);
 
     document.WaitTask(document.New());
     std::this_thread::sleep_for(200ms);
-    document.WaitTask(document.Paste(clipboard_array));
+    document.WaitTask(document.Paste(clipboard_json));
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
@@ -957,20 +956,18 @@ TEST_F(DocumentTest, clipboard13)
     document.InsertDivision(true);
     document.WaitTask(document.InsertString("123", true));
     document.MoveCaretLeft(true);
-    document.MoveCaretLeft(true);
-    document.WaitCaretMoving();
+    document.WaitTask(document.MoveCaretLeft(true));
 
-    std::stringstream clipboard_array;
+    std::u32string clipboard_json;
     std::u32string clipboard_text;
-    document.WaitTask(document.Copy(clipboard_array, clipboard_text));
+    document.WaitTask(document.Copy(clipboard_json, clipboard_text));
     std::this_thread::sleep_for(200ms);
 
     document.MoveCaretEnd(false);
     document.MoveCaretEnd(false);
-    document.MoveCaretEnd(false);
-    document.WaitCaretMoving();
+    document.WaitTask(document.MoveCaretEnd(false));
 
-    document.WaitTask(document.Paste(clipboard_array));
+    document.WaitTask(document.Paste(clipboard_json));
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
@@ -1019,9 +1016,9 @@ TEST_F(DocumentTest, clipboard14)
     document.MoveCaretLeft(true);
     document.WaitCaretMoving();
 
-    std::stringstream clipboard_array;
+    std::u32string clipboard_json;
     std::u32string clipboard_text;
-    document.WaitTask(document.Copy(clipboard_array, clipboard_text));
+    document.WaitTask(document.Copy(clipboard_json, clipboard_text));
     std::this_thread::sleep_for(200ms);
 
     document.MoveCaretEnd(false);
@@ -1029,7 +1026,7 @@ TEST_F(DocumentTest, clipboard14)
     document.MoveCaretEnd(false);
     document.WaitCaretMoving();
 
-    document.WaitTask(document.Paste(clipboard_array));
+    document.WaitTask(document.Paste(clipboard_json));
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
@@ -1080,7 +1077,7 @@ TEST_F(DocumentTest, clipboard15)
         });
 
     document.SetFontSize(22);
-    std::stringstream clipboard_array;
+    std::u32string clipboard_json;
     std::u32string clipboard_text;
     document.InsertString("The source of the text itself is a little strange.", true);
     document.InsertParagraph(true);
@@ -1088,14 +1085,14 @@ TEST_F(DocumentTest, clipboard15)
     document.WaitTask(document.SelectAll());
     std::this_thread::sleep_for(200ms);
 
-    document.WaitTask(document.Copy(clipboard_array, clipboard_text));
+    document.WaitTask(document.Copy(clipboard_json, clipboard_text));
     std::this_thread::sleep_for(200ms);
 
     document.WaitTask(document.MoveCaretEnd(false));
     std::this_thread::sleep_for(200ms);
     document.WaitTask(document.InsertParagraph(true));
     std::this_thread::sleep_for(200ms);
-    document.WaitTask(document.Paste(clipboard_array));
+    document.WaitTask(document.Paste(clipboard_json));
     std::this_thread::sleep_for(200ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
@@ -1153,7 +1150,7 @@ TEST_F(DocumentTest, clipboard16)
         });
 
     document.SetFontSize(22);
-    std::stringstream clipboard_array;
+    std::u32string clipboard_json;
     std::u32string clipboard_text;
     document.WaitTask(document.InsertString("The source of the text itself is a little strange.", true));
     document.WaitTask(document.InsertParagraph(true));
@@ -1173,12 +1170,12 @@ TEST_F(DocumentTest, clipboard16)
     document.WaitTask(document.SelectAll());
     std::this_thread::sleep_for(200ms);
 
-    document.WaitTask(document.Copy(clipboard_array, clipboard_text));
+    document.WaitTask(document.Copy(clipboard_json, clipboard_text));
     std::this_thread::sleep_for(200ms);
 
     document.WaitTask(document.MoveCaretEnd(false));
     std::this_thread::sleep_for(200ms);
-    document.WaitTask(document.Paste(clipboard_array));
+    document.WaitTask(document.Paste(clipboard_json));
     std::this_thread::sleep_for(200ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
@@ -1229,16 +1226,16 @@ TEST_F(DocumentTest, clipboard17)
             ASSERT_TRUE(result == PasteResult::Success);
         });
 
-    std::stringstream clipboard_array;
+    std::u32string clipboard_json;
     std::u32string clipboard_text;
     document.WaitTask(document.InsertString("The source of the text itself is a little strange.", true));
     document.WaitTask(document.SelectAll());
     std::this_thread::sleep_for(200ms);
 
-    document.WaitTask(document.Copy(clipboard_array, clipboard_text));
+    document.WaitTask(document.Copy(clipboard_json, clipboard_text));
 
     document.WaitTask(document.MoveCaretEnd(false));
-    document.WaitTask(document.Paste(clipboard_array));
+    document.WaitTask(document.Paste(clipboard_json));
     std::this_thread::sleep_for(200ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
@@ -1291,14 +1288,14 @@ TEST_F(TwoDocumentsTest, clipboard18)
         });
 
     document.SetFontSize(22);
-    std::stringstream clipboard_array;
+    std::u32string clipboard_json;
     std::u32string clipboard_text;
     document.WaitTask(document.InsertString("Text", true));
     document.WaitTask(document.MoveCaretHome(true));
-    document.WaitTask(document.Copy(clipboard_array, clipboard_text));
+    document.WaitTask(document.Copy(clipboard_json, clipboard_text));
     document.WaitTask(document.MoveCaretEnd(false));
 
-    document2.WaitTask(document2.Paste(clipboard_array));
+    document2.WaitTask(document2.Paste(clipboard_json));
     ASSERT_TRUE(document2.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -1309,14 +1306,14 @@ TEST_F(TwoDocumentsTest, clipboard18)
     ASSERT_TRUE(clipboard_text == U"Text") << ToBasicString(clipboard_text);
     ASSERT_TRUE(document2.GetEditorState() == MakeEditorState(0, 0, 0, 4)) << document2.GetEditorState().ToString();
 
-    clipboard_array.clear();
+    clipboard_json = U"";
     clipboard_text = U"";
     for (int i = 0; i < 3; ++i)
         document.MoveCaretLeft(true);
-    document.WaitTask(document.Copy(clipboard_array, clipboard_text));
+    document.WaitTask(document.Copy(clipboard_json, clipboard_text));
     document.WaitTask(document.MoveCaretEnd(false));
 
-    document2.WaitTask(document2.Paste(clipboard_array));
+    document2.WaitTask(document2.Paste(clipboard_json));
     ASSERT_TRUE(document2.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -1352,12 +1349,12 @@ TEST_F(DocumentTest, clipboard19)
         ElementSelectionState{ElementId{0, 0}, 0, 1}, 
         ElementSelectionState{ElementId{0, 0, 1, 0}, 0, 13})) << document.GetEditorState().ToString();
 
-    std::stringstream clipboard_array;
+    std::u32string clipboard_json;
     std::u32string clipboard_text;
-    document.WaitTask(document.Copy(clipboard_array, clipboard_text));
+    document.WaitTask(document.Copy(clipboard_json, clipboard_text));
 
     document.WaitTask(document.MoveCaretToDocumentBegin(false));
-    document.WaitTask(document.Paste(clipboard_array));
+    document.WaitTask(document.Paste(clipboard_json));
     ASSERT_TRUE(document.ToText() == U"In literary theory, a text is any object that can be read, whetherIn literary theory, a text"\
         " is any object that can be read, whether this object is a work of literature") << ToBasicString(document.ToText());
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 0, 13})) << document.GetEditorState().ToString();
@@ -1393,14 +1390,14 @@ TEST_F(DocumentTest, clipboard20)
         ElementSelectionState{ElementId{0, 0}, 0, 1}, 
         ElementSelectionState{ElementId{0, 0, 1, 0}, 0, 13})) << document.GetEditorState().ToString();
 
-    std::stringstream clipboard_array;
+    std::u32string clipboard_json;
     std::u32string clipboard_text;
-    document.WaitTask(document.Copy(clipboard_array, clipboard_text));
+    document.WaitTask(document.Copy(clipboard_json, clipboard_text));
 
     document.MoveCaretToDocumentBegin(false);
     document.MoveCaretWordRight(false);
     document.WaitTask(document.MoveCaretWordRight(false));
-    document.WaitTask(document.Paste(clipboard_array));
+    document.WaitTask(document.Paste(clipboard_json));
     ASSERT_TRUE(document.ToText() == U"In literaryIn literary theory, a text is any object that can be read, whether theory, a text"\
         " is any object that can be read, whether this object is a work of literature") << ToBasicString(document.ToText());
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 0, 20})) << document.GetEditorState().ToString();
@@ -1436,12 +1433,12 @@ TEST_F(DocumentTest, clipboard21)
         ElementSelectionState{ElementId{0, 0}, 0, 1}, 
         ElementSelectionState{ElementId{0, 0, 1, 0}, 0, 13})) << document.GetEditorState().ToString();
 
-    std::stringstream clipboard_array;
+    std::u32string clipboard_json;
     std::u32string clipboard_text;
-    document.WaitTask(document.Copy(clipboard_array, clipboard_text));
+    document.WaitTask(document.Copy(clipboard_json, clipboard_text));
 
     document.WaitTask(document.MoveCaretHome(false));
-    document.WaitTask(document.Paste(clipboard_text));
+    document.WaitTask(document.PasteText(std::move(clipboard_text)));
     ASSERT_TRUE(document.ToText() == U"In literary theory, a text is any object that can be In literary theory, a text is any object"\
         " that can be read, whetherread, whether this object is a work of literature") << ToBasicString(document.ToText());
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 2, 0, 7})) << document.GetEditorState().ToString();
@@ -1477,12 +1474,12 @@ TEST_F(DocumentTest, clipboard22)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 1, 0, 0, 0}, 
         ElementSelectionState{ElementId{0}, 0, 1})) << document.GetEditorState().ToString();
 
-    std::stringstream clipboard_array;
+    std::u32string clipboard_json;
     std::u32string clipboard_text;
-    document.WaitTask(document.Copy(clipboard_array, clipboard_text));
+    document.WaitTask(document.Copy(clipboard_json, clipboard_text));
 
     document.MoveCaretToDocumentBegin(false);
-    document.WaitTask(document.Paste(clipboard_array));
+    document.WaitTask(document.Paste(clipboard_json));
     ASSERT_TRUE(document.ToText() == U"In literary theory, a text is any object that can be read, whether this object is a work of literature\n"\
         "In literary theory, a text is any object that can be read, whether this "\
         "object is a work of literature\nText") << ToBasicString(document.ToText());

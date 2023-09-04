@@ -1,7 +1,6 @@
 #ifndef __RESULT_CODES_H__
 #define __RESULT_CODES_H__
 
-#include <boost/archive/archive_exception.hpp>
 #include <yutovo_service/types.h>
 #include <yutovo_calculator/parser_exception.h>
 #include <yutovo_calculator/unit.h>
@@ -43,8 +42,6 @@ enum class PasteResult
     EmptyBuffer,
     PasteError
 };
-
-IOResult ToIOResult(boost::archive::archive_exception::exception_code code);
 
 struct Error
 {

@@ -6,15 +6,15 @@
 namespace yutovo
 {
 
-NthRoot::NthRoot(Element* _parent) :
-    MiddleShapeFormula(_parent)
+NthRoot::NthRoot(Element* _parent, bool with_init) :
+    MiddleShapeFormula(_parent, with_init)
 {
     type = ElementType::NTH_ROOT;
     UpdateLevel(level);
 }
 
-NthRoot::NthRoot(Document* _document) :
-    MiddleShapeFormula(_document)
+NthRoot::NthRoot(Document* _document, bool with_init) :
+    MiddleShapeFormula(_document, with_init)
 {
     type = ElementType::NTH_ROOT;
     UpdateLevel(level);
@@ -33,6 +33,11 @@ Element* NthRoot::Clone()
 Element* NthRoot::Create(Element* _parent)
 {
     return new NthRoot(_parent);
+}
+
+Element* NthRoot::FromJson(Element* parent, Document* document, const rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc)
+{
+    return new NthRoot(parent, false);
 }
 
 void NthRoot::Draw() const
@@ -107,7 +112,8 @@ void NthRoot::UpdateLevel(uint8_t _level)
     MiddleShapeFormula::UpdateLevel(_level);
     if (_level >= MAX_LEVEL)
         return;
-    first->UpdateLevel(_level + 1);
+    if (first)
+        first->UpdateLevel(_level + 1);
 }
 
 std::string NthRoot::ToHtml()
@@ -121,6 +127,8 @@ std::string NthRoot::ToHtml()
 
 std::u32string NthRoot::ToText()
 {
+    if (!first || !last)
+        return U"";
     return U"root(" + last->ToText() + U"," + first->ToText() + U")";
 }
 

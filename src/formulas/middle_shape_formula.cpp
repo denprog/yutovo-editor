@@ -8,16 +8,18 @@ namespace yutovo
 
 //MiddleShapeFormula
 
-MiddleShapeFormula::MiddleShapeFormula(Element* _parent) :
+MiddleShapeFormula::MiddleShapeFormula(Element* _parent, bool with_init) :
     Formula(_parent)
 {
-    Init();
+    if (with_init)
+        Init();
 }
 
-MiddleShapeFormula::MiddleShapeFormula(Document* _document) :
+MiddleShapeFormula::MiddleShapeFormula(Document* _document, bool with_init) :
     Formula(_document)
 {
-    Init();
+    if (with_init)
+        Init();
 }
 
 MiddleShapeFormula::MiddleShapeFormula(const MiddleShapeFormula& source) :
@@ -31,6 +33,16 @@ MiddleShapeFormula::MiddleShapeFormula(const MiddleShapeFormula& source) :
         last = new CodeRow(this);
         elements->Add(ElementPtr(last));
     }
+}
+
+bool MiddleShapeFormula::AfterFromJson()
+{
+    if (elements->Count() != 3)
+        return false;
+    first = (CodeRow*)elements->Get(0).get();
+    shape = (Shape*)elements->Get(1).get();
+    last = (CodeRow*)elements->Get(2).get();
+    return true;
 }
 
 void MiddleShapeFormula::Init()

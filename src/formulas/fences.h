@@ -19,22 +19,12 @@ public:
 
     virtual Element* Create(Element* _parent);
 
+    static Element* FromJson(Element* parent, Document* document, const rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc);
+
     virtual void Draw() const;
     virtual bool Remake(bool with_elements = false);
 
     virtual std::string ToHtml();
-
-    template <class Archive>
-    void save(Archive& ar, const unsigned int version) const
-    {
-    }
-
-    template <class Archive>
-    void load(Archive& ar, const unsigned int version)
-    {
-    }
-
-	BOOST_SERIALIZATION_SPLIT_MEMBER()
 };
 
 class CloseFence : public OnlyShapeFormula
@@ -48,65 +38,14 @@ public:
 
     virtual Element* Create(Element* _parent);
 
+    static Element* FromJson(Element* parent, Document* document, const rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc);
+
     virtual void Draw() const;
     virtual bool Remake(bool with_elements = false);
 
     virtual std::string ToHtml();
-
-    template <class Archive>
-    void save(Archive& ar, const unsigned int version) const
-    {
-    }
-
-    template <class Archive>
-    void load(Archive& ar, const unsigned int version)
-    {
-    }
-
-	BOOST_SERIALIZATION_SPLIT_MEMBER()
 };
 
-}
-
-namespace boost
-{
-namespace serialization
-{
-
-template<class Archive>
-void save_construct_data(Archive& ar, const yutovo::OpenFence* t, const unsigned int version)
-{
-    ar << t->parent;
-}
-
-template<class Archive>
-void load_construct_data(Archive& ar, yutovo::OpenFence* t, const unsigned int version)
-{
-    yutovo::Element* p;
-    ar >> p;
-    yutovo::DocumentUserData& user_data = yutovo::GetUserData<yutovo::DocumentUserData>(ar);
-    ::new(t)yutovo::OpenFence(p);
-}
-
-template<class Archive>
-void save_construct_data(Archive& ar, const yutovo::CloseFence* t, const unsigned int version)
-{
-    ar << t->parent;
-}
-
-template<class Archive>
-void load_construct_data(Archive& ar, yutovo::CloseFence* t, const unsigned int version)
-{
-    yutovo::Element* p;
-    ar >> p;
-    yutovo::DocumentUserData& user_data = yutovo::GetUserData<yutovo::DocumentUserData>(ar);
-    if (p)
-        ::new(t)yutovo::CloseFence(p);
-    else
-        ::new(t)yutovo::CloseFence(user_data.document);
-}
-
-}
 }
 
 #endif

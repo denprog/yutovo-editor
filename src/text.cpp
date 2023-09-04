@@ -8,7 +8,7 @@ namespace yutovo
 
 //Text
 
-Text::Text(Document* _document) : 
+Text::Text(Document* _document, bool with_paragraph) : 
     Block(_document),
     text_format(document->GetDefaultTextFormat()),
     page_format(document->GetDefaultPageFormat())
@@ -18,7 +18,8 @@ Text::Text(Document* _document) :
     id.push_back(0);
     logical_id = id;
 
-    AddElement(ElementPtr(new Paragraph(this))); //text has to have at least one paragraph
+    if (with_paragraph)
+        AddElement(ElementPtr(new Paragraph(this))); //text has to have at least one paragraph
 }
 
 Element* Text::Clone()
@@ -29,6 +30,11 @@ Element* Text::Clone()
 Element* Text::Create(Element* parent)
 {
     return nullptr;
+}
+
+Element* Text::FromJson(Element* parent, Document* document, const rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc)
+{
+    return new Text(document, false);
 }
 
 void Text::Draw() const

@@ -3,6 +3,8 @@
 #include "util.h"
 #include <assert.h>
 #include <boost/locale.hpp>
+#include <boost/lexical_cast.hpp>
+#include <boost/uuid/uuid_io.hpp>
 
 namespace yutovo
 {
@@ -72,6 +74,14 @@ String::String(Element* parent, const std::u32string _str, const StringFormatPtr
 #endif
 }
 
+String::String(Document* _document) :
+    Element(_document)
+{
+    type = ElementType::STRING;
+
+    elements.reset(new StringElements(this));
+}
+
 String::String(Document* _document, const std::string _str, const StringFormatPtr _format) :
     Element(_document), 
     format(_format)
@@ -125,6 +135,40 @@ Element* String::Create(Element* parent)
 Element* String::Create(Element* parent, const std::u32string _str, const StringFormatPtr _format)
 {
     return new String(parent, _str, _format);
+}
+
+void String::ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc)
+{
+    Element::ToJson(value, alloc);
+    rapidjson::Value _uuid(boost::uuids::to_string(format->id).c_str(), alloc);
+    value.AddMember("format_id", _uuid, alloc);
+}
+
+Element* String::FromJson(Element* parent, Document* document, const rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc)
+{
+    if (value.HasMember("format_id") && value["format_id"].IsString())
+    {
+        auto format_id_str = value["format_id"].GetString();
+        boost::uuids::uuid format_id;
+        try
+        {
+            format_id = boost::lexical_cast<boost::uuids::uuid>(format_id_str);
+        }
+        catch (std::bad_cast& ex)
+        {
+            return nullptr;
+        }
+
+        auto f = document->GetStringFormat(format_id);
+        if (f)
+        {
+            if (parent)
+                return new String(parent, U"", f);
+            return new String(document, U"", f);
+        }
+    }
+
+    return new String(parent, U"");
 }
 
 bool String::Remake(bool with_elements)
@@ -513,7 +557,7 @@ bool String::Merge(const ElementPtr with_element)
         return false;
     //merge two strings if those formats are equal
     String* el = (String*)with_element.get();
-    if (el->format != format)
+    if (*el->format != *format)
         return false;
 
     if (caret->IsInsideElement(with_element->id))
@@ -694,6 +738,20 @@ StringElements::StringElements(Element* parent, const std::u32string& _str) :
     Elements(parent),
     str(_str)
 {
+}
+
+void StringElements::ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc)
+{
+    rapidjson::Value _str(ToBasicString(str).c_str(), alloc);
+    value.AddMember("elements", _str, alloc);
+}
+
+bool StringElements::FromJson(Document* document, rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc)
+{
+    if (!value.HasMember("elements") || !value["elements"].IsString())
+        return false;
+    str = ToUtfString(value["elements"].GetString());
+    return true;
 }
 
 Elements* StringElements::Clone(Element* _parent)

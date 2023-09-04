@@ -32,6 +32,13 @@ OnlyShapeFormula::OnlyShapeFormula(const OnlyShapeFormula& source) :
 {
 }
 
+void OnlyShapeFormula::ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc)
+{
+    Formula::ToJson(value, alloc);
+    rapidjson::Value _str(ToBasicString(std::u32string(1, symbol)).c_str(), alloc);
+    value.AddMember("symbol", _str, alloc);
+}
+
 void OnlyShapeFormula::Draw() const
 {
     shape->draw_func = 
@@ -96,6 +103,17 @@ std::u32string OnlyShapeFormula::ToText()
 void OnlyShapeFormula::ToParserString(ParserString& str)
 {
     str.Add(id, ToText());
+}
+
+bool OnlyShapeFormula::SymbolFromJson(const rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc)
+{
+    if (!value.HasMember("symbol") || !value["symbol"].IsString())
+        return false;
+    auto _symbol = ToUtfString(value["symbol"].GetString());
+    if (_symbol.length() != 1)
+        return false;
+    symbol = _symbol[0];
+    return true;
 }
 
 }

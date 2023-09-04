@@ -13,8 +13,7 @@ TEST_F(FormulaTest, functions1)
 {
     Start(600);
 
-    document.InsertFunction("sin", true);
-    document.WaitMainLoop();
+    document.WaitTask(document.InsertFunction("sin", true));
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\

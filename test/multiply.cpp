@@ -100,13 +100,10 @@ TEST_F(FormulaTest, multiply2)
     for (int i = 0; i < 4; ++i)
         document.MoveCaretRight(false);
     document.WaitCaretMoving();
-    document.InsertString("56", true);
-    document.WaitMainLoop();
+    document.WaitTask(document.InsertString("56", true));
     document.MoveCaretRight(false);
-    document.MoveCaretRight(false);
-    document.WaitCaretMoving();
-    document.InsertString("67", true);
-    document.WaitMainLoop();
+    document.WaitTask(document.MoveCaretRight(false));
+    document.WaitTask(document.InsertString("67", true));
 
     document.Save("multiply2_2.yut");
 

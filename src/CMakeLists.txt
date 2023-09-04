@@ -16,14 +16,6 @@ message("CMAKE_FIND_ROOT_PATH is ${CMAKE_FIND_ROOT_PATH}")
 message("INSTALL_PATH is ${INSTALL_PATH}")
 
 if(EMSCRIPTEN)
-    find_package(Boost 1.81.0 REQUIRED PATHS ${INSTALL_PATH}/wasm/cmake/)
-    find_package(Boost 1.81.0 COMPONENTS serialization)
-else()
-    find_package(Boost 1.81.0 REQUIRED PATHS ${INSTALL_PATH}/lib/cmake/)
-    find_package(Boost 1.81.0 COMPONENTS serialization)
-endif()
-
-if(EMSCRIPTEN)
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O0 -g")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread -s USE_PTHREADS=1 -s PTHREAD_POOL_SIZE=4")
 endif()
@@ -50,6 +42,7 @@ add_library(${PROJECT_NAME}
     web_socket.cpp
     parser_string.cpp
     undo.cpp
+    config.cpp
     formulas/formula.cpp
     formulas/code_block.cpp
     formulas/code_paragraph.cpp
@@ -90,7 +83,6 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
 target_link_libraries(${PROJECT_NAME} PRIVATE 
     stdc++
     pthread
-    ${Boost_SERIALIZATION_LIBRARY_RELEASE}
 )
 
 target_include_directories(${PROJECT_NAME} PUBLIC

@@ -3,7 +3,6 @@
 
 #include "element.h"
 #include "str.h"
-#include <boost/serialization/unique_ptr.hpp>
 
 namespace yutovo
 {
@@ -18,6 +17,8 @@ public:
     virtual Element* Clone();
 
     virtual Element* Create(Element* parent);
+
+    static Element* FromJson(Element* parent, Document* document, const rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc);
 
     virtual bool Remake(bool with_elements = false);
     virtual void Normalize();
@@ -36,50 +37,10 @@ public:
     virtual void AddEmptyElement();
 
     virtual bool IsEmpty();
-
-    template <class Archive>
-    void save(Archive& ar, const unsigned int version) const
-    {
-        ar << (boost::serialization::base_object<Element>(*this), elements);
-    }
-
-    template <class Archive>
-    void load(Archive& ar, const unsigned int version)
-    {
-        ar >> (boost::serialization::base_object<Element>(*this), elements);
-#ifdef DEBUG
-        to_str = ToText();
-#endif
-    }
-
-	BOOST_SERIALIZATION_SPLIT_MEMBER()
 };
 
 typedef std::shared_ptr<Row> RowPtr;
 
-}
-
-namespace boost
-{
-namespace serialization
-{
-
-template<class Archive>
-void save_construct_data(Archive& ar, const yutovo::Row* t, const unsigned int version)
-{
-    ar << t->parent;
-}
-
-template<class Archive>
-void load_construct_data(Archive& ar, yutovo::Row* t, const unsigned int version)
-{
-    yutovo::Element* p;
-    ar >> p;
-    yutovo::DocumentUserData& user_data = yutovo::GetUserData<yutovo::DocumentUserData>(ar);
-    ::new(t)yutovo::Row(user_data.document, p);
-}
-
-}
 }
 
 #endif

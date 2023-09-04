@@ -4,7 +4,6 @@
 #include "element.h"
 #include "style.h"
 #include "document.h"
-#include <boost/serialization/unique_ptr.hpp>
 
 namespace yutovo
 {
@@ -19,6 +18,9 @@ public:
     virtual Element* Clone();
 
     virtual Element* Create(Element* parent);
+
+    virtual void ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc);
+    static Element* FromJson(Element* parent, Document* document, const rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc);
 
     virtual void Draw() const;
 
@@ -41,60 +43,11 @@ public:
     
     virtual std::string ToHtml();
 
-    template <class Archive>
-    void save(Archive& ar, const unsigned int version) const
-    {
-        ar << (boost::serialization::base_object<Element>(*this), elements);
-        ar << format->name;
-    }
-
-    template <class Archive>
-    void load(Archive& ar, const unsigned int version)
-    {
-        ar >> (boost::serialization::base_object<Element>(*this), elements);
-        std::string format_name;
-        ar >> format_name;
-        auto f = document->paragraph_formats->GetFormat(format_name);
-        if (f)
-            format = f;
-#ifdef DEBUG
-        to_str = ToText();
-#endif
-    }
-
-	BOOST_SERIALIZATION_SPLIT_MEMBER()
-
 public:
     ParagraphFormatPtr format;
     StringFormatPtr current_string_format;
 };
 
-}
-
-namespace boost
-{
-namespace serialization
-{
-
-template<class Archive>
-void save_construct_data(Archive& ar, const yutovo::Paragraph* t, const unsigned int version)
-{
-    ar << t->parent;
-}
-
-template<class Archive>
-void load_construct_data(Archive& ar, yutovo::Paragraph* t, const unsigned int version)
-{
-    yutovo::Element* p;
-    ar >> p;
-    yutovo::DocumentUserData& user_data = yutovo::GetUserData<yutovo::DocumentUserData>(ar);
-    if (p)
-        ::new(t)yutovo::Paragraph(p);
-    else
-        ::new(t)yutovo::Paragraph(user_data.document, false);
-}
-
-}
 }
 
 #endif

@@ -431,8 +431,7 @@ TEST_F(FormulaTest, power6)
     document.InsertString("123", true);
     document.WaitTask(document.MoveCaretLeft(false));
     document.InsertPower(true);
-    document.MoveCaretRight(false);
-    document.WaitCaretMoving();
+    document.WaitTask(document.MoveCaretRight(false));
     document.InsertPower(true);
     document.InsertString("5", true);
     document.Save("power6_1.yut");

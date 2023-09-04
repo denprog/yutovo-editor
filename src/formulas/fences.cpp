@@ -38,6 +38,21 @@ Element* OpenFence::Create(Element* _parent)
     return new OpenFence(_parent);
 }
 
+Element* OpenFence::FromJson(Element* parent, Document* document, const rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc)
+{
+    OpenFence* p = nullptr;
+    if (parent)
+        p = new OpenFence(parent);
+    else
+        p = new OpenFence(document);
+    if (!p->SymbolFromJson(value, alloc))
+    {
+        delete p;
+        return nullptr;
+    }
+    return p;
+}
+
 void OpenFence::Draw() const
 {
     shape->draw_func = 
@@ -161,6 +176,21 @@ Element* CloseFence::Clone()
 Element* CloseFence::Create(Element* _parent)
 {
     return new CloseFence(_parent);
+}
+
+Element* CloseFence::FromJson(Element* parent, Document* document, const rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc)
+{
+    CloseFence* p = nullptr;
+    if (parent)
+        p = new CloseFence(parent);
+    else
+        p = new CloseFence(document);
+    if (!p->SymbolFromJson(value, alloc))
+    {
+        delete p;
+        return nullptr;
+    }
+    return p;
 }
 
 void CloseFence::Draw() const

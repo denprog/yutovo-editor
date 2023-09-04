@@ -20,6 +20,8 @@ public:
 
     virtual Element* Create(Element* parent);
 
+    static Element* FromJson(Element* parent, Document* document, const rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc);
+
     virtual void Draw() const;
     virtual bool Remake(bool with_elements = false);
 
@@ -27,49 +29,12 @@ public:
 
     virtual bool GetElementAtCoords(const int x, const int y, ElementId& _id);
 
-    template <class Archive>
-    void save(Archive& ar, const unsigned int version) const
-    {
-        ar << (boost::serialization::base_object<Element>(*this), elements);
-    }
-
-    template <class Archive>
-    void load(Archive& ar, const unsigned int version)
-    {
-        ar >> (boost::serialization::base_object<Element>(*this), elements);
-    }
-
-	BOOST_SERIALIZATION_SPLIT_MEMBER()
-
 public:
     std::function<void(const Rect& rect)> draw_func;
 };
 
 typedef std::shared_ptr<Shape> ShapePtr;
 
-}
-
-namespace boost
-{
-namespace serialization
-{
-
-template<class Archive>
-void save_construct_data(Archive& ar, const yutovo::Shape* t, const unsigned int version)
-{
-    ar << t->parent;
-}
-
-template<class Archive>
-void load_construct_data(Archive& ar, yutovo::Shape* t, const unsigned int version)
-{
-    yutovo::Element* p;
-    ar >> p;
-    yutovo::DocumentUserData& user_data = yutovo::GetUserData<yutovo::DocumentUserData>(ar);
-    ::new(t)yutovo::Shape(p);
-}
-
-}
 }
 
 #endif

@@ -238,10 +238,8 @@ TEST_F(FormulaTest, plus5)
     Start(600);
     
     document.InsertCode(false, true);
-    document.InsertString("123", true);
-    document.WaitMainLoop();
-    document.MoveCaretLeft(false);
-    document.WaitCaretMoving();
+    document.WaitTask(document.InsertString("123", true));
+    document.WaitTask(document.MoveCaretLeft(false));
     document.WaitTask(document.InsertPlus(true));
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
@@ -315,13 +313,10 @@ TEST_F(FormulaTest, plus6)
 
     document.MoveCaretEnd(false);
     document.MoveCaretLeft(false);
-    document.MoveCaretLeft(false);
-    document.WaitCaretMoving();
-    document.InsertString("5", true);
-    document.WaitMainLoop();
+    document.WaitTask(document.MoveCaretLeft(false));
+    document.WaitTask(document.InsertString("5", true));
     document.MoveCaretRight(false);
-    document.MoveCaretRight(false);
-    document.WaitCaretMoving();
+    document.WaitTask(document.MoveCaretRight(false));
     document.WaitTask(document.InsertString("67", true));
 
     document.Save("plus6_2.yut");

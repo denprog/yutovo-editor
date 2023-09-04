@@ -95,6 +95,7 @@ struct DocumentTest : public testing::Test
         
         document.Start(config);
         document.config.solve_delay = 0;
+        document.config.pretty_json = true;
     }
 
     Size GetTextSizeMock(const std::u32string& text, const StringFormatPtr format)

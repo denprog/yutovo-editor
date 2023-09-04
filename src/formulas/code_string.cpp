@@ -1,7 +1,11 @@
 #include "code_string.h"
+#include <boost/lexical_cast.hpp>
+#include <boost/uuid/uuid_io.hpp>
 
 namespace yutovo
 {
+
+//CodeString
 
 CodeString::CodeString(Element* parent) :
     String(parent)
@@ -33,6 +37,12 @@ CodeString::CodeString(Element* parent, const std::u32string str, const StringFo
     type = ElementType::CODE_STRING;
 }
 
+CodeString::CodeString(Document* _document) :
+    String(_document)
+{
+    type = ElementType::CODE_STRING;
+}
+
 CodeString::CodeString(Document* _document, const std::string str, const StringFormatPtr _format) :
     String(_document, str, _format)
 {
@@ -58,6 +68,35 @@ Element* CodeString::Create(Element* parent)
 Element* CodeString::Create(Element* parent, const std::u32string _str, const StringFormatPtr _format)
 {
     return new CodeString(parent, _str, _format);
+}
+
+Element* CodeString::FromJson(Element* parent, Document* document, const rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc)
+{
+    if (value.HasMember("format_id") && value["format_id"].IsString())
+    {
+        auto format_id_str = value["format_id"].GetString();
+        boost::uuids::uuid format_id;
+        try
+        {
+            format_id = boost::lexical_cast<boost::uuids::uuid>(format_id_str);
+        }
+        catch (std::bad_cast& ex)
+        {
+            return nullptr;
+        }
+
+        auto f = document->GetStringFormat(format_id);
+        if (f)
+        {
+            if (parent)
+                return new CodeString(parent, U"", f);
+            return new CodeString(document, "", f);
+        }
+    }
+
+    if (parent)
+        return new CodeString(parent);
+    return new CodeString(document);
 }
 
 void CodeString::Draw() const

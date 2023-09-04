@@ -14,6 +14,7 @@ public:
     CodeString(Element* parent, const std::string str, const StringFormatPtr _format);
     CodeString(Element* parent, const std::u32string str);
     CodeString(Element* parent, const std::u32string str, const StringFormatPtr _format);
+    CodeString(Document* _document);
     CodeString(Document* _document, const std::string str, const StringFormatPtr _format);
     CodeString(const String& source);
 
@@ -21,6 +22,8 @@ public:
 
     virtual Element* Create(Element* parent);
     virtual Element* Create(Element* parent, const std::u32string str, const StringFormatPtr _format);
+
+    static Element* FromJson(Element* parent, Document* document, const rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc);
 
     virtual void Draw() const;
 
@@ -34,61 +37,12 @@ public:
 
     virtual std::string ToHtml();
 
-    template <class Archive>
-    void save(Archive& ar, const unsigned int version) const
-    {
-        ar << format->id;
-        ar << (boost::serialization::base_object<String>(*this), elements);
-    }
-
-    template <class Archive>
-    void load(Archive& ar, const unsigned int version)
-    {
-        ar >> (boost::serialization::base_object<String>(*this), elements);
-    }
-
-	BOOST_SERIALIZATION_SPLIT_MEMBER()
-
 protected:
     const int empty_rect_width = 6;
 };
 
 typedef std::shared_ptr<CodeString> CodeStringPtr;
 
-}
-
-namespace boost
-{
-namespace serialization
-{
-
-template<class Archive>
-void save_construct_data(Archive& ar, const yutovo::CodeString* t, const unsigned int version)
-{
-    ar << t->parent;
-}
-
-template<class Archive>
-void load_construct_data(Archive& ar, yutovo::CodeString* t, const unsigned int version)
-{
-    yutovo::Element* p;
-    ar >> p;
-    boost::uuids::uuid format_id;
-    ar >> format_id;
-    yutovo::DocumentUserData& user_data = yutovo::GetUserData<yutovo::DocumentUserData>(ar);
-    auto f = user_data.document->GetStringFormat(format_id);
-    if (f)
-    {
-        if (p)
-            ::new(t)yutovo::CodeString(p, "", f);
-        else
-            ::new(t)yutovo::CodeString(user_data.document, "", f);
-    }
-    else
-        ::new(t)yutovo::CodeString(p);
-}
-
-}
 }
 
 #endif

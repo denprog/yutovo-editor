@@ -7,7 +7,7 @@ namespace yutovo
 
 //CodeBlock
 
-CodeBlock::CodeBlock(Document* _document, uint _code_id) :
+CodeBlock::CodeBlock(Document* _document, uint _code_id, bool add_empty) :
     Block(_document),
     code_id(_code_id)
 {
@@ -15,10 +15,11 @@ CodeBlock::CodeBlock(Document* _document, uint _code_id) :
     code_format = document->code_formats->GetFormat("Calculator");
     paragraph_format = document->paragraph_formats->GetFormat("Code");
     formula_format = document->formula_formats->GetFormat("Formula");
-    AddEmptyElement(); //code block has to have at least one code paragraph
+    if (add_empty)
+        AddEmptyElement(); //code block has to have at least one code paragraph
 }
 
-CodeBlock::CodeBlock(Element* parent, uint _code_id) :
+CodeBlock::CodeBlock(Element* parent, uint _code_id, bool add_empty) :
     Block(parent),
     code_id(_code_id)
 {
@@ -26,10 +27,11 @@ CodeBlock::CodeBlock(Element* parent, uint _code_id) :
     code_format = document->code_formats->GetFormat("Calculator");
     paragraph_format = document->paragraph_formats->GetFormat("Code");
     formula_format = document->formula_formats->GetFormat("Formula");
-    AddEmptyElement(); //code block has to have at least one code paragraph
+    if (add_empty)
+        AddEmptyElement(); //code block has to have at least one code paragraph
 }
 
-CodeBlock::CodeBlock(Document* _document, Element* parent, uint _code_id) :
+CodeBlock::CodeBlock(Document* _document, Element* parent, uint _code_id, bool add_empty) :
     Block(parent),
     code_id(_code_id)
 {
@@ -41,7 +43,8 @@ CodeBlock::CodeBlock(Document* _document, Element* parent, uint _code_id) :
     code_format = document->code_formats->GetFormat("Calculator");
     paragraph_format = document->paragraph_formats->GetFormat("Code");
     formula_format = document->formula_formats->GetFormat("Formula");
-    AddEmptyElement(); //code block has to have at least one code paragraph
+    if (add_empty)
+        AddEmptyElement(); //code block has to have at least one code paragraph
 }
 
 Element* CodeBlock::Clone()
@@ -52,6 +55,22 @@ Element* CodeBlock::Clone()
 Element* CodeBlock::Create(Element* parent)
 {
     return new CodeBlock(parent, parent->document->cur_code_id);
+}
+
+void CodeBlock::ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc)
+{
+    Block::ToJson(value, alloc);
+    value.AddMember("code_id", code_id, alloc);
+}
+
+Element* CodeBlock::FromJson(Element* parent, Document* document, const rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc)
+{
+    if (!value.HasMember("code_id") || !value["code_id"].IsInt())
+        return nullptr;
+    auto code_id = value["code_id"].GetInt();
+    if (parent)
+        return new CodeBlock(parent, code_id, false);
+    return new CodeBlock(document, code_id, false);
 }
 
 void CodeBlock::Draw() const

@@ -6,15 +6,15 @@
 namespace yutovo
 {
 
-Subscript::Subscript(Element* _parent) :
-    MiddleShapeFormula(_parent)
+Subscript::Subscript(Element* _parent, bool with_init) :
+    MiddleShapeFormula(_parent, with_init)
 {
     type = ElementType::SUBSCRIPT;
     UpdateLevel(level);
 }
 
-Subscript::Subscript(Document* _document) :
-    MiddleShapeFormula(_document)
+Subscript::Subscript(Document* _document, bool with_init) :
+    MiddleShapeFormula(_document, with_init)
 {
     type = ElementType::SUBSCRIPT;
     UpdateLevel(level);
@@ -33,6 +33,13 @@ Element* Subscript::Clone()
 Element* Subscript::Create(Element* _parent)
 {
     return new Subscript(_parent);
+}
+
+Element* Subscript::FromJson(Element* parent, Document* document, const rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc)
+{
+    if (parent)
+        return new Subscript(parent, false);
+    return new Subscript(document, false);
 }
 
 void Subscript::Draw() const

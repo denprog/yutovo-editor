@@ -1645,35 +1645,51 @@ uint Document::Load(const std::string& filename)
     return tasks.back()->id;
 }
 
-uint Document::Copy(std::stringstream& out_array, std::u32string& out_text)
+uint Document::Copy(std::u32string& out_json, std::u32string& out_text)
 {
-    out_array.str("");
+    out_json = U"";
     out_text = U"";
     std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
-    tasks.emplace_back(new CopyTask(text, out_array, out_text, false));
+    tasks.emplace_back(new CopyTask(text, out_json, out_text, false));
     last_task_id = tasks.back()->id;
     return last_task_id;
 }
 
-uint Document::Paste(std::stringstream& in_array)
+uint Document::Paste(std::u32string& in_json)
 {
-    DocumentUserData user_data{this};
-    UserDataAdapter<DocumentUserData, boost::archive::binary_iarchive> iarchive(user_data, in_array);
-    std::vector<ElementPtr> elements;
-    RegisterTypes(iarchive);
-
     StringFormatsPtr _string_formats;
-
-    try
-    {
-        iarchive >> _string_formats;
-        string_formats->AddFormats(*_string_formats);
-        iarchive >> elements;
-    }
-    catch (boost::archive::archive_exception& ex)
+    rapidjson::Document doc;
+    auto str = ToBasicString(in_json);
+    if (doc.Parse<0>(str.c_str()).HasParseError())
     {
         window->OnPasteResult(PasteResult::PasteError);
         return 0;
+    }
+
+    if (doc.HasMember("string_formats") && doc["string_formats"].IsArray())
+    {
+        //load string formats
+        string_formats->FromJson(doc["string_formats"], doc.GetAllocator());
+    }
+
+    if (!doc.HasMember("copy") || !doc["copy"].IsArray())
+    {
+        window->OnPasteResult(PasteResult::PasteError);
+        return 0;
+    }
+
+    //load elements
+    std::vector<ElementPtr> elements;
+    rapidjson::Value arr = doc["copy"].GetArray();
+    for (rapidjson::SizeType i = 0; i < arr.Size(); ++i)
+    {
+        if (!arr[i].IsObject())
+            return 0;
+        rapidjson::Value value = arr[i].GetObject();
+        ElementPtr el(CreateFromJson(nullptr, this, value, doc.GetAllocator()));
+        if (!el)
+            return 0;
+        elements.push_back(el);
     }
 
     if (!elements.empty())
@@ -1695,10 +1711,12 @@ uint Document::Paste(std::stringstream& in_array)
     }
     else
         window->OnPasteResult(PasteResult::EmptyBuffer);
+
+    window->OnPasteResult(PasteResult::Success);
     return last_task_id;
 }
 
-uint Document::Paste(const std::u32string& str)
+uint Document::PasteText(std::u32string&& str)
 {
     if (str.empty())
     {
@@ -1711,10 +1729,10 @@ uint Document::Paste(const std::u32string& str)
     return last_task_id;
 }
 
-uint Document::Cut(std::stringstream& out_array, std::u32string& out_text)
+uint Document::Cut(std::u32string& out_json, std::u32string& out_text)
 {
     std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
-    tasks.emplace_back(new CopyTask(text, out_array, out_text, true));
+    tasks.emplace_back(new CopyTask(text, out_json, out_text, true));
     last_task_id = tasks.back()->id;
     return last_task_id;
 }

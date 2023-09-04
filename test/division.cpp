@@ -870,15 +870,13 @@ TEST_F(FormulaTest, division10)
     Start(600);
     
     document.InsertDivision(true);
-    document.InsertString("123", true);
-    document.WaitMainLoop();
+    document.WaitTask(document.InsertString("123", true));
 
     for (int i = 0; i < 5; ++i)
         document.MoveCaretRight(false);
     document.WaitCaretMoving();
     document.InsertDivision(true);
-    document.InsertString("456", true);
-    document.WaitMainLoop();
+    document.WaitTask(document.InsertString("456", true));
 
     for (int i = 0; i < 5; ++i)
         document.MoveCaretRight(false);

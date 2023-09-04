@@ -14,6 +14,8 @@ public:
     OnlyShapeFormula(Document* _document, char32_t _symbol);
     OnlyShapeFormula(const OnlyShapeFormula& source);
 
+    virtual void ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc);
+
     virtual void Draw() const;
     
     virtual bool AfterInsert(bool with_undo);
@@ -25,6 +27,9 @@ public:
 
     virtual std::u32string ToText();
     virtual void ToParserString(ParserString& str);
+
+protected:
+    bool SymbolFromJson(const rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc);
 
 protected:
     Shape *shape;

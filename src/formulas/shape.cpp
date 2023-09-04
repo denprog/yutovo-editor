@@ -21,6 +21,11 @@ Element* Shape::Create(Element* parent)
     return new Shape(parent);
 }
 
+Element* Shape::FromJson(Element* parent, Document* document, const rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc)
+{
+    return new Shape(parent);
+}
+
 void Shape::Draw() const
 {
     if (draw_func)

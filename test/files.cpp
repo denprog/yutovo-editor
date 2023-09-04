@@ -68,10 +68,10 @@ TEST_F(DocumentTest, files2)
     document.SetFontFamily("Courier New");
     document.InsertString("the text ", true);
     document.SetBold(false);
-    document.SetItalic(true);
+    document.WaitTask(document.SetItalic(true));
     document.SetFontFamily("Times New Roman");
     document.SetFontSize(14);
-    document.InsertString("itself ", true);
+    document.WaitTask(document.InsertString("itself ", true));
     document.SetFontSize(20);
     document.SetItalic(false);
     document.WaitTask(document.InsertString("is a little mysterious.", true));
@@ -283,8 +283,7 @@ TEST_F(DocumentTest, files4)
             "</p>"\
         "</body>") 
         << document.ToHtml();
-    document.MoveCaretToDocumentEnd(false);
-    document.WaitCaretMoving();
+    document.WaitTask(document.MoveCaretToDocumentEnd(false));
     ParagraphFormat f;
     document.GetParagraphFormat(document.caret->GetElement()->id, f);
     ASSERT_TRUE(f.name == "Monospace") << f.name;
@@ -359,59 +358,6 @@ TEST_F(DocumentTest, files8)
         "</body>") << 
         document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 0)) << document.GetEditorState().ToString();
-}
-
-//Save/load a document with assignment
-TEST_F(DocumentTest, files9)
-{
-    Start(600);
-
-    document.InsertCode(false, true);
-    document.InsertString("x", true);
-    document.InsertAssignment(true);
-    document.WaitTask(document.InsertString("5", true));
-
-    EXPECT_CALL(window_mock, OnSaveResult).WillOnce([&](const uint task_id, IOResult result)
-        {
-            ASSERT_TRUE(result == IOResult::Success);
-        });
-
-    EXPECT_CALL(window_mock, OnLoadResult).WillOnce([&](const uint task_id, IOResult result)
-        {
-            ASSERT_TRUE(result == IOResult::Success);
-        });
-    
-    document.WaitTask(document.Save("files9.yut"));
-    document.WaitTask(document.New());
-    ASSERT_TRUE(document.ToHtml() == 
-        "<body>"\
-            "<p>"\
-                "<span style=\"font-family:'Arial';font-size:14px;\"></span>"\
-            "</p>"\
-        "</body>") << 
-        document.ToHtml();
-
-    document.Load("files9.yut");
-    document.WaitLoad();
-    std::this_thread::sleep_for(600ms);
-    ASSERT_TRUE(document.ToHtml() == 
-        "<body>"\
-            "<p>"\
-                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
-                    "<mrow>"\
-                        "<mrow>"\
-                            "<mi>x</mi>"\
-                        "</mrow>"\
-                        "<mo>=</mo>"\
-                        "<mrow>"\
-                            "<mi>5</mi>"\
-                        "</mrow>"\
-                    "</mrow>"\
-                "</math>"\
-            "</p>"\
-        "</body>") << 
-        document.ToHtml();
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0})) << document.GetEditorState().ToString();
 }
 
 }

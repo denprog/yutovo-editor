@@ -14,16 +14,16 @@ Equation::Equation(Element* _parent) :
     remake_always = true;
 }
 
-Equation::Equation(Element* _parent, yutovo_service::ResultType _result_type) :
-    MiddleShapeFormula(_parent),
+Equation::Equation(Element* _parent, yutovo_service::ResultType _result_type, bool with_init) :
+    MiddleShapeFormula(_parent, with_init),
     result_type(_result_type)
 {
     type = ElementType::EQUATION;
     remake_always = true;
 }
 
-Equation::Equation(Document* _document, yutovo_service::ResultType _result_type) :
-    MiddleShapeFormula(_document),
+Equation::Equation(Document* _document, yutovo_service::ResultType _result_type, bool with_init) :
+    MiddleShapeFormula(_document, with_init),
     result_type(_result_type)
 {
     type = ElementType::EQUATION;
@@ -53,6 +53,34 @@ Element* Equation::Clone()
 Element* Equation::Create(Element* _parent)
 {
     return new Equation(_parent);
+}
+
+void Equation::ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc)
+{
+    MiddleShapeFormula::ToJson(value, alloc);
+    value.AddMember("result_type", (int)result_type, alloc);
+}
+
+Element* Equation::FromJson(Element* parent, Document* document, const rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc)
+{
+    if (!value.HasMember("result_type") || !value["result_type"].IsInt())
+        return nullptr;
+    yutovo_service::ResultType result_type = (yutovo_service::ResultType)value["result_type"].GetInt();
+
+    if (parent)
+        return new Equation(parent, result_type, false);
+    return new Equation(document, result_type, false);
+}
+
+bool Equation::AfterFromJson()
+{
+    first = (CodeRow*)elements->Get(0).get();
+    shape = (Shape*)elements->Get(1).get();
+    last = (CodeRow*)elements->Get(2).get();
+    auto* r = last->elements->Get(0).get();
+    result.reset((ResultRow*)r->Clone());
+    last->elements->Replace(result, 0);
+    return true;
 }
 
 void Equation::Draw() const
@@ -352,10 +380,11 @@ std::string Equation::ToHtml()
 
 std::u32string Equation::ToText()
 {
+    if (!first || !last)
+        return U"";
     std::u32string s = first->ToText();
     s += U"=";
-    if (last)
-        s += last->ToText();
+    s += last->ToText();
     return s;
 }
 

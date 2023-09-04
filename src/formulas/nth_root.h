@@ -9,13 +9,15 @@ namespace yutovo
 class NthRoot : public MiddleShapeFormula
 {
 public:
-    NthRoot(Element* _parent);
-    NthRoot(Document* _document);
+    NthRoot(Element* _parent, bool with_init = true);
+    NthRoot(Document* _document, bool with_init = true);
     NthRoot(const NthRoot& source);
 
     virtual Element* Clone();
 
     virtual Element* Create(Element* _parent);
+
+    static Element* FromJson(Element* parent, Document* document, const rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc);
 
     virtual void Draw() const;
     virtual bool Remake(bool with_elements = false);
@@ -25,52 +27,8 @@ public:
     virtual std::string ToHtml();
     virtual std::u32string ToText();
     virtual void ToParserString(ParserString& str);
-
-    template <class Archive>
-    void save(Archive& ar, const unsigned int version) const
-    {
-        ar << first;
-        ar << last;
-    }
-
-    template <class Archive>
-    void load(Archive& ar, const unsigned int version)
-    {
-        ar >> first;
-        elements->Replace(ElementPtr((Element*)first), 0);
-        ar >> last;
-        elements->Replace(ElementPtr((Element*)last), 2);
-    }
-
-	BOOST_SERIALIZATION_SPLIT_MEMBER()
 };
 
-}
-
-namespace boost
-{
-namespace serialization
-{
-
-template<class Archive>
-void save_construct_data(Archive& ar, const yutovo::NthRoot* t, const unsigned int version)
-{
-    ar << t->parent;
-}
-
-template<class Archive>
-void load_construct_data(Archive& ar, yutovo::NthRoot* t, const unsigned int version)
-{
-    yutovo::Element* p;
-    ar >> p;
-    yutovo::DocumentUserData& user_data = yutovo::GetUserData<yutovo::DocumentUserData>(ar);
-    if (p)
-        ::new(t)yutovo::NthRoot(p);
-    else
-        ::new(t)yutovo::NthRoot(user_data.document);
-}
-
-}
 }
 
 #endif

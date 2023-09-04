@@ -5,6 +5,8 @@
 #include <boost/locale.hpp>
 #include <yutovo_calculator/parser_exception.h>
 #include <yutovo_service/types.h>
+#include <boost/uuid/uuid.hpp>
+#include "rapidjson/document.h"
 
 typedef unsigned int uint;
 
@@ -263,40 +265,7 @@ ElementId GetWithParent(const ElementId id, const ElementId parent_id);
 
 ElementId GetCommonParent(const std::vector<ElementId>& ids);
 
-struct DocumentUserData
-{
-    Document* document = nullptr;
-};
-
-template <class UserData, class Archive>
-UserData& GetUserData(Archive&);
-
-template <class UserData, class Archive>
-class UserDataAdapter : public Archive
-{
-public:
-    template <class ... Args>
-    UserDataAdapter(UserData& _user_data, Args&& ... args) :
-        Archive(std::forward<Args>(args) ...),
-        user_data(_user_data)
-    {
-    }
-
-private:
-    friend UserData& GetUserData<UserData>(Archive& ar);
-    UserData& user_data;
-};
-
-template <class UserData, class Archive>
-UserData& GetUserData(Archive& ar)
-{
-    return dynamic_cast<UserDataAdapter<UserData, Archive>&>(ar).user_data;
-}
-
-void RegisterTypes();
-
-template<class Archive>
-void RegisterTypes(Archive& archive);
+Element* CreateFromJson(Element* parent, Document* document, rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc);
 
 std::u32string ToUtfString(const std::string& str);
 std::string ToBasicString(const std::u32string& str);

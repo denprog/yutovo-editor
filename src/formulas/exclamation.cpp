@@ -33,6 +33,21 @@ Element* Exclamation::Create(Element* _parent)
     return new Exclamation(_parent);
 }
 
+Element* Exclamation::FromJson(Element* parent, Document* document, const rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc)
+{
+    Exclamation* p = nullptr;
+    if (parent)
+        p = new Exclamation(parent);
+    else
+        p = new Exclamation(document);
+    if (!p->SymbolFromJson(value, alloc))
+    {
+        delete p;
+        return nullptr;
+    }
+    return p;
+}
+
 std::string Exclamation::ToHtml()
 {
     return "<mo>!</mo>";

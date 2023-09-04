@@ -17,47 +17,11 @@ public:
 
     virtual Element* Create(Element* _parent);
 
+    static Element* FromJson(Element* parent, Document* document, const rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc);
+
     virtual std::string ToHtml();
-
-    template <class Archive>
-    void save(Archive& ar, const unsigned int version) const
-    {
-    }
-
-    template <class Archive>
-    void load(Archive& ar, const unsigned int version)
-    {
-    }
-
-	BOOST_SERIALIZATION_SPLIT_MEMBER()
 };
 
-}
-
-namespace boost
-{
-namespace serialization
-{
-
-template<class Archive>
-void save_construct_data(Archive& ar, const yutovo::And* t, const unsigned int version)
-{
-    ar << t->parent;
-}
-
-template<class Archive>
-void load_construct_data(Archive& ar, yutovo::And* t, const unsigned int version)
-{
-    yutovo::Element* p;
-    ar >> p;
-    yutovo::DocumentUserData& user_data = yutovo::GetUserData<yutovo::DocumentUserData>(ar);
-    if (p)
-        ::new(t)yutovo::And(p);
-    else
-        ::new(t)yutovo::And(user_data.document);
-}
-
-}
 }
 
 #endif
