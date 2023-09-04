@@ -33,6 +33,21 @@ Element* Xor::Create(Element* _parent)
     return new Xor(_parent);
 }
 
+Element* Xor::FromJson(Element* parent, Document* document, const rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc)
+{
+    Xor* p = nullptr;
+    if (parent)
+        p = new Xor(parent);
+    else
+        p = new Xor(document);
+    if (!p->SymbolFromJson(value, alloc))
+    {
+        delete p;
+        return nullptr;
+    }
+    return p;
+}
+
 std::string Xor::ToHtml()
 {
     return "<mo>^</mo>";

@@ -33,6 +33,21 @@ Element* Or::Create(Element* _parent)
     return new Or(_parent);
 }
 
+Element* Or::FromJson(Element* parent, Document* document, const rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc)
+{
+    Or* p = nullptr;
+    if (parent)
+        p = new Or(parent);
+    else
+        p = new Or(document);
+    if (!p->SymbolFromJson(value, alloc))
+    {
+        delete p;
+        return nullptr;
+    }
+    return p;
+}
+
 std::string Or::ToHtml()
 {
     return "<mo>&</mo>";

@@ -5,7 +5,6 @@
 #include "element.h"
 #include "document.h"
 #include "style.h"
-#include <boost/serialization/unique_ptr.hpp>
 
 namespace yutovo
 {
@@ -18,6 +17,7 @@ public:
     String(Element* parent, const std::string _str, const StringFormatPtr _format);
     String(Element* parent, const std::u32string _str);
     String(Element* parent, const std::u32string _str, const StringFormatPtr _format);
+    String(Document* _document);
     String(Document* _document, const std::string _str, const StringFormatPtr _format);
     String(Document* _document, const std::u32string _str, const StringFormatPtr _format);
 
@@ -26,6 +26,9 @@ public:
 
     virtual Element* Create(Element* parent);
     virtual Element* Create(Element* parent, const std::u32string _str, const StringFormatPtr _format);
+
+    virtual void ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc);
+    static Element* FromJson(Element* parent, Document* document, const rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc);
 
     virtual bool Remake(bool with_elements = false);
     virtual void Normalize();
@@ -71,24 +74,6 @@ public:
 
     virtual void SubscribeOnChange(const ElementId _id);
 
-    template <class Archive>
-    void save(Archive& ar, const unsigned int version) const
-    {
-        ar << format->id;
-        ar << (boost::serialization::base_object<Element>(*this), elements);
-    }
-
-    template <class Archive>
-    void load(Archive& ar, const unsigned int version)
-    {
-        ar >> (boost::serialization::base_object<Element>(*this), elements);
-#ifdef DEBUG
-        to_str = ToText();
-#endif
-    }
-
-	BOOST_SERIALIZATION_SPLIT_MEMBER()
-
 private:
     bool FindCachedSize(const std::u32string& str, Size& size);
     void AddCachedSize(const std::u32string& str, const Size& size);
@@ -107,6 +92,9 @@ class StringElements : public Elements
 public:
     StringElements(Element* parent);
     StringElements(Element* parent, const std::u32string& _str);
+
+    virtual void ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc);
+    virtual bool FromJson(Document* document, rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc);
 
     virtual Elements* Clone(Element* _parent);
 
@@ -137,72 +125,12 @@ public:
     virtual std::string ToHtml();
     virtual std::u32string ToText();
 
-    template <class Archive>
-    void save(Archive& ar, const unsigned int version) const
-    {
-        ar << parent;
-        ar << ToBasicString(str);
-    }
-
-    template <class Archive>
-    void load(Archive& ar, const unsigned int version)
-    {
-        std::string s;
-        ar >> s;
-        str = ToUtfString(s);
-    }
-
-	BOOST_SERIALIZATION_SPLIT_MEMBER()
-
 private:
     friend class String;
 
     std::u32string str;
 };
 
-}
-
-namespace boost
-{
-namespace serialization
-{
-
-template<class Archive>
-void save_construct_data(Archive& ar, const yutovo::String* t, const unsigned int version)
-{
-    ar << t->parent;
-}
-
-template<class Archive>
-void load_construct_data(Archive& ar, yutovo::String* t, const unsigned int version)
-{
-    yutovo::Element* p;
-    ar >> p;
-    boost::uuids::uuid format_id;
-    ar >> format_id;
-    yutovo::DocumentUserData& user_data = yutovo::GetUserData<yutovo::DocumentUserData>(ar);
-    auto f = user_data.document->GetStringFormat(format_id);
-    if (f)
-        ::new(t)yutovo::String(p, "", f);
-    else
-        ::new(t)yutovo::String(p);
-}
-
-template<class Archive>
-void save_construct_data(Archive& ar, const yutovo::StringElements* t, const unsigned int version)
-{
-}
-
-template<class Archive>
-void load_construct_data(Archive& ar, yutovo::StringElements* t, const unsigned int version)
-{
-    yutovo::Element* p;
-    ar >> p;
-    yutovo::DocumentUserData& user_data = yutovo::GetUserData<yutovo::DocumentUserData>(ar);
-    ::new(t)yutovo::StringElements(p);
-}
-
-}
 }
 
 #endif

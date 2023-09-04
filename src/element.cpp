@@ -58,6 +58,19 @@ Element::~Element()
 {
 }
 
+void Element::ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc)
+{
+    rapidjson::Value _id(IdToString(id).c_str(), alloc);
+    value.AddMember("id", _id, alloc);
+    value.AddMember("type", (int)type, alloc);
+    elements->ToJson(value, alloc);
+}
+
+bool Element::AfterFromJson()
+{
+    return true;
+}
+
 bool Element::Copy(std::vector<ElementPtr>& copy)
 {
     uint start, size;
@@ -817,6 +830,39 @@ Elements::Elements(const Elements& source) :
         elements.push_back(ElementPtr(el->Clone())); //deep copy
 }
 
+void Elements::ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc)
+{
+    rapidjson::Value arr(rapidjson::kArrayType);
+    for (auto it = elements.begin(); it != elements.end(); ++it)
+    {
+        auto& el = *it;
+        rapidjson::Value v;
+        v.SetObject();
+        el->ToJson(v, alloc);
+        arr.PushBack(v, alloc);
+    }
+    value.AddMember("elements", arr, alloc);
+}
+
+bool Elements::FromJson(Document* document, rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc)
+{
+    if (!value.HasMember("elements") || !value["elements"].IsArray())
+        return false;
+    
+    rapidjson::Value arr = value["elements"].GetArray();
+    for (rapidjson::SizeType i = 0; i < arr.Size(); ++i)
+    {
+        if (!arr[i].IsObject())
+            return false;
+        rapidjson::Value value = arr[i].GetObject();
+        Element* el = CreateFromJson(parent, document, value, alloc);
+        if (!el)
+            return false;
+        Add(ElementPtr(el));
+    }
+    return true;
+}
+
 ElementPtr Elements::operator[](const int pos)
 {
     return elements[pos];
@@ -915,9 +961,9 @@ bool Elements::IsLast(ElementId id)
 ElementId Elements::FindUpper(int y)
 {
     auto it = std::lower_bound(elements.begin(), elements.end(), y, 
-        [](const ElementPtr& el, int val)
+        [](const ElementPtr& el, int value)
         {
-            return el->GetAbsoluteRect().GetBottom() < val;
+            return el->GetAbsoluteRect().GetBottom() < value;
         });
     if (it != elements.end())
         return (*it)->id;

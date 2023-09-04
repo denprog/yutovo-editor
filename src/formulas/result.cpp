@@ -196,6 +196,19 @@ Element* RealResult::Create(Element* _parent)
     return new RealResult(_parent);
 }
 
+void RealResult::ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc)
+{
+    ResultRow::ToJson(value, alloc);
+    config.ToJson(value, alloc);
+}
+
+Element* RealResult::FromJson(Element* parent, Document* document, const rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc)
+{
+    Config::RealResultConfig config;
+    config.FromJson((rapidjson::Value&)value, alloc);
+    return new RealResult(parent, config);
+}
+
 void RealResult::Solve(const ParserString& expression)
 {
     if (last_expression == expression && last_expression.Text() != U"")
@@ -327,6 +340,19 @@ Element* IntegerResult::Clone()
     return new IntegerResult(*this);
 }
 
+void IntegerResult::ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc)
+{
+    ResultRow::ToJson(value, alloc);
+    config.ToJson(value, alloc);
+}
+
+Element* IntegerResult::FromJson(Element* parent, Document* document, const rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc)
+{
+    Config::IntegerResultConfig config;
+    config.FromJson((rapidjson::Value&)value, alloc);
+    return new IntegerResult(parent, config);
+}
+
 void IntegerResult::Solve(const ParserString& expression)
 {
     if (last_expression == expression && last_expression.Text() != U"")
@@ -424,6 +450,19 @@ RationalResult::RationalResult(Element* parent, Config::RationalResultConfig _co
 Element* RationalResult::Clone()
 {
     return new RationalResult(*this);
+}
+
+void RationalResult::ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc)
+{
+    ResultRow::ToJson(value, alloc);
+    config.ToJson(value, alloc);
+}
+
+Element* RationalResult::FromJson(Element* parent, Document* document, const rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc)
+{
+    Config::RationalResultConfig config;
+    config.FromJson((rapidjson::Value&)value, alloc);
+    return new RationalResult(parent, config);
 }
 
 void RationalResult::Solve(const ParserString& expression)
@@ -552,6 +591,19 @@ Element* ComplexResult::Clone()
     return new ComplexResult(*this);
 }
 
+void ComplexResult::ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc)
+{
+    ResultRow::ToJson(value, alloc);
+    config.ToJson(value, alloc);
+}
+
+Element* ComplexResult::FromJson(Element* parent, Document* document, const rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc)
+{
+    Config::ComplexResultConfig config;
+    config.FromJson((rapidjson::Value&)value, alloc);
+    return new ComplexResult(parent, config);
+}
+
 bool ComplexResult::SetConfig(const int precision, const int exp, const AngleMeasure result_angle_measure)
 {
     if (precision != -1 && config.precision != precision)
@@ -625,6 +677,21 @@ Element* AutoResult::Clone()
 Element* AutoResult::Create(Element* _parent)
 {
     return new AutoResult(_parent);
+}
+
+void AutoResult::ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc)
+{
+    rapidjson::Value _id(IdToString(id).c_str(), alloc);
+    value.AddMember("id", _id, alloc);
+    value.AddMember("type", (int)type, alloc);
+    config.ToJson(value, alloc);
+}
+
+Element* AutoResult::FromJson(Element* parent, Document* document, const rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc)
+{
+    Config::AutoResultConfig config;
+    config.FromJson((rapidjson::Value&)value, alloc);
+    return new AutoResult(parent, config);
 }
 
 void AutoResult::Solve(const ParserString& expression)

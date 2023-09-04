@@ -127,13 +127,10 @@ TEST_F(FormulaTest, minus3)
         document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0})) << document.GetEditorState().ToString();
 
+    document.WaitTask(document.MoveCaretRight(false));
+    document.WaitTask(document.InsertString("5", true));
     document.MoveCaretRight(false);
-    document.WaitCaretMoving();
-    document.InsertString("5", true);
-    document.WaitMainLoop();
-    document.MoveCaretRight(false);
-    document.MoveCaretRight(false);
-    document.WaitCaretMoving();
+    document.WaitTask(document.MoveCaretRight(false));
     document.WaitTask(document.InsertString("67", true));
 
     document.Save("minus3_1.yut");

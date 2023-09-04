@@ -166,10 +166,10 @@ public:
     uint Save(const std::string& filename);
     uint Load(const std::string& filename);
 
-    uint Copy(std::stringstream& out_array, std::u32string& out_text);
-    uint Paste(std::stringstream& in_array);
-    uint Paste(const std::u32string& str);
-    uint Cut(std::stringstream& out_array, std::u32string& out_text);
+    uint Copy(std::u32string& out_json, std::u32string& out_text);
+    uint Paste(std::u32string& in_json);
+    uint PasteText(std::u32string&& str);
+    uint Cut(std::u32string& out_json, std::u32string& out_text);
 
     std::string ToHtml();
     std::u32string ToText();

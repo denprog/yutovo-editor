@@ -1,6 +1,9 @@
 #include "style.h"
 #include "document.h"
 #include <algorithm>
+#include <boost/lexical_cast.hpp>
+#include <boost/uuid/uuid_generators.hpp>
+#include <boost/uuid/uuid_io.hpp>
 
 namespace yutovo
 {
@@ -29,6 +32,67 @@ bool StringFormat::operator==(const StringFormat& f) const
 {
     return family == f.family && size == f.size && bold == f.bold && italic == f.italic && underline == f.underline && 
         color == f.color && selection_color == f.selection_color;
+}
+
+void StringFormat::ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc)
+{
+    rapidjson::Value obj(rapidjson::kObjectType);
+    rapidjson::Value _uuid(boost::uuids::to_string(id).c_str(), alloc);
+    obj.AddMember("id", _uuid, alloc);
+    rapidjson::Value _family(family.c_str(), alloc);
+    obj.AddMember("family", _family, alloc);
+    obj.AddMember("size", size, alloc);
+    obj.AddMember("bold", bold, alloc);
+    obj.AddMember("italic", italic, alloc);
+    obj.AddMember("underline", underline, alloc);
+    obj.AddMember("color", color.ToInt(), alloc);
+    obj.AddMember("selection_color", selection_color.ToInt(), alloc);
+    value.PushBack(obj, alloc);
+}
+
+bool StringFormat::FromJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc)
+{
+    if (!value.HasMember("id") || !value["id"].IsString())
+        return false;
+    auto id_str = value["id"].GetString();
+    try
+    {
+        id = boost::lexical_cast<boost::uuids::uuid>(id_str);
+    }
+    catch (std::bad_cast& ex)
+    {
+        return false;
+    }
+
+    if (!value.HasMember("family") || !value["family"].IsString())
+        return false;
+    family = value["family"].GetString();
+
+    if (!value.HasMember("size") || !value["size"].IsInt())
+        return false;
+    size = value["size"].GetInt();
+
+    if (!value.HasMember("bold") || !value["bold"].IsBool())
+        return false;
+    bold = value["bold"].GetBool();
+
+    if (!value.HasMember("italic") || !value["italic"].IsBool())
+        return false;
+    italic = value["italic"].GetBool();
+
+    if (!value.HasMember("underline") || !value["underline"].IsBool())
+        return false;
+    underline = value["underline"].GetBool();
+
+    if (!value.HasMember("color") || !value["color"].IsUint())
+        return false;
+    color = Color::FromInt(value["color"].GetUint());
+
+    if (!value.HasMember("selection_color") || !value["selection_color"].IsUint())
+        return false;
+    selection_color = Color::FromInt(value["selection_color"].GetUint());
+
+    return true;
 }
 
 void StringFormat::Reset()
@@ -109,6 +173,37 @@ void StringFormats::AddFormats(const StringFormats& source)
     }
 }
 
+void StringFormats::ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc)
+{
+    for (auto& f : string_formats)
+        f->ToJson(value, alloc);
+}
+
+bool StringFormats::FromJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc)
+{
+    if (!value.IsArray())
+        return false;
+    std::vector<StringFormatPtr> _string_formats;
+    rapidjson::GenericArray arr = value.GetArray();
+    for (rapidjson::SizeType i = 0; i < arr.Size(); ++i)
+    {
+        if (!arr[i].IsObject())
+            return false;
+        rapidjson::Value value = arr[i].GetObject();
+        StringFormatPtr s(new StringFormat());
+        if (!s->FromJson(value, alloc))
+            return false;
+        auto it = std::find_if(string_formats.begin(), string_formats.end(), 
+            [s](auto& f)
+            {
+                return f->id == s->id;
+            });
+        if (it == string_formats.end())
+            string_formats.push_back(s);
+    }
+    return true;
+}
+
 //ParagraphFormat
 
 ParagraphFormat::ParagraphFormat(std::string _name, Alignment _alignment, WordWrap _word_wrap, uint _line_spacing, uint _indent_before, uint _indent_after, 
@@ -131,6 +226,79 @@ bool ParagraphFormat::operator==(const ParagraphFormat& f) const
     return name == f.name && alignment == f.alignment && word_wrap == f.word_wrap && line_spacing == f.line_spacing && indent_before == f.indent_before && 
         indent_after == f.indent_after && indent_first_line == f.indent_first_line && spacing_before == f.spacing_before && spacing_after == f.spacing_after && 
         *default_string_format == *f.default_string_format;
+}
+
+void ParagraphFormat::ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc)
+{
+    rapidjson::Value obj(rapidjson::kObjectType);
+    rapidjson::Value _name(name.c_str(), alloc);
+    obj.AddMember("name", _name, alloc);
+    obj.AddMember("alignment", (int)alignment, alloc);
+    obj.AddMember("word_wrap", (int)word_wrap, alloc);
+    obj.AddMember("line_spacing", line_spacing, alloc);
+    obj.AddMember("indent_before", indent_before, alloc);
+    obj.AddMember("indent_after", indent_after, alloc);
+    obj.AddMember("indent_first_line", indent_first_line, alloc);
+    obj.AddMember("spacing_before", spacing_before, alloc);
+    obj.AddMember("spacing_after", spacing_after, alloc);
+    rapidjson::Value _uuid(boost::uuids::to_string(default_string_format->id).c_str(), alloc);
+    obj.AddMember("default_string_format", _uuid, alloc);
+    value.PushBack(obj, alloc);
+}
+
+bool ParagraphFormat::FromJson(Document* document, rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc)
+{
+    if (!value.HasMember("default_string_format") || !value["default_string_format"].IsString())
+        return false;
+    
+    auto id_str = value["default_string_format"].GetString();
+    try
+    {
+        auto id = boost::lexical_cast<boost::uuids::uuid>(id_str);
+        default_string_format = document->string_formats->GetFormat(id);
+    }
+    catch (std::bad_cast& ex)
+    {
+        return false;
+    }
+
+    if (!value.HasMember("name") || !value["name"].IsString())
+        return false;
+    name = value["name"].GetString();
+
+    if (!value.HasMember("alignment") || !value["alignment"].IsInt())
+        return false;
+    alignment = (Alignment)value["alignment"].GetInt();
+
+    if (!value.HasMember("word_wrap") || !value["word_wrap"].IsInt())
+        return false;
+    word_wrap = (WordWrap)value["word_wrap"].GetInt();
+
+    if (!value.HasMember("line_spacing") || !value["line_spacing"].IsInt())
+        return false;
+    line_spacing = value["line_spacing"].GetInt();
+
+    if (!value.HasMember("indent_before") || !value["indent_before"].IsInt())
+        return false;
+    indent_before = value["indent_before"].GetInt();
+
+    if (!value.HasMember("indent_after") || !value["indent_after"].IsInt())
+        return false;
+    indent_after = value["indent_after"].GetInt();
+
+    if (!value.HasMember("indent_first_line") || !value["indent_first_line"].IsInt())
+        return false;
+    indent_first_line = value["indent_first_line"].GetInt();
+
+    if (!value.HasMember("spacing_before") || !value["spacing_before"].IsInt())
+        return false;
+    spacing_before = value["spacing_before"].GetInt();
+
+    if (!value.HasMember("spacing_after") || !value["spacing_after"].IsInt())
+        return false;
+    spacing_after = value["spacing_after"].GetInt();
+
+    return true;
 }
 
 //ParagraphFormats
@@ -188,6 +356,37 @@ ParagraphFormatPtr ParagraphFormats::GetFormat(const std::string& name)
 void ParagraphFormats::GetFormats(std::vector<ParagraphFormatPtr>& formats)
 {
     formats = paragraph_formats;
+}
+
+void ParagraphFormats::ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc)
+{
+    for (auto& f : paragraph_formats)
+        f->ToJson(value, alloc);
+}
+
+bool ParagraphFormats::FromJson(Document* document, rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc)
+{
+    if (!value.IsArray())
+        return false;
+    std::vector<ParagraphFormatPtr> _paragraph_formats;
+    rapidjson::GenericArray arr = value.GetArray();
+    for (rapidjson::SizeType i = 0; i < arr.Size(); ++i)
+    {
+        if (!arr[i].IsObject())
+            return false;
+        rapidjson::Value value = arr[i].GetObject();
+        ParagraphFormatPtr p(new ParagraphFormat());
+        if (!p->FromJson(document, value, alloc))
+            return false;
+        auto it = std::find_if(paragraph_formats.begin(), paragraph_formats.end(), 
+            [p](auto& f)
+            {
+                return *f == *p;
+            });
+        if (it == paragraph_formats.end())
+            paragraph_formats.push_back(p);
+    }
+    return true;
 }
 
 //FormulaFormat
@@ -355,72 +554,4 @@ TextFormatPtr TextFormats::GetFormat(TextFormat::Paging paging)
     return t;
 }
 
-}
-
-namespace boost
-{
-namespace serialization
-{
-
-template <>
-void load_construct_data(boost::archive::binary_iarchive& ar, yutovo::StringFormat* t, const unsigned int version)
-{
-    boost::uuids::uuid id;
-    std::string family;
-    uint size;
-    bool bold;
-    bool italic;
-    bool underline;
-    ar >> id;
-    ar >> family;
-    ar >> size;
-    ar >> bold;
-    ar >> italic;
-    ar >> underline;
-    uint32_t c;
-    ar >> c;
-    yutovo::Color color = yutovo::Color::FromInt(c);
-    ar >> c;
-    yutovo::Color selection_color = yutovo::Color::FromInt(c);
-    ::new(t)yutovo::StringFormat(id, family, size, bold, italic, underline, color, selection_color);
-}
-
-template <>
-void load_construct_data(boost::archive::binary_iarchive& ar, yutovo::ParagraphFormat* t, const unsigned int version)
-{
-    std::string name;
-    yutovo::ParagraphFormat::Alignment alignment;
-    yutovo::ParagraphFormat::WordWrap word_wrap;
-    uint line_spacing;
-    uint indent_before;
-    uint indent_after;
-    uint indent_first_line;
-    uint spacing_before;
-    uint spacing_after;
-    ar >> name;
-    ar >> alignment;
-    ar >> word_wrap;
-    ar >> line_spacing;
-    ar >> indent_before;
-    ar >> indent_after;
-    ar >> indent_first_line;
-    ar >> spacing_before;
-    ar >> spacing_after;
-    boost::uuids::uuid string_format_id;
-    ar >> string_format_id;
-    yutovo::DocumentUserData& user_data = yutovo::GetUserData<yutovo::DocumentUserData>(ar);
-    auto string_format = user_data.document->string_formats->GetFormat(string_format_id);
-
-    ::new(t)yutovo::ParagraphFormat(name, alignment, word_wrap, line_spacing, indent_before, indent_after, indent_first_line, spacing_before, 
-        spacing_after, string_format);
-}
-
-template <>
-void load_construct_data(boost::archive::binary_iarchive& ar, yutovo::ParagraphFormats* t, const unsigned int version)
-{
-    yutovo::DocumentUserData& user_data = yutovo::GetUserData<yutovo::DocumentUserData>(ar);
-    ::new(t)yutovo::ParagraphFormats(user_data.document->string_formats);
-}
-
-}
 }

@@ -247,11 +247,11 @@ struct LoadTask : Task
 
 struct CopyTask : Task
 {
-    CopyTask(ElementPtr _text, std::stringstream& _out_array, std::u32string& _out_text, bool _cut);
+    CopyTask(ElementPtr _text, std::u32string& _out_json, std::u32string& _out_text, bool _cut);
 
     virtual bool Execute();
 
-    std::stringstream& out_array;
+    std::u32string& out_json;
     std::u32string& out_text;
     bool cut;
 };

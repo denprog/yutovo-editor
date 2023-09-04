@@ -11,13 +11,15 @@ namespace yutovo
 class Division : public MiddleShapeFormula
 {
 public:
-    Division(Element* _parent);
-    Division(Document* _document);
+    Division(Element* _parent, bool with_init = true);
+    Division(Document* _document, bool with_init = true);
     Division(const Division& source);
 
     virtual Element* Clone();
 
     virtual Element* Create(Element* parent);
+
+    static Element* FromJson(Element* parent, Document* document, const rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc);
 
     virtual void Draw() const;
     virtual bool Remake(bool with_elements = false);
@@ -33,52 +35,8 @@ public:
 
     void AddNumerator(ElementPtr numerator);
     void AddDenomerator(ElementPtr denomerator);
-
-    template <class Archive>
-    void save(Archive& ar, const unsigned int version) const
-    {
-        ar << first;
-        ar << last;
-    }
-
-    template <class Archive>
-    void load(Archive& ar, const unsigned int version)
-    {
-        ar >> first;
-        elements->Replace(ElementPtr(first), 0);
-        ar >> last;
-        elements->Replace(ElementPtr(last), 2);
-    }
-
-	BOOST_SERIALIZATION_SPLIT_MEMBER()
 };
 
-}
-
-namespace boost
-{
-namespace serialization
-{
-
-template<class Archive>
-void save_construct_data(Archive& ar, const yutovo::Division* t, const unsigned int version)
-{
-    ar << t->parent;
-}
-
-template<class Archive>
-void load_construct_data(Archive& ar, yutovo::Division* t, const unsigned int version)
-{
-    yutovo::Element* p;
-    ar >> p;
-    yutovo::DocumentUserData& user_data = yutovo::GetUserData<yutovo::DocumentUserData>(ar);
-    if (p)
-        ::new(t)yutovo::Division(p);
-    else
-        ::new(t)yutovo::Division(user_data.document);
-}
-
-}
 }
 
 #endif

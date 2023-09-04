@@ -6,15 +6,15 @@
 namespace yutovo
 {
 
-Power::Power(Element* _parent) :
-    MiddleShapeFormula(_parent)
+Power::Power(Element* _parent, bool with_init) :
+    MiddleShapeFormula(_parent, with_init)
 {
     type = ElementType::POWER;
     UpdateLevel(level);
 }
 
-Power::Power(Document* _document) :
-    MiddleShapeFormula(_document)
+Power::Power(Document* _document, bool with_init) :
+    MiddleShapeFormula(_document, with_init)
 {
     type = ElementType::POWER;
     UpdateLevel(level);
@@ -33,6 +33,11 @@ Element* Power::Clone()
 Element* Power::Create(Element* _parent)
 {
     return new Power(_parent);
+}
+
+Element* Power::FromJson(Element* parent, Document* document, const rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc)
+{
+    return new Power(parent, false);
 }
 
 void Power::Draw() const
@@ -100,7 +105,8 @@ void Power::UpdateLevel(uint8_t _level)
     MiddleShapeFormula::UpdateLevel(_level);
     if (_level >= MAX_LEVEL)
         return;
-    last->UpdateLevel(_level + 1);
+    if (last)
+        last->UpdateLevel(_level + 1);
 }
 
 std::string Power::ToHtml()
@@ -114,6 +120,8 @@ std::string Power::ToHtml()
 
 std::u32string Power::ToText()
 {
+    if (!first || !last)
+        return U"";
     return U"pow(" + first->ToText() + U"," + last->ToText() + U")";
 }
 

@@ -12,9 +12,11 @@ class CodeRow;
 class MiddleShapeFormula : public Formula
 {
 public:
-    MiddleShapeFormula(Element* _parent);
-    MiddleShapeFormula(Document* _document);
+    MiddleShapeFormula(Element* _parent, bool with_init = true);
+    MiddleShapeFormula(Document* _document, bool with_init = true);
     MiddleShapeFormula(const MiddleShapeFormula& source);
+
+    virtual bool AfterFromJson();
 
     void Init();
 

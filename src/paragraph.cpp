@@ -40,6 +40,30 @@ Element* Paragraph::Create(Element* parent)
     return new Paragraph(parent);
 }
 
+void Paragraph::ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc)
+{
+    Element::ToJson(value, alloc);
+    rapidjson::Value _format_name(format->name.c_str(), alloc);
+    value.AddMember("format_name", _format_name, alloc);
+}
+
+Element* Paragraph::FromJson(Element* parent, Document* document, const rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc)
+{
+    Paragraph* p = nullptr;
+    if (parent)
+        p = new Paragraph(parent, false);
+    else
+        p = new Paragraph(document, false);
+    
+    if (!value.HasMember("format_name") || !value["format_name"].IsString())
+        return p;
+    auto format_name = value["format_name"].GetString();
+    auto f = document->paragraph_formats->GetFormat(format_name);
+    if (f)
+        p->format = f;
+    return p;
+}
+
 void Paragraph::Draw() const
 {
     auto _id = document->GetFirstVisibleRow(id);

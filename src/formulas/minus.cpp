@@ -33,6 +33,21 @@ Element* Minus::Create(Element* _parent)
     return new Minus(_parent);
 }
 
+Element* Minus::FromJson(Element* parent, Document* document, const rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc)
+{
+    Minus* p = nullptr;
+    if (parent)
+        p = new Minus(parent);
+    else
+        p = new Minus(document);
+    if (!p->SymbolFromJson(value, alloc))
+    {
+        delete p;
+        return nullptr;
+    }
+    return p;
+}
+
 std::string Minus::ToHtml()
 {
     return "<mo>-</mo>";

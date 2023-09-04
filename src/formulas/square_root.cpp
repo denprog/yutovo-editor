@@ -6,16 +6,20 @@
 namespace yutovo
 {
 
-SquareRoot::SquareRoot(Element* _parent) :
+SquareRoot::SquareRoot(Element* _parent, bool with_init) :
     Formula(_parent)
 {
-    Init();
+    type = ElementType::SQUARE_ROOT;
+    if (with_init)
+        Init();
 }
 
-SquareRoot::SquareRoot(Document* _document) :
+SquareRoot::SquareRoot(Document* _document, bool with_init) :
     Formula(_document)
 {
-    Init();
+    type = ElementType::SQUARE_ROOT;
+    if (with_init)
+        Init();
 }
 
 SquareRoot::SquareRoot(const SquareRoot& source) :
@@ -42,6 +46,20 @@ Element* SquareRoot::Clone()
 Element* SquareRoot::Create(Element* _parent)
 {
     return new SquareRoot(_parent);
+}
+
+Element* SquareRoot::FromJson(Element* parent, Document* document, const rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc)
+{
+    return new SquareRoot(parent, false);
+}
+
+bool SquareRoot::AfterFromJson()
+{
+    if (elements->Count() != 2)
+        return false;
+    shape = (Shape*)elements->Get(0).get();
+    last = (CodeRow*)elements->Get(1).get();
+    return true;
 }
 
 void SquareRoot::Draw() const
@@ -162,6 +180,8 @@ std::string SquareRoot::ToHtml()
 
 std::u32string SquareRoot::ToText()
 {
+    if (!last)
+        return U"";
     return U"sqrt(" + last->ToText() + U")";
 }
 

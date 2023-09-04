@@ -38,6 +38,13 @@ Element* Row::Create(Element* parent)
     return new Row(parent);
 }
 
+Element* Row::FromJson(Element* parent, Document* document, const rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc)
+{
+    if (parent)
+        return new Row(parent);
+    return new Row(document);
+}
+
 bool Row::Remake(bool with_elements)
 {
     bool changed = Element::Remake(with_elements);

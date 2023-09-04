@@ -4,14 +4,7 @@
 #include <string>
 #include <memory>
 #include <vector>
-#include <boost/serialization/split_member.hpp>
-#include <boost/serialization/shared_ptr.hpp>
-#include <boost/serialization/unique_ptr.hpp>
-#include <boost/serialization/vector.hpp>
 #include <boost/uuid/uuid.hpp>
-#include <boost/uuid/uuid_generators.hpp>
-#include <boost/uuid/uuid_io.hpp>
-#include <boost/uuid/uuid_serialize.hpp>
 #include "util.h"
 
 namespace yutovo
@@ -25,25 +18,8 @@ struct StringFormat
  
     bool operator==(const StringFormat& f) const;
 
-    template <class Archive>
-    void save(Archive& ar, const unsigned int version) const
-    {
-        ar << id;
-        ar << family;
-        ar << size;
-        ar << bold;
-        ar << italic;
-        ar << underline;
-        ar << color.ToInt();
-        ar << selection_color.ToInt();
-    }
-
-    template <class Archive>
-    void load(Archive& ar, const unsigned int version)
-    {
-    }
-
-    BOOST_SERIALIZATION_SPLIT_MEMBER()
+    void ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc);
+    bool FromJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc);
 
     void Reset();
 
@@ -72,11 +48,8 @@ public:
     StringFormatPtr GetFormat(const boost::uuids::uuid& _id);
     void AddFormats(const StringFormats& source);
 
-    template <class Archive>
-    void serialize(Archive& ar, const unsigned int version)
-    {
-        ar & string_formats;
-    }
+    void ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc);
+    bool FromJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc);
 
     void Clear()
     {
@@ -111,27 +84,8 @@ struct ParagraphFormat
     
     bool operator==(const ParagraphFormat& f) const;
 
-    template <class Archive>
-    void save(Archive& ar, const unsigned int version) const
-    {
-        ar << name;
-        ar << alignment;
-        ar << word_wrap;
-        ar << line_spacing;
-        ar << indent_before;
-        ar << indent_after;
-        ar << indent_first_line;
-        ar << spacing_before;
-        ar << spacing_after;
-        ar << default_string_format->id;
-    }
-
-    template <class Archive>
-    void load(Archive& ar, const unsigned int version)
-    {
-    }
-
-    BOOST_SERIALIZATION_SPLIT_MEMBER()
+    void ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc);
+    bool FromJson(Document* document, rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc);
 
     std::string name;
     Alignment alignment = Alignment::Left;
@@ -159,11 +113,8 @@ public:
     ParagraphFormatPtr GetFormat(const std::string& name);
     void GetFormats(std::vector<ParagraphFormatPtr>& formats);
 
-    template <class Archive>
-    void serialize(Archive& ar, const unsigned int version)
-    {
-        ar & paragraph_formats;
-    }
+    void ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc);
+    bool FromJson(Document* document, rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc);
     
 private:
     StringFormatsPtr string_formats;
@@ -297,23 +248,6 @@ private:
     static std::vector<TextFormatPtr> text_formats;
 };
 
-}
-
-namespace boost
-{
-namespace serialization
-{
-
-template <class Archive>
-void load_construct_data(Archive& ar, yutovo::StringFormat* t, const unsigned int version);
-
-template <class Archive>
-void load_construct_data(Archive& ar, yutovo::ParagraphFormat* t, const unsigned int version);
-
-template <class Archive>
-void load_construct_data(Archive& ar, yutovo::ParagraphFormats* t, const unsigned int version);
-
-}
 }
 
 #endif

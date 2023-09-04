@@ -233,8 +233,7 @@ TEST_F(FormulaTest, square_root4)
     document.InsertPlus(true);
     document.InsertString("3", true);
     document.InsertSquareRoot(true);
-    document.InsertString("567", true);
-    document.WaitMainLoop();
+    document.WaitTask(document.InsertString("567", true));
     document.Save("square_root4_1.yut");
 
     document.WaitTask(document.New());

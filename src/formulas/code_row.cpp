@@ -10,11 +10,12 @@ CodeRow::CodeRow(Document* _document) :
     type = ElementType::CODE_ROW;
 }
 
-CodeRow::CodeRow(Element* parent) :
+CodeRow::CodeRow(Element* parent, bool with_string) :
     Row(parent, false)
 {
     type = ElementType::CODE_ROW;
-    AddEmptyElement();
+    if (with_string)
+        AddEmptyElement();
 }
 
 Element* CodeRow::Clone()
@@ -25,6 +26,13 @@ Element* CodeRow::Clone()
 Element* CodeRow::Create(Element* parent)
 {
     return new CodeRow(parent);
+}
+
+Element* CodeRow::FromJson(Element* parent, Document* document, const rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc)
+{
+    if (parent)
+        return new CodeRow(parent, false);
+    return new CodeRow(document);
 }
 
 bool CodeRow::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo, ElementId& changed_element)

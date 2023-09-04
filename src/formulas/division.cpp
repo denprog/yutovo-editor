@@ -7,14 +7,14 @@ namespace yutovo
 
 //Division
 
-Division::Division(Element* _parent) : 
-    MiddleShapeFormula(_parent)
+Division::Division(Element* _parent, bool with_init) : 
+    MiddleShapeFormula(_parent, with_init)
 {
     type = ElementType::DIVISION;
 }
 
-Division::Division(Document* _document) :
-    MiddleShapeFormula(_document)
+Division::Division(Document* _document, bool with_init) :
+    MiddleShapeFormula(_document, with_init)
 {
     type = ElementType::DIVISION;
 }
@@ -32,6 +32,11 @@ Element* Division::Clone()
 Element* Division::Create(Element* parent)
 {
     return new Division(parent);
+}
+
+Element* Division::FromJson(Element* parent, Document* document, const rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc)
+{
+    return new Division(parent, false);
 }
 
 void Division::Draw() const
@@ -144,6 +149,8 @@ std::string Division::ToHtml()
 
 std::u32string Division::ToText()
 {
+    if (!first || !last)
+        return U"";
     return U"(" + first->ToText() + U")/(" + last->ToText() + U")";
 }
 

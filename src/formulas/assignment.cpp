@@ -6,14 +6,14 @@ namespace yutovo
 
 //Assignment
 
-Assignment::Assignment(Element* _parent) :
-    MiddleShapeFormula(_parent)
+Assignment::Assignment(Element* _parent, bool with_init) :
+    MiddleShapeFormula(_parent, with_init)
 {
     type = ElementType::ASSIGNMENT;
 }
 
-Assignment::Assignment(Document* _document) :
-    MiddleShapeFormula(_document)
+Assignment::Assignment(Document* _document, bool with_init) :
+    MiddleShapeFormula(_document, with_init)
 {
     type = ElementType::ASSIGNMENT;
 }
@@ -31,6 +31,13 @@ Element* Assignment::Clone()
 Element* Assignment::Create(Element* _parent)
 {
     return new Assignment(_parent);
+}
+
+Element* Assignment::FromJson(Element* parent, Document* document, const rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc)
+{
+    if (parent)
+        return new Assignment(parent, false);
+    return new Assignment(document, false);
 }
 
 void Assignment::Draw() const
@@ -185,6 +192,8 @@ std::string Assignment::ToHtml()
 
 std::u32string Assignment::ToText()
 {
+    if (!first)
+        return U"";
     std::u32string s = first->ToText();
     s += U"=";
     if (last)

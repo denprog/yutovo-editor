@@ -11,13 +11,17 @@ class Equation : public MiddleShapeFormula
 {
 public:
     Equation(Element* _parent);
-    Equation(Element* _parent, yutovo_service::ResultType _result_type);
-    Equation(Document* _document, yutovo_service::ResultType _result_type);
+    Equation(Element* _parent, yutovo_service::ResultType _result_type, bool with_init = true);
+    Equation(Document* _document, yutovo_service::ResultType _result_type, bool with_init = true);
     Equation(const Equation& source);
 
     virtual Element* Clone();
 
     virtual Element* Create(Element* _parent);
+
+    virtual void ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc);
+    static Element* FromJson(Element* parent, Document* document, const rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc);
+    virtual bool AfterFromJson();
 
     virtual void Draw() const;
 
@@ -49,29 +53,6 @@ public:
     virtual std::string ToHtml();
     virtual std::u32string ToText();
 
-    template <class Archive>
-    void save(Archive& ar, const unsigned int version) const
-    {
-        ar << result_type;
-        ar << first;
-        ar << last;
-    }
-
-    template <class Archive>
-    void load(Archive& ar, const unsigned int version)
-    {
-        ar >> first;
-        elements->Replace(ElementPtr(first), 0);
-        ar >> last;
-        elements->Replace(ElementPtr(last), 2);
-
-        auto* r = last->elements->Get(0).get();
-        result.reset((ResultRow*)r->Clone());
-        last->elements->Replace(result, 0);
-    }
-
-	BOOST_SERIALIZATION_SPLIT_MEMBER()
-
 protected:
     void UpdateResult(ParserString& str);
 
@@ -85,34 +66,6 @@ protected:
     bool ready = true;
 };
 
-}
-
-namespace boost
-{
-namespace serialization
-{
-
-template<class Archive>
-void save_construct_data(Archive& ar, const yutovo::Equation* t, const unsigned int version)
-{
-    ar << t->parent;
-}
-
-template<class Archive>
-void load_construct_data(Archive& ar, yutovo::Equation* t, const unsigned int version)
-{
-    yutovo::Element* p;
-    ar >> p;
-    int result_type;
-    ar >> result_type;
-    yutovo::DocumentUserData& user_data = yutovo::GetUserData<yutovo::DocumentUserData>(ar);
-    if (p)
-        ::new(t)yutovo::Equation(p, (yutovo_service::ResultType)result_type);
-    else
-        ::new(t)yutovo::Equation(user_data.document, (yutovo_service::ResultType)result_type);
-}
-
-}
 }
 
 #endif

@@ -13,14 +13,13 @@
 #include "util.h"
 #include "result_codes.h"
 #include <assert.h>
-#include <boost/archive/binary_oarchive.hpp>
-#include <boost/archive/binary_iarchive.hpp>
-#include <boost/serialization/shared_ptr.hpp>
 #include <boost/algorithm/string.hpp>
 #include <sstream>
 #include <vector>
 #include <boost/locale.hpp>
 #include <yutovo_service/types.h>
+#include <rapidjson/prettywriter.h>
+#include <rapidjson/istreamwrapper.h>
 
 namespace yutovo
 {
@@ -1044,38 +1043,48 @@ SaveTask::SaveTask(ElementPtr _text, const std::string _filename) :
 
 bool SaveTask::Execute()
 {
-    std::ofstream file(filename);
+    rapidjson::Document json;
+    auto& alloc = json.GetAllocator();
+    json.SetObject();
+
+    //add string formats
+    rapidjson::Value string_formats(rapidjson::kArrayType);
+    document->string_formats->ToJson(string_formats, alloc);
+    json.AddMember("string_formats", string_formats, alloc);
+
+    //add paragraph formats
+    rapidjson::Value paragraph_formats(rapidjson::kArrayType);
+    document->paragraph_formats->ToJson(paragraph_formats, alloc);
+    json.AddMember("paragraph_formats", paragraph_formats, alloc);
+
+    rapidjson::Value t(rapidjson::kObjectType);
+    text->ToJson(t, alloc);
+    json.AddMember("text", t, alloc);
+
+    rapidjson::StringBuffer buffer;
+    if (document->config.pretty_json)
+    {
+        rapidjson::PrettyWriter<rapidjson::StringBuffer> writer(buffer);
+        json.Accept(writer);
+    }
+    else
+    {
+        rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
+        json.Accept(writer);
+    }
+    std::string str = buffer.GetString();
+
     try
     {
-        boost::archive::binary_oarchive oarchive(file);
-        RegisterTypes(oarchive);
-
-        oarchive << document->string_formats; //store string formats
-        oarchive << document->paragraph_formats; //store paragraph formats
-        oarchive << text; //store text
+        std::ofstream file(filename);
+        file.exceptions(~std::ofstream::goodbit);
+        file << str;
+        file.close();
     }
-    catch (boost::archive::archive_exception& ex)
-    {
-        window->OnSaveResult(id, ToIOResult(ex.code));
-        logger->Error("Error saving document '{}': {}, {}", filename, ex.code, ex.what());
-        return false;
-    }
-    catch (const std::ifstream::failure& ex)
+    catch (const std::ios_base::failure& ex)
     {
         window->OnSaveResult(id, IOResult::InputStreamError);
         logger->Error("Error saving file '{}': {}", filename, ex.what());
-        return false;
-    }
-    catch (const std::exception& ex)
-    {
-        window->OnSaveResult(id, IOResult::InputStreamError);
-        logger->Error("Error saving file '{}': {}", filename, ex.what());
-        return false;
-    }
-    catch (...)
-    {
-        window->OnSaveResult(id, IOResult::InputStreamError);
-        logger->Error("Error saving file '{}'", filename);
         return false;
     }
 
@@ -1098,48 +1107,47 @@ bool LoadTask::Execute()
 
     if (filename.substr(filename.find_last_of(".") + 1) == "yut")
     {
-        DocumentUserData user_data{document};
+        std::ifstream file(filename);
+        if (!file.is_open())
+        {
+            window->OnLoadResult(id, IOResult::InputStreamError);
+            logger->Error("Error loading file '{}': File not open", filename);
+            return false;
+        }
 
-        try
-        {
-            std::ifstream file(filename);
-            if (!file.is_open())
-            {
-                window->OnLoadResult(id, IOResult::InputStreamError);
-                logger->Error("Error loading file '{}': File not open", filename);
-                return false;
-            }
-            UserDataAdapter<DocumentUserData, boost::archive::binary_iarchive> iarchive(user_data, file);
-            RegisterTypes(iarchive);
+        rapidjson::IStreamWrapper isw{file};
 
-            iarchive >> document->string_formats; //restore string formats
-            iarchive >> document->paragraph_formats; //restore paragraph formats
-            iarchive >> t; //restore text
-        }
-        catch (boost::archive::archive_exception& ex)
-        {
-            window->OnLoadResult(id, ToIOResult(ex.code));
-            logger->Error("Error loading file '{}': {}, {}", filename, ex.code, ex.what());
-            return false;
-        }
-        catch (const std::ifstream::failure& ex)
+        rapidjson::Document doc{};
+        doc.ParseStream(isw);
+        if (doc.HasParseError())
         {
             window->OnLoadResult(id, IOResult::InputStreamError);
-            logger->Error("Error loading file '{}': {}", filename, ex.what());
+            logger->Error("Error parsing file '{}'", filename);
             return false;
         }
-        catch (const std::exception& ex)
+
+        if (doc.HasMember("string_formats") && doc["string_formats"].IsArray())
+        {
+            //load string formats
+            document->string_formats->FromJson(doc["string_formats"], doc.GetAllocator());
+        }
+
+        if (doc.HasMember("paragraph_formats"))
+        {
+            //load paragraph formats
+            document->paragraph_formats->FromJson(document, doc["paragraph_formats"], doc.GetAllocator());
+        }
+
+        if (!doc.HasMember("text") || !doc["text"].IsObject())
         {
             window->OnLoadResult(id, IOResult::InputStreamError);
-            logger->Error("Error loading file '{}': {}", filename, ex.what());
+            logger->Error("File '{}' does not contain text", filename);
             return false;
         }
-        catch (...)
-        {
-            window->OnLoadResult(id, IOResult::InputStreamError);
-            logger->Error("Error loading file '{}'", filename);
-            return false;
-        }
+
+        //load text
+        rapidjson::Value _text = doc["text"].GetObject();
+        t = ElementPtr(CreateFromJson(nullptr, document, _text, doc.GetAllocator()));
     }
     else //".txt" and others load as text
     {
@@ -1186,9 +1194,17 @@ bool LoadTask::Execute()
 
 //CopyTask
 
-CopyTask::CopyTask(ElementPtr _text, std::stringstream& _out_array, std::u32string& _out_text, bool _cut) :
+// CopyTask::CopyTask(ElementPtr _text, std::stringstream& _out_array, std::u32string& _out_text, bool _cut) :
+//     Task(_text),
+//     out_array(_out_array),
+//     out_text(_out_text),
+//     cut(_cut)
+// {
+// }
+
+CopyTask::CopyTask(ElementPtr _text, std::u32string& _out_json, std::u32string& _out_text, bool _cut) :
     Task(_text),
-    out_array(_out_array),
+    out_json(_out_json),
     out_text(_out_text),
     cut(_cut)
 {
@@ -1214,19 +1230,36 @@ bool CopyTask::Execute()
         el->parent = nullptr; //these elements have no parent
     }
 
-    boost::archive::binary_oarchive oarchive(out_array);
-    RegisterTypes(oarchive);
+    rapidjson::Document json;
+    auto& alloc = json.GetAllocator();
+    json.SetObject();
 
-    try
+    //add string formats
+    rapidjson::Value string_formats(rapidjson::kArrayType);
+    document->string_formats->ToJson(string_formats, alloc);
+    json.AddMember("string_formats", string_formats, alloc);
+
+    rapidjson::Value arr(rapidjson::kArrayType);
+    for (auto& el : copy)
     {
-        oarchive << document->string_formats; //store string formats
-        oarchive << copy;
+        rapidjson::Value t(rapidjson::kObjectType);
+        el->ToJson(t, alloc);
+        arr.PushBack(t, alloc);
     }
-    catch (boost::archive::archive_exception& ex)
+    json.AddMember("copy", arr, alloc);
+
+    rapidjson::StringBuffer buffer;
+    if (document->config.pretty_json)
     {
-        window->OnCopyResult(CopyResult::CopyError);
-        return false;
+        rapidjson::PrettyWriter<rapidjson::StringBuffer> writer(buffer);
+        json.Accept(writer);
     }
+    else
+    {
+        rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
+        json.Accept(writer);
+    }
+    out_json = ToUtfString(buffer.GetString());
 
     window->OnCopyResult(CopyResult::Success);
 

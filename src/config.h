@@ -2,7 +2,6 @@
 #define __CONFIG_H__
 
 #include <string>
-#include <boost/serialization/serialization.hpp>
 #include "util.h"
 #include <yutovo_calculator/unit.h>
 
@@ -25,6 +24,7 @@ struct Config
     //document
     bool with_border = true;
     bool formula_border = true;
+    bool pretty_json = false; //for debug purposes
 
     //caret
     bool caret_visible = true;
@@ -43,15 +43,8 @@ struct Config
                 result_angle_measure == other.result_angle_measure && show_angle_measure == other.show_angle_measure;
         }
 
-        template <class Archive>
-        void serialize(Archive& ar, const unsigned int version)
-        {
-            ar & precision;
-            ar & exp;
-            ar & default_angle_measure;
-            ar & result_angle_measure;
-            ar & show_angle_measure;
-        }
+        void ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc);
+        void FromJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc);
 
         uint precision = 3;
         uint exp = 10;
@@ -70,12 +63,8 @@ struct Config
             return result_notation == other.result_notation && show_notation == other.show_notation;
         }
 
-        template <class Archive>
-        void serialize(Archive& ar, const unsigned int version)
-        {
-            ar & result_notation;
-            ar & show_notation;
-        }
+        void ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc);
+        void FromJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc);
 
         Notation result_notation = Notation::DECIMAL;
         bool show_notation = true;
@@ -90,11 +79,8 @@ struct Config
             return fraction_form == other.fraction_form;
         }
 
-        template <class Archive>
-        void serialize(Archive& ar, const unsigned int version)
-        {
-            ar & fraction_form;
-        }
+        void ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc);
+        void FromJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc);
 
         FractionForm fraction_form = FractionForm::PROPER;
         yutovo_calculator::Unit unit;
@@ -111,17 +97,8 @@ struct Config
                 form == other.form && max_count == other.max_count;
         }
 
-        template <class Archive>
-        void serialize(Archive& ar, const unsigned int version)
-        {
-            ar & precision;
-            ar & exp;
-            ar & default_angle_measure;
-            ar & result_angle_measure;
-            ar & show_angle_measure;
-            ar & form;
-            ar & max_count;
-        }
+        void ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc);
+        void FromJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc);
 
         uint precision = 3;
         uint exp = 10;
@@ -144,16 +121,8 @@ struct Config
                 rational_result == other.rational_result && complex_result == other.complex_result;
         }
 
-        template <class Archive>
-        void serialize(Archive& ar, const unsigned int version)
-        {
-            ar & result_auto_advance;
-            ar & results_order;
-            ar & real_result;
-            ar & integer_result;
-            ar & rational_result;
-            ar & complex_result;
-        }
+        void ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc);
+        void FromJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc);
 
         bool result_auto_advance = true;
         yutovo_service::ResultType results_order[4] = {ResultType::REAL, ResultType::INTEGER, ResultType::RATIONAL, ResultType::COMPLEX};

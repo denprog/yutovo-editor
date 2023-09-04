@@ -50,25 +50,15 @@ public:
 
     virtual Element* Create(Element* _parent);
 
+    virtual void ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc);
+    static Element* FromJson(Element* parent, Document* document, const rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc);
+
     virtual void Solve(const ParserString& expression);
 
     virtual void PutResult(Result result);
 
     bool SetConfig(const int precision, const int exp, const AngleMeasure result_angle_measure);
     bool SetConfig(const yutovo_calculator::Unit& unit);
-
-    template <class Archive>
-    void save(Archive& ar, const unsigned int version) const
-    {
-        ar << config;
-    }
-
-    template <class Archive>
-    void load(Archive& ar, const unsigned int version)
-    {
-    }
-
-	BOOST_SERIALIZATION_SPLIT_MEMBER()
 
 public:
     Config::RealResultConfig config;
@@ -85,24 +75,14 @@ public:
 
     virtual Element* Clone();
 
+    virtual void ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc);
+    static Element* FromJson(Element* parent, Document* document, const rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc);
+
     virtual void Solve(const ParserString& expression);
 
     virtual void PutResult(Result result);
 
     bool SetConfig(Notation result_notation);
-
-    template <class Archive>
-    void save(Archive& ar, const unsigned int version) const
-    {
-        ar << config;
-    }
-
-    template <class Archive>
-    void load(Archive& ar, const unsigned int version)
-    {
-    }
-
-	BOOST_SERIALIZATION_SPLIT_MEMBER()
 
 public:
     Config::IntegerResultConfig config;
@@ -118,25 +98,15 @@ public:
 
     virtual Element* Clone();
 
+    virtual void ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc);
+    static Element* FromJson(Element* parent, Document* document, const rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc);
+
     virtual void Solve(const ParserString& expression);
 
     virtual void PutResult(Result result);
 
     bool SetConfig(FractionForm fraction_form);
     bool SetConfig(const yutovo_calculator::Unit& unit);
-
-    template <class Archive>
-    void save(Archive& ar, const unsigned int version) const
-    {
-        ar << config;
-    }
-
-    template <class Archive>
-    void load(Archive& ar, const unsigned int version)
-    {
-    }
-
-	BOOST_SERIALIZATION_SPLIT_MEMBER()
 
 public:
     Config::RationalResultConfig config;
@@ -153,20 +123,10 @@ public:
 
     virtual Element* Clone();
 
+    virtual void ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc);
+    static Element* FromJson(Element* parent, Document* document, const rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc);
+
     bool SetConfig(const int precision, const int exp, const AngleMeasure result_angle_measure);
-
-    template <class Archive>
-    void save(Archive& ar, const unsigned int version) const
-    {
-        ar << config;
-    }
-
-    template <class Archive>
-    void load(Archive& ar, const unsigned int version)
-    {
-    }
-
-	BOOST_SERIALIZATION_SPLIT_MEMBER()
 
 public:
     Config::ComplexResultConfig config;
@@ -192,6 +152,9 @@ public:
 
     virtual Element* Create(Element* _parent);
 
+    virtual void ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc);
+    static Element* FromJson(Element* parent, Document* document, const rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc);
+
     virtual void Solve(const ParserString& expression);
 
     virtual void PutResult(Result result);
@@ -207,119 +170,12 @@ public:
 
     virtual std::string ToHtml();
 
-    template <class Archive>
-    void save(Archive& ar, const unsigned int version) const
-    {
-        ar << config;
-    }
-
-    template <class Archive>
-    void load(Archive& ar, const unsigned int version)
-    {
-    }
-
-	BOOST_SERIALIZATION_SPLIT_MEMBER()
-
 public:
     Config::AutoResultConfig config;
 };
 
 typedef std::shared_ptr<AutoResult> AutoResultPtr;
 
-}
-
-namespace boost
-{
-
-namespace serialization
-{
-
-template<class Archive>
-void save_construct_data(Archive& ar, const yutovo::RealResult* t, const unsigned int version)
-{
-    ar << t->parent;
-}
-
-template<class Archive>
-void load_construct_data(Archive& ar, yutovo::RealResult* t, const unsigned int version)
-{
-    yutovo::Element* p;
-    ar >> p;
-    yutovo::Config::RealResultConfig config;
-    ar >> config;
-    yutovo::DocumentUserData& user_data = yutovo::GetUserData<yutovo::DocumentUserData>(ar);
-    ::new(t)yutovo::RealResult(p, config);
-}
-
-template<class Archive>
-void save_construct_data(Archive& ar, const yutovo::IntegerResult* t, const unsigned int version)
-{
-    ar << t->parent;
-}
-
-template<class Archive>
-void load_construct_data(Archive& ar, yutovo::IntegerResult* t, const unsigned int version)
-{
-    yutovo::Element* p;
-    ar >> p;
-    yutovo::Config::IntegerResultConfig config;
-    ar >> config;
-    yutovo::DocumentUserData& user_data = yutovo::GetUserData<yutovo::DocumentUserData>(ar);
-    ::new(t)yutovo::IntegerResult(p, config);
-}
-
-template<class Archive>
-void save_construct_data(Archive& ar, const yutovo::RationalResult* t, const unsigned int version)
-{
-    ar << t->parent;
-}
-
-template<class Archive>
-void load_construct_data(Archive& ar, yutovo::RationalResult* t, const unsigned int version)
-{
-    yutovo::Element* p;
-    ar >> p;
-    yutovo::Config::RationalResultConfig config;
-    ar >> config;
-    yutovo::DocumentUserData& user_data = yutovo::GetUserData<yutovo::DocumentUserData>(ar);
-    ::new(t)yutovo::RationalResult(p, config);
-}
-
-template<class Archive>
-void save_construct_data(Archive& ar, const yutovo::ComplexResult* t, const unsigned int version)
-{
-    ar << t->parent;
-}
-
-template<class Archive>
-void load_construct_data(Archive& ar, yutovo::ComplexResult* t, const unsigned int version)
-{
-    yutovo::Element* p;
-    ar >> p;
-    yutovo::Config::ComplexResultConfig config;
-    ar >> config;
-    yutovo::DocumentUserData& user_data = yutovo::GetUserData<yutovo::DocumentUserData>(ar);
-    ::new(t)yutovo::ComplexResult(p, config);
-}
-
-template<class Archive>
-void save_construct_data(Archive& ar, const yutovo::AutoResult* t, const unsigned int version)
-{
-    ar << t->parent;
-}
-
-template<class Archive>
-void load_construct_data(Archive& ar, yutovo::AutoResult* t, const unsigned int version)
-{
-    yutovo::Element* p;
-    ar >> p;
-    yutovo::Config::AutoResultConfig config;
-    ar >> config;
-    yutovo::DocumentUserData& user_data = yutovo::GetUserData<yutovo::DocumentUserData>(ar);
-    ::new(t)yutovo::AutoResult(p, config);
-}
-
-}
 }
 
 #endif
