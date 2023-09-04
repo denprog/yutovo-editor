@@ -239,10 +239,14 @@ struct SaveTask : Task
 struct LoadTask : Task
 {
     LoadTask(ElementPtr _text, const std::string _filename);
+    LoadTask(ElementPtr _text, const std::u32string& _json_str);
 
     virtual bool Execute();
 
+    bool LoadJson(rapidjson::Document& doc);
+
     std::string filename;
+    std::u32string json_str;
 };
 
 struct CopyTask : Task
