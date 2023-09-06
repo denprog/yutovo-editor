@@ -32,6 +32,9 @@ private:
 
     void EraseSolveTasks(const ElementId id);
 
+public:
+    std::string guid;
+    
 private:
     Document* document;
 
@@ -45,8 +48,6 @@ private:
     std::mutex tasks_mutex;
     std::atomic_bool next_circle;
     std::thread message_loop;
-
-    std::string guid;
 };
 
 }
