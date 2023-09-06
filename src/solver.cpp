@@ -20,9 +20,9 @@ using namespace yutovo_service;
 Solver::Solver(Document* _document) :
     document(_document),
     logger(Logger::GetInstance("programs/Math/bin/", "yutovo", true, true)),
-    message_loop(std::thread(&Solver::MessageLoop, this)),
-    guid(boost::uuids::to_string(boost::uuids::random_generator()()))
+    message_loop(std::thread(&Solver::MessageLoop, this))
 {
+    guid = boost::uuids::to_string(boost::uuids::random_generator()());
     result_types_seq = {ResultType::REAL, ResultType::INTEGER, ResultType::RATIONAL, ResultType::COMPLEX};
 }
 
@@ -131,7 +131,7 @@ void Solver::MessageLoop()
         logger->Error("Error connecting to the server: {}:{}", document->config.service_ip, document->config.service_port);
     else
     {
-        logger->Info("Solver connected to the server: {}:{}", document->config.service_ip, document->config.service_port);
+        logger->Info("Solver connected to the server: {}:{}, guid:{}", document->config.service_ip, document->config.service_port, guid);
         connected = true;
     }
 
@@ -159,7 +159,7 @@ void Solver::MessageLoop()
                 }
                 else if (!connected)
                 {
-                    logger->Info("Solver connected to the server: {}:{}", document->config.service_ip, document->config.service_port);
+                    logger->Info("Solver connected to the server: {}:{}, guid:{}", document->config.service_ip, document->config.service_port, guid);
                     connected = true;
                 }
             }
@@ -184,7 +184,7 @@ void Solver::MessageLoop()
                 }
                 else
                 {
-                    logger->Info("Solver connected to the server: {}:{}", document->config.service_ip, document->config.service_port);
+                    logger->Info("Solver connected to the server: {}:{}, guid:{}", document->config.service_ip, document->config.service_port, guid);
                     document->ReSolveErrors();
                     connection_error = false;
                 }
@@ -232,7 +232,7 @@ void Solver::MessageLoop()
                         logger->Error("Error connecting to the server: {}:{}", document->config.service_ip, document->config.service_port);
                     else
                     {
-                        logger->Info("Solver connected to the server: {}:{}", document->config.service_ip, document->config.service_port);
+                        logger->Info("Solver connected to the server: {}:{}, guid:{}", document->config.service_ip, document->config.service_port, guid);
                         document->ReSolveErrors();
                     }
                     if (socket->IsOpen() && tries-- > 0)

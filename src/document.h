@@ -228,7 +228,7 @@ public:
     void PutResult(ElementId _id, Result result);
     void AddResolveElement(ElementId _id);
     void AddChangedElement(ElementId _id);
-    std::string GetSolverGuid();
+    void GetSolverGuid(std::string& guid);
 
     bool IsVisible(ElementId _id);
     ElementId GetFirstVisibleParagraph();
