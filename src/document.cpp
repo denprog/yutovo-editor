@@ -1074,6 +1074,15 @@ ElementPtr Document::FindParentRow(const ElementId& id)
     return el;
 }
 
+uint Document::FindCodeBlock(const ElementId& id)
+{
+    auto el = FindParent(id, ElementType::CODE_BLOCK);
+    if (!el)
+        return 0;
+    CodeBlock* c = dynamic_cast<CodeBlock*>(el.get());
+    return c->code_id;
+}
+
 Rect Document::GetCaretRect(const CaretState& caret_state)
 {
     ElementPtr el = GetParent(caret_state.id);
@@ -2086,6 +2095,11 @@ void Document::AddChangedElement(ElementId _id)
 {
     if (std::find(changed_elements.begin(), changed_elements.end(), _id) == changed_elements.end())
         changed_elements.push_back(_id);
+}
+
+std::string Document::GetSolverGuid()
+{
+    return solver.guid;
 }
 
 bool Document::IsVisible(ElementId _id)

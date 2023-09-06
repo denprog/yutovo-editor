@@ -106,6 +106,7 @@ public:
     ElementId FindCurrentParentByType(const ElementType type);
     ElementPtr FindParentParagraph(const ElementId& id);
     ElementPtr FindParentRow(const ElementId& id);
+    uint FindCodeBlock(const ElementId& id);
 
     Rect GetCaretRect(const CaretState& caret_state);
 
@@ -227,6 +228,7 @@ public:
     void PutResult(ElementId _id, Result result);
     void AddResolveElement(ElementId _id);
     void AddChangedElement(ElementId _id);
+    std::string GetSolverGuid();
 
     bool IsVisible(ElementId _id);
     ElementId GetFirstVisibleParagraph();
