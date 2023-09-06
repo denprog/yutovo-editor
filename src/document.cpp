@@ -2097,9 +2097,9 @@ void Document::AddChangedElement(ElementId _id)
         changed_elements.push_back(_id);
 }
 
-std::string Document::GetSolverGuid()
+void Document::GetSolverGuid(std::string& guid)
 {
-    return solver.guid;
+    guid = solver.guid;
 }
 
 bool Document::IsVisible(ElementId _id)
