@@ -45,6 +45,7 @@ Element::Element(const Element& source) :
     caret(document->caret),
     selection(&document->selection),
     remake_always(source.remake_always),
+    can_merge(source.can_merge),
     on_change_subscribers(source.on_change_subscribers)
 {
     elements.reset(source.elements->Clone(this)); //deep copy
@@ -250,7 +251,7 @@ bool Element::Merge(const ElementPtr with_element)
 
 bool Element::CanMerge(const ElementPtr with_element)
 {
-    return false;
+    return can_merge;
 }
 
 void Element::UpdateStringFormat(const StringFormatPtr base_format, const StringFormatPtr new_format)

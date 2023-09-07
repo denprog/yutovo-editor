@@ -146,6 +146,8 @@ public:
     
     bool editable = true;
 
+    bool can_merge = false;
+
 protected:
     friend class Elements;
     friend class String;

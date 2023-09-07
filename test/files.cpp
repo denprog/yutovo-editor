@@ -418,4 +418,40 @@ TEST_F(DocumentTest, files9)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 0)) << document.GetEditorState().ToString();
 }
 
+//Split a code string with a space
+TEST_F(DocumentTest, files10)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.WaitTask(document.InsertString(" 123   4355 45 ", true));
+    document.WaitTask(document.Save("files10.yut"));
+    document.WaitTask(document.New());
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\"></span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+
+    document.Load("files10.yut");
+    document.WaitLoad();
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mi>Null</mi>"\
+                        "<mi>123</mi>"\
+                        "<mi>4355</mi>"\
+                        "<mi>45</mi>"\
+                        "<mi>Null</mi>"\
+                    "</mrow>"\
+                "</math>"\
+            "</p>"\
+        "</body>") 
+        << document.ToHtml();
+}
+
 }
