@@ -35,6 +35,64 @@ Element* CodeRow::FromJson(Element* parent, Document* document, const rapidjson:
     return new CodeRow(document);
 }
 
+void CodeRow::Normalize()
+{
+    Row::Normalize();
+
+    for (size_t i = 0; i < elements->Count();)
+    {
+        auto el = (*elements)[i];
+        if (document->IsString(el) && el->editable)
+        {
+            std::u32string str = el->ToText();
+            if (!str.empty())
+            {
+                //remove lead whitespaces
+                size_t pos = str.find_first_not_of(U' ');
+                if (pos == std::string::npos)
+                {
+                    el->elements->RemoveAt(0, str.length());
+                    str = ToText();
+                }
+                else if (pos != 0)
+                {
+                    el->elements->RemoveAt(0, pos);
+                    str = ToText();
+                    ElementPtr _el(new CodeString(this, U"", ((CodeString*)el.get())->format));
+                    int p = elements->GetElementPos(el->id);
+                    elements->Insert(_el, p);
+                    _el->can_merge = false;
+                }
+
+                for (size_t i = 1; i < str.length();)
+                {
+                    int j = i;
+                    int s = 0;
+                    while (j < str.length() && str[j++] == U' ')
+                        ++s;
+                    if (s > 0)
+                    {
+                        //split this element
+                        if (el->SplitAt(i))
+                        {
+                            int p = elements->GetElementPos(el->id);
+                            auto n = elements->Get(p + 1);
+                            n->can_merge = false;
+                            n->elements->RemoveAt(0, s);
+                            el = n;
+                            str = el->ToText();
+                            i = 1;
+                            continue;
+                        }
+                    }
+                    ++i;
+                }
+            }
+        }
+        ++i;
+    }
+}
+
 bool CodeRow::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo, ElementId& changed_element)
 {
     for (auto el : _elements)

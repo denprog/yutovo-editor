@@ -70,8 +70,18 @@ Element* CodeString::Create(Element* parent, const std::u32string _str, const St
     return new CodeString(parent, _str, _format);
 }
 
+void CodeString::ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc)
+{
+    String::ToJson(value, alloc);
+    value.AddMember("can_merge", can_merge, alloc);
+}
+
 Element* CodeString::FromJson(Element* parent, Document* document, const rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc)
 {
+    CodeString* r = nullptr;
+    bool _can_merge = true;
+    if (value.HasMember("can_merge") && value["can_merge"].IsBool())
+        _can_merge = value["can_merge"].GetBool();
     if (value.HasMember("format_id") && value["format_id"].IsString())
     {
         auto format_id_str = value["format_id"].GetString();
@@ -89,14 +99,43 @@ Element* CodeString::FromJson(Element* parent, Document* document, const rapidjs
         if (f)
         {
             if (parent)
-                return new CodeString(parent, U"", f);
-            return new CodeString(document, "", f);
+                r = new CodeString(parent, U"", f);
+            else
+                r = new CodeString(document, "", f);
+            r->can_merge = _can_merge;
+            return r;
         }
     }
 
     if (parent)
-        return new CodeString(parent);
-    return new CodeString(document);
+        r = new CodeString(parent);
+    else
+        r = new CodeString(document);
+    r->can_merge = _can_merge;
+    return r;
+}
+
+bool CodeString::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo, ElementId& changed_element)
+{
+    ElementId _changed_element;
+    for (auto& el : _elements)
+    {
+        if (document->IsString(el))
+        {
+            String* s = dynamic_cast<String*>(el.get());
+            if (s->ToText().find(U" ") != std::string::npos)
+            {
+                if (with_undo)
+                    document->StoreUndo(parent->id);
+                _changed_element = parent->id;
+                break;
+            }
+        }
+    }
+    bool r = String::InsertElements(_elements, with_undo, changed_element);
+    if (!_changed_element.empty() && _changed_element.size() < changed_element.size())
+        changed_element = _changed_element;
+    return r;
 }
 
 void CodeString::Draw() const
@@ -115,7 +154,7 @@ void CodeString::Draw() const
         else
         {
             auto row = document->FindParentRow(id);
-            if (row->parent->type != ElementType::CODE_PARAGRAPH)
+            if (row->parent->type != ElementType::CODE_PARAGRAPH || parent->elements->Count() > 1)
                 window->DrawRect(GetAbsoluteRect(), Color::Blue());
         }
     }

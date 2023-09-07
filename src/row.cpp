@@ -117,7 +117,7 @@ void Row::Normalize()
         for (size_t i = 0; i < elements->Count();)
         {
             auto el = (*elements)[i];
-            if (document->IsString(el))
+            if (document->IsString(el) && el->can_merge)
             {
                 if (el->elements->Count() == 0 && elements->Count() > 1)
                 {

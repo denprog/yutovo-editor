@@ -60,10 +60,11 @@ bool UndoElement::operator==(const Element& el) const
 
 //UndoString
 
-UndoString::UndoString(std::u32string _str, StringFormatPtr _format) :
+UndoString::UndoString(std::u32string _str, StringFormatPtr _format, bool _can_merge) :
     UndoElement(ElementType::STRING),
     str(_str),
-    format(_format)
+    format(_format),
+    can_merge(_can_merge)
 {
 }
 
@@ -83,7 +84,9 @@ bool UndoString::operator==(const String& el) const
 
 Element* UndoString::Restore(Document* document, Element* parent)
 {
-    return new String(parent, str, format);
+    Element* el = new String(parent, str, format);
+    el->can_merge = can_merge;
+    return el;
 }
 
 //UndoParagraph
@@ -324,14 +327,16 @@ Element* UndoCodeBlock::Restore(Document* document, Element* parent)
 
 //UndoCodeString
 
-UndoCodeString::UndoCodeString(std::u32string _str, StringFormatPtr _format) :
-    UndoString(_str, _format)
+UndoCodeString::UndoCodeString(std::u32string _str, StringFormatPtr _format, bool _can_merge) :
+    UndoString(_str, _format, _can_merge)
 {
 }
 
 Element* UndoCodeString::Restore(Document* document, Element* parent)
 {
-    return new CodeString(parent, str, format);
+    Element* el = new CodeString(parent, str, format);
+    el->can_merge = can_merge;
+    return el;
 }
 
 //UndoEquation
@@ -571,7 +576,7 @@ UndoElementPtr UndoBase::StoreElement(const LogicalId id, ElementPtr el)
     switch (el->type)
     {
     case ElementType::STRING:
-        undo_element.reset(new UndoString(el->ToText(), ((String*)el.get())->format));
+        undo_element.reset(new UndoString(el->ToText(), ((String*)el.get())->format, el->can_merge));
         break;
     case ElementType::PARAGRAPH:
         undo_element.reset(new UndoParagraph(((Paragraph*)el.get())->format));
@@ -625,7 +630,7 @@ UndoElementPtr UndoBase::StoreElement(const LogicalId id, ElementPtr el)
         }
         break;
     case ElementType::CODE_STRING:
-        undo_element.reset(new UndoCodeString(el->ToText(), ((CodeString*)el.get())->format));
+        undo_element.reset(new UndoCodeString(el->ToText(), ((CodeString*)el.get())->format, el->can_merge));
         break;
     case ElementType::PLUS:
     case ElementType::MINUS:

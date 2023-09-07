@@ -16,6 +16,7 @@ String::String(Element* parent) :
     format(parent->GetStringFormat())
 {
     type = ElementType::STRING;
+    can_merge = true;
 
     baseline = parent->window->GetFontAscent(format);
 
@@ -27,6 +28,7 @@ String::String(Element* parent, const std::string _str) :
     format(parent->GetStringFormat())
 {
     type = ElementType::STRING;
+    can_merge = true;
 
     elements.reset(new StringElements(this, ToUtfString(_str)));
 
@@ -40,6 +42,7 @@ String::String(Element* parent, const std::string _str, const StringFormatPtr _f
     format(_format)
 {
     type = ElementType::STRING;
+    can_merge = true;
 
     elements.reset(new StringElements(this, ToUtfString(_str)));
 
@@ -53,6 +56,7 @@ String::String(Element* parent, const std::u32string _str) :
     format(parent->GetStringFormat())
 {
     type = ElementType::STRING;
+    can_merge = true;
 
     elements.reset(new StringElements(this, _str));
 
@@ -66,6 +70,7 @@ String::String(Element* parent, const std::u32string _str, const StringFormatPtr
     format(_format)
 {
     type = ElementType::STRING;
+    can_merge = true;
 
     elements.reset(new StringElements(this, _str));
 
@@ -78,6 +83,7 @@ String::String(Document* _document) :
     Element(_document)
 {
     type = ElementType::STRING;
+    can_merge = true;
 
     elements.reset(new StringElements(this));
 }
@@ -87,6 +93,7 @@ String::String(Document* _document, const std::string _str, const StringFormatPt
     format(_format)
 {
     type = ElementType::STRING;
+    can_merge = true;
 
     elements.reset(new StringElements(this, boost::locale::conv::utf_to_utf<char32_t>(_str)));
 
@@ -100,6 +107,7 @@ String::String(Document* _document, const std::u32string _str, const StringForma
     format(_format)
 {
     type = ElementType::STRING;
+    can_merge = true;
 
     elements.reset(new StringElements(this, _str));
 
@@ -271,7 +279,7 @@ bool String::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo, 
     if (!editable)
         return false;
     
-    if (!document->caret->IsInsideElement(id))
+    if (!caret->IsInsideElement(id))
         return parent->InsertElements(_elements, with_undo, changed_element);
     
     if (_elements.size() == 1 && document->IsString(_elements[0]))
@@ -280,7 +288,7 @@ bool String::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo, 
         if (elements->Count() == 0)
         {
             //replace the string and format
-            if (document->caret->GetPos() != 0)
+            if (caret->GetPos() != 0)
                 return false;
             if (with_undo)
                 document->StoreUndo(id);
@@ -325,8 +333,50 @@ bool String::DeleteElements(bool left, bool with_undo, ElementId& changed_elemen
     uint caret_pos = caret->GetPos();
     if (caret->IsInsideElement(id) && selection->IsEmpty())
     {
-        if ((caret_pos == 0 && left) || (caret_pos == elements->Count() && !left))
+        if (caret_pos == 0 && left)
+        {
+            int p = parent->elements->GetElementPos(id);
+            if (p > 0)
+            {
+                ElementPtr _el = parent->elements->Get(p - 1);
+                if (_el->type == type && ((String*)_el.get())->format == format)
+                {
+                    if (with_undo)
+                        document->StoreUndo(parent->id);
+                    bool _can_merge = true;
+                    if (!_el->can_merge || !can_merge)
+                        _can_merge = false;
+                    _el->can_merge = true;
+                    can_merge = true;
+                    bool r = _el->Merge(parent->elements->Get(p));
+                    _el->can_merge = _can_merge;
+                    return r;
+                }
+            }
             return parent->DeleteElements(left, with_undo, changed_element);
+        }
+        if (caret_pos == elements->Count() && !left)
+        {
+            int p = parent->elements->GetElementPos(id);
+            if (p < parent->elements->Count() - 1)
+            {
+                ElementPtr _el = parent->elements->Get(p + 1);
+                if (_el->type == type && ((String*)_el.get())->format == format)
+                {
+                    if (with_undo)
+                        document->StoreUndo(parent->id);
+                    bool _can_merge = true;
+                    if (!_el->can_merge || !can_merge)
+                        _can_merge = false;
+                    _el->can_merge = true;
+                    can_merge = true;
+                    bool r = Merge(_el);
+                    can_merge = _can_merge;
+                    return r;
+                }
+            }
+            return parent->DeleteElements(left, with_undo, changed_element);
+        }
     }
     
     std::u32string& str = ((StringElements*)elements.get())->str;
@@ -553,7 +603,7 @@ bool String::SplitAt(const uint pos)
 
 bool String::Merge(const ElementPtr with_element)
 {
-    if (!editable || !document->IsString(with_element))
+    if (!editable || !document->IsString(with_element) || !with_element->can_merge)
         return false;
     //merge two strings if those formats are equal
     String* el = (String*)with_element.get();
@@ -588,7 +638,7 @@ bool String::CanMerge(const ElementPtr with_element)
     String* el = (String*)with_element.get();
     if (el->format != format)
         return false;
-    return true;
+    return can_merge;
 }
 
 bool String::AfterInsert(bool with_undo)

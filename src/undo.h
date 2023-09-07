@@ -38,7 +38,7 @@ struct UndoElement
 
 struct UndoString : UndoElement
 {
-    UndoString(std::u32string _str, StringFormatPtr _format);
+    UndoString(std::u32string _str, StringFormatPtr _format, bool _can_merge);
 
     virtual bool operator==(const UndoString& el) const;
     virtual bool operator==(const String& el) const;
@@ -47,6 +47,7 @@ struct UndoString : UndoElement
 
     std::u32string str;
     StringFormatPtr format;
+    bool can_merge;
 };
 
 struct UndoParagraph : UndoElement
@@ -60,19 +61,6 @@ struct UndoParagraph : UndoElement
 
     ParagraphFormatPtr format;
 };
-
-// struct UndoText : UndoElement
-// {
-//     UndoText(TextFormatPtr _text_format, PageFormatPtr _page_format);
-
-//     virtual bool operator==(const UndoText& el) const;
-//     virtual bool operator==(const Text& el) const;
-
-//     virtual Element* Restore(Document* document, Element* parent);
-
-//     TextFormatPtr text_format;
-//     PageFormatPtr page_format;
-// };
 
 struct UndoFormula : UndoElement
 {
@@ -123,7 +111,7 @@ struct UndoCodeBlock : UndoElement
 
 struct UndoCodeString : UndoString
 {
-    UndoCodeString(std::u32string _str, StringFormatPtr _format);
+    UndoCodeString(std::u32string _str, StringFormatPtr _format, bool _can_merge);
 
     virtual Element* Restore(Document* document, Element* parent);
 };

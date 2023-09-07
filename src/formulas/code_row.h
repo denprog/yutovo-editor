@@ -19,6 +19,8 @@ public:
 
     static Element* FromJson(Element* parent, Document* document, const rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc);
 
+    virtual void Normalize();
+
     virtual bool InsertElements(std::vector<ElementPtr>& _elements, bool with_undo, ElementId& changed_element);
 
     virtual bool GetBeginCaretState(CaretState& caret_state, Selection* select);
