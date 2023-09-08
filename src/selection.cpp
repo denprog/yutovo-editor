@@ -225,9 +225,9 @@ void Selection::Set(LogicalSelectionState& state)
                 int c = (int)_el->elements->Count();
                 if (start < c + p)
                 {
-                    if (size <= c - start)
+                    if (size <= c - (start - p))
                     {
-                        Add(_el->id, start, size);
+                        Add(_el->id, start - p, size);
                         break;
                     }
                     else
@@ -716,6 +716,8 @@ bool Selection::Decompose(ElementSelection s, ElementId until_id)
     for (int i = s.start; i < s.start + s.size; ++i)
     {
         auto el = s.element->elements->Get(i);
+        if (!el)
+            return false;
         if (IsChild(el->id, until_id) || el->id == until_id)
         {
             if (Decompose(ElementSelection{el, 0, el->elements->Count()}, until_id))
@@ -723,6 +725,8 @@ bool Selection::Decompose(ElementSelection s, ElementId until_id)
                 for (int j = i + 1; j < s.start + s.size; ++j)
                 {
                     auto _el = s.element->elements->Get(j);
+                    if (!_el)
+                        return false;
                     selection.emplace_back(ElementSelection{_el, 0, _el->elements->Count()});
                 }
                 return true;
