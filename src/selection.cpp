@@ -20,14 +20,20 @@ bool ElementSelection::operator!=(const ElementSelection& s) const
 
 bool ElementSelection::operator<(const ElementSelection& s) const
 {
-    std::vector<ElementId> ids;
     ElementId s_id1 = element->id;
     s_id1.push_back(start);
-    ids.push_back(s_id1);
     ElementId s_id2 = s.element->id;
     s_id2.push_back(s.start);
+    if (IsChild(s_id1, s_id2))
+        return true;
+    else if (s_id1 == s_id2 || IsChild(s_id2, s_id1))
+        return false;
+
+    std::vector<ElementId> ids;
+    ids.push_back(s_id1);
     ids.push_back(s_id2);
     ElementId _id = GetCommonParent(ids);
+    assert(_id.size() > 0 && s_id1.size() > _id.size() && s_id2.size() > _id.size());
     return s_id1[_id.size()] < s_id2[_id.size()]; //get position in common parent
 }
 
@@ -348,7 +354,7 @@ void Selection::Add(const ElementPtr element, uint start, uint size)
         if (it->size == 0)
             selection.erase(it);
     }
-
+    
     std::sort(selection.begin(), selection.end());
 
     if (!document->pasting)
