@@ -1243,6 +1243,15 @@ ElementType Document::GetElementType(const ElementId id)
     return el->type;
 }
 
+bool Document::IsEditable(const ElementId id)
+{
+    std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
+    ElementPtr el = GetElement(id);
+    if (!el)
+        return false;
+    return el->editable;
+}
+
 bool Document::IsString(ElementPtr el)
 {
     return el && (el->type == ElementType::STRING || el->type == ElementType::CODE_STRING);

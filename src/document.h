@@ -118,6 +118,7 @@ public:
     bool GetCurrentFormulaFormat(FormulaFormatPtr& format);
 
     ElementType GetElementType(const ElementId id);
+    bool IsEditable(const ElementId id);
 
     bool IsString(ElementPtr el);
     bool IsString(ElementId id);
