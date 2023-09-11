@@ -429,8 +429,6 @@ void Selection::RemoveElement(const ElementId id)
         if (s.element->id == p_id && s.start >= GetChildPos(id))
             --s.start;
     }
-
-    Optimize();
 }
 
 bool Selection::Has(const ElementPtr element, uint& start, uint& size) const
