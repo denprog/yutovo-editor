@@ -549,56 +549,74 @@ bool ChangeStringFormatTask::Execute()
             return document->GetStringFormat(f.family, f.size, f.bold, f.italic, f.underline);
         };
     
-    std::function<bool (ElementPtr el)> change_string_format = 
-        [&](ElementPtr el)
+    std::function<bool (ElementPtr el, ElementId& changed_element)> change_string_format = 
+        [&](ElementPtr el, ElementId& changed_element)
         {
-            ElementId changed_element;
+            ElementId _changed_element;
             if (document->IsString(el))
             {
                 StringFormatPtr _format = get_string_format((String*)el.get());
-                if (!el->ChangeStringFormat(_format, with_undo, changed_element))
+                if (!el->ChangeStringFormat(_format, with_undo, _changed_element))
                 {
                     if (with_undo && last_undo_size < document->GetUndoSize())
                         document->RollbackUndo();
                     return false;
                 }
-
-                Remake(changed_element, false);
+                if (!changed_element.empty())
+                    changed_element = GetCommonParent(changed_element, _changed_element);
+                else
+                    changed_element = _changed_element;
             }
             else
             {
                 for (int i = 0; i < el->elements->Count(); ++i)
                 {
                     auto _el = el->elements->Get(i);
-                    if (!change_string_format(_el))
+                    if (!change_string_format(_el, _changed_element))
                         return false;
+                    if (!changed_element.empty())
+                        changed_element = GetCommonParent(changed_element, _changed_element);
+                    else
+                        changed_element = _changed_element;
                 }
             }
             return true;
         };
 
+    ElementId changed_element;
     for (int i = selection_state.state.size() - 1; i >= 0; --i)
     {
         ElementSelectionState& s = selection_state.state[i];
         auto el = elements[i];
 
         StringFormatPtr _format;
+        ElementId _changed_element;
         if (document->IsString(el))
         {
-            if (!change_string_format(el))
+            if (!change_string_format(el, _changed_element))
                 return false;
+            if (!changed_element.empty())
+                changed_element = GetCommonParent(changed_element, _changed_element);
+            else
+                changed_element = _changed_element;
         }
         else
         {
             for (int i = s.start; i < s.start + s.size; ++i)
             {
-                if (!change_string_format(el->elements->Get(i)))
+                if (!change_string_format(el->elements->Get(i), _changed_element))
                     return false;
+                if (!changed_element.empty())
+                    changed_element = GetCommonParent(changed_element, _changed_element);
+                else
+                    changed_element = _changed_element;
             }
         }
 
         document->UpdateFormats();
     }
+
+    Remake(changed_element, false);
 
     if (!selection_state.IsEmpty())
     {
