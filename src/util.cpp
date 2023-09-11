@@ -157,45 +157,39 @@ ElementId GetWithParent(const ElementId id, const ElementId parent_id)
     return _id;
 }
 
+ElementId GetCommonParent(const ElementId& id1, const ElementId& id2)
+{
+    int i = 0;
+    while (id1.size() > i && id2.size() > i && id1[i] == id2[i])
+        ++i;
+    return ElementId(id1.begin(), id1.begin() + i);
+}
+
 ElementId GetCommonParent(const std::vector<ElementId>& ids)
 {
     if (ids.empty())
         return {};
-    
-    ElementId id = ids[0];
-    for (int i = 1; i < ids.size(); ++i)
-    {
-        ElementId _id = ids[i];
-        if (id == _id || IsChild(id, _id))
-            continue;
-        if (IsChild(_id, id))
-        {
-            id = _id;
-            continue;
-        }
 
-        ElementId p1 = GetParent(id);
-        ElementId p2 = GetParent(_id);
-        while (!p1.empty() && !p2.empty())
+    int pos = 0;
+    bool f = true;
+    uint j = 0;
+    while (f)
+    {
+        for (int i = 0; i < ids.size(); ++i)
         {
-            bool f = false;
-            while (!p2.empty())
+            const ElementId& _id = ids[i];
+            if (_id.size() <= pos || _id[pos] != j)
             {
-                if (p1 == p2)
-                {
-                    id = p1;
-                    f = true;
-                    break;
-                }
-                p2 = GetParent(p2);
-            }
-            if (f)
+                f = false;
                 break;
-            p1 = GetParent(p1);
-            p2 = GetParent(_id);
+            }
         }
+        if (!f || ids[0].size() <= ++pos)
+            break;
+        j = ids[0][pos];
     }
-    return id;
+
+    return ElementId(ids[0].begin(), ids[0].begin() + pos);
 }
 
 Element* CreateFromJson(Element* parent, Document* document, rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc)

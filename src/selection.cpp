@@ -29,10 +29,7 @@ bool ElementSelection::operator<(const ElementSelection& s) const
     else if (s_id1 == s_id2 || IsChild(s_id2, s_id1))
         return false;
 
-    std::vector<ElementId> ids;
-    ids.push_back(s_id1);
-    ids.push_back(s_id2);
-    ElementId _id = GetCommonParent(ids);
+    ElementId _id = GetCommonParent(s_id1, s_id2);
     assert(_id.size() > 0 && s_id1.size() > _id.size() && s_id2.size() > _id.size());
     return s_id1[_id.size()] < s_id2[_id.size()]; //get position in common parent
 }

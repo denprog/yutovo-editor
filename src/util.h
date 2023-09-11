@@ -263,6 +263,7 @@ ElementId GetPrevPos(const ElementId& id);
 
 ElementId GetWithParent(const ElementId id, const ElementId parent_id);
 
+ElementId GetCommonParent(const ElementId& id1, const ElementId& id2);
 ElementId GetCommonParent(const std::vector<ElementId>& ids);
 
 Element* CreateFromJson(Element* parent, Document* document, rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc);
