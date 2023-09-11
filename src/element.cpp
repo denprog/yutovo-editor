@@ -1093,9 +1093,9 @@ void Elements::RemoveAt(const uint pos, const int size)
 
     elements.erase(elements.begin() + pos, elements.begin() + pos + size);
 
-    selection->Optimize();
-
     UpdateIds();
+
+    selection->Optimize();
 
     for (int i = pos + 1; i < Count(); ++i) //elements after were replaced
         elements[i]->AfterReplace();
