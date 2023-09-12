@@ -990,12 +990,10 @@ bool MoveCaretTask::Execute()
 
     if (move_into_view)
         document->UpdateCaretView();
-    document->UpdateLastSelection();
 
     if (!select)
     {
         document->selection.Clear();
-        document->UpdateLastSelection();
         document->UpdateFormats();
         window->OnCaretMoved(document->GetEditorState());
     }
@@ -1022,7 +1020,6 @@ bool SetEditorStateTask::Execute()
     document->selection.Set(selection_state);
 
     document->UpdateCaretView();
-    document->UpdateLastSelection();    
 
 #ifdef DEBUG
     document->last_caret_moved = true;

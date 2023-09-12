@@ -281,7 +281,6 @@ private:
     friend class Caret;
 
     void UpdateCaretView();
-    void UpdateLastSelection();
 
 private:
     std::recursive_mutex tasks_mutex;
@@ -309,7 +308,6 @@ private:
 public:
     CaretPtr caret;
     Selection selection;
-    Selection last_selection;
 
     bool pasting = false;
 
