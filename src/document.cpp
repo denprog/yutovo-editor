@@ -35,6 +35,7 @@ using namespace std::chrono;
 Document::Document(Window* _window) :
     window(_window),
     selection(this),
+    last_selection(this),
     solver(this),
     undo_base(this),
     logger(Logger::GetInstance(".", "yutovo", true, true))
@@ -2407,6 +2408,18 @@ void Document::UpdateCaretView()
         caret->Hide();
         window->MoveDocument(p.x, r.GetBottom() - view_port.GetBottom());
         Redraw(text->id, false);
+    }
+}
+
+void Document::UpdateLastSelection()
+{
+    if (selection != last_selection)
+    {
+        for (auto& s : selection.selection)
+            Redraw(s.element->id, false);
+        for (auto& s : last_selection.selection)
+            Redraw(s.element->id, false);
+        last_selection = selection;
     }
 }
 
