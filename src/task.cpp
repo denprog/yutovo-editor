@@ -1518,9 +1518,9 @@ bool SetResultTask::Execute()
     return true;
 }
 
-//SetResultParams
+//SetResultParamsTask
 
-SetResultParams::SetResultParams(ElementPtr _text, ElementId _id, Notation _notation, bool _with_undo) :
+SetResultParamsTask::SetResultParamsTask(ElementPtr _text, ElementId _id, Notation _notation, bool _with_undo) :
     Task(_text),
     id(_id),
     notation(_notation)
@@ -1528,7 +1528,7 @@ SetResultParams::SetResultParams(ElementPtr _text, ElementId _id, Notation _nota
     with_undo = _with_undo;
 }
 
-SetResultParams::SetResultParams(ElementPtr _text, ElementId _id, FractionForm _fraction_form, bool _with_undo) :
+SetResultParamsTask::SetResultParamsTask(ElementPtr _text, ElementId _id, FractionForm _fraction_form, bool _with_undo) :
     Task(_text),
     id(_id),
     fraction_form(_fraction_form)
@@ -1536,7 +1536,7 @@ SetResultParams::SetResultParams(ElementPtr _text, ElementId _id, FractionForm _
     with_undo = _with_undo;
 }
 
-SetResultParams::SetResultParams(ElementPtr _text, ElementId _id, uint _precision, uint _exp, AngleMeasure _result_angle_measure, bool _with_undo) :
+SetResultParamsTask::SetResultParamsTask(ElementPtr _text, ElementId _id, uint _precision, uint _exp, AngleMeasure _result_angle_measure, bool _with_undo) :
     Task(_text),
     id(_id),
     precision(_precision),
@@ -1546,7 +1546,7 @@ SetResultParams::SetResultParams(ElementPtr _text, ElementId _id, uint _precisio
     with_undo = _with_undo;
 }
 
-SetResultParams::SetResultParams(ElementPtr _text, ElementId _id, yutovo_calculator::Unit _unit, bool _with_undo) :
+SetResultParamsTask::SetResultParamsTask(ElementPtr _text, ElementId _id, yutovo_calculator::Unit _unit, bool _with_undo) :
     Task(_text),
     id(_id),
     unit(_unit)
@@ -1554,7 +1554,7 @@ SetResultParams::SetResultParams(ElementPtr _text, ElementId _id, yutovo_calcula
     with_undo = _with_undo;
 }
 
-bool SetResultParams::Execute()
+bool SetResultParamsTask::Execute()
 {
     if (before_state.IsEmpty())
         before_state = document->GetEditorState();
