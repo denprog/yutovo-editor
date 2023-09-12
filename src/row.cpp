@@ -122,7 +122,7 @@ void Row::Normalize()
                 if (el->elements->Count() == 0 && elements->Count() > 1)
                 {
                     elements->RemoveAt(i, 1); //remove empty strings
-                    window->OnCaretMoved(document->GetEditorState());
+                    window->OnCaretMoved(document->MakeEditorState());
                     if (i > 0)
                         --i;
                     continue;
@@ -132,7 +132,7 @@ void Row::Normalize()
                     if (el->Merge(elements->Get(i + 1)))
                     {
                         el->UpdateRect(true);
-                        window->OnCaretMoved(document->GetEditorState());
+                        window->OnCaretMoved(document->MakeEditorState());
                         continue;
                     }
                 }
