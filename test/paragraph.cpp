@@ -1689,6 +1689,83 @@ TEST_F(ParagraphTest, format5)
         ElementSelectionState{ElementId{0, 1}, 0, 2})) << document.GetEditorState().ToString();
 }
 
+//Change style across of paragraphs with resize
+TEST_F(ParagraphTest, format6)
+{
+    Start(700);
+
+    int width = 680;
+    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
+        {
+            return Rect{0, 0, width, 400};
+        });
+
+    document.InsertString("Арифметика является древнейшей и одной из основных математических наук; "
+        "она тесно связана с алгеброй, геометрией и теорией чисел[1][2].", true);
+    document.InsertParagraph(true);
+    document.InsertString("Причиной возникновения арифметики стала практическая потребность в счёте и"
+        " вычислениях, связанных с задачами учёта при централизации сельского хозяйства.", true);
+    document.MoveCaretToDocumentBegin(false);
+    document.MoveCaretDown(false);
+    document.MoveCaretDown(true);
+    document.MoveCaretDown(true);
+    document.MoveCaretDown(true);
+    document.WaitTask(document.MoveCaretDown(true));
+    document.WaitTask(document.SetUnderline(true));
+    document.WaitTask(document.SetBold(true));
+
+    width = 485;
+    document.WaitTask(document.Resize(width, 400));
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">Арифметика является древнейшей и одной из </span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">основных </span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;text-decoration: underline;\"><strong>математических наук; она тесно </strong></span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;text-decoration: underline;\"><strong>связана с алгеброй, геометрией и теорией </strong></span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;text-decoration: underline;\"><strong>чисел[1][2].</strong></span>"\
+            "</p>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;text-decoration: underline;\"><strong>Причиной возникновения арифметики </strong></span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;text-decoration: underline;\"><strong>стала практическая потребность в счёте и </strong></span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;text-decoration: underline;\"><strong>вычислениях, связанных с задачами учёта </strong></span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">при централизации сельского хозяйства.</span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 1, 3, 0, 0}, 
+        ElementSelectionState{ElementId{0, 0, 1}, 1, 1},
+        ElementSelectionState{ElementId{0, 0}, 2, 2},
+        ElementSelectionState{ElementId{0, 1}, 0, 3})) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">Арифметика является древнейшей и одной из </span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">основных </span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;text-decoration: underline;\">математических наук; она тесно </span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;text-decoration: underline;\">связана с алгеброй, геометрией и теорией </span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;text-decoration: underline;\">чисел[1][2].</span>"\
+            "</p>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;text-decoration: underline;\">Причиной возникновения арифметики стала </span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;text-decoration: underline;\">практическая потребность в счёте и </span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;text-decoration: underline;\">вычислениях, связанных с задачами учёта </span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">при </span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">централизации сельского хозяйства.</span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 1, 2, 1, 0}, 
+        ElementSelectionState{ElementId{0, 0, 1}, 1, 1},
+        ElementSelectionState{ElementId{0, 0}, 2, 2},
+        ElementSelectionState{ElementId{0, 1}, 0, 2},
+        ElementSelectionState{ElementId{0, 1, 2}, 0, 1})) << document.GetEditorState().ToString();
+}
+
 //Delete a paragraph
 TEST_F(ParagraphTest, delete1)
 {

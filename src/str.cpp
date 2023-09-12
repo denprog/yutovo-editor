@@ -297,6 +297,8 @@ bool String::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo, 
             ResetCache();
             caret->SetState(elements->GetElementId(elements->Count()));
             parent->Normalize();
+            auto p = document->FindParent(id, ElementType::PARAGRAPH);
+            p->elements->UpdateIds();
             on_change_subscribers = parent->on_change_subscribers;
             parent->EmitChanged();
             changed_element = id;
@@ -312,6 +314,8 @@ bool String::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo, 
             elements->Insert(_elements[0], caret->GetPos());
             caret->SetState(elements->GetElementId(caret->GetPos() + s->elements->Count()));
             parent->Normalize();
+            auto p = document->FindParent(id, ElementType::PARAGRAPH);
+            p->elements->UpdateIds();
             on_change_subscribers = parent->on_change_subscribers;
             parent->EmitChanged();
             changed_element = id;
@@ -457,6 +461,8 @@ bool String::ChangeStringFormat(const StringFormatPtr _format, bool with_undo, E
             format = _format;
             ResetCache();
             parent->Normalize();
+            auto p = document->FindParent(id, ElementType::PARAGRAPH);
+            p->elements->UpdateIds();
             changed_element = id;
             return true;
         }
