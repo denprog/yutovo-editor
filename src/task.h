@@ -307,12 +307,12 @@ struct SetResultTask : Task
     EditorState before_state;
 };
 
-struct SetResultParams : Task
+struct SetResultParamsTask : Task
 {
-    SetResultParams(ElementPtr _text, ElementId _id, Notation _notation, bool _with_undo);
-    SetResultParams(ElementPtr _text, ElementId _id, FractionForm _fraction_form, bool _with_undo);
-    SetResultParams(ElementPtr _text, ElementId _id, uint _precision, uint _exp, AngleMeasure _result_angle_measure, bool _with_undo);
-    SetResultParams(ElementPtr _text, ElementId _id, yutovo_calculator::Unit _unit, bool _with_undo);
+    SetResultParamsTask(ElementPtr _text, ElementId _id, Notation _notation, bool _with_undo);
+    SetResultParamsTask(ElementPtr _text, ElementId _id, FractionForm _fraction_form, bool _with_undo);
+    SetResultParamsTask(ElementPtr _text, ElementId _id, uint _precision, uint _exp, AngleMeasure _result_angle_measure, bool _with_undo);
+    SetResultParamsTask(ElementPtr _text, ElementId _id, yutovo_calculator::Unit _unit, bool _with_undo);
 
     virtual bool Execute();
 

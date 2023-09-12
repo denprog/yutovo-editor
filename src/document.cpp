@@ -261,6 +261,8 @@ void Document::MainLoop()
                     redo_tasks.push_back(t);
                 }
 
+                last_editor_state = EditorState{caret->GetCaretState(), selection.GetState()};
+
 #ifdef DEBUG
                 if (last_task_id > 0)
                 {
@@ -1639,47 +1641,62 @@ bool Document::WillResize()
 
 uint Document::New()
 {
-    std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
-    tasks.emplace_back(new NewTask(text));
-    last_task_id = tasks.back()->id;
+    {
+        std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
+        tasks.emplace_back(new NewTask(text));
+        last_task_id = tasks.back()->id;
+    }
+    next_circle = true;
     return last_task_id;
 }
 
 uint Document::Save(const std::string& filename)
 {
-    std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
-    tasks.emplace_back(new SaveTask(text, filename));
-    last_task_id = tasks.back()->id;
+    {
+        std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
+        tasks.emplace_back(new SaveTask(text, filename));
+        last_task_id = tasks.back()->id;
+    }
+    next_circle = true;
     return last_task_id;
 }
 
 uint Document::Load(const std::string& filename)
 {
-    std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
-    tasks.emplace_back(new LoadTask(text, filename));
+    {
+        std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
+        tasks.emplace_back(new LoadTask(text, filename));
 #ifdef DEBUG
-    last_load_task_id = tasks.back()->id;
+        last_load_task_id = tasks.back()->id;
 #endif
-    return tasks.back()->id;
+    }
+    next_circle = true;
+    return last_load_task_id;
 }
 
 uint Document::LoadJson(const std::u32string& json_doc)
 {
-    std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
-    tasks.emplace_back(new LoadTask(text, json_doc));
+    {
+        std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
+        tasks.emplace_back(new LoadTask(text, json_doc));
 #ifdef DEBUG
-    last_load_task_id = tasks.back()->id;
+        last_load_task_id = tasks.back()->id;
 #endif
-    return tasks.back()->id;
+    }
+    next_circle = true;
+    return last_load_task_id;
 }
 
 uint Document::Copy(std::u32string& out_json, std::u32string& out_text)
 {
-    out_json = U"";
-    out_text = U"";
-    std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
-    tasks.emplace_back(new CopyTask(text, out_json, out_text, false));
-    last_task_id = tasks.back()->id;
+    {
+        out_json = U"";
+        out_text = U"";
+        std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
+        tasks.emplace_back(new CopyTask(text, out_json, out_text, false));
+        last_task_id = tasks.back()->id;
+    }
+    next_circle = true;
     return last_task_id;
 }
 
@@ -1759,9 +1776,12 @@ uint Document::PasteText(std::u32string&& str)
 
 uint Document::Cut(std::u32string& out_json, std::u32string& out_text)
 {
-    std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
-    tasks.emplace_back(new CopyTask(text, out_json, out_text, true));
-    last_task_id = tasks.back()->id;
+    {
+        std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
+        tasks.emplace_back(new CopyTask(text, out_json, out_text, true));
+        last_task_id = tasks.back()->id;
+    }
+    next_circle = true;
     return last_task_id;
 }
 
@@ -1791,29 +1811,36 @@ PageFormatPtr Document::GetDefaultPageFormat()
 
 uint Document::SetDefaultPageFormat(uint left_indent, uint top_indent, uint right_indent, uint bottom_indent, uint paragraph_spacing)
 {
-    std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
-    tasks.emplace_back(new ChangePageFormatTask(text, PageFormats::GetFormat(left_indent, top_indent, right_indent, bottom_indent, paragraph_spacing)));
-    last_task_id = tasks.back()->id;
+    {
+        std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
+        tasks.emplace_back(new ChangePageFormatTask(text, PageFormats::GetFormat(left_indent, top_indent, right_indent, bottom_indent, paragraph_spacing)));
+        last_task_id = tasks.back()->id;
+    }
+    next_circle = true;
     return last_task_id;
 }
 
 StringFormatPtr Document::GetStringFormat(const std::string& family, uint size, bool bold, bool italic, bool underline)
 {
+    std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
     return string_formats->GetFormat(family, size, bold, italic, underline);
 }
 
 StringFormatPtr Document::GetStringFormat(const boost::uuids::uuid& id)
 {
+    std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
     return string_formats->GetFormat(id);
 }
 
 EditorState Document::GetEditorState()
 {
-    return {caret->GetCaretState(), selection.GetState()};
+    std::lock_guard<std::recursive_mutex> lock(edit_mutex);
+    return last_editor_state;
 }
 
 LogicalEditorState Document::GetLogicalEditorState()
 {
+    std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
     return {caret->GetLogicalCaretState(), selection.GetLogicalState()};
 }
 
@@ -1904,7 +1931,7 @@ int Document::GetPrecision(ElementId _id)
 uint Document::SetPrecision(ElementId _id, uint precision, bool with_undo)
 {
     std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
-    tasks.emplace_back(new SetResultParams(text, _id, precision, -1, AngleMeasure::NONE, with_undo));
+    tasks.emplace_back(new SetResultParamsTask(text, _id, precision, -1, AngleMeasure::NONE, with_undo));
     last_task_id = tasks.back()->id;
     return last_task_id;
 }
@@ -1929,7 +1956,7 @@ int Document::GetExp(ElementId _id)
 uint Document::SetExp(ElementId _id, uint exp, bool with_undo)
 {
     std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
-    tasks.emplace_back(new SetResultParams(text, _id, -1, exp, AngleMeasure::NONE, with_undo));
+    tasks.emplace_back(new SetResultParamsTask(text, _id, -1, exp, AngleMeasure::NONE, with_undo));
     last_task_id = tasks.back()->id;
     return last_task_id;
 }
@@ -1954,7 +1981,7 @@ AngleMeasure Document::GetResultAngleMeasure(ElementId _id)
 uint Document::SetResultAngleMeasure(ElementId _id, AngleMeasure result_angle_measure, bool with_undo)
 {
     std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
-    tasks.emplace_back(new SetResultParams(text, _id, -1, -1, result_angle_measure, with_undo));
+    tasks.emplace_back(new SetResultParamsTask(text, _id, -1, -1, result_angle_measure, with_undo));
     last_task_id = tasks.back()->id;
     return last_task_id;
 }
@@ -1979,7 +2006,7 @@ Notation Document::GetNotation(ElementId _id)
 uint Document::SetNotation(ElementId _id, Notation notation, bool with_undo)
 {
     std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
-    tasks.emplace_back(new SetResultParams(text, _id, notation, with_undo));
+    tasks.emplace_back(new SetResultParamsTask(text, _id, notation, with_undo));
     last_task_id = tasks.back()->id;
     return last_task_id;
 }
@@ -2004,7 +2031,7 @@ FractionForm Document::GetFractionForm(ElementId _id)
 uint Document::SetFractionForm(ElementId _id, FractionForm fraction_form, bool with_undo)
 {
     std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
-    tasks.emplace_back(new SetResultParams(text, _id, fraction_form, with_undo));
+    tasks.emplace_back(new SetResultParamsTask(text, _id, fraction_form, with_undo));
     last_task_id = tasks.back()->id;
     return last_task_id;
 }
@@ -2062,7 +2089,7 @@ void Document::GetCastUnits(ElementId _id, std::vector<yutovo_calculator::Unit>&
 uint Document::SetUnit(ElementId _id, yutovo_calculator::Unit& unit, bool with_undo)
 {
     std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
-    tasks.emplace_back(new SetResultParams(text, _id, unit, with_undo));
+    tasks.emplace_back(new SetResultParamsTask(text, _id, unit, with_undo));
     last_task_id = tasks.back()->id;
     return last_task_id;
 }
@@ -2225,7 +2252,7 @@ bool Document::HasErrorMark(ElementId _id, int& start, int& size)
     return true;
 }
 
-void Document::WaitTask(uint task_id, uint64_t timeout)
+void Document::WaitTask(uint task_id, uint64_t timeout, uint64_t circle_delay)
 {
     if (task_id == 0)
         return;
@@ -2233,12 +2260,17 @@ void Document::WaitTask(uint task_id, uint64_t timeout)
     auto cur_time = now;
     while (cur_time - now <= timeout * 1ms)
     {
-        std::this_thread::sleep_for(100ms);
+        {
+            std::lock_guard<std::recursive_mutex> lock(edit_mutex);
+            if (std::find(last_tasks.begin(), last_tasks.end(), task_id) != last_tasks.end())
+            {
+                last_tasks.clear();
+                return;
+            }
+            last_tasks.clear();
+        }
 
-        std::lock_guard<std::recursive_mutex> lock(edit_mutex);
-        if (std::find(last_tasks.begin(), last_tasks.end(), task_id) != last_tasks.end())
-            return;
-        last_tasks.clear();
+        std::this_thread::sleep_for(circle_delay * 1ms);
 
         if (timeout > 0)
             cur_time = duration_cast<milliseconds>(system_clock::now().time_since_epoch());

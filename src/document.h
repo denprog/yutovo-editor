@@ -239,7 +239,7 @@ public:
     void RemoveErrorMarks(ElementId parent_id);
     bool HasErrorMark(ElementId _id, int& start, int& size);
 
-    void WaitTask(uint task_id, uint64_t timeout = 0);
+    void WaitTask(uint task_id, uint64_t timeout = 0, uint64_t circle_delay = 1);
 
 private:
     void MainLoop();
@@ -274,6 +274,7 @@ private:
 private:
     friend class MoveCaretTask;
     friend class SetEditorStateTask;
+    friend class GetEditorStateTask;
     friend class NewTask;
     friend class LoadTask;
     friend class RedrawTask;
@@ -340,6 +341,8 @@ private:
     ElementId cur_visible_row; //any row which is visible
 
     UndoBase undo_base;
+
+    EditorState last_editor_state;
 
     Logger* logger;
 };
