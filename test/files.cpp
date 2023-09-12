@@ -350,6 +350,7 @@ TEST_F(DocumentTest, files8)
 
     document.InsertDivision(true);
     document.WaitTask(document.New());
+    std::this_thread::sleep_for(200ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
