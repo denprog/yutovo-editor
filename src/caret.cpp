@@ -58,7 +58,7 @@ void Caret::SetState(const CaretState& caret_state, bool update_x_pos)
     if (update_x_pos)
         UpdateXPos();
     
-    window->OnCaretMoved(document->GetEditorState());
+    window->OnCaretMoved(document->MakeEditorState());
     document->UpdateFormats();
 }
 
@@ -109,7 +109,7 @@ void Caret::SetState(const ElementId id, const uint pos, bool update_x_pos)
     if (update_x_pos)
         UpdateXPos();
     
-    window->OnCaretMoved(document->GetEditorState());
+    window->OnCaretMoved(document->MakeEditorState());
     document->UpdateFormats();
 }
 
@@ -132,7 +132,7 @@ void Caret::SetState(const ElementId id, bool update_x_pos)
     if (update_x_pos)
         UpdateXPos();
     
-    window->OnCaretMoved(document->GetEditorState());
+    window->OnCaretMoved(document->MakeEditorState());
     document->UpdateFormats();
 }
 
@@ -160,7 +160,7 @@ void Caret::SetPos(const uint pos, bool update_x_pos)
     if (update_x_pos)
         UpdateXPos();
     
-    window->OnCaretMoved(document->GetEditorState());
+    window->OnCaretMoved(document->MakeEditorState());
     document->UpdateFormats();
 }
 

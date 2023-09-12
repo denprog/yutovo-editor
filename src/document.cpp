@@ -1144,7 +1144,7 @@ void Document::UpdateFormats()
     if (GetStringFormat(c.id, f))
     {
         current_string_format = string_formats->GetFormat(f);
-        window->OnFormatChanged(GetEditorState());
+        window->OnFormatChanged(MakeEditorState());
     }
 }
 
@@ -1836,6 +1836,11 @@ EditorState Document::GetEditorState()
 {
     std::lock_guard<std::recursive_mutex> lock(edit_mutex);
     return last_editor_state;
+}
+
+EditorState Document::MakeEditorState()
+{
+    return EditorState{caret->GetCaretState(), selection.GetState()};
 }
 
 LogicalEditorState Document::GetLogicalEditorState()

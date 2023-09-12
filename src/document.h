@@ -194,6 +194,7 @@ public:
     uint SetCurrentParagraphFormat(const std::string& name);
 
     EditorState GetEditorState();
+    EditorState MakeEditorState();
     LogicalEditorState GetLogicalEditorState();
     void SetEditorState(EditorState& state);
     void SetEditorState(LogicalEditorState& state);

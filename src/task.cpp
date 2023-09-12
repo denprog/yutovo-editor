@@ -124,7 +124,7 @@ bool InsertElementsTask::Execute()
     size_t last_undo_size = document->GetUndoSize();
 
     if (before_state.IsEmpty())
-        before_state = document->GetEditorState();
+        before_state = document->MakeEditorState();
     else
         document->SetEditorState(before_state); //it is redo
     
@@ -295,14 +295,14 @@ bool DeleteElementsTask::Execute()
     if (element_id.empty())
     {
         if (before_state.IsEmpty())
-            before_state = document->GetEditorState();
+            before_state = document->MakeEditorState();
         else
             document->SetEditorState(before_state); //it is redo
         selection_state = before_state.selection_state;
     }
     else
     {
-        before_state = document->GetEditorState();
+        before_state = document->MakeEditorState();
         //clear elements inside this element
         selection_state = SelectionState{element_id, 0, document->GetElement(element_id)->elements->Count()};
         EditorState s{before_state.caret_state, selection_state};
@@ -429,7 +429,7 @@ bool InsertFormulasTask::Execute()
     size_t last_undo_size = document->GetUndoSize();
 
     if (before_state.IsEmpty())
-        before_state = document->GetEditorState();
+        before_state = document->MakeEditorState();
     else
         document->SetEditorState(before_state); //it is redo
     
@@ -519,7 +519,7 @@ bool ChangeStringFormatTask::Execute()
 {
     size_t last_undo_size = document->GetUndoSize();
 
-    before_state = document->GetEditorState();
+    before_state = document->MakeEditorState();
 
     CaretState& caret_state = before_state.caret_state;
     SelectionState& selection_state = before_state.selection_state;
@@ -647,7 +647,7 @@ bool ChangeParagraphFormatTask::Execute()
     size_t last_undo_size = document->GetUndoSize();
     
     if (before_state.IsEmpty())
-        before_state = document->GetEditorState();
+        before_state = document->MakeEditorState();
 
     CaretState& caret_state = before_state.caret_state;
     auto el = document->FindParentParagraph(caret_state.id);
@@ -997,7 +997,7 @@ bool MoveCaretTask::Execute()
         document->selection.Clear();
         document->UpdateLastSelection();
         document->UpdateFormats();
-        window->OnCaretMoved(document->GetEditorState());
+        window->OnCaretMoved(document->MakeEditorState());
     }
 
 #ifdef DEBUG
@@ -1250,7 +1250,7 @@ CopyTask::CopyTask(ElementPtr _text, std::u32string& _out_json, std::u32string& 
 
 bool CopyTask::Execute()
 {
-    auto before_state = document->GetEditorState();
+    auto before_state = document->MakeEditorState();
     SelectionState& selection_state = before_state.selection_state;
     if (selection_state.IsEmpty())
     {
@@ -1505,7 +1505,7 @@ SetResultTask::SetResultTask(ElementPtr _text, ElementId _id, ResultType _result
 bool SetResultTask::Execute()
 {
     if (before_state.IsEmpty())
-        before_state = document->GetEditorState();
+        before_state = document->MakeEditorState();
     else
         document->SetEditorState(before_state); //it is redo
 
@@ -1557,7 +1557,7 @@ SetResultParamsTask::SetResultParamsTask(ElementPtr _text, ElementId _id, yutovo
 bool SetResultParamsTask::Execute()
 {
     if (before_state.IsEmpty())
-        before_state = document->GetEditorState();
+        before_state = document->MakeEditorState();
     else
         document->SetEditorState(before_state); //it is redo
     

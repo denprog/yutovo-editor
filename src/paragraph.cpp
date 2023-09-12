@@ -221,7 +221,7 @@ void Paragraph::Normalize()
         if (el->elements->Count() == 1 && document->IsString(el->elements->Get(0)) && el->elements->Get(0)->elements->Count() == 0)
         {
             elements->RemoveAt(i, 1);
-            window->OnCaretMoved(document->GetEditorState());
+            window->OnCaretMoved(document->MakeEditorState());
         }
         else
             ++i;
