@@ -121,9 +121,13 @@ std::string Subscript::ToHtml()
 
 std::u32string Subscript::ToText()
 {
-    if (first->ToText() == U"log") //TODO: get names of functions from the parser
-        return first->ToText() + U"%" + last->ToText() + U",";
-    return first->ToText() + U"{" + last->ToText() + U"}";
+    auto _first = first->ToText();
+    auto _last = last->ToText();
+    if (_last == U"bin" || _last == U"oct" || _last == U"dec" || _last == U"hex")
+        return _last + U"[" + _first + U"]";
+    if (_first == U"log") //TODO: get names of functions from the parser
+        return _first + U"%" + _last + U",";
+    return _first + U"{" + _last + U"}";
 }
 
 void Subscript::ToParserString(ParserString& str)
@@ -137,10 +141,21 @@ void Subscript::ToParserString(ParserString& str)
     }
     else
     {
-        first->ToParserString(str);
-        str.Add(id, U"{");
-        last->ToParserString(str);
-        str.Add(id, U"}");
+        auto _last = last->ToText();
+        if (_last == U"bin" || _last == U"oct" || _last == U"dec" || _last == U"hex")
+        {
+            last->ToParserString(str);
+            str.Add(id, U"[");
+            first->ToParserString(str);
+            str.Add(id, U"]");
+        }
+        else
+        {
+            first->ToParserString(str);
+            str.Add(id, U"{");
+            last->ToParserString(str);
+            str.Add(id, U"}");
+        }
     }
 }
 
