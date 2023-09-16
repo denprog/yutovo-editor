@@ -491,4 +491,105 @@ TEST_F(SolverIntegerTest, logical4)
         ) << ToBasicString(document.ToText());
 }
 
+//Solve with notations
+TEST_F(SolverIntegerTest, notation1)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.InsertString("1010", true);
+    document.InsertSubscript(true);
+    document.InsertString("bin", true);
+    document.MoveCaretRight(false);
+    document.WaitTask(document.InsertEquation(ResultType::INTEGER, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"bin[1010]=10(dec)"
+        ) << ToBasicString(document.ToText());
+}
+
+//Solve with notations
+TEST_F(SolverIntegerTest, notation2)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.InsertString("776", true);
+    document.InsertSubscript(true);
+    document.InsertString("oct", true);
+    document.MoveCaretRight(false);
+    document.WaitTask(document.InsertEquation(ResultType::INTEGER, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"oct[776]=510(dec)"
+        ) << ToBasicString(document.ToText());
+}
+
+//Solve with notations
+TEST_F(SolverIntegerTest, notation3)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.InsertString("456", true);
+    document.InsertSubscript(true);
+    document.InsertString("dec", true);
+    document.MoveCaretRight(false);
+    document.InsertPlus(true);
+    document.InsertString("101111", true);
+    document.InsertSubscript(true);
+    document.InsertString("bin", true);
+    document.MoveCaretRight(false);
+    document.WaitTask(document.InsertEquation(ResultType::INTEGER, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"dec[456]+bin[101111]=503(dec)"
+        ) << ToBasicString(document.ToText());
+}
+
+//Solve with notations
+TEST_F(SolverIntegerTest, notation4)
+{
+    Start(600);
+
+    Config config;
+    document.GetConfig(config);
+    config.integer_result.result_notation = Notation::BINARY;
+    config.integer_result.show_notation = true;
+    document.SetConfig(config);
+
+    document.InsertCode(false, true);
+    document.InsertString("456f", true);
+    document.InsertSubscript(true);
+    document.InsertString("hex", true);
+    document.MoveCaretRight(false);
+    document.WaitTask(document.InsertEquation(ResultType::INTEGER, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"hex[456f]=100010101101111(bin)"
+        ) << ToBasicString(document.ToText());
+}
+
+//Solve with notations
+TEST_F(SolverIntegerTest, notation5)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.InsertString("456ft", true);
+    document.InsertSubscript(true);
+    document.InsertString("hex", true);
+    document.MoveCaretRight(false);
+    document.WaitTask(document.InsertEquation(ResultType::INTEGER, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"hex[456ft]=Argument is over"
+        ) << ToBasicString(document.ToText());
+}
+
 }
