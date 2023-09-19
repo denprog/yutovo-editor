@@ -407,6 +407,8 @@ void IntegerResult::PutResult(Result result)
 
     if (elements->Count() > 0)
         elements->Get(0)->SetEditable(false);
+    if (elements->Count() > 1)
+        elements->Get(1)->SetEditable(false);
     Remake(true);
     parent->Remake(true);
 }

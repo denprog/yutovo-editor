@@ -544,6 +544,42 @@ TEST_F(SolverIntegerTest, solver10)
         ) << ToBasicString(document.ToText());
 }
 
+//Present Auto result as Integer result
+TEST_F(SolverIntegerTest, solver11)
+{
+    Start(600);
+
+    Config config;
+    document.GetConfig(config);
+    config.integer_result.show_notation = true;
+    document.SetConfig(config);
+
+    document.InsertCode(false, true);
+    document.InsertString("2345", true);
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"2345=2345."
+        ) << ToBasicString(document.ToText());
+
+    document.WaitTask(document.SetResult({0, 0, 0, 0, 0, 0, 0, 2, 0, 0}, ResultType::INTEGER, true));
+    document.WaitSolver();
+    document.MoveCaretEnd(false);
+    document.WaitTask(document.MoveCaretLeft(false));
+    document.WaitTask(document.InsertParagraph(true));
+    ASSERT_TRUE(document.ToText() == 
+        U"2345=2345(dec)"
+        ) << ToBasicString(document.ToText());
+
+    document.Undo();
+    document.WaitUndo();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"2345=2345."
+        ) << ToBasicString(document.ToText());
+}
+
 //Logical not
 TEST_F(SolverIntegerTest, logical1)
 {
