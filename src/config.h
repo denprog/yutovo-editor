@@ -60,13 +60,14 @@ struct Config
     {
         bool operator==(const IntegerResultConfig& other) const
         {
-            return result_notation == other.result_notation && show_notation == other.show_notation;
+            return default_notation == other.default_notation && result_notation == other.result_notation && show_notation == other.show_notation;
         }
 
         void ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc);
         void FromJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc);
 
         Notation result_notation = Notation::DECIMAL;
+        Notation default_notation = Notation::DECIMAL;
         bool show_notation = true;
     };
 

@@ -33,6 +33,7 @@ void Config::RealResultConfig::FromJson(rapidjson::Value& value, rapidjson::Docu
 void Config::IntegerResultConfig::ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc)
 {
     value.AddMember("result_notation", (int)result_notation, alloc);
+    value.AddMember("default_notation", (int)default_notation, alloc);
     value.AddMember("show_notation", show_notation, alloc);
 }
 
@@ -40,6 +41,8 @@ void Config::IntegerResultConfig::FromJson(rapidjson::Value& value, rapidjson::D
 {
     if (value.HasMember("result_notation") && value["result_notation"].IsInt())
         result_notation = (Notation)value["result_notation"].GetInt();
+    if (value.HasMember("default_notation") && value["default_notation"].IsInt())
+        default_notation = (Notation)value["default_notation"].GetInt();
     if (value.HasMember("show_notation") && value["show_notation"].IsBool())
         show_notation = value["show_notation"].GetBool();
 }

@@ -297,6 +297,7 @@ bool AutoSolverTask::Execute(WebSocketPtr socket, Result& result)
 
     //integer config
     doc.AddMember("result_notation", (int)config.integer_result.result_notation, alloc);
+    doc.AddMember("default_notation", (int)config.integer_result.default_notation, alloc);
 
     //rational config
     doc.AddMember("fraction_form", (int)config.rational_result.fraction_form, alloc);
@@ -422,6 +423,7 @@ bool IntegerSolverTask::Execute(WebSocketPtr socket, Result& result)
     doc.AddMember("solver_type", (int)SolverType::CALCULATOR, alloc);
     doc.AddMember("result_type", (int)ResultType::INTEGER, alloc);
     doc.AddMember("result_notation", (int)config.result_notation, alloc);
+    doc.AddMember("default_notation", (int)config.default_notation, alloc);
     std::string s = ToBasicString(expression);
     doc.AddMember("expression", rapidjson::StringRef(s.c_str()), alloc);
 

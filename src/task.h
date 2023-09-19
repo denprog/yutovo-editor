@@ -309,7 +309,7 @@ struct SetResultTask : Task
 
 struct SetResultParamsTask : Task
 {
-    SetResultParamsTask(ElementPtr _text, ElementId _id, Notation _notation, bool _with_undo);
+    SetResultParamsTask(ElementPtr _text, ElementId _id, Notation _default_notation, Notation _result_notation, bool _with_undo);
     SetResultParamsTask(ElementPtr _text, ElementId _id, FractionForm _fraction_form, bool _with_undo);
     SetResultParamsTask(ElementPtr _text, ElementId _id, uint _precision, uint _exp, AngleMeasure _result_angle_measure, bool _with_undo);
     SetResultParamsTask(ElementPtr _text, ElementId _id, yutovo_calculator::Unit _unit, bool _with_undo);
@@ -321,7 +321,8 @@ struct SetResultParamsTask : Task
     int precision = -1;
     int exp = -1;
     AngleMeasure result_angle_measure = AngleMeasure::NONE;
-    Notation notation = Notation::NONE;
+    Notation default_notation = Notation::NONE;
+    Notation result_notation = Notation::NONE;
     FractionForm fraction_form = FractionForm::NONE;
     yutovo_calculator::Unit unit;
 

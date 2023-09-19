@@ -1520,10 +1520,11 @@ bool SetResultTask::Execute()
 
 //SetResultParamsTask
 
-SetResultParamsTask::SetResultParamsTask(ElementPtr _text, ElementId _id, Notation _notation, bool _with_undo) :
+SetResultParamsTask::SetResultParamsTask(ElementPtr _text, ElementId _id, Notation _default_notation, Notation _result_notation, bool _with_undo) :
     Task(_text),
     id(_id),
-    notation(_notation)
+    default_notation(_default_notation),
+    result_notation(_result_notation)
 {
     with_undo = _with_undo;
 }
@@ -1574,9 +1575,9 @@ bool SetResultParamsTask::Execute()
             return true;
         }
     }
-    if (notation != Notation::NONE)
+    if (default_notation != Notation::NONE && result_notation != Notation::NONE)
     {
-        if (eq->SetConfig(notation, with_undo))
+        if (eq->SetConfig(default_notation, result_notation, with_undo))
         {
             Remake(el->id, true);
             return true;

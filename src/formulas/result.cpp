@@ -411,10 +411,11 @@ void IntegerResult::PutResult(Result result)
     parent->Remake(true);
 }
 
-bool IntegerResult::SetConfig(Notation result_notation)
+bool IntegerResult::SetConfig(Notation default_notation, Notation result_notation)
 {
-    if (config.result_notation == result_notation)
+    if (config.default_notation == default_notation && config.result_notation == result_notation)
         return false;
+    config.default_notation = default_notation;
     config.result_notation = result_notation;
     ParserString expr = last_expression;
     last_expression.Reset();
@@ -769,11 +770,12 @@ bool AutoResult::SetConfig(const int precision, const int exp, const AngleMeasur
     return true;
 }
 
-bool AutoResult::SetConfig(Notation result_notation)
+bool AutoResult::SetConfig(Notation default_notation, Notation result_notation)
 {
-    if (config.integer_result.result_notation == result_notation)
+    if (config.integer_result.default_notation == default_notation && config.integer_result.result_notation == result_notation)
         return false;
     
+    config.integer_result.default_notation = default_notation;
     config.integer_result.result_notation = result_notation;
 
     ParserString expr = last_expression;

@@ -286,7 +286,7 @@ bool Equation::SetConfig(int precision, int exp, AngleMeasure result_angle_measu
     }
 }
 
-bool Equation::SetConfig(Notation notation, bool with_undo)
+bool Equation::SetConfig(Notation default_notation, Notation result_notation, bool with_undo)
 {
     switch (result->type)
     {
@@ -296,7 +296,7 @@ bool Equation::SetConfig(Notation notation, bool with_undo)
         if (with_undo)
             document->StoreUndo(id);
         IntegerResult* r = (IntegerResult*)result.get();
-        return r->SetConfig(notation);
+        return r->SetConfig(default_notation, result_notation);
     }
     case ElementType::AUTO_RESULT:
     {
@@ -304,7 +304,7 @@ bool Equation::SetConfig(Notation notation, bool with_undo)
         if (with_undo)
             document->StoreUndo(id);
         AutoResult* r = (AutoResult*)result.get();
-        return r->SetConfig(notation);
+        return r->SetConfig(default_notation, result_notation);
     }
     default:
         return false;
