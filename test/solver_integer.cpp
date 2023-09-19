@@ -748,4 +748,23 @@ TEST_F(SolverIntegerTest, notation5)
         ) << ToBasicString(document.ToText());
 }
 
+//Error result
+TEST_F(SolverIntegerTest, notation6)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.InsertString("123", true);
+    document.InsertSubscript(true);
+    document.InsertString("bin", true);
+    document.MoveCaretRight(false);
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"bin[123]=Syntax error"
+        ) << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetResultType({0, 0, 0, 0, 0, 0, 0, 2, 0, 0}) == ResultType::AUTO);
+}
+
 }
