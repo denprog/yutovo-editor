@@ -291,7 +291,7 @@ TEST_F(SolverIntegerTest, solver5)
 
     for (int i = 0; i < 7; ++i)
         document.MoveCaretRight(false);
-    document.WaitTask(document.SetNotation({0, 0, 0, 0, 0, 0, 0, 2, 0, 1, 2}, Notation::BINARY, true));
+    document.WaitTask(document.SetNotation({0, 0, 0, 0, 0, 0, 0, 2, 0, 1, 2}, Notation::DECIMAL, Notation::BINARY, true));
     document.WaitSolver();
     std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToText() == 
@@ -318,14 +318,16 @@ TEST_F(SolverIntegerTest, solver5)
         U"2345=100100101001(bin)"
         ) << ToBasicString(document.ToText());
 
-    document.WaitTask(document.SetNotation({0, 0, 0, 0, 0, 0, 0, 2, 0, 0}, Notation::OCTAL, true));
+    auto _el = document.FindParent({0, 0, 0, 0, 0, 0, 0, 2, 0, 0}, ElementType::INTEGER_RESULT);
+    Notation n = document.GetDefaultNotation(_el->id);
+    document.WaitTask(document.SetNotation({0, 0, 0, 0, 0, 0, 0, 2, 0, 0}, n, Notation::OCTAL, true));
     document.WaitSolver();
     std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToText() == 
         U"2345=4451(oct)"
         ) << ToBasicString(document.ToText());
 
-    document.WaitTask(document.SetNotation({0, 0, 0, 0, 0, 0, 0, 2, 0, 0}, Notation::HEXADECIMAL, true));
+    document.WaitTask(document.SetNotation({0, 0, 0, 0, 0, 0, 0, 2, 0, 0}, Notation::DECIMAL, Notation::HEXADECIMAL, true));
     document.WaitSolver();
     std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToText() == 
@@ -361,7 +363,9 @@ TEST_F(SolverIntegerTest, solver6)
         U"567=567(dec)"
         ) << ToBasicString(document.ToText());
 
-    document.WaitTask(document.SetNotation({0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 3}, Notation::HEXADECIMAL, true));
+    auto _el = document.FindParent({0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 3}, ElementType::INTEGER_RESULT);
+    Notation n = document.GetDefaultNotation(_el->id);
+    document.WaitTask(document.SetNotation({0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 3}, n, Notation::HEXADECIMAL, true));
     document.WaitSolver();
     std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToText() == 
@@ -375,7 +379,7 @@ TEST_F(SolverIntegerTest, solver6)
 
     document.Undo();
     document.WaitUndo();
-    std::this_thread::sleep_for(600ms);
+    std::this_thread::sleep_for(800ms);
     ASSERT_TRUE(document.ToText() == 
         U"567=237(hex)"
         ) << ToBasicString(document.ToText());
@@ -421,6 +425,122 @@ TEST_F(SolverIntegerTest, solver8)
     std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToText() == 
         U"5!=120(dec)"
+        ) << ToBasicString(document.ToText());
+}
+
+//Check default notation
+TEST_F(SolverIntegerTest, solver9)
+{
+    Start(600);
+    
+    Config config;
+    document.GetConfig(config);
+    config.integer_result.default_notation = Notation::BINARY;
+    config.integer_result.result_notation = Notation::BINARY;
+    config.integer_result.show_notation = true;
+    document.SetConfig(config);
+
+    document.InsertCode(false, true);
+    document.InsertString("10101", true);
+    document.WaitTask(document.InsertEquation(ResultType::INTEGER, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"10101=10101(bin)"
+        ) << ToBasicString(document.ToText());
+
+    document.GetConfig(config);
+    config.integer_result.default_notation = Notation::OCTAL;
+    config.integer_result.result_notation = Notation::DECIMAL;
+    config.integer_result.show_notation = false;
+    document.SetConfig(config);
+
+    document.MoveCaretEnd(false);
+    document.InsertParagraph(true);
+    document.InsertString("6543", true);
+    document.WaitTask(document.InsertEquation(ResultType::INTEGER, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"10101=10101(bin)\n"
+        U"6543=3427"
+        ) << ToBasicString(document.ToText());
+
+    document.GetConfig(config);
+    config.integer_result.default_notation = Notation::DECIMAL;
+    config.integer_result.result_notation = Notation::HEXADECIMAL;
+    config.integer_result.show_notation = true;
+    document.SetConfig(config);
+
+    document.MoveCaretEnd(false);
+    document.InsertParagraph(true);
+    document.InsertString("6789", true);
+    document.WaitTask(document.InsertEquation(ResultType::INTEGER, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"10101=10101(bin)\n"
+        U"6543=3427\n"
+        U"6789=1a85(hex)"
+        ) << ToBasicString(document.ToText());
+
+    document.GetConfig(config);
+    config.integer_result.default_notation = Notation::HEXADECIMAL;
+    config.integer_result.result_notation = Notation::DECIMAL;
+    document.SetConfig(config);
+
+    document.MoveCaretEnd(false);
+    document.InsertParagraph(true);
+    document.InsertString("567af", true);
+    document.WaitTask(document.InsertEquation(ResultType::INTEGER, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"10101=10101(bin)\n"
+        U"6543=3427\n"
+        U"6789=1a85(hex)\n"
+        U"567af=354223(dec)"
+        ) << ToBasicString(document.ToText());
+}
+
+//Set default notation
+TEST_F(SolverIntegerTest, solver10)
+{
+    Start(600);
+    
+    document.InsertCode(false, true);
+    document.InsertString("567", true);
+    document.WaitTask(document.InsertEquation(ResultType::INTEGER, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"567=567(dec)"
+        ) << ToBasicString(document.ToText());
+
+    document.WaitTask(document.SetNotation({0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 3}, Notation::OCTAL, Notation::HEXADECIMAL, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"567=177(hex)"
+        ) << ToBasicString(document.ToText());
+    
+    document.WaitTask(document.DeleteElements(false, true));
+    ASSERT_TRUE(document.ToText() == 
+        U"567"
+        ) << ToBasicString(document.ToText());
+
+    document.Undo();
+    document.WaitUndo();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"567=177(hex)"
+        ) << ToBasicString(document.ToText());
+
+    document.Undo();
+    document.WaitUndo();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"567=567(dec)"
         ) << ToBasicString(document.ToText());
 }
 

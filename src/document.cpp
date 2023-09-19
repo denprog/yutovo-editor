@@ -1991,7 +1991,7 @@ uint Document::SetResultAngleMeasure(ElementId _id, AngleMeasure result_angle_me
     return last_task_id;
 }
 
-Notation Document::GetNotation(ElementId _id)
+Notation Document::GetResultNotation(ElementId _id)
 {
     std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
     auto el = GetElement(_id);
@@ -2008,10 +2008,27 @@ Notation Document::GetNotation(ElementId _id)
     return r->config.result_notation;
 }
 
-uint Document::SetNotation(ElementId _id, Notation notation, bool with_undo)
+Notation Document::GetDefaultNotation(ElementId _id)
 {
     std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
-    tasks.emplace_back(new SetResultParamsTask(text, _id, notation, with_undo));
+    auto el = GetElement(_id);
+    if (!el)
+        return Notation::NONE;
+    IntegerResult* r = dynamic_cast<IntegerResult*>(el.get());
+    if (!r)
+    {
+        AutoResult* a_r = dynamic_cast<AutoResult*>(el.get());
+        if (a_r)
+            return a_r->config.integer_result.default_notation;
+        return Notation::NONE;
+    }
+    return r->config.default_notation;
+}
+
+uint Document::SetNotation(ElementId _id, Notation default_notation, Notation result_notation, bool with_undo)
+{
+    std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
+    tasks.emplace_back(new SetResultParamsTask(text, _id, default_notation, result_notation, with_undo));
     last_task_id = tasks.back()->id;
     return last_task_id;
 }

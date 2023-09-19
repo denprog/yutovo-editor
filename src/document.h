@@ -210,16 +210,23 @@ public:
 
     ResultType GetResultType(ElementId _id);
     uint SetResult(ElementId _id, ResultType result_type, bool with_undo);
+
     int GetPrecision(ElementId _id);
     uint SetPrecision(ElementId _id, uint precision, bool with_undo);
+
     int GetExp(ElementId _id);
+
     uint SetExp(ElementId _id, uint exp, bool with_undo);
     AngleMeasure GetResultAngleMeasure(ElementId _id);
     uint SetResultAngleMeasure(ElementId _id, AngleMeasure result_angle_measure, bool with_undo);
-    Notation GetNotation(ElementId _id);
-    uint SetNotation(ElementId _id, Notation notation, bool with_undo);
+
+    Notation GetResultNotation(ElementId _id);
+    Notation GetDefaultNotation(ElementId _id);
+    uint SetNotation(ElementId _id, Notation default_notation, Notation result_notation, bool with_undo);
+
     FractionForm GetFractionForm(ElementId _id);
     uint SetFractionForm(ElementId _id, FractionForm fraction_form, bool with_undo);
+
     bool HasUnit(ElementId _id);
     void GetCastUnits(ElementId _id, std::vector<yutovo_calculator::Unit>& cast_units);
     uint SetUnit(ElementId _id, yutovo_calculator::Unit& unit, bool with_undo);

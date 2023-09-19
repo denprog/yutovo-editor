@@ -82,7 +82,7 @@ public:
 
     virtual void PutResult(Result result);
 
-    bool SetConfig(Notation result_notation);
+    bool SetConfig(Notation default_notation, Notation result_notation);
 
 public:
     Config::IntegerResultConfig config;
@@ -160,7 +160,7 @@ public:
     virtual void PutResult(Result result);
 
     bool SetConfig(const int precision, const int exp, const AngleMeasure result_angle_measure);
-    bool SetConfig(Notation result_notation);
+    bool SetConfig(Notation default_notation, Notation result_notation);
     bool SetConfig(FractionForm fraction_form);
     bool SetConfig(const yutovo_calculator::Unit& unit);
 
