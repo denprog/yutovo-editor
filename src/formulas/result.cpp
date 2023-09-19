@@ -826,10 +826,8 @@ ResultType AutoResult::GetResultType()
         return ResultType::RATIONAL;
     case ElementType::COMPLEX_RESULT:
         return ResultType::COMPLEX;
-    default:
-        assert(false);
     }
-    return ResultType::NONE;
+    return ResultType::AUTO;
 }
 
 void AutoResult::GetCastUnits(std::vector<yutovo_calculator::Unit>& cast_units)
