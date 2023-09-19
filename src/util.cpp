@@ -290,6 +290,7 @@ std::string ErrorCodeToString(const yutovo_calculator::ParserExceptionCode parse
             {ParserExceptionCode::DivisionByZero, "Division by zero"},
             {ParserExceptionCode::Overflow, "Overflow"},
             {ParserExceptionCode::ArgumentIsOver, "Argument is over"},
+            {ParserExceptionCode::UnitsAreIncompatible, "Units are incompatible"},
             {ParserExceptionCode::ConversionDoesNotFit, "Conversion does not fit"}
         };
     return error_code_str[parser_error_code];
