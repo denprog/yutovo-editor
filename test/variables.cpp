@@ -117,7 +117,7 @@ TEST_F(VariablesTest, variables2)
     document.WaitTask(document.InsertAssignment(true));
     document.WaitTask(document.InsertString("5", true));
     document.WaitSolver();
-    std::this_thread::sleep_for(800ms);
+    std::this_thread::sleep_for(1s);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\

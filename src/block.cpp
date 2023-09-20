@@ -222,9 +222,24 @@ bool Block::DeleteElements(bool left, bool with_undo, ElementId& changed_element
     ElementPtr el = document->GetElement(before_state.id);
     if (!el)
     {
-        if (!parent)
-            return false;
-        return parent->DeleteElements(left, with_undo, changed_element);
+        CaretState last_state;
+        el = document->GetElement(caret->GetElement()->id);
+        if (el)
+        {
+            el->GetLastCaretState(last_state, nullptr);
+            if (left || before_state != last_state)
+            {
+                if (!parent)
+                    return false;
+                return parent->DeleteElements(left, with_undo, changed_element);
+            }
+        }
+        else
+        {
+            if (!parent)
+                return false;
+            return parent->DeleteElements(left, with_undo, changed_element);
+        }
     }
     int p = 0;
     ElementPtr dest_row;
