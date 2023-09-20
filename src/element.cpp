@@ -236,11 +236,10 @@ bool Element::SplitAt(const uint pos)
         return false;
     ElementPtr part(Create(parent));
     part->elements->Clear();
+    int p = parent->elements->GetElementPos(id);
+    parent->elements->Insert(part, p + 1);
     for (int i = pos; i < elements->Count();)
-    {
-        part->elements->Insert(elements->Get(i), part->elements->Count());
-        elements->RemoveAt(i, 1);
-    }
+        part->elements->Move(elements->Get(i), part->elements->Count());
     return true;
 }
 
