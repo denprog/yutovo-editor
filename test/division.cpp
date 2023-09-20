@@ -1126,4 +1126,91 @@ TEST_F(FormulaTest, division15)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 2, 0, 0})) << document.GetEditorState().ToString();
 }
 
+//Insert division after selection
+TEST_F(FormulaTest, division16)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.InsertString("88", true);
+    document.InsertMultiply(true);
+    document.InsertString("7", true);
+    document.InsertDivision(true);
+    document.InsertString("12", true);
+    document.MoveCaretRight(false);
+    for (int i = 0; i < 4; ++i)
+        document.WaitTask(document.MoveCaretLeft(true));
+    document.WaitTask(document.InsertDivision(true));
+    ASSERT_TRUE(document.ToText() == U"(88*(7)/(12))/()") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 2, 0, 0})) << document.GetEditorState().ToString();
+}
+
+//Insert division after selection
+TEST_F(FormulaTest, division17)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.InsertString("88", true);
+    document.InsertMultiply(true);
+    document.InsertString("7", true);
+    document.InsertDivision(true);
+    document.InsertString("12", true);
+    document.MoveCaretRight(false);
+    document.InsertPlus(true);
+    document.InsertString("3", true);
+    document.MoveCaretLeft(false);
+    document.MoveCaretLeft(false);
+    for (int i = 0; i < 3; ++i)
+        document.WaitTask(document.MoveCaretLeft(true));
+    document.WaitTask(document.InsertDivision(true));
+    ASSERT_TRUE(document.ToText() == U"8(8*(7)/(12))/()+3") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 1, 2, 0, 0})) << document.GetEditorState().ToString();
+}
+
+//Insert division after selection
+TEST_F(FormulaTest, division18)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.InsertString("88", true);
+    document.InsertMultiply(true);
+    document.InsertString("7", true);
+    document.InsertDivision(true);
+    document.InsertString("12", true);
+    document.MoveCaretRight(false);
+    document.InsertPlus(true);
+    document.InsertString("3", true);
+    document.MoveCaretLeft(false);
+    document.MoveCaretLeft(false);
+    document.MoveCaretLeft(false);
+    for (int i = 0; i < 3; ++i)
+        document.WaitTask(document.MoveCaretLeft(true));
+    document.WaitTask(document.InsertDivision(true));
+    ASSERT_TRUE(document.ToText() == U"88*((7)/(12))/()+3") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 2, 2, 0, 0})) << document.GetEditorState().ToString();
+}
+
+//Insert division after selection
+TEST_F(FormulaTest, division19)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.InsertString("88", true);
+    document.InsertMultiply(true);
+    document.InsertString("7", true);
+    document.InsertDivision(true);
+    document.InsertString("12", true);
+    document.MoveCaretRight(false);
+    document.InsertPlus(true);
+    document.InsertString("3", true);
+    for (int i = 0; i < 6; ++i)
+        document.WaitTask(document.MoveCaretLeft(true));
+    document.WaitTask(document.InsertDivision(true));
+    ASSERT_TRUE(document.ToText() == U"(88*(7)/(12)+3)/()") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 2, 0, 0})) << document.GetEditorState().ToString();
+}
+
 }
