@@ -2551,4 +2551,77 @@ TEST_F(ParagraphTest, delete17)
         ElementSelectionState{ElementId{0}, 0, 1})) << document.GetEditorState().ToString();
 }
 
+//Delete a paragraph after a result
+TEST_F(ParagraphTest, delete18)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.InsertString("234", true);
+    document.InsertEquation(ResultType::AUTO, true);
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    document.MoveCaretEnd(false);
+    document.WaitTask(document.InsertParagraph(true));
+    ASSERT_TRUE(document.ToText() == 
+        U"234=234.\n"
+        U""
+        ) << ToBasicString(document.ToText());
+
+    document.MoveCaretLeft(false);
+    document.WaitTask(document.DeleteElements(false, true));
+    ASSERT_TRUE(document.ToText() == 
+        U"234=234."
+        ) << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 1})) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"234=234.\n"
+        U""
+        ) << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 1})) << document.GetEditorState().ToString();
+}
+
+//Delete a paragraph after a code block
+TEST_F(ParagraphTest, delete19)
+{
+    Start(600);
+
+    document.InsertString("Text", true);
+    document.InsertCode(false, true);
+    document.InsertString("234", true);
+    document.MoveCaretEnd(false);
+    document.InsertParagraph(true);
+    document.InsertString("Next1", true);
+    document.InsertParagraph(true);
+    document.WaitTask(document.InsertString("Next2", true));
+    ASSERT_TRUE(document.ToText() == 
+        U"Text234\n"
+        U"Next1\n"
+        U"Next2"
+        ) << ToBasicString(document.ToText());
+    
+    document.MoveCaretToDocumentBegin(false);
+    document.MoveCaretEnd(false);
+    document.WaitTask(document.DeleteElements(false, true));
+    ASSERT_TRUE(document.ToText() == 
+        U"Text234Next1\n"
+        U"Next2"
+        ) << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 2, 0})) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    ASSERT_TRUE(document.ToText() == 
+        U"Text234\n"
+        U"Next1\n"
+        U"Next2"
+        ) << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 2})) << document.GetEditorState().ToString();
+}
+
 }

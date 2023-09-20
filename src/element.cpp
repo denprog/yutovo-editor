@@ -292,11 +292,6 @@ void Element::AfterReplace()
         elements->Get(i)->AfterReplace();
 }
 
-// void Element::RestoreFromUndo(UndoElementPtr undo_element)
-// {
-
-// }
-
 bool Element::GetFirstCaretState(CaretState& caret_state, Selection* select)
 {
     return elements->GetFirstCaretState(caret_state, select);
@@ -989,9 +984,11 @@ void Elements::Add(ElementPtr element)
 
 void Elements::Insert(ElementPtr element, const uint pos)
 {
-    CaretState c;
+    CaretState c, last;
     if (caret->IsInsideElement(element->id))
         c = caret->GetCaretState();
+    else if (pos == parent->elements->Count() && pos > 0 && parent->elements->Get(pos - 1)->HasCaretState())
+        parent->GetLastCaretState(last, nullptr);
     
     bool p = selection->IsSelected(parent->id);
     bool s = false;
@@ -1031,6 +1028,14 @@ void Elements::Insert(ElementPtr element, const uint pos)
         auto _el = parent->document->GetElement(_id);
         if (_el)
             caret->SetState(_id, c.GetPos(), true);
+    }
+    else if (!last.IsEmpty())
+    {
+        if (last == caret->GetCaretState() && !element->HasCaretState())
+        {
+            if (element->GetFirstCaretState(c, nullptr))
+                caret->SetState(c);
+        }
     }
     
     if (p)
