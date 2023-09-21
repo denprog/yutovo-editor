@@ -1250,7 +1250,15 @@ bool Document::IsEditable(const ElementId id)
     std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
     ElementPtr el = GetElement(id);
     if (!el)
+    {
+        //check it's the last caret position
+        auto p = GetParent(id);
+        if (!p || p->elements->Count() == 0)
+            return false;
+        if (id[id.size() - 1] == p->elements->Count() && p->editable)
+            return true;
         return false;
+    }
     return el->editable;
 }
 
