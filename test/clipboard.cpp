@@ -1575,4 +1575,33 @@ TEST_F(DocumentTest, clipboard24)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0})) << document.GetEditorState().ToString();
 }
 
+//Paste after a code block
+TEST_F(DocumentTest, clipboard25)
+{
+    Start(600);
+
+    document.InsertString("String", true);
+    document.InsertDivision(true);
+    document.MoveCaretToDocumentEnd(false);
+    document.MoveCaretHome(true);
+
+    std::u32string clipboard_json;
+    std::u32string clipboard_text;
+    document.WaitTask(document.Copy(clipboard_json, clipboard_text));
+
+    document.WaitTask(document.MoveCaretRight(false));
+    EditorState s = document.GetEditorState();
+    ASSERT_TRUE(document.IsEditable(s.caret_state.id));
+    document.WaitTask(document.Paste(clipboard_json));
+    ASSERT_TRUE(document.ToText() == 
+        U"String()/()String()/()"
+        ) << ToBasicString(document.ToText());
+
+    document.Undo();
+    document.WaitUndo();
+    ASSERT_TRUE(document.ToText() == 
+        U"String()/()"
+        ) << ToBasicString(document.ToText());
+}
+
 }
