@@ -1604,4 +1604,39 @@ TEST_F(DocumentTest, clipboard25)
         ) << ToBasicString(document.ToText());
 }
 
+//Paste inside a code block
+TEST_F(DocumentTest, clipboard26)
+{
+    Start(600);
+
+    document.InsertString("String", true);
+    document.InsertDivision(true);
+    document.MoveCaretRight(false);
+    document.WaitTask(document.MoveCaretHome(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 1, 0, 0, 0}, 
+        ElementSelectionState{ElementId{0, 0, 0}, 1, 1})) << document.GetEditorState().ToString();
+
+    document.MoveCaretLeft(true);
+    document.MoveCaretLeft(true);
+    document.MoveCaretLeft(true);
+    document.WaitTask(document.MoveCaretLeft(true));
+
+    std::u32string clipboard_json;
+    std::u32string clipboard_text;
+    document.WaitTask(document.Copy(clipboard_json, clipboard_text));
+
+    document.MoveCaretRight(false);
+    document.WaitTask(document.MoveCaretRight(false));
+    document.WaitTask(document.Paste(clipboard_json));
+    ASSERT_TRUE(document.ToText() == 
+        U"String()/()ring()/()"
+        ) << ToBasicString(document.ToText());
+
+    document.Undo();
+    document.WaitUndo();
+    ASSERT_TRUE(document.ToText() == 
+        U"String()/()"
+        ) << ToBasicString(document.ToText());
+}
+
 }

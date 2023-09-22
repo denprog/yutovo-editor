@@ -113,7 +113,7 @@ TEST_F(VariablesTest, variables2)
     document.WaitTask(document.MoveCaretHome(false));
     document.WaitTask(document.InsertParagraph(true));
     document.WaitTask(document.MoveCaretUp(false));
-    document.InsertString("d", true);
+    document.WaitTask(document.InsertString("d", true));
     document.WaitTask(document.InsertAssignment(true));
     document.WaitTask(document.InsertString("5", true));
     document.WaitSolver();
