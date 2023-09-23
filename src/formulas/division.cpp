@@ -36,7 +36,9 @@ Element* Division::Create(Element* parent)
 
 Element* Division::FromJson(Element* parent, Document* document, const rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc)
 {
-    return new Division(parent, false);
+    if (parent)
+        return new Division(parent, false);
+    return new Division(document, false);
 }
 
 void Division::Draw() const

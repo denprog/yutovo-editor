@@ -565,6 +565,7 @@ TEST_F(SolverIntegerTest, solver11)
 
     document.WaitTask(document.SetResult({0, 0, 0, 0, 0, 0, 0, 2, 0, 0}, ResultType::INTEGER, true));
     document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
     document.MoveCaretEnd(false);
     document.WaitTask(document.MoveCaretLeft(false));
     document.WaitTask(document.InsertParagraph(true));
