@@ -37,7 +37,9 @@ Element* NthRoot::Create(Element* _parent)
 
 Element* NthRoot::FromJson(Element* parent, Document* document, const rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc)
 {
-    return new NthRoot(parent, false);
+    if (parent)
+        return new NthRoot(parent, false);
+    return new NthRoot(document, false);
 }
 
 void NthRoot::Draw() const

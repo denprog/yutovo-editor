@@ -1639,4 +1639,138 @@ TEST_F(DocumentTest, clipboard26)
         ) << ToBasicString(document.ToText());
 }
 
+//Paste a division in a division
+TEST_F(DocumentTest, clipboard27)
+{
+    Start(600);
+
+    document.InsertDivision(true);
+    document.MoveCaretRight(false);
+    document.WaitTask(document.MoveCaretHome(true));
+    std::u32string clipboard_json;
+    std::u32string clipboard_text;
+    document.WaitTask(document.Copy(clipboard_json, clipboard_text));
+
+    document.MoveCaretEnd(false);
+    document.WaitTask(document.MoveCaretLeft(false));
+    document.WaitTask(document.Paste(clipboard_json));
+    ASSERT_TRUE(document.ToText() == 
+        U"()/(()/())"
+        ) << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0, 0, 0, 2, 1})) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    ASSERT_TRUE(document.ToText() == 
+        U"()/()"
+        ) << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0, 0, 0, 2, 0, 0})) << document.GetEditorState().ToString();
+}
+
+//Paste a division in a code block
+TEST_F(DocumentTest, clipboard28)
+{
+    Start(600);
+
+    document.InsertDivision(true);
+    document.MoveCaretRight(false);
+    document.WaitTask(document.MoveCaretHome(true));
+    std::u32string clipboard_json;
+    std::u32string clipboard_text;
+    document.WaitTask(document.Copy(clipboard_json, clipboard_text));
+
+    document.MoveCaretEnd(false);
+    document.InsertString("123", true);
+    document.MoveCaretLeft(false);
+    document.MoveCaretLeft(false);
+    document.MoveCaretLeft(false);
+    document.WaitTask(document.Paste(clipboard_json));
+    ASSERT_TRUE(document.ToText() == 
+        U"()/()()/()123"
+        ) << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0, 0, 1, 2, 0, 0})) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    ASSERT_TRUE(document.ToText() == 
+        U"()/()123"
+        ) << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0, 0, 1, 0})) << document.GetEditorState().ToString();
+}
+
+//Paste a division in a code block
+TEST_F(DocumentTest, clipboard29)
+{
+    Start(600);
+
+    document.InsertDivision(true);
+    document.MoveCaretRight(false);
+    document.MoveCaretRight(false);
+    document.MoveCaretRight(false);
+    document.InsertString("123", true);
+    document.MoveCaretLeft(false);
+    document.MoveCaretLeft(false);
+    document.MoveCaretLeft(false);
+    document.MoveCaretLeft(true);
+    std::u32string clipboard_json;
+    std::u32string clipboard_text;
+    document.WaitTask(document.Copy(clipboard_json, clipboard_text));
+
+    document.MoveCaretRight(false);
+    document.MoveCaretRight(false);
+    document.WaitTask(document.Paste(clipboard_json));
+    ASSERT_TRUE(document.ToText() == 
+        U"()/()()/()123"
+        ) << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0, 0, 1, 2, 0, 0})) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    ASSERT_TRUE(document.ToText() == 
+        U"()/()123"
+        ) << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0, 0, 1, 0})) << document.GetEditorState().ToString();
+}
+
+//Paste paragraphs in a code block
+TEST_F(DocumentTest, clipboard30)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.InsertString("234", true);
+    document.InsertPlus(true);
+    document.InsertString("35", true);
+    document.InsertParagraph(true);
+    document.InsertString("1234", true);
+    document.InsertPlus(true);
+    document.InsertString("5678", true);
+    document.WaitTask(document.InsertParagraph(true));
+    document.MoveCaretUp(true);
+    document.MoveCaretUp(true);
+    std::u32string clipboard_json;
+    std::u32string clipboard_text;
+    document.WaitTask(document.Copy(clipboard_json, clipboard_text));
+
+    document.MoveCaretDown(false);
+    document.MoveCaretDown(false);
+    document.WaitTask(document.Paste(clipboard_json));
+    ASSERT_TRUE(document.ToText() == 
+        U"234+35\n"
+        U"1234+5678\n"
+        U"234+35\n"
+        U"1234+5678"
+        ) << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 3, 0, 2, 4})) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    ASSERT_TRUE(document.ToText() == 
+        U"234+35\n"
+        U"1234+5678\n"
+        U""
+        ) << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 2, 0, 0, 0})) << document.GetEditorState().ToString();
+}
+
 }

@@ -43,45 +43,73 @@ bool Block::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo, E
             ElementPtr el = document->GetElement(before_state.id);
             return el->InsertElements(_elements, with_undo, changed_element);
         }
+
+        std::vector<ElementPtr> _els;
         if (_elements[0]->type == ElementType::TEXT) //insert from Paste
         {
             if (_elements[0]->elements->Count() == 0)
                 return false;
-            
-            //insert the first paragraph as a row
-            auto el = _elements[0]->elements->Get(0);
-            if (!document->IsParagraph(el))
-                return false;
-            ElementPtr cur = document->GetElement(before_state.id);
-            ElementPtr row(new Row(el.get()));
-            row->elements->Clear();
-            for (int i = 0; i < el->elements->Count(); ++i)
-            {
-                auto r = el->elements->Get(i);
-                for (int j = 0; j < r->elements->Count(); ++j)
-                    row->elements->Add(r->elements->Get(j));
-            }
-            std::vector<ElementPtr> els;
-            els.push_back(row);
-            if (!cur)
-                cur = document->GetParent(before_state.id);
-            if (!cur || !cur->InsertElements(els, with_undo, changed_element))
-                return false;
-            
-            //insert the rest of the paragraphs
-            for (int i = 1; i < _elements[0]->elements->Count(); ++i)
-            {
-                els.clear();
-                els.push_back(_elements[0]->elements->Get(i));
-                if (!InsertElements(els, with_undo, changed_element))
-                    return false;
-            }
-            changed_element = id;
-            return true;
+            for (int i = 0; i < _elements[0]->elements->Count(); ++i)
+                _els.push_back(_elements[0]->elements->Get(i));
         }
-        if (!parent)
+        else
+        {
+            _els = _elements;
+        }
+
+        //insert the first paragraph as a row
+        auto el = _els[0];
+        if (!document->IsParagraph(el))
             return false;
-        return parent->InsertElements(_elements, with_undo, changed_element);
+        ElementPtr cur = document->GetElement(before_state.id);
+        ElementPtr row(new Row(el.get()));
+        row->elements->Clear();
+        for (int i = 0; i < el->elements->Count(); ++i)
+        {
+            auto r = el->elements->Get(i);
+            for (int j = 0; j < r->elements->Count(); ++j)
+            {
+                auto _el = r->elements->Get(j);
+                //strip the code block if its parent is code block
+                if (type == ElementType::CODE_BLOCK && _el->type == ElementType::CODE_BLOCK)
+                {
+                    for (int k = 0; k < _el->elements->Count(); ++k)
+                    {
+                        auto _p = _el->elements->Get(k);
+                        for (int l = 0; l < _p->elements->Count(); ++l)
+                        {
+                            auto _r = _p->elements->Get(l);
+                            for (int m = 0; m < _r->elements->Count(); ++m)
+                            {
+                                row->elements->Add(_r->elements->Get(m));
+                            }
+                        }
+                    }
+                }
+                else
+                    row->elements->Add(_el);
+            }
+        }
+
+        std::vector<ElementPtr> els;
+        els.push_back(row);
+        if (!cur)
+            cur = document->GetParent(before_state.id);
+        if (!cur || !cur->InsertElements(els, with_undo, changed_element))
+            return false;
+        
+        //insert the rest of the paragraphs
+        for (int i = 1; i < _els.size(); ++i)
+        {
+            if (!document->IsParagraph(_els[i]))
+                return false;
+            els.clear();
+            els.push_back(_els[i]);
+            if (!InsertElements(els, with_undo, changed_element))
+                return false;
+        }
+        changed_element = id;
+        return true;
     }
 
     ElementPtr insert_element(_elements[0]->Clone());

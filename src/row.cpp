@@ -41,7 +41,7 @@ Element* Row::Create(Element* parent)
 Element* Row::FromJson(Element* parent, Document* document, const rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc)
 {
     if (parent)
-        return new Row(parent);
+        return new Row(parent, false);
     return new Row(document);
 }
 

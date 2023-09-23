@@ -37,7 +37,9 @@ Element* Power::Create(Element* _parent)
 
 Element* Power::FromJson(Element* parent, Document* document, const rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc)
 {
-    return new Power(parent, false);
+    if (parent)
+        return new Power(parent, false);
+    return new Power(document, false);
 }
 
 void Power::Draw() const
