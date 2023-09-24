@@ -443,17 +443,11 @@ int UndoBase::Store(const ElementId& id)
 {
     std::vector<LogicalId> ids;
     auto el = document->GetElement(id);
-    if (el->logical_id.empty())
+    if (el->type == ElementType::ROW)
     {
-        for (int i = 0; i < el->elements->Count(); ++i)
-        {
-            LogicalId _id = el->elements->Get(i)->logical_id;
-            if (ids.empty() || ids[ids.size() - 1] != _id)
-                ids.push_back(_id);
-        }
+        el = document->GetParent(el->id);
     }
-    else
-        ids.push_back(el->logical_id);
+    ids.push_back(el->logical_id);
     for (auto& id : ids)
     {
         if (!Store(next_undo_id, id))
