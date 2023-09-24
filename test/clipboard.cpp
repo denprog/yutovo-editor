@@ -1773,4 +1773,82 @@ TEST_F(DocumentTest, clipboard30)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 2, 0, 0, 0})) << document.GetEditorState().ToString();
 }
 
+//Paste in second row
+TEST_F(DocumentTest, clipboard31)
+{
+    Start(280);
+
+    document.InsertString("123", true);
+    document.InsertDivision(true);
+    document.MoveCaretHome(false);
+    document.MoveCaretHome(false);
+    document.MoveCaretEnd(true);
+    std::u32string clipboard_json;
+    std::u32string clipboard_text;
+    document.WaitTask(document.Copy(clipboard_json, clipboard_text));
+
+    document.MoveCaretEnd(false);
+    document.Paste(clipboard_json);
+    document.WaitTask(document.Paste(clipboard_json));
+    ASSERT_TRUE(document.ToText() == 
+        U"123()/()123()/()123()/()"
+        ) << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 6})) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.Paste(clipboard_json));
+    ASSERT_TRUE(document.ToText() == 
+        U"123()/()123()/()123()/()"
+        U"123()/()"
+        ) << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 2})) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    ASSERT_TRUE(document.ToText() == 
+        U"123()/()123()/()123()/()"
+        ) << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 6})) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    ASSERT_TRUE(document.ToText() == 
+        U"123()/()123()/()"
+        ) << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 4})) << document.GetEditorState().ToString();
+}
+
+//Paste in second row
+TEST_F(DocumentTest, clipboard32)
+{
+    Start(280);
+
+    document.InsertString("123", true);
+    document.InsertDivision(true);
+    document.MoveCaretHome(false);
+    document.MoveCaretHome(false);
+    document.MoveCaretEnd(true);
+    std::u32string clipboard_json;
+    std::u32string clipboard_text;
+    document.WaitTask(document.Copy(clipboard_json, clipboard_text));
+
+    document.MoveCaretEnd(false);
+    document.Paste(clipboard_json);
+    document.Paste(clipboard_json);
+    document.Paste(clipboard_json);
+    document.WaitTask(document.Paste(clipboard_json));
+    ASSERT_TRUE(document.ToText() == 
+        U"123()/()123()/()123()/()"
+        U"123()/()123()/()"
+        ) << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 4})) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    ASSERT_TRUE(document.ToText() == 
+        U"123()/()123()/()123()/()"
+        U"123()/()"
+        ) << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 2})) << document.GetEditorState().ToString();
+}
+
 }

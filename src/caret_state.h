@@ -23,6 +23,7 @@ struct CaretState
     CaretState(const ElementId _id);
     CaretState(const ElementId _id, const uint pos);
     CaretState(const Element* element, const uint pos);
+    CaretState(const Element* element, const uint pos, bool _last_pos);
 
     bool operator==(const CaretState& c);
     bool operator!=(const CaretState& c);
@@ -52,6 +53,7 @@ struct CaretState
 #endif
 
     ElementId id;
+    bool last_pos = false;
 };
 
 struct LogicalCaretState

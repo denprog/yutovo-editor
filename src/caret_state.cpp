@@ -25,6 +25,12 @@ CaretState::CaretState(const Element* element, const uint pos)
     id.push_back(pos);
 }
 
+CaretState::CaretState(const Element* element, const uint pos, bool _last_pos) :
+    CaretState(element, pos)
+{
+    last_pos = _last_pos;
+}
+
 CaretState::CaretState(const ElementId _id, const uint pos) :
     id(_id)
 {

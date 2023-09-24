@@ -972,7 +972,7 @@ LogicalId Document::GetLogicalId(const ElementId& _id, const int pos)
         return el->logical_id;
     }
 
-    if (pos > 0 && pos == el->elements->Count() && el->elements->Get(el->elements->Count() - 1)->HasLastCaretState())
+    if (pos > 0 && pos == el->elements->Count())
     {
         res = GetElement(GetChild(_id, pos - 1))->logical_id;
         ++res[res.size() - 1];
@@ -1007,6 +1007,11 @@ ElementId Document::GetElementId(const LogicalId& _id, const int pos, bool& last
                     auto ch = r->elements->Get(k);
                     if (last_id.empty())
                         last_id = ch->logical_id;
+                    if (ch->logical_id != last_id)
+                    {
+                        last_id = ch->logical_id;
+                        ++p;
+                    }
                     if (pos - p <= r->elements->Count())
                     {
                         res = r->id;
@@ -1015,10 +1020,12 @@ ElementId Document::GetElementId(const LogicalId& _id, const int pos, bool& last
                             last_pos = true;
                         break;
                     }
-                    if (ch->logical_id != last_id)
+                    else if (r->elements->Count() == k + 1 && _el->elements->Count() == j + 1 && GetChildPos(ch->logical_id) == pos - 1)
                     {
-                        last_id = ch->logical_id;
-                        ++p;
+                        res = r->id;
+                        res.push_back(r->elements->Count());
+                        last_pos = true;
+                        break;
                     }
                 }
             }

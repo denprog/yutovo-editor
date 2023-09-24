@@ -192,7 +192,7 @@ CaretState Caret::GetCaretState()
 {
     if (block)
         return CaretState(ElementId{});
-    return CaretState(GetElement(), GetPos());
+    return CaretState(GetElement(), GetPos(), last_pos);
 }
 
 LogicalCaretState Caret::GetLogicalCaretState()

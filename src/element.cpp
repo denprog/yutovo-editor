@@ -985,7 +985,7 @@ void Elements::Add(ElementPtr element)
 void Elements::Insert(ElementPtr element, const uint pos)
 {
     CaretState c, last;
-    if (caret->IsInsideElement(element->id))
+    if (caret->IsInsideElement(element->id) || caret->IsOnElement(element->id))
         c = caret->GetCaretState();
     else if (pos == parent->elements->Count() && pos > 0 && parent->elements->Get(pos - 1)->HasCaretState())
         parent->GetLastCaretState(last, nullptr);
@@ -1027,7 +1027,12 @@ void Elements::Insert(ElementPtr element, const uint pos)
         auto _id = GetWithParent(c.GetParent(), element->id);
         auto _el = parent->document->GetElement(_id);
         if (_el)
-            caret->SetState(_id, c.GetPos(), true);
+        {
+            if (c.last_pos)
+                caret->SetState(GetParent(_id), GetChildPos(element->id) + 1, true);
+            else
+                caret->SetState(_id, c.GetPos(), true);
+        }
     }
     else if (!last.IsEmpty())
     {
