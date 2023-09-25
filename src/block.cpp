@@ -35,7 +35,10 @@ void Block::Normalize()
 
 bool Block::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo, ElementId& changed_element)
 {
-    CaretState before_state = caret->GetCaretState();
+    const CaretState before_state = caret->GetCaretState();
+    CaretState last;
+    caret->GetElement()->GetLastCaretState(last, nullptr);
+
     if (_elements.size() != 1 || !document->IsParagraph(_elements[0]))
     {
         if (document->IsParagraph(before_state.id) && document->IsRow(_elements[0]))
@@ -210,7 +213,8 @@ bool Block::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo, E
     CaretState after;
     if (document->pasting && insert_element->GetLastCaretState(after, nullptr))
     {
-        caret->SetState(after);
+        if (last == before_state)
+            caret->SetState(after);
     }
     else
     {
@@ -225,7 +229,7 @@ bool Block::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo, E
                 document->caret->SetState(after);
         }
     }
-    
+
     if (new_row)
         new_row->Normalize();
     

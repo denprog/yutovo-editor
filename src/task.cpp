@@ -241,10 +241,18 @@ bool InsertElementsTask::Execute()
         if (document->caret->GetElement())
             el = document->GetElement(document->caret->GetElement()->id);
 
+        for (size_t i = 0; i < changed_elements.size();)
+        {
+            if (IsChild(changed_element, changed_elements[i]))
+                changed_elements.erase(changed_elements.begin() + i);
+            else
+                ++i;
+        }
+
         auto it = std::find_if(changed_elements.begin(), changed_elements.end(), 
             [changed_element](ElementId& _el)
             {
-                return _el == changed_element || IsChild(changed_element, _el);
+                return _el == changed_element || IsChild(_el, changed_element);
             });
         if (it == changed_elements.end())
             changed_elements.push_back(changed_element); //remake all the changed elements after this circle
@@ -1259,8 +1267,38 @@ bool CopyTask::Execute()
     }
 
     std::vector<ElementPtr> copy;
+    ElementPtr p;
+    std::vector<ElementPtr> copy_elements;
     for (int i = 0; i < selection_state.state.size(); ++i)
-        document->GetElement(selection_state.state[i].id)->Copy(copy);
+    {
+        auto _id = selection_state.state[i].id;
+        if (i > 0 && _id[1] > selection_state.state[i - 1].id[1])
+        {
+            if (p)
+            {
+                for (auto& c : copy_elements)
+                    p->elements->Get(0)->elements->Add(c);
+            }
+            else
+            {
+                copy = copy_elements;
+            }
+            p = ElementPtr(new Paragraph(document, true));
+            copy.push_back(p);
+            copy_elements.clear();
+        }
+        document->GetElement(selection_state.state[i].id)->Copy(copy_elements);
+    }
+
+    if (p)
+    {
+        for (auto& c : copy_elements)
+            p->elements->Get(0)->elements->Add(c);
+    }
+    else
+    {
+        copy = copy_elements;
+    }
 
     for (auto& el : copy)
     {

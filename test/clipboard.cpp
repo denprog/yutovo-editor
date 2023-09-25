@@ -1483,7 +1483,7 @@ TEST_F(DocumentTest, clipboard22)
     ASSERT_TRUE(document.ToText() == U"In literary theory, a text is any object that can be read, whether this object is a work of literature\n"\
         "In literary theory, a text is any object that can be read, whether this "\
         "object is a work of literature\nText") << ToBasicString(document.ToText());
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 0, 49})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 1, 0, 0, 0})) << document.GetEditorState().ToString();
 
     document.Undo();
     document.WaitUndo();
@@ -1849,6 +1849,57 @@ TEST_F(DocumentTest, clipboard32)
         U"123()/()"
         ) << ToBasicString(document.ToText());
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 2})) << document.GetEditorState().ToString();
+}
+
+//Copy-paste between paragraphs
+TEST_F(DocumentTest, clipboard33)
+{
+    Start(490);
+
+    EXPECT_CALL(window_mock, OnCopyResult).WillRepeatedly([&](CopyResult result)
+        {
+            ASSERT_TRUE(result == CopyResult::Success);
+        });
+
+    EXPECT_CALL(window_mock, OnPasteResult).WillRepeatedly([&](PasteResult result)
+        {
+            ASSERT_TRUE(result == PasteResult::Success);
+        });
+
+    document.InsertString("In literary theory, a text is any object", true);
+    document.InsertParagraph(true);
+    document.InsertString("that can be read", true);
+    document.MoveCaretToDocumentBegin(false);
+    document.MoveCaretWordRight(false);
+    document.MoveCaretWordRight(false);
+    document.MoveCaretDown(true);
+    std::u32string clipboard_json;
+    std::u32string clipboard_text;
+    document.WaitTask(document.Cut(clipboard_json, clipboard_text));
+
+    document.WaitTask(document.Paste(clipboard_json));
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">In literary theory, a text is any object</span>"\
+            "</p>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">that can be read</span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 1, 0, 0, 9})) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">In literarybe read</span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 11})) << document.GetEditorState().ToString();
 }
 
 }
