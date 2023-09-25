@@ -110,14 +110,15 @@ TEST_F(VariablesTest, variables2)
     document.WaitTask(document.InsertString("4", true));
     document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
     document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
     document.WaitTask(document.MoveCaretHome(false));
     document.WaitTask(document.InsertParagraph(true));
     document.WaitTask(document.MoveCaretUp(false));
-    document.WaitTask(document.InsertString("d", true));
-    document.WaitTask(document.InsertAssignment(true));
+    document.InsertString("d", true);
+    document.InsertAssignment(true);
     document.WaitTask(document.InsertString("5", true));
     document.WaitSolver();
-    std::this_thread::sleep_for(1s);
+    std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
