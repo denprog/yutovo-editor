@@ -23,6 +23,7 @@
 #include "formulas/and.h"
 #include "formulas/or.h"
 #include "formulas/xor.h"
+#include "formulas/percent.h"
 
 namespace yutovo
 {
@@ -220,6 +221,9 @@ Element* UndoFormula::Restore(Document* document, Element* parent)
         break;
     case ElementType::XOR:
         el = parent ? new Xor(parent) : new Xor(document);
+        break;
+    case ElementType::PERCENT:
+        el = parent ? new Percent(parent) : new Percent(document);
         break;
     default:
         assert(false);
@@ -633,6 +637,7 @@ UndoElementPtr UndoBase::StoreElement(const LogicalId id, ElementPtr el)
     case ElementType::AND:
     case ElementType::OR:
     case ElementType::XOR:
+    case ElementType::PERCENT:
     case ElementType::OPEN_FENCE:
     case ElementType::CLOSE_FENCE:
         undo_element.reset(new UndoFormula(el->type, ((Formula*)el.get())->formula_format));

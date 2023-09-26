@@ -226,7 +226,8 @@ Element* CreateFromJson(Element* parent, Document* document, rapidjson::Value& v
             {ElementType::EXCLAMATION, &Exclamation::FromJson},
             {ElementType::AND, &And::FromJson},
             {ElementType::OR, &Or::FromJson},
-            {ElementType::XOR, &Xor::FromJson}
+            {ElementType::XOR, &Xor::FromJson},
+            {ElementType::PERCENT, &Xor::FromJson}
         };
 
     if (!value.HasMember("type") || !value["type"].IsInt())

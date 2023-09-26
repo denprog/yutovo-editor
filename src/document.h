@@ -63,6 +63,7 @@ public:
     uint InsertAnd(bool with_undo);
     uint InsertOr(bool with_undo);
     uint InsertXor(bool with_undo);
+    uint InsertPercent(bool with_undo);
 
     uint InsertFences(bool with_undo);
     

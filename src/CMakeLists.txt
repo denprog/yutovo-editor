@@ -11,7 +11,7 @@ if(EMSCRIPTEN)
     set(CMAKE_FIND_ROOT_PATH ${INSTALL_PATH}/wasm/cmake/)
 endif()
 
-set(Boost_INCLUDE_DIR "/home/denis/programs/Math/yutovo/deploy/include")
+set(Boost_INCLUDE_DIR "${INSTALL_PATH}/deploy/include")
 message("CMAKE_FIND_ROOT_PATH is ${CMAKE_FIND_ROOT_PATH}")
 message("INSTALL_PATH is ${INSTALL_PATH}")
 
@@ -67,6 +67,7 @@ add_library(${PROJECT_NAME}
     formulas/and.cpp
     formulas/or.cpp
     formulas/xor.cpp
+    formulas/percent.cpp
 )
 
 target_compile_options(${PROJECT_NAME} PUBLIC -Wno-deprecated-declarations)

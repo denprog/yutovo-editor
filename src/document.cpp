@@ -19,6 +19,7 @@
 #include "formulas/and.h"
 #include "formulas/or.h"
 #include "formulas/xor.h"
+#include "formulas/percent.h"
 #include "util.h"
 #include <assert.h>
 #include <chrono>
@@ -444,6 +445,11 @@ uint Document::InsertOr(bool with_undo)
 uint Document::InsertXor(bool with_undo)
 {
     return InsertFormula(new Xor(this), with_undo);
+}
+
+uint Document::InsertPercent(bool with_undo)
+{
+    return InsertFormula(new Percent(this), with_undo);
 }
 
 uint Document::InsertFences(bool with_undo)
