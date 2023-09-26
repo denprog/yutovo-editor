@@ -46,7 +46,8 @@ enum class ElementType
     EXCLAMATION,
     AND,
     OR,
-    XOR
+    XOR,
+    PERCENT
 };
 
 enum class AngleMeasure

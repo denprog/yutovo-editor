@@ -359,6 +359,23 @@ TEST_F(SolverRealTest, solver11)
         ) << ToBasicString(document.ToText());
 }
 
+//Percent
+TEST_F(SolverRealTest, solver12)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.InsertString("11", true);
+    document.InsertPercent(true);
+    document.InsertString("234", true);
+    document.WaitTask(document.InsertEquation(ResultType::REAL, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"11%234=25.74"
+        ) << ToBasicString(document.ToText());
+}
+
 //Changing unit of result
 TEST_F(SolverRealTest, units1)
 {
