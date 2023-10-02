@@ -126,7 +126,11 @@ bool InsertElementsTask::Execute()
     if (before_state.IsEmpty())
         before_state = document->MakeEditorState();
     else
+    {
         document->SetEditorState(before_state); //it is redo
+        for (auto _el : elements)
+            _el->id.clear();
+    }
     
     CaretState caret_state = before_state.caret_state;
     SelectionState& selection_state = before_state.selection_state;
@@ -830,7 +834,7 @@ bool UndoTask::Execute()
             for (int j = elements.size() - 1; j >= 0; --j)
                 elements[j]->parent->elements->Remove(elements[j]);
             for (int i = 0; i < undo_elements.size(); ++i)
-                p->elements->Insert(undo_elements[i], pos + i);
+                p->elements->Insert(undo_elements[i], i);
         }
         else if (document->IsFormula(p) && undo_elements.size() == 1)
         {

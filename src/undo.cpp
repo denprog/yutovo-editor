@@ -3,6 +3,7 @@
 #include "paragraph.h"
 #include "row.h"
 #include "text.h"
+#include "image.h"
 #include "formulas/code_row.h"
 #include "formulas/code_paragraph.h"
 #include "formulas/code_block.h"
@@ -125,6 +126,40 @@ Element* UndoParagraph::Restore(Document* document, Element* parent)
     r->elements->Clear();
     for (size_t i = 0; i < elements.size(); ++i)
         r->elements->Add(ElementPtr(elements[i]->Restore(document, r.get())));
+    return p;
+}
+
+//UndoImage
+
+UndoImage::UndoImage(const std::vector<unsigned char>& _bmp, const int _width, const int _height) :
+    UndoElement(ElementType::IMAGE),
+    bmp(_bmp),
+    width(_width),
+    height(_height)
+{
+}
+
+bool UndoImage::operator==(const UndoImage& el) const
+{
+    if (!UndoElement::operator==(el))
+        return false;
+    return bmp == el.bmp && width == el.width && height == el.height;
+}
+
+bool UndoImage::operator==(const Image& el) const
+{
+    if (!UndoElement::operator==(el))
+        return false;
+    return bmp == el.bmp && width == el.width && height == el.height;
+}
+
+Element* UndoImage::Restore(Document* document, Element* parent)
+{
+    Image* p;
+    if (parent)
+        p = new Image(parent, bmp, width, height);
+    else
+        p = new Image(document, bmp, width, height);
     return p;
 }
 
@@ -589,6 +624,12 @@ UndoElementPtr UndoBase::StoreElement(const LogicalId id, ElementPtr el)
                     return nullptr;
                 undo_element->elements.push_back(undo_ch);
             }
+        }
+        break;
+    case ElementType::IMAGE:
+        {
+            Image* _el = (Image*)el.get();
+            undo_element.reset(new UndoImage(_el->bmp, _el->width, _el->height));
         }
         break;
     case ElementType::CODE_BLOCK:

@@ -2,6 +2,7 @@
 #include "str.h"
 #include "paragraph.h"
 #include "row.h"
+#include "image.h"
 #include "formulas/code_block.h"
 #include "formulas/code_string.h"
 #include "formulas/plus.h"
@@ -450,6 +451,16 @@ uint Document::InsertXor(bool with_undo)
 uint Document::InsertPercent(bool with_undo)
 {
     return InsertFormula(new Percent(this), with_undo);
+}
+
+uint Document::InsertImage(const std::string& image_base64, const int width, const int height, bool with_undo)
+{
+    return InsertElement(new Image(this, image_base64, width, height), with_undo);
+}
+
+uint Document::InsertImage(const std::vector<unsigned char>& bmp, const int width, const int height, bool with_undo)
+{
+    return InsertElement(new Image(this, bmp, width, height), with_undo);
 }
 
 uint Document::InsertFences(bool with_undo)
@@ -1791,6 +1802,19 @@ uint Document::PasteText(std::u32string&& str)
     }
 
     InsertString(str, true);
+    window->OnPasteResult(PasteResult::Success);
+    return last_task_id;
+}
+
+uint Document::PasteImage(const std::vector<unsigned char>& bmp, const int width, const int height)
+{
+    if (bmp.empty())
+    {
+        window->OnPasteResult(PasteResult::EmptyBuffer);
+        return 0;
+    }
+
+    InsertImage(bmp, width, height, true);
     window->OnPasteResult(PasteResult::Success);
     return last_task_id;
 }

@@ -1036,10 +1036,17 @@ void Elements::Insert(ElementPtr element, const uint pos)
     }
     else if (!last.IsEmpty())
     {
-        if (last == caret->GetCaretState() && !element->HasCaretState())
+        if (last == caret->GetCaretState())
         {
-            if (element->GetFirstCaretState(c, nullptr))
-                caret->SetState(c);
+            if (element->HasCaretState())
+            {
+                caret->SetState(parent->id, GetChildPos(element->id) + 1, true);
+            }
+            else
+            {
+                if (element->GetFirstCaretState(c, nullptr))
+                    caret->SetState(c);
+            }
         }
     }
     

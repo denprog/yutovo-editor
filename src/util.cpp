@@ -3,6 +3,7 @@
 #include <cmath>
 #include "row.h"
 #include "str.h"
+#include "image.h"
 #include "paragraph.h"
 #include "element.h"
 #include "formulas/code_block.h"
@@ -201,6 +202,7 @@ Element* CreateFromJson(Element* parent, Document* document, rapidjson::Value& v
             {ElementType::PARAGRAPH, &Paragraph::FromJson},
             {ElementType::ROW, &Row::FromJson},
             {ElementType::STRING, &String::FromJson},
+            {ElementType::IMAGE, &Image::FromJson},
             {ElementType::CODE_BLOCK, &CodeBlock::FromJson},
             {ElementType::CODE_PARAGRAPH, &CodeParagraph::FromJson},
             {ElementType::CODE_ROW, &CodeRow::FromJson},

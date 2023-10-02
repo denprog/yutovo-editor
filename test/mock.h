@@ -43,6 +43,7 @@ public:
     MOCK_METHOD(void, DrawFillPath, (const std::list<Point>& path, const Color color), (override));
     MOCK_METHOD(void, DrawBezierPath, (const std::list<Point>& path, const Color color), (override));
     MOCK_METHOD(void, DrawWavyLine, (const int x1, const int y1, const int width, const int radius, const Color color), (override));
+    MOCK_METHOD(void, DrawImage, (const int x1, const int y1, const int width, const int height, const std::vector<unsigned char>& bmp), (override));
 
     MOCK_METHOD(void, ClearRect, (const int x1, const int y1, const int width, const int height), (override));
     MOCK_METHOD(int, GetFontAscent, (const StringFormatPtr), (override));
@@ -53,6 +54,7 @@ public:
 
     MOCK_METHOD(Size, GetTextSize, (const std::u32string& text, const StringFormatPtr format), (override));
     MOCK_METHOD(int, GetCharPos, (const std::u32string& text, const StringFormatPtr format, int pos), (override));
+    MOCK_METHOD(Size, GetImageSize, (const std::vector<unsigned char>& bmp, const int width, const int height), (override));
 
     MOCK_METHOD(void, Update, (const Rect& rect), (override));
 
@@ -110,6 +112,8 @@ struct DocumentTest : public testing::Test
         int cx = m.horizontalAdvance(str);
         return Size{cx > s.width() ? cx : s.width(), s.height()};
     }
+
+    Size GetImageSizeMock(const std::vector<unsigned char>& bmp, const int width, const int height);
 
     EditorState MakeEditorState(uint paragraph_id, uint row_id, uint string_id, uint string_pos)
     {
@@ -251,6 +255,8 @@ struct DocumentTest : public testing::Test
         res += "]";
         return res;
     }
+
+    std::string Base64Encode(std::vector<unsigned char>& arr);
 
     QApplication app;
     MainWindow main_window;

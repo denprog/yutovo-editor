@@ -1902,4 +1902,135 @@ TEST_F(DocumentTest, clipboard33)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 11})) << document.GetEditorState().ToString();
 }
 
+//Copy-paste an image
+TEST_F(DocumentTest, clipboard34)
+{
+    Start(600);
+
+    EXPECT_CALL(window_mock, OnCopyResult).WillRepeatedly([&](CopyResult result)
+        {
+            ASSERT_TRUE(result == CopyResult::Success);
+        });
+
+    EXPECT_CALL(window_mock, OnPasteResult).WillRepeatedly([&](PasteResult result)
+        {
+            ASSERT_TRUE(result == PasteResult::Success);
+        });
+
+    QImage test_image("../test/tests/Qt_small.png");
+    test_image.convertTo(QImage::Format_ARGB32);
+    std::vector<unsigned char> data(test_image.bits(), test_image.bits() + test_image.sizeInBytes());
+    document.InsertImage(data, test_image.width(), test_image.height(), true);
+    document.MoveCaretLeft(true);
+    std::u32string clipboard_json;
+    std::u32string clipboard_text;
+    document.WaitTask(document.Copy(clipboard_json, clipboard_text));
+
+    document.WaitTask(document.DeleteElements(false, true));
+    ASSERT_TRUE(document.ToHtml() == "<body><p><span style=\"font-family:'Arial';font-size:14px;\"></span></p></body>") << document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0})) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.Paste(clipboard_json));
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<img src=\"data:image/bmp;base64," + Base64Encode(data) + "\">"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 1})) << document.GetEditorState().ToString();
+}
+
+//Paste an image
+TEST_F(DocumentTest, clipboard35)
+{
+    Start(600);
+
+    EXPECT_CALL(window_mock, OnPasteResult).WillRepeatedly([&](PasteResult result)
+        {
+            ASSERT_TRUE(result == PasteResult::Success);
+        });
+
+    document.InsertString("Text", true);
+
+    QImage test_image("../test/tests/Qt_small.png");
+    test_image.convertTo(QImage::Format_ARGB32);
+    std::vector<unsigned char> data(test_image.bits(), test_image.bits() + test_image.sizeInBytes());
+
+    document.PasteImage(data, test_image.width(), test_image.height());
+    document.WaitTask(document.InsertString("String", true));
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">Text</span>"\
+                "<img src=\"data:image/bmp;base64," + Base64Encode(data) + "\">"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">String</span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 2, 6})) << document.GetEditorState().ToString();
+}
+
+//Paste images one by one
+TEST_F(DocumentTest, clipboard36)
+{
+    Start(600);
+
+    EXPECT_CALL(window_mock, OnPasteResult).WillRepeatedly([&](PasteResult result)
+        {
+            ASSERT_TRUE(result == PasteResult::Success);
+        });
+
+    QImage test_image("../test/tests/Qt_small.png");
+    test_image.convertTo(QImage::Format_ARGB32);
+    std::vector<unsigned char> data(test_image.bits(), test_image.bits() + test_image.sizeInBytes());
+
+    document.PasteImage(data, test_image.width(), test_image.height());
+    document.WaitTask(document.PasteImage(data, test_image.width(), test_image.height()));
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<img src=\"data:image/bmp;base64," + Base64Encode(data) + "\">"\
+                "<img src=\"data:image/bmp;base64," + Base64Encode(data) + "\">"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 2})) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.PasteImage(data, test_image.width(), test_image.height()));
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<img src=\"data:image/bmp;base64," + Base64Encode(data) + "\">"\
+                "<img src=\"data:image/bmp;base64," + Base64Encode(data) + "\">"\
+                "<img src=\"data:image/bmp;base64," + Base64Encode(data) + "\">"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 3})) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<img src=\"data:image/bmp;base64," + Base64Encode(data) + "\">"\
+                "<img src=\"data:image/bmp;base64," + Base64Encode(data) + "\">"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 2})) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<img src=\"data:image/bmp;base64," + Base64Encode(data) + "\">"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 1})) << document.GetEditorState().ToString();
+}
+
 }
