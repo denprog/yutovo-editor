@@ -1181,4 +1181,18 @@ TEST_F(CodeTest, code16)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 0})) << document.GetEditorState().ToString();
 }
 
+//Check string format in front of a code block and behind it
+TEST_F(CodeTest, code17)
+{
+    Start(600);
+
+    document.WaitTask(document.InsertCode(false, true));
+    document.WaitTask(document.MoveCaretLeft(false));
+    StringFormat f;
+    ASSERT_TRUE(document.GetStringFormat({0, 0, 0}, f));
+    ASSERT_TRUE(f.size == 14);
+    ASSERT_TRUE(document.GetStringFormat({0, 0, 0, 1}, f));
+    ASSERT_TRUE(f.size == 14);
+}
+
 }
