@@ -34,6 +34,11 @@ bool StringFormat::operator==(const StringFormat& f) const
         color == f.color && selection_color == f.selection_color;
 }
 
+bool StringFormat::operator!=(const StringFormat& f) const
+{
+    return !operator==(f);
+}
+
 void StringFormat::ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc)
 {
     rapidjson::Value obj(rapidjson::kObjectType);

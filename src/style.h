@@ -17,6 +17,7 @@ struct StringFormat
     StringFormat(const std::string _family, uint _size, bool _bold, bool _italic, bool _underline, Color _color, Color _selection_color);
  
     bool operator==(const StringFormat& f) const;
+    bool operator!=(const StringFormat& f) const;
 
     void ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc);
     bool FromJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc);

@@ -14,6 +14,7 @@ struct UndoElement;
 class Element;
 class String;
 class Paragraph;
+class Image;
 class Text;
 class CodeRow;
 class CodeParagraph;
@@ -60,6 +61,19 @@ struct UndoParagraph : UndoElement
     virtual Element* Restore(Document* document, Element* parent);
 
     ParagraphFormatPtr format;
+};
+
+struct UndoImage : UndoElement
+{
+    UndoImage(const std::vector<unsigned char>& _bmp, const int _width, const int _height);
+
+    virtual bool operator==(const UndoImage& el) const;
+    virtual bool operator==(const Image& el) const;
+
+    virtual Element* Restore(Document* document, Element* parent);
+
+    std::vector<unsigned char> bmp;
+    int width, height;
 };
 
 struct UndoFormula : UndoElement

@@ -47,7 +47,8 @@ enum class ElementType
     AND,
     OR,
     XOR,
-    PERCENT
+    PERCENT,
+    IMAGE
 };
 
 enum class AngleMeasure

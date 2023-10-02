@@ -29,6 +29,7 @@ public:
     virtual void DrawFillPath(const std::list<Point>& path, const Color color) = 0;
     virtual void DrawBezierPath(const std::list<Point>& path, const Color color) = 0;
     virtual void DrawWavyLine(const int x1, const int y1, const int width, const int radius, const Color color) = 0;
+    virtual void DrawImage(const int x1, const int y1, const int width, const int height, const std::vector<unsigned char>& bmp) = 0;
 
     void ClearRect(const Rect& rect);
     virtual void ClearRect(const int x1, const int y1, const int width, const int height) = 0;
@@ -41,6 +42,7 @@ public:
     virtual Size GetTextSize(const std::u32string& text, const StringFormatPtr format) = 0;
     virtual int GetCharPos(const std::u32string& text, const StringFormatPtr format, int pos) = 0;
     virtual int GetFontAscent(const StringFormatPtr format) = 0;
+    virtual Size GetImageSize(const std::vector<unsigned char>& bmp, const int width, const int height) = 0;
 
     virtual void SetViewPort(const Rect view_port) = 0;
     virtual void AddViewPort(const Rect view_port) = 0;

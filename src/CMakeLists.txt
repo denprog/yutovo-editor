@@ -32,6 +32,7 @@ add_library(${PROJECT_NAME}
     paragraph.cpp
     row.cpp
     str.cpp
+    image.cpp
     style.cpp
     text.cpp
     window.cpp

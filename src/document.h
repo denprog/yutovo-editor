@@ -64,6 +64,8 @@ public:
     uint InsertOr(bool with_undo);
     uint InsertXor(bool with_undo);
     uint InsertPercent(bool with_undo);
+    uint InsertImage(const std::string& image_base64, const int width, const int height, bool with_undo);
+    uint InsertImage(const std::vector<unsigned char>& bmp, const int width, const int height, bool with_undo);
 
     uint InsertFences(bool with_undo);
     
@@ -173,6 +175,7 @@ public:
     uint Copy(std::u32string& out_json, std::u32string& out_text);
     uint Paste(std::u32string& in_json);
     uint PasteText(std::u32string&& str);
+    uint PasteImage(const std::vector<unsigned char>& bmp, const int width, const int height);
     uint Cut(std::u32string& out_json, std::u32string& out_text);
 
     std::string ToHtml();
