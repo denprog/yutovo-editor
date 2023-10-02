@@ -1370,7 +1370,13 @@ bool Document::GetStringFormat(const ElementId id, StringFormat& format)
         {
             auto ch = el->elements->Get(i);
             if (!IsString(ch))
-                return false;
+            {
+                auto f = el->GetStringFormat();
+                if (!f)
+                    return false;
+                format = *f;
+                break;
+            }
             auto f = ch->GetStringFormat();
             if (i != 0)
             {
