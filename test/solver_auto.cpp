@@ -1012,7 +1012,7 @@ TEST_F(SolverAutoTest, solver20)
     document.WaitSolver();
     std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToText() == 
-        U"(1)/(2)+1.2=1.7"
+        U"(1)/(2)+1.2=1(7)/(10)"
         ) << ToBasicString(document.ToText());
 }
 
@@ -1035,6 +1035,29 @@ TEST_F(SolverAutoTest, solver21)
     document.WaitSolver();
     std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToText() == U"234.12345678=234.1234568") << ToBasicString(document.ToText());
+}
+
+//Change the order of results
+TEST_F(SolverAutoTest, solver22)
+{
+    Start(600);
+
+    document.GetConfig(config);
+    ResultType order1[4] = {ResultType::RATIONAL, ResultType::INTEGER, ResultType::REAL, ResultType::COMPLEX};
+    std::copy(order1, order1 + 4, config.auto_result.results_order);
+    document.SetConfig(config);
+
+    document.InsertCode(false, true);
+    document.InsertString("cos", true);
+    document.InsertOpenFence(true);
+    document.InsertString("0", true);
+    document.InsertCloseFence(true);
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"cos(0)=1."
+        ) << ToBasicString(document.ToText());
 }
 
 //Solve with errors
