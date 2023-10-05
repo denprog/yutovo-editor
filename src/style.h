@@ -13,8 +13,10 @@ namespace yutovo
 struct StringFormat
 {
     StringFormat() = default;
-    StringFormat(const boost::uuids::uuid _id, const std::string _family, uint _size, bool _bold, bool _italic, bool _underline, Color _color, Color _selection_color);
-    StringFormat(const std::string _family, uint _size, bool _bold, bool _italic, bool _underline, Color _color, Color _selection_color);
+    StringFormat(const boost::uuids::uuid _id, const std::string _family, uint _size, bool _bold, bool _italic, bool _underline, Color _text_color, 
+        Color _text_bg_color, Color _text_bg_selection_color);
+    StringFormat(const std::string _family, uint _size, bool _bold, bool _italic, bool _underline, Color _text_color, Color _text_bg_color, 
+        Color _text_bg_selection_color);
  
     bool operator==(const StringFormat& f) const;
     bool operator!=(const StringFormat& f) const;
@@ -31,8 +33,9 @@ struct StringFormat
     bool bold = false;
     bool italic = false;
     bool underline = false;
-    Color color;
-    Color selection_color;
+    Color text_color;
+    Color text_bg_color;
+    Color text_bg_selection_color;
 };
 
 typedef std::shared_ptr<StringFormat> StringFormatPtr;
@@ -43,8 +46,8 @@ class StringFormats
 public:
     ~StringFormats();
     
-    StringFormatPtr GetFormat(const std::string _family, uint _size, bool _bold, bool _italic, bool _underline);
-    StringFormatPtr GetFormat(const std::string _family, uint _size, bool _bold, bool _italic, bool _underline, Color _color, Color _selection_color);
+    StringFormatPtr GetFormat(const std::string _family, uint _size, bool _bold, bool _italic, bool _underline, Color _text_color, Color _text_bg_color, 
+        Color _text_bg_selection_color);
     StringFormatPtr GetFormat(const StringFormat& source);
     StringFormatPtr GetFormat(const boost::uuids::uuid& _id);
     void AddFormats(const StringFormats& source);
@@ -128,7 +131,7 @@ struct FormulaFormat
 {
     FormulaFormat() = default;
     FormulaFormat(const std::string& _name, StringFormatPtr _string_format, uint _inter_spacing, 
-        int _left_margin, int _top_margin, int _right_margin, int _bottom_margin, Color _color, Color _selection_color);
+        int _left_margin, int _top_margin, int _right_margin, int _bottom_margin, Color _color, Color _bg_color, Color _bg_selection_color);
 
     bool operator==(const FormulaFormat& f) const;
 
@@ -141,9 +144,10 @@ struct FormulaFormat
     int top_margin = 0;
     int right_margin = 0;
     int bottom_margin = 0;
-    
+
     Color color;
-    Color selection_color;
+    Color bg_color;
+    Color bg_selection_color;
 };
 
 typedef std::shared_ptr<FormulaFormat> FormulaFormatPtr;
@@ -155,7 +159,7 @@ public:
 
     FormulaFormatPtr GetFormat(const std::string& name);
     FormulaFormatPtr GetFormat(const std::string& name, StringFormatPtr string_format, uint inter_spacing, 
-        int left_margin, int top_margin, int right_margin, int bottom_margin, Color color, Color selection_color);
+        int left_margin, int top_margin, int right_margin, int bottom_margin, Color color, Color bg_color, Color bg_selection_color);
 
 private:
     StringFormatsPtr string_formats;

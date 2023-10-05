@@ -44,15 +44,17 @@ void OnlyShapeFormula::Draw() const
     shape->draw_func = 
         [&](const Rect& r)
         {
-            window->DrawText(ToBasicString(std::u32string(1, symbol)), GetStringFormat(), r, 
-                document->selection.IsSelected(id) ? formula_format->selection_color : formula_format->color);
+            if (document->selection.IsSelected(id))
+            {
+                window->DrawText(ToBasicString(std::u32string(1, symbol)), GetStringFormat(), r, 
+                    formula_format->bg_color, formula_format->bg_selection_color);
+            }
+            else
+            {
+                window->DrawText(ToBasicString(std::u32string(1, symbol)), GetStringFormat(), r, 
+                    formula_format->color, formula_format->bg_color);
+            }
         };
-
-    if (document->selection.IsSelected(id))
-    {
-        Rect abs_rect = GetAbsoluteRect();
-        parent->window->DrawFillRect(abs_rect.left, abs_rect.top, abs_rect.width, abs_rect.height, Color::Blue());
-    }
 
     Formula::Draw();
 }

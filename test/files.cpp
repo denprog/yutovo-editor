@@ -455,4 +455,38 @@ TEST_F(DocumentTest, files10)
         << document.ToHtml();
 }
 
+//Text colors
+TEST_F(DocumentTest, files11)
+{
+    Start(600);
+
+    document.WaitTask(document.InsertString("Text ", true));
+    document.SetColor(Color::Red());
+    document.WaitTask(document.InsertString("red ", true));
+    document.SetBgColor(Color::Blue());
+    document.WaitTask(document.InsertString("blue", true));
+    document.WaitTask(document.Save("files11.yut"));
+    document.WaitTask(document.New());
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\"></span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+
+    document.Load("files11.yut");
+    document.WaitLoad();
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">Text </span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;color:rgba(255,0,0,255);\">red </span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;color:rgba(255,0,0,255);bgcolor:rgba(0,0,255,255);\">blue</span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0})) << document.GetEditorState().ToString();
+}
+
 }

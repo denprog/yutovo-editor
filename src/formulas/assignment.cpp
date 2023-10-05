@@ -46,14 +46,11 @@ void Assignment::Draw() const
     shape->draw_func = 
         [&](const Rect& r)
         {
-            window->DrawText(":=", f, r, document->selection.IsSelected(id) ? formula_format->selection_color : formula_format->color);
+            if (document->selection.IsSelected(id))
+                window->DrawText(":=", f, r, formula_format->bg_color, formula_format->bg_selection_color);
+            else
+                window->DrawText(":=", f, r, formula_format->color, formula_format->bg_color);
         };
-    
-    if (document->selection.IsSelected(id))
-    {
-        Rect abs_rect = GetAbsoluteRect();
-        window->DrawFillRect(abs_rect.left, abs_rect.top, abs_rect.width, abs_rect.height, Color::Blue());
-    }
 
     MiddleShapeFormula::Draw();
 }

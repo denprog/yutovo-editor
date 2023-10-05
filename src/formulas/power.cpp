@@ -47,7 +47,7 @@ void Power::Draw() const
     if (document->selection.IsSelected(id))
     {
         Rect abs_rect = GetAbsoluteRect();
-        window->DrawFillRect(abs_rect.left, abs_rect.top, abs_rect.width, abs_rect.height, Color::Blue());
+        window->DrawFillRect(abs_rect.left, abs_rect.top, abs_rect.width, abs_rect.height, formula_format->bg_selection_color);
     }
 
     Formula::Draw();
