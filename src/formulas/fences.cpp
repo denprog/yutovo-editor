@@ -79,13 +79,13 @@ void OpenFence::Draw() const
             path.push_back(Point{r.GetRight(), (int)lround(r.top + r.height * 0.977)});
             path.push_back(Point{r.GetRight(), r.GetBottom()});
 
-            window->DrawBezierPath(path, document->selection.IsSelected(id) ? formula_format->selection_color : formula_format->color);
+            window->DrawBezierPath(path, document->selection.IsSelected(id) ? formula_format->bg_color : formula_format->color);
         };
 
     if (document->selection.IsSelected(id))
     {
         Rect abs_rect = GetAbsoluteRect();
-        parent->window->DrawFillRect(abs_rect.left, abs_rect.top, abs_rect.width, abs_rect.height, Color::Blue());
+        parent->window->DrawFillRect(abs_rect.left, abs_rect.top, abs_rect.width, abs_rect.height, formula_format->bg_selection_color);
     }
 
     Formula::Draw();
@@ -218,13 +218,13 @@ void CloseFence::Draw() const
             path.push_back(Point{r.left, (int)lround(r.top + r.height * 0.977)});
             path.push_back(Point{r.left, r.GetBottom()});
 
-            window->DrawBezierPath(path, document->selection.IsSelected(id) ? formula_format->selection_color : formula_format->color);
+            window->DrawBezierPath(path, document->selection.IsSelected(id) ? formula_format->bg_color : formula_format->color);
         };
 
     if (document->selection.IsSelected(id))
     {
         Rect abs_rect = GetAbsoluteRect();
-        parent->window->DrawFillRect(abs_rect.left, abs_rect.top, abs_rect.width, abs_rect.height, Color::Blue());
+        parent->window->DrawFillRect(abs_rect.left, abs_rect.top, abs_rect.width, abs_rect.height, formula_format->bg_selection_color);
     }
 
     Formula::Draw();

@@ -143,19 +143,19 @@ void CodeString::Draw() const
     String::Draw();
     if (elements->Count() == 0)
     {
+        auto f = GetFormulaFormat();
         uint start = 0, size = 0;
         if (document->selection.Has(parent->id, start, size))
         {
-            auto f = GetFormulaFormat();
             auto r = GetAbsoluteRect();
-            window->DrawRect(r, f->selection_color);
-            window->DrawFillRect(Rect(r.left + 1, r.top + 1, r.width - 2, r.height -2 ), Color::Blue());
+            window->DrawRect(r, f->bg_selection_color);
+            window->DrawFillRect(Rect(r.left + 1, r.top + 1, r.width - 2, r.height -2 ), f->bg_selection_color);
         }
         else
         {
             auto row = document->FindParentRow(id);
             if (row->parent->type != ElementType::CODE_PARAGRAPH || parent->elements->Count() > 1)
-                window->DrawRect(GetAbsoluteRect(), Color::Blue());
+                window->DrawRect(GetAbsoluteRect(), f->bg_selection_color);
         }
     }
 }

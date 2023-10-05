@@ -255,6 +255,10 @@ std::string String::ToHtml()
     s += "px;";
     if (format->underline)
         s += "text-decoration: underline;";
+    if (format->text_color != Color::Black())
+        s += "color:" + format->text_color.ToString() + ";";
+    if (format->text_bg_color != Color::White())
+        s += "bgcolor:" + format->text_bg_color.ToString() + ";";
     s += "\">";
     if (format->bold)
         s += "<strong>";
@@ -688,13 +692,18 @@ void String::UpdateStringFormat(const StringFormatPtr base_format, const StringF
         f.italic = new_format->italic;
     if (base_format->underline == format->underline)
         f.underline = new_format->underline;
-    format = document->GetStringFormat(f.family, f.size, f.bold, f.italic, f.underline);
+    if (base_format->text_color == format->text_color)
+        f.text_color = new_format->text_color;
+    if (base_format->text_bg_color == format->text_bg_color)
+        f.text_bg_color = new_format->text_bg_color;
+    format = document->GetStringFormat(f.family, f.size, f.bold, f.italic, f.underline, f.text_color, f.text_bg_color);
     ResetCache();
 }
 
 void String::UpdateFormat(StringFormatPtr& _format)
 {
-    format = document->GetStringFormat(_format->family, GetFontSize(_format->size), _format->bold, _format->italic, _format->underline);
+    format = document->GetStringFormat(_format->family, GetFontSize(_format->size), _format->bold, _format->italic, _format->underline, 
+        _format->text_color, _format->text_bg_color);
 }
 
 int String::GetFontSize(const uint size)
@@ -722,7 +731,8 @@ void String::UpdateLevel(uint8_t _level)
     if (!parent)
         return;
     format = parent->GetStringFormat();
-    format = document->GetStringFormat(format->family, GetFontSize(format->size), format->bold, format->italic, format->underline);
+    format = document->GetStringFormat(format->family, GetFontSize(format->size), format->bold, format->italic, format->underline, 
+        format->text_color, format->text_bg_color);
 }
 
 void String::SetEditable(bool _editable)
@@ -819,18 +829,15 @@ void StringElements::Draw() const
 {
     StringFormatPtr format = ((String*)parent)->format;
     uint start = 0, size = 0;
-    parent->window->DrawText(ToBasicString(str), format, parent->GetAbsoluteRect(), format->color); //draw the string
+    parent->window->DrawText(ToBasicString(str), format, parent->GetAbsoluteRect(), format->text_color, format->text_bg_color); //draw the string
     if (parent->document->selection.Has(parent->id, start, size))
     {
         //draw text with selection
-        Rect r1 = parent->GetAbsoluteRect(GetCaretRect(start));
-        Rect r2 = parent->GetAbsoluteRect(GetCaretRect(start + size));
-        parent->window->DrawFillRect(r1.left, r1.top, r2.left - r1.left, r2.GetBottom() - r1.top, Color::Blue());
-
         Rect r = parent->GetAbsoluteRect();
         int p = parent->window->GetCharPos(str, format, start);
         std::u32string u_part = str.substr(start, size);
-        parent->window->DrawText(ToBasicString(u_part), format, Rect{r.left + p, r.top, r.width - p, r.height}, format->selection_color);
+        parent->window->DrawText(ToBasicString(u_part), format, Rect{r.left + p, r.top, r.width - p, r.height}, 
+            format->text_bg_color, format->text_bg_selection_color);
     }
 }
 

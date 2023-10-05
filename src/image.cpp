@@ -115,7 +115,11 @@ void Image::Draw() const
     auto r = GetAbsoluteRect();
     window->DrawImage(r.left + 1, r.top + 1, width, height, bmp);
     if (document->selection.IsSelected(id))
-        window->DrawRect(r, Color::Blue());
+    {
+        const auto f = GetStringFormat();
+        if (f)
+            window->DrawRect(r, f->text_bg_selection_color);
+    }
 }
 
 bool Image::HasCaretState()

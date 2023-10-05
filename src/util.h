@@ -205,12 +205,17 @@ struct Color
 {
     bool operator==(const Color& compare) const
     {
-        return a == compare.a && r == compare.b && g == compare.g && b == compare.b;
+        return a == compare.a && r == compare.r && g == compare.g && b == compare.b;
     }
 
     uint32_t ToInt() const
     {
         return (a << 24) + (r << 16) + (g << 8) + b;
+    }
+
+    std::string ToString() const
+    {
+        return "rgba(" + std::to_string(r) + "," + std::to_string(g) + "," + std::to_string(b) + "," + std::to_string(a) + ")";
     }
 
     static Color FromInt(uint32_t c)

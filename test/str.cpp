@@ -1072,7 +1072,7 @@ TEST_F(DocumentTest, fonts2)
 
     document.WaitTask(document.InsertString("Text", document.GetStringFormat("Arial", 24, false, false, false), true));
     document.MoveCaretLeft(true);
-    document.WaitTask(document.ChangeStringFormat("Times New Roman", 22, false, false, false, true));
+    document.WaitTask(document.ChangeStringFormat("Times New Roman", 22, false, false, false, Color::Black(), Color::White(), true));
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -2046,6 +2046,87 @@ TEST_F(DocumentTest, fonts21)
         document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 4, 0, 0}, 
         ElementSelectionState{ElementId{0, 0}, 1, 3})) << document.GetEditorState().ToString();
+}
+
+//Text colors
+TEST_F(DocumentTest, fonts22)
+{
+    Start(280);
+
+    document.WaitTask(document.InsertString("In literary theory, a text is any object that can be read, whether this object is a work of literature", true));
+    document.MoveCaretToDocumentBegin(false);
+    document.WaitTask(document.MoveCaretWordRight(true));
+    document.WaitTask(document.SetColor(Color::Red()));
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;color:rgba(255,0,0,255);\">In</span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\"> literary theory, a text is </span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">any object that can be </span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">read, whether this object </span>"
+                "<span style=\"font-family:'Arial';font-size:14px;\">is a work of literature</span>"
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 2}, 
+        ElementSelectionState{ElementId{0, 0, 0}, 0, 1})) << document.GetEditorState().ToString();
+    
+    document.MoveCaretWordRight(false);
+    document.MoveCaretWordRight(true);
+    document.WaitTask(document.SetBgColor(Color::Green()));
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;color:rgba(255,0,0,255);\">In</span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\"> literary</span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;bgcolor:rgba(0,255,0,255);\"> theory,</span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\"> a text is </span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">any object that can be </span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">read, whether this object </span>"
+                "<span style=\"font-family:'Arial';font-size:14px;\">is a work of literature</span>"
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 2, 8}, 
+        ElementSelectionState{ElementId{0, 0, 0}, 2, 1})) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;color:rgba(255,0,0,255);\">In</span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\"> literary theory, a text is </span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">any object that can be </span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">read, whether this object </span>"
+                "<span style=\"font-family:'Arial';font-size:14px;\">is a work of literature</span>"
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 1, 17}, 
+        ElementSelectionState{ElementId{0, 0, 0, 1}, 9, 8})) << document.GetEditorState().ToString();
+}
+
+//Text colors
+TEST_F(DocumentTest, fonts23)
+{
+    Start(600);
+
+    document.WaitTask(document.InsertString("Text ", true));
+    document.SetColor(Color::Red());
+    document.WaitTask(document.InsertString("red ", true));
+    document.SetBgColor(Color::Blue());
+    document.WaitTask(document.InsertString("blue", true));
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">Text </span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;color:rgba(255,0,0,255);\">red </span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;color:rgba(255,0,0,255);bgcolor:rgba(0,0,255,255);\">blue</span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 2, 4})) << document.GetEditorState().ToString();
 }
 
 TEST_F(DocumentTest, delete1)

@@ -46,7 +46,7 @@ void Division::Draw() const
     shape->draw_func = 
         [&](const Rect& r)
         {
-            Color c = document->selection.IsSelected(id) ? formula_format->selection_color : formula_format->color;
+            Color c = document->selection.IsSelected(id) ? formula_format->bg_color : formula_format->color;
             if (r.height == 0)
                 window->DrawLine(r.left, r.top, r.left + r.width, r.top, c);
             else
@@ -56,7 +56,7 @@ void Division::Draw() const
     if (document->selection.IsSelected(id))
     {
         Rect abs_rect = GetAbsoluteRect();
-        window->DrawFillRect(abs_rect.left, abs_rect.top, abs_rect.width, abs_rect.height, Color::Blue());
+        window->DrawFillRect(abs_rect.left, abs_rect.top, abs_rect.width, abs_rect.height, formula_format->bg_selection_color);
     }
 
     MiddleShapeFormula::Draw();
