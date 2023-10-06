@@ -100,7 +100,7 @@ bool StringFormat::FromJson(rapidjson::Value& value, rapidjson::Document::Alloca
     if (!value.HasMember("text_bg_color") || !value["text_bg_color"].IsUint())
         text_bg_color = Color::White();
     else
-        text_bg_color = Color::FromInt(value["text_color"].GetUint());
+        text_bg_color = Color::FromInt(value["text_bg_color"].GetUint());
 
     if (!value.HasMember("text_bg_selection_color") || !value["text_bg_selection_color"].IsUint())
         text_bg_selection_color = Color::Blue();
