@@ -535,6 +535,10 @@ void RationalResult::PutResult(Result result)
                 d->AddDenomerator(ElementPtr(new CodeString(this, denomerator)));
             }
         }
+        else if (integer.empty())
+        {
+            AddElement(ElementPtr(ElementPtr(new CodeString(this, numerator))));
+        }
 
         PutUnit(result);
     }
