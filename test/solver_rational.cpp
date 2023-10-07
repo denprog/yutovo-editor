@@ -415,6 +415,19 @@ TEST_F(SolverRationalTest, rational8)
     ASSERT_TRUE(document.ToText() == U"(234)/(5)=46(4)/(5)") << ToBasicString(document.ToText());
 }
 
+//Solve an expression
+TEST_F(SolverRationalTest, rational9)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.InsertString("0", true);
+    document.WaitTask(document.InsertEquation(ResultType::RATIONAL, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == U"0=0") << ToBasicString(document.ToText());
+}
+
 TEST_F(SolverRationalTest, units1)
 {
     Start(600);
