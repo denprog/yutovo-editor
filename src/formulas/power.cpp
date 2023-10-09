@@ -55,6 +55,8 @@ void Power::Draw() const
 
 bool Power::Remake(bool with_elements)
 {
+    UpdateLevel(level);
+
     bool changed = MiddleShapeFormula::Remake(with_elements);
 
     first->rect.Move(0, last->rect.height);

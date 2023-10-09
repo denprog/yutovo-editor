@@ -1112,6 +1112,32 @@ uint Document::FindCodeBlock(const ElementId& id)
     return c->code_id;
 }
 
+ElementPtr Document::FindByString(const ElementId& start_id, const std::u32string& str)
+{
+    if (start_id.empty() || str.empty())
+        return nullptr;
+    ElementPtr el = GetElement(start_id);
+    if (!el)
+        return nullptr;
+    
+    ElementPtr res = nullptr;
+    if (IsString(el))
+    {
+        if (el->ToText() == str)
+            return el;
+    }
+    else
+    {
+        for (int i = 0; i < el->elements->Count(); ++i)
+        {
+            res = FindByString(el->elements->Get(i)->id, str);
+            if (res)
+                break;
+        }
+    }
+    return res;
+}
+
 Rect Document::GetCaretRect(const CaretState& caret_state)
 {
     ElementPtr el = GetParent(caret_state.id);

@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 #include "mock.h"
 #include "style.h"
+#include "str.h"
 
 namespace yutovo_test
 {
@@ -624,6 +625,54 @@ TEST_F(FormulaTest, power11)
     document.WaitTask(document.InsertPower(true));
     ASSERT_TRUE(document.ToText() == U"1pow(23+4,)5+7") << ToBasicString(document.ToText());
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 1, 2, 0, 0})) << document.GetEditorState().ToString();
+}
+
+//Check fonts sizes
+TEST_F(FormulaTest, power12)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.InsertString("123", true);
+    document.InsertPower(true);
+    document.WaitTask(document.InsertString("45", true));
+    auto el = document.FindByString({0}, U"45");
+    String* str = (String*)el.get();
+    ASSERT_TRUE(str->format->size == 12);
+
+    document.InsertPower(true);
+    document.WaitTask(document.InsertString("6", true));
+    el = document.FindByString({0}, U"123");
+    str = (String*)el.get();
+    ASSERT_TRUE(str->format->size == 14);
+    el = document.FindByString({0}, U"45");
+    str = (String*)el.get();
+    ASSERT_TRUE(str->format->size == 12);
+    el = document.FindByString({0}, U"6");
+    str = (String*)el.get();
+    ASSERT_TRUE(str->format->size == 10);
+
+    document.MoveCaretLeft(false);
+    document.MoveCaretLeft(false);
+    document.WaitTask(document.DeleteElements(false, true));
+    ASSERT_TRUE(document.ToText() == U"pow(123,456)") << ToBasicString(document.ToText());
+    el = document.FindByString({0}, U"123");
+    str = (String*)el.get();
+    ASSERT_TRUE(str->format->size == 14);
+    el = document.FindByString({0}, U"456");
+    str = (String*)el.get();
+    ASSERT_TRUE(str->format->size == 12);
+
+    document.Undo();
+    document.WaitUndo();
+    document.WaitTask(document.DeleteElements(false, true));
+    ASSERT_TRUE(document.ToText() == U"pow(123,456)") << ToBasicString(document.ToText());
+    el = document.FindByString({0}, U"123");
+    str = (String*)el.get();
+    ASSERT_TRUE(str->format->size == 14);
+    el = document.FindByString({0}, U"456");
+    str = (String*)el.get();
+    ASSERT_TRUE(str->format->size == 12);
 }
 
 }
