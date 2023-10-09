@@ -863,7 +863,8 @@ bool UndoTask::Execute()
                         p->elements->RemoveAt(pos, undo_elements[0]->elements->Count() < p->elements->Count() - pos ? 
                             undo_elements[0]->elements->Count() : p->elements->Count() - pos);
                     }
-                    p->elements->RemoveAt(pos, undo_elements.size() < p->elements->Count() - pos ? undo_elements.size() : p->elements->Count() - pos);
+                    else
+                        p->elements->RemoveAt(pos, undo_elements.size() < p->elements->Count() - pos ? undo_elements.size() : p->elements->Count() - pos);
                 }
             }
             for (int i = 0; i < undo_elements.size(); ++i)

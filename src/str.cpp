@@ -727,9 +727,12 @@ void String::UpdateDrawRect()
 
 void String::UpdateLevel(uint8_t _level)
 {
+    if (level == _level)
+        return;
     level = _level;
     if (!parent)
         return;
+    ResetCache();
     format = parent->GetStringFormat();
     format = document->GetStringFormat(format->family, GetFontSize(format->size), format->bold, format->italic, format->underline, 
         format->text_color, format->text_bg_color);

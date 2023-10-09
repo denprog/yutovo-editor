@@ -97,6 +97,20 @@ void OnlyShapeFormula::UpdateRect(bool with_elements)
     Formula::UpdateRect(false);
 }
 
+StringFormatPtr OnlyShapeFormula::GetStringFormat() const
+{
+    auto f = formula_format->string_format;
+    int size = f->size;
+    if (level > 1)
+    {
+        if (size - (level - 1) * 2 > 8)
+            size = size - (level - 1) * 2;
+        else
+            size = 8;
+    }
+    return document->GetStringFormat(f->family, size, f->bold, f->italic, f->underline, f->text_color, f->text_bg_color);
+}
+
 std::u32string OnlyShapeFormula::ToText()
 {
     return std::u32string(1, symbol);
