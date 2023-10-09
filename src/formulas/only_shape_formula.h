@@ -25,6 +25,8 @@ public:
 
     virtual void UpdateRect(bool with_elements = false);
 
+    virtual StringFormatPtr GetStringFormat() const;
+
     virtual std::u32string ToText();
     virtual void ToParserString(ParserString& str);
 

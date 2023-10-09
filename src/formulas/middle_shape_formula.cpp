@@ -92,7 +92,12 @@ bool MiddleShapeFormula::DeleteElements(bool left, bool with_undo, ElementId& ch
         return false;
     
     if (with_undo)
-        document->StoreUndo(parent->id);
+    {
+        if (caret->GetPos() == 1)
+            document->StoreUndo(parent->parent->id);
+        else
+            document->StoreUndo(parent->id);
+    }
 
     //remove this element by deleting its shape
     first->UpdateLevel(level);

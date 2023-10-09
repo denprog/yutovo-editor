@@ -675,4 +675,48 @@ TEST_F(FormulaTest, power12)
     ASSERT_TRUE(str->format->size == 12);
 }
 
+//Check inner power elements
+TEST_F(FormulaTest, power13)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.InsertString("123", true);
+    document.InsertPower(true);
+    document.InsertString("45", true);
+    document.InsertPower(true);
+    document.InsertString("7", true);
+    document.InsertPlus(true);
+    document.WaitTask(document.InsertString("88", true));
+    ASSERT_TRUE(document.ToText() == U"pow(123,pow(45,7+88))") << ToBasicString(document.ToText());
+
+    document.MoveCaretHome(false);
+    document.MoveCaretLeft(false);
+    document.WaitTask(document.DeleteElements(false, true));
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<msup>"\
+                            "<mrow>"\
+                                "<mi>123</mi>"\
+                            "</mrow>"\
+                            "<mrow>"\
+                                "<mi>457</mi>"\
+                                "<mo>+</mo>"\
+                                "<mi>88</mi>"\
+                            "</mrow>"\
+                        "</msup>"\
+                    "</mrow>"\
+                "</math>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+
+    document.Undo();
+    document.WaitUndo();
+    ASSERT_TRUE(document.ToText() == U"pow(123,pow(45,7+88))") << ToBasicString(document.ToText());
+}
+
 }
