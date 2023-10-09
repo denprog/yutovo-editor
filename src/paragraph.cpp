@@ -326,11 +326,11 @@ bool Paragraph::DeleteElements(bool left, bool with_undo, ElementId& changed_ele
 
 bool Paragraph::ChangeParagraphFormat(const ParagraphFormatPtr _format, bool with_undo, ElementId& changed_element)
 {
-    if (with_undo)
-        document->StoreUndo(id);
-    
     if (format->name == _format->name)
         return false;
+    
+    if (with_undo)
+        document->StoreUndo(id);
     
     for (int i = 0; i < elements->Count(); ++i)
         elements->Get(i)->UpdateStringFormat(format->default_string_format, _format->default_string_format);

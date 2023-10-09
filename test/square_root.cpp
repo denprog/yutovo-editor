@@ -303,4 +303,49 @@ TEST_F(FormulaTest, square_root5)
         document.ToHtml();
 }
 
+//Don't insert paragraph inside a square root
+TEST_F(FormulaTest, square_root6)
+{
+    Start(600);
+
+    document.InsertSquareRoot(true);
+    document.InsertString("1", true);
+    document.InsertString("2", true);
+    document.InsertString("3", true);
+    document.MoveCaretLeft(true);
+    document.MoveCaretLeft(true);
+    document.WaitTask(document.InsertParagraph(true));
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.ToText() == U"sqrt(123)") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0, 0, 0, 1, 0, 1}, 
+        ElementSelectionState{ElementId{0, 0, 0, 0, 0, 0, 0, 1, 0}, 1, 2})) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.ToText() == U"sqrt(12)") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0, 0, 0, 1, 0, 2})) << document.GetEditorState().ToString();
+}
+
+TEST_F(FormulaTest, square_root7)
+{
+    Start(600);
+
+    document.InsertSquareRoot(true);
+    document.InsertString("123", true);
+    document.MoveCaretLeft(true);
+    document.MoveCaretLeft(true);
+    document.MoveCaretLeft(true);
+    document.WaitTask(document.DeleteElements(false, true));
+    ASSERT_TRUE(document.ToText() == U"sqrt()") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0, 0, 0, 1, 0, 0})) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.ToText() == U"sqrt(123)") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0, 0, 0, 1, 0, 0}, 
+        ElementSelectionState{ElementId{0, 0, 0, 0, 0, 0, 0}, 1, 1})) << document.GetEditorState().ToString();
+}
+
 }
