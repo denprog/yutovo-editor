@@ -168,7 +168,7 @@ bool InsertElementsTask::Execute()
             if (!DeleteElements(document->GetElement(s.id)))
             {
                 if (with_undo && last_undo_size < document->GetUndoSize())
-                    document->RollbackUndo();
+                    document->Undo();
                 return false;
             }
         }
@@ -237,7 +237,7 @@ bool InsertElementsTask::Execute()
         if (el->editable && !el->InsertElements(t, with_undo, changed_element))
         {
             if (with_undo && last_undo_size < document->GetUndoSize())
-                document->RollbackUndo();
+                document->Undo();
             document->pasting = false;
             return false;
         }
@@ -385,7 +385,7 @@ bool DeleteElementsTask::Execute()
             if (!DeleteElements(el, left, changed_element, false))
             {
                 if (with_undo && last_undo_size < document->GetUndoSize())
-                    document->RollbackUndo();
+                    document->Undo();
                 return false;
             }
 
@@ -415,7 +415,7 @@ bool DeleteElementsTask::Execute()
     }
 
     if (with_undo && last_undo_size < document->GetUndoSize())
-        document->RollbackUndo();
+        document->Undo();
     return false;
 }
 
@@ -462,7 +462,7 @@ bool InsertFormulasTask::Execute()
             if (!row)
             {
                 if (with_undo && last_undo_size < document->GetUndoSize())
-                    document->RollbackUndo();
+                    document->Undo();
                 return false;
             }
             
@@ -471,7 +471,7 @@ bool InsertFormulasTask::Execute()
             if (!row->InsertElements(v, with_undo, changed_element))
             {
                 if (with_undo && last_undo_size < document->GetUndoSize())
-                    document->RollbackUndo();
+                    document->Undo();
                 return false;
             }
             insert_code_block = true;
@@ -497,7 +497,7 @@ bool InsertFormulasTask::Execute()
     document->pasting = false;
 
     if (with_undo && last_undo_size < document->GetUndoSize())
-        document->RollbackUndo();
+        document->Undo();
     return false;
 }
 
@@ -577,7 +577,7 @@ bool ChangeStringFormatTask::Execute()
                 if (!el->ChangeStringFormat(_format, with_undo, _changed_element))
                 {
                     if (with_undo && last_undo_size < document->GetUndoSize())
-                        document->RollbackUndo();
+                        document->Undo();
                     return false;
                 }
                 if (!changed_element.empty())
@@ -676,7 +676,7 @@ bool ChangeParagraphFormatTask::Execute()
     if (!el->ChangeParagraphFormat(format, with_undo, changed_element))
     {
         if (with_undo && last_undo_size < document->GetUndoSize())
-            document->RollbackUndo();
+            document->Undo();
         return false;
     }
 
@@ -793,10 +793,8 @@ bool UndoTask::Execute()
 
     document->RemoveErrorMarks(id);
 
-    ElementPtr p;
-    if (id.size() <= 2)
-        p = document->GetLogicalElement(id);
-    else
+    ElementPtr p = document->GetLogicalElement(id);
+    if (id.size() > 2 && !(undo_elements[0]->type == ElementType::CODE_ROW && p->parent->type != ElementType::CODE_PARAGRAPH))
         p = document->GetLogicalParent(id);
     
     ElementId remake_id = p->id;
@@ -832,7 +830,6 @@ bool UndoTask::Execute()
     }
     else
     {
-        int pos = GetChildPos(id);
         if (p->type == ElementType::ROW)
         {
             std::vector<ElementPtr> elements;
@@ -852,16 +849,36 @@ bool UndoTask::Execute()
         {
             if (undo_operation != UndoOperation::INSERT)
             {
+                if (!(undo_elements[0]->type == ElementType::CODE_ROW && p->type != ElementType::CODE_PARAGRAPH))
+                    pos = GetChildPos(id);
                 if (delete_size > 0)
                 {
                     if (delete_size <= pos + p->elements->Count())
                         p->elements->RemoveAt(pos, delete_size);
                 }
                 else if (pos < p->elements->Count())
+                {
+                    if (undo_elements[0]->type == ElementType::CODE_ROW)
+                    {
+                        p->elements->RemoveAt(pos, undo_elements[0]->elements->Count() < p->elements->Count() - pos ? 
+                            undo_elements[0]->elements->Count() : p->elements->Count() - pos);
+                    }
                     p->elements->RemoveAt(pos, undo_elements.size() < p->elements->Count() - pos ? undo_elements.size() : p->elements->Count() - pos);
+                }
             }
             for (int i = 0; i < undo_elements.size(); ++i)
-                p->elements->Insert(undo_elements[i], pos + i);
+            {
+                auto _el = undo_elements[i];
+                if (_el->type == ElementType::CODE_ROW && p->type == ElementType::CODE_ROW)
+                {
+                    for (size_t j = 0; j < _el->elements->Count(); ++j)
+                        p->elements->Insert(_el->elements->Get(j), pos + i + j);
+                }
+                else
+                {
+                    p->elements->Insert(undo_elements[i], pos + i);
+                }
+            }
         }
     }
 

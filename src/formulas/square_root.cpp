@@ -142,8 +142,12 @@ bool SquareRoot::DeleteElements(bool left, bool with_undo, ElementId& changed_el
     {
         if (start == 1 && size == 1)
         {
+            if (with_undo)
+                document->StoreUndo(id);
             last->elements->Clear();
             Normalize();
+            caret->SetState(last->elements->Get(0)->id);
+            selection->Clear();
             changed_element = id;
             return true;
         }

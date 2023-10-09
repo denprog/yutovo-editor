@@ -109,6 +109,7 @@ TEST_F(DocumentTest, images3)
     document.Save("images3_1.yut");
 
     document.WaitTask(document.New());
+    std::this_thread::sleep_for(200ms);
     ASSERT_TRUE(document.ToHtml() == "<body><p><span style=\"font-family:'Arial';font-size:14px;\"></span></p></body>") << document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0})) << document.GetEditorState().ToString();
 

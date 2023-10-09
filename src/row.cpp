@@ -112,7 +112,14 @@ void Row::Normalize()
 {
     Element::Normalize();
 
-    if (elements->Count() > 1)
+    if (elements->Count() == 0)
+    {
+        AddEmptyElement(); //insert empty string
+        CaretState c;
+        if (GetFirstCaretState(c, nullptr))
+            caret->SetState(c);
+    }
+    else
     {
         for (size_t i = 0; i < elements->Count();)
         {
@@ -139,13 +146,6 @@ void Row::Normalize()
             }
             ++i;
         }
-    }
-    else if (elements->Count() == 0)
-    {
-        AddEmptyElement(); //insert empty string
-        CaretState c;
-        if (GetFirstCaretState(c, nullptr))
-            caret->SetState(c);
     }
 }
 
