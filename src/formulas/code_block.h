@@ -32,7 +32,6 @@ public:
 
     virtual bool HasCaretState();
     virtual bool HasLastCaretState();
-    virtual bool CanContinueSelection();
     virtual bool CanContinueVerticalMoving();
 
     virtual StringFormatPtr GetStringFormat() const;
