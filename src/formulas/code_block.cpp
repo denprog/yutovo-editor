@@ -143,11 +143,6 @@ bool CodeBlock::HasLastCaretState()
     return true;
 }
 
-bool CodeBlock::CanContinueSelection()
-{
-    return false;
-}
-
 bool CodeBlock::CanContinueVerticalMoving()
 {
     return true;
