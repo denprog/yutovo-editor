@@ -77,7 +77,7 @@ void CodeBlock::Draw() const
 {
     Element::Draw();
     if (document->config.formula_border)
-        window->DrawRect(GetAbsoluteRect(), Color::Red());
+        window->DrawRect(GetAbsoluteRect(), code_format->border_color);
 }
 
 bool CodeBlock::Remake(bool with_elements)
