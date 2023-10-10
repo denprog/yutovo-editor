@@ -466,7 +466,7 @@ FormulaFormatPtr FormulaFormats::GetFormat(const std::string& name, StringFormat
 //CodeFormat
 
 CodeFormat::CodeFormat(const std::string& _name, uint _left_indent, uint _top_indent, uint _right_indent, uint _bottom_indent, 
-    uint _left_margin, uint _top_margin, uint _right_margin, uint _bottom_margin, uint _paragraph_spacing) :
+    uint _left_margin, uint _top_margin, uint _right_margin, uint _bottom_margin, uint _paragraph_spacing, Color _border_color) :
     name(_name), 
     left_indent(_left_indent),
     top_indent(_top_indent),
@@ -476,21 +476,21 @@ CodeFormat::CodeFormat(const std::string& _name, uint _left_indent, uint _top_in
     top_margin(_top_margin),
     right_margin(_right_margin),
     bottom_margin(_bottom_margin), 
-    paragraph_spacing(_paragraph_spacing)
+    paragraph_spacing(_paragraph_spacing),
+    border_color(_border_color)
 {
 }
 
 bool CodeFormat::operator==(const CodeFormat& c) const
 {
     return name == c.name && left_indent == c.left_indent && top_indent == c.top_indent && bottom_indent == c.bottom_indent && 
-        paragraph_spacing == c.paragraph_spacing;
+        paragraph_spacing == c.paragraph_spacing && border_color == c.border_color;
 }
 
 //CodeFormats
 
 CodeFormats::CodeFormats()
 {
-    GetFormat("Calculator", 5, 5, 5, 5, 2, 2, 2, 2, 2);
 }
 
 CodeFormatPtr CodeFormats::GetFormat(const std::string& name)
@@ -504,10 +504,10 @@ CodeFormatPtr CodeFormats::GetFormat(const std::string& name)
 }
 
 CodeFormatPtr CodeFormats::GetFormat(const std::string& name, uint left_indent, uint top_indent, uint right_indent, uint bottom_indent, 
-    uint left_margin, uint top_margin, uint right_margin, uint bottom_margin, uint paragraph_spacing)
+    uint left_margin, uint top_margin, uint right_margin, uint bottom_margin, uint paragraph_spacing, Color border_color)
 {
     CodeFormatPtr format(new CodeFormat(name, left_indent, top_indent, right_indent, bottom_indent, 
-        left_margin, top_margin, right_margin, bottom_margin, paragraph_spacing));
+        left_margin, top_margin, right_margin, bottom_margin, paragraph_spacing, border_color));
     
     //return the present format
     for (auto c : code_formats)

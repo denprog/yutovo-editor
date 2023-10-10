@@ -47,8 +47,9 @@ Document::Document(Window* _window) :
     code_formats.reset(new CodeFormats());
     formula_formats.reset(new FormulaFormats(string_formats));
 
+    current_code_format = code_formats->GetFormat("Calculator", 5, 5, 5, 5, 2, 2, 2, 2, 2, Color::Blue());
+
     current_paragraph_format = paragraph_formats->GetFormat("Text body");
-    current_code_format = code_formats->GetFormat("Calculator");
     current_formula_format = formula_formats->GetFormat("Code");
     current_page_format = PageFormats::GetFormat(20, 20, 20, 20, 10);
 
@@ -66,6 +67,8 @@ Document::~Document()
 void Document::Start(Config& _config)
 {
     config = _config;
+
+    current_code_format->border_color = config.code_block_border_color;
 
     window->Init();
 
@@ -90,6 +93,9 @@ void Document::SetConfig(const Config& _config)
 {
     std::unique_lock<std::recursive_mutex> lock(tasks_mutex);
     config = _config;
+    current_code_format->border_color = config.code_block_border_color;
+
+    Redraw();
 }
 
 void Document::MainLoop()

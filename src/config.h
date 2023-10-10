@@ -33,6 +33,9 @@ struct Config
     //undo
     uint undo_size = 100; //count of undo groups
 
+    //colors
+    Color code_block_border_color = Color::Blue();
+
     //calculator
 
     struct RealResultConfig
