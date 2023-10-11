@@ -390,6 +390,20 @@ void Caret::MovePageUp(Selection* selection)
         for (int j = (row_pos == -1 ? paragraph->elements->Count() - 1 : row_pos); j >= 0; --j)
         {
             row = paragraph->elements->Get(j);
+            if (selection)
+            {
+                if (j == row_pos)
+                {
+                    CaretState c = GetCaretState();
+                    int p = GetChildPos(row->id, c.id);
+                    selection->Add(GetChild(row->id, p), 0, c.id[row->id.size() + 1]);
+                    if (p > 0)
+                        selection->Add(row->id, 0, p);
+                }
+                else
+                    selection->Add(paragraph, j, 1);
+            }
+
             Rect r = row->GetAbsoluteRect();
             if (r.top <= cur.top - view_port.height)
             {
@@ -401,7 +415,7 @@ void Caret::MovePageUp(Selection* selection)
                     if (r.GetRight() > cur.left)
                         break;
                     ElementPtr el = document->GetParent(next.id);
-                    if (!el->GetRightCaretState(next, nullptr))
+                    if (!el->GetRightCaretState(next, selection))
                         break;
                 }
 
@@ -438,6 +452,21 @@ void Caret::MovePageDown(Selection* selection)
         {
             row = paragraph->elements->Get(j);
             Rect r = row->GetAbsoluteRect();
+            if (selection)
+            {
+                if (j == row_pos && i == paragraph_pos)
+                {
+                    CaretState c = GetCaretState();
+                    int p = GetChildPos(row->id, c.id);
+                    auto _el = document->GetElement(GetChild(row->id, p));
+                    selection->Add(_el, c.id[row->id.size() + 1], _el->elements->Count() - c.id[row->id.size() + 1]);
+                    if (row->elements->Count() > p + 1)
+                        selection->Add(row->id, p + 1, row->elements->Count() - p - 1);
+                }
+                else if (r.GetBottom() < cur.top + view_port.height)
+                    selection->Add(paragraph, j, 1);
+            }
+
             if (r.GetBottom() >= cur.top + view_port.height)
             {
                 if (!row->GetFirstCaretState(next, nullptr) || !row->GetLastCaretState(last, nullptr))
@@ -448,7 +477,7 @@ void Caret::MovePageDown(Selection* selection)
                     if (r.GetRight() > cur.left)
                         break;
                     ElementPtr el = document->GetParent(next.id);
-                    if (!el->GetRightCaretState(next, nullptr))
+                    if (!el->GetRightCaretState(next, selection))
                         break;
                 }
 

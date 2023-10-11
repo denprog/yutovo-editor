@@ -622,4 +622,107 @@ TEST_F(DocumentTest, caret17)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 0, 0})) << document.GetEditorState().ToString();
 }
 
+//PageUp with selection
+TEST_F(DocumentTest, caret18)
+{
+    Start(670);
+
+    EXPECT_CALL(window_mock, OnLoadResult).WillOnce([&](const uint task_id, IOResult result)
+        {
+            ASSERT_TRUE(result == IOResult::Success);
+        });
+
+    EXPECT_CALL(window_mock, GetViewPort).WillRepeatedly([&](const int)
+        {
+            return Rect{0, 0, 630, 255};
+        });
+
+    document.Load("../test/tests/file1.txt");
+    document.WaitLoad();
+    std::this_thread::sleep_for(2000ms);
+
+    document.MoveCaretToDocumentEnd(false);
+    document.MoveCaretWordLeft(false);
+    document.WaitTask(document.MoveCaretPageUp(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 3, 10, 0, 30}, 
+        ElementSelectionState{ElementId{0, 3, 10, 0}, 30, 8},
+        ElementSelectionState{ElementId{0}, 4, 1},
+        ElementSelectionState{ElementId{0, 5}, 0, 1},
+        ElementSelectionState{ElementId{0, 5, 1, 0}, 0, 30})) << document.GetEditorState().ToString();
+    
+    document.MoveCaretToDocumentEnd(false);
+    document.MoveCaretUp(false);
+    document.MoveCaretWordLeft(false);
+    document.InsertDivision(true);
+    document.WaitTask(document.MoveCaretPageUp(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 3, 9, 0, 43}, 
+        ElementSelectionState{ElementId{0, 3, 9, 0}, 43, 8},
+        ElementSelectionState{ElementId{0, 3}, 10, 1},
+        ElementSelectionState{ElementId{0}, 4, 1},
+        ElementSelectionState{ElementId{0, 5, 0}, 0, 1})) << document.GetEditorState().ToString();
+
+    document.MoveCaretToDocumentEnd(false);
+    document.MoveCaretUp(false);
+    document.WaitTask(document.MoveCaretPageUp(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 3, 10, 0, 38}, 
+        ElementSelectionState{ElementId{0}, 4, 1},
+        ElementSelectionState{ElementId{0, 5, 0}, 0, 2},
+        ElementSelectionState{ElementId{0, 5, 0, 2}, 0, 7})) << document.GetEditorState().ToString();
+}
+
+//PageDown with selection
+TEST_F(DocumentTest, caret19)
+{
+    Start(670);
+
+    EXPECT_CALL(window_mock, OnLoadResult).WillOnce([&](const uint task_id, IOResult result)
+        {
+            ASSERT_TRUE(result == IOResult::Success);
+        });
+
+    EXPECT_CALL(window_mock, GetViewPort).WillRepeatedly([&](const int)
+        {
+            return Rect{0, 0, 630, 255};
+        });
+
+    document.Load("../test/tests/file1.txt");
+    document.WaitLoad();
+    std::this_thread::sleep_for(2000ms);
+
+    document.MoveCaretWordRight(false);
+    document.WaitTask(document.MoveCaretPageDown(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 9, 0, 12}, 
+        ElementSelectionState{ElementId{0, 0, 0, 0}, 11, 59},
+        ElementSelectionState{ElementId{0, 0}, 1, 8},
+        ElementSelectionState{ElementId{0, 0, 9, 0}, 0, 12})) << document.GetEditorState().ToString();
+    
+    document.MoveCaretToDocumentEnd(false);
+    for (int i = 0; i < 5; ++i)
+        document.MoveCaretUp(false);
+    document.WaitTask(document.MoveCaretPageDown(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 5, 1, 0, 42}, 
+        ElementSelectionState{ElementId{0, 4, 3, 0}, 43, 18},
+        ElementSelectionState{ElementId{0, 4}, 4, 3},
+        ElementSelectionState{ElementId{0}, 5, 1})) << document.GetEditorState().ToString();
+    
+    document.MoveCaretToDocumentBegin(false);
+    document.MoveCaretWordRight(false);
+    document.InsertDivision(true);
+    document.WaitTask(document.MoveCaretPageDown(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 7, 0, 13}, 
+        ElementSelectionState{ElementId{0, 0, 0}, 1, 2},
+        ElementSelectionState{ElementId{0, 0}, 1, 6},
+        ElementSelectionState{ElementId{0, 0, 7, 0}, 0, 13})) << document.GetEditorState().ToString();
+
+    document.MoveCaretToDocumentBegin(false);
+    document.MoveCaretRight(false);
+    document.MoveCaretRight(false);
+    document.WaitTask(document.MoveCaretPageDown(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 8, 0, 3}, 
+        ElementSelectionState{ElementId{0, 0, 0, 0}, 2, 9},
+        ElementSelectionState{ElementId{0, 0, 0}, 1, 2},
+        ElementSelectionState{ElementId{0, 0}, 1, 7},
+        ElementSelectionState{ElementId{0, 0, 8, 0}, 0, 3})) << document.GetEditorState().ToString();
+}
+
 }
