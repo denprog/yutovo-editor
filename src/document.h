@@ -178,6 +178,7 @@ public:
     uint Paste(std::u32string& in_json);
     uint PasteText(std::u32string&& str);
     uint PasteImage(const std::vector<unsigned char>& bmp, const int width, const int height);
+    uint PasteImage(const std::string& image_base64, const int width, const int height);
     uint Cut(std::u32string& out_json, std::u32string& out_text);
 
     std::string ToHtml();

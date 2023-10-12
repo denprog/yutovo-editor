@@ -1898,6 +1898,19 @@ uint Document::PasteImage(const std::vector<unsigned char>& bmp, const int width
     return last_task_id;
 }
 
+uint Document::PasteImage(const std::string& image_base64, const int width, const int height)
+{
+    if (image_base64.empty())
+    {
+        window->OnPasteResult(PasteResult::EmptyBuffer);
+        return 0;
+    }
+
+    InsertImage(image_base64, width, height, true);
+    window->OnPasteResult(PasteResult::Success);
+    return last_task_id;
+}
+
 uint Document::Cut(std::u32string& out_json, std::u32string& out_text)
 {
     {
