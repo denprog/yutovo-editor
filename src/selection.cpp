@@ -157,6 +157,13 @@ std::string SelectionState::ToString() const
 }
 #endif
 
+//LogicalSelectionState
+
+bool LogicalSelectionState::IsEmpty() const
+{
+    return state.empty();
+}
+
 //Selection
 
 Selection::Selection(Document* _document) :

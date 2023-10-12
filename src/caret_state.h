@@ -61,6 +61,8 @@ struct LogicalCaretState
     LogicalCaretState() = default;
     LogicalCaretState(const LogicalId _id);
 
+    bool IsEmpty() const;
+
     LogicalId id;
 };
 
