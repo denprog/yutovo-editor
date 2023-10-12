@@ -313,25 +313,26 @@ bool DeleteElementsTask::Execute()
 {
     size_t last_undo_size = document->GetUndoSize();
 
+    CaretState caret_state;
     SelectionState selection_state;
     if (element_id.empty())
     {
         if (before_state.IsEmpty())
-            before_state = document->MakeEditorState();
+            before_state = document->GetLogicalEditorState();
         else
             document->SetEditorState(before_state); //it is redo
-        selection_state = before_state.selection_state;
+        caret_state = document->caret->GetCaretState();
+        selection_state = document->selection.GetState();
     }
     else
     {
-        before_state = document->MakeEditorState();
+        before_state = document->GetLogicalEditorState();
+        caret_state = document->caret->GetCaretState();
         //clear elements inside this element
         selection_state = SelectionState{element_id, 0, document->GetElement(element_id)->elements->Count()};
-        EditorState s{before_state.caret_state, selection_state};
+        EditorState s{caret_state, selection_state};
         document->SetEditorState(s);
     }
-
-    CaretState caret_state = before_state.caret_state;
 
     auto DeleteElements = [&](ElementPtr el, bool _left, ElementId& changed_element, bool _with_undo)
     {

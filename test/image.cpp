@@ -215,4 +215,48 @@ TEST_F(DocumentTest, images5)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 1, 2})) << document.GetEditorState().ToString();
 }
 
+//Insert a large image and resize
+TEST_F(DocumentTest, images6)
+{
+    Start(200);
+
+    int width = 200;
+    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
+        {
+            return Rect{0, 0, width, 400};
+        });
+
+    EXPECT_CALL(window_mock, GetImageSize).WillRepeatedly([&](const std::vector<unsigned char>& bmp, const int width, const int height)
+        {
+            return GetImageSizeMock(bmp, width, height);
+        });
+
+    QImage test_image("../test/tests/Qt_large.bmp");
+    std::vector<unsigned char> data;
+    GetImageData(test_image, data);
+
+    document.InsertImage(data, test_image.width(), test_image.height(), true);
+    document.InsertString("1", true);
+    document.InsertString("2", true);
+    document.WaitTask(document.DeleteElements(true, true));
+
+    document.Undo();
+    document.WaitUndo();
+
+    width = 800;
+    document.WaitTask(document.Resize(width, 400));
+
+    document.Redo();
+    document.WaitRedo();
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<img src=\"data:image/bmp;base64," + Base64Encode(data) + "\">"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">1</span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 1, 1})) << document.GetEditorState().ToString();
+}
+
 }

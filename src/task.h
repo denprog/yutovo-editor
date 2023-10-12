@@ -64,7 +64,7 @@ struct DeleteElementsTask : Task
 
     ElementId element_id; //delete elements from this element or use id from caret state
     bool left; //delete on the left or on the right
-    EditorState before_state;
+    LogicalEditorState before_state;
 };
 
 struct InsertFormulasTask : Task
