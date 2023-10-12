@@ -75,7 +75,7 @@ struct InsertFormulasTask : Task
     virtual bool Execute();
 
     std::vector<ElementPtr> elements;
-    EditorState before_state;
+    LogicalEditorState before_state;
     bool pasting = false; //this is pasting from clipboard
 };
 
