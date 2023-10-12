@@ -73,6 +73,8 @@ void NthRoot::Draw() const
 
 bool NthRoot::Remake(bool with_elements)
 {
+    UpdateLevel(level);
+    
     bool changed = MiddleShapeFormula::Remake(with_elements);
 
     //recalc shape rect
