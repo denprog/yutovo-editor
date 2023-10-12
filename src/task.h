@@ -98,7 +98,7 @@ struct ChangeStringFormatTask : Task
     bool set_text_color = true;
     bool set_text_bg_color = true;
 
-    EditorState before_state;
+    LogicalEditorState before_state;
 };
 
 struct ChangeParagraphFormatTask : Task

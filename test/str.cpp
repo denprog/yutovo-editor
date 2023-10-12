@@ -2129,6 +2129,54 @@ TEST_F(DocumentTest, fonts23)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 2, 4})) << document.GetEditorState().ToString();
 }
 
+//Change format, resize, undo and redo
+TEST_F(DocumentTest, fonts24)
+{
+    Start(500);
+
+    int width = 500;
+    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
+        {
+            return Rect{0, 0, width, 400};
+        });
+
+    document.InsertString("Tradicionalmente, el medio de un documento era el papel y la información", true);
+    document.MoveCaretWordLeft(true);
+    document.WaitTask(document.ChangeStringFormat("Times New Roman", 22, false, false, false, Color::Black(), Color::White(), true));
+
+    width = 800;
+    document.WaitTask(document.Resize(width, 400));
+
+    document.WaitTask(document.MoveCaretToDocumentBegin(false));
+
+    document.Undo();
+    document.WaitUndo();
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">Tradicionalmente, el medio de un documento era el papel y la información</span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 61}, 
+        ElementSelectionState{ElementId{0, 0, 0, 0}, 61, 11})) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.MoveCaretToDocumentBegin(false));
+
+    document.Redo();
+    document.WaitRedo();
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">Tradicionalmente, el medio de un documento era el papel y la </span>"\
+                "<span style=\"font-family:'Times New Roman';font-size:22px;\">información</span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 1, 0}, 
+        ElementSelectionState{ElementId{0, 0, 0}, 1, 1})) << document.GetEditorState().ToString();
+}
+
 TEST_F(DocumentTest, delete1)
 {
     Start(600);
