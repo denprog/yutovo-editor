@@ -1,4 +1,5 @@
 #include "mock.h"
+#include <QBuffer>
 
 namespace yutovo_test
 {
@@ -33,6 +34,18 @@ std::string DocumentTest::Base64Encode(std::vector<unsigned char>& arr)
     while (res.size() % 4)
         res.push_back('=');
     return res;
+}
+
+void DocumentTest::GetImageData(QImage& image, std::vector<unsigned char>& data)
+{
+    image.convertTo(QImage::Format_ARGB32);
+
+    QByteArray arr;
+    QBuffer buffer(&arr);
+    buffer.open(QIODevice::WriteOnly);
+    image.save(&buffer, "BMP");
+
+    data = std::vector<unsigned char>(arr.begin(), arr.end());
 }
 
 }

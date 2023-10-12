@@ -258,6 +258,8 @@ struct DocumentTest : public testing::Test
 
     std::string Base64Encode(std::vector<unsigned char>& arr);
 
+    void GetImageData(QImage& image, std::vector<unsigned char>& data);
+
     QApplication app;
     MainWindow main_window;
     ::testing::NiceMock<WindowMock> window_mock;

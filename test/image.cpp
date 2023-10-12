@@ -19,8 +19,9 @@ TEST_F(DocumentTest, images1)
         });
 
     QImage test_image("../test/tests/Qt_small.png");
-    test_image.convertTo(QImage::Format_ARGB32);
-    std::vector<unsigned char> data(test_image.bits(), test_image.bits() + test_image.sizeInBytes());
+    std::vector<unsigned char> data;
+    GetImageData(test_image, data);
+
     document.WaitTask(document.InsertImage(data, test_image.width(), test_image.height(), true));
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
@@ -58,8 +59,9 @@ TEST_F(DocumentTest, images2)
         });
 
     QImage test_image("../test/tests/Qt_small.png");
-    test_image.convertTo(QImage::Format_ARGB32);
-    std::vector<unsigned char> data(test_image.bits(), test_image.bits() + test_image.sizeInBytes());
+    std::vector<unsigned char> data;
+    GetImageData(test_image, data);
+
     document.WaitTask(document.InsertImage(data, test_image.width(), test_image.height(), true));
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
@@ -103,8 +105,9 @@ TEST_F(DocumentTest, images3)
         });
 
     QImage test_image("../test/tests/Qt_small.png");
-    test_image.convertTo(QImage::Format_ARGB32);
-    std::vector<unsigned char> data(test_image.bits(), test_image.bits() + test_image.byteCount());
+    std::vector<unsigned char> data;
+    GetImageData(test_image, data);
+
     document.WaitTask(document.InsertImage(data, test_image.width(), test_image.height(), true));
     document.Save("images3_1.yut");
 
@@ -137,8 +140,9 @@ TEST_F(DocumentTest, images4)
         });
 
     QImage test_image("../test/tests/Qt_large.bmp");
-    test_image.convertTo(QImage::Format_ARGB32);
-    std::vector<unsigned char> data(test_image.bits(), test_image.bits() + test_image.byteCount());
+    std::vector<unsigned char> data;
+    GetImageData(test_image, data);
+
     document.InsertImage(data, test_image.width(), test_image.height(), true);
     document.InsertString("1", true);
     document.WaitTask(document.InsertString("2", true));
