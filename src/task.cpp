@@ -541,10 +541,16 @@ bool ChangeStringFormatTask::Execute()
 {
     size_t last_undo_size = document->GetUndoSize();
 
-    before_state = document->MakeEditorState();
+    CaretState caret_state;
+    SelectionState selection_state;
 
-    CaretState& caret_state = before_state.caret_state;
-    SelectionState& selection_state = before_state.selection_state;
+    if (before_state.IsEmpty())
+        before_state = document->GetLogicalEditorState();
+    else
+        document->SetEditorState(before_state); //it is redo
+
+    caret_state = document->caret->GetCaretState();
+    selection_state = document->selection.GetState();
 
     std::vector<ElementPtr> elements;
     for (int i = 0; i < selection_state.state.size(); ++i)
