@@ -1392,6 +1392,49 @@ TEST_F(FormulaTestCustom, insert8)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 2})) << document.GetEditorState().ToString();
 }
 
+//Insert, resize, undo and redo
+TEST_F(FormulaTestCustom, insert9)
+{
+    Start(500);
+
+    int width = 500;
+    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
+        {
+            return Rect{0, 0, width, 400};
+        });
+
+    document.InsertString("Tradicionalmente, el medio de un documento era el papel y la información", true);
+    document.InsertCode(false, true);
+    document.WaitTask(document.InsertSquareRoot(true));
+
+    width = 800;
+    document.WaitTask(document.Resize(width, 400));
+
+    document.Undo();
+    document.WaitUndo();
+    document.Undo();
+    document.WaitUndo();
+
+    ASSERT_TRUE(document.ToText() == 
+        U"Tradicionalmente, el medio de un documento era el papel y la información"
+        ) << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 72})) << document.GetEditorState().ToString();
+
+    document.Redo();
+    document.WaitRedo();
+    ASSERT_TRUE(document.ToText() == 
+        U"Tradicionalmente, el medio de un documento era el papel y la información"
+        ) << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 1, 0, 0, 0, 0})) << document.GetEditorState().ToString();
+
+    document.Redo();
+    document.WaitRedo();
+    ASSERT_TRUE(document.ToText() == 
+        U"Tradicionalmente, el medio de un documento era el papel y la informaciónsqrt()"
+        ) << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 1, 0, 0, 0, 1, 0, 0})) << document.GetEditorState().ToString();
+}
+
 //Selection of a formula
 TEST_F(FormulaTestCustom, select1)
 {
