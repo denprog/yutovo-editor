@@ -123,17 +123,27 @@ bool InsertElementsTask::Execute()
 {
     size_t last_undo_size = document->GetUndoSize();
 
+    CaretState caret_state;
+    SelectionState selection_state;
+
     if (before_state.IsEmpty())
-        before_state = document->MakeEditorState();
+    {
+        before_state = document->GetLogicalEditorState();
+        caret_state = document->caret->GetCaretState();
+        selection_state = document->selection.GetState();
+    }
     else
     {
         document->SetEditorState(before_state); //it is redo
+        caret_state = document->caret->GetCaretState();
+        selection_state = document->selection.GetState();
+
         for (auto _el : elements)
             _el->id.clear();
     }
     
-    CaretState caret_state = before_state.caret_state;
-    SelectionState& selection_state = before_state.selection_state;
+    // CaretState caret_state = before_state.caret_state;
+    // SelectionState& selection_state = before_state.selection_state;
 
     ElementPtr el;
     if (element_id.empty())

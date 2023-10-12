@@ -24,6 +24,8 @@ struct EditorState
 
 struct LogicalEditorState
 {
+    bool IsEmpty();
+    
     LogicalCaretState caret_state;
     LogicalSelectionState selection_state;
 };

@@ -49,7 +49,7 @@ struct InsertElementsTask : Task
 
     ElementId element_id; //insert into this element or use id from caret state
     std::vector<ElementPtr> elements;
-    EditorState before_state;
+    LogicalEditorState before_state;
     bool pasting = false; //this is pasting from clipboard
 };
 

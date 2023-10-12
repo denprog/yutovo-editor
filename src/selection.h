@@ -64,6 +64,8 @@ struct SelectionState
 
 struct LogicalSelectionState
 {
+    bool IsEmpty() const;
+    
     std::vector<ElementLogicalSelectionState> state;
 };
 

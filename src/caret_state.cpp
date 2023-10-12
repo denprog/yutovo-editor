@@ -170,4 +170,9 @@ LogicalCaretState::LogicalCaretState(const LogicalId _id) :
 {
 }
 
+bool LogicalCaretState::IsEmpty() const
+{
+    return id.empty();
+}
+
 }
