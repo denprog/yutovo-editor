@@ -447,14 +447,12 @@ bool InsertFormulasTask::Execute()
     size_t last_undo_size = document->GetUndoSize();
 
     CaretState caret_state;
-    SelectionState selection_state;
     if (before_state.IsEmpty())
         before_state = document->GetLogicalEditorState();
     else
         document->SetEditorState(before_state); //it is redo
 
     caret_state = document->caret->GetCaretState();
-    selection_state = document->selection.GetState();
 
     ElementPtr el = document->GetParent(caret_state.id);
     assert(el);
@@ -677,11 +675,15 @@ ChangeParagraphFormatTask::ChangeParagraphFormatTask(ElementPtr _text, const Par
 bool ChangeParagraphFormatTask::Execute()
 {
     size_t last_undo_size = document->GetUndoSize();
-    
-    if (before_state.IsEmpty())
-        before_state = document->MakeEditorState();
 
-    CaretState& caret_state = before_state.caret_state;
+    CaretState caret_state;
+    if (before_state.IsEmpty())
+        before_state = document->GetLogicalEditorState();
+    else
+        document->SetEditorState(before_state); //it is redo
+
+    caret_state = document->caret->GetCaretState();
+
     auto el = document->FindParentParagraph(caret_state.id);
     if (!el)
         return false;

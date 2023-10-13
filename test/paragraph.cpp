@@ -1766,6 +1766,95 @@ TEST_F(ParagraphTest, format6)
         ElementSelectionState{ElementId{0, 1, 2}, 0, 1})) << document.GetEditorState().ToString();
 }
 
+//Change paragraph format
+TEST_F(ParagraphTest, format7)
+{
+    Start(500);
+
+    document.InsertString("Tradicionalmente, el medio de un documento era el papel y la información", true);
+    document.MoveCaretWordLeft(true);
+    document.WaitTask(document.ChangeParagraphFormat("Monospace", true));
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Courier New';font-size:12px;\">Tradicionalmente, el medio de un documento </span>"\
+                "<span style=\"font-family:'Courier New';font-size:12px;\">era el papel y la información</span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 0, 18}, 
+        ElementSelectionState{ElementId{0, 0, 1, 0}, 18, 11})) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">Tradicionalmente, el medio de un documento era el </span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">papel y la información</span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 0, 11}, 
+        ElementSelectionState{ElementId{0, 0, 1, 0}, 11, 11})) << document.GetEditorState().ToString();
+
+    document.Redo();
+    document.WaitRedo();
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Courier New';font-size:12px;\">Tradicionalmente, el medio de un documento </span>"\
+                "<span style=\"font-family:'Courier New';font-size:12px;\">era el papel y la información</span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 0, 18}, 
+        ElementSelectionState{ElementId{0, 0, 1, 0}, 18, 11})) << document.GetEditorState().ToString();
+}
+
+//Change paragraph format, resize, undo and redo
+TEST_F(ParagraphTest, format8)
+{
+    Start(500);
+
+    int width = 500;
+    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
+        {
+            return Rect{0, 0, width, 400};
+        });
+
+    document.InsertString("Tradicionalmente, el medio de un documento era el papel y la información", true);
+    document.MoveCaretWordLeft(true);
+    document.WaitTask(document.ChangeParagraphFormat("Monospace", true));
+
+    width = 800;
+    document.WaitTask(document.Resize(width, 400));
+
+    document.Undo();
+    document.WaitUndo();
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">Tradicionalmente, el medio de un documento era el papel y la información</span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 61}, 
+        ElementSelectionState{ElementId{0, 0, 0, 0}, 61, 11})) << document.GetEditorState().ToString();
+
+    document.Redo();
+    document.WaitRedo();
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Courier New';font-size:12px;\">Tradicionalmente, el medio de un documento era el papel y la información</span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 61}, 
+        ElementSelectionState{ElementId{0, 0, 0, 0}, 61, 11})) << document.GetEditorState().ToString();
+}
+
 //Delete a paragraph
 TEST_F(ParagraphTest, delete1)
 {
