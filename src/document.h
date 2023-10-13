@@ -84,6 +84,7 @@ public:
     uint ChangeStringFormat(const StringFormatPtr format, bool with_undo);
 
     uint ChangeParagraphFormat(const ParagraphFormatPtr format, bool with_undo);
+    uint ChangeParagraphFormat(const std::string name, bool with_undo);
 
     bool StoreUndo(const ElementId& _id);
     bool StoreUndo(const ElementId& parent_id, const int pos, const int size, const int delete_size = 0);

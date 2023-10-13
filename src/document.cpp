@@ -624,6 +624,20 @@ uint Document::ChangeParagraphFormat(const ParagraphFormatPtr format, bool with_
     return last_task_id;
 }
 
+uint Document::ChangeParagraphFormat(const std::string name, bool with_undo)
+{
+    {
+        std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
+        auto format = paragraph_formats->GetFormat(name);
+        if (!format)
+            return 0;
+        tasks.emplace_back(new ChangeParagraphFormatTask(text, format, with_undo));
+        last_task_id = tasks.back()->id;
+    }
+    next_circle = true;
+    return last_task_id;
+}
+
 bool Document::StoreUndo(const ElementId& _id)
 {
     if (_id.size() == 1)

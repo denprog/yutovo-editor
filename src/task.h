@@ -110,7 +110,7 @@ struct ChangeParagraphFormatTask : Task
 
     ParagraphFormatPtr format;
 
-    EditorState before_state;
+    LogicalEditorState before_state;
 };
 
 struct ChangePageFormatTask : Task
