@@ -558,6 +558,11 @@ bool Element::GetElementAtCoords(const int x, const int y, ElementId& _id)
     Rect r = GetAbsoluteRect();
     if (!r.IsPointInside(x, y))
         return false;
+    else if (elements->Count() == 0)
+    {
+        _id = id;
+        return true;
+    }
     
     //look in the child elements
     for (int i = 0; i < elements->Count(); ++i)

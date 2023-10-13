@@ -259,4 +259,34 @@ TEST_F(DocumentTest, images6)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 1, 1})) << document.GetEditorState().ToString();
 }
 
+//Move caret on the image on click on it
+TEST_F(DocumentTest, images7)
+{
+    Start(600);
+
+    EXPECT_CALL(window_mock, GetImageSize).WillRepeatedly([&](const std::vector<unsigned char>& bmp, const int width, const int height)
+        {
+            return GetImageSizeMock(bmp, width, height);
+        });
+
+    QImage test_image("../test/tests/Qt_small.png");
+    std::vector<unsigned char> data;
+    GetImageData(test_image, data);
+
+    document.InsertString("123", true);
+    document.WaitTask(document.InsertImage(data, test_image.width(), test_image.height(), true));
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">123</span>"\
+                "<img src=\"data:image/bmp;base64," + Base64Encode(data) + "\">"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 2})) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.MoveCaret(80, 40));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 1})) << document.GetEditorState().ToString();
+}
+
 }
