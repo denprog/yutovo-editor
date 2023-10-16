@@ -2,6 +2,8 @@
 #define __UTIL_H__
 
 #include <stdint.h>
+#include <iostream>
+#include <iomanip>
 #include <boost/locale.hpp>
 #include <yutovo_calculator/parser_exception.h>
 #include <yutovo_service/types.h>
@@ -218,6 +220,16 @@ struct Color
         return "rgba(" + std::to_string(r) + "," + std::to_string(g) + "," + std::to_string(b) + "," + std::to_string(a) + ")";
     }
 
+    std::string ToHex() const
+    {
+        std::stringstream s;
+        s << "#";
+        s << std::setfill('0') << std::setw(sizeof(uint8_t) * 2) << std::hex << (int)r << 
+            std::setfill('0') << std::setw(sizeof(uint8_t) * 2) << (int)g << 
+            std::setfill('0') << std::setw(sizeof(uint8_t) * 2) << (int)b;
+        return s.str();
+    }
+
     static Color FromInt(uint32_t c)
     {
         uint8_t a = (c & 0xff000000) >> 24;
@@ -225,6 +237,17 @@ struct Color
         uint8_t g = (c & 0x0000ff00) >> 8;
         uint8_t b = (c & 0x000000ff);
         return Color{a, r, g, b};
+    }
+
+    static Color FromHex(std::string c)
+    {
+        if ((c.size() != 9 && c.size() != 7) || c[0] != '#')
+            return Color{};
+        c.erase(0, 1);
+        const unsigned long val = stoul(c, nullptr, 16);
+        if (c.size() == 7)
+            return Color{0xff, uint8_t((val >> 16) & 0xff), uint8_t((val >> 8) & 0xff), uint8_t((val) & 0xff)};
+        return Color{uint8_t((val >> 24) & 0xff), uint8_t((val >> 16) & 0xff), uint8_t((val >> 8) & 0xff), uint8_t((val) & 0xff)};
     }
 
     static Color Red()
