@@ -1786,6 +1786,17 @@ uint Document::Save(const std::string& filename)
     return last_task_id;
 }
 
+uint Document::SaveJson(std::u32string& json)
+{
+    {
+        std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
+        tasks.emplace_back(new SaveTask(text, &json));
+        last_task_id = tasks.back()->id;
+    }
+    next_circle = true;
+    return last_task_id;
+}
+
 uint Document::Load(const std::string& filename)
 {
     {

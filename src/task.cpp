@@ -1112,6 +1112,12 @@ SaveTask::SaveTask(ElementPtr _text, const std::string _filename) :
 {
 }
 
+SaveTask::SaveTask(ElementPtr _text, std::u32string* _json_str) :
+    Task(_text),
+    json_str(_json_str)
+{
+}
+
 bool SaveTask::Execute()
 {
     rapidjson::Document json;
@@ -1145,18 +1151,23 @@ bool SaveTask::Execute()
     }
     std::string str = buffer.GetString();
 
-    try
+    if (json_str)
+        *json_str = ToUtfString(str);
+    else
     {
-        std::ofstream file(filename);
-        file.exceptions(~std::ofstream::goodbit);
-        file << str;
-        file.close();
-    }
-    catch (const std::ios_base::failure& ex)
-    {
-        window->OnSaveResult(id, IOResult::InputStreamError);
-        logger->Error("Error saving file '{}': {}", filename, ex.what());
-        return false;
+        try
+        {
+            std::ofstream file(filename);
+            file.exceptions(~std::ofstream::goodbit);
+            file << str;
+            file.close();
+        }
+        catch (const std::ios_base::failure& ex)
+        {
+            window->OnSaveResult(id, IOResult::InputStreamError);
+            logger->Error("Error saving file '{}': {}", filename, ex.what());
+            return false;
+        }
     }
 
     window->OnSaveResult(id, IOResult::Success);
