@@ -172,6 +172,7 @@ public:
 
     uint New();
     uint Save(const std::string& filename);
+    uint SaveJson(std::u32string& json);
     uint Load(const std::string& filename);
     uint LoadJson(const std::u32string& json_doc);
 

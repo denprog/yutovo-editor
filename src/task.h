@@ -232,10 +232,12 @@ class StringElements;
 struct SaveTask : Task
 {
     SaveTask(ElementPtr _text, const std::string _filename);
+    SaveTask(ElementPtr _text, std::u32string* _json_str);
 
     virtual bool Execute();
 
     std::string filename;
+    std::u32string* json_str = nullptr;
 };
 
 struct LoadTask : Task
