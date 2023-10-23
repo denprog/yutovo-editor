@@ -1974,4 +1974,105 @@ TEST_F(DocumentTest, clipboard36)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 1})) << document.GetEditorState().ToString();
 }
 
+//Copy-paste of code blocks
+TEST_F(DocumentTest, clipboard37)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.InsertString("123", true);
+    document.MoveCaretRight(false);
+    document.InsertParagraph(true);
+    document.InsertCode(false, true);
+    document.InsertString("55", true);
+    document.MoveCaretHome(false);
+    document.MoveCaretHome(false);
+    document.MoveCaretRight(true);
+    document.WaitTask(document.Copy(clipboard_json, clipboard_text));
+    document.MoveCaretEnd(false);
+    document.WaitTask(document.Paste(clipboard_json));
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mi>123</mi>"\
+                    "</mrow>"\
+                "</math>"\
+            "</p>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mi>55</mi>"\
+                    "</mrow>"\
+                "</math>"\
+            "</p>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mi>55</mi>"\
+                    "</mrow>"\
+                "</math>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 2, 0, 1})) << document.GetEditorState().ToString();
+
+    document.MoveCaretHome(false);
+    document.WaitTask(document.DeleteElements(true, true));
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mi>123</mi>"\
+                    "</mrow>"\
+                "</math>"\
+            "</p>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mi>55</mi>"\
+                    "</mrow>"\
+                "</math>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mi>55</mi>"\
+                    "</mrow>"\
+                "</math>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 1, 0, 1, 0, 0, 0, 0})) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mi>123</mi>"\
+                    "</mrow>"\
+                "</math>"\
+            "</p>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mi>55</mi>"\
+                    "</mrow>"\
+                "</math>"\
+            "</p>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mi>55</mi>"\
+                    "</mrow>"\
+                "</math>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 2, 0, 0})) << document.GetEditorState().ToString();
+}
+
 }
