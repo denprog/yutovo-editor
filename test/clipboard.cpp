@@ -24,8 +24,6 @@ TEST_F(DocumentTest, clipboard1)
         });
 
     document.SetFontSize(22);
-    std::u32string clipboard_json;
-    std::u32string clipboard_text;
     document.WaitTask(document.InsertString("Text", true));
     document.WaitTask(document.MoveCaretHome(true));
     document.WaitTask(document.Copy(clipboard_json, clipboard_text));
@@ -74,8 +72,6 @@ TEST_F(DocumentTest, clipboard2)
         });
 
     document.SetFontSize(22);
-    std::u32string clipboard_json;
-    std::u32string clipboard_text;
     document.InsertString("The source of ", true);
     document.SetBold(true);
     document.SetFontFamily("Courier New");
@@ -146,8 +142,6 @@ TEST_F(DocumentTest, clipboard3)
         });
 
     document.SetFontSize(22);
-    std::u32string clipboard_json;
-    std::u32string clipboard_text;
     document.WaitTask(document.InsertString("The source of the text itself is a little ", true));
     document.WaitTask(document.MoveCaretHome(true));
     document.WaitTask(document.Copy(clipboard_json, clipboard_text));
@@ -173,8 +167,6 @@ TEST_F(DocumentTest, clipboard4)
         });
 
     document.SetFontSize(22);
-    std::u32string clipboard_json;
-    std::u32string clipboard_text;
     document.WaitTask(document.InsertString("The source of the text itself is a little strange", true));
     document.WaitTask(document.MoveCaretWordLeft(true));
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 42}, 
@@ -494,8 +486,6 @@ TEST_F(DocumentTest, clipboard8)
         });
 
     document.SetFontSize(22);
-    std::u32string clipboard_json;
-    std::u32string clipboard_text;
     document.WaitTask(document.InsertString("The source of the text itself is a little strange", true));
     document.WaitTask(document.MoveCaretWordLeft(true));
     std::this_thread::sleep_for(200ms);
@@ -548,8 +538,6 @@ TEST_F(DocumentTest, clipboard9)
     document.MoveCaretHome(false);
     document.WaitTask(document.MoveCaretRight(true));
 
-    std::u32string clipboard_json;
-    std::u32string clipboard_text;
     document.WaitTask(document.Copy(clipboard_json, clipboard_text));
 
     document.WaitTask(document.MoveCaretRight(false));
@@ -669,8 +657,6 @@ TEST_F(DocumentTest, clipboard10)
     document.MoveCaretRight(true);
     document.WaitCaretMoving();
 
-    std::u32string clipboard_json;
-    std::u32string clipboard_text;
     document.WaitTask(document.Copy(clipboard_json, clipboard_text));
     std::this_thread::sleep_for(200ms);
 
@@ -764,8 +750,6 @@ TEST_F(DocumentTest, clipboard11)
     document.MoveCaretHome(false);
     document.MoveCaretRight(true);
 
-    std::u32string clipboard_json;
-    std::u32string clipboard_text;
     document.WaitTask(document.Copy(clipboard_json, clipboard_text));
     std::this_thread::sleep_for(200ms);
 
@@ -906,8 +890,6 @@ TEST_F(DocumentTest, clipboard12)
         document.MoveCaretRight(true);
     document.WaitCaretMoving();
 
-    std::u32string clipboard_json;
-    std::u32string clipboard_text;
     document.WaitTask(document.Copy(clipboard_json, clipboard_text));
     std::this_thread::sleep_for(200ms);
 
@@ -958,8 +940,6 @@ TEST_F(DocumentTest, clipboard13)
     document.MoveCaretLeft(true);
     document.WaitTask(document.MoveCaretLeft(true));
 
-    std::u32string clipboard_json;
-    std::u32string clipboard_text;
     document.WaitTask(document.Copy(clipboard_json, clipboard_text));
     std::this_thread::sleep_for(200ms);
 
@@ -1016,8 +996,6 @@ TEST_F(DocumentTest, clipboard14)
     document.MoveCaretLeft(true);
     document.WaitCaretMoving();
 
-    std::u32string clipboard_json;
-    std::u32string clipboard_text;
     document.WaitTask(document.Copy(clipboard_json, clipboard_text));
     std::this_thread::sleep_for(200ms);
 
@@ -1077,8 +1055,6 @@ TEST_F(DocumentTest, clipboard15)
         });
 
     document.SetFontSize(22);
-    std::u32string clipboard_json;
-    std::u32string clipboard_text;
     document.InsertString("The source of the text itself is a little strange.", true);
     document.InsertParagraph(true);
     document.WaitTask(document.InsertString("Text.", true));
@@ -1150,8 +1126,6 @@ TEST_F(DocumentTest, clipboard16)
         });
 
     document.SetFontSize(22);
-    std::u32string clipboard_json;
-    std::u32string clipboard_text;
     document.WaitTask(document.InsertString("The source of the text itself is a little strange.", true));
     document.WaitTask(document.InsertParagraph(true));
     document.WaitTask(document.InsertString("Text.", true));
@@ -1226,8 +1200,6 @@ TEST_F(DocumentTest, clipboard17)
             ASSERT_TRUE(result == PasteResult::Success);
         });
 
-    std::u32string clipboard_json;
-    std::u32string clipboard_text;
     document.WaitTask(document.InsertString("The source of the text itself is a little strange.", true));
     document.WaitTask(document.SelectAll());
     std::this_thread::sleep_for(200ms);
@@ -1288,8 +1260,6 @@ TEST_F(TwoDocumentsTest, clipboard18)
         });
 
     document.SetFontSize(22);
-    std::u32string clipboard_json;
-    std::u32string clipboard_text;
     document.WaitTask(document.InsertString("Text", true));
     document.WaitTask(document.MoveCaretHome(true));
     document.WaitTask(document.Copy(clipboard_json, clipboard_text));
@@ -1349,8 +1319,6 @@ TEST_F(DocumentTest, clipboard19)
         ElementSelectionState{ElementId{0, 0}, 0, 1}, 
         ElementSelectionState{ElementId{0, 0, 1, 0}, 0, 13})) << document.GetEditorState().ToString();
 
-    std::u32string clipboard_json;
-    std::u32string clipboard_text;
     document.WaitTask(document.Copy(clipboard_json, clipboard_text));
 
     document.WaitTask(document.MoveCaretToDocumentBegin(false));
@@ -1390,8 +1358,6 @@ TEST_F(DocumentTest, clipboard20)
         ElementSelectionState{ElementId{0, 0}, 0, 1}, 
         ElementSelectionState{ElementId{0, 0, 1, 0}, 0, 13})) << document.GetEditorState().ToString();
 
-    std::u32string clipboard_json;
-    std::u32string clipboard_text;
     document.WaitTask(document.Copy(clipboard_json, clipboard_text));
 
     document.MoveCaretToDocumentBegin(false);
@@ -1433,8 +1399,6 @@ TEST_F(DocumentTest, clipboard21)
         ElementSelectionState{ElementId{0, 0}, 0, 1}, 
         ElementSelectionState{ElementId{0, 0, 1, 0}, 0, 13})) << document.GetEditorState().ToString();
 
-    std::u32string clipboard_json;
-    std::u32string clipboard_text;
     document.WaitTask(document.Copy(clipboard_json, clipboard_text));
 
     document.WaitTask(document.MoveCaretHome(false));
@@ -1474,8 +1438,6 @@ TEST_F(DocumentTest, clipboard22)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 1, 0, 0, 0}, 
         ElementSelectionState{ElementId{0}, 0, 1})) << document.GetEditorState().ToString();
 
-    std::u32string clipboard_json;
-    std::u32string clipboard_text;
     document.WaitTask(document.Copy(clipboard_json, clipboard_text));
 
     document.MoveCaretToDocumentBegin(false);
@@ -1550,7 +1512,6 @@ TEST_F(DocumentTest, clipboard24)
             ASSERT_TRUE(result == PasteResult::PasteError);
         });
 
-    std::u32string clipboard_json;
     document.WaitTask(document.Paste(clipboard_json));
     std::this_thread::sleep_for(200ms);
     ASSERT_TRUE(document.ToHtml() == 
@@ -1585,8 +1546,6 @@ TEST_F(DocumentTest, clipboard25)
     document.MoveCaretToDocumentEnd(false);
     document.MoveCaretHome(true);
 
-    std::u32string clipboard_json;
-    std::u32string clipboard_text;
     document.WaitTask(document.Copy(clipboard_json, clipboard_text));
 
     document.WaitTask(document.MoveCaretRight(false));
@@ -1621,8 +1580,6 @@ TEST_F(DocumentTest, clipboard26)
     document.MoveCaretLeft(true);
     document.WaitTask(document.MoveCaretLeft(true));
 
-    std::u32string clipboard_json;
-    std::u32string clipboard_text;
     document.WaitTask(document.Copy(clipboard_json, clipboard_text));
 
     document.MoveCaretRight(false);
@@ -1647,8 +1604,6 @@ TEST_F(DocumentTest, clipboard27)
     document.InsertDivision(true);
     document.MoveCaretRight(false);
     document.WaitTask(document.MoveCaretHome(true));
-    std::u32string clipboard_json;
-    std::u32string clipboard_text;
     document.WaitTask(document.Copy(clipboard_json, clipboard_text));
 
     document.MoveCaretEnd(false);
@@ -1675,8 +1630,6 @@ TEST_F(DocumentTest, clipboard28)
     document.InsertDivision(true);
     document.MoveCaretRight(false);
     document.WaitTask(document.MoveCaretHome(true));
-    std::u32string clipboard_json;
-    std::u32string clipboard_text;
     document.WaitTask(document.Copy(clipboard_json, clipboard_text));
 
     document.MoveCaretEnd(false);
@@ -1712,8 +1665,6 @@ TEST_F(DocumentTest, clipboard29)
     document.MoveCaretLeft(false);
     document.MoveCaretLeft(false);
     document.MoveCaretLeft(true);
-    std::u32string clipboard_json;
-    std::u32string clipboard_text;
     document.WaitTask(document.Copy(clipboard_json, clipboard_text));
 
     document.MoveCaretRight(false);
@@ -1748,8 +1699,6 @@ TEST_F(DocumentTest, clipboard30)
     document.WaitTask(document.InsertParagraph(true));
     document.MoveCaretUp(true);
     document.MoveCaretUp(true);
-    std::u32string clipboard_json;
-    std::u32string clipboard_text;
     document.WaitTask(document.Copy(clipboard_json, clipboard_text));
 
     document.MoveCaretDown(false);
@@ -1783,8 +1732,6 @@ TEST_F(DocumentTest, clipboard31)
     document.MoveCaretHome(false);
     document.MoveCaretHome(false);
     document.MoveCaretEnd(true);
-    std::u32string clipboard_json;
-    std::u32string clipboard_text;
     document.WaitTask(document.Copy(clipboard_json, clipboard_text));
 
     document.MoveCaretEnd(false);
@@ -1827,8 +1774,6 @@ TEST_F(DocumentTest, clipboard32)
     document.MoveCaretHome(false);
     document.MoveCaretHome(false);
     document.MoveCaretEnd(true);
-    std::u32string clipboard_json;
-    std::u32string clipboard_text;
     document.WaitTask(document.Copy(clipboard_json, clipboard_text));
 
     document.MoveCaretEnd(false);
@@ -1873,8 +1818,6 @@ TEST_F(DocumentTest, clipboard33)
     document.MoveCaretWordRight(false);
     document.MoveCaretWordRight(false);
     document.MoveCaretDown(true);
-    std::u32string clipboard_json;
-    std::u32string clipboard_text;
     document.WaitTask(document.Cut(clipboard_json, clipboard_text));
 
     document.WaitTask(document.Paste(clipboard_json));
@@ -1922,8 +1865,6 @@ TEST_F(DocumentTest, clipboard34)
     std::vector<unsigned char> data(test_image.bits(), test_image.bits() + test_image.sizeInBytes());
     document.InsertImage(data, test_image.width(), test_image.height(), true);
     document.MoveCaretLeft(true);
-    std::u32string clipboard_json;
-    std::u32string clipboard_text;
     document.WaitTask(document.Copy(clipboard_json, clipboard_text));
 
     document.WaitTask(document.DeleteElements(false, true));

@@ -719,4 +719,36 @@ TEST_F(FormulaTest, power13)
     ASSERT_TRUE(document.ToText() == U"pow(123,pow(45,7+88))") << ToBasicString(document.ToText());
 }
 
+//Copy-paste
+TEST_F(FormulaTest, power14)
+{
+    Start(600);
+
+    document.InsertPower(true);
+    document.MoveCaretLeft(false);
+    document.MoveCaretRight(true);
+    document.WaitTask(document.Copy(clipboard_json, clipboard_text));
+    document.MoveCaretRight(false);
+    document.MoveCaretLeft(false);
+    document.WaitTask(document.Paste(clipboard_json));
+    ASSERT_TRUE(document.ToText() == 
+        U"pow(,)pow(,)"
+        ) << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 2})) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    ASSERT_TRUE(document.ToText() == 
+        U"pow(,)"
+        ) << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 1})) << document.GetEditorState().ToString();
+
+    document.Redo();
+    document.WaitRedo();
+    ASSERT_TRUE(document.ToText() == 
+        U"pow(,)pow(,)"
+        ) << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 2})) << document.GetEditorState().ToString();
+}
+
 }
