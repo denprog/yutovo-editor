@@ -769,11 +769,12 @@ bool ResizeTask::Execute()
 
 //UndoTask
 
-UndoTask::UndoTask(ElementPtr _text, int _undo_id, ElementId _id, const int _delete_size, const uint task_id) :
+UndoTask::UndoTask(ElementPtr _text, int _undo_id, ElementId _id, const int _pos, const int _delete_size, const uint task_id) :
     Task(_text, task_id),
     undo_id(_undo_id),
     id(document->GetLogicalId(_id)),
-    delete_size(_delete_size)
+    delete_size(_delete_size),
+    pos(_pos)
 {
     before_state = document->GetLogicalEditorState();
 }
