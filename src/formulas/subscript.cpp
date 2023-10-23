@@ -107,11 +107,14 @@ void Subscript::UpdateLevel(uint8_t _level)
     MiddleShapeFormula::UpdateLevel(_level);
     if (_level >= MAX_LEVEL)
         return;
-    last->UpdateLevel(_level + 1);
+    if (last)
+        last->UpdateLevel(_level + 1);
 }
 
 std::string Subscript::ToHtml()
 {
+    if (!first || !last)
+        return "";
     std::string s = "<msub>";
     s += first->ToHtml();
     s += last->ToHtml();
@@ -121,6 +124,8 @@ std::string Subscript::ToHtml()
 
 std::u32string Subscript::ToText()
 {
+    if (!first || !last)
+        return U"";
     auto _first = first->ToText();
     auto _last = last->ToText();
     if (_last == U"bin" || _last == U"oct" || _last == U"dec" || _last == U"hex")
@@ -132,6 +137,8 @@ std::u32string Subscript::ToText()
 
 void Subscript::ToParserString(ParserString& str)
 {
+    if (!first || !last)
+        return;
     if (first->ToText() == U"log")
     {
         first->ToParserString(str);

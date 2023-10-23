@@ -99,7 +99,23 @@ bool CodeRow::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo,
     {
         if (el->type == ElementType::CODE_BLOCK)
         {
-            return false;
+            std::vector<ElementPtr> ch;
+            if (el->elements->Count() == 1)
+            {
+                if (el->elements->Get(0)->elements->Count() > 0 && ((CodeRow*)el->elements->Get(0)->elements->Get(0).get())->IsEmpty())
+                    return false;
+                for (int i = 0; i < el->elements->Get(0)->elements->Count(); ++i)
+                    ch.push_back(el->elements->Get(0)->elements->Get(i));
+            }
+            else
+            {
+                for (int i = 0; i < el->elements->Count(); ++i)
+                    ch.push_back(el->elements->Get(i));
+            }
+
+            if (!Row::InsertElements(ch, with_undo, changed_element))
+                return false;
+            return true;
         }
         if (el->type == ElementType::CODE_PARAGRAPH && 
             (parent->type != ElementType::CODE_PARAGRAPH && parent->type != ElementType::ASSIGNMENT && parent->type != ElementType::EQUATION))

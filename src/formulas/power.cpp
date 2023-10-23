@@ -115,6 +115,8 @@ void Power::UpdateLevel(uint8_t _level)
 
 std::string Power::ToHtml()
 {
+    if (!first || !last)
+        return "";
     std::string s = "<msup>";
     s += first->ToHtml();
     s += last->ToHtml();
@@ -131,6 +133,8 @@ std::u32string Power::ToText()
 
 void Power::ToParserString(ParserString& str)
 {
+    if (!first || !last)
+        return;
     str.Add(id, U"pow(");
     first->ToParserString(str);
     str.Add(id, U",");

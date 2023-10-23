@@ -330,4 +330,36 @@ TEST_F(FormulaTest, nth_root3)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0})) << document.GetEditorState().ToString();
 }
 
+//Copy-paste
+TEST_F(FormulaTest, nth_root4)
+{
+    Start(600);
+
+    document.InsertNthRoot(true);
+    document.MoveCaretRight(false);
+    document.MoveCaretLeft(true);
+    document.WaitTask(document.Copy(clipboard_json, clipboard_text));
+    document.MoveCaretRight(false);
+    document.MoveCaretLeft(false);
+    document.WaitTask(document.Paste(clipboard_json));
+    ASSERT_TRUE(document.ToText() == 
+        U"root(,)root(,)"
+        ) << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0, 0, 2})) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    ASSERT_TRUE(document.ToText() == 
+        U"root(,)"
+        ) << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0, 0, 1})) << document.GetEditorState().ToString();
+
+    document.Redo();
+    document.WaitRedo();
+    ASSERT_TRUE(document.ToText() == 
+        U"root(,)root(,)"
+        ) << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0, 0, 2})) << document.GetEditorState().ToString();
+}
+
 }

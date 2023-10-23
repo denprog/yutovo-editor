@@ -265,6 +265,9 @@ struct DocumentTest : public testing::Test
     ::testing::NiceMock<WindowMock> window_mock;
     yutovo::Config config;
     Document document;
+
+    std::u32string clipboard_json;
+    std::u32string clipboard_text;
 };
 
 struct FormulaTest : DocumentTest

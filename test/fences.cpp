@@ -682,4 +682,49 @@ TEST_F(FormulaTest, fences8)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 2})) << document.GetEditorState().ToString();
 }
 
+//Copy-paste
+TEST_F(FormulaTest, fences9)
+{
+    Start(600);
+
+    document.InsertOpenFence(true);
+    document.WaitTask(document.InsertCloseFence(true));
+    document.MoveCaretLeft(false);
+    document.MoveCaretLeft(false);
+    document.MoveCaretRight(true);
+    document.WaitTask(document.MoveCaretRight(true));
+    document.WaitTask(document.Copy(clipboard_json, clipboard_text));
+    document.MoveCaretEnd(false);
+    document.MoveCaretLeft(false);
+    document.WaitTask(document.Paste(clipboard_json));
+    ASSERT_TRUE(document.ToText() == 
+        U"()()"
+        ) << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0, 0, 4})) << document.GetEditorState().ToString();
+}
+
+//Copy-paste
+TEST_F(FormulaTest, fences10)
+{
+    Start(600);
+
+    document.InsertOpenFence(true);
+    document.InsertCloseFence(true);
+    document.MoveCaretEnd(false);
+    document.InsertCode(false, true);
+    document.MoveCaretHome(false);
+    document.MoveCaretRight(false);
+    document.MoveCaretRight(true);
+    document.WaitTask(document.MoveCaretRight(true));
+    document.WaitTask(document.Copy(clipboard_json, clipboard_text));
+    document.MoveCaretRight(false);
+    document.MoveCaretRight(false);
+    document.MoveCaretRight(false);
+    document.WaitTask(document.Paste(clipboard_json));
+    ASSERT_TRUE(document.ToText() == 
+        U"()()"
+        ) << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 1, 0, 0, 2})) << document.GetEditorState().ToString();
+}
+
 }
