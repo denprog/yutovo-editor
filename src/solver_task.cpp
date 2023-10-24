@@ -24,6 +24,13 @@ SolverTask::SolverTask(ElementId _id, std::string& _guid, uint _code_id, Express
     cur_time = duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
 }
 
+SolverTask::SolverTask(std::string& _guid) :
+    guid(_guid),
+    logger(Logger::GetInstance("programs/Math/bin/", "yutovo", true, true))
+{
+    cur_time = duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
+}
+
 bool SolverTask::SendRequest(const rapidjson::Document& json, Result& result, WebSocketPtr& socket)
 {
     rapidjson::StringBuffer buffer;
@@ -556,6 +563,48 @@ bool RemoveIdentifierSolverTask::Execute(WebSocketPtr socket, Result& result)
     if (doc.HasMember("error"))
     {
         FillError(doc, result);
+        return false;
+    }
+
+    return true;
+}
+
+//SetLanguageSolverTask
+
+SetLanguageSolverTask::SetLanguageSolverTask(std::string& _guid, const yutovo_calculator::Language _language) :
+    SolverTask(_guid),
+    language(_language)
+{
+}
+
+bool SetLanguageSolverTask::Execute(WebSocketPtr socket, Result& result)
+{
+    rapidjson::Document doc;
+    auto& alloc = doc.GetAllocator();
+    doc.SetObject();
+    doc.AddMember("command", "SET_LANGUAGE", alloc);
+    doc.AddMember("guid", rapidjson::StringRef(guid.c_str()), alloc);
+    doc.AddMember("language", (int)language, alloc);
+
+    if (!SendRequest(doc, result, socket))
+        return false;
+    
+    //reply
+    std::string json;
+    if (!socket->Receive(json, result))
+        return false;
+    
+    doc.Parse<0>(json.c_str());
+    if (doc.HasParseError())
+    {
+        logger->Error("Json error");
+        result.error.error_code = ErrorCode::JSON_ERROR;
+        return false;
+    }
+
+    if (doc.HasMember("error"))
+    {
+        logger->Error("Error setting language");
         return false;
     }
 

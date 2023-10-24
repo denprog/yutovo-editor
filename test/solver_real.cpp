@@ -146,7 +146,7 @@ TEST_F(SolverRealTest, solver3)
 
     Config config;
     document.GetConfig(config);
-    config.real_result.result_angle_measure = AngleMeasure::DEGREE;
+    config.real_result.result_angle_measure = yutovo::AngleMeasure::DEGREE;
     document.SetConfig(config);
 
     document.MoveCaretEnd(false);
@@ -287,7 +287,7 @@ TEST_F(SolverRealTest, solver8)
         U"arcsin(1)=1.571(rad)"
         ) << ToBasicString(document.ToText());
 
-    document.WaitTask(document.SetResultAngleMeasure({0, 0, 0, 0, 0, 0, 0, 2, 0, 0}, AngleMeasure::DEGREE, true));
+    document.WaitTask(document.SetResultAngleMeasure({0, 0, 0, 0, 0, 0, 0, 2, 0, 0}, yutovo::AngleMeasure::DEGREE, true));
     document.WaitSolver();
     std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToText() == 

@@ -121,6 +121,14 @@ void Solver::RemoveIdentifier(ElementId id, uint code_id, const std::u32string& 
     }
 }
 
+void Solver::SetLanguage(const yutovo_calculator::Language language)
+{
+    std::unique_lock<std::mutex> lock(tasks_mutex);
+    tasks.emplace_back(new SetLanguageSolverTask(guid, language));
+    tasks.emplace_back(nullptr);
+    next_circle = true;
+}
+
 void Solver::MessageLoop()
 {
     bool connected = false;
