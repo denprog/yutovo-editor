@@ -324,10 +324,10 @@ struct SetResultParamsTask : Task
 
     int precision = -1;
     int exp = -1;
-    AngleMeasure result_angle_measure = AngleMeasure::NONE;
-    Notation default_notation = Notation::NONE;
-    Notation result_notation = Notation::NONE;
-    FractionForm fraction_form = FractionForm::NONE;
+    AngleMeasure result_angle_measure = AngleMeasure::None;
+    Notation default_notation = Notation::None;
+    Notation result_notation = Notation::None;
+    FractionForm fraction_form = FractionForm::None;
     yutovo_calculator::Unit unit;
 
     EditorState before_state;

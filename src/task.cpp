@@ -1662,7 +1662,7 @@ bool SetResultParamsTask::Execute()
         return false;
     
     Equation* eq = (Equation*)el.get();
-    if (precision != -1 || exp != -1 || result_angle_measure != AngleMeasure::NONE)
+    if (precision != -1 || exp != -1 || result_angle_measure != AngleMeasure::None)
     {
         if (eq->SetConfig(precision, exp, result_angle_measure, with_undo))
         {
@@ -1670,7 +1670,7 @@ bool SetResultParamsTask::Execute()
             return true;
         }
     }
-    if (default_notation != Notation::NONE && result_notation != Notation::NONE)
+    if (default_notation != Notation::None && result_notation != Notation::None)
     {
         if (eq->SetConfig(default_notation, result_notation, with_undo))
         {
@@ -1678,7 +1678,7 @@ bool SetResultParamsTask::Execute()
             return true;
         }
     }
-    if (fraction_form != FractionForm::NONE)
+    if (fraction_form != FractionForm::None)
     {
         if (eq->SetConfig(fraction_form, with_undo))
         {

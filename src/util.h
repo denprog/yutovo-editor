@@ -6,6 +6,7 @@
 #include <iomanip>
 #include <boost/locale.hpp>
 #include <yutovo_calculator/parser_exception.h>
+#include <yutovo_calculator/math_helper.h>
 #include <yutovo_service/types.h>
 #include <boost/uuid/uuid.hpp>
 #include "rapidjson/document.h"
@@ -14,6 +15,8 @@ typedef unsigned int uint;
 
 namespace yutovo
 {
+
+using namespace yutovo_calculator;
 
 enum class ElementType
 {
@@ -51,30 +54,6 @@ enum class ElementType
     XOR,
     PERCENT,
     IMAGE
-};
-
-enum class AngleMeasure
-{
-    NONE = -1,
-    RADIAN = 0,
-    DEGREE,
-    GRAD
-};
-
-enum class Notation
-{
-    NONE = -1,
-    BINARY = 0,
-    OCTAL,
-    DECIMAL,
-    HEXADECIMAL
-};
-
-enum class FractionForm
-{
-    NONE = -1,
-    PROPER = 0,
-    IMPROPER
 };
 
 enum class ComplexForm

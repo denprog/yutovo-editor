@@ -4,6 +4,7 @@
 #include <string>
 #include "util.h"
 #include <yutovo_calculator/unit.h>
+#include <yutovo_calculator/math_helper.h>
 
 namespace yutovo
 {
@@ -11,6 +12,7 @@ namespace yutovo
 typedef unsigned int uint;
 
 using namespace yutovo_service;
+using namespace yutovo_calculator;
 
 struct Config
 {
@@ -51,8 +53,8 @@ struct Config
 
         uint precision = 3;
         uint exp = 10;
-        AngleMeasure default_angle_measure = AngleMeasure::RADIAN;
-        AngleMeasure result_angle_measure = AngleMeasure::RADIAN;
+        AngleMeasure default_angle_measure = AngleMeasure::Radian;
+        AngleMeasure result_angle_measure = AngleMeasure::Radian;
         bool show_angle_measure = true;
         yutovo_calculator::Unit unit;
     };
@@ -69,8 +71,8 @@ struct Config
         void ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc);
         void FromJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc);
 
-        Notation result_notation = Notation::DECIMAL;
-        Notation default_notation = Notation::DECIMAL;
+        Notation result_notation = Notation::Decimal;
+        Notation default_notation = Notation::Decimal;
         bool show_notation = true;
     };
 
@@ -86,7 +88,7 @@ struct Config
         void ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc);
         void FromJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc);
 
-        FractionForm fraction_form = FractionForm::PROPER;
+        FractionForm fraction_form = FractionForm::Proper;
         yutovo_calculator::Unit unit;
     };
 
@@ -106,8 +108,8 @@ struct Config
 
         uint precision = 3;
         uint exp = 10;
-        AngleMeasure default_angle_measure = AngleMeasure::RADIAN;
-        AngleMeasure result_angle_measure = AngleMeasure::RADIAN;
+        AngleMeasure default_angle_measure = AngleMeasure::Radian;
+        AngleMeasure result_angle_measure = AngleMeasure::Radian;
         bool show_angle_measure = true;
         ComplexForm form = ComplexForm::ARITHMETIC;
         uint max_count = 10;

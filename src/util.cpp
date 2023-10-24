@@ -303,13 +303,13 @@ std::string AngleMeasureToString(const AngleMeasure angle_measure)
 {
     switch (angle_measure)
     {
-    case AngleMeasure::RADIAN:
+    case AngleMeasure::Radian:
         return "rad";
-    case AngleMeasure::DEGREE:
+    case AngleMeasure::Degree:
         return "deg";
-    case AngleMeasure::GRAD:
+    case AngleMeasure::Grad:
         return "grad";
-    case AngleMeasure::NONE:
+    case AngleMeasure::None:
         return "";
     }
     return "";
@@ -319,15 +319,15 @@ std::string NotationToString(const Notation notation)
 {
     switch (notation)
     {
-    case Notation::BINARY:
+    case Notation::Binary:
         return "bin";
-    case Notation::OCTAL:
+    case Notation::Octal:
         return "oct";
-    case Notation::DECIMAL:
+    case Notation::Decimal:
         return "dec";
-    case Notation::HEXADECIMAL:
+    case Notation::Hexadecimal:
         return "hex";
-    case Notation::NONE:
+    case Notation::None:
         return "";
     }
     return "";
