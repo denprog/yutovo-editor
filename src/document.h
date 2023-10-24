@@ -18,6 +18,7 @@
 #include "undo.h"
 #include <yutovo_logger/logger.h>
 #include <yutovo_service/types.h>
+#include <yutovo_calculator/parser.h>
 
 namespace yutovo
 {
@@ -250,6 +251,7 @@ public:
     void AddResolveElement(ElementId _id);
     void AddChangedElement(ElementId _id);
     void GetSolverGuid(std::string& guid);
+    void SetLanguage(const yutovo_calculator::Language language);
 
     bool IsVisible(ElementId _id);
     ElementId GetFirstVisibleParagraph();

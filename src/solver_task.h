@@ -7,6 +7,7 @@
 #include "web_socket.h"
 #include "result_codes.h"
 #include <yutovo_calculator/unit.h>
+#include <yutovo_calculator/parser.h>
 
 namespace yutovo
 {
@@ -25,6 +26,7 @@ class Logger;
 struct SolverTask
 {
     SolverTask(ElementId _id, std::string& _guid, uint _code_id, ExpressionType _expression_type, const std::u32string& _expression, const uint _delay);
+    SolverTask(std::string& _guid);
 
     virtual bool Execute(WebSocketPtr socket, Result& result) = 0;
 
@@ -46,11 +48,11 @@ struct SolverTask
 
     ElementId id;
     std::string guid;
-    uint code_id;
+    uint code_id = 0;
     ExpressionType expression_type;
     std::u32string expression;
-    int delay; //in milliseconds
-    uint64_t cur_time;
+    int delay = 0; //in milliseconds
+    uint64_t cur_time = 0;
     Logger* logger;
 };
 
@@ -99,6 +101,15 @@ struct RemoveIdentifierSolverTask : SolverTask
     RemoveIdentifierSolverTask(ElementId _id, std::string& _guid, uint _code_id, const std::u32string& _expression, const uint _delay);
 
     virtual bool Execute(WebSocketPtr socket, Result& result);
+};
+
+struct SetLanguageSolverTask : SolverTask
+{
+    SetLanguageSolverTask(std::string& _guid, const yutovo_calculator::Language _language);
+
+    virtual bool Execute(WebSocketPtr socket, Result& result);
+
+    yutovo_calculator::Language language;
 };
 
 typedef std::shared_ptr<SolverTask> SolverTaskPtr;

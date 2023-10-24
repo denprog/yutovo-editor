@@ -6,6 +6,7 @@
 #include <thread>
 #include <mutex>
 #include <condition_variable>
+#include <yutovo_calculator/parser.h>
 
 namespace yutovo
 {
@@ -26,6 +27,7 @@ public:
 
     void SetUserIdentifier(ElementId id, uint code_id, const std::u32string& expression, const uint delay);
     void RemoveIdentifier(ElementId id, uint code_id, const std::u32string& identifier, const uint delay);
+    void SetLanguage(const yutovo_calculator::Language language);
 
 private:
     void MessageLoop();

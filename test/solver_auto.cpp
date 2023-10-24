@@ -950,7 +950,7 @@ TEST_F(SolverAutoTest, solver18)
         U"arcsin(1)=1.571(rad)"
         ) << ToBasicString(document.ToText());
 
-    document.WaitTask(document.SetResultAngleMeasure({0, 0, 0, 0, 0, 0, 0, 2, 0, 0}, AngleMeasure::DEGREE, true));
+    document.WaitTask(document.SetResultAngleMeasure({0, 0, 0, 0, 0, 0, 0, 2, 0, 0}, yutovo::AngleMeasure::DEGREE, true));
     document.WaitSolver();
     std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToText() == 
@@ -966,7 +966,7 @@ TEST_F(SolverAutoTest, solver19)
     document.GetConfig(config);
     ResultType order[4] = {ResultType::RATIONAL, ResultType::INTEGER, ResultType::REAL, ResultType::COMPLEX};
     std::copy(order, order + 4, config.auto_result.results_order);
-    config.auto_result.rational_result.fraction_form = FractionForm::IMPROPER;
+    config.auto_result.rational_result.fraction_form = yutovo::FractionForm::IMPROPER;
     document.SetConfig(config);
 
     document.InsertDivision(true);
@@ -982,7 +982,7 @@ TEST_F(SolverAutoTest, solver19)
         U"(11)/(5)=(11)/(5)"
         ) << ToBasicString(document.ToText());
 
-    document.WaitTask(document.SetFractionForm({0, 0, 0, 0, 0, 0, 0, 2, 0, 0}, FractionForm::PROPER, true));
+    document.WaitTask(document.SetFractionForm({0, 0, 0, 0, 0, 0, 0, 2, 0, 0}, yutovo::FractionForm::PROPER, true));
     document.WaitSolver();
     std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToText() == 
@@ -1470,6 +1470,53 @@ TEST_F(SolverAutoTest, units6)
             "</p>"\
         "</body>") << 
         document.ToHtml();
+}
+
+//Set language
+TEST_F(SolverAutoTest, units7)
+{
+    Start(600);
+
+    document.SetLanguage(yutovo_calculator::Language::Russian);
+    document.InsertCode(1, true);
+    document.InsertDivision(true);
+    document.InsertString("6кг", true);
+    document.InsertMultiply(true);
+    document.InsertString("2м", true);
+    document.MoveCaretDown(false);
+    document.MoveCaretDown(false);
+    document.InsertString("4сек", true);
+    document.MoveCaretRight(false);
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(2s);
+    ASSERT_TRUE(document.ToText() == U"(6кг*2м)/(4сек)=3.(кг*м)/(сек)") << ToBasicString(document.ToText());
+}
+
+//Change language
+TEST_F(SolverAutoTest, units8)
+{
+    Start(600);
+
+    document.InsertCode(1, true);
+    document.InsertString("4N", true);
+    document.InsertMultiply(true);
+    document.InsertString("m", true);
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+
+    document.SetLanguage(yutovo_calculator::Language::Russian);
+    document.MoveCaretEnd(false);
+    document.InsertParagraph(true);
+    document.InsertString("4Н", true);
+    document.InsertMultiply(true);
+    document.InsertString("м", true);
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(2s);
+    ASSERT_TRUE(document.ToText() == 
+        U"4N*m=4.N*m\n"\
+        U"4Н*м=4.Н*м") << ToBasicString(document.ToText());
 }
 
 }

@@ -2328,6 +2328,11 @@ void Document::GetSolverGuid(std::string& guid)
     guid = solver.guid;
 }
 
+void Document::SetLanguage(const yutovo_calculator::Language language)
+{
+    solver.SetLanguage(language);
+}
+
 bool Document::IsVisible(ElementId _id)
 {
     auto el = GetElement(_id);
