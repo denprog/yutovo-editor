@@ -1,4 +1,5 @@
 #include <gtest/gtest.h>
+#include <yutovo_calculator/math_helper.h>
 #include "mock.h"
 #include "style.h"
 
@@ -205,7 +206,7 @@ TEST_F(SolverIntegerTest, solver4)
     
     Config config;
     document.GetConfig(config);
-    config.integer_result.result_notation = yutovo::Notation::BINARY;
+    config.integer_result.result_notation = Notation::Binary;
     config.integer_result.show_notation = true;
     document.SetConfig(config);
 
@@ -219,7 +220,7 @@ TEST_F(SolverIntegerTest, solver4)
         ) << ToBasicString(document.ToText());
 
     document.GetConfig(config);
-    config.integer_result.result_notation = yutovo::Notation::OCTAL;
+    config.integer_result.result_notation = Notation::Octal;
     config.integer_result.show_notation = false;
     document.SetConfig(config);
 
@@ -235,7 +236,7 @@ TEST_F(SolverIntegerTest, solver4)
         ) << ToBasicString(document.ToText());
 
     document.GetConfig(config);
-    config.integer_result.result_notation = yutovo::Notation::DECIMAL;
+    config.integer_result.result_notation = Notation::Decimal;
     config.integer_result.show_notation = true;
     document.SetConfig(config);
 
@@ -252,7 +253,7 @@ TEST_F(SolverIntegerTest, solver4)
         ) << ToBasicString(document.ToText());
 
     document.GetConfig(config);
-    config.integer_result.result_notation = yutovo::Notation::HEXADECIMAL;
+    config.integer_result.result_notation = Notation::Hexadecimal;
     document.SetConfig(config);
 
     document.MoveCaretEnd(false);
@@ -276,7 +277,7 @@ TEST_F(SolverIntegerTest, solver5)
     
     Config config;
     document.GetConfig(config);
-    config.integer_result.result_notation = yutovo::Notation::DECIMAL;
+    config.integer_result.result_notation = Notation::Decimal;
     config.integer_result.show_notation = true;
     document.SetConfig(config);
 
@@ -291,7 +292,7 @@ TEST_F(SolverIntegerTest, solver5)
 
     for (int i = 0; i < 7; ++i)
         document.MoveCaretRight(false);
-    document.WaitTask(document.SetNotation({0, 0, 0, 0, 0, 0, 0, 2, 0, 1, 2}, yutovo::Notation::DECIMAL, yutovo::Notation::BINARY, true));
+    document.WaitTask(document.SetNotation({0, 0, 0, 0, 0, 0, 0, 2, 0, 1, 2}, Notation::Decimal, Notation::Binary, true));
     document.WaitSolver();
     std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToText() == 
@@ -319,15 +320,15 @@ TEST_F(SolverIntegerTest, solver5)
         ) << ToBasicString(document.ToText());
 
     auto _el = document.FindParent({0, 0, 0, 0, 0, 0, 0, 2, 0, 0}, ElementType::INTEGER_RESULT);
-    yutovo::Notation n = document.GetDefaultNotation(_el->id);
-    document.WaitTask(document.SetNotation({0, 0, 0, 0, 0, 0, 0, 2, 0, 0}, n, yutovo::Notation::OCTAL, true));
+    yutovo_calculator::Notation n = document.GetDefaultNotation(_el->id);
+    document.WaitTask(document.SetNotation({0, 0, 0, 0, 0, 0, 0, 2, 0, 0}, n, Notation::Octal, true));
     document.WaitSolver();
     std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToText() == 
         U"2345=4451(oct)"
         ) << ToBasicString(document.ToText());
 
-    document.WaitTask(document.SetNotation({0, 0, 0, 0, 0, 0, 0, 2, 0, 0}, yutovo::Notation::DECIMAL, yutovo::Notation::HEXADECIMAL, true));
+    document.WaitTask(document.SetNotation({0, 0, 0, 0, 0, 0, 0, 2, 0, 0}, Notation::Decimal, Notation::Hexadecimal, true));
     document.WaitSolver();
     std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToText() == 
@@ -350,7 +351,7 @@ TEST_F(SolverIntegerTest, solver6)
     
     Config config;
     document.GetConfig(config);
-    config.integer_result.result_notation = yutovo::Notation::DECIMAL;
+    config.integer_result.result_notation = Notation::Decimal;
     config.integer_result.show_notation = true;
     document.SetConfig(config);
 
@@ -364,8 +365,8 @@ TEST_F(SolverIntegerTest, solver6)
         ) << ToBasicString(document.ToText());
 
     auto _el = document.FindParent({0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 3}, ElementType::INTEGER_RESULT);
-    yutovo::Notation n = document.GetDefaultNotation(_el->id);
-    document.WaitTask(document.SetNotation({0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 3}, n, yutovo::Notation::HEXADECIMAL, true));
+    yutovo_calculator::Notation n = document.GetDefaultNotation(_el->id);
+    document.WaitTask(document.SetNotation({0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 3}, n, Notation::Hexadecimal, true));
     document.WaitSolver();
     std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToText() == 
@@ -435,8 +436,8 @@ TEST_F(SolverIntegerTest, solver9)
     
     Config config;
     document.GetConfig(config);
-    config.integer_result.default_notation = yutovo::Notation::BINARY;
-    config.integer_result.result_notation = yutovo::Notation::BINARY;
+    config.integer_result.default_notation = Notation::Binary;
+    config.integer_result.result_notation = Notation::Binary;
     config.integer_result.show_notation = true;
     document.SetConfig(config);
 
@@ -450,8 +451,8 @@ TEST_F(SolverIntegerTest, solver9)
         ) << ToBasicString(document.ToText());
 
     document.GetConfig(config);
-    config.integer_result.default_notation = yutovo::Notation::OCTAL;
-    config.integer_result.result_notation = yutovo::Notation::DECIMAL;
+    config.integer_result.default_notation = Notation::Octal;
+    config.integer_result.result_notation = Notation::Decimal;
     config.integer_result.show_notation = false;
     document.SetConfig(config);
 
@@ -467,8 +468,8 @@ TEST_F(SolverIntegerTest, solver9)
         ) << ToBasicString(document.ToText());
 
     document.GetConfig(config);
-    config.integer_result.default_notation = yutovo::Notation::DECIMAL;
-    config.integer_result.result_notation = yutovo::Notation::HEXADECIMAL;
+    config.integer_result.default_notation = Notation::Decimal;
+    config.integer_result.result_notation = Notation::Hexadecimal;
     config.integer_result.show_notation = true;
     document.SetConfig(config);
 
@@ -485,8 +486,8 @@ TEST_F(SolverIntegerTest, solver9)
         ) << ToBasicString(document.ToText());
 
     document.GetConfig(config);
-    config.integer_result.default_notation = yutovo::Notation::HEXADECIMAL;
-    config.integer_result.result_notation = yutovo::Notation::DECIMAL;
+    config.integer_result.default_notation = Notation::Hexadecimal;
+    config.integer_result.result_notation = Notation::Decimal;
     document.SetConfig(config);
 
     document.MoveCaretEnd(false);
@@ -517,7 +518,7 @@ TEST_F(SolverIntegerTest, solver10)
         U"567=567(dec)"
         ) << ToBasicString(document.ToText());
 
-    document.WaitTask(document.SetNotation({0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 3}, yutovo::Notation::OCTAL, yutovo::Notation::HEXADECIMAL, true));
+    document.WaitTask(document.SetNotation({0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 3}, Notation::Octal, Notation::Hexadecimal, true));
     document.WaitSolver();
     std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToText() == 
@@ -714,7 +715,7 @@ TEST_F(SolverIntegerTest, notation4)
 
     Config config;
     document.GetConfig(config);
-    config.integer_result.result_notation = yutovo::Notation::BINARY;
+    config.integer_result.result_notation = Notation::Binary;
     config.integer_result.show_notation = true;
     document.SetConfig(config);
 

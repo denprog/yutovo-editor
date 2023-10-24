@@ -272,7 +272,7 @@ TEST_F(SolverRationalTest, rational5)
     
     Config config;
     document.GetConfig(config);
-    config.rational_result.fraction_form = yutovo::FractionForm::PROPER;
+    config.rational_result.fraction_form = FractionForm::Proper;
     document.SetConfig(config);
 
     document.InsertDivision(true);
@@ -289,7 +289,7 @@ TEST_F(SolverRationalTest, rational5)
         ) << ToBasicString(document.ToText());
 
     document.GetConfig(config);
-    config.rational_result.fraction_form = yutovo::FractionForm::IMPROPER;
+    config.rational_result.fraction_form = FractionForm::Improper;
     document.SetConfig(config);
 
     document.MoveCaretEnd(false);
@@ -316,7 +316,7 @@ TEST_F(SolverRationalTest, rational6)
     
     Config config;
     document.GetConfig(config);
-    config.rational_result.fraction_form = yutovo::FractionForm::PROPER;
+    config.rational_result.fraction_form = FractionForm::Proper;
     document.SetConfig(config);
 
     document.InsertDivision(true);
@@ -333,7 +333,7 @@ TEST_F(SolverRationalTest, rational6)
         ) << ToBasicString(document.ToText());
 
     document.GetConfig(config);
-    config.rational_result.fraction_form = yutovo::FractionForm::IMPROPER;
+    config.rational_result.fraction_form = FractionForm::Improper;
     document.SetConfig(config);
 
     document.MoveCaretEnd(false);
@@ -359,7 +359,7 @@ TEST_F(SolverRationalTest, rational7)
     Start(600);
     
     document.GetConfig(config);
-    config.rational_result.fraction_form = yutovo::FractionForm::IMPROPER;
+    config.rational_result.fraction_form = FractionForm::Improper;
     document.SetConfig(config);
 
     document.InsertDivision(true);
@@ -375,7 +375,7 @@ TEST_F(SolverRationalTest, rational7)
         U"(11)/(5)=(11)/(5)"
         ) << ToBasicString(document.ToText());
 
-    document.WaitTask(document.SetFractionForm({0, 0, 0, 0, 0, 0, 0, 2, 0, 0}, yutovo::FractionForm::PROPER, true));
+    document.WaitTask(document.SetFractionForm({0, 0, 0, 0, 0, 0, 0, 2, 0, 0}, FractionForm::Proper, true));
     document.WaitSolver();
     std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToText() == 
@@ -465,7 +465,7 @@ TEST_F(SolverRationalTest, units3)
     Start(600);
     
     document.GetConfig(config);
-    config.rational_result.fraction_form = yutovo::FractionForm::IMPROPER;
+    config.rational_result.fraction_form = FractionForm::Improper;
     document.SetConfig(config);
 
     document.InsertDivision(true);

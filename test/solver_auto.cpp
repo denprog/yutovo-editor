@@ -950,7 +950,7 @@ TEST_F(SolverAutoTest, solver18)
         U"arcsin(1)=1.571(rad)"
         ) << ToBasicString(document.ToText());
 
-    document.WaitTask(document.SetResultAngleMeasure({0, 0, 0, 0, 0, 0, 0, 2, 0, 0}, yutovo::AngleMeasure::DEGREE, true));
+    document.WaitTask(document.SetResultAngleMeasure({0, 0, 0, 0, 0, 0, 0, 2, 0, 0}, AngleMeasure::Degree, true));
     document.WaitSolver();
     std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToText() == 
@@ -966,7 +966,7 @@ TEST_F(SolverAutoTest, solver19)
     document.GetConfig(config);
     ResultType order[4] = {ResultType::RATIONAL, ResultType::INTEGER, ResultType::REAL, ResultType::COMPLEX};
     std::copy(order, order + 4, config.auto_result.results_order);
-    config.auto_result.rational_result.fraction_form = yutovo::FractionForm::IMPROPER;
+    config.auto_result.rational_result.fraction_form = FractionForm::Improper;
     document.SetConfig(config);
 
     document.InsertDivision(true);
@@ -982,7 +982,7 @@ TEST_F(SolverAutoTest, solver19)
         U"(11)/(5)=(11)/(5)"
         ) << ToBasicString(document.ToText());
 
-    document.WaitTask(document.SetFractionForm({0, 0, 0, 0, 0, 0, 0, 2, 0, 0}, yutovo::FractionForm::PROPER, true));
+    document.WaitTask(document.SetFractionForm({0, 0, 0, 0, 0, 0, 0, 2, 0, 0}, FractionForm::Proper, true));
     document.WaitSolver();
     std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToText() == 

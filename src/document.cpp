@@ -2104,7 +2104,7 @@ int Document::GetPrecision(ElementId _id)
 uint Document::SetPrecision(ElementId _id, uint precision, bool with_undo)
 {
     std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
-    tasks.emplace_back(new SetResultParamsTask(text, _id, precision, -1, AngleMeasure::NONE, with_undo));
+    tasks.emplace_back(new SetResultParamsTask(text, _id, precision, -1, AngleMeasure::None, with_undo));
     last_task_id = tasks.back()->id;
     return last_task_id;
 }
@@ -2129,7 +2129,7 @@ int Document::GetExp(ElementId _id)
 uint Document::SetExp(ElementId _id, uint exp, bool with_undo)
 {
     std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
-    tasks.emplace_back(new SetResultParamsTask(text, _id, -1, exp, AngleMeasure::NONE, with_undo));
+    tasks.emplace_back(new SetResultParamsTask(text, _id, -1, exp, AngleMeasure::None, with_undo));
     last_task_id = tasks.back()->id;
     return last_task_id;
 }
@@ -2139,14 +2139,14 @@ AngleMeasure Document::GetResultAngleMeasure(ElementId _id)
     std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
     auto el = GetElement(_id);
     if (!el)
-        return AngleMeasure::NONE;
+        return AngleMeasure::None;
     RealResult* r = dynamic_cast<RealResult*>(el.get());
     if (!r)
     {
         AutoResult* a_r = dynamic_cast<AutoResult*>(el.get());
         if (a_r)
             return a_r->config.real_result.result_angle_measure;
-        return AngleMeasure::NONE;
+        return AngleMeasure::None;
     }
     return r->config.result_angle_measure;
 }
@@ -2164,14 +2164,14 @@ Notation Document::GetResultNotation(ElementId _id)
     std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
     auto el = GetElement(_id);
     if (!el)
-        return Notation::NONE;
+        return Notation::None;
     IntegerResult* r = dynamic_cast<IntegerResult*>(el.get());
     if (!r)
     {
         AutoResult* a_r = dynamic_cast<AutoResult*>(el.get());
         if (a_r)
             return a_r->config.integer_result.result_notation;
-        return Notation::NONE;
+        return Notation::None;
     }
     return r->config.result_notation;
 }
@@ -2181,14 +2181,14 @@ Notation Document::GetDefaultNotation(ElementId _id)
     std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
     auto el = GetElement(_id);
     if (!el)
-        return Notation::NONE;
+        return Notation::None;
     IntegerResult* r = dynamic_cast<IntegerResult*>(el.get());
     if (!r)
     {
         AutoResult* a_r = dynamic_cast<AutoResult*>(el.get());
         if (a_r)
             return a_r->config.integer_result.default_notation;
-        return Notation::NONE;
+        return Notation::None;
     }
     return r->config.default_notation;
 }
@@ -2206,14 +2206,14 @@ FractionForm Document::GetFractionForm(ElementId _id)
     std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
     auto el = GetElement(_id);
     if (!el)
-        return FractionForm::NONE;
+        return FractionForm::None;
     RationalResult* r = dynamic_cast<RationalResult*>(el.get());
     if (!r)
     {
         AutoResult* a_r = dynamic_cast<AutoResult*>(el.get());
         if (a_r)
             return a_r->config.rational_result.fraction_form;
-        return FractionForm::NONE;
+        return FractionForm::None;
     }
     return r->config.fraction_form;
 }
