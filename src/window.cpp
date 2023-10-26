@@ -50,7 +50,12 @@ void Window::EndDrawOutside()
     draw_doc = true;
 }
 
-std::u32string Window::GetString(const std::u32string& str)
+std::string Window::Translate(const std::string& str)
+{
+    return str;
+}
+
+std::u32string Window::Translate(const std::u32string& str)
 {
     return str;
 }
