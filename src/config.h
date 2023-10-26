@@ -27,6 +27,7 @@ struct Config
     bool with_border = true;
     bool formula_border = true;
     bool pretty_json = false; //for debug purposes
+    std::string language = "en";
 
     //caret
     bool caret_visible = true;
