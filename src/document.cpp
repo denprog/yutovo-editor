@@ -319,6 +319,22 @@ uint Document::InsertString(const std::string& str, const StringFormatPtr string
     return InsertElement(new String(this, str, string_format), with_undo);
 }
 
+uint Document::InsertString(const std::string& str, ElementId element_id, bool with_undo)
+{
+    StringFormat f;
+    if (!GetStringFormat(element_id, f))
+        return 0;
+    StringFormatPtr string_format = string_formats->GetFormat(f);
+
+    {
+        std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
+        tasks.emplace_back(new SetStringTask(text, ToUtfString(str), element_id));
+        last_task_id = tasks.back()->id;
+    }
+    next_circle = true;
+    return last_task_id;
+}
+
 uint Document::InsertElement(Element* element, bool with_undo, ElementId element_id)
 {
     std::vector<ElementPtr> elements;

@@ -333,6 +333,16 @@ struct SetResultParamsTask : Task
     EditorState before_state;
 };
 
+struct SetStringTask : Task
+{
+    SetStringTask(ElementPtr _text, const std::u32string& _str, ElementId _element_id);
+
+    virtual bool Execute();
+
+    std::u32string str;
+    ElementId element_id;
+};
+
 }
 
 #endif

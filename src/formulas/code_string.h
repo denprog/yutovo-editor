@@ -10,8 +10,8 @@ class CodeString : public String
 {
 public:
     CodeString(Element* parent);
-    CodeString(Element* parent, const std::string str);
-    CodeString(Element* parent, const std::string str, const StringFormatPtr _format);
+    CodeString(Element* parent, const std::string str, bool translate = false);
+    CodeString(Element* parent, const std::string str, const StringFormatPtr _format, bool translate = false);
     CodeString(Element* parent, const std::u32string str);
     CodeString(Element* parent, const std::u32string str, const StringFormatPtr _format);
     CodeString(Document* _document);

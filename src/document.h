@@ -38,6 +38,7 @@ public:
     uint InsertString(const std::string& str, bool with_undo);
     uint InsertString(const std::u32string& str, bool with_undo);
     uint InsertString(const std::string& str, const StringFormatPtr string_format, bool with_undo);
+    uint InsertString(const std::string& str, ElementId element_id, bool with_undo);
 
     uint InsertElement(Element* element, bool with_undo, ElementId element_id = ElementId{});
     uint InsertElements(std::vector<ElementPtr>& elements, bool with_undo, ElementId element_id = ElementId{}, 
