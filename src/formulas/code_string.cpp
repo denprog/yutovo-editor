@@ -13,14 +13,14 @@ CodeString::CodeString(Element* parent) :
     type = ElementType::CODE_STRING;
 }
 
-CodeString::CodeString(Element* parent, const std::string str) :
-    String(parent, str)
+CodeString::CodeString(Element* parent, const std::string str, bool translate) :
+    String(parent, str, translate)
 {
     type = ElementType::CODE_STRING;
 }
 
-CodeString::CodeString(Element* parent, const std::string str, const StringFormatPtr _format) :
-    String(parent, str, _format)
+CodeString::CodeString(Element* parent, const std::string str, const StringFormatPtr _format, bool translate) :
+    String(parent, str, _format, translate)
 {
     type = ElementType::CODE_STRING;
 }

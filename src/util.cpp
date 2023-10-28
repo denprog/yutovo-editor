@@ -267,15 +267,15 @@ std::string ErrorCodeToString(const yutovo_service::ErrorCode error_code)
 {
     static std::map<yutovo_service::ErrorCode, std::string> error_code_str = 
         {
-            {ErrorCode::OK, "Ok"},
-            {ErrorCode::UNKNOWN_COMMAND, "Unknown command"},
-            {ErrorCode::JSON_ERROR, "JSON error"},
-            {ErrorCode::NO_FIELD_ERROR, "No field"},
-            {ErrorCode::FIELD_ERROR, "Field error"},
-            {ErrorCode::JSON_ERROR, "Json error"},
-            {ErrorCode::PARSER_ERROR, "Parser error"},
-            {ErrorCode::OPERATION_ERROR, "Operation error"},
-            {ErrorCode::SOLVER_RESTARTED_ERROR, "Solver restarted"}
+            {ErrorCode::OK, "ok"},
+            {ErrorCode::UNKNOWN_COMMAND, "unknown_command"},
+            {ErrorCode::JSON_ERROR, "json_error"},
+            {ErrorCode::NO_FIELD_ERROR, "no_field"},
+            {ErrorCode::FIELD_ERROR, "field_error"},
+            {ErrorCode::JSON_ERROR, "json_error"},
+            {ErrorCode::PARSER_ERROR, "parser_error"},
+            {ErrorCode::OPERATION_ERROR, "operation_error"},
+            {ErrorCode::SOLVER_RESTARTED_ERROR, "solver_restarted"}
         };
     return error_code_str[error_code];
 }
@@ -285,16 +285,16 @@ std::string ErrorCodeToString(const yutovo_calculator::ParserExceptionCode parse
     using namespace yutovo_calculator;
     static std::map<ParserExceptionCode, std::string> error_code_str = 
         {
-            {ParserExceptionCode::None, "Ok"},
-            {ParserExceptionCode::SyntaxError, "Syntax error"},
-            {ParserExceptionCode::WrongArgumentsCount, "Wrong arguments count"},
-            {ParserExceptionCode::UnknownIdentifier, "Unknown identifier"},
-            {ParserExceptionCode::ExpressionExpected, "Expression expected"},
-            {ParserExceptionCode::DivisionByZero, "Division by zero"},
-            {ParserExceptionCode::Overflow, "Overflow"},
-            {ParserExceptionCode::ArgumentIsOver, "Argument is over"},
-            {ParserExceptionCode::UnitsAreIncompatible, "Units are incompatible"},
-            {ParserExceptionCode::ConversionDoesNotFit, "Conversion does not fit"}
+            {ParserExceptionCode::None, "ok"},
+            {ParserExceptionCode::SyntaxError, "syntax_error"},
+            {ParserExceptionCode::WrongArgumentsCount, "wrong_arguments_count"},
+            {ParserExceptionCode::UnknownIdentifier, "unknown_identifier"},
+            {ParserExceptionCode::ExpressionExpected, "expression_expected"},
+            {ParserExceptionCode::DivisionByZero, "division_by_zero"},
+            {ParserExceptionCode::Overflow, "overflow"},
+            {ParserExceptionCode::ArgumentIsOver, "argument_is_over"},
+            {ParserExceptionCode::UnitsAreIncompatible, "units_are_incompatible"},
+            {ParserExceptionCode::ConversionDoesNotFit, "conversion_does_not_fit"}
         };
     return error_code_str[parser_error_code];
 }

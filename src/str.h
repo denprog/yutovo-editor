@@ -13,8 +13,8 @@ class String : public Element
 {
 public:
     String(Element* parent);
-    String(Element* parent, const std::string _str);
-    String(Element* parent, const std::string _str, const StringFormatPtr _format);
+    String(Element* parent, const std::string _str, bool _translate = false);
+    String(Element* parent, const std::string _str, const StringFormatPtr _format, bool _translate = false);
     String(Element* parent, const std::u32string _str);
     String(Element* parent, const std::u32string _str, const StringFormatPtr _format);
     String(Document* _document);
@@ -43,6 +43,8 @@ public:
     virtual bool InsertElements(std::vector<ElementPtr>& _elements, bool with_undo, ElementId& changed_element);
     virtual bool DeleteElements(bool left, bool with_undo, ElementId& changed_element);
     virtual bool ChangeStringFormat(const StringFormatPtr format, bool with_undo, ElementId& changed_element);
+
+    virtual void SetString(const std::u32string& str);
 
     virtual bool Split(const uint width, bool split_more);
     virtual bool SplitAt(const uint pos);
@@ -81,6 +83,7 @@ private:
 
 public:
     StringFormatPtr format;
+    bool translate = false;
 
 private:
     std::map<std::u32string, std::pair<Size, time_t>> size_cache; //cache of string sizes

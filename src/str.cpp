@@ -23,9 +23,10 @@ String::String(Element* parent) :
     elements.reset(new StringElements(this));
 }
 
-String::String(Element* parent, const std::string _str) : 
+String::String(Element* parent, const std::string _str, bool _translate) : 
     Element(parent),
-    format(parent->GetStringFormat())
+    format(parent->GetStringFormat()),
+    translate(_translate)
 {
     type = ElementType::STRING;
     can_merge = true;
@@ -37,9 +38,10 @@ String::String(Element* parent, const std::string _str) :
 #endif
 }
 
-String::String(Element* parent, const std::string _str, const StringFormatPtr _format) :
+String::String(Element* parent, const std::string _str, const StringFormatPtr _format, bool _translate) :
     Element(parent), 
-    format(_format)
+    format(_format),
+    translate(_translate)
 {
     type = ElementType::STRING;
     can_merge = true;
@@ -181,8 +183,16 @@ Element* String::FromJson(Element* parent, Document* document, const rapidjson::
 
 bool String::Remake(bool with_elements)
 {
-    Size s;
     auto& str = ((StringElements*)elements.get())->str;
+    if (translate && !str.empty())
+    {
+        str = window->Translate(id, str);
+        if (str == U"")
+            return true; //translation is async, it will insert new string later and remake it
+        translate = false;
+    }
+
+    Size s;
     if (!FindCachedSize(str, s))
     {
         s = window->GetTextSize(str, format);
@@ -486,6 +496,11 @@ bool String::ChangeStringFormat(const StringFormatPtr _format, bool with_undo, E
         return true;
     }
     return false;
+}
+
+void String::SetString(const std::u32string& str)
+{
+    elements.reset(new StringElements(this, str));
 }
 
 bool String::Split(const uint width, bool split_more)

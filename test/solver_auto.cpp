@@ -326,7 +326,14 @@ TEST_F(SolverAutoTest, solver5)
 TEST_F(SolverAutoTest, solver6)
 {
     Start(600);
-    
+
+    EXPECT_CALL(window_mock, Translate).WillRepeatedly([&](ElementId id, const std::u32string& str)
+        {
+            if (str == U"syntax_error")
+                return U"Syntax error";
+            return U"";
+        });
+
     document.WaitTask(document.InsertDivision(true));
     document.MoveCaretRight(false);
     document.MoveCaretRight(false);
@@ -858,6 +865,13 @@ TEST_F(SolverAutoTest, solver14)
 {
     Start(600);
 
+    EXPECT_CALL(window_mock, Translate).WillOnce([&](ElementId id, const std::u32string& str)
+        {
+            if (str == U"expression_expected")
+                return U"Expression expected";
+            return U"";
+        });
+
     document.InsertDivision(true);
     document.InsertString("12", true);
     document.MoveCaretDown(false);
@@ -1065,6 +1079,13 @@ TEST_F(SolverAutoTest, errors1)
 {
     Start(600);
     
+    EXPECT_CALL(window_mock, Translate).WillRepeatedly([&](ElementId id, const std::u32string& str)
+        {
+            if (str == U"syntax_error")
+                return U"Syntax error";
+            return U"";
+        });
+
     document.InsertCode(false, true);
     document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
     document.MoveCaretLeft(false);
@@ -1243,7 +1264,14 @@ TEST_F(SolverAutoTest, errors1)
 TEST_F(SolverAutoTest, errors2)
 {
     Start(600);
-    
+
+    EXPECT_CALL(window_mock, Translate).WillRepeatedly([&](ElementId id, const std::u32string& str)
+        {
+            if (str == U"syntax_error")
+                return U"Syntax error";
+            return U"";
+        });
+
     document.InsertCode(false, true);
     document.InsertSquareRoot(true);
     document.InsertString("2", true);

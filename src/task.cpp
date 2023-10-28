@@ -1698,4 +1698,25 @@ bool SetResultParamsTask::Execute()
     return false;
 }
 
+//SetStringTask
+
+SetStringTask::SetStringTask(ElementPtr _text, const std::u32string& _str, ElementId _element_id) :
+    Task(_text),
+    str(_str),
+    element_id(_element_id)
+{
+}
+
+bool SetStringTask::Execute()
+{
+    auto s = document->GetElement(element_id);
+    if (!document->IsString(s))
+        return false;
+    auto* _str = (String*)s.get();
+    _str->translate = false;
+    _str->SetString(str);
+    Remake(s->id, true);
+    return true;
+}
+
 }

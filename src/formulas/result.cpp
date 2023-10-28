@@ -271,9 +271,9 @@ void RealResult::PutResult(Result result)
 
         if (config.show_angle_measure)
         {
-            std::u32string angle_measure = ToUtfString(result.values["angle_measure"]);
+            std::string angle_measure = result.values["angle_measure"];
             if (!angle_measure.empty())
-                AddElement(ElementPtr(new CodeString(this, U"(" + window->Translate(angle_measure) + U")", GetStringFormat())));
+                AddElement(ElementPtr(new CodeString(this, "(" + angle_measure + ")", GetStringFormat())));
         }
     }
 
@@ -399,9 +399,9 @@ void IntegerResult::PutResult(Result result)
         
         if (config.show_notation)
         {
-            std::u32string notation = ToUtfString(result.values["notation"]);
+            std::string notation = result.values["notation"];
             if (!notation.empty())
-                AddElement(ElementPtr(new CodeString(this, U"(" + window->Translate(notation) + U")", GetStringFormat())));
+                AddElement(ElementPtr(new CodeString(this, "(" + notation + ")", GetStringFormat())));
         }
     }
 
@@ -643,9 +643,9 @@ ErrorResult::ErrorResult(Element* parent, const Error& error) :
     if (!error.description.empty())
         AddElement(ElementPtr(new CodeString(this, error.description, GetStringFormat())));
     else if (error.parser_error_code != yutovo_calculator::ParserExceptionCode::None)
-        AddElement(ElementPtr(new CodeString(this, window->Translate(ErrorCodeToString(error.parser_error_code)))));
+        AddElement(ElementPtr(new CodeString(this, ErrorCodeToString(error.parser_error_code), true)));
     else
-        AddElement(ElementPtr(new CodeString(this, window->Translate(ErrorCodeToString(error.error_code)))));
+        AddElement(ElementPtr(new CodeString(this, ErrorCodeToString(error.error_code), true)));
 }
 
 //AutoResult
