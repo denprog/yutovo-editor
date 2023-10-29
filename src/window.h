@@ -68,6 +68,8 @@ public:
 
     virtual void OnFormatChanged(const EditorState editor_state);
 
+    virtual void OnLanguageChanged(const yutovo_calculator::Language language);
+
     virtual void OnSaveResult(const uint task_id, IOResult result);
     virtual void OnLoadResult(const uint task_id, IOResult result);
 

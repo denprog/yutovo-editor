@@ -68,6 +68,10 @@ void Window::OnFormatChanged(const EditorState editor_state)
 {
 }
 
+void Window::OnLanguageChanged(const yutovo_calculator::Language language)
+{
+}
+
 void Window::OnSaveResult(const uint task_id, IOResult result)
 {
 }

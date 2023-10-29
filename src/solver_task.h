@@ -105,11 +105,12 @@ struct RemoveIdentifierSolverTask : SolverTask
 
 struct SetLanguageSolverTask : SolverTask
 {
-    SetLanguageSolverTask(std::string& _guid, const yutovo_calculator::Language _language);
+    SetLanguageSolverTask(std::string& _guid, const yutovo_calculator::Language _language, Document* _document);
 
     virtual bool Execute(WebSocketPtr socket, Result& result);
 
     yutovo_calculator::Language language;
+    Document* document;
 };
 
 typedef std::shared_ptr<SolverTask> SolverTaskPtr;
