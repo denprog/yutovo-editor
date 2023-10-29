@@ -3,6 +3,7 @@
 #include "rapidjson/stringbuffer.h"
 #include <yutovo_logger/logger.h>
 #include "util.h"
+#include "document.h"
 
 namespace yutovo
 {
@@ -571,9 +572,10 @@ bool RemoveIdentifierSolverTask::Execute(WebSocketPtr socket, Result& result)
 
 //SetLanguageSolverTask
 
-SetLanguageSolverTask::SetLanguageSolverTask(std::string& _guid, const yutovo_calculator::Language _language) :
+SetLanguageSolverTask::SetLanguageSolverTask(std::string& _guid, const yutovo_calculator::Language _language, Document* _document) :
     SolverTask(_guid),
-    language(_language)
+    language(_language),
+    document(_document)
 {
 }
 
@@ -607,6 +609,8 @@ bool SetLanguageSolverTask::Execute(WebSocketPtr socket, Result& result)
         logger->Error("Error setting language");
         return false;
     }
+
+    document->window->OnLanguageChanged(language);
 
     return true;
 }
