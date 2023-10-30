@@ -32,6 +32,9 @@ public:
     virtual bool GetTopCaretState(const int x, const int y, CaretState& caret_state, Selection* select);
     virtual bool GetBottomCaretState(const int x, const int y, CaretState& caret_state, Selection* select);
 
+    virtual Rect GetCaretRect(const uint pos) const;
+    virtual void DrawCaret(const uint pos) const;
+
     virtual bool CanContinueSelection();
 
     virtual void AddEmptyElement();
