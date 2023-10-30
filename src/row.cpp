@@ -626,6 +626,27 @@ bool Row::GetBottomCaretState(const int x, const int y, CaretState& caret_state,
     return true;
 }
 
+Rect Row::GetCaretRect(const uint pos) const
+{
+    if (pos > 0 && pos == elements->Count() && elements->Get(pos - 1)->type == ElementType::CODE_BLOCK)
+    {
+        Rect& rect = elements->Get(pos - 1)->rect;
+        return Rect{rect.GetRight() + 1, rect.top - 1, 2, rect.height + 2};
+    }
+    return Element::GetCaretRect(pos);
+}
+
+void Row::DrawCaret(const uint pos) const
+{
+    if (pos > 0 && pos == elements->Count() && elements->Get(pos - 1)->type == ElementType::CODE_BLOCK)
+    {
+        Rect r = GetAbsoluteRect(GetCaretRect(pos));
+        window->DrawLine(r.GetRight() - 1, r.top + 1, r.GetRight() - 1, r.GetBottom() - 2, Color::Black());
+        return;
+    }
+    return Element::DrawCaret(pos);
+}
+
 bool Row::CanContinueSelection()
 {
     return true;
