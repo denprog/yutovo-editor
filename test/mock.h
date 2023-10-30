@@ -102,18 +102,7 @@ struct DocumentTest : public testing::Test
         document.config.pretty_json = true;
     }
 
-    Size GetTextSizeMock(const std::u32string& text, const StringFormatPtr format)
-    {
-        QFont font(format->family.c_str(), format->size);
-        font.setBold(format->bold);
-        font.setItalic(format->italic);
-        font.setUnderline(format->underline);
-        QFontMetrics m(font);
-        QString str = QString::fromUcs4(text.c_str());
-        QSize s = m.size(Qt::TextSingleLine, str);
-        int cx = m.horizontalAdvance(str);
-        return Size{cx > s.width() ? cx : s.width(), s.height()};
-    }
+    Size GetTextSizeMock(const std::u32string& text, const StringFormatPtr format);
 
     Size GetImageSizeMock(const std::vector<unsigned char>& bmp, const int width, const int height);
 

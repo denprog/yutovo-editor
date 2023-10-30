@@ -9,6 +9,20 @@ char** argv = nullptr;
 
 static const std::string base = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 
+Size DocumentTest::GetTextSizeMock(const std::u32string& text, const StringFormatPtr format)
+{
+    QFont font(format->family.c_str());
+    font.setPixelSize(round(format->size / 0.75));
+    font.setBold(format->bold);
+    font.setItalic(format->italic);
+    font.setUnderline(format->underline);
+    QFontMetrics m(font);
+    QString str = QString::fromUcs4(text.c_str());
+    QSize s = m.size(Qt::TextSingleLine, str);
+    int cx = m.horizontalAdvance(str);
+    return Size{cx > s.width() ? cx : s.width(), s.height()};
+}
+
 Size DocumentTest::GetImageSizeMock(const std::vector<unsigned char>& bmp, const int width, const int height)
 {
     QImage image(&bmp[0], width, height, QImage::Format_ARGB32);
