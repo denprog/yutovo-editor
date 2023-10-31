@@ -582,7 +582,6 @@ TEST_F(FormulaTestCustom, delete7)
 
     document.Undo();
     document.WaitUndo();
-    std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -644,7 +643,6 @@ TEST_F(FormulaTestCustom, delete8)
 
     document.Undo();
     document.WaitUndo();
-    std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -707,7 +705,6 @@ TEST_F(FormulaTestCustom, delete9)
 
     document.Undo();
     document.WaitUndo();
-    std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -744,7 +741,6 @@ TEST_F(FormulaTestCustom, delete9)
 
     document.Undo();
     document.WaitUndo();
-    std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -784,7 +780,6 @@ TEST_F(FormulaTestCustom, delete10)
 
     document.Undo();
     document.WaitUndo();
-    std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -930,7 +925,6 @@ TEST_F(FormulaTestCustom, insert1)
 
     document.Redo();
     document.WaitRedo();
-    std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -986,7 +980,6 @@ TEST_F(FormulaTestCustom, insert2)
 
     document.Undo();
     document.WaitUndo();
-    std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -998,7 +991,6 @@ TEST_F(FormulaTestCustom, insert2)
 
     document.Redo();
     document.WaitRedo();
-    std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -1047,7 +1039,6 @@ TEST_F(FormulaTestCustom, insert3)
 
     document.Redo();
     document.WaitRedo();
-    std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -1141,7 +1132,6 @@ TEST_F(FormulaTestCustom, insert5)
     
     document.Undo();
     document.WaitUndo();
-    std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -1182,7 +1172,6 @@ TEST_F(FormulaTestCustom, insert5)
 
     document.Undo();
     document.WaitUndo();
-    std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -1303,7 +1292,6 @@ TEST_F(FormulaTestCustom, insert7)
 
     document.Undo();
     document.WaitUndo();
-    std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -1368,7 +1356,6 @@ TEST_F(FormulaTestCustom, insert8)
 
     document.Undo();
     document.WaitUndo();
-    std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -1792,7 +1779,6 @@ TEST_F(FormulaTest, fonts1)
     
     document.Undo();
     document.WaitUndo();
-    std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -1815,6 +1801,166 @@ TEST_F(FormulaTest, fonts1)
     ASSERT_TRUE(s->type == ElementType::CODE_STRING && ((CodeString*)s.get())->GetStringFormat()->size == 14);
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 1}, 
         ElementSelectionState{ElementId{0}, 0, 1})) << document.GetEditorState().ToString();
+}
+
+//Set font
+TEST_F(FormulaTest, fonts2)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.WaitTask(document.InsertString("123", true));
+    document.SetFontSize(12);
+    document.WaitTask(document.InsertString("56", true));
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mi>123</mi>"\
+                        "<mi>56</mi>"\
+                    "</mrow>"\
+                "</math>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    auto s = document.GetElement(ElementId{0, 0, 0, 0, 0, 0, 0});
+    ASSERT_TRUE(s->type == ElementType::CODE_STRING && ((CodeString*)s.get())->GetStringFormat()->size == 14);
+    s = document.GetElement(ElementId{0, 0, 0, 0, 0, 0, 1});
+    ASSERT_TRUE(s && s->type == ElementType::CODE_STRING && ((CodeString*)s.get())->GetStringFormat()->size == 12);
+
+    document.SetBold(true);
+    document.WaitTask(document.InsertString("77", true));
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mi>123</mi>"\
+                        "<mi>56</mi>"\
+                        "<mi>77</mi>"\
+                    "</mrow>"\
+                "</math>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    s = document.GetElement(ElementId{0, 0, 0, 0, 0, 0, 2});
+    ASSERT_TRUE(s && s->type == ElementType::CODE_STRING && ((CodeString*)s.get())->GetStringFormat()->size == 12);
+
+    document.Undo();
+    document.WaitUndo();
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mi>123</mi>"\
+                        "<mi>56</mi>"\
+                    "</mrow>"\
+                "</math>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    s = document.GetElement(ElementId{0, 0, 0, 0, 0, 0, 0});
+    ASSERT_TRUE(s->type == ElementType::CODE_STRING && ((CodeString*)s.get())->GetStringFormat()->size == 14);
+    s = document.GetElement(ElementId{0, 0, 0, 0, 0, 0, 1});
+    ASSERT_TRUE(s && s->type == ElementType::CODE_STRING && ((CodeString*)s.get())->GetStringFormat()->size == 12);
+
+    document.Undo();
+    document.WaitUndo();
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mi>123</mi>"\
+                    "</mrow>"\
+                "</math>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    s = document.GetElement(ElementId{0, 0, 0, 0, 0, 0, 0});
+    ASSERT_TRUE(s->type == ElementType::CODE_STRING && ((CodeString*)s.get())->GetStringFormat()->size == 14);
+}
+
+//Set color
+TEST_F(FormulaTest, fonts3)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.WaitTask(document.InsertString("123", true));
+    document.SetColor(Color::Red());
+    document.WaitTask(document.InsertString("56", true));
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mi>123</mi>"\
+                        "<mi>56</mi>"\
+                    "</mrow>"\
+                "</math>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    auto s = document.GetElement(ElementId{0, 0, 0, 0, 0, 0, 0});
+    ASSERT_TRUE(s->type == ElementType::CODE_STRING && ((CodeString*)s.get())->GetStringFormat()->text_color == Color::Black());
+    s = document.GetElement(ElementId{0, 0, 0, 0, 0, 0, 1});
+    ASSERT_TRUE(s && s->type == ElementType::CODE_STRING && ((CodeString*)s.get())->GetStringFormat()->text_color == Color::Red());
+
+    document.SetBgColor(Color::Blue());
+    document.WaitTask(document.InsertString("77", true));
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mi>123</mi>"\
+                        "<mi>56</mi>"\
+                        "<mi>77</mi>"\
+                    "</mrow>"\
+                "</math>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    s = document.GetElement(ElementId{0, 0, 0, 0, 0, 0, 2});
+    ASSERT_TRUE(s && s->type == ElementType::CODE_STRING && ((CodeString*)s.get())->GetStringFormat()->text_bg_color == Color::Blue());
+
+    document.Undo();
+    document.WaitUndo();
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mi>123</mi>"\
+                        "<mi>56</mi>"\
+                    "</mrow>"\
+                "</math>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    s = document.GetElement(ElementId{0, 0, 0, 0, 0, 0, 0});
+    ASSERT_TRUE(s->type == ElementType::CODE_STRING && ((CodeString*)s.get())->GetStringFormat()->text_color == Color::Black());
+    s = document.GetElement(ElementId{0, 0, 0, 0, 0, 0, 1});
+    ASSERT_TRUE(s && s->type == ElementType::CODE_STRING && ((CodeString*)s.get())->GetStringFormat()->text_color == Color::Red());
+
+    document.Undo();
+    document.WaitUndo();
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mi>123</mi>"\
+                    "</mrow>"\
+                "</math>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    s = document.GetElement(ElementId{0, 0, 0, 0, 0, 0, 0});
+    ASSERT_TRUE(s->type == ElementType::CODE_STRING && ((CodeString*)s.get())->GetStringFormat()->text_color == Color::Black());
 }
 
 }
