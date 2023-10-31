@@ -512,6 +512,8 @@ uint Document::InsertFormula(Element* element, bool with_undo, bool with_last_ta
 {
     std::vector<ElementPtr> elements;
     elements.emplace_back(element);
+    if (current_formula_format)
+        SetCurrentStringFormat(current_formula_format->string_format);
     return InsertFormulas(elements, with_undo, with_last_task_id);
 }
 

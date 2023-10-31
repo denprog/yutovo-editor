@@ -187,9 +187,7 @@ bool InsertElementsTask::Execute()
         {
             //change type of string
             String* str = (String*)t.get();
-            auto c = new CodeString(*str);
-            c->format = el->GetStringFormat();
-            _elements.emplace_back(c);
+            _elements.emplace_back(new CodeString(*str));
             continue;
         }
         if (t->type == ElementType::PARAGRAPH && code)
