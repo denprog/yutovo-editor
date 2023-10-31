@@ -63,6 +63,7 @@ void Task::Remake(ElementId _id, bool move_into_view)
     if (!el)
         return;
     Element* _el = el.get();
+    _el->Normalize();
     if (_el->Remake(true))
     {
         _el = _el->parent;
@@ -72,7 +73,6 @@ void Task::Remake(ElementId _id, bool move_into_view)
         }
     }
 
-    _el->Normalize();
     if (document->IsVisible(_el->id))
         document->Redraw(_el->id, move_into_view);
 
@@ -854,6 +854,7 @@ bool UndoTask::Execute()
                 elements[j]->parent->elements->Remove(elements[j]);
             for (int i = 0; i < undo_elements.size(); ++i)
                 p->elements->Insert(undo_elements[i], pos + i);
+            remake_id = p->parent->id;
         }
         else if (document->IsFormula(p) && undo_elements.size() == 1)
         {
