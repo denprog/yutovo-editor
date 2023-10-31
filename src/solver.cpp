@@ -85,8 +85,7 @@ void Solver::SetUserIdentifier(ElementId id, uint code_id, const std::u32string&
         tasks.erase(std::remove_if(tasks.begin(), tasks.end(), 
             [id](SolverTaskPtr& task)
             {
-                return task && task->id == id && task->expression_type == ExpressionType::USER_SYMBOL && 
-                    (dynamic_cast<RealSolverTask*>(task.get()) || dynamic_cast<IntegerSolverTask*>(task.get()) || dynamic_cast<RationalSolverTask*>(task.get()));
+                return task && task->id == id && task->expression_type == ExpressionType::USER_SYMBOL && (dynamic_cast<AutoSolverTask*>(task.get()));
             }
             ), tasks.end());
     }
