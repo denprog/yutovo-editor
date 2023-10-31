@@ -32,6 +32,7 @@ struct CaretState
     void SetState(ElementPtr element);
     void SetState(const ElementId _id, const ElementId tail_id);
     void SetState(const ElementId _id, const uint pos);
+    void SetState(const ElementId _id, const uint pos, bool _last_pos);
     void SetState(const ElementId _id);
 
     void SetPos(const uint pos);
