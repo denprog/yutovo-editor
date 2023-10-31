@@ -70,6 +70,13 @@ void CaretState::SetState(const ElementId _id, const uint pos)
     id.push_back(pos);
 }
 
+void CaretState::SetState(const ElementId _id, const uint pos, bool _last_pos)
+{
+    id = _id;
+    id.push_back(pos);
+    last_pos = _last_pos;
+}
+
 void CaretState::SetState(const ElementId _id)
 {
     id = _id;

@@ -1271,7 +1271,7 @@ bool Elements::GetLastCaretState(CaretState& caret_state, Selection* select)
         return false;
     if (elements[elements.size() - 1]->HasLastCaretState())
     {
-        caret_state.SetState(parent->id, Count());
+        caret_state.SetState(parent->id, Count(), true);
         return true;
     }
     return elements[elements.size() - 1]->GetLastCaretState(caret_state, select);

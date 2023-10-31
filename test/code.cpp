@@ -1225,4 +1225,56 @@ TEST_F(CodeTest, code18)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 2})) << document.GetEditorState().ToString();
 }
 
+//Selection with Shift-End
+TEST_F(DocumentTest, code19)
+{
+    Start(600);
+
+    document.WaitTask(document.InsertCode(false, true));
+    document.InsertString("123", true);
+    document.MoveCaretToDocumentBegin(false);
+    document.WaitTask(document.MoveCaretEnd(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 1}, 
+        ElementSelectionState{ElementId{0}, 0, 1})) << document.GetEditorState().ToString();
+    
+    document.MoveCaretEnd(false);
+    document.WaitTask(document.InsertCode(false, true));
+    document.InsertString("55", true);
+    document.MoveCaretEnd(false);
+
+    document.WaitTask(document.InsertCode(false, true));
+    document.InsertString("6", true);
+    for (int i = 0; i < 6; ++i)
+        document.MoveCaretLeft(false);
+    document.WaitTask(document.MoveCaretEnd(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 3}, 
+        ElementSelectionState{ElementId{0, 0, 0}, 1, 2})) << document.GetEditorState().ToString();
+}
+
+//Selection with Shift-Home
+TEST_F(DocumentTest, code20)
+{
+    Start(600);
+
+    document.WaitTask(document.InsertCode(false, true));
+    document.InsertString("123", true);
+    document.MoveCaretToDocumentEnd(false);
+    document.WaitTask(document.MoveCaretHome(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0}, 
+        ElementSelectionState{ElementId{0}, 0, 1})) << document.GetEditorState().ToString();
+    
+    document.MoveCaretToDocumentEnd(false);
+    document.WaitTask(document.InsertCode(false, true));
+    document.InsertString("55", true);
+    document.MoveCaretEnd(false);
+
+    document.WaitTask(document.InsertCode(false, true));
+    document.InsertString("6", true);
+    document.MoveCaretLeft(false);
+    document.MoveCaretLeft(false);
+    document.WaitTask(document.MoveCaretHome(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0}, 
+        ElementSelectionState{ElementId{0, 0, 0}, 0, 2})) << document.GetEditorState().ToString();
+}
+
 }
