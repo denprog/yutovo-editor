@@ -1461,9 +1461,15 @@ bool ResultTask::Execute()
         }
     }
 
-    el = document->FindParent(el->id, ElementType::EQUATION);
-    if (el)
-        Remake(el->id, true);
+    auto _el = document->FindParent(el->id, ElementType::EQUATION);
+    if (_el)
+        Remake(_el->id, true);
+    else
+    {
+        _el = document->FindParent(el->id, ElementType::ASSIGNMENT);
+        if (_el)
+            Remake(_el->id, true);
+    }
     return true;
 }
 
