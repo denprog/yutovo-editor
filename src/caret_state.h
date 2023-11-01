@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <memory>
+#include "rapidjson/document.h"
 
 namespace yutovo
 {
@@ -63,6 +64,9 @@ struct LogicalCaretState
     LogicalCaretState(const LogicalId _id);
 
     bool IsEmpty() const;
+
+    void ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc);
+    bool FromJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc);
 
     LogicalId id;
 };

@@ -335,6 +335,7 @@ TEST_F(SolverRealTest, solver10)
     std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToText() == U"234.12345678=234.1234568") << ToBasicString(document.ToText());
 
+    document.MoveCaretToDocumentBegin(false);
     document.MoveCaretRight(false);
     document.WaitTask(document.MoveCaretRight(false));
     document.WaitTask(document.InsertString("1", true));

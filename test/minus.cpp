@@ -125,8 +125,9 @@ TEST_F(FormulaTest, minus3)
             "</p>"\
         "</body>") << 
         document.ToHtml();
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0, 0, 1})) << document.GetEditorState().ToString();
 
+    document.MoveCaretToDocumentBegin(false);
     document.WaitTask(document.MoveCaretRight(false));
     document.WaitTask(document.InsertString("5", true));
     document.MoveCaretRight(false);
@@ -163,7 +164,7 @@ TEST_F(FormulaTest, minus3)
             "</p>"\
         "</body>") << 
         document.ToHtml();
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0, 0, 2, 2})) << document.GetEditorState().ToString();
 }
 
 //Copy-paste

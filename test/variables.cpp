@@ -196,7 +196,12 @@ TEST_F(VariablesTest, variables2)
 TEST_F(VariablesTest, variables3)
 {
     Start(600);
-    
+
+    EXPECT_CALL(window_mock, Translate).WillRepeatedly([&](ElementId id, const std::u32string& str)
+        {
+            return str;
+        });
+
     document.InsertCode(false, true);
     document.InsertString("d", true);
     document.InsertAssignment(true);
@@ -211,7 +216,7 @@ TEST_F(VariablesTest, variables3)
     std::this_thread::sleep_for(600ms);
     document.WaitTask(document.MoveCaretUp(false));
     document.WaitTask(document.DeleteElements(false, true));
-    std::this_thread::sleep_for(600ms);
+    std::this_thread::sleep_for(1s);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -230,7 +235,7 @@ TEST_F(VariablesTest, variables3)
                         "<mo>=</mo>"\
                         "<mrow>"\
                             "<mrow>"\
-                                "<mi>Identifier 'd' not found</mi>"\
+                                "<mi>Unknown identifier</mi>"\
                             "</mrow>"\
                         "</mrow>"\
                     "</mrow>"\
@@ -341,7 +346,12 @@ TEST_F(VariablesTest, variables4)
 TEST_F(VariablesTest, variables5)
 {
     Start(600);
-    
+
+    EXPECT_CALL(window_mock, Translate).WillRepeatedly([&](ElementId id, const std::u32string& str)
+        {
+            return str;
+        });
+
     document.InsertCode(false, true);
     document.InsertString("d", true);
     document.InsertAssignment(true);
@@ -372,7 +382,7 @@ TEST_F(VariablesTest, variables5)
     std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToText() == 
         U"d=(5)/()\n" \
-        U"d=Identifier 'd' not found"
+        U"d=Unknown identifier"
         ) << ToBasicString(document.ToText());
 }
 
@@ -490,6 +500,11 @@ TEST_F(VariablesTest, errors3)
 {
     Start(600);
 
+    EXPECT_CALL(window_mock, Translate).WillRepeatedly([&](ElementId id, const std::u32string& str)
+        {
+            return str;
+        });
+
     document.InsertCode(false, true);
     document.InsertString("d", true);
     document.InsertAssignment(true);
@@ -508,7 +523,7 @@ TEST_F(VariablesTest, errors3)
     std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToText() == 
         U"d=4+t\n" \
-        U"d+5=Identifier 't' not found"
+        U"d+5=Unknown identifier"
         ) << ToBasicString(document.ToText());
     std::this_thread::sleep_for(600ms);
     int start, size;
@@ -520,6 +535,11 @@ TEST_F(VariablesTest, errors3)
 TEST_F(VariablesTest, errors4)
 {
     Start(600);
+
+    EXPECT_CALL(window_mock, Translate).WillRepeatedly([&](ElementId id, const std::u32string& str)
+        {
+            return str;
+        });
 
     document.InsertCode(false, true);
     document.InsertString("d", true);
@@ -539,7 +559,7 @@ TEST_F(VariablesTest, errors4)
     std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToText() == 
         U"d=4+d\n" \
-        U"d+5=Identifier 'd' not found"
+        U"d+5=Unknown identifier"
         ) << ToBasicString(document.ToText());
     int start, size;
     ASSERT_TRUE(document.HasErrorMark(ElementId{0, 0, 0, 0, 0, 0, 0, 2, 2}, start, size));

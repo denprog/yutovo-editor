@@ -475,7 +475,7 @@ TEST_F(FormulaTest, power6)
             "</p>"\
         "</body>") << 
         document.ToHtml();
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 2, 0, 2, 0, 1})) << document.GetEditorState().ToString();
 }
 
 //Power element in a division

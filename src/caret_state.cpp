@@ -182,4 +182,18 @@ bool LogicalCaretState::IsEmpty() const
     return id.empty();
 }
 
+void LogicalCaretState::ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc)
+{
+    rapidjson::Value _id(IdToString(id).c_str(), alloc);
+    value.AddMember("id", _id, alloc);
+}
+
+bool LogicalCaretState::FromJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc)
+{
+    if (!value.HasMember("id") || !value["id"].IsString())
+        return false;
+    id = IdFromString(value["id"].GetString());
+    return true;
+}
+
 }

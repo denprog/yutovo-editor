@@ -1138,6 +1138,17 @@ bool SaveTask::Execute()
     text->ToJson(t, alloc);
     json.AddMember("text", t, alloc);
 
+    //add caret and selection
+    rapidjson::Value caret_state(rapidjson::kObjectType);
+    auto c = document->caret->GetLogicalCaretState();
+    c.ToJson(caret_state, alloc);
+    json.AddMember("caret", caret_state, alloc);
+
+    rapidjson::Value selection_state(rapidjson::kArrayType);
+    auto s = document->selection.GetLogicalState();
+    s.ToJson(selection_state, alloc);
+    json.AddMember("selection", selection_state, alloc);
+
     rapidjson::StringBuffer buffer;
     if (document->config.pretty_json)
     {
@@ -1192,10 +1203,10 @@ bool LoadTask::Execute()
 {
     ElementPtr t;
     std::string str;
+    rapidjson::Document doc;
 
     if (!json_str.empty())
     {
-        rapidjson::Document doc;
         auto str = ToBasicString(json_str);
         if (doc.Parse<0>(str.c_str()).HasParseError())
             return false;
@@ -1219,7 +1230,6 @@ bool LoadTask::Execute()
 
         rapidjson::IStreamWrapper isw{file};
 
-        rapidjson::Document doc{};
         doc.ParseStream(isw);
         if (doc.HasParseError())
         {
@@ -1267,12 +1277,39 @@ bool LoadTask::Execute()
     
     document->ResetTasks();
     document->text = t;
-    document->MoveCaretToDocumentBegin(false);
     if (!str.empty())
+    {
+        document->MoveCaretToDocumentBegin(false);
         document->InsertString(str, false);
+    }
     document->text->Remake(true);
     document->text->ReSolve();
-    document->MoveCaretToDocumentBegin(false);
+
+    bool r = false;
+    if (doc.IsObject())
+    {
+        LogicalCaretState c;
+        LogicalSelectionState s;
+        if (doc.HasMember("caret") && doc["caret"].IsObject())
+        {
+            if (c.FromJson(doc["caret"], doc.GetAllocator()))
+            {
+                if (doc.HasMember("selection") && doc["selection"].IsArray())
+                {
+                    if (s.FromJson(doc["selection"], doc.GetAllocator()))
+                    {
+                        LogicalEditorState editor_state{c, s};
+                        document->SetEditorState(editor_state);
+                        r = true;
+                    }
+                }
+            }
+        }
+    }
+
+    if (!r)
+        document->MoveCaretToDocumentBegin(false);
+
     document->Redraw();
     window->OnLoadResult(id, IOResult::Success);
     return true;

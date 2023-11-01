@@ -739,9 +739,7 @@ TEST_F(SolverIntegerTest, notation5)
 
     EXPECT_CALL(window_mock, Translate).WillOnce([&](ElementId id, const std::u32string& str)
         {
-            if (str == U"argument_is_over")
-                return U"Argument is over";
-            return U"";
+            return str;
         });
 
     document.InsertCode(false, true);
@@ -764,9 +762,7 @@ TEST_F(SolverIntegerTest, notation6)
 
     EXPECT_CALL(window_mock, Translate).WillOnce([&](ElementId id, const std::u32string& str)
         {
-            if (str == U"syntax_error")
-                return U"Syntax error";
-            return U"";
+            return str;
         });
 
     document.InsertCode(false, true);

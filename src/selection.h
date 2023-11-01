@@ -2,6 +2,7 @@
 #define __SELECTION_H__
 
 #include "caret_state.h"
+#include "rapidjson/document.h"
 
 namespace yutovo
 {
@@ -33,6 +34,9 @@ struct ElementSelectionState
 
 struct ElementLogicalSelectionState
 {
+    void ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc);
+    bool FromJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc);
+
     LogicalId id;
     uint start = 0;
     uint size = 0;
@@ -65,7 +69,10 @@ struct SelectionState
 struct LogicalSelectionState
 {
     bool IsEmpty() const;
-    
+
+    void ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc);
+    bool FromJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc);
+
     std::vector<ElementLogicalSelectionState> state;
 };
 

@@ -327,7 +327,7 @@ TEST_F(FormulaTest, nth_root3)
             "</p>"\
         "</body>") << 
         document.ToHtml();
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 0, 2})) << document.GetEditorState().ToString();
 }
 
 //Copy-paste
