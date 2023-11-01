@@ -657,7 +657,7 @@ TEST_F(AssignmentTest, files1)
             "</p>"\
         "</body>") << 
         document.ToHtml();
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 2, 0, 1})) << document.GetEditorState().ToString();
 }
 
 }

@@ -126,7 +126,7 @@ TEST_F(DocumentTest, images3)
             "</p>"\
         "</body>") << 
         document.ToHtml();
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 1})) << document.GetEditorState().ToString();
 }
 
 //Insert a large image

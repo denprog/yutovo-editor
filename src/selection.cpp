@@ -51,6 +51,32 @@ bool ElementSelectionState::operator!=(const ElementSelectionState& s) const
     return id != s.id || start != s.start || size != s.size;
 }
 
+//ElementLogicalSelectionState
+
+void ElementLogicalSelectionState::ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc)
+{
+    rapidjson::Value obj(rapidjson::kObjectType);
+    rapidjson::Value _id(IdToString(id).c_str(), alloc);
+    obj.AddMember("id", _id, alloc);
+    obj.AddMember("start", start, alloc);
+    obj.AddMember("size", size, alloc);
+    value.PushBack(obj, alloc);
+}
+
+bool ElementLogicalSelectionState::FromJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc)
+{
+    if (!value.HasMember("id") || !value["id"].IsString())
+        return false;
+    id = IdFromString(value["id"].GetString());
+    if (!value.HasMember("start") || !value["start"].IsInt())
+        return false;
+    start = value["start"].GetInt();
+    if (!value.HasMember("size") || !value["size"].IsInt())
+        return false;
+    size = value["size"].GetInt();
+    return true;
+}
+
 //SelectionState
 
 SelectionState::SelectionState(const ElementId id, uint start, uint size)
@@ -162,6 +188,32 @@ std::string SelectionState::ToString() const
 bool LogicalSelectionState::IsEmpty() const
 {
     return state.empty();
+}
+
+void LogicalSelectionState::ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc)
+{
+    for (auto& s : state)
+        s.ToJson(value, alloc);
+}
+
+bool LogicalSelectionState::FromJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc)
+{
+    if (!value.IsArray())
+        return false;
+    std::vector<ElementLogicalSelectionState> _state;
+    rapidjson::GenericArray arr = value.GetArray();
+    for (rapidjson::SizeType i = 0; i < arr.Size(); ++i)
+    {
+        if (!arr[i].IsObject())
+            return false;
+        rapidjson::Value value = arr[i].GetObject();
+        ElementLogicalSelectionState s;
+        if (!s.FromJson(value, alloc))
+            return false;
+        _state.push_back(s);
+    }
+    state = _state;
+    return true;
 }
 
 //Selection

@@ -107,6 +107,19 @@ std::string IdToString(const ElementId& id)
 	return res;
 }
 
+ElementId IdFromString(const std::string& id)
+{
+    ElementId res;
+    std::stringstream s(id);
+    for (int i; s >> i;)
+    {
+        res.push_back(i);
+        if (s.peek() == ',')
+            s.ignore();
+    }
+    return res;
+}
+
 bool IsChild(const ElementId& parent_id, const ElementId& child_id)
 {
     if (child_id.size() <= parent_id.size() || parent_id.empty())

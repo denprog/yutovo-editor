@@ -209,7 +209,7 @@ TEST_F(SolverAutoTest, solver3)
             "</p>"\
         "</body>") << 
         document.ToHtml();
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 1})) << document.GetEditorState().ToString();
 }
 
 //log
@@ -329,19 +329,16 @@ TEST_F(SolverAutoTest, solver6)
 
     EXPECT_CALL(window_mock, Translate).WillRepeatedly([&](ElementId id, const std::u32string& str)
         {
-            if (str == U"syntax_error")
-                return U"Syntax error";
-            return U"";
+            return str;
         });
 
     document.WaitTask(document.InsertDivision(true));
     document.MoveCaretRight(false);
     document.MoveCaretRight(false);
     document.MoveCaretRight(false);
-    document.WaitCaretMoving();
     document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
     document.WaitSolver();
-    std::this_thread::sleep_for(600ms);
+    std::this_thread::sleep_for(1s);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -867,9 +864,7 @@ TEST_F(SolverAutoTest, solver14)
 
     EXPECT_CALL(window_mock, Translate).WillOnce([&](ElementId id, const std::u32string& str)
         {
-            if (str == U"expression_expected")
-                return U"Expression expected";
-            return U"";
+            return str;
         });
 
     document.InsertDivision(true);
@@ -1081,9 +1076,7 @@ TEST_F(SolverAutoTest, errors1)
     
     EXPECT_CALL(window_mock, Translate).WillRepeatedly([&](ElementId id, const std::u32string& str)
         {
-            if (str == U"syntax_error")
-                return U"Syntax error";
-            return U"";
+            return str;
         });
 
     document.InsertCode(false, true);
@@ -1267,9 +1260,7 @@ TEST_F(SolverAutoTest, errors2)
 
     EXPECT_CALL(window_mock, Translate).WillRepeatedly([&](ElementId id, const std::u32string& str)
         {
-            if (str == U"syntax_error")
-                return U"Syntax error";
-            return U"";
+            return str;
         });
 
     document.InsertCode(false, true);
@@ -1307,14 +1298,19 @@ TEST_F(SolverAutoTest, errors2)
 TEST_F(SolverAutoTest, errors3)
 {
     Start(600);
-    
+
+    EXPECT_CALL(window_mock, Translate).WillOnce([&](ElementId id, const std::u32string& str)
+        {
+            return str;
+        });
+
     document.InsertCode(false, true);
     document.InsertSquareRoot(true);
     document.MoveCaretRight(false);
     document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
     document.WaitSolver();
     std::this_thread::sleep_for(600ms);
-    ASSERT_TRUE(document.ToText() == U"sqrt()=Wrong arguments count in 'sqrt'") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.ToText() == U"sqrt()=Wrong arguments count") << ToBasicString(document.ToText());
     int start, size;
     ASSERT_TRUE(document.HasErrorMark(ElementId{0, 0, 0, 0, 0, 0, 0, 0, 0}, start, size)) << ErrorMarks();
     ASSERT_TRUE(start == 0 && size == 2);

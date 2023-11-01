@@ -95,11 +95,11 @@ TEST_F(FormulaTest, multiply2)
             "</p>"\
         "</body>") << 
         document.ToHtml();
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 1, 0, 0, 1})) << document.GetEditorState().ToString();
 
+    document.MoveCaretToDocumentBegin(false);
     for (int i = 0; i < 4; ++i)
         document.MoveCaretRight(false);
-    document.WaitCaretMoving();
     document.WaitTask(document.InsertString("56", true));
     document.MoveCaretRight(false);
     document.WaitTask(document.MoveCaretRight(false));
@@ -136,7 +136,7 @@ TEST_F(FormulaTest, multiply2)
             "</p>"\
         "</body>") << 
         document.ToHtml();
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 1, 0, 0, 2, 2})) << document.GetEditorState().ToString();
 }
 
 //Copy-paste

@@ -50,7 +50,7 @@ TEST_F(DocumentTest, files1)
             "</p>"\
         "</body>") << 
         document.ToHtml();
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 0)) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 4)) << document.GetEditorState().ToString();
 }
 
 TEST_F(DocumentTest, files2)
@@ -75,6 +75,7 @@ TEST_F(DocumentTest, files2)
     document.SetFontSize(20);
     document.SetItalic(false);
     document.WaitTask(document.InsertString("is a little mysterious.", true));
+    document.WaitTask(document.MoveCaretWordLeft(true));
     std::this_thread::sleep_for(1s);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
@@ -114,6 +115,8 @@ TEST_F(DocumentTest, files2)
             "</p>"\
         "</body>") 
         << document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 3, 12}, 
+        ElementSelectionState{ElementId{0, 0}, 1, 1})) << document.GetEditorState().ToString();
 }
 
 TEST_F(DocumentTest, files3)
@@ -486,7 +489,7 @@ TEST_F(DocumentTest, files11)
             "</p>"\
         "</body>") << 
         document.ToHtml();
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 2, 4})) << document.GetEditorState().ToString();
 }
 
 }

@@ -989,8 +989,9 @@ TEST_F(FormulaTest, division11)
             "</p>"\
         "</body>") << 
         document.ToHtml();
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 2, 0, 1})) << document.GetEditorState().ToString();
 
+    document.WaitTask(document.MoveCaretToDocumentBegin(false));
     document.WaitTask(document.InsertString("123", true));
     document.WaitTask(document.MoveCaretEnd(false));
     document.WaitTask(document.InsertString("Text", true));
@@ -1031,7 +1032,7 @@ TEST_F(FormulaTest, division11)
             "</p>"\
         "</body>") << 
         document.ToHtml();
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 2, 4})) << document.GetEditorState().ToString();
 }
 
 //Insert a char in the operation sign

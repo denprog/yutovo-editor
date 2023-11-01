@@ -274,7 +274,7 @@ TEST_F(FormulaTest, square_root4)
             "</p>"\
         "</body>") << 
         document.ToHtml();
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 1, 0, 0, 0, 1, 3, 1, 0, 3})) << document.GetEditorState().ToString();
 }
 
 //Insert a char in the operation sign
