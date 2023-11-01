@@ -640,9 +640,7 @@ ErrorResult::ErrorResult(Element* parent, const Error& error) :
     type = ElementType::ERROR_RESULT;
     elements->Clear();
 
-    if (!error.description.empty())
-        AddElement(ElementPtr(new CodeString(this, error.description, GetStringFormat())));
-    else if (error.parser_error_code != yutovo_calculator::ParserExceptionCode::None)
+    if (error.parser_error_code != yutovo_calculator::ParserExceptionCode::None)
         AddElement(ElementPtr(new CodeString(this, ErrorCodeToString(error.parser_error_code), true)));
     else
         AddElement(ElementPtr(new CodeString(this, ErrorCodeToString(error.error_code), true)));
