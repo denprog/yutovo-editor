@@ -192,14 +192,6 @@ bool String::Remake(bool with_elements)
         translate = false;
     }
 
-    Size s;
-    if (!FindCachedSize(str, s))
-    {
-        s = window->GetTextSize(str, format);
-        AddCachedSize(str, s);
-    }
-    rect.SetSize(s.width, s.height);
-
     UpdateRect();
 
     bool changed = (rect != last_rect);
