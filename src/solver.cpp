@@ -200,27 +200,29 @@ void Solver::MessageLoop()
                 continue;
         }
 
-        std::unique_lock<std::mutex> lock(tasks_mutex);
-        if (temp_tasks.empty())
         {
-            while (!tasks.empty() && tasks.front() == nullptr)
-                tasks.pop_front();
-            if (tasks.empty())
-                continue;
-            while (!tasks.empty() && tasks.front() != nullptr)
+            std::unique_lock<std::mutex> lock(tasks_mutex);
+            if (temp_tasks.empty())
             {
-                SolverTaskPtr& t = tasks.front();
-                uint64_t now_m = duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
-                t->delay -= now_m - t->cur_time;
-                if (t->delay <= 0)
-                {
-                    temp_tasks.push_back(t);
+                while (!tasks.empty() && tasks.front() == nullptr)
                     tasks.pop_front();
-                }
-                else
+                if (tasks.empty())
+                    continue;
+                while (!tasks.empty() && tasks.front() != nullptr)
                 {
-                    t->cur_time = now_m;
-                    break;
+                    SolverTaskPtr& t = tasks.front();
+                    uint64_t now_m = duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
+                    t->delay -= now_m - t->cur_time;
+                    if (t->delay <= 0)
+                    {
+                        temp_tasks.push_back(t);
+                        tasks.pop_front();
+                    }
+                    else
+                    {
+                        t->cur_time = now_m;
+                        break;
+                    }
                 }
             }
         }
