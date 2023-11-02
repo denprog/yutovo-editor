@@ -828,6 +828,8 @@ ResultType AutoResult::GetResultType()
         return ResultType::RATIONAL;
     case ElementType::COMPLEX_RESULT:
         return ResultType::COMPLEX;
+    case ElementType::ERROR_RESULT:
+        return ResultType::AUTO;
     default:
         assert(false);
     }

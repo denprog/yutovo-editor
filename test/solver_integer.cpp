@@ -776,7 +776,7 @@ TEST_F(SolverIntegerTest, notation6)
     ASSERT_TRUE(document.ToText() == 
         U"bin[123]=Syntax error"
         ) << ToBasicString(document.ToText());
-    ASSERT_TRUE(document.GetResultType({0, 0, 0, 0, 0, 0, 0, 2, 0, 0}) == ResultType::AUTO);
+    ASSERT_TRUE(document.GetResultType({0, 0, 0, 0, 0, 0, 0, 2, 0}) == ResultType::AUTO);
 }
 
 }
