@@ -1069,6 +1069,41 @@ TEST_F(SolverAutoTest, solver22)
         ) << ToBasicString(document.ToText());
 }
 
+//Delete the equation sign
+TEST_F(SolverAutoTest, solver23)
+{
+    Start(600);
+
+    document.InsertDivision(true);
+    document.InsertString("3", true);
+    document.MoveCaretDown(false);
+    document.MoveCaretDown(false);
+    document.InsertString("3", true);
+    document.MoveCaretRight(false);
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    document.MoveCaretLeft(false);
+    document.WaitTask(document.DeleteElements(false, true));
+    ASSERT_TRUE(document.ToText() == U"(3)/(3)1.") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 1, 0})) << document.GetEditorState().ToString();
+    document.WaitTask(document.DeleteElements(false, true));
+    ASSERT_TRUE(document.ToText() == U"(3)/(3).") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 1, 0})) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    ASSERT_TRUE(document.ToText() == U"(3)/(3)1.") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 1, 0})) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == U"(3)/(3)=1.") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 0, 1})) << document.GetEditorState().ToString();
+}
+
 //Solve with errors
 TEST_F(SolverAutoTest, errors1)
 {
@@ -1314,6 +1349,43 @@ TEST_F(SolverAutoTest, errors3)
     int start, size;
     ASSERT_TRUE(document.HasErrorMark(ElementId{0, 0, 0, 0, 0, 0, 0, 0, 0}, start, size)) << ErrorMarks();
     ASSERT_TRUE(start == 0 && size == 2);
+}
+
+//Delete the equation sign
+TEST_F(SolverAutoTest, errors4)
+{
+    Start(600);
+
+    EXPECT_CALL(window_mock, Translate).WillRepeatedly([&](ElementId id, const std::u32string& str)
+        {
+            return str;
+        });
+    
+    document.InsertDivision(true);
+    document.InsertString("3", true);
+    document.MoveCaretEnd(false);
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == U"(3)/()=Syntax error") << ToBasicString(document.ToText());
+
+    document.MoveCaretLeft(false);
+    document.WaitTask(document.DeleteElements(false, true));
+    ASSERT_TRUE(document.ToText() == U"(3)/()Syntaxerror") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 1, 0})) << document.GetEditorState().ToString();
+    document.WaitTask(document.DeleteElements(false, true));
+    ASSERT_TRUE(document.ToText() == U"(3)/()yntaxerror") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 1, 0})) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    ASSERT_TRUE(document.ToText() == U"(3)/()Syntaxerror") << ToBasicString(document.ToText());
+
+    document.Undo();
+    document.WaitUndo();
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == U"(3)/()=Syntax error") << ToBasicString(document.ToText());
 }
 
 TEST_F(SolverAutoTest, units1)

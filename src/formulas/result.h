@@ -25,6 +25,8 @@ public:
     
     virtual void Reset();
 
+    virtual void AfterReplace();
+
     void PutUnit(const Result& result);
 
 public:
@@ -158,6 +160,8 @@ public:
     virtual void Solve(const ParserString& expression);
 
     virtual void PutResult(Result result);
+
+    virtual void AfterReplace();
 
     bool SetConfig(const int precision, const int exp, const AngleMeasure result_angle_measure);
     bool SetConfig(Notation default_notation, Notation result_notation);
