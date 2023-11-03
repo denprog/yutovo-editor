@@ -607,6 +607,35 @@ TEST_F(AssignmentTest, error1)
     ASSERT_TRUE(document.error_marks.empty());
 }
 
+//Check error marks
+TEST_F(AssignmentTest, error2)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.InsertString("r", true);
+    document.InsertAssignment(true);
+    document.InsertString("5", true);
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(!document.HasErrorMarks(ElementId{0, 0, 0, 0})) << ErrorMarks();
+
+    document.InsertPlus(true);
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.HasErrorMarks(ElementId{0, 0, 0, 0})) << ErrorMarks();
+
+    for (int i = 0; i < 4; ++i)
+        document.WaitTask(document.MoveCaretLeft(false));
+    document.WaitTask(document.DeleteElements(false, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"r5+"
+        ) << ToBasicString(document.ToText());
+    ASSERT_TRUE(!document.HasErrorMarks(ElementId{0, 0, 0, 0})) << ErrorMarks();
+}
+
 //Save/load a document with assignment
 TEST_F(AssignmentTest, files1)
 {

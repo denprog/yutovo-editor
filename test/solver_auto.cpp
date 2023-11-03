@@ -1373,19 +1373,24 @@ TEST_F(SolverAutoTest, errors4)
     document.WaitTask(document.DeleteElements(false, true));
     ASSERT_TRUE(document.ToText() == U"(3)/()Syntaxerror") << ToBasicString(document.ToText());
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 1, 0})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(!document.HasErrorMarks(ElementId{0, 0}));
+
     document.WaitTask(document.DeleteElements(false, true));
     ASSERT_TRUE(document.ToText() == U"(3)/()yntaxerror") << ToBasicString(document.ToText());
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 1, 0})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(!document.HasErrorMarks(ElementId{0, 0}));
 
     document.Undo();
     document.WaitUndo();
     ASSERT_TRUE(document.ToText() == U"(3)/()Syntaxerror") << ToBasicString(document.ToText());
+    ASSERT_TRUE(!document.HasErrorMarks(ElementId{0, 0}));
 
     document.Undo();
     document.WaitUndo();
     document.WaitSolver();
     std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToText() == U"(3)/()=Syntax error") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.HasErrorMarks(ElementId{0, 0}));
 }
 
 TEST_F(SolverAutoTest, units1)

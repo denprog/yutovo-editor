@@ -2465,6 +2465,22 @@ bool Document::HasErrorMark(ElementId _id, int& start, int& size)
     return true;
 }
 
+bool Document::HasErrorMarks(ElementId _id)
+{
+    int start, size;
+    if (HasErrorMark(_id, start, size))
+        return true;
+    auto el = GetElement(_id);
+    if (!el || IsString(el))
+        return false;
+    for (int i = 0; i < el->elements->Count(); ++i)
+    {
+        if (HasErrorMarks(el->elements->Get(i)->id))
+            return true;
+    }
+    return false;
+}
+
 void Document::WaitTask(uint task_id, uint64_t timeout, uint64_t circle_delay)
 {
     if (task_id == 0)
