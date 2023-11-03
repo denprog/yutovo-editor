@@ -122,7 +122,7 @@ bool MiddleShapeFormula::DeleteElements(bool left, bool with_undo, ElementId& ch
     auto t = parent->elements->Get(p + c1 + c2); //for not removing this element until this function ends
     parent->elements->Remove(id);
     parent->Normalize();
-    changed_element = id;
+    changed_element = parent->id;
     return true;
 }
 

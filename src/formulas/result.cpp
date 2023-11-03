@@ -77,6 +77,21 @@ void ResultRow::Reset()
     last_expression.Reset();
 }
 
+void ResultRow::AfterReplace()
+{
+    if (FindParent(ElementType::EQUATION) != ElementId{})
+        return;
+    //move the child elements outside
+    int pos = parent->elements->GetChildPos(id);
+    for (int i = 0; i < elements->Count();)
+    {
+        auto el = elements->Get(i);
+        el->SetEditable(true);
+        parent->elements->Move(el, pos++);
+    }
+    parent->elements->Remove(id);
+}
+
 void ResultRow::PutUnit(const Result& result)
 {
     if (result.unit.IsEmpty())
@@ -757,6 +772,25 @@ void AutoResult::PutResult(Result result)
         elements->Get(0)->SetEditable(false);
     Remake(true);
     parent->Remake(true);
+}
+
+void AutoResult::AfterReplace()
+{
+    if (FindParent(ElementType::EQUATION) != ElementId{})
+        return;
+    //move the child elements outside
+    SetEditable(true);
+    int pos = parent->elements->GetChildPos(id) + 1;
+    for (int i = 0; i < elements->Count(); ++i)
+    {
+        auto el = elements->Get(i);
+        for (int j = 0; j < el->elements->Count();)
+        {
+            auto ch = el->elements->Get(j);
+            parent->elements->Move(ch, pos++);
+        }
+    }
+    parent->elements->Remove(id);
 }
 
 bool AutoResult::SetConfig(const int precision, const int exp, const AngleMeasure result_angle_measure)
