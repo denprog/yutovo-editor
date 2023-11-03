@@ -261,6 +261,7 @@ public:
     void AddErrorMark(ElementId _id, int start, int size);
     void RemoveErrorMarks(ElementId parent_id);
     bool HasErrorMark(ElementId _id, int& start, int& size);
+    bool HasErrorMarks(ElementId _id);
 
     void WaitTask(uint task_id, uint64_t timeout = 0, uint64_t circle_delay = 1);
 
