@@ -70,6 +70,8 @@ bool Text::Remake(bool with_elements)
     int h = page_format->top_indent;
     for (int i = 0; i < elements->Count(); ++i) //arrange paragraphs
     {
+        if (document->break_remake)
+            return false;
         ElementPtr p = elements->Get(i);
         p->GetMargin(left_m, top_m, right_m, bottom_m); //consider the margins
         p->rect.Move(page_format->left_indent, h + top_m);

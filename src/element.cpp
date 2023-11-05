@@ -104,11 +104,16 @@ void Element::DrawErrorMark(const int start, const int size) const
 
 bool Element::Remake(bool with_elements)
 {
+    if (document->break_remake)
+        return false;
+
     bool changed = false;
     if (with_elements)
     {
         for (int i = 0; i < elements->Count(); ++i)
         {
+            if (document->break_remake)
+                return false;
             bool r = elements->Get(i)->Remake(true);
             if (!changed && r)
                 changed = true;
@@ -116,6 +121,8 @@ bool Element::Remake(bool with_elements)
     }
     for (int i = 0; i < elements->Count(); ++i)
     {
+        if (document->break_remake)
+            return false;
         auto el = elements->Get(i);
         if (el->remake_always)
         {

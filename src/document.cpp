@@ -223,22 +223,9 @@ void Document::MainLoop()
 
         {
             std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
-            for (auto it = tasks.begin(); it != tasks.end();) //firstly get elements with high priority
-            {
-                TaskPtr& t = *it;
-                if (t->priority == 1)
-                {
-                    temp_tasks.push_back(t);
-                    it = tasks.erase(it);
-                }
-                else
-                    ++it;
-            }
-            if (temp_tasks.empty() && !tasks.empty()) //if there are no high priority tasks, get first element with low priority
-            {
-                temp_tasks.push_back(*tasks.begin());
-                tasks.erase(tasks.begin());
-            }
+            for (auto it = tasks.begin(); it != tasks.end(); ++it)
+                temp_tasks.push_back(*it);
+            tasks.clear();
         }
 
         if (!temp_tasks.empty())
@@ -1713,6 +1700,7 @@ bool Document::CanRedo()
 
 uint Document::Resize(uint width, uint height)
 {
+    break_remake = true;
     {
         std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
         tasks.emplace_back(new ResizeTask(text, width, height));
