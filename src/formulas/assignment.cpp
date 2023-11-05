@@ -111,8 +111,6 @@ bool Assignment::AfterInsert(bool with_undo)
     for (int i = 0; i < pos; ++i)
     {
         auto el = parent->elements->Get(0);
-        if (with_undo)
-            document->StoreUndo(id);
         first->elements->Move(el, i);
     }
     CaretState c;

@@ -454,6 +454,31 @@ TEST_F(AssignmentTest, assignment6)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0, 0, 2})) << document.GetEditorState().ToString();
 }
 
+//Insert in a division
+TEST_F(AssignmentTest, assignment7)
+{
+    Start(600);
+
+    document.InsertDivision(true);
+    document.InsertString("4", true);
+    document.MoveCaretDown(false);
+    document.MoveCaretDown(false);
+    document.InsertString("m", true);
+    document.WaitTask(document.InsertAssignment(true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"(4)/(m=)"
+        ) << ToBasicString(document.ToText());
+
+    document.Undo();
+    document.WaitUndo();
+    ASSERT_TRUE(document.ToText() == 
+        U"(4)/(m)"
+        ) << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0, 0, 0, 2, 0, 1})) << document.GetEditorState().ToString();
+}
+
 //Deletion of assignment
 TEST_F(AssignmentTest, delete1)
 {
