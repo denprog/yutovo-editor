@@ -759,6 +759,7 @@ bool ResizeTask::Execute()
     if (document->WillResize()) //don't resize if it will be resized later
         return false;
     document->caret->block = true;
+    document->break_remake = false;
     window->Resize(width, height);
     document->caret->block = false;
     Remake(text->id, false);

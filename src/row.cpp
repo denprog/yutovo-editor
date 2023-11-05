@@ -47,6 +47,9 @@ Element* Row::FromJson(Element* parent, Document* document, const rapidjson::Val
 
 bool Row::Remake(bool with_elements)
 {
+    if (document->break_remake)
+        return false;
+
     bool changed = Element::Remake(with_elements);
 
     int cx = 0;

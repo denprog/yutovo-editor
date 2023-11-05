@@ -34,7 +34,6 @@ struct Task
 
     static uint next_id;
     uint id; //for syncing with undo/redo
-    uint priority = 1;
 };
 
 typedef std::shared_ptr<Task> TaskPtr;

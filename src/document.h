@@ -346,6 +346,8 @@ public:
     std::vector<ElementId> changed_elements;
     std::vector<ElementId> resolve_elements;
 
+    std::atomic_bool break_remake = false;
+
 private:
     std::list<TaskPtr> tasks;
     std::deque<TaskPtr> undo_tasks;

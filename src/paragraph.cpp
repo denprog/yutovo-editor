@@ -78,6 +78,9 @@ void Paragraph::Draw() const
 
 bool Paragraph::Remake(bool with_elements)
 {
+    if (document->break_remake)
+        return false;
+    
     bool changed = Element::Remake(with_elements);
 
     int left_m = 0, top_m = 0, right_m = 0, bottom_m = 0;
@@ -97,6 +100,8 @@ bool Paragraph::Remake(bool with_elements)
             //move or split element if it's more then row width
             while (row->rect.width + format->indent_before > page_width)
             {
+                if (document->break_remake)
+                    return false;
                 ElementPtr el = row->elements->Get(row->elements->Count() - 1);
                 if (!el)
                     break;
@@ -129,6 +134,8 @@ bool Paragraph::Remake(bool with_elements)
             //move elements above if they are narrower to be placed in the row
             while (next_row && next_row->elements->Count() > 0)
             {
+                if (document->break_remake)
+                    return false;
                 auto el = next_row->elements->Get(0);
                 el->GetMargin(left_m, top_m, right_m, bottom_m);
                 if (el->rect.width + left_m + right_m >= page_width - row->rect.width - format->indent_before)
