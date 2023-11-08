@@ -229,8 +229,8 @@ public:
     uint SetPrecision(ElementId _id, uint precision, bool with_undo);
 
     int GetExp(ElementId _id);
-
     uint SetExp(ElementId _id, uint exp, bool with_undo);
+
     AngleMeasure GetResultAngleMeasure(ElementId _id);
     uint SetResultAngleMeasure(ElementId _id, AngleMeasure result_angle_measure, bool with_undo);
 
@@ -240,6 +240,9 @@ public:
 
     FractionForm GetFractionForm(ElementId _id);
     uint SetFractionForm(ElementId _id, FractionForm fraction_form, bool with_undo);
+
+    ComplexForm GetComplexForm(ElementId _id);
+    uint SetComplexForm(ElementId _id, ComplexForm form, bool with_undo);
 
     bool HasUnit(ElementId _id);
     void GetCastUnits(ElementId _id, std::vector<yutovo_calculator::Unit>& cast_units);

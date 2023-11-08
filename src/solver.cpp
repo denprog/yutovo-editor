@@ -76,6 +76,11 @@ void Solver::Solve(const ElementId id, const uint code_id, Config::RationalResul
 void Solver::Solve(const ElementId id, const uint code_id, Config::ComplexResultConfig& config, const std::u32string& expression, const uint delay)
 {
     EraseSolveTasks(id);
+
+    std::unique_lock<std::mutex> lock(tasks_mutex);
+    tasks.emplace_back(new ComplexSolverTask(id, guid, code_id, ExpressionType::SOLVE, config, expression, delay));
+    tasks.emplace_back(nullptr);
+    next_circle = true;
 }
 
 void Solver::SetUserIdentifier(ElementId id, uint code_id, const std::u32string& expression, const uint delay)

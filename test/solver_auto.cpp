@@ -1104,6 +1104,70 @@ TEST_F(SolverAutoTest, solver23)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 0, 1})) << document.GetEditorState().ToString();
 }
 
+//Complex numbers
+TEST_F(SolverAutoTest, solver24)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.InsertString("1.2", true);
+    document.InsertPlus(true);
+    document.InsertString("3.4i", true);
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"1.2+3.4i=1.2+3.4i"
+        ) << ToBasicString(document.ToText());
+}
+
+//Change complex form on auto result
+TEST_F(SolverAutoTest, solver25)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.InsertString("1.2", true);
+    document.InsertPlus(true);
+    document.InsertString("3.4i", true);
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"1.2+3.4i=1.2+3.4i"
+        ) << ToBasicString(document.ToText());
+
+    document.WaitTask(document.SetComplexForm({0, 0, 0, 0, 0, 0, 0, 2, 0, 0}, ComplexForm::Trigonometric, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"1.2+3.4i=3.606(cos(1.232)+i*sin(1.232))"
+        ) << ToBasicString(document.ToText());
+
+    document.Undo();
+    document.WaitUndo();
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"1.2+3.4i=1.2+3.4i"
+        ) << ToBasicString(document.ToText());
+
+    document.WaitTask(document.SetComplexForm({0, 0, 0, 0, 0, 0, 0, 2, 0, 0}, ComplexForm::Exponential, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"1.2+3.4i=3.606pow(e,1.232i)"
+        ) << ToBasicString(document.ToText());
+
+    document.Undo();
+    document.WaitUndo();
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"1.2+3.4i=1.2+3.4i"
+        ) << ToBasicString(document.ToText());
+}
+
 //Solve with errors
 TEST_F(SolverAutoTest, errors1)
 {

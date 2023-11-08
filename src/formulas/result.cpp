@@ -9,6 +9,7 @@
 #include "code_block.h"
 #include "equation.h"
 #include "subscript.h"
+#include "fences.h"
 
 namespace yutovo
 {
@@ -176,6 +177,30 @@ void ResultRow::PutUnit(const Result& result)
     elements->Get(0)->SetEditable(false);
 }
 
+void ResultRow::AddExponent(Element* parent, const std::string& exponent)
+{
+    if (exponent.empty() | exponent == "0")
+        return;
+    
+    //make mantissa*10^exponent
+    parent->AddElement(ElementPtr(new Multiply(this)));
+    PowerPtr p(new Power(parent));
+    parent->AddElement(p);
+    p->AddBase(CodeStringPtr(new CodeString(p.get(), "10")));
+    if (exponent[0] == '-')
+    {
+        p->AddExponent(ElementPtr(new Minus(p.get())));
+        p->AddExponent(CodeStringPtr(new CodeString(p.get(), exponent.substr(1, exponent.size() - 1))));
+    }
+    else
+        p->AddExponent(CodeStringPtr(new CodeString(p.get(), exponent)));
+}
+
+void ResultRow::AddExponent(const std::string& exponent)
+{
+    AddExponent(this, exponent);
+}
+
 //RealResult
 
 RealResult::RealResult(Document* _document) :
@@ -266,21 +291,7 @@ void RealResult::PutResult(Result result)
 
         AddElement(ElementPtr(new CodeString(this, mantissa)));
 
-        if (!exponent.empty() && exponent != "0")
-        {
-            //make mantissa*10^exponent
-            AddElement(ElementPtr(new Multiply(this)));
-            PowerPtr p(new Power(this));
-            AddElement(p);
-            p->AddBase(CodeStringPtr(new CodeString(p.get(), "10")));
-            if (exponent[0] == '-')
-            {
-                p->AddExponent(ElementPtr(new Minus(p.get())));
-                p->AddExponent(CodeStringPtr(new CodeString(p.get(), exponent.substr(1, exponent.size() - 1))));
-            }
-            else
-                p->AddExponent(CodeStringPtr(new CodeString(p.get(), exponent)));
-        }
+        AddExponent(exponent);
 
         PutUnit(result);
 
@@ -590,7 +601,8 @@ bool RationalResult::SetConfig(const yutovo_calculator::Unit& unit)
 //ComplexResult
 
 ComplexResult::ComplexResult(Document* _document) :
-    ResultRow(_document)
+    ResultRow(_document),
+    config(_document->config.complex_result)
 {
     type = ElementType::COMPLEX_RESULT;
 }
@@ -599,6 +611,9 @@ ComplexResult::ComplexResult(Element* parent) :
     ResultRow(parent)
 {
     type = ElementType::COMPLEX_RESULT;
+
+    if (parent)
+        config = parent->document->config.complex_result;
 }
 
 ComplexResult::ComplexResult(Element* parent, Config::ComplexResultConfig _config) :
@@ -626,7 +641,140 @@ Element* ComplexResult::FromJson(Element* parent, Document* document, const rapi
     return new ComplexResult(parent, config);
 }
 
-bool ComplexResult::SetConfig(const int precision, const int exp, const AngleMeasure result_angle_measure)
+void ComplexResult::Solve(const ParserString& expression)
+{
+    if (last_expression == expression && last_expression.Text() != U"")
+        return;
+    last_expression = expression;
+
+    PutWaitingSymbol();
+
+    auto code = document->FindParent(id, ElementType::CODE_BLOCK);
+    document->Solve(id, ((CodeBlock*)code.get())->code_id, config, last_expression.Text(), 
+        (delay && last_error_code != yutovo_service::ErrorCode::SOLVER_RESTARTED_ERROR) ? document->config.solve_delay : 0);
+    delay = true;
+}
+
+void ComplexResult::PutResult(Result result)
+{
+    ElementPtr el = document->FindParent(id, ElementType::EQUATION);
+    Equation* eq = (Equation*)el.get();
+    eq->dependencies = result.dependencies;
+
+    last_error_code = result.error.error_code;
+    if (result.error.error_code == yutovo_service::ErrorCode::SOLVER_RESTARTED_ERROR)
+    {
+        eq->last_expression.Reset();
+        return;
+    }
+
+    elements->Clear();
+    if (result.error.error_code != yutovo_service::ErrorCode::OK)
+    {
+        PutError(result.error); //put error message
+    }
+    else
+    {
+        document->RemoveErrorMarks(parent->parent->id);
+
+        if (config.form == ComplexForm::Exponential || config.form == ComplexForm::Trigonometric)
+        {
+            std::string mantissa = result.values["module_mantissa"];
+            std::string exponent = result.values["module_exponent"];
+
+            if (!mantissa.empty())
+                AddElement(ElementPtr(new CodeString(this, mantissa)));
+            AddExponent(exponent);
+
+            mantissa = result.values["argument_mantissa"];
+            exponent = result.values["argument_exponent"];
+
+            if (config.form == ComplexForm::Exponential)
+            {
+                PowerPtr p(new Power(this));
+                p->AddBase(CodeStringPtr(new CodeString(p.get(), "e")));
+
+                if (!mantissa.empty())
+                    p->AddExponent(ElementPtr(new CodeString(this, mantissa)));
+
+                AddExponent(p->elements->Get(2)->elements->Get(0).get(), exponent);
+
+                p->AddExponent(ElementPtr(new CodeString(this, document->config.language == "ru" ? "j" : "i")));
+
+                AddElement(p);
+            }
+            else
+            {
+                AddElement(ElementPtr(new OpenFence(this)));
+
+                AddElement(ElementPtr(new CodeString(this, "cos")));
+                AddElement(ElementPtr(new OpenFence(this)));
+                AddElement(ElementPtr(new CodeString(this, mantissa)));
+                AddExponent(exponent);
+                AddElement(ElementPtr(new CloseFence(this)));
+
+                AddElement(ElementPtr(new Plus(this)));
+
+                AddElement(ElementPtr(new CodeString(this, document->config.language == "ru" ? "j" : "i")));
+
+                AddElement(ElementPtr(new Multiply(this)));
+
+                AddElement(ElementPtr(new CodeString(this, "sin")));
+                AddElement(ElementPtr(new OpenFence(this)));
+                AddElement(ElementPtr(new CodeString(this, mantissa)));
+                AddExponent(exponent);
+                AddElement(ElementPtr(new CloseFence(this)));
+
+                AddElement(ElementPtr(new CloseFence(this)));
+            }
+        }
+        else
+        {
+            std::string re_mantissa = result.values["re_mantissa"];
+            std::string re_exponent = result.values["re_exponent"];
+
+            if (!re_mantissa.empty())
+                AddElement(ElementPtr(new CodeString(this, re_mantissa)));
+            AddExponent(re_exponent);
+
+            std::string im_mantissa = result.values["im_mantissa"];
+            std::string im_exponent = result.values["im_exponent"];
+
+            if (!im_mantissa.empty())
+            {
+                if (im_mantissa[0] == '-')
+                {
+                    AddElement(ElementPtr(new Minus(this)));
+                    im_mantissa = im_mantissa.substr(1, im_mantissa.size() - 1);
+                }
+                else if (!result.values["re_mantissa"].empty())
+                    AddElement(ElementPtr(new Plus(this)));
+                AddElement(ElementPtr(new CodeString(this, im_mantissa)));
+            }
+            if (!im_exponent.empty())
+            {
+                AddExponent(im_exponent);
+            }
+
+            if (!im_mantissa.empty() || !im_exponent.empty())
+                AddElement(ElementPtr(new CodeString(this, document->config.language == "ru" ? "j" : "i")));
+        }
+
+        if (config.show_angle_measure)
+        {
+            std::string angle_measure = result.values["angle_measure"];
+            if (!angle_measure.empty())
+                AddElement(ElementPtr(new CodeString(this, "(" + angle_measure + ")", GetStringFormat())));
+        }
+    }
+
+    if (elements->Count() > 0)
+        elements->Get(0)->SetEditable(false);
+    Remake(true);
+    parent->Remake(true);
+}
+
+bool ComplexResult::SetConfig(const int precision, const int exp, const AngleMeasure result_angle_measure, ComplexForm form, uint max_count)
 {
     if (precision != -1 && config.precision != precision)
         config.precision = precision;
@@ -634,7 +782,18 @@ bool ComplexResult::SetConfig(const int precision, const int exp, const AngleMea
         config.exp = exp;
     if (result_angle_measure != AngleMeasure::None && config.result_angle_measure != result_angle_measure)
         config.result_angle_measure = result_angle_measure;
+    config.form = form;
+    config.max_count = max_count;
     
+    ParserString expr = last_expression;
+    last_expression.Reset();
+    Solve(expr);
+    return true;
+}
+
+bool ComplexResult::SetConfig(ComplexForm form)
+{
+    config.form = form;
     ParserString expr = last_expression;
     last_expression.Reset();
     Solve(expr);
@@ -761,6 +920,8 @@ void AutoResult::PutResult(Result result)
             result_row.reset(new RationalResult(this));
             break;
         case ResultType::COMPLEX:
+            result_row.reset(new ComplexResult(this, config.complex_result));
+            break;
         default:
             return;
         }
@@ -829,6 +990,35 @@ bool AutoResult::SetConfig(FractionForm fraction_form)
     
     config.rational_result.fraction_form = fraction_form;
     
+    ParserString expr = last_expression;
+    last_expression.Reset();
+    Solve(expr);
+    return true;
+}
+
+bool AutoResult::SetConfig(const int precision, const int exp, const AngleMeasure result_angle_measure, ComplexForm form, uint max_count)
+{
+    if (precision != -1 && config.complex_result.precision != precision)
+        config.complex_result.precision = precision;
+    if (exp != -1 && config.complex_result.exp != exp)
+        config.complex_result.exp = exp;
+    if (result_angle_measure != AngleMeasure::None && config.complex_result.result_angle_measure != result_angle_measure)
+        config.complex_result.result_angle_measure = result_angle_measure;
+    config.complex_result.form = form;
+    config.complex_result.max_count = max_count;
+    
+    ParserString expr = last_expression;
+    last_expression.Reset();
+    Solve(expr);
+    return true;
+}
+
+bool AutoResult::SetConfig(ComplexForm form)
+{
+    if (config.complex_result.form == form)
+        return false;
+
+    config.complex_result.form = form;
     ParserString expr = last_expression;
     last_expression.Reset();
     Solve(expr);

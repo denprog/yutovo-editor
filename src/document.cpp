@@ -91,9 +91,11 @@ void Document::GetConfig(Config& _config)
 
 void Document::SetConfig(const Config& _config)
 {
-    std::unique_lock<std::recursive_mutex> lock(tasks_mutex);
-    config = _config;
-    current_code_format->border_color = config.code_block_border_color;
+    {
+        std::unique_lock<std::recursive_mutex> lock(tasks_mutex);
+        config = _config;
+        current_code_format->border_color = config.code_block_border_color;
+    }
 
     Redraw();
 }
@@ -2228,6 +2230,31 @@ uint Document::SetFractionForm(ElementId _id, FractionForm fraction_form, bool w
 {
     std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
     tasks.emplace_back(new SetResultParamsTask(text, _id, fraction_form, with_undo));
+    last_task_id = tasks.back()->id;
+    return last_task_id;
+}
+
+ComplexForm Document::GetComplexForm(ElementId _id)
+{
+    std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
+    auto el = GetElement(_id);
+    if (!el)
+        return ComplexForm::None;
+    ComplexResult* r = dynamic_cast<ComplexResult*>(el.get());
+    if (!r)
+    {
+        AutoResult* a_r = dynamic_cast<AutoResult*>(el.get());
+        if (a_r)
+            return a_r->config.complex_result.form;
+        return ComplexForm::None;
+    }
+    return r->config.form;
+}
+
+uint Document::SetComplexForm(ElementId _id, ComplexForm form, bool with_undo)
+{
+    std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
+    tasks.emplace_back(new SetResultParamsTask(text, _id, form, with_undo));
     last_task_id = tasks.back()->id;
     return last_task_id;
 }

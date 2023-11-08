@@ -56,13 +56,6 @@ enum class ElementType
     IMAGE
 };
 
-enum class ComplexForm
-{
-    ARITHMETIC = 0,
-    TRIGONOMETRIC,
-    SCIENTIFIC
-};
-
 class Document;
 class Element;
 

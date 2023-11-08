@@ -282,14 +282,6 @@ bool Equation::SetConfig(int precision, int exp, AngleMeasure result_angle_measu
         RealResult* r = (RealResult*)result.get();
         return r->SetConfig(precision, exp, result_angle_measure);
     }
-    case ElementType::COMPLEX_RESULT:
-    {
-        caret->SetState(id, 1, true);
-        if (with_undo)
-            document->StoreUndo(id);
-        ComplexResult* r = (ComplexResult*)result.get();
-        return r->SetConfig(precision, exp, result_angle_measure);
-    }
     default:
         return false;
     }
@@ -339,6 +331,56 @@ bool Equation::SetConfig(FractionForm fraction_form, bool with_undo)
             document->StoreUndo(id);
         AutoResult* r = (AutoResult*)result.get();
         return r->SetConfig(fraction_form);
+    }
+    default:
+        return false;
+    }
+}
+
+bool Equation::SetConfig(ComplexForm complex_form, bool with_undo)
+{
+    switch (result->type)
+    {
+    case ElementType::COMPLEX_RESULT:
+    {
+        caret->SetState(id, 1, true);
+        if (with_undo)
+            document->StoreUndo(id);
+        ComplexResult* r = (ComplexResult*)result.get();
+        return r->SetConfig(complex_form);
+    }
+    case ElementType::AUTO_RESULT:
+    {
+        caret->SetState(id, 1, true);
+        if (with_undo)
+            document->StoreUndo(id);
+        AutoResult* r = (AutoResult*)result.get();
+        return r->SetConfig(complex_form);
+    }
+    default:
+        return false;
+    }
+}
+
+bool Equation::SetConfig(int precision, int exp, AngleMeasure result_angle_measure, bool with_undo, ComplexForm form, uint max_count)
+{
+    switch (result->type)
+    {
+    case ElementType::AUTO_RESULT:
+    {
+        caret->SetState(id, 1, true);
+        if (with_undo)
+            document->StoreUndo(id);
+        AutoResult* r = (AutoResult*)result.get();
+        return r->SetConfig(precision, exp, result_angle_measure, form, max_count);
+    }
+    case ElementType::COMPLEX_RESULT:
+    {
+        caret->SetState(id, 1, true);
+        if (with_undo)
+            document->StoreUndo(id);
+        ComplexResult* r = (ComplexResult*)result.get();
+        return r->SetConfig(precision, exp, result_angle_measure, form, max_count);
     }
     default:
         return false;
@@ -415,6 +457,9 @@ void Equation::UpdateResult(ParserString& str)
                 break;
         	case ResultType::RATIONAL:
                 result.reset(new RationalResult(last));
+                break;
+        	case ResultType::COMPLEX:
+                result.reset(new ComplexResult(last));
                 break;
             case ResultType::AUTO:
                 result.reset(new AutoResult(last));

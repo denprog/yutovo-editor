@@ -296,6 +296,10 @@ struct SolverRationalTest : SolverTest
 {
 };
 
+struct SolverComplexTest : SolverTest
+{
+};
+
 struct AssignmentTest : SolverTest
 {
 };

@@ -45,6 +45,7 @@ struct SolverTask
     bool FillRealResult(rapidjson::Document& doc, Result& result);
     bool FillIntegerResult(rapidjson::Document& doc, Result& result);
     bool FillRationalResult(rapidjson::Document& doc, Result& result);
+    bool FillComplexResult(rapidjson::Document& doc, Result& result);
 
     ElementId id;
     std::string guid;
@@ -94,6 +95,16 @@ struct RationalSolverTask : SolverTask
     virtual bool Execute(WebSocketPtr socket, Result& result);
 
     Config::RationalResultConfig config;
+};
+
+struct ComplexSolverTask : SolverTask
+{
+    ComplexSolverTask(ElementId _id, std::string& _guid, uint _code_id, ExpressionType _expression_type, Config::ComplexResultConfig _config, 
+        const std::u32string& _expression, const uint _delay);
+
+    virtual bool Execute(WebSocketPtr socket, Result& result);
+
+    Config::ComplexResultConfig config;
 };
 
 struct RemoveIdentifierSolverTask : SolverTask

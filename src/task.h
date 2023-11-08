@@ -315,6 +315,7 @@ struct SetResultParamsTask : Task
     SetResultParamsTask(ElementPtr _text, ElementId _id, Notation _default_notation, Notation _result_notation, bool _with_undo);
     SetResultParamsTask(ElementPtr _text, ElementId _id, FractionForm _fraction_form, bool _with_undo);
     SetResultParamsTask(ElementPtr _text, ElementId _id, uint _precision, uint _exp, AngleMeasure _result_angle_measure, bool _with_undo);
+    SetResultParamsTask(ElementPtr _text, ElementId _id, ComplexForm _complex_form, bool _with_undo);
     SetResultParamsTask(ElementPtr _text, ElementId _id, yutovo_calculator::Unit _unit, bool _with_undo);
 
     virtual bool Execute();
@@ -327,6 +328,7 @@ struct SetResultParamsTask : Task
     Notation default_notation = Notation::None;
     Notation result_notation = Notation::None;
     FractionForm fraction_form = FractionForm::None;
+    ComplexForm complex_form = ComplexForm::None;
     yutovo_calculator::Unit unit;
 
     EditorState before_state;

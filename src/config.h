@@ -112,7 +112,7 @@ struct Config
         AngleMeasure default_angle_measure = AngleMeasure::Radian;
         AngleMeasure result_angle_measure = AngleMeasure::Radian;
         bool show_angle_measure = true;
-        ComplexForm form = ComplexForm::ARITHMETIC;
+        ComplexForm form = ComplexForm::Arithmetic;
         uint max_count = 10;
     };
 
