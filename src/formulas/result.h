@@ -28,6 +28,8 @@ public:
     virtual void AfterReplace();
 
     void PutUnit(const Result& result);
+    void AddExponent(Element* parent, const std::string& exponent);
+    void AddExponent(const std::string& exponent);
 
 public:
     yutovo_service::ErrorCode last_error_code = yutovo_service::ErrorCode::OK;
@@ -128,7 +130,12 @@ public:
     virtual void ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc);
     static Element* FromJson(Element* parent, Document* document, const rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc);
 
-    bool SetConfig(const int precision, const int exp, const AngleMeasure result_angle_measure);
+    virtual void Solve(const ParserString& expression);
+
+    virtual void PutResult(Result result);
+
+    bool SetConfig(const int precision, const int exp, const AngleMeasure result_angle_measure, ComplexForm form, uint max_count);
+    bool SetConfig(ComplexForm form);
 
 public:
     Config::ComplexResultConfig config;
@@ -166,6 +173,8 @@ public:
     bool SetConfig(const int precision, const int exp, const AngleMeasure result_angle_measure);
     bool SetConfig(Notation default_notation, Notation result_notation);
     bool SetConfig(FractionForm fraction_form);
+    bool SetConfig(const int precision, const int exp, const AngleMeasure result_angle_measure, ComplexForm form, uint max_count);
+    bool SetConfig(ComplexForm form);
     bool SetConfig(const yutovo_calculator::Unit& unit);
 
     ResultType GetResultType();

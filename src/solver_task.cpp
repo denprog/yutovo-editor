@@ -264,6 +264,63 @@ bool SolverTask::FillRationalResult(rapidjson::Document& doc, Result& result)
     return true;
 }
 
+bool SolverTask::FillComplexResult(rapidjson::Document& doc, Result& result)
+{
+    if (!doc.HasMember("re") && !doc.HasMember("im") && !doc.HasMember("module") && !doc.HasMember("argument"))
+    {
+        logger->Error("Result error");
+        result.error.error_code = ErrorCode::JSON_ERROR;
+        return false;
+    }
+
+    auto fill_exp = [&](const std::string& param, const std::string& mantissa, const std::string& exponent)
+    {
+        if (!doc[param.c_str()].IsObject())
+        {
+            logger->Error("Result error");
+            result.error.error_code = ErrorCode::JSON_ERROR;
+            return false;
+        }
+        rapidjson::Value p = doc[param.c_str()].GetObject();
+        if (!p.HasMember("mantissa") || !p["mantissa"].IsString())
+        {
+            logger->Error("Mantissa error");
+            result.error.error_code = ErrorCode::JSON_ERROR;
+            return false;
+        }
+        result.values[mantissa] = p["mantissa"].GetString();
+        if (p.HasMember("exponent") && p["exponent"].IsString())
+            result.values[exponent] = p["exponent"].GetString();
+        return true;
+    };
+
+    if (doc.HasMember("module"))
+    {
+        if (!fill_exp("module", "module_mantissa", "module_exponent"))
+            return false;
+        if (!fill_exp("argument", "argument_mantissa", "argument_exponent"))
+            return false;
+    }
+    else
+    {
+        if (doc.HasMember("re"))
+        {
+            if (!fill_exp("re", "re_mantissa", "re_exponent"))
+                return false;
+        }
+        if (doc.HasMember("im"))
+        {
+            if (!fill_exp("im", "im_mantissa", "im_exponent"))
+                return false;
+        }
+    }
+
+    if (doc.HasMember("angle_measure") && doc["angle_measure"].IsInt())
+        result.values["angle_measure"] = AngleMeasureToString((AngleMeasure)doc["angle_measure"].GetInt());
+    
+    return true;
+}
+
 //AutoSolverTask
 
 AutoSolverTask::AutoSolverTask(ElementId _id, std::string& _guid, uint _code_id, ExpressionType _expression_type, Config::AutoResultConfig _config, 
@@ -310,6 +367,14 @@ bool AutoSolverTask::Execute(WebSocketPtr socket, Result& result)
     //rational config
     doc.AddMember("fraction_form", (int)config.rational_result.fraction_form, alloc);
 
+    //complex config
+    doc.AddMember("precision", config.complex_result.precision, alloc);
+    doc.AddMember("default_angle_measure", (int)config.complex_result.default_angle_measure, alloc);
+    doc.AddMember("result_angle_measure", (int)config.complex_result.result_angle_measure, alloc);
+    doc.AddMember("exponent_size", config.complex_result.exp, alloc);
+    doc.AddMember("form", (int)config.complex_result.form, alloc);
+    doc.AddMember("max_count", config.complex_result.max_count, alloc);
+
     AddUnit(doc, config.real_result.unit);
 
     if (!SendRequest(doc, result, socket))
@@ -344,6 +409,8 @@ bool AutoSolverTask::Execute(WebSocketPtr socket, Result& result)
         return FillIntegerResult(doc, result);
     case ResultType::RATIONAL:
         return FillRationalResult(doc, result);
+    case ResultType::COMPLEX:
+        return FillComplexResult(doc, result);
     default:
         return false;
     }
@@ -522,6 +589,66 @@ bool RationalSolverTask::Execute(WebSocketPtr socket, Result& result)
         return false;
 
     return FillRationalResult(doc, result);
+}
+
+//ComplexSolverTask
+
+ComplexSolverTask::ComplexSolverTask(ElementId _id, std::string& _guid, uint _code_id, ExpressionType _expression_type, Config::ComplexResultConfig _config, 
+    const std::u32string& _expression, const uint _delay) :
+    SolverTask(_id, _guid, _code_id, _expression_type, _expression, _delay),
+    config(_config)
+{
+}
+
+bool ComplexSolverTask::Execute(WebSocketPtr socket, Result& result)
+{
+    //request
+    rapidjson::Document doc;
+    auto& alloc = doc.GetAllocator();
+    doc.SetObject();
+    doc.AddMember("command", "SOLVE_CODE", alloc);
+    doc.AddMember("guid", rapidjson::StringRef(guid.c_str()), alloc);
+    FillId(doc);
+    doc.AddMember("code_id", code_id, alloc);
+    doc.AddMember("solver_type", (int)SolverType::CALCULATOR, alloc);
+    doc.AddMember("result_type", (int)ResultType::COMPLEX, alloc);
+    std::string s = ToBasicString(expression);
+    doc.AddMember("expression", rapidjson::StringRef(s.c_str()), alloc);
+    doc.AddMember("precision", config.precision, alloc);
+    doc.AddMember("default_angle_measure", (int)config.default_angle_measure, alloc);
+    doc.AddMember("result_angle_measure", (int)config.result_angle_measure, alloc);
+    doc.AddMember("exponent_size", config.exp, alloc);
+    doc.AddMember("form", (int)config.form, alloc);
+    doc.AddMember("max_count", config.max_count, alloc);
+
+    if (!SendRequest(doc, result, socket))
+        return false;
+
+    std::string json;
+    if (!socket->Receive(json, result))
+        return false;
+
+    doc.Parse<0>(json.c_str());
+    if (doc.HasParseError())
+    {
+        logger->Error("Json error");
+        result.error.error_code = ErrorCode::JSON_ERROR;
+        return false;
+    }
+
+    GetDependencies(doc, result);
+
+    if (doc.HasMember("error"))
+    {
+        FillError(doc, result);
+        return false;
+    }
+
+    GetResultType(doc, result);
+    if (result.type != ResultType::COMPLEX)
+        return false;
+
+    return FillComplexResult(doc, result);
 }
 
 //RemoveIdentifierSolverTask

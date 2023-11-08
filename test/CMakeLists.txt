@@ -40,6 +40,7 @@ add_executable(${PROJECT_NAME}_tests
 	solver_real.cpp
 	solver_integer.cpp
 	solver_rational.cpp
+	solver_complex.cpp
 	assignment.cpp
 	functions.cpp
 	subscript.cpp

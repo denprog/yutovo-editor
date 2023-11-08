@@ -1458,6 +1458,7 @@ bool ResultTask::Execute()
     case ElementType::REAL_RESULT:
     case ElementType::INTEGER_RESULT:
     case ElementType::RATIONAL_RESULT:
+    case ElementType::COMPLEX_RESULT:
     {
         ResultRow* r = dynamic_cast<ResultRow*>(el.get());
         if (!r)
@@ -1685,6 +1686,14 @@ SetResultParamsTask::SetResultParamsTask(ElementPtr _text, ElementId _id, uint _
     with_undo = _with_undo;
 }
 
+SetResultParamsTask::SetResultParamsTask(ElementPtr _text, ElementId _id, ComplexForm _complex_form, bool _with_undo) :
+    Task(_text),
+    id(_id),
+    complex_form(_complex_form)
+{
+    with_undo = _with_undo;
+}
+
 SetResultParamsTask::SetResultParamsTask(ElementPtr _text, ElementId _id, yutovo_calculator::Unit _unit, bool _with_undo) :
     Task(_text),
     id(_id),
@@ -1724,6 +1733,14 @@ bool SetResultParamsTask::Execute()
     if (fraction_form != FractionForm::None)
     {
         if (eq->SetConfig(fraction_form, with_undo))
+        {
+            Remake(el->id, true);
+            return true;
+        }
+    }
+    if (complex_form != ComplexForm::None)
+    {
+        if (eq->SetConfig(complex_form, with_undo))
         {
             Remake(el->id, true);
             return true;
