@@ -60,6 +60,7 @@ public:
     virtual void BeforeDelete();
     virtual void BeforeReplace();
     virtual void AfterReplace();
+    virtual void BeforePaste();
 
     virtual bool GetFirstCaretState(CaretState& caret_state, Selection* select);
     virtual bool GetLastCaretState(CaretState& caret_state, Selection* select);

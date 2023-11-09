@@ -24,7 +24,7 @@ ResultRow::ResultRow(Document* _document) :
 }
 
 ResultRow::ResultRow(Element* parent) :
-    CodeRow(parent)
+    CodeRow(parent, false)
 {
 }
 
@@ -91,6 +91,15 @@ void ResultRow::AfterReplace()
         parent->elements->Move(el, pos++);
     }
     parent->elements->Remove(id);
+}
+
+void ResultRow::BeforePaste()
+{
+    //move child elements outside and remove this element
+    int c = parent->elements->Count();
+    for (int i = 0, j = 0; i < elements->Count();)
+        parent->elements->Move(elements->Get(0), c + j++);
+    parent->elements->RemoveAt(c - 1, 1);
 }
 
 void ResultRow::PutUnit(const Result& result)
@@ -298,6 +307,7 @@ void RealResult::PutResult(Result result)
         if (config.show_angle_measure)
         {
             std::string angle_measure = result.values["angle_measure"];
+            with_angle_measure = !angle_measure.empty();
             if (!angle_measure.empty())
                 AddElement(ElementPtr(new CodeString(this, "(" + angle_measure + ")", GetStringFormat())));
         }
@@ -307,6 +317,15 @@ void RealResult::PutResult(Result result)
         elements->Get(0)->SetEditable(false);
     Remake(true);
     parent->Remake(true);
+}
+
+void RealResult::BeforePaste()
+{
+    //move child elements outside and remove this element
+    int c = parent->elements->Count();
+    for (int i = 0, j = 0; i < (with_angle_measure ? elements->Count() - 1 : elements->Count());)
+        parent->elements->Move(elements->Get(0), c + j++);
+    parent->elements->RemoveAt(c - 1, 1);
 }
 
 bool RealResult::SetConfig(const int precision, const int exp, const AngleMeasure result_angle_measure)
@@ -437,6 +456,15 @@ void IntegerResult::PutResult(Result result)
         elements->Get(1)->SetEditable(false);
     Remake(true);
     parent->Remake(true);
+}
+
+void IntegerResult::BeforePaste()
+{
+    //move child elements outside and remove this element
+    int c = parent->elements->Count();
+    for (int i = 0, j = 0; i < (config.show_notation ? elements->Count() - 1 : elements->Count());)
+        parent->elements->Move(elements->Get(0), c + j++);
+    parent->elements->RemoveAt(c - 1, 1);
 }
 
 bool IntegerResult::SetConfig(Notation default_notation, Notation result_notation)
@@ -752,9 +780,7 @@ void ComplexResult::PutResult(Result result)
                 AddElement(ElementPtr(new CodeString(this, im_mantissa)));
             }
             if (!im_exponent.empty())
-            {
                 AddExponent(im_exponent);
-            }
 
             if (!im_mantissa.empty() || !im_exponent.empty())
                 AddElement(ElementPtr(new CodeString(this, document->config.language == "ru" ? "j" : "i")));
@@ -763,6 +789,7 @@ void ComplexResult::PutResult(Result result)
         if (config.show_angle_measure)
         {
             std::string angle_measure = result.values["angle_measure"];
+            with_angle_measure = !angle_measure.empty();
             if (!angle_measure.empty())
                 AddElement(ElementPtr(new CodeString(this, "(" + angle_measure + ")", GetStringFormat())));
         }
@@ -772,6 +799,15 @@ void ComplexResult::PutResult(Result result)
         elements->Get(0)->SetEditable(false);
     Remake(true);
     parent->Remake(true);
+}
+
+void ComplexResult::BeforePaste()
+{
+    //move child elements outside and remove this element
+    int c = parent->elements->Count();
+    for (int i = 0, j = 0; i < (with_angle_measure ? elements->Count() - 1 : elements->Count());)
+        parent->elements->Move(elements->Get(0), c + j++);
+    parent->elements->RemoveAt(c - 1, 1);
 }
 
 bool ComplexResult::SetConfig(const int precision, const int exp, const AngleMeasure result_angle_measure, ComplexForm form, uint max_count)
@@ -860,9 +896,7 @@ Element* AutoResult::Create(Element* _parent)
 
 void AutoResult::ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc)
 {
-    rapidjson::Value _id(IdToString(id).c_str(), alloc);
-    value.AddMember("id", _id, alloc);
-    value.AddMember("type", (int)type, alloc);
+    ResultRow::ToJson(value, alloc);
     config.ToJson(value, alloc);
 }
 
@@ -952,6 +986,16 @@ void AutoResult::AfterReplace()
         }
     }
     parent->elements->Remove(id);
+}
+
+void AutoResult::BeforePaste()
+{
+    //move child elements outside and remove this element
+    int c = parent->elements->Count();
+    for (int i = 0; i < elements->Count(); ++i)
+        for (int j = 0; j < elements->Get(i)->elements->Count(); ++j)
+            parent->elements->Move(elements->Get(i)->elements->Get(j), c + j);
+    parent->elements->RemoveAt(c - 1, 1);
 }
 
 bool AutoResult::SetConfig(const int precision, const int exp, const AngleMeasure result_angle_measure)

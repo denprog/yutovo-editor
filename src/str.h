@@ -55,6 +55,7 @@ public:
     virtual void BeforeDelete();
     virtual void BeforeReplace();
     virtual void AfterReplace();
+    virtual void BeforePaste();
 
     virtual StringFormatPtr GetStringFormat() const;
     virtual void UpdateStringFormat(const StringFormatPtr base_format, const StringFormatPtr new_format);

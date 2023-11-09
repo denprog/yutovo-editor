@@ -2075,4 +2075,233 @@ TEST_F(DocumentTest, clipboard37)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 2, 0, 0})) << document.GetEditorState().ToString();
 }
 
+//Paste a rational result
+TEST_F(DocumentTest, clipboard38)
+{
+    Start(600);
+
+    document.GetConfig(config);
+    config.rational_result.fraction_form = FractionForm::Improper;
+    document.SetConfig(config);
+
+    document.InsertCode(false, true);
+    document.InsertString("123", true);
+    document.InsertPlus(true);
+    document.InsertString("34", true);
+    document.InsertDivision(true);
+    document.InsertString("567", true);
+    document.MoveCaretRight(false);
+    document.WaitTask(document.InsertEquation(ResultType::RATIONAL, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"123+(34)/(567)=(69775)/(567)"\
+        ) << ToBasicString(document.ToText());
+
+    document.WaitTask(document.MoveCaretRight(false));
+    document.WaitTask(document.MoveCaretRight(true));
+    document.WaitTask(document.Copy(clipboard_json, clipboard_text));
+    document.MoveCaretEnd(false);
+    document.InsertParagraph(true);
+
+    document.WaitTask(document.Paste(clipboard_json));
+    ASSERT_TRUE(document.ToText() == 
+        U"123+(34)/(567)=(69775)/(567)\n"\
+        U"(69775)/(567)"
+        ) << ToBasicString(document.ToText());
+
+    document.Undo();
+    document.WaitUndo();
+    ASSERT_TRUE(document.ToText() == 
+        U"123+(34)/(567)=(69775)/(567)\n"\
+        U""
+        ) << ToBasicString(document.ToText());
+
+    document.Redo();
+    document.WaitRedo();
+    ASSERT_TRUE(document.ToText() == 
+        U"123+(34)/(567)=(69775)/(567)\n"\
+        U"(69775)/(567)"
+        ) << ToBasicString(document.ToText());
+}
+
+//Paste an auto result
+TEST_F(DocumentTest, clipboard39)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.InsertString("123", true);
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"123=123."\
+        ) << ToBasicString(document.ToText());
+
+    document.WaitTask(document.MoveCaretRight(false));
+    for (int i = 0; i < 4; ++i)
+        document.WaitTask(document.MoveCaretRight(true));
+    document.WaitTask(document.Copy(clipboard_json, clipboard_text));
+    document.MoveCaretEnd(false);
+    document.InsertParagraph(true);
+
+    document.WaitTask(document.Paste(clipboard_json));
+    ASSERT_TRUE(document.ToText() == 
+        U"123=123.\n"\
+        U"123."
+        ) << ToBasicString(document.ToText());
+
+    document.Undo();
+    document.WaitUndo();
+    ASSERT_TRUE(document.ToText() == 
+        U"123=123.\n"\
+        U""
+        ) << ToBasicString(document.ToText());
+
+    document.Redo();
+    document.WaitRedo();
+    ASSERT_TRUE(document.ToText() == 
+        U"123=123.\n"\
+        U"123."
+        ) << ToBasicString(document.ToText());
+}
+
+//Paste a complex result
+TEST_F(DocumentTest, clipboard40)
+{
+    Start(600);
+    
+    document.InsertCode(false, true);
+    document.InsertMinus(true);
+    document.InsertString("1.", true);
+    document.InsertPlus(true);
+    document.InsertString("3.i", true);
+    document.WaitTask(document.InsertEquation(ResultType::COMPLEX, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"-1.+3.i=-1.+3.i"
+        ) << ToBasicString(document.ToText());
+
+    document.WaitTask(document.MoveCaretRight(false));
+    for (int i = 0; i < 7; ++i)
+        document.WaitTask(document.MoveCaretRight(true));
+    document.WaitTask(document.Copy(clipboard_json, clipboard_text));
+    document.MoveCaretEnd(false);
+    document.InsertParagraph(true);
+
+    document.WaitTask(document.Paste(clipboard_json));
+    ASSERT_TRUE(document.ToText() == 
+        U"-1.+3.i=-1.+3.i\n"\
+        U"-1.+3.i"
+        ) << ToBasicString(document.ToText());
+
+    document.Undo();
+    document.WaitUndo();
+    ASSERT_TRUE(document.ToText() == 
+        U"-1.+3.i=-1.+3.i\n"\
+        U""
+        ) << ToBasicString(document.ToText());
+
+    document.Redo();
+    document.WaitRedo();
+    ASSERT_TRUE(document.ToText() == 
+        U"-1.+3.i=-1.+3.i\n"\
+        U"-1.+3.i"
+        ) << ToBasicString(document.ToText());
+}
+
+//Paste a real result
+TEST_F(DocumentTest, clipboard41)
+{
+    Start(600);
+    
+    document.InsertCode(false, true);
+    document.InsertString("arcsin", true);
+    document.InsertOpenFence(true);
+    document.InsertString("1", true);
+    document.InsertCloseFence(true);
+    document.WaitTask(document.InsertEquation(ResultType::REAL, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"arcsin(1)=1.571(rad)"
+        ) << ToBasicString(document.ToText());
+
+    document.WaitTask(document.MoveCaretRight(false));
+    for (int i = 0; i < 10; ++i)
+        document.WaitTask(document.MoveCaretRight(true));
+    document.WaitTask(document.Copy(clipboard_json, clipboard_text));
+    document.MoveCaretEnd(false);
+    document.InsertParagraph(true);
+
+    document.WaitTask(document.Paste(clipboard_json));
+    ASSERT_TRUE(document.ToText() == 
+        U"arcsin(1)=1.571(rad)\n"\
+        U"1.571"
+        ) << ToBasicString(document.ToText());
+
+    document.Undo();
+    document.WaitUndo();
+    ASSERT_TRUE(document.ToText() == 
+        U"arcsin(1)=1.571(rad)\n"\
+        U""
+        ) << ToBasicString(document.ToText());
+
+    document.Redo();
+    document.WaitRedo();
+    ASSERT_TRUE(document.ToText() == 
+        U"arcsin(1)=1.571(rad)\n"\
+        U"1.571"
+        ) << ToBasicString(document.ToText());
+}
+
+//Paste an integer result
+TEST_F(DocumentTest, clipboard42)
+{
+    Start(600);
+
+    Config config;
+    document.GetConfig(config);
+    config.integer_result.show_notation = true;
+    document.SetConfig(config);
+
+    document.InsertCode(false, true);
+    document.InsertString("2345", true);
+    document.WaitTask(document.InsertEquation(ResultType::INTEGER, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"2345=2345(dec)"\
+        ) << ToBasicString(document.ToText());
+
+    document.WaitTask(document.MoveCaretRight(false));
+    for (int i = 0; i < 9; ++i)
+        document.WaitTask(document.MoveCaretRight(true));
+    document.WaitTask(document.Copy(clipboard_json, clipboard_text));
+    document.MoveCaretEnd(false);
+    document.InsertParagraph(true);
+
+    document.WaitTask(document.Paste(clipboard_json));
+    ASSERT_TRUE(document.ToText() == 
+        U"2345=2345(dec)\n"\
+        U"2345"
+        ) << ToBasicString(document.ToText());
+
+    document.Undo();
+    document.WaitUndo();
+    ASSERT_TRUE(document.ToText() == 
+        U"2345=2345(dec)\n"\
+        U""
+        ) << ToBasicString(document.ToText());
+
+    document.Redo();
+    document.WaitRedo();
+    ASSERT_TRUE(document.ToText() == 
+        U"2345=2345(dec)\n"\
+        U"2345"
+        ) << ToBasicString(document.ToText());
+}
+
 }

@@ -299,6 +299,12 @@ void Element::AfterReplace()
         elements->Get(i)->AfterReplace();
 }
 
+void Element::BeforePaste()
+{
+    for (int i = 0; i < elements->Count(); ++i)
+        elements->Get(i)->BeforePaste();
+}
+
 bool Element::GetFirstCaretState(CaretState& caret_state, Selection* select)
 {
     return elements->GetFirstCaretState(caret_state, select);

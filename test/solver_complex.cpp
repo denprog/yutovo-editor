@@ -490,7 +490,12 @@ TEST_F(SolverComplexTest, solver16)
 TEST_F(SolverComplexTest, solver17)
 {
     Start(600);
-    
+
+    Config config;
+    document.GetConfig(config);
+    config.complex_result.show_angle_measure = true;
+    document.SetConfig(config);
+
     document.InsertCode(false, true);
     document.InsertString("1.2", true);
     document.InsertPlus(true);
