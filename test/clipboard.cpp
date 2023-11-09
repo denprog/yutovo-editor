@@ -2257,8 +2257,50 @@ TEST_F(DocumentTest, clipboard41)
         ) << ToBasicString(document.ToText());
 }
 
-//Paste an integer result
+//Paste a real result
 TEST_F(DocumentTest, clipboard42)
+{
+    Start(600);
+    
+    document.InsertCode(false, true);
+    document.InsertString("2.3", true);
+    document.WaitTask(document.InsertEquation(ResultType::REAL, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"2.3=2.3"
+        ) << ToBasicString(document.ToText());
+
+    document.WaitTask(document.MoveCaretRight(false));
+    for (int i = 0; i < 3; ++i)
+        document.WaitTask(document.MoveCaretRight(true));
+    document.WaitTask(document.Copy(clipboard_json, clipboard_text));
+    document.MoveCaretEnd(false);
+    document.InsertParagraph(true);
+
+    document.WaitTask(document.Paste(clipboard_json));
+    ASSERT_TRUE(document.ToText() == 
+        U"2.3=2.3\n"\
+        U"2.3"
+        ) << ToBasicString(document.ToText());
+
+    document.Undo();
+    document.WaitUndo();
+    ASSERT_TRUE(document.ToText() == 
+        U"2.3=2.3\n"\
+        U""
+        ) << ToBasicString(document.ToText());
+
+    document.Redo();
+    document.WaitRedo();
+    ASSERT_TRUE(document.ToText() == 
+        U"2.3=2.3\n"\
+        U"2.3"
+        ) << ToBasicString(document.ToText());
+}
+
+//Paste an integer result
+TEST_F(DocumentTest, clipboard43)
 {
     Start(600);
 
@@ -2300,6 +2342,53 @@ TEST_F(DocumentTest, clipboard42)
     document.WaitRedo();
     ASSERT_TRUE(document.ToText() == 
         U"2345=2345(dec)\n"\
+        U"2345"
+        ) << ToBasicString(document.ToText());
+}
+
+//Paste an integer result
+TEST_F(DocumentTest, clipboard44)
+{
+    Start(600);
+
+    Config config;
+    document.GetConfig(config);
+    config.integer_result.show_notation = false;
+    document.SetConfig(config);
+
+    document.InsertCode(false, true);
+    document.InsertString("2345", true);
+    document.WaitTask(document.InsertEquation(ResultType::INTEGER, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"2345=2345"\
+        ) << ToBasicString(document.ToText());
+
+    document.WaitTask(document.MoveCaretRight(false));
+    for (int i = 0; i < 4; ++i)
+        document.WaitTask(document.MoveCaretRight(true));
+    document.WaitTask(document.Copy(clipboard_json, clipboard_text));
+    document.MoveCaretEnd(false);
+    document.InsertParagraph(true);
+
+    document.WaitTask(document.Paste(clipboard_json));
+    ASSERT_TRUE(document.ToText() == 
+        U"2345=2345\n"\
+        U"2345"
+        ) << ToBasicString(document.ToText());
+
+    document.Undo();
+    document.WaitUndo();
+    ASSERT_TRUE(document.ToText() == 
+        U"2345=2345\n"\
+        U""
+        ) << ToBasicString(document.ToText());
+
+    document.Redo();
+    document.WaitRedo();
+    ASSERT_TRUE(document.ToText() == 
+        U"2345=2345\n"\
         U"2345"
         ) << ToBasicString(document.ToText());
 }

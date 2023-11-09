@@ -883,8 +883,15 @@ bool UndoTask::Execute()
                 {
                     if (undo_elements[0]->type == ElementType::CODE_ROW)
                     {
-                        p->elements->RemoveAt(pos, undo_elements[0]->elements->Count() < p->elements->Count() - pos ? 
-                            undo_elements[0]->elements->Count() : p->elements->Count() - pos);
+                        if (p->type == ElementType::CODE_ROW && pos == 0)
+                        {
+                            p->elements->RemoveAt(0, p->elements->Count());
+                        }
+                        else
+                        {
+                            p->elements->RemoveAt(pos, undo_elements[0]->elements->Count() < p->elements->Count() - pos ? 
+                                undo_elements[0]->elements->Count() : p->elements->Count() - pos);
+                        }
                     }
                     else
                         p->elements->RemoveAt(pos, undo_elements.size() < p->elements->Count() - pos ? undo_elements.size() : p->elements->Count() - pos);

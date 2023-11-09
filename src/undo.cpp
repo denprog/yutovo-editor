@@ -671,6 +671,7 @@ UndoElementPtr UndoBase::StoreElement(const LogicalId id, ElementPtr el)
     case ElementType::CODE_STRING:
         undo_element.reset(new UndoCodeString(el->ToText(), ((CodeString*)el.get())->format, el->can_merge));
         break;
+    case ElementType::SHAPE:
     case ElementType::PLUS:
     case ElementType::MINUS:
     case ElementType::MULTIPLY:
