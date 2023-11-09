@@ -680,6 +680,10 @@ void String::AfterReplace()
 {
 }
 
+void String::BeforePaste()
+{
+}
+
 StringFormatPtr String::GetStringFormat() const
 {
     return format;

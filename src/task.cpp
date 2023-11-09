@@ -490,6 +490,12 @@ bool InsertFormulasTask::Execute()
         c->UpdateLevel(el->level);
         _elements.push_back(c);
     }
+
+    if (pasting)
+    {
+        for (int i = 0; i < _elements.size(); ++i)
+            _elements[i]->BeforePaste();
+    }
     
     document->pasting = pasting;
     if (el->InsertElements(_elements, insert_code_block ? false : with_undo, changed_element))

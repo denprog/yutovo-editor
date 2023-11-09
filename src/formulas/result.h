@@ -26,6 +26,7 @@ public:
     virtual void Reset();
 
     virtual void AfterReplace();
+    virtual void BeforePaste();
 
     void PutUnit(const Result& result);
     void AddExponent(Element* parent, const std::string& exponent);
@@ -61,12 +62,15 @@ public:
 
     virtual void PutResult(Result result);
 
+    virtual void BeforePaste();
+
     bool SetConfig(const int precision, const int exp, const AngleMeasure result_angle_measure);
     bool SetConfig(const yutovo_calculator::Unit& unit);
 
 public:
     Config::RealResultConfig config;
     std::vector<yutovo_calculator::Unit> cast_units;
+    bool with_angle_measure = false;
 };
 
 class IntegerResult : public ResultRow
@@ -85,6 +89,8 @@ public:
     virtual void Solve(const ParserString& expression);
 
     virtual void PutResult(Result result);
+
+    virtual void BeforePaste();
 
     bool SetConfig(Notation default_notation, Notation result_notation);
 
@@ -134,11 +140,14 @@ public:
 
     virtual void PutResult(Result result);
 
+    virtual void BeforePaste();
+
     bool SetConfig(const int precision, const int exp, const AngleMeasure result_angle_measure, ComplexForm form, uint max_count);
     bool SetConfig(ComplexForm form);
 
 public:
     Config::ComplexResultConfig config;
+    bool with_angle_measure = false;
 };
 
 class ErrorResult : public ResultRow
@@ -169,6 +178,7 @@ public:
     virtual void PutResult(Result result);
 
     virtual void AfterReplace();
+    virtual void BeforePaste();
 
     bool SetConfig(const int precision, const int exp, const AngleMeasure result_angle_measure);
     bool SetConfig(Notation default_notation, Notation result_notation);
