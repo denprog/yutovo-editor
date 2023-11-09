@@ -249,13 +249,17 @@ void RealResult::ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorT
 {
     ResultRow::ToJson(value, alloc);
     config.ToJson(value, alloc);
+    value.AddMember("with_angle_measure", with_angle_measure, alloc);
 }
 
 Element* RealResult::FromJson(Element* parent, Document* document, const rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc)
 {
     Config::RealResultConfig config;
     config.FromJson((rapidjson::Value&)value, alloc);
-    return new RealResult(parent, config);
+    auto* p = new RealResult(parent, config);
+    if (value.HasMember("with_angle_measure") && value["with_angle_measure"].IsBool())
+        p->with_angle_measure = value["with_angle_measure"].GetBool();
+    return p;
 }
 
 void RealResult::Solve(const ParserString& expression)
@@ -389,13 +393,17 @@ void IntegerResult::ToJson(rapidjson::Value& value, rapidjson::Document::Allocat
 {
     ResultRow::ToJson(value, alloc);
     config.ToJson(value, alloc);
+    value.AddMember("with_notation", with_notation, alloc);
 }
 
 Element* IntegerResult::FromJson(Element* parent, Document* document, const rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc)
 {
     Config::IntegerResultConfig config;
     config.FromJson((rapidjson::Value&)value, alloc);
-    return new IntegerResult(parent, config);
+    auto* p = new IntegerResult(parent, config);
+    if (value.HasMember("with_notation") && value["with_notation"].IsBool())
+        p->with_notation = value["with_notation"].GetBool();
+    return p;
 }
 
 void IntegerResult::Solve(const ParserString& expression)
@@ -445,6 +453,7 @@ void IntegerResult::PutResult(Result result)
         if (config.show_notation)
         {
             std::string notation = result.values["notation"];
+            with_notation = !notation.empty();
             if (!notation.empty())
                 AddElement(ElementPtr(new CodeString(this, "(" + notation + ")", GetStringFormat())));
         }
@@ -462,7 +471,7 @@ void IntegerResult::BeforePaste()
 {
     //move child elements outside and remove this element
     int c = parent->elements->Count();
-    for (int i = 0, j = 0; i < (config.show_notation ? elements->Count() - 1 : elements->Count());)
+    for (int i = 0, j = 0; i < (with_notation ? elements->Count() - 1 : elements->Count());)
         parent->elements->Move(elements->Get(0), c + j++);
     parent->elements->RemoveAt(c - 1, 1);
 }
@@ -660,13 +669,17 @@ void ComplexResult::ToJson(rapidjson::Value& value, rapidjson::Document::Allocat
 {
     ResultRow::ToJson(value, alloc);
     config.ToJson(value, alloc);
+    value.AddMember("with_angle_measure", with_angle_measure, alloc);
 }
 
 Element* ComplexResult::FromJson(Element* parent, Document* document, const rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc)
 {
     Config::ComplexResultConfig config;
     config.FromJson((rapidjson::Value&)value, alloc);
-    return new ComplexResult(parent, config);
+    auto* p = new ComplexResult(parent, config);
+    if (value.HasMember("with_angle_measure") && value["with_angle_measure"].IsBool())
+        p->with_angle_measure = value["with_angle_measure"].GetBool();
+    return p;
 }
 
 void ComplexResult::Solve(const ParserString& expression)

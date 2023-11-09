@@ -96,6 +96,7 @@ public:
 
 public:
     Config::IntegerResultConfig config;
+    bool with_notation = false;
 };
 
 class RationalResult : public ResultRow
