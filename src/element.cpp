@@ -1158,6 +1158,8 @@ void Elements::RemoveAt(const uint pos, const int size)
             }
         }
     }
+    else
+        caret->Update();
 
     parent->EmitChanged();
 

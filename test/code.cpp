@@ -1277,4 +1277,21 @@ TEST_F(DocumentTest, code20)
         ElementSelectionState{ElementId{0, 0, 0}, 0, 2})) << document.GetEditorState().ToString();
 }
 
+//Check caret position after delete
+TEST_F(DocumentTest, code21)
+{
+    Start(600);
+
+    document.WaitTask(document.InsertCode(false, true));
+    document.InsertString("123", true);
+    document.InsertDivision(true);
+    document.InsertString("3", true);
+    document.MoveCaretRight(false);
+    document.InsertMultiply(true);
+    document.InsertString("5", true);
+    document.MoveCaretLeft(false);
+    document.WaitTask(document.DeleteElements(true, true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0, 0, 1, 0})) << document.GetEditorState().ToString();
+}
+
 }
