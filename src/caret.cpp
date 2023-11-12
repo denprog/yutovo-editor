@@ -539,6 +539,20 @@ void Caret::UpdateXPos()
     }
 }
 
+void Caret::Update()
+{
+    if (!element || block)
+        return;
+    Element* el = GetElement();
+    if (!el)
+        return;
+    int p = GetPos();
+    if (el->elements->Count() <= p)
+        return;
+    CaretState c(el, p, last_pos);
+    SetState(c);
+}
+
 void Caret::Reset()
 {
     element = nullptr;

@@ -56,6 +56,8 @@ public:
 
     void UpdateXPos();
 
+    void Update();
+
     void Reset();
 
 public:
