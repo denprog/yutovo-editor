@@ -1737,4 +1737,58 @@ TEST_F(SolverAutoTest, units8)
         U"4Н*м=4.Н*м") << ToBasicString(document.ToText());
 }
 
+//Implicit multiplication of division
+TEST_F(SolverAutoTest, units9)
+{
+    Start(600);
+
+    EXPECT_CALL(window_mock, Translate).WillRepeatedly([&](ElementId id, const std::u32string& str)
+        {
+            return str;
+        });
+
+    document.InsertCode(false, true);
+    document.InsertDivision(true);
+    document.InsertString("1", true);
+    document.MoveCaretDown(false);
+    document.MoveCaretDown(false);
+    document.InsertString("2", true);
+    document.MoveCaretRight(false);
+    document.InsertString("m", true);
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"(1)/(2)m=0.5m"
+        ) << ToBasicString(document.ToText());
+}
+
+//Implicit multiplication of division
+TEST_F(SolverAutoTest, units10)
+{
+    Start(600);
+
+    EXPECT_CALL(window_mock, Translate).WillRepeatedly([&](ElementId id, const std::u32string& str)
+        {
+            return str;
+        });
+
+    document.InsertCode(false, true);
+    document.InsertDivision(true);
+    document.InsertString("1", true);
+    document.InsertPlus(true);
+    document.InsertString("3", true);
+    document.MoveCaretDown(false);
+    document.MoveCaretDown(false);
+    document.InsertString("2", true);
+    document.MoveCaretRight(false);
+    document.InsertString("m", true);
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"(1+3)/(2)m=2.m"
+        ) << ToBasicString(document.ToText());
+}
+
 }
