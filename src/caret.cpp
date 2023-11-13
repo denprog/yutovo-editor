@@ -190,9 +190,10 @@ int Caret::GetPos() const
 
 CaretState Caret::GetCaretState()
 {
-    if (block)
+    Element* el = GetElement();
+    if (block || !el)
         return CaretState(ElementId{});
-    return CaretState(GetElement(), GetPos(), last_pos);
+    return CaretState(el, GetPos(), last_pos);
 }
 
 LogicalCaretState Caret::GetLogicalCaretState()

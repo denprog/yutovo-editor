@@ -964,7 +964,7 @@ ElementPtr Document::GetLogicalParent(const LogicalId& _id)
 
 bool Document::GetElementAtCoords(const int x, const int y, ElementId& id)
 {
-    std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
+    std::lock_guard<std::recursive_mutex> lock(edit_mutex);
     return text->GetElementAtCoords(x, y, id);
 }
 
@@ -1100,7 +1100,7 @@ ElementPtr Document::FindParent(const ElementId& id, const ElementType type)
 
 ElementId Document::FindCurrentParentByType(const ElementType type)
 {
-    std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
+    std::lock_guard<std::recursive_mutex> lock(edit_mutex);
     auto el = caret->GetElement();
     if (!el)
         return ElementId{};
@@ -1110,6 +1110,7 @@ ElementId Document::FindCurrentParentByType(const ElementType type)
 
 ElementPtr Document::FindParentParagraph(const ElementId& id)
 {
+    std::lock_guard<std::recursive_mutex> lock(edit_mutex);
     ElementPtr el = GetElement(id);
     if (el && (el->type == ElementType::PARAGRAPH || el->type == ElementType::CODE_PARAGRAPH))
         return el;
@@ -1173,7 +1174,7 @@ Rect Document::GetCaretRect(const CaretState& caret_state)
 
 bool Document::GetCurrentStringFormat(StringFormatPtr& format)
 {
-    std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
+    std::lock_guard<std::recursive_mutex> lock(edit_mutex);
     if (current_string_format)
     {
         format = current_string_format;
@@ -1184,13 +1185,13 @@ bool Document::GetCurrentStringFormat(StringFormatPtr& format)
 
 void Document::SetCurrentStringFormat(StringFormatPtr& format)
 {
-    std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
+    std::lock_guard<std::recursive_mutex> lock(edit_mutex);
     current_string_format = format;
 }
 
 bool Document::GetCurrentParagraphFormat(ParagraphFormatPtr& format)
 {
-    std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
+    std::lock_guard<std::recursive_mutex> lock(edit_mutex);
     if (current_paragraph_format)
     {
         format = current_paragraph_format;
@@ -1201,7 +1202,7 @@ bool Document::GetCurrentParagraphFormat(ParagraphFormatPtr& format)
 
 bool Document::GetCurrentFormulaFormat(FormulaFormatPtr& format)
 {
-    std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
+    std::lock_guard<std::recursive_mutex> lock(edit_mutex);
     if (current_formula_format)
     {
         format = current_formula_format;
@@ -1212,7 +1213,7 @@ bool Document::GetCurrentFormulaFormat(FormulaFormatPtr& format)
 
 void Document::UpdateFormats()
 {
-    std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
+    std::lock_guard<std::recursive_mutex> lock(edit_mutex);
     CaretState c = caret->GetCaretState();
     ElementPtr el = GetParent(c.id);
     if (!el)
@@ -1230,7 +1231,7 @@ void Document::UpdateFormats()
 
 uint Document::SetFontFamily(const std::string& family)
 {
-    std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
+    std::lock_guard<std::recursive_mutex> lock(edit_mutex);
     if (current_string_format)
     {
         if (!selection.IsEmpty())
@@ -1251,7 +1252,7 @@ uint Document::SetFontFamily(const std::string& family)
 
 uint Document::SetFontSize(const uint size)
 {
-    std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
+    std::lock_guard<std::recursive_mutex> lock(edit_mutex);
     if (current_string_format)
     {
         auto f = string_formats->GetFormat(current_string_format->family, size, current_string_format->bold, current_string_format->italic, 
@@ -1267,7 +1268,7 @@ uint Document::SetFontSize(const uint size)
 
 uint Document::SetBold(const bool enabled)
 {
-    std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
+    std::lock_guard<std::recursive_mutex> lock(edit_mutex);
     if (current_string_format)
     {
         auto f = string_formats->GetFormat(current_string_format->family, current_string_format->size, enabled, current_string_format->italic, 
@@ -1283,7 +1284,7 @@ uint Document::SetBold(const bool enabled)
 
 uint Document::SetItalic(const bool enabled)
 {
-    std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
+    std::lock_guard<std::recursive_mutex> lock(edit_mutex);
     if (current_string_format)
     {
         auto f = string_formats->GetFormat(current_string_format->family, current_string_format->size, current_string_format->bold, enabled, 
@@ -1299,7 +1300,7 @@ uint Document::SetItalic(const bool enabled)
 
 uint Document::SetUnderline(const bool enabled)
 {
-    std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
+    std::lock_guard<std::recursive_mutex> lock(edit_mutex);
     if (current_string_format)
     {
         auto f = string_formats->GetFormat(current_string_format->family, current_string_format->size, current_string_format->bold, 
@@ -1315,7 +1316,7 @@ uint Document::SetUnderline(const bool enabled)
 
 uint Document::SetColor(const Color color)
 {
-    std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
+    std::lock_guard<std::recursive_mutex> lock(edit_mutex);
     if (current_string_format)
     {
         auto f = string_formats->GetFormat(current_string_format->family, current_string_format->size, current_string_format->bold, 
@@ -1331,7 +1332,7 @@ uint Document::SetColor(const Color color)
 
 uint Document::SetBgColor(const Color color)
 {
-    std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
+    std::lock_guard<std::recursive_mutex> lock(edit_mutex);
     if (current_string_format)
     {
         auto f = string_formats->GetFormat(current_string_format->family, current_string_format->size, current_string_format->bold, 
@@ -1347,7 +1348,7 @@ uint Document::SetBgColor(const Color color)
 
 uint Document::SetCurrentParagraphFormat(const std::string& name)
 {
-    std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
+    std::lock_guard<std::recursive_mutex> lock(edit_mutex);
     current_paragraph_format = paragraph_formats->GetFormat(name);
     if (current_paragraph_format)
         return ChangeParagraphFormat(current_paragraph_format, true);
@@ -1356,7 +1357,7 @@ uint Document::SetCurrentParagraphFormat(const std::string& name)
 
 ElementType Document::GetElementType(const ElementId id)
 {
-    std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
+    std::lock_guard<std::recursive_mutex> lock(edit_mutex);
     ElementPtr el = GetElement(id);
     if (!el)
         return ElementType::NONE;
@@ -1365,7 +1366,7 @@ ElementType Document::GetElementType(const ElementId id)
 
 bool Document::IsEditable(const ElementId id)
 {
-    std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
+    std::lock_guard<std::recursive_mutex> lock(edit_mutex);
     ElementPtr el = GetElement(id);
     if (!el)
     {
@@ -1524,7 +1525,7 @@ bool Document::GetStringFormat(const ElementId id, StringFormat& format)
 
 bool Document::GetParagraphFormat(const ElementId id, ParagraphFormat& format)
 {
-    std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
+    std::lock_guard<std::recursive_mutex> lock(edit_mutex);
     auto el = GetParent(id);
     if (!el)
         return false;
@@ -1957,13 +1958,13 @@ uint Document::Cut(std::u32string& out_json, std::u32string& out_text)
 
 std::string Document::ToHtml()
 {
-    std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
+    std::lock_guard<std::recursive_mutex> lock(edit_mutex);
     return text->ToHtml();
 }
 
 std::u32string Document::ToText()
 {
-    std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
+    std::lock_guard<std::recursive_mutex> lock(edit_mutex);
     return text->ToText();
 }
 
@@ -1992,19 +1993,19 @@ uint Document::SetDefaultPageFormat(uint left_indent, uint top_indent, uint righ
 
 StringFormatPtr Document::GetStringFormat(const std::string& family, uint size, bool bold, bool italic, bool underline)
 {
-    std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
+    std::lock_guard<std::recursive_mutex> lock(edit_mutex);
     return string_formats->GetFormat(family, size, bold, italic, underline, Color::Black(), Color::White(), Color::Blue());
 }
 
 StringFormatPtr Document::GetStringFormat(const std::string& family, uint size, bool bold, bool italic, bool underline, Color text_color, Color text_bg_color)
 {
-    std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
+    std::lock_guard<std::recursive_mutex> lock(edit_mutex);
     return string_formats->GetFormat(family, size, bold, italic, underline, text_color, text_bg_color, Color::Blue());
 }
 
 StringFormatPtr Document::GetStringFormat(const boost::uuids::uuid& id)
 {
-    std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
+    std::lock_guard<std::recursive_mutex> lock(edit_mutex);
     return string_formats->GetFormat(id);
 }
 
@@ -2016,12 +2017,13 @@ EditorState Document::GetEditorState()
 
 EditorState Document::MakeEditorState()
 {
+    std::lock_guard<std::recursive_mutex> lock(edit_mutex);
     return EditorState{caret->GetCaretState(), selection.GetState()};
 }
 
 LogicalEditorState Document::GetLogicalEditorState()
 {
-    std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
+    std::lock_guard<std::recursive_mutex> lock(edit_mutex);
     return {caret->GetLogicalCaretState(), selection.GetLogicalState()};
 }
 
@@ -2076,7 +2078,7 @@ void Document::RemoveIdentifier(ElementId _id, uint code_id, const std::u32strin
 
 ResultType Document::GetResultType(ElementId _id)
 {
-    std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
+    std::lock_guard<std::recursive_mutex> lock(edit_mutex);
     auto el = GetElement(_id);
     AutoResult* r = (AutoResult*)el.get();
     if (!r)
@@ -2094,7 +2096,7 @@ uint Document::SetResult(ElementId _id, ResultType result_type, bool with_undo)
 
 int Document::GetPrecision(ElementId _id)
 {
-    std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
+    std::lock_guard<std::recursive_mutex> lock(edit_mutex);
     auto el = GetElement(_id);
     if (!el)
         return 0;
@@ -2119,7 +2121,7 @@ uint Document::SetPrecision(ElementId _id, uint precision, bool with_undo)
 
 int Document::GetExp(ElementId _id)
 {
-    std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
+    std::lock_guard<std::recursive_mutex> lock(edit_mutex);
     auto el = GetElement(_id);
     if (!el)
         return 0;
@@ -2144,7 +2146,7 @@ uint Document::SetExp(ElementId _id, uint exp, bool with_undo)
 
 AngleMeasure Document::GetResultAngleMeasure(ElementId _id)
 {
-    std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
+    std::lock_guard<std::recursive_mutex> lock(edit_mutex);
     auto el = GetElement(_id);
     if (!el)
         return AngleMeasure::None;
@@ -2169,7 +2171,7 @@ uint Document::SetResultAngleMeasure(ElementId _id, AngleMeasure result_angle_me
 
 Notation Document::GetResultNotation(ElementId _id)
 {
-    std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
+    std::lock_guard<std::recursive_mutex> lock(edit_mutex);
     auto el = GetElement(_id);
     if (!el)
         return Notation::None;
@@ -2186,7 +2188,7 @@ Notation Document::GetResultNotation(ElementId _id)
 
 Notation Document::GetDefaultNotation(ElementId _id)
 {
-    std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
+    std::lock_guard<std::recursive_mutex> lock(edit_mutex);
     auto el = GetElement(_id);
     if (!el)
         return Notation::None;
@@ -2211,7 +2213,7 @@ uint Document::SetNotation(ElementId _id, Notation default_notation, Notation re
 
 FractionForm Document::GetFractionForm(ElementId _id)
 {
-    std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
+    std::lock_guard<std::recursive_mutex> lock(edit_mutex);
     auto el = GetElement(_id);
     if (!el)
         return FractionForm::None;
@@ -2236,7 +2238,7 @@ uint Document::SetFractionForm(ElementId _id, FractionForm fraction_form, bool w
 
 ComplexForm Document::GetComplexForm(ElementId _id)
 {
-    std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
+    std::lock_guard<std::recursive_mutex> lock(edit_mutex);
     auto el = GetElement(_id);
     if (!el)
         return ComplexForm::None;
@@ -2261,7 +2263,7 @@ uint Document::SetComplexForm(ElementId _id, ComplexForm form, bool with_undo)
 
 bool Document::HasUnit(ElementId _id)
 {
-    std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
+    std::lock_guard<std::recursive_mutex> lock(edit_mutex);
     auto el = GetElement(_id);
     if (!el)
         return false;
@@ -2288,7 +2290,7 @@ bool Document::HasUnit(ElementId _id)
 
 void Document::GetCastUnits(ElementId _id, std::vector<yutovo_calculator::Unit>& cast_units)
 {
-    std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
+    std::lock_guard<std::recursive_mutex> lock(edit_mutex);
     auto el = GetElement(_id);
     if (!el)
         return;
