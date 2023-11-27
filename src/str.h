@@ -60,7 +60,9 @@ public:
     virtual StringFormatPtr GetStringFormat() const;
     virtual void UpdateStringFormat(const StringFormatPtr base_format, const StringFormatPtr new_format);
     virtual void UpdateFormat(StringFormatPtr& _format);
+
     int GetFontSize(const uint size);
+    Size GetTextSize(const std::u32string& str);
 
     virtual bool CanContinueSelection();
 
@@ -88,7 +90,7 @@ public:
 
 private:
     std::map<std::u32string, std::pair<Size, time_t>> size_cache; //cache of string sizes
-    static const int max_cache_size = 2;
+    static const int max_cache_size = 4;
 };
 
 class StringElements : public Elements
