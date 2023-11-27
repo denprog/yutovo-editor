@@ -205,13 +205,7 @@ void String::Normalize()
 
 void String::UpdateRect(bool with_elements)
 {
-    Size s;
-    auto& str = ((StringElements*)elements.get())->str;
-    if (!FindCachedSize(str, s))
-    {
-        s = window->GetTextSize(str, format);
-        AddCachedSize(str, s);
-    }
+    Size s = GetTextSize(((StringElements*)elements.get())->str);
     rect.SetSize(s.width, s.height);
     baseline = window->GetFontAscent(format);
 }
@@ -506,13 +500,7 @@ bool String::Split(const uint width, bool split_more)
     {
         if (str[j] == ' ')
         {
-            std::u32string substr = str.substr(0, j + 1);
-            Size s;
-            if (!FindCachedSize(substr, s)) //search in the cache
-            {
-                s = window->GetTextSize(substr, format);
-                AddCachedSize(substr, s);
-            }
+            Size s = GetTextSize(str.substr(0, j + 1));
             if (s.width <= width)
                 i = j;
             else
@@ -724,6 +712,17 @@ int String::GetFontSize(const uint size)
     if (size - (level - 1) * 2 > 8)
         return size - (level - 1) * 2;
     return 8;
+}
+
+Size String::GetTextSize(const std::u32string& str)
+{
+    Size s;
+    if (!FindCachedSize(str, s))
+    {
+        s = window->GetTextSize(str, format);
+        AddCachedSize(str, s);
+    }
+    return s;
 }
 
 bool String::CanContinueSelection()
@@ -947,7 +946,7 @@ uint StringElements::Count() const
 
 Rect StringElements::GetCaretRect(const uint pos) const
 {
-    Size s = parent->window->GetTextSize(str.substr(0, pos), ((String*)parent)->format);
+    Size s = ((String*)parent)->GetTextSize(str.substr(0, pos));
     return Rect(s.width, 0, 1, s.height);
 }
 
@@ -962,7 +961,7 @@ void StringElements::DrawCaret(const uint pos) const
 
 Rect StringElements::GetRect()
 {
-    Size s = parent->window->GetTextSize(str, ((String*)parent)->format);
+    Size s = ((String*)parent)->GetTextSize(str);
     return Rect{0, 0, s.width, s.height};
 }
 
