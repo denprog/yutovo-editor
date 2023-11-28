@@ -205,7 +205,7 @@ void String::Normalize()
 
 void String::UpdateRect(bool with_elements)
 {
-    Size s = GetTextSize(((StringElements*)elements.get())->str);
+    Size s = GetTextSize(elements->Count());
     rect.SetSize(s.width, s.height);
     baseline = window->GetFontAscent(format);
 }
@@ -294,7 +294,7 @@ bool String::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo, 
                 document->StoreUndo(id);
             elements.reset(new StringElements(this, s->elements->ToText()));
             format = s->format;
-            ResetCache();
+            size_cache.clear();
             caret->SetState(elements->GetElementId(elements->Count()));
             parent->Normalize();
             auto p = document->FindParent(id, ElementType::PARAGRAPH);
@@ -459,7 +459,7 @@ bool String::ChangeStringFormat(const StringFormatPtr _format, bool with_undo, E
         {
             //change format of the whole string
             format = _format;
-            ResetCache();
+            size_cache.clear();
             parent->Normalize();
             auto p = document->FindParent(id, ElementType::PARAGRAPH);
             p->elements->UpdateIds();
@@ -472,7 +472,7 @@ bool String::ChangeStringFormat(const StringFormatPtr _format, bool with_undo, E
             el = parent->elements->Get(parent->elements->GetElementPos(id) + 1);
         el->SplitAt(size);
         ((String*)el.get())->format = _format;
-        ((String*)el.get())->ResetCache();
+        ((String*)el.get())->size_cache.clear();
 
         auto p = document->FindParent(id, ElementType::PARAGRAPH);
         p->elements->UpdateIds();
@@ -500,7 +500,7 @@ bool String::Split(const uint width, bool split_more)
     {
         if (str[j] == ' ')
         {
-            Size s = GetTextSize(str.substr(0, j + 1));
+            Size s = GetTextSize(j + 1);
             if (s.width <= width)
                 i = j;
             else
@@ -696,7 +696,7 @@ void String::UpdateStringFormat(const StringFormatPtr base_format, const StringF
     if (base_format->text_bg_color == format->text_bg_color)
         f.text_bg_color = new_format->text_bg_color;
     format = document->GetStringFormat(f.family, f.size, f.bold, f.italic, f.underline, f.text_color, f.text_bg_color);
-    ResetCache();
+    size_cache.clear();
 }
 
 void String::UpdateFormat(StringFormatPtr& _format)
@@ -714,15 +714,17 @@ int String::GetFontSize(const uint size)
     return 8;
 }
 
-Size String::GetTextSize(const std::u32string& str)
+Size String::GetTextSize(const uint pos)
 {
-    Size s;
-    if (!FindCachedSize(str, s))
+    auto it = size_cache.find(pos);
+    if (it == size_cache.end())
     {
-        s = window->GetTextSize(str, format);
-        AddCachedSize(str, s);
+        auto str = ((StringElements*)elements.get())->str.substr(0, pos);
+        Size s = window->GetTextSize(str, format);
+        size_cache[pos] = s;
+        return s;
     }
-    return s;
+    return it->second;
 }
 
 bool String::CanContinueSelection()
@@ -742,7 +744,7 @@ void String::UpdateLevel(uint8_t _level)
     level = _level;
     if (!parent)
         return;
-    ResetCache();
+    size_cache.clear();
     format = parent->GetStringFormat();
     format = document->GetStringFormat(format->family, GetFontSize(format->size), format->bold, format->italic, format->underline, 
         format->text_color, format->text_bg_color);
@@ -773,37 +775,6 @@ void String::SubscribeOnChange(const ElementId _id)
         return;
     if (std::find(on_change_subscribers.begin(), on_change_subscribers.end(), _id) == on_change_subscribers.end())
         on_change_subscribers.push_back(_id);
-}
-
-bool String::FindCachedSize(const std::u32string& str, Size& size)
-{
-    auto it = size_cache.find(str);
-    if (it == size_cache.end())
-        return false;
-    it->second.second = time(nullptr);
-    size = it->second.first;
-    return true;
-}
-
-void String::AddCachedSize(const std::u32string& str, const Size& size)
-{
-    size_cache[str] = std::pair{size, time(nullptr)};
-    while (size_cache.size() > max_cache_size) //remove the oldest cache items
-    {
-        auto it = std::min_element(size_cache.begin(), size_cache.end(), 
-            [](auto& first, auto& second)
-            {
-                return first.second.second < second.second.second;
-            });
-        if (it == size_cache.end())
-            return;
-        size_cache.erase(it);
-    }
-}
-
-void String::ResetCache()
-{
-    size_cache.clear();
 }
 
 //StringElements
@@ -946,7 +917,7 @@ uint StringElements::Count() const
 
 Rect StringElements::GetCaretRect(const uint pos) const
 {
-    Size s = ((String*)parent)->GetTextSize(str.substr(0, pos));
+    Size s = ((String*)parent)->GetTextSize(pos);
     return Rect(s.width, 0, 1, s.height);
 }
 
@@ -961,7 +932,7 @@ void StringElements::DrawCaret(const uint pos) const
 
 Rect StringElements::GetRect()
 {
-    Size s = ((String*)parent)->GetTextSize(str);
+    Size s = ((String*)parent)->GetTextSize(str.length());
     return Rect{0, 0, s.width, s.height};
 }
 
