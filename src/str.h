@@ -62,7 +62,7 @@ public:
     virtual void UpdateFormat(StringFormatPtr& _format);
 
     int GetFontSize(const uint size);
-    Size GetTextSize(const std::u32string& str);
+    Size GetTextSize(const uint pos);
 
     virtual bool CanContinueSelection();
 
@@ -79,18 +79,12 @@ public:
 
     virtual void SubscribeOnChange(const ElementId _id);
 
-private:
-    bool FindCachedSize(const std::u32string& str, Size& size);
-    void AddCachedSize(const std::u32string& str, const Size& size);
-    void ResetCache();
-
 public:
     StringFormatPtr format;
     bool translate = false;
 
 private:
-    std::map<std::u32string, std::pair<Size, time_t>> size_cache; //cache of string sizes
-    static const int max_cache_size = 4;
+    std::map<uint, Size> size_cache; //cache of string sizes
 };
 
 class StringElements : public Elements
