@@ -483,6 +483,62 @@ bool Element::CanContinueVerticalMoving()
     return false;
 }
 
+void Element::Select(const CaretState& start, const CaretState& end)
+{
+    if (start == end)
+    {
+        caret->SetState(start);
+        return;
+    }
+    
+    if (yutovo::IsDirectChild(id, start.id) && yutovo::IsDirectChild(id, end.id))
+    {
+        int p1 = yutovo::GetChildPos(id, start.id);
+        int p2 = yutovo::GetChildPos(id, end.id);
+        if (p2 > p1)
+            selection->Add(id, p1, p2 - p1);
+        else
+            selection->Add(id, p2, p1 - p2);
+        caret->SetState(end);
+        return;
+    }
+
+    if (yutovo::IsDirectChild(id, start.id))
+    {
+        int p1 = yutovo::GetChildPos(id, start.id);
+        if (start < end)
+            selection->Add(id, p1, elements->Count() - p1);
+        else
+            selection->Add(id, 0, p1);
+    }
+    else if (yutovo::IsDirectChild(id, end.id))
+    {
+        int p2 = yutovo::GetChildPos(id, end.id);
+        if (start < end)
+            selection->Add(id, 0, p2);
+        else
+            selection->Add(id, p2, elements->Count() - p2);
+    }
+    else
+    {
+        auto el1 = document->GetElement(start.id);
+        el1->Select(start, end);
+        if (yutovo::IsChild(id, start.id) && yutovo::IsChild(id, end.id))
+        {
+            int p1 = yutovo::GetChildPos(id, start.id);
+            int p2 = yutovo::GetChildPos(id, end.id);
+            if (p2 - p1 > 1)
+                selection->Add(id, p1 + 1, p2 - p1 - 1);
+            else if (p1 - p2 > 1)
+                selection->Add(id, p2 + 1, p1 - p2 - 1);
+        }
+        caret->SetState(end);
+        auto el2 = document->GetElement(end.id);
+        if (el1 != el2)
+            el2->Select(start, end);
+    }
+}
+
 Rect Element::GetCaretRect(const uint pos) const
 {
     return elements->GetCaretRect(pos);
@@ -583,8 +639,71 @@ bool Element::GetElementAtCoords(const int x, const int y, ElementId& _id)
         ElementPtr el = elements->Get(i);
         if (el->GetElementAtCoords(x, y, _id))
             return true;
+        r = el->GetAbsoluteRect();
+        if (r.IsPointInside(x, y))
+        {
+            _id = el->id;
+            return true;
+        }
     }
     return false;
+}
+
+bool Element::GetNearestElement(const int x, const int y, ElementId& _id, int& dist)
+{
+    Rect r = GetAbsoluteRect();
+    int d = r.DistToPoint(x, y);
+    if (d > dist)
+        return false;
+    
+    bool f = false;
+    for (int i = 0; i < elements->Count(); ++i)
+    {
+        auto el = elements->Get(i);
+        if (el->GetNearestElement(x, y, _id, dist))
+            f = true;
+    }
+
+    if (!f)
+    {
+        dist = d;
+        _id = id;
+    }
+    return true;
+}
+
+bool Element::GetNearestCaretState(const int x, const int y, CaretState& caret_state)
+{
+    int dist = std::numeric_limits<int>::max();
+    ElementId _id;
+    if (!GetNearestElement(x, y, _id, dist))
+        return false;
+    
+    auto el = document->GetElement(_id);
+    CaretState next, last;
+    if (!el->GetFirstCaretState(next, nullptr) || !el->GetLastCaretState(last, nullptr))
+    {
+        if (!el->parent->GetFirstCaretState(next, nullptr) || !el->parent->GetLastCaretState(last, nullptr))
+            return false;
+    }
+    
+    Rect r = document->GetCaretRect(next);
+	int min_dist = r.DistToPoint(x, y);
+    caret_state = next;
+    while (next != last)
+    {
+        ElementPtr el = document->GetParent(next.id);
+        if (!el->GetRightCaretState(next, nullptr))
+            break;
+        r = document->GetCaretRect(next);
+        dist = r.DistToPoint(x, y);
+        if (dist < min_dist)
+        {
+            min_dist = dist;
+            caret_state = next;
+        }
+    }
+    return true;
 }
 
 void Element::AddElement(ElementPtr element)
@@ -1267,6 +1386,11 @@ Rect Elements::GetRect()
             bottom = element->rect.GetBottom();
     }
     return Rect{left, top, right - left, bottom - top};
+}
+
+Rect Elements::GetRect(const uint pos)
+{
+    return elements[pos]->rect;
 }
 
 bool Elements::GetFirstCaretState(CaretState& caret_state, Selection* select)

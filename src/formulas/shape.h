@@ -27,6 +27,8 @@ public:
 
     virtual bool HasCaretState();
 
+    virtual void Select(const CaretState& start, const CaretState& end);
+
     virtual bool GetElementAtCoords(const int x, const int y, ElementId& _id);
 
 public:

@@ -83,6 +83,28 @@ bool Text::Remake(bool with_elements)
     return false;
 }
 
+void Text::Select(const CaretState& start, const CaretState& end)
+{
+    if (start == end)
+    {
+        caret->SetState(start);
+        return;
+    }
+
+    int p1 = yutovo::GetChildPos(id, start.id);
+    int p2 = yutovo::GetChildPos(id, end.id);
+
+    auto el = elements->Get(p1);
+    el->Select(start, end);
+    if (p2 - p1 > 1)
+        selection->Add(id, p1 + 1, p2 - p1 - 1);
+    else if (p1 - p2 > 1)
+        selection->Add(id, p2 + 1, p1 - p2 - 1);
+    el = elements->Get(p2);
+    caret->SetState(end);
+    el->Select(start, end);
+}
+
 void Text::UpdateRect(bool with_elements)
 {
     Block::UpdateRect(with_elements);
@@ -107,6 +129,34 @@ void Text::UpdateDrawRect()
     Block::UpdateDrawRect();
     draw_rect.width += page_format->right_indent + page_format->left_indent;
     draw_rect.height += page_format->bottom_indent + page_format->right_indent;
+}
+
+bool Text::GetElementAtCoords(const int x, const int y, ElementId& _id)
+{
+    Rect r = GetAbsoluteRect();
+    if (!r.IsPointInside(x, y))
+        return false;
+    
+    //look in the child elements
+    for (int i = 0; i < elements->Count(); ++i)
+    {
+        ElementPtr el = elements->Get(i);
+        if (el->GetElementAtCoords(x, y, _id))
+            return true;
+    }
+    _id = id;
+    return true;
+}
+
+bool Text::GetNearestElement(const int x, const int y, ElementId& _id, int& dist)
+{
+    for (int i = 0; i < elements->Count(); ++i)
+    {
+        auto el = elements->Get(i);
+        el->GetNearestElement(x, y, _id, dist);
+    }
+
+    return true;
 }
 
 Rect Text::GetCaretRect(const uint pos) const

@@ -968,6 +968,16 @@ bool Document::GetElementAtCoords(const int x, const int y, ElementId& id)
     return text->GetElementAtCoords(x, y, id);
 }
 
+bool Document::GetElementRect(const ElementId id, Rect& rect)
+{
+    std::lock_guard<std::recursive_mutex> lock(edit_mutex);
+    auto _el = GetElement(id);
+    if (!_el)
+        return false;
+    rect = _el->GetAbsoluteRect();
+    return true;
+}
+
 LogicalId Document::GetLogicalId(const ElementId& _id)
 {
     if (_id.size() <= 2)
@@ -1639,6 +1649,20 @@ uint Document::MoveCaret(const int x, const int y)
 uint Document::SelectAll()
 {
     return MoveCaret(MoveCaretTask::MoveCaretDir::SELECT_ALL, true, false, false);
+}
+
+uint Document::Select(const int start_x, const int start_y, const int end_x, const int end_y)
+{
+    {
+        std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
+        tasks.emplace_back(new MoveCaretTask(text, caret, Point{start_x, start_y}, Point{end_x, end_y}));
+        last_task_id = tasks.back()->id;
+    }
+    next_circle = true;
+#ifdef DEBUG
+    last_caret_moved = false;
+#endif
+    return last_task_id;
 }
 
 void Document::SetCaretVisible(bool visible)

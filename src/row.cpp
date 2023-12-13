@@ -502,7 +502,7 @@ bool Row::GetEndCaretState(CaretState& caret_state, Selection* select)
         select->Add(id, p1, 1);
     if (caret_state.last_pos && p2 - p1 > 1 && p2 <= elements->Count())
         select->Add(id, p1 + 1, p2 - p1 - 1);
-    else if (p2 < elements->Count())
+    else if (p2 < elements->Count() && p2 - p1 > 0)
         select->Add(id, p1 + 1, p2 - p1);
     return true;
 }

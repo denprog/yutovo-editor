@@ -21,6 +21,8 @@ public:
 
     virtual void AddEmptyElement();
 
+    virtual void Select(const CaretState& start, const CaretState& end);
+
     virtual bool IsFormula();
 
     virtual std::string ToHtml();

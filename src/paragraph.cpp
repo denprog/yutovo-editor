@@ -385,6 +385,94 @@ bool Paragraph::CanContinueSelection()
     return true;
 }
 
+void Paragraph::Select(const CaretState& start, const CaretState& end)
+{
+    if (start == end)
+    {
+        caret->SetState(start);
+        return;
+    }
+    
+    if (yutovo::IsChild(id, start.id) && yutovo::IsChild(id, end.id))
+    {
+        int p1 = yutovo::GetChildPos(id, start.id);
+        int p2 = yutovo::GetChildPos(id, end.id);
+        auto el = elements->Get(p1);
+        CaretState c;
+        if (start < end)
+        {
+            el->GetLastCaretState(c, nullptr);
+            el->Select(start, c);
+        }
+        else
+        {
+            el->GetFirstCaretState(c, nullptr);
+            el->Select(c, start);
+        }
+        if (p2 - p1 > 1)
+            selection->Add(id, p1 + 1, p2 - p1 - 1);
+        else if (p1 - p2 > 1)
+            selection->Add(id, p2 + 1, p1 - p2 - 1);
+        el = elements->Get(p2);
+        if (start < end)
+        {
+            el->GetFirstCaretState(c, nullptr);
+            el->Select(c, end);
+            caret->SetState(selection->GetLastCaretState());
+        }
+        else
+        {
+            el->GetLastCaretState(c, nullptr);
+            el->Select(end, c);
+            caret->SetState(end);
+        }
+        return;
+    }
+
+    if (yutovo::IsChild(id, start.id))
+    {
+        int p1 = yutovo::GetChildPos(id, start.id);
+        auto el = elements->Get(p1);
+        CaretState c;
+        if (start < end)
+        {
+            el->GetLastCaretState(c, nullptr);
+            el->Select(start, c);
+            if (p1 < elements->Count() - 1)
+                selection->Add(id, p1 + 1, elements->Count() - p1 - 1);
+        }
+        else
+        {
+            el->GetFirstCaretState(c, nullptr);
+            el->Select(c, start);
+            if (p1 > 0)
+                selection->Add(id, 0, p1);
+        }
+        caret->SetState(start);
+    }
+    else if (yutovo::IsChild(id, end.id))
+    {
+        int p2 = yutovo::GetChildPos(id, end.id);
+        auto el = elements->Get(p2);
+        CaretState c;
+        if (start < end)
+        {
+            el->GetFirstCaretState(c, nullptr);
+            el->Select(c, end);
+            if (p2 > 0)
+                selection->Add(id, 0, p2);
+        }
+        else
+        {
+            el->GetEndCaretState(c, nullptr);
+            el->Select(end, c);
+            if (p2 < elements->Count() - 1)
+                selection->Add(id, p2 + 1, elements->Count() - p2 - 1);
+        }
+        caret->SetState(end);
+    }
+}
+
 void Paragraph::AddEmptyElement()
 {
     AddElement(ElementPtr(new Row(this)));

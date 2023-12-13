@@ -24,8 +24,13 @@ public:
 
     virtual bool Remake(bool with_elements = false);
 
+    virtual void Select(const CaretState& start, const CaretState& end);
+
     virtual void UpdateRect(bool with_elements = false);
     virtual void UpdateDrawRect();
+
+    virtual bool GetElementAtCoords(const int x, const int y, ElementId& _id);
+    virtual bool GetNearestElement(const int x, const int y, ElementId& _id, int& dist);
 
     virtual Rect GetCaretRect(const uint pos) const;
 

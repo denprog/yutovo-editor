@@ -59,6 +59,26 @@ bool Formula::HasLastCaretState()
     return true;
 }
 
+void Formula::Select(const CaretState& start, const CaretState& end)
+{
+    if (yutovo::IsDirectChild(id, start.id) && yutovo::IsDirectChild(id, end.id))
+    {
+        Element::Select(start, end);
+        return;
+    }
+    if (yutovo::IsChild(id, start.id) && yutovo::IsChild(id, end.id))
+    {
+        selection->Add(id);
+        if (start < end)
+            document->caret->SetState(document->selection.GetLastCaretState());
+        else
+            document->caret->SetState(document->selection.GetFirstCaretState());
+        return;
+    }
+
+    parent->Select(start, end);
+}
+
 bool Formula::GetElementAtCoords(const int x, const int y, ElementId& _id)
 {
     //look in the child elements

@@ -725,4 +725,575 @@ TEST_F(DocumentTest, caret19)
         ElementSelectionState{ElementId{0, 0, 8, 0}, 0, 3})) << document.GetEditorState().ToString();
 }
 
+//Selection a string with mouse
+TEST_F(DocumentTest, caret20)
+{
+    Start(600);
+
+    document.WaitTask(document.InsertString("TextString", true));
+    Rect rect;
+    document.GetElementRect(ElementId{0, 0, 0, 0, 0}, rect);
+    document.WaitTask(document.MoveCaret(rect.left, rect.top + 5));
+    document.WaitTask(document.Select(rect.left, rect.top + 5, rect.left + 15, rect.top + 5));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 1}, 
+        ElementSelectionState{ElementId{0, 0, 0, 0}, 0, 1})) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.Select(rect.left, rect.top + 5, rect.left + 85, rect.top + 5));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 10}, 
+        ElementSelectionState{ElementId{0}, 0, 1})) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.Select(rect.left, rect.top + 5, rect.left + 185, rect.top + 5));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 10}, 
+        ElementSelectionState{ElementId{0}, 0, 1})) << document.GetEditorState().ToString();
+    
+    document.MoveCaretEnd(false);
+    document.WaitTask(document.Select(rect.left + 85, rect.top + 5, rect.left + 65, rect.top + 5));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 8}, 
+        ElementSelectionState{ElementId{0, 0, 0, 0}, 8, 2})) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.Select(rect.left + 85, rect.top + 5, rect.left, rect.top + 5));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0}, 
+        ElementSelectionState{ElementId{0}, 0, 1})) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.Select(rect.left + 85, rect.top + 5, rect.left - 10, rect.top + 5));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0}, 
+        ElementSelectionState{ElementId{0}, 0, 1})) << document.GetEditorState().ToString();
+}
+
+//Selection a string with mouse
+TEST_F(DocumentTest, caret21)
+{
+    Start(600);
+
+    document.WaitTask(document.InsertString("TextString", true));
+    Rect rect;
+    document.GetElementRect(ElementId{0, 0, 0, 0, 0}, rect);
+
+    document.WaitTask(document.Select(rect.GetRight() + 5, rect.top + 5, rect.GetRight() + 4, rect.top + 5));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 10})) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.Select(rect.GetRight() + 5, rect.top + 5, rect.left + 20, rect.top + 5));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 2}, 
+        ElementSelectionState{ElementId{0, 0, 0, 0}, 2, 8})) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.MoveCaret(rect.left - 5, rect.top + 5));
+    document.WaitTask(document.Select(rect.left - 5, rect.top + 5, rect.left - 4, rect.top + 5));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0})) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.Select(rect.left - 5, rect.top + 5, rect.left + 20, rect.top + 5));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 2}, 
+        ElementSelectionState{ElementId{0, 0, 0, 0}, 0, 2})) << document.GetEditorState().ToString();
+}
+
+//Selection a row with mouse
+TEST_F(DocumentTest, caret22)
+{
+    Start(600);
+
+    document.InsertString("Text", true);
+    document.SetBold(true);
+    document.WaitTask(document.InsertString("Bold", true));
+    Rect rect1, rect2;
+    document.GetElementRect(ElementId{0, 0, 0, 0}, rect1);
+    document.GetElementRect(ElementId{0, 0, 0, 1}, rect2);
+    document.WaitTask(document.MoveCaret(rect1.left + 15, rect1.top + 5));
+    document.WaitTask(document.Select(rect1.left + 15, rect1.top + 5, rect1.left + 20, rect1.top + 5));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 2}, 
+        ElementSelectionState{ElementId{0, 0, 0, 0}, 1, 1})) << document.GetEditorState().ToString();
+    
+    document.WaitTask(document.Select(rect1.left + 15, rect1.top + 5, rect2.left + 10, rect1.top + 5));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 1, 1}, 
+        ElementSelectionState{ElementId{0, 0, 0, 0}, 1, 3}, 
+        ElementSelectionState{ElementId{0, 0, 0, 1}, 0, 1})) << document.GetEditorState().ToString();
+}
+
+//Selection a row with a code block with mouse
+TEST_F(DocumentTest, caret23)
+{
+    Start(600);
+
+    document.InsertString("Text", true);
+    document.WaitTask(document.InsertDivision(true));
+    Rect rect1, rect2;
+    document.GetElementRect(ElementId{0, 0, 0, 0}, rect1);
+    document.GetElementRect(ElementId{0, 0, 0, 1}, rect2);
+    document.WaitTask(document.MoveCaret(rect1.left + 15, rect1.top + 5));
+    document.WaitTask(document.Select(rect1.left + 15, rect1.top + 5, rect1.left + 20, rect1.top + 5));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 2}, 
+        ElementSelectionState{ElementId{0, 0, 0, 0}, 1, 1})) << document.GetEditorState().ToString();
+    
+    document.WaitTask(document.Select(rect1.left + 15, rect1.top + 5, rect2.left + 5, rect2.top + 5));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 2}, 
+        ElementSelectionState{ElementId{0, 0, 0, 0}, 1, 3}, 
+        ElementSelectionState{ElementId{0, 0, 0}, 1, 1})) << document.GetEditorState().ToString();
+}
+
+//Selection a row with a code block with mouse
+TEST_F(DocumentTest, caret24)
+{
+    Start(600);
+
+    document.InsertString("Text", true);
+    document.WaitTask(document.InsertDivision(true));
+    document.WaitTask(document.MoveCaretToDocumentEnd(false));
+    document.SetBold(true);
+    document.WaitTask(document.InsertString("Bold", true));
+    Rect rect1, rect2, rect3;
+    document.GetElementRect(ElementId{0, 0, 0, 0}, rect1);
+    document.GetElementRect(ElementId{0, 0, 0, 1}, rect2);
+    document.GetElementRect(ElementId{0, 0, 0, 2}, rect3);
+    document.WaitTask(document.MoveCaret(rect1.left + 15, rect1.top + 5));
+    document.WaitTask(document.Select(rect1.left + 15, rect1.top + 5, rect1.left + 20, rect1.top + 5));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 2}, 
+        ElementSelectionState{ElementId{0, 0, 0, 0}, 1, 1})) << document.GetEditorState().ToString();
+    
+    document.WaitTask(document.Select(rect1.left + 15, rect1.top + 5, rect2.left + 5, rect2.top + 5));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 2, 0}, 
+        ElementSelectionState{ElementId{0, 0, 0, 0}, 1, 3}, 
+        ElementSelectionState{ElementId{0, 0, 0}, 1, 1})) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.Select(rect1.left + 15, rect1.top + 5, rect3.left + 10, rect3.top + 5));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 2, 1}, 
+        ElementSelectionState{ElementId{0, 0, 0, 0}, 1, 3}, 
+        ElementSelectionState{ElementId{0, 0, 0}, 1, 1}, 
+        ElementSelectionState{ElementId{0, 0, 0, 2}, 0, 1})) << document.GetEditorState().ToString();
+}
+
+//Selection a row with a code block with mouse from right to left
+TEST_F(DocumentTest, caret25)
+{
+    Start(600);
+
+    document.InsertString("Text", true);
+    document.WaitTask(document.InsertDivision(true));
+    document.WaitTask(document.MoveCaretToDocumentEnd(false));
+    document.SetBold(true);
+    document.WaitTask(document.InsertString("Bold", true));
+    Rect rect1, rect2, rect3;
+    document.GetElementRect(ElementId{0, 0, 0, 0}, rect1);
+    document.GetElementRect(ElementId{0, 0, 0, 1}, rect2);
+    document.GetElementRect(ElementId{0, 0, 0, 2}, rect3);
+    document.WaitTask(document.MoveCaret(rect3.GetRight() - 5, rect3.top + 5));
+    document.WaitTask(document.Select(rect3.GetRight() - 5, rect3.top + 5, rect3.GetRight() - 10, rect3.top + 5));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 2, 3}, 
+        ElementSelectionState{ElementId{0, 0, 0, 2}, 3, 1})) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.Select(rect3.GetRight(), rect3.top + 5, rect2.GetRight() - 10, rect2.top + 5));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 1}, 
+        ElementSelectionState{ElementId{0, 0, 0}, 1, 2})) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.Select(rect3.GetRight(), rect3.top + 5, rect1.GetRight() - 15, rect1.top + 5));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 2}, 
+        ElementSelectionState{ElementId{0, 0, 0, 0}, 2, 2},
+        ElementSelectionState{ElementId{0, 0, 0}, 1, 2})) << document.GetEditorState().ToString();
+}
+
+//Selection from a code block outside
+TEST_F(DocumentTest, caret26)
+{
+    Start(600);
+
+    document.InsertDivision(true);
+    document.InsertDivision(true);
+    document.WaitTask(document.InsertString("123", true));
+    auto el = document.FindByString({0}, U"123");
+    Rect rect1, rect2;
+    document.GetElementRect(el->id, rect1);
+    document.WaitTask(document.MoveCaret(rect1.left + 1, rect1.top + 1));
+    document.WaitTask(document.Select(rect1.left + 1, rect1.top + 1, rect1.left + 1, rect1.GetBottom() + 5));
+    ElementId p_id = document.FindCurrentParentByType(ElementType::DIVISION);
+    auto p = document.GetElement(p_id);
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0, 0, 0, 1}, 
+        ElementSelectionState{p->id, 0, 1})) << document.GetEditorState().ToString();
+
+    document.GetElementRect(p->id, rect2);
+    document.WaitTask(document.Select(rect1.left + 1, rect1.top + 1, rect2.left + 1, rect2.GetBottom() + 5));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 1}, 
+        ElementSelectionState{ElementId{0}, 0, 1})) << document.GetEditorState().ToString();
+    
+    p_id = document.FindCurrentParentByType(ElementType::CODE_BLOCK);
+    document.GetElementRect(p_id, rect2);
+    document.WaitTask(document.Select(rect1.left + 1, rect1.top + 1, rect2.left, rect2.GetBottom() + 5));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 1}, 
+        ElementSelectionState{ElementId{0}, 0, 1})) << document.GetEditorState().ToString();
+}
+
+//Selection inside a paragraph
+TEST_F(DocumentTest, caret27)
+{
+    Start(600);
+
+    document.WaitTask(document.InsertString("In literary theory, a text is any object that can be read, whether this object is a work of literature", true));
+    std::this_thread::sleep_for(100ms);
+    Rect rect1, rect2;
+    document.GetElementRect(ElementId{0, 0, 0}, rect1);
+    document.GetElementRect(ElementId{0, 0, 1}, rect2);
+    document.WaitTask(document.MoveCaret(100, rect1.top + 1));
+
+    document.WaitTask(document.Select(100, rect1.top + 1, 100, rect1.GetBottom() + 1));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 10})) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.Select(100, rect1.top + 1, 100, rect2.GetBottom() - 1));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 0, 9}, 
+        ElementSelectionState{ElementId{0, 0, 0, 0}, 10, 57}, 
+        ElementSelectionState{ElementId{0, 0, 1, 0}, 0, 9})) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.Select(100, rect1.top + 1, 100, rect2.GetBottom() + 10));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 0, 9}, 
+        ElementSelectionState{ElementId{0, 0, 0, 0}, 10, 57}, 
+        ElementSelectionState{ElementId{0, 0, 1, 0}, 0, 9})) << document.GetEditorState().ToString();
+}
+
+//Selection inside a paragraph
+TEST_F(DocumentTest, caret28)
+{
+    Start(360);
+
+    document.WaitTask(document.InsertString("In literary theory, a text is any object that can be read, whether this object is a work of literature", true));
+    std::this_thread::sleep_for(100ms);
+
+    Rect rect1, rect2, rect3;
+    document.GetElementRect(ElementId{0, 0, 0}, rect1);
+    document.GetElementRect(ElementId{0, 0, 1}, rect2);
+    document.GetElementRect(ElementId{0, 0, 2}, rect3);
+    document.WaitTask(document.MoveCaret(100, rect1.top + 1));
+
+    document.WaitTask(document.Select(100, rect1.top + 1, 90, rect1.GetBottom() + 1));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 9}, 
+        ElementSelectionState{ElementId{0, 0, 0, 0}, 9, 1})) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.Select(100, rect1.top + 1, 90, rect2.GetBottom() - 1));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 0, 7}, 
+        ElementSelectionState{ElementId{0, 0, 0, 0}, 10, 31},
+        ElementSelectionState{ElementId{0, 0, 1, 0}, 0, 7})) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.Select(100, rect1.top + 1, 90, rect2.GetBottom() + 1));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 0, 7}, 
+        ElementSelectionState{ElementId{0, 0, 0, 0}, 10, 31},
+        ElementSelectionState{ElementId{0, 0, 1, 0}, 0, 7})) << document.GetEditorState().ToString();
+}
+
+//Selection inside a paragraph upward
+TEST_F(DocumentTest, caret29)
+{
+    Start(360);
+
+    document.WaitTask(document.InsertString("In literary theory, a text is any object that can be read, whether this object is a work of literature", true));
+    std::this_thread::sleep_for(100ms);
+
+    Rect rect1, rect2, rect3;
+    document.GetElementRect(ElementId{0, 0, 0}, rect1);
+    document.GetElementRect(ElementId{0, 0, 1}, rect2);
+    document.GetElementRect(ElementId{0, 0, 2}, rect3);
+    document.WaitTask(document.MoveCaret(100, rect3.top + 1));
+
+    document.WaitTask(document.Select(100, rect3.top + 1, 110, rect3.top - 1));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 2, 0, 10}, 
+        ElementSelectionState{ElementId{0, 0, 2, 0}, 9, 1})) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.Select(100, rect3.top + 1, 110, rect2.top + 1));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 0, 9}, 
+        ElementSelectionState{ElementId{0, 0, 1, 0}, 9, 22},
+        ElementSelectionState{ElementId{0, 0, 2, 0}, 0, 9})) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.Select(100, rect3.top + 1, 110, rect2.top - 1));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 0, 9}, 
+        ElementSelectionState{ElementId{0, 0, 1, 0}, 9, 22},
+        ElementSelectionState{ElementId{0, 0, 2, 0}, 0, 9})) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.Select(100, rect3.top + 1, 110, rect1.top + 1));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 11}, 
+        ElementSelectionState{ElementId{0, 0, 0, 0}, 11, 30},
+        ElementSelectionState{ElementId{0, 0}, 1, 1},
+        ElementSelectionState{ElementId{0, 0, 2, 0}, 0, 9})) << document.GetEditorState().ToString();
+}
+
+//Selection inside a paragraph upward
+TEST_F(DocumentTest, caret30)
+{
+    Start(360);
+
+    document.WaitTask(document.InsertString("In literary theory, a text is any object that can be read, whether this object is a work of literature", true));
+    std::this_thread::sleep_for(100ms);
+
+    Rect rect1, rect2, rect3;
+    document.GetElementRect(ElementId{0, 0, 0}, rect1);
+    document.GetElementRect(ElementId{0, 0, 1}, rect2);
+    document.GetElementRect(ElementId{0, 0, 2}, rect3);
+    document.WaitTask(document.MoveCaret(100, rect3.top + 1));
+
+    document.WaitTask(document.Select(100, rect3.top + 1, 90, rect3.top - 1));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 2, 0, 8}, 
+        ElementSelectionState{ElementId{0, 0, 2, 0}, 8, 1})) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.Select(100, rect3.top + 1, 90, rect2.top + 1));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 0, 7}, 
+        ElementSelectionState{ElementId{0, 0, 1, 0}, 7, 24},
+        ElementSelectionState{ElementId{0, 0, 2, 0}, 0, 9})) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.Select(100, rect3.top + 1, 90, rect2.top - 1));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 0, 7}, 
+        ElementSelectionState{ElementId{0, 0, 1, 0}, 7, 24},
+        ElementSelectionState{ElementId{0, 0, 2, 0}, 0, 9})) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.Select(100, rect3.top + 1, 90, rect1.top + 1));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 9}, 
+        ElementSelectionState{ElementId{0, 0, 0, 0}, 9, 32},
+        ElementSelectionState{ElementId{0, 0}, 1, 1},
+        ElementSelectionState{ElementId{0, 0, 2, 0}, 0, 9})) << document.GetEditorState().ToString();
+}
+
+//Selection between paragraphs
+TEST_F(DocumentTest, caret31)
+{
+    Start(565);
+
+    document.InsertString("Арифме́тика (др.-греч. ἀριθμητική, arithmētikḗ — от ἀριθμός, arithmós «число») — "\
+        "раздел математики, изучающий числа, их отношения и свойства.", true);
+    document.InsertParagraph(true);
+    document.WaitTask(document.InsertString("In literary theory, a text is any object that can be read, whether this object is a work of literature", true));
+    std::this_thread::sleep_for(100ms);
+
+    Rect rect1, rect2, rect3, rect4, rect5;
+    document.GetElementRect(ElementId{0, 0, 0}, rect1);
+    document.GetElementRect(ElementId{0, 0, 1}, rect2);
+    document.GetElementRect(ElementId{0, 0, 2}, rect3);
+    document.GetElementRect(ElementId{0, 1, 0}, rect4);
+    document.GetElementRect(ElementId{0, 1, 1}, rect5);
+
+    document.WaitTask(document.MoveCaret(100, rect3.top + 1));
+    document.WaitTask(document.Select(100, rect3.top + 1, 110, rect4.top + 1));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 1, 0, 0, 11}, 
+        ElementSelectionState{ElementId{0, 0, 2, 0}, 6, 35},
+        ElementSelectionState{ElementId{0, 1, 0, 0}, 0, 11})) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.MoveCaret(100, rect2.top + 1));
+    document.WaitTask(document.Select(100, rect2.top + 1, 110, rect4.top + 1));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 1, 0, 0, 11}, 
+        ElementSelectionState{ElementId{0, 0, 1, 0}, 7, 41},
+        ElementSelectionState{ElementId{0, 0}, 2, 1},
+        ElementSelectionState{ElementId{0, 1, 0, 0}, 0, 11})) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.Select(100, rect2.top + 1, 110, rect5.top + 1));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 1, 1, 0, 9}, 
+        ElementSelectionState{ElementId{0, 0, 1, 0}, 7, 41},
+        ElementSelectionState{ElementId{0, 0}, 2, 1},
+        ElementSelectionState{ElementId{0, 1}, 0, 1},
+        ElementSelectionState{ElementId{0, 1, 1, 0}, 0, 9})) << document.GetEditorState().ToString();
+}
+
+//Selection between paragraphs upward
+TEST_F(DocumentTest, caret32)
+{
+    Start(565);
+
+    document.InsertString("Арифме́тика (др.-греч. ἀριθμητική, arithmētikḗ — от ἀριθμός, arithmós «число») — "\
+        "раздел математики, изучающий числа, их отношения и свойства.", true);
+    document.InsertParagraph(true);
+    document.WaitTask(document.InsertString("In literary theory, a text is any object that can be read, whether this object is a work of literature", true));
+    std::this_thread::sleep_for(100ms);
+
+    Rect rect1, rect2, rect3, rect4, rect5;
+    document.GetElementRect(ElementId{0, 0, 0}, rect1);
+    document.GetElementRect(ElementId{0, 0, 1}, rect2);
+    document.GetElementRect(ElementId{0, 0, 2}, rect3);
+    document.GetElementRect(ElementId{0, 1, 0}, rect4);
+    document.GetElementRect(ElementId{0, 1, 1}, rect5);
+
+    document.WaitTask(document.MoveCaret(100, rect5.top + 1));
+    document.WaitTask(document.Select(100, rect5.top + 1, 110, rect4.top + 1));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 1, 0, 0, 11}, 
+        ElementSelectionState{ElementId{0, 1, 0, 0}, 11, 48},
+        ElementSelectionState{ElementId{0, 1, 1, 0}, 0, 7})) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.Select(100, rect5.top + 1, 110, rect3.top + 1));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 2, 0, 7}, 
+        ElementSelectionState{ElementId{0, 0, 2, 0}, 7, 34},
+        ElementSelectionState{ElementId{0, 1}, 0, 1},
+        ElementSelectionState{ElementId{0, 1, 1, 0}, 0, 7})) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.Select(100, rect5.top + 1, 110, rect2.top + 1));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 0, 9}, 
+        ElementSelectionState{ElementId{0, 0, 1, 0}, 9, 39},
+        ElementSelectionState{ElementId{0, 0}, 2, 1},
+        ElementSelectionState{ElementId{0, 1}, 0, 1},
+        ElementSelectionState{ElementId{0, 1, 1, 0}, 0, 7})) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.Select(100, rect5.top + 1, 110, rect1.top + 1));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 6}, 
+        ElementSelectionState{ElementId{0, 0, 0, 0}, 6, 46},
+        ElementSelectionState{ElementId{0, 0}, 1, 2},
+        ElementSelectionState{ElementId{0, 1}, 0, 1},
+        ElementSelectionState{ElementId{0, 1, 1, 0}, 0, 7})) << document.GetEditorState().ToString();
+}
+
+//Selection between paragraphs
+TEST_F(DocumentTest, caret33)
+{
+    Start(565);
+
+    document.InsertString("Арифме́тика (др.-греч. ἀριθμητική, arithmētikḗ — от ἀριθμός, arithmós «число») — "\
+        "раздел математики, изучающий числа, их отношения и свойства.", true);
+    document.InsertParagraph(true);
+    document.InsertString("In literary theory, a text is any object that can be read, whether this object is a work of literature", true);
+    document.InsertParagraph(true);
+    document.WaitTask(document.InsertString("Tradicionalmente, el medio de un documento era el papel y la información", true));
+    std::this_thread::sleep_for(100ms);
+
+    Rect rect1, rect2, rect3, rect4;
+    document.GetElementRect(ElementId{0, 0, 2}, rect1);
+    document.GetElementRect(ElementId{0, 1, 0}, rect2);
+    document.GetElementRect(ElementId{0, 1, 1}, rect3);
+    document.GetElementRect(ElementId{0, 2, 0}, rect4);
+
+    document.WaitTask(document.MoveCaret(100, rect1.top + 1));
+    document.WaitTask(document.Select(100, rect1.top + 1, 110, rect2.top + 1));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 1, 0, 0, 11}, 
+        ElementSelectionState{ElementId{0, 0, 2, 0}, 6, 35},
+        ElementSelectionState{ElementId{0, 1, 0, 0}, 0, 11})) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.Select(100, rect1.top + 1, 110, rect3.top + 1));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 1, 1, 0, 9}, 
+        ElementSelectionState{ElementId{0, 0, 2, 0}, 6, 35},
+        ElementSelectionState{ElementId{0, 1}, 0, 1},
+        ElementSelectionState{ElementId{0, 1, 1, 0}, 0, 9})) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.Select(100, rect1.top + 1, 110, rect4.top + 1));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 2, 0, 0, 9}, 
+        ElementSelectionState{ElementId{0, 0, 2, 0}, 6, 35},
+        ElementSelectionState{ElementId{0}, 1, 1},
+        ElementSelectionState{ElementId{0, 2, 0, 0}, 0, 9})) << document.GetEditorState().ToString();
+}
+
+//Selection a row with a code block upward
+TEST_F(DocumentTest, caret34)
+{
+    Start(540);
+
+    document.WaitTask(document.InsertString("Арифме́тика (др.-греч. ἀριθμητική, arithmētikḗ — от ἀριθμός, arithmós «число») — "\
+        "раздел математики, изучающий числа, их отношения и свойства.", true));
+    document.InsertParagraph(true);
+    document.InsertString("In literary theory, a text is any object that can be read, whether this object is a work of literature", true);
+    std::this_thread::sleep_for(100ms);
+    document.MoveCaretWordLeft(false);
+    document.WaitTask(document.InsertDivision(true));
+    std::this_thread::sleep_for(100ms);
+
+    Rect rect1, rect2, rect3;
+    document.GetElementRect(ElementId{0, 0, 2}, rect1);
+    document.GetElementRect(ElementId{0, 1, 0}, rect2);
+    document.GetElementRect(ElementId{0, 1, 1}, rect3);
+
+    document.WaitTask(document.Select(390, rect3.top + 1, 380, rect2.top + 1));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 1, 0, 0, 46}, 
+        ElementSelectionState{ElementId{0, 1, 0, 0}, 46, 13},
+        ElementSelectionState{ElementId{0, 1, 1}, 0, 2},
+        ElementSelectionState{ElementId{0, 1, 1, 2}, 0, 8})) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.Select(390, rect3.top + 1, 380, rect1.top + 1));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 2, 0, 35}, 
+        ElementSelectionState{ElementId{0, 0, 2, 0}, 35, 6},
+        ElementSelectionState{ElementId{0, 1}, 0, 1},
+        ElementSelectionState{ElementId{0, 1, 1}, 0, 2},
+        ElementSelectionState{ElementId{0, 1, 1, 2}, 0, 8})) << document.GetEditorState().ToString();
+}
+
+//Selection a row with a code block downward
+TEST_F(DocumentTest, caret35)
+{
+    Start(540);
+
+    document.WaitTask(document.InsertString("Арифме́тика (др.-греч. ἀριθμητική, arithmētikḗ — от ἀριθμός, arithmós «число») — "\
+        "раздел математики, изучающий числа, их отношения и свойства.", true));
+    document.InsertParagraph(true);
+    document.InsertString("In literary theory, a text is any object that can be read, whether this object is a work of literature", true);
+    std::this_thread::sleep_for(100ms);
+    document.MoveCaretUp(false);
+    document.MoveCaretUp(false);
+    document.MoveCaretWordLeft(false);
+    document.WaitTask(document.InsertDivision(true));
+    std::this_thread::sleep_for(100ms);
+
+    Rect rect1, rect2, rect3;
+    document.GetElementRect(ElementId{0, 0, 2}, rect1);
+    document.GetElementRect(ElementId{0, 1, 0}, rect2);
+    document.GetElementRect(ElementId{0, 1, 1}, rect3);
+
+    document.WaitTask(document.Select(100, rect1.top + 1, 180, rect2.top + 1));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 1, 0, 0, 20}, 
+        ElementSelectionState{ElementId{0, 0, 2, 0}, 6, 26},
+        ElementSelectionState{ElementId{0, 0, 2}, 1, 2},
+        ElementSelectionState{ElementId{0, 1, 0, 0}, 0, 20})) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.Select(100, rect1.top + 1, 180, rect3.top + 1));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 1, 1, 0, 17}, 
+        ElementSelectionState{ElementId{0, 0, 2, 0}, 6, 26},
+        ElementSelectionState{ElementId{0, 0, 2}, 1, 2},
+        ElementSelectionState{ElementId{0, 1}, 0, 1},
+        ElementSelectionState{ElementId{0, 1, 1, 0}, 0, 17})) << document.GetEditorState().ToString();
+}
+
+//Selection a row with a division
+TEST_F(DocumentTest, caret36)
+{
+    Start(540);
+
+    document.WaitTask(document.InsertString("Арифме́тика (др.-греч. ἀριθμητική, arithmētikḗ — от ἀριθμός, arithmós «число») — "\
+        "раздел математики, изучающий числа, их отношения и свойства.", true));
+    document.MoveCaretWordLeft(false);
+    document.WaitTask(document.InsertDivision(true));
+
+    Rect rect1, rect2, rect3;
+    document.GetElementRect(ElementId{0, 0, 1}, rect1);
+    document.GetElementRect(ElementId{0, 0, 2, 1, 0, 0, 0, 0, 0}, rect2);
+
+    document.WaitTask(document.Select(100, rect1.top + 1, rect2.left + 1, rect2.top + 1));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 2, 2, 0}, 
+        ElementSelectionState{ElementId{0, 0, 1, 0}, 7, 41},
+        ElementSelectionState{ElementId{0, 0, 2}, 0, 2})) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.Select(100, rect1.top + 1, rect2.GetRight() - 1, rect2.top + 1));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 2, 2, 0}, 
+        ElementSelectionState{ElementId{0, 0, 1, 0}, 7, 41},
+        ElementSelectionState{ElementId{0, 0, 2}, 0, 2})) << document.GetEditorState().ToString();
+
+    document.GetElementRect(ElementId{0, 0, 2, 1, 0, 0, 0, 0}, rect2);
+    document.WaitTask(document.Select(100, rect1.top + 1, rect2.GetRight() - 1, rect2.top + 1));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 2, 2, 0}, 
+        ElementSelectionState{ElementId{0, 0, 1, 0}, 7, 41},
+        ElementSelectionState{ElementId{0, 0, 2}, 0, 2})) << document.GetEditorState().ToString();
+
+    document.GetElementRect(ElementId{0, 0, 2, 0}, rect3);
+    document.GetElementRect(ElementId{0, 0, 2, 1}, rect2);
+    document.WaitTask(document.Select(100, rect1.top + 1, rect2.left - 2, rect3.top + 1));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 2, 1}, 
+        ElementSelectionState{ElementId{0, 0, 1, 0}, 7, 41},
+        ElementSelectionState{ElementId{0, 0, 2}, 0, 1})) << document.GetEditorState().ToString();
+}
+
+//Selection a row with a division
+TEST_F(DocumentTest, caret37)
+{
+    Start(540);
+
+    document.WaitTask(document.InsertString("Арифме́тика (др.-греч. ἀριθμητική, arithmētikḗ — от ἀριθμός, arithmós «число») — "\
+        "раздел математики, изучающий числа, их отношения и свойства.", true));
+    document.MoveCaretWordLeft(false);
+    document.WaitTask(document.InsertDivision(true));
+
+    Rect rect1, rect2;
+    document.GetElementRect(ElementId{0, 0, 2, 2}, rect1);
+    document.GetElementRect(ElementId{0, 0, 2, 1, 0, 0, 0, 1}, rect2);
+    document.WaitTask(document.Select(100, rect1.top + 1, rect2.left + 1, rect2.top + 1));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 2, 2, 0}, 
+        ElementSelectionState{ElementId{0, 0, 2, 0}, 6, 26},
+        ElementSelectionState{ElementId{0, 0, 2}, 1, 1})) << document.GetEditorState().ToString();
+
+    document.GetElementRect(ElementId{0, 0, 2, 1, 0, 0, 0}, rect2);
+    document.WaitTask(document.Select(100, rect1.top + 1, rect2.left + 1, rect2.top + 1));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 2, 2, 0}, 
+        ElementSelectionState{ElementId{0, 0, 2, 0}, 6, 26},
+        ElementSelectionState{ElementId{0, 0, 2}, 1, 1})) << document.GetEditorState().ToString();
+}
+
 }

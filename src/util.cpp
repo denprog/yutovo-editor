@@ -132,6 +132,13 @@ bool IsChild(const ElementId& parent_id, const ElementId& child_id)
     return true;
 }
 
+bool IsDirectChild(const ElementId& parent_id, const ElementId& child_id)
+{
+    if (IsChild(parent_id, child_id) && child_id.size() == parent_id.size() + 1)
+        return true;
+    return false;
+}
+
 ElementId GetParent(const ElementId& id)
 {
     ElementId _id(id);
@@ -148,11 +155,13 @@ ElementId GetChild(const ElementId& id, uint pos)
 
 int GetChildPos(const ElementId& id)
 {
+    assert(!id.empty());
     return id[id.size() - 1];
 }
 
 int GetChildPos(const ElementId& parent_id, const ElementId& child_id)
 {
+    assert(parent_id.size() < child_id.size());
     return child_id[parent_id.size()];
 }
 

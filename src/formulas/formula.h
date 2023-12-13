@@ -24,6 +24,8 @@ public:
     virtual bool HasCaretState();
     virtual bool HasLastCaretState();
 
+    virtual void Select(const CaretState& start, const CaretState& end);
+
     virtual bool GetElementAtCoords(const int x, const int y, ElementId& _id);
 
     virtual StringFormatPtr GetStringFormat() const;

@@ -765,6 +765,19 @@ void String::GetElementsBelow(const ElementId from_id, ElementType _type, std::v
 {
 }
 
+bool String::GetNearestElement(const int x, const int y, ElementId& _id, int& dist)
+{
+    Rect r = GetAbsoluteRect();
+    int d = r.DistToPoint(x, y);
+    if (d < dist)
+    {
+        _id = id;
+        dist = d;
+        return true;
+    }
+    return false;
+}
+
 void String::ReSolve(bool if_error)
 {
 }
@@ -934,6 +947,14 @@ Rect StringElements::GetRect()
 {
     Size s = ((String*)parent)->GetTextSize(str.length());
     return Rect{0, 0, s.width, s.height};
+}
+
+Rect StringElements::GetRect(const uint pos)
+{
+    String* p = (String*)parent;
+    Size s1 = p->GetTextSize(pos);
+    Size s2 = p->GetTextSize(pos + 1);
+    return Rect{s1.width, p->rect.top, s2.width - s1.width, s2.height};
 }
 
 bool StringElements::GetFirstCaretState(CaretState& caret_state, Selection* select)

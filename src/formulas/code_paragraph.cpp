@@ -53,6 +53,17 @@ void CodeParagraph::AddEmptyElement()
     AddElement(ElementPtr(new CodeRow(this)));
 }
 
+void CodeParagraph::Select(const CaretState& start, const CaretState& end)
+{
+    if (yutovo::IsDirectChild(id, start.id) && yutovo::IsDirectChild(id, end.id))
+    {
+        Paragraph::Select(start, end);
+        return;
+    }
+
+    parent->Select(start, end);
+}
+
 bool CodeParagraph::IsFormula()
 {
     return true;
