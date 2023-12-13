@@ -103,6 +103,7 @@ public:
     ElementPtr GetParent(const ElementId& _id);
     ElementPtr GetLogicalParent(const LogicalId& _id);
     bool GetElementAtCoords(const int x, const int y, ElementId& id);
+    bool GetElementRect(const ElementId id, Rect& rect);
 
     LogicalId GetLogicalId(const ElementId& _id);
     LogicalId GetLogicalId(const ElementId& _id, const int pos);
@@ -155,6 +156,7 @@ public:
     uint MoveCaretToDocumentEnd(bool select, bool move_into_view);
     uint MoveCaret(const int x, const int y);
     uint SelectAll();
+    uint Select(const int start_x, const int start_y, const int end_x, const int end_y);
 
     void SetCaretVisible(bool visible);
 

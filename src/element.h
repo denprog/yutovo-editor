@@ -78,6 +78,8 @@ public:
     virtual bool CanContinueSelection();
     virtual bool CanContinueVerticalMoving(); //will pass caret into this element from up and down
 
+    virtual void Select(const CaretState& start, const CaretState& end);
+
     virtual Rect GetCaretRect(const uint pos) const;
     virtual Rect GetCaretRect() const;
     virtual void DrawCaret(const uint pos) const;
@@ -92,6 +94,8 @@ public:
 
     Element* GetElementInPos(const ElementId& _id, const uint pos);
     virtual bool GetElementAtCoords(const int x, const int y, ElementId& _id);
+    virtual bool GetNearestElement(const int x, const int y, ElementId& _id, int& dist);
+    virtual bool GetNearestCaretState(const int x, const int y, CaretState& caret_state);
 
     void AddElement(ElementPtr element);
     
@@ -212,6 +216,7 @@ public:
     virtual void DrawCaret(const uint pos) const;
 
     virtual Rect GetRect();
+    virtual Rect GetRect(const uint pos);
 
     virtual bool GetFirstCaretState(CaretState& caret_state, Selection* select);
     virtual bool GetLastCaretState(CaretState& caret_state, Selection* select);

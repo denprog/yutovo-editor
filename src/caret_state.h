@@ -23,12 +23,13 @@ struct CaretState
     CaretState(const std::vector<ElementPtr>& elements);
     CaretState(const ElementId _id);
     CaretState(const ElementId _id, const uint pos);
+    CaretState(const ElementId _id, const uint pos, bool _last_pos);
     CaretState(const Element* element, const uint pos);
     CaretState(const Element* element, const uint pos, bool _last_pos);
 
-    bool operator==(const CaretState& c);
-    bool operator!=(const CaretState& c);
-    bool operator<(const CaretState& c);
+    bool operator==(const CaretState& c) const;
+    bool operator!=(const CaretState& c) const;
+    bool operator<(const CaretState& c) const;
 
     void SetState(ElementPtr element);
     void SetState(const ElementId _id, const ElementId tail_id);

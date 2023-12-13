@@ -42,6 +42,11 @@ bool Shape::HasCaretState()
     return true;
 }
 
+void Shape::Select(const CaretState& start, const CaretState& end)
+{
+    parent->Select(start, end);
+}
+
 bool Shape::GetElementAtCoords(const int x, const int y, ElementId& _id)
 {
     Rect r = parent->GetAbsoluteRect(GetCaretRect());
@@ -50,7 +55,7 @@ bool Shape::GetElementAtCoords(const int x, const int y, ElementId& _id)
         _id = id;
         return true;
     }
-   return false;
+    return false;
 }
 
 }

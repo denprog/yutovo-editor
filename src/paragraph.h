@@ -36,6 +36,8 @@ public:
 
     virtual bool CanContinueSelection();
 
+    virtual void Select(const CaretState& start, const CaretState& end);
+
     virtual void AddEmptyElement();
 
     virtual ParagraphFormatPtr GetParagraphFormat();

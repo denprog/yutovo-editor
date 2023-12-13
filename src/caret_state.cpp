@@ -37,17 +37,24 @@ CaretState::CaretState(const ElementId _id, const uint pos) :
     id.push_back(pos);
 }
 
-bool CaretState::operator==(const CaretState& c)
+CaretState::CaretState(const ElementId _id, const uint pos, bool _last_pos) :
+    id(_id),
+    last_pos(_last_pos)
+{
+    id.push_back(pos);
+}
+
+bool CaretState::operator==(const CaretState& c) const
 {
     return id == c.id;
 }
 
-bool CaretState::operator!=(const CaretState& c)
+bool CaretState::operator!=(const CaretState& c) const
 {
     return id != c.id;
 }
 
-bool CaretState::operator<(const CaretState& c)
+bool CaretState::operator<(const CaretState& c) const
 {
     return IsLess(id, c.id);
 }

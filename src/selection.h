@@ -90,6 +90,7 @@ public:
 
     void Add(const ElementPtr element, uint start, uint size);
     void Add(const ElementId id, uint start, uint size);
+    void Add(const ElementId id);
     void Remove(const ElementId id, uint start, uint size);
     void InsertElement(const ElementId id);
     void RemoveElement(const ElementId id);
@@ -108,6 +109,9 @@ public:
 
     SelectionState GetState() const;
     LogicalSelectionState GetLogicalState() const;
+
+    CaretState GetFirstCaretState() const;
+    CaretState GetLastCaretState() const;
 
 private:
     bool Decompose(ElementSelection s, ElementId until_id);

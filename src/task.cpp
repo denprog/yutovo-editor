@@ -959,6 +959,18 @@ MoveCaretTask::MoveCaretTask(ElementPtr _text, CaretPtr _caret, Point _point) :
     move_into_view = false;
 }
 
+MoveCaretTask::MoveCaretTask(ElementPtr _text, CaretPtr _caret, Point _start, Point _end) :
+    Task(_text),
+    document(_text->document),
+    caret(_caret),
+    dir(MoveCaretDir::SELECT_TO_POINT),
+    point(_start),
+    end_point(_end),
+    select(true)
+{
+    move_into_view = true;
+}
+
 bool MoveCaretTask::Execute()
 {
     Selection* selection = select ? &document->selection : nullptr;
@@ -970,7 +982,7 @@ bool MoveCaretTask::Execute()
     case MoveCaretDir::POINT:
         {
             ElementId id;
-            if (text->GetElementAtCoords(point.x, point.y, id))
+            if (text->GetElementAtCoords(point.x, point.y, id) && id != text->id)
                 caret->SetState(id, true);
         }
         break;
@@ -1052,6 +1064,18 @@ bool MoveCaretTask::Execute()
         caret->MoveToDocumentEnd(nullptr);
         document->selection.Clear();
         document->selection.Add(text, 0, text->elements->Count());
+        break;
+    case MoveCaretDir::SELECT_TO_POINT:
+        if (!select)
+            return false;
+        document->selection.Clear();
+
+        CaretState start, end;
+        if (!text->GetNearestCaretState(point.x, point.y, start) || !text->GetNearestCaretState(end_point.x, end_point.y, end))
+            return false;
+        ElementId common_id = GetCommonParent(start.id, end.id);
+        auto el = document->GetElement(common_id);
+        el->Select(start, end);
         break;
     }
 

@@ -36,6 +36,8 @@ public:
 
     virtual void GetMargin(int& left, int& top, int& right, int& bottom) const;
 
+    virtual void Select(const CaretState& start, const CaretState& end);
+    
     virtual bool IsFormula();
 
     virtual std::string ToHtml();

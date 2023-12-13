@@ -422,6 +422,12 @@ void Selection::Add(const ElementId id, uint start, uint size)
     Add(document->GetElement(id), start, size);
 }
 
+void Selection::Add(const ElementId id)
+{
+    ElementId p = GetParent(id);
+    Add(document->GetElement(p), GetChildPos(p, id), 1);
+}
+
 void Selection::Remove(const ElementId id, uint start, uint size)
 {
     for (size_t i = 0; i < selection.size(); ++i)
@@ -762,6 +768,36 @@ LogicalSelectionState Selection::GetLogicalState() const
             ++i;
     }
     return state;
+}
+
+CaretState Selection::GetFirstCaretState() const
+{
+    assert(!selection.empty());
+    SelectionState s = GetState();
+    return CaretState(s.state[0].id, s.state[0].start);
+}
+
+CaretState Selection::GetLastCaretState() const
+{
+    assert(!selection.empty());
+    SelectionState s = GetState();
+    auto& el_s = s.state[s.state.size() - 1];
+    auto el = document->GetElement(el_s.id);
+    CaretState c;
+    if (el_s.start + el_s.size == el->elements->Count())
+    {
+        if (el->GetLastCaretState(c, nullptr))
+            return c;
+    }
+    else if (document->IsRow(el))
+    {
+        el = el->elements->Get(el_s.start + el_s.size);
+        if (el->HasCaretState())
+            return CaretState(el_s.id, el_s.start + el_s.size);
+        if (el->GetFirstCaretState(c, nullptr))
+            return c;
+    }
+    return CaretState(el_s.id, el_s.start + el_s.size, el_s.start + el_s.size == el->elements->Count() ? true : false);
 }
 
 bool Selection::Decompose(ElementSelection s, ElementId until_id)

@@ -257,6 +257,7 @@ std::string IdToString(const ElementId& id);
 ElementId IdFromString(const std::string& id);
 
 bool IsChild(const ElementId& parent_id, const ElementId& child_id);
+bool IsDirectChild(const ElementId& parent_id, const ElementId& child_id);
 
 ElementId GetParent(const ElementId& id);
 ElementId GetChild(const ElementId& id, uint pos);

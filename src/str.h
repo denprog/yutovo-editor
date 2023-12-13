@@ -75,6 +75,8 @@ public:
     virtual void GetElements(ElementType _type, std::vector<ElementId>& _elements);
     virtual void GetElementsBelow(const ElementId from_id, ElementType _type, std::vector<ElementId>& _elements);
 
+    virtual bool GetNearestElement(const int x, const int y, ElementId& _id, int& dist);
+
     virtual void ReSolve(bool if_error = false);
 
     virtual void SubscribeOnChange(const ElementId _id);
@@ -114,6 +116,7 @@ public:
     virtual void DrawCaret(const uint pos) const;
 
     virtual Rect GetRect();
+    virtual Rect GetRect(const uint pos);
 
     virtual bool GetFirstCaretState(CaretState& caret_state, Selection* select);
     virtual bool GetLastCaretState(CaretState& caret_state, Selection* select);
