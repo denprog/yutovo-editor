@@ -1296,4 +1296,18 @@ TEST_F(DocumentTest, caret37)
         ElementSelectionState{ElementId{0, 0, 2}, 1, 1})) << document.GetEditorState().ToString();
 }
 
+//Click below a row
+TEST_F(DocumentTest, caret38)
+{
+    Start(540);
+
+    document.InsertString("Text", true);
+    document.WaitTask(document.InsertDivision(true));
+
+    Rect rect1;
+    document.GetElementRect(ElementId{0, 0, 0, 0}, rect1);
+    document.WaitTask(document.MoveCaret(rect1.left + 15, rect1.GetBottom() + 5));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 1})) << document.GetEditorState().ToString();
+}
+
 }

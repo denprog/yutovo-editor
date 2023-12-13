@@ -981,9 +981,9 @@ bool MoveCaretTask::Execute()
         return true;
     case MoveCaretDir::POINT:
         {
-            ElementId id;
-            if (text->GetElementAtCoords(point.x, point.y, id) && id != text->id)
-                caret->SetState(id, true);
+            CaretState c;
+            if (text->GetNearestCaretState(point.x, point.y, c) && c.id != text->id)
+                caret->SetState(c, true);
         }
         break;
     case MoveCaretDir::LEFT:
