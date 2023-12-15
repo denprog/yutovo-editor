@@ -19,18 +19,18 @@ Image::Image(Element* _parent, const std::string& _image_base64, const int _widt
 
     Base64Decode();
 
-    image_size = window->GetImageSize(bmp, width, height);
+    image_size = window->GetImageSize(picture, width, height);
 }
 
-Image::Image(Element* _parent, const std::vector<unsigned char>& _bmp, const int _width, const int _height) :
+Image::Image(Element* _parent, const std::vector<unsigned char>& _picture, const int _width, const int _height) :
     Element(_parent),
-    bmp(_bmp),
+    picture(_picture),
     width(_width),
     height(_height)
 {
     type = ElementType::IMAGE;
     editable = false;
-    image_size = window->GetImageSize(bmp, width, height);
+    image_size = window->GetImageSize(picture, width, height);
 
     Base64Encode();
 }
@@ -46,18 +46,18 @@ Image::Image(Document* _document, const std::string& _image_base64, const int _w
 
     Base64Decode();
 
-    image_size = window->GetImageSize(bmp, width, height);
+    image_size = window->GetImageSize(picture, width, height);
 }
 
-Image::Image(Document* _document, const std::vector<unsigned char>& _bmp, const int _width, const int _height) :
+Image::Image(Document* _document, const std::vector<unsigned char>& _picture, const int _width, const int _height) :
     Element(_document),
-    bmp(_bmp),
+    picture(_picture),
     width(_width),
     height(_height)
 {
     type = ElementType::IMAGE;
     editable = false;
-    image_size = window->GetImageSize(bmp, width, height);
+    image_size = window->GetImageSize(picture, width, height);
 
     Base64Encode();
 }
@@ -113,7 +113,7 @@ void Image::UpdateRect(bool with_elements)
 void Image::Draw() const
 {
     auto r = GetAbsoluteRect();
-    window->DrawImage(r.left + 1, r.top + 1, width, height, bmp);
+    window->DrawImage(r.left + 1, r.top + 1, image_size.width, image_size.height, picture);
     if (document->selection.IsSelected(id))
     {
         const auto f = GetStringFormat();
@@ -134,7 +134,7 @@ bool Image::HasLastCaretState()
 
 std::string Image::ToHtml()
 {
-    return "<img src=\"data:image/bmp;base64," + image_base64 + "\">";
+    return "<img src=\"data:image/picture;base64," + image_base64 + "\">";
 }
 
 void Image::Base64Encode()
@@ -142,7 +142,7 @@ void Image::Base64Encode()
     image_base64.clear();
 
     int val = 0, valb = -6;
-    for (uchar c : bmp)
+    for (uchar c : picture)
     {
         val = (val << 8) + c;
         valb += 8;
@@ -173,7 +173,7 @@ void Image::Base64Decode()
         valb += 6;
         if (valb >= 0)
         {
-            bmp.push_back(char((val >> valb) & 0xFF));
+            picture.push_back(char((val >> valb) & 0xFF));
             valb -= 8;
         }
     }

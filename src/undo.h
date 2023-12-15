@@ -65,14 +65,14 @@ struct UndoParagraph : UndoElement
 
 struct UndoImage : UndoElement
 {
-    UndoImage(const std::vector<unsigned char>& _bmp, const int _width, const int _height);
+    UndoImage(const std::vector<unsigned char>& _picture, const int _width, const int _height);
 
     virtual bool operator==(const UndoImage& el) const;
     virtual bool operator==(const Image& el) const;
 
     virtual Element* Restore(Document* document, Element* parent);
 
-    std::vector<unsigned char> bmp;
+    std::vector<unsigned char> picture;
     int width, height;
 };
 
