@@ -13,9 +13,9 @@ class Image : public Element
 {
 public:
     Image(Element* _parent, const std::string& _image_base64, const int _width, const int _height);
-    Image(Element* _parent, const std::vector<unsigned char>& _bmp, const int _width, const int _height);
+    Image(Element* _parent, const std::vector<unsigned char>& _picture, const int _width, const int _height);
     Image(Document* _document, const std::string& _image_base64, const int _width, const int _height);
-    Image(Document* _document, const std::vector<unsigned char>& _bmp, const int _width, const int _height);
+    Image(Document* _document, const std::vector<unsigned char>& _picture, const int _width, const int _height);
 
     virtual Element* Clone();
 
@@ -41,7 +41,7 @@ private:
 
 public:
     std::string image_base64;
-    std::vector<unsigned char> bmp; //ARGB32 format
+    std::vector<unsigned char> picture; //ARGB32 format
     int width = 0, height = 0;
 
 private:
