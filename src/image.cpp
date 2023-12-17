@@ -134,7 +134,7 @@ bool Image::HasLastCaretState()
 
 std::string Image::ToHtml()
 {
-    return "<img src=\"data:image/picture;base64," + image_base64 + "\">";
+    return "<img src=\"data:image/bmp;base64," + image_base64 + "\">";
 }
 
 void Image::Base64Encode()
