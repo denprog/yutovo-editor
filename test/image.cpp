@@ -289,4 +289,40 @@ TEST_F(DocumentTest, images7)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 1})) << document.GetEditorState().ToString();
 }
 
+//Paste an image before an image
+TEST_F(DocumentTest, images8)
+{
+    Start(600);
+
+    EXPECT_CALL(window_mock, GetImageSize).WillRepeatedly([&](const std::vector<unsigned char>& bmp, const int width, const int height)
+        {
+            return GetImageSizeMock(bmp, width, height);
+        });
+
+    QImage test_image("../test/tests/Qt_small.png");
+    std::vector<unsigned char> data;
+    GetImageData(test_image, data);
+
+    document.WaitTask(document.InsertImage(data, test_image.width(), test_image.height(), true));
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<img src=\"data:image/bmp;base64," + Base64Encode(data) + "\">"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    
+    ASSERT_TRUE(document.IsEditable(ElementId{0, 0, 0}));
+
+    document.WaitTask(document.InsertImage(data, test_image.width(), test_image.height(), true));
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<img src=\"data:image/bmp;base64," + Base64Encode(data) + "\">"\
+                "<img src=\"data:image/bmp;base64," + Base64Encode(data) + "\">"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+}
+
 }
