@@ -1152,6 +1152,7 @@ uint Document::FindCodeBlock(const ElementId& id)
 
 ElementPtr Document::FindByString(const ElementId& start_id, const std::u32string& str)
 {
+    std::lock_guard<std::recursive_mutex> lock(edit_mutex);
     if (start_id.empty() || str.empty())
         return nullptr;
     ElementPtr el = GetElement(start_id);
@@ -1169,6 +1170,34 @@ ElementPtr Document::FindByString(const ElementId& start_id, const std::u32strin
         for (int i = 0; i < el->elements->Count(); ++i)
         {
             res = FindByString(el->elements->Get(i)->id, str);
+            if (res)
+                break;
+        }
+    }
+    return res;
+}
+
+ElementPtr Document::FindByType(const ElementId& start_id, const ElementType type)
+{
+    std::lock_guard<std::recursive_mutex> lock(edit_mutex);
+    if (start_id.empty())
+        return nullptr;
+    ElementPtr el = GetElement(start_id);
+    if (!el)
+        return nullptr;
+    
+    ElementPtr res = nullptr;
+    if (el->type == type)
+        return el;
+    else if (IsString(el))
+    {
+        return nullptr;
+    }
+    else
+    {
+        for (int i = 0; i < el->elements->Count(); ++i)
+        {
+            res = FindByType(el->elements->Get(i)->id, type);
             if (res)
                 break;
         }

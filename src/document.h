@@ -116,6 +116,7 @@ public:
     ElementPtr FindParentRow(const ElementId& id);
     uint FindCodeBlock(const ElementId& id);
     ElementPtr FindByString(const ElementId& start_id, const std::u32string& str);
+    ElementPtr FindByType(const ElementId& start_id, const ElementType type);
 
     Rect GetCaretRect(const CaretState& caret_state);
 

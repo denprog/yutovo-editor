@@ -159,6 +159,27 @@ bool Text::GetNearestElement(const int x, const int y, ElementId& _id, int& dist
     return true;
 }
 
+bool Text::GetNearestCaretState(const int x, const int y, CaretState& caret_state)
+{
+    int min_dist = std::numeric_limits<int>::max();
+    ElementPtr el;
+    for (int i = 0; i < elements->Count(); ++i) //TODO: binary search
+    {
+        auto _el = elements->Get(i);
+        Rect r = _el->GetAbsoluteRect();
+    	int dist = r.DistToPoint(x, y);
+        if (dist < min_dist)
+        {
+            min_dist = dist;
+            el = _el;
+        }
+        else
+            break;
+    }
+
+    return el->GetNearestCaretState(x, y, caret_state);
+}
+
 Rect Text::GetCaretRect(const uint pos) const
 {
     return Rect{0, 0, 0, 0};
