@@ -878,7 +878,15 @@ TEST_F(DocumentTest, caret25)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 2, 3}, 
         ElementSelectionState{ElementId{0, 0, 0, 2}, 3, 1})) << document.GetEditorState().ToString();
 
-    document.WaitTask(document.Select(rect3.GetRight(), rect3.top + 5, rect2.GetRight() - 10, rect2.top + 5));
+    document.WaitTask(document.Select(rect3.GetRight(), rect3.top + 5, rect2.GetRight() - 10, rect2.top + 15));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 1}, 
+        ElementSelectionState{ElementId{0, 0, 0}, 1, 2})) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.Select(rect3.GetRight(), rect3.top + 5, rect2.left + rect2.width / 2, rect2.top + 15));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 1}, 
+        ElementSelectionState{ElementId{0, 0, 0}, 1, 2})) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.Select(rect3.GetRight(), rect3.top + 5, rect2.left + 10, rect2.top + 15));
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 1}, 
         ElementSelectionState{ElementId{0, 0, 0}, 1, 2})) << document.GetEditorState().ToString();
 
@@ -903,18 +911,33 @@ TEST_F(DocumentTest, caret26)
     document.WaitTask(document.Select(rect1.left + 1, rect1.top + 1, rect1.left + 1, rect1.GetBottom() + 5));
     ElementId p_id = document.FindCurrentParentByType(ElementType::DIVISION);
     auto p = document.GetElement(p_id);
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0, 0, 0, 1}, 
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0, 0, 0, 0, 1}, 
         ElementSelectionState{p->id, 0, 1})) << document.GetEditorState().ToString();
 
     document.GetElementRect(p->id, rect2);
     document.WaitTask(document.Select(rect1.left + 1, rect1.top + 1, rect2.left + 1, rect2.GetBottom() + 5));
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 1}, 
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0}, 
         ElementSelectionState{ElementId{0}, 0, 1})) << document.GetEditorState().ToString();
     
     p_id = document.FindCurrentParentByType(ElementType::CODE_BLOCK);
     document.GetElementRect(p_id, rect2);
     document.WaitTask(document.Select(rect1.left + 1, rect1.top + 1, rect2.left, rect2.GetBottom() + 5));
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 1}, 
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0}, 
+        ElementSelectionState{ElementId{0}, 0, 1})) << document.GetEditorState().ToString();
+    
+    document.WaitTask(document.MoveCaret(rect1.left + 1, rect1.top + 1));
+    p_id = document.FindCurrentParentByType(ElementType::DIVISION);
+    auto s = document.FindByType(p_id, ElementType::SHAPE);
+    document.GetElementRect(s->id, rect2);
+    document.WaitTask(document.Select(rect1.left + 1, rect1.top + 1, rect2.left + 1, rect2.top + 1));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0, 0, 0, 0, 1}, 
+        ElementSelectionState{ElementId{0, 0, 0, 0, 0, 0, 0}, 0, 1})) << document.GetEditorState().ToString();
+    
+    auto d = document.GetElement(p_id);
+    d = document.GetElement(d->parent->parent->id);
+    document.GetElementRect(d->id, rect2);
+    document.WaitTask(document.Select(rect1.left + 1, rect1.top + 1, rect2.left + 2, rect2.top + rect2.height / 2));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0}, 
         ElementSelectionState{ElementId{0}, 0, 1})) << document.GetEditorState().ToString();
 }
 
@@ -1308,6 +1331,44 @@ TEST_F(DocumentTest, caret38)
     document.GetElementRect(ElementId{0, 0, 0, 0}, rect1);
     document.WaitTask(document.MoveCaret(rect1.left + 15, rect1.GetBottom() + 5));
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 1})) << document.GetEditorState().ToString();
+}
+
+//Click on a formula element
+TEST_F(DocumentTest, caret39)
+{
+    Start(540);
+
+    document.InsertCode(false, true);
+    document.InsertString("12", true);
+    document.InsertPlus(true);
+    document.WaitTask(document.InsertString("345", true));
+
+    Rect rect1;
+    auto el = document.FindByType(ElementId{0, 0, 0}, ElementType::PLUS);
+    document.GetElementRect(el->id, rect1);
+    document.WaitTask(document.MoveCaret(rect1.left + 1, rect1.top + 5));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(el->id)) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.MoveCaretLeft(false));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0, 0, 0, 2})) << document.GetEditorState().ToString();
+}
+
+//Click on a division
+TEST_F(DocumentTest, caret40)
+{
+    Start(540);
+
+    document.InsertDivision(true);
+    document.InsertString("1", true);
+    document.MoveCaretDown(false);
+    document.MoveCaretDown(false);
+    document.WaitTask(document.InsertString("345678", true));
+
+    Rect rect1;
+    auto el = document.FindByType(ElementId{0, 0, 0}, ElementType::DIVISION);
+    document.GetElementRect(el->id, rect1);
+    document.WaitTask(document.MoveCaret(rect1.left + 1, rect1.top + 1));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(el->id)) << document.GetEditorState().ToString();
 }
 
 }

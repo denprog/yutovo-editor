@@ -774,6 +774,10 @@ CaretState Selection::GetFirstCaretState() const
 {
     assert(!selection.empty());
     SelectionState s = GetState();
+    auto el = document->GetElement(s.state[0].id);
+    CaretState c;
+    if (el->GetFirstCaretState(c, nullptr))
+        return c;
     return CaretState(s.state[0].id, s.state[0].start);
 }
 
@@ -797,6 +801,12 @@ CaretState Selection::GetLastCaretState() const
         if (el->GetFirstCaretState(c, nullptr))
             return c;
     }
+    else if (document->IsString(el))
+    {
+        return CaretState(el_s.id, el_s.start + el_s.size);
+    }
+    if (el->elements->Get(el_s.start + el_s.size - 1)->GetLastCaretState(c, nullptr))
+        return c;
     return CaretState(el_s.id, el_s.start + el_s.size, el_s.start + el_s.size == el->elements->Count() ? true : false);
 }
 

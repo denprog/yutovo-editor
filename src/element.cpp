@@ -507,17 +507,29 @@ void Element::Select(const CaretState& start, const CaretState& end)
     {
         int p1 = yutovo::GetChildPos(id, start.id);
         if (start < end)
-            selection->Add(id, p1, elements->Count() - p1);
+        {
+            if (elements->Count() - p1 > 0)
+                selection->Add(id, p1, elements->Count() - p1);
+        }
         else
-            selection->Add(id, 0, p1);
+        {
+            if (p1 > 0)
+                selection->Add(id, 0, p1);
+        }
     }
     else if (yutovo::IsDirectChild(id, end.id))
     {
         int p2 = yutovo::GetChildPos(id, end.id);
         if (start < end)
-            selection->Add(id, 0, p2);
+        {
+            if (p2 > 0)
+                selection->Add(id, 0, p2);
+        }
         else
-            selection->Add(id, p2, elements->Count() - p2);
+        {
+            if (elements->Count() - p2 > 0)
+                selection->Add(id, p2, elements->Count() - p2);
+        }
     }
     else
     {
@@ -533,8 +545,9 @@ void Element::Select(const CaretState& start, const CaretState& end)
                 selection->Add(id, p2 + 1, p1 - p2 - 1);
         }
         caret->SetState(end);
-        auto el2 = document->GetElement(end.id);
-        if (el1 != el2)
+        //auto el2 = document->GetElement(end.id);
+        auto el2 = caret->GetElement();
+        if (el1->id != el2->id)
             el2->Select(start, end);
     }
 }
@@ -655,40 +668,57 @@ bool Element::GetNearestElement(const int x, const int y, ElementId& _id, int& d
     int d = r.DistToPoint(x, y);
     if (d > dist)
         return false;
-    
-    bool f = false;
+
+    dist = d;
+    _id = id;
+
     for (int i = 0; i < elements->Count(); ++i)
     {
         auto el = elements->Get(i);
-        if (el->GetNearestElement(x, y, _id, dist))
-            f = true;
+        el->GetNearestElement(x, y, _id, dist);
     }
 
-    if (!f)
-    {
-        dist = d;
-        _id = id;
-    }
     return true;
 }
 
 bool Element::GetNearestCaretState(const int x, const int y, CaretState& caret_state)
 {
     int dist = std::numeric_limits<int>::max();
-    ElementId _id;
-    if (!GetNearestElement(x, y, _id, dist))
-        return false;
-    
-    auto el = document->GetElement(_id);
     CaretState next, last;
-    if (!el->GetFirstCaretState(next, nullptr) || !el->GetLastCaretState(last, nullptr))
+    if (!GetFirstCaretState(next, nullptr) || !GetLastCaretState(last, nullptr))
     {
-        if (!el->parent->GetFirstCaretState(next, nullptr) || !el->parent->GetLastCaretState(last, nullptr))
-            return false;
+        if (!parent->GetFirstCaretState(next, nullptr) || !parent->GetLastCaretState(last, nullptr))
+        {
+            if (parent->HasCaretState())
+            {
+                caret_state.SetState(yutovo::GetParent(id));
+                return true;
+            }
+        }
     }
-    
-    Rect r = document->GetCaretRect(next);
-	int min_dist = r.DistToPoint(x, y);
+
+    int min_dist = dist;
+    Rect r;
+    if (HasCaretState())
+    {
+        next.SetState(id);
+        r = document->GetCaretRect(next);
+    	dist = r.DistToPoint(x, y);
+        if (dist < min_dist)
+        {
+            min_dist = dist;
+            caret_state = next;
+        }
+    }
+
+    r = document->GetCaretRect(next);
+    dist = r.DistToPoint(x, y);
+    if (dist < min_dist)
+    {
+        min_dist = dist;
+        caret_state = next;
+    }
+
     caret_state = next;
     while (next != last)
     {
@@ -697,7 +727,7 @@ bool Element::GetNearestCaretState(const int x, const int y, CaretState& caret_s
             break;
         r = document->GetCaretRect(next);
         dist = r.DistToPoint(x, y);
-        if (dist < min_dist)
+        if (r.IsPointInside(x, y) || dist < min_dist)
         {
             min_dist = dist;
             caret_state = next;
