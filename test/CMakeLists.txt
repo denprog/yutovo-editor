@@ -64,7 +64,7 @@ target_link_libraries(${PROJECT_NAME}_tests PUBLIC
 
 target_include_directories(${PROJECT_NAME}_tests PRIVATE
     ../src
-    ../third_party
+    ${THIRD_PARTY_PATH}
 )
 
 gtest_discover_tests(${PROJECT_NAME}_tests)

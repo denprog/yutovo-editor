@@ -2,7 +2,7 @@
 #define __SELECTION_H__
 
 #include "caret_state.h"
-#include "rapidjson/document.h"
+#include <rapidjson/document.h>
 
 namespace yutovo
 {

@@ -286,7 +286,7 @@ TEST_F(DocumentTest, images7)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 2})) << document.GetEditorState().ToString();
 
     document.WaitTask(document.MoveCaret(80, 40));
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 3})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 1})) << document.GetEditorState().ToString();
 }
 
 //Paste an image before an image

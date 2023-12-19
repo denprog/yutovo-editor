@@ -3,7 +3,7 @@
 
 #include "caret_state.h"
 #include <memory>
-#include "rapidjson/document.h"
+#include <rapidjson/document.h>
 #include "web_socket.h"
 #include "result_codes.h"
 #include <yutovo_calculator/unit.h>
