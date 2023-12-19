@@ -140,6 +140,8 @@ bool InsertElementsTask::Execute()
     caret_state = document->caret->GetCaretState();
     selection_state = document->selection.GetState();
 
+    FormattingScope s(window);
+
     ElementPtr el;
     if (element_id.empty())
         el = document->GetParent(caret_state.id);
@@ -232,6 +234,7 @@ bool InsertElementsTask::Execute()
 
     std::vector<ElementId> changed_elements;
     document->pasting = pasting;
+    document->caret->notify = false;
     for (auto& _el : _elements)
     {
         _el->parent = nullptr;
@@ -242,6 +245,7 @@ bool InsertElementsTask::Execute()
             if (with_undo && last_undo_size < document->GetUndoSize())
                 document->Undo();
             document->pasting = false;
+            document->caret->notify = true;
             return false;
         }
         
@@ -270,6 +274,7 @@ bool InsertElementsTask::Execute()
             Remake(ch, true); //move into view
     }
     document->pasting = false;
+    document->caret->notify = true;
     return true;
 }
 

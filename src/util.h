@@ -18,6 +18,8 @@ namespace yutovo
 
 using namespace yutovo_calculator;
 
+class Window;
+
 enum class ElementType
 {
     NONE = 0,
@@ -251,6 +253,14 @@ struct Color
     uint8_t r = 0;
     uint8_t g = 0;
     uint8_t b = 0;
+};
+
+struct FormattingScope
+{
+    FormattingScope(Window* _window);
+    ~FormattingScope();
+
+    Window* window;
 };
 
 std::string IdToString(const ElementId& id);

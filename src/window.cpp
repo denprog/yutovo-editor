@@ -88,6 +88,14 @@ void Window::OnPasteResult(PasteResult result)
 {
 }
 
+void Window::OnFormattingStarted()
+{
+}
+
+void Window::OnFormattingFinished()
+{
+}
+
 #ifdef EMSCRIPTEN
 int Window::Connect(const std::string& addr)
 {
