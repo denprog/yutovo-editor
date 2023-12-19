@@ -7,7 +7,7 @@
 #include "util.h"
 #include "caret_state.h"
 #include "parser_string.h"
-#include "rapidjson/document.h"
+#include <rapidjson/document.h>
 
 namespace yutovo
 {

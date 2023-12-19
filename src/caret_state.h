@@ -3,7 +3,7 @@
 
 #include <vector>
 #include <memory>
-#include "rapidjson/document.h"
+#include <rapidjson/document.h>
 
 namespace yutovo
 {

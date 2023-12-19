@@ -9,7 +9,7 @@
 #include <yutovo_calculator/math_helper.h>
 #include <yutovo_service/types.h>
 #include <boost/uuid/uuid.hpp>
-#include "rapidjson/document.h"
+#include <rapidjson/document.h>
 
 typedef unsigned int uint;
 
