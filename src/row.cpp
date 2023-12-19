@@ -637,19 +637,31 @@ bool Row::GetBottomCaretState(const int x, const int y, CaretState& caret_state,
 bool Row::GetNearestCaretState(const int x, const int y, CaretState& caret_state)
 {
     int min_dist = std::numeric_limits<int>::max();
+    int dist;
     ElementPtr el;
     CaretState next, last;
-    int dist;
     for (int i = 0; i < elements->Count(); ++i)
     {
         auto _el = elements->Get(i);
         if (!_el->GetFirstCaretState(next, nullptr) || !_el->GetLastCaretState(last, nullptr))
-            break;
+        {
+            if (_el->HasCaretState())
+            {
+                Rect r = _el->GetAbsoluteRect();
+                if (r.IsPointInside(x, y))
+                {
+                    caret_state.SetState(_el->id);
+                    return true;
+                }
+            }
+            continue;
+        }
         Rect r1 = document->GetCaretRect(next);
         Rect r2 = document->GetCaretRect(last);
         Rect r{r1.left, r1.top, r2.left - r1.left + r2.width, r2.top - r1.top + r2.height};
         if (r.IsPointInside(x, y))
         {
+            min_dist = 0;
             el = _el;
             break;
         }
@@ -666,6 +678,30 @@ bool Row::GetNearestCaretState(const int x, const int y, CaretState& caret_state
             {
                 min_dist = dist;
                 el = _el;
+            }
+        }
+    }
+
+    if (min_dist > 0)
+    {
+        if (GetFirstCaretState(next, nullptr))
+        {
+            Rect r = document->GetCaretRect(next);
+            dist = r.DistToPoint(x, y);
+            if (dist < min_dist)
+            {
+                caret_state = next;
+                return true;
+            }
+        }
+        if (GetLastCaretState(last, nullptr))
+        {
+            Rect r = document->GetCaretRect(last);
+            dist = r.DistToPoint(x, y);
+            if (dist < min_dist)
+            {
+                caret_state = last;
+                return true;
             }
         }
     }
