@@ -76,6 +76,9 @@ public:
     virtual void OnCopyResult(CopyResult result);
     virtual void OnPasteResult(PasteResult result);
 
+    virtual void OnFormattingStarted();
+    virtual void OnFormattingFinished();
+
 #ifdef EMSCRIPTEN
     virtual int Connect(const std::string& addr);
     virtual bool Send(const int socket_id, const std::string& message);

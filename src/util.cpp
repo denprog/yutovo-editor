@@ -95,6 +95,19 @@ bool Rect::Intersects(const Rect& rect)
     return !(left > rect.GetRight() || rect.left > GetRight() || top > rect.GetBottom() || rect.top > GetBottom());
 }
 
+//FormattingScope
+
+FormattingScope::FormattingScope(Window* _window) :
+    window(_window)
+{
+    window->OnFormattingStarted();
+}
+
+FormattingScope::~FormattingScope()
+{
+    window->OnFormattingFinished();
+}
+
 std::string IdToString(const ElementId& id)
 {
 	std::string res;
