@@ -1073,9 +1073,30 @@ bool MoveCaretTask::Execute()
         CaretState start, end;
         if (!text->GetNearestCaretState(point.x, point.y, start) || !text->GetNearestCaretState(end_point.x, end_point.y, end))
             return false;
-        ElementId common_id = GetCommonParent(start.id, end.id);
-        auto el = document->GetElement(common_id);
-        el->Select(start, end);
+
+        caret->notify = false;
+        caret->SetState(start);
+        if (start < end)
+        {
+            while (start < end)
+            {
+                caret->MoveRight(selection);
+                start = caret->GetCaretState();
+            }
+            if (!selection->IsEmpty())
+                caret->SetState(selection->GetLastCaretState());
+        }
+        else
+        {
+            while (end < start)
+            {
+                caret->MoveLeft(selection);
+                start = caret->GetCaretState();
+            }
+            if (!selection->IsEmpty())
+                caret->SetState(selection->GetFirstCaretState());
+        }
+        caret->notify = true;
         break;
     }
 

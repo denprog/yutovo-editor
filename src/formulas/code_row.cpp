@@ -152,17 +152,6 @@ bool CodeRow::GetEndCaretState(CaretState& caret_state, Selection* select)
     return false;
 }
 
-void CodeRow::Select(const CaretState& start, const CaretState& end)
-{
-    if (yutovo::IsDirectChild(id, start.id) && yutovo::IsDirectChild(id, end.id))
-    {
-        Row::Select(start, end);
-        return;
-    }
-
-    parent->Select(start, end);
-}
-
 void CodeRow::AddEmptyElement()
 {
     AddElement(ElementPtr(new CodeString(this)));

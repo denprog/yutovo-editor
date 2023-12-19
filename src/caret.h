@@ -62,6 +62,7 @@ public:
 
 public:
     bool block = false; //don't do any operations with caret
+    bool notify = true;
 
 private:
     ElementPtr element = nullptr;

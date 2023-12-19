@@ -148,18 +148,6 @@ bool CodeBlock::CanContinueVerticalMoving()
     return true;
 }
 
-void CodeBlock::Select(const CaretState& start, const CaretState& end)
-{
-    if (yutovo::IsDirectChild(id, start.id) && yutovo::IsDirectChild(id, end.id))
-    {
-        Block::Select(start, end);
-        return;
-    }
-
-    selection->Add(id);
-    caret->SetState(yutovo::GetParent(id), start < end ? yutovo::GetChildPos(id) + 1 : yutovo::GetChildPos(id), true);
-}
-
 StringFormatPtr CodeBlock::GetStringFormat() const
 {
     return formula_format->string_format;

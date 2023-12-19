@@ -83,28 +83,6 @@ bool Text::Remake(bool with_elements)
     return false;
 }
 
-void Text::Select(const CaretState& start, const CaretState& end)
-{
-    if (start == end)
-    {
-        caret->SetState(start);
-        return;
-    }
-
-    int p1 = yutovo::GetChildPos(id, start.id);
-    int p2 = yutovo::GetChildPos(id, end.id);
-
-    auto el = elements->Get(p1);
-    el->Select(start, end);
-    if (p2 - p1 > 1)
-        selection->Add(id, p1 + 1, p2 - p1 - 1);
-    else if (p1 - p2 > 1)
-        selection->Add(id, p2 + 1, p1 - p2 - 1);
-    el = elements->Get(p2);
-    caret->SetState(end);
-    el->Select(start, end);
-}
-
 void Text::UpdateRect(bool with_elements)
 {
     Block::UpdateRect(with_elements);
@@ -173,8 +151,6 @@ bool Text::GetNearestCaretState(const int x, const int y, CaretState& caret_stat
             min_dist = dist;
             el = _el;
         }
-        else
-            break;
     }
 
     return el->GetNearestCaretState(x, y, caret_state);

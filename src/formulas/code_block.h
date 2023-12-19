@@ -34,8 +34,6 @@ public:
     virtual bool HasLastCaretState();
     virtual bool CanContinueVerticalMoving();
 
-    virtual void Select(const CaretState& start, const CaretState& end);
-
     virtual StringFormatPtr GetStringFormat() const;
     virtual FormulaFormatPtr GetFormulaFormat() const;
     virtual ParagraphFormatPtr GetParagraphFormat();

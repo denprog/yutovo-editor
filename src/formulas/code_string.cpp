@@ -192,17 +192,6 @@ bool CodeString::IsFormula()
     return true;
 }
 
-void CodeString::Select(const CaretState& start, const CaretState& end)
-{
-    if (yutovo::IsDirectChild(id, start.id) && yutovo::IsDirectChild(id, end.id))
-    {
-        String::Select(start, end);
-        return;
-    }
-
-    parent->Select(start, end);
-}
-
 std::string CodeString::ToHtml()
 {
     std::string s = "<mi>";
