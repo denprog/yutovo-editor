@@ -311,6 +311,7 @@ bool String::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo, 
         {
             if (with_undo)
                 document->StoreUndo(id);
+            size_cache.clear();
             elements->Insert(_elements[0], caret->GetPos());
             caret->SetState(elements->GetElementId(caret->GetPos() + s->elements->Count()));
             parent->Normalize();
