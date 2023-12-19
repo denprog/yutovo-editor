@@ -1410,4 +1410,40 @@ TEST_F(DocumentTest, caret42)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 2, 0, 0, 14})) << document.GetEditorState().ToString();
 }
 
+//Click before an image, on an image and after it
+TEST_F(DocumentTest, caret43)
+{
+    Start(600);
+
+    EXPECT_CALL(window_mock, GetImageSize).WillRepeatedly([&](const std::vector<unsigned char>& bmp, const int width, const int height)
+        {
+            return GetImageSizeMock(bmp, width, height);
+        });
+
+    QImage test_image("../test/tests/Qt_small.png");
+    std::vector<unsigned char> data;
+    GetImageData(test_image, data);
+
+    document.InsertString("Text", true);
+    document.WaitTask(document.InsertImage(data, test_image.width(), test_image.height(), true));
+
+    Rect rect;
+    document.GetElementRect(ElementId{0, 0, 0, 0}, rect);
+    document.WaitTask(document.MoveCaret(rect.left + 1, rect.top + 1));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0})) << document.GetEditorState().ToString();
+
+    document.GetElementRect(ElementId{0, 0, 0, 1}, rect);
+    document.WaitTask(document.MoveCaret(rect.left + 1, rect.top + 1));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 1})) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.MoveCaret(rect.GetRight() + 1, rect.top + 1));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 2})) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.InsertString("String", true));
+
+    document.GetElementRect(ElementId{0, 0, 0, 2}, rect);
+    document.WaitTask(document.MoveCaret(rect.left + 1, rect.top + 1));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 2, 0})) << document.GetEditorState().ToString();
+}
+
 }
