@@ -774,11 +774,16 @@ CaretState Selection::GetFirstCaretState() const
 {
     assert(!selection.empty());
     SelectionState s = GetState();
-    auto el = document->GetElement(s.state[0].id);
+    ElementSelectionState el_s = s.state[0];
+    auto el = document->GetElement(el_s.id);
     CaretState c;
+    if (document->IsString(el))
+        return CaretState(el->id, el_s.start);
+    if (document->IsRow(el))
+        return CaretState(el_s.id, el_s.start);
     if (el->GetFirstCaretState(c, nullptr))
         return c;
-    return CaretState(s.state[0].id, s.state[0].start);
+    return CaretState(el_s.id, el_s.start);
 }
 
 CaretState Selection::GetLastCaretState() const

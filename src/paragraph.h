@@ -36,8 +36,6 @@ public:
 
     virtual bool CanContinueSelection();
 
-    virtual void Select(const CaretState& start, const CaretState& end);
-
     virtual bool GetNearestCaretState(const int x, const int y, CaretState& caret_state);
 
     virtual void AddEmptyElement();

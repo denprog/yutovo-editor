@@ -26,8 +26,6 @@ public:
     virtual bool GetBeginCaretState(CaretState& caret_state, Selection* select);
     virtual bool GetEndCaretState(CaretState& caret_state, Selection* select);
 
-    virtual void Select(const CaretState& start, const CaretState& end);
-
     virtual void AddEmptyElement();
 
     virtual bool IsFormula();

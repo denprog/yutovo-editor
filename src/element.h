@@ -78,8 +78,6 @@ public:
     virtual bool CanContinueSelection();
     virtual bool CanContinueVerticalMoving(); //will pass caret into this element from up and down
 
-    virtual void Select(const CaretState& start, const CaretState& end);
-
     virtual Rect GetCaretRect(const uint pos) const;
     virtual Rect GetCaretRect() const;
     virtual void DrawCaret(const uint pos) const;

@@ -936,7 +936,7 @@ TEST_F(DocumentTest, caret26)
     auto d = document.GetElement(p_id);
     d = document.GetElement(d->parent->parent->id);
     document.GetElementRect(d->id, rect2);
-    document.WaitTask(document.Select(rect1.left + 1, rect1.top + 1, rect2.left + 2, rect2.top + rect2.height / 2));
+    document.WaitTask(document.Select(rect1.left + 10, rect1.top + 10, rect2.left - 1, rect2.top + rect2.height / 2));
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0}, 
         ElementSelectionState{ElementId{0}, 0, 1})) << document.GetEditorState().ToString();
 }
@@ -1369,6 +1369,45 @@ TEST_F(DocumentTest, caret40)
     document.GetElementRect(el->id, rect1);
     document.WaitTask(document.MoveCaret(rect1.left + 1, rect1.top + 1));
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(el->id)) << document.GetEditorState().ToString();
+}
+
+//Selection a row inside a code block
+TEST_F(DocumentTest, caret41)
+{
+    Start(540);
+
+    document.InsertCode(false, true);
+    document.InsertString("12", true);
+    document.InsertPlus(true);
+    document.WaitTask(document.InsertString("345", true));
+
+    auto el = document.FindByString(ElementId{0, 0, 0}, U"12");
+    Rect rect1, rect2;
+    document.GetElementRect(el->id, rect1);
+    el = document.FindByType(ElementId{0, 0, 0}, ElementType::PLUS);
+    document.GetElementRect(el->id, rect2);
+    document.WaitTask(document.MoveCaret(rect1.left + 1, rect1.top + 1));
+    document.WaitTask(document.Select(rect1.left + 1, rect1.top + 1, rect2.left + 1, rect2.top + 1));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0, 0, 2, 0}, 
+        ElementSelectionState{ElementId{0, 0, 0, 0, 0, 0}, 0, 2})) << document.GetEditorState().ToString();
+}
+
+//Click on a row
+TEST_F(DocumentTest, caret42)
+{
+    Start(540);
+
+    document.InsertString("Арифме́тика (др.-греч. ἀριθμητική, arithmētikḗ — от ἀριθμός, arithmós «число») — "\
+        "раздел математики, изучающий числа, их отношения и свойства.", true);
+    document.InsertParagraph(true);
+    document.InsertParagraph(true);
+    document.WaitTask(document.InsertString("In literary theory, a text is any object that can be read, whether this object is a work of literature", true));
+    std::this_thread::sleep_for(100ms);
+
+    Rect rect;
+    document.GetElementRect(ElementId{0, 2, 0, 0}, rect);
+    document.WaitTask(document.MoveCaret(rect.left + 100, rect.top + 1));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 2, 0, 0, 14})) << document.GetEditorState().ToString();
 }
 
 }
