@@ -1446,4 +1446,34 @@ TEST_F(DocumentTest, caret43)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 2, 0})) << document.GetEditorState().ToString();
 }
 
+//Click after a code block
+TEST_F(DocumentTest, caret44)
+{
+    Start(600);
+
+    document.WaitTask(document.InsertDivision(true));
+
+    Rect rect;
+    document.GetElementRect(ElementId{0, 0, 0, 0}, rect);
+    document.WaitTask(document.MoveCaret(rect.GetRight() + 5, rect.top + 5));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 1})) << document.GetEditorState().ToString();
+}
+
+//Select a string and a code block on another string
+TEST_F(DocumentTest, caret45)
+{
+    Start(600);
+
+    document.InsertString("Text", true);
+    document.InsertParagraph(true);
+    document.WaitTask(document.InsertDivision(true));
+
+    Rect rect1, rect2;
+    document.GetElementRect(ElementId{0, 0, 0, 0}, rect1);
+    document.GetElementRect(ElementId{0, 1, 0, 0}, rect2);
+    document.WaitTask(document.Select(rect1.left + 1, rect1.top + 1, rect2.GetRight() + 10, rect2.top + 10));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 1, 0, 1}, 
+        ElementSelectionState{ElementId{0}, 0, 2})) << document.GetEditorState().ToString();
+}
+
 }

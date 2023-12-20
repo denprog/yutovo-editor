@@ -684,25 +684,26 @@ bool Row::GetNearestCaretState(const int x, const int y, CaretState& caret_state
 
     if (min_dist > 0)
     {
+        int dist1 = std::numeric_limits<int>::max(), dist2 = std::numeric_limits<int>::max();
         if (GetFirstCaretState(next, nullptr))
         {
             Rect r = document->GetCaretRect(next);
-            dist = r.DistToPoint(x, y);
-            if (dist < min_dist)
-            {
-                caret_state = next;
-                return true;
-            }
+            dist1 = r.DistToPoint(x, y);
         }
         if (GetLastCaretState(last, nullptr))
         {
             Rect r = document->GetCaretRect(last);
-            dist = r.DistToPoint(x, y);
-            if (dist < min_dist)
-            {
-                caret_state = last;
-                return true;
-            }
+            dist2 = r.DistToPoint(x, y);
+        }
+        if (dist1 < min_dist && dist1 < dist2)
+        {
+            caret_state = next;
+            return true;
+        }
+        if (dist2 < min_dist)
+        {
+            caret_state = last;
+            return true;
         }
     }
 
