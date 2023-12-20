@@ -73,6 +73,7 @@ add_library(${PROJECT_NAME}
 
 target_compile_options(${PROJECT_NAME} PUBLIC -Wno-deprecated-declarations)
 target_compile_options(${PROJECT_NAME} PUBLIC -Wno-unused-command-line-argument)
+target_compile_options(${PROJECT_NAME} PUBLIC -Wno-ambiguous-reversed-operator)
 
 set_target_properties(${PROJECT_NAME} PROPERTIES
 	CXX_STANDARD 20

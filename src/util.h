@@ -108,12 +108,12 @@ struct Rect
     {
     }
 
-    bool operator==(const Rect& compare)
+    bool operator==(const Rect& compare) const
     {
         return left == compare.left && top == compare.top && width == compare.width && height == compare.height;
     }
 
-    bool operator!=(const Rect& compare)
+    bool operator!=(const Rect& compare) const
     {
         return !operator==(compare);
     }
