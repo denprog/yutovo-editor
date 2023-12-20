@@ -13,8 +13,8 @@ class ParserString
 public:
     ParserString& operator=(const ParserString& str);
 
-    bool operator==(const ParserString& str);
-    bool operator!=(const ParserString& str);
+    bool operator==(const ParserString& str) const;
+    bool operator!=(const ParserString& str) const;
 
     void Add(const ElementId id, const std::u32string& _text);
     void Add(const ParserString& str);

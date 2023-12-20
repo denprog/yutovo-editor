@@ -12,12 +12,12 @@ ParserString& ParserString::operator=(const ParserString& str)
     return *this;
 }
 
-bool ParserString::operator==(const ParserString& str)
+bool ParserString::operator==(const ParserString& str) const
 {
     return text == str.text;
 }
 
-bool ParserString::operator!=(const ParserString& str)
+bool ParserString::operator!=(const ParserString& str) const
 {
     return text != str.text;
 }
