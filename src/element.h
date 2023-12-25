@@ -124,6 +124,8 @@ public:
 
     virtual bool IsFormula();
 
+    virtual bool IsEmpty();
+
     virtual void Solve();
     virtual void ReSolve(bool if_error = false);
 

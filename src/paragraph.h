@@ -40,6 +40,8 @@ public:
 
     virtual void AddEmptyElement();
 
+    virtual bool IsEmpty();
+
     virtual ParagraphFormatPtr GetParagraphFormat();
     virtual StringFormatPtr GetStringFormat() const;
     

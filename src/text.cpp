@@ -169,6 +169,13 @@ ParagraphFormatPtr Text::GetParagraphFormat()
     return nullptr;
 }
 
+bool Text::IsEmpty()
+{
+    if (elements->Count() != 1)
+        return false;
+    return elements->Get(0)->IsEmpty();
+}
+
 std::string Text::ToHtml()
 {
     return "<body>" + Block::ToHtml() + "</body>";
