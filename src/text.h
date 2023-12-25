@@ -35,6 +35,8 @@ public:
 
     virtual ParagraphFormatPtr GetParagraphFormat();
 
+    virtual bool IsEmpty();
+
     virtual std::string ToHtml();
 
     virtual Rect GetAbsoluteRect() const;

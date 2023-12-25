@@ -855,6 +855,11 @@ bool Element::IsFormula()
     return false;
 }
 
+bool Element::IsEmpty()
+{
+    return elements->Count() == 0;
+}
+
 void Element::Solve()
 {
     if (parent)

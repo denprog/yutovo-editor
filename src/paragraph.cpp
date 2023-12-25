@@ -411,6 +411,13 @@ void Paragraph::AddEmptyElement()
     AddElement(ElementPtr(new Row(this)));
 }
 
+bool Paragraph::IsEmpty()
+{
+    if (elements->Count() != 1)
+        return false;
+    return elements->Get(0)->IsEmpty();
+}
+
 ParagraphFormatPtr Paragraph::GetParagraphFormat()
 {
     return format;

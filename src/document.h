@@ -130,6 +130,8 @@ public:
     ElementType GetElementType(const ElementId id);
     bool IsEditable(const ElementId id);
 
+    bool IsEmpty();
+
     bool IsString(ElementPtr el);
     bool IsString(ElementId id);
     bool IsRow(ElementPtr el);

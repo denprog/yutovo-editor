@@ -1420,6 +1420,12 @@ bool Document::IsEditable(const ElementId id)
     return el->editable;
 }
 
+bool Document::IsEmpty()
+{
+    std::lock_guard<std::recursive_mutex> lock(edit_mutex);
+    return text->IsEmpty();
+}
+
 bool Document::IsString(ElementPtr el)
 {
     return el && (el->type == ElementType::STRING || el->type == ElementType::CODE_STRING);
@@ -1427,8 +1433,7 @@ bool Document::IsString(ElementPtr el)
 
 bool Document::IsString(ElementId id)
 {
-    auto el = GetElement(id);
-    return IsString(el);
+    return IsString(GetElement(id));
 }
 
 bool Document::IsRow(ElementPtr el)
@@ -1438,8 +1443,7 @@ bool Document::IsRow(ElementPtr el)
 
 bool Document::IsRow(ElementId id)
 {
-    auto el = GetElement(id);
-    return IsRow(el);
+    return IsRow(GetElement(id));
 }
 
 bool Document::IsParagraph(ElementPtr el)
@@ -1449,8 +1453,7 @@ bool Document::IsParagraph(ElementPtr el)
 
 bool Document::IsParagraph(ElementId id)
 {
-    auto el = GetElement(id);
-    return IsParagraph(el);
+    return IsParagraph(GetElement(id));
 }
 
 bool Document::IsFormula(ElementPtr el)
