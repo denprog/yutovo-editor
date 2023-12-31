@@ -2,12 +2,14 @@
 #include "window.h"
 #include <yutovo_logger/logger.h>
 #include <chrono>
+#include <boost/asio/strand.hpp>
 
 namespace yutovo
 {
 
 using namespace std::chrono_literals;
 using namespace std::chrono;
+namespace net = boost::asio;
 
 //WebSocket
 
@@ -15,7 +17,7 @@ WebSocket::WebSocket(Config& _config, Window* _window) :
     config(_config),
     window(_window),
 #ifndef EMSCRIPTEN
-    ws(ioc),
+    ws(net::make_strand(ioc), ssl_context.ssl_context),
 #endif
     logger(Logger::GetInstance("programs/Math/bin/", "yutovo", true, true))
 {
@@ -133,15 +135,26 @@ void WebSocket::OnConnect(beast::error_code ec, tcp::resolver::results_type::end
         return;
     }
 
+    beast::get_lowest_layer(ws).expires_after(std::chrono::seconds(30));
+    ws.next_layer().async_handshake(ssl::stream_base::client, beast::bind_front_handler(&WebSocket::OnSslHandshake, shared_from_this()));
+}
+
+void WebSocket::OnSslHandshake(beast::error_code ec)
+{
+    last_error = ec;
+    if (ec)
+    {
+        logger->Error("OnSslHandshake to {} failed: {}", host + ":" + port, ec.message());
+        return;
+    }
+
     beast::get_lowest_layer(ws).expires_never();
     ws.set_option(websocket::stream_base::timeout::suggested(beast::role_type::client));
     ws.set_option(websocket::stream_base::decorator(
         [](websocket::request_type& req)
         {
-            req.set(http::field::user_agent, std::string(BOOST_BEAST_VERSION_STRING) + " websocket-client-async");
+            req.set(http::field::user_agent, std::string(BOOST_BEAST_VERSION_STRING) + " websocket-client-async-ssl");
         }));
-
-    host += ':' + std::to_string(ep.port());
 
     ws.async_handshake(host, "/", beast::bind_front_handler(&WebSocket::OnHandshake, shared_from_this()));
 }
@@ -151,10 +164,10 @@ void WebSocket::OnHandshake(beast::error_code ec)
     last_error = ec;
     if (ec)
     {
-        logger->Error("Handshake to {} failed: {}", host + ":" + port, ec.message());
+        logger->Error("OnHandshake to {} failed: {}", host + ":" + port, ec.message());
+        return;
     }
-    else
-        connected = true;
+    connected = true;
     connection = false;
 }
 

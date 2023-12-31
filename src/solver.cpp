@@ -140,7 +140,9 @@ void Solver::MessageLoop()
 
     WebSocketPtr socket(new WebSocket(document->config, document->window));
     if (!socket->Connect() || !socket->IsOpen())
+    {
         logger->Error("Error connecting to the server: {}:{}", document->config.service_ip, document->config.service_port);
+    }
     else
     {
         logger->Info("Solver connected to the server: {}:{}, guid:{}", document->config.service_ip, document->config.service_port, guid);
