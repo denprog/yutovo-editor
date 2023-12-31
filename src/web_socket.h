@@ -3,12 +3,15 @@
 
 #ifndef EMSCRIPTEN
 #include <boost/beast/core.hpp>
+#include <boost/beast/ssl.hpp>
 #include <boost/beast/websocket.hpp>
+#include <boost/beast/websocket/ssl.hpp>
 #include <boost/asio/awaitable.hpp>
 #include <boost/asio/co_spawn.hpp>
 #include <boost/asio/detached.hpp>
 #include <boost/asio/use_awaitable.hpp>
 #include <boost/asio/buffers_iterator.hpp>
+#include <fstream>
 #endif
 #include "config.h"
 #include "result_codes.h"
@@ -18,6 +21,7 @@ namespace beast = boost::beast;
 namespace http = beast::http;
 namespace websocket = beast::websocket;
 namespace asio = boost::asio;
+namespace ssl = boost::asio::ssl;
 using tcp = boost::asio::ip::tcp;
 #endif
 
@@ -41,6 +45,7 @@ public:
 private:
 #ifndef EMSCRIPTEN
     void OnConnect(beast::error_code ec, tcp::resolver::results_type::endpoint_type ep);
+    void OnSslHandshake(beast::error_code ec);
     void OnHandshake(beast::error_code ec);
     void OnWrite(beast::error_code ec, std::size_t bytes_transferred);
     void OnRead(beast::error_code ec, std::size_t bytes_transferred);
@@ -53,8 +58,23 @@ private:
 #ifdef EMSCRIPTEN
     int socket_id = 0;
 #else
+    struct SslContext
+    {
+        SslContext()
+        {
+            boost::system::error_code error_code;
+            ssl_context.use_certificate_chain_file("./yutovo_desktop_cert.pem", error_code);
+            if (error_code)
+                throw boost::system::system_error(error_code);
+            ssl_context.use_private_key_file("./yutovo_desktop_key.pem", ssl::context_base::file_format::pem);
+        }
+
+        ssl::context ssl_context{ssl::context::tlsv12_client};
+    };
+
     asio::io_context ioc;
-    websocket::stream<beast::tcp_stream> ws;
+    SslContext ssl_context;
+    websocket::stream<beast::ssl_stream<beast::tcp_stream>> ws;
 
     bool connected = false;
     bool connection = false;

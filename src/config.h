@@ -17,7 +17,7 @@ using namespace yutovo_calculator;
 struct Config
 {
     //solver
-    std::string service_ip = "localhost";
+    std::string service_ip = "192.168.1.192";
     uint service_port = 8010;
     uint service_timeout = 10; //seconds
     uint reconnect_timeout = 10; //seconds

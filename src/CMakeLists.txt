@@ -83,10 +83,19 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
     CMAKE_INCLUDE_CURRENT_DIR ON
 )
 
-target_link_libraries(${PROJECT_NAME} PRIVATE 
-    stdc++
-    pthread
-)
+if(EMSCRIPTEN)
+    target_link_libraries(${PROJECT_NAME} PRIVATE 
+        stdc++
+        pthread
+    )
+else()
+    target_link_libraries(${PROJECT_NAME} PRIVATE 
+        stdc++
+        pthread
+        ssl
+        crypto
+    )
+endif()
 
 target_include_directories(${PROJECT_NAME} PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
