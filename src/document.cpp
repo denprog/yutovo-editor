@@ -279,6 +279,8 @@ void Document::MainLoop()
 
             temp_tasks.clear();
         }
+
+        UpdateChanged();
     }
 }
 
@@ -748,6 +750,7 @@ void Document::ResetTasks()
     tasks.clear();
     undo_tasks.clear();
     redo_tasks.clear();
+    changed = false;
 }
 
 ElementPtr Document::GetElement(const ElementId& _id)
@@ -1757,6 +1760,12 @@ bool Document::CanRedo()
     return false;
 }
 
+bool Document::IsChanged()
+{
+    std::lock_guard<std::recursive_mutex> lock(edit_mutex);
+    return changed;
+}
+
 uint Document::Resize(uint width, uint height)
 {
     break_remake = true;
@@ -2607,6 +2616,17 @@ void Document::RestrictUndo()
             group_id = t->id;
         }
     }
+}
+
+void Document::UpdateChanged()
+{
+    if (undo_tasks.empty())
+    {
+        changed = false;
+        return;
+    }
+    TaskPtr t = undo_tasks.back();
+    changed = !(t->id == save_task_id);
 }
 
 #ifdef DEBUG
