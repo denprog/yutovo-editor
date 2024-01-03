@@ -169,6 +169,8 @@ public:
     bool CanUndo();
     bool CanRedo();
 
+    bool IsChanged();
+
     uint Resize(uint width, uint height);
 
     uint Redraw(const ElementId& id, bool move_into_view);
@@ -278,6 +280,8 @@ private:
 
     void RestrictUndo();
 
+    void UpdateChanged();
+
 #ifdef DEBUG
 public:
     void WaitMainLoop();
@@ -309,6 +313,7 @@ private:
     friend class GetEditorStateTask;
     friend class NewTask;
     friend class LoadTask;
+    friend class SaveTask;
     friend class RedrawTask;
     friend class Caret;
 
@@ -355,6 +360,9 @@ public:
     std::vector<ElementId> resolve_elements;
 
     std::atomic_bool break_remake = false;
+
+    bool changed = false;
+    uint save_task_id = 0;
 
 private:
     std::list<TaskPtr> tasks;

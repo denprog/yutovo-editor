@@ -18,8 +18,11 @@ TEST_F(DocumentTest, files1)
             return GetTextSizeMock(text, format);
         });
 
+    ASSERT_TRUE(document.IsChanged() == false);
     document.WaitTask(document.InsertString("Text", true));
-    document.Save("1.yut");
+    ASSERT_TRUE(document.IsChanged() == true);
+    document.WaitTask(document.Save("1.yut"));
+    ASSERT_TRUE(document.IsChanged() == false);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -30,6 +33,7 @@ TEST_F(DocumentTest, files1)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 4)) << document.GetEditorState().ToString();
 
     document.WaitTask(document.New());
+    ASSERT_TRUE(document.IsChanged() == false);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -43,6 +47,7 @@ TEST_F(DocumentTest, files1)
     document.Load("1.yut");
     document.WaitLoad();
     std::this_thread::sleep_for(400ms);
+    ASSERT_TRUE(document.IsChanged() == false);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -76,6 +81,7 @@ TEST_F(DocumentTest, files2)
     document.SetItalic(false);
     document.WaitTask(document.InsertString("is a little mysterious.", true));
     document.WaitTask(document.MoveCaretWordLeft(true));
+    ASSERT_TRUE(document.IsChanged() == true);
     std::this_thread::sleep_for(1s);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
@@ -351,9 +357,11 @@ TEST_F(DocumentTest, files8)
 {
     Start(600);
 
-    document.InsertDivision(true);
+    document.WaitTask(document.InsertDivision(true));
+    ASSERT_TRUE(document.IsChanged() == true);
     document.WaitTask(document.New());
     std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.IsChanged() == false);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -490,6 +498,48 @@ TEST_F(DocumentTest, files11)
         "</body>") << 
         document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 2, 4})) << document.GetEditorState().ToString();
+}
+
+//Check is changed after undo/redo
+TEST_F(DocumentTest, files12)
+{
+    Start(600);
+
+    ASSERT_TRUE(document.IsChanged() == false);
+    document.WaitTask(document.InsertString("Text ", true));
+    ASSERT_TRUE(document.IsChanged() == true);
+    document.WaitTask(document.InsertString("s", true));
+    document.WaitTask(document.InsertString("t", true));
+    document.WaitTask(document.InsertString("ring", true));
+    ASSERT_TRUE(document.IsChanged() == true);
+
+    document.Undo();
+    document.WaitUndo();
+    ASSERT_TRUE(document.ToText() == U"Text st") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.IsChanged() == true);
+
+    document.Undo();
+    document.WaitUndo();
+    ASSERT_TRUE(document.ToText() == U"Text s") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.IsChanged() == true);
+
+    document.WaitTask(document.Save("files12.yut"));
+    ASSERT_TRUE(document.IsChanged() == false);
+
+    document.Redo();
+    document.WaitRedo();
+    ASSERT_TRUE(document.ToText() == U"Text st") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.IsChanged() == true);
+
+    document.Undo();
+    document.WaitUndo();
+    ASSERT_TRUE(document.ToText() == U"Text s") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.IsChanged() == false);
+
+    document.Undo();
+    document.WaitUndo();
+    ASSERT_TRUE(document.ToText() == U"Text ") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.IsChanged() == true);
 }
 
 }
