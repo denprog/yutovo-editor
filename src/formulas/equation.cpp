@@ -473,6 +473,7 @@ void Equation::UpdateResult(ParserString& str)
         else
         {
             result->Reset();
+            last->elements->Replace(result, 0);
         }
 
         result->Solve(str); //solve the expression in the left part
