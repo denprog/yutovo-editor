@@ -350,7 +350,7 @@ void CodeString::UpdateGap()
     else
     {
         auto& str = ((StringElements*)elements.get())->str;
-        if (parent && parent->parent->type == ElementType::SUBSCRIPT && parent->parent->elements->Count() == 3)
+        if (parent && parent->parent && parent->parent->type == ElementType::SUBSCRIPT && parent->parent->elements->Count() == 3)
         {
             auto last = parent->parent->elements->Get(2)->ToText();
             if (last == U"bin")
