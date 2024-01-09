@@ -358,6 +358,7 @@ TEST_F(DocumentTest, files8)
     Start(600);
 
     document.WaitTask(document.InsertDivision(true));
+    std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.IsChanged() == true);
     document.WaitTask(document.New());
     std::this_thread::sleep_for(200ms);

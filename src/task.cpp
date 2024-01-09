@@ -275,6 +275,8 @@ bool InsertElementsTask::Execute()
     }
     document->pasting = false;
     document->caret->notify = true;
+    window->OnCaretMoved(document->MakeEditorState());
+    document->UpdateFormats();
     return true;
 }
 
