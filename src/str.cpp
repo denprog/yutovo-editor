@@ -284,6 +284,7 @@ bool String::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo, 
     
     if (_elements.size() == 1 && document->IsString(_elements[0]))
     {
+        size_cache.clear();
         String* s = dynamic_cast<String*>(_elements[0].get());
         if (elements->Count() == 0)
         {
@@ -294,7 +295,6 @@ bool String::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo, 
                 document->StoreUndo(id);
             elements.reset(new StringElements(this, s->elements->ToText()));
             format = s->format;
-            size_cache.clear();
             caret->SetState(elements->GetElementId(elements->Count()));
             parent->Normalize();
             auto p = document->FindParent(id, ElementType::PARAGRAPH);
@@ -311,7 +311,6 @@ bool String::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo, 
         {
             if (with_undo)
                 document->StoreUndo(id);
-            size_cache.clear();
             elements->Insert(_elements[0], caret->GetPos());
             caret->SetState(elements->GetElementId(caret->GetPos() + s->elements->Count()));
             parent->Normalize();
@@ -334,7 +333,8 @@ bool String::DeleteElements(bool left, bool with_undo, ElementId& changed_elemen
 {
     if (!editable)
         return false;
-    
+
+    size_cache.clear();
     uint caret_pos = caret->GetPos();
     if (caret->IsInsideElement(id) && selection->IsEmpty())
     {
@@ -451,6 +451,7 @@ bool String::ChangeStringFormat(const StringFormatPtr _format, bool with_undo, E
     if (!editable)
         return false;
     
+    size_cache.clear();
     uint start, size;
     if (selection->Has(id, start, size))
     {
@@ -460,7 +461,6 @@ bool String::ChangeStringFormat(const StringFormatPtr _format, bool with_undo, E
         {
             //change format of the whole string
             format = _format;
-            size_cache.clear();
             parent->Normalize();
             auto p = document->FindParent(id, ElementType::PARAGRAPH);
             p->elements->UpdateIds();
@@ -494,6 +494,8 @@ bool String::Split(const uint width, bool split_more)
 {
     if (!editable)
         return false;
+
+    size_cache.clear();
 
     int i = 0;
     std::u32string& str = ((StringElements*)elements.get())->str;
@@ -567,6 +569,8 @@ bool String::SplitAt(const uint pos)
     if (pos == 0 || pos >= elements->Count())
         return false;
 
+    size_cache.clear();
+
     int cs_pos = -1;
     if (caret->IsInsideElement(id))
         cs_pos = caret->GetPos();
@@ -615,6 +619,8 @@ bool String::Merge(const ElementPtr with_element)
     String* el = (String*)with_element.get();
     if (*el->format != *format)
         return false;
+
+    size_cache.clear();
 
     if (caret->IsInsideElement(with_element->id))
         caret->SetState(id, caret->GetPos() + elements->Count()); //update caret state
@@ -715,7 +721,7 @@ int String::GetFontSize(const uint size)
     return 8;
 }
 
-Size String::GetTextSize(const uint pos)
+Size String::GetTextSize(const uint pos) const
 {
     auto it = size_cache.find(pos);
     if (it == size_cache.end())
