@@ -2393,4 +2393,82 @@ TEST_F(DocumentTest, clipboard44)
         ) << ToBasicString(document.ToText());
 }
 
+//Paste rows from a code block outside of it
+TEST_F(DocumentTest, clipboard45)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.InsertString("123", true);
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+
+    document.MoveCaretEnd(false);
+    document.InsertParagraph(true);
+    document.WaitTask(document.InsertString("5678", true));
+    document.InsertParagraph(true);
+    document.WaitTask(document.InsertString("789", true));
+
+    document.MoveCaretHome(false);
+    document.MoveCaretUp(false);
+    document.MoveCaretUp(false);
+    document.MoveCaretDown(true);
+    document.MoveCaretDown(true);
+
+    document.WaitTask(document.Copy(clipboard_json, clipboard_text));
+
+    document.MoveCaretEnd(false);
+    document.MoveCaretEnd(false);
+    document.InsertParagraph(true);
+    document.WaitTask(document.Paste(clipboard_json));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"123=123.\n"\
+        U"5678\n"\
+        U"789\n"\
+        U"123=123.\n"\
+        U"5678"
+        ) << ToBasicString(document.ToText());
+}
+
+//Paste rows from a code block outside of it
+TEST_F(DocumentTest, clipboard46)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.InsertString("123", true);
+    document.InsertParagraph(true);
+    document.WaitTask(document.InsertString("5678", true));
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+
+    document.MoveCaretEnd(false);
+    document.InsertParagraph(true);
+    document.WaitTask(document.InsertString("789", true));
+
+    document.MoveCaretHome(false);
+    document.MoveCaretUp(false);
+    document.MoveCaretUp(false);
+    document.MoveCaretDown(true);
+    document.MoveCaretDown(true);
+
+    document.WaitTask(document.Copy(clipboard_json, clipboard_text));
+
+    document.MoveCaretEnd(false);
+    document.MoveCaretEnd(false);
+    document.InsertParagraph(true);
+    document.WaitTask(document.Paste(clipboard_json));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"123\n"\
+        U"5678=5678.\n"\
+        U"789\n"\
+        U"123\n"\
+        U"5678=5678."
+        ) << ToBasicString(document.ToText());
+}
+
 }

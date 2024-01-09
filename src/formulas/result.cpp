@@ -1007,7 +1007,11 @@ void AutoResult::BeforePaste()
     int c = parent->elements->Count();
     for (int i = 0; i < elements->Count(); ++i)
         for (int j = 0; j < elements->Get(i)->elements->Count(); ++j)
-            parent->elements->Move(elements->Get(i)->elements->Get(j), c + j);
+        {
+            auto _el = elements->Get(i)->elements->Get(j);
+            if (_el)
+                parent->elements->Move(_el, c + j);
+        }
     parent->elements->RemoveAt(c - 1, 1);
 }
 
