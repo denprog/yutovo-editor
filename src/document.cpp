@@ -91,12 +91,20 @@ void Document::GetConfig(Config& _config)
 
 void Document::SetConfig(const Config& _config)
 {
+    bool remake = false;
     {
         std::unique_lock<std::recursive_mutex> lock(tasks_mutex);
+        if (config.use_numbers_gaps != _config.use_numbers_gaps || config.binary_gap != _config.binary_gap || config.octal_gap != _config.octal_gap || 
+            config.decimal_gap != _config.decimal_gap || config.hexadecimal_gap != _config.hexadecimal_gap)
+        {
+            remake = true;
+        }
         config = _config;
         current_code_format->border_color = config.code_block_border_color;
     }
 
+    if (remake)
+        text->Remake(true);
     Redraw();
 }
 

@@ -373,7 +373,7 @@ UndoCodeString::UndoCodeString(std::u32string _str, StringFormatPtr _format, boo
 
 Element* UndoCodeString::Restore(Document* document, Element* parent)
 {
-    Element* el = new CodeString(parent, str, format);
+    Element* el = parent ? new CodeString(parent, str, format) : new CodeString(document, str, format);
     el->can_merge = can_merge;
     return el;
 }

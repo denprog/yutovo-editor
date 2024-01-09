@@ -39,6 +39,13 @@ struct Config
     //colors
     Color code_block_border_color = Color::Blue();
 
+    //numbers gaps
+    bool use_numbers_gaps = true;
+    uint binary_gap = 0;
+    uint octal_gap = 0;
+    uint decimal_gap = 0;
+    uint hexadecimal_gap = 0;
+
     //calculator
 
     struct RealResultConfig

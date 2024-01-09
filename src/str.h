@@ -61,8 +61,8 @@ public:
     virtual void UpdateStringFormat(const StringFormatPtr base_format, const StringFormatPtr new_format);
     virtual void UpdateFormat(StringFormatPtr& _format);
 
-    int GetFontSize(const uint size);
-    Size GetTextSize(const uint pos);
+    virtual int GetFontSize(const uint size);
+    virtual Size GetTextSize(const uint pos) const;
 
     virtual bool CanContinueSelection();
 
@@ -85,8 +85,8 @@ public:
     StringFormatPtr format;
     bool translate = false;
 
-private:
-    std::map<uint, Size> size_cache; //cache of string sizes
+protected:
+    mutable std::map<uint, Size> size_cache; //cache of string sizes
 };
 
 class StringElements : public Elements
@@ -130,6 +130,7 @@ public:
 
 private:
     friend class String;
+    friend class CodeString;
 
     std::u32string str;
 };
