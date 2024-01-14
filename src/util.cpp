@@ -26,6 +26,7 @@
 #include "formulas/and.h"
 #include "formulas/or.h"
 #include "formulas/xor.h"
+#include "formulas/percent.h"
 
 namespace yutovo
 {
@@ -264,7 +265,7 @@ Element* CreateFromJson(Element* parent, Document* document, rapidjson::Value& v
             {ElementType::AND, &And::FromJson},
             {ElementType::OR, &Or::FromJson},
             {ElementType::XOR, &Xor::FromJson},
-            {ElementType::PERCENT, &Xor::FromJson}
+            {ElementType::PERCENT, &Percent::FromJson}
         };
 
     if (!value.HasMember("type") || !value["type"].IsInt())

@@ -1476,4 +1476,41 @@ TEST_F(DocumentTest, caret45)
         ElementSelectionState{ElementId{0}, 0, 2})) << document.GetEditorState().ToString();
 }
 
+//Move caret inside a column
+TEST_F(DocumentTest, caret46)
+{
+    Start(600);
+    
+    document.InsertCode(false, true);
+    document.InsertSquareRoot(true);
+    document.InsertString("i", true);
+    document.WaitTask(document.MoveCaretRight(false));
+    document.WaitTask(document.InsertEquation(ResultType::COMPLEX, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"sqrt(i)=0.707+0.707i,-0.707-0.707i"
+        ) << ToBasicString(document.ToText());
+    
+    document.MoveCaretRight(false);
+    document.WaitTask(document.MoveCaretHome(false));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0})) << document.GetEditorState().ToString();
+    
+    for (int i = 0; i < 7; ++i)
+        document.MoveCaretRight(false);
+    document.MoveCaretDown(false);
+    document.WaitTask(document.MoveCaretHome(false));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0})) << document.GetEditorState().ToString();
+
+    for (int i = 0; i < 7; ++i)
+        document.MoveCaretRight(false);
+    document.MoveCaretEnd(false);
+    document.WaitTask(document.MoveCaretEnd(false));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 1})) << document.GetEditorState().ToString();
+
+    document.MoveCaretLeft(false);
+    document.WaitTask(document.MoveCaretEnd(false));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 1})) << document.GetEditorState().ToString();
+}
+
 }

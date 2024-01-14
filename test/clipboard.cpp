@@ -2234,12 +2234,13 @@ TEST_F(DocumentTest, clipboard41)
         document.WaitTask(document.MoveCaretRight(true));
     document.WaitTask(document.Copy(clipboard_json, clipboard_text));
     document.MoveCaretEnd(false);
-    document.InsertParagraph(true);
+    document.WaitTask(document.InsertParagraph(true));
 
     document.WaitTask(document.Paste(clipboard_json));
+    std::this_thread::sleep_for(200ms);
     ASSERT_TRUE(document.ToText() == 
         U"arcsin(1)=1.571(rad)\n"\
-        U"1.571"
+        U"1.571(rad)"
         ) << ToBasicString(document.ToText());
 
     document.Undo();
@@ -2253,7 +2254,7 @@ TEST_F(DocumentTest, clipboard41)
     document.WaitRedo();
     ASSERT_TRUE(document.ToText() == 
         U"arcsin(1)=1.571(rad)\n"\
-        U"1.571"
+        U"1.571(rad)"
         ) << ToBasicString(document.ToText());
 }
 
@@ -2328,7 +2329,7 @@ TEST_F(DocumentTest, clipboard43)
     document.WaitTask(document.Paste(clipboard_json));
     ASSERT_TRUE(document.ToText() == 
         U"2345=2345(dec)\n"\
-        U"2345"
+        U"2345(dec)"
         ) << ToBasicString(document.ToText());
 
     document.Undo();
@@ -2342,7 +2343,7 @@ TEST_F(DocumentTest, clipboard43)
     document.WaitRedo();
     ASSERT_TRUE(document.ToText() == 
         U"2345=2345(dec)\n"\
-        U"2345"
+        U"2345(dec)"
         ) << ToBasicString(document.ToText());
 }
 

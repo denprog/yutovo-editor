@@ -36,7 +36,8 @@ TEST_F(SolverComplexTest, solver1)
                             "<mrow>"\
                                 "<mi>1.2</mi>"\
                                 "<mo>+</mo>"\
-                                "<mi>3.4i</mi>"\
+                                "<mi>3.4</mi>"\
+                                "<mi>i</mi>"\
                             "</mrow>"\
                         "</mrow>"\
                     "</mrow>"\
@@ -139,7 +140,8 @@ TEST_F(SolverComplexTest, solver3)
                                         "<mi>e</mi>"\
                                     "</mrow>"\
                                     "<mrow>"\
-                                        "<mi>1.232i</mi>"\
+                                        "<mi>1.232</mi>"\
+                                        "<mi>i</mi>"\
                                     "</mrow>"\
                                 "</msup>"\
                             "</mrow>"\
@@ -196,7 +198,8 @@ TEST_F(SolverComplexTest, solver4)
                                         "<mi>e</mi>"\
                                     "</mrow>"\
                                     "<mrow>"\
-                                        "<mi>1.536i</mi>"\
+                                        "<mi>1.536</mi>"\
+                                        "<mi>i</mi>"\
                                     "</mrow>"\
                                 "</msup>"\
                             "</mrow>"\
@@ -535,6 +538,23 @@ TEST_F(SolverComplexTest, solver17)
     std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToText() == 
         U"1.2+3.4i=1.2+3.4i"
+        ) << ToBasicString(document.ToText());
+}
+
+//Get two results
+TEST_F(SolverComplexTest, solver18)
+{
+    Start(600);
+    
+    document.InsertCode(false, true);
+    document.InsertSquareRoot(true);
+    document.InsertString("i", true);
+    document.WaitTask(document.MoveCaretRight(false));
+    document.WaitTask(document.InsertEquation(ResultType::COMPLEX, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"sqrt(i)=0.707+0.707i,-0.707-0.707i"
         ) << ToBasicString(document.ToText());
 }
 

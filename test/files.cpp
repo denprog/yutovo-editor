@@ -401,9 +401,9 @@ TEST_F(DocumentTest, files9)
         "\"elements\":[{\"id\":\"0,0\",\"type\":2,\"elements\":[{\"id\":\"0,0,0\",\"type\":3,\"elements\":[{\"id\":\"0,0,0,0\",\"type\":4,\"elements\":"
         "\"Newton's second law of motion\",\"format_id\":\"e9fe76c1-fdcb-41b4-a64c-b5d5e84eff91\"}]}],\"format_name\":\"Text body\"},{\"id\":\"0,1\",\"type\":2,"
         "\"elements\":[{\"id\":\"0,1,0\",\"type\":3,\"elements\":[{\"id\":\"0,1,0,0\",\"type\":5,\"elements\":[{\"id\":\"0,1,0,0,0\",\"type\":6,"
-        "\"elements\":[{\"id\":\"0,1,0,0,0,0\",\"type\":7,\"elements\":[{\"id\":\"0,1,0,0,0,0,0\",\"type\":26,\"elements\":[{\"id\":\"0,1,0,0,0,0,0,0\","
+        "\"elements\":[{\"id\":\"0,1,0,0,0,0\",\"type\":7,\"elements\":[{\"id\":\"0,1,0,0,0,0,0\",\"type\":27,\"elements\":[{\"id\":\"0,1,0,0,0,0,0,0\","
         "\"type\":7,\"elements\":[{\"id\":\"0,1,0,0,0,0,0,0,0\",\"type\":8,\"elements\":\"mass\",\"format_id\":\"89c69148-d1bc-4384-b009-7b752eab898c\"}]},"
-        "{\"id\":\"0,1,0,0,0,0,0,1\",\"type\":9,\"elements\":[]},{\"id\":\"0,1,0,0,0,0,0,2\",\"type\":7,\"elements\":[{\"id\":\"0,1,0,0,0,0,0,2,0\","
+        "{\"id\":\"0,1,0,0,0,0,0,1\",\"type\":10,\"elements\":[]},{\"id\":\"0,1,0,0,0,0,0,2\",\"type\":7,\"elements\":[{\"id\":\"0,1,0,0,0,0,0,2,0\","
         "\"type\":8,\"elements\":\"1kg\",\"format_id\":\"89c69148-d1bc-4384-b009-7b752eab898c\"}]}]}]}],\"format_name\":\"Code\"}],\"code_id\":1}]}],"
         "\"format_name\":\"Text body\"}]}}";
 

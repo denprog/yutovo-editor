@@ -218,12 +218,14 @@ bool SolverTask::FillRealResult(rapidjson::Document& doc, Result& result)
         return false;
     }
 
-    result.values["mantissa"] = doc["mantissa"].GetString();
+    Value value;
+    value["mantissa"] = doc["mantissa"].GetString();
     if (doc.HasMember("exponent") && doc["exponent"].IsString())
-        result.values["exponent"] = doc["exponent"].GetString();
+        value["exponent"] = doc["exponent"].GetString();
+    result.values.push_back(value);
     if (doc.HasMember("angle_measure") && doc["angle_measure"].IsInt())
-        result.values["angle_measure"] = AngleMeasureToString((AngleMeasure)doc["angle_measure"].GetInt());
-    
+        result.angle_measure = (AngleMeasure)doc["angle_measure"].GetInt();
+
     FillUnit(doc, result);
     FillCastUnits(doc, result);
     return true;
@@ -238,9 +240,11 @@ bool SolverTask::FillIntegerResult(rapidjson::Document& doc, Result& result)
         return false;
     }
 
-    result.values["value"] = doc["value"].GetString();
+    Value value;
+    value["value"] = doc["value"].GetString();
+    result.values.push_back(value);
     if (doc.HasMember("notation") && doc["notation"].IsInt())
-        result.values["notation"] = NotationToString((Notation)doc["notation"].GetInt());
+        result.notation = (Notation)doc["notation"].GetInt();
     return true;
 }
 
@@ -253,10 +257,12 @@ bool SolverTask::FillRationalResult(rapidjson::Document& doc, Result& result)
         return false;
     }
 
+    Value value;
     if (doc.HasMember("integer") && doc["integer"].IsString())
-        result.values["integer"] = doc["integer"].GetString();
-    result.values["numerator"] = doc["numerator"].GetString();
-    result.values["denomerator"] = doc["denomerator"].GetString();
+        value["integer"] = doc["integer"].GetString();
+    value["numerator"] = doc["numerator"].GetString();
+    value["denomerator"] = doc["denomerator"].GetString();
+    result.values.push_back(value);
 
     FillUnit(doc, result);
     FillCastUnits(doc, result);
@@ -265,57 +271,72 @@ bool SolverTask::FillRationalResult(rapidjson::Document& doc, Result& result)
 
 bool SolverTask::FillComplexResult(rapidjson::Document& doc, Result& result)
 {
-    if (!doc.HasMember("re") && !doc.HasMember("im") && !doc.HasMember("module") && !doc.HasMember("argument"))
+    if (!doc.HasMember("results"))
     {
         logger->Error("Result error");
         result.error.error_code = ErrorCode::JSON_ERROR;
         return false;
     }
 
-    auto fill_exp = [&](const std::string& param, const std::string& mantissa, const std::string& exponent)
+    auto fill_exp = [&](rapidjson::Value& val, const std::string& param, const std::string& mantissa, const std::string& exponent)
     {
-        if (!doc[param.c_str()].IsObject())
+        if (!val[param.c_str()].IsObject())
         {
             logger->Error("Result error");
             result.error.error_code = ErrorCode::JSON_ERROR;
             return false;
         }
-        rapidjson::Value p = doc[param.c_str()].GetObject();
+        rapidjson::Value p = val[param.c_str()].GetObject();
         if (!p.HasMember("mantissa") || !p["mantissa"].IsString())
         {
             logger->Error("Mantissa error");
             result.error.error_code = ErrorCode::JSON_ERROR;
             return false;
         }
-        result.values[mantissa] = p["mantissa"].GetString();
+
+        Value& value = result.values[result.values.size() - 1];
+        value[mantissa] = p["mantissa"].GetString();
         if (p.HasMember("exponent") && p["exponent"].IsString())
-            result.values[exponent] = p["exponent"].GetString();
+            value[exponent] = p["exponent"].GetString();
         return true;
     };
 
-    if (doc.HasMember("module"))
+    rapidjson::GenericArray arr = doc["results"].GetArray();
+    for (rapidjson::SizeType i = 0; i < arr.Size(); ++i)
     {
-        if (!fill_exp("module", "module_mantissa", "module_exponent"))
-            return false;
-        if (!fill_exp("argument", "argument_mantissa", "argument_exponent"))
-            return false;
-    }
-    else
-    {
-        if (doc.HasMember("re"))
+        if (!arr[i].IsObject())
         {
-            if (!fill_exp("re", "re_mantissa", "re_exponent"))
+            logger->Error("Result error");
+            result.error.error_code = ErrorCode::JSON_ERROR;
+            return false;
+        }
+        auto pos = std::to_string(i);
+        result.values.push_back(Value{});
+        rapidjson::Value r = arr[i].GetObject();
+        if (r.HasMember("module"))
+        {
+            if (!fill_exp(r, "module", "module_mantissa", "module_exponent"))
+                return false;
+            if (!fill_exp(r, "argument", "argument_mantissa", "argument_exponent"))
                 return false;
         }
-        if (doc.HasMember("im"))
+        else
         {
-            if (!fill_exp("im", "im_mantissa", "im_exponent"))
-                return false;
+            if (r.HasMember("re"))
+            {
+                if (!fill_exp(r, "re", "re_mantissa", "re_exponent"))
+                    return false;
+            }
+            if (r.HasMember("im"))
+            {
+                if (!fill_exp(r, "im", "im_mantissa", "im_exponent"))
+                    return false;
+            }
         }
     }
 
     if (doc.HasMember("angle_measure") && doc["angle_measure"].IsInt())
-        result.values["angle_measure"] = AngleMeasureToString((AngleMeasure)doc["angle_measure"].GetInt());
+        result.angle_measure = (AngleMeasure)doc["angle_measure"].GetInt();
     
     return true;
 }

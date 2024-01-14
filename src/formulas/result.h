@@ -1,14 +1,14 @@
 #ifndef __RESULT_H__
 #define __RESULT_H__
 
-#include "code_row.h"
+#include "code_column.h"
 #include "yutovo_calculator/parser_exception.h"
 #include <variant>
 
 namespace yutovo
 {
 
-class ResultRow : public CodeRow
+class ResultRow : public CodeColumn
 {
 public:
     ResultRow(Document* _document);
@@ -28,9 +28,16 @@ public:
     virtual void AfterReplace();
     virtual void BeforePaste();
 
+    virtual void AddElement(ElementPtr element);
+    
     void PutUnit(const Result& result);
     void AddExponent(Element* parent, const std::string& exponent);
     void AddExponent(const std::string& exponent);
+
+    void AddResult();
+
+protected:
+    ElementPtr GetCurRow();
 
 public:
     yutovo_service::ErrorCode last_error_code = yutovo_service::ErrorCode::OK;
@@ -39,6 +46,7 @@ protected:
     ParserString last_expression;
 
     bool delay = false; //don't delay on the first calculation
+    bool next_result = false;
 };
 
 typedef std::shared_ptr<ResultRow> ResultPtr;
