@@ -95,7 +95,7 @@ public:
     virtual bool GetNearestElement(const int x, const int y, ElementId& _id, int& dist);
     virtual bool GetNearestCaretState(const int x, const int y, CaretState& caret_state);
 
-    void AddElement(ElementPtr element);
+    virtual void AddElement(ElementPtr element);
     
     virtual void AddEmptyElement();
 

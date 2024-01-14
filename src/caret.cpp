@@ -70,7 +70,8 @@ void Caret::SetState(const LogicalCaretState& caret_state, bool update_x_pos)
     if (block)
         return;
     ElementId _id = document->GetElementId(caret_state.id, last_pos);
-    SetState(yutovo::GetParent(_id), yutovo::GetChildPos(_id), update_x_pos);
+    if (!_id.empty())
+        SetState(yutovo::GetParent(_id), yutovo::GetChildPos(_id), update_x_pos);
 }
 
 void Caret::SetState(const ElementId id, const uint pos, bool update_x_pos)

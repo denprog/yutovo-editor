@@ -19,18 +19,18 @@ using namespace yutovo_service;
 //ResultRow
 
 ResultRow::ResultRow(Document* _document) : 
-    CodeRow(_document)
+    CodeColumn(_document)
 {
 }
 
 ResultRow::ResultRow(Element* parent) :
-    CodeRow(parent, false)
+    CodeColumn(parent)
 {
 }
 
 bool ResultRow::Remake(bool with_elements)
 {
-    bool changed = CodeRow::Remake(with_elements);
+    bool changed = CodeColumn::Remake(with_elements);
 
     if (elements->Count() == 0)
     {
@@ -100,6 +100,11 @@ void ResultRow::BeforePaste()
     for (int i = 0, j = 0; i < elements->Count();)
         parent->elements->Move(elements->Get(0), c + j++);
     parent->elements->RemoveAt(c - 1, 1);
+}
+
+void ResultRow::AddElement(ElementPtr element)
+{
+    GetCurRow()->AddElement(element);
 }
 
 void ResultRow::PutUnit(const Result& result)
@@ -207,7 +212,22 @@ void ResultRow::AddExponent(Element* parent, const std::string& exponent)
 
 void ResultRow::AddExponent(const std::string& exponent)
 {
-    AddExponent(this, exponent);
+    AddExponent(GetCurRow().get(), exponent);
+}
+
+void ResultRow::AddResult()
+{
+    next_result = true; //adding next elements will be proceed on the next row
+}
+
+ElementPtr ResultRow::GetCurRow()
+{
+    if (elements->Count() == 0 || next_result)
+    {
+        next_result = false;
+        AddEmptyElement();
+    }
+    return elements->Get(elements->Count() - 1);
 }
 
 //RealResult
@@ -299,8 +319,11 @@ void RealResult::PutResult(Result result)
     {
         document->RemoveErrorMarks(parent->parent->id);
 
-        std::string mantissa = result.values["mantissa"];
-        std::string exponent = result.values["exponent"];
+        if (result.values.empty())
+            return;
+        Value& value = result.values[0];
+        std::string mantissa = value["mantissa"];
+        std::string exponent = value["exponent"];
 
         AddElement(ElementPtr(new CodeString(this, mantissa)));
 
@@ -310,7 +333,7 @@ void RealResult::PutResult(Result result)
 
         if (config.show_angle_measure)
         {
-            std::string angle_measure = result.values["angle_measure"];
+            std::string angle_measure = AngleMeasureToString(result.angle_measure);
             with_angle_measure = !angle_measure.empty();
             if (!angle_measure.empty())
                 AddElement(ElementPtr(new CodeString(this, "(" + angle_measure + ")", GetStringFormat())));
@@ -327,7 +350,7 @@ void RealResult::BeforePaste()
 {
     //move child elements outside and remove this element
     int c = parent->elements->Count();
-    for (int i = 0, j = 0; i < (with_angle_measure ? elements->Count() - 1 : elements->Count());)
+    for (int i = 0, j = 0; i < elements->Count();)
         parent->elements->Move(elements->Get(0), c + j++);
     parent->elements->RemoveAt(c - 1, 1);
 }
@@ -440,19 +463,22 @@ void IntegerResult::PutResult(Result result)
     }
     else
     {
-        std::string value = result.values["value"];
+        if (result.values.empty())
+            return;
+        Value& value = result.values[0];
+        std::string val = value["value"];
         elements->Clear();
-        if (value[0] == '-')
+        if (val[0] == '-')
         {
             AddElement(ElementPtr(new Minus(this)));
-            AddElement(CodeStringPtr(new CodeString(this, value.substr(1, value.size() - 1))));
+            AddElement(CodeStringPtr(new CodeString(this, val.substr(1, val.size() - 1))));
         }
         else
-            AddElement(ElementPtr(new CodeString(this, value)));
+            AddElement(ElementPtr(new CodeString(this, val)));
         
         if (config.show_notation)
         {
-            std::string notation = result.values["notation"];
+            std::string notation = NotationToString(result.notation);
             with_notation = !notation.empty();
             if (!notation.empty())
                 AddElement(ElementPtr(new CodeString(this, "(" + notation + ")", GetStringFormat())));
@@ -471,7 +497,7 @@ void IntegerResult::BeforePaste()
 {
     //move child elements outside and remove this element
     int c = parent->elements->Count();
-    for (int i = 0, j = 0; i < (with_notation ? elements->Count() - 1 : elements->Count());)
+    for (int i = 0, j = 0; i < elements->Count();)
         parent->elements->Move(elements->Get(0), c + j++);
     parent->elements->RemoveAt(c - 1, 1);
 }
@@ -568,27 +594,31 @@ void RationalResult::PutResult(Result result)
     {
         document->RemoveErrorMarks(parent->parent->id);
 
-        std::string integer = result.values["integer"];
-        std::string numerator = result.values["numerator"];
-        std::string denomerator = result.values["denomerator"];
+        if (result.values.empty())
+            return;
+        
+        Value& value = result.values[0];
+        std::string integer = value["integer"];
+        std::string numerator = value["numerator"];
+        std::string denomerator = value["denomerator"];
 
         elements->Clear();
         if (numerator[0] == '-')
         {
-            elements->Insert(ElementPtr(new Minus(this)), 0);
+            AddElement(ElementPtr(new Minus(this)));
             numerator = numerator.substr(1, numerator.size() - 1);
         }
 
         if (!integer.empty())
         {
-            AddElement(ElementPtr(ElementPtr(new CodeString(this, integer))));
+            AddElement(ElementPtr(new CodeString(this, integer)));
         }
 
         if (numerator != "0")
         {
             if (denomerator == "1")
             {
-                AddElement(ElementPtr(ElementPtr(new CodeString(this, numerator))));
+                AddElement(ElementPtr(new CodeString(this, numerator)));
             }
             else
             {
@@ -720,91 +750,101 @@ void ComplexResult::PutResult(Result result)
 
         if (config.form == ComplexForm::Exponential || config.form == ComplexForm::Trigonometric)
         {
-            std::string mantissa = result.values["module_mantissa"];
-            std::string exponent = result.values["module_exponent"];
-
-            if (!mantissa.empty())
-                AddElement(ElementPtr(new CodeString(this, mantissa)));
-            AddExponent(exponent);
-
-            mantissa = result.values["argument_mantissa"];
-            exponent = result.values["argument_exponent"];
-
-            if (config.form == ComplexForm::Exponential)
+            for (Value& value : result.values)
             {
-                PowerPtr p(new Power(this));
-                p->AddBase(CodeStringPtr(new CodeString(p.get(), "e")));
+                std::string mantissa = value["module_mantissa"];
+                std::string exponent = value["module_exponent"];
 
                 if (!mantissa.empty())
-                    p->AddExponent(ElementPtr(new CodeString(this, mantissa)));
-
-                AddExponent(p->elements->Get(2)->elements->Get(0).get(), exponent);
-
-                p->AddExponent(ElementPtr(new CodeString(this, document->config.language == "ru" ? "j" : "i")));
-
-                AddElement(p);
-            }
-            else
-            {
-                AddElement(ElementPtr(new OpenFence(this)));
-
-                AddElement(ElementPtr(new CodeString(this, "cos")));
-                AddElement(ElementPtr(new OpenFence(this)));
-                AddElement(ElementPtr(new CodeString(this, mantissa)));
+                    AddElement(ElementPtr(new CodeString(this, mantissa)));
                 AddExponent(exponent);
-                AddElement(ElementPtr(new CloseFence(this)));
 
-                AddElement(ElementPtr(new Plus(this)));
+                mantissa = value["argument_mantissa"];
+                exponent = value["argument_exponent"];
 
-                AddElement(ElementPtr(new CodeString(this, document->config.language == "ru" ? "j" : "i")));
+                if (config.form == ComplexForm::Exponential)
+                {
+                    PowerPtr p(new Power(this));
+                    p->AddBase(CodeStringPtr(new CodeString(p.get(), "e")));
 
-                AddElement(ElementPtr(new Multiply(this)));
+                    if (!mantissa.empty())
+                        p->AddExponent(ElementPtr(new CodeString(this, mantissa)));
 
-                AddElement(ElementPtr(new CodeString(this, "sin")));
-                AddElement(ElementPtr(new OpenFence(this)));
-                AddElement(ElementPtr(new CodeString(this, mantissa)));
-                AddExponent(exponent);
-                AddElement(ElementPtr(new CloseFence(this)));
+                    AddExponent(p->elements->Get(2)->elements->Get(0).get(), exponent);
 
-                AddElement(ElementPtr(new CloseFence(this)));
+                    p->AddExponent(ElementPtr(new CodeString(this, document->config.language == "ru" ? "j" : "i")));
+
+                    AddElement(p);
+                }
+                else
+                {
+                    AddElement(ElementPtr(new OpenFence(this)));
+
+                    AddElement(ElementPtr(new CodeString(this, "cos")));
+                    AddElement(ElementPtr(new OpenFence(this)));
+                    AddElement(ElementPtr(new CodeString(this, mantissa)));
+                    AddExponent(exponent);
+                    AddElement(ElementPtr(new CloseFence(this)));
+
+                    AddElement(ElementPtr(new Plus(this)));
+
+                    AddElement(ElementPtr(new CodeString(this, document->config.language == "ru" ? "j" : "i")));
+
+                    AddElement(ElementPtr(new Multiply(this)));
+
+                    AddElement(ElementPtr(new CodeString(this, "sin")));
+                    AddElement(ElementPtr(new OpenFence(this)));
+                    AddElement(ElementPtr(new CodeString(this, mantissa)));
+                    AddExponent(exponent);
+                    AddElement(ElementPtr(new CloseFence(this)));
+
+                    AddElement(ElementPtr(new CloseFence(this)));
+                }
+
+                AddResult();
             }
         }
         else
         {
-            std::string re_mantissa = result.values["re_mantissa"];
-            std::string re_exponent = result.values["re_exponent"];
-
-            if (!re_mantissa.empty())
-                AddElement(ElementPtr(new CodeString(this, re_mantissa)));
-            AddExponent(re_exponent);
-
-            std::string im_mantissa = result.values["im_mantissa"];
-            std::string im_exponent = result.values["im_exponent"];
-
-            if (!im_mantissa.empty())
+            for (Value& value : result.values)
             {
-                if (im_mantissa[0] == '-')
+                std::string re_mantissa = value["re_mantissa"];
+                std::string re_exponent = value["re_exponent"];
+
+                if (!re_mantissa.empty())
+                    AddElement(ElementPtr(new CodeString(this, re_mantissa)));
+                AddExponent(re_exponent);
+
+                std::string im_mantissa = value["im_mantissa"];
+                std::string im_exponent = value["im_exponent"];
+
+                if (!im_mantissa.empty())
                 {
-                    AddElement(ElementPtr(new Minus(this)));
-                    im_mantissa = im_mantissa.substr(1, im_mantissa.size() - 1);
+                    if (im_mantissa[0] == '-')
+                    {
+                        AddElement(ElementPtr(new Minus(this)));
+                        im_mantissa = im_mantissa.substr(1, im_mantissa.size() - 1);
+                    }
+                    else if (!re_mantissa.empty())
+                        AddElement(ElementPtr(new Plus(this)));
+                    AddElement(ElementPtr(new CodeString(this, im_mantissa)));
                 }
-                else if (!result.values["re_mantissa"].empty())
-                    AddElement(ElementPtr(new Plus(this)));
-                AddElement(ElementPtr(new CodeString(this, im_mantissa)));
+                if (!im_exponent.empty())
+                    AddExponent(im_exponent);
+
+                if (!im_mantissa.empty() || !im_exponent.empty())
+                    AddElement(ElementPtr(new CodeString(this, document->config.language == "ru" ? "j" : "i")));
+
+                if (config.show_angle_measure)
+                {
+                    std::string angle_measure = AngleMeasureToString(result.angle_measure);
+                    with_angle_measure = !angle_measure.empty();
+                    if (!angle_measure.empty())
+                        AddElement(ElementPtr(new CodeString(this, "(" + angle_measure + ")", GetStringFormat())));
+                }
+
+                AddResult();
             }
-            if (!im_exponent.empty())
-                AddExponent(im_exponent);
-
-            if (!im_mantissa.empty() || !im_exponent.empty())
-                AddElement(ElementPtr(new CodeString(this, document->config.language == "ru" ? "j" : "i")));
-        }
-
-        if (config.show_angle_measure)
-        {
-            std::string angle_measure = result.values["angle_measure"];
-            with_angle_measure = !angle_measure.empty();
-            if (!angle_measure.empty())
-                AddElement(ElementPtr(new CodeString(this, "(" + angle_measure + ")", GetStringFormat())));
         }
     }
 
@@ -818,7 +858,7 @@ void ComplexResult::BeforePaste()
 {
     //move child elements outside and remove this element
     int c = parent->elements->Count();
-    for (int i = 0, j = 0; i < (with_angle_measure ? elements->Count() - 1 : elements->Count());)
+    for (int i = 0, j = 0; i < elements->Count();)
         parent->elements->Move(elements->Get(0), c + j++);
     parent->elements->RemoveAt(c - 1, 1);
 }

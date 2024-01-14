@@ -31,6 +31,7 @@ enum class ElementType
     CODE_PARAGRAPH,
     CODE_ROW,
     CODE_STRING,
+    CODE_COLUMN,
     SHAPE,
     PLUS,
     MINUS,

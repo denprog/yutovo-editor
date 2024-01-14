@@ -292,7 +292,7 @@ TEST_F(SolverIntegerTest, solver5)
 
     for (int i = 0; i < 7; ++i)
         document.MoveCaretRight(false);
-    document.WaitTask(document.SetNotation({0, 0, 0, 0, 0, 0, 0, 2, 0, 1, 2}, Notation::Decimal, Notation::Binary, true));
+    document.WaitTask(document.SetNotation({0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 1, 2}, Notation::Decimal, Notation::Binary, true));
     document.WaitSolver();
     std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToText() == 
