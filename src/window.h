@@ -30,7 +30,7 @@ public:
     virtual void DrawBezierPath(const std::list<Point>& path, const Color color) = 0;
     virtual void DrawWavyLine(const int x1, const int y1, const int width, const int radius, const Color color) = 0;
     virtual void DrawImage(const int x1, const int y1, const int width, const int height, const std::vector<unsigned char>& bmp) = 0;
-    virtual float GetSymbolSize(const char32_t symbol, const int height, const std::string& family_name, Size& size, int& baseline) = 0;
+    virtual int GetSymbolSize(const char32_t symbol, const int height, const std::string& family_name, Size& size, int& baseline) = 0;
 
     void ClearRect(const Rect& rect);
     virtual void ClearRect(const int x1, const int y1, const int width, const int height) = 0;
