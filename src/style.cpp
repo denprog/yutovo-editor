@@ -76,9 +76,14 @@ bool StringFormat::FromJson(rapidjson::Value& value, rapidjson::Document::Alloca
         return false;
     family = value["family"].GetString();
 
-    if (!value.HasMember("size") || !value["size"].IsInt())
+    if (!value.HasMember("size"))
         return false;
-    size = value["size"].GetInt();
+    if (value["size"].IsFloat())
+        size = (int)value["size"].GetFloat();
+    else if (value["size"].IsInt())
+        size = value["size"].GetInt();
+    else
+        return false;
 
     if (!value.HasMember("bold") || !value["bold"].IsBool())
         return false;
@@ -270,6 +275,9 @@ bool ParagraphFormat::FromJson(Document* document, rapidjson::Value& value, rapi
     {
         return false;
     }
+
+    if (!default_string_format)
+        default_string_format = document->string_formats->GetFormat("Arial", 14, false, false, false, Color::Black(), Color::White(), Color::Blue());
 
     if (!value.HasMember("name") || !value["name"].IsString())
         return false;

@@ -77,6 +77,12 @@ struct Point
         return !operator==(other);
     }
 
+    void Set(const int _x, const int _y)
+    {
+        x = _x;
+        y = _y;
+    }
+    
     int x = 0;
     int y = 0;
 };
@@ -91,6 +97,12 @@ struct Size
     bool operator!=(const Size& other) const
     {
         return !operator==(other);
+    }
+
+    void Set(const int _width, const int _height)
+    {
+        width = _width;
+        height = _height;
     }
 
     int width = 0;
