@@ -6,6 +6,8 @@ namespace yutovo
 
 //OpenFence
 
+const std::string OpenFence::family_name = "Arial";
+
 OpenFence::OpenFence(Element* _parent) : 
     OnlyShapeFormula(_parent, '(')
 {
@@ -58,28 +60,11 @@ void OpenFence::Draw() const
     shape->draw_func = 
         [&](const Rect& r)
         {
-            std::list<Point> path;
-            path.push_back(Point{r.GetRight(), r.GetBottom()});
-            path.push_back(Point{(int)lround(r.left + r.width * 0.590), (int)lround(r.top + r.height * 0.941)});
-            path.push_back(Point{(int)lround(r.left + r.width * 0.132), (int)lround(r.top + r.height * 0.66)});
-            path.push_back(Point{(int)lround(r.left + r.width * 0.132), (int)lround(r.top + r.height * 0.5)});
-            path.push_back(Point{(int)lround(r.left + r.width * 0.132), (int)lround(r.top + r.height * 0.333)});
-            path.push_back(Point{(int)lround(r.left + r.width * 0.613), (int)lround(r.top + r.height * 0.059)});
-            path.push_back(Point{r.GetRight(), r.top});
-
-            path.push_back(Point{r.GetRight(), r.top});
-            path.push_back(Point{r.GetRight(), (int)lround(r.top + r.height * 0.023)});
-            path.push_back(Point{(int)lround(r.left + r.width * 0.807), (int)lround(r.top + r.height * 0.059)});
-            path.push_back(Point{(int)lround(r.left + r.width * 0.558), (int)lround(r.top + r.height * 0.190)});
-            path.push_back(Point{(int)lround(r.left + r.width * 0.436), (int)lround(r.top + r.height * 0.380)});
-            path.push_back(Point{(int)lround(r.left + r.width * 0.436), (int)lround(r.top + r.height * 0.486)});
-            path.push_back(Point{(int)lround(r.left + r.width * 0.436), (int)lround(r.top + r.height * 0.606)});
-            path.push_back(Point{(int)lround(r.left + r.width * 0.549), (int)lround(r.top + r.height * 0.726)});
-            path.push_back(Point{(int)lround(r.left + r.width * 0.781), (int)lround(r.top + r.height * 0.926)});
-            path.push_back(Point{r.GetRight(), (int)lround(r.top + r.height * 0.977)});
-            path.push_back(Point{r.GetRight(), r.GetBottom()});
-
-            window->DrawBezierPath(path, document->selection.IsSelected(id) ? formula_format->bg_color : formula_format->color);
+            if (format)
+            {
+                window->DrawText("(", format, r, document->selection.IsSelected(id) ? formula_format->bg_color : formula_format->color, 
+                    document->selection.IsSelected(id) ? formula_format->bg_selection_color : formula_format->bg_color);
+            }
         };
 
     if (document->selection.IsSelected(id))
@@ -99,9 +84,10 @@ bool OpenFence::Remake(bool with_elements)
         [&]()
         {
             Size s = window->GetTextSize(U" ", GetStringFormat());
-            shape->rect.SetRect(0, 0, 1 + (int)lround(s.height / 5), (int)lround((1 + 2 * BRACES_Y_OFFSET) * s.height));
-            rect = shape->rect;
-            baseline = shape->rect.height / 2;
+            int size = window->GetSymbolSize(U'(', (int)lround(s.height * 1.2), family_name, s, baseline);
+            rect.SetRect(0, 0, s.width, s.height);
+            shape->rect = rect;
+            format = document->string_formats->GetFormat(family_name, size, false, false, false, Color::Black(), Color::White(), Color::Blue());
         };
 
     if (parent->elements->IsLast(id) || (parent->elements->Count() == 2 && parent->elements->Get(1)->type == ElementType::CLOSE_FENCE))
@@ -126,10 +112,15 @@ bool OpenFence::Remake(bool with_elements)
         if (el->rect.height > max_height)
             max_height = el->rect.height;
     }
-    shape->rect.SetRect(0, 0, 1 + (int)lround(max_height / 5), (int)lround((1 + 2 * BRACES_Y_OFFSET) * max_height));
-    rect = shape->rect;
 
-    baseline = shape->rect.height / 2;
+    Size s;
+    int size = window->GetSymbolSize(U'(', (int)lround(max_height * 1.2), family_name, s, baseline);
+    if (size != 0)
+    {
+        rect.SetRect(0, 0, s.width, s.height);
+        shape->rect = rect;
+        format = document->string_formats->GetFormat(family_name, size, false, false, false, Color::Black(), Color::White(), Color::Blue());
+    }
 
     if (rect != last_rect)
     {
@@ -145,6 +136,8 @@ std::string OpenFence::ToHtml()
 }
 
 //CloseFence
+
+const std::string CloseFence::family_name = "Arial";
 
 CloseFence::CloseFence(Element* _parent) : 
     OnlyShapeFormula(_parent, ')')
@@ -198,27 +191,11 @@ void CloseFence::Draw() const
     shape->draw_func = 
         [&](const Rect& r)
         {
-            std::list<Point> path;
-            path.push_back(Point{r.left, r.GetBottom()});
-            path.push_back(Point{(int)lround(r.GetRight() - r.width * 0.590), (int)lround(r.top + r.height * 0.941)});
-            path.push_back(Point{(int)lround(r.GetRight() - r.width * 0.132), (int)lround(r.top + r.height * 0.66)});
-            path.push_back(Point{(int)lround(r.GetRight() - r.width * 0.132), (int)lround(r.top + r.height * 0.5)});
-            path.push_back(Point{(int)lround(r.GetRight() - r.width * 0.132), (int)lround(r.top + r.height * 0.333)});
-            path.push_back(Point{(int)lround(r.GetRight() - r.width * 0.613), (int)lround(r.top + r.height * 0.059)});
-            path.push_back(Point{r.left, r.top});
-
-            path.push_back(Point{r.left, (int)lround(r.top + r.height * 0.023)});
-            path.push_back(Point{(int)lround(r.GetRight() - r.width * 0.807), (int)lround(r.top + r.height * 0.059)});
-            path.push_back(Point{(int)lround(r.GetRight() - r.width * 0.558), (int)lround(r.top + r.height * 0.190)});
-            path.push_back(Point{(int)lround(r.GetRight() - r.width * 0.436), (int)lround(r.top + r.height * 0.380)});
-            path.push_back(Point{(int)lround(r.GetRight() - r.width * 0.436), (int)lround(r.top + r.height * 0.486)});
-            path.push_back(Point{(int)lround(r.GetRight() - r.width * 0.436), (int)lround(r.top + r.height * 0.606)});
-            path.push_back(Point{(int)lround(r.GetRight() - r.width * 0.549), (int)lround(r.top + r.height * 0.726)});
-            path.push_back(Point{(int)lround(r.GetRight() - r.width * 0.781), (int)lround(r.top + r.height * 0.926)});
-            path.push_back(Point{r.left, (int)lround(r.top + r.height * 0.977)});
-            path.push_back(Point{r.left, r.GetBottom()});
-
-            window->DrawBezierPath(path, document->selection.IsSelected(id) ? formula_format->bg_color : formula_format->color);
+            if (format)
+            {
+                window->DrawText(")", format, r, document->selection.IsSelected(id) ? formula_format->bg_color : formula_format->color, 
+                    document->selection.IsSelected(id) ? formula_format->bg_selection_color : formula_format->bg_color);
+            }
         };
 
     if (document->selection.IsSelected(id))
@@ -238,9 +215,10 @@ bool CloseFence::Remake(bool with_elements)
         [&]()
         {
             Size s = window->GetTextSize(U" ", GetStringFormat());
-            shape->rect.SetRect(0, 0, 1 + (int)lround(s.height / 5), (int)lround((1 + 2 * BRACES_Y_OFFSET) * s.height));
-            rect = shape->rect;
-            baseline = shape->rect.height / 2;
+            int size = window->GetSymbolSize(U')', (int)lround(s.height * 1.2), family_name, s, baseline);
+            rect.SetRect(0, 0, s.width, s.height);
+            shape->rect = rect;
+            format = document->string_formats->GetFormat(family_name, size, false, false, false, Color::Black(), Color::White(), Color::Blue());
         };
 
     if (parent->elements->IsFirst(id) || (parent->elements->Count() == 2 && parent->elements->Get(0)->type == ElementType::OPEN_FENCE))
@@ -265,10 +243,15 @@ bool CloseFence::Remake(bool with_elements)
         if (el->rect.height > max_height)
             max_height = el->rect.height;
     }
-    shape->rect.SetRect(0, 0, 1 + (int)lround(max_height / 5), (int)lround((1 + 2 * BRACES_Y_OFFSET) * max_height));
-    rect = shape->rect;
-    
-    baseline = shape->rect.height / 2;
+
+    Size s;
+    int size = window->GetSymbolSize(U')', (int)lround(max_height * 1.2), family_name, s, baseline);
+    if (size != 0)
+    {
+        rect.SetRect(0, 0, s.width, s.height);
+        shape->rect = rect;
+        format = document->string_formats->GetFormat(family_name, size, false, false, false, Color::Black(), Color::White(), Color::Blue());
+    }
 
     if (rect != last_rect)
     {

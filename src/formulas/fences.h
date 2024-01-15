@@ -25,6 +25,10 @@ public:
     virtual bool Remake(bool with_elements = false);
 
     virtual std::string ToHtml();
+
+private:
+    StringFormatPtr format;
+    static const std::string family_name;
 };
 
 class CloseFence : public OnlyShapeFormula
@@ -44,6 +48,10 @@ public:
     virtual bool Remake(bool with_elements = false);
 
     virtual std::string ToHtml();
+
+private:
+    StringFormatPtr format;
+    static const std::string family_name;
 };
 
 }

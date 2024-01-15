@@ -44,6 +44,7 @@ public:
     MOCK_METHOD(void, DrawBezierPath, (const std::list<Point>& path, const Color color), (override));
     MOCK_METHOD(void, DrawWavyLine, (const int x1, const int y1, const int width, const int radius, const Color color), (override));
     MOCK_METHOD(void, DrawImage, (const int x1, const int y1, const int width, const int height, const std::vector<unsigned char>& bmp), (override));
+    MOCK_METHOD(float, GetSymbolSize, (const char32_t symbol, const int height, const std::string& family_name, Size& size, int& baseline), (override));
 
     MOCK_METHOD(void, ClearRect, (const int x1, const int y1, const int width, const int height), (override));
     MOCK_METHOD(int, GetFontAscent, (const StringFormatPtr), (override));
