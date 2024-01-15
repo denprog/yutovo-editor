@@ -386,7 +386,7 @@ void CodeString::UpdateGap()
         {
             if (str.find_first_not_of(U"0123456789.") == string::npos)
             {
-                if (std::ranges::count(str, '.') > 1)
+                if (std::count(str.begin(), str.end(), '.') > 1)
                     _gap = 0;
                 else
                     _gap = document->config.decimal_gap;
