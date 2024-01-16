@@ -42,6 +42,8 @@ Document::Document(Window* _window) :
     undo_base(this),
     logger(Logger::GetInstance(".", "yutovo", true, true))
 {
+    logger->Debug("Document start");
+
     string_formats.reset(new StringFormats());
     paragraph_formats.reset(new ParagraphFormats(string_formats));
     code_formats.reset(new CodeFormats());
@@ -52,8 +54,6 @@ Document::Document(Window* _window) :
     current_paragraph_format = paragraph_formats->GetFormat("Text body");
     current_formula_format = formula_formats->GetFormat("Code");
     current_page_format = PageFormats::GetFormat(20, 20, 20, 20, 10);
-
-    logger->Debug("Document start");
 }
 
 Document::~Document()
@@ -81,6 +81,11 @@ void Document::Start(Config& _config)
 
     text->Remake(true);
     Redraw(text->id, false);
+
+    std::tuple<char32_t, std::string, int> s1{U'(', "Arial", 300};
+    std::tuple<char32_t, std::string, int> s2{U')', "Arial", 300};
+    std::vector<std::tuple<char32_t, std::string, int>> s{s1, s2};
+    window->PrepareSymbolsSizes(s);
 }
 
 void Document::GetConfig(Config& _config)
