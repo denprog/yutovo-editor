@@ -84,7 +84,8 @@ bool OpenFence::Remake(bool with_elements)
         [&]()
         {
             Size s = window->GetTextSize(U" ", GetStringFormat());
-            int size = window->GetSymbolSize(U'(', (int)lround(s.height * 1.2), family_name, s, baseline);
+            int size = window->GetSymbolSize(U'(', (int)lround(s.height * 1.5), family_name, s, baseline);
+            baseline = s.height * 2 / 3;
             rect.SetRect(0, 0, s.width, s.height);
             shape->rect = rect;
             format = document->string_formats->GetFormat(family_name, size, false, false, false, Color::Black(), Color::White(), Color::Blue());
@@ -114,7 +115,8 @@ bool OpenFence::Remake(bool with_elements)
     }
 
     Size s;
-    int size = window->GetSymbolSize(U'(', (int)lround(max_height * 1.2), family_name, s, baseline);
+    int size = window->GetSymbolSize(U'(', (int)lround(max_height * 1.5), family_name, s, baseline);
+    baseline = s.height * 2 / 3;
     if (size != 0)
     {
         rect.SetRect(0, 0, s.width, s.height);
@@ -215,7 +217,8 @@ bool CloseFence::Remake(bool with_elements)
         [&]()
         {
             Size s = window->GetTextSize(U" ", GetStringFormat());
-            int size = window->GetSymbolSize(U')', (int)lround(s.height * 1.2), family_name, s, baseline);
+            int size = window->GetSymbolSize(U')', (int)lround(s.height * 1.5), family_name, s, baseline);
+            baseline = s.height * 2 / 3;
             rect.SetRect(0, 0, s.width, s.height);
             shape->rect = rect;
             format = document->string_formats->GetFormat(family_name, size, false, false, false, Color::Black(), Color::White(), Color::Blue());
@@ -245,7 +248,8 @@ bool CloseFence::Remake(bool with_elements)
     }
 
     Size s;
-    int size = window->GetSymbolSize(U')', (int)lround(max_height * 1.2), family_name, s, baseline);
+    int size = window->GetSymbolSize(U')', (int)lround(max_height * 1.5), family_name, s, baseline);
+    baseline = s.height * 2 / 3;
     if (size != 0)
     {
         rect.SetRect(0, 0, s.width, s.height);
