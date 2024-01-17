@@ -225,6 +225,17 @@ TEST_F(DocumentTest, files3)
             "</p>"\
         "</body>") 
         << document.ToHtml();
+
+    document.InsertCode(false, true);
+    document.WaitTask(document.InsertString("5678", true));
+
+    document.WaitTask(document.Save("3.yut"));
+    document.WaitTask(document.New());
+
+    document.Load("3.yut");
+    document.WaitLoad();
+    std::this_thread::sleep_for(1000ms);
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 2, 0, 0, 0, 0, 0, 4})) << document.GetEditorState().ToString();
 }
 
 TEST_F(DocumentTest, files4)
@@ -541,6 +552,34 @@ TEST_F(DocumentTest, files12)
     document.WaitUndo();
     ASSERT_TRUE(document.ToText() == U"Text ") << ToBasicString(document.ToText());
     ASSERT_TRUE(document.IsChanged() == true);
+}
+
+//Save/load with caret on a result
+TEST_F(DocumentTest, files13)
+{
+    Start(600);
+
+    document.config.solve_delay = 10000;
+
+    document.InsertCode(false, true);
+    document.WaitTask(document.InsertString("5678", true));
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+
+    document.MoveCaretRight(false);
+    document.MoveCaretRight(false);
+    document.MoveCaretRight(false);
+    document.MoveCaretRight(true);
+    document.MoveCaretRight(true);
+
+    document.WaitTask(document.Save("files13.yut"));
+    document.WaitTask(document.New());
+
+    document.Load("files13.yut");
+    document.WaitLoad();
+    ASSERT_TRUE(document.ToText() == U"5678=~") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0})) << document.GetEditorState().ToString();
 }
 
 }
