@@ -1284,7 +1284,10 @@ bool LoadTask::Execute()
             return false;
 
         if (!LoadJson(doc))
+        {
+            window->OnLoadResult(id, IOResult::InputStreamError);
             return false;
+        }
 
         //load text
         rapidjson::Value _text = doc["text"].GetObject();
@@ -1345,7 +1348,10 @@ bool LoadTask::Execute()
     }
 
     if (!t)
+    {
+        window->OnLoadResult(id, IOResult::InputStreamError);
         return false;
+    }
     
     document->ResetTasks();
     document->text = t;
@@ -1370,8 +1376,63 @@ bool LoadTask::Execute()
                 {
                     if (s.FromJson(doc["selection"], doc.GetAllocator()))
                     {
-                        LogicalEditorState editor_state{c, s};
-                        document->SetEditorState(editor_state);
+                        ElementId _id = yutovo::GetParent(c.id);
+                        if (document->GetLogicalElement(_id) == nullptr) //check caret state
+                        {
+                            ElementPtr p = nullptr;
+                            while (!p && !_id.empty())
+                            {
+                                p = document->GetLogicalElement(_id);
+                                if (p && !p->HasCaretState())
+                                    p.reset();
+                                _id = yutovo::GetParent(_id);
+                            }
+                            if (p)
+                                document->caret->SetState(p->id);
+                            else
+                            {
+                                CaretState c;
+                                document->text->GetFirstCaretState(c, nullptr);
+                                document->caret->SetState(c);
+                            }
+                        }
+                        else
+                        {
+                            bool r = true;
+                            if (s.state.size() > 0) //check selection state
+                            {
+                                for (auto& s : s.state)
+                                {
+                                    std::vector<ElementPtr> elements;
+                                    document->GetElements(s.id, elements);
+                                    int c = 0;
+                                    for (auto& el : elements)
+                                        c += el->elements->Count();
+                                    if (elements.empty() || c < s.start || c < s.start + s.size)
+                                    {
+                                        r = false;
+                                        break;
+                                    }
+                                }
+                            }
+                            if (r)
+                            {
+                                LogicalEditorState editor_state{c, s};
+                                document->SetEditorState(editor_state);
+                            }
+                            else
+                            {
+                                auto el = document->GetLogicalElement(GetParent(c.id));
+                                if (el)
+                                    document->caret->SetState(el->id);
+                                else
+                                {
+                                    CaretState c;
+                                    document->text->GetFirstCaretState(c, nullptr);
+                                    document->caret->SetState(c);
+                                }
+                            }
+                        }
                         r = true;
                     }
                 }

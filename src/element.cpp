@@ -1258,6 +1258,7 @@ void Elements::Move(const ElementPtr element, const uint pos)
     Insert(ElementPtr(element->Clone()), pos);
     element->parent->elements->Remove(element);
     elements[pos]->AfterReplace();
+    UpdateIds();
 
 #ifdef DEBUG
     parent->to_str = parent->ToText();
