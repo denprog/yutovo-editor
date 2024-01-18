@@ -1513,4 +1513,71 @@ TEST_F(DocumentTest, caret46)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 1})) << document.GetEditorState().ToString();
 }
 
+//Select a word
+TEST_F(DocumentTest, caret47)
+{
+    Start(600);
+    
+    document.InsertString("Text", true);
+    document.WaitTask(document.SelectOut());
+    ASSERT_TRUE(document.ToText() == U"Text") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 4}, 
+        ElementSelectionState{ElementId{0}, 0, 1})) << document.GetEditorState().ToString();
+    
+    document.MoveCaretRight(false);
+    document.InsertString(" String", true);
+    document.MoveCaretLeft(false);
+    document.WaitTask(document.SelectOut());
+    ASSERT_TRUE(document.ToText() == U"Text String") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 11}, 
+        ElementSelectionState{ElementId{0, 0, 0, 0}, 5, 6})) << document.GetEditorState().ToString();
+}
+
+//Select a word
+TEST_F(DocumentTest, caret48)
+{
+    Start(600);
+
+    document.InsertString("Арифме́тика (др.-греч. ἀριθμητική, arithmētikḗ — от ἀριθμός, arithmós «число») — "\
+        "раздел математики, изучающий числа, их отношения и свойства.", true);
+    document.InsertParagraph(true);
+    document.WaitTask(document.InsertString("In literary theory, a text is any object that can be read, whether this object is a work of literature", true));
+    
+    document.MoveCaretUp(false);
+    document.MoveCaretUp(false);
+    document.MoveCaretUp(false);
+    document.MoveCaretHome(false);
+    for (int i = 0; i < 4; ++i)
+        document.MoveCaretWordRight(false);
+    document.WaitTask(document.SelectOut());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 0, 26}, 
+        ElementSelectionState{ElementId{0, 0, 1, 0}, 20, 6})) << document.GetEditorState().ToString();
+    
+    document.MoveCaretEnd(false);
+    document.MoveCaretWordLeft(false);
+    document.WaitTask(document.SelectOut());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 0, 54}, 
+        ElementSelectionState{ElementId{0, 0, 1, 0}, 49, 5})) << document.GetEditorState().ToString();
+
+    document.MoveCaretDown(false);
+    document.MoveCaretDown(false);
+    document.MoveCaretEnd(false);
+    document.MoveCaretWordLeft(false);
+    document.WaitTask(document.SelectOut());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 1, 0, 0, 66}, 
+        ElementSelectionState{ElementId{0, 1, 0, 0}, 59, 7})) << document.GetEditorState().ToString();
+}
+
+//Select a code block
+TEST_F(DocumentTest, caret49)
+{
+    Start(600);
+
+    document.InsertDivision(true);
+    document.MoveCaretLeft(false);
+    document.WaitTask(document.SelectOut());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0, 0, 1}, 
+        ElementSelectionState{ElementId{0}, 0, 1})) << document.GetEditorState().ToString();
+}
+
 }

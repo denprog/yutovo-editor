@@ -124,6 +124,7 @@ public:
     virtual bool GetRightCaretState(CaretState& caret_state, Selection* select);
     virtual bool GetWordLeftCaretState(CaretState& caret_state, Selection* select);
     virtual bool GetWordRightCaretState(CaretState& caret_state, Selection* select);
+    virtual bool GetSelectOutCaretState(CaretState& caret_state, Selection* select);
 
     virtual std::string ToHtml();
     virtual std::u32string ToText();

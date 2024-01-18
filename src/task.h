@@ -186,7 +186,8 @@ struct MoveCaretTask : Task
         DOCUMENT_BEGIN,
         DOCUMENT_END,
         SELECT_ALL,
-        SELECT_TO_POINT
+        SELECT_TO_POINT,
+        SELECT_OUT
     };
 
     MoveCaretTask(ElementPtr _text, CaretPtr _caret, MoveCaretDir _dir, bool _visible);

@@ -463,6 +463,16 @@ bool Element::GetWordRightCaretState(CaretState& caret_state, Selection* select)
     return false;
 }
 
+bool Element::GetSelectOutCaretState(CaretState& caret_state, Selection* select)
+{
+    if (caret_state.IsInsideElement(id))
+    {
+        if (elements->GetSelectOutCaretState(caret_state, select))
+            return true;
+    }
+    return false;
+}
+
 bool Element::HasCaretState()
 {
     return false;
@@ -1619,6 +1629,15 @@ bool Elements::GetWordRightCaretState(CaretState& caret_state, Selection* select
         }
     }
     return false;
+}
+
+bool Elements::GetSelectOutCaretState(CaretState& caret_state, Selection* select)
+{
+    if (!select)
+        return false;
+    select->Add(parent->id, 0, Count());
+    caret_state.SetState(parent->id, Count());
+    return true;
 }
 
 std::string Elements::ToHtml()

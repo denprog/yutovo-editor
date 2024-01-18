@@ -1042,6 +1042,46 @@ bool StringElements::GetWordRightCaretState(CaretState& caret_state, Selection* 
     return GetLastCaretState(caret_state, nullptr);
 }
 
+bool StringElements::GetSelectOutCaretState(CaretState& caret_state, Selection* select)
+{
+    if (!select || !caret_state.IsInsideElement(parent->id))
+        return false;
+    
+    static std::u32string delims = U" \n\t\v\f\r!\"#$%&\'()*+,-./[\\]^`{|}~";
+    auto is_delim = 
+        [](char32_t ch)
+        {
+            for (char32_t d : delims)
+            {
+                if (ch == d)
+                    return true;
+            }
+            return false;
+        };
+
+    int p = caret_state.GetPos() - 1;
+    while (p >= 0)
+    {
+        char32_t ch = str[p];
+        if (is_delim(ch))
+            break;
+        --p;
+    }
+    int s1 = p++ + 1;
+    while (p < (int)str.length())
+    {
+        char32_t ch = str[p];
+        if (is_delim(ch))
+            break;
+        ++p;
+    }
+    if (p - s1 <= 0)
+        return false;
+    select->Add(parent->id, s1, p - s1);
+    caret_state.SetState(parent->id, p);
+    return true;
+}
+
 std::string StringElements::ToHtml()
 {
     return ToBasicString(str);

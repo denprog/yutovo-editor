@@ -1073,37 +1073,44 @@ bool MoveCaretTask::Execute()
         document->selection.Add(text, 0, text->elements->Count());
         break;
     case MoveCaretDir::SELECT_TO_POINT:
+        {
+            if (!select)
+                return false;
+            document->selection.Clear();
+
+            CaretState start, end;
+            if (!text->GetNearestCaretState(point.x, point.y, start) || !text->GetNearestCaretState(end_point.x, end_point.y, end))
+                return false;
+
+            caret->notify = false;
+            caret->SetState(start);
+            if (start < end)
+            {
+                while (start < end)
+                {
+                    caret->MoveRight(selection);
+                    start = caret->GetCaretState();
+                }
+                if (!selection->IsEmpty())
+                    caret->SetState(selection->GetLastCaretState());
+            }
+            else
+            {
+                while (end < start)
+                {
+                    caret->MoveLeft(selection);
+                    start = caret->GetCaretState();
+                }
+                if (!selection->IsEmpty())
+                    caret->SetState(selection->GetFirstCaretState());
+            }
+            caret->notify = true;
+        }
+        break;
+    case MoveCaretDir::SELECT_OUT:
         if (!select)
             return false;
-        document->selection.Clear();
-
-        CaretState start, end;
-        if (!text->GetNearestCaretState(point.x, point.y, start) || !text->GetNearestCaretState(end_point.x, end_point.y, end))
-            return false;
-
-        caret->notify = false;
-        caret->SetState(start);
-        if (start < end)
-        {
-            while (start < end)
-            {
-                caret->MoveRight(selection);
-                start = caret->GetCaretState();
-            }
-            if (!selection->IsEmpty())
-                caret->SetState(selection->GetLastCaretState());
-        }
-        else
-        {
-            while (end < start)
-            {
-                caret->MoveLeft(selection);
-                start = caret->GetCaretState();
-            }
-            if (!selection->IsEmpty())
-                caret->SetState(selection->GetFirstCaretState());
-        }
-        caret->notify = true;
+        caret->SelectOut(selection);
         break;
     }
 
