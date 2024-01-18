@@ -160,6 +160,7 @@ public:
     uint MoveCaret(const int x, const int y);
     uint SelectAll();
     uint Select(const int start_x, const int start_y, const int end_x, const int end_y);
+    uint SelectOut();
 
     void SetCaretVisible(bool visible);
 

@@ -1713,6 +1713,11 @@ uint Document::Select(const int start_x, const int start_y, const int end_x, con
     return last_task_id;
 }
 
+uint Document::SelectOut()
+{
+    return MoveCaret(MoveCaretTask::MoveCaretDir::SELECT_OUT, true);
+}
+
 void Document::SetCaretVisible(bool visible)
 {
     {

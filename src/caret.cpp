@@ -507,6 +507,22 @@ void Caret::MovePageDown(Selection* selection)
     MoveToDocumentEnd(selection);
 }
 
+void Caret::SelectOut(Selection* selection)
+{
+    if (block)
+        return;
+    auto el = GetElement();
+    if (!el)
+        return;
+    
+    CaretState c = GetCaretState();
+    if (el->GetSelectOutCaretState(c, selection))
+    {
+        SetState(c);
+        UpdateXPos();
+    }
+}
+
 bool Caret::IsInsideElement(const ElementId id)
 {
     if (block)
