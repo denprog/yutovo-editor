@@ -26,10 +26,10 @@ namespace yutovo
 class Document
 {
 public:
-    Document(Window* _window);
+    Document(Window* _window, Config& _config);
     ~Document();
 
-    void Start(Config& _config);
+    void Start();
 
     void GetConfig(Config& _config);
     void SetConfig(const Config& _config);

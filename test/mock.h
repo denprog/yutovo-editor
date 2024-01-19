@@ -83,7 +83,7 @@ struct DocumentTest : public testing::Test
 {
     DocumentTest() :
         app(argc, argv),
-        document(&window_mock)
+        document(&window_mock, config)
     {
     }
 
@@ -101,9 +101,9 @@ struct DocumentTest : public testing::Test
                 return GetTextSizeMock(text, format);
             });
         
-        document.Start(config);
         document.config.solve_delay = 0;
         document.config.pretty_json = true;
+        document.Start();
     }
 
     Size GetTextSizeMock(const std::u32string& text, const StringFormatPtr format);
@@ -315,7 +315,7 @@ struct VariablesTest : SolverTest
 struct TwoDocumentsTest : DocumentTest
 {
     TwoDocumentsTest() :
-        document2(&window_mock2)
+        document2(&window_mock2, config2)
     {
     }
 
@@ -335,8 +335,8 @@ struct TwoDocumentsTest : DocumentTest
                 return GetTextSizeMock(text, format);
             });
         
-        document2.Start(config2);
         document2.config.solve_delay = 0;
+        document2.Start();
     }
 
     MainWindow main_window2;
