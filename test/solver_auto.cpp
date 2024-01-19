@@ -897,7 +897,7 @@ TEST_F(SolverAutoTest, solver14)
 }
 
 //Change precision
-TEST_F(SolverAutoTest, solver16)
+TEST_F(SolverAutoTest, solver15)
 {
     Start(600);
     
@@ -919,7 +919,7 @@ TEST_F(SolverAutoTest, solver16)
 }
 
 //Change exponential threshold
-TEST_F(SolverAutoTest, solver17)
+TEST_F(SolverAutoTest, solver16)
 {
     Start(600);
     
@@ -941,7 +941,7 @@ TEST_F(SolverAutoTest, solver17)
 }
 
 //Change angle measure
-TEST_F(SolverAutoTest, solver18)
+TEST_F(SolverAutoTest, solver17)
 {
     Start(600);
     
@@ -966,7 +966,7 @@ TEST_F(SolverAutoTest, solver18)
 }
 
 //Change fraction form on auto result
-TEST_F(SolverAutoTest, solver19)
+TEST_F(SolverAutoTest, solver18)
 {
     Start(600);
 
@@ -998,7 +998,7 @@ TEST_F(SolverAutoTest, solver19)
 }
 
 //Change the order of results
-TEST_F(SolverAutoTest, solver20)
+TEST_F(SolverAutoTest, solver19)
 {
     Start(600);
 
@@ -1024,7 +1024,7 @@ TEST_F(SolverAutoTest, solver20)
 }
 
 //Save and load with changing a result parameter
-TEST_F(SolverAutoTest, solver21)
+TEST_F(SolverAutoTest, solver20)
 {
     Start(600);
 
@@ -1045,7 +1045,7 @@ TEST_F(SolverAutoTest, solver21)
 }
 
 //Change the order of results
-TEST_F(SolverAutoTest, solver22)
+TEST_F(SolverAutoTest, solver21)
 {
     Start(600);
 
@@ -1068,7 +1068,7 @@ TEST_F(SolverAutoTest, solver22)
 }
 
 //Delete the equation sign
-TEST_F(SolverAutoTest, solver23)
+TEST_F(SolverAutoTest, solver22)
 {
     Start(600);
 
@@ -1103,7 +1103,7 @@ TEST_F(SolverAutoTest, solver23)
 }
 
 //Complex numbers
-TEST_F(SolverAutoTest, solver24)
+TEST_F(SolverAutoTest, solver23)
 {
     Start(600);
 
@@ -1120,7 +1120,7 @@ TEST_F(SolverAutoTest, solver24)
 }
 
 //Change complex form on auto result
-TEST_F(SolverAutoTest, solver25)
+TEST_F(SolverAutoTest, solver24)
 {
     Start(600);
 
@@ -1167,7 +1167,7 @@ TEST_F(SolverAutoTest, solver25)
 }
 
 //Edit the left expression
-TEST_F(SolverAutoTest, solver26)
+TEST_F(SolverAutoTest, solver25)
 {
     Start(600);
 
@@ -1216,6 +1216,67 @@ TEST_F(SolverAutoTest, solver26)
     std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToText() == 
         U"234+6=240."
+        ) << ToBasicString(document.ToText());
+}
+
+//The code block is wider then a row
+TEST_F(SolverAutoTest, solver26)
+{
+    Start(600);
+
+    EXPECT_CALL(window_mock, Translate).WillRepeatedly([&](ElementId id, const std::u32string& str)
+        {
+            return str;
+        });
+
+    document.InsertString("In literary theory, a text is any object that can be read, whether this object is a work of literature", true);
+    document.InsertCode(false, true);
+    document.InsertString("123", true);
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"In literary theory, a text is any object that can be read, whether this object is a work of literature123=123."
+        ) << ToBasicString(document.ToText());
+    
+    document.MoveCaretLeft(false);
+    document.WaitTask(document.InsertString("456789", true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"In literary theory, a text is any object that can be read, whether this object is a work of literature123456789=123456789."
+        ) << ToBasicString(document.ToText());
+
+    document.WaitTask(document.InsertString("123456789", true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"In literary theory, a text is any object that can be read, whether this object is a work of literature123456789123456789=1.235*pow(10,17)"
+        ) << ToBasicString(document.ToText());
+}
+
+//Solve after changing the result element position
+TEST_F(SolverAutoTest, solver27)
+{
+    Start(600);
+
+    document.config.solve_delay = 1000;
+
+    EXPECT_CALL(window_mock, Translate).WillRepeatedly([&](ElementId id, const std::u32string& str)
+        {
+            return str;
+        });
+
+    document.InsertString("In literary theory, a text is any object that can be read, whether this object is a work of literature", true);
+    document.InsertCode(false, true);
+    document.InsertString("123", true);
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.MoveCaretToDocumentBegin(false);
+    document.WaitTask(document.InsertParagraph(true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(1500ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"\nIn literary theory, a text is any object that can be read, whether this object is a work of literature123=123."
         ) << ToBasicString(document.ToText());
 }
 

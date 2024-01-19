@@ -2423,6 +2423,14 @@ void Document::ReSolveErrors()
 void Document::PutResult(ElementId _id, Result result)
 {
     std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
+    //id could be changed
+    auto it = changed_ids.find(_id);
+    if (it != changed_ids.end())
+    {
+        _id = it->second;
+        changed_ids.erase(it);
+    }
+
     tasks.emplace_back(new ResultTask(text, _id, result));
 #ifdef DEBUG
     last_solver_task_id = tasks.back()->id;
@@ -2449,6 +2457,11 @@ void Document::GetSolverGuid(std::string& guid)
 void Document::SetLanguage(const yutovo_calculator::Language language)
 {
     solver.SetLanguage(language);
+}
+
+void Document::ElementIdChanged(ElementId last_id, ElementId new_id)
+{
+    changed_ids[last_id] = new_id;
 }
 
 bool Document::IsVisible(ElementId _id)

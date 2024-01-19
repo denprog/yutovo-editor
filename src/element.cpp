@@ -305,6 +305,10 @@ void Element::BeforePaste()
         elements->Get(i)->BeforePaste();
 }
 
+void Element::ElementIdChanged()
+{
+}
+
 bool Element::GetFirstCaretState(CaretState& caret_state, Selection* select)
 {
     return elements->GetFirstCaretState(caret_state, select);
@@ -1661,6 +1665,7 @@ void Elements::UpdateIds()
     for (size_t i = 0; i < elements.size(); ++i)
     {
         auto& el = elements[i];
+        ElementId last_id = el->id;
         if (el->parent->id.empty())
         {
             el->id.clear();
@@ -1714,6 +1719,9 @@ void Elements::UpdateIds()
             el->logical_id = el->parent->logical_id;
             el->logical_id.push_back(i);
         }
+
+        if (last_id != el->id)
+            el->ElementIdChanged();
 
         el->elements->UpdateIds();
     }

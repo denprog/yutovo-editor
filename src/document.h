@@ -265,6 +265,8 @@ public:
     void GetSolverGuid(std::string& guid);
     void SetLanguage(const yutovo_calculator::Language language);
 
+    void ElementIdChanged(ElementId last_id, ElementId new_id);
+
     bool IsVisible(ElementId _id);
     ElementId GetFirstVisibleParagraph();
     ElementId GetFirstVisibleRow(ElementId paragraph_id);
@@ -359,6 +361,8 @@ public:
 
     std::vector<ElementId> changed_elements;
     std::vector<ElementId> resolve_elements;
+
+    std::map<ElementId, ElementId> changed_ids;
 
     std::atomic_bool break_remake = false;
 
