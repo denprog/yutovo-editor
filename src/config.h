@@ -46,6 +46,9 @@ struct Config
     uint decimal_gap = 0;
     uint hexadecimal_gap = 0;
 
+    //logger
+    std::string logs_path = ".";
+
     //calculator
 
     struct RealResultConfig

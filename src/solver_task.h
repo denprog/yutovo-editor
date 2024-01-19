@@ -25,8 +25,9 @@ class Logger;
 
 struct SolverTask
 {
-    SolverTask(ElementId _id, std::string& _guid, uint _code_id, ExpressionType _expression_type, const std::u32string& _expression, const uint _delay);
-    SolverTask(std::string& _guid);
+    SolverTask(ElementId _id, std::string& _guid, uint _code_id, ExpressionType _expression_type, const std::u32string& _expression, const uint _delay, 
+        Logger* _logger);
+    SolverTask(std::string& _guid, Logger* _logger);
 
     virtual bool Execute(WebSocketPtr socket, Result& result) = 0;
 
@@ -60,7 +61,7 @@ struct SolverTask
 struct AutoSolverTask : SolverTask
 {
     AutoSolverTask(ElementId _id, std::string& _guid, uint _code_id, ExpressionType _expression_type, Config::AutoResultConfig _config, 
-        const std::u32string& _expression, const uint _delay);
+        const std::u32string& _expression, const uint _delay, Logger* _logger);
 
     virtual bool Execute(WebSocketPtr socket, Result& result);
 
@@ -70,7 +71,7 @@ struct AutoSolverTask : SolverTask
 struct RealSolverTask : SolverTask
 {
     RealSolverTask(ElementId _id, std::string& _guid, uint _code_id, ExpressionType _expression_type, Config::RealResultConfig _config, 
-        const std::u32string& _expression, const uint _delay);
+        const std::u32string& _expression, const uint _delay, Logger* _logger);
 
     virtual bool Execute(WebSocketPtr socket, Result& result);
 
@@ -80,7 +81,7 @@ struct RealSolverTask : SolverTask
 struct IntegerSolverTask : SolverTask
 {
     IntegerSolverTask(ElementId _id, std::string& _guid, uint _code_id, ExpressionType _expression_type, Config::IntegerResultConfig _config, 
-        const std::u32string& _expression, const uint _delay);
+        const std::u32string& _expression, const uint _delay, Logger* _logger);
 
     virtual bool Execute(WebSocketPtr socket, Result& result);
 
@@ -90,7 +91,7 @@ struct IntegerSolverTask : SolverTask
 struct RationalSolverTask : SolverTask
 {
     RationalSolverTask(ElementId _id, std::string& _guid, uint _code_id, ExpressionType _expression_type, Config::RationalResultConfig _config, 
-        const std::u32string& _expression, const uint _delay);
+        const std::u32string& _expression, const uint _delay, Logger* _logger);
 
     virtual bool Execute(WebSocketPtr socket, Result& result);
 
@@ -100,7 +101,7 @@ struct RationalSolverTask : SolverTask
 struct ComplexSolverTask : SolverTask
 {
     ComplexSolverTask(ElementId _id, std::string& _guid, uint _code_id, ExpressionType _expression_type, Config::ComplexResultConfig _config, 
-        const std::u32string& _expression, const uint _delay);
+        const std::u32string& _expression, const uint _delay, Logger* _logger);
 
     virtual bool Execute(WebSocketPtr socket, Result& result);
 
@@ -109,14 +110,14 @@ struct ComplexSolverTask : SolverTask
 
 struct RemoveIdentifierSolverTask : SolverTask
 {
-    RemoveIdentifierSolverTask(ElementId _id, std::string& _guid, uint _code_id, const std::u32string& _expression, const uint _delay);
+    RemoveIdentifierSolverTask(ElementId _id, std::string& _guid, uint _code_id, const std::u32string& _expression, const uint _delay, Logger* _logger);
 
     virtual bool Execute(WebSocketPtr socket, Result& result);
 };
 
 struct SetLanguageSolverTask : SolverTask
 {
-    SetLanguageSolverTask(std::string& _guid, const yutovo_calculator::Language _language, Document* _document);
+    SetLanguageSolverTask(std::string& _guid, const yutovo_calculator::Language _language, Document* _document, Logger* _logger);
 
     virtual bool Execute(WebSocketPtr socket, Result& result);
 

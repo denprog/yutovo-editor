@@ -19,7 +19,7 @@ using namespace yutovo_service;
 
 Solver::Solver(Document* _document) :
     document(_document),
-    logger(Logger::GetInstance("programs/Math/bin/", "yutovo", true, true)),
+    logger(Logger::GetInstance(document->config.logs_path, "yutovo", true, true)),
     message_loop(std::thread(&Solver::MessageLoop, this))
 {
     guid = boost::uuids::to_string(boost::uuids::random_generator()());
@@ -38,7 +38,7 @@ void Solver::Solve(const ElementId id, const uint code_id, Config::AutoResultCon
     EraseSolveTasks(id);
 
     std::unique_lock<std::mutex> lock(tasks_mutex);
-    tasks.emplace_back(new AutoSolverTask(id, guid, code_id, ExpressionType::SOLVE, config, expression, delay));
+    tasks.emplace_back(new AutoSolverTask(id, guid, code_id, ExpressionType::SOLVE, config, expression, delay, logger));
     tasks.emplace_back(nullptr);
     next_circle = true;
 }
@@ -48,7 +48,7 @@ void Solver::Solve(const ElementId id, const uint code_id, Config::RealResultCon
     EraseSolveTasks(id);
 
     std::unique_lock<std::mutex> lock(tasks_mutex);
-    tasks.emplace_back(new RealSolverTask(id, guid, code_id, ExpressionType::SOLVE, config, expression, delay));
+    tasks.emplace_back(new RealSolverTask(id, guid, code_id, ExpressionType::SOLVE, config, expression, delay, logger));
     tasks.emplace_back(nullptr);
     next_circle = true;
 }
@@ -58,7 +58,7 @@ void Solver::Solve(const ElementId id, const uint code_id, Config::IntegerResult
     EraseSolveTasks(id);
 
     std::unique_lock<std::mutex> lock(tasks_mutex);
-    tasks.emplace_back(new IntegerSolverTask(id, guid, code_id, ExpressionType::SOLVE, config, expression, delay));
+    tasks.emplace_back(new IntegerSolverTask(id, guid, code_id, ExpressionType::SOLVE, config, expression, delay, logger));
     tasks.emplace_back(nullptr);
     next_circle = true;
 }
@@ -68,7 +68,7 @@ void Solver::Solve(const ElementId id, const uint code_id, Config::RationalResul
     EraseSolveTasks(id);
 
     std::unique_lock<std::mutex> lock(tasks_mutex);
-    tasks.emplace_back(new RationalSolverTask(id, guid, code_id, ExpressionType::SOLVE, config, expression, delay));
+    tasks.emplace_back(new RationalSolverTask(id, guid, code_id, ExpressionType::SOLVE, config, expression, delay, logger));
     tasks.emplace_back(nullptr);
     next_circle = true;
 }
@@ -78,7 +78,7 @@ void Solver::Solve(const ElementId id, const uint code_id, Config::ComplexResult
     EraseSolveTasks(id);
 
     std::unique_lock<std::mutex> lock(tasks_mutex);
-    tasks.emplace_back(new ComplexSolverTask(id, guid, code_id, ExpressionType::SOLVE, config, expression, delay));
+    tasks.emplace_back(new ComplexSolverTask(id, guid, code_id, ExpressionType::SOLVE, config, expression, delay, logger));
     tasks.emplace_back(nullptr);
     next_circle = true;
 }
@@ -96,7 +96,7 @@ void Solver::SetUserIdentifier(ElementId id, uint code_id, const std::u32string&
     }
 
     std::unique_lock<std::mutex> lock(tasks_mutex);
-    tasks.emplace_back(new AutoSolverTask(id, guid, code_id, ExpressionType::USER_SYMBOL, Config::AutoResultConfig{}, expression, delay));
+    tasks.emplace_back(new AutoSolverTask(id, guid, code_id, ExpressionType::USER_SYMBOL, Config::AutoResultConfig{}, expression, delay, logger));
     tasks.emplace_back(nullptr);
     next_circle = true;
 }
@@ -119,7 +119,7 @@ void Solver::RemoveIdentifier(ElementId id, uint code_id, const std::u32string& 
     if (!id_arr.empty())
     {
         std::unique_lock<std::mutex> lock(tasks_mutex);
-        tasks.emplace_back(new RemoveIdentifierSolverTask(id, guid, code_id, id_arr[0], delay));
+        tasks.emplace_back(new RemoveIdentifierSolverTask(id, guid, code_id, id_arr[0], delay, logger));
         tasks.emplace_back(nullptr);
         next_circle = true;
     }
@@ -128,7 +128,7 @@ void Solver::RemoveIdentifier(ElementId id, uint code_id, const std::u32string& 
 void Solver::SetLanguage(const yutovo_calculator::Language language)
 {
     std::unique_lock<std::mutex> lock(tasks_mutex);
-    tasks.emplace_back(new SetLanguageSolverTask(guid, language, document));
+    tasks.emplace_back(new SetLanguageSolverTask(guid, language, document, logger));
     tasks.emplace_back(nullptr);
     next_circle = true;
 }

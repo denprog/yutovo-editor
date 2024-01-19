@@ -34,13 +34,14 @@ using namespace std::chrono;
 
 //Document
 
-Document::Document(Window* _window) :
+Document::Document(Window* _window, Config& _config) :
     window(_window),
     selection(this),
     last_selection(this),
+    config(_config),
     solver(this),
     undo_base(this),
-    logger(Logger::GetInstance(".", "yutovo", true, true))
+    logger(Logger::GetInstance(config.logs_path, "yutovo", true, true))
 {
     logger->Debug("Document start");
 
@@ -64,10 +65,8 @@ Document::~Document()
     logger->Debug("Document end");
 }
 
-void Document::Start(Config& _config)
+void Document::Start()
 {
-    config = _config;
-
     current_code_format->border_color = config.code_block_border_color;
 
     window->Init();
