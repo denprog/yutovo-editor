@@ -27,6 +27,7 @@ public:
 
     virtual void AfterReplace();
     virtual void BeforePaste();
+    virtual void ElementIdChanged();
 
     virtual void AddElement(ElementPtr element);
     
@@ -47,6 +48,8 @@ protected:
 
     bool delay = false; //don't delay on the first calculation
     bool next_result = false;
+
+    ElementId solving_id;
 };
 
 typedef std::shared_ptr<ResultRow> ResultPtr;

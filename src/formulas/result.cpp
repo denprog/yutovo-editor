@@ -102,6 +102,12 @@ void ResultRow::BeforePaste()
     parent->elements->RemoveAt(c - 1, 1);
 }
 
+void ResultRow::ElementIdChanged()
+{
+    if (!solving_id.empty())
+        document->ElementIdChanged(solving_id, id);
+}
+
 void ResultRow::AddElement(ElementPtr element)
 {
     GetCurRow()->AddElement(element);
@@ -291,6 +297,7 @@ void RealResult::Solve(const ParserString& expression)
     PutWaitingSymbol();
 
     auto code = document->FindParent(id, ElementType::CODE_BLOCK);
+    solving_id = id;
     document->Solve(id, ((CodeBlock*)code.get())->code_id, config, last_expression.Text(), 
         (delay && last_error_code != yutovo_service::ErrorCode::SOLVER_RESTARTED_ERROR) ? document->config.solve_delay : 0);
     delay = true;
@@ -298,6 +305,8 @@ void RealResult::Solve(const ParserString& expression)
 
 void RealResult::PutResult(Result result)
 {
+    solving_id.clear();
+
     ElementPtr el = document->FindParent(id, ElementType::EQUATION);
     Equation* eq = (Equation*)el.get();
     eq->dependencies = result.dependencies;
@@ -438,6 +447,7 @@ void IntegerResult::Solve(const ParserString& expression)
     PutWaitingSymbol();
 
     auto code = document->FindParent(id, ElementType::CODE_BLOCK);
+    solving_id = id;
     document->Solve(id, ((CodeBlock*)code.get())->code_id, config, last_expression.Text(), 
         (delay && last_error_code != yutovo_service::ErrorCode::SOLVER_RESTARTED_ERROR) ? document->config.solve_delay : 0);
     delay = true;
@@ -445,6 +455,8 @@ void IntegerResult::Solve(const ParserString& expression)
 
 void IntegerResult::PutResult(Result result)
 {
+    solving_id.clear();
+
     ElementPtr el = document->FindParent(id, ElementType::EQUATION);
     Equation* eq = (Equation*)el.get();
     eq->dependencies = result.dependencies;
@@ -566,6 +578,7 @@ void RationalResult::Solve(const ParserString& expression)
     PutWaitingSymbol();
 
     auto code = document->FindParent(id, ElementType::CODE_BLOCK);
+    solving_id = id;
     document->Solve(id, ((CodeBlock*)code.get())->code_id, config, last_expression.Text(), 
         (delay && last_error_code != yutovo_service::ErrorCode::SOLVER_RESTARTED_ERROR) ? document->config.solve_delay : 0);
     delay = true;
@@ -573,6 +586,8 @@ void RationalResult::Solve(const ParserString& expression)
 
 void RationalResult::PutResult(Result result)
 {
+    solving_id.clear();
+
     ElementPtr el = document->FindParent(id, ElementType::EQUATION);
     Equation* eq = (Equation*)el.get();
     eq->dependencies = result.dependencies;
@@ -721,6 +736,7 @@ void ComplexResult::Solve(const ParserString& expression)
     PutWaitingSymbol();
 
     auto code = document->FindParent(id, ElementType::CODE_BLOCK);
+    solving_id = id;
     document->Solve(id, ((CodeBlock*)code.get())->code_id, config, last_expression.Text(), 
         (delay && last_error_code != yutovo_service::ErrorCode::SOLVER_RESTARTED_ERROR) ? document->config.solve_delay : 0);
     delay = true;
@@ -728,6 +744,8 @@ void ComplexResult::Solve(const ParserString& expression)
 
 void ComplexResult::PutResult(Result result)
 {
+    solving_id.clear();
+
     ElementPtr el = document->FindParent(id, ElementType::EQUATION);
     Equation* eq = (Equation*)el.get();
     eq->dependencies = result.dependencies;
@@ -969,6 +987,7 @@ void AutoResult::Solve(const ParserString& expression)
     PutWaitingSymbol();
 
     auto code = document->FindParent(id, ElementType::CODE_BLOCK);
+    solving_id = id;
     document->Solve(id, ((CodeBlock*)code.get())->code_id, config, last_expression.Text(), 
         (delay && last_error_code != yutovo_service::ErrorCode::SOLVER_RESTARTED_ERROR) ? document->config.solve_delay : 0);
     delay = true;
@@ -976,6 +995,8 @@ void AutoResult::Solve(const ParserString& expression)
 
 void AutoResult::PutResult(Result result)
 {
+    solving_id.clear();
+
     ElementPtr el = document->FindParent(id, ElementType::EQUATION);
     Equation* eq = (Equation*)el.get();
     eq->dependencies = result.dependencies;
