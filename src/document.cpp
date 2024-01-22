@@ -69,7 +69,7 @@ void Document::Start()
 {
     current_code_format->border_color = config.code_block_border_color;
 
-    window->Init();
+    window->Init(this);
 
     caret.reset(new Caret(this));
     text.reset(new Text(this));
@@ -168,7 +168,6 @@ void Document::MainLoop()
             }
             if (!temp_undo_tasks.empty())
             {
-                std::lock_guard<std::recursive_mutex> lock(edit_mutex);
                 caret->Hide(); //caret will be shown on Redraw or caret moving
                 selection.can_optimize = false;
                 for (size_t i = 0; i < temp_undo_tasks.size(); ++i)
@@ -176,6 +175,7 @@ void Document::MainLoop()
                     changed_elements.clear();
                     resolve_elements.clear();
                     TaskPtr& t = temp_undo_tasks[i];
+                    std::lock_guard<std::recursive_mutex> lock(edit_mutex);
                     if (!t->Execute())
                         break;
                 }
@@ -217,7 +217,6 @@ void Document::MainLoop()
             }
             if (!temp_redo_tasks.empty())
             {
-                std::lock_guard<std::recursive_mutex> lock(edit_mutex);
                 caret->Hide();
                 for (size_t i = 0; i < temp_redo_tasks.size(); ++i)
                 {
@@ -225,6 +224,7 @@ void Document::MainLoop()
                     resolve_elements.clear();
                     TaskPtr& t = temp_redo_tasks[i];
                     cur_task_id = t->id;
+                    std::lock_guard<std::recursive_mutex> lock(edit_mutex);
                     if (!t->Execute())
                         break;
                 }
@@ -244,7 +244,6 @@ void Document::MainLoop()
 
         if (!temp_tasks.empty())
         {
-            std::lock_guard<std::recursive_mutex> lock(edit_mutex);
             caret->Hide();
             //execute all the tasks
             for (size_t i = 0; i < temp_tasks.size(); ++i)
@@ -257,17 +256,20 @@ void Document::MainLoop()
                 
                 changed_elements.clear();
                 resolve_elements.clear();
-                if (t->Execute() && t->with_undo)
-                {
-                    //shrink the redo vector to the size of the undo stack
-                    for (int i = redo_tasks.size() - 1; i >= 0; --i)
-                    {
-                        if (redo_tasks[i]->id == last_undo_task_id)
-                            break;
-                        redo_tasks.erase(redo_tasks.begin() + i);
-                    }
 
-                    redo_tasks.push_back(t);
+                {
+                    std::lock_guard<std::recursive_mutex> lock(edit_mutex);
+                    if (t->Execute() && t->with_undo)
+                    {
+                        //shrink the redo vector to the size of the undo stack
+                        for (int i = redo_tasks.size() - 1; i >= 0; --i)
+                        {
+                            if (redo_tasks[i]->id == last_undo_task_id)
+                                break;
+                            redo_tasks.erase(redo_tasks.begin() + i);
+                        }
+                        redo_tasks.push_back(t);
+                    }
                 }
 
                 last_editor_state = EditorState{caret->GetCaretState(), selection.GetState()};
@@ -979,8 +981,13 @@ ElementPtr Document::GetLogicalParent(const LogicalId& _id)
 
 bool Document::GetElementAtCoords(const int x, const int y, ElementId& id)
 {
-    std::lock_guard<std::recursive_mutex> lock(edit_mutex);
-    return text->GetElementAtCoords(x, y, id);
+    bool r = false;
+    if (edit_mutex.try_lock())
+    {
+        r = text->GetElementAtCoords(x, y, id);
+        edit_mutex.unlock();
+    }
+    return r;
 }
 
 bool Document::GetElementRect(const ElementId id, Rect& rect)
