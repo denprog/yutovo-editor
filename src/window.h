@@ -11,13 +11,15 @@
 namespace yutovo
 {
 
+class Document;
+
 //Base class for output windows
 class Window
 {
 public:
     Window();
 
-    virtual void Init() = 0;
+    virtual void Init(Document* document) = 0;
 
     virtual void DrawText(const std::string& text, const StringFormatPtr format, const Rect& rect, const Color color, const Color bg_color) = 0;
     virtual void DrawLine(const int x1, const int y1, const int x2, const int y2, const Color color) = 0;
@@ -80,6 +82,9 @@ public:
 
     virtual void OnFormattingStarted();
     virtual void OnFormattingFinished();
+
+    virtual void OnResizeStarted();
+    virtual void OnResizeFinished();
 
 #ifdef EMSCRIPTEN
     virtual int Connect(const std::string& addr);

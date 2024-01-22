@@ -96,6 +96,14 @@ void Window::OnFormattingFinished()
 {
 }
 
+void Window::OnResizeStarted()
+{
+}
+
+void Window::OnResizeFinished()
+{
+}
+
 #ifdef EMSCRIPTEN
 int Window::Connect(const std::string& addr)
 {
