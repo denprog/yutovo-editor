@@ -61,7 +61,12 @@ bool WebSocket::Connect()
 bool WebSocket::Send(const std::string& message, Result& result)
 {
 #ifdef EMSCRIPTEN
-    return window->Send(socket_id, message);
+    if (!window->Send(socket_id, message))
+    {
+        result.error.error_code = yutovo_service::ErrorCode::OPERATION_ERROR;
+        return false;
+    }
+    return true;
 #else
     writing = true;
     beast::get_lowest_layer(ws).expires_after(config.service_timeout * std::chrono::seconds(1));
