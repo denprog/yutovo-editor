@@ -16,6 +16,7 @@ class Document;
 class Elements;
 class Caret;
 class Selection;
+class Logger;
 
 #define MAX_LEVEL 3
 
@@ -166,6 +167,8 @@ protected:
     std::vector<ElementId> on_change_subscribers;
 
     bool remake_always = false;
+
+    Logger* logger = nullptr;
 
 public:
     std::unique_ptr<Elements> elements; //child nodes

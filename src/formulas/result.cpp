@@ -921,10 +921,11 @@ ErrorResult::ErrorResult(Element* parent, const Error& error) :
     type = ElementType::ERROR_RESULT;
     elements->Clear();
 
+    ElementPtr row = GetCurRow();
     if (error.parser_error_code != yutovo_calculator::ParserExceptionCode::None)
-        AddElement(ElementPtr(new CodeString(this, ErrorCodeToString(error.parser_error_code), true)));
+        row->elements->Insert(ElementPtr(new CodeString(this, ErrorCodeToString(error.parser_error_code), true)), 0);
     else
-        AddElement(ElementPtr(new CodeString(this, ErrorCodeToString(error.error_code), true)));
+        row->elements->Insert(ElementPtr(new CodeString(this, ErrorCodeToString(error.error_code), true)), 0);
 }
 
 //AutoResult

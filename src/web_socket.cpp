@@ -94,7 +94,10 @@ bool WebSocket::Receive(std::string& message, Result& result)
     while (next - now < config.service_timeout * 1s) //wait for message
     {
         if (!window->Receive(socket_id, message))
+        {
+            result.error.error_code = yutovo_service::ErrorCode::OPERATION_ERROR;
             return false;
+        }
         if (!message.empty())
             break;
         std::this_thread::sleep_for(1ms);
