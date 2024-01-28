@@ -308,7 +308,7 @@ std::string ErrorCodeToString(const yutovo_service::ErrorCode error_code)
             {ErrorCode::JSON_ERROR, "Json error"},
             {ErrorCode::NO_FIELD_ERROR, "No field"},
             {ErrorCode::FIELD_ERROR, "Field error"},
-            {ErrorCode::JSON_ERROR, "Json error"},
+            {ErrorCode::SOLVER_ERROR, "Solver error"},
             {ErrorCode::PARSER_ERROR, "Parser error"},
             {ErrorCode::OPERATION_ERROR, "Operation error"},
             {ErrorCode::SOLVER_RESTARTED_ERROR, "Solver restarted"}

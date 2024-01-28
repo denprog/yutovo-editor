@@ -17,7 +17,8 @@ Element::Element(Document* _document) :
     window(_document->window),
     caret(document->caret),
     selection(&document->selection),
-    elements(new Elements(this))
+    elements(new Elements(this)),
+    logger(document->logger)
 {
 }
 
@@ -29,6 +30,10 @@ Element::Element(Element* _parent) :
     selection(document ? &document->selection : nullptr),
     elements(new Elements(this))
 {
+    if (document)
+        logger = document->logger;
+    else if (parent)
+        logger = parent->logger;
     if (parent)
         on_change_subscribers = parent->on_change_subscribers;
 }
@@ -46,7 +51,8 @@ Element::Element(const Element& source) :
     selection(&document->selection),
     remake_always(source.remake_always),
     can_merge(source.can_merge),
-    on_change_subscribers(source.on_change_subscribers)
+    on_change_subscribers(source.on_change_subscribers),
+    logger(source.logger)
 {
     elements.reset(source.elements->Clone(this)); //deep copy
 

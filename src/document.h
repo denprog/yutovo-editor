@@ -319,6 +319,7 @@ private:
     friend class SaveTask;
     friend class RedrawTask;
     friend class Caret;
+    friend class Element;
 
     void UpdateCaretView();
     void UpdateLastSelection();
