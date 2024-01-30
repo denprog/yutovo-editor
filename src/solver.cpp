@@ -214,7 +214,10 @@ void Solver::MessageLoop()
                 while (!tasks.empty() && tasks.front() == nullptr)
                     tasks.pop_front();
                 if (tasks.empty())
+                {
+                    next_circle = false;
                     continue;
+                }
                 while (!tasks.empty() && tasks.front() != nullptr)
                 {
                     SolverTaskPtr& t = tasks.front();
