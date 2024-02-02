@@ -1293,7 +1293,7 @@ bool LoadTask::Execute()
     if (!json_str.empty())
     {
         auto str = ToBasicString(json_str);
-        if (doc.Parse<0>(str.c_str()).HasParseError())
+        if (doc.Parse<0>(str.c_str()).HasParseError() || !doc.IsObject())
             return false;
 
         if (!LoadJson(doc))
