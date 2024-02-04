@@ -334,11 +334,11 @@ bool SolverTask::FillComplexResult(rapidjson::Document& doc, Result& result)
                     return false;
             }
         }
+
+        if (r.HasMember("angle_measure") && r["angle_measure"].IsInt())
+            result.angle_measure = (AngleMeasure)r["angle_measure"].GetInt();
     }
 
-    if (doc.HasMember("angle_measure") && doc["angle_measure"].IsInt())
-        result.angle_measure = (AngleMeasure)doc["angle_measure"].GetInt();
-    
     return true;
 }
 

@@ -1280,6 +1280,31 @@ TEST_F(SolverAutoTest, solver27)
         ) << ToBasicString(document.ToText());
 }
 
+//Change angle measure
+TEST_F(SolverAutoTest, solver28)
+{
+    Start(600);
+    
+    document.InsertCode(false, true);
+    document.InsertString("arcsin", true);
+    document.InsertOpenFence(true);
+    document.InsertString("i", true);
+    document.InsertCloseFence(true);
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"arcsin(i)=0.881i(rad),3.142-0.881i(rad)"
+        ) << ToBasicString(document.ToText());
+
+    document.WaitTask(document.SetResultAngleMeasure({0, 0, 0, 0, 0, 0, 0, 2, 0, 0}, AngleMeasure::Degree, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"arcsin(i)=50.499i(deg),180.-50.499i(deg)"
+        ) << ToBasicString(document.ToText());
+}
+
 //Solve with errors
 TEST_F(SolverAutoTest, errors1)
 {

@@ -82,7 +82,7 @@ void Config::ComplexResultConfig::FromJson(rapidjson::Value& value, rapidjson::D
     if (value.HasMember("default_angle_measure") && value["default_angle_measure"].IsInt())
         default_angle_measure = (AngleMeasure)value["default_angle_measure"].GetInt();
     if (value.HasMember("result_angle_measure") && value["result_angle_measure"].IsInt())
-        result_angle_measure = (AngleMeasure)value["default_angle_measure"].GetInt();
+        result_angle_measure = (AngleMeasure)value["result_angle_measure"].GetInt();
     if (value.HasMember("show_angle_measure") && value["show_angle_measure"].IsBool())
         show_angle_measure = value["show_angle_measure"].GetBool();
     if (value.HasMember("form") && value["form"].IsInt())
