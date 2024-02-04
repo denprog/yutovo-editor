@@ -154,6 +154,7 @@ public:
 
     virtual void BeforePaste();
 
+    bool SetConfig(const int precision, const int exp, const AngleMeasure result_angle_measure);
     bool SetConfig(const int precision, const int exp, const AngleMeasure result_angle_measure, ComplexForm form, uint max_count);
     bool SetConfig(ComplexForm form);
 

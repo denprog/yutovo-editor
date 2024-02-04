@@ -881,6 +881,21 @@ void ComplexResult::BeforePaste()
     parent->elements->RemoveAt(c - 1, 1);
 }
 
+bool ComplexResult::SetConfig(const int precision, const int exp, const AngleMeasure result_angle_measure)
+{
+    if (precision != -1 && config.precision != precision)
+        config.precision = precision;
+    if (exp != -1 && config.exp != exp)
+        config.exp = exp;
+    if (result_angle_measure != AngleMeasure::None && config.result_angle_measure != result_angle_measure)
+        config.result_angle_measure = result_angle_measure;
+    
+    ParserString expr = last_expression;
+    last_expression.Reset();
+    Solve(expr);
+    return true;
+}
+
 bool ComplexResult::SetConfig(const int precision, const int exp, const AngleMeasure result_angle_measure, ComplexForm form, uint max_count)
 {
     if (precision != -1 && config.precision != precision)
@@ -1084,7 +1099,10 @@ bool AutoResult::SetConfig(const int precision, const int exp, const AngleMeasur
     if (exp != -1 && config.real_result.exp != exp)
         config.real_result.exp = exp;
     if (result_angle_measure != AngleMeasure::None && config.real_result.result_angle_measure != result_angle_measure)
+    {
         config.real_result.result_angle_measure = result_angle_measure;
+        config.complex_result.result_angle_measure = result_angle_measure;
+    }
     
     ParserString expr = last_expression;
     last_expression.Reset();
