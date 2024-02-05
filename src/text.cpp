@@ -96,10 +96,6 @@ void Text::UpdateRect(bool with_elements)
         rect.width = v.width;
     if (rect.height < v.height)
         rect.height = v.height;
-    
-    Point p = window->GetDocumentPoint();
-    if (p.x + v.width > rect.width)
-        rect.width = p.x + v.width;
 }
 
 void Text::UpdateDrawRect()
