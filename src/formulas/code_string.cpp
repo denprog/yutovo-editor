@@ -1,4 +1,5 @@
 #include "code_string.h"
+#include "result.h"
 #include <boost/lexical_cast.hpp>
 #include <boost/uuid/uuid_io.hpp>
 
@@ -350,36 +351,52 @@ void CodeString::UpdateGap()
     else
     {
         auto& str = ((StringElements*)elements.get())->str;
-        if (parent && parent->parent && parent->parent->type == ElementType::SUBSCRIPT && parent->parent->elements->Count() == 3)
+        if (parent && parent->parent && 
+            ((parent->parent->type == ElementType::SUBSCRIPT && parent->parent->elements->Count() == 3) || 
+            (parent->parent->type == ElementType::INTEGER_RESULT)))
         {
-            auto last = parent->parent->elements->Get(2)->ToText();
-            if (last == U"bin")
+            Notation notation = Notation::None;
+            if (parent->parent->type == ElementType::INTEGER_RESULT)
+                notation = ((IntegerResult*)parent->parent)->config.result_notation;
+            else
             {
+                auto last = parent->parent->elements->Get(2)->ToText();
+                if (last == U"bin")
+                    notation = Notation::Binary;
+                else if (last == U"oct")
+                    notation = Notation::Octal;
+                else if (last == U"hex")
+                    notation = Notation::Hexadecimal;
+                else
+                    notation = Notation::Decimal;
+            }
+
+            switch (notation)
+            {
+            case Notation::Binary:
                 if (str.find_first_not_of(U"01") == string::npos)
                     _gap = document->config.binary_gap;
                 else
                     _gap = 0;
-            }
-            else if (last == U"oct")
-            {
-                if (str.find_first_not_of(U"01234567") == string::npos)
-                    _gap = document->config.octal_gap;
-                else
-                    _gap = 0;
-            }
-            else if (last == U"hex")
-            {
-                if (str.find_first_not_of(U"0123456789abcdefABCDEF") == string::npos)
-                    _gap = document->config.hexadecimal_gap;
-                else
-                    _gap = 0;
-            }
-            else
-            {
+                break;
+            case Notation::Decimal:
                 if (str.find_first_not_of(U"0123456789") == string::npos)
                     _gap = document->config.decimal_gap;
                 else
                     _gap = 0;
+                break;
+            case Notation::Octal:
+                if (str.find_first_not_of(U"01234567") == string::npos)
+                    _gap = document->config.octal_gap;
+                else
+                    _gap = 0;
+                break;
+            case Notation::Hexadecimal:
+                if (str.find_first_not_of(U"0123456789abcdefABCDEF") == string::npos)
+                    _gap = document->config.hexadecimal_gap;
+                else
+                    _gap = 0;
+                break;
             }
         }
         else
