@@ -448,6 +448,13 @@ std::u32string Equation::ToText()
     return s;
 }
 
+void Equation::ToParserString(ParserString& str)
+{
+    int start = str.Length();
+    first->ToParserString(str);
+    str.Annotate(id, start, str.Length());
+}
+
 void Equation::UpdateResult(ParserString& str)
 {
     if (!ready)
