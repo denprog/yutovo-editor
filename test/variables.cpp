@@ -620,4 +620,32 @@ TEST_F(VariablesTest, variables8)
     ASSERT_TRUE(document.error_marks.size() == 0);
 }
 
+//Variable with equation
+TEST_F(VariablesTest, variables9)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.InsertString("a", true);
+    document.InsertAssignment(true);
+    document.InsertString("12", true);
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"a=12=12."
+        ) << ToBasicString(document.ToText());
+    
+    document.MoveCaretEnd(false);
+    document.InsertParagraph(true);
+    document.InsertString("a", true);
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"a=12=12.\n" \
+        U"a=12."
+        ) << ToBasicString(document.ToText());
+}
+
 }

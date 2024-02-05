@@ -56,6 +56,7 @@ public:
     
     virtual std::string ToHtml();
     virtual std::u32string ToText();
+    virtual void ToParserString(ParserString& str);
 
 protected:
     void UpdateResult(ParserString& str);
