@@ -243,8 +243,11 @@ void Caret::Show()
 
 void Caret::Hide()
 {
-    window->RestoreRect();
-    window->Update(caret_rect);
+    if (show)
+    {
+        window->RestoreRect();
+        window->Update(caret_rect);
+    }
     show = false;
 }
 
