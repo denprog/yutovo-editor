@@ -41,16 +41,15 @@ struct Config
 
     //numbers gaps
     bool use_numbers_gaps = true;
-    uint binary_gap = 0;
-    uint octal_gap = 0;
-    uint decimal_gap = 0;
-    uint hexadecimal_gap = 0;
+    uint binary_gap = 4;
+    uint octal_gap = 3;
+    uint decimal_gap = 3;
+    uint hexadecimal_gap = 4;
 
     //logger
     std::string logs_path = ".";
 
     //calculator
-
     struct RealResultConfig
     {
         bool operator==(const RealResultConfig& other) const
