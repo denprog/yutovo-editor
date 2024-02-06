@@ -373,6 +373,8 @@ void CodeString::UpdateGap()
 
             switch (notation)
             {
+            case Notation::None:
+                break;
             case Notation::Binary:
                 if (str.find_first_not_of(U"01") == string::npos)
                     _gap = document->config.binary_gap;
