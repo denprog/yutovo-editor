@@ -1278,9 +1278,10 @@ LoadTask::LoadTask(ElementPtr _text, const std::string _filename) :
 {
 }
 
-LoadTask::LoadTask(ElementPtr _text, const std::u32string& _json_str) :
+LoadTask::LoadTask(ElementPtr _text, const std::u32string& _json_str, const int _document_id) :
     Task(_text),
-    json_str(_json_str)
+    json_str(_json_str),
+    document_id(_document_id)
 {
 }
 
@@ -1293,12 +1294,9 @@ bool LoadTask::Execute()
     if (!json_str.empty())
     {
         auto str = ToBasicString(json_str);
-        if (doc.Parse<0>(str.c_str()).HasParseError() || !doc.IsObject())
-            return false;
-
-        if (!LoadJson(doc))
+        if (doc.Parse<0>(str.c_str()).HasParseError() || !doc.IsObject() || !LoadJson(doc))
         {
-            window->OnLoadResult(id, IOResult::InputStreamError);
+            window->OnLoadResult(id, IOResult::InputStreamError, document_id);
             return false;
         }
 
@@ -1311,7 +1309,7 @@ bool LoadTask::Execute()
         std::ifstream file(filename);
         if (!file.is_open())
         {
-            window->OnLoadResult(id, IOResult::InputStreamError);
+            window->OnLoadResult(id, IOResult::InputStreamError, document_id);
             logger->Error("Error loading file '{}': File not open", filename);
             return false;
         }
@@ -1321,13 +1319,16 @@ bool LoadTask::Execute()
         doc.ParseStream(isw);
         if (doc.HasParseError())
         {
-            window->OnLoadResult(id, IOResult::InputStreamError);
+            window->OnLoadResult(id, IOResult::InputStreamError, document_id);
             logger->Error("Error parsing file '{}'", filename);
             return false;
         }
 
         if (!LoadJson(doc))
+        {
+            window->OnLoadResult(id, IOResult::InputStreamError, document_id);
             return false;
+        }
 
         //load text
         rapidjson::Value _text = doc["text"].GetObject();
@@ -1340,7 +1341,7 @@ bool LoadTask::Execute()
             std::ifstream file(filename);
             if (!file.is_open())
             {
-                window->OnLoadResult(id, IOResult::InputStreamError);
+                window->OnLoadResult(id, IOResult::InputStreamError, document_id);
                 logger->Error("Error loading file '{}': File not open", filename);
                 return false;
             }
@@ -1352,7 +1353,7 @@ bool LoadTask::Execute()
         }
         catch (const std::ifstream::failure& ex)
         {
-            window->OnLoadResult(id, IOResult::InputStreamError);
+            window->OnLoadResult(id, IOResult::InputStreamError, document_id);
             logger->Error("Error loading file '{}': {}", filename, ex.what());
             return false;
         }
@@ -1362,7 +1363,7 @@ bool LoadTask::Execute()
 
     if (!t)
     {
-        window->OnLoadResult(id, IOResult::InputStreamError);
+        window->OnLoadResult(id, IOResult::InputStreamError, document_id);
         return false;
     }
     
@@ -1457,7 +1458,7 @@ bool LoadTask::Execute()
         document->MoveCaretToDocumentBegin(false);
 
     document->Redraw();
-    window->OnLoadResult(id, IOResult::Success);
+    window->OnLoadResult(id, IOResult::Success, document_id);
     return true;
 }
 
@@ -1477,7 +1478,6 @@ bool LoadTask::LoadJson(rapidjson::Document& doc)
 
     if (!doc.HasMember("text") || !doc["text"].IsObject())
     {
-        window->OnLoadResult(id, IOResult::InputStreamError);
         logger->Error("File '{}' does not contain text", filename);
         return false;
     }

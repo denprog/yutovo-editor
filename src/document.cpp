@@ -1908,11 +1908,11 @@ uint Document::Load(const std::string& filename)
     return last_load_task_id;
 }
 
-uint Document::LoadJson(const std::u32string& json_doc)
+uint Document::LoadJson(const std::u32string& json_doc, const int document_id)
 {
     {
         std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
-        tasks.emplace_back(new LoadTask(text, json_doc));
+        tasks.emplace_back(new LoadTask(text, json_doc, document_id));
 #ifdef DEBUG
         last_load_task_id = tasks.back()->id;
 #endif

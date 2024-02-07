@@ -246,7 +246,7 @@ struct SaveTask : Task
 struct LoadTask : Task
 {
     LoadTask(ElementPtr _text, const std::string _filename);
-    LoadTask(ElementPtr _text, const std::u32string& _json_str);
+    LoadTask(ElementPtr _text, const std::u32string& _json_str, const int _document_id);
 
     virtual bool Execute();
 
@@ -254,6 +254,7 @@ struct LoadTask : Task
 
     std::string filename;
     std::u32string json_str;
+    const int document_id = 0;
 };
 
 struct CopyTask : Task

@@ -271,7 +271,7 @@ TEST_F(DocumentTest, files4)
             ASSERT_TRUE(result == IOResult::Success);
         });
 
-    EXPECT_CALL(window_mock, OnLoadResult).WillOnce([&](const uint task_id, IOResult result)
+    EXPECT_CALL(window_mock, OnLoadResult).WillOnce([&](const uint task_id, IOResult result, const int document_id)
         {
             ASSERT_TRUE(result == IOResult::Success);
         });
@@ -314,7 +314,7 @@ TEST_F(DocumentTest, files5)
 {
     Start(600);
 
-    EXPECT_CALL(window_mock, OnLoadResult).WillOnce([&](const uint task_id, IOResult result)
+    EXPECT_CALL(window_mock, OnLoadResult).WillOnce([&](const uint task_id, IOResult result, const int document_id)
         {
             ASSERT_TRUE(result == IOResult::Success);
         });
@@ -338,7 +338,7 @@ TEST_F(DocumentTest, files6)
 {
     Start(600);
 
-    EXPECT_CALL(window_mock, OnLoadResult).WillOnce([&](const uint task_id, IOResult result)
+    EXPECT_CALL(window_mock, OnLoadResult).WillOnce([&](const uint task_id, IOResult result, const int document_id)
         {
             ASSERT_TRUE(result == IOResult::InputStreamError);
         });
@@ -353,7 +353,7 @@ TEST_F(DocumentTest, files7)
 {
     Start(600);
 
-    EXPECT_CALL(window_mock, OnLoadResult).WillOnce([&](const uint task_id, IOResult result)
+    EXPECT_CALL(window_mock, OnLoadResult).WillOnce([&](const uint task_id, IOResult result, const int document_id)
         {
             ASSERT_TRUE(result == IOResult::InputStreamError);
         });
@@ -418,7 +418,7 @@ TEST_F(DocumentTest, files9)
         "\"type\":8,\"elements\":\"1kg\",\"format_id\":\"89c69148-d1bc-4384-b009-7b752eab898c\"}]}]}]}],\"format_name\":\"Code\"}],\"code_id\":1}]}],"
         "\"format_name\":\"Text body\"}]}}";
 
-    document.WaitTask(document.LoadJson(json));
+    document.WaitTask(document.LoadJson(json, 0));
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
