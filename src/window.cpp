@@ -76,7 +76,7 @@ void Window::OnSaveResult(const uint task_id, IOResult result)
 {
 }
 
-void Window::OnLoadResult(const uint task_id, IOResult result)
+void Window::OnLoadResult(const uint task_id, IOResult result, const int document_id)
 {
 }
 

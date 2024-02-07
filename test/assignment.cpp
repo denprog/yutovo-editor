@@ -676,7 +676,7 @@ TEST_F(AssignmentTest, files1)
             ASSERT_TRUE(result == IOResult::Success);
         });
 
-    EXPECT_CALL(window_mock, OnLoadResult).WillOnce([&](const uint task_id, IOResult result)
+    EXPECT_CALL(window_mock, OnLoadResult).WillOnce([&](const uint task_id, IOResult result, const int document_id)
         {
             ASSERT_TRUE(result == IOResult::Success);
         });

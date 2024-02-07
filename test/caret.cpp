@@ -351,7 +351,7 @@ TEST_F(DocumentTest, caret7)
 {
     Start(670);
 
-    EXPECT_CALL(window_mock, OnLoadResult).WillOnce([&](const uint task_id, IOResult result)
+    EXPECT_CALL(window_mock, OnLoadResult).WillOnce([&](const uint task_id, IOResult result, const int document_id)
         {
             ASSERT_TRUE(result == IOResult::Success);
         });
@@ -627,7 +627,7 @@ TEST_F(DocumentTest, caret18)
 {
     Start(670);
 
-    EXPECT_CALL(window_mock, OnLoadResult).WillOnce([&](const uint task_id, IOResult result)
+    EXPECT_CALL(window_mock, OnLoadResult).WillOnce([&](const uint task_id, IOResult result, const int document_id)
         {
             ASSERT_TRUE(result == IOResult::Success);
         });
@@ -675,7 +675,7 @@ TEST_F(DocumentTest, caret19)
 {
     Start(670);
 
-    EXPECT_CALL(window_mock, OnLoadResult).WillOnce([&](const uint task_id, IOResult result)
+    EXPECT_CALL(window_mock, OnLoadResult).WillOnce([&](const uint task_id, IOResult result, const int document_id)
         {
             ASSERT_TRUE(result == IOResult::Success);
         });
