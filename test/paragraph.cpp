@@ -1450,6 +1450,108 @@ TEST_F(ParagraphTest, paragraph12)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 2})) << document.GetEditorState().ToString();
 }
 
+//Copy 2 paragraphs and paste them in the beginning
+TEST_F(ParagraphTest, paragraph13)
+{
+    Start(600);
+
+    document.InsertString("Арифме́тика (др.-греч. ἀριθμητική, arithmētikḗ — от ἀριθμός, arithmós «число») — "\
+        "раздел математики, изучающий числа, их отношения и свойства.", true);
+    document.WaitTask(document.InsertParagraph(true));
+    document.InsertString("In literary theory, a text is any object that can be read, whether this object is a work of literature", true);
+    document.InsertParagraph(true);
+    document.InsertString("Арифметика является древнейшей и одной из основных математических наук; "
+        "она тесно связана с алгеброй, геометрией и теорией чисел[1][2].", true);
+    document.InsertParagraph(true);
+    document.WaitTask(document.InsertString("Причиной возникновения арифметики стала практическая потребность в счёте и"
+        " вычислениях, связанных с задачами учёта при централизации сельского хозяйства.", true));
+    ASSERT_TRUE(document.ToText() == 
+        U"Арифме́тика (др.-греч. ἀριθμητική, arithmētikḗ — от ἀριθμός, arithmós «число») — раздел математики, изучающий числа, их отношения и свойства.\n"\
+        U"In literary theory, a text is any object that can be read, whether this object is a work of literature\n"\
+        U"Арифметика является древнейшей и одной из основных математических наук; она тесно связана с алгеброй, геометрией и теорией чисел[1][2].\n"\
+        U"Причиной возникновения арифметики стала практическая потребность в счёте и вычислениях, связанных с задачами учёта при централизации сельского хозяйства."
+        ) << ToBasicString(document.ToText());
+    
+    for (int i = 0; i < 5; ++i)
+        document.MoveCaretUp(false);
+    document.MoveCaretHome(false);
+    for (int i = 0; i < 6; ++i)
+        document.MoveCaretDown(true);
+
+    document.WaitTask(document.Copy(clipboard_json, clipboard_text));
+
+    document.MoveCaretToDocumentBegin(false);
+    document.WaitTask(document.Paste(clipboard_json));
+    ASSERT_TRUE(document.ToText() == 
+        U"Арифметика является древнейшей и одной из основных математических наук; она тесно связана с алгеброй, геометрией и теорией чисел[1][2].\n"\
+        U"Причиной возникновения арифметики стала практическая потребность в счёте и вычислениях, связанных с задачами учёта при централизации сельского хозяйства."\
+        U"Арифме́тика (др.-греч. ἀριθμητική, arithmētikḗ — от ἀριθμός, arithmós «число») — раздел математики, изучающий числа, их отношения и свойства.\n"\
+        U"In literary theory, a text is any object that can be read, whether this object is a work of literature\n"\
+        U"Арифметика является древнейшей и одной из основных математических наук; она тесно связана с алгеброй, геометрией и теорией чисел[1][2].\n"\
+        U"Причиной возникновения арифметики стала практическая потребность в счёте и вычислениях, связанных с задачами учёта при централизации сельского хозяйства."
+        ) << ToBasicString(document.ToText());
+    
+    document.Undo();
+    document.WaitUndo();
+    ASSERT_TRUE(document.ToText() == 
+        U"Арифме́тика (др.-греч. ἀριθμητική, arithmētikḗ — от ἀριθμός, arithmós «число») — раздел математики, изучающий числа, их отношения и свойства.\n"\
+        U"In literary theory, a text is any object that can be read, whether this object is a work of literature\n"\
+        U"Арифметика является древнейшей и одной из основных математических наук; она тесно связана с алгеброй, геометрией и теорией чисел[1][2].\n"\
+        U"Причиной возникновения арифметики стала практическая потребность в счёте и вычислениях, связанных с задачами учёта при централизации сельского хозяйства."
+        ) << ToBasicString(document.ToText());
+
+    document.Redo();
+    document.WaitRedo();
+    ASSERT_TRUE(document.ToText() == 
+        U"Арифметика является древнейшей и одной из основных математических наук; она тесно связана с алгеброй, геометрией и теорией чисел[1][2].\n"\
+        U"Причиной возникновения арифметики стала практическая потребность в счёте и вычислениях, связанных с задачами учёта при централизации сельского хозяйства."\
+        U"Арифме́тика (др.-греч. ἀριθμητική, arithmētikḗ — от ἀριθμός, arithmós «число») — раздел математики, изучающий числа, их отношения и свойства.\n"\
+        U"In literary theory, a text is any object that can be read, whether this object is a work of literature\n"\
+        U"Арифметика является древнейшей и одной из основных математических наук; она тесно связана с алгеброй, геометрией и теорией чисел[1][2].\n"\
+        U"Причиной возникновения арифметики стала практическая потребность в счёте и вычислениях, связанных с задачами учёта при централизации сельского хозяйства."
+        ) << ToBasicString(document.ToText());
+}
+
+//Copy 2 paragraphs and paste them in the beginning
+TEST_F(ParagraphTest, paragraph14)
+{
+    Start(600);
+
+    document.InsertString("Арифме́тика (др.-греч. ἀριθμητική, arithmētikḗ — от ἀριθμός, arithmós «число») — "\
+        "раздел математики, изучающий числа, их отношения и свойства.", true);
+    document.WaitTask(document.InsertParagraph(true));
+    document.InsertString("In literary theory, a text is any object that can be read, whether this object is a work of literature", true);
+    document.WaitTask(document.InsertParagraph(true));
+    document.WaitTask(document.SelectAll());
+
+    document.WaitTask(document.Copy(clipboard_json, clipboard_text));
+
+    document.MoveCaretToDocumentBegin(false);
+    document.WaitTask(document.Paste(clipboard_json));
+    ASSERT_TRUE(document.ToText() == 
+        U"Арифме́тика (др.-греч. ἀριθμητική, arithmētikḗ — от ἀριθμός, arithmós «число») — раздел математики, изучающий числа, их отношения и свойства.\n"\
+        U"In literary theory, a text is any object that can be read, whether this object is a work of literature\n"\
+        U"Арифме́тика (др.-греч. ἀριθμητική, arithmētikḗ — от ἀριθμός, arithmós «число») — раздел математики, изучающий числа, их отношения и свойства.\n"\
+        U"In literary theory, a text is any object that can be read, whether this object is a work of literature\n"
+        ) << ToBasicString(document.ToText());
+    
+    document.Undo();
+    document.WaitUndo();
+    ASSERT_TRUE(document.ToText() == 
+        U"Арифме́тика (др.-греч. ἀριθμητική, arithmētikḗ — от ἀριθμός, arithmós «число») — раздел математики, изучающий числа, их отношения и свойства.\n"\
+        U"In literary theory, a text is any object that can be read, whether this object is a work of literature\n"
+        ) << ToBasicString(document.ToText());
+
+    document.Redo();
+    document.WaitRedo();
+    ASSERT_TRUE(document.ToText() == 
+        U"Арифме́тика (др.-греч. ἀριθμητική, arithmētikḗ — от ἀριθμός, arithmós «число») — раздел математики, изучающий числа, их отношения и свойства.\n"\
+        U"In literary theory, a text is any object that can be read, whether this object is a work of literature\n"\
+        U"Арифме́тика (др.-греч. ἀριθμητική, arithmētikḗ — от ἀριθμός, arithmós «число») — раздел математики, изучающий числа, их отношения и свойства.\n"\
+        U"In literary theory, a text is any object that can be read, whether this object is a work of literature\n"
+        ) << ToBasicString(document.ToText());
+}
+
 //Check format
 TEST_F(ParagraphTest, format1)
 {

@@ -24,6 +24,8 @@ public:
     virtual bool IsFormula();
 
     virtual std::string ToHtml();
+
+    virtual ElementPtr GetPlainRow();
 };
 
 }

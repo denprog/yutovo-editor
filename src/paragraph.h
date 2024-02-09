@@ -47,6 +47,9 @@ public:
     
     virtual std::string ToHtml();
 
+    virtual ElementPtr GetPlainRow();
+    virtual void MakePlain();
+
 public:
     ParagraphFormatPtr format;
     StringFormatPtr current_string_format;

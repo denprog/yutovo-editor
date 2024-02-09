@@ -66,4 +66,19 @@ std::string CodeParagraph::ToHtml()
     return s;
 }
 
+ElementPtr CodeParagraph::GetPlainRow()
+{
+    ElementPtr row(new CodeRow(parent, false));
+    for (int i = 0; i < elements->Count(); ++i)
+    {
+        auto r = elements->Get(i);
+        for (int j = 0; j < r->elements->Count(); ++j)
+        {
+            auto _el = r->elements->Get(j);
+            row->elements->Add(_el);
+        }
+    }
+    return row;
+}
+
 }

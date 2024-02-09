@@ -1973,26 +1973,37 @@ uint Document::Paste(std::u32string& in_json)
         elements.push_back(el);
     }
 
-    if (!elements.empty())
+    if (elements.empty())
     {
-        bool only_formulas = true;
+        window->OnPasteResult(PasteResult::EmptyBuffer);
+        return last_task_id;
+    }
+
+    bool only_formulas = true;
+    bool only_paragraphs = true;
+    for (auto& el : elements)
+    {
+        if (!el->IsFormula())
+            only_formulas = false;
+        if (!IsParagraph(el))
+            only_paragraphs = false;
+    }
+
+    if (only_formulas)
+        InsertFormulas(elements, true, false, true);
+    else if (only_paragraphs)
+    {
+        //compound them in text to workout them in one iteration
+        ElementPtr t(new Text(this, false));
         for (auto& el : elements)
-        {
-            if (!el->IsFormula())
-            {
-                only_formulas = false;
-                break;
-            }
-        }
-        if (only_formulas)
-            InsertFormulas(elements, true, false, true);
-        else
-            InsertElements(elements, true, ElementId{}, true);
-        window->OnPasteResult(PasteResult::Success);
+            t->elements->Add(el);
+        elements.clear();
+        elements.push_back(t);
+        InsertElements(elements, true, ElementId{}, true);
     }
     else
-        window->OnPasteResult(PasteResult::EmptyBuffer);
-
+        InsertElements(elements, true, ElementId{}, true);
+    
     window->OnPasteResult(PasteResult::Success);
     return last_task_id;
 }
