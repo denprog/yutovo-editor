@@ -307,7 +307,8 @@ private:
     int last_solver_task_id = -1;
     bool last_solver_executed = false;
 
-    std::vector<uint> last_tasks;
+    std::deque<uint> last_tasks;
+    const int last_tasks_count = 100;
 #endif
 
 private:
