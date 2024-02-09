@@ -1442,10 +1442,10 @@ TEST_F(DocumentTest, clipboard22)
 
     document.MoveCaretToDocumentBegin(false);
     document.WaitTask(document.Paste(clipboard_json));
-    ASSERT_TRUE(document.ToText() == U"In literary theory, a text is any object that can be read, whether this object is a work of literature\n"\
+    ASSERT_TRUE(document.ToText() == U"In literary theory, a text is any object that can be read, whether this object is a work of literature"\
         "In literary theory, a text is any object that can be read, whether this "\
         "object is a work of literature\nText") << ToBasicString(document.ToText());
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 1, 0, 0, 0})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 0, 49})) << document.GetEditorState().ToString();
 
     document.Undo();
     document.WaitUndo();
@@ -2006,8 +2006,6 @@ TEST_F(DocumentTest, clipboard37)
                         "<mi>55</mi>"\
                     "</mrow>"\
                 "</math>"\
-            "</p>"\
-            "<p>"\
                 "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
                     "<mrow>"\
                         "<mi>55</mi>"\
@@ -2016,10 +2014,10 @@ TEST_F(DocumentTest, clipboard37)
             "</p>"\
         "</body>") << 
         document.ToHtml();
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 2, 0, 1})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 1, 0, 2})) << document.GetEditorState().ToString();
 
     document.MoveCaretHome(false);
-    document.WaitTask(document.DeleteElements(true, true));
+    document.WaitTask(document.DeleteElements(false, true));
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -2035,15 +2033,10 @@ TEST_F(DocumentTest, clipboard37)
                         "<mi>55</mi>"\
                     "</mrow>"\
                 "</math>"\
-                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
-                    "<mrow>"\
-                        "<mi>55</mi>"\
-                    "</mrow>"\
-                "</math>"\
             "</p>"\
         "</body>") << 
         document.ToHtml();
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 1, 0, 1, 0, 0, 0, 0})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 1, 0, 0})) << document.GetEditorState().ToString();
 
     document.Undo();
     document.WaitUndo();
@@ -2062,8 +2055,6 @@ TEST_F(DocumentTest, clipboard37)
                         "<mi>55</mi>"\
                     "</mrow>"\
                 "</math>"\
-            "</p>"\
-            "<p>"\
                 "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
                     "<mrow>"\
                         "<mi>55</mi>"\
@@ -2072,7 +2063,7 @@ TEST_F(DocumentTest, clipboard37)
             "</p>"\
         "</body>") << 
         document.ToHtml();
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 2, 0, 0})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 1, 0, 0})) << document.GetEditorState().ToString();
 }
 
 //Paste a rational result
