@@ -285,7 +285,9 @@ void Document::MainLoop()
                 if (last_solver_task_id == t->id)
                     last_solver_executed = true;
                 
-                last_tasks.push_back(t->id);
+                while (last_tasks.size() > last_tasks_count)
+                    last_tasks.pop_back();
+                last_tasks.push_front(t->id);
 #endif
             }
 
@@ -2612,11 +2614,7 @@ void Document::WaitTask(uint task_id, uint64_t timeout, uint64_t circle_delay)
         {
             std::lock_guard<std::recursive_mutex> lock(edit_mutex);
             if (std::find(last_tasks.begin(), last_tasks.end(), task_id) != last_tasks.end())
-            {
-                last_tasks.clear();
                 return;
-            }
-            last_tasks.clear();
         }
 
         std::this_thread::sleep_for(circle_delay * 1ms);

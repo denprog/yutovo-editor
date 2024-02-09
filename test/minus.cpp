@@ -137,6 +137,7 @@ TEST_F(FormulaTest, minus3)
     document.Save("minus3_1.yut");
 
     document.WaitTask(document.New());
+    std::this_thread::sleep_for(200ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
