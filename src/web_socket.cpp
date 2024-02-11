@@ -19,7 +19,7 @@ WebSocket::WebSocket(Config& _config, Window* _window) :
 #ifndef EMSCRIPTEN
     ws(net::make_strand(ioc), ssl_context.ssl_context),
 #endif
-    logger(Logger::GetInstance(config.logs_path, "yutovo", true, true))
+    logger(Logger::GetInstance(config.logs_path, "yutovo_editor", true, true))
 {
 }
 

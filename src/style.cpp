@@ -4,6 +4,7 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/uuid/uuid_generators.hpp>
 #include <boost/uuid/uuid_io.hpp>
+#include "rapidjson/writer.h"
 
 namespace yutovo
 {
@@ -113,6 +114,20 @@ bool StringFormat::FromJson(rapidjson::Value& value, rapidjson::Document::Alloca
         text_bg_selection_color = Color::FromInt(value["text_bg_selection_color"].GetUint());
 
     return true;
+}
+
+std::string StringFormat::ToString()
+{
+    rapidjson::Document json;
+    json.SetObject();
+    rapidjson::Value string_format(rapidjson::kArrayType);
+    auto& alloc = json.GetAllocator();
+    ToJson(string_format, alloc);
+    json.AddMember("string_format", string_format, alloc);
+    rapidjson::StringBuffer buffer;
+    rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
+    json.Accept(writer);
+    return buffer.GetString();
 }
 
 void StringFormat::Reset()
@@ -316,6 +331,20 @@ bool ParagraphFormat::FromJson(Document* document, rapidjson::Value& value, rapi
     spacing_after = value["spacing_after"].GetInt();
 
     return true;
+}
+
+std::string ParagraphFormat::ToString()
+{
+    rapidjson::Document json;
+    json.SetObject();
+    rapidjson::Value string_format(rapidjson::kArrayType);
+    auto& alloc = json.GetAllocator();
+    ToJson(string_format, alloc);
+    json.AddMember("string_format", string_format, alloc);
+    rapidjson::StringBuffer buffer;
+    rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
+    json.Accept(writer);
+    return buffer.GetString();
 }
 
 //ParagraphFormats
