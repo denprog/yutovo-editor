@@ -19,7 +19,7 @@ using namespace yutovo_service;
 
 Solver::Solver(Document* _document) :
     document(_document),
-    logger(Logger::GetInstance(document->config.logs_path, "yutovo", true, true)),
+    logger(Logger::GetInstance(document->config.logs_path, "yutovo_editor", true, true)),
     message_loop(std::thread(&Solver::MessageLoop, this))
 {
     guid = boost::uuids::to_string(boost::uuids::random_generator()());

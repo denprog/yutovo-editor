@@ -24,6 +24,8 @@ struct StringFormat
     void ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc);
     bool FromJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc);
 
+    std::string ToString();
+
     void Reset();
 
     boost::uuids::uuid id; //for serialization
@@ -90,6 +92,8 @@ struct ParagraphFormat
 
     void ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc);
     bool FromJson(Document* document, rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc);
+
+    std::string ToString();
 
     std::string name;
     Alignment alignment = Alignment::Left;

@@ -5,6 +5,7 @@
 #include "util.h"
 #include <yutovo_calculator/unit.h>
 #include <yutovo_calculator/math_helper.h>
+#include <yutovo_logger/logger.h>
 
 namespace yutovo
 {
@@ -47,6 +48,7 @@ struct Config
     uint hexadecimal_gap = 4;
 
     //logger
+    LogLevel log_level = LogLevel::LEVEL_INFO;
     std::string logs_path = ".";
 
     //calculator

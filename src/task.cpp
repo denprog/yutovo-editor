@@ -32,7 +32,7 @@ Task::Task(ElementPtr _text) :
     text(_text),
     document(text->document),
     window(document->window),
-    logger(Logger::GetInstance(document->config.logs_path, "yutovo", true, true)),
+    logger(Logger::GetInstance(document->config.logs_path, "yutovo_editor", true, true)),
     id(next_id++)
 {
 }
@@ -41,7 +41,7 @@ Task::Task(ElementPtr _text, const uint _id) :
     text(_text),
     document(text->document),
     window(document->window),
-    logger(Logger::GetInstance(document->config.logs_path, "yutovo", true, true)),
+    logger(Logger::GetInstance(document->config.logs_path, "yutovo_editor", true, true)),
     id(_id)
 {
 }
