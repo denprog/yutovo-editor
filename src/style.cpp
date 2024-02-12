@@ -12,29 +12,32 @@ namespace yutovo
 //StringFormat
 
 StringFormat::StringFormat(const boost::uuids::uuid _id, const std::string _family, uint _size, bool _bold, bool _italic, bool _underline, 
-    Color _text_color, Color _text_bg_color, Color _text_bg_selection_color) :
+    bool _strikethrough, Color _text_color, Color _text_bg_color, Color _text_bg_selection_color) :
     id(_id),
     family(_family), 
     size(_size),
     bold(_bold),
     italic(_italic),
     underline(_underline),
+    strikethrough(_strikethrough),
     text_color(_text_color),
     text_bg_color(_text_bg_color),
     text_bg_selection_color(_text_bg_selection_color)
 {
 }
 
-StringFormat::StringFormat(const std::string _family, uint _size, bool _bold, bool _italic, bool _underline, Color _text_color, 
+StringFormat::StringFormat(const std::string _family, uint _size, bool _bold, bool _italic, bool _underline, bool _strikethrough, Color _text_color, 
     Color _text_bg_color, Color _text_bg_selection_color) :
-    StringFormat(boost::uuids::random_generator()(), _family, _size, _bold, _italic, _underline, _text_color, _text_bg_color, _text_bg_selection_color)
+    StringFormat(boost::uuids::random_generator()(), _family, _size, _bold, _italic, _underline, _strikethrough, _text_color, _text_bg_color, 
+    _text_bg_selection_color)
 {
 }
 
 bool StringFormat::operator==(const StringFormat& f) const
 {
     return family == f.family && size == f.size && bold == f.bold && italic == f.italic && underline == f.underline && 
-        text_color == f.text_color && text_bg_color == f.text_bg_color && text_bg_selection_color == f.text_bg_selection_color;
+        strikethrough == f.strikethrough && text_color == f.text_color && text_bg_color == f.text_bg_color && 
+        text_bg_selection_color == f.text_bg_selection_color;
 }
 
 bool StringFormat::operator!=(const StringFormat& f) const
@@ -53,6 +56,7 @@ void StringFormat::ToJson(rapidjson::Value& value, rapidjson::Document::Allocato
     obj.AddMember("bold", bold, alloc);
     obj.AddMember("italic", italic, alloc);
     obj.AddMember("underline", underline, alloc);
+    obj.AddMember("strikethrough", strikethrough, alloc);
     obj.AddMember("text_color", text_color.ToInt(), alloc);
     obj.AddMember("text_bg_color", text_bg_color.ToInt(), alloc);
     obj.AddMember("text_bg_selection_color", text_bg_selection_color.ToInt(), alloc);
@@ -86,17 +90,17 @@ bool StringFormat::FromJson(rapidjson::Value& value, rapidjson::Document::Alloca
     else
         return false;
 
-    if (!value.HasMember("bold") || !value["bold"].IsBool())
-        return false;
-    bold = value["bold"].GetBool();
+    if (value.HasMember("bold") && value["bold"].IsBool())
+        bold = value["bold"].GetBool();
 
-    if (!value.HasMember("italic") || !value["italic"].IsBool())
-        return false;
-    italic = value["italic"].GetBool();
+    if (value.HasMember("italic") && value["italic"].IsBool())
+        italic = value["italic"].GetBool();
 
-    if (!value.HasMember("underline") || !value["underline"].IsBool())
-        return false;
-    underline = value["underline"].GetBool();
+    if (value.HasMember("underline") && value["underline"].IsBool())
+        underline = value["underline"].GetBool();
+
+    if (value.HasMember("strikethrough") && value["strikethrough"].IsBool())
+        strikethrough = value["strikethrough"].GetBool();
 
     if (!value.HasMember("text_color") || !value["text_color"].IsUint())
         text_color = Color::Black();
@@ -137,6 +141,7 @@ void StringFormat::Reset()
     bold = false;
     italic = false;
     underline = false;
+    strikethrough = false;
 }
 
 //StringFormats
@@ -145,10 +150,11 @@ StringFormats::~StringFormats()
 {
 }
 
-StringFormatPtr StringFormats::GetFormat(const std::string _family, uint _size, bool _bold, bool _italic, bool _underline, Color _text_color, 
-    Color _text_bg_color, Color _text_bg_selection_color)
+StringFormatPtr StringFormats::GetFormat(const std::string _family, uint _size, bool _bold, bool _italic, bool _underline, bool _strikethrough, 
+    Color _text_color, Color _text_bg_color, Color _text_bg_selection_color)
 {
-    StringFormatPtr format(new StringFormat(_family, _size, _bold, _italic, _underline, _text_color, _text_bg_color, _text_bg_selection_color));
+    StringFormatPtr format(new StringFormat(_family, _size, _bold, _italic, _underline, _strikethrough, _text_color, _text_bg_color, 
+        _text_bg_selection_color));
     //return the present format
     for (StringFormatPtr& f : string_formats)
     {
@@ -171,7 +177,8 @@ StringFormatPtr StringFormats::GetFormat(const StringFormat& source)
     }
 
     //or create a new one
-    StringFormatPtr f(new StringFormat(source.family, source.size, source.bold, source.italic, source.underline, Color::Black(), Color::White(), Color::Blue()));
+    StringFormatPtr f(new StringFormat(source.family, source.size, source.bold, source.italic, source.underline, source.strikethrough, 
+        Color::Black(), Color::White(), Color::Blue()));
     string_formats.push_back(f);
     return f;
 }
@@ -292,7 +299,7 @@ bool ParagraphFormat::FromJson(Document* document, rapidjson::Value& value, rapi
     }
 
     if (!default_string_format)
-        default_string_format = document->string_formats->GetFormat("Arial", 14, false, false, false, Color::Black(), Color::White(), Color::Blue());
+        default_string_format = document->string_formats->GetFormat("Arial", 14, false, false, false, false, Color::Black(), Color::White(), Color::Blue());
 
     if (!value.HasMember("name") || !value["name"].IsString())
         return false;
@@ -354,17 +361,17 @@ ParagraphFormats::ParagraphFormats(StringFormatsPtr _string_formats) :
 {
     //those are predefined paragraph styles
     GetFormat("Text body", ParagraphFormat::Alignment::Left, ParagraphFormat::WordWrap::Normal, 5, 10, 10, 0, 10, 10, 
-        string_formats->GetFormat("Arial", 14, false, false, false, Color::Black(), Color::White(), Color::Blue()));
+        string_formats->GetFormat("Arial", 14, false, false, false, false, Color::Black(), Color::White(), Color::Blue()));
     GetFormat("Header 1", ParagraphFormat::Alignment::Left, ParagraphFormat::WordWrap::Normal, 5, 10, 10, 0, 10, 10, 
-        string_formats->GetFormat("Arial", 30, true, false, false, Color::Black(), Color::White(), Color::Blue()));
+        string_formats->GetFormat("Arial", 30, true, false, false, false, Color::Black(), Color::White(), Color::Blue()));
     GetFormat("Header 2", ParagraphFormat::Alignment::Left, ParagraphFormat::WordWrap::Normal, 5, 10, 10, 0, 10, 10, 
-        string_formats->GetFormat("Arial", 26, true, false, false, Color::Black(), Color::White(), Color::Blue()));
+        string_formats->GetFormat("Arial", 26, true, false, false, false, Color::Black(), Color::White(), Color::Blue()));
     GetFormat("Header 3", ParagraphFormat::Alignment::Left, ParagraphFormat::WordWrap::Normal, 5, 10, 10, 0, 10, 10,
-        string_formats->GetFormat("Arial", 22, true, false, false, Color::Black(), Color::White(), Color::Blue()));
+        string_formats->GetFormat("Arial", 22, true, false, false, false, Color::Black(), Color::White(), Color::Blue()));
     GetFormat("Monospace", ParagraphFormat::Alignment::Left, ParagraphFormat::WordWrap::Normal, 5, 10, 10, 0, 10, 10, 
-        string_formats->GetFormat("Courier New", 12, false, false, false, Color::Black(), Color::White(), Color::Blue()));
+        string_formats->GetFormat("Courier New", 12, false, false, false, false, Color::Black(), Color::White(), Color::Blue()));
     GetFormat("Code", ParagraphFormat::Alignment::Left, ParagraphFormat::WordWrap::None, 2, 2, 2, 0, 2, 2, 
-        string_formats->GetFormat("Courier New", 14, false, false, false, Color::Black(), Color::White(), Color::Blue()));
+        string_formats->GetFormat("Courier New", 14, false, false, false, false, Color::Black(), Color::White(), Color::Blue()));
 }
 
 ParagraphFormatPtr ParagraphFormats::GetFormat(std::string _name, ParagraphFormat::Alignment _alignment, ParagraphFormat::WordWrap _word_wrap, 
@@ -464,11 +471,11 @@ bool FormulaFormat::operator==(const FormulaFormat& f) const
 FormulaFormats::FormulaFormats(StringFormatsPtr _string_formats) :
     string_formats(_string_formats)
 {
-    GetFormat("Code", string_formats->GetFormat("Courier New", 14, false, false, false, Color::Black(), Color::White(), Color::Blue()), 
+    GetFormat("Code", string_formats->GetFormat("Courier New", 14, false, false, false, false, Color::Black(), Color::White(), Color::Blue()), 
         2, 5, 2, 5, 2, Color::Black(), Color::White(), Color::Blue());
-    GetFormat("Formula", string_formats->GetFormat("Courier New", 14, false, false, false, Color::Black(), Color::White(), Color::Blue()), 
+    GetFormat("Formula", string_formats->GetFormat("Courier New", 14, false, false, false, false, Color::Black(), Color::White(), Color::Blue()), 
         2, 2, 2, 2, 2, Color::Black(), Color::White(), Color::Blue());
-    GetFormat("OnlyShapeFormula", string_formats->GetFormat("Courier New", 14, false, false, false, Color::Black(), Color::White(), Color::Blue()), 
+    GetFormat("OnlyShapeFormula", string_formats->GetFormat("Courier New", 14, false, false, false, false, Color::Black(), Color::White(), Color::Blue()), 
         0, 0, 0, 0, 0, Color{0xff, 0x40, 0x40, 0x40}, Color::White(), Color::Blue());
 }
 

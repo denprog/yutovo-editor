@@ -24,10 +24,10 @@ TEST_F(ParagraphTest, resizing1)
             return Rect{0, 0, width, 400};
         });
 
-    document.InsertString("Text", document.GetStringFormat("Arial", 22, false, false, false), true);
-    document.InsertString("Italic", document.GetStringFormat("Times New Roman", 18, false, true, false), true);
-    document.InsertString("Bold", document.GetStringFormat("Times New Roman", 34, true, false, false), true);
-    document.WaitTask(document.InsertString("String1 String2 String3", document.GetStringFormat("Arial", 20, false, false, false), true));
+    document.InsertString("Text", document.GetStringFormat("Arial", 22, false, false, false, false), true);
+    document.InsertString("Italic", document.GetStringFormat("Times New Roman", 18, false, true, false, false), true);
+    document.InsertString("Bold", document.GetStringFormat("Times New Roman", 34, true, false, false, false), true);
+    document.WaitTask(document.InsertString("String1 String2 String3", document.GetStringFormat("Arial", 20, false, false, false, false), true));
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -202,10 +202,10 @@ TEST_F(ParagraphTest, resizing2)
             return Rect{0, 0, width, 400};
         });
 
-    document.InsertString("Text", document.GetStringFormat("Arial", 22, false, false, false), true);
-    document.InsertString("Italic", document.GetStringFormat("Times New Roman", 18, false, true, false), true);
-    document.InsertString("Bold", document.GetStringFormat("Times New Roman", 34, true, false, false), true);
-    document.WaitTask(document.InsertString("String1 String2 String3", document.GetStringFormat("Arial", 20, false, false, false), true));
+    document.InsertString("Text", document.GetStringFormat("Arial", 22, false, false, false, false), true);
+    document.InsertString("Italic", document.GetStringFormat("Times New Roman", 18, false, true, false, false), true);
+    document.InsertString("Bold", document.GetStringFormat("Times New Roman", 34, true, false, false, false), true);
+    document.WaitTask(document.InsertString("String1 String2 String3", document.GetStringFormat("Arial", 20, false, false, false, false), true));
     document.MoveCaretLeft(true);
     document.WaitTask(document.MoveCaretLeft(true));
     ASSERT_TRUE(document.ToHtml() == 
@@ -411,10 +411,10 @@ TEST_F(ParagraphTest, resizing6)
             return Rect{0, 0, width, 400};
         });
 
-    document.InsertString("Text", document.GetStringFormat("Arial", 22, false, false, false), true);
-    document.InsertString("Italic", document.GetStringFormat("Times New Roman", 18, false, true, false), true);
-    document.InsertString("Bold", document.GetStringFormat("Times New Roman", 34, true, false, false), true);
-    document.WaitTask(document.InsertString("String1 String2 String3", document.GetStringFormat("Arial", 20, false, false, false), true));
+    document.InsertString("Text", document.GetStringFormat("Arial", 22, false, false, false, false), true);
+    document.InsertString("Italic", document.GetStringFormat("Times New Roman", 18, false, true, false, false), true);
+    document.InsertString("Bold", document.GetStringFormat("Times New Roman", 34, true, false, false, false), true);
+    document.WaitTask(document.InsertString("String1 String2 String3", document.GetStringFormat("Arial", 20, false, false, false, false), true));
     document.MoveCaretWordLeft(false);
     document.WaitTask(document.MoveCaretWordLeft(true));
 
@@ -440,10 +440,10 @@ TEST_F(ParagraphTest, paragraph1)
             return Rect{0, 0, width, 400};
         });
 
-    document.InsertString("Text", document.GetStringFormat("Arial", 22, false, false, false), true);
-    document.InsertString("Italic", document.GetStringFormat("Times New Roman", 18, false, true, false), true);
-    document.InsertString("Bold", document.GetStringFormat("Times New Roman", 34, true, false, false), true);
-    document.WaitTask(document.InsertString("String1 String2 String3", document.GetStringFormat("Arial", 20, false, false, false), true));
+    document.InsertString("Text", document.GetStringFormat("Arial", 22, false, false, false, false), true);
+    document.InsertString("Italic", document.GetStringFormat("Times New Roman", 18, false, true, false, false), true);
+    document.InsertString("Bold", document.GetStringFormat("Times New Roman", 34, true, false, false, false), true);
+    document.WaitTask(document.InsertString("String1 String2 String3", document.GetStringFormat("Arial", 20, false, false, false, false), true));
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -986,7 +986,7 @@ TEST_F(ParagraphTest, paragraph3)
             return Rect{0, 0, width, 400};
         });
 
-    document.InsertString("45", document.GetStringFormat("Arial", 14, false, false, false), true);
+    document.InsertString("45", document.GetStringFormat("Arial", 14, false, false, false, false), true);
     document.WaitTask(document.InsertDivision(true));
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
@@ -1228,7 +1228,7 @@ TEST_F(ParagraphTest, paragraph8)
 {
     Start(400);
 
-    document.WaitTask(document.InsertString("Text Code", document.GetStringFormat("Arial", 14, false, false, false), true));
+    document.WaitTask(document.InsertString("Text Code", document.GetStringFormat("Arial", 14, false, false, false, false), true));
     document.WaitTask(document.MoveCaretWordLeft(false));
     document.WaitTask(document.InsertCode(false, true));
     document.WaitTask(document.MoveCaretLeft(false));

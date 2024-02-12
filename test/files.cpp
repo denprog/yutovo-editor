@@ -20,6 +20,7 @@ TEST_F(DocumentTest, files1)
 
     ASSERT_TRUE(document.IsChanged() == false);
     document.WaitTask(document.InsertString("Text", true));
+    std::this_thread::sleep_for(200ms);
     ASSERT_TRUE(document.IsChanged() == true);
     document.WaitTask(document.Save("1.yut"));
     ASSERT_TRUE(document.IsChanged() == false);

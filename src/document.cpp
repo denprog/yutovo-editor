@@ -645,23 +645,24 @@ uint Document::InsertUnit(const yutovo_calculator::Unit& unit)
     return InsertFormula(code, false);
 }
 
-uint Document::ChangeStringFormat(const std::string family, const uint size, const bool bold, const bool italic, const bool underline, 
+uint Document::ChangeStringFormat(const std::string family, const uint size, const bool bold, const bool italic, const bool underline, const bool strikethrough, 
     Color text_color, Color text_bg_color, bool with_undo)
 {
     logger->Trace("Change string format: family={}, size={}, bold={}, italic={}, underline={}, text_color={}, text_bg_color={}", 
         family, size, bold, italic, underline, text_color.ToString(), text_bg_color.ToString());
-    return ChangeStringFormat(string_formats->GetFormat(family, size, bold, italic, underline, text_color, text_bg_color, Color::Blue()), 
+    return ChangeStringFormat(string_formats->GetFormat(family, size, bold, italic, underline, strikethrough, text_color, text_bg_color, Color::Blue()), 
         with_undo);
 }
 
 uint Document::ChangeStringFormat(const StringFormatPtr format, bool set_family, bool set_size, bool set_bold, bool set_italic, bool set_underline, 
-    bool set_text_color, bool set_text_bg_color, bool with_undo)
+    bool set_strikethrough, bool set_text_color, bool set_text_bg_color, bool with_undo)
 {
-    logger->Trace("Change string format: format={}, set_family={}, set_size={}, set_bold={}, set_italic={}, set_underline={}, set_text_color={}, set_text_bg_color={}", 
-        format->ToString(), set_family, set_size, set_bold, set_italic, set_underline,  set_text_color, set_text_bg_color);
+    logger->Trace("Change string format: format={}, set_family={}, set_size={}, set_bold={}, set_italic={}, set_underline={}, set_strikethrough={}, "\
+        "set_text_color={}, set_text_bg_color={}", 
+        format->ToString(), set_family, set_size, set_bold, set_italic, set_underline, set_strikethrough, set_text_color, set_text_bg_color);
     {
         std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
-        tasks.emplace_back(new ChangeStringFormatTask(text, format, set_family, set_size, set_bold, set_italic, set_underline, 
+        tasks.emplace_back(new ChangeStringFormatTask(text, format, set_family, set_size, set_bold, set_italic, set_underline, set_strikethrough, 
             set_text_color, set_text_bg_color, with_undo));
         last_task_id = tasks.back()->id;
     }
@@ -1346,13 +1347,13 @@ uint Document::SetFontFamily(const std::string& family)
         if (!selection.IsEmpty())
         {
             return ChangeStringFormat(string_formats->GetFormat(family, current_string_format->size, current_string_format->bold, 
-                current_string_format->italic, current_string_format->underline, current_string_format->text_color, 
+                current_string_format->italic, current_string_format->underline, current_string_format->strikethrough, current_string_format->text_color, 
                 current_string_format->text_bg_color, current_string_format->text_bg_selection_color), true);
         }
         else
         {
             current_string_format = string_formats->GetFormat(family, current_string_format->size, current_string_format->bold, 
-                current_string_format->italic, current_string_format->underline, current_string_format->text_color, 
+                current_string_format->italic, current_string_format->underline, current_string_format->strikethrough, current_string_format->text_color, 
                 current_string_format->text_bg_color, current_string_format->text_bg_selection_color);
         }
     }
@@ -1366,10 +1367,10 @@ uint Document::SetFontSize(const uint size)
     if (current_string_format)
     {
         auto f = string_formats->GetFormat(current_string_format->family, size, current_string_format->bold, current_string_format->italic, 
-            current_string_format->underline, current_string_format->text_color, current_string_format->text_bg_color, 
-            current_string_format->text_bg_selection_color);
+            current_string_format->underline, current_string_format->strikethrough, current_string_format->text_color, 
+            current_string_format->text_bg_color, current_string_format->text_bg_selection_color);
         if (!selection.IsEmpty())
-            return ChangeStringFormat(f, false, true, false, false, false, false, false, true);
+            return ChangeStringFormat(f, false, true, false, false, false, false, false, false, true);
         else
             current_string_format = f;
     }
@@ -1383,10 +1384,10 @@ uint Document::SetBold(const bool enabled)
     if (current_string_format)
     {
         auto f = string_formats->GetFormat(current_string_format->family, current_string_format->size, enabled, current_string_format->italic, 
-            current_string_format->underline, current_string_format->text_color, current_string_format->text_bg_color, 
-            current_string_format->text_bg_selection_color);
+            current_string_format->underline, current_string_format->strikethrough, current_string_format->text_color, 
+            current_string_format->text_bg_color, current_string_format->text_bg_selection_color);
         if (!selection.IsEmpty())
-            return ChangeStringFormat(f, false, false, true, false, false, false, false, true);
+            return ChangeStringFormat(f, false, false, true, false, false, false, false, false, true);
         else
             current_string_format = f;
     }
@@ -1400,10 +1401,10 @@ uint Document::SetItalic(const bool enabled)
     if (current_string_format)
     {
         auto f = string_formats->GetFormat(current_string_format->family, current_string_format->size, current_string_format->bold, enabled, 
-            current_string_format->underline, current_string_format->text_color, current_string_format->text_bg_color, 
-            current_string_format->text_bg_selection_color);
+            current_string_format->underline, current_string_format->strikethrough, current_string_format->text_color, 
+            current_string_format->text_bg_color, current_string_format->text_bg_selection_color);
         if (!selection.IsEmpty())
-            return ChangeStringFormat(f, false, false, false, true, false, false, false, true);
+            return ChangeStringFormat(f, false, false, false, true, false, false, false, false, true);
         else
             current_string_format = f;
     }
@@ -1417,10 +1418,27 @@ uint Document::SetUnderline(const bool enabled)
     if (current_string_format)
     {
         auto f = string_formats->GetFormat(current_string_format->family, current_string_format->size, current_string_format->bold, 
-            current_string_format->italic, enabled, current_string_format->text_color, current_string_format->text_bg_color, 
-            current_string_format->text_bg_selection_color);
+            current_string_format->italic, enabled, current_string_format->strikethrough, current_string_format->text_color, 
+            current_string_format->text_bg_color, current_string_format->text_bg_selection_color);
         if (!selection.IsEmpty())
-            return ChangeStringFormat(f, false, false, false, false, true, false, false, true);
+            return ChangeStringFormat(f, false, false, false, false, true, false, false, false, true);
+        else
+            current_string_format = f;
+    }
+    return 0;
+}
+
+uint Document::SetStrikethrough(const bool enabled)
+{
+    logger->Trace("Set strikethrough: {}", enabled);
+    std::lock_guard<std::recursive_mutex> lock(edit_mutex);
+    if (current_string_format)
+    {
+        auto f = string_formats->GetFormat(current_string_format->family, current_string_format->size, current_string_format->bold, 
+            current_string_format->italic, current_string_format->underline, enabled, current_string_format->text_color, 
+            current_string_format->text_bg_color, current_string_format->text_bg_selection_color);
+        if (!selection.IsEmpty())
+            return ChangeStringFormat(f, false, false, false, false, false, true, false, false, true);
         else
             current_string_format = f;
     }
@@ -1434,10 +1452,10 @@ uint Document::SetColor(const Color color)
     if (current_string_format)
     {
         auto f = string_formats->GetFormat(current_string_format->family, current_string_format->size, current_string_format->bold, 
-            current_string_format->italic, current_string_format->underline, color, current_string_format->text_bg_color, 
-            current_string_format->text_bg_selection_color);
+            current_string_format->italic, current_string_format->underline, current_string_format->strikethrough, color, 
+            current_string_format->text_bg_color, current_string_format->text_bg_selection_color);
         if (!selection.IsEmpty())
-            return ChangeStringFormat(f, false, false, false, false, false, true, false, true);
+            return ChangeStringFormat(f, false, false, false, false, false, false, true, false, true);
         else
             current_string_format = f;
     }
@@ -1451,10 +1469,10 @@ uint Document::SetBgColor(const Color color)
     if (current_string_format)
     {
         auto f = string_formats->GetFormat(current_string_format->family, current_string_format->size, current_string_format->bold, 
-            current_string_format->italic, current_string_format->underline, current_string_format->text_color, color, 
-            current_string_format->text_bg_selection_color);
+            current_string_format->italic, current_string_format->underline, current_string_format->strikethrough, 
+            current_string_format->text_color, color, current_string_format->text_bg_selection_color);
         if (!selection.IsEmpty())
-            return ChangeStringFormat(f, false, false, false, false, false, false, true, true);
+            return ChangeStringFormat(f, false, false, false, false, false, false, false, true, true);
         else
             current_string_format = f;
     }
@@ -2152,16 +2170,17 @@ uint Document::SetDefaultPageFormat(uint left_indent, uint top_indent, uint righ
     return last_task_id;
 }
 
-StringFormatPtr Document::GetStringFormat(const std::string& family, uint size, bool bold, bool italic, bool underline)
+StringFormatPtr Document::GetStringFormat(const std::string& family, uint size, bool bold, bool italic, bool underline, bool strikethrough)
 {
     std::lock_guard<std::recursive_mutex> lock(edit_mutex);
-    return string_formats->GetFormat(family, size, bold, italic, underline, Color::Black(), Color::White(), Color::Blue());
+    return string_formats->GetFormat(family, size, bold, italic, underline, strikethrough, Color::Black(), Color::White(), Color::Blue());
 }
 
-StringFormatPtr Document::GetStringFormat(const std::string& family, uint size, bool bold, bool italic, bool underline, Color text_color, Color text_bg_color)
+StringFormatPtr Document::GetStringFormat(const std::string& family, uint size, bool bold, bool italic, bool underline, bool strikethrough, 
+    Color text_color, Color text_bg_color)
 {
     std::lock_guard<std::recursive_mutex> lock(edit_mutex);
-    return string_formats->GetFormat(family, size, bold, italic, underline, text_color, text_bg_color, Color::Blue());
+    return string_formats->GetFormat(family, size, bold, italic, underline, strikethrough, text_color, text_bg_color, Color::Blue());
 }
 
 StringFormatPtr Document::GetStringFormat(const boost::uuids::uuid& id)
