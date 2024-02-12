@@ -718,23 +718,27 @@ bool RemoveIdentifierSolverTask::Execute(WebSocketPtr socket, Result& result)
     return true;
 }
 
-//SetLanguageSolverTask
+//SetLocaleSolverTask
 
-SetLanguageSolverTask::SetLanguageSolverTask(std::string& _guid, const yutovo_calculator::Language _language, Document* _document, Logger* _logger) :
+SetLocaleSolverTask::SetLocaleSolverTask(std::string& _guid, const yutovo_calculator::Language _language, const char _decimal_point, 
+    Document* _document, Logger* _logger) :
     SolverTask(_guid, _logger),
     language(_language),
+    decimal_point(_decimal_point),
     document(_document)
 {
 }
 
-bool SetLanguageSolverTask::Execute(WebSocketPtr socket, Result& result)
+bool SetLocaleSolverTask::Execute(WebSocketPtr socket, Result& result)
 {
     rapidjson::Document doc;
     auto& alloc = doc.GetAllocator();
     doc.SetObject();
-    doc.AddMember("command", "SET_LANGUAGE", alloc);
+    doc.AddMember("command", "SET_LOCALE", alloc);
     doc.AddMember("guid", rapidjson::StringRef(guid.c_str()), alloc);
     doc.AddMember("language", (int)language, alloc);
+    std::string p(1, decimal_point);
+    doc.AddMember("decimal_point", rapidjson::StringRef(p.c_str()), alloc);
 
     if (!SendRequest(doc, result, socket))
         return false;

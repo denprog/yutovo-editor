@@ -1305,6 +1305,32 @@ TEST_F(SolverAutoTest, solver28)
         ) << ToBasicString(document.ToText());
 }
 
+//Two code blocks with the same locale
+TEST_F(SolverAutoTest, solver29)
+{
+    Start(600);
+    
+    document.SetLocale(yutovo_calculator::Language::Russian, ',');
+    document.InsertCode(false, true);
+    document.WaitTask(document.InsertString("6,5", true));
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(2s);
+    ASSERT_TRUE(document.ToText() == U"6,5=6,5") << ToBasicString(document.ToText());
+
+    document.MoveCaretToDocumentEnd(false);
+    document.InsertParagraph(true);
+    document.InsertCode(true, true);
+    document.InsertString("5,5", true);
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(2s);
+    ASSERT_TRUE(document.ToText() == 
+        U"6,5=6,5\n"
+        U"5,5=5,5"
+        ) << ToBasicString(document.ToText());
+}
+
 //Solve with errors
 TEST_F(SolverAutoTest, errors1)
 {
@@ -1779,7 +1805,7 @@ TEST_F(SolverAutoTest, units7)
 {
     Start(600);
 
-    document.SetLanguage(yutovo_calculator::Language::Russian);
+    document.SetLocale(yutovo_calculator::Language::Russian, ',');
     document.InsertCode(1, true);
     document.InsertDivision(true);
     document.InsertString("6кг", true);
@@ -1792,7 +1818,7 @@ TEST_F(SolverAutoTest, units7)
     document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
     document.WaitSolver();
     std::this_thread::sleep_for(2s);
-    ASSERT_TRUE(document.ToText() == U"(6кг*2м)/(4сек)=3.(кг*м)/(сек)") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.ToText() == U"(6кг*2м)/(4сек)=3,(кг*м)/(сек)") << ToBasicString(document.ToText());
 }
 
 //Change language
@@ -1800,17 +1826,17 @@ TEST_F(SolverAutoTest, units8)
 {
     Start(600);
 
-    document.InsertCode(1, true);
+    document.InsertCode(false, true);
     document.InsertString("4N", true);
     document.InsertMultiply(true);
     document.InsertString("m", true);
     document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
     document.WaitSolver();
 
-    document.SetLanguage(yutovo_calculator::Language::Russian);
+    document.SetLocale(yutovo_calculator::Language::Russian, U',');
     document.MoveCaretEnd(false);
     document.InsertParagraph(true);
-    document.InsertString("4Н", true);
+    document.InsertString("4,2Н", true);
     document.InsertMultiply(true);
     document.InsertString("м", true);
     document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
@@ -1818,7 +1844,7 @@ TEST_F(SolverAutoTest, units8)
     std::this_thread::sleep_for(2s);
     ASSERT_TRUE(document.ToText() == 
         U"4N*m=4.N*m\n"\
-        U"4Н*м=4.Н*м") << ToBasicString(document.ToText());
+        U"4,2Н*м=4,2Н*м") << ToBasicString(document.ToText());
 }
 
 //Implicit multiplication of division
