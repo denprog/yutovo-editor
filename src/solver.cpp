@@ -125,10 +125,10 @@ void Solver::RemoveIdentifier(ElementId id, uint code_id, const std::u32string& 
     }
 }
 
-void Solver::SetLanguage(const yutovo_calculator::Language language)
+void Solver::SetLocale(const yutovo_calculator::Language language, const char decimal_point)
 {
     std::unique_lock<std::mutex> lock(tasks_mutex);
-    tasks.emplace_back(new SetLanguageSolverTask(guid, language, document, logger));
+    tasks.emplace_back(new SetLocaleSolverTask(guid, language, decimal_point, document, logger));
     tasks.emplace_back(nullptr);
     next_circle = true;
 }

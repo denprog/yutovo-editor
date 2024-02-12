@@ -2533,9 +2533,9 @@ void Document::GetSolverGuid(std::string& guid)
     guid = solver.guid;
 }
 
-void Document::SetLanguage(const yutovo_calculator::Language language)
+void Document::SetLocale(const yutovo_calculator::Language language, const char decimal_point)
 {
-    solver.SetLanguage(language);
+    solver.SetLocale(language, decimal_point);
 }
 
 void Document::ElementIdChanged(ElementId last_id, ElementId new_id)

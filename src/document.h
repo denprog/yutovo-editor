@@ -263,7 +263,7 @@ public:
     void AddResolveElement(ElementId _id);
     void AddChangedElement(ElementId _id);
     void GetSolverGuid(std::string& guid);
-    void SetLanguage(const yutovo_calculator::Language language);
+    void SetLocale(const yutovo_calculator::Language language, const char decimal_point);
 
     void ElementIdChanged(ElementId last_id, ElementId new_id);
 
