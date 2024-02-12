@@ -53,8 +53,8 @@ TEST_F(DocumentTest, caret1)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 10)) << document.GetEditorState().ToString();
 
     document.InsertString(" Word3", true);
-    document.InsertString("Bold", document.GetStringFormat("Times New Roman", 34, true, false, false), true);
-    document.WaitTask(document.InsertString("Italic", document.GetStringFormat("Courier", 24, false, true, false), true));
+    document.InsertString("Bold", document.GetStringFormat("Times New Roman", 34, true, false, false, false), true);
+    document.WaitTask(document.InsertString("Italic", document.GetStringFormat("Courier", 24, false, true, false, false), true));
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 2, 6)) << document.GetEditorState().ToString();
 
@@ -236,8 +236,8 @@ TEST_F(DocumentTest, caret4)
     Start(600);
 
     document.InsertString("Text Word2 Word3 ", true);
-    document.InsertString("Bold", document.GetStringFormat("Times New Roman", 34, true, false, false), true);
-    document.WaitTask(document.InsertString("Italic", document.GetStringFormat("Courier", 24, false, true, false), true));
+    document.InsertString("Bold", document.GetStringFormat("Times New Roman", 34, true, false, false, false), true);
+    document.WaitTask(document.InsertString("Italic", document.GetStringFormat("Courier", 24, false, true, false, false), true));
     document.MoveCaretToDocumentBegin(false);
     document.MoveCaretWordRight(false);
     document.MoveCaretWordRight(false);
@@ -254,10 +254,10 @@ TEST_F(DocumentTest, caret5)
 {
     Start(600);
 
-    document.InsertString("Text", document.GetStringFormat("Arial", 22, false, false, false), true);
-    document.InsertString("Italic", document.GetStringFormat("Times New Roman", 18, false, true, false), true);
-    document.InsertString("Bold", document.GetStringFormat("Times New Roman", 34, true, false, false), true);
-    document.InsertString("String1 String2 String3", document.GetStringFormat("Arial", 20, false, false, false), true);
+    document.InsertString("Text", document.GetStringFormat("Arial", 22, false, false, false, false), true);
+    document.InsertString("Italic", document.GetStringFormat("Times New Roman", 18, false, true, false, false), true);
+    document.InsertString("Bold", document.GetStringFormat("Times New Roman", 34, true, false, false, false), true);
+    document.InsertString("String1 String2 String3", document.GetStringFormat("Arial", 20, false, false, false, false), true);
     document.MoveCaretWordLeft(false);
     document.MoveCaretWordLeft(false);
     document.MoveCaretWordLeft(true);
@@ -460,7 +460,7 @@ TEST_F(DocumentTest, caret11)
     Start(600);
 
     document.InsertString("12345", true);
-    document.InsertString("Bold", document.GetStringFormat("Times New Roman", 34, true, false, false), true);
+    document.InsertString("Bold", document.GetStringFormat("Times New Roman", 34, true, false, false, false), true);
     document.WaitTask(document.SelectAll());
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 1, 4}, 
         ElementSelectionState{ElementId{0}, 0, 1})) << document.GetEditorState().ToString();
@@ -490,7 +490,7 @@ TEST_F(DocumentTest, caret12)
     Start(600);
 
     document.InsertString("12345", true);
-    document.InsertString("Bold", document.GetStringFormat("Times New Roman", 34, true, false, false), true);
+    document.InsertString("Bold", document.GetStringFormat("Times New Roman", 34, true, false, false, false), true);
     document.WaitTask(document.MoveCaretHome(true));
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0}, 
         ElementSelectionState{ElementId{0}, 0, 1})) << document.GetEditorState().ToString();
@@ -550,8 +550,8 @@ TEST_F(DocumentTest, caret14)
     Start(600);
 
     document.InsertString("12345", true);
-    document.InsertString("Bold", document.GetStringFormat("Times New Roman", 34, true, false, false), true);
-    document.InsertString("Italic", document.GetStringFormat("Times New Roman", 24, false, true, false), true);
+    document.InsertString("Bold", document.GetStringFormat("Times New Roman", 34, true, false, false, false), true);
+    document.InsertString("Italic", document.GetStringFormat("Times New Roman", 24, false, true, false, false), true);
     document.MoveCaretHome(false);
     document.WaitTask(document.MoveCaretEnd(true));
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 2, 6}, 

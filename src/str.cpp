@@ -251,6 +251,8 @@ std::string String::ToHtml()
     s += "px;";
     if (format->underline)
         s += "text-decoration: underline;";
+    if (format->strikethrough)
+        s += "text-decoration: line-through;";
     if (format->text_color != Color::Black())
         s += "color:" + format->text_color.ToString() + ";";
     if (format->text_bg_color != Color::White())
@@ -698,18 +700,20 @@ void String::UpdateStringFormat(const StringFormatPtr base_format, const StringF
         f.italic = new_format->italic;
     if (base_format->underline == format->underline)
         f.underline = new_format->underline;
+    if (base_format->strikethrough == format->strikethrough)
+        f.strikethrough = new_format->strikethrough;
     if (base_format->text_color == format->text_color)
         f.text_color = new_format->text_color;
     if (base_format->text_bg_color == format->text_bg_color)
         f.text_bg_color = new_format->text_bg_color;
-    format = document->GetStringFormat(f.family, f.size, f.bold, f.italic, f.underline, f.text_color, f.text_bg_color);
+    format = document->GetStringFormat(f.family, f.size, f.bold, f.italic, f.underline, f.strikethrough, f.text_color, f.text_bg_color);
     size_cache.clear();
 }
 
 void String::UpdateFormat(StringFormatPtr& _format)
 {
     format = document->GetStringFormat(_format->family, GetFontSize(_format->size), _format->bold, _format->italic, _format->underline, 
-        _format->text_color, _format->text_bg_color);
+        _format->strikethrough, _format->text_color, _format->text_bg_color);
 }
 
 int String::GetFontSize(const uint size)
@@ -754,7 +758,7 @@ void String::UpdateLevel(uint8_t _level)
     size_cache.clear();
     format = parent->GetStringFormat();
     format = document->GetStringFormat(format->family, GetFontSize(format->size), format->bold, format->italic, format->underline, 
-        format->text_color, format->text_bg_color);
+        format->strikethrough, format->text_color, format->text_bg_color);
 }
 
 void String::SetEditable(bool _editable)

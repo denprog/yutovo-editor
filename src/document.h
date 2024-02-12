@@ -79,10 +79,10 @@ public:
 
     uint InsertUnit(const yutovo_calculator::Unit& unit);
 
-    uint ChangeStringFormat(const std::string family, const uint size, const bool bold, const bool italic, const bool underline, 
+    uint ChangeStringFormat(const std::string family, const uint size, const bool bold, const bool italic, const bool underline, const bool strikethrough, 
         Color text_color, Color text_bg_color, bool with_undo);
     uint ChangeStringFormat(const StringFormatPtr format, bool set_family, bool set_size, bool set_bold, bool set_italic, bool set_underline, 
-        bool set_text_color, bool set_text_bg_color, bool with_undo);
+        bool set_strikethrough, bool set_text_color, bool set_text_bg_color, bool with_undo);
     uint ChangeStringFormat(const StringFormatPtr format, bool with_undo);
 
     uint ChangeParagraphFormat(const ParagraphFormatPtr format, bool with_undo);
@@ -199,8 +199,9 @@ public:
     TextFormatPtr GetDefaultTextFormat();
     PageFormatPtr GetDefaultPageFormat();
     uint SetDefaultPageFormat(uint left_indent, uint top_indent, uint right_indent, uint bottom_indent, uint paragraph_spacing);
-    StringFormatPtr GetStringFormat(const std::string& family, uint size, bool bold, bool italic, bool underline);
-    StringFormatPtr GetStringFormat(const std::string& family, uint size, bool bold, bool italic, bool underline, Color text_color, Color text_bg_color);
+    StringFormatPtr GetStringFormat(const std::string& family, uint size, bool bold, bool italic, bool underline, bool strikethrough);
+    StringFormatPtr GetStringFormat(const std::string& family, uint size, bool bold, bool italic, bool underline, bool strikethrough, 
+        Color text_color, Color text_bg_color);
     StringFormatPtr GetStringFormat(const boost::uuids::uuid& id);
 
     void UpdateFormats();
@@ -210,6 +211,7 @@ public:
     uint SetBold(const bool enabled);
     uint SetItalic(const bool enabled);
     uint SetUnderline(const bool enabled);
+    uint SetStrikethrough(const bool enabled);
     uint SetColor(const Color color);
     uint SetBgColor(const Color color);
 
