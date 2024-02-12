@@ -262,6 +262,9 @@ void Solver::MessageLoop()
                 }
             }
 
+            if (t->expression_type == ExpressionType::USER_SYMBOL)
+                document->window->OnIdentifierChanged(t->id);
+
             document->PutResult(t->id, result);
             if (result.error.error_code == yutovo_service::ErrorCode::SOLVER_RESTARTED_ERROR)
                 document->ReSolve(t->id); //re-solve the expression
