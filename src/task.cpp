@@ -1320,16 +1320,10 @@ bool LoadTask::Execute()
         rapidjson::IStreamWrapper isw{file};
 
         doc.ParseStream(isw);
-        if (doc.HasParseError())
+        if (doc.HasParseError() || !doc.IsObject() || !LoadJson(doc))
         {
             window->OnLoadResult(id, IOResult::InputStreamError, document_id);
             logger->Error("Error parsing file '{}'", filename);
-            return false;
-        }
-
-        if (!LoadJson(doc))
-        {
-            window->OnLoadResult(id, IOResult::InputStreamError, document_id);
             return false;
         }
 
