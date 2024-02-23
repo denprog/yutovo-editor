@@ -1331,6 +1331,56 @@ TEST_F(SolverAutoTest, solver29)
         ) << ToBasicString(document.ToText());
 }
 
+//Solve a sum
+TEST_F(SolverAutoTest, solver30)
+{
+    Start(600);
+
+    document.WaitTask(document.InsertSum(true));
+    document.InsertString(U"i", true);
+    document.MoveCaretRight(false);
+    document.MoveCaretRight(false);
+    document.InsertString(U"0", true);
+    document.MoveCaretRight(false);
+    document.MoveCaretRight(false);
+    document.InsertString(U"10", true);
+    document.MoveCaretRight(false);
+    document.WaitTask(document.InsertString(U"i", true));
+    document.WaitTask(document.MoveCaretRight(false));
+
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"sum(i=0,10,i)=55."
+        ) << ToBasicString(document.ToText());
+}
+
+//Solve a product
+TEST_F(SolverAutoTest, solver31)
+{
+    Start(600);
+
+    document.WaitTask(document.InsertProduct(true));
+    document.InsertString(U"i", true);
+    document.MoveCaretRight(false);
+    document.MoveCaretRight(false);
+    document.InsertString(U"1", true);
+    document.MoveCaretRight(false);
+    document.MoveCaretRight(false);
+    document.InsertString(U"10", true);
+    document.MoveCaretRight(false);
+    document.WaitTask(document.InsertString(U"i", true));
+    document.WaitTask(document.MoveCaretRight(false));
+
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"prod(i=1,10,i)=3628800."
+        ) << ToBasicString(document.ToText());
+}
+
 //Solve with errors
 TEST_F(SolverAutoTest, errors1)
 {

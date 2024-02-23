@@ -25,6 +25,8 @@
 #include "formulas/or.h"
 #include "formulas/xor.h"
 #include "formulas/percent.h"
+#include "formulas/sum.h"
+#include "formulas/product.h"
 
 namespace yutovo
 {
@@ -259,6 +261,22 @@ Element* UndoFormula::Restore(Document* document, Element* parent)
         break;
     case ElementType::PERCENT:
         el = parent ? new Percent(parent) : new Percent(document);
+        break;
+    case ElementType::SUM:
+    case ElementType::PRODUCT:
+        {
+            if (type == ElementType::SUM)
+                el = parent ? new Sum(parent) : new Sum(document);
+            else
+                el = parent ? new Product(parent) : new Product(document);
+            assert(elements.size() == 3);
+            ElementPtr lower(elements[0]->Restore(document, el));
+            ElementPtr upper(elements[1]->Restore(document, el));
+            ElementPtr right(elements[2]->Restore(document, el));
+            el->elements->Get(0)->elements->ReplaceAll(*lower->elements);
+            el->elements->Get(2)->elements->ReplaceAll(*upper->elements);
+            el->elements->Get(3)->elements->ReplaceAll(*right->elements);
+        }
         break;
     default:
         assert(false);
@@ -707,6 +725,16 @@ UndoElementPtr UndoBase::StoreElement(const LogicalId id, ElementPtr el)
             if (!store_element(el->elements->Get(0), undo_element))
                 return nullptr;
         }
+        break;
+    case ElementType::SUM:
+    case ElementType::PRODUCT:
+        undo_element.reset(new UndoFormula(el->type, ((Formula*)el.get())->formula_format));
+        if (!store_element(el->elements->Get(0), undo_element))
+            return nullptr;
+        if (!store_element(el->elements->Get(2), undo_element))
+            return nullptr;
+        if (!store_element(el->elements->Get(3), undo_element))
+            return nullptr;
         break;
     default:
         assert(false);

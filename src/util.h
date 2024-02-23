@@ -56,7 +56,9 @@ enum class ElementType
     OR,
     XOR,
     PERCENT,
-    IMAGE
+    IMAGE,
+    SUM,
+    PRODUCT
 };
 
 class Document;

@@ -6,8 +6,9 @@ namespace yutovo
 
 //Assignment
 
-Assignment::Assignment(Element* _parent, bool with_init) :
-    MiddleShapeFormula(_parent, with_init)
+Assignment::Assignment(Element* _parent, bool with_init, bool _auto_solve) :
+    MiddleShapeFormula(_parent, with_init),
+    auto_solve(_auto_solve)
 {
     type = ElementType::ASSIGNMENT;
 }
@@ -19,7 +20,8 @@ Assignment::Assignment(Document* _document, bool with_init) :
 }
 
 Assignment::Assignment(const Assignment& source) :
-    MiddleShapeFormula(source)
+    MiddleShapeFormula(source),
+    auto_solve(source.auto_solve)
 {
 }
 
@@ -66,6 +68,10 @@ void Assignment::UpdateRect(bool with_elements)
 
 bool Assignment::Remake(bool with_elements)
 {
+    first = (CodeRow*)elements->Get(0).get();
+    shape = (Shape*)elements->Get(1).get();
+    last = (CodeRow*)elements->Get(2).get();
+
     bool changed = MiddleShapeFormula::Remake(with_elements);
 
     baseline = 0;
@@ -93,7 +99,7 @@ bool Assignment::Remake(bool with_elements)
 
 bool Assignment::DeleteElements(bool left, bool with_undo, ElementId& changed_element)
 {
-    if (caret->GetPos() == 1 && last_identifier != U"")
+    if (auto_solve && caret->GetPos() == 1 && last_identifier != U"")
     {
         auto code = document->FindParent(id, ElementType::CODE_BLOCK);
         document->RemoveIdentifier(id, ((CodeBlock*)code.get())->code_id, last_identifier, delay ? document->config.solve_delay : 0);
@@ -123,7 +129,7 @@ bool Assignment::AfterInsert(bool with_undo)
 
 void Assignment::BeforeDelete()
 {
-    if (!id.empty())
+    if (!id.empty() && auto_solve)
     {
         auto code = document->FindParent(id, ElementType::CODE_BLOCK);
         if (code)
@@ -137,6 +143,9 @@ void Assignment::BeforeDelete()
 
 void Assignment::Solve()
 {
+    if (!auto_solve)
+        return;
+    
     MiddleShapeFormula::Solve();
 
     ParserString str;
@@ -149,6 +158,9 @@ void Assignment::Solve()
 
 void Assignment::ReSolve(bool if_error)
 {
+    if (!auto_solve)
+        return;
+    
     document->RemoveErrorMarks(id);
     if (if_error && !last_error)
         return;
@@ -187,13 +199,22 @@ std::string Assignment::ToHtml()
 
 std::u32string Assignment::ToText()
 {
-    if (!first)
-        return U"";
-    std::u32string s = first->ToText();
+    std::u32string s;
+    if (elements->Count() > 0)
+        s = elements->Get(0)->ToText();
     s += U"=";
-    if (last)
-        s += last->ToText();
+    if (elements->Count() == 3)
+        s += elements->Get(2)->ToText();
     return s;
+}
+
+void Assignment::ToParserString(ParserString& str)
+{
+    if (elements->Count() > 0)
+        elements->Get(0)->ToParserString(str);
+    str.Add(id, U"=");
+    if (elements->Count() == 3)
+        elements->Get(2)->ToParserString(str);
 }
 
 }
