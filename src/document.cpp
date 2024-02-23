@@ -21,6 +21,8 @@
 #include "formulas/or.h"
 #include "formulas/xor.h"
 #include "formulas/percent.h"
+#include "formulas/sum.h"
+#include "formulas/product.h"
 #include "util.h"
 #include <assert.h>
 #include <chrono>
@@ -510,6 +512,18 @@ uint Document::InsertPercent(bool with_undo)
 {
     logger->Trace("Insert percent");
     return InsertFormula(new Percent(this), with_undo);
+}
+
+uint Document::InsertSum(bool with_undo)
+{
+    logger->Trace("Insert Sum");
+    return InsertFormula(new Sum(this), with_undo);
+}
+
+uint Document::InsertProduct(bool with_undo)
+{
+    logger->Trace("Insert Product");
+    return InsertFormula(new Product(this), with_undo);
 }
 
 uint Document::InsertImage(const std::string& image_base64, const int width, const int height, bool with_undo)

@@ -66,6 +66,8 @@ public:
     uint InsertOr(bool with_undo);
     uint InsertXor(bool with_undo);
     uint InsertPercent(bool with_undo);
+    uint InsertSum(bool with_undo);
+    uint InsertProduct(bool with_undo);
     uint InsertImage(const std::string& image_base64, const int width, const int height, bool with_undo);
     uint InsertImage(const std::vector<unsigned char>& bmp, const int width, const int height, bool with_undo);
 

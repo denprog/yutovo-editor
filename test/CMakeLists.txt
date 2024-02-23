@@ -46,6 +46,8 @@ add_executable(${PROJECT_NAME}_tests
 	subscript.cpp
 	variables.cpp
 	image.cpp
+	sum.cpp
+	product.cpp
 )
 
 target_link_libraries(${PROJECT_NAME}_tests PUBLIC

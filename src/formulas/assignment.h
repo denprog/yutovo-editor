@@ -10,7 +10,7 @@ namespace yutovo
 class Assignment : public MiddleShapeFormula
 {
 public:
-    Assignment(Element* _parent, bool with_init = true);
+    Assignment(Element* _parent, bool with_init = true, bool _auto_solve = true);
     Assignment(Document* _document, bool with_init = true);
     Assignment(const Assignment& source);
 
@@ -37,6 +37,7 @@ public:
 
     virtual std::string ToHtml();
     virtual std::u32string ToText();
+    virtual void ToParserString(ParserString& str);
 
 private:
     friend class ResultTask;
@@ -45,6 +46,7 @@ private:
     ParserString last_expression;
     bool last_error = false;
     bool delay = false; //don't delay on the first calculation
+    bool auto_solve = true;
 };
 
 }

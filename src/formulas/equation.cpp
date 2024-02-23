@@ -440,19 +440,23 @@ std::string Equation::ToHtml()
 
 std::u32string Equation::ToText()
 {
-    if (!first || !last)
-        return U"";
-    std::u32string s = first->ToText();
+    std::u32string s;
+    if (elements->Count() > 0)
+        s = elements->Get(0)->ToText();
     s += U"=";
-    s += last->ToText();
+    if (elements->Count() == 3)
+        s += elements->Get(2)->ToText();
     return s;
 }
 
 void Equation::ToParserString(ParserString& str)
 {
-    int start = str.Length();
-    first->ToParserString(str);
-    str.Annotate(id, start, str.Length());
+    if (elements->Count() > 0)
+    {
+        int start = str.Length();
+        elements->Get(0)->ToParserString(str);
+        str.Annotate(id, start, str.Length());
+    }
 }
 
 void Equation::UpdateResult(ParserString& str)

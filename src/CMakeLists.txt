@@ -70,6 +70,9 @@ add_library(${PROJECT_NAME}
     formulas/xor.cpp
     formulas/percent.cpp
     formulas/code_column.cpp
+    formulas/iteration.cpp
+    formulas/sum.cpp
+    formulas/product.cpp
 )
 
 target_compile_options(${PROJECT_NAME} PUBLIC -Wno-deprecated-declarations)
