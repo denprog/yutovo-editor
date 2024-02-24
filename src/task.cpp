@@ -1130,9 +1130,10 @@ bool MoveCaretTask::Execute()
     {
         document->selection.Clear();
         document->UpdateLastSelection();
-        document->UpdateFormats();
-        window->OnCaretMoved(document->MakeEditorState());
     }
+
+    document->UpdateFormats();
+    window->OnCaretMoved(document->MakeEditorState());
 
 #ifdef DEBUG
     document->last_caret_moved = true;
