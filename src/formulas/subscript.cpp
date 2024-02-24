@@ -57,7 +57,7 @@ bool Subscript::Remake(bool with_elements)
 {
     UpdateLevel(level);
 
-    bool changed = MiddleShapeFormula::Remake(with_elements);
+    bool changed = MiddleShapeFormula::Remake(true);
 
     first->rect.Move(0, 0);
     shape->rect.SetRect(0, 0, 1, last->rect.height + first->rect.height / 2);
