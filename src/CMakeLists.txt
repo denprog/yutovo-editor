@@ -63,6 +63,7 @@ add_library(${PROJECT_NAME}
     formulas/result.cpp
     formulas/fences.cpp
     formulas/assignment.cpp
+    formulas/unit.cpp
     formulas/subscript.cpp
     formulas/exclamation.cpp
     formulas/and.cpp

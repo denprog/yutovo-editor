@@ -49,9 +49,9 @@ void Assignment::Draw() const
         [&](const Rect& r)
         {
             if (document->selection.IsSelected(id))
-                window->DrawText(":=", f, r, formula_format->bg_color, formula_format->bg_selection_color);
+                window->DrawText(draw_sign, f, r, formula_format->bg_color, formula_format->bg_selection_color);
             else
-                window->DrawText(":=", f, r, formula_format->color, formula_format->bg_color);
+                window->DrawText(draw_sign, f, r, formula_format->color, formula_format->bg_color);
         };
 
     MiddleShapeFormula::Draw();
@@ -59,7 +59,7 @@ void Assignment::Draw() const
 
 void Assignment::UpdateRect(bool with_elements)
 {
-    Size s = parent->window->GetTextSize(std::u32string(U":="), GetStringFormat());
+    Size s = parent->window->GetTextSize(ToUtfString(draw_sign), GetStringFormat());
     shape->rect.SetSize(s.width, s.height * 3 / 4);
     shape->baseline = shape->rect.height / 3 * 2;
 
@@ -150,7 +150,7 @@ void Assignment::Solve()
 
     ParserString str;
     first->ToParserString(str);
-    str.Add(id, U"=");
+    str.Add(id, solve_sign);
     last->ToParserString(str);
     if (last_expression != str)
         document->AddResolveElement(id);
@@ -168,7 +168,7 @@ void Assignment::ReSolve(bool if_error)
 
     ParserString expr;
     first->ToParserString(expr);
-    expr.Add(id, U"=");
+    expr.Add(id, solve_sign);
     last->ToParserString(expr);
     if (last_expression != expr)
     {
@@ -191,7 +191,7 @@ void Assignment::PutResult(Result result)
 std::string Assignment::ToHtml()
 {
     std::string s = first->ToHtml();
-    s += "<mo>=</mo>";
+    s += "<mo>" + ToBasicString(solve_sign) + "</mo>";
     if (last)
         s += last->ToHtml();
     return s;
@@ -202,7 +202,7 @@ std::u32string Assignment::ToText()
     std::u32string s;
     if (elements->Count() > 0)
         s = elements->Get(0)->ToText();
-    s += U"=";
+    s += solve_sign;
     if (elements->Count() == 3)
         s += elements->Get(2)->ToText();
     return s;
@@ -212,7 +212,7 @@ void Assignment::ToParserString(ParserString& str)
 {
     if (elements->Count() > 0)
         elements->Get(0)->ToParserString(str);
-    str.Add(id, U"=");
+    str.Add(id, solve_sign);
     if (elements->Count() == 3)
         elements->Get(2)->ToParserString(str);
 }

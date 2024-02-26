@@ -39,9 +39,12 @@ public:
     virtual std::u32string ToText();
     virtual void ToParserString(ParserString& str);
 
-private:
+protected:
     friend class ResultTask;
     
+    std::u32string solve_sign = U"=";
+    std::string draw_sign = ":=";
+
     std::u32string last_identifier;
     ParserString last_expression;
     bool last_error = false;
