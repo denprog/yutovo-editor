@@ -15,6 +15,7 @@
 #include "formulas/equation.h"
 #include "formulas/fences.h"
 #include "formulas/assignment.h"
+#include "formulas/unit.h"
 #include "formulas/subscript.h"
 #include "formulas/exclamation.h"
 #include "formulas/and.h"
@@ -476,6 +477,12 @@ uint Document::InsertAssignment(bool with_undo)
 {
     logger->Trace("Insert assignment");
     return InsertFormula(new Assignment(this), with_undo);
+}
+
+uint Document::InsertUnit(bool with_undo)
+{
+    logger->Trace("Insert assignment");
+    return InsertFormula(new Unit(this), with_undo);
 }
 
 uint Document::InsertSubscript(bool with_undo)

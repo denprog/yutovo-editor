@@ -114,8 +114,7 @@ TEST_F(AssignmentTest, assignment2)
         document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 2, 2, 2})) << document.GetEditorState().ToString();
 
-    document.MoveCaretRight(false);
-    document.WaitCaretMoving();
+    document.WaitTask(document.MoveCaretRight(false));
     document.InsertParagraph(true);
     document.InsertString("x", true);
     document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
@@ -196,8 +195,7 @@ TEST_F(AssignmentTest, assignment3)
         document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 2, 2, 1})) << document.GetEditorState().ToString();
 
-    document.MoveCaretRight(false);
-    document.WaitCaretMoving();
+    document.WaitTask(document.MoveCaretRight(false));
     document.InsertParagraph(true);
     document.InsertString("f", true);
     document.InsertOpenFence(true);

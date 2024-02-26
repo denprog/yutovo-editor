@@ -58,7 +58,8 @@ enum class ElementType
     PERCENT,
     IMAGE,
     SUM,
-    PRODUCT
+    PRODUCT,
+    UNIT
 };
 
 class Document;

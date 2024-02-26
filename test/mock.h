@@ -308,6 +308,10 @@ struct AssignmentTest : SolverTest
 {
 };
 
+struct UnitTest : SolverTest
+{
+};
+
 struct VariablesTest : SolverTest
 {
 };

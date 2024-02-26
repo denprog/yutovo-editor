@@ -18,6 +18,7 @@
 #include "formulas/equation.h"
 #include "formulas/fences.h"
 #include "formulas/assignment.h"
+#include "formulas/unit.h"
 #include "formulas/equation.h"
 #include "formulas/subscript.h"
 #include "formulas/exclamation.h"
@@ -206,6 +207,7 @@ Element* UndoFormula::Restore(Document* document, Element* parent)
     case ElementType::NTH_ROOT:
     case ElementType::SUBSCRIPT:
     case ElementType::ASSIGNMENT:
+    case ElementType::UNIT:
         {
             assert(elements.size() == 2);
             switch (type)
@@ -224,6 +226,9 @@ Element* UndoFormula::Restore(Document* document, Element* parent)
                 break;
             case ElementType::ASSIGNMENT:
                 el = parent ? new Assignment(parent) : new Assignment(document);
+                break;
+            case ElementType::UNIT:
+                el = parent ? new Unit(parent) : new Unit(document);
                 break;
             default:
                 assert(false);
@@ -712,6 +717,7 @@ UndoElementPtr UndoBase::StoreElement(const LogicalId id, ElementPtr el)
     case ElementType::DIVISION:
     case ElementType::SUBSCRIPT:
     case ElementType::ASSIGNMENT:
+    case ElementType::UNIT:
         undo_element.reset(new UndoFormula(el->type, ((Formula*)el.get())->formula_format));
         if (!store_element(el->elements->Get(0), undo_element))
             return nullptr;

@@ -60,6 +60,7 @@ public:
     uint InsertOpenFence(bool with_undo);
     uint InsertCloseFence(bool with_undo);
     uint InsertAssignment(bool with_undo);
+    uint InsertUnit(bool with_undo);
     uint InsertSubscript(bool with_undo);
     uint InsertExclamation(bool with_undo);
     uint InsertAnd(bool with_undo);
