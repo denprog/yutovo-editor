@@ -17,6 +17,9 @@ using namespace yutovo_calculator;
 
 struct Config
 {
+    void ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc);
+    void FromJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc);
+
     //solver
     std::string service_ip = "192.168.1.192";
     uint service_port = 8010;
@@ -28,7 +31,9 @@ struct Config
     bool with_border = true;
     bool formula_border = true;
     bool pretty_json = false; //for debug purposes
-    std::string language = "en";
+
+    //locale
+    yutovo_calculator::Language language = yutovo_calculator::Language::English;
 
     //caret
     bool caret_visible = true;

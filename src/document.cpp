@@ -2574,6 +2574,7 @@ void Document::GetSolverGuid(std::string& guid)
 
 void Document::SetLocale(const yutovo_calculator::Language language, const char decimal_point)
 {
+    config.language = language;
     solver.SetLocale(language, decimal_point);
 }
 
