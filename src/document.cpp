@@ -1880,7 +1880,6 @@ bool Document::CanRedo()
 
 bool Document::IsChanged()
 {
-    std::lock_guard<std::recursive_mutex> lock(edit_mutex);
     return changed;
 }
 
