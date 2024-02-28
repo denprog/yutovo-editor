@@ -583,4 +583,26 @@ TEST_F(DocumentTest, files13)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0})) << document.GetEditorState().ToString();
 }
 
+//Save/load with a file with a language
+TEST_F(DocumentTest, files14)
+{
+    Start(600);
+
+    document.SetLocale(yutovo_calculator::Language::Russian, ',');
+    document.InsertCode(false, true);
+    document.WaitTask(document.InsertString("1+j", true));
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+
+    document.WaitTask(document.Save("files14.yut"));
+    document.WaitTask(document.New());
+    document.SetLocale(yutovo_calculator::Language::English, '.');
+    document.Load("files14.yut");
+    document.WaitLoad();
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == U"1+j=1.+1.j") << ToBasicString(document.ToText());
+}
+
 }

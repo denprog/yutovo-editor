@@ -1206,6 +1206,11 @@ bool SaveTask::Execute()
     auto& alloc = json.GetAllocator();
     json.SetObject();
 
+    //add config
+    rapidjson::Value config(rapidjson::kObjectType);
+    document->config.ToJson(config, alloc);
+    json.AddMember("config", config, alloc);
+
     //add string formats
     rapidjson::Value string_formats(rapidjson::kArrayType);
     document->string_formats->ToJson(string_formats, alloc);
@@ -1462,16 +1467,25 @@ bool LoadTask::Execute()
 
 bool LoadTask::LoadJson(rapidjson::Document& doc)
 {
+    auto& alloc = doc.GetAllocator();
+
+    if (doc.HasMember("config") && doc["config"].IsObject())
+    {
+        //load config
+        document->config.FromJson(doc["config"], alloc);
+        document->SetLocale(document->config.language, '.');
+    }
+
     if (doc.HasMember("string_formats") && doc["string_formats"].IsArray())
     {
         //load string formats
-        document->string_formats->FromJson(doc["string_formats"], doc.GetAllocator());
+        document->string_formats->FromJson(doc["string_formats"], alloc);
     }
 
     if (doc.HasMember("paragraph_formats"))
     {
         //load paragraph formats
-        document->paragraph_formats->FromJson(document, doc["paragraph_formats"], doc.GetAllocator());
+        document->paragraph_formats->FromJson(document, doc["paragraph_formats"], alloc);
     }
 
     if (!doc.HasMember("text") || !doc["text"].IsObject())

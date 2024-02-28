@@ -790,7 +790,7 @@ void ComplexResult::PutResult(Result result)
 
                     AddExponent(p->elements->Get(2)->elements->Get(0).get(), exponent);
 
-                    p->AddExponent(ElementPtr(new CodeString(this, document->config.language == "ru" ? "j" : "i")));
+                    p->AddExponent(ElementPtr(new CodeString(this, document->config.language == yutovo_calculator::Language::Russian ? "j" : "i")));
 
                     AddElement(p);
                 }
@@ -806,7 +806,7 @@ void ComplexResult::PutResult(Result result)
 
                     AddElement(ElementPtr(new Plus(this)));
 
-                    AddElement(ElementPtr(new CodeString(this, document->config.language == "ru" ? "j" : "i")));
+                    AddElement(ElementPtr(new CodeString(this, document->config.language == yutovo_calculator::Language::Russian ? "j" : "i")));
 
                     AddElement(ElementPtr(new Multiply(this)));
 
@@ -851,7 +851,7 @@ void ComplexResult::PutResult(Result result)
                     AddExponent(im_exponent);
 
                 if (!im_mantissa.empty() || !im_exponent.empty())
-                    AddElement(ElementPtr(new CodeString(this, document->config.language == "ru" ? "j" : "i")));
+                    AddElement(ElementPtr(new CodeString(this, document->config.language == yutovo_calculator::Language::Russian ? "j" : "i")));
 
                 if (config.show_angle_measure)
                 {

@@ -3,6 +3,21 @@
 namespace yutovo
 {
 
+//Config
+
+void Config::ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc)
+{
+    //just locale for a while
+    value.AddMember("language", (int)language, alloc);
+}
+
+void Config::FromJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc)
+{
+    //just locale for a while
+    if (value.HasMember("language") && value["language"].IsInt())
+        language = (yutovo_calculator::Language)value["language"].GetInt();
+}
+
 //Config::RealResultConfig
 
 void Config::RealResultConfig::ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc)
