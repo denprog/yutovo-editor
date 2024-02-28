@@ -373,7 +373,7 @@ public:
 
     std::atomic_bool break_remake = false;
 
-    bool changed = false;
+    std::atomic<bool> changed{false};
     uint save_task_id = 0;
 
 private:
