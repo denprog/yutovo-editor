@@ -1422,6 +1422,68 @@ TEST_F(FormulaTestCustom, insert9)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 1, 0, 0, 0, 1, 0, 0})) << document.GetEditorState().ToString();
 }
 
+//Insert minus inside a string
+TEST_F(FormulaTestCustom, insert10)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.InsertString("750", true);
+    document.InsertMinus(true);
+    document.InsertString("18", true);
+    document.MoveCaretLeft(false);
+    document.WaitTask(document.InsertMinus(true));
+    ASSERT_TRUE(document.ToText() == 
+        U"750-1-8"
+        ) << ToBasicString(document.ToText());
+
+    document.Undo();
+    document.WaitUndo();
+    ASSERT_TRUE(document.ToText() == 
+        U"750-18"
+        ) << ToBasicString(document.ToText());
+
+    document.Redo();
+    document.WaitRedo();
+    ASSERT_TRUE(document.ToText() == 
+        U"750-1-8"
+        ) << ToBasicString(document.ToText());
+}
+
+//Insert minus inside a string
+TEST_F(FormulaTestCustom, insert11)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.InsertString("750", true);
+    document.InsertMinus(true);
+    document.InsertString("18", true);
+    document.MoveCaretHome(true);
+    document.InsertDivision(true);
+    document.InsertString("3", true);
+    document.MoveCaretUp(false);
+    document.MoveCaretUp(false);
+    document.MoveCaretRight(false);
+    document.MoveCaretRight(false);
+    document.WaitTask(document.InsertMinus(true));
+    ASSERT_TRUE(document.ToText() == 
+        U"(750-1-8)/(3)"
+        ) << ToBasicString(document.ToText());
+
+    document.Undo();
+    document.WaitUndo();
+    ASSERT_TRUE(document.ToText() == 
+        U"(750-18)/(3)"
+        ) << ToBasicString(document.ToText());
+
+    document.Redo();
+    document.WaitRedo();
+    ASSERT_TRUE(document.ToText() == 
+        U"(750-1-8)/(3)"
+        ) << ToBasicString(document.ToText());
+}
+
 //Selection of a formula
 TEST_F(FormulaTestCustom, select1)
 {
