@@ -311,7 +311,7 @@ bool UndoCodeRow::operator==(const CodeRow& el) const
 
 Element* UndoCodeRow::Restore(Document* document, Element* parent)
 {
-    CodeRow* r = parent ? new CodeRow(parent) : new CodeRow(document);
+    CodeRow* r = (parent && parent->parent) ? new CodeRow(parent) : new CodeRow(document);
     r->elements->Clear();
     for (size_t i = 0; i < elements.size(); ++i)
         r->elements->Add(ElementPtr(elements[i]->Restore(document, r)));
