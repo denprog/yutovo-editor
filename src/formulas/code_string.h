@@ -49,6 +49,7 @@ public:
 
 protected:
     void UpdateGap();
+    Notation GetNotation() const;
 
 protected:
     const int empty_rect_width = 6;

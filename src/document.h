@@ -6,6 +6,7 @@
 #include <vector>
 #include <stack>
 #include <memory>
+#include <map>
 #include "window.h"
 #include "caret.h"
 #include "selection.h"
@@ -281,6 +282,10 @@ public:
     bool HasErrorMark(ElementId _id, int& start, int& size);
     bool HasErrorMarks(ElementId _id);
 
+    void SetIdentifiers(const uint code_id, const std::vector<std::string>& variables, const std::vector<std::string>& functions, 
+        std::vector<std::string>& units);
+    IdentifierType FindIdentifier(const uint code_id, const std::string& str);
+
     void WaitTask(uint task_id, uint64_t timeout = 0, uint64_t circle_delay = 1);
 
 private:
@@ -397,6 +402,16 @@ private:
     UndoBase undo_base;
 
     EditorState last_editor_state;
+
+    struct Identifiers
+    {
+        std::vector<std::string> variables;
+        std::vector<std::string> functions;
+        std::vector<std::string> units;
+    };
+
+    std::recursive_mutex identifiers_mutex;
+    std::map<uint, Identifiers> identifiers; //by code_id
 
     Logger* logger;
 };

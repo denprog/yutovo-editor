@@ -81,13 +81,13 @@ void SquareRoot::Draw() const
             path.push_back(Point{r.GetRight() + last->rect.width, r.top});
             path.push_back(Point{r.GetRight() + last->rect.width, (int)lround(r.top + r.height * 0.01 + 1)});
             path.push_back(Point{r.GetRight(), (int)lround(r.top + r.height * 0.01 + 1)});
-            window->DrawFillPath(path, document->selection.IsSelected(id) ? formula_format->bg_color : formula_format->color);
+            window->DrawFillPath(path, document->selection.IsSelected(id) ? document->config.formula_bg_color : document->config.shapes_color);
         };
     
     if (document->selection.IsSelected(id))
     {
         Rect abs_rect = GetAbsoluteRect();
-        window->DrawFillRect(abs_rect.left, abs_rect.top, abs_rect.width, abs_rect.height, formula_format->bg_selection_color);
+        window->DrawFillRect(abs_rect.left, abs_rect.top, abs_rect.width, abs_rect.height, document->config.bg_selection_color);
     }
 
     Formula::Draw();

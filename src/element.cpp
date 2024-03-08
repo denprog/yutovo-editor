@@ -105,7 +105,7 @@ void Element::Draw() const
 void Element::DrawErrorMark(const int start, const int size) const
 {
     Rect r = GetAbsoluteRect();
-    window->DrawWavyLine(r.left, r.GetBottom() - 2, r.width, 1, Color::Red());
+    window->DrawWavyLine(r.left, r.GetBottom() - 2, r.width, 1, document->config.error_marks_color);
 }
 
 bool Element::Remake(bool with_elements)

@@ -195,15 +195,15 @@ void CloseFence::Draw() const
         {
             if (format)
             {
-                window->DrawText(")", format, r, document->selection.IsSelected(id) ? formula_format->bg_color : formula_format->color, 
-                    document->selection.IsSelected(id) ? formula_format->bg_selection_color : formula_format->bg_color);
+                window->DrawText(")", format, r, document->selection.IsSelected(id) ? document->config.formula_bg_color : document->config.shapes_color, 
+                    document->selection.IsSelected(id) ? document->config.bg_selection_color : document->config.formula_bg_color);
             }
         };
 
     if (document->selection.IsSelected(id))
     {
         Rect abs_rect = GetAbsoluteRect();
-        parent->window->DrawFillRect(abs_rect.left, abs_rect.top, abs_rect.width, abs_rect.height, formula_format->bg_selection_color);
+        parent->window->DrawFillRect(abs_rect.left, abs_rect.top, abs_rect.width, abs_rect.height, document->config.bg_selection_color);
     }
 
     Formula::Draw();

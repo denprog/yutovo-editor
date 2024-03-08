@@ -126,6 +126,16 @@ struct SetLocaleSolverTask : SolverTask
     Document* document;
 };
 
+struct ListIdentifiersSolverTask : SolverTask
+{
+    ListIdentifiersSolverTask(std::string& _guid, const uint _code_id, Document* _document, Logger* _logger);
+
+    virtual bool Execute(WebSocketPtr socket, Result& result);
+
+    const uint code_id;
+    Document* document;
+};
+
 typedef std::shared_ptr<SolverTask> SolverTaskPtr;
 
 }

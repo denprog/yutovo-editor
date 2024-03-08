@@ -767,4 +767,120 @@ bool SetLocaleSolverTask::Execute(WebSocketPtr socket, Result& result)
     return true;
 }
 
+//ListIdentifiersSolverTask
+
+ListIdentifiersSolverTask::ListIdentifiersSolverTask(std::string& _guid, const uint _code_id, Document* _document, Logger* _logger) :
+    SolverTask(_guid, _logger),
+    code_id(_code_id),
+    document(_document)
+{
+}
+
+bool ListIdentifiersSolverTask::Execute(WebSocketPtr socket, Result& result)
+{
+    rapidjson::Document doc;
+    auto& alloc = doc.GetAllocator();
+    doc.SetObject();
+    doc.AddMember("command", "LIST_IDENTIFIERS", alloc);
+    doc.AddMember("guid", rapidjson::StringRef(guid.c_str()), alloc);
+    doc.AddMember("code_id", code_id, alloc);
+    doc.AddMember("solver_type", (int)SolverType::CALCULATOR, alloc);
+
+    if (!SendRequest(doc, result, socket))
+        return false;
+    
+    //reply
+    std::string json;
+    if (!socket->Receive(json, result))
+        return false;
+    
+    doc.Parse<0>(json.c_str());
+    if (doc.HasParseError())
+    {
+        logger->Error("Json error");
+        result.error.error_code = ErrorCode::JSON_ERROR;
+        return false;
+    }
+
+    if (doc.HasMember("error"))
+    {
+        logger->Error("Error getting identifiers");
+        return false;
+    }
+
+    std::vector<std::string> variables;
+    std::vector<std::string> functions;
+    std::vector<std::string> units;
+
+    if (doc.HasMember("Functions") && doc["Functions"].IsArray())
+    {
+        rapidjson::GenericArray arr = doc["Functions"].GetArray();
+        for (rapidjson::SizeType i = 0; i < arr.Size(); ++i)
+        {
+            if (arr[i].IsObject())
+            {
+                rapidjson::Value obj = arr[i].GetObject();
+                std::u32string name;
+                if (obj.HasMember("name") && obj["name"].IsString())
+                    functions.push_back(obj["name"].GetString());
+            }
+        }
+    }
+
+    if (doc.HasMember("Variables") && doc["Variables"].IsArray())
+    {
+        rapidjson::GenericArray arr = doc["Variables"].GetArray();
+        for (rapidjson::SizeType i = 0; i < arr.Size(); ++i)
+        {
+            if (arr[i].IsObject())
+            {
+                rapidjson::Value obj = arr[i].GetObject();
+                std::u32string name;
+                if (obj.HasMember("name") && obj["name"].IsString())
+                    variables.push_back(obj["name"].GetString());
+            }
+        }
+    }
+
+    if (doc.HasMember("Units") && doc["Units"].IsArray())
+    {
+        rapidjson::GenericArray arr = doc["Units"].GetArray();
+        for (rapidjson::SizeType i = 0; i < arr.Size(); ++i)
+        {
+            if (arr[i].IsObject())
+            {
+                for (auto& system : arr[i].GetObject())
+                {
+                    if (system.value.IsArray())
+                    {
+                        for (rapidjson::SizeType j = 0; j < system.value.Size(); ++j)
+                        {
+                            if (system.value[j].IsObject())
+                            {
+                                for (auto& category : system.value[j].GetObject())
+                                {
+                                    if (category.value.IsArray())
+                                    {
+                                        for (rapidjson::SizeType k = 0; k < category.value.Size(); ++k)
+                                        {
+                                            rapidjson::Value obj = category.value[k].GetObject();
+                                            std::u32string name;
+                                            if (obj.HasMember("name") && obj["name"].IsString())
+                                                units.push_back(obj["name"].GetString());
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    document->SetIdentifiers(code_id, variables, functions, units);
+
+    return true;
+}
+
 }

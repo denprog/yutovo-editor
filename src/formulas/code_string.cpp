@@ -1,4 +1,5 @@
 #include "code_string.h"
+#include "code_block.h"
 #include "result.h"
 #include <boost/lexical_cast.hpp>
 #include <boost/uuid/uuid_io.hpp>
@@ -183,10 +184,65 @@ void CodeString::Draw() const
     std::u32string str = elements->ToText();
     Rect r = GetAbsoluteRect();
 
+    std::pair<int, Color> color1{-1, format->text_color}, color2{-1, Color::Black()};
+    if (GetNotation() != Notation::None)
+        color1 = std::make_pair(str.length(), document->config.numbers_color);
+    else
+    {
+        auto el = document->FindParent(id, ElementType::CODE_BLOCK);
+        assert(el);
+        CodeBlock* c = dynamic_cast<CodeBlock*>(el.get());
+        uint code_id = c->code_id;
+
+        size_t p = str.find_first_not_of(U"0123456789.");
+        if (p == 0)
+        {
+            //may be it is an identifier
+            switch (document->FindIdentifier(code_id, ToBasicString(str)))
+            {
+            case IdentifierType::VARIABLE:
+                color1 = std::make_pair(str.length(), document->config.variables_color);
+                break;
+            case IdentifierType::FUNCTION:
+                color1 = std::make_pair(str.length(), document->config.functions_color);
+                break;
+            case IdentifierType::UNIT:
+                color1 = std::make_pair(str.length(), document->config.units_color);
+                break;
+            case IdentifierType::NONE:
+                break;
+            }
+        }
+        else
+        {
+            //the first part is a number, after it may be an identifier
+            color1 = std::make_pair(p, document->config.numbers_color);
+            std::u32string part = str.substr(p);
+            switch (document->FindIdentifier(code_id, ToBasicString(part)))
+            {
+            case IdentifierType::VARIABLE:
+                color2 = std::make_pair(part.length(), document->config.variables_color);
+                break;
+            case IdentifierType::UNIT:
+                color2 = std::make_pair(part.length(), document->config.units_color);
+                break;
+            case IdentifierType::FUNCTION:
+            case IdentifierType::NONE:
+                color2 = std::make_pair(part.length(), format->text_color);
+                break;
+            }
+        }
+    }
+
     document->selection.Has(id, (uint&)start, (uint&)size);
     if (gap == 0)
     {
-        window->DrawText(ToBasicString(str), format, r, format->text_color, format->text_bg_color); //draw the string
+        if (color2.first != -1)
+            window->DrawText(ToBasicString(str), format, r, color2.second, format->text_bg_color);
+        if (color1.first != -1)
+            window->DrawText(ToBasicString(str.substr(0, color1.first)), format, r, color1.second, format->text_bg_color);
+        else
+            window->DrawText(ToBasicString(str), format, r, format->text_color, format->text_bg_color); //draw the string
         if (size != 0)
         {
             //draw text with selection
@@ -194,7 +250,7 @@ void CodeString::Draw() const
             int p = window->GetCharPos(str, format, start);
             std::u32string u_part = str.substr(start, size);
             window->DrawText(ToBasicString(u_part), format, Rect{r.left + p, r.top, r.width - p, r.height}, 
-                format->text_bg_color, format->text_bg_selection_color);
+                format->text_bg_color, document->config.bg_selection_color);
         }
     }
     else
@@ -206,12 +262,12 @@ void CodeString::Draw() const
             if (i >= start && i < start + size)
             {
                 window->DrawText(ToBasicString(p), format, Rect{r.left + s.width, r.top, r.width - s.width, r.height}, 
-                    format->text_bg_color, format->text_bg_selection_color);
+                    format->text_bg_color, document->config.bg_selection_color);
             }
             else
             {
                 window->DrawText(ToBasicString(p), format, Rect{r.left + s.width, r.top, r.width - s.width, r.height}, 
-                    format->text_color, format->text_bg_color);
+                    document->config.numbers_color, format->text_bg_color);
             }
         }
     }
@@ -221,19 +277,18 @@ void CodeString::Draw() const
     
     if (elements->Count() == 0)
     {
-        auto f = GetFormulaFormat();
         uint start = 0, size = 0;
         if (document->selection.Has(parent->id, start, size))
         {
             auto r = GetAbsoluteRect();
-            window->DrawRect(r, f->bg_selection_color);
-            window->DrawFillRect(Rect(r.left + 1, r.top + 1, r.width - 2, r.height -2 ), f->bg_selection_color);
+            window->DrawRect(r, document->config.bg_selection_color);
+            window->DrawFillRect(Rect(r.left + 1, r.top + 1, r.width - 2, r.height -2 ), document->config.bg_selection_color);
         }
         else
         {
             auto row = document->FindParentRow(id);
             if (row->parent->type != ElementType::CODE_PARAGRAPH || parent->elements->Count() > 1)
-                window->DrawRect(GetAbsoluteRect(), f->bg_selection_color);
+                window->DrawRect(GetAbsoluteRect(), document->config.bg_selection_color);
         }
     }
 }
@@ -422,6 +477,59 @@ void CodeString::UpdateGap()
         gap = _gap;
         size_cache.clear();
     }
+}
+
+Notation CodeString::GetNotation() const
+{
+    auto& str = ((StringElements*)elements.get())->str;
+    if (parent && parent->parent && 
+        ((parent->parent->type == ElementType::SUBSCRIPT && parent->parent->elements->Count() == 3) || 
+        (parent->parent->type == ElementType::INTEGER_RESULT)))
+    {
+        Notation notation = Notation::None;
+        if (parent->parent->type == ElementType::INTEGER_RESULT)
+            notation = ((IntegerResult*)parent->parent)->config.result_notation;
+        else
+        {
+            auto last = parent->parent->elements->Get(2)->ToText();
+            if (last == U"bin")
+                notation = Notation::Binary;
+            else if (last == U"oct")
+                notation = Notation::Octal;
+            else if (last == U"hex")
+                notation = Notation::Hexadecimal;
+            else
+                notation = Notation::Decimal;
+        }
+
+        switch (notation)
+        {
+        case Notation::None:
+            break;
+        case Notation::Binary:
+            if (str.find_first_not_of(U"01") == string::npos)
+                return Notation::Binary;
+            break;
+        case Notation::Decimal:
+            if (str.find_first_not_of(U"0123456789") == string::npos)
+                return Notation::Decimal;
+            break;
+        case Notation::Octal:
+            if (str.find_first_not_of(U"01234567") == string::npos)
+                return Notation::Octal;
+            break;
+        case Notation::Hexadecimal:
+            if (str.find_first_not_of(U"0123456789abcdefABCDEF") == string::npos)
+                return Notation::Hexadecimal;
+            break;
+        }
+    }
+    else
+    {
+        if (str.find_first_not_of(U"0123456789.") == string::npos)
+            return Notation::Decimal;
+    }
+    return Notation::None;
 }
 
 }
