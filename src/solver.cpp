@@ -97,6 +97,7 @@ void Solver::SetUserIdentifier(ElementId id, uint code_id, const std::u32string&
 
     std::unique_lock<std::mutex> lock(tasks_mutex);
     tasks.emplace_back(new AutoSolverTask(id, guid, code_id, ExpressionType::USER_SYMBOL, Config::AutoResultConfig{}, expression, delay, logger));
+    tasks.emplace_back(new ListIdentifiersSolverTask(guid, code_id, document, logger)); //for syntax highlight
     tasks.emplace_back(nullptr);
     next_circle = true;
 }
@@ -120,6 +121,7 @@ void Solver::RemoveIdentifier(ElementId id, uint code_id, const std::u32string& 
     {
         std::unique_lock<std::mutex> lock(tasks_mutex);
         tasks.emplace_back(new RemoveIdentifierSolverTask(id, guid, code_id, id_arr[0], delay, logger));
+        tasks.emplace_back(new ListIdentifiersSolverTask(guid, code_id, document, logger)); //for syntax highlight
         tasks.emplace_back(nullptr);
         next_circle = true;
     }
@@ -267,7 +269,10 @@ void Solver::MessageLoop()
 
             document->PutResult(t->id, result);
             if (result.error.error_code == yutovo_service::ErrorCode::SOLVER_RESTARTED_ERROR)
+            {
                 document->ReSolve(t->id); //re-solve the expression
+                tasks.emplace_back(new ListIdentifiersSolverTask(guid, t->code_id, document, logger)); //for syntax highlight
+            }
 
             if (result.error.error_code != yutovo_service::ErrorCode::OPERATION_ERROR)
                 temp_tasks.erase(temp_tasks.begin() + i);

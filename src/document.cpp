@@ -2713,6 +2713,42 @@ bool Document::HasErrorMarks(ElementId _id)
     return false;
 }
 
+void Document::SetIdentifiers(const uint code_id, const std::vector<std::string>& variables, const std::vector<std::string>& functions, 
+    std::vector<std::string>& units)
+{
+    {
+        std::lock_guard<std::recursive_mutex> lock(identifiers_mutex);
+        identifiers[code_id] = Identifiers{variables, functions, units};
+    }
+    
+    std::vector<ElementId> code_blocks;
+    std::lock_guard<std::recursive_mutex> lock(edit_mutex);
+    text->GetElements(ElementType::CODE_BLOCK, code_blocks); //find all code blocks
+    for (ElementId _id : code_blocks)
+    {
+        auto el = GetElement(_id);
+        CodeBlock* c = dynamic_cast<CodeBlock*>(el.get());
+        if (c && c->code_id == code_id)
+            Redraw(_id, false);
+    }
+}
+
+IdentifierType Document::FindIdentifier(const uint code_id, const std::string& str)
+{
+    std::lock_guard<std::recursive_mutex> lock(identifiers_mutex);
+    auto it = identifiers.find(code_id);
+    if (it == identifiers.end())
+        return IdentifierType::NONE;
+    Identifiers& id = it->second;
+    if (std::find(id.variables.begin(), id.variables.end(), str) != id.variables.end())
+        return IdentifierType::VARIABLE;
+    if (std::find(id.functions.begin(), id.functions.end(), str) != id.functions.end())
+        return IdentifierType::FUNCTION;
+    if (std::find(id.units.begin(), id.units.end(), str) != id.units.end())
+        return IdentifierType::UNIT;
+    return IdentifierType::NONE;
+}
+
 void Document::WaitTask(uint task_id, uint64_t timeout, uint64_t circle_delay)
 {
     if (task_id == 0)

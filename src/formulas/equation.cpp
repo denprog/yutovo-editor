@@ -91,9 +91,9 @@ void Equation::Draw() const
         [&](const Rect& r)
         {
             if (document->selection.IsSelected(id))
-                window->DrawText("=", f, r, formula_format->bg_color, formula_format->bg_selection_color);
+                window->DrawText("=", f, r, document->config.formula_bg_color, document->config.bg_selection_color);
             else
-                window->DrawText("=", f, r, formula_format->color, formula_format->bg_color);
+                window->DrawText("=", f, r, document->config.shapes_color, document->config.formula_bg_color);
         };
 
     MiddleShapeFormula::Draw();

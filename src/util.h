@@ -62,6 +62,14 @@ enum class ElementType
     UNIT
 };
 
+enum IdentifierType
+{
+    NONE = 0,
+    VARIABLE,
+    FUNCTION,
+    UNIT
+};
+
 class Document;
 class Element;
 
@@ -235,7 +243,7 @@ struct Color
             return Color{};
         c.erase(0, 1);
         const unsigned long val = stoul(c, nullptr, 16);
-        if (c.size() == 7)
+        if (c.size() == 6)
             return Color{0xff, uint8_t((val >> 16) & 0xff), uint8_t((val >> 8) & 0xff), uint8_t((val) & 0xff)};
         return Color{uint8_t((val >> 24) & 0xff), uint8_t((val >> 16) & 0xff), uint8_t((val >> 8) & 0xff), uint8_t((val) & 0xff)};
     }
