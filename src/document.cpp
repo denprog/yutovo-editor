@@ -276,9 +276,8 @@ void Document::MainLoop()
                         }
                         redo_tasks.push_back(t);
                     }
+                    last_editor_state = EditorState{caret->GetCaretState(), selection.GetState()};
                 }
-
-                last_editor_state = EditorState{caret->GetCaretState(), selection.GetState()};
 
 #ifdef DEBUG
                 if (last_task_id > 0)
