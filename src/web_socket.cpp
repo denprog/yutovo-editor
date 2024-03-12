@@ -29,7 +29,7 @@ WebSocket::~WebSocket()
     if (socket_id > 0)
         window->Close(socket_id);
 #endif
-    logger->Info("WebSocket closed");
+    LOG_INFO("WebSocket closed");
 }
 
 bool WebSocket::Connect()
@@ -152,7 +152,7 @@ void WebSocket::OnSslHandshake(beast::error_code ec)
     last_error = ec;
     if (ec)
     {
-        logger->Error("OnSslHandshake to {} failed: {}", host + ":" + port, ec.message());
+        LOG_ERROR("OnSslHandshake to {} failed: {}", host + ":" + port, ec.message());
         return;
     }
 
@@ -172,7 +172,7 @@ void WebSocket::OnHandshake(beast::error_code ec)
     last_error = ec;
     if (ec)
     {
-        logger->Error("OnHandshake to {} failed: {}", host + ":" + port, ec.message());
+        LOG_ERROR("OnHandshake to {} failed: {}", host + ":" + port, ec.message());
         return;
     }
     connected = true;
@@ -185,7 +185,7 @@ void WebSocket::OnWrite(beast::error_code ec, std::size_t bytes_transferred)
     last_error = ec;
     if (ec)
     {
-        logger->Error("Write failed: {}", ec.message());
+        LOG_ERROR("Write failed: {}", ec.message());
     }
     writing = false;
 }
@@ -196,7 +196,7 @@ void WebSocket::OnRead(beast::error_code ec, std::size_t bytes_transferred)
     last_error = ec;
     if (ec)
     {
-        logger->Error("Read failed: {}", ec.message());
+        LOG_ERROR("Read failed: {}", ec.message());
     }
     reading = false;
 }
