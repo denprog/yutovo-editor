@@ -339,6 +339,7 @@ private:
     std::recursive_mutex tasks_mutex;
     std::recursive_mutex solver_tasks_mutex;
     std::recursive_mutex edit_mutex;
+    std::recursive_mutex state_mutex;
 
 public:
     Window* window;

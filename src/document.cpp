@@ -276,6 +276,10 @@ void Document::MainLoop()
                         }
                         redo_tasks.push_back(t);
                     }
+                }
+
+                {
+                    std::lock_guard<std::recursive_mutex> lock(state_mutex);
                     last_editor_state = EditorState{caret->GetCaretState(), selection.GetState()};
                 }
 
@@ -670,6 +674,7 @@ uint Document::ChangeStringFormat(const std::string family, const uint size, con
 {
     LOG_TRACE("Change string format: family={}, size={}, bold={}, italic={}, underline={}, text_color={}, text_bg_color={}", 
         family, size, bold, italic, underline, text_color.ToString(), text_bg_color.ToString());
+    std::lock_guard<std::recursive_mutex> lock(edit_mutex);
     return ChangeStringFormat(string_formats->GetFormat(family, size, bold, italic, underline, strikethrough, text_color, text_bg_color, Color::Blue()), 
         with_undo);
 }
@@ -2042,6 +2047,7 @@ uint Document::Paste(std::u32string& in_json)
     if (doc.HasMember("string_formats") && doc["string_formats"].IsArray())
     {
         //load string formats
+        std::lock_guard<std::recursive_mutex> lock(edit_mutex);
         string_formats->FromJson(doc["string_formats"], doc.GetAllocator());
     }
 
@@ -2210,7 +2216,7 @@ StringFormatPtr Document::GetStringFormat(const boost::uuids::uuid& id)
 
 EditorState Document::GetEditorState()
 {
-    std::lock_guard<std::recursive_mutex> lock(edit_mutex);
+    std::lock_guard<std::recursive_mutex> lock(state_mutex);
     return last_editor_state;
 }
 
