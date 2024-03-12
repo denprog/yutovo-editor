@@ -1263,7 +1263,7 @@ bool SaveTask::Execute()
         catch (const std::ios_base::failure& ex)
         {
             window->OnSaveResult(id, IOResult::InputStreamError);
-            logger->Error("Error saving file '{}': {}", filename, ex.what());
+            LOG_ERROR("Error saving file '{}': {}", filename, ex.what());
             return false;
         }
     }
@@ -1319,7 +1319,7 @@ bool LoadTask::Execute()
         if (!file.is_open())
         {
             window->OnLoadResult(id, IOResult::InputStreamError, document_id);
-            logger->Error("Error loading file '{}': File not open", filename);
+            LOG_ERROR("Error loading file '{}': File not open", filename);
             return false;
         }
 
@@ -1329,7 +1329,7 @@ bool LoadTask::Execute()
         if (doc.HasParseError() || !doc.IsObject() || !LoadJson(doc))
         {
             window->OnLoadResult(id, IOResult::InputStreamError, document_id);
-            logger->Error("Error parsing file '{}'", filename);
+            LOG_ERROR("Error parsing file '{}'", filename);
             return false;
         }
 
@@ -1345,7 +1345,7 @@ bool LoadTask::Execute()
             if (!file.is_open())
             {
                 window->OnLoadResult(id, IOResult::InputStreamError, document_id);
-                logger->Error("Error loading file '{}': File not open", filename);
+                LOG_ERROR("Error loading file '{}': File not open", filename);
                 return false;
             }
             file.seekg(0, std::ios::end);
@@ -1357,7 +1357,7 @@ bool LoadTask::Execute()
         catch (const std::ifstream::failure& ex)
         {
             window->OnLoadResult(id, IOResult::InputStreamError, document_id);
-            logger->Error("Error loading file '{}': {}", filename, ex.what());
+            LOG_ERROR("Error loading file '{}': {}", filename, ex.what());
             return false;
         }
 
@@ -1490,7 +1490,7 @@ bool LoadTask::LoadJson(rapidjson::Document& doc)
 
     if (!doc.HasMember("text") || !doc["text"].IsObject())
     {
-        logger->Error("File '{}' does not contain text", filename);
+        LOG_ERROR("File '{}' does not contain text", filename);
         return false;
     }
 

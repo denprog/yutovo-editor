@@ -324,6 +324,29 @@ struct ErrorMark
 
 bool IsLess(const ElementId& id1, const ElementId& id2);
 
+#define LOG_TRACE(...) \
+    if (logger->GetLevel() <= LogLevel::LEVEL_TRACE) \
+        logger->Trace(__VA_ARGS__);
+
+#define LOG_DEBUG(...) \
+    if (logger->GetLevel() <= LogLevel::LEVEL_DEBUG) \
+        logger->Debug(__VA_ARGS__);
+
+#define LOG_INFO(...) \
+    if (logger->GetLevel() <= LogLevel::LEVEL_INFO) \
+        logger->Info(__VA_ARGS__);
+
+#define LOG_WARNING(...) \
+    if (logger->GetLevel() <= LogLevel::LEVEL_WARNING) \
+        logger->Warning(__VA_ARGS__);
+
+#define LOG_ERROR(...) \
+    if (logger->GetLevel() <= LogLevel::LEVEL_ERROR) \
+        logger->Error(__VA_ARGS__);
+
+#define LOG_CRITICAL(...) \
+    if (logger->GetLevel() <= LogLevel::LEVEL_CRITICAL) \
+        logger->Critical(__VA_ARGS__);
 }
 
 #endif

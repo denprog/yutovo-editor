@@ -184,7 +184,7 @@ void SolverTask::FillError(rapidjson::Document& doc, Result& result)
         if (error.HasMember("parser_error_code") && error["parser_error_code"].IsInt())
             result.error.parser_error_code = (yutovo_calculator::ParserExceptionCode)error["parser_error_code"].GetInt();
         if (result.error.error_code != ErrorCode::SOLVER_RESTARTED_ERROR && result.error.error_code != ErrorCode::OK)
-            logger->Error("Solver error: {}", ErrorCodeToString(result.error.error_code));
+            LOG_ERROR("Solver error: {}", ErrorCodeToString(result.error.error_code));
         if (error.HasMember("pos") && error["pos"].IsInt())
             result.error.pos = error["pos"].GetInt();
         if (error.HasMember("line") && error["line"].IsInt())
@@ -206,7 +206,7 @@ void SolverTask::FillError(rapidjson::Document& doc, Result& result)
         return;
     }
     if (result.error.error_code != ErrorCode::SOLVER_RESTARTED_ERROR && result.error.error_code != ErrorCode::OK)
-        logger->Error("Solver error: {}", (int)result.error.error_code);
+        LOG_ERROR("Solver error: {}", (int)result.error.error_code);
     result.error.error_code = ErrorCode::PARSER_ERROR;
 }
 
@@ -214,7 +214,7 @@ bool SolverTask::FillRealResult(rapidjson::Document& doc, Result& result)
 {
     if (!doc.HasMember("mantissa") || !doc["mantissa"].IsString())
     {
-        logger->Error("mantissa error");
+        LOG_ERROR("mantissa error");
         result.error.error_code = ErrorCode::JSON_ERROR;
         return false;
     }
@@ -236,7 +236,7 @@ bool SolverTask::FillIntegerResult(rapidjson::Document& doc, Result& result)
 {
     if (!doc.HasMember("value") || !doc["value"].IsString())
     {
-        logger->Error("value error");
+        LOG_ERROR("value error");
         result.error.error_code = ErrorCode::JSON_ERROR;
         return false;
     }
@@ -253,7 +253,7 @@ bool SolverTask::FillRationalResult(rapidjson::Document& doc, Result& result)
 {
     if (!doc.HasMember("numerator") || !doc["numerator"].IsString() || !doc.HasMember("denomerator") || !doc["denomerator"].IsString())
     {
-        logger->Error("value error");
+        LOG_ERROR("value error");
         result.error.error_code = ErrorCode::JSON_ERROR;
         return false;
     }
@@ -274,7 +274,7 @@ bool SolverTask::FillComplexResult(rapidjson::Document& doc, Result& result)
 {
     if (!doc.HasMember("results"))
     {
-        logger->Error("Result error");
+        LOG_ERROR("Result error");
         result.error.error_code = ErrorCode::JSON_ERROR;
         return false;
     }
@@ -283,14 +283,14 @@ bool SolverTask::FillComplexResult(rapidjson::Document& doc, Result& result)
     {
         if (!val[param.c_str()].IsObject())
         {
-            logger->Error("Result error");
+            LOG_ERROR("Result error");
             result.error.error_code = ErrorCode::JSON_ERROR;
             return false;
         }
         rapidjson::Value p = val[param.c_str()].GetObject();
         if (!p.HasMember("mantissa") || !p["mantissa"].IsString())
         {
-            logger->Error("Mantissa error");
+            LOG_ERROR("Mantissa error");
             result.error.error_code = ErrorCode::JSON_ERROR;
             return false;
         }
@@ -307,7 +307,7 @@ bool SolverTask::FillComplexResult(rapidjson::Document& doc, Result& result)
     {
         if (!arr[i].IsObject())
         {
-            logger->Error("Result error");
+            LOG_ERROR("Result error");
             result.error.error_code = ErrorCode::JSON_ERROR;
             return false;
         }
@@ -408,7 +408,7 @@ bool AutoSolverTask::Execute(WebSocketPtr socket, Result& result)
     doc.Parse<0>(json.c_str());
     if (doc.HasParseError())
     {
-        logger->Error("Json error");
+        LOG_ERROR("Json error");
         result.error.error_code = ErrorCode::JSON_ERROR;
         return false;
     }
@@ -477,7 +477,7 @@ bool RealSolverTask::Execute(WebSocketPtr socket, Result& result)
     doc.Parse<0>(json.c_str());
     if (doc.HasParseError())
     {
-        logger->Error("Json error");
+        LOG_ERROR("Json error");
         result.error.error_code = ErrorCode::JSON_ERROR;
         return false;
     }
@@ -534,7 +534,7 @@ bool IntegerSolverTask::Execute(WebSocketPtr socket, Result& result)
     doc.Parse<0>(json.c_str());
     if (doc.HasParseError())
     {
-        logger->Error("Json error");
+        LOG_ERROR("Json error");
         result.error.error_code = ErrorCode::JSON_ERROR;
         return false;
     }
@@ -592,7 +592,7 @@ bool RationalSolverTask::Execute(WebSocketPtr socket, Result& result)
     doc.Parse<0>(json.c_str());
     if (doc.HasParseError())
     {
-        logger->Error("Json error");
+        LOG_ERROR("Json error");
         result.error.error_code = ErrorCode::JSON_ERROR;
         return false;
     }
@@ -652,7 +652,7 @@ bool ComplexSolverTask::Execute(WebSocketPtr socket, Result& result)
     doc.Parse<0>(json.c_str());
     if (doc.HasParseError())
     {
-        logger->Error("Json error");
+        LOG_ERROR("Json error");
         result.error.error_code = ErrorCode::JSON_ERROR;
         return false;
     }
@@ -704,7 +704,7 @@ bool RemoveIdentifierSolverTask::Execute(WebSocketPtr socket, Result& result)
     doc.Parse<0>(json.c_str());
     if (doc.HasParseError())
     {
-        logger->Error("Json error");
+        LOG_ERROR("Json error");
         result.error.error_code = ErrorCode::JSON_ERROR;
         return false;
     }
@@ -751,14 +751,14 @@ bool SetLocaleSolverTask::Execute(WebSocketPtr socket, Result& result)
     doc.Parse<0>(json.c_str());
     if (doc.HasParseError())
     {
-        logger->Error("Json error");
+        LOG_ERROR("Json error");
         result.error.error_code = ErrorCode::JSON_ERROR;
         return false;
     }
 
     if (doc.HasMember("error"))
     {
-        logger->Error("Error setting language");
+        LOG_ERROR("Error setting language");
         return false;
     }
 
@@ -797,14 +797,14 @@ bool ListIdentifiersSolverTask::Execute(WebSocketPtr socket, Result& result)
     doc.Parse<0>(json.c_str());
     if (doc.HasParseError())
     {
-        logger->Error("Json error");
+        LOG_ERROR("Json error");
         result.error.error_code = ErrorCode::JSON_ERROR;
         return false;
     }
 
     if (doc.HasMember("error"))
     {
-        logger->Error("Error getting identifiers");
+        LOG_ERROR("Error getting identifiers");
         return false;
     }
 

@@ -143,11 +143,11 @@ void Solver::MessageLoop()
     WebSocketPtr socket(new WebSocket(document->config, document->window));
     if (!socket->Connect() || !socket->IsOpen())
     {
-        logger->Error("Error connecting to the server: {}:{}", document->config.service_ip, document->config.service_port);
+        LOG_ERROR("Error connecting to the server: {}:{}", document->config.service_ip, document->config.service_port);
     }
     else
     {
-        logger->Info("Solver connected to the server: {}:{}, guid:{}", document->config.service_ip, document->config.service_port, guid);
+        LOG_INFO("Solver connected to the server: {}:{}, guid:{}", document->config.service_ip, document->config.service_port, guid);
         connected = true;
     }
 
@@ -175,7 +175,7 @@ void Solver::MessageLoop()
                 }
                 else if (!connected)
                 {
-                    logger->Info("Solver connected to the server: {}:{}, guid:{}", document->config.service_ip, document->config.service_port, guid);
+                    LOG_INFO("Solver connected to the server: {}:{}, guid:{}", document->config.service_ip, document->config.service_port, guid);
                     connected = true;
                 }
             }
@@ -195,12 +195,12 @@ void Solver::MessageLoop()
                 socket.reset(new WebSocket(document->config, document->window)); //recreate the socket
                 if (!socket->Connect() || !socket->IsOpen())
                 {
-                    logger->Error("Error connecting to the server: {}:{}", document->config.service_ip, document->config.service_port);
+                    LOG_ERROR("Error connecting to the server: {}:{}", document->config.service_ip, document->config.service_port);
                     continue;
                 }
                 else
                 {
-                    logger->Info("Solver connected to the server: {}:{}, guid:{}", document->config.service_ip, document->config.service_port, guid);
+                    LOG_INFO("Solver connected to the server: {}:{}, guid:{}", document->config.service_ip, document->config.service_port, guid);
                     document->ReSolveErrors();
                     connection_error = false;
                 }
@@ -250,10 +250,12 @@ void Solver::MessageLoop()
                 {
                     socket.reset(new WebSocket(document->config, document->window)); //recreate the socket
                     if (!socket->Connect() || !socket->IsOpen())
-                        logger->Error("Error connecting to the server: {}:{}", document->config.service_ip, document->config.service_port);
+                    {
+                        LOG_ERROR("Error connecting to the server: {}:{}", document->config.service_ip, document->config.service_port);
+                    }
                     else
                     {
-                        logger->Info("Solver connected to the server: {}:{}, guid:{}", document->config.service_ip, document->config.service_port, guid);
+                        LOG_INFO("Solver connected to the server: {}:{}, guid:{}", document->config.service_ip, document->config.service_port, guid);
                         document->ReSolveErrors();
                     }
                     if (socket->IsOpen() && tries-- > 0)

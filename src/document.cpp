@@ -47,7 +47,7 @@ Document::Document(Window* _window, Config& _config) :
     logger(Logger::GetInstance(config.logs_path, "yutovo_editor", true, true))
 {
     logger->SetLevel((int)_config.log_level);
-    logger->Debug("Document start");
+    LOG_DEBUG("Document start");
 
     string_formats.reset(new StringFormats());
     paragraph_formats.reset(new ParagraphFormats(string_formats));
@@ -66,7 +66,7 @@ Document::~Document()
     exit = true;
     next_circle = true;
     main_loop.join();
-    logger->Debug("Document end");
+    LOG_DEBUG("Document end");
 }
 
 void Document::Start()
@@ -307,13 +307,13 @@ void Document::MainLoop()
 
 uint Document::InsertParagraph(bool with_undo)
 {
-    logger->Trace("Insert paragraph");
+    LOG_TRACE("Insert paragraph");
     return InsertElement(new Paragraph(this), with_undo);
 }
 
 uint Document::InsertString(const std::string& str, bool with_undo)
 {
-    logger->Trace("Insert string: {}", str);
+    LOG_TRACE("Insert string: {}", str);
     StringFormatPtr format;
     if (GetCurrentStringFormat(format))
         return InsertElement(new String(this, str, format), with_undo);
@@ -322,7 +322,7 @@ uint Document::InsertString(const std::string& str, bool with_undo)
 
 uint Document::InsertString(const std::u32string& str, bool with_undo)
 {
-    logger->Trace("Insert string: {}", ToBasicString(str));
+    LOG_TRACE("Insert string: {}", ToBasicString(str));
     StringFormatPtr format;
     if (GetCurrentStringFormat(format))
         return InsertElement(new String(this, str, format), with_undo);
@@ -331,13 +331,13 @@ uint Document::InsertString(const std::u32string& str, bool with_undo)
 
 uint Document::InsertString(const std::string& str, const StringFormatPtr string_format, bool with_undo)
 {
-    logger->Trace("Insert string: {}, format: {}", str, string_format->ToString());
+    LOG_TRACE("Insert string: {}, format: {}", str, string_format->ToString());
     return InsertElement(new String(this, str, string_format), with_undo);
 }
 
 uint Document::InsertString(const std::string& str, ElementId element_id, bool with_undo)
 {
-    logger->Trace("Insert string: {}", str);
+    LOG_TRACE("Insert string: {}", str);
     StringFormat f;
     if (!GetStringFormat(element_id, f))
         return 0;
@@ -354,7 +354,7 @@ uint Document::InsertString(const std::string& str, ElementId element_id, bool w
 
 uint Document::InsertElement(Element* element, bool with_undo, ElementId element_id)
 {
-    logger->Trace("Insert element: {}", ToBasicString(element->ToText()));
+    LOG_TRACE("Insert element: {}", ToBasicString(element->ToText()));
     std::vector<ElementPtr> elements;
     elements.emplace_back(element);
     return InsertElements(elements, with_undo, element_id);
@@ -373,7 +373,7 @@ uint Document::InsertElements(std::vector<ElementPtr>& elements, bool with_undo,
 
 uint Document::DeleteElements(bool left, bool with_undo)
 {
-    logger->Trace("Delete elements: {}", left);
+    LOG_TRACE("Delete elements: {}", left);
     {
         std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
         tasks.emplace_back(new DeleteElementsTask(text, left, with_undo));
@@ -385,7 +385,7 @@ uint Document::DeleteElements(bool left, bool with_undo)
 
 uint Document::ClearElements(ElementId element_id, bool with_undo)
 {
-    logger->Trace("Clear elements: {}", IdToString(element_id));
+    LOG_TRACE("Clear elements: {}", IdToString(element_id));
     {
         std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
         tasks.emplace_back(new DeleteElementsTask(text, element_id, with_undo));
@@ -397,7 +397,7 @@ uint Document::ClearElements(ElementId element_id, bool with_undo)
 
 uint Document::InsertCode(bool next_code_id, bool with_undo)
 {
-    logger->Trace("Insert code: {}", next_code_id);
+    LOG_TRACE("Insert code: {}", next_code_id);
     if (next_code_id)
         ++cur_code_id;
     return InsertFormula(new CodeBlock(this, cur_code_id), with_undo);
@@ -405,7 +405,7 @@ uint Document::InsertCode(bool next_code_id, bool with_undo)
 
 uint Document::InsertCodeString(const std::string& str, bool with_undo)
 {
-    logger->Trace("Insert code string: {}", str);
+    LOG_TRACE("Insert code string: {}", str);
     FormulaFormatPtr format;
     if (GetCurrentFormulaFormat(format))
         return InsertFormula(new CodeString(this, str, format->string_format), with_undo);
@@ -414,139 +414,139 @@ uint Document::InsertCodeString(const std::string& str, bool with_undo)
 
 uint Document::InsertPlus(bool with_undo)
 {
-    logger->Trace("Insert plus");
+    LOG_TRACE("Insert plus");
     return InsertFormula(new Plus(this), with_undo);
 }
 
 uint Document::InsertMinus(bool with_undo)
 {
-    logger->Trace("Insert minus");
+    LOG_TRACE("Insert minus");
     return InsertFormula(new Minus(this), with_undo);
 }
 
 uint Document::InsertMultiply(bool with_undo)
 {
-    logger->Trace("Insert multiply");
+    LOG_TRACE("Insert multiply");
     return InsertFormula(new Multiply(this), with_undo);
 }
 
 uint Document::InsertDivision(bool with_undo)
 {
-    logger->Trace("Insert division");
+    LOG_TRACE("Insert division");
     return InsertFormula(new Division(this), with_undo);
 }
 
 uint Document::InsertPower(bool with_undo)
 {
-    logger->Trace("Insert power");
+    LOG_TRACE("Insert power");
     return InsertFormula(new Power(this), with_undo);
 }
 
 uint Document::InsertNthRoot(bool with_undo)
 {
-    logger->Trace("Insert nth root");
+    LOG_TRACE("Insert nth root");
     return InsertFormula(new NthRoot(this), with_undo);
 }
 
 uint Document::InsertSquareRoot(bool with_undo)
 {
-    logger->Trace("Insert square root");
+    LOG_TRACE("Insert square root");
     return InsertFormula(new SquareRoot(this), with_undo);
 }
 
 uint Document::InsertEquation(yutovo_service::ResultType result_type, bool with_undo)
 {
-    logger->Trace("Insert equation");
+    LOG_TRACE("Insert equation");
     return InsertFormula(new Equation(this, result_type), with_undo);
 }
 
 uint Document::InsertOpenFence(bool with_undo)
 {
-    logger->Trace("Insert open fence");
+    LOG_TRACE("Insert open fence");
     return InsertFormula(new OpenFence(this), with_undo);
 }
 
 uint Document::InsertCloseFence(bool with_undo)
 {
-    logger->Trace("Insert close fence");
+    LOG_TRACE("Insert close fence");
     return InsertFormula(new CloseFence(this), with_undo);
 }
 
 uint Document::InsertAssignment(bool with_undo)
 {
-    logger->Trace("Insert assignment");
+    LOG_TRACE("Insert assignment");
     return InsertFormula(new Assignment(this), with_undo);
 }
 
 uint Document::InsertUnit(bool with_undo)
 {
-    logger->Trace("Insert assignment");
+    LOG_TRACE("Insert assignment");
     return InsertFormula(new Unit(this), with_undo);
 }
 
 uint Document::InsertSubscript(bool with_undo)
 {
-    logger->Trace("Insert subscript");
+    LOG_TRACE("Insert subscript");
     return InsertFormula(new Subscript(this), with_undo);
 }
 
 uint Document::InsertExclamation(bool with_undo)
 {
-    logger->Trace("Insert exclamation");
+    LOG_TRACE("Insert exclamation");
     return InsertFormula(new Exclamation(this), with_undo);
 }
 
 uint Document::InsertAnd(bool with_undo)
 {
-    logger->Trace("Insert and");
+    LOG_TRACE("Insert and");
     return InsertFormula(new And(this), with_undo);
 }
 
 uint Document::InsertOr(bool with_undo)
 {
-    logger->Trace("Insert or");
+    LOG_TRACE("Insert or");
     return InsertFormula(new Or(this), with_undo);
 }
 
 uint Document::InsertXor(bool with_undo)
 {
-    logger->Trace("Insert xor");
+    LOG_TRACE("Insert xor");
     return InsertFormula(new Xor(this), with_undo);
 }
 
 uint Document::InsertPercent(bool with_undo)
 {
-    logger->Trace("Insert percent");
+    LOG_TRACE("Insert percent");
     return InsertFormula(new Percent(this), with_undo);
 }
 
 uint Document::InsertSum(bool with_undo)
 {
-    logger->Trace("Insert Sum");
+    LOG_TRACE("Insert Sum");
     return InsertFormula(new Sum(this), with_undo);
 }
 
 uint Document::InsertProduct(bool with_undo)
 {
-    logger->Trace("Insert Product");
+    LOG_TRACE("Insert Product");
     return InsertFormula(new Product(this), with_undo);
 }
 
 uint Document::InsertImage(const std::string& image_base64, const int width, const int height, bool with_undo)
 {
-    logger->Trace("Insert image");
+    LOG_TRACE("Insert image");
     return InsertElement(new Image(this, image_base64, width, height), with_undo);
 }
 
 uint Document::InsertImage(const std::vector<unsigned char>& bmp, const int width, const int height, bool with_undo)
 {
-    logger->Trace("Insert image");
+    LOG_TRACE("Insert image");
     return InsertElement(new Image(this, bmp, width, height), with_undo);
 }
 
 uint Document::InsertFences(bool with_undo)
 {
-    logger->Trace("Insert fences");
+    LOG_TRACE("Insert fences");
     InsertFormula(new OpenFence(this), with_undo, false);
     uint r = InsertFormula(new CloseFence(this), with_undo, true);
     MoveCaretLeft(false, true);
@@ -555,7 +555,7 @@ uint Document::InsertFences(bool with_undo)
 
 uint Document::InsertFunction(const std::string& name, bool with_undo)
 {
-    logger->Trace("Insert function: {}", name);
+    LOG_TRACE("Insert function: {}", name);
     InsertCodeString(name, true);
     InsertFormula(new OpenFence(this), with_undo, true);
     uint r = InsertFormula(new CloseFence(this), with_undo, true);
@@ -565,14 +565,14 @@ uint Document::InsertFunction(const std::string& name, bool with_undo)
 
 uint Document::InsertSubscriptFunction(const std::string& name, bool with_undo)
 {
-    logger->Trace("Insert subscript function: {}", name);
+    LOG_TRACE("Insert subscript function: {}", name);
     InsertCodeString(name, true);
     return InsertFormula(new Subscript(this), with_undo, true);
 }
 
 uint Document::InsertFormula(Element* element, bool with_undo, bool with_last_task_id)
 {
-    logger->Trace("Insert formula: {}", ToBasicString(element->ToText()));
+    LOG_TRACE("Insert formula: {}", ToBasicString(element->ToText()));
     std::vector<ElementPtr> elements;
     elements.emplace_back(element);
     if (current_formula_format)
@@ -582,7 +582,7 @@ uint Document::InsertFormula(Element* element, bool with_undo, bool with_last_ta
 
 uint Document::InsertFormulas(std::vector<ElementPtr>& elements, bool with_undo, bool with_last_task_id, bool pasting)
 {
-    logger->Trace("Insert formulas");
+    LOG_TRACE("Insert formulas");
     {
         std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
         if (with_last_task_id)
@@ -597,7 +597,7 @@ uint Document::InsertFormulas(std::vector<ElementPtr>& elements, bool with_undo,
 
 uint Document::InsertUnit(const yutovo_calculator::Unit& unit)
 {
-    logger->Trace("Insert unit");
+    LOG_TRACE("Insert unit");
     FormulaFormatPtr f = formula_formats->GetFormat("Code");
     StringFormatPtr string_format = f->string_format;
 
@@ -668,7 +668,7 @@ uint Document::InsertUnit(const yutovo_calculator::Unit& unit)
 uint Document::ChangeStringFormat(const std::string family, const uint size, const bool bold, const bool italic, const bool underline, const bool strikethrough, 
     Color text_color, Color text_bg_color, bool with_undo)
 {
-    logger->Trace("Change string format: family={}, size={}, bold={}, italic={}, underline={}, text_color={}, text_bg_color={}", 
+    LOG_TRACE("Change string format: family={}, size={}, bold={}, italic={}, underline={}, text_color={}, text_bg_color={}", 
         family, size, bold, italic, underline, text_color.ToString(), text_bg_color.ToString());
     return ChangeStringFormat(string_formats->GetFormat(family, size, bold, italic, underline, strikethrough, text_color, text_bg_color, Color::Blue()), 
         with_undo);
@@ -677,7 +677,7 @@ uint Document::ChangeStringFormat(const std::string family, const uint size, con
 uint Document::ChangeStringFormat(const StringFormatPtr format, bool set_family, bool set_size, bool set_bold, bool set_italic, bool set_underline, 
     bool set_strikethrough, bool set_text_color, bool set_text_bg_color, bool with_undo)
 {
-    logger->Trace("Change string format: format={}, set_family={}, set_size={}, set_bold={}, set_italic={}, set_underline={}, set_strikethrough={}, "\
+    LOG_TRACE("Change string format: format={}, set_family={}, set_size={}, set_bold={}, set_italic={}, set_underline={}, set_strikethrough={}, "\
         "set_text_color={}, set_text_bg_color={}", 
         format->ToString(), set_family, set_size, set_bold, set_italic, set_underline, set_strikethrough, set_text_color, set_text_bg_color);
     {
@@ -692,7 +692,7 @@ uint Document::ChangeStringFormat(const StringFormatPtr format, bool set_family,
 
 uint Document::ChangeStringFormat(const StringFormatPtr format, bool with_undo)
 {
-    logger->Trace("Change string format: format={}", format->ToString());
+    LOG_TRACE("Change string format: format={}", format->ToString());
     {
         std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
         tasks.emplace_back(new ChangeStringFormatTask(text, format, with_undo));
@@ -704,7 +704,7 @@ uint Document::ChangeStringFormat(const StringFormatPtr format, bool with_undo)
 
 uint Document::ChangeParagraphFormat(const ParagraphFormatPtr format, bool with_undo)
 {
-    logger->Trace("Change paragraph format: format={}", format->ToString());
+    LOG_TRACE("Change paragraph format: format={}", format->ToString());
     {
         std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
         tasks.emplace_back(new ChangeParagraphFormatTask(text, format, with_undo));
@@ -716,7 +716,7 @@ uint Document::ChangeParagraphFormat(const ParagraphFormatPtr format, bool with_
 
 uint Document::ChangeParagraphFormat(const std::string name, bool with_undo)
 {
-    logger->Trace("Change paragraph format: name={}", name);
+    LOG_TRACE("Change paragraph format: name={}", name);
     {
         std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
         auto format = paragraph_formats->GetFormat(name);
@@ -1360,7 +1360,7 @@ void Document::UpdateFormats()
 
 uint Document::SetFontFamily(const std::string& family)
 {
-    logger->Trace("Set font family: {}", family);
+    LOG_TRACE("Set font family: {}", family);
     std::lock_guard<std::recursive_mutex> lock(edit_mutex);
     if (current_string_format)
     {
@@ -1382,7 +1382,7 @@ uint Document::SetFontFamily(const std::string& family)
 
 uint Document::SetFontSize(const uint size)
 {
-    logger->Trace("Set font size: {}", size);
+    LOG_TRACE("Set font size: {}", size);
     std::lock_guard<std::recursive_mutex> lock(edit_mutex);
     if (current_string_format)
     {
@@ -1399,7 +1399,7 @@ uint Document::SetFontSize(const uint size)
 
 uint Document::SetBold(const bool enabled)
 {
-    logger->Trace("Set bold: {}", enabled);
+    LOG_TRACE("Set bold: {}", enabled);
     std::lock_guard<std::recursive_mutex> lock(edit_mutex);
     if (current_string_format)
     {
@@ -1416,7 +1416,7 @@ uint Document::SetBold(const bool enabled)
 
 uint Document::SetItalic(const bool enabled)
 {
-    logger->Trace("Set italic: {}", enabled);
+    LOG_TRACE("Set italic: {}", enabled);
     std::lock_guard<std::recursive_mutex> lock(edit_mutex);
     if (current_string_format)
     {
@@ -1433,7 +1433,7 @@ uint Document::SetItalic(const bool enabled)
 
 uint Document::SetUnderline(const bool enabled)
 {
-    logger->Trace("Set underline: {}", enabled);
+    LOG_TRACE("Set underline: {}", enabled);
     std::lock_guard<std::recursive_mutex> lock(edit_mutex);
     if (current_string_format)
     {
@@ -1450,7 +1450,7 @@ uint Document::SetUnderline(const bool enabled)
 
 uint Document::SetStrikethrough(const bool enabled)
 {
-    logger->Trace("Set strikethrough: {}", enabled);
+    LOG_TRACE("Set strikethrough: {}", enabled);
     std::lock_guard<std::recursive_mutex> lock(edit_mutex);
     if (current_string_format)
     {
@@ -1467,7 +1467,7 @@ uint Document::SetStrikethrough(const bool enabled)
 
 uint Document::SetColor(const Color color)
 {
-    logger->Trace("Set color: {}", color.ToString());
+    LOG_TRACE("Set color: {}", color.ToString());
     std::lock_guard<std::recursive_mutex> lock(edit_mutex);
     if (current_string_format)
     {
@@ -1484,7 +1484,7 @@ uint Document::SetColor(const Color color)
 
 uint Document::SetBgColor(const Color color)
 {
-    logger->Trace("Set background bold: {}", color.ToString());
+    LOG_TRACE("Set background bold: {}", color.ToString());
     std::lock_guard<std::recursive_mutex> lock(edit_mutex);
     if (current_string_format)
     {
@@ -1501,7 +1501,7 @@ uint Document::SetBgColor(const Color color)
 
 uint Document::SetCurrentParagraphFormat(const std::string& name)
 {
-    logger->Trace("Set current paragraph format: {}", name);
+    LOG_TRACE("Set current paragraph format: {}", name);
     std::lock_guard<std::recursive_mutex> lock(edit_mutex);
     current_paragraph_format = paragraph_formats->GetFormat(name);
     if (current_paragraph_format)
@@ -2015,7 +2015,7 @@ uint Document::LoadJson(const std::u32string& json_doc, const int document_id)
 
 uint Document::Copy(std::u32string& out_json, std::u32string& out_text)
 {
-    logger->Trace("Copy: out_json={}, out_text={}", ToBasicString(out_json), ToBasicString(out_text));
+    LOG_TRACE("Copy: out_json={}, out_text={}", ToBasicString(out_json), ToBasicString(out_text));
     {
         out_json = U"";
         out_text = U"";
@@ -2029,7 +2029,7 @@ uint Document::Copy(std::u32string& out_json, std::u32string& out_text)
 
 uint Document::Paste(std::u32string& in_json)
 {
-    logger->Trace("Paste: in_json={}", ToBasicString(in_json));
+    LOG_TRACE("Paste: in_json={}", ToBasicString(in_json));
     StringFormatsPtr _string_formats;
     rapidjson::Document doc;
     auto str = ToBasicString(in_json);
@@ -2102,7 +2102,7 @@ uint Document::Paste(std::u32string& in_json)
 
 uint Document::PasteText(std::u32string&& str)
 {
-    logger->Trace("Paste text: {}", ToBasicString(str));
+    LOG_TRACE("Paste text: {}", ToBasicString(str));
     if (str.empty())
     {
         window->OnPasteResult(PasteResult::EmptyBuffer);
@@ -2116,7 +2116,7 @@ uint Document::PasteText(std::u32string&& str)
 
 uint Document::PasteImage(const std::vector<unsigned char>& bmp, const int width, const int height)
 {
-    logger->Trace("Paste image");
+    LOG_TRACE("Paste image");
     if (bmp.empty())
     {
         window->OnPasteResult(PasteResult::EmptyBuffer);
@@ -2130,7 +2130,7 @@ uint Document::PasteImage(const std::vector<unsigned char>& bmp, const int width
 
 uint Document::PasteImage(const std::string& image_base64, const int width, const int height)
 {
-    logger->Trace("Paste image");
+    LOG_TRACE("Paste image");
     if (image_base64.empty())
     {
         window->OnPasteResult(PasteResult::EmptyBuffer);
@@ -2144,7 +2144,7 @@ uint Document::PasteImage(const std::string& image_base64, const int width, cons
 
 uint Document::Cut(std::u32string& out_json, std::u32string& out_text)
 {
-    logger->Trace("Cut: out_json={}, out_text={}", ToBasicString(out_json), ToBasicString(out_text));
+    LOG_TRACE("Cut: out_json={}, out_text={}", ToBasicString(out_json), ToBasicString(out_text));
     {
         std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
         tasks.emplace_back(new CopyTask(text, out_json, out_text, true));
