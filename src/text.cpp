@@ -52,9 +52,12 @@ void Text::Draw() const
 
     Block::Draw();
 
-    window->BeginDrawOutside();
-    window->DrawRect(Rect(v.left - 1, v.top - 1, v.width + 2, v.height + 2), Color::Blue());
-    window->EndDrawOutside();
+    if (document->config.with_border)
+    {
+        window->BeginDrawOutside();
+        window->DrawRect(Rect(v.left - 1, v.top - 1, v.width + 2, v.height + 2), Color::Blue());
+        window->EndDrawOutside();
+    }
 }
 
 bool Text::Remake(bool with_elements)
