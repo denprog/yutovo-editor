@@ -1580,4 +1580,29 @@ TEST_F(DocumentTest, caret49)
         ElementSelectionState{ElementId{0}, 0, 1})) << document.GetEditorState().ToString();
 }
 
+//Click after image, which is a single element on the row
+TEST_F(DocumentTest, caret50)
+{
+    Start(600);
+
+    EXPECT_CALL(window_mock, GetImageSize).WillRepeatedly([&](const std::vector<unsigned char>& bmp, const int width, const int height)
+        {
+            return GetImageSizeMock(bmp, width, height);
+        });
+
+    QImage test_image("../test/tests/Qt_small.png");
+    std::vector<unsigned char> data;
+    GetImageData(test_image, data);
+
+    document.WaitTask(document.InsertImage(data, test_image.width(), test_image.height(), true));
+
+    Rect rect;
+    document.GetElementRect(ElementId{0, 0, 0, 0}, rect);
+    document.WaitTask(document.MoveCaret(rect.GetRight() + 1, rect.top + 1));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 1})) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.MoveCaret(rect.GetRight() + 10, rect.top + 10));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 1})) << document.GetEditorState().ToString();
+}
+
 }

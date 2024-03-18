@@ -1333,7 +1333,7 @@ Rect Elements::GetCaretRect(const uint pos) const
     {
         r = elements[pos]->rect; //draw caret of two lines
         r.left -= 3;
-        r.width += 6;
+        r.width += 1;
         r.top -= 1;
         r.height += 6;
     }
