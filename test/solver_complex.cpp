@@ -20,7 +20,6 @@ TEST_F(SolverComplexTest, solver1)
     document.InsertString("3.4i", true);
     document.WaitTask(document.InsertEquation(ResultType::COMPLEX, true));
     document.WaitSolver();
-    std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -59,7 +58,6 @@ TEST_F(SolverComplexTest, solver2)
     document.InsertString("340000000000i", true);
     document.WaitTask(document.InsertEquation(ResultType::COMPLEX, true));
     document.WaitSolver();
-    std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -120,7 +118,6 @@ TEST_F(SolverComplexTest, solver3)
     document.InsertString("3.4i", true);
     document.WaitTask(document.InsertEquation(ResultType::COMPLEX, true));
     document.WaitSolver();
-    std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -169,7 +166,6 @@ TEST_F(SolverComplexTest, solver4)
     document.InsertString("340000000000i", true);
     document.WaitTask(document.InsertEquation(ResultType::COMPLEX, true));
     document.WaitSolver();
-    std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -227,7 +223,6 @@ TEST_F(SolverComplexTest, solver5)
     document.InsertString("3.4i", true);
     document.WaitTask(document.InsertEquation(ResultType::COMPLEX, true));
     document.WaitSolver();
-    std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -280,7 +275,6 @@ TEST_F(SolverComplexTest, solver6)
     document.InsertString("340000000000i", true);
     document.WaitTask(document.InsertEquation(ResultType::COMPLEX, true));
     document.WaitSolver();
-    std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -336,7 +330,6 @@ TEST_F(SolverComplexTest, solver7)
     document.InsertString("3.4i", true);
     document.WaitTask(document.InsertEquation(ResultType::COMPLEX, true));
     document.WaitSolver();
-    std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToText() == 
         U"3.4i=3.4i"
         ) << ToBasicString(document.ToText());
@@ -352,7 +345,6 @@ TEST_F(SolverComplexTest, solver8)
     document.InsertString("3.4i", true);
     document.WaitTask(document.InsertEquation(ResultType::COMPLEX, true));
     document.WaitSolver();
-    std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToText() == 
         U"-3.4i=-3.4i"
         ) << ToBasicString(document.ToText());
@@ -367,7 +359,6 @@ TEST_F(SolverComplexTest, solver9)
     document.InsertString("3.4i", true);
     document.WaitTask(document.InsertEquation(ResultType::COMPLEX, true));
     document.WaitSolver();
-    std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToText() == 
         U"3.4i=3.4i"
         ) << ToBasicString(document.ToText());
@@ -382,7 +373,6 @@ TEST_F(SolverComplexTest, solver10)
     document.InsertString("3.4", true);
     document.WaitTask(document.InsertEquation(ResultType::COMPLEX, true));
     document.WaitSolver();
-    std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToText() == 
         U"3.4=3.4"
         ) << ToBasicString(document.ToText());
@@ -397,7 +387,6 @@ TEST_F(SolverComplexTest, solver11)
     document.InsertString("-3.4", true);
     document.WaitTask(document.InsertEquation(ResultType::COMPLEX, true));
     document.WaitSolver();
-    std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToText() == 
         U"-3.4=-3.4"
         ) << ToBasicString(document.ToText());
@@ -415,7 +404,6 @@ TEST_F(SolverComplexTest, solver12)
     document.InsertString("3.4i", true);
     document.WaitTask(document.InsertEquation(ResultType::COMPLEX, true));
     document.WaitSolver();
-    std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToText() == 
         U"-1.2+3.4i=-1.2+3.4i"
         ) << ToBasicString(document.ToText());
@@ -433,7 +421,6 @@ TEST_F(SolverComplexTest, solver13)
     document.InsertString("3.4i", true);
     document.WaitTask(document.InsertEquation(ResultType::COMPLEX, true));
     document.WaitSolver();
-    std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToText() == 
         U"-1.2-3.4i=-1.2-3.4i"
         ) << ToBasicString(document.ToText());
@@ -451,7 +438,6 @@ TEST_F(SolverComplexTest, solver14)
     document.InsertString("340000000000i", true);
     document.WaitTask(document.InsertEquation(ResultType::COMPLEX, true));
     document.WaitSolver();
-    std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToText() == 
         U"-12000000000-340000000000i=-1.2*pow(10,10)-3.4*pow(10,11)i"
         ) << ToBasicString(document.ToText());
@@ -467,7 +453,6 @@ TEST_F(SolverComplexTest, solver15)
     document.InsertString("12000000000", true);
     document.WaitTask(document.InsertEquation(ResultType::COMPLEX, true));
     document.WaitSolver();
-    std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToText() == 
         U"-12000000000=-1.2*pow(10,10)"
         ) << ToBasicString(document.ToText());
@@ -483,7 +468,6 @@ TEST_F(SolverComplexTest, solver16)
     document.InsertString("340000000000i", true);
     document.WaitTask(document.InsertEquation(ResultType::COMPLEX, true));
     document.WaitSolver();
-    std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToText() == 
         U"-340000000000i=-3.4*pow(10,11)i"
         ) << ToBasicString(document.ToText());
@@ -505,14 +489,12 @@ TEST_F(SolverComplexTest, solver17)
     document.InsertString("3.4i", true);
     document.WaitTask(document.InsertEquation(ResultType::COMPLEX, true));
     document.WaitSolver();
-    std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToText() == 
         U"1.2+3.4i=1.2+3.4i"
         ) << ToBasicString(document.ToText());
 
     document.WaitTask(document.SetComplexForm({0, 0, 0, 0, 0, 0, 0, 2, 0, 0}, ComplexForm::Trigonometric, true));
     document.WaitSolver();
-    std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToText() == 
         U"1.2+3.4i=3.606(cos(1.232)+i*sin(1.232))"
         ) << ToBasicString(document.ToText());
@@ -520,14 +502,12 @@ TEST_F(SolverComplexTest, solver17)
     document.Undo();
     document.WaitUndo();
     document.WaitSolver();
-    std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToText() == 
         U"1.2+3.4i=1.2+3.4i"
         ) << ToBasicString(document.ToText());
 
     document.WaitTask(document.SetComplexForm({0, 0, 0, 0, 0, 0, 0, 2, 0, 0}, ComplexForm::Exponential, true));
     document.WaitSolver();
-    std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToText() == 
         U"1.2+3.4i=3.606pow(e,1.232i)"
         ) << ToBasicString(document.ToText());
@@ -535,7 +515,6 @@ TEST_F(SolverComplexTest, solver17)
     document.Undo();
     document.WaitUndo();
     document.WaitSolver();
-    std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToText() == 
         U"1.2+3.4i=1.2+3.4i"
         ) << ToBasicString(document.ToText());
@@ -552,7 +531,6 @@ TEST_F(SolverComplexTest, solver18)
     document.WaitTask(document.MoveCaretRight(false));
     document.WaitTask(document.InsertEquation(ResultType::COMPLEX, true));
     document.WaitSolver();
-    std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToText() == 
         U"sqrt(i)=0.707+0.707i,-0.707-0.707i"
         ) << ToBasicString(document.ToText());
@@ -570,14 +548,12 @@ TEST_F(SolverComplexTest, solver19)
     document.InsertCloseFence(true);
     document.WaitTask(document.InsertEquation(ResultType::COMPLEX, true));
     document.WaitSolver();
-    std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToText() == 
         U"arcsin(i)=0.881i(rad),3.142-0.881i(rad)"
         ) << ToBasicString(document.ToText());
 
     document.WaitTask(document.SetResultAngleMeasure({0, 0, 0, 0, 0, 0, 0, 2, 0, 0}, AngleMeasure::Degree, true));
     document.WaitSolver();
-    std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToText() == 
         U"arcsin(i)=50.499i(deg),180.-50.499i(deg)"
         ) << ToBasicString(document.ToText());

@@ -19,7 +19,6 @@ TEST_F(SolverRealTest, solver1)
     document.InsertString("1.23456789", true);
     document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
     document.WaitSolver();
-    std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -43,7 +42,6 @@ TEST_F(SolverRealTest, solver1)
 
     document.WaitTask(document.SetResult({0, 0, 0, 0, 0, 0, 0, 2, 0, 0}, ResultType::REAL, true));
     document.WaitSolver();
-    std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -68,7 +66,6 @@ TEST_F(SolverRealTest, solver1)
     document.Undo();
     document.WaitUndo();
     document.WaitSolver();
-    std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToText() == 
         U"1.23456789=1.235"
         ) << ToBasicString(document.ToText());
@@ -99,7 +96,6 @@ TEST_F(SolverRealTest, solver2)
     document.InsertCloseFence(true);
     document.WaitTask(document.InsertEquation(ResultType::REAL, true));
     document.WaitSolver();
-    std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToText() == 
         U"arcsin(1)=1.571(rad)\n"
         U"sin(1)=0.841"
@@ -119,7 +115,6 @@ TEST_F(SolverRealTest, solver2)
     document.InsertCloseFence(true);
     document.WaitTask(document.InsertEquation(ResultType::REAL, true));
     document.WaitSolver();
-    std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToText() == 
         U"arcsin(1)=1.571(rad)\n"
         U"arcsin(1)=1.571\n"
@@ -139,7 +134,6 @@ TEST_F(SolverRealTest, solver3)
     document.InsertCloseFence(true);
     document.WaitTask(document.InsertEquation(ResultType::REAL, true));
     document.WaitSolver();
-    std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToText() == 
         U"arccos(0.5)=1.047(rad)"
         ) << ToBasicString(document.ToText());
@@ -157,7 +151,6 @@ TEST_F(SolverRealTest, solver3)
     document.InsertCloseFence(true);
     document.WaitTask(document.InsertEquation(ResultType::REAL, true));
     document.WaitSolver();
-    std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToText() == 
         U"arccos(0.5)=1.047(rad)\n"
         U"arccos(0.5)=60.(deg)"
@@ -173,7 +166,6 @@ TEST_F(SolverRealTest, solver4)
     document.InsertString("12.3456789", true);
     document.WaitTask(document.InsertEquation(ResultType::REAL, true));
     document.WaitSolver();
-    std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToText() == 
         U"12.3456789=12.346"
         ) << ToBasicString(document.ToText());
@@ -188,7 +180,6 @@ TEST_F(SolverRealTest, solver4)
     document.InsertString("12.3456789", true);
     document.WaitTask(document.InsertEquation(ResultType::REAL, true));
     document.WaitSolver();
-    std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToText() == 
         U"12.3456789=12.346\n"
         U"12.3456789=12.34568"
@@ -204,7 +195,6 @@ TEST_F(SolverRealTest, solver5)
     document.InsertString("123456789", true);
     document.WaitTask(document.InsertEquation(ResultType::REAL, true));
     document.WaitSolver();
-    std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToText() == 
         U"123456789=123456789."
         ) << ToBasicString(document.ToText());
@@ -219,7 +209,6 @@ TEST_F(SolverRealTest, solver5)
     document.InsertString("1234567", true);
     document.WaitTask(document.InsertEquation(ResultType::REAL, true));
     document.WaitSolver();
-    std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToText() == 
         U"123456789=123456789.\n"
         U"1234567=1.235*pow(10,6)"
@@ -235,14 +224,12 @@ TEST_F(SolverRealTest, solver6)
     document.InsertString("12.3456789012345", true);
     document.WaitTask(document.InsertEquation(ResultType::REAL, true));
     document.WaitSolver();
-    std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToText() == 
         U"12.3456789012345=12.346"
         ) << ToBasicString(document.ToText());
 
     document.WaitTask(document.SetPrecision({0, 0, 0, 0, 0, 0, 0, 2, 0, 0}, 7, true));
     document.WaitSolver();
-    std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToText() == 
         U"12.3456789012345=12.3456789"
         ) << ToBasicString(document.ToText());
@@ -257,14 +244,12 @@ TEST_F(SolverRealTest, solver7)
     document.InsertString("123456789012", true);
     document.WaitTask(document.InsertEquation(ResultType::REAL, true));
     document.WaitSolver();
-    std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToText() == 
         U"123456789012=1.235*pow(10,11)"
         ) << ToBasicString(document.ToText());
 
     document.WaitTask(document.SetExp({0, 0, 0, 0, 0, 0, 0, 2, 0, 0}, 12, true));
     document.WaitSolver();
-    std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToText() == 
         U"123456789012=123456789012."
         ) << ToBasicString(document.ToText());
@@ -289,7 +274,6 @@ TEST_F(SolverRealTest, solver8)
 
     document.WaitTask(document.SetResultAngleMeasure({0, 0, 0, 0, 0, 0, 0, 2, 0, 0}, AngleMeasure::Degree, true));
     document.WaitSolver();
-    std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToText() == 
         U"arcsin(1)=90.(deg)"
         ) << ToBasicString(document.ToText());
@@ -311,7 +295,6 @@ TEST_F(SolverRealTest, solver9)
 
     document.WaitTask(document.Load("solver4_1.yut"));
     document.WaitSolver();
-    std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToText() == U"234.45=234.45") << ToBasicString(document.ToText());
 }
 
@@ -332,7 +315,6 @@ TEST_F(SolverRealTest, solver10)
 
     document.WaitTask(document.Load("solver10_1.yut"));
     document.WaitSolver();
-    std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToText() == U"234.12345678=234.1234568") << ToBasicString(document.ToText());
 
     document.MoveCaretToDocumentBegin(false);
@@ -340,7 +322,6 @@ TEST_F(SolverRealTest, solver10)
     document.WaitTask(document.MoveCaretRight(false));
     document.WaitTask(document.InsertString("1", true));
     document.WaitSolver();
-    std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToText() == U"1234.12345678=1234.1234568") << ToBasicString(document.ToText());
 }
 
@@ -354,7 +335,6 @@ TEST_F(SolverRealTest, solver11)
     document.InsertExclamation(true);
     document.WaitTask(document.InsertEquation(ResultType::REAL, true));
     document.WaitSolver();
-    std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToText() == 
         U"5!=120."
         ) << ToBasicString(document.ToText());
@@ -371,7 +351,6 @@ TEST_F(SolverRealTest, solver12)
     document.InsertString("234", true);
     document.WaitTask(document.InsertEquation(ResultType::REAL, true));
     document.WaitSolver();
-    std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToText() == 
         U"11%234=25.74"
         ) << ToBasicString(document.ToText());
@@ -386,7 +365,6 @@ TEST_F(SolverRealTest, units1)
     document.InsertString("1m", true);
     document.WaitTask(document.InsertEquation(ResultType::REAL, true));
     document.WaitSolver();
-    std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToText() == U"1m=1.m") << ToBasicString(document.ToText());
 
     std::vector<yutovo_calculator::Unit> cast_units;
@@ -399,7 +377,6 @@ TEST_F(SolverRealTest, units1)
     yutovo_calculator::Unit unit(U"mm");
     document.WaitTask(document.SetUnit({0, 0, 0, 0, 0, 0, 0, 2, 0, 0}, unit, true));
     document.WaitSolver();
-    std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToText() == U"1m=1000.mm") << ToBasicString(document.ToText());
 }
 
@@ -413,19 +390,15 @@ TEST_F(SolverRealTest, units2)
     document.InsertString("20ms", true);
     document.WaitTask(document.InsertEquation(ResultType::REAL, true));
     document.WaitSolver();
-    std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToText() == U"\n20ms=20.ms") << ToBasicString(document.ToText());
 
     yutovo_calculator::Unit unit(U"s");
     document.WaitTask(document.SetUnit({0, 0, 0, 0, 1, 0, 0, 2, 0, 0}, unit, true));
     document.WaitSolver();
-    std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToText() == U"\n20ms=0.02s") << ToBasicString(document.ToText());
 
     document.WaitTask(document.MoveCaretUp(false));
     document.WaitTask(document.DeleteElements(false, true));
-    document.WaitSolver();
-    std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToText() == U"20ms=0.02s") << ToBasicString(document.ToText());
 
     document.Undo();

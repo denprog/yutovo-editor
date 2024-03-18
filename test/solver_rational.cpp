@@ -22,7 +22,6 @@ TEST_F(SolverRationalTest, rational1)
     document.MoveCaretRight(false);
     document.WaitTask(document.InsertEquation(ResultType::RATIONAL, true));
     document.WaitSolver();
-    std::this_thread::sleep_for(1s);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -95,7 +94,6 @@ TEST_F(SolverRationalTest, rational2)
     document.MoveCaretRight(false);
     document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
     document.WaitSolver();
-    std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -126,7 +124,6 @@ TEST_F(SolverRationalTest, rational2)
 
     document.WaitTask(document.SetResult({0, 0, 0, 0, 0, 0, 0, 2, 0, 0}, ResultType::RATIONAL, true));
     document.WaitSolver();
-    std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -165,7 +162,6 @@ TEST_F(SolverRationalTest, rational2)
     document.Undo();
     document.WaitUndo();
     document.WaitSolver();
-    std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToText() == 
         U"(1)/(2)=0.5"
         ) << ToBasicString(document.ToText());
@@ -184,7 +180,6 @@ TEST_F(SolverRationalTest, rational3)
     document.MoveCaretRight(false);
     document.WaitTask(document.InsertEquation(ResultType::RATIONAL, true));
     document.WaitSolver();
-    std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -235,7 +230,6 @@ TEST_F(SolverRationalTest, rational4)
     document.MoveCaretRight(false);
     document.WaitTask(document.InsertEquation(ResultType::RATIONAL, true));
     document.WaitSolver();
-    std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -283,7 +277,6 @@ TEST_F(SolverRationalTest, rational5)
     document.MoveCaretRight(false);
     document.WaitTask(document.InsertEquation(ResultType::RATIONAL, true));
     document.WaitSolver();
-    std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToText() == 
         U"(9)/(7)=1(2)/(7)"
         ) << ToBasicString(document.ToText());
@@ -302,7 +295,6 @@ TEST_F(SolverRationalTest, rational5)
     document.MoveCaretRight(false);
     document.WaitTask(document.InsertEquation(ResultType::RATIONAL, true));
     document.WaitSolver();
-    std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToText() == 
         U"(9)/(7)=1(2)/(7)\n"
         U"(9)/(7)=(9)/(7)"
@@ -327,7 +319,6 @@ TEST_F(SolverRationalTest, rational6)
     document.MoveCaretRight(false);
     document.WaitTask(document.InsertEquation(ResultType::RATIONAL, true));
     document.WaitSolver();
-    std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToText() == 
         U"(42)/(3)=14"
         ) << ToBasicString(document.ToText());
@@ -346,7 +337,6 @@ TEST_F(SolverRationalTest, rational6)
     document.MoveCaretRight(false);
     document.WaitTask(document.InsertEquation(ResultType::RATIONAL, true));
     document.WaitSolver();
-    std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToText() == 
         U"(42)/(3)=14\n"
         U"(42)/(3)=14"
@@ -370,14 +360,12 @@ TEST_F(SolverRationalTest, rational7)
     document.MoveCaretRight(false);
     document.WaitTask(document.InsertEquation(ResultType::RATIONAL, true));
     document.WaitSolver();
-    std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToText() == 
         U"(11)/(5)=(11)/(5)"
         ) << ToBasicString(document.ToText());
 
     document.WaitTask(document.SetFractionForm({0, 0, 0, 0, 0, 0, 0, 2, 0, 0}, FractionForm::Proper, true));
     document.WaitSolver();
-    std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToText() == 
         U"(11)/(5)=2(1)/(5)"
         ) << ToBasicString(document.ToText());
@@ -385,7 +373,6 @@ TEST_F(SolverRationalTest, rational7)
     document.Undo();
     document.WaitUndo();
     document.WaitSolver();
-    std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToText() == 
         U"(11)/(5)=(11)/(5)"
         ) << ToBasicString(document.ToText());
@@ -411,7 +398,6 @@ TEST_F(SolverRationalTest, rational8)
 
     document.WaitTask(document.Load("solver5_1.yut"));
     document.WaitSolver();
-    std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToText() == U"(234)/(5)=46(4)/(5)") << ToBasicString(document.ToText());
 }
 
@@ -424,7 +410,6 @@ TEST_F(SolverRationalTest, rational9)
     document.InsertString("0", true);
     document.WaitTask(document.InsertEquation(ResultType::RATIONAL, true));
     document.WaitSolver();
-    std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToText() == U"0=0") << ToBasicString(document.ToText());
 }
 
@@ -440,7 +425,6 @@ TEST_F(SolverRationalTest, units1)
     document.MoveCaretRight(false);
     document.WaitTask(document.InsertEquation(ResultType::RATIONAL, true));
     document.WaitSolver();
-    std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToText() == U"(1m)/(3s)=20(m)/(min)") << ToBasicString(document.ToText());
 }
 
@@ -455,7 +439,6 @@ TEST_F(SolverRationalTest, units2)
     document.MoveCaretRight(false);
     document.WaitTask(document.InsertEquation(ResultType::RATIONAL, true));
     document.WaitSolver();
-    std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToText() == U"fut{rus}=1fut{rus}") << ToBasicString(document.ToText());
 }
 
@@ -476,7 +459,6 @@ TEST_F(SolverRationalTest, units3)
     document.MoveCaretRight(false);
     document.WaitTask(document.InsertEquation(ResultType::RATIONAL, true));
     document.WaitSolver();
-    std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToText() == U"(50)/(3s)=(50)/(3)Hz") << ToBasicString(document.ToText());
 
     std::vector<yutovo_calculator::Unit> cast_units;
@@ -489,7 +471,6 @@ TEST_F(SolverRationalTest, units3)
     yutovo_calculator::Unit unit(U"ms", -1);
     document.WaitTask(document.SetUnit({0, 0, 0, 0, 0, 0, 0, 2, 0, 0}, unit, true));
     document.WaitSolver();
-    std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToText() == U"(50)/(3s)=(1)/(60)(1)/(ms)") << ToBasicString(document.ToText());
 }
 

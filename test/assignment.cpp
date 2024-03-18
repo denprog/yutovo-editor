@@ -651,8 +651,7 @@ TEST_F(AssignmentTest, error2)
     for (int i = 0; i < 4; ++i)
         document.WaitTask(document.MoveCaretLeft(false));
     document.WaitTask(document.DeleteElements(false, true));
-    document.WaitSolver();
-    std::this_thread::sleep_for(600ms);
+    std::this_thread::sleep_for(1s);
     ASSERT_TRUE(document.ToText() == 
         U"r5+"
         ) << ToBasicString(document.ToText());

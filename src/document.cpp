@@ -2556,7 +2556,9 @@ void Document::PutResult(ElementId _id, Result result)
 
     tasks.emplace_back(new ResultTask(text, _id, result));
 #ifdef DEBUG
-    last_solver_task_id = tasks.back()->id;
+    if ((result.type != ResultType::NONE && result.error.error_code != yutovo_service::ErrorCode::SOLVER_RESTARTED_ERROR) ||    
+        result.error.error_code == yutovo_service::ErrorCode::PARSER_ERROR)
+        last_solver_task_id = tasks.back()->id;
 #endif
 }
 

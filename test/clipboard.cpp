@@ -2084,7 +2084,6 @@ TEST_F(DocumentTest, clipboard38)
     document.MoveCaretRight(false);
     document.WaitTask(document.InsertEquation(ResultType::RATIONAL, true));
     document.WaitSolver();
-    std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToText() == 
         U"123+(34)/(567)=(69775)/(567)"\
         ) << ToBasicString(document.ToText());
@@ -2125,7 +2124,6 @@ TEST_F(DocumentTest, clipboard39)
     document.InsertString("123", true);
     document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
     document.WaitSolver();
-    std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToText() == 
         U"123=123."\
         ) << ToBasicString(document.ToText());
@@ -2170,7 +2168,6 @@ TEST_F(DocumentTest, clipboard40)
     document.InsertString("3.i", true);
     document.WaitTask(document.InsertEquation(ResultType::COMPLEX, true));
     document.WaitSolver();
-    std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToText() == 
         U"-1.+3.i=-1.+3.i"
         ) << ToBasicString(document.ToText());
@@ -2215,7 +2212,6 @@ TEST_F(DocumentTest, clipboard41)
     document.InsertCloseFence(true);
     document.WaitTask(document.InsertEquation(ResultType::REAL, true));
     document.WaitSolver();
-    std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToText() == 
         U"arcsin(1)=1.571(rad)"
         ) << ToBasicString(document.ToText());
@@ -2258,7 +2254,6 @@ TEST_F(DocumentTest, clipboard42)
     document.InsertString("2.3", true);
     document.WaitTask(document.InsertEquation(ResultType::REAL, true));
     document.WaitSolver();
-    std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToText() == 
         U"2.3=2.3"
         ) << ToBasicString(document.ToText());
@@ -2305,7 +2300,6 @@ TEST_F(DocumentTest, clipboard43)
     document.InsertString("2345", true);
     document.WaitTask(document.InsertEquation(ResultType::INTEGER, true));
     document.WaitSolver();
-    std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToText() == 
         U"2345=2345(dec)"\
         ) << ToBasicString(document.ToText());
@@ -2352,7 +2346,6 @@ TEST_F(DocumentTest, clipboard44)
     document.InsertString("2345", true);
     document.WaitTask(document.InsertEquation(ResultType::INTEGER, true));
     document.WaitSolver();
-    std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToText() == 
         U"2345=2345"\
         ) << ToBasicString(document.ToText());
@@ -2414,7 +2407,6 @@ TEST_F(DocumentTest, clipboard45)
     document.InsertParagraph(true);
     document.WaitTask(document.Paste(clipboard_json));
     document.WaitSolver();
-    std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToText() == 
         U"123=123.\n"\
         U"5678\n"\
@@ -2453,7 +2445,6 @@ TEST_F(DocumentTest, clipboard46)
     document.InsertParagraph(true);
     document.WaitTask(document.Paste(clipboard_json));
     document.WaitSolver();
-    std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToText() == 
         U"123\n"\
         U"5678=5678.\n"\

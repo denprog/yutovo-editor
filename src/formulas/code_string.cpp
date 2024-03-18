@@ -216,6 +216,8 @@ void CodeString::Draw() const
         else
         {
             //the first part is a number, after it may be an identifier
+            if (p == std::string::npos)
+                p = str.length();
             color1 = std::make_pair(p, document->config.numbers_color);
             std::u32string part = str.substr(p);
             switch (document->FindIdentifier(code_id, ToBasicString(part)))
