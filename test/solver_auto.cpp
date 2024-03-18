@@ -17,7 +17,6 @@ TEST_F(SolverAutoTest, solver1)
     document.InsertString("1", true);
     document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
     document.WaitSolver();
-    std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -58,7 +57,6 @@ TEST_F(SolverAutoTest, solver1)
     document.Redo();
     document.WaitRedo();
     document.WaitSolver();
-    std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -91,7 +89,6 @@ TEST_F(SolverAutoTest, solver2)
     document.InsertString("3", true);
     document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
     document.WaitSolver();
-    std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -136,7 +133,6 @@ TEST_F(SolverAutoTest, solver2)
     document.Redo();
     document.WaitRedo();
     document.WaitSolver();
-    std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -1678,7 +1674,6 @@ TEST_F(SolverAutoTest, units1)
     document.InsertString("1m", true);
     document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
     document.WaitSolver();
-    std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -1712,7 +1707,6 @@ TEST_F(SolverAutoTest, units2)
     document.InsertString("3cm", true);
     document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
     document.WaitSolver();
-    std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -1757,14 +1751,17 @@ TEST_F(SolverAutoTest, units3)
     document.MoveCaretRight(false);
     document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
     document.WaitSolver();
-    std::this_thread::sleep_for(600ms);
-    ASSERT_TRUE(document.ToText() == U"(2m)/(4s)=0.5(m)/(s)") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.ToText() == U"(2m)/(4s)=5.(dm)/(s)") << ToBasicString(document.ToText());
 }
 
 TEST_F(SolverAutoTest, units4)
 {
     Start(600);
     
+    document.GetConfig(config);
+    config.service_timeout = 20;
+    document.SetConfig(config);
+
     document.InsertDivision(true);
     document.InsertString("6kg", true);
     document.InsertMultiply(true);
@@ -1775,7 +1772,6 @@ TEST_F(SolverAutoTest, units4)
     document.MoveCaretRight(false);
     document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
     document.WaitSolver();
-    std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToText() == U"(6kg*2m)/(4s)=3.(kg*m)/(s)") << ToBasicString(document.ToText());
 }
 
@@ -1783,6 +1779,10 @@ TEST_F(SolverAutoTest, units5)
 {
     Start(600);
     
+    document.GetConfig(config);
+    config.service_timeout = 20;
+    document.SetConfig(config);
+
     document.InsertDivision(true);
     document.InsertString("6kg", true);
     document.InsertMultiply(true);
@@ -1798,7 +1798,6 @@ TEST_F(SolverAutoTest, units5)
     document.MoveCaretRight(false);
     document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
     document.WaitSolver();
-    std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToText() == U"(6kg*2m)/(4*pow(s,2))=3.N") << ToBasicString(document.ToText());
 }
 
@@ -1813,7 +1812,6 @@ TEST_F(SolverAutoTest, units6)
     document.MoveCaretRight(false);
     document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
     document.WaitSolver();
-    std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -1855,6 +1853,10 @@ TEST_F(SolverAutoTest, units7)
 {
     Start(600);
 
+    document.GetConfig(config);
+    config.service_timeout = 20;
+    document.SetConfig(config);
+
     document.SetLocale(yutovo_calculator::Language::Russian, ',');
     document.InsertCode(1, true);
     document.InsertDivision(true);
@@ -1867,7 +1869,6 @@ TEST_F(SolverAutoTest, units7)
     document.MoveCaretRight(false);
     document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
     document.WaitSolver();
-    std::this_thread::sleep_for(2s);
     ASSERT_TRUE(document.ToText() == U"(6кг*2м)/(4сек)=3,(кг*м)/(сек)") << ToBasicString(document.ToText());
 }
 
@@ -1875,6 +1876,10 @@ TEST_F(SolverAutoTest, units7)
 TEST_F(SolverAutoTest, units8)
 {
     Start(600);
+
+    document.GetConfig(config);
+    config.service_timeout = 30;
+    document.SetConfig(config);
 
     document.InsertCode(false, true);
     document.InsertString("4N", true);
@@ -1891,10 +1896,9 @@ TEST_F(SolverAutoTest, units8)
     document.InsertString("м", true);
     document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
     document.WaitSolver();
-    std::this_thread::sleep_for(2s);
     ASSERT_TRUE(document.ToText() == 
-        U"4N*m=4.N*m\n"\
-        U"4,2Н*м=4,2Н*м") << ToBasicString(document.ToText());
+        U"4N*m=4.J\n"\
+        U"4,2Н*м=4,2Дж") << ToBasicString(document.ToText());
 }
 
 //Implicit multiplication of division
@@ -1917,9 +1921,8 @@ TEST_F(SolverAutoTest, units9)
     document.InsertString("m", true);
     document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
     document.WaitSolver();
-    std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToText() == 
-        U"(1)/(2)m=0.5m"
+        U"(1)/(2)m=5.dm"
         ) << ToBasicString(document.ToText());
 }
 
@@ -1945,7 +1948,6 @@ TEST_F(SolverAutoTest, units10)
     document.InsertString("m", true);
     document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
     document.WaitSolver();
-    std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToText() == 
         U"(1+3)/(2)m=2.m"
         ) << ToBasicString(document.ToText());

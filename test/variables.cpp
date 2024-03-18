@@ -461,8 +461,7 @@ TEST_F(VariablesTest, errors1)
     document.InsertCode(false, true);
     document.InsertString("d", true);
     document.WaitTask(document.InsertAssignment(true));
-    document.WaitSolver();
-    std::this_thread::sleep_for(600ms);
+    std::this_thread::sleep_for(1s);
     ASSERT_TRUE(document.ToText() == U"d=") << ToBasicString(document.ToText());
     int start, size;
     ASSERT_TRUE(document.HasErrorMark(ElementId{0, 0, 0, 0, 0, 0, 0, 2}, start, size));

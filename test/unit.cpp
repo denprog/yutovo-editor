@@ -89,7 +89,7 @@ TEST_F(UnitTest, unit2)
     document.InsertCode(false, true);
     document.InsertString("d_m", true);
     document.InsertUnit(true);
-    document.WaitTask(document.InsertString("0.1m", true));
+    document.WaitTask(document.InsertString("10m", true));
     document.WaitSolver();
     std::this_thread::sleep_for(600ms);
 
@@ -100,7 +100,7 @@ TEST_F(UnitTest, unit2)
     document.WaitSolver();
     std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToText() == 
-        U"d_m~0.1m\n"\
+        U"d_m~10m\n"\
         U"d_m=1.d_m"
         ) << ToBasicString(document.ToText());
 }

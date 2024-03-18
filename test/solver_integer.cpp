@@ -25,7 +25,6 @@ TEST_F(SolverIntegerTest, solver1)
     document.InsertString("35", true);
     document.WaitTask(document.InsertEquation(ResultType::INTEGER, true));
     document.WaitSolver();
-    std::this_thread::sleep_for(1s);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -84,7 +83,6 @@ TEST_F(SolverIntegerTest, solver2)
     document.InsertString("355", true);
     document.WaitTask(document.InsertEquation(ResultType::INTEGER, true));
     document.WaitSolver();
-    std::this_thread::sleep_for(1s);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -144,7 +142,6 @@ TEST_F(SolverIntegerTest, solver3)
     document.InsertString("2345", true);
     document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
     document.WaitSolver();
-    std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -168,7 +165,6 @@ TEST_F(SolverIntegerTest, solver3)
 
     document.WaitTask(document.SetResult({0, 0, 0, 0, 0, 0, 0, 2, 0, 0}, ResultType::INTEGER, true));
     document.WaitSolver();
-    std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -193,7 +189,6 @@ TEST_F(SolverIntegerTest, solver3)
     document.Undo();
     document.WaitUndo();
     document.WaitSolver();
-    std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToText() == 
         U"2345=2345."
         ) << ToBasicString(document.ToText());
@@ -214,7 +209,6 @@ TEST_F(SolverIntegerTest, solver4)
     document.InsertString("2345", true);
     document.WaitTask(document.InsertEquation(ResultType::INTEGER, true));
     document.WaitSolver();
-    std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToText() == 
         U"2345=100100101001(bin)"
         ) << ToBasicString(document.ToText());
@@ -229,7 +223,6 @@ TEST_F(SolverIntegerTest, solver4)
     document.InsertString("2345", true);
     document.WaitTask(document.InsertEquation(ResultType::INTEGER, true));
     document.WaitSolver();
-    std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToText() == 
         U"2345=100100101001(bin)\n"
         U"2345=4451"
@@ -245,7 +238,6 @@ TEST_F(SolverIntegerTest, solver4)
     document.InsertString("2345", true);
     document.WaitTask(document.InsertEquation(ResultType::INTEGER, true));
     document.WaitSolver();
-    std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToText() == 
         U"2345=100100101001(bin)\n"
         U"2345=4451\n"
@@ -261,7 +253,6 @@ TEST_F(SolverIntegerTest, solver4)
     document.InsertString("2345", true);
     document.WaitTask(document.InsertEquation(ResultType::INTEGER, true));
     document.WaitSolver();
-    std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToText() == 
         U"2345=100100101001(bin)\n"
         U"2345=4451\n"
@@ -285,7 +276,6 @@ TEST_F(SolverIntegerTest, solver5)
     document.InsertString("2345", true);
     document.WaitTask(document.InsertEquation(ResultType::INTEGER, true));
     document.WaitSolver();
-    std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToText() == 
         U"2345=2345(dec)"
         ) << ToBasicString(document.ToText());
@@ -294,7 +284,6 @@ TEST_F(SolverIntegerTest, solver5)
         document.MoveCaretRight(false);
     document.WaitTask(document.SetNotation({0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 1, 2}, Notation::Decimal, Notation::Binary, true));
     document.WaitSolver();
-    std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToText() == 
         U"2345=100100101001(bin)"
         ) << ToBasicString(document.ToText());
@@ -302,7 +291,6 @@ TEST_F(SolverIntegerTest, solver5)
     document.Undo();
     document.WaitUndo();
     document.WaitSolver();
-    std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToText() == 
         U"2345=2345(dec)"
         ) << ToBasicString(document.ToText());
@@ -314,7 +302,6 @@ TEST_F(SolverIntegerTest, solver5)
     document.Redo();
     document.WaitRedo();
     document.WaitSolver();
-    std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToText() == 
         U"2345=100100101001(bin)"
         ) << ToBasicString(document.ToText());
@@ -323,14 +310,12 @@ TEST_F(SolverIntegerTest, solver5)
     yutovo_calculator::Notation n = document.GetDefaultNotation(_el->id);
     document.WaitTask(document.SetNotation({0, 0, 0, 0, 0, 0, 0, 2, 0, 0}, n, Notation::Octal, true));
     document.WaitSolver();
-    std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToText() == 
         U"2345=4451(oct)"
         ) << ToBasicString(document.ToText());
 
     document.WaitTask(document.SetNotation({0, 0, 0, 0, 0, 0, 0, 2, 0, 0}, Notation::Decimal, Notation::Hexadecimal, true));
     document.WaitSolver();
-    std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToText() == 
         U"2345=929(hex)"
         ) << ToBasicString(document.ToText());
@@ -338,7 +323,6 @@ TEST_F(SolverIntegerTest, solver5)
     document.Undo();
     document.WaitUndo();
     document.WaitSolver();
-    std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToText() == 
         U"2345=4451(oct)"
         ) << ToBasicString(document.ToText());
@@ -359,7 +343,6 @@ TEST_F(SolverIntegerTest, solver6)
     document.InsertString("567", true);
     document.WaitTask(document.InsertEquation(ResultType::INTEGER, true));
     document.WaitSolver();
-    std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToText() == 
         U"567=567(dec)"
         ) << ToBasicString(document.ToText());
@@ -368,7 +351,6 @@ TEST_F(SolverIntegerTest, solver6)
     yutovo_calculator::Notation n = document.GetDefaultNotation(_el->id);
     document.WaitTask(document.SetNotation({0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 3}, n, Notation::Hexadecimal, true));
     document.WaitSolver();
-    std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToText() == 
         U"567=237(hex)"
         ) << ToBasicString(document.ToText());
@@ -409,7 +391,6 @@ TEST_F(SolverIntegerTest, solver7)
 
     document.WaitTask(document.Load("solver6_1.yut"));
     document.WaitSolver();
-    std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToText() == U"234=234(dec)") << ToBasicString(document.ToText());
 }
 
@@ -423,7 +404,6 @@ TEST_F(SolverIntegerTest, solver8)
     document.InsertExclamation(true);
     document.WaitTask(document.InsertEquation(ResultType::INTEGER, true));
     document.WaitSolver();
-    std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToText() == 
         U"5!=120(dec)"
         ) << ToBasicString(document.ToText());
@@ -445,7 +425,6 @@ TEST_F(SolverIntegerTest, solver9)
     document.InsertString("10101", true);
     document.WaitTask(document.InsertEquation(ResultType::INTEGER, true));
     document.WaitSolver();
-    std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToText() == 
         U"10101=10101(bin)"
         ) << ToBasicString(document.ToText());
@@ -461,7 +440,6 @@ TEST_F(SolverIntegerTest, solver9)
     document.InsertString("6543", true);
     document.WaitTask(document.InsertEquation(ResultType::INTEGER, true));
     document.WaitSolver();
-    std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToText() == 
         U"10101=10101(bin)\n"
         U"6543=3427"
@@ -478,7 +456,6 @@ TEST_F(SolverIntegerTest, solver9)
     document.InsertString("6789", true);
     document.WaitTask(document.InsertEquation(ResultType::INTEGER, true));
     document.WaitSolver();
-    std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToText() == 
         U"10101=10101(bin)\n"
         U"6543=3427\n"
@@ -495,7 +472,6 @@ TEST_F(SolverIntegerTest, solver9)
     document.InsertString("567af", true);
     document.WaitTask(document.InsertEquation(ResultType::INTEGER, true));
     document.WaitSolver();
-    std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToText() == 
         U"10101=10101(bin)\n"
         U"6543=3427\n"
@@ -513,14 +489,12 @@ TEST_F(SolverIntegerTest, solver10)
     document.InsertString("567", true);
     document.WaitTask(document.InsertEquation(ResultType::INTEGER, true));
     document.WaitSolver();
-    std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToText() == 
         U"567=567(dec)"
         ) << ToBasicString(document.ToText());
 
     document.WaitTask(document.SetNotation({0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 3}, Notation::Octal, Notation::Hexadecimal, true));
     document.WaitSolver();
-    std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToText() == 
         U"567=177(hex)"
         ) << ToBasicString(document.ToText());
@@ -559,14 +533,12 @@ TEST_F(SolverIntegerTest, solver11)
     document.InsertString("2345", true);
     document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
     document.WaitSolver();
-    std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToText() == 
         U"2345=2345."
         ) << ToBasicString(document.ToText());
 
     document.WaitTask(document.SetResult({0, 0, 0, 0, 0, 0, 0, 2, 0, 0}, ResultType::INTEGER, true));
     document.WaitSolver();
-    std::this_thread::sleep_for(600ms);
     document.MoveCaretEnd(false);
     document.WaitTask(document.MoveCaretLeft(false));
     document.WaitTask(document.InsertParagraph(true));
@@ -592,7 +564,6 @@ TEST_F(SolverIntegerTest, logical1)
     document.InsertString("4", true);
     document.WaitTask(document.InsertEquation(ResultType::INTEGER, true));
     document.WaitSolver();
-    std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToText() == 
         U"!4=3(dec)"
         ) << ToBasicString(document.ToText());
@@ -609,7 +580,6 @@ TEST_F(SolverIntegerTest, logical2)
     document.InsertString("234", true);
     document.WaitTask(document.InsertEquation(ResultType::INTEGER, true));
     document.WaitSolver();
-    std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToText() == 
         U"115&234=98(dec)"
         ) << ToBasicString(document.ToText());
@@ -626,7 +596,6 @@ TEST_F(SolverIntegerTest, logical3)
     document.InsertString("234", true);
     document.WaitTask(document.InsertEquation(ResultType::INTEGER, true));
     document.WaitSolver();
-    std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToText() == 
         U"115|234=251(dec)"
         ) << ToBasicString(document.ToText());
@@ -643,7 +612,6 @@ TEST_F(SolverIntegerTest, logical4)
     document.InsertString("234", true);
     document.WaitTask(document.InsertEquation(ResultType::INTEGER, true));
     document.WaitSolver();
-    std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToText() == 
         U"115^234=153(dec)"
         ) << ToBasicString(document.ToText());
@@ -661,7 +629,6 @@ TEST_F(SolverIntegerTest, notation1)
     document.MoveCaretRight(false);
     document.WaitTask(document.InsertEquation(ResultType::INTEGER, true));
     document.WaitSolver();
-    std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToText() == 
         U"bin[1010]=10(dec)"
         ) << ToBasicString(document.ToText());
@@ -679,7 +646,6 @@ TEST_F(SolverIntegerTest, notation2)
     document.MoveCaretRight(false);
     document.WaitTask(document.InsertEquation(ResultType::INTEGER, true));
     document.WaitSolver();
-    std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToText() == 
         U"oct[776]=510(dec)"
         ) << ToBasicString(document.ToText());
@@ -702,7 +668,6 @@ TEST_F(SolverIntegerTest, notation3)
     document.MoveCaretRight(false);
     document.WaitTask(document.InsertEquation(ResultType::INTEGER, true));
     document.WaitSolver();
-    std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToText() == 
         U"dec[456]+bin[101111]=503(dec)"
         ) << ToBasicString(document.ToText());
@@ -726,7 +691,6 @@ TEST_F(SolverIntegerTest, notation4)
     document.MoveCaretRight(false);
     document.WaitTask(document.InsertEquation(ResultType::INTEGER, true));
     document.WaitSolver();
-    std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToText() == 
         U"hex[456f]=100010101101111(bin)"
         ) << ToBasicString(document.ToText());
@@ -749,7 +713,6 @@ TEST_F(SolverIntegerTest, notation5)
     document.MoveCaretRight(false);
     document.WaitTask(document.InsertEquation(ResultType::INTEGER, true));
     document.WaitSolver();
-    std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToText() == 
         U"hex[456ft]=Argument is over"
         ) << ToBasicString(document.ToText());
@@ -772,7 +735,7 @@ TEST_F(SolverIntegerTest, notation6)
     document.MoveCaretRight(false);
     document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
     document.WaitSolver();
-    std::this_thread::sleep_for(600ms);
+    std::this_thread::sleep_for(1s);
     ASSERT_TRUE(document.ToText() == 
         U"bin[123]=Syntax error"
         ) << ToBasicString(document.ToText());

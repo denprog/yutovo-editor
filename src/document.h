@@ -389,6 +389,16 @@ private:
     std::vector<bool> undos; //requieres for undo
     std::vector<bool> redos; //requieres for redo
 
+    struct Identifiers
+    {
+        std::vector<std::string> variables;
+        std::vector<std::string> functions;
+        std::vector<std::string> units;
+    };
+
+    std::recursive_mutex identifiers_mutex;
+    std::map<uint, Identifiers> identifiers; //by code_id
+
     Solver solver;
 
     bool exit = false;
@@ -403,16 +413,6 @@ private:
     UndoBase undo_base;
 
     EditorState last_editor_state;
-
-    struct Identifiers
-    {
-        std::vector<std::string> variables;
-        std::vector<std::string> functions;
-        std::vector<std::string> units;
-    };
-
-    std::recursive_mutex identifiers_mutex;
-    std::map<uint, Identifiers> identifiers; //by code_id
 
     Logger* logger;
 };

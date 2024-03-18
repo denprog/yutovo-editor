@@ -63,21 +63,20 @@ TEST_F(FormulaTest, functions2)
     document.InsertOpenFence(true);
     document.InsertString("x", true);
     document.InsertCloseFence(true);
-    document.InsertAssignment(true);
+    document.WaitTask(document.InsertAssignment(true));
     document.InsertString("x", true);
     document.InsertMultiply(true);
     document.WaitTask(document.InsertString("2", true));
     document.WaitSolver();
 
     document.MoveCaretRight(false);
-    document.InsertParagraph(true);
+    document.WaitTask(document.InsertParagraph(true));
     document.InsertString("f", true);
     document.InsertOpenFence(true);
-    document.InsertString("5", true);
+    document.WaitTask(document.InsertString("5", true));
     document.InsertCloseFence(true);
     document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
     document.WaitSolver();
-    std::this_thread::sleep_for(1s);
     ASSERT_TRUE(document.ToText() == 
         U"f(x)=x*2\n" \
         U"f(5)=10.") << ToBasicString(document.ToText());
@@ -87,7 +86,7 @@ TEST_F(FormulaTest, functions2)
         document.MoveCaretRight(false);
     document.WaitTask(document.InsertString("2", true));
     document.WaitSolver();
-    std::this_thread::sleep_for(2s);
+    std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToText() == 
         U"f(x)=x*22\n"\
         U"f(5)=110.") << ToBasicString(document.ToText());
@@ -103,21 +102,21 @@ TEST_F(FormulaTest, functions3)
     document.InsertOpenFence(true);
     document.InsertString("x", true);
     document.InsertCloseFence(true);
-    document.InsertAssignment(true);
+    document.WaitTask(document.InsertAssignment(true));
     document.WaitTask(document.InsertString("x", true));
     document.WaitSolver();
 
-    document.MoveCaretRight(false);
-    document.InsertParagraph(true);
+    document.WaitTask(document.MoveCaretRight(false));
+    document.WaitTask(document.InsertParagraph(true));
     document.InsertString("f", true);
     document.InsertOpenFence(true);
-    document.InsertString("2", true);
+    document.WaitTask(document.InsertString("2", true));
     document.InsertCloseFence(true);
     document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
     document.WaitSolver();
 
-    document.MoveCaretEnd(false);
-    document.InsertParagraph(true);
+    document.WaitTask(document.MoveCaretEnd(false));
+    document.WaitTask(document.InsertParagraph(true));
     document.InsertString("f", true);
     document.InsertOpenFence(true);
     document.InsertString("x", true);
@@ -128,16 +127,14 @@ TEST_F(FormulaTest, functions3)
     document.WaitTask(document.InsertString("5", true));
     document.WaitSolver();
 
-    document.MoveCaretRight(false);
-    document.InsertParagraph(true);
+    document.WaitTask(document.MoveCaretRight(false));
+    document.WaitTask(document.InsertParagraph(true));
     document.InsertString("f", true);
     document.InsertOpenFence(true);
-    document.InsertString("3", true);
+    document.WaitTask(document.InsertString("3", true));
     document.InsertCloseFence(true);
     document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
     document.WaitSolver();
-
-    std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToText() == 
         U"f(x)=x\n" \
         U"f(2)=2.\n" \
@@ -149,7 +146,7 @@ TEST_F(FormulaTest, functions3)
         document.WaitTask(document.MoveCaretRight(false));
     document.WaitTask(document.InsertString("2", true));
     document.WaitSolver();
-    std::this_thread::sleep_for(1s);
+    std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToText() == 
         U"f(x)=x\n" \
         U"f(2)=2.\n" \
@@ -158,7 +155,6 @@ TEST_F(FormulaTest, functions3)
     
     document.MoveCaretUp(false);
     document.MoveCaretUp(false);
-    document.MoveCaretEnd(false);
     document.MoveCaretLeft(false);
     document.InsertPlus(true);
     document.WaitTask(document.InsertString("4", true));
