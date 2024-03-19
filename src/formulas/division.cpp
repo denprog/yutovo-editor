@@ -183,7 +183,9 @@ void Division::ToParserString(ParserString& str)
     str.Add(id, U"(");
     first->ToParserString(str);
     if (first->elements->Count() == 1 && document->IsString(first->elements->Get(0)->id) && 
-        last->elements->Count() == 1 && document->IsString(last->elements->Get(0)->id))
+        last->elements->Count() == 1 && document->IsString(last->elements->Get(0)->id) && 
+        first->elements->Get(0)->ToText().find_first_not_of(U"0123456789.") == std::string::npos && 
+        last->elements->Get(0)->ToText().find_first_not_of(U"0123456789.") == std::string::npos)
     {
         str.Add(id, U"/");
     }
