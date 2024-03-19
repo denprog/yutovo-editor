@@ -27,6 +27,9 @@
 #include "formulas/or.h"
 #include "formulas/xor.h"
 #include "formulas/percent.h"
+#include "formulas/sum.h"
+#include "formulas/product.h"
+#include "formulas/unit.h"
 
 namespace yutovo
 {
@@ -259,13 +262,18 @@ Element* CreateFromJson(Element* parent, Document* document, rapidjson::Value& v
             {ElementType::RATIONAL_RESULT, &RationalResult::FromJson},
             {ElementType::COMPLEX_RESULT, &ComplexResult::FromJson},
             {ElementType::AUTO_RESULT, &AutoResult::FromJson},
+            {ElementType::ERROR_RESULT, &ErrorResult::FromJson},
             {ElementType::ASSIGNMENT, &Assignment::FromJson},
             {ElementType::SUBSCRIPT, &Subscript::FromJson},
             {ElementType::EXCLAMATION, &Exclamation::FromJson},
             {ElementType::AND, &And::FromJson},
             {ElementType::OR, &Or::FromJson},
             {ElementType::XOR, &Xor::FromJson},
-            {ElementType::PERCENT, &Percent::FromJson}
+            {ElementType::PERCENT, &Percent::FromJson},
+            {ElementType::IMAGE, &Image::FromJson},
+            {ElementType::SUM, &Sum::FromJson},
+            {ElementType::PRODUCT, &Product::FromJson},
+            {ElementType::UNIT, &Unit::FromJson}
         };
 
     if (!value.HasMember("type") || !value["type"].IsInt())

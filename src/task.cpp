@@ -1366,6 +1366,7 @@ bool LoadTask::Execute()
 
     if (!t)
     {
+        LOG_ERROR("Error loading file '{}': document not parsed", filename);
         window->OnLoadResult(id, IOResult::InputStreamError, document_id);
         return false;
     }
