@@ -221,6 +221,17 @@ void ResultRow::AddExponent(const std::string& exponent)
     AddExponent(GetCurRow().get(), exponent);
 }
 
+void ResultRow::AddNumber(const std::string& number)
+{
+    if (!number.empty() && number[0] == '-')
+    {
+        AddElement(ElementPtr(new Minus(this)));
+        AddElement(CodeStringPtr(new CodeString(this, number.substr(1, number.size() - 1))));
+    }
+    else
+        AddElement(ElementPtr(new CodeString(this, number)));
+}
+
 void ResultRow::AddResult()
 {
     next_result = true; //adding next elements will be proceed on the next row
@@ -334,10 +345,8 @@ void RealResult::PutResult(Result result)
         std::string mantissa = value["mantissa"];
         std::string exponent = value["exponent"];
 
-        AddElement(ElementPtr(new CodeString(this, mantissa)));
-
+        AddNumber(mantissa);
         AddExponent(exponent);
-
         PutUnit(result);
 
         if (config.show_angle_measure)
@@ -480,13 +489,7 @@ void IntegerResult::PutResult(Result result)
         Value& value = result.values[0];
         std::string val = value["value"];
         elements->Clear();
-        if (val[0] == '-')
-        {
-            AddElement(ElementPtr(new Minus(this)));
-            AddElement(CodeStringPtr(new CodeString(this, val.substr(1, val.size() - 1))));
-        }
-        else
-            AddElement(ElementPtr(new CodeString(this, val)));
+        AddNumber(val);
         
         if (config.show_notation)
         {
@@ -645,7 +648,7 @@ void RationalResult::PutResult(Result result)
         }
         else if (integer.empty())
         {
-            AddElement(ElementPtr(ElementPtr(new CodeString(this, numerator))));
+            AddNumber(numerator);
         }
 
         PutUnit(result);
@@ -774,7 +777,7 @@ void ComplexResult::PutResult(Result result)
                 std::string exponent = value["module_exponent"];
 
                 if (!mantissa.empty())
-                    AddElement(ElementPtr(new CodeString(this, mantissa)));
+                    AddNumber(mantissa);
                 AddExponent(exponent);
 
                 mantissa = value["argument_mantissa"];
@@ -800,7 +803,7 @@ void ComplexResult::PutResult(Result result)
 
                     AddElement(ElementPtr(new CodeString(this, "cos")));
                     AddElement(ElementPtr(new OpenFence(this)));
-                    AddElement(ElementPtr(new CodeString(this, mantissa)));
+                    AddNumber(mantissa);
                     AddExponent(exponent);
                     AddElement(ElementPtr(new CloseFence(this)));
 
@@ -812,7 +815,7 @@ void ComplexResult::PutResult(Result result)
 
                     AddElement(ElementPtr(new CodeString(this, "sin")));
                     AddElement(ElementPtr(new OpenFence(this)));
-                    AddElement(ElementPtr(new CodeString(this, mantissa)));
+                    AddNumber(mantissa);
                     AddExponent(exponent);
                     AddElement(ElementPtr(new CloseFence(this)));
 
@@ -830,7 +833,7 @@ void ComplexResult::PutResult(Result result)
                 std::string re_exponent = value["re_exponent"];
 
                 if (!re_mantissa.empty())
-                    AddElement(ElementPtr(new CodeString(this, re_mantissa)));
+                    AddNumber(re_mantissa);
                 AddExponent(re_exponent);
 
                 std::string im_mantissa = value["im_mantissa"];
@@ -845,7 +848,7 @@ void ComplexResult::PutResult(Result result)
                     }
                     else if (!re_mantissa.empty())
                         AddElement(ElementPtr(new Plus(this)));
-                    AddElement(ElementPtr(new CodeString(this, im_mantissa)));
+                    AddNumber(im_mantissa);
                 }
                 if (!im_exponent.empty())
                     AddExponent(im_exponent);

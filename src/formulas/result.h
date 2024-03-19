@@ -34,6 +34,7 @@ public:
     void PutUnit(const Result& result);
     void AddExponent(Element* parent, const std::string& exponent);
     void AddExponent(const std::string& exponent);
+    void AddNumber(const std::string& number);
 
     void AddResult();
 
