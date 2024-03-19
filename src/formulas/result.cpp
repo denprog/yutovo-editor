@@ -866,8 +866,8 @@ void ComplexResult::PutResult(Result result)
         }
     }
 
-    if (elements->Count() > 0)
-        elements->Get(0)->SetEditable(false);
+    for (int i = 0; i < elements->Count(); ++i)
+        elements->Get(i)->SetEditable(false);
     Remake(true);
     parent->Remake(true);
 }
