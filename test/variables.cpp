@@ -647,4 +647,30 @@ TEST_F(VariablesTest, variables9)
         ) << ToBasicString(document.ToText());
 }
 
+//A variable inside a division with a unit
+TEST_F(VariablesTest, variables10)
+{
+    Start(600);
+    
+    document.InsertCode(false, true);
+    document.InsertString("a", true);
+    document.InsertAssignment(true);
+    document.InsertString("2", true);
+    document.WaitSolver();
+
+    document.InsertParagraph(true);
+    document.InsertString("a", true);
+    document.InsertDivision(true);
+    document.InsertString("4", true);
+    document.MoveCaretRight(false);
+    document.InsertString("m", true);
+
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+    ASSERT_TRUE(document.ToText() == 
+        U"a=2\n" \
+        U"(a)/(4)m=5.dm"
+        ) << ToBasicString(document.ToText());
+}
+
 }
