@@ -108,6 +108,17 @@ struct ComplexSolverTask : SolverTask
     Config::ComplexResultConfig config;
 };
 
+struct SetIdentifierSolverTask : AutoSolverTask
+{
+    SetIdentifierSolverTask(ElementId _id, std::string& _guid, uint _code_id, Document* _document, std::u32string _identifier, 
+        const std::u32string& _expression, const uint _delay, Logger* _logger);
+
+    virtual bool Execute(WebSocketPtr socket, Result& result);
+
+    Document* document;
+    const std::u32string identifier;
+};
+
 struct RemoveIdentifierSolverTask : SolverTask
 {
     RemoveIdentifierSolverTask(ElementId _id, std::string& _guid, uint _code_id, const std::u32string& _expression, const uint _delay, Logger* _logger);
