@@ -273,6 +273,7 @@ void Solver::MessageLoop()
             if (result.error.error_code == yutovo_service::ErrorCode::SOLVER_RESTARTED_ERROR)
             {
                 document->ReSolve(t->id); //re-solve the expression
+                std::unique_lock<std::mutex> lock(tasks_mutex);
                 tasks.emplace_back(new ListIdentifiersSolverTask(guid, t->code_id, document, logger)); //for syntax highlight
             }
 
