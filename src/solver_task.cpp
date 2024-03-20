@@ -672,6 +672,24 @@ bool ComplexSolverTask::Execute(WebSocketPtr socket, Result& result)
     return FillComplexResult(doc, result);
 }
 
+//SetIdentifierSolverTask
+
+SetIdentifierSolverTask::SetIdentifierSolverTask(ElementId _id, std::string& _guid, uint _code_id, Document* _document, std::u32string _identifier, 
+    const std::u32string& _expression, const uint _delay, Logger* _logger) : 
+    AutoSolverTask(_id, _guid, _code_id, ExpressionType::USER_SYMBOL, Config::AutoResultConfig{}, _expression, _delay, _logger),
+    document(_document),
+    identifier(_identifier)
+{
+}
+
+bool SetIdentifierSolverTask::Execute(WebSocketPtr socket, Result& result)
+{
+    if (!AutoSolverTask::Execute(socket, result))
+        return false;
+    document->ReSolveDependencies(id, identifier);
+    return false;
+}
+
 //RemoveIdentifierSolverTask
 
 RemoveIdentifierSolverTask::RemoveIdentifierSolverTask(ElementId _id, std::string& _guid, uint _code_id, 

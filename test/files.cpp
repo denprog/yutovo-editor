@@ -605,4 +605,33 @@ TEST_F(DocumentTest, files14)
     ASSERT_TRUE(document.ToText() == U"1+j=1.+1.j") << ToBasicString(document.ToText());
 }
 
+//Save/load a file with a unit definition
+TEST_F(DocumentTest, files15)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.InsertString("d_m", true);
+    document.InsertUnit(true);
+    document.WaitTask(document.InsertString("0.221m", true));
+    document.WaitTask(document.MoveCaretRight(false));
+    document.WaitTask(document.InsertParagraph(true));
+    
+    document.InsertString("d_m", true);
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+
+    document.WaitTask(document.Save("files15.yut"));
+    document.WaitTask(document.New());
+
+    document.Load("files15.yut");
+    document.WaitLoad();
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"d_m~0.221m\n"\
+        "d_m=1.d_m"
+        ) << ToBasicString(document.ToText());
+}
+
 }

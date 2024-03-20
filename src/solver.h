@@ -26,7 +26,7 @@ public:
     void Solve(const ElementId id, const uint code_id, Config::RationalResultConfig& config, const std::u32string& expression, const uint delay);
     void Solve(const ElementId id, const uint code_id, Config::ComplexResultConfig& config, const std::u32string& expression, const uint delay);
 
-    void SetUserIdentifier(ElementId id, uint code_id, const std::u32string& expression, const uint delay);
+    void SetIdentifier(ElementId id, uint code_id, const std::u32string& identifier, const std::u32string& expression, const uint delay);
     void RemoveIdentifier(ElementId id, uint code_id, const std::u32string& identifier, const uint delay);
     void SetLocale(const yutovo_calculator::Language language, const char decimal_point);
 

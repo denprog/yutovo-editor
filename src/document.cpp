@@ -2269,16 +2269,14 @@ void Document::Solve(ElementId _id, uint code_id, Config::ComplexResultConfig& c
     solver.Solve(_id, code_id, config, expression + U";", delay);
 }
 
-void Document::SetUserIdentifier(ElementId _id, uint code_id, const std::u32string& identifier, const std::u32string& expression, const uint delay)
+void Document::SetIdentifier(ElementId _id, uint code_id, const std::u32string& identifier, const std::u32string& expression, const uint delay)
 {
-    solver.SetUserIdentifier(_id, code_id, expression + U";", delay);
-    ReSolveDependencies(_id, identifier);
+    solver.SetIdentifier(_id, code_id, identifier, expression + U";", delay);
 }
 
 void Document::RemoveIdentifier(ElementId _id, uint code_id, const std::u32string& identifier, const uint delay)
 {
     solver.RemoveIdentifier(_id, code_id, identifier, delay);
-    ReSolveDependencies(_id, identifier);
 }
 
 ResultType Document::GetResultType(ElementId _id)
