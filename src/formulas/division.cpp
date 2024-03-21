@@ -43,7 +43,7 @@ Element* Division::FromJson(Element* parent, Document* document, const rapidjson
 
 void Division::Draw() const
 {
-    shape->draw_func = 
+    GetShape()->draw_func = 
         [&](const Rect& r)
         {
             Color c = document->selection.IsSelected(id) ? document->config.formula_bg_color : document->config.shapes_color;
@@ -66,15 +66,15 @@ bool Division::Remake(bool with_elements)
 {
     bool changed = MiddleShapeFormula::Remake(with_elements);
     
-    int w = std::max(first->rect.width + 2, last->rect.width + 2);
+    int w = std::max(GetFirst()->rect.width + 2, GetLast()->rect.width + 2);
     if (w < 200)
-        shape->rect.SetRect(0, 0, w, 0);
+        GetShape()->rect.SetRect(0, 0, w, 0);
     else
-        shape->rect.SetRect(0, 0, w, w / 200 > 2 ? 2 : w / 200);
-    first->rect.Move((w - first->rect.width) / 2, 0);
-    shape->rect.Move(0, first->rect.height + shape->rect.height + 4);
-    last->rect.Move((w - last->rect.width) / 2, first->rect.height + shape->rect.height + (shape->rect.height + 4) * 2);
-    baseline = shape->rect.GetBottom() - shape->rect.height / 2;
+        GetShape()->rect.SetRect(0, 0, w, w / 200 > 2 ? 2 : w / 200);
+    GetFirst()->rect.Move((w - GetFirst()->rect.width) / 2, 0);
+    GetShape()->rect.Move(0, GetFirst()->rect.height + GetShape()->rect.height + 4);
+    GetLast()->rect.Move((w - GetLast()->rect.width) / 2, GetFirst()->rect.height + GetShape()->rect.height + (GetShape()->rect.height + 4) * 2);
+    baseline = GetShape()->rect.GetBottom() - GetShape()->rect.height / 2;
 
     UpdateRect();
 
@@ -91,7 +91,7 @@ bool Division::GetLeftCaretState(CaretState& caret_state, Selection* select)
     if (select)
     {
         CaretState c;
-        if ((last->GetFirstCaretState(c, nullptr) && caret_state == c) || (first->GetFirstCaretState(c, nullptr) && caret_state == c))
+        if ((GetLast()->GetFirstCaretState(c, nullptr) && caret_state == c) || (GetFirst()->GetFirstCaretState(c, nullptr) && caret_state == c))
         {
             caret_state.SetState(id);
             select->Clear();
@@ -107,7 +107,7 @@ bool Division::GetRightCaretState(CaretState& caret_state, Selection* select)
     if (select)
     {
         CaretState c;
-        if ((last->GetLastCaretState(c, nullptr) && caret_state == c) || (first->GetLastCaretState(c, nullptr) && caret_state == c))
+        if ((GetLast()->GetLastCaretState(c, nullptr) && caret_state == c) || (GetFirst()->GetLastCaretState(c, nullptr) && caret_state == c))
         {
             caret_state.SetState(parent->id, parent->elements->GetChildPos(id) + 1);
             select->Clear();
@@ -120,23 +120,23 @@ bool Division::GetRightCaretState(CaretState& caret_state, Selection* select)
 
 bool Division::GetTopCaretState(const int x, const int y, CaretState& caret_state, Selection* select)
 {
-    if (last->GetAbsoluteRect().GetBottom() <= y && !caret->IsOnElement(last->id))
-        return last->GetTopCaretState(x, y, caret_state, select);
-    if (shape->GetAbsoluteRect().GetBottom() <= y && !caret->IsOnElement(shape->id))
-        return shape->GetTopCaretState(x, y, caret_state, select);
-    if (first->GetAbsoluteRect().GetBottom() <= y && !caret->IsOnElement(first->id))
-        return first->GetTopCaretState(x, y, caret_state, select);
+    if (GetLast()->GetAbsoluteRect().GetBottom() <= y && !caret->IsOnElement(GetLast()->id))
+        return GetLast()->GetTopCaretState(x, y, caret_state, select);
+    if (GetShape()->GetAbsoluteRect().GetBottom() <= y && !caret->IsOnElement(GetShape()->id))
+        return GetShape()->GetTopCaretState(x, y, caret_state, select);
+    if (GetFirst()->GetAbsoluteRect().GetBottom() <= y && !caret->IsOnElement(GetFirst()->id))
+        return GetFirst()->GetTopCaretState(x, y, caret_state, select);
     return parent->GetTopCaretState(x, y, caret_state, select);
 }
 
 bool Division::GetBottomCaretState(const int x, const int y, CaretState& caret_state, Selection* select)
 {
-    if (first->GetAbsoluteRect().top >= y)
-        return first->GetBottomCaretState(x, y, caret_state, select);
-    if (shape->GetAbsoluteRect().top >= y)
-        return shape->GetBottomCaretState(x, y, caret_state, select);
-    if (last->GetAbsoluteRect().top >= y)
-        return last->GetBottomCaretState(x, y, caret_state, select);
+    if (GetFirst()->GetAbsoluteRect().top >= y)
+        return GetFirst()->GetBottomCaretState(x, y, caret_state, select);
+    if (GetShape()->GetAbsoluteRect().top >= y)
+        return GetShape()->GetBottomCaretState(x, y, caret_state, select);
+    if (GetLast()->GetAbsoluteRect().top >= y)
+        return GetLast()->GetBottomCaretState(x, y, caret_state, select);
     return parent->GetBottomCaretState(x, y, caret_state, select);
 }
 
@@ -165,27 +165,27 @@ bool Division::GetEndCaretState(CaretState& caret_state, Selection* select)
 std::string Division::ToHtml()
 {
     std::string s = "<mfrac>";
-    s += first->ToHtml();
-    s += last->ToHtml();
+    s += GetFirst()->ToHtml();
+    s += GetLast()->ToHtml();
     s += "</mfrac>";
     return s;
 }
 
 std::u32string Division::ToText()
 {
-    if (!first || !last)
+    if (!GetFirst() || !GetLast())
         return U"";
-    return U"(" + first->ToText() + U")/(" + last->ToText() + U")";
+    return U"(" + GetFirst()->ToText() + U")/(" + GetLast()->ToText() + U")";
 }
 
 void Division::ToParserString(ParserString& str)
 {
     str.Add(id, U"(");
-    first->ToParserString(str);
-    if (first->elements->Count() == 1 && document->IsString(first->elements->Get(0)->id) && 
-        last->elements->Count() == 1 && document->IsString(last->elements->Get(0)->id) && 
-        first->elements->Get(0)->ToText().find_first_not_of(U"0123456789.") == std::string::npos && 
-        last->elements->Get(0)->ToText().find_first_not_of(U"0123456789.") == std::string::npos)
+    GetFirst()->ToParserString(str);
+    if (GetFirst()->elements->Count() == 1 && document->IsString(GetFirst()->elements->Get(0)->id) && 
+        GetLast()->elements->Count() == 1 && document->IsString(GetLast()->elements->Get(0)->id) && 
+        GetFirst()->elements->Get(0)->ToText().find_first_not_of(U"0123456789.") == std::string::npos && 
+        GetLast()->elements->Get(0)->ToText().find_first_not_of(U"0123456789.") == std::string::npos)
     {
         str.Add(id, U"/");
     }
@@ -193,22 +193,22 @@ void Division::ToParserString(ParserString& str)
     {
         str.Add(id, U")/(");
     }
-    last->ToParserString(str);
+    GetLast()->ToParserString(str);
     str.Add(id, U")");
 }
 
 void Division::AddNumerator(ElementPtr numerator)
 {
-    if (first->IsEmpty())
-        first->elements->Clear();
-    first->elements->Add(numerator);
+    if (GetFirst()->IsEmpty())
+        GetFirst()->elements->Clear();
+    GetFirst()->elements->Add(numerator);
 }
 
 void Division::AddDenomerator(ElementPtr denomerator)
 {
-    if (last->IsEmpty())
-        last->elements->Clear();
-    last->elements->Add(denomerator);
+    if (GetLast()->IsEmpty())
+        GetLast()->elements->Clear();
+    GetLast()->elements->Add(denomerator);
 }
 
 }

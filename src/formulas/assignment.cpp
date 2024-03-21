@@ -45,7 +45,7 @@ Element* Assignment::FromJson(Element* parent, Document* document, const rapidjs
 void Assignment::Draw() const
 {
     const auto f = GetStringFormat();
-    shape->draw_func = 
+    GetShape()->draw_func = 
         [&](const Rect& r)
         {
             if (document->selection.IsSelected(id))
@@ -60,18 +60,14 @@ void Assignment::Draw() const
 void Assignment::UpdateRect(bool with_elements)
 {
     Size s = parent->window->GetTextSize(ToUtfString(draw_sign), GetStringFormat());
-    shape->rect.SetSize(s.width, s.height * 3 / 4);
-    shape->baseline = shape->rect.height / 3 * 2;
+    GetShape()->rect.SetSize(s.width, s.height * 3 / 4);
+    GetShape()->baseline = GetShape()->rect.height / 3 * 2;
 
     MiddleShapeFormula::UpdateRect(false);
 }
 
 bool Assignment::Remake(bool with_elements)
 {
-    first = (CodeRow*)elements->Get(0).get();
-    shape = (Shape*)elements->Get(1).get();
-    last = (CodeRow*)elements->Get(2).get();
-
     bool changed = MiddleShapeFormula::Remake(with_elements);
 
     baseline = 0;
@@ -82,9 +78,9 @@ bool Assignment::Remake(bool with_elements)
             baseline = el->baseline;
     }
 
-    first->rect.Move(0, baseline - first->baseline);
-    shape->rect.Move(first->rect.width, baseline - shape->baseline);
-    last->rect.Move(first->rect.width + shape->rect.width, baseline - last->baseline);
+    GetFirst()->rect.Move(0, baseline - GetFirst()->baseline);
+    GetShape()->rect.Move(GetFirst()->rect.width, baseline - GetShape()->baseline);
+    GetLast()->rect.Move(GetFirst()->rect.width + GetShape()->rect.width, baseline - GetLast()->baseline);
 
     UpdateRect();
 
@@ -113,17 +109,17 @@ bool Assignment::AfterInsert(bool with_undo)
 {
     int pos = parent->elements->GetElementPos(id);
     if (pos > 0)
-        first->elements->Clear();
+        GetFirst()->elements->Clear();
     for (int i = 0; i < pos; ++i)
     {
         auto el = parent->elements->Get(0);
-        first->elements->Move(el, i);
+        GetFirst()->elements->Move(el, i);
     }
     CaretState c;
-    last->GetFirstCaretState(c, nullptr);
+    GetLast()->GetFirstCaretState(c, nullptr);
     caret->SetState(c);
     last_expression.Reset();
-    last->SubscribeOnChange(id);
+    GetLast()->SubscribeOnChange(id);
     return true;
 }
 
@@ -137,7 +133,7 @@ void Assignment::BeforeDelete()
             document->RemoveIdentifier(id, ((CodeBlock*)code.get())->code_id, last_identifier, delay ? document->config.solve_delay : 0);
             delay = true;
         }
-        last->UnsubscribeOnChange(id);
+        GetLast()->UnsubscribeOnChange(id);
     }
 }
 
@@ -149,9 +145,9 @@ void Assignment::Solve()
     MiddleShapeFormula::Solve();
 
     ParserString str;
-    first->ToParserString(str);
+    GetFirst()->ToParserString(str);
     str.Add(id, solve_sign);
-    last->ToParserString(str);
+    GetLast()->ToParserString(str);
     if (last_expression != str)
         document->AddResolveElement(id);
 }
@@ -167,17 +163,17 @@ void Assignment::ReSolve(bool if_error)
     last_expression.Reset();
 
     ParserString expr;
-    first->ToParserString(expr);
+    GetFirst()->ToParserString(expr);
     expr.Add(id, solve_sign);
-    last->ToParserString(expr);
+    GetLast()->ToParserString(expr);
     if (last_expression != expr)
     {
         auto code = document->FindParent(id, ElementType::CODE_BLOCK);
         if (last_identifier != U"")
             document->RemoveIdentifier(id, ((CodeBlock*)code.get())->code_id, last_identifier, delay ? document->config.solve_delay : 0);
-        document->SetIdentifier(id, ((CodeBlock*)code.get())->code_id, first->ToText(), expr.Text(), delay ? document->config.solve_delay : 0);
+        document->SetIdentifier(id, ((CodeBlock*)code.get())->code_id, GetFirst()->ToText(), expr.Text(), delay ? document->config.solve_delay : 0);
         delay = true;
-        last_identifier = first->ToText();
+        last_identifier = GetFirst()->ToText();
         last_expression = expr;
     }
 }
@@ -190,10 +186,10 @@ void Assignment::PutResult(Result result)
 
 std::string Assignment::ToHtml()
 {
-    std::string s = first->ToHtml();
+    std::string s = GetFirst()->ToHtml();
     s += "<mo>" + ToBasicString(solve_sign) + "</mo>";
-    if (last)
-        s += last->ToHtml();
+    if (GetLast())
+        s += GetLast()->ToHtml();
     return s;
 }
 

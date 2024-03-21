@@ -6,6 +6,8 @@
 namespace yutovo
 {
 
+//Power
+
 Power::Power(Element* _parent, bool with_init) :
     MiddleShapeFormula(_parent, with_init)
 {
@@ -59,12 +61,12 @@ bool Power::Remake(bool with_elements)
 
     bool changed = MiddleShapeFormula::Remake(with_elements);
 
-    first->rect.Move(0, last->rect.height);
-    shape->rect.SetRect(0, 0, 4, last->rect.height + first->rect.height);
-    shape->rect.Move(first->rect.width, 0);
-    last->rect.Move(first->rect.width + shape->rect.width, 0);
+    GetFirst()->rect.Move(0, GetLast()->rect.height);
+    GetShape()->rect.SetRect(0, 0, 4, GetLast()->rect.height + GetFirst()->rect.height);
+    GetShape()->rect.Move(GetFirst()->rect.width, 0);
+    GetLast()->rect.Move(GetFirst()->rect.width + GetShape()->rect.width, 0);
 
-    baseline = first->rect.top + first->baseline;
+    baseline = GetFirst()->rect.top + GetFirst()->baseline;
 
     UpdateRect();
 
@@ -79,7 +81,7 @@ bool Power::Remake(bool with_elements)
 void Power::AfterChildInsert(const ElementId child_id, bool with_undo)
 {
     //if a close fense was inserted, move elements from parent row into first child until open fence
-    if (GetParent(child_id) != first->id)
+    if (GetParent(child_id) != GetFirst()->id)
         return;
     auto el = document->GetElement(child_id);
     if (el->type != ElementType::CLOSE_FENCE)
@@ -100,7 +102,7 @@ void Power::AfterChildInsert(const ElementId child_id, bool with_undo)
     for (int i = pos - 1; i >= open_pos; --i)
     {
         auto _el = parent->elements->Get(i);
-        first->elements->Move(_el, 0);
+        GetFirst()->elements->Move(_el, 0);
     }
 }
 
@@ -109,51 +111,51 @@ void Power::UpdateLevel(uint8_t _level)
     MiddleShapeFormula::UpdateLevel(_level);
     if (_level >= MAX_LEVEL)
         return;
-    if (last)
-        last->UpdateLevel(_level + 1);
+    if (GetLast())
+        GetLast()->UpdateLevel(_level + 1);
 }
 
 std::string Power::ToHtml()
 {
-    if (!first || !last)
+    if (!GetFirst() || !GetLast())
         return "";
     std::string s = "<msup>";
-    s += first->ToHtml();
-    s += last->ToHtml();
+    s += GetFirst()->ToHtml();
+    s += GetLast()->ToHtml();
     s += "</msup>";
     return s;
 }
 
 std::u32string Power::ToText()
 {
-    if (!first || !last)
+    if (!GetFirst() || !GetLast())
         return U"";
-    return U"pow(" + first->ToText() + U"," + last->ToText() + U")";
+    return U"pow(" + GetFirst()->ToText() + U"," + GetLast()->ToText() + U")";
 }
 
 void Power::ToParserString(ParserString& str)
 {
-    if (!first || !last)
+    if (!GetFirst() || !GetLast())
         return;
     str.Add(id, U"pow(");
-    first->ToParserString(str);
+    GetFirst()->ToParserString(str);
     str.Add(id, U",");
-    last->ToParserString(str);
+    GetLast()->ToParserString(str);
     str.Add(id, U")");
 }
 
 void Power::AddBase(ElementPtr base)
 {
-    if (first->IsEmpty())
-        first->elements->Clear();
-    first->elements->Add(base);
+    if (GetFirst()->IsEmpty())
+        GetFirst()->elements->Clear();
+    GetFirst()->elements->Add(base);
 }
 
 void Power::AddExponent(ElementPtr exponent)
 {
-    if (last->IsEmpty())
-        last->elements->Clear();
-    last->elements->Add(exponent);
+    if (GetLast()->IsEmpty())
+        GetLast()->elements->Clear();
+    GetLast()->elements->Add(exponent);
     UpdateLevel(level);
 }
 

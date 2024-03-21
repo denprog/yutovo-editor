@@ -59,12 +59,12 @@ bool Subscript::Remake(bool with_elements)
 
     bool changed = MiddleShapeFormula::Remake(true);
 
-    first->rect.Move(0, 0);
-    shape->rect.SetRect(0, 0, 1, last->rect.height + first->rect.height / 2);
-    shape->rect.Move(first->rect.width, 0);
-    last->rect.Move(first->rect.width + shape->rect.width, first->rect.height / 2);
+    GetFirst()->rect.Move(0, 0);
+    GetShape()->rect.SetRect(0, 0, 1, GetLast()->rect.height + GetFirst()->rect.height / 2);
+    GetShape()->rect.Move(GetFirst()->rect.width, 0);
+    GetLast()->rect.Move(GetFirst()->rect.width + GetShape()->rect.width, GetFirst()->rect.height / 2);
 
-    baseline = first->rect.top + first->baseline;
+    baseline = GetFirst()->rect.top + GetFirst()->baseline;
 
     UpdateRect();
 
@@ -79,7 +79,7 @@ bool Subscript::Remake(bool with_elements)
 void Subscript::AfterChildInsert(const ElementId child_id, bool with_undo)
 {
     //if a close fense was inserted, move elements from parent row into first child until open fence
-    if (GetParent(child_id) != first->id)
+    if (GetParent(child_id) != GetFirst()->id)
         return;
     auto el = document->GetElement(child_id);
     if (el->type != ElementType::CLOSE_FENCE)
@@ -98,7 +98,7 @@ void Subscript::AfterChildInsert(const ElementId child_id, bool with_undo)
     for (int i = pos - 1; i >= open_pos; --i)
     {
         auto _el = parent->elements->Get(i);
-        first->elements->Move(_el, 0);
+        GetFirst()->elements->Move(_el, 0);
     }
 }
 
@@ -107,27 +107,27 @@ void Subscript::UpdateLevel(uint8_t _level)
     MiddleShapeFormula::UpdateLevel(_level);
     if (_level >= MAX_LEVEL)
         return;
-    if (last)
-        last->UpdateLevel(_level + 1);
+    if (GetLast())
+        GetLast()->UpdateLevel(_level + 1);
 }
 
 std::string Subscript::ToHtml()
 {
-    if (!first || !last)
+    if (!GetFirst() || !GetLast())
         return "";
     std::string s = "<msub>";
-    s += first->ToHtml();
-    s += last->ToHtml();
+    s += GetFirst()->ToHtml();
+    s += GetLast()->ToHtml();
     s += "</msub>";
     return s;
 }
 
 std::u32string Subscript::ToText()
 {
-    if (!first || !last)
+    if (!GetFirst() || !GetLast())
         return U"";
-    auto _first = first->ToText();
-    auto _last = last->ToText();
+    auto _first = GetFirst()->ToText();
+    auto _last = GetLast()->ToText();
     if (_last == U"bin" || _last == U"oct" || _last == U"dec" || _last == U"hex")
         return _last + U"[" + _first + U"]";
     if (_first == U"log") //TODO: get names of functions from the parser
@@ -137,30 +137,30 @@ std::u32string Subscript::ToText()
 
 void Subscript::ToParserString(ParserString& str)
 {
-    if (!first || !last)
+    if (!GetFirst() || !GetLast())
         return;
-    if (first->ToText() == U"log")
+    if (GetFirst()->ToText() == U"log")
     {
-        first->ToParserString(str);
+        GetFirst()->ToParserString(str);
         str.Add(id, U"%");
-        last->ToParserString(str);
+        GetLast()->ToParserString(str);
         str.Add(id, U",");
     }
     else
     {
-        auto _last = last->ToText();
+        auto _last = GetLast()->ToText();
         if (_last == U"bin" || _last == U"oct" || _last == U"dec" || _last == U"hex")
         {
-            last->ToParserString(str);
+            GetLast()->ToParserString(str);
             str.Add(id, U"[");
-            first->ToParserString(str);
+            GetFirst()->ToParserString(str);
             str.Add(id, U"]");
         }
         else
         {
-            first->ToParserString(str);
+            GetFirst()->ToParserString(str);
             str.Add(id, U"{");
-            last->ToParserString(str);
+            GetLast()->ToParserString(str);
             str.Add(id, U"}");
         }
     }

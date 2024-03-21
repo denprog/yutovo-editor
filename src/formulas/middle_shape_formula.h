@@ -30,8 +30,9 @@ public:
     virtual bool GetRightCaretState(CaretState& caret_state, Selection* select);
 
 protected:
-    CodeRow *first = nullptr, *last = nullptr;
-    Shape *shape;
+    CodeRow* GetFirst() const;
+    Shape* GetShape() const;
+    CodeRow* GetLast() const;
 };
 
 }

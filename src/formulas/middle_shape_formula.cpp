@@ -23,36 +23,24 @@ MiddleShapeFormula::MiddleShapeFormula(Document* _document, bool with_init) :
 }
 
 MiddleShapeFormula::MiddleShapeFormula(const MiddleShapeFormula& source) :
-    Formula(source),
-    first((CodeRow*)elements->Get(0).get()),
-    shape((Shape*)elements->Get(1).get()),
-    last((CodeRow*)elements->Get(2).get())
+    Formula(source)
 {
-    if (!last)
-    {
-        last = new CodeRow(this);
-        elements->Add(ElementPtr(last));
-    }
+    if (elements->Count() < 3)
+        elements->Add(ElementPtr(new CodeRow(this)));
 }
 
 bool MiddleShapeFormula::AfterFromJson()
 {
     if (elements->Count() != 3)
         return false;
-    first = (CodeRow*)elements->Get(0).get();
-    shape = (Shape*)elements->Get(1).get();
-    last = (CodeRow*)elements->Get(2).get();
     return true;
 }
 
 void MiddleShapeFormula::Init()
 {
-    first = new CodeRow(this);
-    elements->Add(ElementPtr(first));
-    shape = new Shape(this);
-    elements->Add(ElementPtr(shape));
-    last = new CodeRow(this);
-    elements->Add(ElementPtr(last));
+    elements->Add(ElementPtr(new CodeRow(this)));
+    elements->Add(ElementPtr(new Shape(this)));
+    elements->Add(ElementPtr(new CodeRow(this)));
 }
 
 bool MiddleShapeFormula::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo, ElementId& changed_element)
@@ -74,14 +62,14 @@ bool MiddleShapeFormula::DeleteElements(bool left, bool with_undo, ElementId& ch
     {
         if (start == 0 && size == 1)
         {
-            first->elements->Clear();
+            GetFirst()->elements->Clear();
             Normalize();
             changed_element = id;
             return true;
         }
         if (start == 2 && size == 1)
         {
-            last->elements->Clear();
+            GetLast()->elements->Clear();
             Normalize();
             changed_element = id;
             return true;
@@ -100,20 +88,20 @@ bool MiddleShapeFormula::DeleteElements(bool left, bool with_undo, ElementId& ch
     }
 
     //remove this element by deleting its shape
-    first->UpdateLevel(level);
+    GetFirst()->UpdateLevel(level);
     int p = parent->elements->GetElementPos(id);
     uint c1 = elements->Get(0)->elements->Count();
 
     uint c2 = 0;
-    if (last)
+    if (GetLast())
     {
-        last->UpdateLevel(level);
+        GetLast()->UpdateLevel(level);
         c2 = elements->Get(2)->elements->Count();
     }
 
     caret->SetState(id);
     parent->elements->Move(*elements->Get(0)->elements, p);
-    if (last)
+    if (GetLast())
         parent->elements->Move(*elements->Get(2)->elements, p + c1);
     CaretState c;
     if (parent->elements->Get(p + c1)->GetFirstCaretState(c, nullptr))
@@ -128,11 +116,11 @@ bool MiddleShapeFormula::DeleteElements(bool left, bool with_undo, ElementId& ch
 
 bool MiddleShapeFormula::AfterInsert(bool with_undo)
 {
-    if (first->elements->Count() != 1 || last->elements->Count() != 1 || !caret)
+    if (GetFirst()->elements->Count() != 1 || GetLast()->elements->Count() != 1 || !caret)
         return false;
     
-    String* str1 = dynamic_cast<String*>(first->elements->Get(0).get());
-    String* str2 = dynamic_cast<String*>(last->elements->Get(0).get());
+    String* str1 = dynamic_cast<String*>(GetFirst()->elements->Get(0).get());
+    String* str2 = dynamic_cast<String*>(GetLast()->elements->Get(0).get());
     if (str1 && str1->elements->Count() == 0)
     {
         int pos = parent->elements->GetElementPos(id);
@@ -150,31 +138,31 @@ bool MiddleShapeFormula::AfterInsert(bool with_undo)
                 select.element->SplitAt(select.start);
             }
 
-            //move the selected elements in the first element
-            first->elements->RemoveAt(0, 1);
+            //move the selected elements in the GetFirst() element
+            GetFirst()->elements->RemoveAt(0, 1);
             for (int i = selection->selection.size() - 1; i >= 0; --i)
             {
                 ElementSelection el_s = selection->selection[i];
                 for (int j = el_s.size - 1; j >= 0; --j)
-                    first->elements->Move(document->GetElement(GetChild(el_s.element->id, el_s.start + j)), 0);
+                    GetFirst()->elements->Move(document->GetElement(GetChild(el_s.element->id, el_s.start + j)), 0);
             }
         }
         else
         {
             if (el2 && dynamic_cast<String*>(el2.get()) && str2 && str2->elements->Count() == 0)
             {
-                //move the second element in the last element
-                last->elements->RemoveAt(0, 1);
-                last->elements->Move(document->GetElement(el2->id), 0);
+                //move the second element in the GetLast() element
+                GetLast()->elements->RemoveAt(0, 1);
+                GetLast()->elements->Move(document->GetElement(el2->id), 0);
             }
             if (el1 && dynamic_cast<String*>(el1.get()))
             {
                 String* str = dynamic_cast<String*>(el1.get());
                 if (str->elements->Count() > 0)
                 {
-                    //move the first element in the upper element
-                    first->elements->RemoveAt(0, 1);
-                    first->elements->Move(document->GetElement(el1->id), 0);
+                    //move the GetFirst() element in the upper element
+                    GetFirst()->elements->RemoveAt(0, 1);
+                    GetFirst()->elements->Move(document->GetElement(el1->id), 0);
                 }
             }
         }
@@ -184,14 +172,14 @@ bool MiddleShapeFormula::AfterInsert(bool with_undo)
         UpdateFormat(GetFormulaFormat()->string_format);
 
         CaretState c;
-        if (first->elements->Get(0)->elements->Count() == 0)
+        if (GetFirst()->elements->Get(0)->elements->Count() == 0)
         {
-            if (first->GetFirstCaretState(c, nullptr))
+            if (GetFirst()->GetFirstCaretState(c, nullptr))
                 caret->SetState(c);
         }
         else
         {
-            if (last->GetFirstCaretState(c, nullptr))
+            if (GetLast()->GetFirstCaretState(c, nullptr))
                 caret->SetState(c);
         }
 
@@ -209,7 +197,7 @@ bool MiddleShapeFormula::GetLeftCaretState(CaretState& caret_state, Selection* s
     if (select)
     {
         CaretState c;
-        if ((last->GetFirstCaretState(c, nullptr) && caret_state == c) || (first->GetFirstCaretState(c, nullptr) && caret_state == c))
+        if ((GetLast()->GetFirstCaretState(c, nullptr) && caret_state == c) || (GetFirst()->GetFirstCaretState(c, nullptr) && caret_state == c))
         {
             caret_state.SetState(id);
             select->Clear();
@@ -225,7 +213,7 @@ bool MiddleShapeFormula::GetRightCaretState(CaretState& caret_state, Selection* 
     if (select)
     {
         CaretState c;
-        if ((last->GetLastCaretState(c, nullptr) && caret_state == c) || (first->GetLastCaretState(c, nullptr) && caret_state == c))
+        if ((GetLast()->GetLastCaretState(c, nullptr) && caret_state == c) || (GetFirst()->GetLastCaretState(c, nullptr) && caret_state == c))
         {
             caret_state.SetState(parent->id, parent->elements->GetChildPos(id) + 1);
             select->Clear();
@@ -234,6 +222,21 @@ bool MiddleShapeFormula::GetRightCaretState(CaretState& caret_state, Selection* 
         }
     }
     return Formula::GetRightCaretState(caret_state, select);
+}
+
+CodeRow* MiddleShapeFormula::GetFirst() const
+{
+    return (CodeRow*)elements->Get(0).get();
+}
+
+Shape* MiddleShapeFormula::GetShape() const
+{
+    return (Shape*)elements->Get(1).get();
+}
+
+CodeRow* MiddleShapeFormula::GetLast() const
+{
+    return (CodeRow*)elements->Get(2).get();
 }
 
 }
