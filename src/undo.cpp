@@ -28,6 +28,7 @@
 #include "formulas/percent.h"
 #include "formulas/sum.h"
 #include "formulas/product.h"
+#include "formulas/comma.h"
 
 namespace yutovo
 {
@@ -266,6 +267,9 @@ Element* UndoFormula::Restore(Document* document, Element* parent)
         break;
     case ElementType::PERCENT:
         el = parent ? new Percent(parent) : new Percent(document);
+        break;
+    case ElementType::COMMA:
+        el = parent ? new Comma(parent) : new Comma(document);
         break;
     case ElementType::SUM:
     case ElementType::PRODUCT:
@@ -705,6 +709,7 @@ UndoElementPtr UndoBase::StoreElement(const LogicalId id, ElementPtr el)
     case ElementType::PERCENT:
     case ElementType::OPEN_FENCE:
     case ElementType::CLOSE_FENCE:
+    case ElementType::COMMA:
         undo_element.reset(new UndoFormula(el->type, ((Formula*)el.get())->formula_format));
         break;
     case ElementType::SQUARE_ROOT:

@@ -59,7 +59,8 @@ enum class ElementType
     IMAGE,
     SUM,
     PRODUCT,
-    UNIT
+    UNIT,
+    COMMA
 };
 
 enum IdentifierType
