@@ -2810,10 +2810,13 @@ void Document::UpdateChanged()
     if (undo_tasks.empty())
     {
         changed = false;
-        return;
     }
-    TaskPtr t = undo_tasks.back();
-    changed = !(t->id == save_task_id);
+    else
+    {
+        TaskPtr t = undo_tasks.back();
+        changed = !(t->id == save_task_id);
+    }
+    window->OnDocumentChanged(changed);
 }
 
 #ifdef DEBUG
