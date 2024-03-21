@@ -76,6 +76,8 @@ public:
 
     virtual void OnLanguageChanged(const yutovo_calculator::Language language);
 
+    virtual void OnDocumentChanged(const bool changed);
+
     virtual void OnSaveResult(const uint task_id, IOResult result);
     virtual void OnLoadResult(const uint task_id, IOResult result, const int document_id);
 

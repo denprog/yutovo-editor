@@ -76,6 +76,10 @@ void Window::OnLanguageChanged(const yutovo_calculator::Language language)
 {
 }
 
+void Window::OnDocumentChanged(const bool changed)
+{
+}
+
 void Window::OnSaveResult(const uint task_id, IOResult result)
 {
 }
