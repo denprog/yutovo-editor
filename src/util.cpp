@@ -30,6 +30,7 @@
 #include "formulas/sum.h"
 #include "formulas/product.h"
 #include "formulas/unit.h"
+#include "formulas/comma.h"
 
 namespace yutovo
 {
@@ -273,7 +274,8 @@ Element* CreateFromJson(Element* parent, Document* document, rapidjson::Value& v
             {ElementType::IMAGE, &Image::FromJson},
             {ElementType::SUM, &Sum::FromJson},
             {ElementType::PRODUCT, &Product::FromJson},
-            {ElementType::UNIT, &Unit::FromJson}
+            {ElementType::UNIT, &Unit::FromJson},
+            {ElementType::COMMA, &Comma::FromJson}
         };
 
     if (!value.HasMember("type") || !value["type"].IsInt())

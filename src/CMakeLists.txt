@@ -74,6 +74,7 @@ add_library(${PROJECT_NAME}
     formulas/iteration.cpp
     formulas/sum.cpp
     formulas/product.cpp
+    formulas/comma.cpp
 )
 
 target_compile_options(${PROJECT_NAME} PUBLIC -Wno-deprecated-declarations)

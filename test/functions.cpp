@@ -167,4 +167,40 @@ TEST_F(FormulaTest, functions3)
         U"f(3)=28.") << ToBasicString(document.ToText());
 }
 
+//User functions
+TEST_F(FormulaTest, user_functions1)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.InsertString("f", true);
+    document.InsertOpenFence(true);
+    document.InsertString("x", true);
+    document.InsertComma(true);
+    document.InsertString("y", true);
+    document.InsertCloseFence(true);
+    document.WaitTask(document.InsertAssignment(true));
+    document.InsertString("x", true);
+    document.InsertPower(true);
+    document.InsertString("y", true);
+    document.WaitSolver();
+
+    document.WaitTask(document.MoveCaretRight(false));
+    document.WaitTask(document.InsertParagraph(true));
+    document.InsertString("f", true);
+    document.InsertOpenFence(true);
+    document.InsertString("2", true);
+    document.InsertComma(true);
+    document.InsertString("3", true);
+    document.InsertCloseFence(true);
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"f(x,y)=pow(x,y)\n" \
+        U"f(2,3)=8."
+        ) << ToBasicString(document.ToText());
+}
+
 }

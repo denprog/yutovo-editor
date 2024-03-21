@@ -24,6 +24,7 @@
 #include "formulas/percent.h"
 #include "formulas/sum.h"
 #include "formulas/product.h"
+#include "formulas/comma.h"
 #include "util.h"
 #include <assert.h>
 #include <chrono>
@@ -526,13 +527,13 @@ uint Document::InsertPercent(bool with_undo)
 
 uint Document::InsertSum(bool with_undo)
 {
-    LOG_TRACE("Insert Sum");
+    LOG_TRACE("Insert sum");
     return InsertFormula(new Sum(this), with_undo);
 }
 
 uint Document::InsertProduct(bool with_undo)
 {
-    LOG_TRACE("Insert Product");
+    LOG_TRACE("Insert product");
     return InsertFormula(new Product(this), with_undo);
 }
 
@@ -546,6 +547,12 @@ uint Document::InsertImage(const std::vector<unsigned char>& bmp, const int widt
 {
     LOG_TRACE("Insert image");
     return InsertElement(new Image(this, bmp, width, height), with_undo);
+}
+
+uint Document::InsertComma(bool with_undo)
+{
+    LOG_TRACE("Insert comma");
+    return InsertFormula(new Comma(this), with_undo);
 }
 
 uint Document::InsertFences(bool with_undo)

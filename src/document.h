@@ -72,6 +72,7 @@ public:
     uint InsertProduct(bool with_undo);
     uint InsertImage(const std::string& image_base64, const int width, const int height, bool with_undo);
     uint InsertImage(const std::vector<unsigned char>& bmp, const int width, const int height, bool with_undo);
+    uint InsertComma(bool with_undo);
 
     uint InsertFences(bool with_undo);
     
