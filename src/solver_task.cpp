@@ -77,16 +77,13 @@ void SolverTask::GetResultType(const rapidjson::Document& json, Result& result)
 
 void SolverTask::GetDependencies(const rapidjson::Document& json, Result& result)
 {
-    if (json.HasMember("dependencies"))
+    if (json.IsObject() && json.HasMember("dependencies") && json["dependencies"].IsArray())
     {
-        if (json["dependencies"].IsArray())
+        rapidjson::GenericArray d = json["dependencies"].GetArray();
+        for (rapidjson::SizeType i = 0; i < d.Size(); ++i)
         {
-            rapidjson::GenericArray d = json["dependencies"].GetArray();
-            for (rapidjson::SizeType i = 0; i < d.Size(); ++i)
-            {
-                if (d[i].IsString())
-                    result.dependencies.push_back(d[i].GetString());
-            }
+            if (d[i].IsString())
+                result.dependencies.push_back(d[i].GetString());
         }
     }
 }
@@ -692,9 +689,10 @@ bool SetIdentifierSolverTask::Execute(WebSocketPtr socket, Result& result)
 
 //RemoveIdentifierSolverTask
 
-RemoveIdentifierSolverTask::RemoveIdentifierSolverTask(ElementId _id, std::string& _guid, uint _code_id, 
+RemoveIdentifierSolverTask::RemoveIdentifierSolverTask(ElementId _id, std::string& _guid, uint _code_id, Document* _document, 
     const std::u32string& _expression, const uint _delay, Logger* _logger) :
-    SolverTask(_id, _guid, _code_id, ExpressionType::USER_SYMBOL, _expression, _delay, _logger)
+    SolverTask(_id, _guid, _code_id, ExpressionType::USER_SYMBOL, _expression, _delay, _logger),
+    document(_document)
 {
 }
 
@@ -732,6 +730,8 @@ bool RemoveIdentifierSolverTask::Execute(WebSocketPtr socket, Result& result)
         FillError(doc, result);
         return false;
     }
+
+    document->ReSolveDependencies(id, expression);
 
     return true;
 }

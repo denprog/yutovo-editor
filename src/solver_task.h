@@ -121,9 +121,12 @@ struct SetIdentifierSolverTask : AutoSolverTask
 
 struct RemoveIdentifierSolverTask : SolverTask
 {
-    RemoveIdentifierSolverTask(ElementId _id, std::string& _guid, uint _code_id, const std::u32string& _expression, const uint _delay, Logger* _logger);
+    RemoveIdentifierSolverTask(ElementId _id, std::string& _guid, uint _code_id, Document* _document, const std::u32string& _expression, 
+        const uint _delay, Logger* _logger);
 
     virtual bool Execute(WebSocketPtr socket, Result& result);
+
+    Document* document;
 };
 
 struct SetLocaleSolverTask : SolverTask
