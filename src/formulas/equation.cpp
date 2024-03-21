@@ -35,13 +35,13 @@ Equation::Equation(const Equation& source) :
     result_type(source.result_type),
     last_expression(source.last_expression)
 {
-    if (last && last->elements->Count() > 0)
+    if (GetLast() && GetLast()->elements->Count() > 0)
     {
-        auto* r = last->elements->Get(0).get();
+        auto* r = GetLast()->elements->Get(0).get();
         if (dynamic_cast<ResultRow*>(r))
         {
             result.reset((ResultRow*)r->Clone());
-            last->elements->Replace(result, 0);
+            GetLast()->elements->Replace(result, 0);
         }
     }
 }
@@ -75,19 +75,16 @@ Element* Equation::FromJson(Element* parent, Document* document, const rapidjson
 
 bool Equation::AfterFromJson()
 {
-    first = (CodeRow*)elements->Get(0).get();
-    shape = (Shape*)elements->Get(1).get();
-    last = (CodeRow*)elements->Get(2).get();
-    auto* r = last->elements->Get(0).get();
+    auto* r = GetLast()->elements->Get(0).get();
     result.reset((ResultRow*)r->Clone());
-    last->elements->Replace(result, 0);
+    GetLast()->elements->Replace(result, 0);
     return true;
 }
 
 void Equation::Draw() const
 {
     const auto f = GetStringFormat();
-    shape->draw_func = 
+    GetShape()->draw_func = 
         [&](const Rect& r)
         {
             if (document->selection.IsSelected(id))
@@ -102,8 +99,8 @@ void Equation::Draw() const
 void Equation::UpdateRect(bool with_elements)
 {
     Size s = parent->window->GetTextSize(std::u32string(1, '='), GetStringFormat());
-    shape->rect.SetSize(s.width, s.height * 3 / 4);
-    shape->baseline = shape->rect.height / 3 * 2;
+    GetShape()->rect.SetSize(s.width, s.height * 3 / 4);
+    GetShape()->baseline = GetShape()->rect.height / 3 * 2;
 
     MiddleShapeFormula::UpdateRect(false);
 }
@@ -112,7 +109,7 @@ bool Equation::Remake(bool with_elements)
 {
     bool changed = MiddleShapeFormula::Remake(with_elements);
     if (!with_elements)
-        last->Remake(true);
+        GetLast()->Remake(true);
 
     UpdateRect();
 
@@ -124,9 +121,9 @@ bool Equation::Remake(bool with_elements)
             baseline = el->baseline;
     }
 
-    first->rect.Move(0, baseline - first->baseline);
-    shape->rect.Move(first->rect.width, baseline - shape->baseline);
-    last->rect.Move(first->rect.width + shape->rect.width, baseline - last->baseline);
+    GetFirst()->rect.Move(0, baseline - GetFirst()->baseline);
+    GetShape()->rect.Move(GetFirst()->rect.width, baseline - GetShape()->baseline);
+    GetLast()->rect.Move(GetFirst()->rect.width + GetShape()->rect.width, baseline - GetLast()->baseline);
 
     UpdateRect();
 
@@ -140,11 +137,10 @@ bool Equation::Remake(bool with_elements)
 
 bool Equation::DeleteElements(bool left, bool with_undo, ElementId& changed_element)
 {
-    if (caret->IsOnElement(shape->id) && !left)
+    if (caret->IsOnElement(GetShape()->id) && !left)
     {
         if (with_undo)
             document->StoreUndo(parent->id);
-        last = nullptr;
         elements->RemoveAt(2, 1);
     }
     return MiddleShapeFormula::DeleteElements(left, with_undo, changed_element);
@@ -166,16 +162,16 @@ bool Equation::AfterInsert(bool with_undo)
 {
     int pos = parent->elements->GetElementPos(id);
     if (pos > 0)
-        first->elements->Clear();
+        GetFirst()->elements->Clear();
     ready = false;
     for (int i = 0; i < pos; ++i)
     {
         auto el = parent->elements->Get(0);
-        first->elements->Move(el, i);
+        GetFirst()->elements->Move(el, i);
     }
     ready = true;
-    caret->SetState(shape->id);
-    first->SubscribeOnChange(id);
+    caret->SetState(GetShape()->id);
+    GetFirst()->SubscribeOnChange(id);
     return true;
 }
 
@@ -184,7 +180,7 @@ void Equation::Solve()
     MiddleShapeFormula::Solve();
 
     ParserString str;
-    first->ToParserString(str);
+    GetFirst()->ToParserString(str);
     if (last_expression != str)
         document->AddResolveElement(id);
 }
@@ -195,7 +191,7 @@ void Equation::ReSolve(bool if_error)
         return;
     
     ParserString str;
-    first->ToParserString(str);
+    GetFirst()->ToParserString(str);
     if (last_expression == str)
         return;
     
@@ -213,30 +209,30 @@ bool Equation::Depends(const std::string& identifier)
 
 void Equation::SetResult(Config::AutoResultConfig config)
 {
-    result.reset(new AutoResult(last, config));
-    last->elements->Clear();
-    last->elements->Add(result);
+    result.reset(new AutoResult(GetLast(), config));
+    GetLast()->elements->Clear();
+    GetLast()->elements->Add(result);
 }
 
 void Equation::SetResult(Config::RealResultConfig config)
 {
-    result.reset(new RealResult(last, config));
-    last->elements->Clear();
-    last->elements->Add(result);
+    result.reset(new RealResult(GetLast(), config));
+    GetLast()->elements->Clear();
+    GetLast()->elements->Add(result);
 }
 
 void Equation::SetResult(Config::IntegerResultConfig config)
 {
-    result.reset(new IntegerResult(last, config));
-    last->elements->Clear();
-    last->elements->Add(result);
+    result.reset(new IntegerResult(GetLast(), config));
+    GetLast()->elements->Clear();
+    GetLast()->elements->Add(result);
 }
 
 void Equation::SetResult(Config::RationalResultConfig config)
 {
-    result.reset(new RationalResult(last, config));
-    last->elements->Clear();
-    last->elements->Add(result);
+    result.reset(new RationalResult(GetLast(), config));
+    GetLast()->elements->Clear();
+    GetLast()->elements->Add(result);
 }
 
 void Equation::SetResult(Config::ComplexResultConfig config)
@@ -258,7 +254,7 @@ bool Equation::SetResult(ResultType _result_type, bool with_undo)
     document->RemoveErrorMarks(id);
 
     ParserString str;
-    first->ToParserString(str);
+    GetFirst()->ToParserString(str);
     UpdateResult(str);
     return true;
 }
@@ -431,10 +427,10 @@ bool Equation::SetConfig(const yutovo_calculator::Unit& unit, bool with_undo)
 
 std::string Equation::ToHtml()
 {
-    std::string s = first->ToHtml();
+    std::string s = GetFirst()->ToHtml();
     s += "<mo>=</mo>";
-    if (last)
-        s += last->ToHtml();
+    if (GetLast())
+        s += GetLast()->ToHtml();
     return s;
 }
 
@@ -463,37 +459,37 @@ void Equation::UpdateResult(ParserString& str)
 {
     if (!ready)
         return;
-    if (last)
+    if (GetLast())
     {
         if (!result)
         {
             switch (result_type)
             {
         	case ResultType::REAL:
-                result.reset(new RealResult(last));
+                result.reset(new RealResult(GetLast()));
                 break;
         	case ResultType::INTEGER:
-                result.reset(new IntegerResult(last));
+                result.reset(new IntegerResult(GetLast()));
                 break;
         	case ResultType::RATIONAL:
-                result.reset(new RationalResult(last));
+                result.reset(new RationalResult(GetLast()));
                 break;
         	case ResultType::COMPLEX:
-                result.reset(new ComplexResult(last));
+                result.reset(new ComplexResult(GetLast()));
                 break;
             case ResultType::AUTO:
-                result.reset(new AutoResult(last));
+                result.reset(new AutoResult(GetLast()));
                 break;
             default:
                 return;
             }
-            last->elements->Clear();
-            last->elements->Add(result);
+            GetLast()->elements->Clear();
+            GetLast()->elements->Add(result);
         }
         else
         {
             result->Reset();
-            last->elements->Replace(result, 0);
+            GetLast()->elements->Replace(result, 0);
         }
 
         result->Solve(str); //solve the expression in the left part

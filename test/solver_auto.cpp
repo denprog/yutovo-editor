@@ -1209,7 +1209,8 @@ TEST_F(SolverAutoTest, solver25)
 
     document.Redo();
     document.WaitRedo();
-    std::this_thread::sleep_for(600ms);
+    document.WaitSolver();
+    std::this_thread::sleep_for(1s);
     ASSERT_TRUE(document.ToText() == 
         U"234+6=240."
         ) << ToBasicString(document.ToText());

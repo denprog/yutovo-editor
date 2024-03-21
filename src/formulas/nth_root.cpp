@@ -44,7 +44,7 @@ Element* NthRoot::FromJson(Element* parent, Document* document, const rapidjson:
 
 void NthRoot::Draw() const
 {
-    shape->draw_func = 
+    GetShape()->draw_func = 
         [&](const Rect& r)
         {
             std::list<Point> path;
@@ -56,8 +56,8 @@ void NthRoot::Draw() const
             path.push_back(Point{(int)lround(r.left + r.width * 0.343), (int)lround(r.top + r.height * 0.429)});
             path.push_back(Point{(int)lround(r.left + r.width * 0.703), (int)lround(r.top + r.height * 0.869)});
             path.push_back(Point{(int)lround(r.left + r.width * 0.934), r.top});
-            path.push_back(Point{r.GetRight() + last->rect.width, r.top});
-            path.push_back(Point{r.GetRight() + last->rect.width, (int)lround(r.top + r.height * 0.001)});
+            path.push_back(Point{r.GetRight() + GetLast()->rect.width, r.top});
+            path.push_back(Point{r.GetRight() + GetLast()->rect.width, (int)lround(r.top + r.height * 0.001)});
             path.push_back(Point{r.GetRight(), (int)lround(r.top + r.height * 0.001)});
             window->DrawFillPath(path, document->selection.IsSelected(id) ? document->config.formula_bg_color : document->config.shapes_color);
         };
@@ -78,28 +78,28 @@ bool NthRoot::Remake(bool with_elements)
     bool changed = MiddleShapeFormula::Remake(with_elements);
 
     //recalc shape rect
-    int left_up = first->baseline;
-    int left_down = first->rect.height - left_up;
+    int left_up = GetFirst()->baseline;
+    int left_down = GetFirst()->rect.height - left_up;
     int bottom = 0;
     if (left_up > left_down)
         bottom = left_up * 2 + ROOT_Y_OFFSET * 2;
     else
         bottom = left_down * 2 + ROOT_Y_OFFSET * 2;
-    shape->rect.SetRect(0, 0, round(last->rect.height * 5 / 11), std::max(last->rect.height + ROOT_Y_OFFSET * 2, bottom));
+    GetShape()->rect.SetRect(0, 0, round(GetLast()->rect.height * 5 / 11), std::max(GetLast()->rect.height + ROOT_Y_OFFSET * 2, bottom));
 
     //recalc items' rects
     int x_offset = ROOT_X_LEFT_OFFSET;
-    first->rect.Move(x_offset, (shape->rect.height - first->rect.height) / 2);
-    x_offset += first->rect.width;
-    shape->rect.Move(x_offset, 0);
-    x_offset += shape->rect.width + ROOT_X_RIGHT_OFFSET;
+    GetFirst()->rect.Move(x_offset, (GetShape()->rect.height - GetFirst()->rect.height) / 2);
+    x_offset += GetFirst()->rect.width;
+    GetShape()->rect.Move(x_offset, 0);
+    x_offset += GetShape()->rect.width + ROOT_X_RIGHT_OFFSET;
     int y_offset = 0;
-    if (shape->rect.height > last->rect.height)
-        y_offset = ROOT_Y_OFFSET + round((shape->rect.height - last->rect.height) / 2);
+    if (GetShape()->rect.height > GetLast()->rect.height)
+        y_offset = ROOT_Y_OFFSET + round((GetShape()->rect.height - GetLast()->rect.height) / 2);
     else
-        y_offset = ROOT_Y_OFFSET + shape->rect.height * 0.01;
-    last->rect.Move(x_offset, y_offset);
-    baseline = last->rect.top + last->baseline;
+        y_offset = ROOT_Y_OFFSET + GetShape()->rect.height * 0.01;
+    GetLast()->rect.Move(x_offset, y_offset);
+    baseline = GetLast()->rect.top + GetLast()->baseline;
 
     UpdateRect();
 
@@ -116,32 +116,32 @@ void NthRoot::UpdateLevel(uint8_t _level)
     MiddleShapeFormula::UpdateLevel(_level);
     if (_level >= MAX_LEVEL)
         return;
-    if (first)
-        first->UpdateLevel(_level + 1);
+    if (GetFirst())
+        GetFirst()->UpdateLevel(_level + 1);
 }
 
 std::string NthRoot::ToHtml()
 {
     std::string s = "<mroot>";
-    s += last->ToHtml();
-    s += first->ToHtml();
+    s += GetLast()->ToHtml();
+    s += GetFirst()->ToHtml();
     s += "</mroot>";
     return s;
 }
 
 std::u32string NthRoot::ToText()
 {
-    if (!first || !last)
+    if (!GetFirst() || !GetLast())
         return U"";
-    return U"root(" + last->ToText() + U"," + first->ToText() + U")";
+    return U"root(" + GetLast()->ToText() + U"," + GetFirst()->ToText() + U")";
 }
 
 void NthRoot::ToParserString(ParserString& str)
 {
     str.Add(id, U"root(");
-    last->ToParserString(str);
+    GetLast()->ToParserString(str);
     str.Add(id, U",");
-    first->ToParserString(str);
+    GetFirst()->ToParserString(str);
     str.Add(id, U")");
 }
 

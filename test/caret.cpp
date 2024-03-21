@@ -276,8 +276,7 @@ TEST_F(DocumentTest, caret5)
     
     document.MoveCaretEnd(false);
     document.MoveCaretWordLeft(false);
-    document.MoveCaretWordLeft(false);
-    document.WaitCaretMoving();
+    document.WaitTask(document.MoveCaretWordLeft(false));
     document.WaitTask(document.InsertParagraph(true));
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
@@ -295,8 +294,7 @@ TEST_F(DocumentTest, caret5)
         << document.ToHtml();
     
     document.MoveCaretRight(false);
-    document.MoveCaretLeft(true);
-    document.WaitCaretMoving();
+    document.WaitTask(document.MoveCaretLeft(true));
     document.WaitTask(document.MoveCaretLeft(true));
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 3, 7}, 
         ElementSelectionState{ElementId{0, 0, 0, 3}, 7, 1}, 
@@ -310,8 +308,7 @@ TEST_F(DocumentTest, caret5)
     document.WaitTask(document.MoveCaretLeft(false));
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 3, 6)) << document.GetEditorState().ToString();
     for (int i = 0; i < 4; ++i)
-        document.MoveCaretRight(true);
-    document.WaitCaretMoving();
+        document.WaitTask(document.MoveCaretRight(true));
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 1, 0, 0, 2}, 
         ElementSelectionState{ElementId{0, 0, 0, 3}, 6, 2}, 
         ElementSelectionState{ElementId{0, 1, 0, 0}, 0, 2})) << document.GetEditorState().ToString();
