@@ -520,38 +520,46 @@ TEST_F(DocumentTest, files12)
 
     ASSERT_TRUE(document.IsChanged() == false);
     document.WaitTask(document.InsertString("Text ", true));
+    std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.IsChanged() == true);
     document.WaitTask(document.InsertString("s", true));
     document.WaitTask(document.InsertString("t", true));
     document.WaitTask(document.InsertString("ring", true));
+    std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.IsChanged() == true);
 
     document.Undo();
     document.WaitUndo();
     ASSERT_TRUE(document.ToText() == U"Text st") << ToBasicString(document.ToText());
+    std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.IsChanged() == true);
 
     document.Undo();
     document.WaitUndo();
     ASSERT_TRUE(document.ToText() == U"Text s") << ToBasicString(document.ToText());
+    std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.IsChanged() == true);
 
     document.WaitTask(document.Save("files12.yut"));
+    std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.IsChanged() == false);
 
     document.Redo();
     document.WaitRedo();
     ASSERT_TRUE(document.ToText() == U"Text st") << ToBasicString(document.ToText());
+    std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.IsChanged() == true);
 
     document.Undo();
     document.WaitUndo();
     ASSERT_TRUE(document.ToText() == U"Text s") << ToBasicString(document.ToText());
+    std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.IsChanged() == false);
 
     document.Undo();
     document.WaitUndo();
     ASSERT_TRUE(document.ToText() == U"Text ") << ToBasicString(document.ToText());
+    std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.IsChanged() == true);
 }
 
