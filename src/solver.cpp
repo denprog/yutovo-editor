@@ -120,7 +120,7 @@ void Solver::RemoveIdentifier(ElementId id, uint code_id, const std::u32string& 
     if (!id_arr.empty())
     {
         std::unique_lock<std::mutex> lock(tasks_mutex);
-        tasks.emplace_back(new RemoveIdentifierSolverTask(id, guid, code_id, id_arr[0], delay, logger));
+        tasks.emplace_back(new RemoveIdentifierSolverTask(id, guid, code_id, document, id_arr[0], delay, logger));
         tasks.emplace_back(new ListIdentifiersSolverTask(guid, code_id, document, logger)); //for syntax highlight
         tasks.emplace_back(nullptr);
         next_circle = true;
