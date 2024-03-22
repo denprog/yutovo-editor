@@ -131,12 +131,11 @@ struct RemoveIdentifierSolverTask : SolverTask
 
 struct SetLocaleSolverTask : SolverTask
 {
-    SetLocaleSolverTask(std::string& _guid, const yutovo_calculator::Language _language, const char _decimal_point, Document* _document, Logger* _logger);
+    SetLocaleSolverTask(std::string& _guid, const yutovo_calculator::Language _language, Document* _document, Logger* _logger);
 
     virtual bool Execute(WebSocketPtr socket, Result& result);
 
     yutovo_calculator::Language language;
-    char decimal_point;
     Document* document;
 };
 

@@ -1079,23 +1079,25 @@ TEST_F(SolverAutoTest, solver22)
     std::this_thread::sleep_for(600ms);
     document.MoveCaretLeft(false);
     document.WaitTask(document.DeleteElements(false, true));
-    ASSERT_TRUE(document.ToText() == U"(3)/(3)1.") << ToBasicString(document.ToText());
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 1, 0, 0})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.ToText() == U"(3)/(3)=1.") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 0, 1})) << document.GetEditorState().ToString();
+    document.MoveCaretRight(false);
     document.WaitTask(document.DeleteElements(false, true));
-    ASSERT_TRUE(document.ToText() == U"(3)/(3).") << ToBasicString(document.ToText());
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 1, 0, 0})) << document.GetEditorState().ToString();
-
-    document.Undo();
-    document.WaitUndo();
-    ASSERT_TRUE(document.ToText() == U"(3)/(3)1.") << ToBasicString(document.ToText());
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 1, 0, 0})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.ToText() == U"(3)/(3)") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 1})) << document.GetEditorState().ToString();
 
     document.Undo();
     document.WaitUndo();
     document.WaitSolver();
     std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToText() == U"(3)/(3)=1.") << ToBasicString(document.ToText());
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 0, 1})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 1})) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == U"(3)/(3)") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 1})) << document.GetEditorState().ToString();
 }
 
 //Complex numbers
@@ -1307,24 +1309,24 @@ TEST_F(SolverAutoTest, solver29)
 {
     Start(600);
     
-    document.SetLocale(yutovo_calculator::Language::Russian, ',');
+    document.SetLocale(yutovo_calculator::Language::Russian);
     document.InsertCode(false, true);
-    document.WaitTask(document.InsertString("6,5", true));
+    document.WaitTask(document.InsertString("6.5", true));
     document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
     document.WaitSolver();
     std::this_thread::sleep_for(2s);
-    ASSERT_TRUE(document.ToText() == U"6,5=6,5") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.ToText() == U"6.5=6.5") << ToBasicString(document.ToText());
 
     document.MoveCaretToDocumentEnd(false);
     document.InsertParagraph(true);
     document.InsertCode(true, true);
-    document.InsertString("5,5", true);
+    document.InsertString("5.5", true);
     document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
     document.WaitSolver();
     std::this_thread::sleep_for(2s);
     ASSERT_TRUE(document.ToText() == 
-        U"6,5=6,5\n"
-        U"5,5=5,5"
+        U"6.5=6.5\n"
+        U"5.5=5.5"
         ) << ToBasicString(document.ToText());
 }
 
@@ -1645,22 +1647,17 @@ TEST_F(SolverAutoTest, errors4)
 
     document.MoveCaretLeft(false);
     document.WaitTask(document.DeleteElements(false, true));
-    ASSERT_TRUE(document.ToText() == U"(3)/()Syntaxerror") << ToBasicString(document.ToText());
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 1, 0, 0})) << document.GetEditorState().ToString();
-    ASSERT_TRUE(!document.HasErrorMarks(ElementId{0, 0}));
-
-    document.WaitTask(document.DeleteElements(false, true));
-    ASSERT_TRUE(document.ToText() == U"(3)/()yntaxerror") << ToBasicString(document.ToText());
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 1, 0, 0})) << document.GetEditorState().ToString();
-    ASSERT_TRUE(!document.HasErrorMarks(ElementId{0, 0}));
+    ASSERT_TRUE(document.ToText() == U"(3)/()=Syntax error") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 0, 1})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.HasErrorMarks(ElementId{0, 0}));
 
     document.Undo();
     document.WaitUndo();
-    ASSERT_TRUE(document.ToText() == U"(3)/()Syntaxerror") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.ToText() == U"(3)/()") << ToBasicString(document.ToText());
     ASSERT_TRUE(!document.HasErrorMarks(ElementId{0, 0}));
 
-    document.Undo();
-    document.WaitUndo();
+    document.Redo();
+    document.WaitRedo();
     document.WaitSolver();
     std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToText() == U"(3)/()=Syntax error") << ToBasicString(document.ToText());
@@ -1858,7 +1855,7 @@ TEST_F(SolverAutoTest, units7)
     config.service_timeout = 20;
     document.SetConfig(config);
 
-    document.SetLocale(yutovo_calculator::Language::Russian, ',');
+    document.SetLocale(yutovo_calculator::Language::Russian);
     document.InsertCode(1, true);
     document.InsertDivision(true);
     document.InsertString("6кг", true);
@@ -1870,7 +1867,7 @@ TEST_F(SolverAutoTest, units7)
     document.MoveCaretRight(false);
     document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
     document.WaitSolver();
-    ASSERT_TRUE(document.ToText() == U"(6кг*2м)/(4сек)=3,(кг*м)/(сек)") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.ToText() == U"(6кг*2м)/(4сек)=3.(кг*м)/(сек)") << ToBasicString(document.ToText());
 }
 
 //Change language
@@ -1889,17 +1886,17 @@ TEST_F(SolverAutoTest, units8)
     document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
     document.WaitSolver();
 
-    document.SetLocale(yutovo_calculator::Language::Russian, U',');
+    document.SetLocale(yutovo_calculator::Language::Russian);
     document.MoveCaretEnd(false);
     document.InsertParagraph(true);
-    document.InsertString("4,2Н", true);
+    document.InsertString("4.2Н", true);
     document.InsertMultiply(true);
     document.InsertString("м", true);
     document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
     document.WaitSolver();
     ASSERT_TRUE(document.ToText() == 
         U"4N*m=4.J\n"\
-        U"4,2Н*м=4,2Дж") << ToBasicString(document.ToText());
+        U"4.2Н*м=4.2Дж") << ToBasicString(document.ToText());
 }
 
 //Implicit multiplication of division
