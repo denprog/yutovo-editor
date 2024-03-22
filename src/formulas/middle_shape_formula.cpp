@@ -76,7 +76,7 @@ bool MiddleShapeFormula::DeleteElements(bool left, bool with_undo, ElementId& ch
         }
         return false;
     }
-    else if (!selection->IsEmpty() || left || caret->GetPos() != 1)
+    else if (!selection->IsEmpty() || left || caret->GetPos() != 1 || caret->GetElement() != this)
         return false;
     
     if (with_undo)
