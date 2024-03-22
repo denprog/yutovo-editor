@@ -2584,10 +2584,10 @@ void Document::GetSolverGuid(std::string& guid)
     guid = solver.guid;
 }
 
-void Document::SetLocale(const yutovo_calculator::Language language, const char decimal_point)
+void Document::SetLocale(const yutovo_calculator::Language language)
 {
     config.language = language;
-    solver.SetLocale(language, decimal_point);
+    solver.SetLocale(language);
 }
 
 void Document::ElementIdChanged(ElementId last_id, ElementId new_id)

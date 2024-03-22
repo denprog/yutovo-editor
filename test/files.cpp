@@ -596,7 +596,7 @@ TEST_F(DocumentTest, files14)
 {
     Start(600);
 
-    document.SetLocale(yutovo_calculator::Language::Russian, ',');
+    document.SetLocale(yutovo_calculator::Language::Russian);
     document.InsertCode(false, true);
     document.WaitTask(document.InsertString("1+j", true));
     document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
@@ -605,7 +605,7 @@ TEST_F(DocumentTest, files14)
 
     document.WaitTask(document.Save("files14.yut"));
     document.WaitTask(document.New());
-    document.SetLocale(yutovo_calculator::Language::English, '.');
+    document.SetLocale(yutovo_calculator::Language::English);
     document.Load("files14.yut");
     document.WaitLoad();
     document.WaitSolver();

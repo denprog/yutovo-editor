@@ -28,7 +28,7 @@ public:
 
     void SetIdentifier(ElementId id, uint code_id, const std::u32string& identifier, const std::u32string& expression, const uint delay);
     void RemoveIdentifier(ElementId id, uint code_id, const std::u32string& identifier, const uint delay);
-    void SetLocale(const yutovo_calculator::Language language, const char decimal_point);
+    void SetLocale(const yutovo_calculator::Language language);
 
 private:
     void MessageLoop();

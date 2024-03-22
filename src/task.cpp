@@ -1474,7 +1474,7 @@ bool LoadTask::LoadJson(rapidjson::Document& doc)
     {
         //load config
         document->config.FromJson(doc["config"], alloc);
-        document->SetLocale(document->config.language, '.');
+        document->SetLocale(document->config.language);
     }
 
     if (doc.HasMember("string_formats") && doc["string_formats"].IsArray())
