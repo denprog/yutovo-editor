@@ -119,7 +119,6 @@ bool Assignment::AfterInsert(bool with_undo)
     GetLast()->GetFirstCaretState(c, nullptr);
     caret->SetState(c);
     last_expression.Reset();
-    GetLast()->SubscribeOnChange(id);
     return true;
 }
 
@@ -133,7 +132,6 @@ void Assignment::BeforeDelete()
             document->RemoveIdentifier(id, ((CodeBlock*)code.get())->code_id, last_identifier, delay ? document->config.solve_delay : 0);
             delay = true;
         }
-        GetLast()->UnsubscribeOnChange(id);
     }
 }
 

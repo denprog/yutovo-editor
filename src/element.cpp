@@ -34,8 +34,6 @@ Element::Element(Element* _parent) :
         logger = document->logger;
     else if (parent)
         logger = parent->logger;
-    if (parent)
-        on_change_subscribers = parent->on_change_subscribers;
 }
 
 Element::Element(const Element& source) :
@@ -51,7 +49,6 @@ Element::Element(const Element& source) :
     selection(&document->selection),
     remake_always(source.remake_always),
     can_merge(source.can_merge),
-    on_change_subscribers(source.on_change_subscribers),
     logger(source.logger)
 {
     elements.reset(source.elements->Clone(this)); //deep copy
@@ -892,44 +889,6 @@ void Element::ReSolve(bool if_error)
         elements->Get(i)->ReSolve(if_error);
 }
 
-void Element::SubscribeOnChange(const ElementId _id)
-{
-    if (_id.empty())
-        return;
-    auto el = document->GetElement(_id);
-    for (int i = 0; i < elements->Count(); ++i)
-        elements->Get(i)->SubscribeOnChange(_id);
-    if (std::find(on_change_subscribers.begin(), on_change_subscribers.end(), _id) == on_change_subscribers.end())
-        on_change_subscribers.push_back(_id);
-}
-
-void Element::UnsubscribeOnChange(const ElementId _id)
-{
-    auto it = std::find(on_change_subscribers.begin(), on_change_subscribers.end(), _id);
-    if (it == on_change_subscribers.end())
-        return;
-    on_change_subscribers.erase(it);
-}
-
-void Element::EmitChanged()
-{
-    for (auto it = on_change_subscribers.begin(); it != on_change_subscribers.end();)
-    {
-        auto el = document->GetElement(*it);
-        if (!el)
-        {
-            on_change_subscribers.erase(it);
-            continue;
-        }
-        el->OnChanged(id);
-        ++it;
-    }
-}
-
-void Element::OnChanged(const ElementId _id)
-{
-}
-
 //Elements
 
 Elements::Elements(Element* _parent) :
@@ -1098,8 +1057,6 @@ void Elements::Add(ElementPtr element)
     //set id
     UpdateIds();
 
-    parent->EmitChanged();
-
 #ifdef DEBUG
     parent->to_str = parent->ToText();
 #endif
@@ -1133,9 +1090,6 @@ void Elements::Insert(ElementPtr element, const uint pos)
     element->parent = parent;
     element->document = parent->document;
     element->window = parent->window;
-
-    for (auto _id : parent->on_change_subscribers)
-        element->SubscribeOnChange(_id);
 
     UpdateIds(); //set id
 
@@ -1184,8 +1138,6 @@ void Elements::Insert(ElementPtr element, const uint pos)
     if (!p_s.IsEmpty())
         selection->Add(GetWithParent(p_s.element->id, element->id), p_s.start, p_s.size);
 
-    parent->EmitChanged();
-
 #ifdef DEBUG
     parent->to_str = parent->ToText();
     element->to_str = element->ToText();
@@ -1195,8 +1147,6 @@ void Elements::Insert(ElementPtr element, const uint pos)
 void Elements::Remove(const ElementPtr element)
 {
     parent->elements->RemoveAt(element->parent->elements->GetElementPos(element->id), 1);
-
-    parent->EmitChanged();
 
 #ifdef DEBUG
     parent->to_str = parent->ToText();
@@ -1266,8 +1216,6 @@ void Elements::RemoveAt(const uint pos, const int size)
     else
         caret->Update();
 
-    parent->EmitChanged();
-
 #ifdef DEBUG
     parent->to_str = parent->ToText();
 #endif
@@ -1308,8 +1256,6 @@ void Elements::ReplaceAll(const Elements& _elements)
 void Elements::Clear()
 {
     elements.clear();
-
-    parent->EmitChanged();
 
 #ifdef DEBUG
     parent->to_str = parent->ToText();

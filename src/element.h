@@ -132,11 +132,6 @@ public:
     virtual void Solve();
     virtual void ReSolve(bool if_error = false);
 
-    virtual void SubscribeOnChange(const ElementId _id);
-    virtual void UnsubscribeOnChange(const ElementId _id);
-    void EmitChanged();
-    virtual void OnChanged(const ElementId _id);
-
 public:
     Element* parent = nullptr;
 
@@ -163,8 +158,6 @@ protected:
     
     CaretPtr caret;
     Selection* selection = nullptr;
-
-    std::vector<ElementId> on_change_subscribers;
 
     bool remake_always = false;
 

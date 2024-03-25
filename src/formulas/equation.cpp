@@ -171,7 +171,6 @@ bool Equation::AfterInsert(bool with_undo)
     }
     ready = true;
     caret->SetState(GetShape()->id);
-    GetFirst()->SubscribeOnChange(id);
     return true;
 }
 
