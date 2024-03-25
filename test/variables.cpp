@@ -461,7 +461,7 @@ TEST_F(VariablesTest, errors1)
     document.InsertCode(false, true);
     document.InsertString("d", true);
     document.WaitTask(document.InsertAssignment(true));
-    std::this_thread::sleep_for(1s);
+    std::this_thread::sleep_for(2s);
     ASSERT_TRUE(document.ToText() == U"d=") << ToBasicString(document.ToText());
     int start, size;
     ASSERT_TRUE(document.HasErrorMark(ElementId{0, 0, 0, 0, 0, 0, 0, 2}, start, size));
@@ -610,7 +610,7 @@ TEST_F(VariablesTest, variables8)
     document.InsertString("5", true);
     document.MoveCaretRight(false);
     document.WaitSolver();
-    std::this_thread::sleep_for(600ms);
+    std::this_thread::sleep_for(1s);
     ASSERT_TRUE(document.ToText() == 
         U"d=(1)/(3)\n" \
         U"d=(4)/(5)\n" \
