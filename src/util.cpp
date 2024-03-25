@@ -340,7 +340,8 @@ std::string ErrorCodeToString(const yutovo_calculator::ParserExceptionCode parse
             {ParserExceptionCode::Overflow, "Overflow"},
             {ParserExceptionCode::ArgumentIsOver, "Argument is over"},
             {ParserExceptionCode::UnitsAreIncompatible, "Units are incompatible"},
-            {ParserExceptionCode::ConversionDoesNotFit, "Conversion does not fit"}
+            {ParserExceptionCode::ConversionDoesNotFit, "Conversion does not fit"},
+            {ParserExceptionCode::TimeExceed, "Solving time exceeded"}
         };
     return error_code_str[parser_error_code];
 }
