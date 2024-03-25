@@ -28,7 +28,7 @@ public:
 
     void SetIdentifier(ElementId id, uint code_id, const std::u32string& identifier, const std::u32string& expression, const uint delay);
     void RemoveIdentifier(ElementId id, uint code_id, const std::u32string& identifier, const uint delay);
-    void SetLocale(const yutovo_calculator::Language language);
+    void SetLocale(const yutovo_calculator::Language _language);
 
 private:
     void MessageLoop();
@@ -40,6 +40,7 @@ public:
     
 private:
     Document* document;
+    yutovo_calculator::Language language = yutovo_calculator::Language::English;
 
     std::deque<SolverTaskPtr> tasks;
     std::vector<yutovo_service::ResultType> result_types_seq;

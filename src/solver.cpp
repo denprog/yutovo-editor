@@ -24,6 +24,7 @@ Solver::Solver(Document* _document) :
 {
     guid = boost::uuids::to_string(boost::uuids::random_generator()());
     result_types_seq = {ResultType::REAL, ResultType::INTEGER, ResultType::RATIONAL, ResultType::COMPLEX};
+    language = document->config.language;
 }
 
 Solver::~Solver()
@@ -127,8 +128,9 @@ void Solver::RemoveIdentifier(ElementId id, uint code_id, const std::u32string& 
     }
 }
 
-void Solver::SetLocale(const yutovo_calculator::Language language)
+void Solver::SetLocale(const yutovo_calculator::Language _language)
 {
+    language = _language;
     std::unique_lock<std::mutex> lock(tasks_mutex);
     tasks.emplace_back(new SetLocaleSolverTask(guid, language, document, logger));
     tasks.emplace_back(nullptr);
@@ -274,6 +276,7 @@ void Solver::MessageLoop()
             {
                 document->ReSolve(t->id); //re-solve the expression
                 std::unique_lock<std::mutex> lock(tasks_mutex);
+                tasks.emplace_back(new SetLocaleSolverTask(guid, language, document, logger));
                 tasks.emplace_back(new ListIdentifiersSolverTask(guid, t->code_id, document, logger)); //for syntax highlight
             }
 
