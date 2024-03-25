@@ -301,8 +301,6 @@ bool String::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo, 
             parent->Normalize();
             auto p = document->FindParent(id, ElementType::PARAGRAPH);
             p->elements->UpdateIds();
-            on_change_subscribers = parent->on_change_subscribers;
-            parent->EmitChanged();
             changed_element = id;
 #ifdef DEBUG
             to_str = ToText();
@@ -318,8 +316,6 @@ bool String::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo, 
             parent->Normalize();
             auto p = document->FindParent(id, ElementType::PARAGRAPH);
             p->elements->UpdateIds();
-            on_change_subscribers = parent->on_change_subscribers;
-            parent->EmitChanged();
             changed_element = id;
 #ifdef DEBUG
             to_str = ToText();
@@ -793,14 +789,6 @@ void String::ReSolve(bool if_error)
 {
 }
 
-void String::SubscribeOnChange(const ElementId _id)
-{
-    if (_id.empty())
-        return;
-    if (std::find(on_change_subscribers.begin(), on_change_subscribers.end(), _id) == on_change_subscribers.end())
-        on_change_subscribers.push_back(_id);
-}
-
 //StringElements
 
 StringElements::StringElements(Element* parent) :
@@ -890,8 +878,6 @@ void StringElements::Insert(ElementPtr element, const uint pos)
         selection->Remove(element->id, start, size);
     }
 
-    parent->EmitChanged();
-
 #ifdef DEBUG
     parent->to_str = parent->ToText();
 #endif
@@ -916,8 +902,6 @@ void StringElements::RemoveAt(const uint pos, const int size)
     str.erase(str.begin() + pos, str.begin() + pos + size);
     selection->Remove(parent->id, pos, size);
 
-    parent->EmitChanged();
-
 #ifdef DEBUG
     parent->to_str = parent->ToText();
 #endif
@@ -926,8 +910,6 @@ void StringElements::RemoveAt(const uint pos, const int size)
 void StringElements::Clear()
 {
     str = U"";
-
-    parent->EmitChanged();
 
 #ifdef DEBUG
     parent->to_str = parent->ToText();

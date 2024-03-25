@@ -79,8 +79,6 @@ public:
 
     virtual void ReSolve(bool if_error = false);
 
-    virtual void SubscribeOnChange(const ElementId _id);
-
 public:
     StringFormatPtr format;
     bool translate = false;
