@@ -29,6 +29,7 @@ WebSocket::~WebSocket()
     if (socket_id > 0)
         window->Close(socket_id);
 #endif
+    exit = true;
     LOG_INFO("WebSocket closed");
 }
 
@@ -44,15 +45,21 @@ bool WebSocket::Connect()
     connection = true;
     connected = false;
 
+    time_t start = time(0);
     asio::ip::tcp::resolver resolver(ioc);
-    beast::get_lowest_layer(ws).expires_after(config.service_timeout * std::chrono::seconds(1));
+    beast::get_lowest_layer(ws).expires_after(config.service_timeout * 1s);
     ioc.restart();
     
     beast::get_lowest_layer(ws).async_connect(resolver.resolve(host, port), beast::bind_front_handler(&WebSocket::OnConnect, shared_from_this()));
 
     while (connection)
     {
+        time_t now = time(0);
+        if (now - start >= config.service_timeout - 1)
+            return false;
         ioc.run_one();
+        if (exit)
+            return false;
     }
     return connected;
 #endif
@@ -76,6 +83,8 @@ bool WebSocket::Send(const std::string& message, Result& result)
     while (writing)
     {
         ioc.run_one();
+        if (exit)
+            return false;
     }
     if (last_error != boost::system::errc::success)
     {
@@ -132,6 +141,12 @@ bool WebSocket::IsOpen()
 #else
     return ws.is_open();
 #endif
+}
+
+void WebSocket::Close()
+{
+    exit = true;
+    beast::get_lowest_layer(ws).cancel();
 }
 
 #ifndef EMSCRIPTEN

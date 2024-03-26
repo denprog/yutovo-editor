@@ -29,6 +29,11 @@ Solver::Solver(Document* _document) :
 
 Solver::~Solver()
 {
+    {
+        std::unique_lock<std::mutex> lock(socket_mutex);
+        if (socket)
+            socket->Close();
+    }
     exit = true;
     next_circle = true;
     message_loop.join();
@@ -142,7 +147,10 @@ void Solver::MessageLoop()
     bool connected = false;
     bool connection_error = false;
 
-    WebSocketPtr socket(new WebSocket(document->config, document->window));
+    {
+        std::unique_lock<std::mutex> lock(socket_mutex);
+        socket.reset(new WebSocket(document->config, document->window));
+    }
     if (!socket->Connect() || !socket->IsOpen())
     {
         LOG_ERROR("Error connecting to the server: {}:{}", document->config.service_ip, document->config.service_port);
@@ -187,6 +195,9 @@ void Solver::MessageLoop()
             std::this_thread::sleep_for(10ms);
         }
 
+        if (exit)
+            return;
+
         next = time(0);
 
         if (connection_error)
@@ -194,7 +205,10 @@ void Solver::MessageLoop()
             if (next - now >= document->config.reconnect_timeout)
             {
                 now = time(0);
-                socket.reset(new WebSocket(document->config, document->window)); //recreate the socket
+                {
+                    std::unique_lock<std::mutex> lock(socket_mutex);
+                    socket.reset(new WebSocket(document->config, document->window)); //recreate the socket
+                }
                 if (!socket->Connect() || !socket->IsOpen())
                 {
                     LOG_ERROR("Error connecting to the server: {}:{}", document->config.service_ip, document->config.service_port);
@@ -250,8 +264,11 @@ void Solver::MessageLoop()
             {
                 if (result.error.error_code == yutovo_service::ErrorCode::OPERATION_ERROR)
                 {
-                    socket.reset(new WebSocket(document->config, document->window)); //recreate the socket
-                    if (!socket->Connect() || !socket->IsOpen())
+                    {
+                        std::unique_lock<std::mutex> lock(socket_mutex);
+                        socket.reset(new WebSocket(document->config, document->window)); //recreate the socket
+                    }
+                    if (!socket->IsOpen())
                     {
                         LOG_ERROR("Error connecting to the server: {}:{}", document->config.service_ip, document->config.service_port);
                     }

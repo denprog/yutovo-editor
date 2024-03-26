@@ -42,6 +42,9 @@ private:
     Document* document;
     yutovo_calculator::Language language = yutovo_calculator::Language::English;
 
+    std::mutex socket_mutex;
+    WebSocketPtr socket;
+
     std::deque<SolverTaskPtr> tasks;
     std::vector<yutovo_service::ResultType> result_types_seq;
 
