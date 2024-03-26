@@ -41,6 +41,7 @@ public:
     bool Send(const std::string& message, Result& result);
     bool Receive(std::string& message, Result& result);
     bool IsOpen();
+    void Close();
 
 private:
 #ifndef EMSCRIPTEN
@@ -83,6 +84,8 @@ private:
 #endif
 
     std::string host, port;
+
+    bool exit = false;
 
     Logger* logger;
 };
