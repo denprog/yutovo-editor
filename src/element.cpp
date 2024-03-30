@@ -564,11 +564,11 @@ void Element::UpdateRect(bool with_elements)
     int bottom = std::numeric_limits<int>::min();
     for (uint i = 0; i < elements->Count(); ++i)
     {
-        auto element = elements->Get(i);
-        if (element->rect.GetRight() > right)
-            right = element->rect.GetRight();
-        if (element->rect.GetBottom() > bottom)
-            bottom = element->rect.GetBottom();
+        Rect& r = elements->Get(i)->rect;
+        if (r.GetRight() > right)
+            right = r.GetRight();
+        if (r.GetBottom() > bottom)
+            bottom = r.GetBottom();
     }
     rect.SetSize(right, bottom);
 }

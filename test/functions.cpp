@@ -135,6 +135,7 @@ TEST_F(FormulaTest, functions3)
     document.InsertCloseFence(true);
     document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
     document.WaitSolver();
+    std::this_thread::sleep_for(1s);
     ASSERT_TRUE(document.ToText() == 
         U"f(x)=x\n" \
         U"f(2)=2.\n" \
@@ -159,7 +160,7 @@ TEST_F(FormulaTest, functions3)
     document.InsertPlus(true);
     document.WaitTask(document.InsertString("4", true));
     document.WaitSolver();
-    std::this_thread::sleep_for(600ms);
+    std::this_thread::sleep_for(1s);
     ASSERT_TRUE(document.ToText() == 
         U"f(x)=x+4\n" \
         U"f(2)=6.\n" \

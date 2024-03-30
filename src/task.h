@@ -103,11 +103,12 @@ struct ChangeStringFormatTask : Task
 
 struct ChangeParagraphFormatTask : Task
 {
-    ChangeParagraphFormatTask(ElementPtr _text, const ParagraphFormatPtr& _format, bool _with_undo);
-    ChangeParagraphFormatTask(ElementPtr _text, const ParagraphFormatPtr& _format, uint _id);
+    ChangeParagraphFormatTask(ElementPtr _text, ElementId _element_id, const ParagraphFormatPtr& _format, bool _with_undo);
+    ChangeParagraphFormatTask(ElementPtr _text, ElementId _element_id, const ParagraphFormatPtr& _format, uint _id);
 
     virtual bool Execute();
 
+    ElementId element_id;
     ParagraphFormatPtr format;
 
     LogicalEditorState before_state;

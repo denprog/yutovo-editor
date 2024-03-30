@@ -675,15 +675,17 @@ bool ChangeStringFormatTask::Execute()
 
 //ChangeParagraphFormatTask
 
-ChangeParagraphFormatTask::ChangeParagraphFormatTask(ElementPtr _text, const ParagraphFormatPtr& _format, bool _with_undo) :
+ChangeParagraphFormatTask::ChangeParagraphFormatTask(ElementPtr _text, ElementId _element_id, const ParagraphFormatPtr& _format, bool _with_undo) :
     Task(_text),
+    element_id(_element_id),
     format(_format)
 {
     with_undo = _with_undo;
 }
 
-ChangeParagraphFormatTask::ChangeParagraphFormatTask(ElementPtr _text, const ParagraphFormatPtr& _format, uint _id) :
+ChangeParagraphFormatTask::ChangeParagraphFormatTask(ElementPtr _text, ElementId _element_id, const ParagraphFormatPtr& _format, uint _id) :
     Task(_text, _id), 
+    element_id(_element_id),
     format(_format)
 {
 }
@@ -692,15 +694,19 @@ bool ChangeParagraphFormatTask::Execute()
 {
     size_t last_undo_size = document->GetUndoSize();
 
-    CaretState caret_state;
+    ElementPtr el;
     if (before_state.IsEmpty())
+    {
         before_state = document->GetLogicalEditorState();
+        el = document->FindParentParagraph(element_id);
+    }
     else
+    {
         document->SetEditorState(before_state); //it is redo
+        CaretState caret_state = document->caret->GetCaretState();
+        el = document->FindParentParagraph(caret_state.id);
+    }
 
-    caret_state = document->caret->GetCaretState();
-
-    auto el = document->FindParentParagraph(caret_state.id);
     if (!el)
         return false;
 

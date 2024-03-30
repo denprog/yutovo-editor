@@ -30,6 +30,17 @@ Paragraph::Paragraph(Document* _document, bool with_row) :
         AddEmptyElement(); //paragraph has to have at least one row
 }
 
+Paragraph::Paragraph(Document* _document, ParagraphFormatPtr _format, bool with_row) :
+    Element(_document),
+    format(_format)
+{
+    type = ElementType::PARAGRAPH;
+
+    document->GetCurrentStringFormat(current_string_format);
+    if (with_row)
+        AddEmptyElement(); //paragraph has to have at least one row
+}
+
 Element* Paragraph::Clone()
 {
     return new Paragraph(*this);
@@ -43,8 +54,10 @@ Element* Paragraph::Create(Element* parent)
 void Paragraph::ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc)
 {
     Element::ToJson(value, alloc);
+
     rapidjson::Value _format_name(format->name.c_str(), alloc);
     value.AddMember("format_name", _format_name, alloc);
+    value.AddMember("format_alignment", (int)format->alignment, alloc);
 }
 
 Element* Paragraph::FromJson(Element* parent, Document* document, const rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc)
@@ -58,9 +71,18 @@ Element* Paragraph::FromJson(Element* parent, Document* document, const rapidjso
     if (!value.HasMember("format_name") || !value["format_name"].IsString())
         return p;
     auto format_name = value["format_name"].GetString();
+    ParagraphFormat::Alignment alignment = ParagraphFormat::Alignment::Left;
+    if (value.HasMember("format_alignment") && value["format_alignment"].IsInt())
+        alignment = (ParagraphFormat::Alignment)value["format_alignment"].GetInt();
+
     auto f = document->paragraph_formats->GetFormat(format_name);
     if (f)
-        p->format = f;
+    {
+        f = document->paragraph_formats->GetFormat(format_name, alignment, f->word_wrap, f->line_spacing, f->indent_before, f->indent_after, 
+            f->indent_first_line, f->spacing_before, f->spacing_after, f->default_string_format);
+        if (f)
+            p->format = f;
+    }
     return p;
 }
 
@@ -81,7 +103,7 @@ bool Paragraph::Remake(bool with_elements)
     if (document->break_remake)
         return false;
     
-    bool changed = Element::Remake(with_elements);
+    bool changed = Element::Remake(format->alignment == ParagraphFormat::Alignment::Justify ? true : with_elements);
 
     int left_m = 0, top_m = 0, right_m = 0, bottom_m = 0;
 
@@ -195,6 +217,8 @@ bool Paragraph::Remake(bool with_elements)
     for (int i = 0; i < elements->Count(); ++i)
     {
         ElementPtr row = elements->Get(i);
+        if (row->type == ElementType::ROW)
+            ((Row*)row.get())->Align(format->alignment);
         row->GetMargin(left_m, top_m, right_m, bottom_m); //consider the margins
         row->rect.Move(format->indent_before, h + top_m); //move the row
         h += row->rect.height + format->line_spacing + top_m + bottom_m;
@@ -333,7 +357,7 @@ bool Paragraph::DeleteElements(bool left, bool with_undo, ElementId& changed_ele
 
 bool Paragraph::ChangeParagraphFormat(const ParagraphFormatPtr _format, bool with_undo, ElementId& changed_element)
 {
-    if (format->name == _format->name)
+    if (*format == *_format)
         return false;
     
     if (with_undo)
@@ -344,6 +368,7 @@ bool Paragraph::ChangeParagraphFormat(const ParagraphFormatPtr _format, bool wit
 
     format = _format;
     changed_element = id;
+    window->OnCaretMoved(document->MakeEditorState());
     
     return true;
 }
@@ -430,7 +455,22 @@ StringFormatPtr Paragraph::GetStringFormat() const
 
 std::string Paragraph::ToHtml()
 {
-    return "<p>" + Element::ToHtml() + "</p>";
+    std::string r = "<p";
+    switch (format->alignment)
+    {
+    case ParagraphFormat::Alignment::Left:
+        break;
+    case ParagraphFormat::Alignment::Right:
+        r += " align=\"right\"";
+        break;
+    case ParagraphFormat::Alignment::Center:
+        r += " align=\"center\"";
+        break;
+    case ParagraphFormat::Alignment::Justify:
+        r += " align=\"justify\"";
+        break;
+    }
+    return r + ">" + Element::ToHtml() + "</p>";
 }
 
 ElementPtr Paragraph::GetPlainRow()

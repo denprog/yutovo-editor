@@ -146,7 +146,9 @@ bool WebSocket::IsOpen()
 void WebSocket::Close()
 {
     exit = true;
+#ifndef EMSCRIPTEN
     beast::get_lowest_layer(ws).cancel();
+#endif
 }
 
 #ifndef EMSCRIPTEN

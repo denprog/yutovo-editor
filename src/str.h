@@ -79,12 +79,18 @@ public:
 
     virtual void ReSolve(bool if_error = false);
 
+    void SetStretchWidth(float val);
+
 public:
     StringFormatPtr format;
     bool translate = false;
 
 protected:
+    friend class StringElements;
+
     mutable std::map<uint, Size> size_cache; //cache of string sizes
+    float stretch_width = 0; //stretch spaces when align is justify
+    float last_stretch_width = 0;
 };
 
 class StringElements : public Elements
