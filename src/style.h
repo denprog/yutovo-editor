@@ -76,7 +76,7 @@ struct ParagraphFormat
         Left = 0,
         Right,
         Center,
-        Justified
+        Justify
     };
 
     enum class WordWrap

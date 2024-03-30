@@ -1957,6 +1957,129 @@ TEST_F(ParagraphTest, format8)
         ElementSelectionState{ElementId{0, 0, 0, 0}, 61, 11})) << document.GetEditorState().ToString();
 }
 
+//Change paragraph alignment
+TEST_F(ParagraphTest, format9)
+{
+    Start(500);
+
+    document.WaitTask(document.InsertString("Tradicionalmente, el medio de un documento era el papel y la información", true));
+    document.WaitTask(document.ChangeParagraphFormat(ParagraphFormat::Alignment::Right, true));
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p align=\"right\">"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">Tradicionalmente, el medio de un documento era el </span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">papel y la información</span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 0, 22})) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">Tradicionalmente, el medio de un documento era el </span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">papel y la información</span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 0, 22})) << document.GetEditorState().ToString();
+
+    document.Redo();
+    document.WaitRedo();
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p align=\"right\">"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">Tradicionalmente, el medio de un documento era el </span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">papel y la información</span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 0, 22})) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.InsertParagraph(true));
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p align=\"right\">"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">Tradicionalmente, el medio de un documento era el </span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">papel y la información</span>"\
+            "</p>"\
+            "<p align=\"right\">"\
+                "<span style=\"font-family:'Arial';font-size:14px;\"></span>"
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+}
+
+//Change paragraph alignment and resize
+TEST_F(ParagraphTest, format10)
+{
+    Start(500);
+
+    int width = 500;
+    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
+        {
+            return Rect{0, 0, width, 400};
+        });
+
+    document.WaitTask(document.InsertString("Tradicionalmente, el medio de un documento era el papel y la información", true));
+    document.WaitTask(document.ChangeParagraphFormat(ParagraphFormat::Alignment::Right, true));
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p align=\"right\">"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">Tradicionalmente, el medio de un documento era el </span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">papel y la información</span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 0, 22})) << document.GetEditorState().ToString();
+
+    width = 800;
+    document.WaitTask(document.Resize(width, 400));
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p align=\"right\">"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">Tradicionalmente, el medio de un documento era el papel y la información</span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 72})) << document.GetEditorState().ToString();
+}
+
+//Edit the second line of paragraph with justify alignment
+TEST_F(ParagraphTest, format11)
+{
+    Start(620);
+
+    document.WaitTask(document.InsertString("Tradicionalmente, el medio de un documento era el papel y la información", true));
+    document.WaitTask(document.ChangeParagraphFormat(ParagraphFormat::Alignment::Justify, true));
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p align=\"justify\">"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">Tradicionalmente, el medio de un documento era el papel y la </span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">información</span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    
+    document.MoveCaretToDocumentBegin(false);
+    document.MoveCaretDown(false);
+    document.MoveCaretRight(false);
+    document.WaitTask(document.MoveCaretRight(false));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 0, 2})) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.InsertString(" ", true));
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p align=\"justify\">"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">Tradicionalmente, el medio de un documento era el papel y la in </span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">formación</span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+}
+
 //Delete a paragraph
 TEST_F(ParagraphTest, delete1)
 {
@@ -1978,6 +2101,7 @@ TEST_F(ParagraphTest, delete1)
 
     document.Undo();
     document.WaitUndo();
+    std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\

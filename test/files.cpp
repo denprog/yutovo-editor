@@ -247,10 +247,8 @@ TEST_F(DocumentTest, files4)
         "a street sign, an arrangement of buildings on a city block, or styles of clothing.", true);
     document.MoveCaretToDocumentBegin(false);
     for (int i = 0; i < 20; ++i)
-        document.MoveCaretRight(false);
-    document.WaitCaretMoving();
-    std::this_thread::sleep_for(100ms);
-    document.InsertParagraph(true);
+        document.WaitTask(document.MoveCaretRight(false));
+    document.WaitTask(document.InsertParagraph(true));
     document.WaitTask(document.SetCurrentParagraphFormat("Monospace"));
     std::this_thread::sleep_for(400ms);
     ASSERT_TRUE(document.ToHtml() == 
@@ -640,6 +638,29 @@ TEST_F(DocumentTest, files15)
         U"d_m~0.221m\n"\
         "d_m=1.d_m"
         ) << ToBasicString(document.ToText());
+}
+
+//Save/load a file with a paragraph alignment
+TEST_F(DocumentTest, files16)
+{
+    Start(500);
+
+    document.WaitTask(document.InsertString("Tradicionalmente, el medio de un documento era el papel y la información", true));
+    document.WaitTask(document.ChangeParagraphFormat(ParagraphFormat::Alignment::Right, true));
+
+    document.WaitTask(document.Save("files16.yut"));
+    document.WaitTask(document.New());
+
+    document.Load("files16.yut");
+    document.WaitLoad();
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p align=\"right\">"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">Tradicionalmente, el medio de un documento era el </span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">papel y la información</span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
 }
 
 }

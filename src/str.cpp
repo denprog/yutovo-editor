@@ -192,6 +192,7 @@ bool String::Remake(bool with_elements)
         translate = false;
     }
 
+    stretch_width = 0;
     UpdateRect();
 
     bool changed = (rect != last_rect);
@@ -205,6 +206,12 @@ void String::Normalize()
 
 void String::UpdateRect(bool with_elements)
 {
+    if (last_stretch_width != stretch_width)
+    {
+        last_stretch_width = stretch_width;
+        size_cache.clear();
+    }
+
     Size s = GetTextSize(elements->Count());
     rect.SetSize(s.width, s.height);
     baseline = window->GetFontAscent(format);
@@ -726,9 +733,28 @@ Size String::GetTextSize(const uint pos) const
     auto it = size_cache.find(pos);
     if (it == size_cache.end())
     {
-        auto str = ((StringElements*)elements.get())->str.substr(0, pos);
-        Size s = window->GetTextSize(str, format);
-        size_cache[pos] = s;
+        auto& str = ((StringElements*)elements.get())->str;
+        auto _str = str.substr(0, pos);
+        if (stretch_width == 0)
+        {
+            Size s = window->GetTextSize(_str, format);
+            size_cache[pos] = s;
+            return s;
+        }
+
+        Size s = window->GetTextSize(_str, format);
+        int spaces = std::count_if(str.begin(), str.end(),
+            [](char32_t c)
+            {
+                return std::isspace(c);
+            });
+        if (spaces == 0)
+            return s;
+        for (int i = 0; i < pos; ++i)
+        {
+            if (isspace(str[i]))
+                s.width += floor(stretch_width / spaces);
+        }
         return s;
     }
     return it->second;
@@ -789,6 +815,14 @@ void String::ReSolve(bool if_error)
 {
 }
 
+void String::SetStretchWidth(float val)
+{
+    stretch_width = val;
+    last_stretch_width = val;
+    size_cache.clear();
+    UpdateRect();
+}
+
 //StringElements
 
 StringElements::StringElements(Element* parent) :
@@ -825,15 +859,39 @@ void StringElements::Draw() const
 {
     StringFormatPtr format = ((String*)parent)->format;
     uint start = 0, size = 0;
-    parent->window->DrawText(ToBasicString(str), format, parent->GetAbsoluteRect(), format->text_color, format->text_bg_color); //draw the string
-    if (parent->document->selection.Has(parent->id, start, size))
+    if (((String*)parent)->stretch_width == 0)
     {
-        //draw text with selection
+        parent->window->DrawText(ToBasicString(str), format, parent->GetAbsoluteRect(), format->text_color, format->text_bg_color); //draw the string
+        if (parent->document->selection.Has(parent->id, start, size))
+        {
+            //draw text with selection
+            Rect r = parent->GetAbsoluteRect();
+            int p = parent->window->GetCharPos(str, format, start);
+            std::u32string u_part = str.substr(start, size);
+            parent->window->DrawText(ToBasicString(u_part), format, Rect{r.left + p, r.top, r.width - p, r.height}, 
+                format->text_bg_color, format->text_bg_selection_color);
+        }
+    }
+    else
+    {
+        //draw the string by symbols
         Rect r = parent->GetAbsoluteRect();
-        int p = parent->window->GetCharPos(str, format, start);
-        std::u32string u_part = str.substr(start, size);
-        parent->window->DrawText(ToBasicString(u_part), format, Rect{r.left + p, r.top, r.width - p, r.height}, 
-            format->text_bg_color, format->text_bg_selection_color);
+        parent->document->selection.Has(parent->id, start, size);
+        for (int i = 0; i < str.length(); ++i)
+        {
+            Size s = ((String*)parent)->GetTextSize(i);
+            std::u32string p = str.substr(i, 1);
+            if (i >= start && i < start + size)
+            {
+                parent->window->DrawText(ToBasicString(p), format, Rect{r.left + s.width, r.top, r.width - s.width, r.height}, 
+                    format->text_bg_color, format->text_bg_selection_color);
+            }
+            else
+            {
+                parent->window->DrawText(ToBasicString(p), format, Rect{r.left + s.width, r.top, r.width - s.width, r.height}, 
+                    format->text_color, format->text_bg_color);
+            }
+        }
     }
 }
 

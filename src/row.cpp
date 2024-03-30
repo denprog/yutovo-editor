@@ -1,6 +1,7 @@
 #include "row.h"
 #include "str.h"
 #include "document.h"
+#include "paragraph.h"
 
 namespace yutovo
 {
@@ -51,7 +52,6 @@ bool Row::Remake(bool with_elements)
         return false;
 
     bool changed = Element::Remake(with_elements);
-
     int cx = 0;
     int left_m, top_m, right_m, bottom_m;
     for (uint i = 0; i < elements->Count(); ++i)
@@ -762,6 +762,102 @@ bool Row::IsEmpty()
     if (!document->IsString(elements->Get(0)))
         return false;
     return elements->Get(0)->elements->Count() == 0;
+}
+
+void Row::Align(ParagraphFormat::Alignment alignment)
+{
+    int cx = 0;
+    int left_m, top_m, right_m, bottom_m;
+    ParagraphFormatPtr format = ((Paragraph*)parent)->format;
+    int page_width = ((Text*)parent->parent)->page_width;
+    int line_width = page_width - format->indent_before - format->indent_after;
+
+    switch (alignment)
+    {
+    case ParagraphFormat::Alignment::Left:
+        break;
+    case ParagraphFormat::Alignment::Right:
+        {
+            int pos = line_width;
+            for (int i = elements->Count() - 1; i >= 0; --i)
+            {
+                auto el = elements->Get(i);
+                el->GetMargin(left_m, top_m, right_m, bottom_m);
+                el->rect.Move(line_width - el->rect.width - cx - left_m, 0);
+                cx += el->rect.width + left_m + right_m;
+            }
+        }
+        break;
+    case ParagraphFormat::Alignment::Center:
+        {
+            int w = 0;
+            for (int i = 0; i < elements->Count(); ++i)
+            {
+                auto el = elements->Get(i);
+                el->GetMargin(left_m, top_m, right_m, bottom_m);
+                w += el->rect.width + left_m + right_m;
+            }
+            cx = line_width / 2 - w / 2;
+            for (int i = 0; i < elements->Count(); ++i)
+            {
+                auto el = elements->Get(i);
+                el->GetMargin(left_m, top_m, right_m, bottom_m);
+                el->rect.Move(cx + left_m, 0);
+                cx += el->rect.width + left_m + right_m;
+            }
+        }
+        break;
+    case ParagraphFormat::Alignment::Justify:
+        if (yutovo::GetChildPos(id) != parent->elements->Count() - 1)
+        {
+            std::map<int, int> elements_spaces;
+            int all_spaces = 0;
+            int w = 0;
+            for (int i = 0; i < elements->Count(); ++i)
+            {
+                auto el = elements->Get(i);
+                el->GetMargin(left_m, top_m, right_m, bottom_m);
+                if (el->type == ElementType::STRING) //only strings can be stretched
+                {
+                    std::u32string s = el->ToText();
+                    int spaces = std::count_if(s.begin(), s.end(),
+                        [](char32_t c)
+                        {
+                            return std::isspace(c);
+                        });
+                    all_spaces += spaces;
+                    elements_spaces[i] = spaces;
+                    w += el->rect.width + left_m + right_m;
+                }
+                else
+                    w += el->rect.width + left_m + right_m;
+            }
+
+            if (elements_spaces.empty() || all_spaces == 0)
+                return;
+            else
+            {
+                float k = (line_width - w) / all_spaces;
+                if (k > 0)
+                {
+                    for (auto s : elements_spaces)
+                    {
+                        auto el = elements->Get(s.first);
+                        ((String*)el.get())->SetStretchWidth(k * s.second); //stretch the string proportionaly
+                    }
+                    UpdateRect(true);
+                }
+                for (int i = 0; i < elements->Count(); ++i)
+                {
+                    auto el = elements->Get(i);
+                    el->GetMargin(left_m, top_m, right_m, bottom_m);
+                    el->rect.Move(cx + left_m, 0);
+                    cx += el->rect.width + left_m + right_m;
+                }
+            }
+        }
+        break;
+    }
 }
 
 }

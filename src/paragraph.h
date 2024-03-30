@@ -14,6 +14,7 @@ class Paragraph : public Element
 public:
     Paragraph(Element* _parent, bool with_row = true);
     Paragraph(Document* _document, bool with_row = true);
+    Paragraph(Document* _document, ParagraphFormatPtr _format, bool with_row = true);
 
     virtual Element* Clone();
 

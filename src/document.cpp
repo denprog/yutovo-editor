@@ -313,7 +313,12 @@ void Document::MainLoop()
 uint Document::InsertParagraph(bool with_undo)
 {
     LOG_TRACE("Insert paragraph");
-    return InsertElement(new Paragraph(this), with_undo);
+    CaretState c = caret->GetCaretState();
+    auto el = FindParentParagraph(c.id);
+    if (!el)
+        return 0;
+    ParagraphFormatPtr format = ((Paragraph*)el.get())->format;
+    return InsertElement(new Paragraph(this, format), with_undo);
 }
 
 uint Document::InsertString(const std::string& str, bool with_undo)
@@ -719,7 +724,8 @@ uint Document::ChangeParagraphFormat(const ParagraphFormatPtr format, bool with_
     LOG_TRACE("Change paragraph format: format={}", format->ToString());
     {
         std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
-        tasks.emplace_back(new ChangeParagraphFormatTask(text, format, with_undo));
+        CaretState c = caret->GetCaretState();
+        tasks.emplace_back(new ChangeParagraphFormatTask(text, c.id, format, with_undo));
         last_task_id = tasks.back()->id;
     }
     next_circle = true;
@@ -734,7 +740,27 @@ uint Document::ChangeParagraphFormat(const std::string name, bool with_undo)
         auto format = paragraph_formats->GetFormat(name);
         if (!format)
             return 0;
-        tasks.emplace_back(new ChangeParagraphFormatTask(text, format, with_undo));
+        CaretState c = caret->GetCaretState();
+        tasks.emplace_back(new ChangeParagraphFormatTask(text, c.id, format, with_undo));
+        last_task_id = tasks.back()->id;
+    }
+    next_circle = true;
+    return last_task_id;
+}
+
+uint Document::ChangeParagraphFormat(const ParagraphFormat::Alignment alignment, bool with_undo)
+{
+    LOG_TRACE("Change paragraph format: alignment={}", (int)alignment);
+    {
+        std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
+        CaretState c = caret->GetCaretState();
+        auto el = FindParentParagraph(c.id);
+        if (!el)
+            return 0;
+        ParagraphFormatPtr format = ((Paragraph*)el.get())->format;
+        format = paragraph_formats->GetFormat(format->name, alignment, format->word_wrap, format->line_spacing, format->indent_before, 
+            format->indent_after, format->indent_first_line, format->spacing_before, format->spacing_after, format->default_string_format);
+        tasks.emplace_back(new ChangeParagraphFormatTask(text, c.id, format, with_undo));
         last_task_id = tasks.back()->id;
     }
     next_circle = true;
