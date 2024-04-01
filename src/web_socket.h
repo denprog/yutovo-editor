@@ -56,19 +56,14 @@ private:
     Config& config;
     Window* window;
 
+    Logger* logger;
+
 #ifdef EMSCRIPTEN
     int socket_id = 0;
 #else
     struct SslContext
     {
-        SslContext()
-        {
-            boost::system::error_code error_code;
-            ssl_context.use_certificate_chain_file("./yutovo_desktop_cert.pem", error_code);
-            if (error_code)
-                throw boost::system::system_error(error_code);
-            ssl_context.use_private_key_file("./yutovo_desktop_key.pem", ssl::context_base::file_format::pem);
-        }
+        SslContext(Logger* logger);
 
         ssl::context ssl_context{ssl::context::tlsv12_client};
     };
@@ -86,8 +81,6 @@ private:
     std::string host, port;
 
     bool exit = false;
-
-    Logger* logger;
 };
 
 typedef std::shared_ptr<WebSocket> WebSocketPtr;
