@@ -19,7 +19,8 @@ WebSocket::WebSocket(Config& _config, Window* _window) :
 #ifndef EMSCRIPTEN
     ws(net::make_strand(ioc), ssl_context.ssl_context),
 #endif
-    logger(Logger::GetInstance(config.logs_path, "yutovo_editor", true, true))
+    logger(Logger::GetInstance(config.logs_path, "yutovo_editor", true, true)),
+    ssl_context(logger)
 {
 }
 
@@ -218,5 +219,24 @@ void WebSocket::OnRead(beast::error_code ec, std::size_t bytes_transferred)
     reading = false;
 }
 #endif
+
+//SslContext
+
+WebSocket::SslContext::SslContext(Logger* logger)
+{
+    boost::system::error_code error_code;
+    ssl_context.use_certificate_chain_file("./yutovo_desktop_cert.pem", error_code);
+    if (error_code)
+    {
+        LOG_ERROR("Certificate file not found");
+        throw boost::system::system_error(error_code);
+    }
+    ssl_context.use_private_key_file("./yutovo_desktop_key.pem", ssl::context_base::file_format::pem, error_code);
+    if (error_code)
+    {
+        LOG_ERROR("Certificate key file not found");
+        throw boost::system::system_error(error_code);
+    }
+}
 
 }

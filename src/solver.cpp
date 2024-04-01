@@ -149,7 +149,15 @@ void Solver::MessageLoop()
 
     {
         std::unique_lock<std::mutex> lock(socket_mutex);
-        socket.reset(new WebSocket(document->config, document->window));
+        try
+        {
+            socket.reset(new WebSocket(document->config, document->window));
+        }
+        catch (boost::system::system_error& ex)
+        {
+            LOG_ERROR("Error creating socket: {}", ex.code().value());
+            throw;
+        }
     }
     if (!socket->Connect() || !socket->IsOpen())
     {
