@@ -201,16 +201,14 @@ TEST_F(FormulaTest, plus4)
         ElementSelectionState{{0, 0, 0, 0, 0, 0, 4}, 0, 1})) << document.GetEditorState().ToString();
 
     for (int i = 0; i < 3; ++i)
-        document.MoveCaretRight(true);
-    document.WaitCaretMoving();
+        document.WaitTask(document.MoveCaretRight(true));
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0, 0, 4, 4}, 
         ElementSelectionState{{0, 0, 0, 0, 0, 0, 0}, 1, 2}, ElementSelectionState{{0, 0, 0, 0, 0, 0}, 1, 4})) << document.GetEditorState().ToString();
     
     document.MoveCaretRight(false);
     document.MoveCaretLeft(false);
     for (int i = 0; i < 4; ++i)
-        document.MoveCaretLeft(true);
-    document.WaitCaretMoving();
+        document.WaitTask(document.MoveCaretLeft(true));
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0, 0, 3}, 
         ElementSelectionState{{0, 0, 0, 0, 0, 0}, 3, 1}, ElementSelectionState{{0, 0, 0, 0, 0, 0, 4}, 0, 3})) << document.GetEditorState().ToString();
 

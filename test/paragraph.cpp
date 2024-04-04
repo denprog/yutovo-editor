@@ -1596,7 +1596,7 @@ TEST_F(ParagraphTest, format3)
     document.InsertCode(false, true);
     document.InsertString("123", true);
     for (int i = 0; i < 7; ++i)
-        document.MoveCaretLeft(false);
+        document.WaitTask(document.MoveCaretLeft(false));
     document.WaitTask(document.SetCurrentParagraphFormat("Header 1"));
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\

@@ -271,6 +271,9 @@ Element* UndoFormula::Restore(Document* document, Element* parent)
     case ElementType::COMMA:
         el = parent ? new Comma(parent) : new Comma(document);
         break;
+    case ElementType::SHAPE:
+        el = parent ? new Shape(parent) : new Shape(document);
+        break;
     case ElementType::SUM:
     case ElementType::PRODUCT:
         {

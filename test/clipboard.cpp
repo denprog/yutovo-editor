@@ -654,8 +654,7 @@ TEST_F(DocumentTest, clipboard10)
     document.MoveCaretHome(false);
     document.MoveCaretHome(false);
     document.MoveCaretHome(false);
-    document.MoveCaretRight(true);
-    document.WaitCaretMoving();
+    document.WaitTask(document.MoveCaretRight(true));
 
     document.WaitTask(document.Copy(clipboard_json, clipboard_text));
     std::this_thread::sleep_for(200ms);
@@ -741,8 +740,7 @@ TEST_F(DocumentTest, clipboard11)
     document.InsertDivision(true);
     document.WaitTask(document.InsertString("123", true));
     document.MoveCaretEnd(false);
-    document.MoveCaretEnd(false);
-    document.WaitCaretMoving();
+    document.WaitTask(document.MoveCaretEnd(false));
     document.InsertDivision(true);
     document.WaitTask(document.InsertString("56", true));
     document.MoveCaretHome(false);
@@ -753,8 +751,7 @@ TEST_F(DocumentTest, clipboard11)
     document.WaitTask(document.Copy(clipboard_json, clipboard_text));
     std::this_thread::sleep_for(200ms);
 
-    document.MoveCaretEnd(false);
-    document.WaitCaretMoving();
+    document.WaitTask(document.MoveCaretEnd(false));
 
     document.WaitTask(document.Paste(clipboard_json));
     std::this_thread::sleep_for(100ms);
@@ -804,14 +801,12 @@ TEST_F(DocumentTest, clipboard11)
 
     document.Undo();
     document.WaitUndo();
-    document.MoveCaretLeft(true);
-    document.WaitCaretMoving();
+    document.WaitTask(document.MoveCaretLeft(true));
 
     document.WaitTask(document.Copy(clipboard_json, clipboard_text));
     std::this_thread::sleep_for(200ms);
 
-    document.MoveCaretEnd(false);
-    document.WaitCaretMoving();
+    document.WaitTask(document.MoveCaretEnd(false));
 
     document.WaitTask(document.Paste(clipboard_json));
     std::this_thread::sleep_for(100ms);
@@ -877,8 +872,7 @@ TEST_F(DocumentTest, clipboard12)
     
     document.WaitTask(document.InsertString("The source of the text itself is a little strange", true));
     document.MoveCaretHome(false);
-    document.MoveCaretWordRight(false);
-    document.WaitCaretMoving();
+    document.WaitTask(document.MoveCaretWordRight(false));
     document.InsertDivision(true);
     document.WaitTask(document.InsertString("123", true));
     document.MoveCaretHome(false);
@@ -887,8 +881,7 @@ TEST_F(DocumentTest, clipboard12)
     document.MoveCaretLeft(false);
     document.MoveCaretLeft(false);
     for (int i = 0; i < 5; ++i)
-        document.MoveCaretRight(true);
-    document.WaitCaretMoving();
+        document.WaitTask(document.MoveCaretRight(true));
 
     document.WaitTask(document.Copy(clipboard_json, clipboard_text));
     std::this_thread::sleep_for(200ms);
@@ -993,16 +986,14 @@ TEST_F(DocumentTest, clipboard14)
     document.InsertDivision(true);
     document.WaitTask(document.InsertString("123", true));
     document.MoveCaretEnd(false);
-    document.MoveCaretLeft(true);
-    document.WaitCaretMoving();
+    document.WaitTask(document.MoveCaretLeft(true));
 
     document.WaitTask(document.Copy(clipboard_json, clipboard_text));
     std::this_thread::sleep_for(200ms);
 
     document.MoveCaretEnd(false);
     document.MoveCaretEnd(false);
-    document.MoveCaretEnd(false);
-    document.WaitCaretMoving();
+    document.WaitTask(document.MoveCaretEnd(false));
 
     document.WaitTask(document.Paste(clipboard_json));
     std::this_thread::sleep_for(100ms);
@@ -2452,6 +2443,39 @@ TEST_F(DocumentTest, clipboard46)
         U"123\n"\
         U"5678=5678."
         ) << ToBasicString(document.ToText());
+}
+
+//Undo of cutting a code block
+TEST_F(DocumentTest, clipboard47)
+{
+    Start(600);
+
+    EXPECT_CALL(window_mock, OnCopyResult).WillRepeatedly([&](CopyResult result)
+        {
+            ASSERT_TRUE(result == CopyResult::Success);
+        });
+
+    document.WaitTask(document.InsertCode(false, true));
+    document.InsertString("123", true);
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    document.WaitTask(document.MoveCaretToDocumentBegin(false));
+    document.WaitTask(document.MoveCaretEnd(true));
+
+    document.WaitTask(document.Cut(clipboard_json, clipboard_text));
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == U"") << ToBasicString(document.ToText());
+
+    document.Undo();
+    document.WaitUndo();
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == U"123=123.") << ToBasicString(document.ToText());
+
+    document.Redo();
+    document.WaitRedo();
+    ASSERT_TRUE(document.ToText() == U"") << ToBasicString(document.ToText());
 }
 
 }
