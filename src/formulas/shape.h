@@ -1,7 +1,7 @@
 #ifndef __SHAPE_H__
 #define __SHAPE_H__
 
-#include "../element.h"
+#include "formula.h"
 #include <functional>
 
 namespace yutovo
@@ -11,10 +11,11 @@ namespace yutovo
 #define ROOT_Y_OFFSET 4
 #define ROOT_X_RIGHT_OFFSET 2
 
-class Shape : public Element
+class Shape : public Formula
 {
 public:
     Shape(Element* _parent);
+    Shape(Document* _document);
 
     virtual Element* Clone();
 

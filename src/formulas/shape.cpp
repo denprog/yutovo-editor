@@ -6,7 +6,13 @@ namespace yutovo
 //Shape
 
 Shape::Shape(Element* _parent) : 
-    Element(_parent)
+    Formula(_parent)
+{
+    type = ElementType::SHAPE;
+}
+
+Shape::Shape(Document* _document) :
+    Formula(_document)
 {
     type = ElementType::SHAPE;
 }

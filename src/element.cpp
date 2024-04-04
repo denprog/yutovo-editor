@@ -1242,8 +1242,11 @@ void Elements::Move(const Elements& _elements, const uint pos)
 
 void Elements::Replace(ElementPtr element, const uint pos)
 {
+    bool s = parent->document->selection.IsSelected(elements[pos]->id);
     RemoveAt(pos, 1);
     Insert(element, pos);
+    if (s) //return selection
+        parent->document->selection.Add(elements[pos]->id);
 }
 
 void Elements::ReplaceAll(const Elements& _elements)
