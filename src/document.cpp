@@ -1745,10 +1745,6 @@ uint Document::MoveCaret(MoveCaretTask::MoveCaretDir dir, bool select, bool with
         last_task_id = tasks.back()->id;
     }
     next_circle = true;
-
-#ifdef DEBUG
-    last_caret_moved = false;
-#endif
     return last_task_id;
 }
 
@@ -1825,9 +1821,6 @@ uint Document::MoveCaret(const int x, const int y)
         last_task_id = tasks.back()->id;
     }
     next_circle = true;
-#ifdef DEBUG
-    last_caret_moved = false;
-#endif
     return last_task_id;
 }
 
@@ -1844,9 +1837,6 @@ uint Document::Select(const int start_x, const int start_y, const int end_x, con
         last_task_id = tasks.back()->id;
     }
     next_circle = true;
-#ifdef DEBUG
-    last_caret_moved = false;
-#endif
     return last_task_id;
 }
 
@@ -2882,16 +2872,6 @@ void Document::WaitRedo()
     }
 
     last_redo_executed = false;
-}
-
-void Document::WaitCaretMoving()
-{
-    while (!last_caret_moved)
-    {
-        std::this_thread::sleep_for(10ms);
-    }
-
-    last_caret_moved = false;
 }
 
 void Document::WaitLoad()

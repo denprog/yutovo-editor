@@ -346,8 +346,7 @@ TEST_F(FormulaTest, fences5)
     document.InsertString("3", true);
     document.MoveCaretLeft(false);
     document.MoveCaretLeft(false);
-    document.MoveCaretLeft(false);
-    document.WaitCaretMoving();
+    document.WaitTask(document.MoveCaretLeft(false));
     document.WaitTask(document.InsertCloseFence(true));
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
@@ -518,8 +517,7 @@ TEST_F(FormulaTest, fences6)
     document.WaitTask(document.InsertString("8", true));
     document.MoveCaretLeft(false);
     document.MoveCaretLeft(false);
-    document.MoveCaretLeft(false);
-    document.WaitCaretMoving();
+    document.WaitTask(document.MoveCaretLeft(false));
     document.WaitTask(document.InsertCloseFence(true));
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
@@ -587,12 +585,10 @@ TEST_F(FormulaTest, fences7)
     document.InsertPower(true);
     document.WaitTask(document.InsertString("34", true));
     for (int i = 0; i < 6; ++i)
-        document.MoveCaretLeft(false);
-    document.WaitCaretMoving();
+        document.WaitTask(document.MoveCaretLeft(false));
     document.WaitTask(document.InsertString("6", true));
     for (int i = 0; i < 3; ++i)
-        document.MoveCaretRight(false);
-    document.WaitCaretMoving();
+        document.WaitTask(document.MoveCaretRight(false));
     document.WaitTask(document.InsertCloseFence(true));
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\

@@ -82,8 +82,7 @@ TEST_F(FormulaTest, nth_root1)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 0, 0, 1})) << document.GetEditorState().ToString();
 
     document.MoveCaretRight(false);
-    document.MoveCaretRight(false);
-    document.WaitCaretMoving();
+    document.WaitTask(document.MoveCaretRight(false));
     document.WaitTask(document.InsertString("3", true));
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
@@ -117,8 +116,7 @@ TEST_F(FormulaTest, nth_root2)
     document.InsertString("12", true);
     document.MoveCaretLeft(false);
     document.MoveCaretLeft(false);
-    document.MoveCaretLeft(false);
-    document.WaitCaretMoving();
+    document.WaitTask(document.MoveCaretLeft(false));
     document.WaitTask(document.DeleteElements(false, true));
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
@@ -156,12 +154,10 @@ TEST_F(FormulaTest, nth_root2)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 1})) << document.GetEditorState().ToString();
 
     for (int i = 0; i < 3; ++i)
-        document.MoveCaretLeft(false);
-    document.WaitCaretMoving();
+        document.WaitTask(document.MoveCaretLeft(false));
     document.WaitTask(document.InsertString("5", true));
     for (int i = 0; i < 4; ++i)
-        document.MoveCaretRight(false);
-    document.WaitCaretMoving();
+        document.WaitTask(document.MoveCaretRight(false));
     document.WaitTask(document.DeleteElements(false, true));
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\

@@ -236,8 +236,7 @@ TEST_F(SolverAutoTest, solver4)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 2, 0, 0})) << document.GetEditorState().ToString();
 
     document.WaitTask(document.InsertCodeString("2", true));
-    document.MoveCaretRight(false);
-    document.WaitCaretMoving();
+    document.WaitTask(document.MoveCaretRight(false));
     document.WaitTask(document.InsertCodeString("8", true));
     document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
     document.WaitSolver();
@@ -1392,8 +1391,7 @@ TEST_F(SolverAutoTest, errors1)
 
     document.InsertCode(false, true);
     document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
-    document.MoveCaretLeft(false);
-    document.WaitCaretMoving();
+    document.WaitTask(document.MoveCaretLeft(false));
     document.WaitTask(document.InsertString("3", true));
     document.WaitSolver();
     std::this_thread::sleep_for(600ms);
@@ -1478,8 +1476,7 @@ TEST_F(SolverAutoTest, errors1)
         document.ToHtml();
     
     document.MoveCaretRight(false);
-    document.MoveCaretRight(false);
-    document.WaitCaretMoving();
+    document.WaitTask(document.MoveCaretRight(false));
     document.WaitTask(document.DeleteElements(false, true));
     std::this_thread::sleep_for(200ms);
     ASSERT_TRUE(document.ToHtml() == 

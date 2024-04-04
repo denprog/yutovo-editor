@@ -317,8 +317,7 @@ TEST_F(FormulaTest, division3)
 
     document.MoveCaretEnd(false);
     for (int i = 0; i < 6; ++i)
-        document.MoveCaretRight(false);
-    document.WaitCaretMoving();
+        document.WaitTask(document.MoveCaretRight(false));
     document.WaitTask(document.InsertParagraph(true));
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
@@ -872,14 +871,12 @@ TEST_F(FormulaTest, division10)
     document.WaitTask(document.InsertString("123", true));
 
     for (int i = 0; i < 5; ++i)
-        document.MoveCaretRight(false);
-    document.WaitCaretMoving();
+        document.WaitTask(document.MoveCaretRight(false));
     document.InsertDivision(true);
     document.WaitTask(document.InsertString("456", true));
 
     for (int i = 0; i < 5; ++i)
-        document.MoveCaretRight(false);
-    document.WaitCaretMoving();
+        document.WaitTask(document.MoveCaretRight(false));
     document.WaitTask(document.InsertString("Text", true));
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
@@ -916,8 +913,7 @@ TEST_F(FormulaTest, division10)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 2, 4})) << document.GetEditorState().ToString();
 
     document.MoveCaretWordLeft(false);
-    document.MoveCaretWordLeft(false);
-    document.WaitCaretMoving();
+    document.WaitTask(document.MoveCaretWordLeft(false));
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 1})) << document.GetEditorState().ToString();
 
     document.WaitTask(document.DeleteElements(false, true));
@@ -951,8 +947,7 @@ TEST_F(FormulaTest, division11)
     document.InsertDivision(true);
     document.WaitTask(document.InsertString("3", true));
     document.MoveCaretDown(false);
-    document.MoveCaretDown(false);
-    document.WaitCaretMoving();
+    document.WaitTask(document.MoveCaretDown(false));
     document.WaitTask(document.InsertString("2", true));
     document.Save("division11_1.yut");
 

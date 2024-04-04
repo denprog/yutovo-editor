@@ -302,7 +302,6 @@ public:
     void WaitMainLoop();
     void WaitUndo();
     void WaitRedo();
-    void WaitCaretMoving();
     void WaitLoad();
     void WaitSolver();
 
@@ -313,8 +312,6 @@ private:
     bool last_load_executed = false;
     bool last_undo_executed = false;
     bool last_redo_executed = false;
-
-    bool last_caret_moved = false;
 
     int last_solver_task_id = -1;
     bool last_solver_executed = false;

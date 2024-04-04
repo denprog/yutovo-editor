@@ -1140,11 +1140,6 @@ bool MoveCaretTask::Execute()
 
     document->UpdateFormats();
     window->OnCaretMoved(document->MakeEditorState());
-
-#ifdef DEBUG
-    document->last_caret_moved = true;
-#endif
-
     return true;
 }
 
@@ -1164,10 +1159,6 @@ bool SetEditorStateTask::Execute()
 
     document->UpdateCaretView();
     document->UpdateLastSelection();    
-
-#ifdef DEBUG
-    document->last_caret_moved = true;
-#endif
     return true;
 }
 
