@@ -1418,6 +1418,62 @@ TEST_F(SolverAutoTest, solver32)
     ASSERT_TRUE(document.ToText() == 
         U"23+5=28."
         ) << ToBasicString(document.ToText());
+
+    document.Redo();
+    document.WaitRedo();
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"+5=5."
+        ) << ToBasicString(document.ToText());
+}
+
+//Delete a part of the left expression
+TEST_F(SolverAutoTest, solver33)
+{
+    Start(600);
+
+    EXPECT_CALL(window_mock, Translate).WillRepeatedly([&](ElementId id, const std::u32string& str)
+        {
+            return str;
+        });
+
+    document.InsertCode(false, true);
+    document.InsertString("23", true);
+    document.InsertPlus(true);
+    document.InsertString("5", true);
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"23+5=28."
+        ) << ToBasicString(document.ToText());
+    
+    document.MoveCaretLeft(false);
+    document.MoveCaretLeft(true);
+    document.WaitTask(document.MoveCaretLeft(true));
+    document.WaitTask(document.DeleteElements(false, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"23=23."
+        ) << ToBasicString(document.ToText());
+
+    document.Undo();
+    document.WaitUndo();
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"23+5=28."
+        ) << ToBasicString(document.ToText());
+
+    document.Redo();
+    document.WaitRedo();
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"23=23."
+        ) << ToBasicString(document.ToText());
 }
 
 //Solve with errors

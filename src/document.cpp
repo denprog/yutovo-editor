@@ -811,12 +811,19 @@ bool Document::StoreUndo(const ElementId& parent_id, const int pos, const int si
     RestrictUndo();
 
     int undo_id;
-    ElementId _id;
     auto p = GetParent(parent_id);
-    if (IsRow(parent_id))
+    if (p && (p->type == ElementType::EQUATION || p->type == ElementType::ASSIGNMENT))
+    {
+        int _pos = yutovo::GetChildPos(p->id);
+        undo_id = undo_base.Store(p->parent->id, _pos, 1);
+        if (undo_id < 0)
+            return false;
+        undo_tasks.push_back(TaskPtr(new UndoTask(text, undo_id, p->parent->id, _pos, 1, 0, UndoTask::UndoOperation::CHANGE, cur_task_id)));
+        return true;
+    }
+    else if (IsRow(parent_id))
     {
         undo_id = undo_base.Store(p->id, 0, p->elements->Count());
-        _id = yutovo::GetChild(p->id, 0);
     }
     else if (IsParagraph(parent_id))
     {
@@ -830,7 +837,6 @@ bool Document::StoreUndo(const ElementId& parent_id, const int pos, const int si
     else
     {
         undo_id = undo_base.Store(parent_id, pos, size);
-        _id = yutovo::GetChild(parent_id, pos);
     }
     if (undo_id < 0)
         return false;

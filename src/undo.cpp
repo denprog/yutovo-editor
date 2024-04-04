@@ -527,10 +527,6 @@ int UndoBase::Store(const ElementId& id)
 
 int UndoBase::Store(const ElementId& parent_id, const int pos, const int size)
 {
-    auto t = document->GetElement(parent_id)->type;
-    if (t == ElementType::EQUATION)
-        return Store(parent_id);
-    
     std::vector<LogicalId> ids;
     for (int i = pos; i < pos + size; ++i)
     {
