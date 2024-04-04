@@ -834,11 +834,17 @@ bool UndoTask::Execute()
 
     document->caret->block = true;
 
-    document->RemoveErrorMarks(id);
+    std::vector<ElementPtr> _elements;
+    document->GetElements(id, _elements);
+    for (auto& _el : _elements)
+        document->RemoveErrorMarks(_el->id);
 
     ElementPtr p = document->GetLogicalElement(id);
-    if (id.size() > 2 && !(undo_elements[0]->type == ElementType::CODE_ROW && p->parent->type != ElementType::CODE_PARAGRAPH))
+    if (id.size() > 2 && p->type != ElementType::CODE_ROW && 
+        !(undo_elements[0]->type == ElementType::CODE_ROW && p->parent->type != ElementType::CODE_PARAGRAPH))
+    {
         p = document->GetLogicalParent(id);
+    }
     
     ElementId remake_id = p->id;
 
@@ -923,8 +929,17 @@ bool UndoTask::Execute()
                 auto _el = undo_elements[i];
                 if (_el->type == ElementType::CODE_ROW && p->type == ElementType::CODE_ROW)
                 {
-                    for (size_t j = 0; j < _el->elements->Count(); ++j)
-                        p->elements->Insert(_el->elements->Get(j), pos + i + j);
+                    if (undo_operation == UndoOperation::CHANGE)
+                    {
+                        p->elements->Clear();
+                        for (int i = 0; i < _el->elements->Count(); ++i)
+                            p->elements->Add(_el->elements->Get(i));
+                    }
+                    else
+                    {
+                        for (size_t j = 0; j < _el->elements->Count(); ++j)
+                            p->elements->Insert(_el->elements->Get(j), pos + i + j);
+                    }
                 }
                 else
                 {

@@ -609,6 +609,54 @@ TEST_F(AssignmentTest, delete3)
     ASSERT_TRUE(document.error_marks.empty());
 }
 
+//Delete an element on the right
+TEST_F(AssignmentTest, delete4)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.InsertString("x", true);
+    document.WaitTask(document.InsertAssignment(true));
+    document.InsertString("2", true);
+    document.InsertPlus(true);
+    document.InsertString("34", true);
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"x=2+34"
+        ) << ToBasicString(document.ToText());
+
+    document.MoveCaretLeft(true);
+    document.MoveCaretLeft(true);
+    document.WaitTask(document.DeleteElements(false, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"x=2+"
+        ) << ToBasicString(document.ToText());
+
+    document.Undo();
+    document.WaitUndo();
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"x=2+34"
+        ) << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.error_marks.empty());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0, 0, 0, 2, 2, 0}, 
+        ElementSelectionState{ElementId{0, 0, 0, 0, 0, 0, 0, 2}, 2, 1})) << document.GetEditorState().ToString();
+
+    document.Redo();
+    document.WaitRedo();
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"x=2+"
+        ) << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0, 0, 0, 2, 2})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(!document.error_marks.empty());
+}
+
 //Assign to a number is a error
 TEST_F(AssignmentTest, error1)
 {
