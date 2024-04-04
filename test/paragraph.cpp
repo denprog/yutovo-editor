@@ -780,8 +780,7 @@ TEST_F(ParagraphTest, paragraph1)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(3, 0, 0, 0)) << document.GetEditorState().ToString();
 
     for (int i = 0; i < 7; ++i)
-        document.MoveCaretRight(false);
-    document.WaitCaretMoving();
+        document.WaitTask(document.MoveCaretRight(false));
     document.WaitTask(document.InsertParagraph(true));
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\

@@ -82,8 +82,7 @@ TEST_F(FormulaTest, square_root2)
     document.InsertString("12", true);
     document.MoveCaretLeft(false);
     document.MoveCaretLeft(false);
-    document.MoveCaretLeft(false);
-    document.WaitCaretMoving();
+    document.WaitTask(document.MoveCaretLeft(false));
     document.WaitTask(document.DeleteElements(false, true));
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
@@ -163,8 +162,7 @@ TEST_F(FormulaTest, square_root3)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 1, 2, 1})) << document.GetEditorState().ToString();
 
     document.MoveCaretHome(false);
-    document.MoveCaretLeft(false);
-    document.WaitCaretMoving();
+    document.WaitTask(document.MoveCaretLeft(false));
     document.WaitTask(document.DeleteElements(false, true));
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
