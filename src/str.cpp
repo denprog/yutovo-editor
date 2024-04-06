@@ -360,6 +360,7 @@ bool String::DeleteElements(bool left, bool with_undo, ElementId& changed_elemen
                     can_merge = true;
                     bool r = _el->Merge(parent->elements->Get(p));
                     _el->can_merge = _can_merge;
+                    changed_element = parent->id;
                     return r;
                 }
             }
@@ -382,6 +383,7 @@ bool String::DeleteElements(bool left, bool with_undo, ElementId& changed_elemen
                     can_merge = true;
                     bool r = Merge(_el);
                     can_merge = _can_merge;
+                    changed_element = parent->id;
                     return r;
                 }
             }
