@@ -142,6 +142,14 @@ void Solver::SetLocale(const yutovo_calculator::Language _language)
     next_circle = true;
 }
 
+void Solver::ListIdentifiers(uint code_id)
+{
+    std::unique_lock<std::mutex> lock(tasks_mutex);
+    tasks.emplace_back(new ListIdentifiersSolverTask(guid, code_id, document, logger));
+    tasks.emplace_back(nullptr);
+    next_circle = true;
+}
+
 void Solver::MessageLoop()
 {
     bool connected = false;
