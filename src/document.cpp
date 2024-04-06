@@ -2628,6 +2628,11 @@ void Document::SetLocale(const yutovo_calculator::Language language)
     solver.SetLocale(language);
 }
 
+void Document::ListIdentifiers(const uint code_id)
+{
+    solver.ListIdentifiers(code_id);
+}
+
 void Document::ElementIdChanged(ElementId last_id, ElementId new_id)
 {
     changed_ids[last_id] = new_id;
