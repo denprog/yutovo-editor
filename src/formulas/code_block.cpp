@@ -17,6 +17,9 @@ CodeBlock::CodeBlock(Document* _document, uint _code_id, bool add_empty) :
     formula_format = document->formula_formats->GetFormat("Formula");
     if (add_empty)
         AddEmptyElement(); //code block has to have at least one code paragraph
+    
+    document->SetLocale(document->config.language);
+    document->ListIdentifiers(code_id);
 }
 
 CodeBlock::CodeBlock(Element* parent, uint _code_id, bool add_empty) :
@@ -29,6 +32,9 @@ CodeBlock::CodeBlock(Element* parent, uint _code_id, bool add_empty) :
     formula_format = document->formula_formats->GetFormat("Formula");
     if (add_empty)
         AddEmptyElement(); //code block has to have at least one code paragraph
+
+    document->SetLocale(document->config.language);   
+    document->ListIdentifiers(code_id);
 }
 
 CodeBlock::CodeBlock(Document* _document, Element* parent, uint _code_id, bool add_empty) :
@@ -45,6 +51,9 @@ CodeBlock::CodeBlock(Document* _document, Element* parent, uint _code_id, bool a
     formula_format = document->formula_formats->GetFormat("Formula");
     if (add_empty)
         AddEmptyElement(); //code block has to have at least one code paragraph
+    
+    document->SetLocale(document->config.language);
+    document->ListIdentifiers(code_id);
 }
 
 Element* CodeBlock::Clone()

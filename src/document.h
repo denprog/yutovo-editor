@@ -272,6 +272,7 @@ public:
     void AddChangedElement(ElementId _id);
     void GetSolverGuid(std::string& guid);
     void SetLocale(const yutovo_calculator::Language language);
+    void ListIdentifiers(const uint code_id);
 
     void ElementIdChanged(ElementId last_id, ElementId new_id);
 
