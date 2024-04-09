@@ -16,11 +16,11 @@ namespace net = boost::asio;
 WebSocket::WebSocket(Config& _config, Window* _window) :
     config(_config),
     window(_window),
+    logger(Logger::GetInstance(config.logs_path, "yutovo_editor", true, true))
 #ifndef EMSCRIPTEN
-    ws(net::make_strand(ioc), ssl_context.ssl_context),
-#endif
-    logger(Logger::GetInstance(config.logs_path, "yutovo_editor", true, true)),
+    , ws(net::make_strand(ioc), ssl_context.ssl_context),
     ssl_context(logger)
+#endif
 {
 }
 
@@ -223,6 +223,7 @@ void WebSocket::OnRead(beast::error_code ec, std::size_t bytes_transferred)
 
 //SslContext
 
+#ifndef EMSCRIPTEN
 WebSocket::SslContext::SslContext(Logger* logger)
 {
     boost::system::error_code error_code;
@@ -239,5 +240,6 @@ WebSocket::SslContext::SslContext(Logger* logger)
         throw boost::system::system_error(error_code);
     }
 }
+#endif
 
 }
