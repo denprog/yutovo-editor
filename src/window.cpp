@@ -112,6 +112,10 @@ void Window::OnResizeFinished()
 {
 }
 
+void Window::OnServiceStatus(IOResult result)
+{
+}
+
 #ifdef EMSCRIPTEN
 int Window::Connect(const std::string& addr)
 {

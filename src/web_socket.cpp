@@ -62,6 +62,7 @@ bool WebSocket::Connect()
         if (exit)
             return false;
     }
+    window->OnServiceStatus(connected ? IOResult::Success : IOResult::ConnectionError);
     return connected;
 #endif
 }
