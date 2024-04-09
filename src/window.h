@@ -90,6 +90,8 @@ public:
     virtual void OnResizeStarted();
     virtual void OnResizeFinished();
 
+    virtual void OnServiceStatus(IOResult result);
+
 #ifdef EMSCRIPTEN
     virtual int Connect(const std::string& addr);
     virtual bool Send(const int socket_id, const std::string& message);
