@@ -157,6 +157,9 @@ void Solver::MessageLoop()
 
     {
         std::unique_lock<std::mutex> lock(socket_mutex);
+#ifdef EMSCRIPTEN
+        socket.reset(new WebSocket(document->config, document->window));
+#else
         try
         {
             socket.reset(new WebSocket(document->config, document->window));
@@ -166,6 +169,7 @@ void Solver::MessageLoop()
             LOG_ERROR("Error creating socket: {}", ex.code().value());
             throw;
         }
+#endif
     }
     if (!socket->Connect() || !socket->IsOpen())
     {
