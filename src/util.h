@@ -74,8 +74,8 @@ enum IdentifierType
 class Document;
 class Element;
 
-typedef std::vector<uint> ElementId;
-typedef std::vector<uint> LogicalId; //logical Id does not include row id, so it does not depend on the formatting of rows
+typedef std::vector<int> ElementId;
+typedef std::vector<int> LogicalId; //logical Id does not include row id, so it does not depend on the formatting of rows
 
 struct Point
 {

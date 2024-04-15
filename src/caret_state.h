@@ -12,8 +12,8 @@ class Element;
 class Caret;
 
 typedef unsigned int uint;
-typedef std::vector<uint> ElementId;
-typedef std::vector<uint> LogicalId;
+typedef std::vector<int> ElementId;
+typedef std::vector<int> LogicalId;
 typedef std::shared_ptr<Element> ElementPtr;
 typedef std::shared_ptr<Caret> CaretPtr;
 
