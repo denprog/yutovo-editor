@@ -351,6 +351,17 @@ struct SetStringTask : Task
     ElementId element_id;
 };
 
+struct SetConfigTask : Task
+{
+    SetConfigTask(ElementPtr _text, const Config& _config);
+    SetConfigTask(ElementPtr _text, const std::string& _config_str);
+
+    virtual bool Execute();
+
+    Config config;
+    std::string config_str;
+};
+
 }
 
 #endif

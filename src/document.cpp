@@ -102,37 +102,18 @@ void Document::SetConfig(const Config& _config)
 {
     logger->SetLevel((int)_config.log_level);
 
-    bool remake = false;
+    std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
+    tasks.emplace_back(new SetConfigTask(text, _config));
+}
+
+void Document::SetConfig(const std::string& _config)
+{
     {
-        std::unique_lock<std::recursive_mutex> lock(tasks_mutex);
-        if (config.use_numbers_gaps != _config.use_numbers_gaps || config.binary_gap != _config.binary_gap || config.octal_gap != _config.octal_gap || 
-            config.decimal_gap != _config.decimal_gap || config.hexadecimal_gap != _config.hexadecimal_gap)
-        {
-            remake = true;
-        }
-        if (config.language != _config.language)
-        {
-            solver.SetLocale(_config.language);
-
-            //update identifiers for all code blocks
-            std::vector<ElementId> code_blocks;
-            text->GetElements(ElementType::CODE_BLOCK, code_blocks);
-            for (auto& c : code_blocks)
-            {
-                auto el = GetElement(c);
-                CodeBlock* _el = dynamic_cast<CodeBlock*>(el.get());
-                solver.ListIdentifiers(_el->code_id);
-            }
-
-            remake = true;
-        }
-        config = _config;
-        current_code_format->border_color = config.code_block_border_color;
+        std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
+        tasks.emplace_back(new SetConfigTask(text, _config));
     }
 
-    if (remake)
-        text->Remake(true);
-    Redraw();
+    logger->SetLevel((int)config.log_level);
 }
 
 void Document::MainLoop()

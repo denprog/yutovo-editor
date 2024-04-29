@@ -1949,4 +1949,59 @@ bool SetStringTask::Execute()
     return true;
 }
 
+//SetConfigTask
+
+SetConfigTask::SetConfigTask(ElementPtr _text, const Config& _config) :
+    Task(_text),
+    config(_config)
+{
+}
+
+SetConfigTask::SetConfigTask(ElementPtr _text, const std::string& _config_str) :
+    Task(_text),
+    config_str(_config_str)
+{
+}
+
+bool SetConfigTask::Execute()
+{
+    if (!config_str.empty())
+    {
+        config = document->config;
+        if (!config.FromJson(config_str)) //update only actual part from the string
+            return false;
+    }
+
+    bool remake = false;
+    Config& c = document->config;
+    if (config.use_numbers_gaps != c.use_numbers_gaps || config.binary_gap != c.binary_gap || config.octal_gap != c.octal_gap || 
+        config.decimal_gap != c.decimal_gap || config.hexadecimal_gap != c.hexadecimal_gap)
+    {
+        remake = true;
+    }
+    if (config.language != c.language)
+    {
+        document->SetLocale(config.language);
+
+        //update identifiers for all code blocks
+        std::vector<ElementId> code_blocks;
+        text->GetElements(ElementType::CODE_BLOCK, code_blocks);
+        for (auto& c : code_blocks)
+        {
+            auto el = document->GetElement(c);
+            CodeBlock* _el = dynamic_cast<CodeBlock*>(el.get());
+            document->ListIdentifiers(_el->code_id);
+        }
+        remake = true;
+    }
+    document->config = config;
+    document->current_code_format->border_color = config.code_block_border_color;
+
+    if (remake)
+        Remake(text->id, false);
+    document->Redraw(text->id, false);
+
+    return true;
+}
+
 }
