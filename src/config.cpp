@@ -1,4 +1,6 @@
 #include "config.h"
+#include <rapidjson/prettywriter.h>
+#include <rapidjson/istreamwrapper.h>
 
 namespace yutovo
 {
@@ -7,15 +9,138 @@ namespace yutovo
 
 void Config::ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc)
 {
-    //just locale for a while
+    //just locale and results for a while
     value.AddMember("language", (int)language, alloc);
+
+    value.AddMember("code_block_border_color", (int)code_block_border_color.ToInt(), alloc);
+    value.AddMember("numbers_color", (int)numbers_color.ToInt(), alloc);
+    value.AddMember("variables_color", (int)variables_color.ToInt(), alloc);
+    value.AddMember("functions_color", (int)functions_color.ToInt(), alloc);
+    value.AddMember("units_color", (int)units_color.ToInt(), alloc);
+    value.AddMember("shapes_color", (int)shapes_color.ToInt(), alloc);
+    value.AddMember("error_marks_color", (int)error_marks_color.ToInt(), alloc);
+    value.AddMember("formula_bg_color", (int)formula_bg_color.ToInt(), alloc);
+    value.AddMember("bg_selection_color", (int)bg_selection_color.ToInt(), alloc);
+
+    rapidjson::Value real_result_config("real_result", alloc);
+    real_result_config.SetObject();
+    real_result.ToJson(real_result_config, alloc);
+    value.AddMember("real_result", real_result_config, alloc);
+
+    rapidjson::Value integer_result_config("integer_result", alloc);
+    integer_result_config.SetObject();
+    integer_result.ToJson(integer_result_config, alloc);
+    value.AddMember("integer_result", integer_result_config, alloc);
+
+    rapidjson::Value rational_result_config("rational_result", alloc);
+    rational_result_config.SetObject();
+    rational_result.ToJson(rational_result_config, alloc);
+    value.AddMember("rational_result", rational_result_config, alloc);
+
+    rapidjson::Value complex_result_config("complex_result", alloc);
+    complex_result_config.SetObject();
+    complex_result.ToJson(complex_result_config, alloc);
+    value.AddMember("complex_result", complex_result_config, alloc);
+
+    rapidjson::Value auto_result_config("auto_result", alloc);
+    auto_result_config.SetObject();
+    auto_result.ToJson(auto_result_config, alloc);
+    value.AddMember("auto_result", auto_result_config, alloc);
+}
+
+void Config::ToJson(std::string& json)
+{
+    rapidjson::Document doc;
+    auto& alloc = doc.GetAllocator();
+    doc.SetObject();
+    ToJson(doc, alloc);
+
+    rapidjson::StringBuffer buffer;
+    rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
+    doc.Accept(writer);
+    json = buffer.GetString();
 }
 
 void Config::FromJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc)
 {
-    //just locale for a while
+    //just locale and results for a while
     if (value.HasMember("language") && value["language"].IsInt())
         language = (yutovo_calculator::Language)value["language"].GetInt();
+    
+    if (value.HasMember("real_result") && value["real_result"].IsObject())
+    {
+        rapidjson::Value r = value["real_result"].GetObject();
+        real_result.FromJson(r, alloc);
+    }
+
+    if (value.HasMember("integer_result") && value["integer_result"].IsObject())
+    {
+        rapidjson::Value r = value["integer_result"].GetObject();
+        integer_result.FromJson(r, alloc);
+    }
+
+    if (value.HasMember("rational_result") && value["rational_result"].IsObject())
+    {
+        rapidjson::Value r = value["rational_result"].GetObject();
+        rational_result.FromJson(r, alloc);
+    }
+
+    if (value.HasMember("complex_result") && value["complex_result"].IsObject())
+    {
+        rapidjson::Value r = value["complex_result"].GetObject();
+        complex_result.FromJson(r, alloc);
+    }
+
+    if (value.HasMember("auto_result") && value["auto_result"].IsObject())
+    {
+        rapidjson::Value r = value["auto_result"].GetObject();
+        auto_result.FromJson(r, alloc);
+    }
+    else
+    {
+        auto_result.real_result = real_result;
+        auto_result.integer_result = integer_result;
+        auto_result.rational_result = rational_result;
+        auto_result.complex_result = complex_result;
+    }
+
+    if (value.HasMember("code_block_border_color") && value["code_block_border_color"].IsInt64())
+        code_block_border_color = Color::FromInt(value["code_block_border_color"].GetInt64());
+
+    if (value.HasMember("numbers_color") && value["numbers_color"].IsInt64())
+        numbers_color = Color::FromInt(value["numbers_color"].GetInt64());
+
+    if (value.HasMember("variables_color") && value["variables_color"].IsInt64())
+        variables_color = Color::FromInt(value["variables_color"].GetInt64());
+
+    if (value.HasMember("functions_color") && value["functions_color"].IsInt64())
+        functions_color = Color::FromInt(value["functions_color"].GetInt64());
+
+    if (value.HasMember("units_color") && value["units_color"].IsInt64())
+        units_color = Color::FromInt(value["units_color"].GetInt64());
+
+    if (value.HasMember("shapes_color") && value["shapes_color"].IsInt64())
+        shapes_color = Color::FromInt(value["shapes_color"].GetInt64());
+
+    if (value.HasMember("error_marks_color") && value["error_marks_color"].IsInt64())
+        error_marks_color = Color::FromInt(value["error_marks_color"].GetInt64());
+
+    if (value.HasMember("formula_bg_color") && value["formula_bg_color"].IsInt64())
+        formula_bg_color = Color::FromInt(value["formula_bg_color"].GetInt64());
+
+    if (value.HasMember("bg_selection_color") && value["bg_selection_color"].IsInt64())
+        bg_selection_color = Color::FromInt(value["bg_selection_color"].GetInt64());
+}
+
+bool Config::FromJson(const std::string& json)
+{
+    rapidjson::Document doc;
+    doc.Parse<0>(json.c_str());
+    if (doc.HasParseError())
+        return false;
+
+    FromJson(doc, doc.GetAllocator());
+    return true;
 }
 
 //Config::RealResultConfig

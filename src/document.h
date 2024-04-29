@@ -34,6 +34,7 @@ public:
 
     void GetConfig(Config& _config);
     void SetConfig(const Config& _config);
+    void SetConfig(const std::string& _config);
 
     uint InsertParagraph(bool with_undo);
     uint InsertString(const std::string& str, bool with_undo);
@@ -329,6 +330,7 @@ private:
     friend class LoadTask;
     friend class SaveTask;
     friend class RedrawTask;
+    friend class SetConfigTask;
     friend class Caret;
     friend class Element;
 
