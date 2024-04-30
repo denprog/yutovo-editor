@@ -263,24 +263,88 @@ void Caret::MoveToDocumentBegin(Selection* selection)
 {
     if (block)
         return;
-    CaretState c;
-    if (document->text->GetFirstCaretState(c, selection))
+    
+    if (!selection)
     {
-        SetState(c);
-        UpdateXPos();
+        CaretState c;
+        if (document->text->GetFirstCaretState(c, selection))
+        {
+            SetState(c);
+            UpdateXPos();
+        }
+        return;
     }
+
+    auto el = GetElement();
+    auto paragraph = document->FindParent(el->id, ElementType::PARAGRAPH);
+    auto row = document->FindParent(el->id, ElementType::ROW);
+    Rect view_port = window->GetViewPort(0);
+    Point p = window->GetDocumentPoint();
+    Rect cur = document->GetCaretRect(GetCaretState());
+
+    CaretState next, last;
+    int paragraph_pos = document->text->elements->GetChildPos(paragraph->id);
+    int row_pos = paragraph->elements->GetChildPos(row->id);
+    paragraph = document->text->elements->Get(paragraph_pos);
+    for (int j = (row_pos == -1 ? paragraph->elements->Count() - 1 : row_pos); j >= 0; --j)
+    {
+        row = paragraph->elements->Get(j);
+        if (j == row_pos)
+        {
+            CaretState c = GetCaretState();
+            int p = GetChildPos(row->id, c.id);
+            selection->Add(GetChild(row->id, p), 0, c.id[row->id.size() + 1]);
+            if (p > 0)
+                selection->Add(row->id, 0, p);
+        }
+        else
+            selection->Add(paragraph, j, 1);
+    }
+
+    selection->Add(document->text, 0, paragraph_pos);
+    MoveToDocumentBegin(nullptr);
 }
 
 void Caret::MoveToDocumentEnd(Selection* selection)
 {
     if (block)
         return;
-    CaretState c;
-    if (document->text->GetLastCaretState(c, selection))
+
+    if (!selection)
     {
-        SetState(c);
-        UpdateXPos();
+        CaretState c;
+        if (document->text->GetLastCaretState(c, selection))
+        {
+            SetState(c);
+            UpdateXPos();
+        }
+        return;
     }
+
+    auto el = GetElement();
+    auto paragraph = document->FindParent(el->id, ElementType::PARAGRAPH);
+    auto row = document->FindParent(el->id, ElementType::ROW);
+    int paragraph_pos = document->text->elements->GetChildPos(paragraph->id);
+    int row_pos = paragraph->elements->GetChildPos(row->id);
+    paragraph = document->text->elements->Get(paragraph_pos);
+    for (int j = row_pos; j < paragraph->elements->Count(); ++j)
+    {
+        row = paragraph->elements->Get(j);
+        if (j == row_pos)
+        {
+            CaretState c = GetCaretState();
+            int p = GetChildPos(row->id, c.id);
+            auto _el = document->GetElement(GetChild(row->id, p));
+            selection->Add(_el, c.id[row->id.size() + 1], _el->elements->Count() - c.id[row->id.size() + 1]);
+            if (row->elements->Count() > p + 1)
+                selection->Add(row->id, p + 1, row->elements->Count() - p - 1);
+        }
+        else
+            selection->Add(paragraph, j, 1);
+    }
+
+    selection->Add(document->text, paragraph_pos + 1, document->text->elements->Count() - paragraph_pos - 1);
+    MoveToDocumentEnd(nullptr);
 }
 
 void Caret::MoveHome(Selection* selection)
