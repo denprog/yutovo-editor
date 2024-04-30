@@ -1564,6 +1564,8 @@ bool Elements::GetWordRightCaretState(CaretState& caret_state, Selection* select
         }
         if (select)
         {
+            if (elements[p - 1]->HasCaretState())
+                select->Add(parent->id, p - 1, 1);
             if (elements[p]->CanContinueSelection())
             {
                 if (elements[p]->GetFirstCaretState(caret_state, select))
@@ -1579,11 +1581,7 @@ bool Elements::GetWordRightCaretState(CaretState& caret_state, Selection* select
             if (elements[p]->GetFirstCaretState(caret_state, select))
             {
                 if (elements[p]->GetWordRightCaretState(caret_state, select))
-                {
-                    if (select)
-                        select->Add(parent->id, p, 1);
                     return true;
-                }
             }
         }
     }
