@@ -98,22 +98,24 @@ void Document::GetConfig(Config& _config)
     _config = config;
 }
 
-void Document::SetConfig(const Config& _config)
+uint Document::SetConfig(const Config& _config)
 {
-    logger->SetLevel((int)_config.log_level);
-
     std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
     tasks.emplace_back(new SetConfigTask(text, _config));
+    last_task_id = tasks.back()->id;
+    next_circle = true;
+    return last_task_id;
 }
 
-void Document::SetConfig(const std::string& _config)
+uint Document::SetConfig(const std::string& _config)
 {
     {
         std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
         tasks.emplace_back(new SetConfigTask(text, _config));
+        last_task_id = tasks.back()->id;
+        next_circle = true;
     }
-
-    logger->SetLevel((int)config.log_level);
+    return last_task_id;
 }
 
 void Document::MainLoop()

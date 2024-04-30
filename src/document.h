@@ -33,8 +33,8 @@ public:
     void Start();
 
     void GetConfig(Config& _config);
-    void SetConfig(const Config& _config);
-    void SetConfig(const std::string& _config);
+    uint SetConfig(const Config& _config);
+    uint SetConfig(const std::string& _config);
 
     uint InsertParagraph(bool with_undo);
     uint InsertString(const std::string& str, bool with_undo);
