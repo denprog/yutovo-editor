@@ -1602,4 +1602,82 @@ TEST_F(DocumentTest, caret50)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 1})) << document.GetEditorState().ToString();
 }
 
+//Move to document begin/end with selection
+TEST_F(DocumentTest, caret51)
+{
+    Start(670);
+
+    EXPECT_CALL(window_mock, OnLoadResult).WillOnce([&](const uint task_id, IOResult result, const int document_id)
+        {
+            ASSERT_TRUE(result == IOResult::Success);
+        });
+
+    EXPECT_CALL(window_mock, GetViewPort).WillRepeatedly([&](const int)
+        {
+            return Rect{0, 0, 630, 255};
+        });
+
+    document.Load("../test/tests/file1.txt");
+    document.WaitLoad();
+    std::this_thread::sleep_for(2000ms);
+
+    document.MoveCaretWordRight(false);
+    document.WaitTask(document.MoveCaretToDocumentEnd(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 5, 1, 0, 42}, 
+        ElementSelectionState{ElementId{0, 0, 0, 0}, 11, 59},
+        ElementSelectionState{ElementId{0, 0}, 1, 13},
+        ElementSelectionState{ElementId{0}, 1, 5})) << document.GetEditorState().ToString();
+    
+    document.MoveCaretToDocumentEnd(false);
+    document.MoveCaretWordLeft(false);
+    document.WaitTask(document.MoveCaretToDocumentBegin(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0}, 
+        ElementSelectionState{ElementId{0}, 0, 5},
+        ElementSelectionState{ElementId{0, 5}, 0, 1},
+        ElementSelectionState{ElementId{0, 5, 1, 0}, 0, 30})) << document.GetEditorState().ToString();
+}
+
+//Move to document begin/end with selection
+TEST_F(DocumentTest, caret52)
+{
+    Start(670);
+
+    EXPECT_CALL(window_mock, OnLoadResult).WillOnce([&](const uint task_id, IOResult result, const int document_id)
+        {
+            ASSERT_TRUE(result == IOResult::Success);
+        });
+
+    EXPECT_CALL(window_mock, GetViewPort).WillRepeatedly([&](const int)
+        {
+            return Rect{0, 0, 630, 255};
+        });
+
+    document.Load("../test/tests/file1.txt");
+    document.WaitLoad();
+    std::this_thread::sleep_for(2000ms);
+
+    document.InsertCode(false, true);
+    document.MoveCaretToDocumentEnd(false);
+    document.InsertCode(false, true);
+
+    document.MoveCaretToDocumentBegin(false);
+    document.MoveCaretRight(false);
+    document.MoveCaretWordRight(false);
+    document.WaitTask(document.MoveCaretToDocumentEnd(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 5, 1, 2}, 
+        ElementSelectionState{ElementId{0, 0, 0, 1}, 11, 50},
+        ElementSelectionState{ElementId{0, 0}, 1, 13},
+        ElementSelectionState{ElementId{0}, 1, 5})) << document.GetEditorState().ToString();
+    
+    document.MoveCaretToDocumentEnd(false);
+    document.MoveCaretLeft(false);
+    document.MoveCaretLeft(false);
+    document.MoveCaretWordLeft(false);
+    document.WaitTask(document.MoveCaretToDocumentBegin(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0}, 
+        ElementSelectionState{ElementId{0}, 0, 5},
+        ElementSelectionState{ElementId{0, 5}, 0, 1},
+        ElementSelectionState{ElementId{0, 5, 1, 0}, 0, 30})) << document.GetEditorState().ToString();
+}
+
 }
