@@ -634,6 +634,36 @@ bool Row::GetBottomCaretState(const int x, const int y, CaretState& caret_state,
     return true;
 }
 
+bool Row::GetWordLeftCaretState(CaretState& caret_state, Selection* select)
+{
+    if (elements->Count() > 0 && elements->Get(elements->Count() - 1)->type != ElementType::STRING)
+    {
+        CaretState c;
+        if (GetLastCaretState(c, nullptr))
+        {
+            if (c == caret_state)
+            {
+                int p = elements->Count() - 1;
+                while (p >= 0 && elements->Get(p)->type != ElementType::STRING)
+                    --p;
+                if (p < 0)
+                    return parent->GetWordLeftCaretState(caret_state, select);
+                if (elements->Get(p)->GetLastCaretState(c, nullptr))
+                {
+                    if (select)
+                        select->Add(id, p + 1, elements->Count() - p - 1);
+                    if (elements->Get(p)->GetWordLeftCaretState(c, select))
+                    {
+                        caret_state = c;
+                        return true;
+                    }
+                }
+            }
+        }
+    }
+    return Element::GetWordLeftCaretState(caret_state, select);
+}
+
 bool Row::GetNearestCaretState(const int x, const int y, CaretState& caret_state)
 {
     int min_dist = std::numeric_limits<int>::max();

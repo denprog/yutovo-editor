@@ -1680,4 +1680,46 @@ TEST_F(DocumentTest, caret52)
         ElementSelectionState{ElementId{0, 5, 1, 0}, 0, 30})) << document.GetEditorState().ToString();
 }
 
+//Move caret to word left and to word right
+TEST_F(DocumentTest, caret53)
+{
+    Start(600);
+
+    document.WaitTask(document.InsertString("Text right", true));
+    document.MoveCaretToDocumentBegin(false);
+    document.InsertCode(false, true);
+    document.MoveCaretToDocumentBegin(false);
+    document.WaitTask(document.MoveCaretWordRight(false));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 1, 4})) << document.GetEditorState().ToString();
+
+    document.MoveCaretToDocumentEnd(false);
+    document.InsertCode(false, true);
+    document.MoveCaretToDocumentEnd(false);
+    document.WaitTask(document.MoveCaretWordLeft(false));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 1, 5})) << document.GetEditorState().ToString();
+}
+
+//Move caret to word left and to word right with selection
+TEST_F(DocumentTest, caret54)
+{
+    Start(600);
+
+    document.WaitTask(document.InsertString("Text right", true));
+    document.MoveCaretToDocumentBegin(false);
+    document.InsertCode(false, true);
+    document.MoveCaretToDocumentBegin(false);
+    document.WaitTask(document.MoveCaretWordRight(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 1, 4}, 
+        ElementSelectionState{ElementId{0, 0, 0}, 0, 1},
+        ElementSelectionState{ElementId{0, 0, 0, 1}, 0, 4})) << document.GetEditorState().ToString();
+
+    document.MoveCaretToDocumentEnd(false);
+    document.InsertCode(false, true);
+    document.MoveCaretToDocumentEnd(false);
+    document.WaitTask(document.MoveCaretWordLeft(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 1, 5}, 
+        ElementSelectionState{ElementId{0, 0, 0, 1}, 5, 5},
+        ElementSelectionState{ElementId{0, 0, 0}, 2, 1})) << document.GetEditorState().ToString();
+}
+
 }

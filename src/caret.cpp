@@ -571,7 +571,7 @@ void Caret::MovePageDown(Selection* selection)
         row_pos = 0;
     }
 
-    MoveToDocumentEnd(selection);
+    MoveToDocumentEnd(nullptr);
 }
 
 void Caret::SelectOut(Selection* selection)
