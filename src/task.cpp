@@ -1981,7 +1981,7 @@ bool SetConfigTask::Execute()
     }
     if (config.language != c.language)
     {
-        document->SetLocale(config.language);
+        document->solver.SetLocale(config.language);
 
         //update identifiers for all code blocks
         std::vector<ElementId> code_blocks;

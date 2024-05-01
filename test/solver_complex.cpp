@@ -215,7 +215,7 @@ TEST_F(SolverComplexTest, solver5)
     
     document.GetConfig(config);
     config.complex_result.form = ComplexForm::Trigonometric;
-    document.SetConfig(config);
+    document.WaitTask(document.SetConfig(config));
 
     document.InsertCode(false, true);
     document.InsertString("1.2", true);

@@ -6,6 +6,8 @@
 namespace yutovo
 {
 
+//Subscript
+
 Subscript::Subscript(Element* _parent, bool with_init) :
     MiddleShapeFormula(_parent, with_init)
 {

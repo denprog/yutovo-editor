@@ -33,7 +33,7 @@ CodeBlock::CodeBlock(Element* parent, uint _code_id, bool add_empty) :
     if (add_empty)
         AddEmptyElement(); //code block has to have at least one code paragraph
 
-    document->SetLocale(document->config.language);   
+    document->SetLocale(document->config.language);
     document->ListIdentifiers(code_id);
 }
 

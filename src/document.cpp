@@ -102,7 +102,6 @@ uint Document::SetConfig(const Config& _config)
 {
     std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
     tasks.emplace_back(new SetConfigTask(text, _config));
-    last_task_id = tasks.back()->id;
     next_circle = true;
     return last_task_id;
 }
@@ -112,7 +111,6 @@ uint Document::SetConfig(const std::string& _config)
     {
         std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
         tasks.emplace_back(new SetConfigTask(text, _config));
-        last_task_id = tasks.back()->id;
         next_circle = true;
     }
     return last_task_id;
@@ -571,7 +569,7 @@ uint Document::InsertFences(bool with_undo)
 uint Document::InsertFunction(const std::string& name, bool with_undo)
 {
     LOG_TRACE("Insert function: {}", name);
-    InsertCodeString(name, true);
+    InsertCodeString(name, with_undo);
     InsertFormula(new OpenFence(this), with_undo, true);
     uint r = InsertFormula(new CloseFence(this), with_undo, true);
     MoveCaretLeft(false, true);
@@ -581,7 +579,7 @@ uint Document::InsertFunction(const std::string& name, bool with_undo)
 uint Document::InsertSubscriptFunction(const std::string& name, bool with_undo)
 {
     LOG_TRACE("Insert subscript function: {}", name);
-    InsertCodeString(name, true);
+    InsertCodeString(name, with_undo);
     return InsertFormula(new Subscript(this), with_undo, true);
 }
 
@@ -2605,10 +2603,11 @@ void Document::GetSolverGuid(std::string& guid)
     guid = solver.guid;
 }
 
-void Document::SetLocale(const yutovo_calculator::Language language)
+uint Document::SetLocale(const yutovo_calculator::Language language)
 {
-    config.language = language;
-    solver.SetLocale(language);
+    Config c = config;
+    c.language = language;
+    return SetConfig(c);
 }
 
 void Document::ListIdentifiers(const uint code_id)
