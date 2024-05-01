@@ -1947,7 +1947,7 @@ TEST_F(SolverAutoTest, units7)
 
     document.GetConfig(config);
     config.service_timeout = 20;
-    document.SetConfig(config);
+    document.WaitTask(document.SetConfig(config));
 
     document.SetLocale(yutovo_calculator::Language::Russian);
     document.InsertCode(1, true);
