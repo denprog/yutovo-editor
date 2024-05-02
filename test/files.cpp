@@ -589,7 +589,7 @@ TEST_F(DocumentTest, files13)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0})) << document.GetEditorState().ToString();
 }
 
-//Save/load with a file with a language
+//Save/load a file with a language
 TEST_F(DocumentTest, files14)
 {
     Start(600);
@@ -603,7 +603,6 @@ TEST_F(DocumentTest, files14)
 
     document.WaitTask(document.Save("files14.yut"));
     document.WaitTask(document.New());
-    document.SetLocale(yutovo_calculator::Language::English);
     document.Load("files14.yut");
     document.WaitLoad();
     document.WaitSolver();
@@ -661,6 +660,26 @@ TEST_F(DocumentTest, files16)
             "</p>"\
         "</body>") << 
         document.ToHtml();
+}
+
+//Change language and Save/load a file with a unit
+TEST_F(DocumentTest, files17)
+{
+    Start(600);
+
+    document.SetLocale(yutovo_calculator::Language::Russian);
+    document.InsertCode(false, true);
+    document.InsertString("6кг", true);
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+
+    document.WaitTask(document.Save("files17.yut"));
+
+    document.WaitTask(document.New());
+    document.Load("files17.yut");
+    document.WaitLoad();
+    document.WaitSolver();
+    ASSERT_TRUE(document.ToText() == U"6кг=6.кг") << ToBasicString(document.ToText());
 }
 
 }

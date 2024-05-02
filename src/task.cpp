@@ -1486,6 +1486,7 @@ bool LoadTask::LoadJson(rapidjson::Document& doc)
     {
         //load config
         document->config.FromJson(doc["config"], alloc);
+        document->solver.SetLocale(document->config.language);
         document->SetLocale(document->config.language);
     }
 
