@@ -2079,6 +2079,79 @@ TEST_F(ParagraphTest, format11)
         document.ToHtml();
 }
 
+//Change paragraph format for selected paragraphs
+TEST_F(ParagraphTest, format12)
+{
+    Start(500);
+
+    document.InsertString("Tradicionalmente, el medio de un documento era el papel y la información", true);
+    document.InsertParagraph(true);
+    document.InsertString("Причиной возникновения арифметики стала практическая потребность в счёте и "
+        "вычислениях, связанных с задачами учёта при централизации сельского хозяйства.", true);
+    document.MoveCaretToDocumentBegin(false);
+    document.MoveCaretDown(true);
+    document.MoveCaretDown(true);
+    document.WaitTask(document.MoveCaretDown(true));
+    document.WaitTask(document.ChangeParagraphFormat("Monospace", true));
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Courier New';font-size:12px;\">Tradicionalmente, el medio de un documento </span>"\
+                "<span style=\"font-family:'Courier New';font-size:12px;\">era el papel y la información</span>"\
+            "</p>"\
+            "<p>"\
+                "<span style=\"font-family:'Courier New';font-size:12px;\">Причиной возникновения арифметики стала </span>"\
+                "<span style=\"font-family:'Courier New';font-size:12px;\">практическая потребность в счёте и </span>"\
+                "<span style=\"font-family:'Courier New';font-size:12px;\">вычислениях, связанных с задачами учёта при </span>"\
+                "<span style=\"font-family:'Courier New';font-size:12px;\">централизации сельского хозяйства.</span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 1, 1, 0, 0}, 
+        ElementSelectionState{ElementId{0}, 0, 1},
+        ElementSelectionState{ElementId{0, 1}, 0, 1})) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">Tradicionalmente, el medio de un documento era el </span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">papel y la información</span>"\
+            "</p>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">Причиной возникновения арифметики стала </span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">практическая потребность в счёте и </span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">вычислениях, связанных с задачами учёта при </span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">централизации сельского хозяйства.</span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 1, 0, 0, 40}, 
+        ElementSelectionState{ElementId{0}, 0, 1},
+        ElementSelectionState{ElementId{0, 1}, 0, 1})) << document.GetEditorState().ToString();
+
+    document.Redo();
+    document.WaitRedo();
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Courier New';font-size:12px;\">Tradicionalmente, el medio de un documento </span>"\
+                "<span style=\"font-family:'Courier New';font-size:12px;\">era el papel y la información</span>"\
+            "</p>"\
+            "<p>"\
+                "<span style=\"font-family:'Courier New';font-size:12px;\">Причиной возникновения арифметики стала </span>"\
+                "<span style=\"font-family:'Courier New';font-size:12px;\">практическая потребность в счёте и </span>"\
+                "<span style=\"font-family:'Courier New';font-size:12px;\">вычислениях, связанных с задачами учёта при </span>"\
+                "<span style=\"font-family:'Courier New';font-size:12px;\">централизации сельского хозяйства.</span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 1, 0, 0, 40}, 
+        ElementSelectionState{ElementId{0}, 0, 1},
+        ElementSelectionState{ElementId{0, 1}, 0, 1})) << document.GetEditorState().ToString();
+}
+
 //Delete a paragraph
 TEST_F(ParagraphTest, delete1)
 {

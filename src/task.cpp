@@ -711,11 +711,61 @@ bool ChangeParagraphFormatTask::Execute()
         return false;
 
     ElementId changed_element;
-    if (!el->ChangeParagraphFormat(format, with_undo, changed_element))
+    if (before_state.selection_state.IsEmpty())
     {
-        if (with_undo && last_undo_size < document->GetUndoSize())
-            document->Undo();
-        return false;
+        if (!el->ChangeParagraphFormat(format, with_undo, changed_element))
+        {
+            if (with_undo && last_undo_size < document->GetUndoSize())
+                document->Undo();
+            return false;
+        }
+    }
+    else
+    {
+        //find all the selected paragraphs and change their formats
+        std::vector<ElementId> ids;
+        ElementId ch;
+        std::vector<ElementLogicalSelectionState>& s = before_state.selection_state.state;
+        for (size_t i = 0; i < s.size(); ++i)
+        {
+            if (s[i].id == text->id)
+            {
+                for (size_t j = s[i].start; j < s[i].start + s[i].size; ++j)
+                {
+                    ElementId _id = yutovo::GetChild(s[i].id, j);
+                    if (std::find(ids.begin(), ids.end(), _id) == ids.end())
+                    {
+                        el = document->FindParentParagraph(_id);
+                        if (!el->ChangeParagraphFormat(format, with_undo, ch))
+                        {
+                            if (with_undo && last_undo_size < document->GetUndoSize())
+                                document->Undo();
+                            return false;
+                        }
+                        ids.push_back(el->id);
+                    }
+                }
+            }
+            else
+            {
+                bool last_pos;
+                ElementId _id = document->GetElementId(s[i].id, last_pos);
+                if (std::find(ids.begin(), ids.end(), _id) == ids.end())
+                {
+                    el = document->FindParentParagraph(_id);
+                    if (!el)
+                        continue;
+                    if (!el->ChangeParagraphFormat(format, with_undo, ch))
+                    {
+                        if (with_undo && last_undo_size < document->GetUndoSize())
+                            document->Undo();
+                        return false;
+                    }
+                    ids.push_back(el->id);
+                }
+            }
+        }
+        changed_element = GetCommonParent(ids);
     }
 
     Remake(changed_element, true);
