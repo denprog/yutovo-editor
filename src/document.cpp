@@ -103,17 +103,15 @@ uint Document::SetConfig(const Config& _config)
     std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
     tasks.emplace_back(new SetConfigTask(text, _config));
     next_circle = true;
-    return last_task_id;
+    return tasks.back()->id;
 }
 
 uint Document::SetConfig(const std::string& _config)
 {
-    {
-        std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
-        tasks.emplace_back(new SetConfigTask(text, _config));
-        next_circle = true;
-    }
-    return last_task_id;
+    std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
+    tasks.emplace_back(new SetConfigTask(text, _config));
+    next_circle = true;
+    return tasks.back()->id;
 }
 
 void Document::MainLoop()
@@ -1927,24 +1925,22 @@ uint Document::Resize(uint width, uint height)
 
 uint Document::Redraw(const ElementId& id, bool move_into_view)
 {
+    std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
+    if (!tasks.empty())
     {
-        std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
-        if (!tasks.empty())
+        if (!WillRedraw(id, move_into_view))
         {
-            if (!WillRedraw(id, move_into_view))
-            {
-                TaskPtr last = tasks.back();
-                RedrawTask* t = dynamic_cast<RedrawTask*>(last.get());
-                if (!t || t->element_id != id)
-                    tasks.emplace_back(new RedrawTask(text, id, move_into_view));
-                else if (!t->move_into_view)
-                    t->move_into_view = move_into_view;
-            }
+            TaskPtr last = tasks.back();
+            RedrawTask* t = dynamic_cast<RedrawTask*>(last.get());
+            if (!t || t->element_id != id)
+                tasks.emplace_back(new RedrawTask(text, id, move_into_view));
+            else if (!t->move_into_view)
+                t->move_into_view = move_into_view;
         }
-        else
-        {
-            tasks.emplace_back(new RedrawTask(text, id, move_into_view));
-        }
+    }
+    else
+    {
+        tasks.emplace_back(new RedrawTask(text, id, move_into_view));
     }
     next_circle = true;
     return tasks.back()->id;
