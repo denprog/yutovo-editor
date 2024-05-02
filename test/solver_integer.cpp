@@ -17,7 +17,7 @@ TEST_F(SolverIntegerTest, solver1)
     Config config;
     document.GetConfig(config);
     config.integer_result.show_notation = false;
-    document.SetConfig(config);
+    document.SetConfig(config, true);
 
     document.InsertCode(false, true);
     document.InsertString("2345", true);
@@ -74,7 +74,7 @@ TEST_F(SolverIntegerTest, solver2)
     Config config;
     document.GetConfig(config);
     config.integer_result.show_notation = false;
-    document.SetConfig(config);
+    document.SetConfig(config, true);
 
     document.InsertCode(false, true);
     document.InsertMinus(true);
@@ -136,7 +136,7 @@ TEST_F(SolverIntegerTest, solver3)
     Config config;
     document.GetConfig(config);
     config.integer_result.show_notation = false;
-    document.SetConfig(config);
+    document.SetConfig(config, true);
 
     document.InsertCode(false, true);
     document.InsertString("2345", true);
@@ -203,7 +203,7 @@ TEST_F(SolverIntegerTest, solver4)
     document.GetConfig(config);
     config.integer_result.result_notation = Notation::Binary;
     config.integer_result.show_notation = true;
-    document.SetConfig(config);
+    document.SetConfig(config, true);
 
     document.InsertCode(false, true);
     document.InsertString("2345", true);
@@ -216,7 +216,7 @@ TEST_F(SolverIntegerTest, solver4)
     document.GetConfig(config);
     config.integer_result.result_notation = Notation::Octal;
     config.integer_result.show_notation = false;
-    document.SetConfig(config);
+    document.SetConfig(config, true);
 
     document.MoveCaretEnd(false);
     document.InsertParagraph(true);
@@ -231,7 +231,7 @@ TEST_F(SolverIntegerTest, solver4)
     document.GetConfig(config);
     config.integer_result.result_notation = Notation::Decimal;
     config.integer_result.show_notation = true;
-    document.SetConfig(config);
+    document.SetConfig(config, true);
 
     document.MoveCaretEnd(false);
     document.InsertParagraph(true);
@@ -246,7 +246,7 @@ TEST_F(SolverIntegerTest, solver4)
 
     document.GetConfig(config);
     config.integer_result.result_notation = Notation::Hexadecimal;
-    document.SetConfig(config);
+    document.SetConfig(config, true);
 
     document.MoveCaretEnd(false);
     document.InsertParagraph(true);
@@ -270,7 +270,7 @@ TEST_F(SolverIntegerTest, solver5)
     document.GetConfig(config);
     config.integer_result.result_notation = Notation::Decimal;
     config.integer_result.show_notation = true;
-    document.SetConfig(config);
+    document.SetConfig(config, true);
 
     document.InsertCode(false, true);
     document.InsertString("2345", true);
@@ -297,7 +297,7 @@ TEST_F(SolverIntegerTest, solver5)
 
     document.GetConfig(config);
     config.solve_delay = 0;
-    document.SetConfig(config);
+    document.SetConfig(config, true);
 
     document.Redo();
     document.WaitRedo();
@@ -337,7 +337,7 @@ TEST_F(SolverIntegerTest, solver6)
     document.GetConfig(config);
     config.integer_result.result_notation = Notation::Decimal;
     config.integer_result.show_notation = true;
-    document.SetConfig(config);
+    document.SetConfig(config, true);
 
     document.InsertCode(false, true);
     document.InsertString("567", true);
@@ -419,7 +419,7 @@ TEST_F(SolverIntegerTest, solver9)
     config.integer_result.default_notation = Notation::Binary;
     config.integer_result.result_notation = Notation::Binary;
     config.integer_result.show_notation = true;
-    document.SetConfig(config);
+    document.SetConfig(config, true);
 
     document.InsertCode(false, true);
     document.InsertString("10101", true);
@@ -433,7 +433,7 @@ TEST_F(SolverIntegerTest, solver9)
     config.integer_result.default_notation = Notation::Octal;
     config.integer_result.result_notation = Notation::Decimal;
     config.integer_result.show_notation = false;
-    document.SetConfig(config);
+    document.SetConfig(config, true);
 
     document.MoveCaretEnd(false);
     document.InsertParagraph(true);
@@ -449,7 +449,7 @@ TEST_F(SolverIntegerTest, solver9)
     config.integer_result.default_notation = Notation::Decimal;
     config.integer_result.result_notation = Notation::Hexadecimal;
     config.integer_result.show_notation = true;
-    document.SetConfig(config);
+    document.SetConfig(config, true);
 
     document.MoveCaretEnd(false);
     document.InsertParagraph(true);
@@ -465,7 +465,7 @@ TEST_F(SolverIntegerTest, solver9)
     document.GetConfig(config);
     config.integer_result.default_notation = Notation::Hexadecimal;
     config.integer_result.result_notation = Notation::Decimal;
-    document.SetConfig(config);
+    document.SetConfig(config, true);
 
     document.MoveCaretEnd(false);
     document.InsertParagraph(true);
@@ -527,7 +527,7 @@ TEST_F(SolverIntegerTest, solver11)
     Config config;
     document.GetConfig(config);
     config.integer_result.show_notation = true;
-    document.SetConfig(config);
+    document.SetConfig(config, true);
 
     document.InsertCode(false, true);
     document.InsertString("2345", true);
@@ -551,6 +551,38 @@ TEST_F(SolverIntegerTest, solver11)
     std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToText() == 
         U"2345=2345."
+        ) << ToBasicString(document.ToText());
+}
+
+//Undo of config
+TEST_F(SolverIntegerTest, solver12)
+{
+    Start(600);
+    
+    document.InsertCode(false, true);
+    document.InsertString("10", true);
+
+    Config config;
+    document.GetConfig(config);
+    config.integer_result.result_notation = Notation::Binary;
+    document.WaitTask(document.SetConfig(config, true));
+
+    document.WaitTask(document.InsertEquation(ResultType::INTEGER, true));
+    document.WaitSolver();
+    ASSERT_TRUE(document.ToText() == 
+        U"10=1010(bin)"
+        ) << ToBasicString(document.ToText());
+
+    document.Undo();
+    document.WaitUndo();
+    document.Undo();
+    document.WaitUndo();
+
+    document.WaitTask(document.InsertEquation(ResultType::INTEGER, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"10=10(dec)"
         ) << ToBasicString(document.ToText());
 }
 
@@ -682,7 +714,7 @@ TEST_F(SolverIntegerTest, notation4)
     document.GetConfig(config);
     config.integer_result.result_notation = Notation::Binary;
     config.integer_result.show_notation = true;
-    document.SetConfig(config);
+    document.SetConfig(config, true);
 
     document.InsertCode(false, true);
     document.InsertString("456f", true);

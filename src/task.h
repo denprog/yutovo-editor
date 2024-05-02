@@ -151,12 +151,14 @@ struct UndoTask : Task
     {
         CHANGE = 1,
         INSERT,
-        DELETE
+        DELETE,
+        CONFIG
     };
 
     UndoTask(ElementPtr _text, int _undo_id, ElementId _id, const int _pos, const int _delete_size, const uint task_id);
     UndoTask(ElementPtr _text, int _undo_id, ElementId _id, const int _pos, const int _size, const int _delete_size, 
         UndoOperation _undo_operation, const uint task_id);
+    UndoTask(ElementPtr _text, int _undo_id, const uint task_id);
 
     virtual bool Execute();
 
@@ -353,8 +355,8 @@ struct SetStringTask : Task
 
 struct SetConfigTask : Task
 {
-    SetConfigTask(ElementPtr _text, const Config& _config);
-    SetConfigTask(ElementPtr _text, const std::string& _config_str);
+    SetConfigTask(ElementPtr _text, const Config& _config, bool _with_undo);
+    SetConfigTask(ElementPtr _text, const std::string& _config_str, bool _with_undo);
 
     virtual bool Execute();
 

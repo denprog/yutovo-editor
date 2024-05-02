@@ -98,18 +98,18 @@ void Document::GetConfig(Config& _config)
     _config = config;
 }
 
-uint Document::SetConfig(const Config& _config)
+uint Document::SetConfig(const Config& _config, bool with_undo)
 {
     std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
-    tasks.emplace_back(new SetConfigTask(text, _config));
+    tasks.emplace_back(new SetConfigTask(text, _config, with_undo));
     next_circle = true;
     return tasks.back()->id;
 }
 
-uint Document::SetConfig(const std::string& _config)
+uint Document::SetConfig(const std::string& _config, bool with_undo)
 {
     std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
-    tasks.emplace_back(new SetConfigTask(text, _config));
+    tasks.emplace_back(new SetConfigTask(text, _config, with_undo));
     next_circle = true;
     return tasks.back()->id;
 }
@@ -839,9 +839,25 @@ bool Document::StoreUndo(const ElementId& parent_id, const int pos, const int si
     return true;
 }
 
+bool Document::StoreUndo(const Config& config)
+{
+    RestrictUndo();
+    int undo_id = undo_base.Store(config);
+    if (undo_id < 0)
+        return false;
+    undo_tasks.push_back(TaskPtr(new UndoTask(text, undo_id, cur_task_id)));
+    return true;
+}
+
 bool Document::RestoreUndo(const int undo_id, std::vector<ElementPtr>& elements)
 {
     return undo_base.Restore(undo_id, elements);
+}
+
+bool Document::RestoreUndo(const int undo_id, Config& config)
+{
+    RestrictUndo();
+    return undo_base.Restore(undo_id, config);
 }
 
 void Document::RollbackUndo()
@@ -2599,11 +2615,11 @@ void Document::GetSolverGuid(std::string& guid)
     guid = solver.guid;
 }
 
-uint Document::SetLocale(const yutovo_calculator::Language language)
+uint Document::SetLocale(const yutovo_calculator::Language language, bool with_undo)
 {
     Config c = config;
     c.language = language;
-    return SetConfig(c);
+    return SetConfig(c, with_undo);
 }
 
 void Document::ListIdentifiers(const uint code_id)

@@ -6,6 +6,7 @@
 #include "caret_state.h"
 #include "style.h"
 #include "config.h"
+#include "element.h"
 
 namespace yutovo
 {
@@ -142,6 +143,33 @@ struct UndoEquation : UndoFormula
     std::any config;
 };
 
+class ConfigElement : public Element
+{
+public:
+    ConfigElement(const Config& _config);
+
+    virtual Element* Clone()
+    {
+        return nullptr;
+    }
+
+    virtual Element* Create(Element* parent)
+    {
+        return nullptr;
+    }
+
+    Config config;
+};
+
+struct UndoConfig : UndoElement
+{
+    UndoConfig(const Config& _config);
+
+    virtual Element* Restore(Document* document, Element* parent);
+
+    Config config;
+};
+
 class UndoBase
 {
 public:
@@ -149,7 +177,9 @@ public:
 
     int Store(const ElementId& id);
     int Store(const ElementId& parent_id, const int pos, const int size);
+    int Store(const Config& config);
     bool Restore(int undo_id, std::vector<ElementPtr>& elements);
+    bool Restore(int undo_id, Config& config);
 
 private:
     int Store(const int undo_id, const LogicalId& id);

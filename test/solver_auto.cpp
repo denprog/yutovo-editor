@@ -744,7 +744,7 @@ TEST_F(SolverAutoTest, solver11)
     document.GetConfig(config);
     ResultType order1[4] = {ResultType::RATIONAL, ResultType::INTEGER, ResultType::REAL, ResultType::COMPLEX};
     std::copy(order1, order1 + 4, config.auto_result.results_order);
-    document.SetConfig(config);
+    document.SetConfig(config, true);
 
     document.MoveCaretEnd(false);
     document.InsertParagraph(true);
@@ -765,7 +765,7 @@ TEST_F(SolverAutoTest, solver11)
     document.GetConfig(config);
     ResultType order2[4] = {ResultType::INTEGER, ResultType::RATIONAL, ResultType::REAL, ResultType::COMPLEX};
     std::copy(order2, order2 + 4, config.auto_result.results_order);
-    document.SetConfig(config);
+    document.SetConfig(config, true);
 
     document.MoveCaretEnd(false);
     document.InsertParagraph(true);
@@ -969,7 +969,7 @@ TEST_F(SolverAutoTest, solver18)
     ResultType order[4] = {ResultType::RATIONAL, ResultType::INTEGER, ResultType::REAL, ResultType::COMPLEX};
     std::copy(order, order + 4, config.auto_result.results_order);
     config.auto_result.rational_result.fraction_form = FractionForm::Improper;
-    document.SetConfig(config);
+    document.SetConfig(config, true);
 
     document.InsertDivision(true);
     document.InsertString("11", true);
@@ -1000,7 +1000,7 @@ TEST_F(SolverAutoTest, solver19)
     document.GetConfig(config);
     ResultType order1[4] = {ResultType::RATIONAL, ResultType::INTEGER, ResultType::REAL, ResultType::COMPLEX};
     std::copy(order1, order1 + 4, config.auto_result.results_order);
-    document.SetConfig(config);
+    document.SetConfig(config, true);
 
     document.InsertDivision(true);
     document.InsertString("1", true);
@@ -1047,7 +1047,7 @@ TEST_F(SolverAutoTest, solver21)
     document.GetConfig(config);
     ResultType order1[4] = {ResultType::RATIONAL, ResultType::INTEGER, ResultType::REAL, ResultType::COMPLEX};
     std::copy(order1, order1 + 4, config.auto_result.results_order);
-    document.SetConfig(config);
+    document.SetConfig(config, true);
 
     document.InsertCode(false, true);
     document.InsertString("cos", true);
@@ -1308,7 +1308,7 @@ TEST_F(SolverAutoTest, solver29)
 {
     Start(600);
     
-    document.SetLocale(yutovo_calculator::Language::Russian);
+    document.SetLocale(yutovo_calculator::Language::Russian, true);
     document.InsertCode(false, true);
     document.WaitTask(document.InsertString("6.5", true));
     document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
@@ -1852,7 +1852,7 @@ TEST_F(SolverAutoTest, units4)
     
     document.GetConfig(config);
     config.service_timeout = 20;
-    document.SetConfig(config);
+    document.SetConfig(config, true);
 
     document.InsertDivision(true);
     document.InsertString("6kg", true);
@@ -1873,7 +1873,7 @@ TEST_F(SolverAutoTest, units5)
     
     document.GetConfig(config);
     config.service_timeout = 20;
-    document.SetConfig(config);
+    document.SetConfig(config, true);
 
     document.InsertDivision(true);
     document.InsertString("6kg", true);
@@ -1947,9 +1947,9 @@ TEST_F(SolverAutoTest, units7)
 
     document.GetConfig(config);
     config.service_timeout = 20;
-    document.WaitTask(document.SetConfig(config));
+    document.WaitTask(document.SetConfig(config, true));
 
-    document.SetLocale(yutovo_calculator::Language::Russian);
+    document.SetLocale(yutovo_calculator::Language::Russian, true);
     document.InsertCode(1, true);
     document.InsertDivision(true);
     document.InsertString("6кг", true);
@@ -1971,7 +1971,7 @@ TEST_F(SolverAutoTest, units8)
 
     document.GetConfig(config);
     config.service_timeout = 30;
-    document.SetConfig(config);
+    document.SetConfig(config, true);
 
     document.InsertCode(false, true);
     document.InsertString("4N", true);
@@ -1980,7 +1980,7 @@ TEST_F(SolverAutoTest, units8)
     document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
     document.WaitSolver();
 
-    document.SetLocale(yutovo_calculator::Language::Russian);
+    document.SetLocale(yutovo_calculator::Language::Russian, true);
     document.MoveCaretEnd(false);
     document.InsertParagraph(true);
     document.InsertString("4.2Н", true);

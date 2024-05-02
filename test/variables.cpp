@@ -573,7 +573,7 @@ TEST_F(VariablesTest, variables8)
     document.GetConfig(config);
     ResultType order1[4] = {ResultType::RATIONAL, ResultType::INTEGER, ResultType::REAL, ResultType::COMPLEX};
     std::copy(order1, order1 + 4, config.auto_result.results_order);
-    document.SetConfig(config);
+    document.SetConfig(config, true);
 
     document.InsertCode(false, true);
     document.InsertString("d", true);

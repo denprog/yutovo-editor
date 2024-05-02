@@ -104,7 +104,7 @@ TEST_F(SolverRealTest, solver2)
     Config config;
     document.GetConfig(config);
     config.real_result.show_angle_measure = false;
-    document.SetConfig(config);
+    document.SetConfig(config, true);
 
     document.MoveCaretUp(false);
     document.MoveCaretEnd(false);
@@ -141,7 +141,7 @@ TEST_F(SolverRealTest, solver3)
     Config config;
     document.GetConfig(config);
     config.real_result.result_angle_measure = AngleMeasure::Degree;
-    document.SetConfig(config);
+    document.SetConfig(config, true);
 
     document.MoveCaretEnd(false);
     document.InsertParagraph(true);
@@ -173,7 +173,7 @@ TEST_F(SolverRealTest, solver4)
     Config config;
     document.GetConfig(config);
     config.real_result.precision = 5;
-    document.SetConfig(config);
+    document.SetConfig(config, true);
 
     document.MoveCaretEnd(false);
     document.InsertParagraph(true);
@@ -202,7 +202,7 @@ TEST_F(SolverRealTest, solver5)
     Config config;
     document.GetConfig(config);
     config.real_result.exp = 5;
-    document.SetConfig(config);
+    document.SetConfig(config, true);
 
     document.MoveCaretEnd(false);
     document.InsertParagraph(true);
