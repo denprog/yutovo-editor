@@ -2900,7 +2900,7 @@ TEST_F(DocumentTest, undo1)
     Config config;
     document.GetConfig(config);
     config.undo_size = 4;
-    document.SetConfig(config);
+    document.SetConfig(config, true);
 
     document.InsertString("T", true);
     document.InsertString("h", true);

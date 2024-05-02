@@ -33,8 +33,8 @@ public:
     void Start();
 
     void GetConfig(Config& _config);
-    uint SetConfig(const Config& _config);
-    uint SetConfig(const std::string& _config);
+    uint SetConfig(const Config& _config, bool with_undo);
+    uint SetConfig(const std::string& _config, bool with_undo);
 
     uint InsertParagraph(bool with_undo);
     uint InsertString(const std::string& str, bool with_undo);
@@ -98,7 +98,9 @@ public:
     bool StoreUndo(const ElementId& _id);
     bool StoreUndo(const ElementId& parent_id, const int pos, const int size, const int delete_size = 0);
     bool StoreUndo(const ElementId& parent_id, const int pos, const int size, const int delete_size, UndoTask::UndoOperation undo_operation);
+    bool StoreUndo(const Config& config);
     bool RestoreUndo(const int undo_id, std::vector<ElementPtr>& elements);
+    bool RestoreUndo(const int undo_id, Config& config);
     void RollbackUndo();
     size_t GetUndoSize();
 
@@ -272,7 +274,7 @@ public:
     void AddResolveElement(ElementId _id);
     void AddChangedElement(ElementId _id);
     void GetSolverGuid(std::string& guid);
-    uint SetLocale(const yutovo_calculator::Language language);
+    uint SetLocale(const yutovo_calculator::Language language, bool with_undo);
     void ListIdentifiers(const uint code_id);
 
     void ElementIdChanged(ElementId last_id, ElementId new_id);

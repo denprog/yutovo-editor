@@ -1121,6 +1121,7 @@ TEST_F(ParagraphTest, paragraph5)
     document.Undo();
     document.WaitUndo();
     el = document.GetElement(ElementId{0, 0});
+    std::this_thread::sleep_for(200ms);
     ASSERT_TRUE(el->type == ElementType::PARAGRAPH && el->ToText().rfind(U"Арифме́тика (др.-греч.", 0) == 0) << ToBasicString(el->ToText());
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 11)) << document.GetEditorState().ToString();
 }

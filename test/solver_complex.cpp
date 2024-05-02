@@ -110,7 +110,7 @@ TEST_F(SolverComplexTest, solver3)
     
     document.GetConfig(config);
     config.complex_result.form = ComplexForm::Exponential;
-    document.SetConfig(config);
+    document.SetConfig(config, true);
 
     document.InsertCode(false, true);
     document.InsertString("1.2", true);
@@ -158,7 +158,7 @@ TEST_F(SolverComplexTest, solver4)
     
     document.GetConfig(config);
     config.complex_result.form = ComplexForm::Exponential;
-    document.SetConfig(config);
+    document.SetConfig(config, true);
 
     document.InsertCode(false, true);
     document.InsertString("12000000000", true);
@@ -215,7 +215,7 @@ TEST_F(SolverComplexTest, solver5)
     
     document.GetConfig(config);
     config.complex_result.form = ComplexForm::Trigonometric;
-    document.WaitTask(document.SetConfig(config));
+    document.WaitTask(document.SetConfig(config, true));
 
     document.InsertCode(false, true);
     document.InsertString("1.2", true);
@@ -267,7 +267,7 @@ TEST_F(SolverComplexTest, solver6)
     
     document.GetConfig(config);
     config.complex_result.form = ComplexForm::Trigonometric;
-    document.SetConfig(config);
+    document.SetConfig(config, true);
 
     document.InsertCode(false, true);
     document.InsertString("12000000000", true);
@@ -481,7 +481,7 @@ TEST_F(SolverComplexTest, solver17)
     Config config;
     document.GetConfig(config);
     config.complex_result.show_angle_measure = true;
-    document.SetConfig(config);
+    document.SetConfig(config, true);
 
     document.InsertCode(false, true);
     document.InsertString("1.2", true);

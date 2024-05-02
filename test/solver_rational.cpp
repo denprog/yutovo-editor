@@ -267,7 +267,7 @@ TEST_F(SolverRationalTest, rational5)
     Config config;
     document.GetConfig(config);
     config.rational_result.fraction_form = FractionForm::Proper;
-    document.SetConfig(config);
+    document.SetConfig(config, true);
 
     document.InsertDivision(true);
     document.InsertString("9", true);
@@ -283,7 +283,7 @@ TEST_F(SolverRationalTest, rational5)
 
     document.GetConfig(config);
     config.rational_result.fraction_form = FractionForm::Improper;
-    document.SetConfig(config);
+    document.SetConfig(config, true);
 
     document.MoveCaretEnd(false);
     document.InsertParagraph(true);
@@ -309,7 +309,7 @@ TEST_F(SolverRationalTest, rational6)
     Config config;
     document.GetConfig(config);
     config.rational_result.fraction_form = FractionForm::Proper;
-    document.SetConfig(config);
+    document.SetConfig(config, true);
 
     document.InsertDivision(true);
     document.InsertString("42", true);
@@ -325,7 +325,7 @@ TEST_F(SolverRationalTest, rational6)
 
     document.GetConfig(config);
     config.rational_result.fraction_form = FractionForm::Improper;
-    document.SetConfig(config);
+    document.SetConfig(config, true);
 
     document.MoveCaretEnd(false);
     document.InsertParagraph(true);
@@ -350,7 +350,7 @@ TEST_F(SolverRationalTest, rational7)
     
     document.GetConfig(config);
     config.rational_result.fraction_form = FractionForm::Improper;
-    document.SetConfig(config);
+    document.SetConfig(config, true);
 
     document.InsertDivision(true);
     document.InsertString("11", true);
@@ -449,7 +449,7 @@ TEST_F(SolverRationalTest, units3)
     
     document.GetConfig(config);
     config.rational_result.fraction_form = FractionForm::Improper;
-    document.SetConfig(config);
+    document.SetConfig(config, true);
 
     document.InsertDivision(true);
     document.InsertString("50", true);

@@ -868,6 +868,13 @@ UndoTask::UndoTask(ElementPtr _text, int _undo_id, ElementId _id, const int _pos
     before_state = document->GetLogicalEditorState();
 }
 
+UndoTask::UndoTask(ElementPtr _text, int _undo_id, const uint task_id) : 
+    Task(_text, task_id),
+    undo_id(_undo_id),
+    undo_operation(UndoOperation::CONFIG)
+{
+}
+
 bool UndoTask::Execute()
 {
     if (undo_operation == UndoOperation::DELETE)
@@ -875,6 +882,15 @@ bool UndoTask::Execute()
         auto p = document->GetLogicalElement(id);
         p->elements->RemoveAt(pos, size);
         Remake(p->id, true);
+        return true;
+    }
+
+    if (undo_operation == UndoOperation::CONFIG)
+    {
+        Config config;
+        if (!document->RestoreUndo(undo_id, config))
+            return false;
+        document->SetConfig(config, false);
         return true;
     }
 
@@ -1537,7 +1553,7 @@ bool LoadTask::LoadJson(rapidjson::Document& doc)
         //load config
         document->config.FromJson(doc["config"], alloc);
         document->solver.SetLocale(document->config.language);
-        document->SetLocale(document->config.language);
+        document->SetLocale(document->config.language, false);
     }
 
     if (doc.HasMember("string_formats") && doc["string_formats"].IsArray())
@@ -2002,16 +2018,18 @@ bool SetStringTask::Execute()
 
 //SetConfigTask
 
-SetConfigTask::SetConfigTask(ElementPtr _text, const Config& _config) :
+SetConfigTask::SetConfigTask(ElementPtr _text, const Config& _config, bool _with_undo) :
     Task(_text),
     config(_config)
 {
+    with_undo = _with_undo;
 }
 
-SetConfigTask::SetConfigTask(ElementPtr _text, const std::string& _config_str) :
+SetConfigTask::SetConfigTask(ElementPtr _text, const std::string& _config_str, bool _with_undo) :
     Task(_text),
     config_str(_config_str)
 {
+    with_undo = _with_undo;
 }
 
 bool SetConfigTask::Execute()
@@ -2023,6 +2041,9 @@ bool SetConfigTask::Execute()
             return false;
     }
 
+    if (with_undo)
+        document->StoreUndo(document->config);
+    
     bool remake = false;
     Config& c = document->config;
     if (config.use_numbers_gaps != c.use_numbers_gaps || config.binary_gap != c.binary_gap || config.octal_gap != c.octal_gap || 
