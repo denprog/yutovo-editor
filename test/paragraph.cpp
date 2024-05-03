@@ -2685,7 +2685,6 @@ TEST_F(ParagraphTest, delete11)
         document.ToHtml();
     
     document.MoveCaretHome(false);
-    document.MoveCaretRight(false);
     document.MoveCaretWordLeft(false);
     document.WaitTask(document.MoveCaretDown(true));
     document.WaitTask(document.DeleteElements(false, true));

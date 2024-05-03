@@ -32,6 +32,7 @@ public:
     virtual bool GetTopCaretState(const int x, const int y, CaretState& caret_state, Selection* select);
     virtual bool GetBottomCaretState(const int x, const int y, CaretState& caret_state, Selection* select);
     virtual bool GetWordLeftCaretState(CaretState& caret_state, Selection* select);
+    virtual bool GetWordRightCaretState(CaretState& caret_state, Selection* select);
 
     virtual bool GetNearestCaretState(const int x, const int y, CaretState& caret_state);
 
