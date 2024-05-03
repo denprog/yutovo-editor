@@ -126,6 +126,21 @@ bool CodeBlock::Remake(bool with_elements)
     return changed;
 }
 
+bool CodeBlock::GetWordLeftCaretState(CaretState& caret_state, Selection* select)
+{
+    if (caret_state.IsInsideElement(id))
+    {
+        if (caret_state.GetPos() == 0)
+        {
+            if (select)
+                select->Add(id);
+            caret_state.SetState(parent->id, parent->elements->GetElementPos(id));
+            return true;
+        }
+    }
+    return Block::GetWordLeftCaretState(caret_state, select);
+}
+
 bool CodeBlock::AfterInsert(bool with_undo)
 {
     CaretState c;

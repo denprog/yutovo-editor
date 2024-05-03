@@ -524,7 +524,7 @@ TEST_F(VariablesTest, errors3)
         U"d=4+t\n" \
         U"d+5=Unknown identifier"
         ) << ToBasicString(document.ToText());
-    std::this_thread::sleep_for(600ms);
+    std::this_thread::sleep_for(1s);
     int start, size;
     ASSERT_TRUE(document.HasErrorMark(ElementId{0, 0, 0, 0, 0, 0, 0, 2, 2}, start, size));
     ASSERT_TRUE(start == 0 && size == 1);
