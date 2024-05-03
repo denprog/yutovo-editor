@@ -644,24 +644,61 @@ bool Row::GetWordLeftCaretState(CaretState& caret_state, Selection* select)
             if (c == caret_state)
             {
                 int p = elements->Count() - 1;
-                while (p >= 0 && elements->Get(p)->type != ElementType::STRING)
+                if (p < 0)
+                {
+                    if (!GetFirstCaretState(c, nullptr))
+                        return false;
+                    caret_state = c;
+                    return true;
+                }
+                auto el = elements->Get(p);
+                while (p >= 0 && el->type != ElementType::STRING && !el->HasCaretState())
                     --p;
                 if (p < 0)
-                    return parent->GetWordLeftCaretState(caret_state, select);
-                if (elements->Get(p)->GetLastCaretState(c, nullptr))
                 {
-                    if (select)
-                        select->Add(id, p + 1, elements->Count() - p - 1);
-                    if (elements->Get(p)->GetWordLeftCaretState(c, select))
-                    {
-                        caret_state = c;
-                        return true;
-                    }
+                    if (!GetFirstCaretState(c, nullptr))
+                        return false;
+                    caret_state = c;
+                    return true;
                 }
+                if (select)
+                    select->Add(id, p, elements->Count() - p);
+                caret_state.SetState(id, p);
+                return true;
             }
         }
     }
     return Element::GetWordLeftCaretState(caret_state, select);
+}
+
+bool Row::GetWordRightCaretState(CaretState& caret_state, Selection* select)
+{
+    int p = caret_state.GetElementPos(caret_state.id);
+    if (p < elements->Count())
+    {
+        if (elements->Get(p)->HasCaretState() && p < elements->Count() - 1)
+        {
+            if (select)
+                select->Add(id, p, 1);
+            if (elements->Get(p + 1)->HasCaretState())
+                caret_state.SetState(id, p + 1);
+            else
+            {
+                CaretState c;
+                if (elements->Get(p + 1)->GetFirstCaretState(c, nullptr))
+                    caret_state = c;
+            }
+            return true;
+        }
+        else if (elements->Get(p)->HasLastCaretState())
+        {
+            if (select)
+                select->Add(id, p, 1);
+            caret_state.SetState(id, p + 1, true);
+            return true;
+        }
+    }
+    return Element::GetWordRightCaretState(caret_state, select);
 }
 
 bool Row::GetNearestCaretState(const int x, const int y, CaretState& caret_state)
