@@ -2066,7 +2066,7 @@ TEST_F(DocumentTest, fonts22)
         ElementSelectionState{ElementId{0, 0, 0}, 0, 1})) << document.GetEditorState().ToString();
     
     document.MoveCaretWordRight(false);
-    document.MoveCaretWordRight(true);
+    document.WaitTask(document.MoveCaretWordRight(true));
     document.WaitTask(document.SetBgColor(Color::Green()));
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\

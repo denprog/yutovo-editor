@@ -119,12 +119,12 @@ TEST_F(DocumentTest, clipboard2)
                 "<span style=\"font-family:'Times New Roman';font-size:20px;\">is a little </span>"\
                 "<span style=\"font-family:'Times New Roman';font-size:20px;\">mysterious.</span>"\
                 "<span style=\"font-family:'Arial';font-size:22px;\"> of </span>"\
-                "<span style=\"font-family:'Courier New';font-size:22px;\"><strong>the</strong></span>"\
+                "<span style=\"font-family:'Courier New';font-size:22px;\"><strong>the text</strong></span>"\
             "</p>"\
         "</body>") 
         << document.ToHtml();
-    ASSERT_TRUE(clipboard_text == U" of the") << ToBasicString(clipboard_text);
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 1, 2, 3)) << document.GetEditorState().ToString();
+    ASSERT_TRUE(clipboard_text == U" of the text") << ToBasicString(clipboard_text);
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 1, 2, 8)) << document.GetEditorState().ToString();
 }
 
 TEST_F(DocumentTest, clipboard3)

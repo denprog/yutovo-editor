@@ -26,6 +26,8 @@ public:
     virtual void Draw() const;
     virtual bool Remake(bool with_elements = false);
 
+    virtual bool GetWordLeftCaretState(CaretState& caret_state, Selection* select);
+
     virtual bool AfterInsert(bool with_undo);
 
     virtual void GetMargin(int& left, int& top, int& right, int& bottom) const;

@@ -1073,6 +1073,12 @@ bool StringElements::GetWordRightCaretState(CaretState& caret_state, Selection* 
     uint pos = caret_state.GetPos();
     if (pos >= str.length())
         return false;
+    if (pos == str.length() - 1 && !str.empty() && str[str.length() - 1] == ' ')
+    {
+        if (select)
+            select->Add(parent->id, pos, 1);
+        return parent->parent->GetWordRightCaretState(caret_state, select);
+    }
     for (int i = pos + 1; i < str.length(); ++i)
     {
         if (str[i] == ' ')

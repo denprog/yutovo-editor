@@ -245,9 +245,9 @@ TEST_F(DocumentTest, caret4)
     document.MoveCaretWordRight(true);
     document.WaitTask(document.MoveCaretWordRight(true));
     std::this_thread::sleep_for(100ms);
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 1, 4}, 
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 2, 6}, 
         ElementSelectionState{ElementId{0, 0, 0, 0}, 10, 7},
-        ElementSelectionState{ElementId{0, 0, 0}, 1, 1})) << document.GetEditorState().ToString();
+        ElementSelectionState{ElementId{0, 0, 0}, 1, 2})) << document.GetEditorState().ToString();
 }
 
 TEST_F(DocumentTest, caret5)
@@ -1763,6 +1763,81 @@ TEST_F(DocumentTest, caret55)
     document.WaitTask(document.MoveCaretWordRight(true));
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 2},
         ElementSelectionState{ElementId{0}, 0, 1})) << document.GetEditorState().ToString();
+}
+
+//Move caret to word left and to word right beetween rows
+TEST_F(DocumentTest, caret56)
+{
+    Start(390);
+
+    document.InsertString("In literary theory, a text is any object that can be read, whether this object is a work of literature", true);
+    document.MoveCaretToDocumentBegin(false);
+    document.MoveCaretEnd(false);
+    document.MoveCaretWordLeft(false);
+    document.MoveCaretWordRight(false);
+    document.WaitTask(document.MoveCaretWordRight(false));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 0, 0})) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.MoveCaretWordRight(false));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 0, 4})) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.MoveCaretWordLeft(false));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 0, 0})) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.MoveCaretWordLeft(false));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 41})) << document.GetEditorState().ToString();
+    document.WaitTask(document.MoveCaretWordLeft(false));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 34})) << document.GetEditorState().ToString();
+}
+
+//Move caret to word left and to word right beetween rows
+TEST_F(DocumentTest, caret57)
+{
+    Start(300);
+
+    document.InsertString("In literary theory, a text is any object that can be read, whether this object is a work of literature", true);
+    document.MoveCaretToDocumentBegin(false);
+    document.MoveCaretDown(false);
+    for (int i = 0; i < 7; ++i)
+        document.WaitTask(document.MoveCaretWordRight(false));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 2, 0, 0})) << document.GetEditorState().ToString();
+
+    document.MoveCaretWordRight(false);
+    document.MoveCaretWordLeft(false);
+    document.WaitTask(document.MoveCaretWordLeft(false));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 0, 29})) << document.GetEditorState().ToString();
+}
+
+//Move caret out of a code block
+TEST_F(DocumentTest, caret58)
+{
+    Start(300);
+
+    document.InsertString("In literary theory, a text is any object that can be read, whether this object is a work of literature", true);
+    document.MoveCaretToDocumentBegin(false);
+    document.MoveCaretDown(false);
+    document.InsertDivision(true);
+    document.MoveCaretLeft(false);
+    document.WaitTask(document.MoveCaretWordLeft(false));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 0})) << document.GetEditorState().ToString();
+}
+
+//Move caret to word left and to word right beetween paragraphs
+TEST_F(DocumentTest, caret59)
+{
+    Start(400);
+
+    document.InsertString("In literary theory, a text is any object that can be read, whether this object is a work of literature", true);
+    document.InsertParagraph(true);
+    document.InsertString("In literary theory, a text is any object that can be read, whether this object is a work of literature", true);
+    document.MoveCaretUp(false);
+    document.MoveCaretUp(false);
+    document.MoveCaretHome(false);
+    document.WaitTask(document.MoveCaretWordLeft(false));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 2, 0, 18})) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.MoveCaretWordRight(false));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 1, 0, 0, 0})) << document.GetEditorState().ToString();
 }
 
 }

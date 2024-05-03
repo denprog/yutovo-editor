@@ -1581,7 +1581,7 @@ bool Elements::GetWordRightCaretState(CaretState& caret_state, Selection* select
             if (elements[p]->GetFirstCaretState(caret_state, select))
             {
                 if (elements[p]->GetWordRightCaretState(caret_state, select))
-                    return true;
+                   return true;
             }
         }
     }
