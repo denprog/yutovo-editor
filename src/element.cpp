@@ -1105,8 +1105,9 @@ void Elements::Insert(ElementPtr element, const uint pos)
         auto _el = parent->document->GetElement(_id);
         if (_el)
         {
-            if (c.last_pos)
-                caret->SetState(GetParent(_id), GetChildPos(element->id) + 1, true);
+            CaretState _c;
+            if (c.last_pos && _el->parent->GetLastCaretState(_c, nullptr))
+                caret->SetState(_c);
             else
                 caret->SetState(_id, c.GetPos(), true);
         }

@@ -63,7 +63,12 @@ bool OnlyShapeFormula::AfterInsert(bool with_undo)
 {
     int pos = parent->elements->GetElementPos(id);
     if (parent->elements->IsLast(id))
-        caret->SetState(parent->id, parent->elements->GetElementPos(id) + 1, true);
+    {
+        CaretState c;
+        if (!parent->GetLastCaretState(c, nullptr))
+            return false;
+        caret->SetState(c);
+    }
     else if (parent->elements->Get(pos + 1)->HasCaretState())
         caret->SetState(parent->elements->Get(pos + 1)->id, true);
     else
