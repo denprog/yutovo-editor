@@ -335,7 +335,7 @@ TEST_F(VariablesTest, variables4)
     document.WaitTask(document.MoveCaretLeft(false));
     document.WaitTask(document.InsertString("2", true));
     document.WaitSolver();
-    std::this_thread::sleep_for(600ms);
+    std::this_thread::sleep_for(1s);
     ASSERT_TRUE(document.ToText() == 
         U"d=42\n" \
         U"d+5=47.\n" \
@@ -448,7 +448,7 @@ TEST_F(VariablesTest, variables7)
     document.Undo();
     document.WaitUndo();
     document.WaitSolver();
-    std::this_thread::sleep_for(600ms);
+    std::this_thread::sleep_for(1s);
     ASSERT_TRUE(document.ToText() == 
         U"d=2345\n" \
         U"d=2345."

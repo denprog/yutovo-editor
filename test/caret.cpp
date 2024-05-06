@@ -1840,4 +1840,17 @@ TEST_F(DocumentTest, caret59)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 1, 0, 0, 0})) << document.GetEditorState().ToString();
 }
 
+//Edit a code block at the right corner
+TEST_F(DocumentTest, caret60)
+{
+    Start(472);
+
+    document.InsertString("In literary theory, a text is any object that can be read, whether this object is a work of literature", true);
+    document.InsertCode(false, true);
+    document.InsertString("3", true);
+    document.WaitTask(document.InsertMultiply(true));
+    document.WaitTask(document.MoveCaretLeft(false));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 2, 0, 0, 0, 1})) << document.GetEditorState().ToString();
+}
+
 }
