@@ -64,7 +64,7 @@ TEST_F(VariablesTest, variables1)
     document.MoveCaretEnd(false);
     document.MoveCaretLeft(false);
     document.WaitTask(document.InsertString("2", true));
-    std::this_thread::sleep_for(600ms);
+    std::this_thread::sleep_for(1s);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -213,9 +213,10 @@ TEST_F(VariablesTest, variables3)
     document.InsertString("5", true);
     document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
     document.WaitSolver();
-    std::this_thread::sleep_for(600ms);
+    std::this_thread::sleep_for(1s);
     document.WaitTask(document.MoveCaretUp(false));
     document.WaitTask(document.DeleteElements(false, true));
+    document.WaitSolver();
     std::this_thread::sleep_for(1s);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
@@ -246,7 +247,8 @@ TEST_F(VariablesTest, variables3)
     
     document.Undo();
     document.WaitUndo();
-    std::this_thread::sleep_for(600ms);
+    document.WaitSolver();
+    std::this_thread::sleep_for(2s);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -461,6 +463,7 @@ TEST_F(VariablesTest, errors1)
     document.InsertCode(false, true);
     document.InsertString("d", true);
     document.WaitTask(document.InsertAssignment(true));
+    document.WaitSolver();
     std::this_thread::sleep_for(2s);
     ASSERT_TRUE(document.ToText() == U"d=") << ToBasicString(document.ToText());
     int start, size;
