@@ -146,12 +146,6 @@ bool Equation::DeleteElements(bool left, bool with_undo, ElementId& changed_elem
     return MiddleShapeFormula::DeleteElements(left, with_undo, changed_element);
 }
 
-void Equation::BeforeReplace()
-{
-    MiddleShapeFormula::BeforeReplace();
-    document->RemoveErrorMarks(id);
-}
-
 void Equation::BeforeDelete()
 {
     MiddleShapeFormula::BeforeDelete();

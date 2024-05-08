@@ -149,6 +149,18 @@ bool CodeBlock::AfterInsert(bool with_undo)
     return true;
 }
 
+void CodeBlock::ElementIdChanged(const ElementId& last_id)
+{
+    document->ElementIdChanged(last_id, id);
+
+    int start, size;
+    if (document->HasErrorMark(last_id, start, size))
+    {
+        document->RemoveErrorMarks(last_id);
+        document->AddErrorMark(id, start, size);
+    }
+}
+
 void CodeBlock::GetMargin(int& left, int& top, int& right, int& bottom) const
 {
     left = code_format->left_margin;

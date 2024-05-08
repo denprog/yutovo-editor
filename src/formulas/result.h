@@ -27,7 +27,7 @@ public:
 
     virtual void AfterReplace();
     virtual void BeforePaste();
-    virtual void ElementIdChanged();
+    virtual void ElementIdChanged(const ElementId& last_id);
 
     virtual void AddElement(ElementPtr element);
     
