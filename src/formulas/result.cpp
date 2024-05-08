@@ -102,7 +102,7 @@ void ResultRow::BeforePaste()
     parent->elements->RemoveAt(c - 1, 1);
 }
 
-void ResultRow::ElementIdChanged()
+void ResultRow::ElementIdChanged(const ElementId& last_id)
 {
     if (!solving_id.empty())
         document->ElementIdChanged(solving_id, id);
@@ -1014,8 +1014,6 @@ void AutoResult::Solve(const ParserString& expression)
 
 void AutoResult::PutResult(Result result)
 {
-    solving_id.clear();
-
     ElementPtr el = document->FindParent(id, ElementType::EQUATION);
     Equation* eq = (Equation*)el.get();
     eq->dependencies = result.dependencies;

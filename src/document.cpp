@@ -2585,12 +2585,10 @@ void Document::PutResult(ElementId _id, Result result)
     //id could be changed
     auto it = changed_ids.find(_id);
     if (it != changed_ids.end())
-    {
         _id = it->second;
-        changed_ids.erase(it);
-    }
 
     tasks.emplace_back(new ResultTask(text, _id, result));
+
 #ifdef DEBUG
     if ((result.type != ResultType::NONE && result.error.error_code != yutovo_service::ErrorCode::SOLVER_RESTARTED_ERROR) ||    
         result.error.error_code == yutovo_service::ErrorCode::PARSER_ERROR)
@@ -2629,7 +2627,25 @@ void Document::ListIdentifiers(const uint code_id)
 
 void Document::ElementIdChanged(ElementId last_id, ElementId new_id)
 {
+    auto it = std::find_if(changed_ids.begin(), changed_ids.end(), 
+        [last_id](const auto& p)
+        {
+            return p.second == last_id;
+        });
+    if (it != changed_ids.end())
+        changed_ids.erase(it);
     changed_ids[last_id] = new_id;
+}
+
+void Document::RemoveChangedId(ElementId _id)
+{
+    auto it = std::find_if(changed_ids.begin(), changed_ids.end(), 
+        [_id](const auto& p)
+        {
+            return p.second == _id;
+        });
+    if (it != changed_ids.end())
+        changed_ids.erase(it);
 }
 
 bool Document::IsVisible(ElementId _id)
@@ -2740,7 +2756,24 @@ bool Document::HasErrorMark(ElementId _id, int& start, int& size)
             return m.id == _id;
         });
     if (it == error_marks.end())
-        return false;
+    {
+        //id could be changed
+        for (auto& p : changed_ids)
+        {
+            if (IsChild(p.second, _id))
+            {
+                _id = GetWithParent(_id, p.first);
+                break;
+            }
+        }
+        it = std::find_if(error_marks.begin(), error_marks.end(), 
+            [_id](const ErrorMark& m)
+            {
+                return m.id == _id;
+            });
+        if (it == error_marks.end())
+            return false;
+    }
     start = it->start;
     size = it->size;
     return true;

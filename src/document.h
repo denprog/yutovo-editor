@@ -278,6 +278,7 @@ public:
     void ListIdentifiers(const uint code_id);
 
     void ElementIdChanged(ElementId last_id, ElementId new_id);
+    void RemoveChangedId(ElementId _id);
 
     bool IsVisible(ElementId _id);
     ElementId GetFirstVisibleParagraph();

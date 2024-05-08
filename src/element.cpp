@@ -286,6 +286,7 @@ void Element::AfterChildInsert(const ElementId child_id, bool with_undo)
 
 void Element::BeforeDelete()
 {
+    document->RemoveChangedId(id);
     for (int i = 0; i < elements->Count(); ++i)
         elements->Get(i)->BeforeDelete();
 }
@@ -308,7 +309,7 @@ void Element::BeforePaste()
         elements->Get(i)->BeforePaste();
 }
 
-void Element::ElementIdChanged()
+void Element::ElementIdChanged(const ElementId& last_id)
 {
 }
 
@@ -1675,7 +1676,7 @@ void Elements::UpdateIds()
         }
 
         if (last_id != el->id)
-            el->ElementIdChanged();
+            el->ElementIdChanged(last_id);
 
         el->elements->UpdateIds();
     }

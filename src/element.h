@@ -62,7 +62,7 @@ public:
     virtual void BeforeReplace();
     virtual void AfterReplace();
     virtual void BeforePaste();
-    virtual void ElementIdChanged();
+    virtual void ElementIdChanged(const ElementId& last_id);
 
     virtual bool GetFirstCaretState(CaretState& caret_state, Selection* select);
     virtual bool GetLastCaretState(CaretState& caret_state, Selection* select);

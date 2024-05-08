@@ -29,6 +29,8 @@ public:
 
     virtual bool Remake(bool with_elements = false);
 
+    virtual void ElementIdChanged(const ElementId& last_id);
+
     virtual bool InsertElements(std::vector<ElementPtr>& _elements, bool with_undo, ElementId& changed_element);
     virtual bool DeleteElements(bool left, bool with_undo, ElementId& changed_element);
     virtual bool ChangeStringFormat(const StringFormatPtr format, bool with_undo, ElementId& changed_element);

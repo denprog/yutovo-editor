@@ -128,6 +128,16 @@ bool CodeRow::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo,
     return Row::InsertElements(_elements, with_undo, changed_element);
 }
 
+void CodeRow::ElementIdChanged(const ElementId& last_id)
+{
+    int start, size;
+    if (document->HasErrorMark(last_id, start, size))
+    {
+        document->RemoveErrorMarks(last_id);
+        document->AddErrorMark(id, start, size);
+    }
+}
+
 bool CodeRow::GetBeginCaretState(CaretState& caret_state, Selection* select)
 {
     CaretState c;
