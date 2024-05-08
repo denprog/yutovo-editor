@@ -682,4 +682,58 @@ TEST_F(DocumentTest, files17)
     ASSERT_TRUE(document.ToText() == U"6кг=6.кг") << ToBasicString(document.ToText());
 }
 
+//Save/load a file with a sum
+TEST_F(DocumentTest, files18)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.InsertSum(true);
+    document.InsertString(U"i", true);
+    document.MoveCaretRight(false);
+    document.MoveCaretRight(false);
+    document.InsertString(U"0", true);
+    document.MoveCaretRight(false);
+    document.MoveCaretRight(false);
+    document.InsertString(U"10", true);
+    document.MoveCaretRight(false);
+    document.WaitTask(document.InsertString(U"i", true));
+
+    document.WaitTask(document.Save("files18.yut"));
+
+    document.WaitTask(document.New());
+    document.Load("files18.yut");
+    document.WaitLoad();
+    ASSERT_TRUE(document.ToText() == 
+        U"sum(i=0,10,i)"
+        ) << ToBasicString(document.ToText());
+}
+
+//Save/load a file with a product
+TEST_F(DocumentTest, files19)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.InsertProduct(true);
+    document.InsertString(U"i", true);
+    document.MoveCaretRight(false);
+    document.MoveCaretRight(false);
+    document.InsertString(U"0", true);
+    document.MoveCaretRight(false);
+    document.MoveCaretRight(false);
+    document.InsertString(U"10", true);
+    document.MoveCaretRight(false);
+    document.WaitTask(document.InsertString(U"i", true));
+
+    document.WaitTask(document.Save("files19.yut"));
+
+    document.WaitTask(document.New());
+    document.Load("files19.yut");
+    document.WaitLoad();
+    ASSERT_TRUE(document.ToText() == 
+        U"prod(i=0,10,i)"
+        ) << ToBasicString(document.ToText());
+}
+
 }

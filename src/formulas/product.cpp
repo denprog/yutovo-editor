@@ -9,13 +9,13 @@ namespace yutovo
 //Product
 
 Product::Product(Element* _parent, bool with_init) : 
-    Iteration(_parent, U'∏')
+    Iteration(_parent, U'∏', with_init)
 {
     type = ElementType::PRODUCT;
 }
 
 Product::Product(Document* _document, bool with_init) : 
-    Iteration(_document, U'∏')
+    Iteration(_document, U'∏', with_init)
 {
     type = ElementType::PRODUCT;
 }
