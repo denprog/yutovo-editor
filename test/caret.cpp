@@ -1853,4 +1853,32 @@ TEST_F(DocumentTest, caret60)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 2, 0, 0, 0, 1})) << document.GetEditorState().ToString();
 }
 
+//Move a code block on the next row
+TEST_F(DocumentTest, caret61)
+{
+    Start(470);
+
+    int width = 470;
+    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
+        {
+            return Rect{0, 0, width, 400};
+        });
+
+    document.InsertString("In literary theory, a text is any object that can be read, which is a work of literature", true);
+    document.InsertCode(false, true);
+    document.InsertString("7", true);
+    document.InsertDivision(true);
+    document.InsertString("6", true);
+    document.MoveCaretRight(false);
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    document.WaitTask(document.MoveCaretLeft(false));
+
+    width = 400;
+    document.WaitTask(document.Resize(width, 400));
+
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 2, 0, 0, 0, 0, 0, 1})) << document.GetEditorState().ToString();
+}
+
 }
