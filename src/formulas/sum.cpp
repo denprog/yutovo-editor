@@ -9,13 +9,13 @@ namespace yutovo
 //Sum
 
 Sum::Sum(Element* _parent, bool with_init) : 
-    Iteration(_parent, U'Σ')
+    Iteration(_parent, U'Σ', with_init)
 {
     type = ElementType::SUM;
 }
 
 Sum::Sum(Document* _document, bool with_init) : 
-    Iteration(_document, U'Σ')
+    Iteration(_document, U'Σ', with_init)
 {
     type = ElementType::SUM;
 }
