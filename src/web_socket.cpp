@@ -126,12 +126,16 @@ bool WebSocket::Receive(std::string& message, Result& result)
     {
         ioc.run_one();
     }
-    if (last_error == boost::system::errc::success)
+
+    if (last_error.value() == boost::system::errc::success)
     {
         message = std::string(boost::asio::buffers_begin(buffer.data()), boost::asio::buffers_end(buffer.data()));
         return true;
     }
-    result.error.error_code = yutovo_service::ErrorCode::OPERATION_ERROR;
+    else if (static_cast<boost::beast::error>(last_error.value()) == boost::beast::error::timeout)
+        result.error.error_code = yutovo_service::ErrorCode::TIMEOUT_ERROR;
+    else
+        result.error.error_code = yutovo_service::ErrorCode::OPERATION_ERROR;
     return false;
 #endif
 }

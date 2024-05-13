@@ -321,7 +321,8 @@ std::string ErrorCodeToString(const yutovo_service::ErrorCode error_code)
             {ErrorCode::SOLVER_ERROR, "Solver error"},
             {ErrorCode::PARSER_ERROR, "Parser error"},
             {ErrorCode::OPERATION_ERROR, "Operation error"},
-            {ErrorCode::SOLVER_RESTARTED_ERROR, "Solver restarted"}
+            {ErrorCode::SOLVER_RESTARTED_ERROR, "Solver restarted"},
+            {ErrorCode::TIMEOUT_ERROR, "Solver timeout"}
         };
     return error_code_str[error_code];
 }

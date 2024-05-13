@@ -299,7 +299,7 @@ void Solver::MessageLoop()
                     }
                     if (socket->IsOpen() && tries-- > 0)
                     {
-                        --i; //it's just connected, try one more
+                        --i; //it's just connected, try once more
                         continue;
                     }
                 }
@@ -312,9 +312,15 @@ void Solver::MessageLoop()
             if (result.error.error_code == yutovo_service::ErrorCode::SOLVER_RESTARTED_ERROR)
             {
                 document->ReSolve(t->id); //re-solve the expression
+
                 std::unique_lock<std::mutex> lock(tasks_mutex);
                 tasks.emplace_back(new SetLocaleSolverTask(guid, language, document, logger));
                 tasks.emplace_back(new ListIdentifiersSolverTask(guid, t->code_id, document, logger)); //for syntax highlight
+            }
+            else if (result.error.error_code == yutovo_service::ErrorCode::TIMEOUT_ERROR)
+            {
+                std::unique_lock<std::mutex> lock(tasks_mutex);
+                tasks.emplace_back(new BreakSolverTask(guid, t->code_id, logger)); //break the current solving
             }
 
             if (result.error.error_code != yutovo_service::ErrorCode::OPERATION_ERROR)
