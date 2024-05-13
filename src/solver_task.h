@@ -28,6 +28,7 @@ struct SolverTask
     SolverTask(ElementId _id, std::string& _guid, uint _code_id, ExpressionType _expression_type, const std::u32string& _expression, const uint _delay, 
         Logger* _logger);
     SolverTask(std::string& _guid, Logger* _logger);
+    SolverTask(std::string& _guid, uint _code_id, Logger* _logger);
 
     virtual bool Execute(WebSocketPtr socket, Result& result) = 0;
 
@@ -106,6 +107,13 @@ struct ComplexSolverTask : SolverTask
     virtual bool Execute(WebSocketPtr socket, Result& result);
 
     Config::ComplexResultConfig config;
+};
+
+struct BreakSolverTask : SolverTask
+{
+    BreakSolverTask(std::string& _guid, uint _code_id, Logger* _logger);
+
+    virtual bool Execute(WebSocketPtr socket, Result& result);
 };
 
 struct SetIdentifierSolverTask : AutoSolverTask

@@ -32,6 +32,14 @@ SolverTask::SolverTask(std::string& _guid, Logger* _logger) :
     cur_time = duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
 }
 
+SolverTask::SolverTask(std::string& _guid, uint _code_id, Logger* _logger) :
+    guid(_guid),
+    code_id(_code_id),
+    logger(_logger)
+{
+    cur_time = duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
+}
+
 bool SolverTask::SendRequest(const rapidjson::Document& json, Result& result, WebSocketPtr& socket)
 {
     rapidjson::StringBuffer buffer;
@@ -667,6 +675,48 @@ bool ComplexSolverTask::Execute(WebSocketPtr socket, Result& result)
         return false;
 
     return FillComplexResult(doc, result);
+}
+
+//BreakSolverTask
+
+BreakSolverTask::BreakSolverTask(std::string& _guid, uint _code_id, Logger* _logger) :
+    SolverTask(_guid, _code_id, _logger)
+{
+}
+
+bool BreakSolverTask::Execute(WebSocketPtr socket, Result& result)
+{
+    //request
+    rapidjson::Document doc;
+    auto& alloc = doc.GetAllocator();
+    doc.SetObject();
+    doc.AddMember("command", "BREAK_SOLVING", alloc);
+    doc.AddMember("guid", rapidjson::StringRef(guid.c_str()), alloc);
+    doc.AddMember("code_id", code_id, alloc);
+    doc.AddMember("solver_type", (int)SolverType::CALCULATOR, alloc);
+
+    if (!SendRequest(doc, result, socket))
+        return false;
+
+    std::string json;
+    if (!socket->Receive(json, result))
+        return false;
+
+    doc.Parse<0>(json.c_str());
+    if (doc.HasParseError())
+    {
+        LOG_ERROR("Json error");
+        result.error.error_code = ErrorCode::JSON_ERROR;
+        return false;
+    }
+
+    if (doc.HasMember("error"))
+    {
+        FillError(doc, result);
+        return false;
+    }
+
+    return true;
 }
 
 //SetIdentifierSolverTask
