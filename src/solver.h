@@ -26,13 +26,15 @@ public:
     void Solve(const ElementId id, const uint code_id, Config::RationalResultConfig& config, const std::u32string& expression, const uint delay);
     void Solve(const ElementId id, const uint code_id, Config::ComplexResultConfig& config, const std::u32string& expression, const uint delay);
 
+    void BreakSolving(const ElementId id, const uint code_id);
+
     void SetIdentifier(ElementId id, uint code_id, const std::u32string& identifier, const std::u32string& expression, const uint delay);
     void RemoveIdentifier(ElementId id, uint code_id, const std::u32string& identifier, const uint delay);
     void SetLocale(const yutovo_calculator::Language _language);
     void ListIdentifiers(uint code_id);
 
 private:
-    void MessageLoop();
+    void MessageLoop(WebSocketPtr socket_, std::deque<SolverTaskPtr>& tasks_, std::atomic_bool& next_circle_);
 
     void EraseSolveTasks(const ElementId id);
 
@@ -44,9 +46,14 @@ private:
     yutovo_calculator::Language language = yutovo_calculator::Language::English;
 
     std::mutex socket_mutex;
-    WebSocketPtr socket;
+    WebSocketPtr socket, break_socket;
 
     std::deque<SolverTaskPtr> tasks;
+    std::deque<SolverTaskPtr> break_tasks;
+
+    std::mutex current_solving_mutex;
+    ElementId current_solving_id;
+
     std::vector<yutovo_service::ResultType> result_types_seq;
 
     Logger* logger;
@@ -54,8 +61,10 @@ private:
     bool exit = false;
 
     std::mutex tasks_mutex;
-    std::atomic_bool next_circle;
+    std::atomic_bool next_circle, break_next_circle;
+
     std::thread message_loop;
+    std::thread break_loop;
 };
 
 }

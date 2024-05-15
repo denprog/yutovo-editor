@@ -27,6 +27,7 @@ public:
 
     virtual void AfterReplace();
     virtual void BeforePaste();
+    virtual void BeforeDelete();
     virtual void ElementIdChanged(const ElementId& last_id);
 
     virtual void AddElement(ElementPtr element);
@@ -49,6 +50,7 @@ protected:
 
     bool delay = false; //don't delay on the first calculation
     bool next_result = false;
+    bool solving = false;
 
     ElementId solving_id;
 };

@@ -2307,6 +2307,11 @@ void Document::Solve(ElementId _id, uint code_id, Config::ComplexResultConfig& c
     solver.Solve(_id, code_id, config, expression + U";", delay);
 }
 
+void Document::BreakSolving(const ElementId id, uint code_id)
+{
+    solver.BreakSolving(id, code_id);
+}
+
 void Document::SetIdentifier(ElementId _id, uint code_id, const std::u32string& identifier, const std::u32string& expression, const uint delay)
 {
     solver.SetIdentifier(_id, code_id, identifier, expression + U";", delay);

@@ -46,6 +46,7 @@ void ResultRow::PutWaitingSymbol()
     elements->Clear();
     elements->Add(ElementPtr(new CodeString(this, "~")));
     elements->Get(0)->SetEditable(false);
+    solving = true;
 }
 
 void ResultRow::Solve(const ParserString& expression)
@@ -54,6 +55,7 @@ void ResultRow::Solve(const ParserString& expression)
 
 void ResultRow::PutResult(Result result)
 {
+    solving = false;
 }
 
 void ResultRow::PutError(Error error)
@@ -100,6 +102,18 @@ void ResultRow::BeforePaste()
     for (int i = 0, j = 0; i < elements->Count();)
         parent->elements->Move(elements->Get(0), c + j++);
     parent->elements->RemoveAt(c - 1, 1);
+}
+
+void ResultRow::BeforeDelete()
+{
+    CodeColumn::BeforeDelete();
+    
+    if (solving)
+    {
+        auto code = document->FindParent(id, ElementType::CODE_BLOCK);
+        document->BreakSolving(id, ((CodeBlock*)code.get())->code_id);
+        solving = false;
+    }
 }
 
 void ResultRow::ElementIdChanged(const ElementId& last_id)
@@ -316,6 +330,8 @@ void RealResult::Solve(const ParserString& expression)
 
 void RealResult::PutResult(Result result)
 {
+    ResultRow::PutResult(result);
+
     solving_id.clear();
 
     ElementPtr el = document->FindParent(id, ElementType::EQUATION);
@@ -464,6 +480,8 @@ void IntegerResult::Solve(const ParserString& expression)
 
 void IntegerResult::PutResult(Result result)
 {
+    ResultRow::PutResult(result);
+
     solving_id.clear();
 
     ElementPtr el = document->FindParent(id, ElementType::EQUATION);
@@ -589,6 +607,8 @@ void RationalResult::Solve(const ParserString& expression)
 
 void RationalResult::PutResult(Result result)
 {
+    ResultRow::PutResult(result);
+
     solving_id.clear();
 
     ElementPtr el = document->FindParent(id, ElementType::EQUATION);
@@ -747,6 +767,8 @@ void ComplexResult::Solve(const ParserString& expression)
 
 void ComplexResult::PutResult(Result result)
 {
+    ResultRow::PutResult(result);
+
     solving_id.clear();
 
     ElementPtr el = document->FindParent(id, ElementType::EQUATION);
@@ -1014,6 +1036,8 @@ void AutoResult::Solve(const ParserString& expression)
 
 void AutoResult::PutResult(Result result)
 {
+    ResultRow::PutResult(result);
+
     ElementPtr el = document->FindParent(id, ElementType::EQUATION);
     Equation* eq = (Equation*)el.get();
     eq->dependencies = result.dependencies;

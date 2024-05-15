@@ -32,7 +32,8 @@ SolverTask::SolverTask(std::string& _guid, Logger* _logger) :
     cur_time = duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
 }
 
-SolverTask::SolverTask(std::string& _guid, uint _code_id, Logger* _logger) :
+SolverTask::SolverTask(const ElementId _id, std::string& _guid, uint _code_id, Logger* _logger) :
+    id(_id),
     guid(_guid),
     code_id(_code_id),
     logger(_logger)
@@ -365,6 +366,7 @@ bool AutoSolverTask::Execute(WebSocketPtr socket, Result& result)
     doc.AddMember("command", "SOLVE_CODE", alloc);
     doc.AddMember("guid", rapidjson::StringRef(guid.c_str()), alloc);
     FillId(doc);
+    doc.AddMember("timestamp", cur_time, alloc);
     doc.AddMember("code_id", code_id, alloc);
     doc.AddMember("solver_type", (int)SolverType::CALCULATOR, alloc);
     doc.AddMember("result_type", (int)ResultType::AUTO, alloc);
@@ -460,6 +462,7 @@ bool RealSolverTask::Execute(WebSocketPtr socket, Result& result)
     doc.AddMember("command", "SOLVE_CODE", alloc);
     doc.AddMember("guid", rapidjson::StringRef(guid.c_str()), alloc);
     FillId(doc);
+    doc.AddMember("timestamp", cur_time, alloc);
     doc.AddMember("code_id", code_id, alloc);
     doc.AddMember("solver_type", (int)SolverType::CALCULATOR, alloc);
     doc.AddMember("result_type", (int)ResultType::REAL, alloc);
@@ -520,6 +523,7 @@ bool IntegerSolverTask::Execute(WebSocketPtr socket, Result& result)
     doc.AddMember("command", "SOLVE_CODE", alloc);
     doc.AddMember("guid", rapidjson::StringRef(guid.c_str()), alloc);
     FillId(doc);
+    doc.AddMember("timestamp", cur_time, alloc);
     doc.AddMember("code_id", code_id, alloc);
     doc.AddMember("solver_type", (int)SolverType::CALCULATOR, alloc);
     doc.AddMember("result_type", (int)ResultType::INTEGER, alloc);
@@ -577,6 +581,7 @@ bool RationalSolverTask::Execute(WebSocketPtr socket, Result& result)
     doc.AddMember("command", "SOLVE_CODE", alloc);
     doc.AddMember("guid", rapidjson::StringRef(guid.c_str()), alloc);
     FillId(doc);
+    doc.AddMember("timestamp", cur_time, alloc);
     doc.AddMember("code_id", code_id, alloc);
     doc.AddMember("solver_type", (int)SolverType::CALCULATOR, alloc);
     doc.AddMember("result_type", (int)ResultType::RATIONAL, alloc);
@@ -635,6 +640,7 @@ bool ComplexSolverTask::Execute(WebSocketPtr socket, Result& result)
     doc.AddMember("command", "SOLVE_CODE", alloc);
     doc.AddMember("guid", rapidjson::StringRef(guid.c_str()), alloc);
     FillId(doc);
+    doc.AddMember("timestamp", cur_time, alloc);
     doc.AddMember("code_id", code_id, alloc);
     doc.AddMember("solver_type", (int)SolverType::CALCULATOR, alloc);
     doc.AddMember("result_type", (int)ResultType::COMPLEX, alloc);
@@ -679,9 +685,10 @@ bool ComplexSolverTask::Execute(WebSocketPtr socket, Result& result)
 
 //BreakSolverTask
 
-BreakSolverTask::BreakSolverTask(std::string& _guid, uint _code_id, Logger* _logger) :
-    SolverTask(_guid, _code_id, _logger)
+BreakSolverTask::BreakSolverTask(const ElementId _id, std::string& _guid, uint _code_id, Logger* _logger) :
+    SolverTask(_id, _guid, _code_id, _logger)
 {
+    delay = 0;
 }
 
 bool BreakSolverTask::Execute(WebSocketPtr socket, Result& result)
@@ -692,6 +699,8 @@ bool BreakSolverTask::Execute(WebSocketPtr socket, Result& result)
     doc.SetObject();
     doc.AddMember("command", "BREAK_SOLVING", alloc);
     doc.AddMember("guid", rapidjson::StringRef(guid.c_str()), alloc);
+    FillId(doc);
+    doc.AddMember("timestamp", cur_time, alloc);
     doc.AddMember("code_id", code_id, alloc);
     doc.AddMember("solver_type", (int)SolverType::CALCULATOR, alloc);
 
