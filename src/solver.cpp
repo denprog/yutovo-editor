@@ -20,7 +20,8 @@ using namespace yutovo_service;
 Solver::Solver(Document* _document) :
     document(_document),
     logger(Logger::GetInstance(document->config.logs_path, "yutovo_editor", true, true)),
-    message_loop(std::thread(&Solver::MessageLoop, this))
+    message_loop(std::thread(&Solver::MessageLoop, this, std::ref(socket), std::ref(tasks), std::ref(next_circle))),
+    break_loop(std::thread(&Solver::MessageLoop, this, std::ref(break_socket), std::ref(break_tasks), std::ref(break_next_circle)))
 {
     guid = boost::uuids::to_string(boost::uuids::random_generator()());
     result_types_seq = {ResultType::REAL, ResultType::INTEGER, ResultType::RATIONAL, ResultType::COMPLEX};
@@ -33,10 +34,14 @@ Solver::~Solver()
         std::unique_lock<std::mutex> lock(socket_mutex);
         if (socket)
             socket->Close();
+        if (break_socket)
+            break_socket->Close();
     }
     exit = true;
     next_circle = true;
+    break_next_circle = true;
     message_loop.join();
+    break_loop.join();
 }
 
 void Solver::Solve(const ElementId id, const uint code_id, Config::AutoResultConfig& config, const std::u32string& expression, const uint delay)
@@ -87,6 +92,20 @@ void Solver::Solve(const ElementId id, const uint code_id, Config::ComplexResult
     tasks.emplace_back(new ComplexSolverTask(id, guid, code_id, ExpressionType::SOLVE, config, expression, delay, logger));
     tasks.emplace_back(nullptr);
     next_circle = true;
+}
+
+void Solver::BreakSolving(const ElementId id, const uint code_id)
+{
+    {
+        std::unique_lock<std::mutex> lock(current_solving_mutex);
+        if (id != current_solving_id)
+            return;
+    }
+
+    std::unique_lock<std::mutex> lock(tasks_mutex);
+    break_tasks.emplace_front(nullptr);
+    break_tasks.emplace_front(new BreakSolverTask(id, guid, code_id, logger)); //first of all break this solving
+    break_next_circle = true;
 }
 
 void Solver::SetIdentifier(ElementId id, uint code_id, const std::u32string& identifier, const std::u32string& expression, const uint delay)
@@ -150,7 +169,7 @@ void Solver::ListIdentifiers(uint code_id)
     next_circle = true;
 }
 
-void Solver::MessageLoop()
+void Solver::MessageLoop(WebSocketPtr socket_, std::deque<SolverTaskPtr>& tasks_, std::atomic_bool& next_circle_)
 {
     bool connected = false;
     bool connection_error = false;
@@ -158,11 +177,11 @@ void Solver::MessageLoop()
     {
         std::unique_lock<std::mutex> lock(socket_mutex);
 #ifdef EMSCRIPTEN
-        socket.reset(new WebSocket(document->config, document->window));
+        socket_.reset(new WebSocket(document->config, document->window));
 #else
         try
         {
-            socket.reset(new WebSocket(document->config, document->window));
+            socket_.reset(new WebSocket(document->config, document->window));
         }
         catch (boost::system::system_error& ex)
         {
@@ -171,7 +190,7 @@ void Solver::MessageLoop()
         }
 #endif
     }
-    if (!socket->Connect() || !socket->IsOpen())
+    if (!socket_->Connect() || !socket_->IsOpen())
     {
         LOG_ERROR("Error connecting to the server: {}:{}", document->config.service_ip, document->config.service_port);
     }
@@ -190,14 +209,14 @@ void Solver::MessageLoop()
         bool empty = false;
         {
             std::unique_lock<std::mutex> lock(tasks_mutex);
-            empty = tasks.empty();
+            empty = tasks_.empty();
         }
         if (empty)
         {
-            while (!next_circle) //wait for tasks
+            while (!next_circle_) //wait for tasks
             {
                 std::this_thread::sleep_for(10ms);
-                if (!socket->IsOpen())
+                if (!socket_->IsOpen())
                 {
                     next = time(0);
                     if (next - now >= document->config.reconnect_timeout)
@@ -227,9 +246,9 @@ void Solver::MessageLoop()
                 now = time(0);
                 {
                     std::unique_lock<std::mutex> lock(socket_mutex);
-                    socket.reset(new WebSocket(document->config, document->window)); //recreate the socket
+                    socket_.reset(new WebSocket(document->config, document->window)); //recreate the socket
                 }
-                if (!socket->Connect() || !socket->IsOpen())
+                if (!socket_->Connect() || !socket_->IsOpen())
                 {
                     LOG_ERROR("Error connecting to the server: {}:{}", document->config.service_ip, document->config.service_port);
                     continue;
@@ -249,22 +268,22 @@ void Solver::MessageLoop()
             std::unique_lock<std::mutex> lock(tasks_mutex);
             if (temp_tasks.empty())
             {
-                while (!tasks.empty() && tasks.front() == nullptr)
-                    tasks.pop_front();
-                if (tasks.empty())
+                while (!tasks_.empty() && tasks_.front() == nullptr)
+                    tasks_.pop_front();
+                if (tasks_.empty())
                 {
-                    next_circle = false;
+                    next_circle_ = false;
                     continue;
                 }
-                while (!tasks.empty() && tasks.front() != nullptr)
+                while (!tasks_.empty() && tasks_.front() != nullptr)
                 {
-                    SolverTaskPtr& t = tasks.front();
+                    SolverTaskPtr& t = tasks_.front();
                     uint64_t now_m = duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
                     t->delay -= now_m - t->cur_time;
                     if (t->delay <= 0)
                     {
                         temp_tasks.push_back(t);
-                        tasks.pop_front();
+                        tasks_.pop_front();
                     }
                     else
                     {
@@ -280,15 +299,24 @@ void Solver::MessageLoop()
         for (int i = 0; i < temp_tasks.size();)
         {
             SolverTaskPtr t = temp_tasks[i];
-            if (!t->Execute(socket, result))
+            {
+                std::unique_lock<std::mutex> lock(current_solving_mutex);
+                current_solving_id = t->id;
+            }
+            bool r = t->Execute(socket_, result);
+            {
+                std::unique_lock<std::mutex> lock(current_solving_mutex);
+                current_solving_id.clear();
+            }
+            if (!r)
             {
                 if (result.error.error_code == yutovo_service::ErrorCode::OPERATION_ERROR)
                 {
                     {
                         std::unique_lock<std::mutex> lock(socket_mutex);
-                        socket.reset(new WebSocket(document->config, document->window)); //recreate the socket
+                        socket_.reset(new WebSocket(document->config, document->window)); //recreate the socket
                     }
-                    if (!socket->IsOpen())
+                    if (!socket_->IsOpen())
                     {
                         LOG_ERROR("Error connecting to the server: {}:{}", document->config.service_ip, document->config.service_port);
                     }
@@ -297,7 +325,7 @@ void Solver::MessageLoop()
                         LOG_INFO("Solver connected to the server: {}:{}, guid:{}", document->config.service_ip, document->config.service_port, guid);
                         document->ReSolveErrors();
                     }
-                    if (socket->IsOpen() && tries-- > 0)
+                    if (socket_->IsOpen() && tries-- > 0)
                     {
                         --i; //it's just connected, try once more
                         continue;
@@ -308,7 +336,9 @@ void Solver::MessageLoop()
             if (t->expression_type == ExpressionType::USER_SYMBOL)
                 document->window->OnIdentifierChanged(t->id);
 
-            document->PutResult(t->id, result);
+            if (!result.values.empty() || result.error.error_code != yutovo_service::ErrorCode::OK)
+                document->PutResult(t->id, result);
+            
             if (result.error.error_code == yutovo_service::ErrorCode::SOLVER_RESTARTED_ERROR)
             {
                 document->ReSolve(t->id); //re-solve the expression
@@ -320,7 +350,7 @@ void Solver::MessageLoop()
             else if (result.error.error_code == yutovo_service::ErrorCode::TIMEOUT_ERROR)
             {
                 std::unique_lock<std::mutex> lock(tasks_mutex);
-                tasks.emplace_back(new BreakSolverTask(guid, t->code_id, logger)); //break the current solving
+                break_tasks.emplace_back(new BreakSolverTask(t->id, guid, t->code_id, logger)); //break the current solving
             }
 
             if (result.error.error_code != yutovo_service::ErrorCode::OPERATION_ERROR)

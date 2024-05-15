@@ -1476,6 +1476,36 @@ TEST_F(SolverAutoTest, solver33)
         ) << ToBasicString(document.ToText());
 }
 
+//Interrupting a solving
+TEST_F(SolverAutoTest, solver34)
+{
+    Start(600);
+
+    document.WaitTask(document.InsertSum(true));
+    document.InsertString(U"i", true);
+    document.MoveCaretRight(false);
+    document.MoveCaretRight(false);
+    document.InsertString(U"0", true);
+    document.MoveCaretRight(false);
+    document.MoveCaretRight(false);
+    document.InsertString(U"100000", true);
+    document.MoveCaretRight(false);
+    document.WaitTask(document.InsertString(U"i", true));
+    document.WaitTask(document.MoveCaretRight(false));
+
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    std::this_thread::sleep_for(1s);
+    for (int i = 0; i < 4; ++i)
+        document.WaitTask(document.MoveCaretLeft(false));
+    document.WaitTask(document.DeleteElements(true, true));
+    document.WaitTask(document.DeleteElements(true, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(1s);
+    ASSERT_TRUE(document.ToText() == 
+        U"sum(i=0,1000,i)=500500."
+        ) << ToBasicString(document.ToText());
+}
+
 //Solve with errors
 TEST_F(SolverAutoTest, errors1)
 {
