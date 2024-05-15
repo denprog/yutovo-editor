@@ -57,6 +57,7 @@ bool Iteration::AfterFromJson()
 {
     if (elements->Count() != 4)
         return false;
+    symbol_str = ToBasicString(std::u32string(1, symbol));
     lower = (Assignment*)elements->Get(0).get();
     shape = (Shape*)elements->Get(1).get();
     upper = (CodeRow*)elements->Get(2).get();
