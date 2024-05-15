@@ -346,11 +346,13 @@ void Solver::MessageLoop(WebSocketPtr socket_, std::deque<SolverTaskPtr>& tasks_
                 std::unique_lock<std::mutex> lock(tasks_mutex);
                 tasks.emplace_back(new SetLocaleSolverTask(guid, language, document, logger));
                 tasks.emplace_back(new ListIdentifiersSolverTask(guid, t->code_id, document, logger)); //for syntax highlight
+                next_circle = true;
             }
             else if (result.error.error_code == yutovo_service::ErrorCode::TIMEOUT_ERROR)
             {
                 std::unique_lock<std::mutex> lock(tasks_mutex);
                 break_tasks.emplace_back(new BreakSolverTask(t->id, guid, t->code_id, logger)); //break the current solving
+                break_next_circle = true;
             }
 
             if (result.error.error_code != yutovo_service::ErrorCode::OPERATION_ERROR)

@@ -114,6 +114,11 @@ bool WebSocket::Receive(std::string& message, Result& result)
         std::this_thread::sleep_for(1ms);
         next = duration_cast<milliseconds>(system_clock::now().time_since_epoch());
     }
+    if (message.empty())
+    {
+        result.error.error_code = yutovo_service::ErrorCode::TIMEOUT_ERROR;
+        return false;
+    }
     return true;
 #else
     beast::flat_buffer buffer;
