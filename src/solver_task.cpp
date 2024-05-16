@@ -405,6 +405,8 @@ bool AutoSolverTask::Execute(WebSocketPtr socket, Result& result)
 
     AddUnit(doc, config.real_result.unit);
 
+    socket->Reset();
+
     if (!SendRequest(doc, result, socket))
         return false;
 

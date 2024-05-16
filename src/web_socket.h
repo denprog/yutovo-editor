@@ -40,6 +40,7 @@ public:
     bool Connect();
     bool Send(const std::string& message, Result& result);
     bool Receive(std::string& message, Result& result);
+    bool Reset();
     bool IsOpen();
     void Close();
 

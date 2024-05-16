@@ -126,6 +126,7 @@ bool WebSocket::Receive(std::string& message, Result& result)
     beast::get_lowest_layer(ws).expires_after(config.service_timeout * 1s);
     ioc.restart();
     ws.async_read(buffer, beast::bind_front_handler(&WebSocket::OnRead, shared_from_this()));
+    auto _now = duration_cast<milliseconds>(system_clock::now().time_since_epoch());
 
     while (reading)
     {
@@ -137,11 +138,24 @@ bool WebSocket::Receive(std::string& message, Result& result)
         message = std::string(boost::asio::buffers_begin(buffer.data()), boost::asio::buffers_end(buffer.data()));
         return true;
     }
-    else if (static_cast<boost::beast::error>(last_error.value()) == boost::beast::error::timeout)
-        result.error.error_code = yutovo_service::ErrorCode::TIMEOUT_ERROR;
     else
-        result.error.error_code = yutovo_service::ErrorCode::OPERATION_ERROR;
+    {
+        auto now = duration_cast<milliseconds>(system_clock::now().time_since_epoch());
+        if (now - _now >= config.service_timeout * 1s) //it is timeout
+            result.error.error_code = yutovo_service::ErrorCode::TIMEOUT_ERROR;
+        else
+            result.error.error_code = yutovo_service::ErrorCode::OPERATION_ERROR;
+    }
     return false;
+#endif
+}
+
+bool WebSocket::Reset()
+{
+#ifdef EMSCRIPTEN
+    return window->Reset(socket_id);
+#else
+    return true;
 #endif
 }
 
