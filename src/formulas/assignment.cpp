@@ -35,10 +35,19 @@ Element* Assignment::Create(Element* _parent)
     return new Assignment(_parent);
 }
 
+void Assignment::ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc)
+{
+    MiddleShapeFormula::ToJson(value, alloc);
+    value.AddMember("auto_solve", auto_solve, alloc);
+}
+
 Element* Assignment::FromJson(Element* parent, Document* document, const rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc)
 {
+    bool _auto_solve = true;
+    if (value.HasMember("auto_solve") && value["auto_solve"].IsBool())
+        _auto_solve = value["auto_solve"].GetBool();
     if (parent)
-        return new Assignment(parent, false);
+        return new Assignment(parent, false, _auto_solve);
     return new Assignment(document, false);
 }
 
