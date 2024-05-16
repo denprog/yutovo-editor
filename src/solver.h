@@ -53,6 +53,7 @@ private:
 
     std::mutex current_solving_mutex;
     ElementId current_solving_id;
+    uint current_code_id = 0;
 
     std::vector<yutovo_service::ResultType> result_types_seq;
 
