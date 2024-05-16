@@ -132,6 +132,11 @@ bool Window::Receive(const int socket_id, std::string& message)
     return false;
 }
 
+bool Window::Reset(const int socket_id)
+{
+    return false;
+}
+
 bool Window::IsOpen(const int socket_id)
 {
     return false;
