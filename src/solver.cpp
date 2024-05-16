@@ -31,17 +31,33 @@ Solver::Solver(Document* _document) :
 Solver::~Solver()
 {
     {
+        std::unique_lock<std::mutex> lock(current_solving_mutex);
+        if (!current_solving_id.empty())
+        {
+            std::unique_lock<std::mutex> lock(tasks_mutex);
+            break_tasks.emplace_front(nullptr);
+            break_tasks.emplace_front(new BreakSolverTask(current_solving_id, guid, current_code_id, logger)); //first of all break this solving
+            break_next_circle = true;
+        }
+    }
+
+    {
         std::unique_lock<std::mutex> lock(socket_mutex);
         if (socket)
             socket->Close();
-        if (break_socket)
-            break_socket->Close();
     }
+
     exit = true;
     next_circle = true;
     break_next_circle = true;
     message_loop.join();
     break_loop.join();
+
+    {
+        std::unique_lock<std::mutex> lock(socket_mutex);
+        if (break_socket)
+            break_socket->Close();
+    }
 }
 
 void Solver::Solve(const ElementId id, const uint code_id, Config::AutoResultConfig& config, const std::u32string& expression, const uint delay)
@@ -234,9 +250,6 @@ void Solver::MessageLoop(WebSocketPtr socket_, std::deque<SolverTaskPtr>& tasks_
             std::this_thread::sleep_for(10ms);
         }
 
-        if (exit)
-            return;
-
         next = time(0);
 
         if (connection_error)
@@ -302,11 +315,13 @@ void Solver::MessageLoop(WebSocketPtr socket_, std::deque<SolverTaskPtr>& tasks_
             {
                 std::unique_lock<std::mutex> lock(current_solving_mutex);
                 current_solving_id = t->id;
+                current_code_id = t->code_id;
             }
             bool r = t->Execute(socket_, result);
             {
                 std::unique_lock<std::mutex> lock(current_solving_mutex);
                 current_solving_id.clear();
+                current_code_id = 0;
             }
             if (!r)
             {
