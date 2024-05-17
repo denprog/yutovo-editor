@@ -130,7 +130,7 @@ public:
     virtual bool IsEmpty();
 
     virtual void Solve();
-    virtual void ReSolve(bool if_error = false);
+    virtual void ReSolve(bool if_error = false, bool force = false);
 
 public:
     Element* parent = nullptr;

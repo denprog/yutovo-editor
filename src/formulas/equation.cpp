@@ -178,14 +178,14 @@ void Equation::Solve()
         document->AddResolveElement(id);
 }
 
-void Equation::ReSolve(bool if_error)
+void Equation::ReSolve(bool if_error, bool force)
 {
     if (if_error && result && result->last_error_code == yutovo_service::ErrorCode::OK)
         return;
     
     ParserString str;
     GetFirst()->ToParserString(str);
-    if (last_expression == str)
+    if (last_expression == str && !force)
         return;
     
     last_expression = str;

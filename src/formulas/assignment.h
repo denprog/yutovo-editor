@@ -33,7 +33,7 @@ public:
     virtual void BeforeDelete();
 
     virtual void Solve();
-    virtual void ReSolve(bool if_error = false);
+    virtual void ReSolve(bool if_error = false, bool force = false);
     void PutResult(Result result);
 
     virtual std::string ToHtml();

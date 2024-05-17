@@ -35,7 +35,7 @@ public:
     virtual bool AfterInsert(bool with_undo);
 
     virtual void Solve();
-    virtual void ReSolve(bool if_error = false);
+    virtual void ReSolve(bool if_error = false, bool force = false);
 
     virtual bool Depends(const std::string& identifier);
 

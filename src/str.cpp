@@ -813,7 +813,7 @@ bool String::GetNearestElement(const int x, const int y, ElementId& _id, int& di
     return false;
 }
 
-void String::ReSolve(bool if_error)
+void String::ReSolve(bool if_error, bool force)
 {
 }
 

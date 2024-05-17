@@ -77,7 +77,7 @@ public:
 
     virtual bool GetNearestElement(const int x, const int y, ElementId& _id, int& dist);
 
-    virtual void ReSolve(bool if_error = false);
+    virtual void ReSolve(bool if_error = false, bool force = false);
 
     void SetStretchWidth(float val);
 

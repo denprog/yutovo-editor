@@ -1758,13 +1758,32 @@ ResolveTask::ResolveTask(ElementPtr _text, ElementId _id) :
 
 bool ResolveTask::Execute()
 {
+    std::vector<ElementId> code_blocks;
+    if (id.empty())
+    {
+        //recalculate all the code blocks in the document
+        text->GetElements(ElementType::CODE_BLOCK, code_blocks); //find all code blocks
+        for (ElementId _id : code_blocks)
+        {
+            auto el = document->GetElement(_id);
+            CodeBlock* c = dynamic_cast<CodeBlock*>(el.get());
+            c->ReSolve(false, true);
+            if (!document->changed_elements.empty())
+            {
+                for (auto ch : document->changed_elements)
+                    Remake(ch, true);
+                document->changed_elements.clear();
+            }
+        }
+        return true;
+    }
+
     auto el = document->FindParent(id, ElementType::CODE_BLOCK);
     if (!el)
         return false;
     
     CodeBlock* c = dynamic_cast<CodeBlock*>(el.get());
     uint code_id = c->code_id;
-    std::vector<ElementId> code_blocks;
     text->GetElements(ElementType::CODE_BLOCK, code_blocks); //find all code blocks
     for (ElementId _id : code_blocks)
     {
