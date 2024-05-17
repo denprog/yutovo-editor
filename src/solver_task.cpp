@@ -43,6 +43,8 @@ SolverTask::SolverTask(const ElementId _id, std::string& _guid, uint _code_id, L
 
 bool SolverTask::SendRequest(const rapidjson::Document& json, Result& result, WebSocketPtr& socket)
 {
+    socket->Reset();
+
     rapidjson::StringBuffer buffer;
     rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
     json.Accept(writer);
@@ -404,8 +406,6 @@ bool AutoSolverTask::Execute(WebSocketPtr socket, Result& result)
     doc.AddMember("max_count", config.complex_result.max_count, alloc);
 
     AddUnit(doc, config.real_result.unit);
-
-    socket->Reset();
 
     if (!SendRequest(doc, result, socket))
         return false;
