@@ -884,10 +884,10 @@ void Element::Solve()
         parent->Solve();
 }
 
-void Element::ReSolve(bool if_error)
+void Element::ReSolve(bool if_error, bool force)
 {
     for (int i = 0; i < elements->Count(); ++i)
-        elements->Get(i)->ReSolve(if_error);
+        elements->Get(i)->ReSolve(if_error, force);
 }
 
 //Elements

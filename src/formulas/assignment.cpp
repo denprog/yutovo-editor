@@ -159,7 +159,7 @@ void Assignment::Solve()
         document->AddResolveElement(id);
 }
 
-void Assignment::ReSolve(bool if_error)
+void Assignment::ReSolve(bool if_error, bool force)
 {
     if (!auto_solve)
         return;
