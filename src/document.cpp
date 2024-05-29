@@ -289,11 +289,10 @@ void Document::MainLoop()
                     last_load_executed = true;
                 if (last_solver_task_id == t->id)
                     last_solver_executed = true;
-                
+#endif
                 while (last_tasks.size() > last_tasks_count)
                     last_tasks.pop_back();
                 last_tasks.push_front(t->id);
-#endif
             }
 
             caret->Show();
