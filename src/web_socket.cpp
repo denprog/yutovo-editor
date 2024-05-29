@@ -250,13 +250,13 @@ void WebSocket::OnRead(beast::error_code ec, std::size_t bytes_transferred)
 WebSocket::SslContext::SslContext(Logger* logger)
 {
     boost::system::error_code error_code;
-    ssl_context.use_certificate_chain_file("./yutovo_desktop_cert.pem", error_code);
+    ssl_context.use_certificate_chain_file("yutovo_desktop_cert.pem", error_code);
     if (error_code)
     {
         LOG_ERROR("Certificate file not found");
         throw boost::system::system_error(error_code);
     }
-    ssl_context.use_private_key_file("./yutovo_desktop_key.pem", ssl::context_base::file_format::pem, error_code);
+    ssl_context.use_private_key_file("yutovo_desktop_key.pem", ssl::context_base::file_format::pem, error_code);
     if (error_code)
     {
         LOG_ERROR("Certificate key file not found");
