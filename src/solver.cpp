@@ -264,7 +264,6 @@ void Solver::MessageLoop(WebSocketPtr socket_, std::deque<SolverTaskPtr>& tasks_
                 if (!socket_->Connect() || !socket_->IsOpen())
                 {
                     LOG_ERROR("Error connecting to the server: {}:{}", document->config.service_ip, document->config.service_port);
-                    continue;
                 }
                 else
                 {
