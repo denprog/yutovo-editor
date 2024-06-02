@@ -405,11 +405,13 @@ bool DeleteElementsTask::Execute()
             auto it = std::find_if(changed_elements.begin(), changed_elements.end(), 
                 [changed_element](ElementId& _el)
                 {
-                    return _el == changed_element || IsChild(changed_element, _el);
+                    return _el == changed_element;
                 });
             if (it == changed_elements.end())
                 changed_elements.push_back(changed_element);  //remake all the changed elements after this circle
         }
+
+        std::sort(changed_elements.begin(), changed_elements.end(), std::greater<>());
 
         for (auto ch : changed_elements)
         {

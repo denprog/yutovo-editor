@@ -3012,4 +3012,25 @@ TEST_F(ParagraphTest, delete19)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 2})) << document.GetEditorState().ToString();
 }
 
+//Delete words at the beginning of a row
+TEST_F(ParagraphTest, delete20)
+{
+    Start(1260);
+
+    document.WaitTask(document.InsertString("Арифме́тика (др.-греч. ἀριθμητική, arithmētikḗ — от ἀριθμός, arithmós «число») — раздел математики, "\
+        "изучающий числа, их отношения и свойства.", true));
+    document.MoveCaretToDocumentBegin(false);
+    document.MoveCaretDown(false);
+    document.WaitTask(document.MoveCaretWordRight(true));
+    document.WaitTask(document.SetBold(true));
+    document.MoveCaretWordRight(true);
+    document.MoveCaretWordRight(true);
+    document.WaitTask(document.MoveCaretLeft(true));
+    document.WaitTask(document.DeleteElements(false, true));
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"Арифме́тика (др.-греч. ἀριθμητική, arithmētikḗ — от ἀριθμός, arithmós «число») — раздел математики, изучающий числа, их ."
+        ) << ToBasicString(document.ToText());
+}
+
 }
