@@ -3033,4 +3033,41 @@ TEST_F(ParagraphTest, delete20)
         ) << ToBasicString(document.ToText());
 }
 
+//Delete parts of rows
+TEST_F(ParagraphTest, delete21)
+{
+    Start(745);
+
+    document.WaitTask(document.InsertString("Арифме́тика (др.-греч. ἀριθμητική, arithmētikḗ — от ἀριθμός, arithmós «число») — раздел математики, "\
+        "изучающий числа, их отношения и свойства.", true));
+    document.WaitTask(document.InsertParagraph(true));
+    document.WaitTask(document.InsertString("Предметом арифметики является понятие числа (натуральные, целые, рациональные, вещественные, "\
+        "комплексные числа) и его свойства.", true));
+    document.MoveCaretToDocumentBegin(false);
+    document.MoveCaretWordRight(false);
+    document.WaitTask(document.MoveCaretDown(true));
+    document.WaitTask(document.DeleteElements(false, true));
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"Арифме́тикараздел математики, изучающий числа, их отношения и свойства.\n"\
+        U"Предметом арифметики является понятие числа (натуральные, целые, рациональные, вещественные, комплексные числа) и его свойства."
+        ) << ToBasicString(document.ToText());
+    
+    document.Undo();
+    document.WaitUndo();
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"Арифме́тика (др.-греч. ἀριθμητική, arithmētikḗ — от ἀριθμός, arithmós «число») — раздел математики, изучающий числа, их отношения и свойства.\n"\
+        U"Предметом арифметики является понятие числа (натуральные, целые, рациональные, вещественные, комплексные числа) и его свойства."
+        ) << ToBasicString(document.ToText());
+
+    document.Redo();
+    document.WaitRedo();
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"Арифме́тикараздел математики, изучающий числа, их отношения и свойства.\n"\
+        U"Предметом арифметики является понятие числа (натуральные, целые, рациональные, вещественные, комплексные числа) и его свойства."
+        ) << ToBasicString(document.ToText());
+}
+
 }

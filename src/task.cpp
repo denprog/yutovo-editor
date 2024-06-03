@@ -384,7 +384,8 @@ bool DeleteElementsTask::Execute()
                 if (start == 0 && size == p->elements->Count())
                     document->StoreUndo(p_id, start, size, 1);
                 else
-                    document->StoreUndo(p_id, start, size, merge_paragraphs ? 1 : 0, UndoTask::UndoOperation::CHANGE);
+                    document->StoreUndo(p_id, start, size, 
+                        (merge_paragraphs || (p_id.size() == 1 && selection_state.GetCommonElement() != p_id)) ? 1 : 0, UndoTask::UndoOperation::CHANGE);
             }
         }
 

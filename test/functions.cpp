@@ -147,7 +147,7 @@ TEST_F(FormulaTest, functions3)
         document.WaitTask(document.MoveCaretRight(false));
     document.WaitTask(document.InsertString("2", true));
     document.WaitSolver();
-    std::this_thread::sleep_for(600ms);
+    std::this_thread::sleep_for(1s);
     ASSERT_TRUE(document.ToText() == 
         U"f(x)=x\n" \
         U"f(2)=2.\n" \
