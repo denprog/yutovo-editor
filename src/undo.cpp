@@ -81,6 +81,13 @@ bool UndoString::operator==(const UndoString& el) const
     return str == el.str && *format == *el.format;
 }
 
+bool UndoString::operator==(const Element& el) const
+{
+    if (!UndoElement::operator==(el))
+        return false;
+    return str == el.elements->ToText() && *format == *((String&)el).format;
+}
+
 bool UndoString::operator==(const String& el) const
 {
     if (!UndoElement::operator==(el))
