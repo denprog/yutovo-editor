@@ -335,6 +335,7 @@ private:
     friend class SaveTask;
     friend class RedrawTask;
     friend class SetConfigTask;
+    friend class DeleteElementsTask;
     friend class Caret;
     friend class Element;
 
@@ -368,7 +369,6 @@ private:
 public:
     CaretPtr caret;
     Selection selection;
-    Selection last_selection;
 
     bool pasting = false;
 
@@ -419,6 +419,8 @@ private:
     UndoBase undo_base;
 
     EditorState last_editor_state;
+
+    Selection last_selection;
 
     Logger* logger;
 };
