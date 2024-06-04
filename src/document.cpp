@@ -2271,14 +2271,14 @@ LogicalEditorState Document::GetLogicalEditorState()
 
 void Document::SetEditorState(EditorState& state)
 {
-    caret->SetState(state.caret_state);
     selection.Set(state.selection_state);
+    caret->SetState(state.caret_state);
 }
 
 void Document::SetEditorState(LogicalEditorState& state)
 {
-    caret->SetState(state.caret_state);
     selection.Set(state.selection_state);
+    caret->SetState(state.caret_state);
 }
 
 void Document::Solve(ElementId _id, uint code_id, Config::AutoResultConfig& config, std::u32string& expression, const uint delay)
