@@ -43,6 +43,7 @@ struct UndoString : UndoElement
     UndoString(std::u32string _str, StringFormatPtr _format, bool _can_merge);
 
     virtual bool operator==(const UndoString& el) const;
+    virtual bool operator==(const Element& el) const;
     virtual bool operator==(const String& el) const;
 
     virtual Element* Restore(Document* document, Element* parent);
