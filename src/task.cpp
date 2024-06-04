@@ -350,6 +350,7 @@ bool DeleteElementsTask::Execute()
             return false;
         if (DeleteElements(el, left, changed_element, with_undo))
         {
+            document->UpdateLastSelection();
             Remake(changed_element, true); //move into view
             return true;
         }
@@ -410,6 +411,7 @@ bool DeleteElementsTask::Execute()
                 });
             if (it == changed_elements.end())
                 changed_elements.push_back(changed_element);  //remake all the changed elements after this circle
+            document->UpdateLastSelection();
         }
 
         std::sort(changed_elements.begin(), changed_elements.end(), std::greater<>());
@@ -424,7 +426,10 @@ bool DeleteElementsTask::Execute()
         {
             auto _el = document->caret->GetElement();
             if (DeleteElements(document->GetElement(_el->id), document->caret->GetPos() == 0 ? true : false, changed_element, false))
+            {
+                document->UpdateLastSelection();
                 Remake(changed_element, true);
+            }
         }
 
         return true;
