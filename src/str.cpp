@@ -472,6 +472,7 @@ bool String::ChangeStringFormat(const StringFormatPtr _format, bool with_undo, E
             auto p = document->FindParent(id, ElementType::PARAGRAPH);
             p->elements->UpdateIds();
             changed_element = id;
+            window->OnCaretMoved(document->MakeEditorState());
             return true;
         }
 
@@ -481,6 +482,7 @@ bool String::ChangeStringFormat(const StringFormatPtr _format, bool with_undo, E
         el->SplitAt(size);
         ((String*)el.get())->format = _format;
         ((String*)el.get())->size_cache.clear();
+        window->OnCaretMoved(document->MakeEditorState());
 
         auto p = document->FindParent(id, ElementType::PARAGRAPH);
         p->elements->UpdateIds();
