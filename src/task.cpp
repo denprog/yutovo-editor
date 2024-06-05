@@ -936,7 +936,10 @@ bool UndoTask::Execute()
             if (delete_size > 0)
                 p->parent->elements->RemoveAt(pos, delete_size);
             else
-                p->parent->elements->RemoveAt(GetChildPos(id), undo_elements.size());
+            {
+                p->parent->elements->RemoveAt(GetChildPos(id), 
+                    p->parent->elements->Count() > undo_elements.size() ? undo_elements.size() : p->parent->elements->Count());
+            }
             for (size_t i = 0; i < undo_elements.size(); ++i)
                 p->parent->elements->Insert(undo_elements[i], GetChildPos(id) + i);
             remake_id = p->parent->id;

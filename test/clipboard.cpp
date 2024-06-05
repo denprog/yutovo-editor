@@ -2643,4 +2643,53 @@ TEST_F(DocumentTest, clipboard50)
         ) << ToBasicString(document.ToText());
 }
 
+//Undo of pasting a paragraph after a code block
+TEST_F(DocumentTest, clipboard51)
+{
+    Start(600);
+
+    EXPECT_CALL(window_mock, OnCopyResult).WillRepeatedly([&](CopyResult result)
+        {
+            ASSERT_TRUE(result == CopyResult::Success);
+        });
+
+    EXPECT_CALL(window_mock, OnPasteResult).WillRepeatedly([&](PasteResult result)
+        {
+            ASSERT_TRUE(result == PasteResult::Success);
+        });
+
+    document.WaitTask(document.InsertString("Арифме́тика (др.-греч. ἀριθμητική, arithmētikḗ — от ἀριθμός, arithmós «число») — раздел математики, "\
+        "изучающий числа, их отношения и свойства.", true));
+    document.InsertParagraph(true);
+    document.InsertCode(false, true);
+    document.InsertString("123", true);
+    document.WaitTask(document.MoveCaretToDocumentEnd(false));
+    document.InsertParagraph(true);
+    document.WaitTask(document.InsertString("Text", true));
+    document.WaitTask(document.MoveCaretHome(true));
+
+    document.WaitTask(document.Copy(clipboard_json, clipboard_text));
+
+    document.WaitTask(document.Paste(clipboard_json));
+    ASSERT_TRUE(document.ToText() == 
+        U"Арифме́тика (др.-греч. ἀριθμητική, arithmētikḗ — от ἀριθμός, arithmós «число») — раздел математики, изучающий числа, их отношения и свойства.\n"\
+        U"123Text"
+        ) << ToBasicString(document.ToText());
+
+    document.Undo();
+    document.WaitUndo();
+    ASSERT_TRUE(document.ToText() == 
+        U"Арифме́тика (др.-греч. ἀριθμητική, arithmētikḗ — от ἀριθμός, arithmós «число») — раздел математики, изучающий числа, их отношения и свойства.\n"\
+        U"123\n"\
+        "Text"
+        ) << ToBasicString(document.ToText());
+
+    document.Redo();
+    document.WaitRedo();
+    ASSERT_TRUE(document.ToText() == 
+        U"Арифме́тика (др.-греч. ἀριθμητική, arithmētikḗ — от ἀριθμός, arithmós «число») — раздел математики, изучающий числа, их отношения и свойства.\n"\
+        U"123Text"
+        ) << ToBasicString(document.ToText());
+}
+
 }
