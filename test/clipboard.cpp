@@ -2692,4 +2692,50 @@ TEST_F(DocumentTest, clipboard51)
         ) << ToBasicString(document.ToText());
 }
 
+//Copy paste a paragraph before a code block
+TEST_F(DocumentTest, clipboard52)
+{
+    Start(600);
+
+    EXPECT_CALL(window_mock, OnCopyResult).WillRepeatedly([&](CopyResult result)
+        {
+            ASSERT_TRUE(result == CopyResult::Success);
+        });
+
+    EXPECT_CALL(window_mock, OnPasteResult).WillRepeatedly([&](PasteResult result)
+        {
+            ASSERT_TRUE(result == PasteResult::Success);
+        });
+
+    document.WaitTask(document.InsertString("Text", true));
+    document.InsertParagraph(true);
+    document.InsertCode(false, true);
+    document.InsertString("123", true);
+    document.WaitTask(document.MoveCaretToDocumentEnd(false));
+    document.InsertParagraph(true);
+    document.InsertString("TTT", true);
+    document.MoveCaretToDocumentBegin(false);
+    document.WaitTask(document.MoveCaretDown(true));
+
+    document.WaitTask(document.Cut(clipboard_json, clipboard_text));
+    ASSERT_TRUE(document.ToText() == 
+        U"123\n"\
+        U"TTT"
+        ) << ToBasicString(document.ToText());
+
+    document.WaitTask(document.Paste(clipboard_json));
+    ASSERT_TRUE(document.ToText() == 
+        U"Text\n"\
+        U"123\n"\
+        U"TTT"
+        ) << ToBasicString(document.ToText());
+
+    document.Undo();
+    document.WaitUndo();
+    ASSERT_TRUE(document.ToText() == 
+        U"123\n"\
+        U"TTT"
+        ) << ToBasicString(document.ToText());
+}
+
 }

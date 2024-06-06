@@ -20,6 +20,8 @@ public:
 
     virtual Element* Create(Element* parent);
 
+    virtual bool InsertElements(std::vector<ElementPtr>& _elements, bool with_undo, ElementId& changed_element);
+
     virtual void ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc);
     static Element* FromJson(Element* parent, Document* document, const rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc);
 
