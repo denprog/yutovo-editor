@@ -363,8 +363,7 @@ bool DeleteElementsTask::Execute()
             ElementId p_id = selection_state.GetCommonElement();
             if (p_id.size() == 1)
             {
-                if (selection_state.state[0].id != ElementId{0} && 
-                    selection_state.state[selection_state.state.size() - 1].id != ElementId{0})
+                if (selection_state.state[0].id != ElementId{0} && selection_state.state[selection_state.state.size() - 1].id != ElementId{0})
                 {
                     merge_paragraphs = true;
                 }
@@ -385,8 +384,13 @@ bool DeleteElementsTask::Execute()
                 if (start == 0 && size == p->elements->Count())
                     document->StoreUndo(p_id, start, size, 1);
                 else
+                {
                     document->StoreUndo(p_id, start, size, 
-                        (merge_paragraphs || (p_id.size() == 1 && selection_state.GetCommonElement() != p_id)) ? 1 : 0, UndoTask::UndoOperation::CHANGE);
+                        (merge_paragraphs || 
+                        (selection_state.state[0].id == ElementId{0} && selection_state.state[selection_state.state.size() - 1].id != ElementId{0}) || 
+                        (selection_state.state[0].id != ElementId{0} && selection_state.state[selection_state.state.size() - 1].id == ElementId{0}) || 
+                        (p_id.size() == 1 && selection_state.GetCommonElement() != p_id)) ? 1 : 0, UndoTask::UndoOperation::CHANGE);
+                }
             }
         }
 

@@ -2738,4 +2738,56 @@ TEST_F(DocumentTest, clipboard52)
         ) << ToBasicString(document.ToText());
 }
 
+//Undo of pasting paragraphs
+TEST_F(DocumentTest, clipboard53)
+{
+    Start(1000);
+
+    EXPECT_CALL(window_mock, OnCopyResult).WillRepeatedly([&](CopyResult result)
+        {
+            ASSERT_TRUE(result == CopyResult::Success);
+        });
+
+    EXPECT_CALL(window_mock, OnPasteResult).WillRepeatedly([&](PasteResult result)
+        {
+            ASSERT_TRUE(result == PasteResult::Success);
+        });
+
+    document.WaitTask(document.InsertString("Арифме́тика (др.-греч. ἀριθμητική, arithmētikḗ — от ἀριθμός, arithmós «число») — раздел математики, "\
+        "изучающий числа, их отношения и свойства.", true));
+    document.InsertParagraph(true);
+    document.InsertCode(false, true);
+    document.InsertString("123", true);
+    document.WaitTask(document.MoveCaretToDocumentEnd(false));
+    document.InsertParagraph(true);
+    document.InsertString("TTT", true);
+    document.MoveCaretToDocumentBegin(false);
+    document.MoveCaretDown(false);
+    document.MoveCaretDown(true);
+    document.WaitTask(document.MoveCaretDown(true));
+
+    document.WaitTask(document.Cut(clipboard_json, clipboard_text));
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"Арифме́тика (др.-греч. ἀριθμητική, arithmētikḗ — от ἀριθμός, arithmós «число») — раздел математики, \n"\
+        U"TTT"
+        ) << ToBasicString(document.ToText());
+
+    document.Undo();
+    document.WaitUndo();
+    ASSERT_TRUE(document.ToText() == 
+        U"Арифме́тика (др.-греч. ἀριθμητική, arithmētikḗ — от ἀριθμός, arithmós «число») — раздел математики, "\
+        U"изучающий числа, их отношения и свойства.\n"\
+        U"123\n"\
+        U"TTT"
+        ) << ToBasicString(document.ToText());
+
+    document.Redo();
+    document.WaitRedo();
+    ASSERT_TRUE(document.ToText() == 
+        U"Арифме́тика (др.-греч. ἀριθμητική, arithmētikḗ — от ἀριθμός, arithmós «число») — раздел математики, \n"\
+        U"TTT"
+        ) << ToBasicString(document.ToText());
+}
+
 }
