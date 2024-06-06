@@ -66,6 +66,27 @@ Element* CodeBlock::Create(Element* parent)
     return new CodeBlock(parent, parent->document->cur_code_id);
 }
 
+bool CodeBlock::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo, ElementId& changed_element)
+{
+    if (caret->IsOnElement(id) && document->pasting)
+    {
+        std::vector<ElementPtr> _els;
+        for (auto& el : _elements)
+        {
+            if (document->IsRow(el))
+            {
+                ElementPtr p(new Paragraph(parent, false));
+                p->elements->Add(el);
+                _els.push_back(p);
+            }
+            else
+                _els.push_back(el);
+        }
+        return parent->InsertElements(_els, with_undo, changed_element);
+    }
+    return Block::InsertElements(_elements, with_undo, changed_element);
+}
+
 void CodeBlock::ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc)
 {
     Block::ToJson(value, alloc);
