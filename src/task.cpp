@@ -1613,37 +1613,26 @@ bool CopyTask::Execute()
     }
 
     std::vector<ElementPtr> copy;
-    ElementPtr p;
-    std::vector<ElementPtr> copy_elements;
     for (int i = 0; i < selection_state.state.size(); ++i)
     {
-        auto _id = selection_state.state[i].id;
-        if (i > 0 && _id[1] > selection_state.state[i - 1].id[1])
+        ElementId _id = selection_state.state[i].id;
+        if (i > 0)
         {
-            if (p)
+            ElementId c_id = GetCommonParent(_id, selection_state.state[i - 1].id);
+            if (c_id.size() != _id.size())
             {
-                for (auto& c : copy_elements)
-                    p->elements->Get(0)->elements->Add(c);
+                if (c_id.size() == 1)
+                {
+                    std::vector<ElementPtr> c;
+                    ElementPtr p(new Paragraph(document, true));
+                    document->GetElement(_id)->Copy(c);
+                    p->elements->Get(0)->elements->Add(c[0]);
+                    copy.push_back(p);
+                    continue;
+                }
             }
-            else
-            {
-                copy = copy_elements;
-            }
-            p = ElementPtr(new Paragraph(document, true));
-            copy.push_back(p);
-            copy_elements.clear();
         }
-        document->GetElement(selection_state.state[i].id)->Copy(copy_elements);
-    }
-
-    if (p)
-    {
-        for (auto& c : copy_elements)
-            p->elements->Get(0)->elements->Add(c);
-    }
-    else
-    {
-        copy = copy_elements;
+        document->GetElement(_id)->Copy(copy);
     }
 
     for (auto& el : copy)
