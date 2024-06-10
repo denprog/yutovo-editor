@@ -2221,6 +2221,14 @@ TEST_F(DocumentTest, clipboard41)
         U"1.571(rad)"
         ) << ToBasicString(document.ToText());
 
+    document.WaitTask(document.DeleteElements(true, true));
+    ASSERT_TRUE(document.ToText() == 
+        U"arcsin(1)=1.571(rad)\n"\
+        U"1.571(rad"
+        ) << ToBasicString(document.ToText());
+
+    document.Undo();
+    document.WaitUndo();
     document.Undo();
     document.WaitUndo();
     ASSERT_TRUE(document.ToText() == 
@@ -2897,6 +2905,89 @@ TEST_F(DocumentTest, clipboard55)
         "</body>") << 
         document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 3})) << document.GetEditorState().ToString();
+}
+
+//Paste a formula above a formula
+TEST_F(DocumentTest, clipboard56)
+{
+    Start(600);
+
+    EXPECT_CALL(window_mock, OnCopyResult).WillRepeatedly([&](CopyResult result)
+        {
+            ASSERT_TRUE(result == CopyResult::Success);
+        });
+
+    EXPECT_CALL(window_mock, OnPasteResult).WillRepeatedly([&](PasteResult result)
+        {
+            ASSERT_TRUE(result == PasteResult::Success);
+        });
+
+    document.InsertCode(false, true);
+    document.InsertString("123", true);
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(1s);
+    ASSERT_TRUE(document.ToText() == 
+        U"123=123."\
+        ) << ToBasicString(document.ToText());
+    
+    document.MoveCaretHome(false);
+    document.MoveCaretRight(true);
+    document.WaitTask(document.Copy(clipboard_json, clipboard_text));
+
+    document.MoveCaretLeft(false);
+    document.WaitTask(document.MoveCaretRight(false));
+    document.InsertParagraph(true);
+    document.MoveCaretUp(false);
+
+    document.WaitTask(document.Paste(clipboard_json));
+    std::this_thread::sleep_for(1s);
+    ASSERT_TRUE(document.ToText() == 
+        U"123=123.\n"\
+        U"123=123."\
+        ) << ToBasicString(document.ToText());
+}
+
+//Paste a formula above a formula
+TEST_F(DocumentTest, clipboard57)
+{
+    Start(600);
+
+    EXPECT_CALL(window_mock, OnCopyResult).WillRepeatedly([&](CopyResult result)
+        {
+            ASSERT_TRUE(result == CopyResult::Success);
+        });
+
+    EXPECT_CALL(window_mock, OnPasteResult).WillRepeatedly([&](PasteResult result)
+        {
+            ASSERT_TRUE(result == PasteResult::Success);
+        });
+
+    document.InsertCode(false, true);
+    document.InsertParagraph(true);
+    document.InsertString("123", true);
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(1s);
+    ASSERT_TRUE(document.ToText() == 
+        U"\n"\
+        U"123=123."\
+        ) << ToBasicString(document.ToText());
+    
+    document.MoveCaretHome(false);
+    document.WaitTask(document.MoveCaretRight(true));
+    document.WaitTask(document.Copy(clipboard_json, clipboard_text));
+
+    document.MoveCaretLeft(false);
+    document.WaitTask(document.MoveCaretUp(false));
+
+    document.WaitTask(document.Paste(clipboard_json));
+    std::this_thread::sleep_for(1s);
+    ASSERT_TRUE(document.ToText() == 
+        U"123=123.\n"\
+        U"\n"\
+        U"123=123."\
+        ) << ToBasicString(document.ToText());
 }
 
 }

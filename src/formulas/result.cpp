@@ -1038,6 +1038,8 @@ void AutoResult::PutResult(Result result)
 {
     ResultRow::PutResult(result);
 
+    solving_id.clear();
+
     ElementPtr el = document->FindParent(id, ElementType::EQUATION);
     Equation* eq = (Equation*)el.get();
     eq->dependencies = result.dependencies;

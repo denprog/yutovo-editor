@@ -168,6 +168,12 @@ bool Equation::AfterInsert(bool with_undo)
     return true;
 }
 
+void Equation::BeforePaste()
+{
+    GetFirst()->BeforePaste();
+    GetShape()->BeforePaste();
+}
+
 void Equation::Solve()
 {
     MiddleShapeFormula::Solve();

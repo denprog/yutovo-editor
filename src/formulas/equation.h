@@ -33,6 +33,7 @@ public:
     
     virtual void BeforeDelete();
     virtual bool AfterInsert(bool with_undo);
+    virtual void BeforePaste();
 
     virtual void Solve();
     virtual void ReSolve(bool if_error = false, bool force = false);
