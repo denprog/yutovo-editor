@@ -41,10 +41,10 @@ using namespace std::chrono;
 Document::Document(Window* _window, Config& _config) :
     window(_window),
     selection(this),
-    last_selection(this),
     config(_config),
     solver(this),
     undo_base(this),
+    last_selection(this),
     logger(Logger::GetInstance(config.logs_path, "yutovo_editor", true, true))
 {
     logger->SetLevel((int)_config.log_level);
@@ -272,11 +272,12 @@ void Document::MainLoop()
                         }
                         redo_tasks.push_back(t);
                     }
+                    last_editor_selection = selection.GetState();
                 }
 
                 {
                     std::lock_guard<std::recursive_mutex> lock(state_mutex);
-                    last_editor_state = EditorState{caret->GetCaretState(), selection.GetState()};
+                    last_editor_state = EditorState{caret->GetCaretState(), last_editor_selection};
                 }
 
 #ifdef DEBUG

@@ -422,6 +422,8 @@ private:
 
     Selection last_selection;
 
+    SelectionState last_editor_selection;
+
     Logger* logger;
 };
 
