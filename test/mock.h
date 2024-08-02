@@ -14,6 +14,7 @@ namespace yutovo_test
 typedef unsigned int uint;
 
 using namespace yutovo;
+using yutovo::ToBasicString;
 
 extern int argc;
 extern char** argv;

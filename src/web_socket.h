@@ -1,7 +1,18 @@
 #ifndef __WEB_SOCKET_H__
 #define __WEB_SOCKET_H__
 
+#include "config.h"
+#include "result_codes.h"
+
+#ifndef REMOTE_SOLVER
+#include <yutovo_service/service_config.h>
+#include <yutovo_service/service_solver.h>
+#include <yutovo_service/service_context.h>
+#include <yutovo_service/session.h>
+#endif
+
 #ifndef EMSCRIPTEN
+#ifdef REMOTE_SOLVER
 #include <boost/beast/core.hpp>
 #include <boost/beast/ssl.hpp>
 #include <boost/beast/websocket.hpp>
@@ -11,11 +22,11 @@
 #include <boost/asio/detached.hpp>
 #include <boost/asio/use_awaitable.hpp>
 #include <boost/asio/buffers_iterator.hpp>
+#endif
 #include <fstream>
 #endif
-#include "config.h"
-#include "result_codes.h"
 
+#ifdef REMOTE_SOLVER
 #ifndef EMSCRIPTEN
 namespace beast = boost::beast;
 namespace http = beast::http;
@@ -23,6 +34,7 @@ namespace websocket = beast::websocket;
 namespace asio = boost::asio;
 namespace ssl = boost::asio::ssl;
 using tcp = boost::asio::ip::tcp;
+#endif
 #endif
 
 namespace yutovo
@@ -34,7 +46,11 @@ class Logger;
 class WebSocket : public std::enable_shared_from_this<WebSocket>
 {
 public:
+#ifdef REMOTE_SOLVER
     WebSocket(Config& _config, Window* _window);
+#else
+    WebSocket(Config& _config, Window* _window, yutovo_service::Session& _session);
+#endif
     ~WebSocket();
 
     bool Connect();
@@ -45,12 +61,14 @@ public:
     void Close();
 
 private:
+#ifdef REMOTE_SOLVER
 #ifndef EMSCRIPTEN
     void OnConnect(beast::error_code ec, tcp::resolver::results_type::endpoint_type ep);
     void OnSslHandshake(beast::error_code ec);
     void OnHandshake(beast::error_code ec);
     void OnWrite(beast::error_code ec, std::size_t bytes_transferred);
     void OnRead(beast::error_code ec, std::size_t bytes_transferred);
+#endif
 #endif
 
 private:
@@ -59,6 +77,7 @@ private:
 
     Logger* logger;
 
+#ifdef REMOTE_SOLVER
 #ifdef EMSCRIPTEN
     int socket_id = 0;
 #else
@@ -80,6 +99,10 @@ private:
 #endif
 
     std::string host, port;
+#else
+    yutovo_service::Session& session;
+    std::string reply;
+#endif
 
     bool exit = false;
 };

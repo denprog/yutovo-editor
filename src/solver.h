@@ -34,7 +34,11 @@ public:
     void ListIdentifiers(uint code_id);
 
 private:
+#ifdef REMOTE_SOLVER
     void MessageLoop(WebSocketPtr socket_, std::deque<SolverTaskPtr>& tasks_, std::atomic_bool& next_circle_);
+#else
+    void MessageLoop(WebSocketPtr socket_, std::deque<SolverTaskPtr>& tasks_, std::atomic_bool& next_circle_, yutovo_service::Session& _session);
+#endif
 
     void EraseSolveTasks(const ElementId id);
 
@@ -66,6 +70,12 @@ private:
 
     std::thread message_loop;
     std::thread break_loop;
+
+#ifndef REMOTE_SOLVER
+    yutovo_service::ServiceConfig service_config;
+    yutovo_service::ServiceContext service_context;
+    yutovo_service::Session session;
+#endif
 };
 
 }

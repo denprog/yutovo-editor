@@ -7,6 +7,7 @@
 #include <boost/uuid/uuid_generators.hpp>
 #include <boost/uuid/uuid_io.hpp>
 #include <boost/algorithm/string.hpp>
+#include <boost/system/system_error.hpp>
 
 namespace yutovo
 {
@@ -20,8 +21,16 @@ using namespace yutovo_service;
 Solver::Solver(Document* _document) :
     document(_document),
     logger(Logger::GetInstance(document->config.logs_path, "yutovo_editor", true, true)),
+#ifdef REMOTE_SOLVER
     message_loop(std::thread(&Solver::MessageLoop, this, std::ref(socket), std::ref(tasks), std::ref(next_circle))),
     break_loop(std::thread(&Solver::MessageLoop, this, std::ref(break_socket), std::ref(break_tasks), std::ref(break_next_circle)))
+#else
+    service_config(logger),
+    service_context(&service_config),
+    session(&service_context, logger),
+    message_loop(std::thread(&Solver::MessageLoop, this, std::ref(socket), std::ref(tasks), std::ref(next_circle), std::ref(session))),
+    break_loop(std::thread(&Solver::MessageLoop, this, std::ref(break_socket), std::ref(break_tasks), std::ref(break_next_circle), std::ref(session)))
+#endif
 {
     guid = boost::uuids::to_string(boost::uuids::random_generator()());
     result_types_seq = {ResultType::REAL, ResultType::INTEGER, ResultType::RATIONAL, ResultType::COMPLEX};
@@ -185,7 +194,11 @@ void Solver::ListIdentifiers(uint code_id)
     next_circle = true;
 }
 
+#ifdef REMOTE_SOLVER
 void Solver::MessageLoop(WebSocketPtr socket_, std::deque<SolverTaskPtr>& tasks_, std::atomic_bool& next_circle_)
+#else
+void Solver::MessageLoop(WebSocketPtr socket_, std::deque<SolverTaskPtr>& tasks_, std::atomic_bool& next_circle_, yutovo_service::Session& _session)
+#endif
 {
     bool connected = false;
     bool connection_error = false;
@@ -197,7 +210,11 @@ void Solver::MessageLoop(WebSocketPtr socket_, std::deque<SolverTaskPtr>& tasks_
 #else
         try
         {
+#ifdef REMOTE_SOLVER
             socket_.reset(new WebSocket(document->config, document->window));
+#else
+            socket_.reset(new WebSocket(document->config, document->window, _session));
+#endif
         }
         catch (boost::system::system_error& ex)
         {
@@ -212,7 +229,11 @@ void Solver::MessageLoop(WebSocketPtr socket_, std::deque<SolverTaskPtr>& tasks_
     }
     else
     {
+#ifdef REMOTE_SOLVER
         LOG_INFO("Solver connected to the server: {}:{}, guid:{}", document->config.service_ip, document->config.service_port, guid);
+#else
+        LOG_INFO("Using builtin solver, guid:{}", guid);
+#endif
         connected = true;
     }
 
@@ -240,7 +261,11 @@ void Solver::MessageLoop(WebSocketPtr socket_, std::deque<SolverTaskPtr>& tasks_
                 }
                 else if (!connected)
                 {
+#ifdef REMOTE_SOLVER
                     LOG_INFO("Solver connected to the server: {}:{}, guid:{}", document->config.service_ip, document->config.service_port, guid);
+#else
+                    LOG_INFO("Using builtin solver, guid:{}", guid);
+#endif
                     connected = true;
                 }
             }
@@ -259,7 +284,11 @@ void Solver::MessageLoop(WebSocketPtr socket_, std::deque<SolverTaskPtr>& tasks_
                 now = time(0);
                 {
                     std::unique_lock<std::mutex> lock(socket_mutex);
+#ifdef REMOTE_SOLVER
                     socket_.reset(new WebSocket(document->config, document->window)); //recreate the socket
+#else
+                    socket_.reset(new WebSocket(document->config, document->window, _session));
+#endif
                 }
                 if (!socket_->Connect() || !socket_->IsOpen())
                 {
@@ -267,7 +296,11 @@ void Solver::MessageLoop(WebSocketPtr socket_, std::deque<SolverTaskPtr>& tasks_
                 }
                 else
                 {
+#ifdef REMOTE_SOLVER
                     LOG_INFO("Solver connected to the server: {}:{}, guid:{}", document->config.service_ip, document->config.service_port, guid);
+#else
+                    LOG_INFO("Using builtin solver, guid:{}", guid);
+#endif
                     document->ReSolveErrors();
                     connection_error = false;
                 }
@@ -328,7 +361,11 @@ void Solver::MessageLoop(WebSocketPtr socket_, std::deque<SolverTaskPtr>& tasks_
                 {
                     {
                         std::unique_lock<std::mutex> lock(socket_mutex);
+#ifdef REMOTE_SOLVER
                         socket_.reset(new WebSocket(document->config, document->window)); //recreate the socket
+#else
+                        socket_.reset(new WebSocket(document->config, document->window, _session)); //recreate the socket
+#endif
                     }
                     if (!socket_->IsOpen())
                     {
@@ -336,7 +373,11 @@ void Solver::MessageLoop(WebSocketPtr socket_, std::deque<SolverTaskPtr>& tasks_
                     }
                     else
                     {
+#ifdef REMOTE_SOLVER
                         LOG_INFO("Solver connected to the server: {}:{}, guid:{}", document->config.service_ip, document->config.service_port, guid);
+#else
+                        LOG_INFO("Using builtin solver, guid:{}", guid);
+#endif
                         document->ReSolveErrors();
                     }
                     if (socket_->IsOpen() && tries-- > 0)

@@ -2,17 +2,25 @@
 #include "window.h"
 #include <yutovo_logger/logger.h>
 #include <chrono>
+#ifdef REMOTE_SOLVER
 #include <boost/asio/strand.hpp>
+#else
+#include <yutovo_service/service_config.h>
+#endif
 
 namespace yutovo
 {
 
 using namespace std::chrono_literals;
 using namespace std::chrono;
+using namespace yutovo_service;
+#ifdef REMOTE_SOLVER
 namespace net = boost::asio;
+#endif
 
 //WebSocket
 
+#ifdef REMOTE_SOLVER
 WebSocket::WebSocket(Config& _config, Window* _window) :
     config(_config),
     window(_window),
@@ -23,12 +31,23 @@ WebSocket::WebSocket(Config& _config, Window* _window) :
 #endif
 {
 }
+#else
+WebSocket::WebSocket(Config& _config, Window* _window, yutovo_service::Session& _session) :
+    config(_config),
+    window(_window),
+    logger(Logger::GetInstance(config.logs_path, "yutovo_editor", true, true)),
+    session(_session)
+{
+}
+#endif
 
 WebSocket::~WebSocket()
 {
+#ifdef REMOTE_SOLVER
 #ifdef EMSCRIPTEN
     if (socket_id > 0)
         window->Close(socket_id);
+#endif
 #endif
     exit = true;
     LOG_INFO("WebSocket closed");
@@ -36,6 +55,7 @@ WebSocket::~WebSocket()
 
 bool WebSocket::Connect()
 {
+#ifdef REMOTE_SOLVER
     host = config.service_ip;
     port = std::to_string(config.service_port);
 
@@ -65,10 +85,14 @@ bool WebSocket::Connect()
     window->OnServiceStatus(connected ? IOResult::Success : IOResult::ConnectionError);
     return connected;
 #endif
+#else
+    return true;
+#endif
 }
 
 bool WebSocket::Send(const std::string& message, Result& result)
 {
+#ifdef REMOTE_SOLVER
 #ifdef EMSCRIPTEN
     if (!window->Send(socket_id, message))
     {
@@ -95,10 +119,17 @@ bool WebSocket::Send(const std::string& message, Result& result)
     }
     return true;
 #endif
+#else
+    reply.clear();
+    session.SetMaxTime(config.service_timeout * 1000);
+    session.Parse(message, reply); //for builtin solver as static library
+    return true;
+#endif
 }
 
 bool WebSocket::Receive(std::string& message, Result& result)
 {
+#ifdef REMOTE_SOLVER
 #ifdef EMSCRIPTEN
     auto now = duration_cast<milliseconds>(system_clock::now().time_since_epoch());
     auto next = now;
@@ -148,12 +179,20 @@ bool WebSocket::Receive(std::string& message, Result& result)
     }
     return false;
 #endif
+#else
+    message = reply; //for builtin solver as static library
+    return true;
+#endif
 }
 
 bool WebSocket::Reset()
 {
+#ifdef REMOTE_SOLVER
 #ifdef EMSCRIPTEN
     return window->Reset(socket_id);
+#else
+    return true;
+#endif
 #else
     return true;
 #endif
@@ -161,21 +200,28 @@ bool WebSocket::Reset()
 
 bool WebSocket::IsOpen()
 {
+#ifdef REMOTE_SOLVER
 #ifdef EMSCRIPTEN
     return window->IsOpen(socket_id);
 #else
     return ws.is_open();
+#endif
+#else
+    return true;
 #endif
 }
 
 void WebSocket::Close()
 {
     exit = true;
+#ifdef REMOTE_SOLVER
 #ifndef EMSCRIPTEN
     beast::get_lowest_layer(ws).cancel();
 #endif
+#endif
 }
 
+#ifdef REMOTE_SOLVER
 #ifndef EMSCRIPTEN
 void WebSocket::OnConnect(beast::error_code ec, tcp::resolver::results_type::endpoint_type ep)
 {
@@ -247,6 +293,7 @@ void WebSocket::OnRead(beast::error_code ec, std::size_t bytes_transferred)
 //SslContext
 
 #ifndef EMSCRIPTEN
+#ifdef REMOTE_SOLVER
 WebSocket::SslContext::SslContext(Logger* logger)
 {
     boost::system::error_code error_code;
@@ -263,6 +310,8 @@ WebSocket::SslContext::SslContext(Logger* logger)
         throw boost::system::system_error(error_code);
     }
 }
+#endif
+#endif
 #endif
 
 }

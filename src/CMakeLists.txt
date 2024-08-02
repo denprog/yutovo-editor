@@ -4,6 +4,18 @@ set(CMAKE_DEBUG_POSTFIX d)
 
 find_package(PkgConfig REQUIRED)
 
+if(EMSCRIPTEN)
+    set(CMAKE_FIND_ROOT_PATH ${INSTALL_PATH}/wasm/cmake/)
+else()
+    set(CMAKE_FIND_ROOT_PATH ${INSTALL_PATH}/lib/cmake/)
+endif()
+
+if(NOT DEFINED REMOTE_SOLVER)
+    find_package(yutovo_service REQUIRED)
+    find_package(yutovo_calculator REQUIRED)
+    find_package(yutovo_logger REQUIRED)
+endif()
+
 set(Boost_USE_STATIC_LIBS ON)
 set(Boost_USE_MULTITHREADED ON)
 
@@ -12,7 +24,6 @@ if(EMSCRIPTEN)
 endif()
 
 set(Boost_INCLUDE_DIR "${INSTALL_PATH}/deploy/include")
-message("CMAKE_FIND_ROOT_PATH is ${CMAKE_FIND_ROOT_PATH}")
 message("INSTALL_PATH is ${INSTALL_PATH}")
 
 if(EMSCRIPTEN)
@@ -94,12 +105,20 @@ if(EMSCRIPTEN)
         stdc++
         pthread
     )
-else()
+elseif(DEFINED REMOTE_SOLVER)
     target_link_libraries(${PROJECT_NAME} PRIVATE 
         stdc++
         pthread
         ssl
         crypto
+    )
+else()
+    target_link_libraries(${PROJECT_NAME} PRIVATE 
+        stdc++
+        pthread
+        yutovo_service
+        yutovo_calculator
+        yutovo_logger
     )
 endif()
 
