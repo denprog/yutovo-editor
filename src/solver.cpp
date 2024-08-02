@@ -206,7 +206,11 @@ void Solver::MessageLoop(WebSocketPtr socket_, std::deque<SolverTaskPtr>& tasks_
     {
         std::unique_lock<std::mutex> lock(socket_mutex);
 #ifdef EMSCRIPTEN
+#ifdef REMOTE_SOLVER
         socket_.reset(new WebSocket(document->config, document->window));
+#else
+        socket_.reset(new WebSocket(document->config, document->window, _session));
+#endif
 #else
         try
         {
