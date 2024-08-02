@@ -10,6 +10,9 @@ add_compile_definitions(DEBUG)
 set(INSTALL_PATH "$ENV{YUTOVO_DEPLOY}")
 set(THIRD_PARTY_PATH "$ENV{YUTOVO_DEPLOY}/../third_party/")
 
+# set(REMOTE_SOLVER true)
+# add_compile_definitions(REMOTE_SOLVER)
+
 add_subdirectory(src)
 if(NOT DEFINED EMSCRIPTEN)
     add_subdirectory(test)

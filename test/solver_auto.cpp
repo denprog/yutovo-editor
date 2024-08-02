@@ -1788,6 +1788,37 @@ TEST_F(SolverAutoTest, errors4)
     ASSERT_TRUE(document.HasErrorMarks(ElementId{0, 0}));
 }
 
+//Service timeout
+TEST_F(SolverAutoTest, errors5)
+{
+    Start(600);
+
+    EXPECT_CALL(window_mock, Translate).WillRepeatedly([&](ElementId id, const std::u32string& str)
+        {
+            return str;
+        });
+
+    document.GetConfig(config);
+    config.service_timeout = 1;
+    document.SetConfig(config, true);
+
+    document.InsertDivision(true);
+    document.InsertString("6kg", true);
+    document.InsertMultiply(true);
+    document.InsertString("2m", true);
+    document.MoveCaretDown(false);
+    document.MoveCaretDown(false);
+    document.InsertString("4s", true);
+    document.MoveCaretRight(false);
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    std::this_thread::sleep_for(4s);
+#ifdef REMOTE_SOLVER
+    ASSERT_TRUE(document.ToText() == U"(6kg*2m)/(4s)=Solver timeout") << ToBasicString(document.ToText());
+#else
+    ASSERT_TRUE(document.ToText() == U"(6kg*2m)/(4s)=Solving time exceeded") << ToBasicString(document.ToText());
+#endif
+}
+
 TEST_F(SolverAutoTest, units1)
 {
     Start(600);
@@ -2018,6 +2049,7 @@ TEST_F(SolverAutoTest, units8)
     document.InsertString("м", true);
     document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
     document.WaitSolver();
+    std::this_thread::sleep_for(1s);
     ASSERT_TRUE(document.ToText() == 
         U"4N*m=4.J\n"\
         U"4.2Н*м=4.2Дж") << ToBasicString(document.ToText());
