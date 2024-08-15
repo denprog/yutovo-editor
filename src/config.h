@@ -12,7 +12,7 @@ namespace yutovo
 
 typedef unsigned int uint;
 
-using namespace yutovo_service;
+using namespace yutovo_solver;
 using namespace yutovo_calculator;
 
 struct Config
@@ -158,7 +158,7 @@ struct Config
         void FromJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc);
 
         bool result_auto_advance = true;
-        yutovo_service::ResultType results_order[4] = {ResultType::REAL, ResultType::INTEGER, ResultType::RATIONAL, ResultType::COMPLEX};
+        yutovo_solver::ResultType results_order[4] = {ResultType::REAL, ResultType::INTEGER, ResultType::RATIONAL, ResultType::COMPLEX};
 
         RealResultConfig real_result;
         IntegerResultConfig integer_result;

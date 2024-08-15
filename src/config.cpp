@@ -270,7 +270,7 @@ void Config::AutoResultConfig::FromJson(rapidjson::Value& value, rapidjson::Docu
         {
             if (!arr[i].IsInt())
                 return;
-            results_order[i] = (yutovo_service::ResultType)arr[i].GetInt();
+            results_order[i] = (yutovo_solver::ResultType)arr[i].GetInt();
         }
     }
 

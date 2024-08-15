@@ -5,10 +5,10 @@
 #include "result_codes.h"
 
 #ifndef REMOTE_SOLVER
-#include <yutovo_service/service_config.h>
-#include <yutovo_service/service_solver.h>
-#include <yutovo_service/service_context.h>
-#include <yutovo_service/session.h>
+#include <yutovo_solver/service_config.h>
+#include <yutovo_solver/service_solver.h>
+#include <yutovo_solver/service_context.h>
+#include <yutovo_solver/session.h>
 #endif
 
 #ifndef EMSCRIPTEN
@@ -49,7 +49,7 @@ public:
 #ifdef REMOTE_SOLVER
     WebSocket(Config& _config, Window* _window);
 #else
-    WebSocket(Config& _config, Window* _window, yutovo_service::Session& _session);
+    WebSocket(Config& _config, Window* _window, yutovo_solver::Session& _session);
 #endif
     ~WebSocket();
 
@@ -100,7 +100,7 @@ private:
 
     std::string host, port;
 #else
-    yutovo_service::Session& session;
+    yutovo_solver::Session& session;
     std::string reply;
 #endif
 

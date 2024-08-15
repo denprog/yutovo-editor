@@ -7,7 +7,7 @@
 #include <boost/locale.hpp>
 #include <yutovo_calculator/parser_exception.h>
 #include <yutovo_calculator/math_helper.h>
-#include <yutovo_service/types.h>
+#include <yutovo_solver/types.h>
 #include <boost/uuid/uuid.hpp>
 #include <rapidjson/document.h>
 
@@ -310,7 +310,7 @@ Element* CreateFromJson(Element* parent, Document* document, rapidjson::Value& v
 std::u32string ToUtfString(const std::string& str);
 std::string ToBasicString(const std::u32string& str);
 
-std::string ErrorCodeToString(const yutovo_service::ErrorCode error_code);
+std::string ErrorCodeToString(const yutovo_solver::ErrorCode error_code);
 std::string ErrorCodeToString(const yutovo_calculator::ParserExceptionCode parser_error_code);
 
 std::string AngleMeasureToString(const AngleMeasure angle_measure);

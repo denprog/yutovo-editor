@@ -14,7 +14,7 @@ Equation::Equation(Element* _parent) :
     remake_always = true;
 }
 
-Equation::Equation(Element* _parent, yutovo_service::ResultType _result_type, bool with_init) :
+Equation::Equation(Element* _parent, yutovo_solver::ResultType _result_type, bool with_init) :
     MiddleShapeFormula(_parent, with_init),
     result_type(_result_type)
 {
@@ -22,7 +22,7 @@ Equation::Equation(Element* _parent, yutovo_service::ResultType _result_type, bo
     remake_always = true;
 }
 
-Equation::Equation(Document* _document, yutovo_service::ResultType _result_type, bool with_init) :
+Equation::Equation(Document* _document, yutovo_solver::ResultType _result_type, bool with_init) :
     MiddleShapeFormula(_document, with_init),
     result_type(_result_type)
 {
@@ -66,7 +66,7 @@ Element* Equation::FromJson(Element* parent, Document* document, const rapidjson
 {
     if (!value.HasMember("result_type") || !value["result_type"].IsInt())
         return nullptr;
-    yutovo_service::ResultType result_type = (yutovo_service::ResultType)value["result_type"].GetInt();
+    yutovo_solver::ResultType result_type = (yutovo_solver::ResultType)value["result_type"].GetInt();
 
     if (parent)
         return new Equation(parent, result_type, false);
@@ -186,7 +186,7 @@ void Equation::Solve()
 
 void Equation::ReSolve(bool if_error, bool force)
 {
-    if (if_error && result && result->last_error_code == yutovo_service::ErrorCode::OK)
+    if (if_error && result && result->last_error_code == yutovo_solver::ErrorCode::OK)
         return;
     
     ParserString str;

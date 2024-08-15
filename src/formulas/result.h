@@ -43,7 +43,7 @@ protected:
     ElementPtr GetCurRow();
 
 public:
-    yutovo_service::ErrorCode last_error_code = yutovo_service::ErrorCode::OK;
+    yutovo_solver::ErrorCode last_error_code = yutovo_solver::ErrorCode::OK;
 
 protected:
     ParserString last_expression;

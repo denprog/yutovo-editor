@@ -11,7 +11,7 @@ else()
 endif()
 
 if(NOT DEFINED REMOTE_SOLVER)
-    find_package(yutovo_service REQUIRED)
+    find_package(yutovo_solver REQUIRED)
     find_package(yutovo_calculator REQUIRED)
     find_package(yutovo_logger REQUIRED)
 endif()
@@ -116,7 +116,7 @@ else()
     target_link_libraries(${PROJECT_NAME} PRIVATE 
         stdc++
         pthread
-        yutovo_service
+        yutovo_solver
         yutovo_calculator
         yutovo_logger
     )

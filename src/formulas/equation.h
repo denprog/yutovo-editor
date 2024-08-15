@@ -11,8 +11,8 @@ class Equation : public MiddleShapeFormula
 {
 public:
     Equation(Element* _parent);
-    Equation(Element* _parent, yutovo_service::ResultType _result_type, bool with_init = true);
-    Equation(Document* _document, yutovo_service::ResultType _result_type, bool with_init = true);
+    Equation(Element* _parent, yutovo_solver::ResultType _result_type, bool with_init = true);
+    Equation(Document* _document, yutovo_solver::ResultType _result_type, bool with_init = true);
     Equation(const Equation& source);
 
     virtual Element* Clone();
@@ -62,7 +62,7 @@ protected:
     void UpdateResult(ParserString& str);
 
 public:
-    yutovo_service::ResultType result_type;
+    yutovo_solver::ResultType result_type;
     Dependencies dependencies;
     ParserString last_expression;
 

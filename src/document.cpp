@@ -459,7 +459,7 @@ uint Document::InsertSquareRoot(bool with_undo)
     return InsertFormula(new SquareRoot(this), with_undo);
 }
 
-uint Document::InsertEquation(yutovo_service::ResultType result_type, bool with_undo)
+uint Document::InsertEquation(yutovo_solver::ResultType result_type, bool with_undo)
 {
     LOG_TRACE("Insert equation");
     return InsertFormula(new Equation(this, result_type), with_undo);
@@ -2595,8 +2595,8 @@ void Document::PutResult(ElementId _id, Result result)
     tasks.emplace_back(new ResultTask(text, _id, result));
 
 #ifdef DEBUG
-    if ((result.type != ResultType::NONE && result.error.error_code != yutovo_service::ErrorCode::SOLVER_RESTARTED_ERROR) ||    
-        result.error.error_code == yutovo_service::ErrorCode::PARSER_ERROR)
+    if ((result.type != ResultType::NONE && result.error.error_code != yutovo_solver::ErrorCode::SOLVER_RESTARTED_ERROR) ||    
+        result.error.error_code == yutovo_solver::ErrorCode::PARSER_ERROR)
         last_solver_task_id = tasks.back()->id;
 #endif
 }

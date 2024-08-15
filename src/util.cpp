@@ -35,7 +35,7 @@
 namespace yutovo
 {
 
-using namespace yutovo_service;
+using namespace yutovo_solver;
 
 //Rect
 
@@ -309,9 +309,9 @@ std::string ToBasicString(const std::u32string& str)
     return boost::locale::conv::utf_to_utf<char>(str);
 }
 
-std::string ErrorCodeToString(const yutovo_service::ErrorCode error_code)
+std::string ErrorCodeToString(const yutovo_solver::ErrorCode error_code)
 {
-    static std::map<yutovo_service::ErrorCode, std::string> error_code_str = 
+    static std::map<yutovo_solver::ErrorCode, std::string> error_code_str = 
         {
             {ErrorCode::OK, "Ok"},
             {ErrorCode::UNKNOWN_COMMAND, "Unknown command"},

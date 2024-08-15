@@ -6,7 +6,7 @@
 #include <thread>
 #include <mutex>
 #include <condition_variable>
-#include <yutovo_service/types.h>
+#include <yutovo_solver/types.h>
 #include <yutovo_calculator/math_helper.h>
 
 namespace yutovo
@@ -37,7 +37,7 @@ private:
 #ifdef REMOTE_SOLVER
     void MessageLoop(WebSocketPtr socket_, std::deque<SolverTaskPtr>& tasks_, std::atomic_bool& next_circle_);
 #else
-    void MessageLoop(WebSocketPtr socket_, std::deque<SolverTaskPtr>& tasks_, std::atomic_bool& next_circle_, yutovo_service::Session& _session);
+    void MessageLoop(WebSocketPtr socket_, std::deque<SolverTaskPtr>& tasks_, std::atomic_bool& next_circle_, yutovo_solver::Session& _session);
 #endif
 
     void EraseSolveTasks(const ElementId id);
@@ -59,7 +59,7 @@ private:
     ElementId current_solving_id;
     uint current_code_id = 0;
 
-    std::vector<yutovo_service::ResultType> result_types_seq;
+    std::vector<yutovo_solver::ResultType> result_types_seq;
 
     Logger* logger;
 
@@ -72,9 +72,9 @@ private:
     std::thread break_loop;
 
 #ifndef REMOTE_SOLVER
-    yutovo_service::ServiceConfig service_config;
-    yutovo_service::ServiceContext service_context;
-    yutovo_service::Session session;
+    yutovo_solver::ServiceConfig service_config;
+    yutovo_solver::ServiceContext service_context;
+    yutovo_solver::Session session;
 #endif
 };
 
