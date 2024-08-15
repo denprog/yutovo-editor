@@ -14,7 +14,7 @@ namespace yutovo
 
 using namespace std::chrono_literals;
 using namespace std::chrono;
-using namespace yutovo_service;
+using namespace yutovo_solver;
 
 //Solver
 
@@ -197,7 +197,7 @@ void Solver::ListIdentifiers(uint code_id)
 #ifdef REMOTE_SOLVER
 void Solver::MessageLoop(WebSocketPtr socket_, std::deque<SolverTaskPtr>& tasks_, std::atomic_bool& next_circle_)
 #else
-void Solver::MessageLoop(WebSocketPtr socket_, std::deque<SolverTaskPtr>& tasks_, std::atomic_bool& next_circle_, yutovo_service::Session& _session)
+void Solver::MessageLoop(WebSocketPtr socket_, std::deque<SolverTaskPtr>& tasks_, std::atomic_bool& next_circle_, yutovo_solver::Session& _session)
 #endif
 {
     bool connected = false;
@@ -361,7 +361,7 @@ void Solver::MessageLoop(WebSocketPtr socket_, std::deque<SolverTaskPtr>& tasks_
             }
             if (!r)
             {
-                if (result.error.error_code == yutovo_service::ErrorCode::OPERATION_ERROR)
+                if (result.error.error_code == yutovo_solver::ErrorCode::OPERATION_ERROR)
                 {
                     {
                         std::unique_lock<std::mutex> lock(socket_mutex);
@@ -395,10 +395,10 @@ void Solver::MessageLoop(WebSocketPtr socket_, std::deque<SolverTaskPtr>& tasks_
             if (t->expression_type == ExpressionType::USER_SYMBOL)
                 document->window->OnIdentifierChanged(t->id);
 
-            if (!result.values.empty() || result.error.error_code != yutovo_service::ErrorCode::OK)
+            if (!result.values.empty() || result.error.error_code != yutovo_solver::ErrorCode::OK)
                 document->PutResult(t->id, result);
             
-            if (result.error.error_code == yutovo_service::ErrorCode::SOLVER_RESTARTED_ERROR)
+            if (result.error.error_code == yutovo_solver::ErrorCode::SOLVER_RESTARTED_ERROR)
             {
                 document->ReSolve(t->id); //re-solve the expression
 
@@ -407,14 +407,14 @@ void Solver::MessageLoop(WebSocketPtr socket_, std::deque<SolverTaskPtr>& tasks_
                 tasks.emplace_back(new ListIdentifiersSolverTask(guid, t->code_id, document, logger)); //for syntax highlight
                 next_circle = true;
             }
-            else if (result.error.error_code == yutovo_service::ErrorCode::TIMEOUT_ERROR)
+            else if (result.error.error_code == yutovo_solver::ErrorCode::TIMEOUT_ERROR)
             {
                 std::unique_lock<std::mutex> lock(tasks_mutex);
                 break_tasks.emplace_back(new BreakSolverTask(t->id, guid, t->code_id, logger)); //break the current solving
                 break_next_circle = true;
             }
 
-            if (result.error.error_code != yutovo_service::ErrorCode::OPERATION_ERROR)
+            if (result.error.error_code != yutovo_solver::ErrorCode::OPERATION_ERROR)
                 temp_tasks.erase(temp_tasks.begin() + i);
             else
             {

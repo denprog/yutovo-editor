@@ -140,7 +140,7 @@ struct UndoEquation : UndoFormula
 
     virtual Element* Restore(Document* document, Element* parent);
 
-    yutovo_service::ResultType result_type;
+    yutovo_solver::ResultType result_type;
     std::any config;
 };
 

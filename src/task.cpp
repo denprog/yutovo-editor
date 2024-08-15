@@ -17,7 +17,7 @@
 #include <sstream>
 #include <vector>
 #include <boost/locale.hpp>
-#include <yutovo_service/types.h>
+#include <yutovo_solver/types.h>
 #include <rapidjson/prettywriter.h>
 #include <rapidjson/istreamwrapper.h>
 

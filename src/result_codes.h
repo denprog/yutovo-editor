@@ -1,7 +1,7 @@
 #ifndef __RESULT_CODES_H__
 #define __RESULT_CODES_H__
 
-#include <yutovo_service/types.h>
+#include <yutovo_solver/types.h>
 #include <yutovo_calculator/parser_exception.h>
 #include <yutovo_calculator/unit.h>
 #include <yutovo_calculator/math_helper.h>
@@ -38,7 +38,7 @@ enum class PasteResult
 
 struct Error
 {
-    yutovo_service::ErrorCode error_code = yutovo_service::ErrorCode::OK;
+    yutovo_solver::ErrorCode error_code = yutovo_solver::ErrorCode::OK;
     yutovo_calculator::ParserExceptionCode parser_error_code = yutovo_calculator::ParserExceptionCode::None;
     int solver_error_code = -1;
     ElementId id;
@@ -63,7 +63,7 @@ typedef std::map<std::string, std::string> Value;
 
 struct Result
 {
-    yutovo_service::ResultType type = yutovo_service::ResultType::NONE;
+    yutovo_solver::ResultType type = yutovo_solver::ResultType::NONE;
     std::vector<Value> values;
     yutovo_calculator::AngleMeasure angle_measure = yutovo_calculator::AngleMeasure::None;
     yutovo_calculator::Notation notation = yutovo_calculator::Notation::None;

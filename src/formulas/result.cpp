@@ -14,7 +14,7 @@
 namespace yutovo
 {
 
-using namespace yutovo_service;
+using namespace yutovo_solver;
 
 //ResultRow
 
@@ -324,7 +324,7 @@ void RealResult::Solve(const ParserString& expression)
     auto code = document->FindParent(id, ElementType::CODE_BLOCK);
     solving_id = id;
     document->Solve(id, ((CodeBlock*)code.get())->code_id, config, last_expression.Text(), 
-        (delay && last_error_code != yutovo_service::ErrorCode::SOLVER_RESTARTED_ERROR) ? document->config.solve_delay : 0);
+        (delay && last_error_code != yutovo_solver::ErrorCode::SOLVER_RESTARTED_ERROR) ? document->config.solve_delay : 0);
     delay = true;
 }
 
@@ -340,14 +340,14 @@ void RealResult::PutResult(Result result)
     cast_units = result.cast_units;
 
     last_error_code = result.error.error_code;
-    if (result.error.error_code == yutovo_service::ErrorCode::SOLVER_RESTARTED_ERROR)
+    if (result.error.error_code == yutovo_solver::ErrorCode::SOLVER_RESTARTED_ERROR)
     {
         eq->last_expression.Reset();
         return;
     }
 
     elements->Clear();
-    if (result.error.error_code != yutovo_service::ErrorCode::OK)
+    if (result.error.error_code != yutovo_solver::ErrorCode::OK)
     {
         PutError(result.error); //put error message
     }
@@ -474,7 +474,7 @@ void IntegerResult::Solve(const ParserString& expression)
     auto code = document->FindParent(id, ElementType::CODE_BLOCK);
     solving_id = id;
     document->Solve(id, ((CodeBlock*)code.get())->code_id, config, last_expression.Text(), 
-        (delay && last_error_code != yutovo_service::ErrorCode::SOLVER_RESTARTED_ERROR) ? document->config.solve_delay : 0);
+        (delay && last_error_code != yutovo_solver::ErrorCode::SOLVER_RESTARTED_ERROR) ? document->config.solve_delay : 0);
     delay = true;
 }
 
@@ -489,14 +489,14 @@ void IntegerResult::PutResult(Result result)
     eq->dependencies = result.dependencies;
 
     last_error_code = result.error.error_code;
-    if (result.error.error_code == yutovo_service::ErrorCode::SOLVER_RESTARTED_ERROR)
+    if (result.error.error_code == yutovo_solver::ErrorCode::SOLVER_RESTARTED_ERROR)
     {
         eq->last_expression.Reset();
         return;
     }
 
     elements->Clear();
-    if (result.error.error_code != yutovo_service::ErrorCode::OK)
+    if (result.error.error_code != yutovo_solver::ErrorCode::OK)
     {
         PutError(result.error); //put error message
     }
@@ -601,7 +601,7 @@ void RationalResult::Solve(const ParserString& expression)
     auto code = document->FindParent(id, ElementType::CODE_BLOCK);
     solving_id = id;
     document->Solve(id, ((CodeBlock*)code.get())->code_id, config, last_expression.Text(), 
-        (delay && last_error_code != yutovo_service::ErrorCode::SOLVER_RESTARTED_ERROR) ? document->config.solve_delay : 0);
+        (delay && last_error_code != yutovo_solver::ErrorCode::SOLVER_RESTARTED_ERROR) ? document->config.solve_delay : 0);
     delay = true;
 }
 
@@ -617,14 +617,14 @@ void RationalResult::PutResult(Result result)
     cast_units = result.cast_units;
 
     last_error_code = result.error.error_code;
-    if (result.error.error_code == yutovo_service::ErrorCode::SOLVER_RESTARTED_ERROR)
+    if (result.error.error_code == yutovo_solver::ErrorCode::SOLVER_RESTARTED_ERROR)
     {
         eq->last_expression.Reset();
         return;
     }
 
     elements->Clear();
-    if (result.error.error_code != yutovo_service::ErrorCode::OK)
+    if (result.error.error_code != yutovo_solver::ErrorCode::OK)
     {
         PutError(result.error); //put error message
     }
@@ -761,7 +761,7 @@ void ComplexResult::Solve(const ParserString& expression)
     auto code = document->FindParent(id, ElementType::CODE_BLOCK);
     solving_id = id;
     document->Solve(id, ((CodeBlock*)code.get())->code_id, config, last_expression.Text(), 
-        (delay && last_error_code != yutovo_service::ErrorCode::SOLVER_RESTARTED_ERROR) ? document->config.solve_delay : 0);
+        (delay && last_error_code != yutovo_solver::ErrorCode::SOLVER_RESTARTED_ERROR) ? document->config.solve_delay : 0);
     delay = true;
 }
 
@@ -776,14 +776,14 @@ void ComplexResult::PutResult(Result result)
     eq->dependencies = result.dependencies;
 
     last_error_code = result.error.error_code;
-    if (result.error.error_code == yutovo_service::ErrorCode::SOLVER_RESTARTED_ERROR)
+    if (result.error.error_code == yutovo_solver::ErrorCode::SOLVER_RESTARTED_ERROR)
     {
         eq->last_expression.Reset();
         return;
     }
 
     elements->Clear();
-    if (result.error.error_code != yutovo_service::ErrorCode::OK)
+    if (result.error.error_code != yutovo_solver::ErrorCode::OK)
     {
         PutError(result.error); //put error message
     }
@@ -1030,7 +1030,7 @@ void AutoResult::Solve(const ParserString& expression)
     auto code = document->FindParent(id, ElementType::CODE_BLOCK);
     solving_id = id;
     document->Solve(id, ((CodeBlock*)code.get())->code_id, config, last_expression.Text(), 
-        (delay && last_error_code != yutovo_service::ErrorCode::SOLVER_RESTARTED_ERROR) ? document->config.solve_delay : 0);
+        (delay && last_error_code != yutovo_solver::ErrorCode::SOLVER_RESTARTED_ERROR) ? document->config.solve_delay : 0);
     delay = true;
 }
 
@@ -1045,14 +1045,14 @@ void AutoResult::PutResult(Result result)
     eq->dependencies = result.dependencies;
 
     last_error_code = result.error.error_code;
-    if (result.error.error_code == yutovo_service::ErrorCode::SOLVER_RESTARTED_ERROR)
+    if (result.error.error_code == yutovo_solver::ErrorCode::SOLVER_RESTARTED_ERROR)
     {
         eq->last_expression.Reset();
         return;
     }
 
     elements->Clear();
-    if (result.error.error_code != yutovo_service::ErrorCode::OK)
+    if (result.error.error_code != yutovo_solver::ErrorCode::OK)
         PutError(result.error); //put error message
     else
     {

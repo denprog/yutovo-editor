@@ -7,7 +7,7 @@
 namespace yutovo
 {
 
-using namespace yutovo_service;
+using namespace yutovo_solver;
 using namespace std::chrono;
 
 //SolverTask
@@ -83,7 +83,7 @@ void SolverTask::AddUnit(rapidjson::Document& json, const yutovo_calculator::Uni
 void SolverTask::GetResultType(const rapidjson::Document& json, Result& result)
 {
     if (json.HasMember("result_type") && json["result_type"].IsInt())
-        result.type = (yutovo_service::ResultType)json["result_type"].GetInt();
+        result.type = (yutovo_solver::ResultType)json["result_type"].GetInt();
 }
 
 void SolverTask::GetDependencies(const rapidjson::Document& json, Result& result)

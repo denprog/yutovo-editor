@@ -12,7 +12,7 @@
 namespace yutovo
 {
 
-using namespace yutovo_service;
+using namespace yutovo_solver;
 
 enum class ExpressionType
 {

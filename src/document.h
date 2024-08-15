@@ -18,7 +18,7 @@
 #include "config.h"
 #include "undo.h"
 #include <yutovo_logger/logger.h>
-#include <yutovo_service/types.h>
+#include <yutovo_solver/types.h>
 #include <yutovo_calculator/math_helper.h>
 
 namespace yutovo
@@ -58,7 +58,7 @@ public:
     uint InsertPower(bool with_undo);
     uint InsertNthRoot(bool with_undo);
     uint InsertSquareRoot(bool with_undo);
-    uint InsertEquation(yutovo_service::ResultType result_type, bool with_undo);
+    uint InsertEquation(yutovo_solver::ResultType result_type, bool with_undo);
     uint InsertOpenFence(bool with_undo);
     uint InsertCloseFence(bool with_undo);
     uint InsertAssignment(bool with_undo);

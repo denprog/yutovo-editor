@@ -6,7 +6,7 @@ namespace yutovo_test
 {
 
 using namespace yutovo;
-using namespace yutovo_service;
+using namespace yutovo_solver;
 using namespace std::chrono_literals;
 
 //Arithmetic form

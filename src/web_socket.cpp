@@ -5,7 +5,7 @@
 #ifdef REMOTE_SOLVER
 #include <boost/asio/strand.hpp>
 #else
-#include <yutovo_service/service_config.h>
+#include <yutovo_solver/service_config.h>
 #endif
 
 namespace yutovo
@@ -13,7 +13,7 @@ namespace yutovo
 
 using namespace std::chrono_literals;
 using namespace std::chrono;
-using namespace yutovo_service;
+using namespace yutovo_solver;
 #ifdef REMOTE_SOLVER
 namespace net = boost::asio;
 #endif
@@ -32,7 +32,7 @@ WebSocket::WebSocket(Config& _config, Window* _window) :
 {
 }
 #else
-WebSocket::WebSocket(Config& _config, Window* _window, yutovo_service::Session& _session) :
+WebSocket::WebSocket(Config& _config, Window* _window, yutovo_solver::Session& _session) :
     config(_config),
     window(_window),
     logger(Logger::GetInstance(config.logs_path, "yutovo_editor", true, true)),
@@ -96,7 +96,7 @@ bool WebSocket::Send(const std::string& message, Result& result)
 #ifdef EMSCRIPTEN
     if (!window->Send(socket_id, message))
     {
-        result.error.error_code = yutovo_service::ErrorCode::OPERATION_ERROR;
+        result.error.error_code = yutovo_solver::ErrorCode::OPERATION_ERROR;
         return false;
     }
     return true;
@@ -114,7 +114,7 @@ bool WebSocket::Send(const std::string& message, Result& result)
     }
     if (last_error != boost::system::errc::success)
     {
-        result.error.error_code = yutovo_service::ErrorCode::OPERATION_ERROR;
+        result.error.error_code = yutovo_solver::ErrorCode::OPERATION_ERROR;
         return false;
     }
     return true;
@@ -137,7 +137,7 @@ bool WebSocket::Receive(std::string& message, Result& result)
     {
         if (!window->Receive(socket_id, message))
         {
-            result.error.error_code = yutovo_service::ErrorCode::OPERATION_ERROR;
+            result.error.error_code = yutovo_solver::ErrorCode::OPERATION_ERROR;
             return false;
         }
         if (!message.empty())
@@ -147,7 +147,7 @@ bool WebSocket::Receive(std::string& message, Result& result)
     }
     if (message.empty())
     {
-        result.error.error_code = yutovo_service::ErrorCode::TIMEOUT_ERROR;
+        result.error.error_code = yutovo_solver::ErrorCode::TIMEOUT_ERROR;
         return false;
     }
     return true;
@@ -173,9 +173,9 @@ bool WebSocket::Receive(std::string& message, Result& result)
     {
         auto now = duration_cast<milliseconds>(system_clock::now().time_since_epoch());
         if (now - _now >= config.service_timeout * 1s) //it is timeout
-            result.error.error_code = yutovo_service::ErrorCode::TIMEOUT_ERROR;
+            result.error.error_code = yutovo_solver::ErrorCode::TIMEOUT_ERROR;
         else
-            result.error.error_code = yutovo_service::ErrorCode::OPERATION_ERROR;
+            result.error.error_code = yutovo_solver::ErrorCode::OPERATION_ERROR;
     }
     return false;
 #endif
