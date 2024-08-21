@@ -14,6 +14,12 @@ set(GTest_DIR "/usr/lib/x86_64-linux-gnu/cmake/GTest")
 enable_testing()
 find_package(GTest REQUIRED)
 
+if(EMSCRIPTEN)
+    set(CMAKE_FIND_ROOT_PATH ${INSTALL_PATH}/wasm/cmake/)
+else()
+    set(CMAKE_FIND_ROOT_PATH ${INSTALL_PATH}/lib/cmake/)
+endif()
+
 find_package(Qt5 COMPONENTS Widgets REQUIRED)
 find_package(yutovo_logger REQUIRED PATHS ${INSTALL_PATH}/lib/cmake/)
 
