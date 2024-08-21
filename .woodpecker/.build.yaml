@@ -7,7 +7,7 @@ steps:
     image: ubuntu:22.04
     commands:
       - export DEBIAN_FRONTEND=noninteractive
-      - apt update && apt install -y build-essential cmake pkg-config libgtest-dev libgmock-dev qtbase5-dev libqt5widgets5
+      - apt update && apt install -y build-essential cmake pkg-config libgtest-dev libgmock-dev qtbase5-dev libqt5widgets5 libmpfr-dev
       - export YUTOVO_DEPLOY=/home/denis/programs/Math/yutovo/deploy
       - mkdir build && cd build
       - cmake -DCMAKE_BUILD_TYPE=Debug ..

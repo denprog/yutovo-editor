@@ -17,6 +17,10 @@ find_package(GTest REQUIRED)
 find_package(Qt5 COMPONENTS Widgets REQUIRED)
 find_package(yutovo_logger REQUIRED PATHS ${INSTALL_PATH}/lib/cmake/)
 
+if(NOT DEFINED REMOTE_SOLVER)
+    find_package(yutovo_solver REQUIRED)
+endif()
+
 add_executable(${PROJECT_NAME}_tests
 	main.cpp
 	mock.cpp
