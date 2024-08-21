@@ -3,15 +3,15 @@ when:
     branch: develop
 
 steps:
-  # - name: build
-  #   image: ubuntu:22.04
-  #   commands:
-  #     - export DEBIAN_FRONTEND=noninteractive
-  #     - apt update && apt install -y build-essential cmake pkg-config libgtest-dev libgmock-dev qtbase5-dev libqt5widgets5 libmpfr-dev
-  #     - export YUTOVO_DEPLOY=/home/denis/programs/Math/yutovo/deploy
-  #     - mkdir build && cd build
-  #     - cmake -DCMAKE_BUILD_TYPE=Debug ..
-  #     - make -sj4 && make install
+  - name: build
+    image: ubuntu:22.04
+    commands:
+      - export DEBIAN_FRONTEND=noninteractive
+      - apt update && apt install -y build-essential cmake pkg-config libgtest-dev libgmock-dev qtbase5-dev libqt5widgets5 libmpfr-dev
+      - export YUTOVO_DEPLOY=/home/denis/programs/Math/yutovo/deploy
+      - mkdir build && cd build
+      - cmake -DCMAKE_BUILD_TYPE=Debug ..
+      - make -sj4 && make install
 
   - name: build_web
     image: emscripten/emsdk:3.0.1
