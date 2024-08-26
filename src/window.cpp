@@ -116,6 +116,10 @@ void Window::OnServiceStatus(IOResult result)
 {
 }
 
+void Window::OnIdentifiersReceived(std::string json)
+{
+}
+
 #ifdef EMSCRIPTEN
 int Window::Connect(const std::string& addr)
 {

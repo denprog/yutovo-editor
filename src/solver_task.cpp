@@ -869,6 +869,10 @@ bool ListIdentifiersSolverTask::Execute(WebSocketPtr socket, Result& result)
     if (!socket->Receive(json, result))
         return false;
     
+#ifndef REMOTE_SOLVER
+    document->window->OnIdentifiersReceived(json);
+#endif
+
     doc.Parse<0>(json.c_str());
     if (doc.HasParseError())
     {
