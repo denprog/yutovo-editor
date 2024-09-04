@@ -28,7 +28,9 @@ message("INSTALL_PATH is ${INSTALL_PATH}")
 
 if(EMSCRIPTEN)
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O0 -g")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread -s USE_PTHREADS=1 -s PTHREAD_POOL_SIZE=4 -s NO_DISABLE_EXCEPTION_CATCHING=1")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread -s USE_PTHREADS=1 -s PTHREAD_POOL_SIZE=4")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fexceptions")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s DISABLE_EXCEPTION_THROWING=0")
 endif()
 
 add_library(${PROJECT_NAME}
@@ -105,6 +107,8 @@ if(EMSCRIPTEN)
         stdc++
         pthread
     )
+    #target_link_options(${PROJECT_NAME} PUBLIC "-fwasm-exceptions -s DISABLE_EXCEPTION_THROWING=0")
+    target_link_options(${PROJECT_NAME} PUBLIC "-fexceptions -s DISABLE_EXCEPTION_THROWING=0")
 elseif(DEFINED REMOTE_SOLVER)
     target_link_libraries(${PROJECT_NAME} PRIVATE 
         stdc++
