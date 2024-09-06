@@ -1881,4 +1881,24 @@ TEST_F(DocumentTest, caret61)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 2, 0, 0, 0, 0, 0, 1})) << document.GetEditorState().ToString();
 }
 
+//Move to a row element in the middle of a code block
+TEST_F(DocumentTest, caret62)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.InsertParagraph(true);
+    document.InsertParagraph(true);
+    document.WaitTask(document.MoveCaretUp(false));
+    document.InsertString("123", true);
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+
+    Rect rect;
+    document.GetElementRect(ElementId{0, 0, 0, 0, 1, 0, 0, 2, 0, 0, 0, 0}, rect);
+    document.WaitTask(document.MoveCaret(rect.left + 1, rect.top + 5));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 1, 0, 0, 2, 0, 0, 0, 0, 0})) << document.GetEditorState().ToString();
+}
+
 }

@@ -99,7 +99,7 @@ void Caret::SetState(const ElementId id, const uint pos, bool update_x_pos)
         else
         {
             element = element->elements->Get(pos);
-            if (!element->HasCaretState())
+            if (element && !element->HasCaretState())
             {
                 CaretState c;
                 if (element->GetFirstCaretState(c, nullptr))
