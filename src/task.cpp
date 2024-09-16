@@ -1314,9 +1314,11 @@ bool SaveTask::Execute()
     document->paragraph_formats->ToJson(paragraph_formats, alloc);
     json.AddMember("paragraph_formats", paragraph_formats, alloc);
 
+    document->saving = true;
     rapidjson::Value t(rapidjson::kObjectType);
     text->ToJson(t, alloc);
     json.AddMember("text", t, alloc);
+    document->saving = false;
 
     //add caret and selection
     rapidjson::Value caret_state(rapidjson::kObjectType);
