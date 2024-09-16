@@ -17,6 +17,8 @@ public:
 
     virtual bool Remake(bool with_elements = false);
 
+    virtual void ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc);
+
     virtual void Solve(const ParserString& expression);
 
     virtual void PutWaitingSymbol();

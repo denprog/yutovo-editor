@@ -371,6 +371,7 @@ public:
     Selection selection;
 
     bool pasting = false;
+    bool saving = false;
 
     uint cur_code_id = 1;
 

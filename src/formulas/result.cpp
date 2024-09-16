@@ -41,6 +41,22 @@ bool ResultRow::Remake(bool with_elements)
     return changed;
 }
 
+void ResultRow::ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc)
+{
+    if (!document->saving)
+    {
+        CodeColumn::ToJson(value, alloc);
+        return;
+    }
+
+    rapidjson::Value _id(IdToString(id).c_str(), alloc);
+    value.AddMember("id", _id, alloc);
+    value.AddMember("type", (int)type, alloc);
+
+    rapidjson::Value arr(rapidjson::kArrayType);
+    value.AddMember("elements", arr, alloc);
+}
+
 void ResultRow::PutWaitingSymbol()
 {
     elements->Clear();
