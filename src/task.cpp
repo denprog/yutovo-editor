@@ -1735,8 +1735,20 @@ bool ResultTask::Execute()
                 auto el = document->GetElement(err_id);
                 if (el)
                 {
-                    document->AddErrorMark(err_id, 0, el->elements->Count());
-                    document->Redraw(err_id, false);
+                    int s = 1;
+                    uint p = el->parent->elements->GetElementPos(el->id);
+                    if (el->type == ElementType::CODE_STRING)
+                    {
+                        //add all the strings to the error mark
+                        uint n = p;
+                        while (el->parent->elements->Count() > ++n && el->parent->elements->Get(n)->type == ElementType::CODE_STRING)
+                            ++s;
+                    }
+                    if (s > 1)
+                        document->AddErrorMark(el->parent->id, p, s);
+                    else
+                        document->AddErrorMark(err_id, 0, el->elements->Count());
+                    document->Redraw(el->parent->id, false);
                 }
             }
         }

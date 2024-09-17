@@ -568,6 +568,38 @@ TEST_F(VariablesTest, errors4)
     ASSERT_TRUE(start == 0 && size == 1);
 }
 
+//Check a error position
+TEST_F(VariablesTest, errors5)
+{
+    Start(600);
+
+    EXPECT_CALL(window_mock, Translate).WillRepeatedly([&](ElementId id, const std::u32string& str)
+        {
+            return str;
+        });
+
+    document.SetLocale(yutovo_calculator::Language::English, true);
+    document.InsertCode(false, true);
+    document.InsertString("R", true);
+    document.InsertAssignment(true);
+    document.InsertString("1", true);
+    document.InsertString(" ", true);
+    document.InsertString("см", true);
+    document.MoveCaretRight(false);
+    document.InsertParagraph(true);
+    document.InsertString("R", true);
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"R=1см\n" \
+        U"R=Unknown identifier"
+        ) << ToBasicString(document.ToText());
+    int start, size;
+    ASSERT_TRUE(document.HasErrorMark(ElementId{0, 0, 0, 0, 0, 0, 0, 2}, start, size)) << ErrorMarks();
+    ASSERT_TRUE(start == 0 && size == 2);
+}
+
 //Rational variables
 TEST_F(VariablesTest, variables8)
 {
