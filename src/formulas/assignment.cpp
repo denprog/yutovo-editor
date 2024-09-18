@@ -107,8 +107,7 @@ bool Assignment::DeleteElements(bool left, bool with_undo, ElementId& changed_el
     if (auto_solve && caret->GetPos() == 1 && last_identifier != U"")
     {
         auto code = document->FindParent(id, ElementType::CODE_BLOCK);
-        document->RemoveIdentifier(id, ((CodeBlock*)code.get())->code_id, last_identifier, delay ? document->config.solve_delay : 0);
-        delay = true;
+        document->RemoveIdentifier(id, ((CodeBlock*)code.get())->code_id, last_identifier, document->config.solve_delay);
     }
 
     return MiddleShapeFormula::DeleteElements(left, with_undo, changed_element);
@@ -137,10 +136,7 @@ void Assignment::BeforeDelete()
     {
         auto code = document->FindParent(id, ElementType::CODE_BLOCK);
         if (code)
-        {
-            document->RemoveIdentifier(id, ((CodeBlock*)code.get())->code_id, last_identifier, delay ? document->config.solve_delay : 0);
-            delay = true;
-        }
+            document->RemoveIdentifier(id, ((CodeBlock*)code.get())->code_id, last_identifier, document->config.solve_delay);
     }
 }
 
@@ -177,9 +173,8 @@ void Assignment::ReSolve(bool if_error, bool force)
     {
         auto code = document->FindParent(id, ElementType::CODE_BLOCK);
         if (last_identifier != U"")
-            document->RemoveIdentifier(id, ((CodeBlock*)code.get())->code_id, last_identifier, delay ? document->config.solve_delay : 0);
-        document->SetIdentifier(id, ((CodeBlock*)code.get())->code_id, GetFirst()->ToText(), expr.Text(), delay ? document->config.solve_delay : 0);
-        delay = true;
+            document->RemoveIdentifier(id, ((CodeBlock*)code.get())->code_id, last_identifier, document->config.solve_delay);
+        document->SetIdentifier(id, ((CodeBlock*)code.get())->code_id, GetFirst()->ToText(), expr.Text(), document->config.solve_delay);
         last_identifier = GetFirst()->ToText();
         last_expression = expr;
     }
