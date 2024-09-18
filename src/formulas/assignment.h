@@ -49,7 +49,6 @@ protected:
     std::u32string last_identifier;
     ParserString last_expression;
     bool last_error = false;
-    bool delay = false; //don't delay on the first calculation
     bool auto_solve = true;
 };
 
