@@ -1901,4 +1901,50 @@ TEST_F(DocumentTest, caret62)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 1, 0, 0, 2, 0, 0, 0, 0, 0})) << document.GetEditorState().ToString();
 }
 
+//Set caret into a solving result when it is about to be recalculated
+TEST_F(DocumentTest, caret63)
+{
+    Start(600);
+
+    document.SetLocale(yutovo_calculator::Language::Russian, true);
+    document.InsertCode(false, true);
+    document.InsertString("d", true);
+    document.InsertAssignment(true);
+    document.InsertString("2", true);
+    document.InsertString(" ", true);
+    document.WaitTask(document.InsertString(" см", true));
+    document.InsertParagraph(true);
+    document.InsertString("d", true);
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"d=2см\n"
+        U"d=2.см"
+        ) << ToBasicString(document.ToText());
+
+    document.config.solve_delay = 500;
+    document.MoveCaretUp(false);
+    for (int i = 0; i < 3; ++i)
+        document.MoveCaretRight(false);
+    document.WaitTask(document.MoveCaretRight(false));
+    document.WaitTask(document.InsertString("1", true));
+    document.WaitTask(document.MoveCaretDown(false));
+    for (int i = 0; i < 8; ++i)
+        document.WaitTask(document.MoveCaretRight(false));
+    ASSERT_TRUE(document.ToText() == 
+        U"d=12см\n"
+        U"d=2.см"
+        ) << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 1, 0, 0, 2, 0, 0, 0, 1, 1})) << document.GetEditorState().ToString();
+    document.WaitSolver();
+    std::this_thread::sleep_for(2s);
+    ASSERT_TRUE(document.ToText() == 
+        U"d=12см\n"
+        U"d=1.2дм"
+        ) << ToBasicString(document.ToText());
+    document.WaitTask(document.MoveCaretLeft(false));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 1, 0, 0, 0, 0, 1})) << document.GetEditorState().ToString();
+}
+
 }

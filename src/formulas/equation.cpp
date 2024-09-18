@@ -487,8 +487,11 @@ void Equation::UpdateResult(ParserString& str)
         }
         else
         {
+            bool c = caret->IsInsideElement(result->id);
             result->Reset();
             GetLast()->elements->Replace(result, 0);
+            if (c)
+                caret->SetState(GetShape()->id);
         }
 
         result->Solve(str); //solve the expression in the left part

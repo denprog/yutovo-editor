@@ -59,8 +59,11 @@ void ResultRow::ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorTy
 
 void ResultRow::PutWaitingSymbol()
 {
+    bool c = caret->IsInsideElement(id);
     elements->Clear();
     elements->Add(ElementPtr(new CodeString(this, "~")));
+    if (c)
+        caret->SetState(id);
     elements->Get(0)->SetEditable(false);
     solving = true;
 }
