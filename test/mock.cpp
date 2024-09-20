@@ -23,10 +23,11 @@ Size DocumentTest::GetTextSizeMock(const std::u32string& text, const StringForma
     return Size{cx > s.width() ? cx : s.width(), s.height()};
 }
 
-Size DocumentTest::GetImageSizeMock(const std::vector<unsigned char>& bmp, const int width, const int height)
+Size DocumentTest::GetImageSizeMock(const std::vector<unsigned char>& image)
 {
-    QImage image(&bmp[0], width, height, QImage::Format_ARGB32);
-    return Size{image.width(), image.height()};
+    QImage picture;
+    picture.loadFromData(&image[0], image.size());
+    return Size{picture.width(), picture.height()};
 }
 
 std::string DocumentTest::Base64Encode(std::vector<unsigned char>& arr)
@@ -52,13 +53,10 @@ std::string DocumentTest::Base64Encode(std::vector<unsigned char>& arr)
 
 void DocumentTest::GetImageData(QImage& image, std::vector<unsigned char>& data)
 {
-    image.convertTo(QImage::Format_ARGB32);
-
     QByteArray arr;
     QBuffer buffer(&arr);
     buffer.open(QIODevice::WriteOnly);
-    image.save(&buffer, "BMP");
-
+    image.save(&buffer, "PNG");
     data = std::vector<unsigned char>(arr.begin(), arr.end());
 }
 

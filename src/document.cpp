@@ -537,16 +537,16 @@ uint Document::InsertProduct(bool with_undo)
     return InsertFormula(new Product(this), with_undo);
 }
 
-uint Document::InsertImage(const std::string& image_base64, const int width, const int height, bool with_undo)
+uint Document::InsertImage(const std::string& image_base64, bool with_undo)
 {
     LOG_TRACE("Insert image");
-    return InsertElement(new Image(this, image_base64, width, height), with_undo);
+    return InsertElement(new Image(this, image_base64), with_undo);
 }
 
-uint Document::InsertImage(const std::vector<unsigned char>& bmp, const int width, const int height, bool with_undo)
+uint Document::InsertImage(const std::vector<unsigned char>& image, bool with_undo)
 {
     LOG_TRACE("Insert image");
-    return InsertElement(new Image(this, bmp, width, height), with_undo);
+    return InsertElement(new Image(this, image), with_undo);
 }
 
 uint Document::InsertComma(bool with_undo)
@@ -2158,21 +2158,21 @@ uint Document::PasteText(std::u32string&& str)
     return last_task_id;
 }
 
-uint Document::PasteImage(const std::vector<unsigned char>& bmp, const int width, const int height)
+uint Document::PasteImage(const std::vector<unsigned char>& image)
 {
     LOG_TRACE("Paste image");
-    if (bmp.empty())
+    if (image.empty())
     {
         window->OnPasteResult(PasteResult::EmptyBuffer);
         return 0;
     }
 
-    InsertImage(bmp, width, height, true);
+    InsertImage(image, true);
     window->OnPasteResult(PasteResult::Success);
     return last_task_id;
 }
 
-uint Document::PasteImage(const std::string& image_base64, const int width, const int height)
+uint Document::PasteImage(const std::string& image_base64)
 {
     LOG_TRACE("Paste image");
     if (image_base64.empty())
@@ -2181,7 +2181,7 @@ uint Document::PasteImage(const std::string& image_base64, const int width, cons
         return 0;
     }
 
-    InsertImage(image_base64, width, height, true);
+    InsertImage(image_base64, true);
     window->OnPasteResult(PasteResult::Success);
     return last_task_id;
 }

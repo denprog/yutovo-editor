@@ -2,6 +2,7 @@
 #include "mock.h"
 #include "style.h"
 #include <sstream>
+#include <QBuffer>
 
 namespace yutovo_test
 {
@@ -1851,10 +1852,16 @@ TEST_F(DocumentTest, clipboard34)
             ASSERT_TRUE(result == PasteResult::Success);
         });
 
+    EXPECT_CALL(window_mock, GetImageSize).WillRepeatedly([&](const std::vector<unsigned char>& image)
+        {
+            return GetImageSizeMock(image);
+        });
+
     QImage test_image("../test/tests/Qt_small.png");
-    test_image.convertTo(QImage::Format_ARGB32);
-    std::vector<unsigned char> data(test_image.bits(), test_image.bits() + test_image.sizeInBytes());
-    document.InsertImage(data, test_image.width(), test_image.height(), true);
+    std::vector<unsigned char> data;
+    GetImageData(test_image, data);
+
+    document.InsertImage(data, true);
     document.MoveCaretLeft(true);
     document.WaitTask(document.Copy(clipboard_json, clipboard_text));
 
@@ -1866,7 +1873,7 @@ TEST_F(DocumentTest, clipboard34)
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
-                "<img src=\"data:image/bmp;base64," + Base64Encode(data) + "\">"\
+                "<img src=\"data:image/png;base64," + Base64Encode(data) + "\">"\
             "</p>"\
         "</body>") << 
         document.ToHtml();
@@ -1883,19 +1890,24 @@ TEST_F(DocumentTest, clipboard35)
             ASSERT_TRUE(result == PasteResult::Success);
         });
 
+    EXPECT_CALL(window_mock, GetImageSize).WillRepeatedly([&](const std::vector<unsigned char>& image)
+        {
+            return GetImageSizeMock(image);
+        });
+
     document.InsertString("Text", true);
 
     QImage test_image("../test/tests/Qt_small.png");
-    test_image.convertTo(QImage::Format_ARGB32);
-    std::vector<unsigned char> data(test_image.bits(), test_image.bits() + test_image.sizeInBytes());
+    std::vector<unsigned char> data;
+    GetImageData(test_image, data);
 
-    document.PasteImage(data, test_image.width(), test_image.height());
+    document.PasteImage(data);
     document.WaitTask(document.InsertString("String", true));
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
                 "<span style=\"font-family:'Arial';font-size:14px;\">Text</span>"\
-                "<img src=\"data:image/bmp;base64," + Base64Encode(data) + "\">"\
+                "<img src=\"data:image/png;base64," + Base64Encode(data) + "\">"\
                 "<span style=\"font-family:'Arial';font-size:14px;\">String</span>"\
             "</p>"\
         "</body>") << 
@@ -1913,29 +1925,34 @@ TEST_F(DocumentTest, clipboard36)
             ASSERT_TRUE(result == PasteResult::Success);
         });
 
-    QImage test_image("../test/tests/Qt_small.png");
-    test_image.convertTo(QImage::Format_ARGB32);
-    std::vector<unsigned char> data(test_image.bits(), test_image.bits() + test_image.sizeInBytes());
+    EXPECT_CALL(window_mock, GetImageSize).WillRepeatedly([&](const std::vector<unsigned char>& image)
+        {
+            return GetImageSizeMock(image);
+        });
 
-    document.PasteImage(data, test_image.width(), test_image.height());
-    document.WaitTask(document.PasteImage(data, test_image.width(), test_image.height()));
+    QImage test_image("../test/tests/Qt_small.png");
+    std::vector<unsigned char> data;
+    GetImageData(test_image, data);
+
+    document.PasteImage(data);
+    document.WaitTask(document.PasteImage(data));
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
-                "<img src=\"data:image/bmp;base64," + Base64Encode(data) + "\">"\
-                "<img src=\"data:image/bmp;base64," + Base64Encode(data) + "\">"\
+                "<img src=\"data:image/png;base64," + Base64Encode(data) + "\">"\
+                "<img src=\"data:image/png;base64," + Base64Encode(data) + "\">"\
             "</p>"\
         "</body>") << 
         document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 2})) << document.GetEditorState().ToString();
 
-    document.WaitTask(document.PasteImage(data, test_image.width(), test_image.height()));
+    document.WaitTask(document.PasteImage(data));
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
-                "<img src=\"data:image/bmp;base64," + Base64Encode(data) + "\">"\
-                "<img src=\"data:image/bmp;base64," + Base64Encode(data) + "\">"\
-                "<img src=\"data:image/bmp;base64," + Base64Encode(data) + "\">"\
+                "<img src=\"data:image/png;base64," + Base64Encode(data) + "\">"\
+                "<img src=\"data:image/png;base64," + Base64Encode(data) + "\">"\
+                "<img src=\"data:image/png;base64," + Base64Encode(data) + "\">"\
             "</p>"\
         "</body>") << 
         document.ToHtml();
@@ -1946,8 +1963,8 @@ TEST_F(DocumentTest, clipboard36)
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
-                "<img src=\"data:image/bmp;base64," + Base64Encode(data) + "\">"\
-                "<img src=\"data:image/bmp;base64," + Base64Encode(data) + "\">"\
+                "<img src=\"data:image/png;base64," + Base64Encode(data) + "\">"\
+                "<img src=\"data:image/png;base64," + Base64Encode(data) + "\">"\
             "</p>"\
         "</body>") << 
         document.ToHtml();
@@ -1958,7 +1975,7 @@ TEST_F(DocumentTest, clipboard36)
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
-                "<img src=\"data:image/bmp;base64," + Base64Encode(data) + "\">"\
+                "<img src=\"data:image/png;base64," + Base64Encode(data) + "\">"\
             "</p>"\
         "</body>") << 
         document.ToHtml();
