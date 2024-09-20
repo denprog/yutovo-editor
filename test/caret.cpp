@@ -1412,9 +1412,9 @@ TEST_F(DocumentTest, caret43)
 {
     Start(600);
 
-    EXPECT_CALL(window_mock, GetImageSize).WillRepeatedly([&](const std::vector<unsigned char>& bmp, const int width, const int height)
+    EXPECT_CALL(window_mock, GetImageSize).WillRepeatedly([&](const std::vector<unsigned char>& image)
         {
-            return GetImageSizeMock(bmp, width, height);
+            return GetImageSizeMock(image);
         });
 
     QImage test_image("../test/tests/Qt_small.png");
@@ -1422,7 +1422,7 @@ TEST_F(DocumentTest, caret43)
     GetImageData(test_image, data);
 
     document.InsertString("Text", true);
-    document.WaitTask(document.InsertImage(data, test_image.width(), test_image.height(), true));
+    document.WaitTask(document.InsertImage(data, true));
 
     Rect rect;
     document.GetElementRect(ElementId{0, 0, 0, 0}, rect);
@@ -1582,16 +1582,16 @@ TEST_F(DocumentTest, caret50)
 {
     Start(600);
 
-    EXPECT_CALL(window_mock, GetImageSize).WillRepeatedly([&](const std::vector<unsigned char>& bmp, const int width, const int height)
+    EXPECT_CALL(window_mock, GetImageSize).WillRepeatedly([&](const std::vector<unsigned char>& image)
         {
-            return GetImageSizeMock(bmp, width, height);
+            return GetImageSizeMock(image);
         });
 
     QImage test_image("../test/tests/Qt_small.png");
     std::vector<unsigned char> data;
     GetImageData(test_image, data);
 
-    document.WaitTask(document.InsertImage(data, test_image.width(), test_image.height(), true));
+    document.WaitTask(document.InsertImage(data, true));
 
     Rect rect;
     document.GetElementRect(ElementId{0, 0, 0, 0}, rect);

@@ -12,10 +12,10 @@ typedef unsigned char uchar;
 class Image : public Element
 {
 public:
-    Image(Element* _parent, const std::string& _image_base64, const int _width, const int _height);
-    Image(Element* _parent, const std::vector<unsigned char>& _picture, const int _width, const int _height);
-    Image(Document* _document, const std::string& _image_base64, const int _width, const int _height);
-    Image(Document* _document, const std::vector<unsigned char>& _picture, const int _width, const int _height);
+    Image(Element* _parent, const std::string& _image_base64);
+    Image(Element* _parent, const std::vector<unsigned char>& _picture);
+    Image(Document* _document, const std::string& _image_base64);
+    Image(Document* _document, const std::vector<unsigned char>& _picture);
 
     virtual Element* Clone();
 
@@ -39,14 +39,16 @@ private:
     void Base64Encode();
     void Base64Decode();
 
+    void SetBrokenImage();
+
 public:
-    std::string image_base64;
-    std::vector<unsigned char> picture; //ARGB32 format
-    int width = 0, height = 0;
+    std::string image_base64, last_image_base64;
+    std::vector<unsigned char> picture; //only PNG format for a while
 
 private:
     static const std::string base;
     Size image_size;
+    static const std::string broken_image;
 };
 
 }

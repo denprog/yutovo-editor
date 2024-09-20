@@ -13,20 +13,20 @@ TEST_F(DocumentTest, images1)
 {
     Start(600);
 
-    EXPECT_CALL(window_mock, GetImageSize).WillRepeatedly([&](const std::vector<unsigned char>& bmp, const int width, const int height)
+    EXPECT_CALL(window_mock, GetImageSize).WillRepeatedly([&](const std::vector<unsigned char>& image)
         {
-            return GetImageSizeMock(bmp, width, height);
+            return GetImageSizeMock(image);
         });
 
     QImage test_image("../test/tests/Qt_small.png");
     std::vector<unsigned char> data;
     GetImageData(test_image, data);
 
-    document.WaitTask(document.InsertImage(data, test_image.width(), test_image.height(), true));
+    document.WaitTask(document.InsertImage(data, true));
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
-                "<img src=\"data:image/bmp;base64," + Base64Encode(data) + "\">"\
+                "<img src=\"data:image/png;base64," + Base64Encode(data) + "\">"\
             "</p>"\
         "</body>") << 
         document.ToHtml();
@@ -42,7 +42,7 @@ TEST_F(DocumentTest, images1)
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
-                "<img src=\"data:image/bmp;base64," + Base64Encode(data) + "\">"\
+                "<img src=\"data:image/png;base64," + Base64Encode(data) + "\">"\
             "</p>"\
         "</body>") << 
         document.ToHtml();
@@ -53,20 +53,20 @@ TEST_F(DocumentTest, images2)
 {
     Start(600);
 
-    EXPECT_CALL(window_mock, GetImageSize).WillRepeatedly([&](const std::vector<unsigned char>& bmp, const int width, const int height)
+    EXPECT_CALL(window_mock, GetImageSize).WillRepeatedly([&](const std::vector<unsigned char>& image)
         {
-            return GetImageSizeMock(bmp, width, height);
+            return GetImageSizeMock(image);
         });
 
     QImage test_image("../test/tests/Qt_small.png");
     std::vector<unsigned char> data;
     GetImageData(test_image, data);
 
-    document.WaitTask(document.InsertImage(data, test_image.width(), test_image.height(), true));
+    document.WaitTask(document.InsertImage(data, true));
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
-                "<img src=\"data:image/bmp;base64," + Base64Encode(data) + "\">"\
+                "<img src=\"data:image/png;base64," + Base64Encode(data) + "\">"\
             "</p>"\
         "</body>") << 
         document.ToHtml();
@@ -82,7 +82,7 @@ TEST_F(DocumentTest, images2)
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
-                "<img src=\"data:image/bmp;base64," + Base64Encode(data) + "\">"\
+                "<img src=\"data:image/png;base64," + Base64Encode(data) + "\">"\
             "</p>"\
         "</body>") << 
         document.ToHtml();
@@ -99,16 +99,16 @@ TEST_F(DocumentTest, images3)
 {
     Start(600);
 
-    EXPECT_CALL(window_mock, GetImageSize).WillRepeatedly([&](const std::vector<unsigned char>& bmp, const int width, const int height)
+    EXPECT_CALL(window_mock, GetImageSize).WillRepeatedly([&](const std::vector<unsigned char>& image)
         {
-            return GetImageSizeMock(bmp, width, height);
+            return GetImageSizeMock(image);
         });
 
     QImage test_image("../test/tests/Qt_small.png");
     std::vector<unsigned char> data;
     GetImageData(test_image, data);
 
-    document.WaitTask(document.InsertImage(data, test_image.width(), test_image.height(), true));
+    document.WaitTask(document.InsertImage(data, true));
     document.Save("images3_1.yut");
 
     document.WaitTask(document.New());
@@ -122,7 +122,7 @@ TEST_F(DocumentTest, images3)
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
-                "<img src=\"data:image/bmp;base64," + Base64Encode(data) + "\">"\
+                "<img src=\"data:image/png;base64," + Base64Encode(data) + "\">"\
             "</p>"\
         "</body>") << 
         document.ToHtml();
@@ -134,16 +134,16 @@ TEST_F(DocumentTest, images4)
 {
     Start(200);
 
-    EXPECT_CALL(window_mock, GetImageSize).WillRepeatedly([&](const std::vector<unsigned char>& bmp, const int width, const int height)
+    EXPECT_CALL(window_mock, GetImageSize).WillRepeatedly([&](const std::vector<unsigned char>& image)
         {
-            return GetImageSizeMock(bmp, width, height);
+            return GetImageSizeMock(image);
         });
 
     QImage test_image("../test/tests/Qt_large.bmp");
     std::vector<unsigned char> data;
     GetImageData(test_image, data);
 
-    document.InsertImage(data, test_image.width(), test_image.height(), true);
+    document.InsertImage(data, true);
     document.InsertString("1", true);
     document.WaitTask(document.InsertString("2", true));
 
@@ -152,7 +152,7 @@ TEST_F(DocumentTest, images4)
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
-                "<img src=\"data:image/bmp;base64," + Base64Encode(data) + "\">"\
+                "<img src=\"data:image/png;base64," + Base64Encode(data) + "\">"\
                 "<span style=\"font-family:'Arial';font-size:14px;\">1</span>"\
             "</p>"\
         "</body>") << 
@@ -164,7 +164,7 @@ TEST_F(DocumentTest, images4)
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
-                "<img src=\"data:image/bmp;base64," + Base64Encode(data) + "\">"\
+                "<img src=\"data:image/png;base64," + Base64Encode(data) + "\">"\
                 "<span style=\"font-family:'Arial';font-size:14px;\">12</span>"\
             "</p>"\
         "</body>") << 
@@ -183,16 +183,16 @@ TEST_F(DocumentTest, images5)
             return Rect{0, 0, width, 400};
         });
 
-    EXPECT_CALL(window_mock, GetImageSize).WillRepeatedly([&](const std::vector<unsigned char>& bmp, const int width, const int height)
+    EXPECT_CALL(window_mock, GetImageSize).WillRepeatedly([&](const std::vector<unsigned char>& image)
         {
-            return GetImageSizeMock(bmp, width, height);
+            return GetImageSizeMock(image);
         });
 
     QImage test_image("../test/tests/Qt_large.bmp");
     std::vector<unsigned char> data;
     GetImageData(test_image, data);
 
-    document.InsertImage(data, test_image.width(), test_image.height(), true);
+    document.InsertImage(data, true);
     document.InsertString("1", true);
     document.WaitTask(document.InsertString("2", true));
 
@@ -207,7 +207,7 @@ TEST_F(DocumentTest, images5)
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
-                "<img src=\"data:image/bmp;base64," + Base64Encode(data) + "\">"\
+                "<img src=\"data:image/png;base64," + Base64Encode(data) + "\">"\
                 "<span style=\"font-family:'Arial';font-size:14px;\">12</span>"\
             "</p>"\
         "</body>") << 
@@ -226,16 +226,16 @@ TEST_F(DocumentTest, images6)
             return Rect{0, 0, width, 400};
         });
 
-    EXPECT_CALL(window_mock, GetImageSize).WillRepeatedly([&](const std::vector<unsigned char>& bmp, const int width, const int height)
+    EXPECT_CALL(window_mock, GetImageSize).WillRepeatedly([&](const std::vector<unsigned char>& image)
         {
-            return GetImageSizeMock(bmp, width, height);
+            return GetImageSizeMock(image);
         });
 
     QImage test_image("../test/tests/Qt_large.bmp");
     std::vector<unsigned char> data;
     GetImageData(test_image, data);
 
-    document.InsertImage(data, test_image.width(), test_image.height(), true);
+    document.InsertImage(data, true);
     document.InsertString("1", true);
     document.InsertString("2", true);
     document.WaitTask(document.DeleteElements(true, true));
@@ -251,7 +251,7 @@ TEST_F(DocumentTest, images6)
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
-                "<img src=\"data:image/bmp;base64," + Base64Encode(data) + "\">"\
+                "<img src=\"data:image/png;base64," + Base64Encode(data) + "\">"\
                 "<span style=\"font-family:'Arial';font-size:14px;\">1</span>"\
             "</p>"\
         "</body>") << 
@@ -264,9 +264,9 @@ TEST_F(DocumentTest, images7)
 {
     Start(600);
 
-    EXPECT_CALL(window_mock, GetImageSize).WillRepeatedly([&](const std::vector<unsigned char>& bmp, const int width, const int height)
+    EXPECT_CALL(window_mock, GetImageSize).WillRepeatedly([&](const std::vector<unsigned char>& image)
         {
-            return GetImageSizeMock(bmp, width, height);
+            return GetImageSizeMock(image);
         });
 
     QImage test_image("../test/tests/Qt_small.png");
@@ -274,12 +274,12 @@ TEST_F(DocumentTest, images7)
     GetImageData(test_image, data);
 
     document.InsertString("123", true);
-    document.WaitTask(document.InsertImage(data, test_image.width(), test_image.height(), true));
+    document.WaitTask(document.InsertImage(data, true));
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
                 "<span style=\"font-family:'Arial';font-size:14px;\">123</span>"\
-                "<img src=\"data:image/bmp;base64," + Base64Encode(data) + "\">"\
+                "<img src=\"data:image/png;base64," + Base64Encode(data) + "\">"\
             "</p>"\
         "</body>") << 
         document.ToHtml();
@@ -294,32 +294,32 @@ TEST_F(DocumentTest, images8)
 {
     Start(600);
 
-    EXPECT_CALL(window_mock, GetImageSize).WillRepeatedly([&](const std::vector<unsigned char>& bmp, const int width, const int height)
+    EXPECT_CALL(window_mock, GetImageSize).WillRepeatedly([&](const std::vector<unsigned char>& image)
         {
-            return GetImageSizeMock(bmp, width, height);
+            return GetImageSizeMock(image);
         });
 
     QImage test_image("../test/tests/Qt_small.png");
     std::vector<unsigned char> data;
     GetImageData(test_image, data);
 
-    document.WaitTask(document.InsertImage(data, test_image.width(), test_image.height(), true));
+    document.WaitTask(document.InsertImage(data, true));
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
-                "<img src=\"data:image/bmp;base64," + Base64Encode(data) + "\">"\
+                "<img src=\"data:image/png;base64," + Base64Encode(data) + "\">"\
             "</p>"\
         "</body>") << 
         document.ToHtml();
     
     ASSERT_TRUE(document.IsEditable(ElementId{0, 0, 0}));
 
-    document.WaitTask(document.InsertImage(data, test_image.width(), test_image.height(), true));
+    document.WaitTask(document.InsertImage(data, true));
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
-                "<img src=\"data:image/bmp;base64," + Base64Encode(data) + "\">"\
-                "<img src=\"data:image/bmp;base64," + Base64Encode(data) + "\">"\
+                "<img src=\"data:image/png;base64," + Base64Encode(data) + "\">"\
+                "<img src=\"data:image/png;base64," + Base64Encode(data) + "\">"\
             "</p>"\
         "</body>") << 
         document.ToHtml();

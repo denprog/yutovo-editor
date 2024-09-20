@@ -142,11 +142,9 @@ Element* UndoParagraph::Restore(Document* document, Element* parent)
 
 //UndoImage
 
-UndoImage::UndoImage(const std::vector<unsigned char>& _picture, const int _width, const int _height) :
+UndoImage::UndoImage(const std::vector<unsigned char>& _picture) :
     UndoElement(ElementType::IMAGE),
-    picture(_picture),
-    width(_width),
-    height(_height)
+    picture(_picture)
 {
 }
 
@@ -154,23 +152,23 @@ bool UndoImage::operator==(const UndoImage& el) const
 {
     if (!UndoElement::operator==(el))
         return false;
-    return picture == el.picture && width == el.width && height == el.height;
+    return picture == el.picture;
 }
 
 bool UndoImage::operator==(const Image& el) const
 {
     if (!UndoElement::operator==(el))
         return false;
-    return picture == el.picture && width == el.width && height == el.height;
+    return picture == el.picture;
 }
 
 Element* UndoImage::Restore(Document* document, Element* parent)
 {
     Image* p;
     if (parent)
-        p = new Image(parent, picture, width, height);
+        p = new Image(parent, picture);
     else
-        p = new Image(document, picture, width, height);
+        p = new Image(document, picture);
     return p;
 }
 
@@ -707,7 +705,7 @@ UndoElementPtr UndoBase::StoreElement(const LogicalId id, ElementPtr el)
     case ElementType::IMAGE:
         {
             Image* _el = (Image*)el.get();
-            undo_element.reset(new UndoImage(_el->picture, _el->width, _el->height));
+            undo_element.reset(new UndoImage(_el->picture));
         }
         break;
     case ElementType::CODE_BLOCK:
