@@ -1843,6 +1843,9 @@ bool ResolveDependeciesTask::Execute()
     boost::split(id_arr, identifier, boost::is_any_of("()"));
 
     std::vector<ElementId> equations;
+    auto p = document->FindParent(after_id, ElementType::EQUATION);
+    if (p)
+        equations.push_back(p->id);
     c->GetElementsBelow(after_id, ElementType::EQUATION, equations); //get equations below in the current code block
     for (ElementId _id : equations)
     {

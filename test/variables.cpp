@@ -708,4 +708,43 @@ TEST_F(VariablesTest, variables10)
         ) << ToBasicString(document.ToText());
 }
 
+//A variable inside a division with a unit
+TEST_F(VariablesTest, variables11)
+{
+    Start(600);
+    
+    document.InsertCode(false, true);
+    document.InsertString("d", true);
+    document.InsertAssignment(true);
+    document.InsertString("2", true);
+    document.WaitSolver();
+
+    document.InsertParagraph(true);
+    document.InsertString("d", true);
+    document.InsertAssignment(true);
+    document.InsertString("1", true);
+    document.WaitSolver();
+
+    document.InsertParagraph(true);
+    document.InsertString("d", true);
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"d=2\n" \
+        U"d=1\n" \
+        U"d=1."
+        ) << ToBasicString(document.ToText());
+    
+    document.MoveCaretUp(false);
+    document.WaitTask(document.MoveCaretRight(true));
+    document.WaitTask(document.DeleteElements(false, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"d=2\n" \
+        U"d=2."
+        ) << ToBasicString(document.ToText());
+}
+
 }
