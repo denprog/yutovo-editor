@@ -1293,4 +1293,35 @@ TEST_F(DocumentTest, code21)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0, 0, 1, 0})) << document.GetEditorState().ToString();
 }
 
+//Remove a row and undo
+TEST_F(DocumentTest, code22)
+{
+    Start(600);
+
+    document.WaitTask(document.InsertCode(false, true));
+    document.InsertString("123", true);
+    document.InsertParagraph(true);
+    document.InsertString("34", true);
+    document.InsertParagraph(true);
+    document.InsertString("567", true);
+    document.MoveCaretUp(false);
+    document.MoveCaretLeft(true);
+    document.WaitTask(document.MoveCaretLeft(true));
+    document.WaitTask(document.DeleteElements(false, true));
+    ASSERT_TRUE(document.ToText() == 
+        U"123\n" \
+        U"567"
+        ) << ToBasicString(document.ToText());
+
+    document.Undo();
+    document.WaitUndo();
+    ASSERT_TRUE(document.ToText() == 
+        U"123\n" \
+        U"34\n" \
+        U"567"
+        ) << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 1, 0, 0, 0}, 
+        ElementSelectionState{{0, 0, 0, 0}, 1, 1})) << document.GetEditorState().ToString();
+}
+
 }

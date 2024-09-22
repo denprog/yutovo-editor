@@ -385,11 +385,13 @@ bool DeleteElementsTask::Execute()
                     document->StoreUndo(p_id, start, size, 1);
                 else
                 {
+                    auto ch = GetChild(p_id, start);
                     document->StoreUndo(p_id, start, size, 
                         (merge_paragraphs || 
                         (selection_state.state[0].id == ElementId{0} && selection_state.state[selection_state.state.size() - 1].id != ElementId{0}) || 
                         (selection_state.state[0].id != ElementId{0} && selection_state.state[selection_state.state.size() - 1].id == ElementId{0}) || 
-                        (p_id.size() == 1 && selection_state.GetCommonElement() != p_id)) ? 1 : 0, UndoTask::UndoOperation::CHANGE);
+                        (p_id.size() == 1 && selection_state.GetCommonElement() != p_id)) ? 1 : 0, 
+                        (document->IsParagraph(ch) ? UndoTask::UndoOperation::INSERT : UndoTask::UndoOperation::CHANGE));
                 }
             }
         }
@@ -918,7 +920,7 @@ bool UndoTask::Execute()
         document->RemoveErrorMarks(_el->id);
 
     ElementPtr p = document->GetLogicalElement(id);
-    if (id.size() > 2 && p->type != ElementType::CODE_ROW && 
+    if (id.size() > 2 && p->type != ElementType::CODE_ROW && p->type != ElementType::CODE_BLOCK && 
         !(undo_elements[0]->type == ElementType::CODE_ROW && p->parent->type != ElementType::CODE_PARAGRAPH))
     {
         p = document->GetLogicalParent(id);
