@@ -797,6 +797,47 @@ bool RemoveIdentifierSolverTask::Execute(WebSocketPtr socket, Result& result)
     return true;
 }
 
+//RemoveUserIdentifiersSolverTask
+
+RemoveUserIdentifiersSolverTask::RemoveUserIdentifiersSolverTask(std::string& _guid, Logger* _logger) :
+    SolverTask(_guid, _logger)
+{
+}
+
+bool RemoveUserIdentifiersSolverTask::Execute(WebSocketPtr socket, Result& result)
+{
+    //request
+    rapidjson::Document doc;
+    auto& alloc = doc.GetAllocator();
+    doc.SetObject();
+    doc.AddMember("command", "REMOVE_USER_IDENTIFIERS", alloc);
+    doc.AddMember("guid", rapidjson::StringRef(guid.c_str()), alloc);
+
+    if (!SendRequest(doc, result, socket))
+        return false;
+    
+    //reply
+    std::string json;
+    if (!socket->Receive(json, result))
+        return false;
+    
+    doc.Parse<0>(json.c_str());
+    if (doc.HasParseError())
+    {
+        LOG_ERROR("Json error");
+        result.error.error_code = ErrorCode::JSON_ERROR;
+        return false;
+    }
+
+    if (doc.HasMember("error"))
+    {
+        FillError(doc, result);
+        return false;
+    }
+
+    return true;
+}
+
 //SetLocaleSolverTask
 
 SetLocaleSolverTask::SetLocaleSolverTask(std::string& _guid, const yutovo_calculator::Language _language, Document* _document, Logger* _logger) :

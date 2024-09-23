@@ -2322,6 +2322,11 @@ void Document::RemoveIdentifier(ElementId _id, uint code_id, const std::u32strin
     solver.RemoveIdentifier(_id, code_id, identifier, delay);
 }
 
+void Document::RemoveUserIdentifiers()
+{
+    solver.RemoveUserIdentifiers();
+}
+
 ResultType Document::GetResultType(ElementId _id)
 {
     std::lock_guard<std::recursive_mutex> lock(edit_mutex);

@@ -177,6 +177,24 @@ void Solver::RemoveIdentifier(ElementId id, uint code_id, const std::u32string& 
     }
 }
 
+void Solver::RemoveUserIdentifiers()
+{
+    {
+        std::unique_lock<std::mutex> lock(tasks_mutex);
+        tasks.erase(std::remove_if(tasks.begin(), tasks.end(), 
+            [](SolverTaskPtr& task)
+            {
+                return task && dynamic_cast<RemoveUserIdentifiersSolverTask*>(task.get());
+            }
+            ), tasks.end());
+    }
+
+    std::unique_lock<std::mutex> lock(tasks_mutex);
+    tasks.emplace_back(new RemoveUserIdentifiersSolverTask(guid, logger));
+    tasks.emplace_back(nullptr);
+    next_circle = true;
+}
+
 void Solver::SetLocale(const yutovo_calculator::Language _language)
 {
     language = _language;
