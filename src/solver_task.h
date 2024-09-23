@@ -137,6 +137,13 @@ struct RemoveIdentifierSolverTask : SolverTask
     Document* document;
 };
 
+struct RemoveUserIdentifiersSolverTask : SolverTask
+{
+    RemoveUserIdentifiersSolverTask(std::string& _guid, Logger* _logger);
+
+    virtual bool Execute(WebSocketPtr socket, Result& result);
+};
+
 struct SetLocaleSolverTask : SolverTask
 {
     SetLocaleSolverTask(std::string& _guid, const yutovo_calculator::Language _language, Document* _document, Logger* _logger);

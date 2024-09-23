@@ -241,6 +241,7 @@ public:
 
     void SetIdentifier(ElementId _id, uint code_id, const std::u32string& identifier, const std::u32string& expression, const uint delay);
     void RemoveIdentifier(ElementId _id, uint code_id, const std::u32string& identifier, const uint delay);
+    void RemoveUserIdentifiers();
 
     ResultType GetResultType(ElementId _id);
     uint SetResult(ElementId _id, ResultType result_type, bool with_undo);

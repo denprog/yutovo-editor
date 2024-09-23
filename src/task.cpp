@@ -1469,6 +1469,7 @@ bool LoadTask::Execute()
     }
     
     document->ResetTasks();
+    document->RemoveUserIdentifiers();
     document->text = t;
     if (!str.empty())
     {
