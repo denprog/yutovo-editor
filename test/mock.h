@@ -315,6 +315,15 @@ struct UnitTest : SolverTest
 
 struct VariablesTest : SolverTest
 {
+    void Start(int width)
+    {
+        SolverTest::Start(width);
+
+        EXPECT_CALL(window_mock, Translate).WillRepeatedly([&](ElementId id, const std::u32string& str)
+            {
+                return str;
+            });
+    }
 };
 
 struct TwoDocumentsTest : DocumentTest

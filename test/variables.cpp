@@ -197,11 +197,6 @@ TEST_F(VariablesTest, variables3)
 {
     Start(600);
 
-    EXPECT_CALL(window_mock, Translate).WillRepeatedly([&](ElementId id, const std::u32string& str)
-        {
-            return str;
-        });
-
     document.InsertCode(false, true);
     document.InsertString("d", true);
     document.InsertAssignment(true);
@@ -348,11 +343,6 @@ TEST_F(VariablesTest, variables4)
 TEST_F(VariablesTest, variables5)
 {
     Start(600);
-
-    EXPECT_CALL(window_mock, Translate).WillRepeatedly([&](ElementId id, const std::u32string& str)
-        {
-            return str;
-        });
 
     document.InsertCode(false, true);
     document.InsertString("d", true);
@@ -502,11 +492,6 @@ TEST_F(VariablesTest, errors3)
 {
     Start(600);
 
-    EXPECT_CALL(window_mock, Translate).WillRepeatedly([&](ElementId id, const std::u32string& str)
-        {
-            return str;
-        });
-
     document.InsertCode(false, true);
     document.InsertString("d", true);
     document.InsertAssignment(true);
@@ -538,11 +523,6 @@ TEST_F(VariablesTest, errors4)
 {
     Start(600);
 
-    EXPECT_CALL(window_mock, Translate).WillRepeatedly([&](ElementId id, const std::u32string& str)
-        {
-            return str;
-        });
-
     document.InsertCode(false, true);
     document.InsertString("d", true);
     document.InsertAssignment(true);
@@ -572,11 +552,6 @@ TEST_F(VariablesTest, errors4)
 TEST_F(VariablesTest, errors5)
 {
     Start(600);
-
-    EXPECT_CALL(window_mock, Translate).WillRepeatedly([&](ElementId id, const std::u32string& str)
-        {
-            return str;
-        });
 
     document.SetLocale(yutovo_calculator::Language::English, true);
     document.InsertCode(false, true);
@@ -784,6 +759,60 @@ TEST_F(VariablesTest, variables12)
         U"d=5\n" \
         U"d=5."
         ) << ToBasicString(document.ToText());
+}
+
+//Remove a second definition of a variable
+TEST_F(VariablesTest, variables13)
+{
+    Start(600);
+    
+    document.InsertCode(false, true);
+    document.InsertString("b", true);
+    document.InsertAssignment(true);
+    document.InsertString("5", true);
+    document.WaitSolver();
+
+    document.InsertParagraph(true);
+    document.InsertString("c", true);
+    document.InsertAssignment(true);
+    document.InsertString("b", true);
+    document.WaitSolver();
+
+    document.InsertParagraph(true);
+    document.InsertString("c", true);
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"b=5\n" \
+        U"c=b\n" \
+        U"c=5."
+        ) << ToBasicString(document.ToText());
+
+    document.MoveCaretUp(false);
+    document.WaitTask(document.MoveCaretUp(false));
+    document.WaitTask(document.DeleteElements(false, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"\n" \
+        U"c=b\n" \
+        U"c=Unknown identifier"
+        ) << ToBasicString(document.ToText());
+    int start, size;
+    ASSERT_TRUE(document.HasErrorMark(ElementId{0, 0, 0, 0, 1, 0, 0, 2, 0}, start, size)) << ErrorMarks();;
+    ASSERT_TRUE(start == 0 && size == 1);
+    
+    document.Undo();
+    document.WaitUndo();
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"b=5\n" \
+        U"c=b\n" \
+        U"c=5."
+        ) << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.error_marks.size() == 0) << ErrorMarks();;
 }
 
 }
