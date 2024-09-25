@@ -747,4 +747,43 @@ TEST_F(VariablesTest, variables11)
         ) << ToBasicString(document.ToText());
 }
 
+//Remove a second definition of a variable
+TEST_F(VariablesTest, variables12)
+{
+    Start(600);
+    
+    document.InsertCode(false, true);
+    document.InsertString("d", true);
+    document.InsertAssignment(true);
+    document.InsertString("5", true);
+    document.WaitSolver();
+
+    document.InsertParagraph(true);
+    document.InsertString("d", true);
+    document.InsertAssignment(true);
+    document.InsertString("6", true);
+    document.WaitSolver();
+
+    document.InsertParagraph(true);
+    document.InsertString("d", true);
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"d=5\n" \
+        U"d=6\n" \
+        U"d=6."
+        ) << ToBasicString(document.ToText());
+    
+    document.MoveCaretUp(false);
+    document.DeleteElements(false, true);
+    document.WaitTask(document.DeleteElements(false, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"d=5\n" \
+        U"d=5."
+        ) << ToBasicString(document.ToText());
+}
+
 }

@@ -33,7 +33,8 @@ Equation::Equation(Document* _document, yutovo_solver::ResultType _result_type, 
 Equation::Equation(const Equation& source) :
     MiddleShapeFormula(source),
     result_type(source.result_type),
-    last_expression(source.last_expression)
+    last_expression(source.last_expression),
+    dependencies(source.dependencies)
 {
     if (GetLast() && GetLast()->elements->Count() > 0)
     {
