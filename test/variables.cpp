@@ -565,7 +565,7 @@ TEST_F(VariablesTest, errors5)
     document.InsertString("R", true);
     document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
     document.WaitSolver();
-    std::this_thread::sleep_for(600ms);
+    std::this_thread::sleep_for(1s);
     ASSERT_TRUE(document.ToText() == 
         U"R=1см\n" \
         U"R=Unknown identifier"
@@ -806,7 +806,7 @@ TEST_F(VariablesTest, variables13)
     document.Undo();
     document.WaitUndo();
     document.WaitSolver();
-    std::this_thread::sleep_for(600ms);
+    std::this_thread::sleep_for(1s);
     ASSERT_TRUE(document.ToText() == 
         U"b=5\n" \
         U"c=b\n" \
