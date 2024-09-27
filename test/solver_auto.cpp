@@ -2107,4 +2107,40 @@ TEST_F(SolverAutoTest, units10)
         ) << ToBasicString(document.ToText());
 }
 
+//Change result unit, save and load the document
+TEST_F(SolverAutoTest, units11)
+{
+    Start(600);
+    
+    document.SetLocale(yutovo_calculator::Language::Russian, true);
+    document.InsertCode(false, true);
+    document.WaitTask(document.InsertString("2км", true));
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    std::this_thread::sleep_for(600ms);
+    document.WaitSolver();
+    ASSERT_TRUE(document.ToText() == 
+        U"2км=2.км"
+        ) << ToBasicString(document.ToText());
+
+    std::vector<yutovo_calculator::Unit> cast_units;
+    document.GetCastUnits({0, 0, 0, 0, 0, 0, 0, 2, 0}, cast_units);
+    yutovo_calculator::Unit unit(U"м");
+    document.WaitTask(document.SetUnit({0, 0, 0, 0, 0, 0, 0, 2, 0, 0}, unit, true));
+    document.WaitSolver();
+    ASSERT_TRUE(document.ToText() == U"2км=2000.м") << ToBasicString(document.ToText());
+
+    document.Save("units11_1.yut");
+
+    document.WaitTask(document.New());
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.ToText() == U"") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 0)) << document.GetEditorState().ToString();
+
+    document.Load("units11_1.yut");
+    document.WaitLoad();
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == U"2км=2000.м") << ToBasicString(document.ToText());
+}
+
 }

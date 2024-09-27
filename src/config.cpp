@@ -152,6 +152,12 @@ void Config::RealResultConfig::ToJson(rapidjson::Value& value, rapidjson::Docume
     value.AddMember("default_angle_measure", (int)default_angle_measure, alloc);
     value.AddMember("result_angle_measure", (int)result_angle_measure, alloc);
     value.AddMember("show_angle_measure", show_angle_measure, alloc);
+    if (!unit.IsEmpty())
+    {
+        auto str = ToBasicString(unit.ToString());
+        rapidjson::Value s((boost::locale::conv::utf_to_utf<char>(str)).c_str(), alloc);
+        value.AddMember("unit", s, alloc);
+    }
 }
 
 void Config::RealResultConfig::FromJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc)
@@ -166,6 +172,8 @@ void Config::RealResultConfig::FromJson(rapidjson::Value& value, rapidjson::Docu
         result_angle_measure = (AngleMeasure)value["default_angle_measure"].GetInt();
     if (value.HasMember("show_angle_measure") && value["show_angle_measure"].IsBool())
         show_angle_measure = value["show_angle_measure"].GetBool();
+    if (value.HasMember("unit") && value["unit"].IsString())
+        unit.FromString(ToUtfString(value["unit"].GetString()));
 }
 
 //Config::IntegerResultConfig
@@ -192,12 +200,20 @@ void Config::IntegerResultConfig::FromJson(rapidjson::Value& value, rapidjson::D
 void Config::RationalResultConfig::ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc)
 {
     value.AddMember("fraction_form", (int)fraction_form, alloc);
+    if (!unit.IsEmpty())
+    {
+        auto str = ToBasicString(unit.ToString());
+        rapidjson::Value s((boost::locale::conv::utf_to_utf<char>(str)).c_str(), alloc);
+        value.AddMember("unit", s, alloc);
+    }
 }
 
 void Config::RationalResultConfig::FromJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc)
 {
     if (value.HasMember("fraction_form") && value["fraction_form"].IsInt())
         fraction_form = (FractionForm)value["fraction_form"].GetInt();
+    if (value.HasMember("unit") && value["unit"].IsString())
+        unit.FromString(ToUtfString(value["unit"].GetString()));
 }
 
 //Config::ComplexResultConfig

@@ -474,4 +474,31 @@ TEST_F(SolverRationalTest, units3)
     ASSERT_TRUE(document.ToText() == U"(50)/(3s)=(1)/(60)(1)/(ms)") << ToBasicString(document.ToText());
 }
 
+//Change result unit, save and load the document
+TEST_F(SolverRationalTest, units4)
+{
+    Start(600);
+
+    document.GetConfig(config);
+    config.rational_result.fraction_form = FractionForm::Improper;
+    document.SetConfig(config, true);
+    document.SetLocale(yutovo_calculator::Language::Russian, true);
+
+    document.InsertDivision(true);
+    document.InsertString("4Ом", true);
+    document.MoveCaretDown(false);
+    document.MoveCaretDown(false);
+    document.InsertString("7", true);
+    document.MoveCaretRight(false);
+    document.WaitTask(document.InsertEquation(ResultType::RATIONAL, true));
+    document.WaitSolver();
+    ASSERT_TRUE(document.ToText() == U"(4Ом)/(7)=(4)/(7)Ом") << ToBasicString(document.ToText());
+
+    yutovo_calculator::Unit unit;
+    unit.FromString(U"В/А");
+    document.WaitTask(document.SetUnit({0, 0, 0, 0, 0, 0, 0, 2, 0, 0}, unit, true));
+    document.WaitSolver();
+    ASSERT_TRUE(document.ToText() == U"(4Ом)/(7)=(4)/(7)(В)/(А)") << ToBasicString(document.ToText());
+}
+
 }
