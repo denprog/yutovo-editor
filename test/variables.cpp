@@ -815,4 +815,87 @@ TEST_F(VariablesTest, variables13)
     ASSERT_TRUE(document.error_marks.size() == 0) << ErrorMarks();;
 }
 
+//Remove a code block with a variable
+TEST_F(VariablesTest, variables14)
+{
+    Start(600);
+    
+    document.InsertCode(false, true);
+    document.InsertString("a", true);
+    document.InsertAssignment(true);
+    document.InsertString("1", true);
+    document.WaitSolver();
+
+    document.MoveCaretToDocumentEnd(false);
+    document.InsertParagraph(true);
+    document.InsertCode(false, true);
+    document.InsertString("b", true);
+    document.InsertAssignment(true);
+    document.InsertString("2", true);
+    document.WaitSolver();
+
+    document.MoveCaretToDocumentEnd(false);
+    document.InsertParagraph(true);
+    document.InsertCode(false, true);
+    document.InsertString("c", true);
+    document.InsertAssignment(true);
+    document.InsertString("a", true);
+    document.InsertMultiply(true);
+    document.InsertString("b", true);
+    document.WaitSolver();
+
+    document.InsertParagraph(true);
+    document.InsertString("c", true);
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"a=1\n" \
+        U"b=2\n" \
+        U"c=a*b\n" \
+        U"c=2."
+        ) << ToBasicString(document.ToText());
+    
+    document.MoveCaretUp(false);
+    document.MoveCaretUp(false);
+    document.WaitTask(document.MoveCaretHome(false));
+    document.WaitTask(document.DeleteElements(false, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"a=1\n" \
+        U"\n" \
+        U"c=a*b\n" \
+        U"c=Unknown identifier"
+        ) << ToBasicString(document.ToText());
+    int start, size;
+    ASSERT_TRUE(document.HasErrorMark(ElementId{0, 2, 0, 0, 0, 0, 0, 2, 2}, start, size)) << ErrorMarks();
+
+    document.WaitTask(document.DeleteElements(false, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"a=1\n" \
+        U"c=a*b\n" \
+        U"c=Unknown identifier"
+        ) << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.HasErrorMark(ElementId{0, 1, 0, 0, 0, 0, 0, 2, 2}, start, size)) << ErrorMarks();
+    ASSERT_TRUE(start == 0 && size == 1);
+
+    document.Undo();
+    document.WaitUndo();
+    document.WaitSolver();
+    document.Undo();
+    document.WaitUndo();
+    document.WaitSolver();
+    std::this_thread::sleep_for(1s);
+    ASSERT_TRUE(document.ToText() == 
+        U"a=1\n" \
+        U"b=2\n" \
+        U"c=a*b\n" \
+        U"c=2."
+        ) << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.error_marks.size() == 0) << ErrorMarks();;
+}
+
 }
