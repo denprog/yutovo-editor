@@ -1036,6 +1036,7 @@ bool UndoTask::Execute()
 
     document->caret->block = false;
     document->SetEditorState(before_state);
+    document->RemoveErrorMarks(remake_id);
     document->ReSolve(remake_id);
     return true;
 }
@@ -1709,6 +1710,7 @@ bool ResultTask::Execute()
         ResultRow* r = dynamic_cast<ResultRow*>(el.get());
         if (!r)
             return false;
+        document->RemoveErrorMarks(r->id);
         r->PutResult(result);
         break;
     }
@@ -1801,7 +1803,28 @@ bool ResolveTask::Execute()
 
     auto el = document->FindParent(id, ElementType::CODE_BLOCK);
     if (!el)
-        return false;
+    {
+        if (id != text->id)
+            return false;
+        //resolve all code blocks
+        text->GetElements(ElementType::CODE_BLOCK, code_blocks);
+        for (ElementId _id : code_blocks)
+        {
+            auto el = document->GetElement(_id);
+            CodeBlock* c = dynamic_cast<CodeBlock*>(el.get());
+            if (c)
+            {
+                c->ReSolve(); //resolve all the connected code blocks above and the current one
+                if (!document->changed_elements.empty())
+                {
+                    for (auto ch : document->changed_elements)
+                        Remake(ch, true);
+                    document->changed_elements.clear();
+                }
+            }
+        }
+        return true;
+    }
     
     CodeBlock* c = dynamic_cast<CodeBlock*>(el.get());
     uint code_id = c->code_id;
@@ -1836,57 +1859,85 @@ ResolveDependeciesTask::ResolveDependeciesTask(ElementPtr _text, ElementId _afte
 bool ResolveDependeciesTask::Execute()
 {
     auto el = document->FindParent(after_id, ElementType::CODE_BLOCK);
-    if (!el)
-        return false;
-    
-    CodeBlock* c = dynamic_cast<CodeBlock*>(el.get());
-    uint code_id = c->code_id;
-
+    std::vector<ElementId> code_blocks;
+    std::vector<ElementId> equations;
     std::vector<std::string> id_arr;
     boost::split(id_arr, identifier, boost::is_any_of("()"));
 
-    std::vector<ElementId> equations;
-    auto p = document->FindParent(after_id, ElementType::EQUATION);
-    if (p)
-        equations.push_back(p->id);
-    c->GetElementsBelow(after_id, ElementType::EQUATION, equations); //get equations below in the current code block
-    for (ElementId _id : equations)
+    if (el)
     {
-        auto _el = document->GetElement(_id);
-        Equation* eq = dynamic_cast<Equation*>(_el.get());
-        for (auto& s : id_arr)
+        CodeBlock* c = dynamic_cast<CodeBlock*>(el.get());
+        uint code_id = c->code_id;
+
+        auto p = document->FindParent(after_id, ElementType::EQUATION);
+        if (p)
+            equations.push_back(p->id);
+        c->GetElementsBelow(after_id, ElementType::EQUATION, equations); //get equations below in the current code block
+        for (ElementId _id : equations)
         {
-            if (eq->Depends(s))
+            auto _el = document->GetElement(_id);
+            Equation* eq = dynamic_cast<Equation*>(_el.get());
+            for (auto& s : id_arr)
             {
-                eq->last_expression.Reset();
-                eq->ReSolve();
-                Remake(eq->id, false);
+                if (eq->Depends(s))
+                {
+                    eq->last_expression.Reset();
+                    eq->ReSolve();
+                    Remake(eq->id, false);
+                }
             }
         }
-    }
 
-    std::vector<ElementId> code_blocks;
-    text->GetElementsBelow(c->id, ElementType::CODE_BLOCK, code_blocks); //find all code blocks below
-    for (ElementId _id : code_blocks)
-    {
-        auto el = document->GetElement(_id);
-        CodeBlock* _c = dynamic_cast<CodeBlock*>(el.get());
-        if (c && _c->code_id == code_id)
+        text->GetElementsBelow(c->id, ElementType::CODE_BLOCK, code_blocks); //find all code blocks below
+        for (ElementId _id : code_blocks)
         {
-            equations.clear();
-            c->GetElements(ElementType::EQUATION, equations);
-            for (ElementId _id : equations)
+            auto el = document->GetElement(_id);
+            CodeBlock* _c = dynamic_cast<CodeBlock*>(el.get());
+            if (_c && _c->code_id == code_id)
             {
-                auto _el = document->GetElement(_id);
-                Equation* eq = dynamic_cast<Equation*>(_el.get());
-                for (auto& s : id_arr)
+                equations.clear();
+                c->GetElements(ElementType::EQUATION, equations);
+                for (ElementId _id : equations)
                 {
-                    if (eq->Depends(s))
-                        eq->ReSolve();
+                    auto _el = document->GetElement(_id);
+                    Equation* eq = dynamic_cast<Equation*>(_el.get());
+                    for (auto& s : id_arr)
+                    {
+                        if (eq->Depends(s))
+                            eq->ReSolve();
+                    }
                 }
             }
         }
     }
+    else
+    {
+        el = document->GetElement(GetParent(after_id));
+        if (!el)
+            return false;
+        text->GetElementsBelow(el->id, ElementType::CODE_BLOCK, code_blocks); //find all code blocks below
+        for (ElementId _id : code_blocks)
+        {
+            auto _el = document->GetElement(_id);
+            CodeBlock* _c = dynamic_cast<CodeBlock*>(_el.get());
+            if (_c)
+            {
+                equations.clear();
+                _c->GetElements(ElementType::EQUATION, equations);
+                for (ElementId _id : equations)
+                {
+                    _el = document->GetElement(_id);
+                    Equation* eq = dynamic_cast<Equation*>(_el.get());
+                    for (auto& s : id_arr)
+                    {
+                        if (eq->Depends(s))
+                            eq->ReSolve(false, true);
+                    }
+                }
+            }
+        }
+    }
+
     return true;
 }
 
