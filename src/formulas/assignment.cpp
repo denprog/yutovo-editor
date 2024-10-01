@@ -113,6 +113,19 @@ bool Assignment::DeleteElements(bool left, bool with_undo, ElementId& changed_el
     return MiddleShapeFormula::DeleteElements(left, with_undo, changed_element);
 }
 
+void Assignment::ElementIdChanged(const ElementId& last_id)
+{
+    MiddleShapeFormula::ElementIdChanged(last_id);
+    if (last_id.empty() || last_identifier.empty())
+        return;
+    auto code = document->FindParent(id, ElementType::CODE_BLOCK);
+    if (!code)
+        return;
+    //move the identifier in the solver
+    document->RemoveIdentifier(last_id, ((CodeBlock*)code.get())->code_id, last_identifier, document->config.solve_delay);
+    document->SetIdentifier(id, ((CodeBlock*)code.get())->code_id, GetFirst()->ToText(), last_expression.Text(), document->config.solve_delay);
+}
+
 bool Assignment::AfterInsert(bool with_undo)
 {
     int pos = parent->elements->GetElementPos(id);

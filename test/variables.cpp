@@ -561,7 +561,7 @@ TEST_F(VariablesTest, errors5)
     document.InsertString(" ", true);
     document.InsertString("см", true);
     document.MoveCaretRight(false);
-    document.InsertParagraph(true);
+    document.WaitTask(document.InsertParagraph(true));
     document.InsertString("R", true);
     document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
     document.WaitSolver();
@@ -894,6 +894,80 @@ TEST_F(VariablesTest, variables14)
         U"b=2\n" \
         U"c=a*b\n" \
         U"c=2."
+        ) << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.error_marks.size() == 0) << ErrorMarks();;
+}
+
+//Insert a variable before its using
+TEST_F(VariablesTest, variables15)
+{
+    Start(600);
+    
+    document.InsertCode(false, true);
+    document.InsertString("b", true);
+    document.InsertAssignment(true);
+    document.InsertString("1", true);
+    document.WaitSolver();
+
+    document.MoveCaretHome(false);
+    document.MoveCaretHome(false);
+    document.InsertParagraph(true);
+    document.MoveCaretUp(false);
+    document.InsertString("b", true);
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"b=Unknown identifier\n" \
+        U"b=1"
+        ) << ToBasicString(document.ToText());
+}
+
+//Insert a variable before its using
+TEST_F(VariablesTest, variables16)
+{
+    Start(600);
+    
+    document.InsertCode(false, true);
+    document.InsertString("a", true);
+    document.InsertAssignment(true);
+    document.InsertString("1", true);
+    document.WaitSolver();
+
+    document.InsertParagraph(true);
+    document.InsertString("F", true);
+    document.InsertAssignment(true);
+    document.InsertString("a", true);
+    document.InsertMultiply(true);
+    document.InsertString("b", true);
+    document.WaitSolver();
+
+    document.InsertParagraph(true);
+    document.InsertString("F", true);
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"a=1\n" \
+        U"F=a*b\n" \
+        U"F=Unknown identifier"
+        ) << ToBasicString(document.ToText());
+    int start, size;
+    ASSERT_TRUE(document.HasErrorMark(ElementId{0, 0, 0, 0, 1, 0, 0, 2, 2}, start, size)) << ErrorMarks();
+
+    document.MoveCaretUp(false);
+    document.WaitTask(document.InsertParagraph(true));
+    document.MoveCaretUp(false);
+    document.InsertString("b", true);
+    document.InsertAssignment(true);
+    document.InsertString("5", true);
+    document.WaitSolver();
+    std::this_thread::sleep_for(1s);
+    ASSERT_TRUE(document.ToText() == 
+        U"a=1\n" \
+        U"b=5\n" \
+        U"F=a*b\n" \
+        U"F=5."
         ) << ToBasicString(document.ToText());
     ASSERT_TRUE(document.error_marks.size() == 0) << ErrorMarks();;
 }
