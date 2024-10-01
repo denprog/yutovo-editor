@@ -2143,4 +2143,31 @@ TEST_F(SolverAutoTest, units11)
     ASSERT_TRUE(document.ToText() == U"2км=2000.м") << ToBasicString(document.ToText());
 }
 
+//Change result unit
+TEST_F(SolverAutoTest, units12)
+{
+    Start(600);
+    
+    document.SetLocale(yutovo_calculator::Language::Russian, true);
+    document.InsertCode(false, true);
+    document.WaitTask(document.InsertString("1Ом", true));
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    std::this_thread::sleep_for(600ms);
+    document.WaitSolver();
+    ASSERT_TRUE(document.ToText() == 
+        U"1Ом=1.Ом"
+        ) << ToBasicString(document.ToText());
+
+    yutovo_calculator::Unit unit;
+    unit.FromString(U"((Дж)/(нс*мкА^2))");
+    document.WaitTask(document.SetUnit({0, 0, 0, 0, 0, 0, 0, 2, 0, 0}, unit, true));
+    document.WaitSolver();
+    ASSERT_TRUE(document.ToText() == U"1Ом=1.*pow(10,-21)(Дж)/(нс*pow(мкА,2))") << ToBasicString(document.ToText());
+
+    unit.FromString(U"((Дж)/(сутки*А^2))");
+    document.WaitTask(document.SetUnit({0, 0, 0, 0, 0, 0, 0, 2, 0, 0}, unit, true));
+    document.WaitSolver();
+    ASSERT_TRUE(document.ToText() == U"1Ом=86400.(Дж)/(сутки*pow(А,2))") << ToBasicString(document.ToText());
+}
+
 }
