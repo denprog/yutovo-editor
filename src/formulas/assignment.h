@@ -28,6 +28,8 @@ public:
     virtual bool Remake(bool with_elements = false);
 
     virtual bool DeleteElements(bool left, bool with_undo, ElementId& changed_element);
+
+    virtual void ElementIdChanged(const ElementId& last_id);
     
     virtual bool AfterInsert(bool with_undo);
     virtual void BeforeDelete();
