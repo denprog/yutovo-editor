@@ -1860,7 +1860,7 @@ bool ResolveDependeciesTask::Execute()
 {
     auto el = document->FindParent(after_id, ElementType::CODE_BLOCK);
     std::vector<ElementId> code_blocks;
-    std::vector<ElementId> equations;
+    std::vector<ElementId> solvings;
     std::vector<std::string> id_arr;
     boost::split(id_arr, identifier, boost::is_any_of("()"));
 
@@ -1871,9 +1871,10 @@ bool ResolveDependeciesTask::Execute()
 
         auto p = document->FindParent(after_id, ElementType::EQUATION);
         if (p)
-            equations.push_back(p->id);
-        c->GetElementsBelow(after_id, ElementType::EQUATION, equations); //get equations below in the current code block
-        for (ElementId _id : equations)
+            solvings.push_back(p->id);
+        
+        c->GetElementsBelow(after_id, ElementType::EQUATION, solvings); //get equations below in the current code block
+        for (ElementId _id : solvings)
         {
             auto _el = document->GetElement(_id);
             Equation* eq = dynamic_cast<Equation*>(_el.get());
@@ -1888,6 +1889,19 @@ bool ResolveDependeciesTask::Execute()
             }
         }
 
+        solvings.clear();
+        c->GetElementsBelow(after_id, ElementType::ASSIGNMENT, solvings); //get assignments below in the current code block
+        for (ElementId _id : solvings)
+        {
+            auto _el = document->GetElement(_id);
+            Assignment* s = dynamic_cast<Assignment*>(_el.get());
+            for (auto& d : id_arr)
+            {
+                if (s->Depends(d))
+                    document->RemoveErrorMarks(s->id);
+            }
+        }
+
         text->GetElementsBelow(c->id, ElementType::CODE_BLOCK, code_blocks); //find all code blocks below
         for (ElementId _id : code_blocks)
         {
@@ -1895,9 +1909,9 @@ bool ResolveDependeciesTask::Execute()
             CodeBlock* _c = dynamic_cast<CodeBlock*>(el.get());
             if (_c && _c->code_id == code_id)
             {
-                equations.clear();
-                c->GetElements(ElementType::EQUATION, equations);
-                for (ElementId _id : equations)
+                solvings.clear();
+                c->GetElements(ElementType::EQUATION, solvings);
+                for (ElementId _id : solvings)
                 {
                     auto _el = document->GetElement(_id);
                     Equation* eq = dynamic_cast<Equation*>(_el.get());
@@ -1905,6 +1919,19 @@ bool ResolveDependeciesTask::Execute()
                     {
                         if (eq->Depends(s))
                             eq->ReSolve();
+                    }
+                }
+
+                solvings.clear();
+                c->GetElements(ElementType::ASSIGNMENT, solvings); //get assignments below in the current code block
+                for (ElementId _id : solvings)
+                {
+                    auto _el = document->GetElement(_id);
+                    Assignment* s = dynamic_cast<Assignment*>(_el.get());
+                    for (auto& d : id_arr)
+                    {
+                        if (s->Depends(d))
+                            document->RemoveErrorMarks(s->id);
                     }
                 }
             }
@@ -1922,9 +1949,9 @@ bool ResolveDependeciesTask::Execute()
             CodeBlock* _c = dynamic_cast<CodeBlock*>(_el.get());
             if (_c)
             {
-                equations.clear();
-                _c->GetElements(ElementType::EQUATION, equations);
-                for (ElementId _id : equations)
+                solvings.clear();
+                _c->GetElements(ElementType::EQUATION, solvings);
+                for (ElementId _id : solvings)
                 {
                     _el = document->GetElement(_id);
                     Equation* eq = dynamic_cast<Equation*>(_el.get());
@@ -1932,6 +1959,19 @@ bool ResolveDependeciesTask::Execute()
                     {
                         if (eq->Depends(s))
                             eq->ReSolve(false, true);
+                    }
+                }
+
+                solvings.clear();
+                _c->GetElements(ElementType::ASSIGNMENT, solvings);
+                for (ElementId _id : solvings)
+                {
+                    auto _el = document->GetElement(_id);
+                    Assignment* s = dynamic_cast<Assignment*>(_el.get());
+                    for (auto& d : id_arr)
+                    {
+                        if (s->Depends(d))
+                            document->RemoveErrorMarks(s->id);
                     }
                 }
             }

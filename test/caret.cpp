@@ -1917,7 +1917,7 @@ TEST_F(DocumentTest, caret63)
     document.InsertString("d", true);
     document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
     document.WaitSolver();
-    std::this_thread::sleep_for(600ms);
+    std::this_thread::sleep_for(1s);
     ASSERT_TRUE(document.ToText() == 
         U"d=2см\n"
         U"d=2.см"

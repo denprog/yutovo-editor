@@ -38,6 +38,8 @@ public:
     virtual void ReSolve(bool if_error = false, bool force = false);
     void PutResult(Result result);
 
+    virtual bool Depends(const std::string& identifier);
+
     virtual std::string ToHtml();
     virtual std::u32string ToText();
     virtual void ToParserString(ParserString& str);
@@ -50,6 +52,8 @@ protected:
 
     std::u32string last_identifier;
     ParserString last_expression;
+    Dependencies dependencies;
+
     bool last_error = false;
     bool auto_solve = true;
 };
