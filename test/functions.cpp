@@ -105,6 +105,7 @@ TEST_F(FormulaTest, functions3)
     document.WaitTask(document.InsertAssignment(true));
     document.WaitTask(document.InsertString("x", true));
     document.WaitSolver();
+    ASSERT_TRUE(document.error_marks.size() == 0) << ErrorMarks();
 
     document.WaitTask(document.MoveCaretRight(false));
     document.WaitTask(document.InsertParagraph(true));
@@ -141,6 +142,7 @@ TEST_F(FormulaTest, functions3)
         U"f(2)=2.\n" \
         U"f(x)=x+5\n" \
         U"f(3)=8.") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.error_marks.size() == 0) << ErrorMarks();
     
     document.MoveCaretUp(false);
     for (int i = 0; i < 6; ++i)
@@ -166,6 +168,7 @@ TEST_F(FormulaTest, functions3)
         U"f(2)=6.\n" \
         U"f(x)=x+25\n" \
         U"f(3)=28.") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.error_marks.size() == 0) << ErrorMarks();
 }
 
 //User functions
@@ -202,6 +205,71 @@ TEST_F(FormulaTest, user_functions1)
         U"f(x,y)=pow(x,y)\n" \
         U"f(2,3)=8."
         ) << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.error_marks.size() == 0) << ErrorMarks();
+}
+
+//Insert a function inside a code block before
+TEST_F(FormulaTest, user_functions2)
+{
+    Start(600);
+
+    EXPECT_CALL(window_mock, Translate).WillRepeatedly([&](ElementId id, const std::u32string& str)
+        {
+            return str;
+        });
+
+    document.SetLocale(yutovo_calculator::Language::Russian, true);
+    document.InsertCode(false, true);
+    document.InsertString("h", true);
+    document.InsertAssignment(true);
+    document.InsertString("5", true);
+    document.WaitSolver();
+
+    document.MoveCaretToDocumentEnd(false);
+    document.InsertParagraph(true);
+    document.InsertCode(false, true);
+    document.InsertString("E", true);
+    document.InsertAssignment(true);
+    document.InsertString("h", true);
+    document.InsertMultiply(true);
+    document.InsertString("m", true);
+    document.InsertOpenFence(true);
+    document.InsertString("5", true);
+    document.WaitTask(document.InsertCloseFence(true));
+    document.WaitSolver();
+
+    document.WaitTask(document.InsertParagraph(true));
+    document.InsertString("E", true);
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(1s);
+    ASSERT_TRUE(document.ToText() == 
+        U"h=5\n" \
+        U"E=h*m(5)\n" \
+        U"E=Unknown identifier"
+        ) << ToBasicString(document.ToText());
+    int start, size;
+    ASSERT_TRUE(document.HasErrorMark(ElementId{0, 1, 0, 0, 0, 0, 0, 2, 2}, start, size)) << ErrorMarks();
+
+    document.MoveCaretUp(false);
+    document.MoveCaretUp(false);
+    document.WaitTask(document.InsertParagraph(true));
+    document.WaitTask(document.MoveCaretUp(false));
+    document.InsertString("m", true);
+    document.InsertOpenFence(true);
+    document.InsertString("x", true);
+    document.InsertCloseFence(true);
+    document.InsertAssignment(true);
+    document.InsertString("x", true);
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"m(x)=x\n" \
+        U"h=5\n" \
+        U"E=h*m(5)\n" \
+        U"E=25."
+        ) << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.error_marks.size() == 0) << ErrorMarks();
 }
 
 }

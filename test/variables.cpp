@@ -972,4 +972,57 @@ TEST_F(VariablesTest, variables16)
     ASSERT_TRUE(document.error_marks.size() == 0) << ErrorMarks();;
 }
 
+//Insert a variable inside a code block before
+TEST_F(VariablesTest, variables17)
+{
+    Start(600);
+    
+    document.SetLocale(yutovo_calculator::Language::Russian, true);
+    document.InsertCode(false, true);
+    document.InsertString("h", true);
+    document.InsertAssignment(true);
+    document.InsertString("5", true);
+    document.WaitSolver();
+
+    document.MoveCaretToDocumentEnd(false);
+    document.InsertParagraph(true);
+    document.InsertCode(false, true);
+    document.InsertString("E", true);
+    document.InsertAssignment(true);
+    document.InsertString("m", true);
+    document.InsertMultiply(true);
+    document.InsertString("h", true);
+    document.WaitSolver();
+
+    document.InsertParagraph(true);
+    document.InsertString("E", true);
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"h=5\n" \
+        U"E=m*h\n" \
+        U"E=Unknown identifier"
+        ) << ToBasicString(document.ToText());
+    int start, size;
+    ASSERT_TRUE(document.HasErrorMark(ElementId{0, 1, 0, 0, 0, 0, 0, 2, 0}, start, size)) << ErrorMarks();
+
+    document.MoveCaretUp(false);
+    document.MoveCaretUp(false);
+    document.WaitTask(document.InsertParagraph(true));
+    document.WaitTask(document.MoveCaretUp(false));
+    document.InsertString("m", true);
+    document.InsertAssignment(true);
+    document.InsertString("2", true);
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"m=2\n" \
+        U"h=5\n" \
+        U"E=m*h\n" \
+        U"E=10."
+        ) << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.error_marks.size() == 0) << ErrorMarks();;
+}
+
 }

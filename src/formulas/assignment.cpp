@@ -21,7 +21,8 @@ Assignment::Assignment(Document* _document, bool with_init) :
 
 Assignment::Assignment(const Assignment& source) :
     MiddleShapeFormula(source),
-    auto_solve(source.auto_solve)
+    auto_solve(source.auto_solve),
+    dependencies(source.dependencies)
 {
 }
 
@@ -196,7 +197,15 @@ void Assignment::ReSolve(bool if_error, bool force)
 void Assignment::PutResult(Result result)
 {
     last_error = result.error.error_code != ErrorCode::OK;
+    dependencies = result.dependencies;
     Remake(true);
+}
+
+bool Assignment::Depends(const std::string& identifier)
+{
+    if (std::find(dependencies.begin(), dependencies.end(), identifier) != dependencies.end())
+        return true;
+    return false;
 }
 
 std::string Assignment::ToHtml()
