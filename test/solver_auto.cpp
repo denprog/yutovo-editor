@@ -2018,11 +2018,11 @@ TEST_F(SolverAutoTest, units7)
     document.InsertString("2м", true);
     document.MoveCaretDown(false);
     document.MoveCaretDown(false);
-    document.InsertString("4сек", true);
+    document.InsertString("4с", true);
     document.MoveCaretRight(false);
     document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
     document.WaitSolver();
-    ASSERT_TRUE(document.ToText() == U"(6кг*2м)/(4сек)=3.(кг*м)/(сек)") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.ToText() == U"(6кг*2м)/(4с)=3.(кг*м)/(с)") << ToBasicString(document.ToText());
 }
 
 //Change language
