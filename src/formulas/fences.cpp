@@ -99,13 +99,37 @@ bool OpenFence::Remake(bool with_elements)
     
     //set rect of the shape by the next elements until close fence
     int pos = parent->elements->GetElementPos(id);
-    int close_pos = parent->FindElement(id, true, ElementType::CLOSE_FENCE);
+    int close_pos = -1;
+    int open_count = 0;
+    for (int i = pos + 1; i < parent->elements->Count(); ++i)
+    {
+        auto el = parent->elements->Get(i);
+        if (el->type == ElementType::OPEN_FENCE)
+            ++open_count;
+        else if (el->type == ElementType::CLOSE_FENCE)
+        {
+            if (open_count == 0)
+            {
+                close_pos = i;
+                break;
+            }
+            else
+                --open_count;
+        }
+    }
+
     if (close_pos == pos + 1)
     {
         empty_brace();
         return true;
     }
-    
+
+    for (int i = pos + 1; i < close_pos; ++i)
+    {
+        auto el = parent->elements->Get(i);
+        el->Remake(with_elements);
+    }
+
     int max_height = 0;
     for (int i = pos + 1; i < (close_pos == -1 ? parent->elements->Count() : close_pos); ++i)
     {
@@ -230,9 +254,27 @@ bool CloseFence::Remake(bool with_elements)
         return changed;
     }
     
-    //set rect of the shape by the previous elements until open fence
+    //set rect of the shape by the previous elements until corresponsing open fence
     int pos = parent->elements->GetElementPos(id);
-    int open_pos = parent->FindElement(id, false, ElementType::OPEN_FENCE);
+    int open_pos = -1;
+    int close_count = 0;
+    for (int i = pos - 1; i >= 0; --i)
+    {
+        auto el = parent->elements->Get(i);
+        if (el->type == ElementType::CLOSE_FENCE)
+            ++close_count;
+        else if (el->type == ElementType::OPEN_FENCE)
+        {
+            if (close_count == 0)
+            {
+                open_pos = i;
+                break;
+            }
+            else
+                --close_count;
+        }
+    }
+
     if (open_pos == pos - 1)
     {
         empty_brace();
