@@ -23,7 +23,7 @@ struct Config
     bool FromJson(const std::string& json);
 
     //solver
-    std::string service_ip = "192.168.1.192";
+    std::string service_ip = "127.0.0.1";
     uint service_port = 8010;
     uint service_timeout = 10; //seconds
     uint reconnect_timeout = 10; //seconds
