@@ -2352,14 +2352,15 @@ int Document::GetPrecision(ElementId _id)
     if (!el)
         return 0;
     RealResult* r = dynamic_cast<RealResult*>(el.get());
-    if (!r)
-    {
-        AutoResult* a_r = dynamic_cast<AutoResult*>(el.get());
-        if (a_r)
-            return a_r->config.real_result.precision;
-        return -1;
-    }
-    return r->config.precision;
+    if (r)
+        return r->config.precision;
+    ComplexResult* c_r = dynamic_cast<ComplexResult*>(el.get());
+    if (c_r)
+        return c_r->config.precision;
+    AutoResult* a_r = dynamic_cast<AutoResult*>(el.get());
+    if (a_r)
+        return a_r->config.real_result.precision;
+    return -1;
 }
 
 uint Document::SetPrecision(ElementId _id, uint precision, bool with_undo)
@@ -2377,14 +2378,15 @@ int Document::GetExp(ElementId _id)
     if (!el)
         return 0;
     RealResult* r = dynamic_cast<RealResult*>(el.get());
-    if (!r)
-    {
-        AutoResult* a_r = dynamic_cast<AutoResult*>(el.get());
-        if (a_r)
-            return a_r->config.real_result.exp;
-        return -1;
-    }
-    return r->config.exp;
+    if (r)
+        return r->config.exp;
+    ComplexResult* c_r = dynamic_cast<ComplexResult*>(el.get());
+    if (c_r)
+        return c_r->config.exp;
+    AutoResult* a_r = dynamic_cast<AutoResult*>(el.get());
+    if (a_r)
+        return a_r->config.real_result.exp;
+    return -1;
 }
 
 uint Document::SetExp(ElementId _id, uint exp, bool with_undo)
