@@ -416,7 +416,7 @@ TEST_F(DocumentTest, selections4)
 {
     Start(600);
 
-    document.Load("../test/tests/file1.txt");
+    document.Load("../../test/tests/file1.txt");
     document.WaitLoad();
     std::this_thread::sleep_for(2000ms);
 

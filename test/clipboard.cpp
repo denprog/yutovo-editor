@@ -1857,7 +1857,7 @@ TEST_F(DocumentTest, clipboard34)
             return GetImageSizeMock(image);
         });
 
-    QImage test_image("../test/tests/Qt_small.png");
+    QImage test_image("../../test/tests/Qt_small.png");
     std::vector<unsigned char> data;
     GetImageData(test_image, data);
 
@@ -1897,7 +1897,7 @@ TEST_F(DocumentTest, clipboard35)
 
     document.InsertString("Text", true);
 
-    QImage test_image("../test/tests/Qt_small.png");
+    QImage test_image("../../test/tests/Qt_small.png");
     std::vector<unsigned char> data;
     GetImageData(test_image, data);
 
@@ -1930,7 +1930,7 @@ TEST_F(DocumentTest, clipboard36)
             return GetImageSizeMock(image);
         });
 
-    QImage test_image("../test/tests/Qt_small.png");
+    QImage test_image("../../test/tests/Qt_small.png");
     std::vector<unsigned char> data;
     GetImageData(test_image, data);
 

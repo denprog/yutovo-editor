@@ -25,7 +25,7 @@ struct Config
     //solver
     std::string service_ip = "127.0.0.1";
     uint service_port = 8010;
-    uint service_timeout = 10; //seconds
+    uint service_timeout = 10000; //milliseconds
     uint reconnect_timeout = 10; //seconds
     uint solve_delay = 2000; //milliseconds
 
