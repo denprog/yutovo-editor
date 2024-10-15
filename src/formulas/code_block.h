@@ -11,7 +11,7 @@ namespace yutovo
 class CodeBlock : public Block
 {
 public:
-    CodeBlock(Document* _document, uint _code_id, bool add_empty = true);
+    CodeBlock(Document* _document, uint _code_id, bool add_empty = true, bool list_identifiers = true);
     CodeBlock(Element* parent, uint _code_id, bool add_empty = true);
     CodeBlock(Document* _document, Element* parent, uint _code_id, bool add_empty = true);
     CodeBlock(const CodeBlock& source) = default;
