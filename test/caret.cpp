@@ -358,7 +358,7 @@ TEST_F(DocumentTest, caret7)
             return Rect{0, 0, 630, 255};
         });
 
-    document.Load("../test/tests/file1.txt");
+    document.Load("../../test/tests/file1.txt");
     document.WaitLoad();
     std::this_thread::sleep_for(2000ms);
 
@@ -634,7 +634,7 @@ TEST_F(DocumentTest, caret18)
             return Rect{0, 0, 630, 255};
         });
 
-    document.Load("../test/tests/file1.txt");
+    document.Load("../../test/tests/file1.txt");
     document.WaitLoad();
     std::this_thread::sleep_for(2000ms);
 
@@ -682,7 +682,7 @@ TEST_F(DocumentTest, caret19)
             return Rect{0, 0, 630, 255};
         });
 
-    document.Load("../test/tests/file1.txt");
+    document.Load("../../test/tests/file1.txt");
     document.WaitLoad();
     std::this_thread::sleep_for(2000ms);
 
@@ -1417,7 +1417,7 @@ TEST_F(DocumentTest, caret43)
             return GetImageSizeMock(image);
         });
 
-    QImage test_image("../test/tests/Qt_small.png");
+    QImage test_image("../../test/tests/Qt_small.png");
     std::vector<unsigned char> data;
     GetImageData(test_image, data);
 
@@ -1587,7 +1587,7 @@ TEST_F(DocumentTest, caret50)
             return GetImageSizeMock(image);
         });
 
-    QImage test_image("../test/tests/Qt_small.png");
+    QImage test_image("../../test/tests/Qt_small.png");
     std::vector<unsigned char> data;
     GetImageData(test_image, data);
 
@@ -1617,7 +1617,7 @@ TEST_F(DocumentTest, caret51)
             return Rect{0, 0, 630, 255};
         });
 
-    document.Load("../test/tests/file1.txt");
+    document.Load("../../test/tests/file1.txt");
     document.WaitLoad();
     std::this_thread::sleep_for(2000ms);
 
@@ -1652,7 +1652,7 @@ TEST_F(DocumentTest, caret52)
             return Rect{0, 0, 630, 255};
         });
 
-    document.Load("../test/tests/file1.txt");
+    document.Load("../../test/tests/file1.txt");
     document.WaitLoad();
     std::this_thread::sleep_for(2000ms);
 

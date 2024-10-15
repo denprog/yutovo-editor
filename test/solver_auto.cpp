@@ -1808,14 +1808,20 @@ TEST_F(SolverAutoTest, errors5)
     document.InsertString("2m", true);
     document.MoveCaretDown(false);
     document.MoveCaretDown(false);
-    document.InsertString("4s", true);
+    document.InsertString("4", true);
+    document.InsertMultiply(true);
+    document.InsertString("s", true);
+    document.InsertPower(true);
+    document.InsertString("2", true);
+    document.MoveCaretRight(false);
     document.MoveCaretRight(false);
     document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
-    std::this_thread::sleep_for(4s);
+    document.WaitSolver();
+    std::this_thread::sleep_for(1s);
 #ifdef REMOTE_SOLVER
-    ASSERT_TRUE(document.ToText() == U"(6kg*2m)/(4s)=Solver timeout") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.ToText() == U"(6kg*2m)/(4*pow(s,2))=Solver timeout") << ToBasicString(document.ToText());
 #else
-    ASSERT_TRUE(document.ToText() == U"(6kg*2m)/(4s)=Solving time exceeded") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.ToText() == U"(6kg*2m)/(4*pow(s,2))=Solving time exceeded") << ToBasicString(document.ToText());
 #endif
 }
 
@@ -1912,7 +1918,7 @@ TEST_F(SolverAutoTest, units4)
     Start(600);
     
     document.GetConfig(config);
-    config.service_timeout = 20;
+    config.service_timeout = 20000;
     document.SetConfig(config, true);
 
     document.InsertDivision(true);
@@ -1933,7 +1939,7 @@ TEST_F(SolverAutoTest, units5)
     Start(600);
     
     document.GetConfig(config);
-    config.service_timeout = 20;
+    config.service_timeout = 20000;
     document.SetConfig(config, true);
 
     document.InsertDivision(true);
@@ -2007,7 +2013,7 @@ TEST_F(SolverAutoTest, units7)
     Start(600);
 
     document.GetConfig(config);
-    config.service_timeout = 20;
+    config.service_timeout = 20000;
     document.WaitTask(document.SetConfig(config, true));
 
     document.SetLocale(yutovo_calculator::Language::Russian, true);
@@ -2031,7 +2037,7 @@ TEST_F(SolverAutoTest, units8)
     Start(600);
 
     document.GetConfig(config);
-    config.service_timeout = 30;
+    config.service_timeout = 30000;
     document.SetConfig(config, true);
 
     document.InsertCode(false, true);

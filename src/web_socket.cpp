@@ -68,7 +68,7 @@ bool WebSocket::Connect()
 
     time_t start = time(0);
     asio::ip::tcp::resolver resolver(ioc);
-    beast::get_lowest_layer(ws).expires_after(config.service_timeout * 1s);
+    beast::get_lowest_layer(ws).expires_after(config.service_timeout * 1ms);
     ioc.restart();
     
     beast::get_lowest_layer(ws).async_connect(resolver.resolve(host, port), beast::bind_front_handler(&WebSocket::OnConnect, shared_from_this()));
@@ -76,7 +76,7 @@ bool WebSocket::Connect()
     while (connection)
     {
         time_t now = time(0);
-        if (now - start >= config.service_timeout - 1)
+        if (now - start >= config.service_timeout * 1000 - 1)
             return false;
         ioc.run_one();
         if (exit)
@@ -102,7 +102,7 @@ bool WebSocket::Send(const std::string& message, Result& result)
     return true;
 #else
     writing = true;
-    beast::get_lowest_layer(ws).expires_after(config.service_timeout * std::chrono::seconds(1));
+    beast::get_lowest_layer(ws).expires_after(config.service_timeout * 1ms);
     ioc.restart();
     ws.async_write(asio::buffer(message), beast::bind_front_handler(&WebSocket::OnWrite, shared_from_this()));
 
@@ -121,7 +121,7 @@ bool WebSocket::Send(const std::string& message, Result& result)
 #endif
 #else
     reply.clear();
-    session.SetMaxTime(config.service_timeout * 1000);
+    session.SetMaxTime(config.service_timeout);
     session.Parse(message, reply); //for builtin solver as static library
     return true;
 #endif
@@ -133,7 +133,7 @@ bool WebSocket::Receive(std::string& message, Result& result)
 #ifdef EMSCRIPTEN
     auto now = duration_cast<milliseconds>(system_clock::now().time_since_epoch());
     auto next = now;
-    while (next - now < config.service_timeout * 1s) //wait for message
+    while (next - now < config.service_timeout * 1ms) //wait for message
     {
         if (!window->Receive(socket_id, message))
         {
@@ -154,7 +154,7 @@ bool WebSocket::Receive(std::string& message, Result& result)
 #else
     beast::flat_buffer buffer;
     reading = true;
-    beast::get_lowest_layer(ws).expires_after(config.service_timeout * 1s);
+    beast::get_lowest_layer(ws).expires_after(config.service_timeout * 1ms);
     ioc.restart();
     ws.async_read(buffer, beast::bind_front_handler(&WebSocket::OnRead, shared_from_this()));
     auto _now = duration_cast<milliseconds>(system_clock::now().time_since_epoch());
@@ -172,7 +172,7 @@ bool WebSocket::Receive(std::string& message, Result& result)
     else
     {
         auto now = duration_cast<milliseconds>(system_clock::now().time_since_epoch());
-        if (now - _now >= config.service_timeout * 1s) //it is timeout
+        if (now - _now >= config.service_timeout * 1ms) //it is timeout
             result.error.error_code = yutovo_solver::ErrorCode::TIMEOUT_ERROR;
         else
             result.error.error_code = yutovo_solver::ErrorCode::OPERATION_ERROR;

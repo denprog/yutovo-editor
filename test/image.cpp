@@ -18,7 +18,7 @@ TEST_F(DocumentTest, images1)
             return GetImageSizeMock(image);
         });
 
-    QImage test_image("../test/tests/Qt_small.png");
+    QImage test_image("../../test/tests/Qt_small.png");
     std::vector<unsigned char> data;
     GetImageData(test_image, data);
 
@@ -58,7 +58,7 @@ TEST_F(DocumentTest, images2)
             return GetImageSizeMock(image);
         });
 
-    QImage test_image("../test/tests/Qt_small.png");
+    QImage test_image("../../test/tests/Qt_small.png");
     std::vector<unsigned char> data;
     GetImageData(test_image, data);
 
@@ -104,7 +104,7 @@ TEST_F(DocumentTest, images3)
             return GetImageSizeMock(image);
         });
 
-    QImage test_image("../test/tests/Qt_small.png");
+    QImage test_image("../../test/tests/Qt_small.png");
     std::vector<unsigned char> data;
     GetImageData(test_image, data);
 
@@ -139,7 +139,7 @@ TEST_F(DocumentTest, images4)
             return GetImageSizeMock(image);
         });
 
-    QImage test_image("../test/tests/Qt_large.bmp");
+    QImage test_image("../../test/tests/Qt_large.bmp");
     std::vector<unsigned char> data;
     GetImageData(test_image, data);
 
@@ -188,7 +188,7 @@ TEST_F(DocumentTest, images5)
             return GetImageSizeMock(image);
         });
 
-    QImage test_image("../test/tests/Qt_large.bmp");
+    QImage test_image("../../test/tests/Qt_large.bmp");
     std::vector<unsigned char> data;
     GetImageData(test_image, data);
 
@@ -231,7 +231,7 @@ TEST_F(DocumentTest, images6)
             return GetImageSizeMock(image);
         });
 
-    QImage test_image("../test/tests/Qt_large.bmp");
+    QImage test_image("../../test/tests/Qt_large.bmp");
     std::vector<unsigned char> data;
     GetImageData(test_image, data);
 
@@ -269,7 +269,7 @@ TEST_F(DocumentTest, images7)
             return GetImageSizeMock(image);
         });
 
-    QImage test_image("../test/tests/Qt_small.png");
+    QImage test_image("../../test/tests/Qt_small.png");
     std::vector<unsigned char> data;
     GetImageData(test_image, data);
 
@@ -299,7 +299,7 @@ TEST_F(DocumentTest, images8)
             return GetImageSizeMock(image);
         });
 
-    QImage test_image("../test/tests/Qt_small.png");
+    QImage test_image("../../test/tests/Qt_small.png");
     std::vector<unsigned char> data;
     GetImageData(test_image, data);
 

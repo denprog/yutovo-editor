@@ -318,7 +318,7 @@ TEST_F(DocumentTest, files5)
             ASSERT_TRUE(result == IOResult::Success);
         });
 
-    document.Load("../test/tests/file1.txt");
+    document.Load("../../test/tests/file1.txt");
     document.WaitLoad();
     std::this_thread::sleep_for(2000ms);
 
@@ -342,7 +342,7 @@ TEST_F(DocumentTest, files6)
             ASSERT_TRUE(result == IOResult::InputStreamError);
         });
 
-    document.Load("../test/tests/broken_1.yut");
+    document.Load("../../test/tests/broken_1.yut");
     document.WaitLoad();
     std::this_thread::sleep_for(2000ms);
 }
@@ -357,7 +357,7 @@ TEST_F(DocumentTest, files7)
             ASSERT_TRUE(result == IOResult::InputStreamError);
         });
 
-    document.Load("../test/tests/abcent.yut");
+    document.Load("../../test/tests/abcent.yut");
     document.WaitLoad();
     std::this_thread::sleep_for(2000ms);
 }
@@ -632,7 +632,7 @@ TEST_F(DocumentTest, files15)
     document.Load("files15.yut");
     document.WaitLoad();
     document.WaitSolver();
-    std::this_thread::sleep_for(2s);
+    std::this_thread::sleep_for(3s);
     ASSERT_TRUE(document.ToText() == 
         U"d_m~0.221m\n"\
         "d_m=1.d_m"
