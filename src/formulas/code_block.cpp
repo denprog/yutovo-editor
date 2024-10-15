@@ -7,7 +7,7 @@ namespace yutovo
 
 //CodeBlock
 
-CodeBlock::CodeBlock(Document* _document, uint _code_id, bool add_empty) :
+CodeBlock::CodeBlock(Document* _document, uint _code_id, bool add_empty, bool list_identifiers) :
     Block(_document),
     code_id(_code_id)
 {
@@ -19,7 +19,8 @@ CodeBlock::CodeBlock(Document* _document, uint _code_id, bool add_empty) :
         AddEmptyElement(); //code block has to have at least one code paragraph
     
     document->SetLocale(document->config.language, false);
-    document->ListIdentifiers(code_id);
+    if (list_identifiers)
+        document->ListIdentifiers(code_id);
 }
 
 CodeBlock::CodeBlock(Element* parent, uint _code_id, bool add_empty) :

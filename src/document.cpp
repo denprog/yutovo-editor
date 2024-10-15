@@ -291,6 +291,7 @@ void Document::MainLoop()
                 if (last_solver_task_id == t->id)
                     last_solver_executed = true;
 #endif
+                std::lock_guard<std::recursive_mutex> lock(last_tasks_mutex);
                 while (last_tasks.size() > last_tasks_count)
                     last_tasks.pop_back();
                 last_tasks.push_front(t->id);
@@ -606,7 +607,7 @@ uint Document::InsertFormulas(std::vector<ElementPtr>& elements, bool with_undo,
     return last_task_id;
 }
 
-uint Document::InsertUnit(const yutovo_calculator::Unit& unit)
+uint Document::InsertUnit(const yutovo_calculator::Unit& unit, bool list_identifiers)
 {
     LOG_TRACE("Insert unit");
     FormulaFormatPtr f = formula_formats->GetFormat("Code");
@@ -670,7 +671,7 @@ uint Document::InsertUnit(const yutovo_calculator::Unit& unit)
             row->AddElement(numerator->elements->Get(i));
     }
 
-    auto* code = new CodeBlock(this, 1);
+    auto* code = new CodeBlock(this, 1, true, list_identifiers);
     code->elements->Clear();
     code->elements->Add(ElementPtr(row));
     return InsertFormula(code, false);
@@ -2852,7 +2853,7 @@ void Document::WaitTask(uint task_id, uint64_t timeout, uint64_t circle_delay)
     while (cur_time - now <= timeout * 1ms)
     {
         {
-            std::lock_guard<std::recursive_mutex> lock(edit_mutex);
+            std::lock_guard<std::recursive_mutex> lock(last_tasks_mutex);
             if (std::find(last_tasks.begin(), last_tasks.end(), task_id) != last_tasks.end())
                 return;
         }

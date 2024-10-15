@@ -83,7 +83,7 @@ public:
     uint InsertFormula(Element* element, bool with_undo, bool with_last_task_id = false);
     uint InsertFormulas(std::vector<ElementPtr>& elements, bool with_undo, bool with_last_task_id = false, bool pasting = false);
 
-    uint InsertUnit(const yutovo_calculator::Unit& unit);
+    uint InsertUnit(const yutovo_calculator::Unit& unit, bool list_identifiers = true);
 
     uint ChangeStringFormat(const std::string family, const uint size, const bool bold, const bool italic, const bool underline, const bool strikethrough, 
         Color text_color, Color text_bg_color, bool with_undo);
@@ -348,6 +348,7 @@ private:
     std::recursive_mutex solver_tasks_mutex;
     std::recursive_mutex edit_mutex;
     std::recursive_mutex state_mutex;
+    std::recursive_mutex last_tasks_mutex;
 
 public:
     Window* window;
