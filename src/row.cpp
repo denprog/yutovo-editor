@@ -483,8 +483,10 @@ bool Row::GetBeginCaretState(CaretState& caret_state, Selection* select)
     if (!GetFirstCaretState(caret_state, nullptr))
         return false;
     CaretState c = caret->GetCaretState();
-    int p = caret_state.GetPosInElement(id);
-    select->Add(id, p, c.GetPosInElement(id));
+    int p1 = caret_state.GetPosInElement(id);
+    int p2 = c.GetPosInElement(id);
+    if (p2 != 0)
+        select->Add(id, p1, p2);
     return true;
 }
 

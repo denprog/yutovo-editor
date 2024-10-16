@@ -2895,6 +2895,51 @@ TEST_F(DocumentTest, delete12)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 0, 11})) << document.GetEditorState().ToString();
 }
 
+//Delete a string before a code block
+TEST_F(DocumentTest, delete13)
+{
+    Start(400);
+
+    document.WaitTask(document.InsertString("Text: ", true));
+    document.WaitTask(document.InsertCode(false, true));
+    document.WaitTask(document.InsertString("123", true));
+    for (int i = 0; i < 6; ++i)
+        document.MoveCaretLeft(false);
+    document.WaitTask(document.MoveCaretHome(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0}, 
+        ElementSelectionState{ElementId{0, 0, 0, 0}, 0, 5})) << document.GetEditorState().ToString();
+    document.WaitTask(document.DeleteElements(false, true));
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\"> </span>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mi>123</mi>"\
+                    "</mrow>"\
+                "</math>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+
+    document.Undo();
+    document.WaitUndo();
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">Text: </span>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mi>123</mi>"\
+                    "</mrow>"\
+                "</math>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0}, 
+        ElementSelectionState{ElementId{0, 0, 0, 0}, 0, 5})) << document.GetEditorState().ToString();
+}
+
 //Restrict Undo
 TEST_F(DocumentTest, undo1)
 {
