@@ -3101,4 +3101,41 @@ TEST_F(ParagraphTest, delete21)
         ) << ToBasicString(document.ToText());
 }
 
+//Merge a paragraph with a code block with an above one
+TEST_F(ParagraphTest, delete22)
+{
+    Start(600);
+
+    document.InsertString("Text", true);
+    document.InsertCode(false, true);
+    document.InsertString("123", true);
+    document.MoveCaretEnd(false);
+    document.InsertParagraph(true);
+    document.InsertCode(false, true);
+    document.InsertString("55", true);
+    document.MoveCaretHome(false);
+    document.MoveCaretHome(false);
+    document.WaitTask(document.DeleteElements(true, true));
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"Text12355"
+        ) << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 2})) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"Text123\n"
+        U"55"
+        ) << ToBasicString(document.ToText());
+
+    document.Redo();
+    document.WaitRedo();
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"Text12355"
+        ) << ToBasicString(document.ToText());
+}
+
 }
