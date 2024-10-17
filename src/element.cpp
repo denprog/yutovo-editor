@@ -1118,7 +1118,7 @@ void Elements::Insert(ElementPtr element, const uint pos)
             else if (parent->document->IsString(element))
                 caret->SetState(_id, c.GetPos(), true);
             else
-                caret->SetState(_id, pos, true);
+                caret->SetState(_id, true);
         }
     }
     else if (!last.IsEmpty())
