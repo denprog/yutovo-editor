@@ -133,7 +133,7 @@ std::u32string Subscript::ToText()
     if (_last == U"bin" || _last == U"oct" || _last == U"dec" || _last == U"hex")
         return _last + U"[" + _first + U"]";
     if (_first == U"log") //TODO: get names of functions from the parser
-        return _first + U"%" + _last + U",";
+        return _first + U"$" + _last + U",";
     return _first + U"{" + _last + U"}";
 }
 
@@ -144,7 +144,7 @@ void Subscript::ToParserString(ParserString& str)
     if (GetFirst()->ToText() == U"log")
     {
         GetFirst()->ToParserString(str);
-        str.Add(id, U"%");
+        str.Add(id, U"$");
         GetLast()->ToParserString(str);
         str.Add(id, U",");
     }
