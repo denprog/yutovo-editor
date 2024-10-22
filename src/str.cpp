@@ -314,7 +314,7 @@ bool String::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo, 
 #endif
             return true;
         }
-        else if (!s->format || s->format == format)
+        else if (!s->format || (format && *s->format == *format))
         {
             if (with_undo)
                 document->StoreUndo(id);
