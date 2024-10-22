@@ -527,6 +527,8 @@ void IntegerResult::PutResult(Result result)
         std::string val = value["value"];
         elements->Clear();
         AddNumber(val);
+
+        config.result_notation = result.notation;
         
         if (config.show_notation)
         {
