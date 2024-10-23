@@ -2176,4 +2176,43 @@ TEST_F(SolverAutoTest, units12)
     ASSERT_TRUE(document.ToText() == U"1Ом=86400.(Дж)/(сутки*pow(А,2))") << ToBasicString(document.ToText());
 }
 
+//Change result unit and then change the expression
+TEST_F(SolverAutoTest, units13)
+{
+    Start(600);
+
+    EXPECT_CALL(window_mock, Translate).WillRepeatedly([&](ElementId id, const std::u32string& str)
+        {
+            return str;
+        });
+
+    document.SetLocale(yutovo_calculator::Language::Russian, true);
+    document.InsertCode(false, true);
+    document.WaitTask(document.InsertString("1с", true));
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(1s);
+    ASSERT_TRUE(document.ToText() == 
+        U"1с=1.с"
+        ) << ToBasicString(document.ToText());
+
+    yutovo_calculator::Unit unit;
+    unit.FromString(U"мс");
+    document.WaitTask(document.SetUnit({0, 0, 0, 0, 0, 0, 0, 2, 0, 0}, unit, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(1s);
+    ASSERT_TRUE(document.ToText() == 
+        U"1с=1000.мс"
+        ) << ToBasicString(document.ToText());
+    
+    document.WaitTask(document.MoveCaretLeft(false));
+    document.WaitTask(document.DeleteElements(true, true));
+    document.WaitTask(document.InsertString("м", true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(1s);
+    ASSERT_TRUE(document.ToText() == 
+        U"1м=Cannot cast to unit"
+        ) << ToBasicString(document.ToText());
+}
+
 }
