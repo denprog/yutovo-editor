@@ -295,7 +295,12 @@ bool Paragraph::InsertElements(std::vector<ElementPtr>& _elements, bool with_und
     if (el && document->IsRow(el->id))
         return el->InsertElements(_elements, with_undo, changed_element); //insert in the beginning of current row
 
-    return parent->InsertElements(_elements, with_undo, changed_element);
+    if (!parent->InsertElements(_elements, with_undo, changed_element))
+        return false;
+    //re-solve all the paragraphs below
+    for (int i = yutovo::GetChildPos(id) + 1; i < parent->elements->Count(); ++i)
+        document->AddResolveElement(yutovo::GetChild(parent->id, i));
+    return true;
 }
 
 bool Paragraph::DeleteElements(bool left, bool with_undo, ElementId& changed_element)
