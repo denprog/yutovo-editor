@@ -1025,4 +1025,72 @@ TEST_F(VariablesTest, variables17)
     ASSERT_TRUE(document.error_marks.size() == 0) << ErrorMarks();;
 }
 
+//Move a code block with a variable
+TEST_F(VariablesTest, variables18)
+{
+    Start(600);
+    
+    document.InsertCode(false, true);
+    document.InsertString("p", true);
+    document.InsertAssignment(true);
+    document.InsertString("1", true);
+    document.WaitSolver();
+
+    document.MoveCaretToDocumentEnd(false);
+    document.WaitTask(document.InsertParagraph(true));
+    document.InsertCode(false, true);
+    document.InsertString("L", true);
+    document.InsertAssignment(true);
+    document.InsertString("p", true);
+    document.WaitSolver();
+    document.MoveCaretEnd(false);
+    document.WaitTask(document.InsertParagraph(true));
+    document.InsertString("L", true);
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"p=1\n" \
+        U"L=p\n" \
+        U"L=1."
+        ) << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.error_marks.size() == 0) << ErrorMarks();;
+
+    document.MoveCaretToDocumentEnd(false);
+    document.WaitTask(document.InsertParagraph(true));
+    document.InsertCode(false, true);
+    document.InsertString("L", true);
+    document.InsertAssignment(true);
+    document.InsertString("p", true);
+    document.WaitSolver();
+    document.MoveCaretEnd(false);
+    document.WaitTask(document.InsertParagraph(true));
+    document.InsertString("L", true);
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"p=1\n" \
+        U"L=p\n" \
+        U"L=1.\n" \
+        U"L=p\n" \
+        U"L=1."
+        ) << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.error_marks.size() == 0) << ErrorMarks();
+
+    document.MoveCaretToDocumentBegin(false);
+    document.WaitTask(document.InsertParagraph(true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(2s);
+    ASSERT_TRUE(document.ToText() == 
+        U"\n" \
+        U"p=1\n" \
+        U"L=p\n" \
+        U"L=1.\n" \
+        U"L=p\n" \
+        U"L=1."
+        ) << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.error_marks.size() == 0) << ErrorMarks();
+}
+
 }
