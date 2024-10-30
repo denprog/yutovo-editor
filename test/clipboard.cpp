@@ -3008,4 +3008,275 @@ TEST_F(DocumentTest, clipboard57)
         ) << ToBasicString(document.ToText());
 }
 
+//Paste paragraphs after a result
+TEST_F(DocumentTest, clipboard58)
+{
+    Start(600);
+
+    document.InsertString("Paragraph1", true);
+    document.InsertParagraph(true);
+    document.InsertString("Paragraph2", true);
+    document.InsertParagraph(true);
+    document.InsertCode(false, true);
+    document.InsertString("123", true);
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    document.SelectAll();
+    document.WaitTask(document.Copy(clipboard_json, clipboard_text));
+
+    document.MoveCaretToDocumentEnd(false);
+    document.MoveCaretLeft(false);
+    document.WaitTask(document.Paste(clipboard_json));
+    std::this_thread::sleep_for(1s);
+    ASSERT_TRUE(document.ToText() == 
+        U"Paragraph1\n"\
+        U"Paragraph2\n"\
+        U"123=123.Paragraph1\n"\
+        U"Paragraph2\n"\
+        U"123=123."\
+        ) << ToBasicString(document.ToText());
+}
+
+//Paste paragraphs after a result
+TEST_F(DocumentTest, clipboard59)
+{
+    Start(600);
+
+    document.InsertString("Paragraph1", true);
+    document.WaitTask(document.InsertParagraph(true));
+    document.InsertString("Paragraph2", true);
+    document.WaitTask(document.InsertParagraph(true));
+    document.InsertCode(false, true);
+    document.InsertString("123", true);
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+
+    document.MoveCaretToDocumentEnd(false);
+    std::this_thread::sleep_for(600ms);
+    document.WaitTask(document.InsertParagraph(true));
+    document.InsertString("Paragraph3", true);
+    document.WaitTask(document.InsertParagraph(true));
+    document.InsertCode(false, true);
+    document.InsertString("55", true);
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+
+    document.MoveCaretToDocumentBegin(false);
+    document.MoveCaretDown(false);
+    document.MoveCaretDown(true);
+    document.WaitTask(document.MoveCaretRight(true));
+    std::this_thread::sleep_for(600ms);
+    document.WaitTask(document.Copy(clipboard_json, clipboard_text));
+
+    document.MoveCaretToDocumentEnd(false);
+    document.WaitTask(document.MoveCaretLeft(false));
+    document.WaitTask(document.Paste(clipboard_json));
+    std::this_thread::sleep_for(1s);
+    ASSERT_TRUE(document.ToText() == 
+        U"Paragraph1\n"\
+        U"Paragraph2\n"\
+        U"123=123.\n"\
+        U"Paragraph3\n"\
+        U"55=55.Paragraph2\n"\
+        U"123=123."\
+        ) << ToBasicString(document.ToText());
+
+    document.Undo();
+    document.WaitUndo();
+    std::this_thread::sleep_for(1s);
+    ASSERT_TRUE(document.ToText() == 
+        U"Paragraph1\n"\
+        U"Paragraph2\n"\
+        U"123=123.\n"\
+        U"Paragraph3\n"\
+        U"55=55."\
+        ) << ToBasicString(document.ToText());
+
+    document.MoveCaretToDocumentBegin(false);
+    document.MoveCaretDown(false);
+    document.MoveCaretDown(true);
+    document.MoveCaretDown(true);
+    document.WaitTask(document.MoveCaretEnd(true));
+    std::this_thread::sleep_for(600ms);
+    document.WaitTask(document.Copy(clipboard_json, clipboard_text));
+
+    document.MoveCaretToDocumentEnd(false);
+    document.WaitTask(document.MoveCaretLeft(false));
+    document.WaitTask(document.Paste(clipboard_json));
+    std::this_thread::sleep_for(1s);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">Paragraph1</span>"\
+            "</p>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">Paragraph2</span>"\
+            "</p>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mrow>"\
+                            "<mi>123</mi>"\
+                        "</mrow>"\
+                        "<mo>=</mo>"\
+                        "<mrow>"\
+                            "<mrow>"\
+                                "<mi>123.</mi>"\
+                            "</mrow>"\
+                        "</mrow>"\
+                    "</mrow>"\
+                "</math>"\
+            "</p>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">Paragraph3</span>"\
+            "</p>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mrow>"\
+                            "<mi>55</mi>"\
+                        "</mrow>"\
+                        "<mo>=</mo>"\
+                        "<mrow>"\
+                            "<mrow>"\
+                                "<mi>55.</mi>"\
+                            "</mrow>"\
+                        "</mrow>"\
+                        "<span style=\"font-family:'Arial';font-size:14px;\">Paragraph2</span>"\
+                    "</mrow>"\
+                "</math>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mrow>"\
+                            "<mi>123</mi>"\
+                        "</mrow>"\
+                        "<mo>=</mo>"\
+                        "<mrow>"\
+                            "<mrow>"\
+                                "<mi>123.</mi>"\
+                            "</mrow>"\
+                        "</mrow>"\
+                    "</mrow>"\
+                "</math>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<span style=\"font-family:'Arial';font-size:14px;\">Paragraph3</span>"\
+                    "</mrow>"\
+                "</math>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+
+    document.Undo();
+    document.WaitUndo();
+    std::this_thread::sleep_for(1s);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">Paragraph1</span>"\
+            "</p>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">Paragraph2</span>"\
+            "</p>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mrow>"\
+                            "<mi>123</mi>"\
+                        "</mrow>"\
+                        "<mo>=</mo>"\
+                        "<mrow>"\
+                            "<mrow>"\
+                                "<mi>123.</mi>"\
+                            "</mrow>"\
+                        "</mrow>"\
+                    "</mrow>"\
+                "</math>"\
+            "</p>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">Paragraph3</span>"\
+            "</p>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mrow>"\
+                            "<mi>55</mi>"\
+                        "</mrow>"\
+                        "<mo>=</mo>"\
+                        "<mrow>"\
+                            "<mrow>"\
+                                "<mi>55.</mi>"\
+                            "</mrow>"\
+                        "</mrow>"\
+                    "</mrow>"\
+                "</math>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+}
+
+//Copy paste paragraphs with a code block
+TEST_F(DocumentTest, clipboard60)
+{
+    Start(600);
+
+    EXPECT_CALL(window_mock, OnCopyResult).WillRepeatedly([&](CopyResult result)
+        {
+            ASSERT_TRUE(result == CopyResult::Success);
+        });
+
+    EXPECT_CALL(window_mock, OnPasteResult).WillRepeatedly([&](PasteResult result)
+        {
+            ASSERT_TRUE(result == PasteResult::Success);
+        });
+
+    document.WaitTask(document.InsertString("Арифме́тика (др.-греч. ἀριθμητική, arithmētikḗ — от ἀριθμός, arithmós «число») — раздел математики, "\
+        "изучающий числа, их отношения и свойства.", true));
+    document.InsertParagraph(true);
+    document.InsertCode(false, true);
+    document.InsertString("123", true);
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+
+    document.MoveCaretToDocumentEnd(false);
+    std::this_thread::sleep_for(600ms);
+    document.WaitTask(document.InsertParagraph(true));
+    document.InsertCode(false, true);
+    document.InsertString("55", true);
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+
+    document.MoveCaretToDocumentBegin(false);
+    document.MoveCaretDown(false);
+    document.MoveCaretDown(true);
+    document.MoveCaretDown(true);
+    document.WaitTask(document.MoveCaretDown(true));
+    document.WaitTask(document.Copy(clipboard_json, clipboard_text));
+
+    document.MoveCaretToDocumentEnd(false);
+    document.WaitTask(document.MoveCaretLeft(false));
+    document.WaitTask(document.Paste(clipboard_json));
+    std::this_thread::sleep_for(1s);
+    ASSERT_TRUE(document.ToText() == 
+        U"Арифме́тика (др.-греч. ἀριθμητική, arithmētikḗ — от ἀριθμός, arithmós «число») — раздел математики, изучающий числа, их отношения и свойства.\n"\
+        U"123=123.\n"\
+        U"55=55.arithmós«число»)—разделматематики,изучающийчисла,ихотношенияисвойства.\n"\
+        U"123=123."\
+        ) << ToBasicString(document.ToText());
+
+    document.Undo();
+    document.WaitUndo();
+    std::this_thread::sleep_for(1s);
+    ASSERT_TRUE(document.ToText() == 
+        U"Арифме́тика (др.-греч. ἀριθμητική, arithmētikḗ — от ἀριθμός, arithmós «число») — раздел математики, изучающий числа, их отношения и свойства.\n"\
+        U"123=123.\n"\
+        U"55=55."\
+        ) << ToBasicString(document.ToText());
+}
+
 }

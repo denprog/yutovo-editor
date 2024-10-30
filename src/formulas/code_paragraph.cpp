@@ -1,5 +1,6 @@
 #include "code_paragraph.h"
 #include "code_row.h"
+#include "code_string.h"
 
 namespace yutovo
 {
@@ -19,6 +20,31 @@ CodeParagraph::CodeParagraph(Document* _document, bool with_row) :
     format = document->paragraph_formats->GetFormat("Code");
     if (with_row)
         AddEmptyElement();
+}
+
+CodeParagraph::CodeParagraph(const Paragraph* source) : 
+    Paragraph(source->document, false)
+{
+    type = ElementType::CODE_PARAGRAPH;
+    format = document->paragraph_formats->GetFormat("Code");
+    for (int i = 0; i < source->elements->Count(); ++i)
+    {
+        ElementPtr row(new CodeRow(this, false));
+        ElementPtr el = source->elements->Get(i);
+        for (int j = 0; j < el->elements->Count(); ++j)
+        {
+            auto r = el->elements->Get(i);
+            if (r->type == ElementType::STRING)
+            {
+                //change type of string
+                String* str = (String*)r.get();
+                row->elements->Add(ElementPtr(new CodeString(*str)));
+            }
+            else
+                row->elements->Add(r);
+        }
+        elements->Add(row);
+    }
 }
 
 Element* CodeParagraph::Clone()
