@@ -197,7 +197,7 @@ bool InsertElementsTask::Execute()
         if (t->type == ElementType::PARAGRAPH && code)
         {
             //change type of paragraph
-            _elements.emplace_back(new CodeParagraph(document));
+            _elements.emplace_back(new CodeParagraph((Paragraph*)t.get()));
             continue;
         }
         if (t->type == ElementType::STRING)

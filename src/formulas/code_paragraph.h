@@ -12,6 +12,7 @@ class CodeParagraph : public Paragraph
 public:
     CodeParagraph(Element* _parent, bool with_row = true);
     CodeParagraph(Document* _document, bool with_row = true);
+    CodeParagraph(const Paragraph* source);
 
     virtual Element* Clone();
 

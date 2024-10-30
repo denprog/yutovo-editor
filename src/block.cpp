@@ -88,10 +88,27 @@ bool Block::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo, E
                 if (!document->IsParagraph(_els[i]))
                     return false;
                 els.clear();
-                ((Paragraph*)_els[i].get())->MakePlain();
-                els.push_back(_els[i]);
-                if (!InsertElements(els, with_undo, changed_element))
-                    return false;
+
+                if (document->FindParent(cur->id, ElementType::CODE_BLOCK))
+                {
+                    els.push_back(ElementPtr(new CodeParagraph(this, true)));
+                    if (!InsertElements(els, with_undo, changed_element))
+                        return false;
+                    ElementPtr row = ((Paragraph*)_els[i].get())->GetPlainRow();
+                    els.clear();
+                    els.push_back(row);
+                    cur = document->GetElement(caret->GetElement()->id);
+                    if (!cur->InsertElements(els, with_undo, changed_element))
+                        return false;
+                }
+                else
+                {
+                    Paragraph* p = ((Paragraph*)_els[i].get());
+                    p->MakePlain();
+                    els.push_back(_els[i]);
+                    if (!InsertElements(els, with_undo, changed_element))
+                        return false;
+                }
             }
 
             if (_els.size() > 1)
