@@ -3013,9 +3013,9 @@ TEST_F(DocumentTest, clipboard58)
 {
     Start(600);
 
-    document.InsertString("Paragraph1", true);
+    document.InsertString("Paragraph1 text", true);
     document.InsertParagraph(true);
-    document.InsertString("Paragraph2", true);
+    document.InsertString("Paragraph2 text", true);
     document.InsertParagraph(true);
     document.InsertCode(false, true);
     document.InsertString("123", true);
@@ -3030,10 +3030,10 @@ TEST_F(DocumentTest, clipboard58)
     document.WaitTask(document.Paste(clipboard_json));
     std::this_thread::sleep_for(1s);
     ASSERT_TRUE(document.ToText() == 
-        U"Paragraph1\n"\
-        U"Paragraph2\n"\
-        U"123=123.Paragraph1\n"\
-        U"Paragraph2\n"\
+        U"Paragraph1 text\n"\
+        U"Paragraph2 text\n"\
+        U"123=123.Paragraph1text\n"\
+        U"Paragraph2text\n"\
         U"123=123."\
         ) << ToBasicString(document.ToText());
 }
