@@ -6,6 +6,8 @@
 namespace yutovo
 {
 
+//NthRoot
+
 NthRoot::NthRoot(Element* _parent, bool with_init) :
     MiddleShapeFormula(_parent, with_init)
 {
@@ -118,6 +120,11 @@ void NthRoot::UpdateLevel(uint8_t _level)
         return;
     if (GetFirst())
         GetFirst()->UpdateLevel(_level + 1);
+}
+
+bool NthRoot::UseSelection()
+{
+    return true;
 }
 
 std::string NthRoot::ToHtml()

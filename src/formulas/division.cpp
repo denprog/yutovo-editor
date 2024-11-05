@@ -162,6 +162,11 @@ bool Division::GetEndCaretState(CaretState& caret_state, Selection* select)
     return MiddleShapeFormula::GetEndCaretState(caret_state, select);
 }
 
+bool Division::UseSelection()
+{
+    return true;
+}
+
 std::string Division::ToHtml()
 {
     std::string s = "<mfrac>";

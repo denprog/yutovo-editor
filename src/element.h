@@ -80,6 +80,7 @@ public:
     virtual bool HasLastCaretState();
     virtual bool CanContinueSelection();
     virtual bool CanContinueVerticalMoving(); //will pass caret into this element from up and down
+    virtual bool UseSelection(); //delete or not selection before inserting
 
     virtual Rect GetCaretRect(const uint pos) const;
     virtual Rect GetCaretRect() const;

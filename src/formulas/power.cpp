@@ -115,6 +115,11 @@ void Power::UpdateLevel(uint8_t _level)
         GetLast()->UpdateLevel(_level + 1);
 }
 
+bool Power::UseSelection()
+{
+    return true;
+}
+
 std::string Power::ToHtml()
 {
     if (!GetFirst() || !GetLast())

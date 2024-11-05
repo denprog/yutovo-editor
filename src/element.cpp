@@ -501,6 +501,11 @@ bool Element::CanContinueVerticalMoving()
     return false;
 }
 
+bool Element::UseSelection()
+{
+    return false;
+}
+
 Rect Element::GetCaretRect(const uint pos) const
 {
     return elements->GetCaretRect(pos);

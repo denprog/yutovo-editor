@@ -6,6 +6,8 @@
 namespace yutovo
 {
 
+//SquareRoot
+
 SquareRoot::SquareRoot(Element* _parent, bool with_init) :
     Formula(_parent)
 {
@@ -78,8 +80,8 @@ void SquareRoot::Draw() const
             path.push_back(Point{(int)lround(r.left + r.width * 0.343), (int)lround(r.top + r.height * 0.429)});
             path.push_back(Point{(int)lround(r.left + r.width * 0.703), (int)lround(r.top + r.height * 0.869)});
             path.push_back(Point{(int)lround(r.left + r.width * 0.934), r.top});
-            path.push_back(Point{r.GetRight() + last->rect.width, r.top});
-            path.push_back(Point{r.GetRight() + last->rect.width, (int)lround(r.top + r.height * 0.01 + 1)});
+            path.push_back(Point{r.GetRight() + GetLast()->rect.width, r.top});
+            path.push_back(Point{r.GetRight() + GetLast()->rect.width, (int)lround(r.top + r.height * 0.01 + 1)});
             path.push_back(Point{r.GetRight(), (int)lround(r.top + r.height * 0.01 + 1)});
             window->DrawFillPath(path, document->selection.IsSelected(id) ? document->config.formula_bg_color : document->config.shapes_color);
         };
@@ -129,6 +131,38 @@ bool SquareRoot::InsertElements(std::vector<ElementPtr>& _elements, bool with_un
 
 bool SquareRoot::AfterInsert(bool with_undo)
 {
+    if (!selection->IsEmpty())
+    {
+        ElementSelection& select = selection->selection[0];
+        if (select.start > 0)
+            select.element->SplitAt(select.start);
+        if (selection->selection.size() > 1)
+        {
+            select = selection->selection[selection->selection.size()];
+            select.element->SplitAt(select.start);
+        }
+
+        //move the selected elements in the GetLast() element
+        GetLast()->elements->RemoveAt(0, 1);
+        for (int i = selection->selection.size() - 1; i >= 0; --i)
+        {
+            ElementSelection el_s = selection->selection[i];
+            for (int j = el_s.size - 1; j >= 0; --j)
+                GetLast()->elements->Move(document->GetElement(GetChild(el_s.element->id, el_s.start + j)), 0);
+        }
+
+        selection->Clear();
+        CaretState c;
+        if (GetLast()->GetFirstCaretState(c, nullptr))
+            caret->SetState(c);
+
+        UpdateFormat(GetFormulaFormat()->string_format);
+
+        UpdateLevel(level);
+        parent->Normalize();
+        return true;
+    }
+
     CaretState c;
     last->GetFirstCaretState(c, nullptr);
     caret->SetState(c);
@@ -176,26 +210,36 @@ bool SquareRoot::DeleteElements(bool left, bool with_undo, ElementId& changed_el
     return true;
 }
 
+bool SquareRoot::UseSelection()
+{
+    return true;
+}
+
 std::string SquareRoot::ToHtml()
 {
     std::string s = "<msqrt>";
-    s += last->ToHtml();
+    s += GetLast()->ToHtml();
     s += "</msqrt>";
     return s;
 }
 
 std::u32string SquareRoot::ToText()
 {
-    if (!last)
+    if (!GetLast())
         return U"";
-    return U"sqrt(" + last->ToText() + U")";
+    return U"sqrt(" + GetLast()->ToText() + U")";
 }
 
 void SquareRoot::ToParserString(ParserString& str)
 {
     str.Add(id, U"sqrt(");
-    last->ToParserString(str);
+    GetLast()->ToParserString(str);
     str.Add(id, U")");
+}
+
+CodeRow* SquareRoot::GetLast() const
+{
+    return (CodeRow*)elements->Get(1).get();
 }
 
 }

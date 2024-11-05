@@ -751,4 +751,18 @@ TEST_F(FormulaTest, power14)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 2})) << document.GetEditorState().ToString();
 }
 
+TEST_F(FormulaTest, power15)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.InsertString("123", true);
+    document.InsertPlus(true);
+    document.InsertString("1", true);
+    for (int i = 0; i < 5; ++i)
+        document.WaitTask(document.MoveCaretLeft(true));
+    document.WaitTask(document.InsertPower(true));
+    ASSERT_TRUE(document.ToText() == U"pow(123+1,)") << ToBasicString(document.ToText());
+}
+
 }
