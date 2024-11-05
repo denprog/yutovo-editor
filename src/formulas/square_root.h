@@ -7,6 +7,8 @@
 namespace yutovo
 {
 
+class CodeRow;
+
 class SquareRoot : public Formula
 {
 public:
@@ -32,9 +34,14 @@ public:
     
     virtual bool DeleteElements(bool left, bool with_undo, ElementId& changed_element);
 
+    virtual bool UseSelection();
+
     virtual std::string ToHtml();
     virtual std::u32string ToText();
     virtual void ToParserString(ParserString& str);
+
+protected:
+    CodeRow* GetLast() const;
 
 protected:
     Element *last = nullptr;

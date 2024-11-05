@@ -346,4 +346,18 @@ TEST_F(FormulaTest, square_root7)
         ElementSelectionState{ElementId{0, 0, 0, 0, 0, 0, 0}, 1, 1})) << document.GetEditorState().ToString();
 }
 
+TEST_F(FormulaTest, square_root8)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.InsertString("123", true);
+    document.InsertPlus(true);
+    document.InsertString("1", true);
+    for (int i = 0; i < 5; ++i)
+        document.WaitTask(document.MoveCaretLeft(true));
+    document.WaitTask(document.InsertSquareRoot(true));
+    ASSERT_TRUE(document.ToText() == U"sqrt(123+1)") << ToBasicString(document.ToText());
+}
+
 }

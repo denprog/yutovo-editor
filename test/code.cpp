@@ -1324,4 +1324,144 @@ TEST_F(DocumentTest, code22)
         ElementSelectionState{{0, 0, 0, 0}, 1, 1})) << document.GetEditorState().ToString();
 }
 
+//Insert a code block inside a string with selection
+TEST_F(DocumentTest, code23)
+{
+    Start(600);
+
+    document.WaitTask(document.InsertString("Арифме́тика (др.-греч. ἀριθμητική, arithmētikḗ — от ἀριθμός, arithmós «число») — раздел математики, "\
+        "изучающий числа, их отношения и свойства.", true));
+    document.MoveCaretToDocumentBegin(false);
+    document.MoveCaretRight(false);
+    document.WaitTask(document.MoveCaretWordRight(true));
+    document.WaitTask(document.InsertCode(false, true));
+    ASSERT_TRUE(document.ToText() == 
+        U"А (др.-греч. ἀριθμητική, arithmētikḗ — от ἀριθμός, arithmós «число») — раздел математики, изучающий числа, их отношения и свойства."\
+        ) << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 1, 0, 0, 0, 0})) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.InsertString("234", true));
+    ASSERT_TRUE(document.ToText() == 
+        U"А234 (др.-греч. ἀριθμητική, arithmētikḗ — от ἀριθμός, arithmós «число») — раздел математики, изучающий числа, их отношения и свойства."\
+        ) << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 1, 0, 0, 0, 3})) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    ASSERT_TRUE(document.ToText() == 
+        U"А (др.-греч. ἀριθμητική, arithmētikḗ — от ἀριθμός, arithmós «число») — раздел математики, изучающий числа, их отношения и свойства."\
+        ) << ToBasicString(document.ToText());
+
+    document.Undo();
+    document.WaitUndo();
+    ASSERT_TRUE(document.ToText() == 
+        U"Арифме́тика (др.-греч. ἀριθμητική, arithmētikḗ — от ἀριθμός, arithmós «число») — раздел математики, изучающий числа, их отношения и свойства."\
+        ) << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 11}, 
+        ElementSelectionState{ElementId{0, 0, 0, 0}, 1, 10})) << document.GetEditorState().ToString();
+}
+
+//Paste a code block inside a code block with selection
+TEST_F(DocumentTest, code24)
+{
+    Start(600);
+
+    EXPECT_CALL(window_mock, OnCopyResult).WillRepeatedly([&](CopyResult result)
+        {
+            ASSERT_TRUE(result == CopyResult::Success);
+        });
+
+    EXPECT_CALL(window_mock, OnPasteResult).WillRepeatedly([&](PasteResult result)
+        {
+            ASSERT_TRUE(result == PasteResult::Success);
+        });
+
+    document.WaitTask(document.InsertCode(false, true));
+    document.InsertString("123", true);
+    document.WaitTask(document.MoveCaretToDocumentEnd(false));
+
+    document.InsertParagraph(true);
+    document.WaitTask(document.InsertCode(false, true));
+    document.InsertString("5555", true);
+    document.InsertParagraph(true);
+    document.InsertString("77", true);
+    document.WaitTask(document.MoveCaretToDocumentBegin(false));
+    document.WaitTask(document.MoveCaretEnd(true));
+
+    document.WaitTask(document.Copy(clipboard_json, clipboard_text));
+
+    document.MoveCaretDown(false);
+    document.WaitTask(document.MoveCaretEnd(true));
+    document.WaitTask(document.Paste(clipboard_json));
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mi>123</mi>"\
+                    "</mrow>"\
+                "</math>"\
+            "</p>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mi>12377</mi>"\
+                    "</mrow>"\
+                "</math>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 1, 0, 0, 0, 0, 0, 3})) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mi>123</mi>"\
+                    "</mrow>"\
+                "</math>"\
+            "</p>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mi>5555</mi>"\
+                    "</mrow>"\
+                "</math>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mi>77</mi>"\
+                    "</mrow>"\
+                "</math>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 1, 0, 0, 0, 0, 0, 4}, 
+        ElementSelectionState{ElementId{0, 1, 0, 0}, 0, 1})) << document.GetEditorState().ToString();
+
+    document.Redo();
+    document.WaitRedo();
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mi>123</mi>"\
+                    "</mrow>"\
+                "</math>"\
+            "</p>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mi>12377</mi>"\
+                    "</mrow>"\
+                "</math>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 1, 0, 0, 0, 0, 0, 3})) << document.GetEditorState().ToString();
+}
+
 }

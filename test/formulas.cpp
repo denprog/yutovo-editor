@@ -237,8 +237,10 @@ TEST_F(FormulaTest, delete2)
         "</body>") << 
         document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 2)) << document.GetEditorState().ToString();
+
     document.Undo();
     document.WaitUndo();
+    std::this_thread::sleep_for(200ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -1803,6 +1805,48 @@ TEST_F(FormulaTest, select12)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0, 0, 2, 1}, 
         ElementSelectionState{ElementId{0, 0, 0, 0, 0, 0}, 0, 2}, 
         ElementSelectionState{ElementId{0, 0, 0, 0, 0, 0, 2}, 0, 1})) << document.GetEditorState().ToString();
+}
+
+//Replace a selection
+TEST_F(FormulaTest, select13)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.InsertString("123", true);
+    for (int i = 0; i < 3; ++i)
+        document.WaitTask(document.MoveCaretLeft(true));
+    document.WaitTask(document.InsertPlus(true));
+    ASSERT_TRUE(document.ToText() == U"+") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0, 0, 1})) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    ASSERT_TRUE(document.ToText() == U"123") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0, 0, 0, 0}, 
+        ElementSelectionState{ElementId{0}, 0, 1})) << document.GetEditorState().ToString();
+}
+
+//Replace a selection
+TEST_F(FormulaTest, select14)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.InsertString("123", true);
+    document.WaitTask(document.InsertPlus(true));
+    document.InsertString("55", true);
+    for (int i = 0; i < 3; ++i)
+        document.WaitTask(document.MoveCaretLeft(true));
+    document.WaitTask(document.InsertMinus(true));
+    ASSERT_TRUE(document.ToText() == U"123-") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0, 0, 2})) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    ASSERT_TRUE(document.ToText() == U"123+55") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0, 0, 1}, 
+        ElementSelectionState{ElementId{0, 0, 0, 0, 0, 0}, 1, 2})) << document.GetEditorState().ToString();
 }
 
 TEST_F(FormulaTest, fonts1)

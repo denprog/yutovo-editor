@@ -165,6 +165,17 @@ bool CodeBlock::GetWordLeftCaretState(CaretState& caret_state, Selection* select
 
 bool CodeBlock::AfterInsert(bool with_undo)
 {
+    auto p = document->FindParent(parent->id, ElementType::CODE_BLOCK);
+    if (p)
+    {
+        //move the child elements outside and remove this code block
+        int c = p->elements->Count();
+        for (int i = 0, j = 0; i < elements->Count();)
+            p->elements->Move(elements->Get(0), c + j++);
+        p->elements->RemoveAt(c - 1, 1);
+        return true;
+    }
+
     CaretState c;
     if (GetFirstCaretState(c, nullptr))
         caret->SetState(c);

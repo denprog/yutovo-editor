@@ -31,6 +31,8 @@ public:
     virtual bool GetBeginCaretState(CaretState& caret_state, Selection* select);
     virtual bool GetEndCaretState(CaretState& caret_state, Selection* select);
 
+    virtual bool UseSelection();
+
     virtual std::string ToHtml();
     virtual std::u32string ToText();
     virtual void ToParserString(ParserString& str);

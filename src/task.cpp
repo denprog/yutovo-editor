@@ -240,7 +240,7 @@ bool InsertElementsTask::Execute()
     for (auto& _el : _elements)
     {
         _el->parent = nullptr;
-        std::vector<ElementPtr> t{_el};
+        std::vector<ElementPtr> t{ElementPtr(_el->Clone())};
         ElementId changed_element;
         if (el->editable && !el->InsertElements(t, with_undo, changed_element))
         {
@@ -467,16 +467,46 @@ bool InsertFormulasTask::Execute()
 {
     size_t last_undo_size = document->GetUndoSize();
 
-    CaretState caret_state;
     if (before_state.IsEmpty())
         before_state = document->GetLogicalEditorState();
     else
         document->SetEditorState(before_state); //it is redo
 
-    caret_state = document->caret->GetCaretState();
+    CaretState caret_state = document->caret->GetCaretState();
+    SelectionState selection_state = document->selection.GetState();
 
     ElementPtr el = document->GetParent(caret_state.id);
     assert(el);
+
+    CaretState c;
+    if (!selection_state.IsEmpty() && ((document->FindParent(caret_state.id, ElementType::CODE_BLOCK) == nullptr) || !elements[0]->UseSelection()))
+    {
+        //remove selection before insert
+        auto DeleteElements = [&](ElementPtr _el)
+        {
+            assert(_el != nullptr);
+            ElementId changed_element;
+            if (_el->DeleteElements(true, with_undo, changed_element))
+            {
+                Remake(changed_element, false);
+                el = document->GetElement(document->caret->GetElement()->id);
+                return true;
+            }
+            return false;
+        };
+
+        for (int i = selection_state.state.size() - 1; i >= 0; --i)
+        {
+            ElementSelectionState& s = selection_state.state[i];
+            if (!DeleteElements(document->GetElement(s.id)))
+            {
+                if (with_undo && last_undo_size < document->GetUndoSize())
+                    document->Undo();
+                return false;
+            }
+            caret_state = document->caret->GetCaretState();
+        }
+    }
 
     bool insert_code_block = false;
     ElementId changed_element;
@@ -1027,6 +1057,7 @@ bool UndoTask::Execute()
                 else
                 {
                     p->elements->Insert(undo_elements[i], pos + i);
+                    p->elements->Get(pos + i)->AfterInsert(with_undo);
                 }
             }
         }

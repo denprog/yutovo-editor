@@ -358,4 +358,18 @@ TEST_F(FormulaTest, nth_root4)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0, 0, 2})) << document.GetEditorState().ToString();
 }
 
+TEST_F(FormulaTest, nth_root5)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.InsertString("123", true);
+    document.InsertPlus(true);
+    document.InsertString("1", true);
+    for (int i = 0; i < 5; ++i)
+        document.WaitTask(document.MoveCaretLeft(true));
+    document.WaitTask(document.InsertNthRoot(true));
+    ASSERT_TRUE(document.ToText() == U"root(,123+1)") << ToBasicString(document.ToText());
+}
+
 }
