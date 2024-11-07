@@ -180,6 +180,8 @@ void Document::MainLoop()
                     std::lock_guard<std::recursive_mutex> lock(edit_mutex);
                     if (!t->Execute())
                         break;
+                    if (!undo_tasks.empty())
+                        last_modify_task_id = undo_tasks.back()->id;
                 }
                 selection.can_optimize = true;
 #ifdef DEBUG
@@ -229,6 +231,7 @@ void Document::MainLoop()
                     std::lock_guard<std::recursive_mutex> lock(edit_mutex);
                     if (!t->Execute())
                         break;
+                    last_modify_task_id = t->id;
                 }
                 caret->Show();
 #ifdef DEBUG
@@ -271,6 +274,7 @@ void Document::MainLoop()
                             redo_tasks.erase(redo_tasks.begin() + i);
                         }
                         redo_tasks.push_back(t);
+                        last_modify_task_id = t->id;
                     }
                     last_editor_selection = selection.GetState();
                 }
@@ -2897,16 +2901,16 @@ void Document::RestrictUndo()
 
 void Document::UpdateChanged()
 {
-    if (undo_tasks.empty())
-    {
+    static bool last_changed = false;
+    if (save_task_id == 0 && undo_tasks.empty())
         changed = false;
-    }
     else
+        changed = !(last_modify_task_id == save_task_id);
+    if (last_changed != changed)
     {
-        TaskPtr t = undo_tasks.back();
-        changed = !(t->id == save_task_id);
+        window->OnDocumentChanged(changed);
+        last_changed = changed;
     }
-    window->OnDocumentChanged(changed);
 }
 
 #ifdef DEBUG

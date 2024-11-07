@@ -1397,12 +1397,7 @@ bool SaveTask::Execute()
         }
     }
 
-    if (!document->undo_tasks.empty())
-    {
-        TaskPtr t = document->undo_tasks.back();
-        document->save_task_id = t->id;
-        document->UpdateChanged();
-    }
+    document->save_task_id = document->last_modify_task_id;
 
     window->OnSaveResult(id, IOResult::Success);
     return true;
