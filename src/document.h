@@ -311,6 +311,7 @@ public:
     void WaitRedo();
     void WaitLoad();
     void WaitSolver();
+#endif
 
 private:
     int last_task_id = -1;
@@ -325,7 +326,8 @@ private:
 
     std::deque<uint> last_tasks;
     const int last_tasks_count = 100;
-#endif
+
+    int last_modify_task_id = 0;
 
 private:
     friend class MoveCaretTask;

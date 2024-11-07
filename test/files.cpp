@@ -736,4 +736,84 @@ TEST_F(DocumentTest, files19)
         ) << ToBasicString(document.ToText());
 }
 
+//Check is changed
+TEST_F(DocumentTest, files20)
+{
+    Start(600);
+
+    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
+        {
+            return GetTextSizeMock(text, format);
+        });
+
+    ASSERT_TRUE(document.IsChanged() == false);
+    document.InsertString("T", true);
+    document.InsertString("e", true);
+    document.InsertString("x", true);
+    document.WaitTask(document.InsertString("t", true));
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.IsChanged() == true);
+
+    for (int i = 0; i < 3; ++i)
+    {
+        document.Undo();
+        document.WaitUndo();
+        ASSERT_TRUE(document.IsChanged() == true);
+    }
+
+    document.Undo();
+    document.WaitUndo();
+    ASSERT_TRUE(document.IsChanged() == false);
+
+    for (int i = 0; i < 4; ++i)
+    {
+        document.Redo();
+        document.WaitRedo();
+        ASSERT_TRUE(document.IsChanged() == true);
+    }
+
+    document.WaitTask(document.Save("files_20.yut"));
+    ASSERT_TRUE(document.IsChanged() == false);
+
+    document.Undo();
+    document.WaitUndo();
+    ASSERT_TRUE(document.IsChanged() == true);
+
+    document.Redo();
+    document.WaitRedo();
+    ASSERT_TRUE(document.IsChanged() == false);
+
+    document.InsertString("N", true);
+    document.InsertString("e", true);
+    document.WaitTask(document.InsertString("w", true));
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.IsChanged() == true);
+
+    for (int i = 0; i < 2; ++i)
+    {
+        document.Undo();
+        document.WaitUndo();
+        ASSERT_TRUE(document.IsChanged() == true);
+    }
+
+    document.Undo();
+    document.WaitUndo();
+    ASSERT_TRUE(document.IsChanged() == false);
+
+    document.Undo();
+    document.WaitUndo();
+    ASSERT_TRUE(document.IsChanged() == true);
+
+    document.Redo();
+    document.WaitRedo();
+    ASSERT_TRUE(document.IsChanged() == false);
+
+    for (int i = 0; i < 2; ++i)
+    {
+        document.Redo();
+        document.WaitRedo();
+        ASSERT_TRUE(document.IsChanged() == true);
+    }
+}
+
 }
