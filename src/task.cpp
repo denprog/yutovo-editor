@@ -950,8 +950,9 @@ bool UndoTask::Execute()
         document->RemoveErrorMarks(_el->id);
 
     ElementPtr p = document->GetLogicalElement(id);
-    if (id.size() > 2 && p->type != ElementType::CODE_ROW && p->type != ElementType::CODE_BLOCK && 
-        !(undo_elements[0]->type == ElementType::CODE_ROW && p->parent->type != ElementType::CODE_PARAGRAPH))
+    if (id.size() > 2 && (p->type != ElementType::CODE_ROW && p->type != ElementType::CODE_BLOCK && 
+        !(undo_elements[0]->type == ElementType::CODE_ROW && p->parent->type != ElementType::CODE_PARAGRAPH)) || 
+        (p->type == ElementType::CODE_BLOCK && undo_operation == UndoOperation::CHANGE))
     {
         p = document->GetLogicalParent(id);
     }

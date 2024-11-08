@@ -3279,4 +3279,138 @@ TEST_F(DocumentTest, clipboard60)
         ) << ToBasicString(document.ToText());
 }
 
+//Copy paste paragraphs with a code block
+TEST_F(DocumentTest, clipboard61)
+{
+    Start(600);
+
+    EXPECT_CALL(window_mock, OnCopyResult).WillRepeatedly([&](CopyResult result)
+        {
+            ASSERT_TRUE(result == CopyResult::Success);
+        });
+
+    EXPECT_CALL(window_mock, OnPasteResult).WillRepeatedly([&](PasteResult result)
+        {
+            ASSERT_TRUE(result == PasteResult::Success);
+        });
+
+    document.InsertCode(false, true);
+    document.InsertString("123", true);
+    document.InsertPlus(true);
+    document.WaitTask(document.InsertString("55", true));
+    document.WaitTask(document.MoveCaretHome(true));
+
+    document.WaitTask(document.Copy(clipboard_json, clipboard_text));
+
+    document.WaitTask(document.MoveCaretRight(false));
+    document.WaitTask(document.MoveCaretLeft(false));
+    document.WaitTask(document.InsertParagraph(true));
+    document.WaitTask(document.Paste(clipboard_json));
+
+    document.WaitTask(document.InsertParagraph(true));
+    document.WaitTask(document.Paste(clipboard_json));
+
+    document.WaitTask(document.InsertParagraph(true));
+    document.WaitTask(document.Paste(clipboard_json));
+
+    document.InsertParagraph(true);
+    document.WaitTask(document.InsertParagraph(true));
+    document.WaitTask(document.InsertString("67", true));
+    document.WaitTask(document.MoveCaretHome(true));
+
+    document.WaitTask(document.Copy(clipboard_json, clipboard_text));
+
+    document.MoveCaretToDocumentBegin(false);
+    document.MoveCaretRight(false);
+    document.MoveCaretEnd(true);
+    document.WaitTask(document.MoveCaretDown(true));
+    std::this_thread::sleep_for(200ms);
+
+    document.WaitTask(document.Paste(clipboard_json));
+    std::this_thread::sleep_for(1s);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mi>67</mi>"\
+                    "</mrow>"\
+                "</math>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mi>123</mi>"\
+                        "<mo>+</mo>"\
+                        "<mi>55</mi>"\
+                    "</mrow>"\
+                "</math>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mi>123</mi>"\
+                        "<mo>+</mo>"\
+                        "<mi>55</mi>"\
+                    "</mrow>"\
+                "</math>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mi>Null</mi>"\
+                    "</mrow>"\
+                "</math>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mi>67</mi>"\
+                    "</mrow>"\
+                "</math>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+
+    document.Undo();
+    document.WaitUndo();
+    std::this_thread::sleep_for(1s);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mi>123</mi>"\
+                        "<mo>+</mo>"\
+                        "<mi>55</mi>"\
+                    "</mrow>"\
+                "</math>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mi>123</mi>"\
+                        "<mo>+</mo>"\
+                        "<mi>55</mi>"\
+                    "</mrow>"\
+                "</math>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mi>123</mi>"\
+                        "<mo>+</mo>"\
+                        "<mi>55</mi>"\
+                    "</mrow>"\
+                "</math>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mi>123</mi>"\
+                        "<mo>+</mo>"\
+                        "<mi>55</mi>"\
+                    "</mrow>"\
+                "</math>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mi>Null</mi>"\
+                    "</mrow>"\
+                "</math>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mi>67</mi>"\
+                    "</mrow>"\
+                "</math>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+}
+
 }
