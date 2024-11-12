@@ -1247,12 +1247,17 @@ ElementId Document::GetElementId(const LogicalId& _id, const int pos, bool& last
     return res;
 }
 
-ElementPtr Document::FindParent(const ElementId& id, const ElementType type)
+ElementPtr Document::FindElementOrParent(const ElementId& id, const ElementType type)
 {
     ElementPtr el = GetElement(id);
     if (el && el->type == type)
         return el;
-    el = GetParent(id);
+    return FindParent(id, type);
+}
+
+ElementPtr Document::FindParent(const ElementId& id, const ElementType type)
+{
+    ElementPtr el = GetParent(id);
     while (el && el->type != type)
         el = GetParent(el->id);
     return el;

@@ -119,6 +119,7 @@ public:
     ElementId GetElementId(const LogicalId& _id, bool& last_pos);
     ElementId GetElementId(const LogicalId& _id, const int pos, bool& last_pos);
 
+    ElementPtr FindElementOrParent(const ElementId& id, const ElementType type);
     ElementPtr FindParent(const ElementId& id, const ElementType type);
     ElementId FindCurrentParentByType(const ElementType type);
     ElementPtr FindParentParagraph(const ElementId& id);

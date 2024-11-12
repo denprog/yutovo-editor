@@ -1756,7 +1756,7 @@ bool ResultTask::Execute()
 
     if (!result.error.id.empty() && result.error.error_code != ErrorCode::SOLVER_RESTARTED_ERROR && result.error.error_code != ErrorCode::OK)
     {
-        ElementPtr p = document->FindParent(result.error.id, ElementType::ASSIGNMENT);
+        ElementPtr p = document->FindElementOrParent(result.error.id, ElementType::ASSIGNMENT);
         if (p)
         {
             //put error mark
@@ -1896,7 +1896,7 @@ bool ResolveDependeciesTask::Execute()
         CodeBlock* c = dynamic_cast<CodeBlock*>(el.get());
         uint code_id = c->code_id;
 
-        auto p = document->FindParent(after_id, ElementType::EQUATION);
+        auto p = document->FindElementOrParent(after_id, ElementType::EQUATION);
         if (p)
             solvings.push_back(p->id);
         
