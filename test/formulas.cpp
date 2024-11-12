@@ -1487,6 +1487,45 @@ TEST_F(FormulaTestCustom, insert11)
         ) << ToBasicString(document.ToText());
 }
 
+//Insert a formula before a code block
+TEST_F(FormulaTestCustom, insert12)
+{
+    Start(500);
+
+    int width = 500;
+    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
+        {
+            return Rect{0, 0, width, 400};
+        });
+
+    document.InsertCode(false, true);
+    document.WaitTask(document.InsertString("123", true));
+
+    document.WaitTask(document.MoveCaretToDocumentBegin(false));
+    document.WaitTask(document.InsertSquareRoot(true));
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<msqrt>"\
+                            "<mrow>"\
+                                "<mi>Null</mi>"\
+                            "</mrow>"\
+                        "</msqrt>"\
+                    "</mrow>"\
+                "</math>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mi>123</mi>"\
+                    "</mrow>"\
+                "</math>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 1, 0, 0})) << document.GetEditorState().ToString();
+}
+
 //Selection of a formula
 TEST_F(FormulaTestCustom, select1)
 {
