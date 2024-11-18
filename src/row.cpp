@@ -522,16 +522,33 @@ bool Row::GetTopCaretState(const int x, const int y, CaretState& caret_state, Se
             //select this row from start until caret pos
             if (GetFirstCaretState(next, nullptr))
             {
-                last = caret->GetCaretState();
-                while (next < last)
+                if (GetLastCaretState(last, nullptr) && last == next)
                 {
                     ElementPtr el = document->GetElement(next.id);
-                    if (!el || !el->GetRightCaretState(next, select))
-                        break;
+                    if (el)
+                    {
+                        CaretState c = caret->GetCaretState();
+                        if (parent->parent->elements->IsLast(parent->id) || (parent->parent->elements->IsFirst(parent->id) && c.IsInsideElement(id)))
+                            el->GetLastCaretState(next, nullptr);
+                        else
+                            el->GetLastCaretState(next, nullptr);
+                        caret_state = next;
+                        caret->SetState(next, false);
+                    }
                 }
-                GetFirstCaretState(next, nullptr);
-                caret_state = next;
-                caret->SetState(next, false);
+                else
+                {
+                    last = caret->GetCaretState();
+                    while (next < last)
+                    {
+                        ElementPtr el = document->GetElement(next.id);
+                        if (!el || !el->GetRightCaretState(next, select))
+                            break;
+                    }
+                    GetFirstCaretState(next, nullptr);
+                    caret_state = next;
+                    caret->SetState(next, false);
+                }
             }
         }
         return parent->GetTopCaretState(x, y, caret_state, select);
@@ -546,18 +563,26 @@ bool Row::GetTopCaretState(const int x, const int y, CaretState& caret_state, Se
     Rect r = document->GetCaretRect(next);
 	int min_dist = r.DistToPoint(x, y);
 
-    while (next != last)
+    CaretState c = caret->GetCaretState();
+    if (next == last && !c.IsInsideElement(id) && select)
     {
-        ElementPtr el = document->GetParent(next.id);
-        if (!el->GetRightCaretState(next, nullptr))
-            break;
-        
-        r = document->GetCaretRect(next);
-        int dist = r.DistToPoint(x, y);
-        if (dist < min_dist)
+        select->Add(parent->id);
+    }
+    else
+    {
+        while (next != last)
         {
-            min_dist = dist;
-            caret_state = next;
+            ElementPtr el = document->GetParent(next.id);
+            if (!el->GetRightCaretState(next, nullptr))
+                break;
+            
+            r = document->GetCaretRect(next);
+            int dist = r.DistToPoint(x, y);
+            if (dist < min_dist)
+            {
+                min_dist = dist;
+                caret_state = next;
+            }
         }
     }
 
@@ -585,15 +610,34 @@ bool Row::GetBottomCaretState(const int x, const int y, CaretState& caret_state,
             //select this row from caret pos until the end
             if (GetLastCaretState(last, nullptr))
             {
-                next = caret->GetCaretState();
-                while (next < last)
+                if (GetFirstCaretState(next, nullptr) && last == next)
                 {
+                    if (parent->parent->elements->IsLast(parent->id))
+                        return parent->GetBottomCaretState(x, y, caret_state, nullptr);
                     ElementPtr el = document->GetElement(next.id);
-                    if (!el || !el->GetRightCaretState(next, select))
-                        break;
+                    if (el)
+                    {
+                        CaretState c = caret->GetCaretState();
+                        if (parent->parent->elements->IsFirst(parent->id) || c.IsInsideElement(id))
+                            select->Add(parent->id);
+                        else
+                            el->GetLastCaretState(next, nullptr);
+                        caret_state = next;
+                        caret->SetState(next, false);
+                    }
                 }
-                caret_state = next;
-                caret->SetState(next, false);
+                else
+                {
+                    next = caret->GetCaretState();
+                    while (next < last)
+                    {
+                        ElementPtr el = document->GetElement(next.id);
+                        if (!el || !el->GetRightCaretState(next, select))
+                            break;
+                    }
+                    caret_state = next;
+                    caret->SetState(next, false);
+                }
             }
         }
         return parent->GetBottomCaretState(x, y, caret_state, select);

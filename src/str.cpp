@@ -871,9 +871,18 @@ void StringElements::Draw() const
             //draw text with selection
             Rect r = parent->GetAbsoluteRect();
             int p = parent->window->GetCharPos(str, format, start);
-            std::u32string u_part = str.substr(start, size);
-            parent->window->DrawText(ToBasicString(u_part), format, Rect{r.left + p, r.top, r.width - p, r.height}, 
-                format->text_bg_color, format->text_bg_selection_color);
+            if (str.empty() && start == 0 && size == 0)
+            {
+                Size s = parent->window->GetTextSize(U" ", format);
+                parent->window->DrawText(" ", format, Rect{r.left + p, r.top, s.width, r.height}, 
+                    format->text_bg_color, format->text_bg_selection_color);
+            }
+            else
+            {
+                std::u32string u_part = str.substr(start, size);
+                parent->window->DrawText(ToBasicString(u_part), format, Rect{r.left + p, r.top, r.width - p, r.height}, 
+                    format->text_bg_color, format->text_bg_selection_color);
+            }
         }
     }
     else
