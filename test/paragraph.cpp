@@ -3286,4 +3286,46 @@ TEST_F(ParagraphTest, delete22)
         ) << ToBasicString(document.ToText());
 }
 
+//Delete empty paragraphs
+TEST_F(ParagraphTest, delete23)
+{
+    Start(600);
+
+    document.WaitTask(document.InsertParagraph(false));
+    document.WaitTask(document.InsertString("Text", true));
+    document.WaitTask(document.InsertParagraph(false));
+    document.WaitTask(document.InsertParagraph(false));
+    ASSERT_TRUE(document.ToText() == 
+        U"\n"\
+        U"Text"\
+        U"\n"\
+        U"\n"
+        ) << ToBasicString(document.ToText());
+    
+    document.MoveCaretUp(true);
+    document.MoveCaretUp(true);
+    document.WaitTask(document.MoveCaretUp(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0}, 
+        ElementSelectionState{ElementId{0}, 0, 3})) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.DeleteElements(true, true));
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.ToText() == 
+        U""
+        ) << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0})) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"\n"\
+        U"Text"\
+        U"\n"\
+        U"\n"
+        ) << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0}, 
+        ElementSelectionState{ElementId{0}, 0, 3})) << document.GetEditorState().ToString();
+}
+
 }
