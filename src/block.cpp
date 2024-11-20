@@ -63,77 +63,75 @@ bool Block::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo, E
 
         ElementPtr cur = document->GetElement(before_state.id);
         std::vector<ElementPtr> els;
+        //insert the paragraphs
         if (document->pasting)
         {
-            //insert the first paragraph as a row
-            auto el = _els[0];
-            if (!document->IsParagraph(el))
-                return false;
-            ElementPtr row = ((Paragraph*)el.get())->GetPlainRow();
-            els.push_back(row);
-        }
-        else
-            els.push_back(_els[0]);
-
-        if (!cur)
-            cur = document->GetParent(before_state.id);
-        if (!cur || !cur->InsertElements(els, with_undo, changed_element))
-            return false;
-        
-        //insert the rest of the paragraphs
-        if (document->pasting)
-        {
-            for (int i = 1; i < _els.size() - 1; ++i)
+            int i = 0;
+            if (document->IsParagraph(_els[0]))
             {
-                if (!document->IsParagraph(_els[i]))
-                    return false;
-                els.clear();
-
-                if (document->FindParent(cur->id, ElementType::CODE_BLOCK))
+                if (!_els[0]->IsEmpty())
                 {
-                    els.push_back(ElementPtr(new CodeParagraph(this, true)));
-                    if (!InsertElements(els, with_undo, changed_element))
-                        return false;
                     ElementPtr row = ((Paragraph*)_els[i].get())->GetPlainRow();
                     els.clear();
                     els.push_back(row);
                     cur = document->GetElement(caret->GetElement()->id);
                     if (!cur->InsertElements(els, with_undo, changed_element))
                         return false;
-                }
-                else
-                {
-                    Paragraph* p = ((Paragraph*)_els[i].get());
-                    p->MakePlain();
-                    els.push_back(_els[i]);
-                    if (!InsertElements(els, with_undo, changed_element))
-                        return false;
+                    i = 1;
+
+                    if (_els.size() > 1 && _els[1]->IsEmpty())
+                    {
+                        els.clear();
+                        if (document->FindParent(cur->id, ElementType::CODE_BLOCK))
+                            els.push_back(ElementPtr(new CodeParagraph(this, true)));
+                        else
+                            els.push_back(ElementPtr(new Paragraph(this, true)));
+                        if (!InsertElements(els, with_undo, changed_element))
+                            return false;
+                    }
                 }
             }
-
-            if (_els.size() > 1)
+            for (; i < _els.size(); ++i)
             {
-                cur = document->GetElement(caret->GetElement()->id);
-                if (!cur)
-                    return false;
                 els.clear();
-                if (document->FindParent(cur->id, ElementType::CODE_BLOCK))
-                    els.push_back(ElementPtr(new CodeParagraph(this, true)));
-                else
-                    els.push_back(ElementPtr(new Paragraph(this, true)));
-
-                if (!cur->InsertElements(els, with_undo, changed_element))
-                    return false;
-                ElementPtr row = ((Paragraph*)_els[_els.size() - 1].get())->GetPlainRow();
-                els.clear();
-                els.push_back(row);
-                cur = document->GetElement(caret->GetElement()->id);
-                if (!cur->InsertElements(els, with_undo, changed_element))
+                if (document->IsParagraph(_els[i]))
+                {
+                    cur = document->GetElement(caret->GetElement()->id);
+                    if (document->FindParent(cur->id, ElementType::CODE_BLOCK))
+                    {
+                        els.push_back(ElementPtr(new CodeParagraph(this, true)));
+                        if (!InsertElements(els, with_undo, changed_element))
+                            return false;
+                        ElementPtr row = ((Paragraph*)_els[i].get())->GetPlainRow();
+                        els.clear();
+                        els.push_back(row);
+                        cur = document->GetElement(caret->GetElement()->id);
+                        if (!cur->InsertElements(els, with_undo, changed_element))
+                            return false;
+                    }
+                    else
+                    {
+                        Paragraph* p = ((Paragraph*)_els[i].get());
+                        p->MakePlain();
+                        els.push_back(_els[i]);
+                        if (!InsertElements(els, with_undo, changed_element))
+                            return false;
+                    }
+                    continue;
+                }
+                els.push_back(_els[i]);
+                cur = document->GetParent(before_state.id);
+                if (!cur || !cur->InsertElements(els, with_undo, changed_element))
                     return false;
             }
         }
         else
         {
+            els.push_back(_els[0]);
+            if (!cur)
+                cur = document->GetParent(before_state.id);
+            if (!cur || !cur->InsertElements(els, with_undo, changed_element))
+                return false;
             for (int i = 1; i < _els.size(); ++i)
             {
                 if (!document->IsParagraph(_els[i]))
@@ -175,16 +173,7 @@ bool Block::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo, E
         {
             if (paragraph->elements->GetElementPos(row->id) == 0)
             {
-                elements->Insert(insert_element, k);
-                if (k < elements->Count() - 1)
-                {
-                    CaretState after;
-                    if (elements->Get(k + 1)->GetFirstCaretState(after, nullptr))
-                    {
-                        caret->SetState(after);
-                        last = after;
-                    }
-                }
+                elements->Insert(insert_element, (document->pasting && paragraph->type == ElementType::PARAGRAPH && row->IsEmpty()) ? k + 1 : k);
             }
             else
             {

@@ -2744,6 +2744,7 @@ TEST_F(DocumentTest, clipboard52)
     document.WaitTask(document.MoveCaretDown(true));
 
     document.WaitTask(document.Cut(clipboard_json, clipboard_text));
+    std::this_thread::sleep_for(200ms);
     ASSERT_TRUE(document.ToText() == 
         U"123\n"\
         U"TTT"
@@ -2751,8 +2752,7 @@ TEST_F(DocumentTest, clipboard52)
 
     document.WaitTask(document.Paste(clipboard_json));
     ASSERT_TRUE(document.ToText() == 
-        U"Text\n"\
-        U"123\n"\
+        U"Text123\n"\
         U"TTT"
         ) << ToBasicString(document.ToText());
 
@@ -3411,6 +3411,260 @@ TEST_F(DocumentTest, clipboard61)
             "</p>"\
         "</body>") << 
         document.ToHtml();
+}
+
+//Cut-paste empty paragraphs
+TEST_F(DocumentTest, clipboard62)
+{
+    Start(600);
+
+    EXPECT_CALL(window_mock, OnCopyResult).WillRepeatedly([&](CopyResult result)
+        {
+            ASSERT_TRUE(result == CopyResult::Success);
+        });
+
+    EXPECT_CALL(window_mock, OnPasteResult).WillRepeatedly([&](PasteResult result)
+        {
+            ASSERT_TRUE(result == PasteResult::Success);
+        });
+
+    document.WaitTask(document.InsertParagraph(true));
+    document.WaitTask(document.InsertString("Text1", true));
+    document.WaitTask(document.InsertParagraph(true));
+    document.WaitTask(document.InsertString("Text2", true));
+    ASSERT_TRUE(document.ToText() == 
+        U"\n"\
+        U"Text1\n"\
+        U"Text2"
+        ) << ToBasicString(document.ToText());
+    
+    document.WaitTask(document.MoveCaretToDocumentBegin(false));
+    document.WaitTask(document.MoveCaretDown(true));
+    document.WaitTask(document.MoveCaretDown(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 2, 0, 0, 0}, 
+        ElementSelectionState{ElementId{0}, 0, 2})) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.Cut(clipboard_json, clipboard_text));
+    ASSERT_TRUE(document.ToText() == 
+        U"Text2"
+        ) << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0})) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.Paste(clipboard_json));
+    ASSERT_TRUE(document.ToText() == 
+        U"\n"\
+        U"Text1\n"\
+        U"Text2"
+        ) << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 1, 0, 0, 5})) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    ASSERT_TRUE(document.ToText() == 
+        U"Text2"
+        ) << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0})) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    ASSERT_TRUE(document.ToText() == 
+        U"\n"\
+        U"Text1\n"\
+        U"Text2"
+        ) << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 2, 0, 0, 0}, 
+        ElementSelectionState{ElementId{0}, 0, 2})) << document.GetEditorState().ToString();
+}
+
+//Cut-paste text with empty paragraphs
+TEST_F(DocumentTest, clipboard63)
+{
+    Start(600);
+
+    EXPECT_CALL(window_mock, OnCopyResult).WillRepeatedly([&](CopyResult result)
+        {
+            ASSERT_TRUE(result == CopyResult::Success);
+        });
+
+    EXPECT_CALL(window_mock, OnPasteResult).WillRepeatedly([&](PasteResult result)
+        {
+            ASSERT_TRUE(result == PasteResult::Success);
+        });
+
+    document.WaitTask(document.InsertString("Text1", true));
+    document.WaitTask(document.InsertParagraph(true));
+    document.WaitTask(document.InsertParagraph(true));
+    document.WaitTask(document.InsertString("Text2", true));
+    ASSERT_TRUE(document.ToText() == 
+        U"Text1\n"\
+        U"\n"\
+        U"Text2"
+        ) << ToBasicString(document.ToText());
+
+    document.MoveCaretToDocumentBegin(false);
+    document.WaitTask(document.MoveCaretDown(true));
+    document.WaitTask(document.MoveCaretDown(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 2, 0, 0, 0}, 
+        ElementSelectionState{ElementId{0}, 0, 2})) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.Cut(clipboard_json, clipboard_text));
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"Text2"
+        ) << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0})) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.Paste(clipboard_json));
+    ASSERT_TRUE(document.ToText() == 
+        U"Text1\n"\
+        U"\n"\
+        U"Text2"
+        ) << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 1, 0, 0, 0})) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    ASSERT_TRUE(document.ToText() == 
+        U"Text2"
+        ) << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0})) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    ASSERT_TRUE(document.ToText() == 
+        U"Text1\n"\
+        U"\n"\
+        U"Text2"
+        ) << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 2, 0, 0, 0}, 
+        ElementSelectionState{ElementId{0}, 0, 2})) << document.GetEditorState().ToString();
+}
+
+//Cut-paste text with empty paragraphs
+TEST_F(DocumentTest, clipboard64)
+{
+    Start(500);
+
+    EXPECT_CALL(window_mock, OnCopyResult).WillRepeatedly([&](CopyResult result)
+        {
+            ASSERT_TRUE(result == CopyResult::Success);
+        });
+
+    EXPECT_CALL(window_mock, OnPasteResult).WillRepeatedly([&](PasteResult result)
+        {
+            ASSERT_TRUE(result == PasteResult::Success);
+        });
+
+    document.SetFontSize(22);
+    document.WaitTask(document.InsertString("The source of the text itself is a little strange.", true));
+    document.InsertParagraph(true);
+    document.InsertParagraph(true);
+    document.WaitTask(document.InsertString("Text.", true));
+
+    document.MoveCaretToDocumentBegin(false);
+    document.MoveCaretDown(false);
+    document.MoveCaretDown(true);
+    document.MoveCaretDown(true);
+    document.WaitTask(document.MoveCaretDown(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 2, 0, 0, 5}, 
+        ElementSelectionState{ElementId{0, 0}, 1, 1},
+        ElementSelectionState{ElementId{0}, 1, 2})) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.Cut(clipboard_json, clipboard_text));
+    ASSERT_TRUE(document.ToText() == 
+        U"The source of the text itself is a "
+        ) << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 35})) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.Paste(clipboard_json));
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"The source of the text itself is a little strange.\n"\
+        U"\n"\
+        U"Text."
+        ) << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 2, 0, 0, 5})) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    ASSERT_TRUE(document.ToText() == 
+        U"The source of the text itself is a "
+        ) << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 35})) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    ASSERT_TRUE(document.ToText() == 
+        U"The source of the text itself is a little strange.\n"\
+        U"\n"\
+        U"Text."
+        ) << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 2, 0, 0, 5}, 
+        ElementSelectionState{ElementId{0, 0}, 1, 1},
+        ElementSelectionState{ElementId{0}, 1, 2})) << document.GetEditorState().ToString();
+}
+
+//Cut-paste text with empty paragraphs
+TEST_F(DocumentTest, clipboard65)
+{
+    Start(500);
+
+    EXPECT_CALL(window_mock, OnCopyResult).WillRepeatedly([&](CopyResult result)
+        {
+            ASSERT_TRUE(result == CopyResult::Success);
+        });
+
+    EXPECT_CALL(window_mock, OnPasteResult).WillRepeatedly([&](PasteResult result)
+        {
+            ASSERT_TRUE(result == PasteResult::Success);
+        });
+
+    document.SetFontSize(22);
+    document.WaitTask(document.InsertString("The source of the text itself is a little strange.", true));
+    document.InsertParagraph(true);
+    document.InsertParagraph(true);
+    document.WaitTask(document.InsertString("Text.", true));
+
+    document.MoveCaretUp(false);
+    document.MoveCaretUp(false);
+    document.MoveCaretDown(true);
+    document.WaitTask(document.MoveCaretDown(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 2, 0, 0, 5}, 
+        ElementSelectionState{ElementId{0, 0, 1, 0}, 7, 8},
+        ElementSelectionState{ElementId{0}, 1, 2})) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.Cut(clipboard_json, clipboard_text));
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"The source of the text itself is a little "
+        ) << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 0, 7})) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.Paste(clipboard_json));
+    ASSERT_TRUE(document.ToText() == 
+        U"The source of the text itself is a little strange.\n"\
+        U"\n"\
+        U"Text."
+        ) << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 2, 0, 0, 5})) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    ASSERT_TRUE(document.ToText() == 
+        U"The source of the text itself is a little "
+        ) << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 0, 7})) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    ASSERT_TRUE(document.ToText() == 
+        U"The source of the text itself is a little strange.\n"\
+        U"\n"\
+        U"Text."
+        ) << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 2, 0, 0, 5}, 
+        ElementSelectionState{ElementId{0, 0, 1, 0}, 7, 8},
+        ElementSelectionState{ElementId{0}, 1, 2})) << document.GetEditorState().ToString();
 }
 
 }
