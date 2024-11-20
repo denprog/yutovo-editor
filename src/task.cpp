@@ -1668,6 +1668,14 @@ bool CopyTask::Execute()
         document->GetElement(_id)->Copy(copy);
     }
 
+    if (copy.size() == 1 && copy[0]->type == ElementType::TEXT)
+    {
+        ElementPtr t = copy[0];
+        for (int i = 0; i < t->elements->Count(); ++i)
+            copy.push_back(t->elements->Get(i));
+        copy.erase(copy.begin());
+    }
+
     for (auto& el : copy)
     {
         out_text += el->ToText();
