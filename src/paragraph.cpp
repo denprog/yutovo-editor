@@ -378,6 +378,72 @@ bool Paragraph::ChangeParagraphFormat(const ParagraphFormatPtr _format, bool wit
     return true;
 }
 
+bool Paragraph::GetLeftCaretState(CaretState& caret_state, Selection* select)
+{
+    if (select && IsEmpty())
+    {
+        if (parent->elements->IsLast(id))
+            return parent->GetLeftCaretState(caret_state, select);
+        if (select->IsSelected(id))
+        {
+            if (selected_left)
+                return parent->GetLeftCaretState(caret_state, select);
+
+            selected_left = true;
+            select->Add(id);
+            if (parent->elements->IsFirst(id))
+            {
+                GetFirstCaretState(caret_state, nullptr);
+                return true;
+            }
+            return parent->GetLeftCaretState(caret_state, select);
+        }
+
+        CaretState c = caret->GetCaretState();
+        if (yutovo::GetChildPos(id) < yutovo::GetChildPos(parent->id, c.id))
+        {
+            selected_left = true;
+            select->Add(id);
+            GetFirstCaretState(caret_state, nullptr);
+            return true;
+        }
+    }
+    return Element::GetLeftCaretState(caret_state, select);
+}
+
+bool Paragraph::GetRightCaretState(CaretState& caret_state, Selection* select)
+{
+    if (select && IsEmpty())
+    {
+        if (parent->elements->IsLast(id))
+            return false;
+        if (select->IsEmpty())
+        {
+            selected_left = false;
+            select->Add(id);
+            return true;
+        }
+        if (select->IsSelected(id))
+        {
+            if (selected_left)
+            {
+                if (caret->IsInsideElement(id))
+                {
+                    select->Add(id);
+                    return parent->GetRightCaretState(caret_state, select);
+                }
+                select->Add(id);
+                return parent->GetRightCaretState(caret_state, nullptr);
+            }
+            return parent->GetRightCaretState(caret_state, select);
+        }
+        selected_left = false;
+        select->Add(id);
+        return true;
+    }
+    return Element::GetRightCaretState(caret_state, select);
+}
+
 bool Paragraph::GetTopCaretState(const int x, const int y, CaretState& caret_state, Selection* select)
 {
     ElementPtr row;

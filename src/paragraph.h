@@ -32,6 +32,8 @@ public:
     virtual bool DeleteElements(bool left, bool with_undo, ElementId& changed_element);
     virtual bool ChangeParagraphFormat(const ParagraphFormatPtr _format, bool with_undo, ElementId& changed_element);
 
+    virtual bool GetLeftCaretState(CaretState& caret_state, Selection* select);
+    virtual bool GetRightCaretState(CaretState& caret_state, Selection* select);
     virtual bool GetTopCaretState(const int x, const int y, CaretState& caret_state, Selection* select);
     virtual bool GetBottomCaretState(const int x, const int y, CaretState& caret_state, Selection* select);
 
@@ -54,6 +56,9 @@ public:
 public:
     ParagraphFormatPtr format;
     StringFormatPtr current_string_format;
+
+protected:
+    bool selected_left = false; //for empty paragraphs
 };
 
 }
