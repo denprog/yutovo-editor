@@ -23,6 +23,7 @@ TEST_F(DocumentTest, files1)
     std::this_thread::sleep_for(200ms);
     ASSERT_TRUE(document.IsChanged() == true);
     document.WaitTask(document.Save("1.yut"));
+    std::this_thread::sleep_for(200ms);
     ASSERT_TRUE(document.IsChanged() == false);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
