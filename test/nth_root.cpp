@@ -345,6 +345,7 @@ TEST_F(FormulaTest, nth_root4)
 
     document.Undo();
     document.WaitUndo();
+    std::this_thread::sleep_for(200ms);
     ASSERT_TRUE(document.ToText() == 
         U"root(,)"
         ) << ToBasicString(document.ToText());

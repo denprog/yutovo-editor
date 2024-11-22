@@ -1101,7 +1101,12 @@ bool StringElements::GetWordRightCaretState(CaretState& caret_state, Selection* 
         }
     }
     if (select)
-        select->Add(parent->id, pos, Count() - pos);
+    {
+        if (pos == 0 && parent->parent->elements->Count() == 1 && parent->parent->parent->elements->Count() == 1)
+            select->Add(parent->parent->parent->id);
+        else
+            select->Add(parent->id, pos, Count() - pos);
+    }
     return GetLastCaretState(caret_state, nullptr);
 }
 

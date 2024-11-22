@@ -729,7 +729,7 @@ bool Row::GetWordLeftCaretState(CaretState& caret_state, Selection* select)
             if (p > 0)
             {
                 //move to the previous paragraph
-                if (parent->parent->elements->Get(p - 1)->GetLastCaretState(c, nullptr))
+                if (parent->parent->elements->Get(p - 1)->GetLastCaretState(c, select))
                 {
                     caret_state = c;
                     return true;
@@ -790,7 +790,7 @@ bool Row::GetWordRightCaretState(CaretState& caret_state, Selection* select)
                 {
                     //move to the next paragraph
                     CaretState c;
-                    if (parent->parent->elements->Get(p + 1)->GetFirstCaretState(c, nullptr))
+                    if (parent->parent->elements->Get(p + 1)->GetFirstCaretState(c, select))
                     {
                         caret_state = c;
                         return true;

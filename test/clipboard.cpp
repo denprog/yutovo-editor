@@ -3460,6 +3460,7 @@ TEST_F(DocumentTest, clipboard62)
 
     document.Undo();
     document.WaitUndo();
+    std::this_thread::sleep_for(200ms);
     ASSERT_TRUE(document.ToText() == 
         U"Text2"
         ) << ToBasicString(document.ToText());
@@ -3467,6 +3468,7 @@ TEST_F(DocumentTest, clipboard62)
 
     document.Undo();
     document.WaitUndo();
+    std::this_thread::sleep_for(200ms);
     ASSERT_TRUE(document.ToText() == 
         U"\n"\
         U"Text1\n"\
