@@ -99,9 +99,15 @@ bool Block::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo, E
                     cur = document->GetElement(caret->GetElement()->id);
                     if (document->FindParent(cur->id, ElementType::CODE_BLOCK))
                     {
-                        els.push_back(ElementPtr(new CodeParagraph(this, true)));
-                        if (!InsertElements(els, with_undo, changed_element))
-                            return false;
+                        ElementPtr paragraph = document->FindParentParagraph(cur->id);
+                        int k = elements->GetElementPos(paragraph->id);
+                        elements->Insert(ElementPtr(new CodeParagraph(this, true)), k + 1);
+                        CaretState c;
+                        elements->Get(k + 1)->GetFirstCaretState(c, nullptr);
+                        caret->SetState(c);
+                        if (with_undo)
+                            document->StoreUndo(id, k + 1, 1, 0, UndoTask::UndoOperation::DELETE);
+
                         ElementPtr row = ((Paragraph*)_els[i].get())->GetPlainRow();
                         els.clear();
                         els.push_back(row);

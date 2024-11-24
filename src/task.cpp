@@ -1656,11 +1656,13 @@ bool CopyTask::Execute()
             {
                 if (c_id.size() == 1)
                 {
-                    std::vector<ElementPtr> c;
                     ElementPtr p(new Paragraph(document, true));
-                    document->GetElement(_id)->Copy(c);
-                    p->elements->Get(0)->elements->Add(c[0]);
                     copy.push_back(p);
+                    std::vector<ElementPtr> c;
+                    ElementPtr r(new Row(document));
+                    document->GetElement(_id)->Copy(c);
+                    r->elements->Add(c[0]);
+                    copy.push_back(r);
                     continue;
                 }
             }
