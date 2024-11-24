@@ -3669,4 +3669,66 @@ TEST_F(DocumentTest, clipboard65)
         ElementSelectionState{ElementId{0}, 1, 2})) << document.GetEditorState().ToString();
 }
 
+//Cut-paste paragraphs with empty ones
+TEST_F(DocumentTest, clipboard66)
+{
+    Start(600);
+
+    document.InsertString("In literary theory, a text is any object", true);
+    document.InsertParagraph(true);
+    document.InsertParagraph(true);
+    document.WaitTask(document.InsertString("that can be read", true));
+    ASSERT_TRUE(document.ToText() == 
+        U"In literary theory, a text is any object\n"\
+        U"\n"\
+        U"that can be read"
+        ) << ToBasicString(document.ToText());
+
+    document.MoveCaretHome(false);
+    document.MoveCaretWordRight(false);
+    for (int i = 0; i < 6; ++i)
+        document.WaitTask(document.MoveCaretWordLeft(true));
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 27}, 
+        ElementSelectionState{ElementId{0, 0, 0, 0}, 27, 13},
+        ElementSelectionState{ElementId{0}, 1, 1}, 
+        ElementSelectionState{ElementId{0, 2, 0, 0}, 0, 4})) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.Cut(clipboard_json, clipboard_text));
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"In literary theory, a text  can be read"
+        ) << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 27})) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.Paste(clipboard_json));
+    ASSERT_TRUE(document.ToText() == 
+        U"In literary theory, a text is any object\n"\
+        U"\n"\
+        U"that can be read"
+        ) << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 2, 0, 0, 4})) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"In literary theory, a text  can be read"
+        ) << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 27})) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"In literary theory, a text is any object\n"\
+        U"\n"\
+        U"that can be read"
+        ) << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 27}, 
+        ElementSelectionState{ElementId{0, 0, 0, 0}, 27, 13},
+        ElementSelectionState{ElementId{0}, 1, 1}, 
+        ElementSelectionState{ElementId{0, 2, 0, 0}, 0, 4})) << document.GetEditorState().ToString();
+}
+
 }
