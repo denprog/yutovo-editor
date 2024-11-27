@@ -38,8 +38,6 @@ public:
     virtual bool GetBottomCaretState(const int x, const int y, CaretState& caret_state, Selection* select);
     virtual bool GetWordLeftCaretState(CaretState& caret_state, Selection* select);
     virtual bool GetWordRightCaretState(CaretState& caret_state, Selection* select);
-    virtual bool GetFirstCaretState(CaretState& caret_state, Selection* select);
-    virtual bool GetLastCaretState(CaretState& caret_state, Selection* select);
 
     virtual bool CanContinueSelection();
 
@@ -60,9 +58,6 @@ public:
 public:
     ParagraphFormatPtr format;
     StringFormatPtr current_string_format;
-
-protected:
-    bool selected_left = false; //for selection of empty paragraphs
 };
 
 }

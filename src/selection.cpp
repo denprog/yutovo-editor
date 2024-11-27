@@ -576,6 +576,62 @@ bool Selection::IsSelected(const ElementId id) const
     return it != selection.end();
 }
 
+bool Selection::IsFirstSelected(const ElementId id) const
+{
+    if (selection.empty())
+        return false;
+    auto el = selection[0].element;
+    if (el->id == id || IsChild(el->id, id))
+        return true;
+    return false;
+}
+
+bool Selection::IsLastSelected(const ElementId id) const
+{
+    if (selection.empty())
+        return false;
+    auto el = selection[selection.size() - 1].element;
+    if (el->id == id || IsChild(el->id, id))
+        return true;
+    return false;
+}
+
+bool Selection::IsSelectionAbove(const ElementId id) const
+{
+    if (selection.empty())
+        return false;
+    auto el = document->GetElement(id);
+    while (el && el->parent)
+    {
+        int p = el->parent->elements->GetElementPos(id);
+        if (p > 0)
+        {
+            auto _el = el->parent->elements->Get(p - 1);
+            return IsSelected(_el->id);
+        }
+        el = document->GetElement(el->parent->id);
+    }
+    return false;
+}
+
+bool Selection::IsSelectionBelow(const ElementId id) const
+{
+    if (selection.empty())
+        return false;
+    auto el = document->GetElement(id);
+    while (el && el->parent)
+    {
+        int p = el->parent->elements->GetElementPos(id);
+        if (p < el->parent->elements->Count() - 1)
+        {
+            auto _el = el->parent->elements->Get(p + 1);
+            return IsSelected(_el->id);
+        }
+        el = document->GetElement(el->parent->id);
+    }
+    return false;
+}
+
 void Selection::Optimize()
 {
     bool optimize = true;

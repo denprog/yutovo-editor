@@ -264,6 +264,7 @@ void Caret::MoveToDocumentBegin(Selection* selection)
     if (block)
         return;
     
+    left_up_direction = true;
     if (!selection)
     {
         CaretState c;
@@ -310,6 +311,7 @@ void Caret::MoveToDocumentEnd(Selection* selection)
     if (block)
         return;
 
+    left_up_direction = false;
     if (!selection)
     {
         CaretState c;
@@ -351,6 +353,7 @@ void Caret::MoveHome(Selection* selection)
 {
     if (block)
         return;
+    left_up_direction = true;
     CaretState c = GetCaretState();
     if (GetElement()->GetBeginCaretState(c, selection))
     {
@@ -363,6 +366,7 @@ void Caret::MoveEnd(Selection* selection)
 {
     if (block)
         return;
+    left_up_direction = false;
     CaretState c = GetCaretState();
     if (GetElement()->GetEndCaretState(c, selection))
     {
@@ -375,6 +379,7 @@ void Caret::MoveLeft(Selection* selection)
 {
     if (block)
         return;
+    left_up_direction = true;
     CaretState c = GetCaretState();
     if (GetElement()->GetLeftCaretState(c, selection))
     {
@@ -387,6 +392,7 @@ void Caret::MoveRight(Selection* selection)
 {
     if (block)
         return;
+    left_up_direction = false;
     CaretState c = GetCaretState();
     if (GetElement()->GetRightCaretState(c, selection))
     {
@@ -399,6 +405,7 @@ void Caret::MoveUp(Selection* selection)
 {
     if (block)
         return;
+    left_up_direction = true;
     Rect r = GetElement()->GetAbsoluteRect(GetElement()->GetCaretRect(GetPos()));
     if (last_x_element)
     {
@@ -415,6 +422,7 @@ void Caret::MoveDown(Selection* selection)
 {
     if (block)
         return;
+    left_up_direction = false;
     Rect r = GetElement()->GetAbsoluteRect(GetElement()->GetCaretRect(GetPos()));
     if (last_x_element)
     {
@@ -431,6 +439,7 @@ void Caret::MoveWordLeft(Selection* selection)
 {
     if (block)
         return;
+    left_up_direction = true;
     CaretState c = GetCaretState();
     if (GetElement()->GetWordLeftCaretState(c, selection))
     {
@@ -443,6 +452,7 @@ void Caret::MoveWordRight(Selection* selection)
 {
     if (block)
         return;
+    left_up_direction = false;
     CaretState c = GetCaretState();
     if (GetElement()->GetWordRightCaretState(c, selection))
     {
@@ -455,6 +465,7 @@ void Caret::MovePageUp(Selection* selection)
 {
     if (block)
         return;
+    left_up_direction = true;
     auto el = GetElement();
     auto paragraph = document->FindParent(el->id, ElementType::PARAGRAPH);
     auto row = document->FindParent(el->id, ElementType::ROW);
@@ -516,6 +527,7 @@ void Caret::MovePageDown(Selection* selection)
 {
     if (block)
         return;
+    left_up_direction = false;
     auto el = GetElement();
     auto paragraph = document->FindParent(el->id, ElementType::PARAGRAPH);
     auto row = document->FindParent(el->id, ElementType::ROW);
