@@ -3685,8 +3685,8 @@ TEST_F(DocumentTest, clipboard66)
         ) << ToBasicString(document.ToText());
 
     document.MoveCaretHome(false);
-    document.MoveCaretWordRight(false);
-    for (int i = 0; i < 6; ++i)
+    document.WaitTask(document.MoveCaretWordRight(false));
+    for (int i = 0; i < 5; ++i)
         document.WaitTask(document.MoveCaretWordLeft(true));
     std::this_thread::sleep_for(200ms);
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 27}, 

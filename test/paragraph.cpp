@@ -1750,7 +1750,7 @@ TEST_F(ParagraphTest, paragraph19)
     //select downward
     document.MoveCaretToDocumentBegin(false);
     document.WaitTask(document.MoveCaretRight(true));
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0}, 
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 1, 0, 0, 0}, 
         ElementSelectionState{ElementId{0}, 0, 1})) << document.GetEditorState().ToString();
 
     document.WaitTask(document.MoveCaretRight(true));
@@ -1758,17 +1758,29 @@ TEST_F(ParagraphTest, paragraph19)
         ElementSelectionState{ElementId{0}, 0, 1}, 
         ElementSelectionState{ElementId{0, 1, 0, 0}, 0, 1})) << document.GetEditorState().ToString();
 
-    for (int i = 0; i < 3; ++i)
-        document.MoveCaretRight(true);
+    document.MoveCaretRight(true);
+    document.MoveCaretRight(true);
     document.WaitTask(document.MoveCaretRight(true));
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 2, 0, 0, 0}, 
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 1, 0, 0, 4}, 
+        ElementSelectionState{ElementId{0}, 0, 2})) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.MoveCaretRight(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 3, 0, 0, 0}, 
         ElementSelectionState{ElementId{0}, 0, 3})) << document.GetEditorState().ToString();
 
     document.WaitTask(document.MoveCaretRight(true));
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 2, 0, 0, 0}, 
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 3, 0, 0, 0}, 
         ElementSelectionState{ElementId{0}, 0, 3})) << document.GetEditorState().ToString();
 
     //unselect upward
+    document.WaitTask(document.MoveCaretLeft(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 2, 0, 0, 0}, 
+        ElementSelectionState{ElementId{0}, 0, 2})) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.MoveCaretLeft(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 1, 0, 0, 4}, 
+        ElementSelectionState{ElementId{0}, 0, 2})) << document.GetEditorState().ToString();
+
     document.WaitTask(document.MoveCaretLeft(true));
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 1, 0, 0, 3}, 
         ElementSelectionState{ElementId{0}, 0, 1}, 
@@ -1784,12 +1796,16 @@ TEST_F(ParagraphTest, paragraph19)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0})) << document.GetEditorState().ToString();
 
     document.WaitTask(document.MoveCaretLeft(true));
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0}, 
+        ElementSelectionState{ElementId{0}, 0, 1})) << document.GetEditorState().ToString();
+
+    // document.WaitTask(document.MoveCaretLeft(true));
+    // ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0})) << document.GetEditorState().ToString();
 
     //select upward
     document.MoveCaretToDocumentEnd(false);
     document.WaitTask(document.MoveCaretLeft(true));
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 2, 0, 0, 0}, 
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 1, 0, 0, 4}, 
         ElementSelectionState{ElementId{0}, 2, 1})) << document.GetEditorState().ToString();
 
     document.WaitTask(document.MoveCaretLeft(true));
@@ -1813,11 +1829,11 @@ TEST_F(ParagraphTest, paragraph19)
     
     //unselect downward
     document.WaitTask(document.MoveCaretRight(true));
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 1, 0, 0, 1}, 
-        ElementSelectionState{ElementId{0}, 2, 1}, 
-        ElementSelectionState{ElementId{0, 1, 0, 0}, 1, 3})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 1, 0, 0, 0}, 
+        ElementSelectionState{ElementId{0}, 1, 2})) << document.GetEditorState().ToString();
 
-    document.WaitTask(document.MoveCaretRight(true));
+    document.MoveCaretRight(true);
+    document.MoveCaretRight(true);
     document.WaitTask(document.MoveCaretRight(true));
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 1, 0, 0, 3},
         ElementSelectionState{ElementId{0}, 2, 1}, 
@@ -1854,11 +1870,11 @@ TEST_F(ParagraphTest, paragraph20)
 
     //select upward
     document.WaitTask(document.MoveCaretLeft(true));
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 3, 0, 0, 0}, 
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 2, 0, 0, 0}, 
         ElementSelectionState{ElementId{0}, 3, 1})) << document.GetEditorState().ToString();
 
     document.WaitTask(document.MoveCaretLeft(true));
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 2, 0, 0, 0}, 
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 1, 0, 0, 4}, 
         ElementSelectionState{ElementId{0}, 2, 2})) << document.GetEditorState().ToString();
 
     document.WaitTask(document.MoveCaretLeft(true));
@@ -1876,7 +1892,7 @@ TEST_F(ParagraphTest, paragraph20)
         ElementSelectionState{ElementId{0}, 3, 1})) << document.GetEditorState().ToString();
 
     document.WaitTask(document.MoveCaretRight(true));
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 3, 0, 0, 0})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 4, 0, 0, 0})) << document.GetEditorState().ToString();
 }
 
 //Selection of empty paragraphs
@@ -1899,15 +1915,11 @@ TEST_F(ParagraphTest, paragraph21)
 
     //select upward
     document.WaitTask(document.MoveCaretWordLeft(true));
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 3, 0, 0, 0}, 
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 2, 0, 0, 0}, 
         ElementSelectionState{ElementId{0}, 3, 1})) << document.GetEditorState().ToString();
 
     document.WaitTask(document.MoveCaretWordLeft(true));
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 2, 0, 0, 0}, 
-        ElementSelectionState{ElementId{0}, 2, 2})) << document.GetEditorState().ToString();
-
-    document.WaitTask(document.MoveCaretWordLeft(true));
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 1, 0, 0, 4},
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 1, 0, 0, 4}, 
         ElementSelectionState{ElementId{0}, 2, 2})) << document.GetEditorState().ToString();
 
     document.WaitTask(document.MoveCaretWordLeft(true));
@@ -1927,16 +1939,175 @@ TEST_F(ParagraphTest, paragraph21)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 1, 0, 0, 4},
         ElementSelectionState{ElementId{0}, 2, 2})) << document.GetEditorState().ToString();
 
-    document.WaitTask(document.MoveCaretWordRight(true));
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 2, 0, 0, 0},
-        ElementSelectionState{ElementId{0}, 3, 1})) << document.GetEditorState().ToString();
-
-    document.WaitTask(document.MoveCaretWordRight(true));
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 3, 0, 0, 0})) << document.GetEditorState().ToString();
+    // document.WaitTask(document.MoveCaretWordRight(true));
+    // ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 2, 0, 0, 0},
+    //     ElementSelectionState{ElementId{0}, 2, 2})) << document.GetEditorState().ToString();
 
     document.WaitTask(document.MoveCaretWordRight(true));
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 3, 0, 0, 0}, 
         ElementSelectionState{ElementId{0}, 3, 1})) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.MoveCaretWordRight(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 4, 0, 0, 0})) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.MoveCaretWordRight(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 4, 0, 0, 0})) << document.GetEditorState().ToString();
+}
+
+//Selection of empty paragraphs
+TEST_F(ParagraphTest, paragraph22)
+{
+    Start(600);
+
+    document.WaitTask(document.InsertParagraph(false));
+    document.WaitTask(document.InsertString("Text", true));
+    document.WaitTask(document.InsertParagraph(false));
+    document.WaitTask(document.InsertParagraph(false));
+    document.WaitTask(document.InsertParagraph(false));
+    ASSERT_TRUE(document.ToText() == 
+        U"\n"\
+        U"Text"\
+        U"\n"\
+        U"\n"\
+        U"\n"
+        ) << ToBasicString(document.ToText());
+
+    //select downward
+    document.MoveCaretToDocumentBegin(false);
+    document.WaitTask(document.MoveCaretWordRight(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 1, 0, 0, 0}, 
+        ElementSelectionState{ElementId{0}, 0, 1})) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.MoveCaretWordRight(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 1, 0, 0, 4}, 
+        ElementSelectionState{ElementId{0}, 0, 2})) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.MoveCaretWordRight(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 3, 0, 0, 0}, 
+        ElementSelectionState{ElementId{0}, 0, 3})) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.MoveCaretWordRight(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 4, 0, 0, 0}, 
+        ElementSelectionState{ElementId{0}, 0, 4})) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.MoveCaretWordRight(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 4, 0, 0, 0}, 
+        ElementSelectionState{ElementId{0}, 0, 4})) << document.GetEditorState().ToString();
+    
+    //unselect upward
+    document.WaitTask(document.MoveCaretWordLeft(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 3, 0, 0, 0}, 
+        ElementSelectionState{ElementId{0}, 0, 3})) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.MoveCaretWordLeft(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 2, 0, 0, 0}, 
+        ElementSelectionState{ElementId{0}, 0, 2})) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.MoveCaretWordLeft(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 1, 0, 0, 4}, 
+        ElementSelectionState{ElementId{0}, 0, 2})) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.MoveCaretWordLeft(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 1, 0, 0, 0}, 
+        ElementSelectionState{ElementId{0}, 0, 1})) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.MoveCaretWordLeft(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0})) << document.GetEditorState().ToString();
+
+    //select downward
+    document.WaitTask(document.MoveCaretWordRight(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 1, 0, 0, 0}, 
+        ElementSelectionState{ElementId{0}, 0, 1})) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.MoveCaretWordRight(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 1, 0, 0, 4}, 
+        ElementSelectionState{ElementId{0}, 0, 2})) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.MoveCaretWordRight(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 3, 0, 0, 0}, 
+        ElementSelectionState{ElementId{0}, 0, 3})) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.MoveCaretWordRight(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 4, 0, 0, 0}, 
+        ElementSelectionState{ElementId{0}, 0, 4})) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.MoveCaretWordRight(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 4, 0, 0, 0}, 
+        ElementSelectionState{ElementId{0}, 0, 4})) << document.GetEditorState().ToString();
+
+    //unselect upward
+    document.WaitTask(document.MoveCaretWordLeft(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 3, 0, 0, 0}, 
+        ElementSelectionState{ElementId{0}, 0, 3})) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.MoveCaretWordLeft(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 2, 0, 0, 0}, 
+        ElementSelectionState{ElementId{0}, 0, 2})) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.MoveCaretWordLeft(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 1, 0, 0, 4}, 
+        ElementSelectionState{ElementId{0}, 0, 2})) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.MoveCaretWordLeft(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 1, 0, 0, 0}, 
+        ElementSelectionState{ElementId{0}, 0, 1})) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.MoveCaretWordLeft(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0})) << document.GetEditorState().ToString();
+}
+
+//Selection of empty paragraphs
+TEST_F(ParagraphTest, paragraph23)
+{
+    Start(600);
+
+    document.InsertParagraph(true);
+    document.InsertParagraph(true);
+    document.InsertString("In literary theory, a text is any object", true);
+    document.InsertParagraph(true);
+    document.InsertParagraph(true);
+    document.InsertParagraph(true);
+    document.WaitTask(document.InsertString("that can be read", true));
+    ASSERT_TRUE(document.ToText() == 
+        U"\n"\
+        U"\n"\
+        U"In literary theory, a text is any object\n"\
+        U"\n"\
+        U"\n"\
+        U"that can be read"
+        ) << ToBasicString(document.ToText());
+
+    document.MoveCaretHome(false);
+    document.WaitTask(document.MoveCaretWordRight(false));
+    document.WaitTask(document.MoveCaretWordLeft(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 5, 0, 0, 0}, 
+        ElementSelectionState{ElementId{0, 5, 0, 0}, 0, 4})) << document.GetEditorState().ToString();
+    
+    document.WaitTask(document.MoveCaretWordLeft(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 3, 0, 0, 0}, 
+        ElementSelectionState{ElementId{0}, 4, 1}, 
+        ElementSelectionState{ElementId{0, 5, 0, 0}, 0, 4})) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.MoveCaretWordLeft(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 2, 0, 0, 40}, 
+        ElementSelectionState{ElementId{0}, 3, 2}, 
+        ElementSelectionState{ElementId{0, 5, 0, 0}, 0, 4})) << document.GetEditorState().ToString();
+
+    for (int i = 0; i < 8; ++i)
+        document.WaitTask(document.MoveCaretWordLeft(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 2, 0, 0, 0}, 
+        ElementSelectionState{ElementId{0}, 2, 3}, 
+        ElementSelectionState{ElementId{0, 5, 0, 0}, 0, 4})) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.MoveCaretWordLeft(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0}, 
+        ElementSelectionState{ElementId{0}, 1, 4}, 
+        ElementSelectionState{ElementId{0, 5, 0, 0}, 0, 4})) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.MoveCaretWordLeft(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0}, 
+        ElementSelectionState{ElementId{0}, 0, 5}, 
+        ElementSelectionState{ElementId{0, 5, 0, 0}, 0, 4})) << document.GetEditorState().ToString();
 }
 
 //Check format

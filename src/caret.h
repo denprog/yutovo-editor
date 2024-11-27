@@ -65,6 +65,7 @@ public:
 public:
     bool block = false; //don't do any operations with caret
     bool notify = true;
+    bool left_up_direction = false; //true: leftward or upward, false: rightward or downward
 
 private:
     ElementPtr element = nullptr;

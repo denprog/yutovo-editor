@@ -1075,7 +1075,12 @@ bool StringElements::GetWordLeftCaretState(CaretState& caret_state, Selection* s
         }
     }
     if (select)
-        select->Add(parent->id, 0, pos);
+    {
+        if (select->IsSelected(parent->parent->parent->id))
+            select->Add(parent->parent->parent->id);
+        else
+            select->Add(parent->id, 0, pos);
+    }
     return GetFirstCaretState(caret_state, nullptr);
 }
 

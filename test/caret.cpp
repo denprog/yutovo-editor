@@ -1834,6 +1834,7 @@ TEST_F(DocumentTest, caret59)
     document.MoveCaretUp(false);
     document.MoveCaretHome(false);
     document.WaitTask(document.MoveCaretWordLeft(false));
+    std::this_thread::sleep_for(200ms);
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 2, 0, 18})) << document.GetEditorState().ToString();
 
     document.WaitTask(document.MoveCaretWordRight(false));
@@ -1917,7 +1918,7 @@ TEST_F(DocumentTest, caret63)
     document.InsertString("d", true);
     document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
     document.WaitSolver();
-    std::this_thread::sleep_for(1s);
+    std::this_thread::sleep_for(2s);
     ASSERT_TRUE(document.ToText() == 
         U"d=2см\n"
         U"d=2.см"

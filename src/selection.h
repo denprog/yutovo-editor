@@ -100,6 +100,10 @@ public:
     bool Has(const ElementId id, ElementSelection& s) const;
     bool HasChild(const ElementId id, ElementSelection& s) const;
     bool IsSelected(const ElementId id) const;
+    bool IsFirstSelected(const ElementId id) const;
+    bool IsLastSelected(const ElementId id) const;
+    bool IsSelectionAbove(const ElementId id) const;
+    bool IsSelectionBelow(const ElementId id) const;
 
     void Optimize();
     

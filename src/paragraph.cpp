@@ -384,28 +384,48 @@ bool Paragraph::GetLeftCaretState(CaretState& caret_state, Selection* select)
     {
         if (parent->elements->IsLast(id))
             return parent->GetLeftCaretState(caret_state, select);
-        if (select->IsSelected(id))
+        if (caret->left_up_direction)
         {
-            if (selected_left)
-                return parent->GetLeftCaretState(caret_state, select);
-
-            selected_left = true;
-            select->Add(id);
-            if (parent->elements->IsFirst(id))
+            if (caret->IsInsideElement(id))
             {
-                GetFirstCaretState(caret_state, nullptr);
-                return true;
+                if (select->IsSelected(id))
+                {
+                    if (parent->elements->IsFirst(id))
+                        return parent->GetLeftCaretState(caret_state, select);
+                    select->Add(id);
+                    return parent->GetLeftCaretState(caret_state, nullptr);
+                }
+                else
+                {
+                    if (selection->IsSelectionAbove(id))
+                    {
+                        if (!parent->elements->IsFirst(id))
+                        {
+                            auto el = parent->elements->Get(parent->elements->GetElementPos(id) - 1);
+                            if (!el->IsEmpty())
+                                return el->GetLastCaretState(caret_state, nullptr);
+                        }
+                        return parent->GetLeftCaretState(caret_state, select);
+                    }
+                    select->Add(id);
+                    return parent->GetLeftCaretState(caret_state, nullptr);
+                }
             }
-            return parent->GetLeftCaretState(caret_state, select);
-        }
-
-        CaretState c = caret->GetCaretState();
-        if (yutovo::GetChildPos(id) < yutovo::GetChildPos(parent->id, c.id))
-        {
-            selected_left = true;
-            select->Add(id);
-            GetFirstCaretState(caret_state, nullptr);
-            return true;
+            else
+            {
+                if (select->IsSelected(id))
+                {
+                    select->Add(id);
+                    return GetFirstCaretState(caret_state, nullptr);
+                }
+                else
+                {
+                    select->Add(id);
+                    if (parent->elements->IsFirst(id))
+                        return GetFirstCaretState(caret_state, nullptr);
+                    return parent->GetLeftCaretState(caret_state, nullptr);
+                }
+            }
         }
     }
     return Element::GetLeftCaretState(caret_state, select);
@@ -417,29 +437,11 @@ bool Paragraph::GetRightCaretState(CaretState& caret_state, Selection* select)
     {
         if (parent->elements->IsLast(id))
             return false;
-        if (select->IsEmpty())
+        if (!caret->left_up_direction)
         {
-            selected_left = false;
             select->Add(id);
-            return true;
+            return parent->GetRightCaretState(caret_state, nullptr);
         }
-        if (select->IsSelected(id))
-        {
-            if (selected_left)
-            {
-                if (caret->IsInsideElement(id))
-                {
-                    select->Add(id);
-                    return parent->GetRightCaretState(caret_state, select);
-                }
-                select->Add(id);
-                return parent->GetRightCaretState(caret_state, nullptr);
-            }
-            return parent->GetRightCaretState(caret_state, select);
-        }
-        selected_left = false;
-        select->Add(id);
-        return true;
     }
     return Element::GetRightCaretState(caret_state, select);
 }
@@ -479,97 +481,15 @@ bool Paragraph::GetBottomCaretState(const int x, const int y, CaretState& caret_
 bool Paragraph::GetWordLeftCaretState(CaretState& caret_state, Selection* select)
 {
     if (select && IsEmpty())
-    {
-        if (parent->elements->IsLast(id))
-            return parent->GetWordLeftCaretState(caret_state, select);
-        if (select->IsSelected(id))
-        {
-            if (selected_left)
-                return parent->GetWordLeftCaretState(caret_state, select);
-
-            selected_left = true;
-            select->Add(id);
-            if (parent->elements->IsFirst(id))
-            {
-                GetFirstCaretState(caret_state, nullptr);
-                return true;
-            }
-            return parent->GetWordLeftCaretState(caret_state, select);
-        }
-
-        CaretState c = caret->GetCaretState();
-        if (yutovo::GetChildPos(id) < yutovo::GetChildPos(parent->id, c.id))
-        {
-            selected_left = true;
-            select->Add(id);
-            GetFirstCaretState(caret_state, nullptr);
-            return true;
-        }
-    }
+        return GetLeftCaretState(caret_state, select);
     return Element::GetWordLeftCaretState(caret_state, select);
 }
 
 bool Paragraph::GetWordRightCaretState(CaretState& caret_state, Selection* select)
 {
     if (select && IsEmpty())
-    {
-        if (parent->elements->IsLast(id))
-            return false;
-        if (select->IsEmpty())
-        {
-            selected_left = false;
-            select->Add(id);
-            return true;
-        }
-        if (select->IsSelected(id))
-        {
-            if (selected_left)
-            {
-                if (caret->IsInsideElement(id))
-                {
-                    select->Add(id);
-                    return parent->GetWordRightCaretState(caret_state, select);
-                }
-                select->Add(id);
-                return parent->GetWordRightCaretState(caret_state, nullptr);
-            }
-            return parent->GetWordRightCaretState(caret_state, select);
-        }
-        selected_left = false;
-        select->Add(id);
-        return true;
-    }
+        return GetRightCaretState(caret_state, select);
     return Element::GetWordRightCaretState(caret_state, select);
-}
-
-bool Paragraph::GetFirstCaretState(CaretState& caret_state, Selection* select)
-{
-    if (select)
-    {
-        if (IsEmpty() && parent->elements->IsLast(id))
-            return false;
-        int p = parent->elements->GetElementPos(id);
-        auto el = parent->elements->Get(p - 1);
-        if (p > 0 && select->IsSelected(el->id))
-        {
-            if (el->IsEmpty() && ((Paragraph*)el.get())->selected_left)
-                select->Add(el->id);
-        }
-        if (IsEmpty())
-        {
-            GetFirstCaretState(caret_state, nullptr);
-            select->Add(id);
-            return true;
-        }
-    }
-    return Element::GetFirstCaretState(caret_state, select);
-}
-
-bool Paragraph::GetLastCaretState(CaretState& caret_state, Selection* select)
-{
-    if (select && IsEmpty())
-        return GetLeftCaretState(caret_state, select);
-    return Element::GetLastCaretState(caret_state, select);
 }
 
 bool Paragraph::CanContinueSelection()
