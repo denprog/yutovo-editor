@@ -189,10 +189,10 @@ bool Element::DeleteElements(bool left, bool with_undo, ElementId& changed_eleme
             document->StoreUndo(id);
 
         elements->RemoveAt(start, size);
+        Normalize();
+        CaretState c;
         if (elements->Count() == 0)
         {
-            Normalize();
-            CaretState c;
             if (GetFirstCaretState(c, nullptr))
                 caret->SetState(c);
             else
@@ -200,7 +200,16 @@ bool Element::DeleteElements(bool left, bool with_undo, ElementId& changed_eleme
         }
         else
         {
-            Normalize();
+            if (start + size < elements->Count() && elements->Get(start)->GetFirstCaretState(c, nullptr))
+                caret->SetState(c);
+            else if (start > 0 && start < elements->Count() && elements->Get(start)->GetFirstCaretState(c, nullptr))
+                caret->SetState(c);
+            else if (start > 0 && GetLastCaretState(c, nullptr))
+                caret->SetState(c);
+            else if (GetFirstCaretState(c, nullptr))
+                caret->SetState(c);
+            else
+                caret->SetState(id);
         }
 
         changed_element = id;

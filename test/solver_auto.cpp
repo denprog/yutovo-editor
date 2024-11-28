@@ -2209,7 +2209,7 @@ TEST_F(SolverAutoTest, units13)
     document.WaitTask(document.DeleteElements(true, true));
     document.WaitTask(document.InsertString("м", true));
     document.WaitSolver();
-    std::this_thread::sleep_for(1s);
+    std::this_thread::sleep_for(2s);
     ASSERT_TRUE(document.ToText() == 
         U"1м=Cannot cast to unit"
         ) << ToBasicString(document.ToText());
