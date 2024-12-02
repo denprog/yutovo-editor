@@ -1434,10 +1434,10 @@ TEST_F(DocumentTest, clipboard22)
 
     document.MoveCaretToDocumentBegin(false);
     document.WaitTask(document.Paste(clipboard_json));
-    ASSERT_TRUE(document.ToText() == U"In literary theory, a text is any object that can be read, whether this object is a work of literature"\
-        "In literary theory, a text is any object that can be read, whether this "\
-        "object is a work of literature\nText") << ToBasicString(document.ToText());
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 0, 49})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.ToText() == U"In literary theory, a text is any object that can be read, whether this object is a work of literature\n"\
+        "In literary theory, a text is any object that can be read, whether this object is a work of literature\n"\
+        "Text") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 1, 0, 0, 0})) << document.GetEditorState().ToString();
 
     document.Undo();
     document.WaitUndo();
@@ -2601,6 +2601,7 @@ TEST_F(DocumentTest, clipboard49)
     ASSERT_TRUE(document.ToText() == 
         U"Арифме́тика (др.-греч. ἀριθμητική, arithmētikḗ — от ἀριθμός, arithmós «число») — раздел математики, изучающий числа, их отношения и свойства.\n"\
         U"Предметом арифметики является понятие числа (натуральные, целые, рациональные, вещественные, комплексные числа) и его свойства.\n"\
+        U"\n"\
         U"Арифме́тика (др.-греч. ἀριθμητική, arithmētikḗ — от ἀριθμός, arithmós «число») — раздел математики, изучающий числа, их отношения и свойства.\n"\
         U"Предметом арифметики является понятие числа (натуральные, целые, рациональные, вещественные, комплексные числа) и его свойства.\n"
         ) << ToBasicString(document.ToText());
@@ -2618,6 +2619,7 @@ TEST_F(DocumentTest, clipboard49)
     ASSERT_TRUE(document.ToText() == 
         U"Арифме́тика (др.-греч. ἀριθμητική, arithmētikḗ — от ἀριθμός, arithmós «число») — раздел математики, изучающий числа, их отношения и свойства.\n"\
         U"Предметом арифметики является понятие числа (натуральные, целые, рациональные, вещественные, комплексные числа) и его свойства.\n"\
+        U"\n"\
         U"Арифме́тика (др.-греч. ἀριθμητική, arithmētikḗ — от ἀριθμός, arithmós «число») — раздел математики, изучающий числа, их отношения и свойства.\n"\
         U"Предметом арифметики является понятие числа (натуральные, целые, рациональные, вещественные, комплексные числа) и его свойства.\n"
         ) << ToBasicString(document.ToText());
@@ -2753,7 +2755,8 @@ TEST_F(DocumentTest, clipboard52)
 
     document.WaitTask(document.Paste(clipboard_json));
     ASSERT_TRUE(document.ToText() == 
-        U"Text123\n"\
+        U"Text\n"\
+        U"123\n"\
         U"TTT"
         ) << ToBasicString(document.ToText());
 
@@ -2860,7 +2863,7 @@ TEST_F(DocumentTest, clipboard54)
         U"TTT\n"
         U"их отношения и свойства.\n"\
         U"123\n"\
-        U"TTT"
+        U"TTT\n"
         ) << ToBasicString(document.ToText());
 
     document.Undo();
@@ -3082,7 +3085,7 @@ TEST_F(DocumentTest, clipboard59)
         U"123=123.\n"\
         U"Paragraph3\n"\
         U"55=55.Paragraph2\n"\
-        U"123=123."\
+        U"123=123.\n"\
         ) << ToBasicString(document.ToText());
 
     document.Undo();
@@ -3165,6 +3168,11 @@ TEST_F(DocumentTest, clipboard59)
                 "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
                     "<mrow>"\
                         "<span style=\"font-family:'Arial';font-size:14px;\">Paragraph3</span>"\
+                    "</mrow>"\
+                "</math>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mi>Null</mi>"\
                     "</mrow>"\
                 "</math>"\
             "</p>"\
@@ -3267,7 +3275,7 @@ TEST_F(DocumentTest, clipboard60)
         U"Арифме́тика (др.-греч. ἀριθμητική, arithmētikḗ — от ἀριθμός, arithmós «число») — раздел математики, изучающий числа, их отношения и свойства.\n"\
         U"123=123.\n"\
         U"55=55.arithmós«число»)—разделматематики,изучающийчисла,ихотношенияисвойства.\n"\
-        U"123=123."\
+        U"123=123.\n"\
         ) << ToBasicString(document.ToText());
 
     document.Undo();
@@ -3457,7 +3465,7 @@ TEST_F(DocumentTest, clipboard62)
         U"Text1\n"\
         U"Text2"
         ) << ToBasicString(document.ToText());
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 1, 0, 0, 5})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 2, 0, 0, 0})) << document.GetEditorState().ToString();
 
     document.Undo();
     document.WaitUndo();
@@ -3523,7 +3531,7 @@ TEST_F(DocumentTest, clipboard63)
         U"\n"\
         U"Text2"
         ) << ToBasicString(document.ToText());
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 1, 0, 0, 0})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 2, 0, 0, 0})) << document.GetEditorState().ToString();
 
     document.Undo();
     document.WaitUndo();
@@ -3773,11 +3781,11 @@ TEST_F(DocumentTest, clipboard67)
     ASSERT_TRUE(document.ToText() == 
         U"\n"\
         U"\n"\
-        U"\n"\
         U"In literary theory, a text is any object\n"\
+        U"\n"\
         U"that can be read"
         ) << ToBasicString(document.ToText());
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 3, 0, 0, 40})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 3, 0, 0, 0})) << document.GetEditorState().ToString();
 
     document.Undo();
     document.WaitUndo();
@@ -3846,12 +3854,12 @@ TEST_F(DocumentTest, clipboard68)
     document.WaitTask(document.Paste(clipboard_json));
     ASSERT_TRUE(document.ToText() == 
         U"\n"\
-        U"\n"\
         U"In literary theory, a text is any object\n"\
+        U"\n"\
         U"\n"\
         U"that can be read"
         ) << ToBasicString(document.ToText());
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 2, 0, 0, 40})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 2, 0, 0, 0})) << document.GetEditorState().ToString();
 
     document.Undo();
     document.WaitUndo();
@@ -3881,6 +3889,122 @@ TEST_F(DocumentTest, clipboard68)
 
     document.WaitTask(document.MoveCaretDown(false));
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 3, 0, 0, 0})) << document.GetEditorState().ToString();
+}
+
+//Cut-paste paragraphs with empty ones
+TEST_F(DocumentTest, clipboard69)
+{
+    Start(600);
+
+    document.InsertString("In literary theory, a text is any object", true);
+    document.InsertParagraph(true);
+    document.InsertParagraph(true);
+    document.WaitTask(document.InsertString("that can be read", true));
+
+    document.WaitTask(document.SelectAll());
+    ASSERT_TRUE(document.ToText() == 
+        U"In literary theory, a text is any object\n"\
+        U"\n"\
+        U"that can be read"
+        ) << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 2, 0, 0, 16}, 
+        ElementSelectionState{ElementId{0}, 0, 3})) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.Cut(clipboard_json, clipboard_text));
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.ToText() == 
+        U""
+        ) << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0})) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.Paste(clipboard_json));
+    ASSERT_TRUE(document.ToText() == 
+        U"In literary theory, a text is any object\n"\
+        U"\n"\
+        U"that can be read"
+        ) << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 2, 0, 0, 16})) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.ToText() == 
+        U""
+        ) << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0})) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"In literary theory, a text is any object\n"\
+        U"\n"\
+        U"that can be read"
+        ) << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 2, 0, 0, 16}, 
+        ElementSelectionState{ElementId{0}, 0, 3})) << document.GetEditorState().ToString();
+}
+
+//Cut-paste paragraphs with empty ones
+TEST_F(DocumentTest, clipboard70)
+{
+    Start(600);
+
+    document.InsertParagraph(true);
+    document.InsertString("In literary theory, a text is any object", true);
+    document.InsertParagraph(true);
+    document.InsertParagraph(true);
+    document.WaitTask(document.InsertString("that can be read", true));
+
+    document.MoveCaretToDocumentBegin(false);
+    document.MoveCaretDown(true);
+    document.WaitTask(document.MoveCaretDown(true));
+    ASSERT_TRUE(document.ToText() == 
+        U"\n"\
+        U"In literary theory, a text is any object\n"\
+        U"\n"\
+        U"that can be read"
+        ) << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 2, 0, 0, 0}, 
+        ElementSelectionState{ElementId{0}, 0, 2})) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.Cut(clipboard_json, clipboard_text));
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"\n"\
+        U"that can be read"
+        ) << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0})) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.Paste(clipboard_json));
+    ASSERT_TRUE(document.ToText() == 
+        U"\n"\
+        U"In literary theory, a text is any object\n"\
+        U"\n"\
+        U"that can be read"
+        ) << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 2, 0, 0, 0})) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"\n"\
+        U"that can be read"
+        ) << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0})) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"\n"\
+        U"In literary theory, a text is any object\n"\
+        U"\n"\
+        U"that can be read"
+        ) << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 2, 0, 0, 0}, 
+        ElementSelectionState{ElementId{0}, 0, 2})) << document.GetEditorState().ToString();
 }
 
 }

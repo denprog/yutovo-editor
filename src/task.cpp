@@ -1649,24 +1649,6 @@ bool CopyTask::Execute()
     for (int i = 0; i < selection_state.state.size(); ++i)
     {
         ElementId _id = selection_state.state[i].id;
-        if (i > 0)
-        {
-            ElementId c_id = GetCommonParent(_id, selection_state.state[i - 1].id);
-            if (c_id.size() != _id.size())
-            {
-                if (c_id.size() == 1)
-                {
-                    ElementPtr p(new Paragraph(document, true));
-                    copy.push_back(p);
-                    std::vector<ElementPtr> c;
-                    ElementPtr r(new Row(document));
-                    document->GetElement(_id)->Copy(c);
-                    r->elements->Add(c[0]);
-                    copy.push_back(r);
-                    continue;
-                }
-            }
-        }
         document->GetElement(_id)->Copy(copy);
     }
 
@@ -1677,6 +1659,59 @@ bool CopyTask::Execute()
             copy.push_back(t->elements->Get(i));
         copy.erase(copy.begin());
     }
+
+    //concatenate rows of one paragraph
+    for (size_t i = 1; i < copy.size();)
+    {
+        ElementPtr el1 = copy[i - 1];
+        ElementPtr el2 = copy[i];
+        if (el1->type == ElementType::ROW && el2->type == ElementType::ROW && el1->parent->id == el2->parent->id)
+        {
+            for (int j = 0; j < el2->elements->Count();)
+                el1->elements->Move(el2->elements->Get(j), el1->elements->Count());
+            copy.erase(copy.begin() + i);
+        }
+        else
+            ++i;
+    }
+
+    auto s = selection_state.state[selection_state.state.size() - 1];
+    ElementId _id = GetChild(s.id, s.start + s.size - 1);
+    std::vector<ElementPtr> _copy;
+    //transform all the non-empty paragraphs into empty ones plus rows
+    for (size_t i = 0; i < copy.size(); ++i)
+    {
+        ElementPtr el = copy[i];
+        if (el->type == ElementType::PARAGRAPH)
+        {
+            if (i > 0 && copy[i - 1]->type != ElementType::PARAGRAPH)
+                _copy.push_back(ElementPtr(new Paragraph(document, true)));
+            if (!el->IsEmpty())
+                _copy.push_back(((Paragraph*)el.get())->GetPlainRow());
+            if (i < copy.size() - 1)
+                _copy.push_back(ElementPtr(new Paragraph(document, true)));
+            else
+            {
+                if (!document->GetElement(_id)->parent->elements->IsLast(_id))
+                    _copy.push_back(ElementPtr(new Paragraph(document, true)));
+            }
+        }
+        else
+        {
+            if (i > 0)
+            {
+                ElementId c_id = GetCommonParent(_id, selection_state.state[i - 1].id);
+                if (c_id.size() != _id.size())
+                {
+                    if (c_id.size() == 1 && _copy[_copy.size() - 1]->type != ElementType::PARAGRAPH)
+                        _copy.push_back(ElementPtr(new Paragraph(document, true)));
+                }
+            }
+            _copy.push_back(el);
+        }
+    }
+
+    copy = _copy;
 
     for (auto& el : copy)
     {
