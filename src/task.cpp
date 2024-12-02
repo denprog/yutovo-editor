@@ -1716,6 +1716,8 @@ bool CopyTask::Execute()
     for (auto& el : copy)
     {
         out_text += el->ToText();
+        if (document->IsParagraph(el))
+            out_text += U"\n";
         el->parent = nullptr; //these elements have no parent
     }
 
