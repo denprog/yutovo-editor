@@ -3074,6 +3074,10 @@ TEST_F(DocumentTest, clipboard59)
     document.WaitTask(document.MoveCaretRight(true));
     std::this_thread::sleep_for(600ms);
     document.WaitTask(document.Copy(clipboard_json, clipboard_text));
+    ASSERT_TRUE(ToBasicString(clipboard_text) == 
+        "Paragraph2\n"\
+        "123=123.\n"\
+        ) << ToBasicString(clipboard_text);
 
     document.MoveCaretToDocumentEnd(false);
     document.WaitTask(document.MoveCaretLeft(false));
@@ -3266,6 +3270,10 @@ TEST_F(DocumentTest, clipboard60)
     document.MoveCaretDown(true);
     document.WaitTask(document.MoveCaretDown(true));
     document.WaitTask(document.Copy(clipboard_json, clipboard_text));
+    ASSERT_TRUE(clipboard_text == 
+        U"arithmós «число») — раздел математики, изучающий числа, их отношения и свойства.\n"\
+        U"123=123.\n"\
+        ) << ToBasicString(clipboard_text);
 
     document.MoveCaretToDocumentEnd(false);
     document.WaitTask(document.MoveCaretLeft(false));
@@ -3704,6 +3712,11 @@ TEST_F(DocumentTest, clipboard66)
         ElementSelectionState{ElementId{0, 2, 0, 0}, 0, 4})) << document.GetEditorState().ToString();
 
     document.WaitTask(document.Cut(clipboard_json, clipboard_text));
+    ASSERT_TRUE(clipboard_text == 
+        U"is any object\n"\
+        U"\n"\
+        U"that"\
+        ) << ToBasicString(clipboard_text);
     std::this_thread::sleep_for(200ms);
     ASSERT_TRUE(document.ToText() == 
         U"In literary theory, a text  can be read"
