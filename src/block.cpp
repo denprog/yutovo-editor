@@ -82,10 +82,7 @@ bool Block::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo, E
                     if (_els.size() > 1 && _els[1]->IsEmpty())
                     {
                         els.clear();
-                        if (document->FindParent(cur->id, ElementType::CODE_BLOCK))
-                            els.push_back(ElementPtr(new CodeParagraph(this, true)));
-                        else
-                            els.push_back(ElementPtr(new Paragraph(this, true)));
+                        els.push_back(document->CreateParagraph(cur->id));
                         if (!InsertElements(els, with_undo, changed_element))
                             return false;
                     }

@@ -1700,11 +1700,13 @@ bool CopyTask::Execute()
         {
             if (i > 0)
             {
-                ElementId c_id = GetCommonParent(_id, selection_state.state[i - 1].id);
-                if (c_id.size() != _id.size())
+                auto& _el = copy[i - 1];
+                if (!document->IsParagraph(_el))
                 {
-                    if (c_id.size() == 1 && _copy[_copy.size() - 1]->type != ElementType::PARAGRAPH)
-                        _copy.push_back(ElementPtr(new Paragraph(document, true)));
+                    ElementId c_id = GetCommonParent(_el->id, el->id);
+                    ElementPtr c_el = document->GetElement(c_id);
+                    if (c_el && (c_el->type == ElementType::TEXT || c_el->type == ElementType::CODE_BLOCK))
+                        _copy.push_back(document->CreateParagraph(el->id));
                 }
             }
             _copy.push_back(el);

@@ -5,6 +5,7 @@
 #include "image.h"
 #include "formulas/code_block.h"
 #include "formulas/code_string.h"
+#include "formulas/code_paragraph.h"
 #include "formulas/plus.h"
 #include "formulas/minus.h"
 #include "formulas/multiply.h"
@@ -1572,6 +1573,13 @@ uint Document::SetCurrentParagraphFormat(const std::string& name)
     if (current_paragraph_format)
         return ChangeParagraphFormat(current_paragraph_format, true);
     return 0;
+}
+
+ElementPtr Document::CreateParagraph(const ElementId& id)
+{
+    if (FindElementOrParent(id, ElementType::CODE_BLOCK))
+        return ElementPtr(new CodeParagraph(this, true));
+    return ElementPtr(new Paragraph(this, true));
 }
 
 ElementType Document::GetElementType(const ElementId id)

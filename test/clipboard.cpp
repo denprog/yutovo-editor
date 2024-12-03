@@ -4020,4 +4020,70 @@ TEST_F(DocumentTest, clipboard70)
         ElementSelectionState{ElementId{0}, 0, 2})) << document.GetEditorState().ToString();
 }
 
+//Cut-paste paragraphs with empty ones
+TEST_F(DocumentTest, clipboard71)
+{
+    Start(600);
+
+    document.InsertParagraph(true);
+    document.InsertParagraph(true);
+    document.InsertParagraph(true);
+    document.InsertString("Предметом арифметики является понятие числа (натуральные, целые, рациональные, вещественные, комплексные числа) и его свойства.", 
+        true);
+    
+    document.MoveCaretToDocumentBegin(false);
+    document.MoveCaretDown(true);
+    document.MoveCaretDown(true);
+    document.MoveCaretDown(true);
+    document.MoveCaretRight(true);
+    document.MoveCaretRight(true);
+    document.WaitTask(document.MoveCaretRight(true));
+    ASSERT_TRUE(document.ToText() == 
+        U"\n"\
+        U"\n"\
+        U"\n"\
+        U"Предметом арифметики является понятие числа (натуральные, целые, рациональные, вещественные, комплексные числа) и его свойства."
+        ) << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 3, 0, 0, 3}, 
+        ElementSelectionState{ElementId{0}, 0, 3}, 
+        ElementSelectionState{ElementId{0, 3, 0, 0}, 0, 3})) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.Cut(clipboard_json, clipboard_text));
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"дметом арифметики является понятие числа (натуральные, целые, рациональные, вещественные, комплексные числа) и его свойства."
+        ) << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0})) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.Paste(clipboard_json));
+    ASSERT_TRUE(document.ToText() == 
+        U"\n"\
+        U"\n"\
+        U"\n"\
+        U"Предметом арифметики является понятие числа (натуральные, целые, рациональные, вещественные, комплексные числа) и его свойства."
+        ) << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 3, 0, 0, 3})) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"дметом арифметики является понятие числа (натуральные, целые, рациональные, вещественные, комплексные числа) и его свойства."
+        ) << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0})) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"\n"\
+        U"\n"\
+        U"\n"\
+        U"Предметом арифметики является понятие числа (натуральные, целые, рациональные, вещественные, комплексные числа) и его свойства."
+        ) << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 3, 0, 0, 3}, 
+        ElementSelectionState{ElementId{0}, 0, 3}, 
+        ElementSelectionState{ElementId{0, 3, 0, 0}, 0, 3})) << document.GetEditorState().ToString();
+}
+
 }
