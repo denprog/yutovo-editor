@@ -227,6 +227,8 @@ public:
 
     uint SetCurrentParagraphFormat(const std::string& name);
 
+    ElementPtr CreateParagraph(const ElementId& id);
+
     EditorState GetEditorState();
     EditorState MakeEditorState();
     LogicalEditorState GetLogicalEditorState();

@@ -133,7 +133,9 @@ bool String::Copy(std::vector<ElementPtr>& copy)
         copy.push_back(ElementPtr(Clone()));
         return true;
     }
-    copy.push_back(ElementPtr(Create(parent, ((StringElements*)elements.get())->str.substr(start, size), format)));
+    ElementPtr s(Create(parent, ((StringElements*)elements.get())->str.substr(start, size), format));
+    s->id = id;
+    copy.push_back(s);
     return true;
 }
 
