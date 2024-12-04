@@ -4086,4 +4086,206 @@ TEST_F(DocumentTest, clipboard71)
         ElementSelectionState{ElementId{0, 3, 0, 0}, 0, 3})) << document.GetEditorState().ToString();
 }
 
+//Copy-paste paragraphs into an element
+TEST_F(DocumentTest, clipboard72)
+{
+    Start(600);
+
+    document.InsertString("Предметом арифметики является", true);
+    document.InsertParagraph(true);
+    document.InsertParagraph(true);
+    document.InsertString("Text", true);
+    document.InsertParagraph(true);
+    document.InsertParagraph(true);
+    document.InsertString("String", true);
+    document.InsertParagraph(true);
+
+    document.MoveCaretUp(true);
+    document.MoveCaretUp(true);
+    document.WaitTask(document.MoveCaretUp(true));
+    document.WaitTask(document.Copy(clipboard_json, clipboard_text));
+    ASSERT_TRUE(document.ToText() == 
+        U"Предметом арифметики является\n"
+        U"\n"\
+        U"Text\n"
+        U"\n"\
+        U"String\n"
+        ) << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 2, 0, 0, 0}, 
+        ElementSelectionState{ElementId{0}, 2, 3})) << document.GetEditorState().ToString();
+
+    document.MoveCaretToDocumentBegin(false);
+    document.MoveCaretWordRight(false);
+    document.MoveCaretRight(false);
+    document.WaitTask(document.MoveCaretRight(false));
+    document.WaitTask(document.Paste(clipboard_json));
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">Предметом аText</span>"\
+            "</p>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\"></span>"\
+            "</p>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">String</span>"\
+            "</p>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">рифметики является</span>"\
+            "</p>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\"></span>"\
+            "</p>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">Text</span>"\
+            "</p>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\"></span>"\
+            "</p>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">String</span>"\
+            "</p>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\"></span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 3, 0, 0, 0})) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">Предметом арифметики является</span>"\
+            "</p>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\"></span>"\
+            "</p>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">Text</span>"\
+            "</p>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\"></span>"\
+            "</p>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">String</span>"\
+            "</p>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\"></span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 11})) << document.GetEditorState().ToString();
+}
+
+//Copy-paste paragraphs into an element of a different font
+TEST_F(DocumentTest, clipboard73)
+{
+    Start(600);
+
+    document.InsertString("Предметом арифметики является", true);
+    document.MoveCaretWordLeft(false);
+    document.MoveCaretWordLeft(false);
+    document.WaitTask(document.MoveCaretWordRight(true));
+    document.WaitTask(document.SetBold(true));
+    std::this_thread::sleep_for(200ms);
+
+    document.WaitTask(document.MoveCaretToDocumentEnd(false));
+    document.InsertParagraph(true);
+    document.InsertParagraph(true);
+    document.InsertString("Text", true);
+    document.InsertParagraph(true);
+    document.InsertParagraph(true);
+    document.InsertString("String", true);
+    document.InsertParagraph(true);
+
+    document.MoveCaretUp(true);
+    document.MoveCaretUp(true);
+    document.WaitTask(document.MoveCaretUp(true));
+    document.WaitTask(document.Copy(clipboard_json, clipboard_text));
+    ASSERT_TRUE(document.ToText() == 
+        U"Предметом арифметики является\n"
+        U"\n"\
+        U"Text\n"
+        U"\n"\
+        U"String\n"
+        ) << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 2, 0, 0, 0}, 
+        ElementSelectionState{ElementId{0}, 2, 3})) << document.GetEditorState().ToString();
+
+    document.MoveCaretToDocumentBegin(false);
+    document.MoveCaretWordRight(false);
+    document.MoveCaretRight(false);
+    document.MoveCaretRight(false);
+    document.WaitTask(document.MoveCaretRight(false));
+    document.WaitTask(document.Paste(clipboard_json));
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">Предметом </span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\"><strong>а</strong></span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">Text</span>"\
+            "</p>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\"></span>"\
+            "</p>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">String</span>"\
+            "</p>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\"><strong>рифметики</strong></span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\"> является</span>"\
+            "</p>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\"></span>"\
+            "</p>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">Text</span>"\
+            "</p>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\"></span>"\
+            "</p>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">String</span>"\
+            "</p>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\"></span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 3, 0, 0, 0})) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">Предметом </span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\"><strong>арифметики</strong></span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\"> является</span>"\
+            "</p>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\"></span>"\
+            "</p>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">Text</span>"\
+            "</p>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\"></span>"\
+            "</p>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">String</span>"\
+            "</p>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\"></span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 1, 1})) << document.GetEditorState().ToString();
+}
+
 }
