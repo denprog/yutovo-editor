@@ -4583,4 +4583,97 @@ TEST_F(DocumentTest, clipboard76)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 29})) << document.GetEditorState().ToString();
 }
 
+//Cut-paste rows of different paragraphs
+TEST_F(DocumentTest, clipboard77)
+{
+    Start(800);
+
+    document.WaitTask(document.InsertString("Арифме́тика (др.-греч. ἀριθμητική, arithmētikḗ — от ἀριθμός, arithmós «число») — раздел математики, "\
+        "изучающий числа, их отношения и свойства.", true));
+    document.WaitTask(document.InsertParagraph(true));
+    document.WaitTask(document.InsertString("Предметом арифметики является понятие числа (натуральные, целые, рациональные, вещественные, "\
+        "комплексные числа) и его свойства.", true));
+    document.MoveCaretToDocumentBegin(false);
+    document.MoveCaretDown(false);
+    document.MoveCaretDown(true);
+    document.WaitTask(document.MoveCaretDown(true));
+
+    document.WaitTask(document.Cut(clipboard_json, clipboard_text));
+
+    document.WaitTask(document.Paste(clipboard_json));
+    ASSERT_TRUE(document.ToText() == 
+        U"Арифме́тика (др.-греч. ἀριθμητική, arithmētikḗ — от ἀριθμός, arithmós «число») — раздел математики, изучающий числа, их отношения и свойства.\n"\
+        U"Предметом арифметики является понятие числа (натуральные, целые, рациональные, вещественные, комплексные числа) и его свойства."\
+        ) << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 1, 0, 0, 65})) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"Арифме́тика (др.-греч. ἀριθμητική, arithmētikḗ — от ἀριθμός, arithmós «число») — рациональные, вещественные, комплексные числа) и его свойства."\
+        ) << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 81})) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"Арифме́тика (др.-греч. ἀριθμητική, arithmētikḗ — от ἀριθμός, arithmós «число») — раздел математики, изучающий числа, их отношения и свойства.\n"\
+        U"Предметом арифметики является понятие числа (натуральные, целые, рациональные, вещественные, комплексные числа) и его свойства."\
+        ) << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 1, 0, 0, 65}, 
+        ElementSelectionState{ElementId{0, 0}, 1, 1}, 
+        ElementSelectionState{ElementId{0, 1}, 0, 1})) << document.GetEditorState().ToString();
+}
+
+//Cut-paste rows of different paragraphs
+TEST_F(DocumentTest, clipboard78)
+{
+    Start(800);
+
+    document.WaitTask(document.InsertString("Арифме́тика (др.-греч. ἀριθμητική, arithmētikḗ — от ἀριθμός, arithmós «число») — раздел математики, "\
+        "изучающий числа, их отношения и свойства.", true));
+    document.WaitTask(document.InsertParagraph(true));
+    document.WaitTask(document.InsertParagraph(true));
+    document.WaitTask(document.InsertString("Предметом арифметики является понятие числа (натуральные, целые, рациональные, вещественные, "\
+        "комплексные числа) и его свойства.", true));
+    document.MoveCaretToDocumentBegin(false);
+    document.MoveCaretDown(false);
+    document.MoveCaretDown(true);
+    document.MoveCaretDown(true);
+    document.WaitTask(document.MoveCaretDown(true));
+
+    document.WaitTask(document.Cut(clipboard_json, clipboard_text));
+
+    document.WaitTask(document.Paste(clipboard_json));
+    ASSERT_TRUE(document.ToText() == 
+        U"Арифме́тика (др.-греч. ἀριθμητική, arithmētikḗ — от ἀριθμός, arithmós «число») — раздел математики, изучающий числа, их отношения и свойства.\n"\
+        U"\n"\
+        U"Предметом арифметики является понятие числа (натуральные, целые, рациональные, вещественные, комплексные числа) и его свойства."\
+        ) << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 2, 0, 0, 65})) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"Арифме́тика (др.-греч. ἀριθμητική, arithmētikḗ — от ἀριθμός, arithmós «число») — рациональные, вещественные, комплексные числа) и его свойства."\
+        ) << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 81})) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"Арифме́тика (др.-греч. ἀριθμητική, arithmētikḗ — от ἀριθμός, arithmós «число») — раздел математики, изучающий числа, их отношения и свойства.\n"\
+        U"\n"\
+        U"Предметом арифметики является понятие числа (натуральные, целые, рациональные, вещественные, комплексные числа) и его свойства."\
+        ) << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 2, 0, 0, 65}, 
+        ElementSelectionState{ElementId{0, 0}, 1, 1}, 
+        ElementSelectionState{ElementId{0}, 1, 1}, 
+        ElementSelectionState{ElementId{0, 2}, 0, 1})) << document.GetEditorState().ToString();
+}
+
 }
