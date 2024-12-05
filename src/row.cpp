@@ -266,9 +266,9 @@ bool Row::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo, Ele
                     b = ins->AfterInsert(with_undo);
                 if (!b)
                 {
-                    if (document->pasting && ins->GetLastCaretState(c, nullptr))
+                    if (elements->Get(elements->Count() > p + i + 1 ? p + i + 1 : p + i)->GetFirstCaretState(c, nullptr))
                         caret->SetState(c);
-                    else if (elements->Get(elements->Count() > p + i + 1 ? p + i + 1 : p + i)->GetLastCaretState(c, nullptr))
+                    else if (document->pasting && ins->GetLastCaretState(c, nullptr))
                         caret->SetState(c);
                 }
             }
@@ -279,8 +279,13 @@ bool Row::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo, Ele
                     elements->Insert(ins, p + i + 1);
                     if (i == 0 && !document->pasting)
                         b = ins->AfterInsert(with_undo);
-                    if (!b && elements->Get(p + i + 1)->GetLastCaretState(c, nullptr))
-                        caret->SetState(c);
+                    if (!b)
+                    {
+                        if (p + i + 1 < elements->Count() - 1 && elements->Get(p + i + 2)->GetFirstCaretState(c, nullptr))
+                            caret->SetState(c);
+                        else if (GetLastCaretState(c, nullptr))
+                            caret->SetState(c);
+                    }
                 }
             }
         }
