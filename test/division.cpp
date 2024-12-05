@@ -1197,6 +1197,14 @@ TEST_F(FormulaTest, division19)
     document.InsertMultiply(true);
     document.InsertString("7", true);
     document.InsertDivision(true);
+
+    document.MoveCaretLeft(false);
+    document.WaitTask(document.MoveCaretLeft(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 2, 1})) << document.GetEditorState().ToString();
+    document.WaitTask(document.MoveCaretRight(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 2, 1})) << document.GetEditorState().ToString();
+
+    document.MoveCaretRight(false);
     document.InsertString("12", true);
     document.MoveCaretRight(false);
     document.InsertPlus(true);

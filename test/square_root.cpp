@@ -360,4 +360,27 @@ TEST_F(FormulaTest, square_root8)
     ASSERT_TRUE(document.ToText() == U"sqrt(123+1)") << ToBasicString(document.ToText());
 }
 
+//Insert division after selection
+TEST_F(FormulaTest, square_root9)
+{
+    Start(600);
+
+    document.InsertSquareRoot(true);
+    document.InsertString("123", true);
+    document.MoveCaretHome(false);
+    document.MoveCaretHome(false);
+    document.MoveCaretRight(false);
+    document.WaitTask(document.MoveCaretRight(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0, 0, 0, 0})) << document.GetEditorState().ToString();
+
+    document.MoveCaretLeft(false);
+    document.WaitTask(document.MoveCaretRight(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0, 0, 1}, 
+        ElementSelectionState{ElementId{0}, 0, 1})) << document.GetEditorState().ToString();
+    
+    document.WaitTask(document.InsertDivision(true));
+    ASSERT_TRUE(document.ToText() == U"(sqrt(123))/()") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 2, 0, 0})) << document.GetEditorState().ToString();
+}
+
 }

@@ -28,6 +28,8 @@ public:
 
     virtual bool GetLeftCaretState(CaretState& caret_state, Selection* select);
     virtual bool GetRightCaretState(CaretState& caret_state, Selection* select);
+    virtual bool GetWordLeftCaretState(CaretState& caret_state, Selection* select);
+    virtual bool GetWordRightCaretState(CaretState& caret_state, Selection* select);
 
 protected:
     CodeRow* GetFirst() const;

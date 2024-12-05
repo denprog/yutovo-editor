@@ -332,7 +332,6 @@ TEST_F(FormulaTest, nth_root4)
     Start(600);
 
     document.InsertNthRoot(true);
-    document.MoveCaretRight(false);
     document.MoveCaretLeft(true);
     document.WaitTask(document.Copy(clipboard_json, clipboard_text));
     document.MoveCaretRight(false);
@@ -371,6 +370,15 @@ TEST_F(FormulaTest, nth_root5)
         document.WaitTask(document.MoveCaretLeft(true));
     document.WaitTask(document.InsertNthRoot(true));
     ASSERT_TRUE(document.ToText() == U"root(,123+1)") << ToBasicString(document.ToText());
+
+    document.MoveCaretLeft(true);
+    document.WaitTask(document.MoveCaretRight(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0, 0, 1})) << document.GetEditorState().ToString();
+
+    document.MoveCaretLeft(false);
+    document.WaitTask(document.MoveCaretRight(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0, 0, 1}, 
+        ElementSelectionState{ElementId{0}, 0, 1})) << document.GetEditorState().ToString();
 }
 
 }
