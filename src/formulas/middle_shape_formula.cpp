@@ -132,11 +132,6 @@ bool MiddleShapeFormula::AfterInsert(bool with_undo)
             ElementSelection& select = selection->selection[0];
             if (select.start > 0)
                 select.element->SplitAt(select.start);
-            if (selection->selection.size() > 1)
-            {
-                select = selection->selection[selection->selection.size()];
-                select.element->SplitAt(select.start);
-            }
 
             //move the selected elements in the GetFirst() element
             GetFirst()->elements->RemoveAt(0, 1);
@@ -196,6 +191,9 @@ bool MiddleShapeFormula::GetLeftCaretState(CaretState& caret_state, Selection* s
 {
     if (select)
     {
+        if (caret->IsOnElement(GetShape()->id))
+            return false;
+
         CaretState c;
         if ((GetLast()->GetFirstCaretState(c, nullptr) && caret_state == c) || (GetFirst()->GetFirstCaretState(c, nullptr) && caret_state == c))
         {
@@ -212,6 +210,9 @@ bool MiddleShapeFormula::GetRightCaretState(CaretState& caret_state, Selection* 
 {
     if (select)
     {
+        if (caret->IsOnElement(GetShape()->id))
+            return false;
+        
         CaretState c;
         if ((GetLast()->GetLastCaretState(c, nullptr) && caret_state == c) || (GetFirst()->GetLastCaretState(c, nullptr) && caret_state == c))
         {
@@ -222,6 +223,20 @@ bool MiddleShapeFormula::GetRightCaretState(CaretState& caret_state, Selection* 
         }
     }
     return Formula::GetRightCaretState(caret_state, select);
+}
+
+bool MiddleShapeFormula::GetWordLeftCaretState(CaretState& caret_state, Selection* select)
+{
+    if (select && caret->IsOnElement(GetShape()->id))
+        return false;
+    return Formula::GetWordLeftCaretState(caret_state, select);
+}
+
+bool MiddleShapeFormula::GetWordRightCaretState(CaretState& caret_state, Selection* select)
+{
+    if (select && caret->IsOnElement(GetShape()->id))
+        return false;
+    return Formula::GetWordRightCaretState(caret_state, select);
 }
 
 CodeRow* MiddleShapeFormula::GetFirst() const

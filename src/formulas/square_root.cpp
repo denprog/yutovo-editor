@@ -136,11 +136,6 @@ bool SquareRoot::AfterInsert(bool with_undo)
         ElementSelection& select = selection->selection[0];
         if (select.start > 0)
             select.element->SplitAt(select.start);
-        if (selection->selection.size() > 1)
-        {
-            select = selection->selection[selection->selection.size()];
-            select.element->SplitAt(select.start);
-        }
 
         //move the selected elements in the GetLast() element
         GetLast()->elements->RemoveAt(0, 1);
@@ -208,6 +203,13 @@ bool SquareRoot::DeleteElements(bool left, bool with_undo, ElementId& changed_el
     parent->Normalize();
     changed_element = id;
     return true;
+}
+
+bool SquareRoot::GetRightCaretState(CaretState& caret_state, Selection* select)
+{
+    if (select && caret->IsOnElement(shape->id))
+        return false;
+    return Formula::GetRightCaretState(caret_state, select);
 }
 
 bool SquareRoot::UseSelection()

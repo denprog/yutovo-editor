@@ -90,6 +90,9 @@ bool Division::GetLeftCaretState(CaretState& caret_state, Selection* select)
 {
     if (select)
     {
+        if (caret->IsOnElement(GetShape()->id))
+            return false;
+        
         CaretState c;
         if ((GetLast()->GetFirstCaretState(c, nullptr) && caret_state == c) || (GetFirst()->GetFirstCaretState(c, nullptr) && caret_state == c))
         {
@@ -106,6 +109,9 @@ bool Division::GetRightCaretState(CaretState& caret_state, Selection* select)
 {
     if (select)
     {
+        if (caret->IsOnElement(GetShape()->id))
+            return false;
+        
         CaretState c;
         if ((GetLast()->GetLastCaretState(c, nullptr) && caret_state == c) || (GetFirst()->GetLastCaretState(c, nullptr) && caret_state == c))
         {
