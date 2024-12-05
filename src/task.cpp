@@ -1665,7 +1665,7 @@ bool CopyTask::Execute()
     {
         ElementPtr el1 = copy[i - 1];
         ElementPtr el2 = copy[i];
-        if (el1->type == ElementType::ROW && el2->type == ElementType::ROW && el1->parent->id == el2->parent->id)
+        if (document->IsRow(el1) && document->IsRow(el2) && el1->parent->id == el2->parent->id)
         {
             for (int j = 0; j < el2->elements->Count();)
                 el1->elements->Move(el2->elements->Get(j), el1->elements->Count());

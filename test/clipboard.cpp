@@ -1634,7 +1634,7 @@ TEST_F(DocumentTest, clipboard28)
     ASSERT_TRUE(document.ToText() == 
         U"()/()()/()123"
         ) << ToBasicString(document.ToText());
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0, 0, 1, 2, 0, 0})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0, 0, 2, 0})) << document.GetEditorState().ToString();
 
     document.Undo();
     document.WaitUndo();
@@ -1666,7 +1666,7 @@ TEST_F(DocumentTest, clipboard29)
     ASSERT_TRUE(document.ToText() == 
         U"()/()()/()123"
         ) << ToBasicString(document.ToText());
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0, 0, 1, 2, 0, 0})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0, 0, 2, 0})) << document.GetEditorState().ToString();
 
     document.Undo();
     document.WaitUndo();
@@ -4286,6 +4286,301 @@ TEST_F(DocumentTest, clipboard73)
         "</body>") << 
         document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 1, 1})) << document.GetEditorState().ToString();
+}
+
+//Copy-paste a code block and a string
+TEST_F(DocumentTest, clipboard74)
+{
+    Start(600);
+
+    document.InsertString("Предметом арифметики является", true);
+    document.InsertParagraph(true);
+    document.InsertCode(false, true);
+    document.PasteText(U"123");
+    document.WaitTask(document.MoveCaretRight(false));
+    document.WaitTask(document.InsertString("String", true));
+    document.WaitTask(document.MoveCaretHome(true));
+    ASSERT_TRUE(document.ToText() == 
+        U"Предметом арифметики является\n"
+        U"123String"
+        ) << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 1, 0, 0}, 
+        ElementSelectionState{ElementId{0}, 1, 1})) << document.GetEditorState().ToString();
+    
+    document.WaitTask(document.Copy(clipboard_json, clipboard_text));
+
+    document.MoveCaretToDocumentBegin(false);
+    document.WaitTask(document.Paste(clipboard_json));
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"123StringПредметом арифметики является\n"
+        U"123String"
+        ) << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 1, 6})) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"Предметом арифметики является\n"
+        U"123String"
+        ) << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0})) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.MoveCaretRight(false));
+    document.WaitTask(document.Paste(clipboard_json));
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">П</span>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mi>123</mi>"\
+                    "</mrow>"\
+                "</math>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">Stringредметом арифметики является</span>"\
+            "</p>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mi>123</mi>"\
+                    "</mrow>"\
+                "</math>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">String</span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 2, 6})) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"Предметом арифметики является\n"
+        U"123String"
+        ) << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 1})) << document.GetEditorState().ToString();
+}
+
+//Copy-paste a code block and a string
+TEST_F(DocumentTest, clipboard75)
+{
+    Start(600);
+
+    document.InsertString("Предметом арифметики является", true);
+    document.InsertParagraph(true);
+    document.InsertCode(false, true);
+    document.PasteText(U"123");
+    document.WaitTask(document.MoveCaretRight(false));
+    document.WaitTask(document.InsertString("String", true));
+    document.MoveCaretLeft(false);
+    document.MoveCaretLeft(false);
+    document.MoveCaretLeft(false);
+    document.WaitTask(document.MoveCaretHome(true));
+    ASSERT_TRUE(document.ToText() == 
+        U"Предметом арифметики является\n"
+        U"123String"
+        ) << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 1, 0, 0}, 
+        ElementSelectionState{ElementId{0, 1, 0}, 0, 1}, 
+        ElementSelectionState{ElementId{0, 1, 0, 1}, 0, 3})) << document.GetEditorState().ToString();
+    
+    document.WaitTask(document.Copy(clipboard_json, clipboard_text));
+
+    document.MoveCaretToDocumentBegin(false);
+    document.WaitTask(document.Paste(clipboard_json));
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mi>123</mi>"\
+                    "</mrow>"\
+                "</math>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">StrПредметом арифметики является</span>"\
+            "</p>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mi>123</mi>"\
+                    "</mrow>"\
+                "</math>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">String</span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 1, 3})) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">Предметом арифметики является</span>"\
+            "</p>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mi>123</mi>"\
+                    "</mrow>"\
+                "</math>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">String</span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0})) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.MoveCaretRight(false));
+    document.WaitTask(document.Paste(clipboard_json));
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">П</span>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mi>123</mi>"\
+                    "</mrow>"\
+                "</math>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">Strредметом арифметики является</span>"\
+            "</p>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mi>123</mi>"\
+                    "</mrow>"\
+                "</math>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">String</span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 2, 3})) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"Предметом арифметики является\n"
+        U"123String"
+        ) << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 1})) << document.GetEditorState().ToString();
+}
+
+//Copy-paste a code block and a string
+TEST_F(DocumentTest, clipboard76)
+{
+    Start(600);
+
+    document.InsertString("Предметом арифметики является", true);
+    document.InsertParagraph(true);
+    document.InsertCode(false, true);
+    document.PasteText(U"123");
+    document.WaitTask(document.MoveCaretRight(false));
+    document.WaitTask(document.InsertString("String", true));
+    document.MoveCaretLeft(false);
+    document.MoveCaretLeft(false);
+    document.MoveCaretLeft(false);
+    document.WaitTask(document.MoveCaretHome(true));
+    ASSERT_TRUE(document.ToText() == 
+        U"Предметом арифметики является\n"
+        U"123String"
+        ) << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 1, 0, 0}, 
+        ElementSelectionState{ElementId{0, 1, 0}, 0, 1}, 
+        ElementSelectionState{ElementId{0, 1, 0, 1}, 0, 3})) << document.GetEditorState().ToString();
+    
+    document.WaitTask(document.Copy(clipboard_json, clipboard_text));
+
+    document.MoveCaretToDocumentBegin(false);
+    document.MoveCaretEnd(false);
+    document.WaitTask(document.Paste(clipboard_json));
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">Предметом арифметики является</span>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mi>123</mi>"\
+                    "</mrow>"\
+                "</math>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">Str</span>"\
+            "</p>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mi>123</mi>"\
+                    "</mrow>"\
+                "</math>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">String</span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 2, 3})) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">Предметом арифметики является</span>"\
+            "</p>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mi>123</mi>"\
+                    "</mrow>"\
+                "</math>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">String</span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 29})) << document.GetEditorState().ToString();
+
+    document.MoveCaretHome(false);
+    document.MoveCaretDown(false);
+    document.MoveCaretHome(false);
+    document.WaitTask(document.MoveCaretRight(true));
+    document.WaitTask(document.Copy(clipboard_json, clipboard_text));
+
+    document.MoveCaretToDocumentBegin(false);
+    document.MoveCaretEnd(false);
+    document.WaitTask(document.Paste(clipboard_json));
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">Предметом арифметики является</span>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mi>123</mi>"\
+                    "</mrow>"\
+                "</math>"\
+            "</p>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mi>123</mi>"\
+                    "</mrow>"\
+                "</math>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">String</span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 2})) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"Предметом арифметики является\n"
+        U"123String"
+        ) << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 29})) << document.GetEditorState().ToString();
 }
 
 }
