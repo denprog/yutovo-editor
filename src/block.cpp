@@ -255,10 +255,10 @@ bool Block::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo, E
     if (document->pasting && insert_element->GetLastCaretState(after, nullptr))
     {
         CaretState c;
-        if (last == before_state)
-            caret->SetState(after);
-        else if (caret_next_row && new_row->GetFirstCaretState(c, nullptr))
+        if (caret_next_row && new_row->GetFirstCaretState(c, nullptr))
             caret->SetState(c);
+        else if (last == before_state)
+            caret->SetState(after);
     }
     else
     {
