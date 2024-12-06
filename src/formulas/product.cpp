@@ -44,6 +44,9 @@ Element* Product::FromJson(Element* parent, Document* document, const rapidjson:
 
 std::u32string Product::ToText()
 {
+    Assignment* lower = GetLower();
+    CodeRow* upper = GetUpper();
+    CodeRow* right = GetRight();
     if (!lower || !upper || !right)
         return U"";
     return U"prod(" + lower->ToText() + U"," + upper->ToText() + U"," + right->ToText() + U")";
@@ -51,6 +54,10 @@ std::u32string Product::ToText()
 
 void Product::ToParserString(ParserString& str)
 {
+    Assignment* lower = GetLower();
+    CodeRow* upper = GetUpper();
+    CodeRow* right = GetRight();
+
     str.Add(id, U"loop(");
     lower->ToParserString(str); //loop variable
     str.Add(id, U",(");

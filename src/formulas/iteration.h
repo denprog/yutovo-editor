@@ -24,6 +24,10 @@ public:
     virtual void Draw() const;
     virtual bool Remake(bool with_elements = false);
 
+    virtual bool GetLeftCaretState(CaretState& caret_state, Selection* select);
+    virtual bool GetRightCaretState(CaretState& caret_state, Selection* select);
+    virtual bool GetWordLeftCaretState(CaretState& caret_state, Selection* select);
+    virtual bool GetWordRightCaretState(CaretState& caret_state, Selection* select);
     virtual bool GetTopCaretState(const int x, const int y, CaretState& caret_state, Selection* select);
     virtual bool GetBottomCaretState(const int x, const int y, CaretState& caret_state, Selection* select);
 
@@ -36,10 +40,12 @@ public:
     virtual std::string ToHtml();
 
 protected:
-    Assignment *lower = nullptr;
-    CodeRow *upper = nullptr, *right = nullptr;
-    Shape *shape = nullptr;
+    Assignment* GetLower() const;
+    CodeRow* GetUpper() const;
+    CodeRow* GetRight() const;
+    Shape* GetShape() const;
 
+protected:
     StringFormatPtr format;
 
     const char32_t symbol;
