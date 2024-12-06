@@ -1216,4 +1216,51 @@ TEST_F(FormulaTest, division19)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 2, 0, 0})) << document.GetEditorState().ToString();
 }
 
+//Replace a string after selection
+TEST_F(FormulaTest, division20)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.InsertString("88", true);
+    document.InsertDivision(true);
+    document.InsertString("789", true);
+    document.WaitTask(document.MoveCaretHome(true));
+    document.WaitTask(document.InsertString("5", true));
+    ASSERT_TRUE(document.ToText() == U"(88)/(5)") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 2, 0, 1})) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.ToText() == U"(88)/(789)") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 2, 0, 0}, 
+        ElementSelectionState{{0, 0, 0, 0, 0, 0, 0}, 2, 1})) << document.GetEditorState().ToString();
+
+    document.Redo();
+    document.WaitRedo();
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.ToText() == U"(88)/(5)") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 2, 0, 1})) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.InsertString("6", true));
+    ASSERT_TRUE(document.ToText() == U"(88)/(56)") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 2, 0, 2})) << document.GetEditorState().ToString();
+
+    document.MoveCaretUp(false);
+    document.MoveCaretUp(false);
+    document.MoveCaretLeft(true);
+    document.WaitTask(document.MoveCaretLeft(true));
+    document.WaitTask(document.InsertString("5", true));
+    ASSERT_TRUE(document.ToText() == U"(5)/(56)") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 0, 0, 1})) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.ToText() == U"(88)/(56)") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, 
+        ElementSelectionState{{0, 0, 0, 0, 0, 0, 0}, 0, 1})) << document.GetEditorState().ToString();
+}
+
 }
