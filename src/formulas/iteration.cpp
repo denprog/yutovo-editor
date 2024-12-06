@@ -28,10 +28,6 @@ Iteration::Iteration(Document* _document, char32_t _symbol, bool with_init) :
 
 Iteration::Iteration(const Iteration& source) :
     Formula(source),
-    lower((Assignment*)elements->Get(0).get()),
-    shape((Shape*)elements->Get(1).get()),
-    upper((CodeRow*)elements->Get(2).get()),
-    right((CodeRow*)elements->Get(3).get()),
     symbol(source.symbol),
     symbol_str(source.symbol_str)
 {
@@ -40,15 +36,11 @@ Iteration::Iteration(const Iteration& source) :
 void Iteration::Init()
 {
     symbol_str = ToBasicString(std::u32string(1, symbol));
-    lower = new Assignment(this, true, false);
-    lower->editable = false;
-    shape = new Shape(this);
-    upper = new CodeRow(this);
-    right = new CodeRow(this);
-    elements->Add(ElementPtr(lower));
-    elements->Add(ElementPtr(shape));
-    elements->Add(ElementPtr(upper));
-    elements->Add(ElementPtr(right));
+    elements->Add(ElementPtr(new Assignment(this, true, false)));
+    elements->Get(0)->editable = false;
+    elements->Add(ElementPtr(new Shape(this)));
+    elements->Add(ElementPtr(new CodeRow(this)));
+    elements->Add(ElementPtr(new CodeRow(this)));
 
     UpdateLevel(level);
 }
@@ -58,16 +50,12 @@ bool Iteration::AfterFromJson()
     if (elements->Count() != 4)
         return false;
     symbol_str = ToBasicString(std::u32string(1, symbol));
-    lower = (Assignment*)elements->Get(0).get();
-    shape = (Shape*)elements->Get(1).get();
-    upper = (CodeRow*)elements->Get(2).get();
-    right = (CodeRow*)elements->Get(3).get();
     return true;
 }
 
 void Iteration::Draw() const
 {
-    shape->draw_func = 
+    GetShape()->draw_func = 
         [&](const Rect& r)
         {
             if (format)
@@ -91,6 +79,10 @@ bool Iteration::Remake(bool with_elements)
     UpdateLevel(level);
 
     bool changed = Formula::Remake(with_elements);
+    Assignment* lower = GetLower();
+    Shape* shape = GetShape();
+    CodeRow* upper = GetUpper();
+    CodeRow* right = GetRight();
 
     Size s;
     int size = window->GetSymbolSize(symbol, (int)lround(right->rect.height * 2), family_name, s, baseline);
@@ -129,8 +121,51 @@ bool Iteration::Remake(bool with_elements)
     return changed;
 }
 
+bool Iteration::GetLeftCaretState(CaretState& caret_state, Selection* select)
+{
+    if (select)
+    {
+        if (caret->IsOnElement(GetLower()->id) || caret->IsOnElement(GetShape()->id) || caret->IsOnElement(GetUpper()->id) || caret->IsOnElement(GetRight()->id))
+            return false;
+    }
+    return Formula::GetLeftCaretState(caret_state, select);
+}
+
+bool Iteration::GetRightCaretState(CaretState& caret_state, Selection* select)
+{
+    if (select)
+    {
+        if (caret->IsOnElement(GetLower()->id) || caret->IsOnElement(GetShape()->id) || caret->IsOnElement(GetUpper()->id) || caret->IsOnElement(GetRight()->id))
+            return false;
+    }
+    return Formula::GetRightCaretState(caret_state, select);
+}
+
+bool Iteration::GetWordLeftCaretState(CaretState& caret_state, Selection* select)
+{
+    if (select)
+    {
+        if (caret->IsOnElement(GetLower()->id) || caret->IsOnElement(GetShape()->id) || caret->IsOnElement(GetUpper()->id) || caret->IsOnElement(GetRight()->id))
+            return false;
+    }
+    return Formula::GetWordLeftCaretState(caret_state, select);
+}
+
+bool Iteration::GetWordRightCaretState(CaretState& caret_state, Selection* select)
+{
+    if (select)
+    {
+        if (caret->IsOnElement(GetLower()->id) || caret->IsOnElement(GetShape()->id) || caret->IsOnElement(GetUpper()->id) || caret->IsOnElement(GetRight()->id))
+            return false;
+    }
+    return Formula::GetWordRightCaretState(caret_state, select);
+}
+
 bool Iteration::GetTopCaretState(const int x, const int y, CaretState& caret_state, Selection* select)
 {
+    Assignment* lower = GetLower();
+    Shape* shape = GetShape();
+    CodeRow* upper = GetUpper();
     if (lower->GetAbsoluteRect().GetBottom() <= y && !caret->IsOnElement(lower->id))
         return lower->GetTopCaretState(x, y, caret_state, select);
     if (shape->GetAbsoluteRect().GetBottom() <= y && !caret->IsOnElement(shape->id))
@@ -142,6 +177,9 @@ bool Iteration::GetTopCaretState(const int x, const int y, CaretState& caret_sta
 
 bool Iteration::GetBottomCaretState(const int x, const int y, CaretState& caret_state, Selection* select)
 {
+    Assignment* lower = GetLower();
+    Shape* shape = GetShape();
+    CodeRow* upper = GetUpper();
     if (upper->GetAbsoluteRect().top >= y)
         return upper->GetBottomCaretState(x, y, caret_state, select);
     if (shape->GetAbsoluteRect().top >= y)
@@ -153,13 +191,44 @@ bool Iteration::GetBottomCaretState(const int x, const int y, CaretState& caret_
 
 bool Iteration::DeleteElements(bool left, bool with_undo, ElementId& changed_element)
 {
-    if (caret->GetPos() == 0) //don't delete the counter
+    if (caret->IsOnElement(GetLower()->id) || caret->IsOnElement(GetUpper()->id) || caret->IsOnElement(GetRight()->id)) //don't delete these elements
         return false;
-    
+
+    uint start, size;
+    if (selection->Has(id, start, size))
+    {
+        if (start == 2 && size == 1)
+        {
+            if (with_undo)
+                document->StoreUndo(GetUpper()->id);
+            GetUpper()->elements->Clear();
+            Normalize();
+            selection->Remove(id, start, size);
+            changed_element = id;
+            return true;
+        }
+        if (start == 3 && size == 1)
+        {
+            if (with_undo)
+                document->StoreUndo(GetRight()->id);
+            GetRight()->elements->Clear();
+            Normalize();
+            selection->Remove(id, start, size);
+            changed_element = id;
+            return true;
+        }
+        return false;
+    }
+
+    if (!caret->IsOnElement(GetShape()->id))
+        return false;
+
     if (with_undo)
         document->StoreUndo(parent->id);
 
     //remove this element by deleting its shape
+    Assignment* lower = GetLower();
+    CodeRow* right = GetRight();
     lower->UpdateLevel(level);
     int p = parent->elements->GetElementPos(id);
     uint c1 = 0;
@@ -185,6 +254,8 @@ void Iteration::UpdateLevel(uint8_t _level)
     Formula::UpdateLevel(_level);
     if (_level >= MAX_LEVEL)
         return;
+    Assignment* lower = GetLower();
+    CodeRow* upper = GetUpper();
     if (lower)
         lower->UpdateLevel(_level + 1);
     if (upper)
@@ -193,6 +264,7 @@ void Iteration::UpdateLevel(uint8_t _level)
 
 bool Iteration::AfterInsert(bool with_undo)
 {
+    Assignment* lower = GetLower();
     if (lower->elements->Count() != 3 || !caret)
         return false;
     CaretState c;
@@ -208,11 +280,31 @@ std::string Iteration::ToHtml()
 {
     std::string s = "<munderover>";
     s += "<mo>" + symbol_str + "</mo>";
-    s += lower->ToHtml();
-    s += upper->ToHtml();
+    s += GetLower()->ToHtml();
+    s += GetUpper()->ToHtml();
     s += "</munderover>";
-    s += right->ToHtml();
+    s += GetRight()->ToHtml();
     return s;
+}
+
+Assignment* Iteration::GetLower() const
+{
+    return (Assignment*)elements->Get(0).get();
+}
+
+CodeRow* Iteration::GetUpper() const
+{
+    return (CodeRow*)elements->Get(2).get();
+}
+
+CodeRow* Iteration::GetRight() const
+{
+    return (CodeRow*)elements->Get(3).get();
+}
+
+Shape* Iteration::GetShape() const
+{
+    return (Shape*)elements->Get(1).get();
 }
 
 }
