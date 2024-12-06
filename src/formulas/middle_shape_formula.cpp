@@ -62,15 +62,21 @@ bool MiddleShapeFormula::DeleteElements(bool left, bool with_undo, ElementId& ch
     {
         if (start == 0 && size == 1)
         {
+            if (with_undo)
+                document->StoreUndo(GetFirst()->id);
             GetFirst()->elements->Clear();
             Normalize();
+            selection->Remove(id, start, size);
             changed_element = id;
             return true;
         }
         if (start == 2 && size == 1)
         {
+            if (with_undo)
+                document->StoreUndo(GetLast()->id);
             GetLast()->elements->Clear();
             Normalize();
+            selection->Remove(id, start, size);
             changed_element = id;
             return true;
         }
