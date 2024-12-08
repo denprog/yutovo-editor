@@ -647,11 +647,7 @@ bool ChangeStringFormatTask::Execute()
             {
                 StringFormatPtr _format = get_string_format((String*)el.get());
                 if (!el->ChangeStringFormat(_format, with_undo, _changed_element))
-                {
-                    if (with_undo && last_undo_size < document->GetUndoSize())
-                        document->Undo();
                     return false;
-                }
                 if (!changed_element.empty())
                     changed_element = GetCommonParent(changed_element, _changed_element);
                 else
@@ -659,15 +655,22 @@ bool ChangeStringFormatTask::Execute()
             }
             else
             {
+                int f = 0;
                 for (int i = 0; i < el->elements->Count(); ++i)
                 {
                     auto _el = el->elements->Get(i);
                     if (!change_string_format(_el, _changed_element))
-                        return false;
+                        ++f;
                     if (!changed_element.empty())
                         changed_element = GetCommonParent(changed_element, _changed_element);
                     else
                         changed_element = _changed_element;
+                }
+                if (f == el->elements->Count())
+                {
+                    if (with_undo && last_undo_size < document->GetUndoSize())
+                        document->Undo();
+                    return false;
                 }
             }
             return true;

@@ -464,6 +464,8 @@ bool String::ChangeStringFormat(const StringFormatPtr _format, bool with_undo, E
     uint start, size;
     if (selection->Has(id, start, size))
     {
+        if (*format == *_format)
+            return false;
         if (with_undo)
             document->StoreUndo(parent->parent->id);
         if (start == 0 && size == elements->Count())
