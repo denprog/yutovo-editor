@@ -2234,6 +2234,114 @@ TEST_F(DocumentTest, fonts25)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0})) << document.GetEditorState().ToString();
 }
 
+//Set/unset font attributes
+TEST_F(DocumentTest, fonts26)
+{
+    Start(600);
+
+    document.WaitTask(document.InsertString("Арифме́тика (др.-греч. ἀριθμητική, arithmētikḗ — от ἀριθμός, arithmós «число») — раздел математики,"\
+        " изучающий числа, их отношения и свойства.\nПредметом арифметики является понятие числа (натуральные, целые, рациональные, "\
+        "вещественные, комплексные числа) и его свойства.", true));
+    document.MoveCaretToDocumentBegin(false);
+    document.MoveCaretDown(false);
+    document.MoveCaretDown(false);
+    document.MoveCaretDown(false);
+    document.WaitTask(document.MoveCaretDown(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 1, 1, 0, 0}, 
+        ElementSelectionState{ElementId{0, 1}, 0, 1})) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.SetFontFamily("Courier New"));
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">Арифме́тика (др.-греч. ἀριθμητική, arithmētikḗ — от ἀριθμός, </span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">arithmós «число») — раздел математики, изучающий числа, </span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">их отношения и свойства.</span>"\
+            "</p>"\
+            "<p>"\
+                "<span style=\"font-family:'Courier New';font-size:14px;\">Предметом арифметики является понятие числа </span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">(натуральные, целые, рациональные, вещественные, </span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">комплексные числа) и его свойства.</span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 1, 1, 0, 0}, 
+        ElementSelectionState{ElementId{0, 1}, 0, 1})) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.MoveCaretDown(false));
+    std::this_thread::sleep_for(200ms);
+    document.Undo();
+    document.WaitUndo();
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">Арифме́тика (др.-греч. ἀριθμητική, arithmētikḗ — от ἀριθμός, </span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">arithmós «число») — раздел математики, изучающий числа, </span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">их отношения и свойства.</span>"\
+            "</p>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">Предметом арифметики является понятие числа </span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">(натуральные, целые, рациональные, вещественные, </span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">комплексные числа) и его свойства.</span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 1, 0, 0, 44}, 
+        ElementSelectionState{ElementId{0, 1}, 0, 1})) << document.GetEditorState().ToString();
+}
+
+//Set the same font family
+TEST_F(DocumentTest, fonts27)
+{
+    Start(600);
+
+    document.WaitTask(document.InsertString("Арифме́тика (др.-греч. ἀριθμητική, arithmētikḗ — от ἀριθμός, arithmós «число») — раздел математики,"\
+        " изучающий числа, их отношения и свойства.\nПредметом арифметики является понятие числа (натуральные, целые, рациональные, "\
+        "вещественные, комплексные числа) и его свойства.", true));
+    document.MoveCaretToDocumentBegin(false);
+    document.MoveCaretDown(false);
+    document.MoveCaretDown(false);
+    document.MoveCaretDown(false);
+    document.WaitTask(document.MoveCaretDown(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 1, 1, 0, 0}, 
+        ElementSelectionState{ElementId{0, 1}, 0, 1})) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.Save("fonts27.yut"));
+    document.WaitTask(document.SetFontFamily("Arial"));
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">Арифме́тика (др.-греч. ἀριθμητική, arithmētikḗ — от ἀριθμός, </span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">arithmós «число») — раздел математики, изучающий числа, </span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">их отношения и свойства.</span>"\
+            "</p>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">Предметом арифметики является понятие числа </span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">(натуральные, целые, рациональные, вещественные, </span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">комплексные числа) и его свойства.</span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 1, 1, 0, 0}, 
+        ElementSelectionState{ElementId{0, 1}, 0, 1})) << document.GetEditorState().ToString();
+    ASSERT_FALSE(document.IsChanged());
+
+    document.WaitTask(document.MoveCaretDown(false));
+    std::this_thread::sleep_for(200ms);
+    document.Undo();
+    document.WaitUndo();
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\"></span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0})) << document.GetEditorState().ToString();
+}
+
 TEST_F(DocumentTest, delete1)
 {
     Start(600);
