@@ -818,4 +818,25 @@ TEST_F(DocumentTest, files20)
     }
 }
 
+//Check is changed
+TEST_F(DocumentTest, files21)
+{
+    Start(600);
+
+    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
+        {
+            return GetTextSizeMock(text, format);
+        });
+
+    ASSERT_TRUE(document.IsChanged() == false);
+    document.WaitTask(document.InsertString("t", true));
+    std::this_thread::sleep_for(200ms);
+    document.WaitTask(document.Save("1.yut"));
+    ASSERT_FALSE(document.IsChanged());
+
+    document.Undo();
+    document.WaitUndo();
+    ASSERT_TRUE(document.IsChanged());
+}
+
 }
