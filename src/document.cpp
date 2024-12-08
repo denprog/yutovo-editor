@@ -183,6 +183,8 @@ void Document::MainLoop()
                         break;
                     if (!undo_tasks.empty())
                         last_modify_task_id = undo_tasks.back()->id;
+                    else
+                        last_modify_task_id = 0;
                 }
                 selection.can_optimize = true;
 #ifdef DEBUG
