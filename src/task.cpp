@@ -661,12 +661,15 @@ bool ChangeStringFormatTask::Execute()
                     auto _el = el->elements->Get(i);
                     if (!change_string_format(_el, _changed_element))
                         ++f;
-                    if (!changed_element.empty())
-                        changed_element = GetCommonParent(changed_element, _changed_element);
                     else
-                        changed_element = _changed_element;
+                    {
+                        if (!changed_element.empty())
+                            changed_element = GetCommonParent(changed_element, _changed_element);
+                        else
+                            changed_element = _changed_element;
+                    }
                 }
-                if (f == el->elements->Count())
+                if (el->elements->Count() > 0 && f == el->elements->Count())
                 {
                     if (with_undo && last_undo_size < document->GetUndoSize())
                         document->Undo();
@@ -676,6 +679,7 @@ bool ChangeStringFormatTask::Execute()
             return true;
         };
 
+    bool changed = false;
     ElementId changed_element;
     for (int i = selection_state.state.size() - 1; i >= 0; --i)
     {
@@ -686,28 +690,35 @@ bool ChangeStringFormatTask::Execute()
         ElementId _changed_element;
         if (document->IsString(el))
         {
-            if (!change_string_format(el, _changed_element))
-                return false;
-            if (!changed_element.empty())
-                changed_element = GetCommonParent(changed_element, _changed_element);
-            else
-                changed_element = _changed_element;
+            if (change_string_format(el, _changed_element))
+            {
+                if (!changed_element.empty())
+                    changed_element = GetCommonParent(changed_element, _changed_element);
+                else
+                    changed_element = _changed_element;
+                changed = true;
+            }
         }
         else
         {
             for (int i = s.start; i < s.start + s.size; ++i)
             {
-                if (!change_string_format(el->elements->Get(i), _changed_element))
-                    return false;
-                if (!changed_element.empty())
-                    changed_element = GetCommonParent(changed_element, _changed_element);
-                else
-                    changed_element = _changed_element;
+                if (change_string_format(el->elements->Get(i), _changed_element))
+                {
+                    if (!changed_element.empty())
+                        changed_element = GetCommonParent(changed_element, _changed_element);
+                    else
+                        changed_element = _changed_element;
+                    changed = true;
+                }
             }
         }
 
         document->UpdateFormats();
     }
+
+    if (!changed)
+        return false;
 
     Remake(changed_element, false);
 

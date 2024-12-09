@@ -1899,7 +1899,7 @@ TEST_F(FormulaTest, fonts1)
     document.MoveCaretHome(false);
     document.WaitTask(document.MoveCaretRight(true));
     document.WaitTask(document.SetFontSize(12));
-    std::this_thread::sleep_for(100ms);
+    std::this_thread::sleep_for(200ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\

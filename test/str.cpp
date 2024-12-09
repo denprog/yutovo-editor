@@ -1864,6 +1864,7 @@ TEST_F(DocumentTest, fonts18)
 
     document.Undo();
     document.WaitUndo();
+    std::this_thread::sleep_for(200ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -2340,6 +2341,164 @@ TEST_F(DocumentTest, fonts27)
         "</body>") << 
         document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0})) << document.GetEditorState().ToString();
+}
+
+//Set the same font family in two paragraphs
+TEST_F(DocumentTest, fonts28)
+{
+    Start(600);
+
+    document.WaitTask(document.InsertString("Арифме́тика (др.-греч. ἀριθμητική, arithmētikḗ — от ἀριθμός, arithmós «число») — раздел математики,"\
+        " изучающий числа, их отношения и свойства.\nПредметом арифметики является понятие числа (натуральные, целые, рациональные, "\
+        "вещественные, комплексные числа) и его свойства.", true));
+    document.MoveCaretToDocumentBegin(false);
+    document.MoveCaretDown(false);
+    document.MoveCaretDown(false);
+    document.MoveCaretRight(false);
+    document.MoveCaretRight(false);
+    document.MoveCaretRight(false);
+    document.WaitTask(document.MoveCaretWordRight(true));
+    document.WaitTask(document.SetItalic(true));
+    document.MoveCaretDown(false);
+    document.MoveCaretWordLeft(false);
+    document.WaitTask(document.MoveCaretWordRight(true));
+    document.WaitTask(document.SetItalic(true));
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">Арифме́тика (др.-греч. ἀριθμητική, arithmētikḗ — от ἀριθμός, </span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">arithmós «число») — раздел математики, изучающий числа, </span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">их </span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\"><em>отношения</em></span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\"> и свойства.</span>"\
+            "</p>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">Предметом </span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\"><em>арифметики</em></span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\"> является понятие числа </span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">(натуральные, целые, рациональные, вещественные, </span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">комплексные числа) и его свойства.</span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    
+    document.MoveCaretUp(false);
+    for (int i = 0; i < 4; ++i)
+        document.MoveCaretWordLeft(false);
+    document.MoveCaretRight(false);
+    document.MoveCaretRight(false);
+    document.MoveCaretDown(true);
+    document.MoveCaretWordRight(true);
+    document.WaitTask(document.MoveCaretWordRight(true));
+    document.WaitTask(document.SetItalic(true));
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">Арифме́тика (др.-греч. ἀριθμητική, arithmētikḗ — от ἀριθμός, </span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">arithmós «число») — раздел математики, изучающий числа, </span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">их </span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\"><em>отношения и свойства.</em></span>"\
+            "</p>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\"><em>Предметом арифметики</em></span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\"> является понятие числа </span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">(натуральные, целые, рациональные, вещественные, </span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">комплексные числа) и его свойства.</span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 1, 0, 0, 20}, 
+        ElementSelectionState{ElementId{0, 0, 2, 1}, 2, 19}, 
+        ElementSelectionState{ElementId{0, 1, 0}, 0, 1})) << document.GetEditorState().ToString();
+}
+
+//Set the same font family in two paragraphs
+TEST_F(DocumentTest, fonts29)
+{
+    Start(600);
+
+    document.WaitTask(document.InsertString("Арифме́тика (др.-греч. ἀριθμητική, arithmētikḗ — от ἀριθμός, arithmós «число») — раздел математики,"\
+        " изучающий числа, их отношения и свойства.\nПредметом арифметики является понятие числа (натуральные, целые, рациональные, "\
+        "вещественные, комплексные числа) и его свойства.", true));
+    document.MoveCaretToDocumentBegin(false);
+    document.MoveCaretDown(false);
+    document.MoveCaretDown(false);
+    document.MoveCaretEnd(false);
+    document.WaitTask(document.MoveCaretWordLeft(true));
+    document.WaitTask(document.SetItalic(true));
+    document.MoveCaretHome(false);
+    document.MoveCaretDown(false);
+    document.WaitTask(document.MoveCaretWordRight(true));
+    document.WaitTask(document.SetItalic(true));
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">Арифме́тика (др.-греч. ἀριθμητική, arithmētikḗ — от ἀριθμός, </span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">arithmós «число») — раздел математики, изучающий числа, </span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">их отношения и </span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\"><em>свойства.</em></span>"\
+            "</p>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\"><em>Предметом</em></span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\"> арифметики является понятие числа </span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">(натуральные, целые, рациональные, вещественные, </span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">комплексные числа) и его свойства.</span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    
+    document.MoveCaretUp(false);
+    document.MoveCaretEnd(false);
+    document.MoveCaretWordLeft(false);
+    document.WaitTask(document.MoveCaretDown(true));
+    document.WaitTask(document.SetItalic(true));
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">Арифме́тика (др.-греч. ἀριθμητική, arithmētikḗ — от ἀριθμός, </span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">arithmós «число») — раздел математики, изучающий числа, </span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">их отношения и </span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\"><em>свойства.</em></span>"\
+            "</p>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\"><em>Предметом ари</em></span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">фметики является понятие числа </span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">(натуральные, целые, рациональные, вещественные, </span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">комплексные числа) и его свойства.</span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 1, 0, 0, 13}, 
+        ElementSelectionState{ElementId{0, 0, 2}, 1, 1}, 
+        ElementSelectionState{ElementId{0, 1, 0}, 0, 1})) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">Арифме́тика (др.-греч. ἀριθμητική, arithmētikḗ — от ἀριθμός, </span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">arithmós «число») — раздел математики, изучающий числа, </span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">их отношения и </span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\"><em>свойства.</em></span>"\
+            "</p>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\"><em>Предметом</em></span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\"> арифметики является понятие числа </span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">(натуральные, целые, рациональные, вещественные, </span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">комплексные числа) и его свойства.</span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 1, 0, 1, 4}, 
+        ElementSelectionState{ElementId{0, 0, 2}, 1, 1}, 
+        ElementSelectionState{ElementId{0, 1, 0}, 0, 1}, 
+        ElementSelectionState{ElementId{0, 1, 0, 1}, 0, 4})) << document.GetEditorState().ToString();
 }
 
 TEST_F(DocumentTest, delete1)
