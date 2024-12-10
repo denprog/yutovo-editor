@@ -383,4 +383,22 @@ TEST_F(FormulaTest, square_root9)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 2, 0, 0})) << document.GetEditorState().ToString();
 }
 
+//Check font
+TEST_F(FormulaTest, square_root10)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.InsertString("123", true);
+    document.WaitTask(document.MoveCaretHome(true));
+    document.WaitTask(document.SetBold(true));
+    StringFormat format;
+    ASSERT_TRUE(document.GetStringFormat(ElementId{0, 0, 0, 0, 0, 0, 0, 0}, format));
+    ASSERT_TRUE(format.bold);
+
+    document.WaitTask(document.InsertSquareRoot(true));
+    ASSERT_TRUE(document.GetStringFormat(ElementId{0, 0, 0, 0, 0, 0, 0, 1, 0}, format));
+    ASSERT_TRUE(format.bold);
+}
+
 }

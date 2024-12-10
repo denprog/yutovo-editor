@@ -4,6 +4,8 @@
 namespace yutovo
 {
 
+//Formula
+
 Formula::Formula(Element* _parent) : 
     Element(_parent),
     formula_format(GetFormulaFormat())

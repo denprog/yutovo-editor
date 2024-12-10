@@ -381,4 +381,26 @@ TEST_F(FormulaTest, nth_root5)
         ElementSelectionState{ElementId{0}, 0, 1})) << document.GetEditorState().ToString();
 }
 
+//Check font
+TEST_F(FormulaTest, nth_root6)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.InsertString("123", true);
+    document.WaitTask(document.MoveCaretHome(true));
+    document.WaitTask(document.SetBold(true));
+    StringFormat format;
+    ASSERT_TRUE(document.GetStringFormat(ElementId{0, 0, 0, 0, 0, 0, 0, 0}, format));
+    ASSERT_TRUE(format.bold);
+
+    document.WaitTask(document.InsertNthRoot(true));
+    ASSERT_TRUE(document.GetStringFormat(ElementId{0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, format));
+    ASSERT_TRUE(format.bold);
+
+    document.WaitTask(document.InsertString("55", true));
+    ASSERT_TRUE(document.GetStringFormat(ElementId{0, 0, 0, 0, 0, 0, 0, 2, 0}, format));
+    ASSERT_FALSE(format.bold);
+}
+
 }
