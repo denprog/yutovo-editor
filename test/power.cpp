@@ -518,6 +518,7 @@ TEST_F(FormulaTest, power7)
 
     document.Undo();
     document.WaitUndo();
+    std::this_thread::sleep_for(200ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -739,6 +740,7 @@ TEST_F(FormulaTest, power14)
 
     document.Undo();
     document.WaitUndo();
+    std::this_thread::sleep_for(200ms);
     ASSERT_TRUE(document.ToText() == 
         U"pow(,)"
         ) << ToBasicString(document.ToText());

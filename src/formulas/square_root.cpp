@@ -151,8 +151,6 @@ bool SquareRoot::AfterInsert(bool with_undo)
         if (GetLast()->GetFirstCaretState(c, nullptr))
             caret->SetState(c);
 
-        UpdateFormat(GetFormulaFormat()->string_format);
-
         UpdateLevel(level);
         parent->Normalize();
         return true;

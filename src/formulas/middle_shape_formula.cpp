@@ -1,5 +1,6 @@
 #include "middle_shape_formula.h"
 #include "code_row.h"
+#include "code_string.h"
 #include "../caret.h"
 #include "../document.h"
 
@@ -161,7 +162,7 @@ bool MiddleShapeFormula::AfterInsert(bool with_undo)
                 String* str = dynamic_cast<String*>(el1.get());
                 if (str->elements->Count() > 0)
                 {
-                    //move the GetFirst() element in the upper element
+                    //move the first element in the upper element
                     GetFirst()->elements->RemoveAt(0, 1);
                     GetFirst()->elements->Move(document->GetElement(el1->id), 0);
                 }
@@ -169,8 +170,6 @@ bool MiddleShapeFormula::AfterInsert(bool with_undo)
         }
 
         selection->Clear();
-
-        UpdateFormat(GetFormulaFormat()->string_format);
 
         CaretState c;
         if (GetFirst()->elements->Get(0)->elements->Count() == 0)

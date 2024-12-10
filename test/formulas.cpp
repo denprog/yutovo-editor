@@ -32,6 +32,7 @@ TEST_F(FormulaTest, delete1)
 
     document.Undo();
     document.WaitUndo();
+    std::this_thread::sleep_for(200ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -2107,6 +2108,153 @@ TEST_F(FormulaTest, fonts3)
         document.ToHtml();
     s = document.GetElement(ElementId{0, 0, 0, 0, 0, 0, 0});
     ASSERT_TRUE(s->type == ElementType::CODE_STRING && ((CodeString*)s.get())->GetStringFormat()->text_color == Color::Black());
+}
+
+//Set a font attribute
+TEST_F(FormulaTest, fonts4)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.InsertString("123", true);
+    document.WaitTask(document.MoveCaretHome(true));
+    document.WaitTask(document.SetBold(true));
+    auto s = document.GetElement(ElementId{0, 0, 0, 0, 0, 0, 0});
+    ASSERT_TRUE(s->type == ElementType::CODE_STRING && ((CodeString*)s.get())->GetStringFormat()->bold == true);
+
+    StringFormat format;
+    ASSERT_TRUE(document.GetStringFormat(ElementId{0, 0, 0, 0, 0}, format));
+    ASSERT_TRUE(format.bold);
+
+    document.WaitTask(document.SetBold(false));
+    ASSERT_TRUE(s->type == ElementType::CODE_STRING && ((CodeString*)s.get())->GetStringFormat()->bold == false);
+}
+
+//Set a font attribute
+TEST_F(FormulaTest, fonts5)
+{
+    Start(600);
+
+    document.InsertDivision(true);
+    document.InsertString("123", true);
+    document.MoveCaretRight(false);
+    document.MoveCaretRight(false);
+    document.WaitTask(document.InsertString("55", true));
+    document.WaitTask(document.MoveCaretHome(true));
+    document.WaitTask(document.SetItalic(true));
+
+    StringFormat format;
+    ASSERT_TRUE(document.GetStringFormat(ElementId{0, 0, 0, 0, 0, 0, 0, 2, 0}, format));
+    ASSERT_TRUE(format.italic);
+    ASSERT_TRUE(document.GetStringFormat(ElementId{0, 0, 0, 0, 0, 0}, format));
+    ASSERT_FALSE(format.italic);
+
+    document.WaitTask(document.MoveCaretLeft(true));
+    document.WaitTask(document.SetBold(true));
+
+    // ASSERT_TRUE(document.GetStringFormat(ElementId{0, 0, 0, 0, 0}, format));
+    // ASSERT_TRUE(format.bold);
+    // ASSERT_FALSE(format.italic);
+
+    ASSERT_TRUE(document.GetStringFormat(ElementId{0, 0, 0, 0, 0, 0, 0, 2, 0}, format));
+    ASSERT_TRUE(format.italic);
+    ASSERT_TRUE(format.bold);
+
+    ASSERT_TRUE(document.GetStringFormat(ElementId{0, 0, 0, 0, 0, 0, 0, 0, 0}, format));
+    ASSERT_TRUE(format.bold);
+
+    document.WaitTask(document.SetBold(false));
+
+    ASSERT_TRUE(document.GetStringFormat(ElementId{0, 0, 0, 0, 0, 0, 0, 0, 0}, format));
+    ASSERT_FALSE(format.bold);
+
+    ASSERT_TRUE(document.GetStringFormat(ElementId{0, 0, 0, 0, 0, 0, 0, 2, 0}, format));
+    ASSERT_TRUE(format.italic);
+    ASSERT_FALSE(format.bold);
+}
+
+//Set a font attribute
+TEST_F(FormulaTest, fonts6)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.InsertString("123", true);
+    document.WaitTask(document.MoveCaretHome(true));
+    document.WaitTask(document.SetBold(true));
+    StringFormat format;
+    ASSERT_TRUE(document.GetStringFormat(ElementId{0, 0, 0, 0, 0, 0, 0, 0, 0}, format));
+    ASSERT_TRUE(format.bold);
+
+    document.WaitTask(document.MoveCaretEnd(false));
+    document.WaitTask(document.InsertDivision(true));
+    ASSERT_TRUE(document.GetStringFormat(ElementId{0, 0, 0, 0, 0, 0, 0, 0, 0}, format));
+    ASSERT_TRUE(format.bold);
+
+    document.WaitTask(document.InsertString("f", true));
+    ASSERT_TRUE(document.GetStringFormat(ElementId{0, 0, 0, 0, 0, 0, 0, 2, 0}, format));
+    ASSERT_FALSE(format.bold);
+
+    document.WaitTask(document.MoveCaretHome(true));
+    document.WaitTask(document.SetUnderline(true));
+    ASSERT_TRUE(document.GetStringFormat(ElementId{0, 0, 0, 0, 0, 0, 0, 2, 0}, format));
+    ASSERT_FALSE(format.bold);
+    ASSERT_TRUE(format.underline);
+    ASSERT_TRUE(document.GetStringFormat(ElementId{0, 0, 0, 0, 0, 0, 0, 0, 0}, format));
+    ASSERT_TRUE(format.bold);
+    ASSERT_FALSE(format.underline);
+
+    document.MoveCaretHome(false);
+    document.WaitTask(document.MoveCaretEnd(false));
+    // ASSERT_TRUE(document.GetStringFormat(ElementId{0, 0, 0, 0, 0}, format));
+    // ASSERT_FALSE(format.bold);
+    // ASSERT_FALSE(format.underline);
+
+    document.WaitTask(document.InsertPlus(true));
+    document.WaitTask(document.InsertString("55", true));
+    ASSERT_TRUE(document.GetStringFormat(ElementId{0, 0, 0, 0, 0, 0, 2}, format));
+    ASSERT_FALSE(format.bold);
+    ASSERT_FALSE(format.underline);
+
+    document.MoveCaretLeft(true);
+    document.WaitTask(document.MoveCaretLeft(true));
+    document.WaitTask(document.SetFontSize(16));
+    ASSERT_TRUE(document.GetStringFormat(ElementId{0, 0, 0, 0, 0, 0, 2}, format));
+    ASSERT_TRUE(format.size == 16);
+    ASSERT_FALSE(format.bold);
+    ASSERT_FALSE(format.underline);
+
+    document.MoveCaretLeft(false);
+    document.MoveCaretLeft(false);
+    document.WaitTask(document.MoveCaretLeft(false));
+    document.WaitTask(document.InsertString("1", true));
+    ASSERT_TRUE(document.ToText() == 
+        U"(123)/(f1)+55"
+        ) << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetStringFormat(ElementId{0, 0, 0, 0, 0, 0, 0}, format));
+    ASSERT_FALSE(format.bold);
+    ASSERT_FALSE(format.underline);
+    ASSERT_TRUE(format.size == 16);
+
+    ASSERT_TRUE(document.GetStringFormat(ElementId{0, 0, 0, 0}, format));
+    ASSERT_FALSE(format.bold);
+    ASSERT_FALSE(format.underline);
+    ASSERT_FALSE(format.size == 16);
+
+    document.WaitTask(document.MoveCaretEnd(false));
+    document.WaitTask(document.SetFontSize(22));
+    document.WaitTask(document.InsertString("77", true));
+    ASSERT_TRUE(document.ToText() == 
+        U"(123)/(f1)+5577"
+        ) << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetStringFormat(ElementId{0, 0, 0, 0, 0, 0, 2}, format));
+    ASSERT_TRUE(format.size == 16);
+    ASSERT_FALSE(format.bold);
+    ASSERT_FALSE(format.underline);
+    ASSERT_TRUE(document.GetStringFormat(ElementId{0, 0, 0, 0, 0, 0, 3}, format));
+    ASSERT_TRUE(format.size == 22);
+    ASSERT_FALSE(format.bold);
+    ASSERT_FALSE(format.underline);
 }
 
 }

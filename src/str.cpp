@@ -786,8 +786,8 @@ void String::UpdateLevel(uint8_t _level)
     if (!parent)
         return;
     size_cache.clear();
-    format = parent->GetStringFormat();
-    format = document->GetStringFormat(format->family, GetFontSize(format->size), format->bold, format->italic, format->underline, 
+    auto f = parent->GetStringFormat();
+    format = document->GetStringFormat(f->family, GetFontSize(f->size), format->bold, format->italic, format->underline, 
         format->strikethrough, format->text_color, format->text_bg_color);
 }
 
