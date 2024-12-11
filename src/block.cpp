@@ -137,6 +137,7 @@ bool Block::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo, E
             els.push_back(_els[0]);
             if (!cur)
                 cur = document->GetParent(before_state.id);
+            assert(cur.get() != this);
             if (!cur || !cur->InsertElements(els, with_undo, changed_element))
                 return false;
             for (int i = 1; i < _els.size(); ++i)
