@@ -1506,6 +1506,29 @@ TEST_F(SolverAutoTest, solver34)
         ) << ToBasicString(document.ToText());
 }
 
+//Solving after changing font
+TEST_F(SolverAutoTest, solver35)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.InsertString("123", true);
+    document.InsertParagraph(true);
+    document.InsertString("55", true);
+    document.WaitTask(document.MoveCaretHome(true));
+    document.WaitTask(document.SetBold(true));
+    document.WaitTask(document.MoveCaretRight(false));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 1, 0, 0, 2})) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(1s);
+    ASSERT_TRUE(document.ToText() == 
+        U"123\n"\
+        U"55=55."
+        ) << ToBasicString(document.ToText());
+}
+
 //Solve with errors
 TEST_F(SolverAutoTest, errors1)
 {
