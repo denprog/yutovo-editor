@@ -66,16 +66,16 @@ void CodeRow::Normalize()
                     _el->can_merge = false;
                 }
 
-                for (size_t i = 1; i < str.length();)
+                for (size_t k = 1; k < str.length();)
                 {
-                    int j = i;
+                    int j = k;
                     int s = 0;
                     while (j < str.length() && str[j++] == U' ')
                         ++s;
                     if (s > 0)
                     {
                         //split this element
-                        if (el->SplitAt(i))
+                        if (el->SplitAt(k))
                         {
                             int p = elements->GetElementPos(el->id);
                             auto n = elements->Get(p + 1);
@@ -83,13 +83,24 @@ void CodeRow::Normalize()
                             n->elements->RemoveAt(0, s);
                             el = n;
                             str = el->ToText();
-                            i = 1;
+                            k = 1;
                             continue;
                         }
                     }
-                    ++i;
+                    ++k;
                 }
             }
+        }
+        else if (el->type == ElementType::CODE_ROW)
+        {
+            //move the child elements outside
+            int p = yutovo::GetChildPos(el->id);
+            for (int j = 0; j < el->elements->Count();)
+            {
+                auto ch = el->elements->Get(j);
+                elements->Move(ch, p++);
+            }
+            elements->RemoveAt(p, 1);
         }
         ++i;
     }
