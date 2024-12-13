@@ -570,17 +570,24 @@ uint Document::InsertFences(bool with_undo)
     els.emplace_back(new OpenFence(this));
     els.emplace_back(new CloseFence(this));
     uint r = InsertFormulas(els, with_undo, false, false, 1);
-    MoveCaretLeft(false, true);
+    if (r > 0)
+        MoveCaretLeft(false, true);
     return r;
 }
 
 uint Document::InsertFunction(const std::string& name, bool with_undo)
 {
     LOG_TRACE("Insert function: {}", name);
-    InsertCodeString(name, with_undo);
-    InsertFormula(new OpenFence(this), with_undo, true);
-    uint r = InsertFormula(new CloseFence(this), with_undo, true);
-    MoveCaretLeft(false, true);
+    FormulaFormatPtr format;
+    if (!GetCurrentFormulaFormat(format))
+        return 0;
+    std::vector<ElementPtr> els;
+    els.emplace_back(new CodeString(this, name, format->string_format));
+    els.emplace_back(new OpenFence(this));
+    els.emplace_back(new CloseFence(this));
+    uint r = InsertFormulas(els, with_undo, false, false, 2);
+    if (r > 0)
+        MoveCaretLeft(false, true);
     return r;
 }
 
