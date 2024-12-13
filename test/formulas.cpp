@@ -1889,6 +1889,29 @@ TEST_F(FormulaTest, select14)
         ElementSelectionState{ElementId{0, 0, 0, 0, 0, 0}, 1, 2})) << document.GetEditorState().ToString();
 }
 
+//Select a symbol and a complex element
+TEST_F(FormulaTest, select15)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.InsertString("67", true);
+    document.InsertPlus(true);
+    document.InsertSquareRoot(true);
+    document.InsertString("3", true);
+    document.MoveCaretHome(false);
+    document.MoveCaretHome(false);
+    document.MoveCaretRight(false);
+    document.WaitTask(document.MoveCaretRight(false));
+    document.WaitTask(document.MoveCaretRight(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0, 0, 2}, 
+        ElementSelectionState{ElementId{0, 0, 0, 0, 0, 0}, 1, 1})) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.MoveCaretRight(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0, 0, 3}, 
+        ElementSelectionState{ElementId{0, 0, 0, 0, 0, 0}, 1, 2})) << document.GetEditorState().ToString();
+}
+
 TEST_F(FormulaTest, fonts1)
 {
     Start(600);

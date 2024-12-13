@@ -1471,7 +1471,7 @@ bool Elements::GetRightCaretState(CaretState& caret_state, Selection* select)
                 else if (Count() > p + 1)
                 {
                     if (!elements[p + 1]->CanContinueSelection() || !elements[p + 1]->GetFirstCaretState(caret_state, nullptr))
-                        caret_state.SetState(parent->id, select->IsEmpty() ? p : p + 1);
+                        caret_state.SetState(parent->id, caret->IsOnElement(elements[p]->id) ? p : p + 1);
                 }
                 else
                     caret_state.SetState(parent->id, elements[p - 1]->HasCaretState() ? p : p + 1);
