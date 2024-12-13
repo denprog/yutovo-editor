@@ -173,6 +173,108 @@ TEST_F(FormulaTest, functions3)
     ASSERT_TRUE(document.error_marks.size() == 0) << ErrorMarks();
 }
 
+//Insert a function after selection
+TEST_F(FormulaTest, functions4)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.InsertString("pi", true);
+    document.InsertPlus(true);
+    document.InsertString("1", true);
+    document.InsertMinus(true);
+    document.InsertDivision(true);
+    document.MoveCaretLeft(false);
+    document.MoveCaretLeft(false);
+    document.WaitTask(document.MoveCaretHome(true));
+    document.WaitTask(document.InsertFunction("sin", true));
+    std::this_thread::sleep_for(100ms);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mi>sin</mi>"\
+                        "<mo>(</mo>"\
+                        "<mi>pi</mi>"\
+                        "<mo>+</mo>"\
+                        "<mi>1</mi>"\
+                        "<mo>)</mo>" \
+                        "<mo>-</mo>"\
+                        "<mfrac>"\
+                            "<mrow>"\
+                                "<mi>Null</mi>"\
+                            "</mrow>"\
+                            "<mrow>"\
+                                "<mi>Null</mi>"\
+                            "</mrow>"\
+                        "</mfrac>"\
+                    "</mrow>"\
+                "</math>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 5})) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mi>pi</mi>"\
+                        "<mo>+</mo>"\
+                        "<mi>1</mi>"\
+                        "<mo>-</mo>"\
+                        "<mfrac>"\
+                            "<mrow>"\
+                                "<mi>Null</mi>"\
+                            "</mrow>"\
+                            "<mrow>"\
+                                "<mi>Null</mi>"\
+                            "</mrow>"\
+                        "</mfrac>"\
+                    "</mrow>"\
+                "</math>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 0}, 
+        ElementSelectionState{ElementId{0, 0, 0, 0, 0, 0}, 0, 3})) << document.GetEditorState().ToString();
+
+    document.Redo();
+    document.WaitRedo();
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mi>sin</mi>"\
+                        "<mo>(</mo>"\
+                        "<mi>pi</mi>"\
+                        "<mo>+</mo>"\
+                        "<mi>1</mi>"\
+                        "<mo>)</mo>" \
+                        "<mo>-</mo>"\
+                        "<mfrac>"\
+                            "<mrow>"\
+                                "<mi>Null</mi>"\
+                            "</mrow>"\
+                            "<mrow>"\
+                                "<mi>Null</mi>"\
+                            "</mrow>"\
+                        "</mfrac>"\
+                    "</mrow>"\
+                "</math>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 6})) << document.GetEditorState().ToString();
+}
+
 //User functions
 TEST_F(FormulaTest, user_functions1)
 {
