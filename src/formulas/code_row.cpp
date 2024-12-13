@@ -91,17 +91,6 @@ void CodeRow::Normalize()
                 }
             }
         }
-        else if (el->type == ElementType::CODE_ROW)
-        {
-            //move the child elements outside
-            int p = yutovo::GetChildPos(el->id);
-            for (int j = 0; j < el->elements->Count();)
-            {
-                auto ch = el->elements->Get(j);
-                elements->Move(ch, p++);
-            }
-            elements->RemoveAt(p, 1);
-        }
         ++i;
     }
 }
