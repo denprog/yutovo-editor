@@ -448,10 +448,11 @@ bool DeleteElementsTask::Execute()
 
 //InsertFormulasTask
 
-InsertFormulasTask::InsertFormulasTask(ElementPtr _text, std::vector<ElementPtr>& _elements, bool _with_undo, bool _pasting) :
+InsertFormulasTask::InsertFormulasTask(ElementPtr _text, std::vector<ElementPtr>& _elements, bool _with_undo, bool _pasting, int _select_pos) :
     Task(_text),
     elements(_elements),
-    pasting(_pasting)
+    pasting(_pasting), 
+    select_pos(_select_pos)
 {
     with_undo = _with_undo;
 }
@@ -477,6 +478,39 @@ bool InsertFormulasTask::Execute()
 
     ElementPtr el = document->GetParent(caret_state.id);
     assert(el);
+
+    std::vector<ElementPtr> select_elements;
+    if (select_pos != -1)
+    {
+        if (with_undo)
+            document->StoreUndo(el->id);
+        for (int i = 0; i < selection_state.state.size(); ++i)
+        {
+            ElementSelectionState& s = selection_state.state[i];
+            ElementPtr _el(document->GetElement(s.id));
+            ElementPtr c(_el->Clone());
+            int j = yutovo::GetChildPos(_el->id);
+            int k = 1;
+            if (s.start != 0 || s.size != _el->elements->Count())
+            {
+                if (_el->SplitAt(s.start))
+                {
+                    _el = _el->parent->elements->Get(_el->parent->elements->GetElementPos(_el->id) + 1);
+                    ++k;
+                }
+                if (_el->SplitAt(s.size))
+                    ++k;
+            }
+            select_elements.emplace_back(_el->Clone());
+            if (_el->parent)
+            {
+                _el->parent->elements->RemoveAt(j, k);
+                _el->parent->elements->Insert(c, j);
+            }
+        }
+        document->selection.Set(selection_state);
+        document->caret->SetState(caret_state);
+    }
 
     CaretState c;
     if (!selection_state.IsEmpty() && ((document->FindParent(caret_state.id, ElementType::CODE_BLOCK) == nullptr) || !elements[0]->UseSelection()))
@@ -551,8 +585,43 @@ bool InsertFormulasTask::Execute()
     }
     
     document->pasting = pasting;
-    if (el->InsertElements(_elements, insert_code_block ? false : with_undo, changed_element))
+    if (select_pos == -1)
     {
+        if (el->InsertElements(_elements, insert_code_block ? false : with_undo, changed_element))
+        {
+            Remake(changed_element, true); //move into view
+            document->pasting = false;
+            return true;
+        }
+    }
+    else
+    {
+        for (int i = 0; i < _elements.size(); ++i)
+        {
+            if (select_pos == i)
+            {
+                document->pasting = true;
+                if (!el->InsertElements(select_elements, insert_code_block ? false : with_undo, changed_element))
+                {
+                    if (with_undo && last_undo_size < document->GetUndoSize())
+                        document->Undo();
+                    document->pasting = false;
+                    return false;
+                }
+                document->pasting = false;
+            }
+
+            std::vector<ElementPtr> _els;
+            _els.push_back(_elements[i]);
+            if (!el->InsertElements(_els, insert_code_block ? false : with_undo, changed_element))
+            {
+                if (with_undo && last_undo_size < document->GetUndoSize())
+                    document->Undo();
+                document->pasting = false;
+                return false;
+            }
+        }
+
         Remake(changed_element, true); //move into view
         document->pasting = false;
         return true;

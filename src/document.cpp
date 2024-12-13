@@ -566,8 +566,10 @@ uint Document::InsertComma(bool with_undo)
 uint Document::InsertFences(bool with_undo)
 {
     LOG_TRACE("Insert fences");
-    InsertFormula(new OpenFence(this), with_undo, false);
-    uint r = InsertFormula(new CloseFence(this), with_undo, true);
+    std::vector<ElementPtr> els;
+    els.emplace_back(new OpenFence(this));
+    els.emplace_back(new CloseFence(this));
+    uint r = InsertFormulas(els, with_undo, false, false, 1);
     MoveCaretLeft(false, true);
     return r;
 }
@@ -599,7 +601,7 @@ uint Document::InsertFormula(Element* element, bool with_undo, bool with_last_ta
     return InsertFormulas(elements, with_undo, with_last_task_id);
 }
 
-uint Document::InsertFormulas(std::vector<ElementPtr>& elements, bool with_undo, bool with_last_task_id, bool pasting)
+uint Document::InsertFormulas(std::vector<ElementPtr>& elements, bool with_undo, bool with_last_task_id, bool pasting, int select_pos)
 {
     LOG_TRACE("Insert formulas");
     {
@@ -607,7 +609,7 @@ uint Document::InsertFormulas(std::vector<ElementPtr>& elements, bool with_undo,
         if (with_last_task_id)
             tasks.emplace_back(new InsertFormulasTask(text, last_task_id, elements, with_undo));
         else
-            tasks.emplace_back(new InsertFormulasTask(text, elements, with_undo, pasting));
+            tasks.emplace_back(new InsertFormulasTask(text, elements, with_undo, pasting, select_pos));
         last_task_id = tasks.back()->id;
     }
     next_circle = true;

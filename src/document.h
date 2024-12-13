@@ -81,7 +81,7 @@ public:
     uint InsertSubscriptFunction(const std::string& name, bool with_undo);
 
     uint InsertFormula(Element* element, bool with_undo, bool with_last_task_id = false);
-    uint InsertFormulas(std::vector<ElementPtr>& elements, bool with_undo, bool with_last_task_id = false, bool pasting = false);
+    uint InsertFormulas(std::vector<ElementPtr>& elements, bool with_undo, bool with_last_task_id = false, bool pasting = false, int select_pos = -1);
 
     uint InsertUnit(const yutovo_calculator::Unit& unit, bool list_identifiers = true);
 
