@@ -583,16 +583,52 @@ bool InsertFormulasTask::Execute()
         for (int i = 0; i < _elements.size(); ++i)
             _elements[i]->BeforePaste();
     }
-    
+
+    std::vector<ElementId> changed_elements;    
     document->pasting = pasting;
     if (select_pos == -1)
     {
-        if (el->InsertElements(_elements, insert_code_block ? false : with_undo, changed_element))
+        for (auto& _el : _elements)
         {
-            Remake(changed_element, true); //move into view
-            document->pasting = false;
-            return true;
+            _el->parent = nullptr;
+            std::vector<ElementPtr> t{_el};
+            ElementId changed_element;
+            if (el->editable && !el->InsertElements(t, insert_code_block ? false : with_undo, changed_element))
+            {
+                if (with_undo && last_undo_size < document->GetUndoSize())
+                    document->Undo();
+                document->pasting = false;
+                document->caret->notify = true;
+                return false;
+            }
+            
+            if (document->caret->GetElement())
+                el = document->GetElement(document->caret->GetElement()->id);
+
+            for (size_t i = 0; i < changed_elements.size();)
+            {
+                if (IsChild(changed_element, changed_elements[i]))
+                    changed_elements.erase(changed_elements.begin() + i);
+                else
+                    ++i;
+            }
+
+            auto it = std::find_if(changed_elements.begin(), changed_elements.end(), 
+                [changed_element](ElementId& _el)
+                {
+                    return _el == changed_element || IsChild(_el, changed_element);
+                });
+            if (it == changed_elements.end())
+                changed_elements.push_back(changed_element); //remake all the changed elements after this circle
         }
+
+        for (auto ch : changed_elements)
+        {
+            if (document->GetElement(ch))
+                Remake(ch, true); //move into view
+        }
+        document->pasting = false;
+        return true;
     }
     else
     {
@@ -1766,18 +1802,20 @@ bool CopyTask::Execute()
     for (size_t i = 0; i < copy.size(); ++i)
     {
         ElementPtr el = copy[i];
-        if (el->type == ElementType::PARAGRAPH)
+        if (document->IsParagraph(el))
         {
-            if (i > 0 && copy[i - 1]->type != ElementType::PARAGRAPH)
-                _copy.push_back(ElementPtr(new Paragraph(document, true)));
+            if (i > 0 && !document->IsParagraph(copy[i - 1]))
+                _copy.push_back(document->CreateParagraph(before_state.caret_state.id));
             if (!el->IsEmpty())
                 _copy.push_back(((Paragraph*)el.get())->GetPlainRow());
             if (i < copy.size() - 1)
-                _copy.push_back(ElementPtr(new Paragraph(document, true)));
+            {
+                _copy.push_back(document->CreateParagraph(before_state.caret_state.id));
+            }
             else
             {
                 if (!document->GetElement(_id)->parent->elements->IsLast(_id))
-                    _copy.push_back(ElementPtr(new Paragraph(document, true)));
+                    _copy.push_back(document->CreateParagraph(before_state.caret_state.id));
             }
         }
         else
