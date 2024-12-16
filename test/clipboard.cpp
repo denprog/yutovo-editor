@@ -1702,9 +1702,9 @@ TEST_F(DocumentTest, clipboard30)
         U"234+35\n"
         U"1234+5678\n"
         U"234+35\n"
-        U"1234+5678"
+        U"1234+5678\n"
         ) << ToBasicString(document.ToText());
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 3, 0, 2, 4})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 4, 0, 0, 0})) << document.GetEditorState().ToString();
 
     document.Undo();
     document.WaitUndo();
@@ -2430,7 +2430,7 @@ TEST_F(DocumentTest, clipboard45)
         U"5678\n"\
         U"789\n"\
         U"123=123.\n"\
-        U"5678"
+        U"5678\n"
         ) << ToBasicString(document.ToText());
 }
 
@@ -2468,7 +2468,7 @@ TEST_F(DocumentTest, clipboard46)
         U"5678=5678.\n"\
         U"789\n"\
         U"123\n"\
-        U"5678=5678."
+        U"5678=5678.\n"
         ) << ToBasicString(document.ToText());
 }
 
@@ -3007,7 +3007,6 @@ TEST_F(DocumentTest, clipboard57)
     std::this_thread::sleep_for(1s);
     ASSERT_TRUE(document.ToText() == 
         U"123=123.\n"\
-        U"\n"\
         U"123=123."\
         ) << ToBasicString(document.ToText());
 }
@@ -3350,12 +3349,7 @@ TEST_F(DocumentTest, clipboard61)
             "<p>"\
                 "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
                     "<mrow>"\
-                        "<mi>67</mi>"\
-                    "</mrow>"\
-                "</math>"\
-                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
-                    "<mrow>"\
-                        "<mi>123</mi>"\
+                        "<mi>67123</mi>"\
                         "<mo>+</mo>"\
                         "<mi>55</mi>"\
                     "</mrow>"\
@@ -4674,6 +4668,103 @@ TEST_F(DocumentTest, clipboard78)
         ElementSelectionState{ElementId{0, 0}, 1, 1}, 
         ElementSelectionState{ElementId{0}, 1, 1}, 
         ElementSelectionState{ElementId{0, 2}, 0, 1})) << document.GetEditorState().ToString();
+}
+
+//Copy-paste paragraphs inside a code block
+TEST_F(DocumentTest, clipboard79)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.InsertString("123", true);
+    document.InsertParagraph(true);
+    document.InsertString("55", true);
+    document.InsertParagraph(true);
+    document.InsertString("6789", true);
+    document.MoveCaretToDocumentBegin(false);
+    document.MoveCaretRight(false);
+    document.MoveCaretDown(true);
+    document.WaitTask(document.MoveCaretDown(true));
+    document.WaitTask(document.Cut(clipboard_json, clipboard_text));
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mi>6789</mi>"\
+                    "</mrow>"\
+                "</math>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 0})) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.Paste(clipboard_json));
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mi>123</mi>"\
+                    "</mrow>"\
+                "</math>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mi>55</mi>"\
+                    "</mrow>"\
+                "</math>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mi>6789</mi>"\
+                    "</mrow>"\
+                "</math>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 2, 0, 0, 0})) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mi>6789</mi>"\
+                    "</mrow>"\
+                "</math>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 0})) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mi>123</mi>"\
+                    "</mrow>"\
+                "</math>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mi>55</mi>"\
+                    "</mrow>"\
+                "</math>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mi>6789</mi>"\
+                    "</mrow>"\
+                "</math>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 2, 0, 0, 0}, 
+        ElementSelectionState{ElementId{0, 0, 0, 0}, 0, 2})) << document.GetEditorState().ToString();
 }
 
 }
