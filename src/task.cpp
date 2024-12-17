@@ -1805,17 +1805,17 @@ bool CopyTask::Execute()
         if (document->IsParagraph(el))
         {
             if (i > 0 && !document->IsParagraph(copy[i - 1]))
-                _copy.push_back(document->CreateParagraph(before_state.caret_state.id));
+                _copy.push_back(document->CreateParagraph(el->id));
             if (!el->IsEmpty())
                 _copy.push_back(((Paragraph*)el.get())->GetPlainRow());
             if (i < copy.size() - 1)
             {
-                _copy.push_back(document->CreateParagraph(before_state.caret_state.id));
+                _copy.push_back(document->CreateParagraph(el->id));
             }
             else
             {
                 if (!document->GetElement(_id)->parent->elements->IsLast(_id))
-                    _copy.push_back(document->CreateParagraph(before_state.caret_state.id));
+                    _copy.push_back(document->CreateParagraph(el->id));
             }
         }
         else
