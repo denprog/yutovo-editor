@@ -1475,4 +1475,33 @@ TEST_F(DocumentTest, code24)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 1, 0, 0, 1, 0, 0, 0})) << document.GetEditorState().ToString();
 }
 
+//Select outside a code block with an empty paragraph
+TEST_F(DocumentTest, code25)
+{
+    Start(600);
+
+    document.WaitTask(document.InsertCode(false, true));
+    document.InsertString("123", true);
+    document.WaitTask(document.InsertParagraph(true));
+    document.MoveCaretEnd(false);
+    document.WaitTask(document.InsertParagraph(true));
+    document.InsertString("String", true);
+    document.MoveCaretToDocumentBegin(false);
+    document.MoveCaretRight(false);
+    document.MoveCaretDown(true);
+    document.WaitTask(document.MoveCaretDown(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 1, 0, 0, 2}, 
+        ElementSelectionState{ElementId{0}, 0, 1}, 
+        ElementSelectionState{ElementId{0, 1, 0, 0}, 0, 2})) << document.GetEditorState().ToString();
+
+    document.MoveCaretToDocumentBegin(false);
+    document.MoveCaretRight(false);
+    document.MoveCaretRight(false);
+    document.MoveCaretDown(true);
+    document.WaitTask(document.MoveCaretDown(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 1, 0, 0, 3}, 
+        ElementSelectionState{ElementId{0}, 0, 1}, 
+        ElementSelectionState{ElementId{0, 1, 0, 0}, 0, 3})) << document.GetEditorState().ToString();
+}
+
 }
