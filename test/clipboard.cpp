@@ -4767,4 +4767,92 @@ TEST_F(DocumentTest, clipboard79)
         ElementSelectionState{ElementId{0, 0, 0, 0}, 0, 2})) << document.GetEditorState().ToString();
 }
 
+//Cut-paste a code block before a string
+TEST_F(DocumentTest, clipboard80)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.InsertString("123", true);
+    document.WaitTask(document.MoveCaretToDocumentEnd(false));
+    document.WaitTask(document.InsertParagraph(true));
+    document.InsertString("String", true);
+    document.MoveCaretUp(false);
+    document.MoveCaretEnd(false);
+    document.WaitTask(document.MoveCaretHome(true));
+    document.WaitTask(document.Cut(clipboard_json, clipboard_text));
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">String</span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0})) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.Paste(clipboard_json));
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mi>123</mi>"\
+                    "</mrow>"\
+                "</math>"\
+            "</p>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">String</span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 1, 0, 0, 0})) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.InsertString("A", true));
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mi>123</mi>"\
+                    "</mrow>"\
+                "</math>"\
+            "</p>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">AString</span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 1, 0, 0, 1})) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    document.Undo();
+    document.WaitUndo();
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"String"\
+        ) << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0})) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mi>123</mi>"\
+                    "</mrow>"\
+                "</math>"\
+            "</p>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">String</span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0}, 
+        ElementSelectionState{ElementId{0}, 0, 1})) << document.GetEditorState().ToString();
+}
+
 }
