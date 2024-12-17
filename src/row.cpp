@@ -617,13 +617,15 @@ bool Row::GetBottomCaretState(const int x, const int y, CaretState& caret_state,
             {
                 if (GetFirstCaretState(next, nullptr) && last == next)
                 {
-                    if (parent->parent->elements->IsLast(parent->id))
+                    if (parent->parent->elements->IsLast(parent->id) && parent->parent->type != ElementType::CODE_BLOCK)
                         return parent->GetBottomCaretState(x, y, caret_state, nullptr);
                     ElementPtr el = document->GetElement(next.id);
                     if (el)
                     {
                         CaretState c = caret->GetCaretState();
-                        if (parent->parent->elements->IsFirst(parent->id) || c.IsInsideElement(id))
+                        if (parent->parent->elements->IsLast(parent->id) && parent->parent->type == ElementType::CODE_BLOCK)
+                            select->Add(parent->parent->id);
+                        else if (parent->parent->elements->IsFirst(parent->id) || c.IsInsideElement(id))
                             select->Add(parent->id);
                         else
                             el->GetLastCaretState(next, nullptr);
