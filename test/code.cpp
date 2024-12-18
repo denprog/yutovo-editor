@@ -1226,7 +1226,7 @@ TEST_F(CodeTest, code18)
 }
 
 //Selection with Shift-End
-TEST_F(DocumentTest, code19)
+TEST_F(CodeTest, code19)
 {
     Start(600);
 
@@ -1252,7 +1252,7 @@ TEST_F(DocumentTest, code19)
 }
 
 //Selection with Shift-Home
-TEST_F(DocumentTest, code20)
+TEST_F(CodeTest, code20)
 {
     Start(600);
 
@@ -1278,7 +1278,7 @@ TEST_F(DocumentTest, code20)
 }
 
 //Check caret position after delete
-TEST_F(DocumentTest, code21)
+TEST_F(CodeTest, code21)
 {
     Start(600);
 
@@ -1295,7 +1295,7 @@ TEST_F(DocumentTest, code21)
 }
 
 //Remove a row and undo
-TEST_F(DocumentTest, code22)
+TEST_F(CodeTest, code22)
 {
     Start(600);
 
@@ -1316,6 +1316,7 @@ TEST_F(DocumentTest, code22)
 
     document.Undo();
     document.WaitUndo();
+    std::this_thread::sleep_for(200ms);
     ASSERT_TRUE(document.ToText() == 
         U"123\n" \
         U"34\n" \
@@ -1326,7 +1327,7 @@ TEST_F(DocumentTest, code22)
 }
 
 //Insert a code block inside a string with selection
-TEST_F(DocumentTest, code23)
+TEST_F(CodeTest, code23)
 {
     Start(600);
 
@@ -1363,7 +1364,7 @@ TEST_F(DocumentTest, code23)
 }
 
 //Paste a code block inside a code block with selection
-TEST_F(DocumentTest, code24)
+TEST_F(CodeTest, code24)
 {
     Start(600);
 
@@ -1476,7 +1477,7 @@ TEST_F(DocumentTest, code24)
 }
 
 //Select outside a code block with an empty paragraph
-TEST_F(DocumentTest, code25)
+TEST_F(CodeTest, code25)
 {
     Start(600);
 
@@ -1502,6 +1503,31 @@ TEST_F(DocumentTest, code25)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 1, 0, 0, 3}, 
         ElementSelectionState{ElementId{0}, 0, 1}, 
         ElementSelectionState{ElementId{0, 1, 0, 0}, 0, 3})) << document.GetEditorState().ToString();
+}
+
+//Select outside a code block with an empty paragraph
+TEST_F(CodeTest, code26)
+{
+    Start(600);
+
+    document.InsertString("String", true);
+    document.WaitTask(document.InsertParagraph(true));
+    document.InsertCode(false, true);
+    document.InsertParagraph(true);
+    document.InsertString("123", true);
+    document.MoveCaretUp(true);
+    document.WaitTask(document.MoveCaretUp(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 5}, 
+        ElementSelectionState{ElementId{0, 0, 0, 0}, 5, 1})) << document.GetEditorState().ToString();
+    
+    document.MoveCaretToDocumentEnd(false);
+    document.MoveCaretLeft(false);
+    document.MoveCaretLeft(false);
+    document.MoveCaretUp(true);
+    document.WaitTask(document.MoveCaretUp(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 4}, 
+        ElementSelectionState{ElementId{0, 0, 0, 0}, 4, 2}, 
+        ElementSelectionState{ElementId{0}, 1, 1})) << document.GetEditorState().ToString();
 }
 
 }
