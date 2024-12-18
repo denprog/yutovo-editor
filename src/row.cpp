@@ -533,10 +533,7 @@ bool Row::GetTopCaretState(const int x, const int y, CaretState& caret_state, Se
                     if (el)
                     {
                         CaretState c = caret->GetCaretState();
-                        if (parent->parent->elements->IsLast(parent->id) || (parent->parent->elements->IsFirst(parent->id) && c.IsInsideElement(id)))
-                            el->GetLastCaretState(next, nullptr);
-                        else
-                            el->GetLastCaretState(next, nullptr);
+                        el->GetLastCaretState(next, nullptr);
                         caret_state = next;
                         caret->SetState(next, false);
                     }

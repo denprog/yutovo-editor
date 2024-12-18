@@ -380,7 +380,7 @@ bool Block::GetTopCaretState(const int x, const int y, CaretState& caret_state, 
     {
         if (!parent)
             return false;
-        return parent->GetTopCaretState(x, y, caret_state, select);
+        return parent->GetTopCaretState(x, GetAbsoluteRect().top, caret_state, select);
     }
     return p->GetTopCaretState(x, y, caret_state, select);
 }
