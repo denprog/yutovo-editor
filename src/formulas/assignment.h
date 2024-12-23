@@ -29,14 +29,14 @@ public:
 
     virtual bool DeleteElements(bool left, bool with_undo, ElementId& changed_element);
 
-    virtual void ElementIdChanged(const ElementId& last_id);
+    virtual void LogicalIdChanged(const LogicalId& last_id);
     
     virtual bool AfterInsert(bool with_undo);
     virtual void BeforeDelete();
 
     virtual void Solve();
     virtual void ReSolve(bool if_error = false, bool force = false);
-    void PutResult(Result result);
+    void PutResult(Result& result);
 
     virtual bool Depends(const std::string& identifier);
 

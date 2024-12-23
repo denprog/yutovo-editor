@@ -22,7 +22,7 @@ public:
     virtual void Solve(const ParserString& expression);
 
     virtual void PutWaitingSymbol();
-    virtual void PutResult(Result result);
+    virtual void PutResult(Result& result);
     virtual void PutError(Error error);
     
     virtual void Reset();
@@ -30,7 +30,7 @@ public:
     virtual void AfterReplace();
     virtual void BeforePaste();
     virtual void BeforeDelete();
-    virtual void ElementIdChanged(const ElementId& last_id);
+    virtual void LogicalIdChanged(const LogicalId& last_id);
 
     virtual void AddElement(ElementPtr element);
     
@@ -76,7 +76,7 @@ public:
 
     virtual void Solve(const ParserString& expression);
 
-    virtual void PutResult(Result result);
+    virtual void PutResult(Result& result);
 
     virtual void BeforePaste();
 
@@ -104,7 +104,7 @@ public:
 
     virtual void Solve(const ParserString& expression);
 
-    virtual void PutResult(Result result);
+    virtual void PutResult(Result& result);
 
     virtual void BeforePaste();
 
@@ -130,7 +130,7 @@ public:
 
     virtual void Solve(const ParserString& expression);
 
-    virtual void PutResult(Result result);
+    virtual void PutResult(Result& result);
 
     bool SetConfig(FractionForm fraction_form);
     bool SetConfig(const yutovo_calculator::Unit& unit);
@@ -155,7 +155,7 @@ public:
 
     virtual void Solve(const ParserString& expression);
 
-    virtual void PutResult(Result result);
+    virtual void PutResult(Result& result);
 
     virtual void BeforePaste();
 
@@ -193,7 +193,7 @@ public:
 
     virtual void Solve(const ParserString& expression);
 
-    virtual void PutResult(Result result);
+    virtual void PutResult(Result& result);
 
     virtual void AfterReplace();
     virtual void BeforePaste();

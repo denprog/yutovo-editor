@@ -275,11 +275,11 @@ struct CopyTask : Task
 
 struct ResultTask : Task
 {
-    ResultTask(ElementPtr _text, ElementId _id, Result _result);
+    ResultTask(ElementPtr _text, LogicalId _id, Result _result);
 
     virtual bool Execute();
 
-    ElementId id;
+    LogicalId id;
     Result result;
 };
 
@@ -294,11 +294,11 @@ struct ResolveTask : Task
 
 struct ResolveDependeciesTask : Task
 {
-    ResolveDependeciesTask(ElementPtr _text, ElementId _after_id, const std::string& _identifier);
+    ResolveDependeciesTask(ElementPtr _text, LogicalId _after_id, const std::string& _identifier);
 
     virtual bool Execute();
 
-    ElementId after_id;
+    LogicalId after_id;
     std::string identifier;
 };
 

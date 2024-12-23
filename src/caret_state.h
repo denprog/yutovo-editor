@@ -4,6 +4,7 @@
 #include <vector>
 #include <memory>
 #include <rapidjson/document.h>
+#include "util.h"
 
 namespace yutovo
 {
@@ -12,8 +13,7 @@ class Element;
 class Caret;
 
 typedef unsigned int uint;
-typedef std::vector<int> ElementId;
-typedef std::vector<int> LogicalId;
+
 typedef std::shared_ptr<Element> ElementPtr;
 typedef std::shared_ptr<Caret> CaretPtr;
 

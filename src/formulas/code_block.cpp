@@ -182,15 +182,15 @@ bool CodeBlock::AfterInsert(bool with_undo)
     return true;
 }
 
-void CodeBlock::ElementIdChanged(const ElementId& last_id)
+void CodeBlock::LogicalIdChanged(const LogicalId& last_id)
 {
-    document->ElementIdChanged(last_id, id);
+    document->LogicalIdChanged(last_id, logical_id);
 
     int start, size;
     if (document->HasErrorMark(last_id, start, size))
     {
         document->RemoveErrorMarks(last_id);
-        document->AddErrorMark(id, start, size);
+        document->AddErrorMark(logical_id, start, size);
     }
 }
 

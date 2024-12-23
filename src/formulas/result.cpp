@@ -72,7 +72,7 @@ void ResultRow::Solve(const ParserString& expression)
 {
 }
 
-void ResultRow::PutResult(Result result)
+void ResultRow::PutResult(Result& result)
 {
     solving = false;
 }
@@ -86,8 +86,8 @@ void ResultRow::PutError(Error error)
         auto el = document->GetElement(err_id);
         if (el)
         {
-            document->RemoveErrorMarks(parent->parent->id);
-            document->AddErrorMark(err_id, 0, el->elements->Count());
+            document->RemoveErrorMarks(parent->parent->logical_id);
+            document->AddErrorMark(document->GetLogicalId(err_id), 0, el->elements->Count());
             document->Redraw(err_id, false);
         }
     }
@@ -135,10 +135,10 @@ void ResultRow::BeforeDelete()
     }
 }
 
-void ResultRow::ElementIdChanged(const ElementId& last_id)
+void ResultRow::LogicalIdChanged(const LogicalId& last_id)
 {
     if (!solving_id.empty())
-        document->ElementIdChanged(solving_id, id);
+        document->LogicalIdChanged(document->GetLogicalId(solving_id), logical_id);
 }
 
 void ResultRow::AddElement(ElementPtr element)
@@ -347,7 +347,7 @@ void RealResult::Solve(const ParserString& expression)
     delay = true;
 }
 
-void RealResult::PutResult(Result result)
+void RealResult::PutResult(Result& result)
 {
     ResultRow::PutResult(result);
 
@@ -372,13 +372,14 @@ void RealResult::PutResult(Result result)
     }
     else
     {
-        document->RemoveErrorMarks(parent->parent->id);
+        document->RemoveErrorMarks(parent->parent->logical_id);
 
         if (result.values.empty())
             return;
         Value& value = result.values[0];
         std::string mantissa = value["mantissa"];
         std::string exponent = value["exponent"];
+        //logger->Info("id={} mantissa={}", IdToString(id), mantissa);
 
         AddNumber(mantissa);
         AddExponent(exponent);
@@ -497,7 +498,7 @@ void IntegerResult::Solve(const ParserString& expression)
     delay = true;
 }
 
-void IntegerResult::PutResult(Result result)
+void IntegerResult::PutResult(Result& result)
 {
     ResultRow::PutResult(result);
 
@@ -626,7 +627,7 @@ void RationalResult::Solve(const ParserString& expression)
     delay = true;
 }
 
-void RationalResult::PutResult(Result result)
+void RationalResult::PutResult(Result& result)
 {
     ResultRow::PutResult(result);
 
@@ -651,7 +652,7 @@ void RationalResult::PutResult(Result result)
     }
     else
     {
-        document->RemoveErrorMarks(parent->parent->id);
+        document->RemoveErrorMarks(parent->parent->logical_id);
 
         if (result.values.empty())
             return;
@@ -786,7 +787,7 @@ void ComplexResult::Solve(const ParserString& expression)
     delay = true;
 }
 
-void ComplexResult::PutResult(Result result)
+void ComplexResult::PutResult(Result& result)
 {
     ResultRow::PutResult(result);
 
@@ -810,7 +811,7 @@ void ComplexResult::PutResult(Result result)
     }
     else
     {
-        document->RemoveErrorMarks(parent->parent->id);
+        document->RemoveErrorMarks(parent->parent->logical_id);
 
         if (config.form == ComplexForm::Exponential || config.form == ComplexForm::Trigonometric)
         {
@@ -1055,7 +1056,7 @@ void AutoResult::Solve(const ParserString& expression)
     delay = true;
 }
 
-void AutoResult::PutResult(Result result)
+void AutoResult::PutResult(Result& result)
 {
     ResultRow::PutResult(result);
 
@@ -1077,7 +1078,7 @@ void AutoResult::PutResult(Result result)
         PutError(result.error); //put error message
     else
     {
-        document->RemoveErrorMarks(parent->parent->id);
+        document->RemoveErrorMarks(parent->parent->logical_id);
         //put element of returned result type
         ResultPtr result_row;
         switch (result.type)

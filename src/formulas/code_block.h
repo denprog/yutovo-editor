@@ -31,7 +31,7 @@ public:
     virtual bool GetWordLeftCaretState(CaretState& caret_state, Selection* select);
 
     virtual bool AfterInsert(bool with_undo);
-    virtual void ElementIdChanged(const ElementId& last_id);
+    virtual void LogicalIdChanged(const LogicalId& last_id);
 
     virtual void GetMargin(int& left, int& top, int& right, int& bottom) const;
 

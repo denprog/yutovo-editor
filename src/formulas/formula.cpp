@@ -38,13 +38,13 @@ bool Formula::Merge(const ElementPtr with_element)
     return false;
 }
 
-void Formula::ElementIdChanged(const ElementId& last_id)
+void Formula::LogicalIdChanged(const LogicalId& last_id)
 {
     int start, size;
     if (document->HasErrorMark(last_id, start, size))
     {
         document->RemoveErrorMarks(last_id);
-        document->AddErrorMark(id, start, size);
+        document->AddErrorMark(logical_id, start, size);
     }
 }
 

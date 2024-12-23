@@ -138,7 +138,44 @@ ElementId IdFromString(const std::string& id)
     return res;
 }
 
+std::string LogicalIdToString(const LogicalId& id)
+{
+	std::string res;
+	for (size_t i = 0; i < id.size(); ++i)
+	{
+		res += std::to_string(id[i]);
+		if (i < id.size() - 1)
+			res += ",";
+	}
+	return res;
+}
+
+LogicalId LogicalIdFromString(const std::string& id)
+{
+    LogicalId res;
+    std::stringstream s(id);
+    for (int i; s >> i;)
+    {
+        res.push_back(i);
+        if (s.peek() == ',')
+            s.ignore();
+    }
+    return res;
+}
+
 bool IsChild(const ElementId& parent_id, const ElementId& child_id)
+{
+    if (child_id.size() <= parent_id.size() || parent_id.empty())
+        return false;
+    for (size_t i = 0; i < parent_id.size(); ++i)
+    {
+        if (child_id[i] != parent_id[i])
+            return false;
+    }
+    return true;
+}
+
+bool IsChild(const LogicalId& parent_id, const LogicalId& child_id)
 {
     if (child_id.size() <= parent_id.size() || parent_id.empty())
         return false;
@@ -164,6 +201,13 @@ ElementId GetParent(const ElementId& id)
     return _id;
 }
 
+LogicalId GetParent(const LogicalId& id)
+{
+    LogicalId _id(id);
+    _id.erase(_id.end() - 1);
+    return _id;
+}
+
 ElementId GetChild(const ElementId& id, uint pos)
 {
     ElementId _id(id);
@@ -171,7 +215,20 @@ ElementId GetChild(const ElementId& id, uint pos)
     return _id;
 }
 
+LogicalId GetChild(const LogicalId& id, uint pos)
+{
+    LogicalId _id(id);
+    _id.push_back(pos);
+    return _id;
+}
+
 int GetChildPos(const ElementId& id)
+{
+    assert(!id.empty());
+    return id[id.size() - 1];
+}
+
+int GetChildPos(const LogicalId& id)
 {
     assert(!id.empty());
     return id[id.size() - 1];
@@ -190,9 +247,17 @@ ElementId GetPrevPos(const ElementId& id)
     return _id;
 }
 
-ElementId GetWithParent(const ElementId id, const ElementId parent_id)
+ElementId GetWithParent(const ElementId& id, const ElementId& parent_id)
 {
     ElementId _id(parent_id);
+    for (int i = _id.size(); i < id.size(); ++i)
+        _id.push_back(id[i]);
+    return _id;
+}
+
+LogicalId GetWithParent(const LogicalId& id, const LogicalId& parent_id)
+{
+    LogicalId _id(parent_id);
     for (int i = _id.size(); i < id.size(); ++i)
         _id.push_back(id[i]);
     return _id;
@@ -203,7 +268,8 @@ ElementId GetCommonParent(const ElementId& id1, const ElementId& id2)
     int i = 0;
     while (id1.size() > i && id2.size() > i && id1[i] == id2[i])
         ++i;
-    return ElementId(id1.begin(), id1.begin() + i);
+    //return ElementId(id1.begin(), id1.begin() + i);
+    return ElementId(id1, i);
 }
 
 ElementId GetCommonParent(const std::vector<ElementId>& ids)
@@ -230,7 +296,7 @@ ElementId GetCommonParent(const std::vector<ElementId>& ids)
         j = ids[0][pos];
     }
 
-    return ElementId(ids[0].begin(), ids[0].begin() + pos);
+    return ElementId(ids[0], pos);
 }
 
 Element* CreateFromJson(Element* parent, Document* document, rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc)

@@ -62,7 +62,7 @@ public:
     virtual void BeforeReplace();
     virtual void AfterReplace();
     virtual void BeforePaste();
-    virtual void ElementIdChanged(const ElementId& last_id);
+    virtual void LogicalIdChanged(const LogicalId& last_id);
 
     virtual bool GetFirstCaretState(CaretState& caret_state, Selection* select);
     virtual bool GetLastCaretState(CaretState& caret_state, Selection* select);
@@ -123,6 +123,7 @@ public:
 
     virtual int FindElement(const ElementId from_id, bool forward, const ElementType type);
     virtual void GetElements(ElementType _type, std::vector<ElementId>& _elements);
+    virtual void GetLogicalElements(ElementType _type, std::vector<LogicalId>& _elements);
     virtual void GetElementsBelow(const ElementId from_id, ElementType _type, std::vector<ElementId>& _elements);
     virtual ElementId FindParent(const ElementType _type);
 

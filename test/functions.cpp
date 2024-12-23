@@ -353,7 +353,7 @@ TEST_F(FormulaTest, user_functions2)
         U"E=Unknown identifier"
         ) << ToBasicString(document.ToText());
     int start, size;
-    ASSERT_TRUE(document.HasErrorMark(ElementId{0, 1, 0, 0, 0, 0, 0, 2, 2}, start, size)) << ErrorMarks();
+    ASSERT_TRUE(document.HasErrorMark(LogicalId{0, 1, 0, 0, 0, 0, 2, 2}, start, size)) << ErrorMarks();
 
     document.MoveCaretUp(false);
     document.MoveCaretUp(false);

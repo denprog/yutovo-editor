@@ -20,16 +20,16 @@ public:
     Solver(Document* _document);
     ~Solver();
 
-    void Solve(const ElementId id, const uint code_id, Config::AutoResultConfig& config, const std::u32string& expression, const uint delay);
-    void Solve(const ElementId id, const uint code_id, Config::RealResultConfig& config, const std::u32string& expression, const uint delay);
-    void Solve(const ElementId id, const uint code_id, Config::IntegerResultConfig& config, const std::u32string& expression, const uint delay);
-    void Solve(const ElementId id, const uint code_id, Config::RationalResultConfig& config, const std::u32string& expression, const uint delay);
-    void Solve(const ElementId id, const uint code_id, Config::ComplexResultConfig& config, const std::u32string& expression, const uint delay);
+    void Solve(const LogicalId id, const uint code_id, Config::AutoResultConfig& config, const std::u32string& expression, const uint delay);
+    void Solve(const LogicalId id, const uint code_id, Config::RealResultConfig& config, const std::u32string& expression, const uint delay);
+    void Solve(const LogicalId id, const uint code_id, Config::IntegerResultConfig& config, const std::u32string& expression, const uint delay);
+    void Solve(const LogicalId id, const uint code_id, Config::RationalResultConfig& config, const std::u32string& expression, const uint delay);
+    void Solve(const LogicalId id, const uint code_id, Config::ComplexResultConfig& config, const std::u32string& expression, const uint delay);
 
-    void BreakSolving(const ElementId id, const uint code_id);
+    void BreakSolving(const LogicalId id, const uint code_id);
 
-    void SetIdentifier(ElementId id, uint code_id, const std::u32string& identifier, const std::u32string& expression, const uint delay);
-    void RemoveIdentifier(ElementId id, uint code_id, const std::u32string& identifier, const uint delay);
+    void SetIdentifier(LogicalId id, uint code_id, const std::u32string& identifier, const std::u32string& expression, const uint delay);
+    void RemoveIdentifier(LogicalId id, uint code_id, const std::u32string& identifier, const uint delay);
     void RemoveUserIdentifiers();
     void SetLocale(const yutovo_calculator::Language _language);
     void ListIdentifiers(uint code_id);
@@ -41,7 +41,7 @@ private:
     void MessageLoop(WebSocketPtr socket_, std::deque<SolverTaskPtr>& tasks_, std::atomic_bool& next_circle_, yutovo_solver::Session& _session);
 #endif
 
-    void EraseSolveTasks(const ElementId id);
+    void EraseSolveTasks(const LogicalId id);
 
 public:
     std::string guid;
@@ -57,7 +57,7 @@ private:
     std::deque<SolverTaskPtr> break_tasks;
 
     std::mutex current_solving_mutex;
-    ElementId current_solving_id;
+    LogicalId current_solving_id;
     uint current_code_id = 0;
 
     std::vector<yutovo_solver::ResultType> result_types_seq;

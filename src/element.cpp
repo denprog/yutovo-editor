@@ -95,7 +95,7 @@ void Element::Draw() const
     elements->Draw();
 
     int start, size;
-    if (document->HasErrorMark(id, start, size))
+    if (document->HasErrorMark(logical_id, start, size))
         DrawErrorMark(start, size);
 }
 
@@ -295,7 +295,7 @@ void Element::AfterChildInsert(const ElementId child_id, bool with_undo)
 
 void Element::BeforeDelete()
 {
-    document->RemoveChangedId(id);
+    document->RemoveChangedId(logical_id);
     for (int i = 0; i < elements->Count(); ++i)
         elements->Get(i)->BeforeDelete();
 }
@@ -318,7 +318,7 @@ void Element::BeforePaste()
         elements->Get(i)->BeforePaste();
 }
 
-void Element::ElementIdChanged(const ElementId& last_id)
+void Element::LogicalIdChanged(const LogicalId& last_id)
 {
 }
 
@@ -848,6 +848,14 @@ void Element::GetElements(ElementType _type, std::vector<ElementId>& _elements)
             _elements.push_back(el->id);
         el->GetElements(_type, _elements);
     }
+}
+
+void Element::GetLogicalElements(ElementType _type, std::vector<LogicalId>& _elements)
+{
+    std::vector<ElementId> _els;
+    GetElements(_type, _els);
+    for (auto _el : _els)
+        _elements.push_back(document->GetLogicalId(_el));
 }
 
 void Element::GetElementsBelow(const ElementId from_id, ElementType _type, std::vector<ElementId>& _elements)
@@ -1642,7 +1650,6 @@ void Elements::UpdateIds()
     for (size_t i = 0; i < elements.size(); ++i)
     {
         auto& el = elements[i];
-        ElementId last_id = el->id;
         if (el->parent->id.empty())
         {
             el->id.clear();
@@ -1650,6 +1657,7 @@ void Elements::UpdateIds()
             el->elements->UpdateIds();
             continue;
         }
+        LogicalId last_id = el->logical_id;
         el->id = el->parent->id;
         el->id.push_back(i);
 
@@ -1697,8 +1705,8 @@ void Elements::UpdateIds()
             el->logical_id.push_back(i);
         }
 
-        if (last_id != el->id)
-            el->ElementIdChanged(last_id);
+        if (last_id != el->logical_id)
+            el->LogicalIdChanged(last_id);
 
         el->elements->UpdateIds();
     }
