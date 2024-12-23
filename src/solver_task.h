@@ -52,7 +52,7 @@ struct SolverTask
     LogicalId id;
     std::string guid;
     uint code_id = 0;
-    ExpressionType expression_type;
+    ExpressionType expression_type = ExpressionType::NONE;
     std::u32string expression;
     int delay = 0; //in milliseconds
     uint64_t cur_time = 0;

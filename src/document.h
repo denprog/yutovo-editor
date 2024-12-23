@@ -272,19 +272,19 @@ public:
     void GetCastUnits(ElementId _id, std::vector<yutovo_calculator::Unit>& cast_units);
     uint SetUnit(ElementId _id, yutovo_calculator::Unit& unit, bool with_undo);
 
-    uint ReSolve(ElementId _id);
-    void ReSolveLogical(LogicalId _id);
+    uint ReSolve(const ElementId& _id);
+    void ReSolve(const LogicalId& _id);
     uint ReSolveDependencies(LogicalId after_id, const std::u32string& identifier);
     uint ReSolveErrors();
-    uint PutResult(LogicalId _id, Result result);
-    void AddResolveElement(ElementId _id);
-    void AddChangedElement(ElementId _id);
+    uint PutResult(LogicalId _id, const Result& result);
+    void AddResolveElement(const ElementId& _id);
+    void AddChangedElement(const ElementId& _id);
     void GetSolverGuid(std::string& guid);
     uint SetLocale(const yutovo_calculator::Language language, bool with_undo);
     void ListIdentifiers(const uint code_id);
 
-    void LogicalIdChanged(LogicalId last_id, LogicalId new_id);
-    void RemoveChangedId(LogicalId _id);
+    void LogicalIdChanged(const LogicalId& last_id, const LogicalId& new_id);
+    void RemoveChangedId(const LogicalId& _id);
 
     bool IsVisible(ElementId _id);
     ElementId GetFirstVisibleParagraph();

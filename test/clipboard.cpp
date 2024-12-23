@@ -2197,6 +2197,8 @@ TEST_F(DocumentTest, clipboard40)
 
     document.Undo();
     document.WaitUndo();
+    document.WaitSolver();
+    std::this_thread::sleep_for(200ms);
     ASSERT_TRUE(document.ToText() == 
         U"-1.+3.i=-1.+3.i\n"\
         U""

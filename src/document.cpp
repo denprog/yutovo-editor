@@ -2608,7 +2608,7 @@ uint Document::SetUnit(ElementId _id, yutovo_calculator::Unit& unit, bool with_u
     return last_task_id;
 }
 
-uint Document::ReSolve(ElementId _id)
+uint Document::ReSolve(const ElementId& _id)
 {
     std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
     tasks.emplace_back(new ResolveTask(text, _id));
@@ -2616,7 +2616,7 @@ uint Document::ReSolve(ElementId _id)
     return last_task_id;
 }
 
-void Document::ReSolveLogical(LogicalId _id)
+void Document::ReSolve(const LogicalId& _id)
 {
     std::vector<ElementPtr> elements;
     GetElements(_id, elements);
@@ -2640,27 +2640,14 @@ uint Document::ReSolveErrors()
     return last_task_id;
 }
 
-uint Document::PutResult(LogicalId _id, Result result)
+uint Document::PutResult(LogicalId _id, const Result& result)
 {
     std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
-    // auto el = GetLogicalElement(_id);
-    // if (!el)
-    //     return 0;
-    // LogicalId id = el->id;
-    // logger->Info("PutResult logical={}, id={}", IdToString(_id), IdToString(id));
-    //logger->Info("PutResult logical={}", IdToString(_id));
     //id could be changed
     auto it = changed_ids.find(_id);
     if (it != changed_ids.end())
-    {
         _id = it->second;
-        //logger->Info("Id changed {}", IdToString(_id));
-        //tasks.emplace_back(new ResultTask(text, GetLogicalId(id), result));
-    }
-    // else
-    // {
-    //     tasks.emplace_back(new ResultTask(text, _id, result));
-    // }
+    
     tasks.emplace_back(new ResultTask(text, _id, result));
 
 #ifdef DEBUG
@@ -2672,13 +2659,13 @@ uint Document::PutResult(LogicalId _id, Result result)
     return last_task_id;
 }
 
-void Document::AddResolveElement(ElementId _id)
+void Document::AddResolveElement(const ElementId& _id)
 {
     if (std::find(resolve_elements.begin(), resolve_elements.end(), _id) == resolve_elements.end())
         resolve_elements.push_back(_id);
 }
 
-void Document::AddChangedElement(ElementId _id)
+void Document::AddChangedElement(const ElementId& _id)
 {
     if (std::find(changed_elements.begin(), changed_elements.end(), _id) == changed_elements.end())
         changed_elements.push_back(_id);
@@ -2701,7 +2688,7 @@ void Document::ListIdentifiers(const uint code_id)
     solver.ListIdentifiers(code_id);
 }
 
-void Document::LogicalIdChanged(LogicalId last_id, LogicalId new_id)
+void Document::LogicalIdChanged(const LogicalId& last_id, const LogicalId& new_id)
 {
     auto it = std::find_if(changed_ids.begin(), changed_ids.end(), 
         [last_id](const auto& p)
@@ -2713,7 +2700,7 @@ void Document::LogicalIdChanged(LogicalId last_id, LogicalId new_id)
     changed_ids[last_id] = new_id;
 }
 
-void Document::RemoveChangedId(LogicalId _id)
+void Document::RemoveChangedId(const LogicalId& _id)
 {
     auto it = std::find_if(changed_ids.begin(), changed_ids.end(), 
         [_id](const auto& p)

@@ -69,6 +69,7 @@ public:
 protected:
     ResultPtr result;
     bool ready = true;
+    bool empty = true;
 };
 
 }

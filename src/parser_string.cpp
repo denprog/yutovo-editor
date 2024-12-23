@@ -60,6 +60,9 @@ int ParserString::Length()
 
 ElementId ParserString::GetElement(const int pos)
 {
+    if (text.empty() && pos == 0 && annotates.size() == 1 && annotates[0].pos == 0)
+        return annotates[0].id;
+
     ElementId res;
     int size = text.length() + 1;
     //find ElementId at pos with minimal size

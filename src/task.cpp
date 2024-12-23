@@ -2019,7 +2019,7 @@ bool ResolveTask::Execute()
             CodeBlock* c = dynamic_cast<CodeBlock*>(el.get());
             if (c)
             {
-                c->ReSolve(); //resolve all the connected code blocks above and the current one
+                c->ReSolve(false, true); //resolve all the connected code blocks above and the current one
                 if (!document->changed_elements.empty())
                 {
                     for (auto ch : document->changed_elements)
@@ -2040,7 +2040,7 @@ bool ResolveTask::Execute()
         CodeBlock* c = dynamic_cast<CodeBlock*>(el.get());
         if (c && c->code_id == code_id)
         {
-            c->ReSolve(); //resolve all the connected code blocks above and the current one
+            c->ReSolve(false, true); //resolve all the connected code blocks above and the current one
             if (!document->changed_elements.empty())
             {
                 for (auto ch : document->changed_elements)

@@ -77,7 +77,7 @@ void ResultRow::PutResult(Result& result)
     solving = false;
 }
 
-void ResultRow::PutError(Error error)
+void ResultRow::PutError(const Error& error)
 {
     elements->Add(ElementPtr(new ErrorResult(this, error)));
     ElementId err_id = last_expression.GetElement(error.pos);
@@ -138,7 +138,7 @@ void ResultRow::BeforeDelete()
 void ResultRow::LogicalIdChanged(const LogicalId& last_id)
 {
     if (!solving_id.empty())
-        document->LogicalIdChanged(document->GetLogicalId(solving_id), logical_id);
+        document->LogicalIdChanged(solving_id, logical_id);
 }
 
 void ResultRow::AddElement(ElementPtr element)
@@ -341,7 +341,7 @@ void RealResult::Solve(const ParserString& expression)
     PutWaitingSymbol();
 
     auto code = document->FindParent(id, ElementType::CODE_BLOCK);
-    solving_id = id;
+    solving_id = logical_id;
     document->Solve(id, ((CodeBlock*)code.get())->code_id, config, last_expression.Text(), 
         (delay && last_error_code != yutovo_solver::ErrorCode::SOLVER_RESTARTED_ERROR) ? document->config.solve_delay : 0);
     delay = true;
@@ -492,7 +492,7 @@ void IntegerResult::Solve(const ParserString& expression)
     PutWaitingSymbol();
 
     auto code = document->FindParent(id, ElementType::CODE_BLOCK);
-    solving_id = id;
+    solving_id = logical_id;
     document->Solve(id, ((CodeBlock*)code.get())->code_id, config, last_expression.Text(), 
         (delay && last_error_code != yutovo_solver::ErrorCode::SOLVER_RESTARTED_ERROR) ? document->config.solve_delay : 0);
     delay = true;
@@ -621,7 +621,7 @@ void RationalResult::Solve(const ParserString& expression)
     PutWaitingSymbol();
 
     auto code = document->FindParent(id, ElementType::CODE_BLOCK);
-    solving_id = id;
+    solving_id = logical_id;
     document->Solve(id, ((CodeBlock*)code.get())->code_id, config, last_expression.Text(), 
         (delay && last_error_code != yutovo_solver::ErrorCode::SOLVER_RESTARTED_ERROR) ? document->config.solve_delay : 0);
     delay = true;
@@ -781,7 +781,7 @@ void ComplexResult::Solve(const ParserString& expression)
     PutWaitingSymbol();
 
     auto code = document->FindParent(id, ElementType::CODE_BLOCK);
-    solving_id = id;
+    solving_id = logical_id;
     document->Solve(id, ((CodeBlock*)code.get())->code_id, config, last_expression.Text(), 
         (delay && last_error_code != yutovo_solver::ErrorCode::SOLVER_RESTARTED_ERROR) ? document->config.solve_delay : 0);
     delay = true;
@@ -1050,7 +1050,7 @@ void AutoResult::Solve(const ParserString& expression)
     PutWaitingSymbol();
 
     auto code = document->FindParent(id, ElementType::CODE_BLOCK);
-    solving_id = id;
+    solving_id = logical_id;
     document->Solve(id, ((CodeBlock*)code.get())->code_id, config, last_expression.Text(), 
         (delay && last_error_code != yutovo_solver::ErrorCode::SOLVER_RESTARTED_ERROR) ? document->config.solve_delay : 0);
     delay = true;

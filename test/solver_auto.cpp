@@ -1892,6 +1892,35 @@ TEST_F(SolverAutoTest, errors5)
 #endif
 }
 
+//Solve empty expression
+TEST_F(SolverAutoTest, errors6)
+{
+    Start(600);
+
+    EXPECT_CALL(window_mock, Translate).WillRepeatedly([&](ElementId id, const std::u32string& str)
+        {
+            return str;
+        });
+
+    document.InsertCode(false, true);
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(2s);
+    ASSERT_TRUE(document.ToText() == U"=Expression expected") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 1})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.HasErrorMarks(LogicalId{0, 0, 0, 0}));
+
+    document.MoveCaretLeft(false);
+    document.WaitTask(document.InsertString("2", true));
+    document.WaitSolver();
+    document.WaitTask(document.DeleteElements(true, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(2s);
+    ASSERT_TRUE(document.ToText() == U"=Expression expected") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 0, 0, 0})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.HasErrorMarks(LogicalId{0, 0, 0, 0}));
+}
+
 TEST_F(SolverAutoTest, units1)
 {
     Start(600);
