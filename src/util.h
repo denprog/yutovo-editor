@@ -74,8 +74,8 @@ enum IdentifierType
 class Document;
 class Element;
 
-typedef std::vector<int> ElementId;
-typedef std::vector<int> LogicalId; //logical Id does not include row id, so it does not depend on the formatting of rows
+using ElementId = yutovo_calculator::ElementId;
+using LogicalId = yutovo_calculator::LogicalId;
 
 struct Point
 {
@@ -291,16 +291,24 @@ struct FormattingScope
 std::string IdToString(const ElementId& id);
 ElementId IdFromString(const std::string& id);
 
+std::string LogicalIdToString(const LogicalId& id);
+LogicalId LogicalIdFromString(const std::string& id);
+
 bool IsChild(const ElementId& parent_id, const ElementId& child_id);
+bool IsChild(const LogicalId& parent_id, const LogicalId& child_id);
 bool IsDirectChild(const ElementId& parent_id, const ElementId& child_id);
 
 ElementId GetParent(const ElementId& id);
+LogicalId GetParent(const LogicalId& id);
 ElementId GetChild(const ElementId& id, uint pos);
+LogicalId GetChild(const LogicalId& id, uint pos);
 int GetChildPos(const ElementId& id);
+int GetChildPos(const LogicalId& id);
 int GetChildPos(const ElementId& parent_id, const ElementId& child_id);
 ElementId GetPrevPos(const ElementId& id);
 
-ElementId GetWithParent(const ElementId id, const ElementId parent_id);
+ElementId GetWithParent(const ElementId& id, const ElementId& parent_id);
+LogicalId GetWithParent(const LogicalId& id, const LogicalId& parent_id);
 
 ElementId GetCommonParent(const ElementId& id1, const ElementId& id2);
 ElementId GetCommonParent(const std::vector<ElementId>& ids);
@@ -318,7 +326,7 @@ std::string NotationToString(const Notation notation);
 
 struct ErrorMark
 {
-    ElementId id;
+    LogicalId id;
     int start = 0;
     int size = 0;
 };

@@ -16,7 +16,7 @@ Text::Text(Document* _document, bool with_paragraph) :
     type = ElementType::TEXT;
 
     id.push_back(0);
-    logical_id = id;
+    logical_id.push_back(0);
 
     if (with_paragraph)
         AddElement(ElementPtr(new Paragraph(this))); //text has to have at least one paragraph

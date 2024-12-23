@@ -240,10 +240,10 @@ public:
     void Solve(ElementId _id, uint code_id, Config::IntegerResultConfig& config, const std::u32string& expression, const uint delay);
     void Solve(ElementId _id, uint code_id, Config::RationalResultConfig& config, const std::u32string& expression, const uint delay);
     void Solve(ElementId _id, uint code_id, Config::ComplexResultConfig& config, const std::u32string& expression, const uint delay);
-    void BreakSolving(const ElementId id, uint code_id);
+    void BreakSolving(const ElementId _id, uint code_id);
 
-    void SetIdentifier(ElementId _id, uint code_id, const std::u32string& identifier, const std::u32string& expression, const uint delay);
-    void RemoveIdentifier(ElementId _id, uint code_id, const std::u32string& identifier, const uint delay);
+    void SetIdentifier(LogicalId _id, uint code_id, const std::u32string& identifier, const std::u32string& expression, const uint delay);
+    void RemoveIdentifier(LogicalId _id, uint code_id, const std::u32string& identifier, const uint delay);
     void RemoveUserIdentifiers();
 
     ResultType GetResultType(ElementId _id);
@@ -272,27 +272,28 @@ public:
     void GetCastUnits(ElementId _id, std::vector<yutovo_calculator::Unit>& cast_units);
     uint SetUnit(ElementId _id, yutovo_calculator::Unit& unit, bool with_undo);
 
-    void ReSolve(ElementId _id);
-    void ReSolveDependencies(ElementId after_id, const std::u32string& identifier);
-    void ReSolveErrors();
-    void PutResult(ElementId _id, Result result);
+    uint ReSolve(ElementId _id);
+    void ReSolveLogical(LogicalId _id);
+    uint ReSolveDependencies(LogicalId after_id, const std::u32string& identifier);
+    uint ReSolveErrors();
+    uint PutResult(LogicalId _id, Result result);
     void AddResolveElement(ElementId _id);
     void AddChangedElement(ElementId _id);
     void GetSolverGuid(std::string& guid);
     uint SetLocale(const yutovo_calculator::Language language, bool with_undo);
     void ListIdentifiers(const uint code_id);
 
-    void ElementIdChanged(ElementId last_id, ElementId new_id);
-    void RemoveChangedId(ElementId _id);
+    void LogicalIdChanged(LogicalId last_id, LogicalId new_id);
+    void RemoveChangedId(LogicalId _id);
 
     bool IsVisible(ElementId _id);
     ElementId GetFirstVisibleParagraph();
     ElementId GetFirstVisibleRow(ElementId paragraph_id);
 
-    void AddErrorMark(ElementId _id, int start, int size);
-    void RemoveErrorMarks(ElementId parent_id);
-    bool HasErrorMark(ElementId _id, int& start, int& size);
-    bool HasErrorMarks(ElementId _id);
+    void AddErrorMark(LogicalId _id, int start, int size);
+    void RemoveErrorMarks(LogicalId parent_id);
+    bool HasErrorMark(LogicalId _id, int& start, int& size);
+    bool HasErrorMarks(LogicalId _id);
 
     void SetIdentifiers(const uint code_id, const std::vector<std::string>& variables, const std::vector<std::string>& functions, 
         std::vector<std::string>& units);
@@ -389,7 +390,7 @@ public:
     std::vector<ElementId> changed_elements;
     std::vector<ElementId> resolve_elements;
 
-    std::map<ElementId, ElementId> changed_ids;
+    std::map<LogicalId, LogicalId> changed_ids;
 
     std::atomic_bool break_remake = false;
 

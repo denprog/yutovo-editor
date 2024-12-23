@@ -128,13 +128,13 @@ bool CodeRow::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo,
     return Row::InsertElements(_elements, with_undo, changed_element);
 }
 
-void CodeRow::ElementIdChanged(const ElementId& last_id)
+void CodeRow::LogicalIdChanged(const LogicalId& last_id)
 {
     int start, size;
     if (document->HasErrorMark(last_id, start, size))
     {
         document->RemoveErrorMarks(last_id);
-        document->AddErrorMark(id, start, size);
+        document->AddErrorMark(logical_id, start, size);
     }
 }
 

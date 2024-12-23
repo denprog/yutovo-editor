@@ -457,7 +457,7 @@ TEST_F(VariablesTest, errors1)
     std::this_thread::sleep_for(2s);
     ASSERT_TRUE(document.ToText() == U"d=") << ToBasicString(document.ToText());
     int start, size;
-    ASSERT_TRUE(document.HasErrorMark(ElementId{0, 0, 0, 0, 0, 0, 0, 2}, start, size));
+    ASSERT_TRUE(document.HasErrorMark(LogicalId{0, 0, 0, 0, 0, 0, 2}, start, size));
     ASSERT_TRUE(start == 0 && size == 1);
 
     document.InsertString("4", true);
@@ -465,7 +465,7 @@ TEST_F(VariablesTest, errors1)
     document.WaitSolver();
     std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToText() == U"d=4+") << ToBasicString(document.ToText());
-    ASSERT_TRUE(document.HasErrorMark(ElementId{0, 0, 0, 0, 0, 0, 0, 2}, start, size));
+    ASSERT_TRUE(document.HasErrorMark(LogicalId{0, 0, 0, 0, 0, 0, 2}, start, size));
     ASSERT_TRUE(start == 0 && size == 2);
 }
 
@@ -484,7 +484,7 @@ TEST_F(VariablesTest, errors2)
     std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToText() == U"d=4+t") << ToBasicString(document.ToText());
     int start, size;
-    ASSERT_TRUE(!document.HasErrorMark(ElementId{0, 0, 0, 0, 0, 0, 0, 2, 0, 2}, start, size));
+    ASSERT_TRUE(!document.HasErrorMark(LogicalId{0, 0, 0, 0, 0, 0, 2, 0, 2}, start, size));
 }
 
 //Define a variable with unknown variable
@@ -514,7 +514,7 @@ TEST_F(VariablesTest, errors3)
         ) << ToBasicString(document.ToText());
     std::this_thread::sleep_for(1s);
     int start, size;
-    ASSERT_TRUE(document.HasErrorMark(ElementId{0, 0, 0, 0, 0, 0, 0, 2, 2}, start, size));
+    ASSERT_TRUE(document.HasErrorMark(LogicalId{0, 0, 0, 0, 0, 0, 2, 2}, start, size));
     ASSERT_TRUE(start == 0 && size == 1);
 }
 
@@ -544,7 +544,7 @@ TEST_F(VariablesTest, errors4)
         U"d+5=Unknown identifier"
         ) << ToBasicString(document.ToText());
     int start, size;
-    ASSERT_TRUE(document.HasErrorMark(ElementId{0, 0, 0, 0, 0, 0, 0, 2, 2}, start, size));
+    ASSERT_TRUE(document.HasErrorMark(LogicalId{0, 0, 0, 0, 0, 0, 2, 2}, start, size));
     ASSERT_TRUE(start == 0 && size == 1);
 }
 
@@ -571,7 +571,7 @@ TEST_F(VariablesTest, errors5)
         U"R=Unknown identifier"
         ) << ToBasicString(document.ToText());
     int start, size;
-    ASSERT_TRUE(document.HasErrorMark(ElementId{0, 0, 0, 0, 0, 0, 0, 2}, start, size)) << ErrorMarks();
+    ASSERT_TRUE(document.HasErrorMark(LogicalId{0, 0, 0, 0, 0, 0, 2}, start, size)) << ErrorMarks();
     ASSERT_TRUE(start == 0 && size == 2);
 }
 
@@ -800,7 +800,7 @@ TEST_F(VariablesTest, variables13)
         U"c=Unknown identifier"
         ) << ToBasicString(document.ToText());
     int start, size;
-    ASSERT_TRUE(document.HasErrorMark(ElementId{0, 0, 0, 0, 1, 0, 0, 2, 0}, start, size)) << ErrorMarks();;
+    ASSERT_TRUE(document.HasErrorMark(LogicalId{0, 0, 0, 1, 0, 0, 2, 0}, start, size)) << ErrorMarks();;
     ASSERT_TRUE(start == 0 && size == 1);
     
     document.Undo();
@@ -869,7 +869,7 @@ TEST_F(VariablesTest, variables14)
         U"c=Unknown identifier"
         ) << ToBasicString(document.ToText());
     int start, size;
-    ASSERT_TRUE(document.HasErrorMark(ElementId{0, 2, 0, 0, 0, 0, 0, 2, 2}, start, size)) << ErrorMarks();
+    ASSERT_TRUE(document.HasErrorMark(LogicalId{0, 2, 0, 0, 0, 0, 2, 2}, start, size)) << ErrorMarks();
 
     document.WaitTask(document.DeleteElements(false, true));
     document.WaitSolver();
@@ -879,7 +879,7 @@ TEST_F(VariablesTest, variables14)
         U"c=a*b\n" \
         U"c=Unknown identifier"
         ) << ToBasicString(document.ToText());
-    ASSERT_TRUE(document.HasErrorMark(ElementId{0, 1, 0, 0, 0, 0, 0, 2, 2}, start, size)) << ErrorMarks();
+    ASSERT_TRUE(document.HasErrorMark(LogicalId{0, 1, 0, 0, 0, 0, 2, 2}, start, size)) << ErrorMarks();
     ASSERT_TRUE(start == 0 && size == 1);
 
     document.Undo();
@@ -953,7 +953,7 @@ TEST_F(VariablesTest, variables16)
         U"F=Unknown identifier"
         ) << ToBasicString(document.ToText());
     int start, size;
-    ASSERT_TRUE(document.HasErrorMark(ElementId{0, 0, 0, 0, 1, 0, 0, 2, 2}, start, size)) << ErrorMarks();
+    ASSERT_TRUE(document.HasErrorMark(LogicalId{0, 0, 0, 1, 0, 0, 2, 2}, start, size)) << ErrorMarks();
 
     document.MoveCaretUp(false);
     document.WaitTask(document.InsertParagraph(true));
@@ -1005,7 +1005,7 @@ TEST_F(VariablesTest, variables17)
         U"E=Unknown identifier"
         ) << ToBasicString(document.ToText());
     int start, size;
-    ASSERT_TRUE(document.HasErrorMark(ElementId{0, 1, 0, 0, 0, 0, 0, 2, 0}, start, size)) << ErrorMarks();
+    ASSERT_TRUE(document.HasErrorMark(LogicalId{0, 1, 0, 0, 0, 0, 2, 0}, start, size)) << ErrorMarks();
 
     document.MoveCaretUp(false);
     document.MoveCaretUp(false);

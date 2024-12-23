@@ -108,15 +108,15 @@ bool Assignment::DeleteElements(bool left, bool with_undo, ElementId& changed_el
     if (auto_solve && caret->GetPos() == 1 && last_identifier != U"")
     {
         auto code = document->FindParent(id, ElementType::CODE_BLOCK);
-        document->RemoveIdentifier(id, ((CodeBlock*)code.get())->code_id, last_identifier, document->config.solve_delay);
+        document->RemoveIdentifier(logical_id, ((CodeBlock*)code.get())->code_id, last_identifier, document->config.solve_delay);
     }
 
     return MiddleShapeFormula::DeleteElements(left, with_undo, changed_element);
 }
 
-void Assignment::ElementIdChanged(const ElementId& last_id)
+void Assignment::LogicalIdChanged(const LogicalId& last_id)
 {
-    MiddleShapeFormula::ElementIdChanged(last_id);
+    MiddleShapeFormula::LogicalIdChanged(last_id);
     if (last_id.empty() || last_identifier.empty())
         return;
     auto code = document->FindParent(id, ElementType::CODE_BLOCK);
@@ -124,7 +124,7 @@ void Assignment::ElementIdChanged(const ElementId& last_id)
         return;
     //move the identifier in the solver
     document->RemoveIdentifier(last_id, ((CodeBlock*)code.get())->code_id, last_identifier, document->config.solve_delay);
-    document->SetIdentifier(id, ((CodeBlock*)code.get())->code_id, GetFirst()->ToText(), last_expression.Text(), document->config.solve_delay);
+    document->SetIdentifier(logical_id, ((CodeBlock*)code.get())->code_id, GetFirst()->ToText(), last_expression.Text(), document->config.solve_delay);
 }
 
 bool Assignment::AfterInsert(bool with_undo)
@@ -150,7 +150,7 @@ void Assignment::BeforeDelete()
     {
         auto code = document->FindParent(id, ElementType::CODE_BLOCK);
         if (code)
-            document->RemoveIdentifier(id, ((CodeBlock*)code.get())->code_id, last_identifier, document->config.solve_delay);
+            document->RemoveIdentifier(logical_id, ((CodeBlock*)code.get())->code_id, last_identifier, document->config.solve_delay);
     }
 }
 
@@ -174,7 +174,7 @@ void Assignment::ReSolve(bool if_error, bool force)
     if (!auto_solve)
         return;
     
-    document->RemoveErrorMarks(id);
+    document->RemoveErrorMarks(logical_id);
     if (if_error && !last_error)
         return;
     last_expression.Reset();
@@ -187,14 +187,14 @@ void Assignment::ReSolve(bool if_error, bool force)
     {
         auto code = document->FindParent(id, ElementType::CODE_BLOCK);
         if (last_identifier != U"")
-            document->RemoveIdentifier(id, ((CodeBlock*)code.get())->code_id, last_identifier, document->config.solve_delay);
-        document->SetIdentifier(id, ((CodeBlock*)code.get())->code_id, GetFirst()->ToText(), expr.Text(), document->config.solve_delay);
+            document->RemoveIdentifier(logical_id, ((CodeBlock*)code.get())->code_id, last_identifier, document->config.solve_delay);
+        document->SetIdentifier(logical_id, ((CodeBlock*)code.get())->code_id, GetFirst()->ToText(), expr.Text(), document->config.solve_delay);
         last_identifier = GetFirst()->ToText();
         last_expression = expr;
     }
 }
 
-void Assignment::PutResult(Result result)
+void Assignment::PutResult(Result& result)
 {
     last_error = result.error.error_code != ErrorCode::OK;
     dependencies = result.dependencies;

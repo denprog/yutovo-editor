@@ -69,7 +69,7 @@ Solver::~Solver()
     }
 }
 
-void Solver::Solve(const ElementId id, const uint code_id, Config::AutoResultConfig& config, const std::u32string& expression, const uint delay)
+void Solver::Solve(const LogicalId id, const uint code_id, Config::AutoResultConfig& config, const std::u32string& expression, const uint delay)
 {
     EraseSolveTasks(id);
 
@@ -79,7 +79,7 @@ void Solver::Solve(const ElementId id, const uint code_id, Config::AutoResultCon
     next_circle = true;
 }
 
-void Solver::Solve(const ElementId id, const uint code_id, Config::RealResultConfig& config, const std::u32string& expression, const uint delay)
+void Solver::Solve(const LogicalId id, const uint code_id, Config::RealResultConfig& config, const std::u32string& expression, const uint delay)
 {
     EraseSolveTasks(id);
 
@@ -89,7 +89,7 @@ void Solver::Solve(const ElementId id, const uint code_id, Config::RealResultCon
     next_circle = true;
 }
 
-void Solver::Solve(const ElementId id, const uint code_id, Config::IntegerResultConfig& config, const std::u32string& expression, const uint delay)
+void Solver::Solve(const LogicalId id, const uint code_id, Config::IntegerResultConfig& config, const std::u32string& expression, const uint delay)
 {
     EraseSolveTasks(id);
 
@@ -99,7 +99,7 @@ void Solver::Solve(const ElementId id, const uint code_id, Config::IntegerResult
     next_circle = true;
 }
 
-void Solver::Solve(const ElementId id, const uint code_id, Config::RationalResultConfig& config, const std::u32string& expression, const uint delay)
+void Solver::Solve(const LogicalId id, const uint code_id, Config::RationalResultConfig& config, const std::u32string& expression, const uint delay)
 {
     EraseSolveTasks(id);
 
@@ -109,7 +109,7 @@ void Solver::Solve(const ElementId id, const uint code_id, Config::RationalResul
     next_circle = true;
 }
 
-void Solver::Solve(const ElementId id, const uint code_id, Config::ComplexResultConfig& config, const std::u32string& expression, const uint delay)
+void Solver::Solve(const LogicalId id, const uint code_id, Config::ComplexResultConfig& config, const std::u32string& expression, const uint delay)
 {
     EraseSolveTasks(id);
 
@@ -119,7 +119,7 @@ void Solver::Solve(const ElementId id, const uint code_id, Config::ComplexResult
     next_circle = true;
 }
 
-void Solver::BreakSolving(const ElementId id, const uint code_id)
+void Solver::BreakSolving(const LogicalId id, const uint code_id)
 {
     {
         std::unique_lock<std::mutex> lock(current_solving_mutex);
@@ -133,7 +133,7 @@ void Solver::BreakSolving(const ElementId id, const uint code_id)
     break_next_circle = true;
 }
 
-void Solver::SetIdentifier(ElementId id, uint code_id, const std::u32string& identifier, const std::u32string& expression, const uint delay)
+void Solver::SetIdentifier(LogicalId id, uint code_id, const std::u32string& identifier, const std::u32string& expression, const uint delay)
 {
     {
         std::unique_lock<std::mutex> lock(tasks_mutex);
@@ -152,7 +152,7 @@ void Solver::SetIdentifier(ElementId id, uint code_id, const std::u32string& ide
     next_circle = true;
 }
 
-void Solver::RemoveIdentifier(ElementId id, uint code_id, const std::u32string& identifier, const uint delay)
+void Solver::RemoveIdentifier(LogicalId id, uint code_id, const std::u32string& identifier, const uint delay)
 {
     {
         std::unique_lock<std::mutex> lock(tasks_mutex);
@@ -411,14 +411,18 @@ void Solver::MessageLoop(WebSocketPtr socket_, std::deque<SolverTaskPtr>& tasks_
             }
 
             if (t->expression_type == ExpressionType::USER_SYMBOL)
-                document->window->OnIdentifierChanged(t->id);
+            {
+                auto el = document->GetLogicalElement(t->id);
+                if (el)
+                    document->window->OnIdentifierChanged(el->id);
+            }
 
             if (!result.values.empty() || result.error.error_code != yutovo_solver::ErrorCode::OK)
                 document->PutResult(t->id, result);
             
             if (result.error.error_code == yutovo_solver::ErrorCode::SOLVER_RESTARTED_ERROR)
             {
-                document->ReSolve(t->id); //re-solve the expression
+                document->ReSolveLogical(t->id); //re-solve the expression
 
                 std::unique_lock<std::mutex> lock(tasks_mutex);
                 tasks.emplace_back(new SetLocaleSolverTask(guid, language, document, logger));
@@ -443,7 +447,7 @@ void Solver::MessageLoop(WebSocketPtr socket_, std::deque<SolverTaskPtr>& tasks_
     }
 }
 
-void Solver::EraseSolveTasks(const ElementId id)
+void Solver::EraseSolveTasks(const LogicalId id)
 {
     std::unique_lock<std::mutex> lock(tasks_mutex);
     tasks.erase(std::remove_if(tasks.begin(), tasks.end(), 

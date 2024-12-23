@@ -97,6 +97,7 @@ TEST_F(DocumentTest, strings2)
 
     document.Undo();
     document.WaitUndo();
+    std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == "<body><p><span style=\"font-family:'Arial';font-size:22px;\">Text</span></p></body>") << document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 4)) << document.GetEditorState().ToString();
 

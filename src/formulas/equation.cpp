@@ -150,7 +150,7 @@ bool Equation::DeleteElements(bool left, bool with_undo, ElementId& changed_elem
 void Equation::BeforeDelete()
 {
     MiddleShapeFormula::BeforeDelete();
-    document->RemoveErrorMarks(id);
+    document->RemoveErrorMarks(logical_id);
 }
 
 bool Equation::AfterInsert(bool with_undo)
@@ -181,7 +181,7 @@ void Equation::Solve()
 
     ParserString str;
     GetFirst()->ToParserString(str);
-    if (last_expression != str)
+    if (last_expression != str || first_solve)
         document->AddResolveElement(id);
 }
 
@@ -196,7 +196,7 @@ void Equation::ReSolve(bool if_error, bool force)
         return;
     
     last_expression = str;
-    document->RemoveErrorMarks(id);
+    document->RemoveErrorMarks(logical_id);
     UpdateResult(str);
 }
 
@@ -251,7 +251,7 @@ bool Equation::SetResult(ResultType _result_type, bool with_undo)
     
     result_type = _result_type;
     result.reset();
-    document->RemoveErrorMarks(id);
+    document->RemoveErrorMarks(logical_id);
 
     ParserString str;
     GetFirst()->ToParserString(str);

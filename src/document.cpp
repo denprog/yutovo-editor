@@ -942,6 +942,8 @@ void Document::GetElements(const LogicalId& _id, std::vector<ElementPtr>& elemen
         return;
     }
     ElementPtr el = text->elements->Get(_id[1]);
+    if (!el)
+        return;
     if (_id.size() == 2)
     {
         elements.push_back(el);
@@ -952,7 +954,7 @@ void Document::GetElements(const LogicalId& _id, std::vector<ElementPtr>& elemen
         [_id](ElementPtr el, int pos)
         {
             ElementPtr res;
-            LogicalId part_id(_id.begin(), _id.begin() + pos);
+            LogicalId part_id(_id, pos);
 
             for (size_t i = 0; i < el->elements->Count(); ++i)
             {
@@ -1143,7 +1145,11 @@ bool Document::GetElementRect(const ElementId id, Rect& rect)
 LogicalId Document::GetLogicalId(const ElementId& _id)
 {
     if (_id.size() <= 2)
-        return _id;
+    {
+        LogicalId id;
+        std::copy(_id.begin(), _id.end(), std::back_inserter(id));
+        return id;
+    }
     return GetLogicalId(yutovo::GetParent(_id), yutovo::GetChildPos(_id));
 }
 
@@ -2313,40 +2319,40 @@ void Document::SetEditorState(LogicalEditorState& state)
 
 void Document::Solve(ElementId _id, uint code_id, Config::AutoResultConfig& config, std::u32string& expression, const uint delay)
 {
-    solver.Solve(_id, code_id, config, expression + U";", delay);
+    solver.Solve(GetLogicalId(_id), code_id, config, expression + U";", delay);
 }
 
 void Document::Solve(ElementId _id, uint code_id, Config::RealResultConfig& config, const std::u32string& expression, const uint delay)
 {
-    solver.Solve(_id, code_id, config, expression + U";", delay);
+    solver.Solve(GetLogicalId(_id), code_id, config, expression + U";", delay);
 }
 
 void Document::Solve(ElementId _id, uint code_id, Config::IntegerResultConfig& config, const std::u32string& expression, const uint delay)
 {
-    solver.Solve(_id, code_id, config, expression + U";", delay);
+    solver.Solve(GetLogicalId(_id), code_id, config, expression + U";", delay);
 }
 
 void Document::Solve(ElementId _id, uint code_id, Config::RationalResultConfig& config, const std::u32string& expression, const uint delay)
 {
-    solver.Solve(_id, code_id, config, expression + U";", delay);
+    solver.Solve(GetLogicalId(_id), code_id, config, expression + U";", delay);
 }
 
 void Document::Solve(ElementId _id, uint code_id, Config::ComplexResultConfig& config, const std::u32string& expression, const uint delay)
 {
-    solver.Solve(_id, code_id, config, expression + U";", delay);
+    solver.Solve(GetLogicalId(_id), code_id, config, expression + U";", delay);
 }
 
-void Document::BreakSolving(const ElementId id, uint code_id)
+void Document::BreakSolving(const ElementId _id, uint code_id)
 {
-    solver.BreakSolving(id, code_id);
+    solver.BreakSolving(GetLogicalId(_id), code_id);
 }
 
-void Document::SetIdentifier(ElementId _id, uint code_id, const std::u32string& identifier, const std::u32string& expression, const uint delay)
+void Document::SetIdentifier(LogicalId _id, uint code_id, const std::u32string& identifier, const std::u32string& expression, const uint delay)
 {
     solver.SetIdentifier(_id, code_id, identifier, expression + U";", delay);
 }
 
-void Document::RemoveIdentifier(ElementId _id, uint code_id, const std::u32string& identifier, const uint delay)
+void Document::RemoveIdentifier(LogicalId _id, uint code_id, const std::u32string& identifier, const uint delay)
 {
     solver.RemoveIdentifier(_id, code_id, identifier, delay);
 }
@@ -2602,32 +2608,59 @@ uint Document::SetUnit(ElementId _id, yutovo_calculator::Unit& unit, bool with_u
     return last_task_id;
 }
 
-void Document::ReSolve(ElementId _id)
+uint Document::ReSolve(ElementId _id)
 {
     std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
     tasks.emplace_back(new ResolveTask(text, _id));
+    last_task_id = tasks.back()->id;
+    return last_task_id;
 }
 
-void Document::ReSolveDependencies(ElementId after_id, const std::u32string& identifier)
+void Document::ReSolveLogical(LogicalId _id)
+{
+    std::vector<ElementPtr> elements;
+    GetElements(_id, elements);
+    for (auto el : elements)
+        ReSolve(el->id);
+}
+
+uint Document::ReSolveDependencies(LogicalId after_id, const std::u32string& identifier)
 {
     std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
     tasks.emplace_back(new ResolveDependeciesTask(text, after_id, ToBasicString(identifier)));
+    last_task_id = tasks.back()->id;
+    return last_task_id;
 }
 
-void Document::ReSolveErrors()
+uint Document::ReSolveErrors()
 {
     std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
     tasks.emplace_back(new ResolveErrorsTask(text));
+    last_task_id = tasks.back()->id;
+    return last_task_id;
 }
 
-void Document::PutResult(ElementId _id, Result result)
+uint Document::PutResult(LogicalId _id, Result result)
 {
     std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
+    // auto el = GetLogicalElement(_id);
+    // if (!el)
+    //     return 0;
+    // LogicalId id = el->id;
+    // logger->Info("PutResult logical={}, id={}", IdToString(_id), IdToString(id));
+    //logger->Info("PutResult logical={}", IdToString(_id));
     //id could be changed
     auto it = changed_ids.find(_id);
     if (it != changed_ids.end())
+    {
         _id = it->second;
-
+        //logger->Info("Id changed {}", IdToString(_id));
+        //tasks.emplace_back(new ResultTask(text, GetLogicalId(id), result));
+    }
+    // else
+    // {
+    //     tasks.emplace_back(new ResultTask(text, _id, result));
+    // }
     tasks.emplace_back(new ResultTask(text, _id, result));
 
 #ifdef DEBUG
@@ -2635,6 +2668,8 @@ void Document::PutResult(ElementId _id, Result result)
         result.error.error_code == yutovo_solver::ErrorCode::PARSER_ERROR)
         last_solver_task_id = tasks.back()->id;
 #endif
+    last_task_id = tasks.back()->id;
+    return last_task_id;
 }
 
 void Document::AddResolveElement(ElementId _id)
@@ -2666,7 +2701,7 @@ void Document::ListIdentifiers(const uint code_id)
     solver.ListIdentifiers(code_id);
 }
 
-void Document::ElementIdChanged(ElementId last_id, ElementId new_id)
+void Document::LogicalIdChanged(LogicalId last_id, LogicalId new_id)
 {
     auto it = std::find_if(changed_ids.begin(), changed_ids.end(), 
         [last_id](const auto& p)
@@ -2678,7 +2713,7 @@ void Document::ElementIdChanged(ElementId last_id, ElementId new_id)
     changed_ids[last_id] = new_id;
 }
 
-void Document::RemoveChangedId(ElementId _id)
+void Document::RemoveChangedId(LogicalId _id)
 {
     auto it = std::find_if(changed_ids.begin(), changed_ids.end(), 
         [_id](const auto& p)
@@ -2766,7 +2801,7 @@ ElementId Document::GetFirstVisibleRow(ElementId paragraph_id)
     return cur_visible_row;
 }
 
-void Document::AddErrorMark(ElementId _id, int start, int size)
+void Document::AddErrorMark(LogicalId _id, int start, int size)
 {
     auto it = std::find_if(error_marks.begin(), error_marks.end(), 
         [_id, start, size](const ErrorMark& m)
@@ -2778,7 +2813,7 @@ void Document::AddErrorMark(ElementId _id, int start, int size)
     error_marks.emplace_back(ErrorMark{_id, start, size});
 }
 
-void Document::RemoveErrorMarks(ElementId parent_id)
+void Document::RemoveErrorMarks(LogicalId parent_id)
 {
     for (size_t i = 0; i < error_marks.size();)
     {
@@ -2789,7 +2824,7 @@ void Document::RemoveErrorMarks(ElementId parent_id)
     }
 }
 
-bool Document::HasErrorMark(ElementId _id, int& start, int& size)
+bool Document::HasErrorMark(LogicalId _id, int& start, int& size)
 {
     auto it = std::find_if(error_marks.begin(), error_marks.end(), 
         [_id](const ErrorMark& m)
@@ -2820,17 +2855,17 @@ bool Document::HasErrorMark(ElementId _id, int& start, int& size)
     return true;
 }
 
-bool Document::HasErrorMarks(ElementId _id)
+bool Document::HasErrorMarks(LogicalId _id)
 {
     int start, size;
     if (HasErrorMark(_id, start, size))
         return true;
-    auto el = GetElement(_id);
+    auto el = GetLogicalElement(_id);
     if (!el || IsString(el))
         return false;
     for (int i = 0; i < el->elements->Count(); ++i)
     {
-        if (HasErrorMarks(el->elements->Get(i)->id))
+        if (HasErrorMarks(el->elements->Get(i)->logical_id))
             return true;
     }
     return false;

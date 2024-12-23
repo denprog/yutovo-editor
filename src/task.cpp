@@ -895,10 +895,11 @@ bool ChangeParagraphFormatTask::Execute()
             {
                 for (size_t j = s[i].start; j < s[i].start + s[i].size; ++j)
                 {
-                    ElementId _id = yutovo::GetChild(s[i].id, j);
+                    LogicalId _id = yutovo::GetChild(s[i].id, j);
                     if (std::find(ids.begin(), ids.end(), _id) == ids.end())
                     {
-                        el = document->FindParentParagraph(_id);
+                        auto _el = document->GetLogicalElement(_id);
+                        el = document->FindParentParagraph(_el->id);
                         if (!el->ChangeParagraphFormat(format, with_undo, ch))
                         {
                             if (with_undo && last_undo_size < document->GetUndoSize())
@@ -1066,7 +1067,7 @@ bool UndoTask::Execute()
     std::vector<ElementPtr> _elements;
     document->GetElements(id, _elements);
     for (auto& _el : _elements)
-        document->RemoveErrorMarks(_el->id);
+        document->RemoveErrorMarks(_el->logical_id);
 
     ElementPtr p = document->GetLogicalElement(id);
     if (id.size() > 2 && (p->type != ElementType::CODE_ROW && p->type != ElementType::CODE_BLOCK && 
@@ -1187,7 +1188,7 @@ bool UndoTask::Execute()
 
     document->caret->block = false;
     document->SetEditorState(before_state);
-    document->RemoveErrorMarks(remake_id);
+    document->RemoveErrorMarks(document->GetLogicalId(remake_id));
     document->ReSolve(remake_id);
     return true;
 }
@@ -1640,7 +1641,7 @@ bool LoadTask::Execute()
                 {
                     if (s.FromJson(doc["selection"], doc.GetAllocator()))
                     {
-                        ElementId _id = yutovo::GetParent(c.id);
+                        LogicalId _id = yutovo::GetParent(c.id);
                         if (document->GetLogicalElement(_id) == nullptr) //check caret state
                         {
                             ElementPtr p = nullptr;
@@ -1885,7 +1886,7 @@ bool CopyTask::Execute()
 
 //ResultTask
 
-ResultTask::ResultTask(ElementPtr _text, ElementId _id, Result _result) :
+ResultTask::ResultTask(ElementPtr _text, LogicalId _id, Result _result) :
     Task(_text),
     id(_id),
     result(_result)
@@ -1894,7 +1895,7 @@ ResultTask::ResultTask(ElementPtr _text, ElementId _id, Result _result) :
 
 bool ResultTask::Execute()
 {
-    ElementPtr el = document->GetElement(id);
+    ElementPtr el = document->GetLogicalElement(id);
     if (!el)
         return false;
     switch (el->type)
@@ -1908,7 +1909,7 @@ bool ResultTask::Execute()
         ResultRow* r = dynamic_cast<ResultRow*>(el.get());
         if (!r)
             return false;
-        document->RemoveErrorMarks(r->id);
+        document->RemoveErrorMarks(r->logical_id);
         r->PutResult(result);
         break;
     }
@@ -1917,7 +1918,7 @@ bool ResultTask::Execute()
         Assignment* r = dynamic_cast<Assignment*>(el.get());
         if (!r)
             return false;
-        document->RemoveErrorMarks(r->id);
+        document->RemoveErrorMarks(r->logical_id);
         r->PutResult(result);
         break;
     }
@@ -1927,32 +1928,38 @@ bool ResultTask::Execute()
 
     if (!result.error.id.empty() && result.error.error_code != ErrorCode::SOLVER_RESTARTED_ERROR && result.error.error_code != ErrorCode::OK)
     {
-        ElementPtr p = document->FindElementOrParent(result.error.id, ElementType::ASSIGNMENT);
-        if (p)
+        std::vector<ElementPtr> els;
+        document->GetElements(result.error.id, els);
+        for (auto& _el : els)
         {
-            //put error mark
-            Assignment* el = (Assignment*)p.get();
-            ElementId err_id = el->last_expression.GetElement(result.error.pos);
-            if (!err_id.empty())
+            auto p = document->FindElementOrParent(_el->id, ElementType::ASSIGNMENT);
+            if (p)
             {
-                auto el = document->GetElement(err_id);
-                if (el)
+                //put error mark
+                Assignment* el = (Assignment*)p.get();
+                ElementId err_id = el->last_expression.GetElement(result.error.pos);
+                if (!err_id.empty())
                 {
-                    int s = 1;
-                    uint p = el->parent->elements->GetElementPos(el->id);
-                    if (el->type == ElementType::CODE_STRING)
+                    auto el = document->GetElement(err_id);
+                    if (el)
                     {
-                        //add all the strings to the error mark
-                        uint n = p;
-                        while (el->parent->elements->Count() > ++n && el->parent->elements->Get(n)->type == ElementType::CODE_STRING)
-                            ++s;
+                        int s = 1;
+                        uint p = el->parent->elements->GetElementPos(el->id);
+                        if (el->type == ElementType::CODE_STRING)
+                        {
+                            //add all the strings to the error mark
+                            uint n = p;
+                            while (el->parent->elements->Count() > ++n && el->parent->elements->Get(n)->type == ElementType::CODE_STRING)
+                                ++s;
+                        }
+                        if (s > 1)
+                            document->AddErrorMark(el->parent->logical_id, p, s);
+                        else
+                            document->AddErrorMark(document->GetLogicalId(err_id), 0, el->elements->Count());
+                        document->Redraw(el->parent->id, false);
                     }
-                    if (s > 1)
-                        document->AddErrorMark(el->parent->id, p, s);
-                    else
-                        document->AddErrorMark(err_id, 0, el->elements->Count());
-                    document->Redraw(el->parent->id, false);
                 }
+                break;
             }
         }
     }
@@ -1979,14 +1986,14 @@ ResolveTask::ResolveTask(ElementPtr _text, ElementId _id) :
 
 bool ResolveTask::Execute()
 {
-    std::vector<ElementId> code_blocks;
+    std::vector<LogicalId> code_blocks;
     if (id.empty())
     {
         //recalculate all the code blocks in the document
-        text->GetElements(ElementType::CODE_BLOCK, code_blocks); //find all code blocks
-        for (ElementId _id : code_blocks)
+        text->GetLogicalElements(ElementType::CODE_BLOCK, code_blocks); //find all code blocks
+        for (LogicalId& _id : code_blocks)
         {
-            auto el = document->GetElement(_id);
+            auto el = document->GetLogicalElement(_id);
             CodeBlock* c = dynamic_cast<CodeBlock*>(el.get());
             c->ReSolve(false, true);
             if (!document->changed_elements.empty())
@@ -2005,10 +2012,10 @@ bool ResolveTask::Execute()
         if (id != text->id)
             return false;
         //resolve all code blocks
-        text->GetElements(ElementType::CODE_BLOCK, code_blocks);
-        for (ElementId _id : code_blocks)
+        text->GetLogicalElements(ElementType::CODE_BLOCK, code_blocks);
+        for (LogicalId& _id : code_blocks)
         {
-            auto el = document->GetElement(_id);
+            auto el = document->GetLogicalElement(_id);
             CodeBlock* c = dynamic_cast<CodeBlock*>(el.get());
             if (c)
             {
@@ -2026,10 +2033,10 @@ bool ResolveTask::Execute()
     
     CodeBlock* c = dynamic_cast<CodeBlock*>(el.get());
     uint code_id = c->code_id;
-    text->GetElements(ElementType::CODE_BLOCK, code_blocks); //find all code blocks
-    for (ElementId _id : code_blocks)
+    text->GetLogicalElements(ElementType::CODE_BLOCK, code_blocks); //find all code blocks
+    for (LogicalId _id : code_blocks)
     {
-        auto el = document->GetElement(_id);
+        auto el = document->GetLogicalElement(_id);
         CodeBlock* c = dynamic_cast<CodeBlock*>(el.get());
         if (c && c->code_id == code_id)
         {
@@ -2047,7 +2054,7 @@ bool ResolveTask::Execute()
 
 //ResolveDependeciesTask
 
-ResolveDependeciesTask::ResolveDependeciesTask(ElementPtr _text, ElementId _after_id, const std::string& _identifier) :
+ResolveDependeciesTask::ResolveDependeciesTask(ElementPtr _text, LogicalId _after_id, const std::string& _identifier) :
     Task(_text),
     after_id(_after_id),
     identifier(_identifier)
@@ -2056,7 +2063,11 @@ ResolveDependeciesTask::ResolveDependeciesTask(ElementPtr _text, ElementId _afte
 
 bool ResolveDependeciesTask::Execute()
 {
-    auto el = document->FindParent(after_id, ElementType::CODE_BLOCK);
+    auto _el = document->GetLogicalElement(after_id);
+    if (!_el)
+        return false;
+    ElementId _after_id = _el->id;
+    auto el = document->FindParent(_after_id, ElementType::CODE_BLOCK);
     std::vector<ElementId> code_blocks;
     std::vector<ElementId> solvings;
     std::vector<std::string> id_arr;
@@ -2067,11 +2078,11 @@ bool ResolveDependeciesTask::Execute()
         CodeBlock* c = dynamic_cast<CodeBlock*>(el.get());
         uint code_id = c->code_id;
 
-        auto p = document->FindElementOrParent(after_id, ElementType::EQUATION);
+        auto p = document->FindElementOrParent(_after_id, ElementType::EQUATION);
         if (p)
             solvings.push_back(p->id);
         
-        c->GetElementsBelow(after_id, ElementType::EQUATION, solvings); //get equations below in the current code block
+        c->GetElementsBelow(_after_id, ElementType::EQUATION, solvings); //get equations below in the current code block
         for (ElementId _id : solvings)
         {
             auto _el = document->GetElement(_id);
@@ -2088,7 +2099,7 @@ bool ResolveDependeciesTask::Execute()
         }
 
         solvings.clear();
-        c->GetElementsBelow(after_id, ElementType::ASSIGNMENT, solvings); //get assignments below in the current code block
+        c->GetElementsBelow(_after_id, ElementType::ASSIGNMENT, solvings); //get assignments below in the current code block
         for (ElementId _id : solvings)
         {
             auto _el = document->GetElement(_id);
@@ -2096,7 +2107,7 @@ bool ResolveDependeciesTask::Execute()
             for (auto& d : id_arr)
             {
                 if (s->Depends(d))
-                    document->RemoveErrorMarks(s->id);
+                    document->RemoveErrorMarks(s->logical_id);
             }
         }
 
@@ -2129,7 +2140,7 @@ bool ResolveDependeciesTask::Execute()
                     for (auto& d : id_arr)
                     {
                         if (s->Depends(d))
-                            document->RemoveErrorMarks(s->id);
+                            document->RemoveErrorMarks(s->logical_id);
                     }
                 }
             }
@@ -2137,7 +2148,7 @@ bool ResolveDependeciesTask::Execute()
     }
     else
     {
-        el = document->GetElement(GetParent(after_id));
+        el = document->GetElement(GetParent(_after_id));
         if (!el)
             return false;
         text->GetElementsBelow(el->id, ElementType::CODE_BLOCK, code_blocks); //find all code blocks below
@@ -2169,7 +2180,7 @@ bool ResolveDependeciesTask::Execute()
                     for (auto& d : id_arr)
                     {
                         if (s->Depends(d))
-                            document->RemoveErrorMarks(s->id);
+                            document->RemoveErrorMarks(s->logical_id);
                     }
                 }
             }
@@ -2188,11 +2199,11 @@ ResolveErrorsTask::ResolveErrorsTask(ElementPtr _text) :
 
 bool ResolveErrorsTask::Execute()
 {
-    std::vector<ElementId> code_blocks;
-    text->GetElements(ElementType::CODE_BLOCK, code_blocks); //find all code blocks
-    for (ElementId _id : code_blocks)
+    std::vector<LogicalId> code_blocks;
+    text->GetLogicalElements(ElementType::CODE_BLOCK, code_blocks); //find all code blocks
+    for (LogicalId& _id : code_blocks)
     {
-        auto el = document->GetElement(_id);
+        auto el = document->GetLogicalElement(_id);
         CodeBlock* c = dynamic_cast<CodeBlock*>(el.get());
         if (c)
             c->ReSolve(true); //resolve all the expressions with errors

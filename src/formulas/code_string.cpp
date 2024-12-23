@@ -138,13 +138,13 @@ bool CodeString::Remake(bool with_elements)
     return String::Remake(with_elements);
 }
 
-void CodeString::ElementIdChanged(const ElementId& last_id)
+void CodeString::LogicalIdChanged(const LogicalId& last_id)
 {
     int start, size;
     if (document->HasErrorMark(last_id, start, size))
     {
         document->RemoveErrorMarks(last_id);
-        document->AddErrorMark(id, start, size);
+        document->AddErrorMark(logical_id, start, size);
     }
 }
 
@@ -284,7 +284,7 @@ void CodeString::Draw() const
         }
     }
 
-    if (document->HasErrorMark(id, start, size))
+    if (document->HasErrorMark(logical_id, start, size))
         DrawErrorMark(start, size);
     
     if (elements->Count() == 0)

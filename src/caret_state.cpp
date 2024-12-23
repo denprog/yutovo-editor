@@ -56,7 +56,7 @@ bool CaretState::operator!=(const CaretState& c) const
 
 bool CaretState::operator<(const CaretState& c) const
 {
-    return IsLess(id, c.id);
+    return yutovo::IsLess(id, c.id);
 }
 
 void CaretState::SetState(ElementPtr element)
@@ -191,7 +191,7 @@ bool LogicalCaretState::IsEmpty() const
 
 void LogicalCaretState::ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc)
 {
-    rapidjson::Value _id(IdToString(id).c_str(), alloc);
+    rapidjson::Value _id(LogicalIdToString(id).c_str(), alloc);
     value.AddMember("id", _id, alloc);
 }
 
@@ -199,7 +199,7 @@ bool LogicalCaretState::FromJson(rapidjson::Value& value, rapidjson::Document::A
 {
     if (!value.HasMember("id") || !value["id"].IsString())
         return false;
-    id = IdFromString(value["id"].GetString());
+    id = LogicalIdFromString(value["id"].GetString());
     return true;
 }
 

@@ -12,7 +12,7 @@ using namespace std::chrono;
 
 //SolverTask
 
-SolverTask::SolverTask(ElementId _id, std::string& _guid, uint _code_id, ExpressionType _expression_type, const std::u32string& _expression, const uint _delay, 
+SolverTask::SolverTask(LogicalId _id, std::string& _guid, uint _code_id, ExpressionType _expression_type, const std::u32string& _expression, const uint _delay, 
     Logger* _logger) :
     id(_id),
     guid(_guid),
@@ -32,7 +32,7 @@ SolverTask::SolverTask(std::string& _guid, Logger* _logger) :
     cur_time = duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
 }
 
-SolverTask::SolverTask(const ElementId _id, std::string& _guid, uint _code_id, Logger* _logger) :
+SolverTask::SolverTask(const LogicalId _id, std::string& _guid, uint _code_id, Logger* _logger) :
     id(_id),
     guid(_guid),
     code_id(_code_id),
@@ -352,7 +352,7 @@ bool SolverTask::FillComplexResult(rapidjson::Document& doc, Result& result)
 
 //AutoSolverTask
 
-AutoSolverTask::AutoSolverTask(ElementId _id, std::string& _guid, uint _code_id, ExpressionType _expression_type, Config::AutoResultConfig _config, 
+AutoSolverTask::AutoSolverTask(LogicalId _id, std::string& _guid, uint _code_id, ExpressionType _expression_type, Config::AutoResultConfig _config, 
     const std::u32string& _expression, const uint _delay, Logger* _logger) :
     SolverTask(_id, _guid, _code_id, _expression_type, _expression, _delay, _logger),
     config(_config)
@@ -448,7 +448,7 @@ bool AutoSolverTask::Execute(WebSocketPtr socket, Result& result)
 
 //RealSolverTask
 
-RealSolverTask::RealSolverTask(ElementId _id, std::string& _guid, uint _code_id, ExpressionType _expression_type, Config::RealResultConfig _config, 
+RealSolverTask::RealSolverTask(LogicalId _id, std::string& _guid, uint _code_id, ExpressionType _expression_type, Config::RealResultConfig _config, 
     const std::u32string& _expression, const uint _delay, Logger* _logger) :
     SolverTask(_id, _guid, _code_id, _expression_type, _expression, _delay, _logger),
     config(_config)
@@ -509,7 +509,7 @@ bool RealSolverTask::Execute(WebSocketPtr socket, Result& result)
 
 //IntegerSolverTask
 
-IntegerSolverTask::IntegerSolverTask(ElementId _id, std::string& _guid, uint _code_id, ExpressionType _expression_type, 
+IntegerSolverTask::IntegerSolverTask(LogicalId _id, std::string& _guid, uint _code_id, ExpressionType _expression_type, 
     Config::IntegerResultConfig _config, const std::u32string& _expression, const uint _delay, Logger* _logger) :
     SolverTask(_id, _guid, _code_id, _expression_type, _expression, _delay, _logger),
     config(_config)
@@ -567,7 +567,7 @@ bool IntegerSolverTask::Execute(WebSocketPtr socket, Result& result)
 
 //RationalSolverTask
 
-RationalSolverTask::RationalSolverTask(ElementId _id, std::string& _guid, uint _code_id, ExpressionType _expression_type, Config::RationalResultConfig _config, 
+RationalSolverTask::RationalSolverTask(LogicalId _id, std::string& _guid, uint _code_id, ExpressionType _expression_type, Config::RationalResultConfig _config, 
     const std::u32string& _expression, const uint _delay, Logger* _logger) :
     SolverTask(_id, _guid, _code_id, _expression_type, _expression, _delay, _logger),
     config(_config)
@@ -626,7 +626,7 @@ bool RationalSolverTask::Execute(WebSocketPtr socket, Result& result)
 
 //ComplexSolverTask
 
-ComplexSolverTask::ComplexSolverTask(ElementId _id, std::string& _guid, uint _code_id, ExpressionType _expression_type, Config::ComplexResultConfig _config, 
+ComplexSolverTask::ComplexSolverTask(LogicalId _id, std::string& _guid, uint _code_id, ExpressionType _expression_type, Config::ComplexResultConfig _config, 
     const std::u32string& _expression, const uint _delay, Logger* _logger) :
     SolverTask(_id, _guid, _code_id, _expression_type, _expression, _delay, _logger),
     config(_config)
@@ -687,7 +687,7 @@ bool ComplexSolverTask::Execute(WebSocketPtr socket, Result& result)
 
 //BreakSolverTask
 
-BreakSolverTask::BreakSolverTask(const ElementId _id, std::string& _guid, uint _code_id, Logger* _logger) :
+BreakSolverTask::BreakSolverTask(const LogicalId _id, std::string& _guid, uint _code_id, Logger* _logger) :
     SolverTask(_id, _guid, _code_id, _logger)
 {
     delay = 0;
@@ -732,7 +732,7 @@ bool BreakSolverTask::Execute(WebSocketPtr socket, Result& result)
 
 //SetIdentifierSolverTask
 
-SetIdentifierSolverTask::SetIdentifierSolverTask(ElementId _id, std::string& _guid, uint _code_id, Document* _document, std::u32string _identifier, 
+SetIdentifierSolverTask::SetIdentifierSolverTask(LogicalId _id, std::string& _guid, uint _code_id, Document* _document, std::u32string _identifier, 
     const std::u32string& _expression, const uint _delay, Logger* _logger) : 
     AutoSolverTask(_id, _guid, _code_id, ExpressionType::USER_SYMBOL, Config::AutoResultConfig{}, _expression, _delay, _logger),
     document(_document),
@@ -750,7 +750,7 @@ bool SetIdentifierSolverTask::Execute(WebSocketPtr socket, Result& result)
 
 //RemoveIdentifierSolverTask
 
-RemoveIdentifierSolverTask::RemoveIdentifierSolverTask(ElementId _id, std::string& _guid, uint _code_id, Document* _document, 
+RemoveIdentifierSolverTask::RemoveIdentifierSolverTask(LogicalId _id, std::string& _guid, uint _code_id, Document* _document, 
     const std::u32string& _expression, const uint _delay, Logger* _logger) :
     SolverTask(_id, _guid, _code_id, ExpressionType::USER_SYMBOL, _expression, _delay, _logger),
     document(_document)

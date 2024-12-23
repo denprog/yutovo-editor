@@ -1269,12 +1269,20 @@ TEST_F(SolverAutoTest, solver27)
     document.InsertCode(false, true);
     document.InsertString("123", true);
     document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
     document.MoveCaretToDocumentBegin(false);
     document.WaitTask(document.InsertParagraph(true));
+    std::this_thread::sleep_for(1s);
+    ASSERT_TRUE(document.ToText() == 
+        U"\nIn literary theory, a text is any object that can be read, whether this object is a work of literature123=123."
+        ) << ToBasicString(document.ToText());
+    
+    document.Undo();
+    document.WaitUndo();
     document.WaitSolver();
     std::this_thread::sleep_for(1500ms);
     ASSERT_TRUE(document.ToText() == 
-        U"\nIn literary theory, a text is any object that can be read, whether this object is a work of literature123=123."
+        U"In literary theory, a text is any object that can be read, whether this object is a work of literature123=123."
         ) << ToBasicString(document.ToText());
 }
 
@@ -1529,6 +1537,42 @@ TEST_F(SolverAutoTest, solver35)
         ) << ToBasicString(document.ToText());
 }
 
+//Re-solving many code blocks
+TEST_F(SolverAutoTest, solver36)
+{
+    Start(600);
+
+    document.InsertString("String", true);
+
+    for (int i = 0; i < 5; ++i)
+    {
+        document.WaitTask(document.MoveCaretToDocumentEnd(false));
+        document.InsertCode(false, true);
+        document.InsertNthRoot(true);
+        document.InsertString("3", true);
+        document.InsertDivision(true);
+        document.InsertString("2", true);
+        document.MoveCaretRight(false);
+        document.MoveCaretRight(false);
+        document.MoveCaretRight(false);
+        document.InsertString("2", true);
+        document.MoveCaretRight(false);
+        document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+        document.WaitSolver();
+    }
+    std::this_thread::sleep_for(1s);
+    ASSERT_TRUE(document.ToText() == 
+        U"Stringroot(2,(3)/(2))=1.587root(2,(3)/(2))=1.587root(2,(3)/(2))=1.587root(2,(3)/(2))=1.587root(2,(3)/(2))=1.587") << 
+        ToBasicString(document.ToText());
+
+    document.WaitTask(document.ReSolve(ElementId{}));
+    document.WaitSolver();
+    std::this_thread::sleep_for(2s);
+    ASSERT_TRUE(document.ToText() == 
+        U"Stringroot(2,(3)/(2))=1.587root(2,(3)/(2))=1.587root(2,(3)/(2))=1.587root(2,(3)/(2))=1.587root(2,(3)/(2))=1.587") << 
+        ToBasicString(document.ToText());
+}
+
 //Solve with errors
 TEST_F(SolverAutoTest, errors1)
 {
@@ -1732,7 +1776,7 @@ TEST_F(SolverAutoTest, errors2)
     std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToText() == U"sqrt((2)/())=Syntax error") << ToBasicString(document.ToText());
     int start, size;
-    ASSERT_TRUE(document.HasErrorMark(ElementId{0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0}, start, size)) << ErrorMarks();
+    ASSERT_TRUE(document.HasErrorMark(LogicalId{0, 0, 0, 0, 0, 0, 0, 0, 1, 0}, start, size)) << ErrorMarks();
     ASSERT_TRUE(start == 0 && size == 3);
 
     document.MoveCaretLeft(false);
@@ -1770,7 +1814,7 @@ TEST_F(SolverAutoTest, errors3)
     std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToText() == U"sqrt()=Wrong arguments count") << ToBasicString(document.ToText());
     int start, size;
-    ASSERT_TRUE(document.HasErrorMark(ElementId{0, 0, 0, 0, 0, 0, 0, 0, 0}, start, size)) << ErrorMarks();
+    ASSERT_TRUE(document.HasErrorMark(LogicalId{0, 0, 0, 0, 0, 0, 0, 0}, start, size)) << ErrorMarks();
     ASSERT_TRUE(start == 0 && size == 2);
 }
 
@@ -1796,19 +1840,19 @@ TEST_F(SolverAutoTest, errors4)
     document.WaitTask(document.DeleteElements(false, true));
     ASSERT_TRUE(document.ToText() == U"(3)/()=Syntax error") << ToBasicString(document.ToText());
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 0, 1})) << document.GetEditorState().ToString();
-    ASSERT_TRUE(document.HasErrorMarks(ElementId{0, 0}));
+    ASSERT_TRUE(document.HasErrorMarks(LogicalId{0, 0, 0, 0}));
 
     document.Undo();
     document.WaitUndo();
     ASSERT_TRUE(document.ToText() == U"(3)/()") << ToBasicString(document.ToText());
-    ASSERT_TRUE(!document.HasErrorMarks(ElementId{0, 0}));
+    ASSERT_TRUE(!document.HasErrorMarks(LogicalId{0, 0, 0, 0}));
 
     document.Redo();
     document.WaitRedo();
     document.WaitSolver();
     std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToText() == U"(3)/()=Syntax error") << ToBasicString(document.ToText());
-    ASSERT_TRUE(document.HasErrorMarks(ElementId{0, 0}));
+    ASSERT_TRUE(document.HasErrorMarks(LogicalId{0, 0, 0, 0}));
 }
 
 //Service timeout

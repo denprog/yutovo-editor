@@ -56,7 +56,7 @@ bool ElementSelectionState::operator!=(const ElementSelectionState& s) const
 void ElementLogicalSelectionState::ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc)
 {
     rapidjson::Value obj(rapidjson::kObjectType);
-    rapidjson::Value _id(IdToString(id).c_str(), alloc);
+    rapidjson::Value _id(LogicalIdToString(id).c_str(), alloc);
     obj.AddMember("id", _id, alloc);
     obj.AddMember("start", start, alloc);
     obj.AddMember("size", size, alloc);
@@ -67,7 +67,7 @@ bool ElementLogicalSelectionState::FromJson(rapidjson::Value& value, rapidjson::
 {
     if (!value.HasMember("id") || !value["id"].IsString())
         return false;
-    id = IdFromString(value["id"].GetString());
+    id = LogicalIdFromString(value["id"].GetString());
     if (!value.HasMember("start") || !value["start"].IsInt())
         return false;
     start = value["start"].GetInt();

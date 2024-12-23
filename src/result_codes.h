@@ -41,7 +41,7 @@ struct Error
     yutovo_solver::ErrorCode error_code = yutovo_solver::ErrorCode::OK;
     yutovo_calculator::ParserExceptionCode parser_error_code = yutovo_calculator::ParserExceptionCode::None;
     int solver_error_code = -1;
-    ElementId id;
+    LogicalId id;
     int pos = -1;
     int line = -1;
     std::u32string description;

@@ -15,6 +15,7 @@ typedef unsigned int uint;
 
 using namespace yutovo;
 using yutovo::ToBasicString;
+using ElementId = yutovo::ElementId;
 
 extern int argc;
 extern char** argv;
@@ -244,7 +245,7 @@ struct DocumentTest : public testing::Test
         for (size_t i = 0; i < document.error_marks.size(); ++i)
         {
             ErrorMark& m = document.error_marks[i];
-            res += "{{" + IdToString(m.id) + "}," + std::to_string(m.start) + "," + std::to_string(m.size) + "}";
+            res += "{{" + LogicalIdToString(m.id) + "}," + std::to_string(m.start) + "," + std::to_string(m.size) + "}";
             if (i < document.error_marks.size() - 1)
                 res += ",";
         }
