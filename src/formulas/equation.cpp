@@ -181,7 +181,9 @@ void Equation::Solve()
 
     ParserString str;
     GetFirst()->ToParserString(str);
-    if (last_expression != str || first_solve)
+    if (last_expression.Length() != 0)
+        empty = false;
+    if (last_expression != str || empty)
         document->AddResolveElement(id);
 }
 
@@ -192,9 +194,10 @@ void Equation::ReSolve(bool if_error, bool force)
     
     ParserString str;
     GetFirst()->ToParserString(str);
-    if (last_expression == str && !force)
+    if (last_expression == str && !force && !empty)
         return;
     
+    empty = false;
     last_expression = str;
     document->RemoveErrorMarks(logical_id);
     UpdateResult(str);

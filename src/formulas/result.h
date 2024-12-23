@@ -23,7 +23,7 @@ public:
 
     virtual void PutWaitingSymbol();
     virtual void PutResult(Result& result);
-    virtual void PutError(Error error);
+    virtual void PutError(const Error& error);
     
     virtual void Reset();
 
@@ -54,7 +54,7 @@ protected:
     bool next_result = false;
     bool solving = false;
 
-    ElementId solving_id;
+    LogicalId solving_id;
 };
 
 typedef std::shared_ptr<ResultRow> ResultPtr;

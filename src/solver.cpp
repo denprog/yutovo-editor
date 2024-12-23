@@ -422,7 +422,7 @@ void Solver::MessageLoop(WebSocketPtr socket_, std::deque<SolverTaskPtr>& tasks_
             
             if (result.error.error_code == yutovo_solver::ErrorCode::SOLVER_RESTARTED_ERROR)
             {
-                document->ReSolveLogical(t->id); //re-solve the expression
+                document->ReSolve(t->id); //re-solve the expression
 
                 std::unique_lock<std::mutex> lock(tasks_mutex);
                 tasks.emplace_back(new SetLocaleSolverTask(guid, language, document, logger));
