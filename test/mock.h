@@ -242,13 +242,42 @@ struct DocumentTest : public testing::Test
     std::string ErrorMarks()
     {
         std::string res = "[";
-        for (size_t i = 0; i < document.error_marks.size(); ++i)
-        {
-            ErrorMark& m = document.error_marks[i];
-            res += "{{" + LogicalIdToString(m.id) + "}," + std::to_string(m.start) + "," + std::to_string(m.size) + "}";
-            if (i < document.error_marks.size() - 1)
-                res += ",";
-        }
+        std::function<void (ElementPtr, std::string&)> add_error_marks = 
+            [&](ElementPtr el, std::string& str)
+            {
+                if (document.IsString(el))
+                {
+                    if (el->error_mark)
+                    {
+                        if (str.length() > 1)
+                            str += ",";
+                        str += "{{" + ElementIdToString(el->id) + "}," + std::to_string(0) + "," + std::to_string(el->elements->Count()) + "}";
+                    }
+                    return;
+                }
+
+                int start = 0, size = 0;
+                for (int i = 0; i < el->elements->Count(); ++i)
+                {
+                    auto ch = el->elements->Get(i);
+                    if (ch->error_mark)
+                    {
+                        start = i;
+                        size = 1;
+                        for (int j = i + 1; j < el->elements->Count(); ++j)
+                        {
+                            if (el->elements->Get(j)->error_mark)
+                                ++size;
+                        }
+                        
+                        if (str.length() > 1)
+                            str += ",";
+                        str += "{{" + ElementIdToString(el->id) + "}," + std::to_string(start) + "," + std::to_string(size) + "}";
+                    }
+                    add_error_marks(ch, str);
+                }
+            };
+        add_error_marks(document.GetElement({0}), res);
         res += "]";
         return res;
     }

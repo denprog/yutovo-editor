@@ -182,18 +182,6 @@ bool CodeBlock::AfterInsert(bool with_undo)
     return true;
 }
 
-void CodeBlock::LogicalIdChanged(const LogicalId& last_id)
-{
-    document->LogicalIdChanged(last_id, logical_id);
-
-    int start, size;
-    if (document->HasErrorMark(last_id, start, size))
-    {
-        document->RemoveErrorMarks(last_id);
-        document->AddErrorMark(logical_id, start, size);
-    }
-}
-
 void CodeBlock::GetMargin(int& left, int& top, int& right, int& bottom) const
 {
     left = code_format->left_margin;

@@ -1067,7 +1067,7 @@ bool UndoTask::Execute()
     std::vector<ElementPtr> _elements;
     document->GetElements(id, _elements);
     for (auto& _el : _elements)
-        document->RemoveErrorMarks(_el->logical_id);
+        document->RemoveErrorMarks(_el->id);
 
     ElementPtr p = document->GetLogicalElement(id);
     if (id.size() > 2 && (p->type != ElementType::CODE_ROW && p->type != ElementType::CODE_BLOCK && 
@@ -1188,7 +1188,7 @@ bool UndoTask::Execute()
 
     document->caret->block = false;
     document->SetEditorState(before_state);
-    document->RemoveErrorMarks(document->GetLogicalId(remake_id));
+    document->RemoveErrorMarks(remake_id);
     document->ReSolve(remake_id);
     return true;
 }
@@ -1909,7 +1909,7 @@ bool ResultTask::Execute()
         ResultRow* r = dynamic_cast<ResultRow*>(el.get());
         if (!r)
             return false;
-        document->RemoveErrorMarks(r->logical_id);
+        document->RemoveErrorMarks(r->id);
         r->PutResult(result);
         break;
     }
@@ -1918,7 +1918,7 @@ bool ResultTask::Execute()
         Assignment* r = dynamic_cast<Assignment*>(el.get());
         if (!r)
             return false;
-        document->RemoveErrorMarks(r->logical_id);
+        document->RemoveErrorMarks(r->id);
         r->PutResult(result);
         break;
     }
@@ -1953,9 +1953,9 @@ bool ResultTask::Execute()
                                 ++s;
                         }
                         if (s > 1)
-                            document->AddErrorMark(el->parent->logical_id, p, s);
+                            document->AddErrorMark(el->parent->id, p, s);
                         else
-                            document->AddErrorMark(document->GetLogicalId(err_id), 0, el->elements->Count());
+                            document->AddErrorMark(err_id, 0, el->elements->Count());
                         document->Redraw(el->parent->id, false);
                     }
                 }
@@ -2107,7 +2107,7 @@ bool ResolveDependeciesTask::Execute()
             for (auto& d : id_arr)
             {
                 if (s->Depends(d))
-                    document->RemoveErrorMarks(s->logical_id);
+                    document->RemoveErrorMarks(s->id);
             }
         }
 
@@ -2140,7 +2140,7 @@ bool ResolveDependeciesTask::Execute()
                     for (auto& d : id_arr)
                     {
                         if (s->Depends(d))
-                            document->RemoveErrorMarks(s->logical_id);
+                            document->RemoveErrorMarks(s->id);
                     }
                 }
             }
@@ -2180,7 +2180,7 @@ bool ResolveDependeciesTask::Execute()
                     for (auto& d : id_arr)
                     {
                         if (s->Depends(d))
-                            document->RemoveErrorMarks(s->logical_id);
+                            document->RemoveErrorMarks(s->id);
                     }
                 }
             }

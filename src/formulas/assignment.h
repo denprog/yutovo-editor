@@ -46,6 +46,8 @@ public:
 
 protected:
     friend class ResultTask;
+
+    std::string guid;
     
     std::u32string solve_sign = U"=";
     std::string draw_sign = ":=";

@@ -607,7 +607,7 @@ TEST_F(AssignmentTest, delete3)
     ASSERT_TRUE(document.ToText() == 
         U"x12"
         ) << ToBasicString(document.ToText());
-    ASSERT_TRUE(document.error_marks.empty());
+    ASSERT_TRUE(!document.HasErrorMarks({0})) << ErrorMarks();
 }
 
 //Delete an element on the right
@@ -643,7 +643,7 @@ TEST_F(AssignmentTest, delete4)
     ASSERT_TRUE(document.ToText() == 
         U"x=2+34"
         ) << ToBasicString(document.ToText());
-    ASSERT_TRUE(document.error_marks.empty());
+    ASSERT_TRUE(!document.HasErrorMarks({0})) << ErrorMarks();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0, 0, 0, 2, 2, 0}, 
         ElementSelectionState{ElementId{0, 0, 0, 0, 0, 0, 0, 2}, 2, 1})) << document.GetEditorState().ToString();
 
@@ -655,7 +655,10 @@ TEST_F(AssignmentTest, delete4)
         U"x=2+"
         ) << ToBasicString(document.ToText());
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0, 0, 0, 2, 2})) << document.GetEditorState().ToString();
-    ASSERT_TRUE(!document.error_marks.empty());
+    int start, size;
+    ASSERT_TRUE(document.HasErrorMark(ElementId{0, 0, 0, 0, 0, 0, 0, 2}, start, size)) << ErrorMarks();
+    ASSERT_TRUE(start == 0 && size == 2);
+    ASSERT_TRUE(!document.HasErrorMark(ElementId{0, 0, 0, 0, 0, 0, 0, 2, 1}, start, size)) << ErrorMarks();
 }
 
 //Assign to a number is a error
@@ -672,11 +675,11 @@ TEST_F(AssignmentTest, error1)
         U"123="
         ) << ToBasicString(document.ToText());
     int start, size;
-    ASSERT_TRUE(document.HasErrorMark(LogicalId{0, 0, 0, 0, 0, 0}, start, size)) << ErrorMarks();
+    ASSERT_TRUE(document.HasErrorMark(ElementId{0, 0, 0, 0, 0, 0, 0}, start, size)) << ErrorMarks();
 
     document.Undo();
     document.WaitUndo();
-    ASSERT_TRUE(document.error_marks.empty());
+    ASSERT_TRUE(!document.HasErrorMarks({0})) << ErrorMarks();
 }
 
 //Check error marks
@@ -690,12 +693,12 @@ TEST_F(AssignmentTest, error2)
     document.InsertString("5", true);
     document.WaitSolver();
     std::this_thread::sleep_for(600ms);
-    ASSERT_TRUE(!document.HasErrorMarks(LogicalId{0, 0, 0, 0})) << ErrorMarks();
+    ASSERT_TRUE(!document.HasErrorMarks(ElementId{0, 0, 0, 0, 0})) << ErrorMarks();
 
     document.InsertPlus(true);
     document.WaitSolver();
     std::this_thread::sleep_for(600ms);
-    ASSERT_TRUE(document.HasErrorMarks(LogicalId{0, 0, 0, 0})) << ErrorMarks();
+    ASSERT_TRUE(document.HasErrorMarks(ElementId{0, 0, 0, 0, 0})) << ErrorMarks();
 
     for (int i = 0; i < 4; ++i)
         document.WaitTask(document.MoveCaretLeft(false));
@@ -704,7 +707,7 @@ TEST_F(AssignmentTest, error2)
     ASSERT_TRUE(document.ToText() == 
         U"r5+"
         ) << ToBasicString(document.ToText());
-    ASSERT_TRUE(!document.HasErrorMarks(LogicalId{0, 0, 0, 0})) << ErrorMarks();
+    ASSERT_TRUE(!document.HasErrorMarks(ElementId{0, 0, 0, 0, 0})) << ErrorMarks();
 }
 
 //Save/load a document with assignment

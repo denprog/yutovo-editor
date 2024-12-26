@@ -107,7 +107,7 @@ TEST_F(FormulaTest, functions3)
     document.WaitTask(document.InsertAssignment(true));
     document.WaitTask(document.InsertString("x", true));
     document.WaitSolver();
-    ASSERT_TRUE(document.error_marks.size() == 0) << ErrorMarks();
+    ASSERT_TRUE(!document.HasErrorMarks({0})) << ErrorMarks();
 
     document.WaitTask(document.MoveCaretRight(false));
     document.WaitTask(document.InsertParagraph(true));
@@ -144,7 +144,7 @@ TEST_F(FormulaTest, functions3)
         U"f(2)=2.\n" \
         U"f(x)=x+5\n" \
         U"f(3)=8.") << ToBasicString(document.ToText());
-    ASSERT_TRUE(document.error_marks.size() == 0) << ErrorMarks();
+    ASSERT_TRUE(!document.HasErrorMarks({0})) << ErrorMarks();
     
     document.MoveCaretUp(false);
     for (int i = 0; i < 6; ++i)
@@ -170,7 +170,7 @@ TEST_F(FormulaTest, functions3)
         U"f(2)=6.\n" \
         U"f(x)=x+25\n" \
         U"f(3)=28.") << ToBasicString(document.ToText());
-    ASSERT_TRUE(document.error_marks.size() == 0) << ErrorMarks();
+    ASSERT_TRUE(!document.HasErrorMarks({0})) << ErrorMarks();
 }
 
 //Insert a function after selection
@@ -309,7 +309,7 @@ TEST_F(FormulaTest, user_functions1)
         U"f(x,y)=pow(x,y)\n" \
         U"f(2,3)=8."
         ) << ToBasicString(document.ToText());
-    ASSERT_TRUE(document.error_marks.size() == 0) << ErrorMarks();
+    ASSERT_TRUE(!document.HasErrorMarks({0})) << ErrorMarks();
 }
 
 //Insert a function inside a code block before
@@ -353,7 +353,7 @@ TEST_F(FormulaTest, user_functions2)
         U"E=Unknown identifier"
         ) << ToBasicString(document.ToText());
     int start, size;
-    ASSERT_TRUE(document.HasErrorMark(LogicalId{0, 1, 0, 0, 0, 0, 2, 2}, start, size)) << ErrorMarks();
+    ASSERT_TRUE(document.HasErrorMark(ElementId{0, 1, 0, 0, 0, 0, 0, 2, 2}, start, size)) << ErrorMarks();
 
     document.MoveCaretUp(false);
     document.MoveCaretUp(false);
@@ -373,7 +373,7 @@ TEST_F(FormulaTest, user_functions2)
         U"E=h*m(5)\n" \
         U"E=25."
         ) << ToBasicString(document.ToText());
-    ASSERT_TRUE(document.error_marks.size() == 0) << ErrorMarks();
+    ASSERT_TRUE(!document.HasErrorMarks({0})) << ErrorMarks();
 }
 
 }

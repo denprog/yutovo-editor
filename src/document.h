@@ -235,15 +235,21 @@ public:
     void SetEditorState(EditorState& state);
     void SetEditorState(LogicalEditorState& state);
 
-    void Solve(ElementId _id, uint code_id, Config::AutoResultConfig& auto_config, std::u32string& expression, const uint delay);
-    void Solve(ElementId _id, uint code_id, Config::RealResultConfig& config, const std::u32string& expression, const uint delay);
-    void Solve(ElementId _id, uint code_id, Config::IntegerResultConfig& config, const std::u32string& expression, const uint delay);
-    void Solve(ElementId _id, uint code_id, Config::RationalResultConfig& config, const std::u32string& expression, const uint delay);
-    void Solve(ElementId _id, uint code_id, Config::ComplexResultConfig& config, const std::u32string& expression, const uint delay);
-    void BreakSolving(const ElementId _id, uint code_id);
+    void Solve(const LogicalId& _id, const std::string& guid, uint code_id, Config::AutoResultConfig& auto_config, std::u32string& expression, 
+        const uint delay);
+    void Solve(const LogicalId& _id, const std::string& guid, uint code_id, Config::RealResultConfig& config, const std::u32string& expression, 
+        const uint delay);
+    void Solve(const LogicalId& _id, const std::string& guid, uint code_id, Config::IntegerResultConfig& config, const std::u32string& expression, 
+        const uint delay);
+    void Solve(const LogicalId& _id, const std::string& guid, uint code_id, Config::RationalResultConfig& config, const std::u32string& expression, 
+        const uint delay);
+    void Solve(const LogicalId& _id, const std::string& guid, uint code_id, Config::ComplexResultConfig& config, const std::u32string& expression, 
+        const uint delay);
+    void BreakSolving(const LogicalId& _id, const std::string& guid, uint code_id);
 
-    void SetIdentifier(LogicalId _id, uint code_id, const std::u32string& identifier, const std::u32string& expression, const uint delay);
-    void RemoveIdentifier(LogicalId _id, uint code_id, const std::u32string& identifier, const uint delay);
+    void SetIdentifier(const LogicalId& _id, const std::string& guid, uint code_id, const std::u32string& identifier, 
+        const std::u32string& expression, const uint delay);
+    void RemoveIdentifier(const LogicalId& _id, uint code_id, const std::u32string& identifier, const uint delay);
     void RemoveUserIdentifiers();
 
     ResultType GetResultType(ElementId _id);
@@ -274,26 +280,25 @@ public:
 
     uint ReSolve(const ElementId& _id);
     void ReSolve(const LogicalId& _id);
-    uint ReSolveDependencies(LogicalId after_id, const std::u32string& identifier);
+    uint ReSolveDependencies(const LogicalId& after_id, const std::u32string& identifier);
     uint ReSolveErrors();
-    uint PutResult(LogicalId _id, const Result& result);
+    uint PutResult(const std::string& guid, const Result& result);
     void AddResolveElement(const ElementId& _id);
     void AddChangedElement(const ElementId& _id);
     void GetSolverGuid(std::string& guid);
     uint SetLocale(const yutovo_calculator::Language language, bool with_undo);
     void ListIdentifiers(const uint code_id);
 
-    void LogicalIdChanged(const LogicalId& last_id, const LogicalId& new_id);
-    void RemoveChangedId(const LogicalId& _id);
+    void UpdateSolveId(const std::string& guid, const LogicalId& new_id);
 
     bool IsVisible(ElementId _id);
     ElementId GetFirstVisibleParagraph();
     ElementId GetFirstVisibleRow(ElementId paragraph_id);
 
-    void AddErrorMark(LogicalId _id, int start, int size);
-    void RemoveErrorMarks(LogicalId parent_id);
-    bool HasErrorMark(LogicalId _id, int& start, int& size);
-    bool HasErrorMarks(LogicalId _id);
+    void AddErrorMark(const ElementId& _id, int start, int size);
+    void RemoveErrorMarks(const ElementId& parent_id);
+    bool HasErrorMark(const ElementId& _id, int& start, int& size);
+    bool HasErrorMarks(const ElementId& _id);
 
     void SetIdentifiers(const uint code_id, const std::vector<std::string>& variables, const std::vector<std::string>& functions, 
         std::vector<std::string>& units);
@@ -383,14 +388,12 @@ public:
 
     uint cur_code_id = 1;
 
-    std::vector<ErrorMark> error_marks;
-
     Config config;
 
     std::vector<ElementId> changed_elements;
     std::vector<ElementId> resolve_elements;
 
-    std::map<LogicalId, LogicalId> changed_ids;
+    std::map<std::string, LogicalId> solve_ids;
 
     std::atomic_bool break_remake = false;
 

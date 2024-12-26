@@ -20,16 +20,22 @@ public:
     Solver(Document* _document);
     ~Solver();
 
-    void Solve(const LogicalId id, const uint code_id, Config::AutoResultConfig& config, const std::u32string& expression, const uint delay);
-    void Solve(const LogicalId id, const uint code_id, Config::RealResultConfig& config, const std::u32string& expression, const uint delay);
-    void Solve(const LogicalId id, const uint code_id, Config::IntegerResultConfig& config, const std::u32string& expression, const uint delay);
-    void Solve(const LogicalId id, const uint code_id, Config::RationalResultConfig& config, const std::u32string& expression, const uint delay);
-    void Solve(const LogicalId id, const uint code_id, Config::ComplexResultConfig& config, const std::u32string& expression, const uint delay);
+    void Solve(const LogicalId& id, const std::string& task_guid, const uint code_id, Config::AutoResultConfig& config, 
+        const std::u32string& expression, const uint delay);
+    void Solve(const LogicalId& id, const std::string& task_guid, const uint code_id, Config::RealResultConfig& config, 
+        const std::u32string& expression, const uint delay);
+    void Solve(const LogicalId& id, const std::string& task_guid, const uint code_id, Config::IntegerResultConfig& config, 
+        const std::u32string& expression, const uint delay);
+    void Solve(const LogicalId& id, const std::string& task_guid, const uint code_id, Config::RationalResultConfig& config, 
+        const std::u32string& expression, const uint delay);
+    void Solve(const LogicalId& id, const std::string& task_guid, const uint code_id, Config::ComplexResultConfig& config, 
+        const std::u32string& expression, const uint delay);
 
-    void BreakSolving(const LogicalId id, const uint code_id);
+    void BreakSolving(const LogicalId& id, const uint code_id);
 
-    void SetIdentifier(LogicalId id, uint code_id, const std::u32string& identifier, const std::u32string& expression, const uint delay);
-    void RemoveIdentifier(LogicalId id, uint code_id, const std::u32string& identifier, const uint delay);
+    void SetIdentifier(const LogicalId& id, const std::string& task_guid, uint code_id, const std::u32string& identifier, 
+        const std::u32string& expression, const uint delay);
+    void RemoveIdentifier(const LogicalId& id, uint code_id, const std::u32string& identifier, const uint delay);
     void RemoveUserIdentifiers();
     void SetLocale(const yutovo_calculator::Language _language);
     void ListIdentifiers(uint code_id);
