@@ -31,7 +31,6 @@ public:
 
     virtual bool DeleteElements(bool left, bool with_undo, ElementId& changed_element);
     
-    virtual void BeforeDelete();
     virtual bool AfterInsert(bool with_undo);
     virtual void BeforePaste();
 

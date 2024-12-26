@@ -153,6 +153,8 @@ public:
 
     bool can_merge = false;
 
+    bool error_mark = false;
+
 protected:
     friend class Elements;
     friend class String;

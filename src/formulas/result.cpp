@@ -10,6 +10,9 @@
 #include "equation.h"
 #include "subscript.h"
 #include "fences.h"
+#include <boost/uuid/uuid.hpp>
+#include <boost/uuid/uuid_generators.hpp>
+#include <boost/uuid/uuid_io.hpp>
 
 namespace yutovo
 {
@@ -21,11 +24,13 @@ using namespace yutovo_solver;
 ResultRow::ResultRow(Document* _document) : 
     CodeColumn(_document)
 {
+    guid = boost::uuids::to_string(boost::uuids::random_generator()());
 }
 
 ResultRow::ResultRow(Element* parent) :
     CodeColumn(parent)
 {
+    guid = boost::uuids::to_string(boost::uuids::random_generator()());
 }
 
 bool ResultRow::Remake(bool with_elements)
@@ -86,8 +91,8 @@ void ResultRow::PutError(const Error& error)
         auto el = document->GetElement(err_id);
         if (el)
         {
-            document->RemoveErrorMarks(parent->parent->logical_id);
-            document->AddErrorMark(document->GetLogicalId(err_id), 0, el->elements->Count());
+            document->RemoveErrorMarks(parent->parent->id);
+            document->AddErrorMark(err_id, 0, el->elements->Count());
             document->Redraw(err_id, false);
         }
     }
@@ -99,10 +104,17 @@ void ResultRow::Reset()
     last_expression.Reset();
 }
 
+void ResultRow::BeforeReplace()
+{
+    replacing = true;
+}
+
 void ResultRow::AfterReplace()
 {
+    replacing = false;
     if (FindParent(ElementType::EQUATION) != ElementId{})
         return;
+    
     //move the child elements outside
     int pos = parent->elements->GetChildPos(id);
     for (int i = 0; i < elements->Count();)
@@ -127,10 +139,10 @@ void ResultRow::BeforeDelete()
 {
     CodeColumn::BeforeDelete();
     
-    if (solving)
+    if (solving && !replacing)
     {
         auto code = document->FindParent(id, ElementType::CODE_BLOCK);
-        document->BreakSolving(id, ((CodeBlock*)code.get())->code_id);
+        document->BreakSolving(solving_id, guid, ((CodeBlock*)code.get())->code_id);
         solving = false;
     }
 }
@@ -138,7 +150,7 @@ void ResultRow::BeforeDelete()
 void ResultRow::LogicalIdChanged(const LogicalId& last_id)
 {
     if (!solving_id.empty())
-        document->LogicalIdChanged(solving_id, logical_id);
+        document->UpdateSolveId(guid, logical_id);
 }
 
 void ResultRow::AddElement(ElementPtr element)
@@ -280,6 +292,12 @@ ElementPtr ResultRow::GetCurRow()
     return elements->Get(elements->Count() - 1);
 }
 
+int ResultRow::GetCodeId()
+{
+    auto code = document->FindParent(id, ElementType::CODE_BLOCK);
+    return ((CodeBlock*)code.get())->code_id;
+}
+
 //RealResult
 
 RealResult::RealResult(Document* _document) :
@@ -340,9 +358,8 @@ void RealResult::Solve(const ParserString& expression)
 
     PutWaitingSymbol();
 
-    auto code = document->FindParent(id, ElementType::CODE_BLOCK);
     solving_id = logical_id;
-    document->Solve(id, ((CodeBlock*)code.get())->code_id, config, last_expression.Text(), 
+    document->Solve(logical_id, guid, GetCodeId(), config, last_expression.Text(), 
         (delay && last_error_code != yutovo_solver::ErrorCode::SOLVER_RESTARTED_ERROR) ? document->config.solve_delay : 0);
     delay = true;
 }
@@ -372,7 +389,7 @@ void RealResult::PutResult(Result& result)
     }
     else
     {
-        document->RemoveErrorMarks(parent->parent->logical_id);
+        document->RemoveErrorMarks(parent->parent->id);
 
         if (result.values.empty())
             return;
@@ -398,15 +415,6 @@ void RealResult::PutResult(Result& result)
         elements->Get(0)->SetEditable(false);
     Remake(true);
     parent->Remake(true);
-}
-
-void RealResult::BeforePaste()
-{
-    //move child elements outside and remove this element
-    int c = parent->elements->Count();
-    for (int i = 0, j = 0; i < elements->Count();)
-        parent->elements->Move(elements->Get(0), c + j++);
-    parent->elements->RemoveAt(c - 1, 1);
 }
 
 bool RealResult::SetConfig(const int precision, const int exp, const AngleMeasure result_angle_measure)
@@ -491,9 +499,8 @@ void IntegerResult::Solve(const ParserString& expression)
 
     PutWaitingSymbol();
 
-    auto code = document->FindParent(id, ElementType::CODE_BLOCK);
     solving_id = logical_id;
-    document->Solve(id, ((CodeBlock*)code.get())->code_id, config, last_expression.Text(), 
+    document->Solve(logical_id, guid, GetCodeId(), config, last_expression.Text(), 
         (delay && last_error_code != yutovo_solver::ErrorCode::SOLVER_RESTARTED_ERROR) ? document->config.solve_delay : 0);
     delay = true;
 }
@@ -546,15 +553,6 @@ void IntegerResult::PutResult(Result& result)
         elements->Get(1)->SetEditable(false);
     Remake(true);
     parent->Remake(true);
-}
-
-void IntegerResult::BeforePaste()
-{
-    //move child elements outside and remove this element
-    int c = parent->elements->Count();
-    for (int i = 0, j = 0; i < elements->Count();)
-        parent->elements->Move(elements->Get(0), c + j++);
-    parent->elements->RemoveAt(c - 1, 1);
 }
 
 bool IntegerResult::SetConfig(Notation default_notation, Notation result_notation)
@@ -620,9 +618,8 @@ void RationalResult::Solve(const ParserString& expression)
 
     PutWaitingSymbol();
 
-    auto code = document->FindParent(id, ElementType::CODE_BLOCK);
     solving_id = logical_id;
-    document->Solve(id, ((CodeBlock*)code.get())->code_id, config, last_expression.Text(), 
+    document->Solve(logical_id, guid, GetCodeId(), config, last_expression.Text(), 
         (delay && last_error_code != yutovo_solver::ErrorCode::SOLVER_RESTARTED_ERROR) ? document->config.solve_delay : 0);
     delay = true;
 }
@@ -652,8 +649,7 @@ void RationalResult::PutResult(Result& result)
     }
     else
     {
-        document->RemoveErrorMarks(parent->parent->logical_id);
-
+        document->RemoveErrorMarks(parent->parent->id);
         if (result.values.empty())
             return;
         
@@ -780,9 +776,8 @@ void ComplexResult::Solve(const ParserString& expression)
 
     PutWaitingSymbol();
 
-    auto code = document->FindParent(id, ElementType::CODE_BLOCK);
     solving_id = logical_id;
-    document->Solve(id, ((CodeBlock*)code.get())->code_id, config, last_expression.Text(), 
+    document->Solve(logical_id, guid, GetCodeId(), config, last_expression.Text(), 
         (delay && last_error_code != yutovo_solver::ErrorCode::SOLVER_RESTARTED_ERROR) ? document->config.solve_delay : 0);
     delay = true;
 }
@@ -811,7 +806,7 @@ void ComplexResult::PutResult(Result& result)
     }
     else
     {
-        document->RemoveErrorMarks(parent->parent->logical_id);
+        document->RemoveErrorMarks(parent->parent->id);
 
         if (config.form == ComplexForm::Exponential || config.form == ComplexForm::Trigonometric)
         {
@@ -917,15 +912,6 @@ void ComplexResult::PutResult(Result& result)
         elements->Get(i)->SetEditable(false);
     Remake(true);
     parent->Remake(true);
-}
-
-void ComplexResult::BeforePaste()
-{
-    //move child elements outside and remove this element
-    int c = parent->elements->Count();
-    for (int i = 0, j = 0; i < elements->Count();)
-        parent->elements->Move(elements->Get(0), c + j++);
-    parent->elements->RemoveAt(c - 1, 1);
 }
 
 bool ComplexResult::SetConfig(const int precision, const int exp, const AngleMeasure result_angle_measure)
@@ -1049,9 +1035,8 @@ void AutoResult::Solve(const ParserString& expression)
 
     PutWaitingSymbol();
 
-    auto code = document->FindParent(id, ElementType::CODE_BLOCK);
     solving_id = logical_id;
-    document->Solve(id, ((CodeBlock*)code.get())->code_id, config, last_expression.Text(), 
+    document->Solve(logical_id, guid, GetCodeId(), config, last_expression.Text(), 
         (delay && last_error_code != yutovo_solver::ErrorCode::SOLVER_RESTARTED_ERROR) ? document->config.solve_delay : 0);
     delay = true;
 }
@@ -1078,7 +1063,7 @@ void AutoResult::PutResult(Result& result)
         PutError(result.error); //put error message
     else
     {
-        document->RemoveErrorMarks(parent->parent->logical_id);
+        document->RemoveErrorMarks(parent->parent->id);
         //put element of returned result type
         ResultPtr result_row;
         switch (result.type)
@@ -1108,10 +1093,17 @@ void AutoResult::PutResult(Result& result)
     parent->Remake(true);
 }
 
+void AutoResult::BeforeReplace()
+{
+    replacing = true;
+}
+
 void AutoResult::AfterReplace()
 {
+    replacing = false;
     if (FindParent(ElementType::EQUATION) != ElementId{})
         return;
+
     //move the child elements outside
     SetEditable(true);
     int pos = parent->elements->GetChildPos(id) + 1;

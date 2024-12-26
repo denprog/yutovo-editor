@@ -2250,8 +2250,10 @@ TEST_F(DocumentTest, clipboard41)
 
     document.Undo();
     document.WaitUndo();
+    std::this_thread::sleep_for(200ms);
     document.Undo();
     document.WaitUndo();
+    std::this_thread::sleep_for(200ms);
     ASSERT_TRUE(document.ToText() == 
         U"arcsin(1)=1.571(rad)\n"\
         U""
@@ -3458,6 +3460,7 @@ TEST_F(DocumentTest, clipboard62)
         ElementSelectionState{ElementId{0}, 0, 2})) << document.GetEditorState().ToString();
 
     document.WaitTask(document.Cut(clipboard_json, clipboard_text));
+    std::this_thread::sleep_for(200ms);
     ASSERT_TRUE(document.ToText() == 
         U"Text2"
         ) << ToBasicString(document.ToText());

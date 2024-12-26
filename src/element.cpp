@@ -49,6 +49,7 @@ Element::Element(const Element& source) :
     selection(&document->selection),
     remake_always(source.remake_always),
     can_merge(source.can_merge),
+    error_mark(source.error_mark),
     logger(source.logger)
 {
     elements.reset(source.elements->Clone(this)); //deep copy
@@ -95,7 +96,7 @@ void Element::Draw() const
     elements->Draw();
 
     int start, size;
-    if (document->HasErrorMark(logical_id, start, size))
+    if (document->HasErrorMark(id, start, size))
         DrawErrorMark(start, size);
 }
 
@@ -295,7 +296,6 @@ void Element::AfterChildInsert(const ElementId child_id, bool with_undo)
 
 void Element::BeforeDelete()
 {
-    document->RemoveChangedId(logical_id);
     for (int i = 0; i < elements->Count(); ++i)
         elements->Get(i)->BeforeDelete();
 }
@@ -1255,6 +1255,7 @@ void Elements::RemoveAt(const uint pos, const int size)
 
 void Elements::Move(const ElementPtr element, const uint pos)
 {
+    element->BeforeReplace();
     Insert(ElementPtr(element->Clone()), pos);
     element->parent->elements->Remove(element);
     elements[pos]->AfterReplace();
@@ -1705,7 +1706,7 @@ void Elements::UpdateIds()
             el->logical_id.push_back(i);
         }
 
-        if (last_id != el->logical_id)
+        if (!last_id.empty() && last_id != el->logical_id)
             el->LogicalIdChanged(last_id);
 
         el->elements->UpdateIds();

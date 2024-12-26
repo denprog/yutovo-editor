@@ -23,8 +23,6 @@ public:
 
     virtual bool InsertElements(std::vector<ElementPtr>& _elements, bool with_undo, ElementId& changed_element);
 
-    virtual void LogicalIdChanged(const LogicalId& last_id);
-
     virtual bool GetBeginCaretState(CaretState& caret_state, Selection* select);
     virtual bool GetEndCaretState(CaretState& caret_state, Selection* select);
 

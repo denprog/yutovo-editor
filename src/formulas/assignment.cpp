@@ -1,5 +1,8 @@
 #include "assignment.h"
 #include "code_block.h"
+#include <boost/uuid/uuid.hpp>
+#include <boost/uuid/uuid_generators.hpp>
+#include <boost/uuid/uuid_io.hpp>
 
 namespace yutovo
 {
@@ -11,18 +14,21 @@ Assignment::Assignment(Element* _parent, bool with_init, bool _auto_solve) :
     auto_solve(_auto_solve)
 {
     type = ElementType::ASSIGNMENT;
+    guid = boost::uuids::to_string(boost::uuids::random_generator()());
 }
 
 Assignment::Assignment(Document* _document, bool with_init) :
     MiddleShapeFormula(_document, with_init)
 {
     type = ElementType::ASSIGNMENT;
+    guid = boost::uuids::to_string(boost::uuids::random_generator()());
 }
 
 Assignment::Assignment(const Assignment& source) :
     MiddleShapeFormula(source),
     auto_solve(source.auto_solve),
-    dependencies(source.dependencies)
+    dependencies(source.dependencies),
+    guid(source.guid)
 {
 }
 
@@ -124,7 +130,7 @@ void Assignment::LogicalIdChanged(const LogicalId& last_id)
         return;
     //move the identifier in the solver
     document->RemoveIdentifier(last_id, ((CodeBlock*)code.get())->code_id, last_identifier, document->config.solve_delay);
-    document->SetIdentifier(logical_id, ((CodeBlock*)code.get())->code_id, GetFirst()->ToText(), last_expression.Text(), document->config.solve_delay);
+    document->SetIdentifier(logical_id, guid, ((CodeBlock*)code.get())->code_id, GetFirst()->ToText(), last_expression.Text(), document->config.solve_delay);
 }
 
 bool Assignment::AfterInsert(bool with_undo)
@@ -174,7 +180,7 @@ void Assignment::ReSolve(bool if_error, bool force)
     if (!auto_solve)
         return;
     
-    document->RemoveErrorMarks(logical_id);
+    document->RemoveErrorMarks(id);
     if (if_error && !last_error)
         return;
     last_expression.Reset();
@@ -188,7 +194,7 @@ void Assignment::ReSolve(bool if_error, bool force)
         auto code = document->FindParent(id, ElementType::CODE_BLOCK);
         if (last_identifier != U"")
             document->RemoveIdentifier(logical_id, ((CodeBlock*)code.get())->code_id, last_identifier, document->config.solve_delay);
-        document->SetIdentifier(logical_id, ((CodeBlock*)code.get())->code_id, GetFirst()->ToText(), expr.Text(), document->config.solve_delay);
+        document->SetIdentifier(logical_id, guid, ((CodeBlock*)code.get())->code_id, GetFirst()->ToText(), expr.Text(), document->config.solve_delay);
         last_identifier = GetFirst()->ToText();
         last_expression = expr;
     }

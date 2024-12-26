@@ -27,9 +27,12 @@ public:
     
     virtual void Reset();
 
+    virtual void BeforeReplace();
     virtual void AfterReplace();
+
     virtual void BeforePaste();
     virtual void BeforeDelete();
+    
     virtual void LogicalIdChanged(const LogicalId& last_id);
 
     virtual void AddElement(ElementPtr element);
@@ -43,6 +46,7 @@ public:
 
 protected:
     ElementPtr GetCurRow();
+    int GetCodeId();
 
 public:
     yutovo_solver::ErrorCode last_error_code = yutovo_solver::ErrorCode::OK;
@@ -53,8 +57,10 @@ protected:
     bool delay = false; //don't delay on the first calculation
     bool next_result = false;
     bool solving = false;
+    bool replacing = false;
 
     LogicalId solving_id;
+    std::string guid;
 };
 
 typedef std::shared_ptr<ResultRow> ResultPtr;
@@ -77,8 +83,6 @@ public:
     virtual void Solve(const ParserString& expression);
 
     virtual void PutResult(Result& result);
-
-    virtual void BeforePaste();
 
     bool SetConfig(const int precision, const int exp, const AngleMeasure result_angle_measure);
     bool SetConfig(const yutovo_calculator::Unit& unit);
@@ -105,8 +109,6 @@ public:
     virtual void Solve(const ParserString& expression);
 
     virtual void PutResult(Result& result);
-
-    virtual void BeforePaste();
 
     bool SetConfig(Notation default_notation, Notation result_notation);
 
@@ -157,8 +159,6 @@ public:
 
     virtual void PutResult(Result& result);
 
-    virtual void BeforePaste();
-
     bool SetConfig(const int precision, const int exp, const AngleMeasure result_angle_measure);
     bool SetConfig(const int precision, const int exp, const AngleMeasure result_angle_measure, ComplexForm form, uint max_count);
     bool SetConfig(ComplexForm form);
@@ -195,7 +195,9 @@ public:
 
     virtual void PutResult(Result& result);
 
+    virtual void BeforeReplace();
     virtual void AfterReplace();
+
     virtual void BeforePaste();
 
     bool SetConfig(const int precision, const int exp, const AngleMeasure result_angle_measure);
