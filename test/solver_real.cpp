@@ -40,7 +40,7 @@ TEST_F(SolverRealTest, solver1)
         document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 1})) << document.GetEditorState().ToString();
 
-    document.WaitTask(document.SetResult({0, 0, 0, 0, 0, 0, 0, 2, 0, 0}, ResultType::REAL, true));
+    document.WaitTask(document.SetResultType({0, 0, 0, 0, 0, 0, 0, 2, 0, 0}, ResultType::REAL, true));
     document.WaitSolver();
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\

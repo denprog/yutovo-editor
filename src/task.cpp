@@ -2211,9 +2211,9 @@ bool ResolveErrorsTask::Execute()
     return true;
 }
 
-//SetResultTask
+//SetResultTypeTask
 
-SetResultTask::SetResultTask(ElementPtr _text, ElementId _id, ResultType _result_type, bool _with_undo) :
+SetResultTypeTask::SetResultTypeTask(ElementPtr _text, ElementId _id, ResultType _result_type, bool _with_undo) :
     Task(_text),
     id(_id),
     result_type(_result_type)
@@ -2221,7 +2221,7 @@ SetResultTask::SetResultTask(ElementPtr _text, ElementId _id, ResultType _result
     with_undo = _with_undo;
 }
 
-bool SetResultTask::Execute()
+bool SetResultTypeTask::Execute()
 {
     if (before_state.IsEmpty())
         before_state = document->MakeEditorState();

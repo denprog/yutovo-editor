@@ -309,9 +309,9 @@ struct ResolveErrorsTask : Task
     virtual bool Execute();
 };
 
-struct SetResultTask : Task
+struct SetResultTypeTask : Task
 {
-    SetResultTask(ElementPtr _text, ElementId _id, ResultType _result_type, bool _with_undo);
+    SetResultTypeTask(ElementPtr _text, ElementId _id, ResultType _result_type, bool _with_undo);
 
     virtual bool Execute();
 

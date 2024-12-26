@@ -163,7 +163,7 @@ TEST_F(SolverIntegerTest, solver3)
         document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 1})) << document.GetEditorState().ToString();
 
-    document.WaitTask(document.SetResult({0, 0, 0, 0, 0, 0, 0, 2, 0, 0}, ResultType::INTEGER, true));
+    document.WaitTask(document.SetResultType({0, 0, 0, 0, 0, 0, 0, 2, 0, 0}, ResultType::INTEGER, true));
     document.WaitSolver();
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
@@ -537,7 +537,7 @@ TEST_F(SolverIntegerTest, solver11)
         U"2345=2345."
         ) << ToBasicString(document.ToText());
 
-    document.WaitTask(document.SetResult({0, 0, 0, 0, 0, 0, 0, 2, 0, 0}, ResultType::INTEGER, true));
+    document.WaitTask(document.SetResultType({0, 0, 0, 0, 0, 0, 0, 2, 0, 0}, ResultType::INTEGER, true));
     document.WaitSolver();
     document.MoveCaretEnd(false);
     document.WaitTask(document.MoveCaretLeft(false));

@@ -2387,10 +2387,10 @@ ResultType Document::GetResultType(ElementId _id)
     return r->GetResultType();
 }
 
-uint Document::SetResult(ElementId _id, ResultType result_type, bool with_undo)
+uint Document::SetResultType(ElementId _id, ResultType result_type, bool with_undo)
 {
     std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
-    tasks.emplace_back(new SetResultTask(text, _id, result_type, with_undo));
+    tasks.emplace_back(new SetResultTypeTask(text, _id, result_type, with_undo));
     last_task_id = tasks.back()->id;
     return last_task_id;
 }
