@@ -253,7 +253,7 @@ public:
     void RemoveUserIdentifiers();
 
     ResultType GetResultType(ElementId _id);
-    uint SetResult(ElementId _id, ResultType result_type, bool with_undo);
+    uint SetResultType(ElementId _id, ResultType result_type, bool with_undo);
 
     int GetPrecision(ElementId _id);
     uint SetPrecision(ElementId _id, uint precision, bool with_undo);
