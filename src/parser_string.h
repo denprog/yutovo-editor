@@ -26,7 +26,7 @@ public:
 
     int Length();
 
-    ElementId GetElement(const int pos);
+    ElementId GetElement(const int pos, const int size);
 
 private:
     std::u32string text;

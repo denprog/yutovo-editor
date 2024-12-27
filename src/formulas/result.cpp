@@ -85,7 +85,7 @@ void ResultRow::PutResult(Result& result)
 void ResultRow::PutError(const Error& error)
 {
     elements->Add(ElementPtr(new ErrorResult(this, error)));
-    ElementId err_id = last_expression.GetElement(error.pos);
+    ElementId err_id = last_expression.GetElement(error.pos, error.size);
     if (!err_id.empty())
     {
         auto el = document->GetElement(err_id);
