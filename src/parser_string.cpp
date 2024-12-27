@@ -58,23 +58,33 @@ int ParserString::Length()
     return text.length();
 }
 
-ElementId ParserString::GetElement(const int pos)
+ElementId ParserString::GetElement(const int pos, const int size)
 {
     if (text.empty() && pos == 0 && annotates.size() == 1 && annotates[0].pos == 0)
         return annotates[0].id;
 
     ElementId res;
-    int size = text.length() + 1;
-    //find ElementId at pos with minimal size
+    int s = text.length() + 1;
+    if (size > 0)
+    {
+        //find ElementId at the pos with the same size
+        for (auto it = annotates.begin(); it != annotates.end(); ++it)
+        {
+            auto& a = *it;
+            if (pos == a.pos && a.size == size)
+                return a.id;
+        }
+    }
+    //find ElementId at the pos with minimal size
     for (auto it = annotates.begin(); it != annotates.end(); ++it)
     {
         auto& a = *it;
         if (pos >= a.pos && pos < a.pos + a.size)
         {
-            if (size > a.size)
+            if (s > a.size)
             {
                 res = a.id;
-                size = a.size;
+                s = a.size;
             }
         }
     }

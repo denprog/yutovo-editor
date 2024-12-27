@@ -575,6 +575,33 @@ TEST_F(VariablesTest, errors5)
     ASSERT_TRUE(start == 0 && size == 2);
 }
 
+//Check error mark
+TEST_F(VariablesTest, errors6)
+{
+    Start(600);
+    
+    document.InsertCode(false, true);
+    document.InsertString("d", true);
+    document.InsertPlus(true);
+    document.InsertString("5", true);
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(2s);
+    ASSERT_TRUE(document.ToText() == 
+        U"d+5=Unknown identifier"
+        ) << ToBasicString(document.ToText());
+    auto el = document.FindByString({0}, U"d");
+    int start, size;
+    ASSERT_TRUE(document.HasErrorMark(el->id, start, size)) << ErrorMarks();
+    ASSERT_TRUE(start == 0 && size == 1);
+    el = document.FindByString({0}, U"5");
+    ASSERT_TRUE(!document.HasErrorMark(el->id, start, size)) << ErrorMarks();
+    ASSERT_TRUE(document.HasErrorMark(el->parent->id, start, size)) << ErrorMarks();
+    ASSERT_TRUE(start == 0 && size == 1);
+    ASSERT_TRUE(!document.HasErrorMark(el->parent->parent->id, start, size)) << ErrorMarks();
+    ASSERT_TRUE(!document.HasErrorMark(el->parent->parent->parent->id, start, size)) << ErrorMarks();
+}
+
 //Rational variables
 TEST_F(VariablesTest, variables8)
 {

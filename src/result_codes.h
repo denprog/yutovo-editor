@@ -43,6 +43,7 @@ struct Error
     int solver_error_code = -1;
     LogicalId id;
     int pos = -1;
+    int size = 0;
     int line = -1;
     std::u32string description;
 };

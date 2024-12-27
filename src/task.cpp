@@ -1937,7 +1937,7 @@ bool ResultTask::Execute()
             {
                 //put error mark
                 Assignment* el = (Assignment*)p.get();
-                ElementId err_id = el->last_expression.GetElement(result.error.pos);
+                ElementId err_id = el->last_expression.GetElement(result.error.pos, result.error.size);
                 if (!err_id.empty())
                 {
                     auto el = document->GetElement(err_id);

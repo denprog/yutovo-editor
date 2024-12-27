@@ -209,6 +209,8 @@ void SolverTask::FillError(rapidjson::Document& doc, Result& result)
             LOG_ERROR("Solver error: {}", ErrorCodeToString(result.error.error_code));
         if (error.HasMember("pos") && error["pos"].IsInt())
             result.error.pos = error["pos"].GetInt();
+        if (error.HasMember("size") && error["size"].IsInt())
+            result.error.size = error["size"].GetInt();
         if (error.HasMember("line") && error["line"].IsInt())
             result.error.line = error["line"].GetInt();
         if (error.HasMember("description") && error["description"].IsString())
