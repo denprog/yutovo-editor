@@ -1912,6 +1912,74 @@ TEST_F(FormulaTest, select15)
         ElementSelectionState{ElementId{0, 0, 0, 0, 0, 0}, 1, 2})) << document.GetEditorState().ToString();
 }
 
+//Select an element and insert an element
+TEST_F(FormulaTest, select16)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.InsertString("3", true);
+    document.InsertPlus(true);
+    document.InsertString("1", true);
+    document.InsertDivision(true);
+    document.InsertString("2", true);
+    document.MoveCaretHome(false);
+    document.MoveCaretHome(false);
+    document.MoveCaretRight(false);
+    document.WaitTask(document.MoveCaretLeft(true));
+    document.WaitTask(document.InsertSquareRoot(true));
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<msqrt>"\
+                            "<mrow>"\
+                                "<mi>3</mi>"\
+                            "</mrow>"\
+                        "</msqrt>"\
+                        "<mo>+</mo>"\
+                        "<mfrac>"\
+                            "<mrow>"\
+                                "<mi>1</mi>"\
+                            "</mrow>"\
+                            "<mrow>"\
+                                "<mi>2</mi>"\
+                            "</mrow>"\
+                        "</mfrac>"\
+                    "</mrow>"\
+                "</math>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 1, 0, 0})) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mi>3</mi>"\
+                        "<mo>+</mo>"\
+                        "<mfrac>"\
+                            "<mrow>"\
+                                "<mi>1</mi>"\
+                            "</mrow>"\
+                            "<mrow>"\
+                                "<mi>2</mi>"\
+                            "</mrow>"\
+                        "</mfrac>"\
+                    "</mrow>"\
+                "</math>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0, 0, 0, 0}, 
+        ElementSelectionState{ElementId{0, 0, 0, 0, 0, 0}, 0, 1})) << document.GetEditorState().ToString();
+}
+
 TEST_F(FormulaTest, fonts1)
 {
     Start(600);

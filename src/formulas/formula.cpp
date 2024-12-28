@@ -28,6 +28,26 @@ bool Formula::ChangeParagraphFormat(const ParagraphFormatPtr format, bool with_u
     return false;
 }
 
+void Formula::Normalize()
+{
+    Element::Normalize();
+
+    for (int i = 1; i < elements->Count();)
+    {
+        auto el1 = elements->Get(i - 1);
+        auto el2 = elements->Get(i);
+        if (el1->type == ElementType::CODE_ROW && el2->type == ElementType::CODE_ROW)
+        {
+            //merge the two rows
+            for (int j = 0; j < el2->elements->Count();)
+                el1->elements->Move(el2->elements->Get(0), el1->elements->Count());
+            elements->RemoveAt(i, 1);
+        }
+        else
+            ++i;
+    }
+}
+
 bool Formula::SplitAt(const uint pos)
 {
     return false;

@@ -23,6 +23,8 @@ public:
 
     virtual void Draw() const;
     virtual bool Remake(bool with_elements = false);
+    
+    virtual void Normalize();
 
     virtual bool GetLeftCaretState(CaretState& caret_state, Selection* select);
     virtual bool GetRightCaretState(CaretState& caret_state, Selection* select);

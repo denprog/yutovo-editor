@@ -768,4 +768,93 @@ TEST_F(FormulaTest, power15)
     ASSERT_TRUE(document.ToText() == U"pow(123+1,)") << ToBasicString(document.ToText());
 }
 
+//Select an element and insert power
+TEST_F(FormulaTest, power16)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.InsertString("3", true);
+    document.InsertDivision(true);
+    document.InsertString("12", true);
+    document.InsertPlus(true);
+    document.InsertString("2", true);
+    document.InsertDivision(true);
+    document.InsertString("3", true);
+    document.MoveCaretHome(false);
+    document.MoveCaretHome(false);
+    document.MoveCaretRight(false);
+    document.MoveCaretRight(false);
+    document.WaitTask(document.MoveCaretLeft(true));
+    document.WaitTask(document.MoveCaretLeft(true));
+    document.WaitTask(document.InsertPower(true));
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mfrac>"\
+                            "<mrow>"\
+                                "<mi>3</mi>"\
+                            "</mrow>"\
+                            "<mrow>"\
+                                "<msup>"\
+                                    "<mrow>"\
+                                        "<mi>12</mi>"\
+                                    "</mrow>"\
+                                    "<mrow>"\
+                                        "<mi>Null</mi>"\
+                                    "</mrow>"\
+                                "</msup>"\
+                                "<mo>+</mo>"\
+                                "<mfrac>"\
+                                    "<mrow>"\
+                                        "<mi>2</mi>"\
+                                    "</mrow>"\
+                                    "<mrow>"\
+                                        "<mi>3</mi>"\
+                                    "</mrow>"\
+                                "</mfrac>"\
+                            "</mrow>"\
+                        "</mfrac>"\
+                    "</mrow>"\
+                "</math>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 2, 0, 2, 0, 0})) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mfrac>"\
+                            "<mrow>"\
+                                "<mi>3</mi>"\
+                            "</mrow>"\
+                            "<mrow>"\
+                                "<mi>12</mi>"\
+                                "<mo>+</mo>"\
+                                "<mfrac>"\
+                                    "<mrow>"\
+                                        "<mi>2</mi>"\
+                                    "</mrow>"\
+                                    "<mrow>"\
+                                        "<mi>3</mi>"\
+                                    "</mrow>"\
+                                "</mfrac>"\
+                            "</mrow>"\
+                        "</mfrac>"\
+                    "</mrow>"\
+                "</math>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0, 0, 0, 2, 0, 0}, 
+        ElementSelectionState{ElementId{0, 0, 0, 0, 0, 0, 0, 2}, 0, 1})) << document.GetEditorState().ToString();
+}
+
 }
