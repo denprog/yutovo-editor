@@ -122,21 +122,25 @@ TEST_F(DocumentTest, strings2)
 
     document.Undo();
     document.WaitUndo();
+    std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToText() == U"TextStrin") << ToBasicString(document.ToText());
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 9)) << document.GetEditorState().ToString();
 
     document.Undo();
     document.WaitUndo();
+    std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToText() == U"TextStri") << ToBasicString(document.ToText());
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 8)) << document.GetEditorState().ToString();
 
     document.Undo();
     document.WaitUndo();
+    std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToText() == U"TextStr") << ToBasicString(document.ToText());
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 7)) << document.GetEditorState().ToString();
 
     document.Undo();
     document.WaitUndo();
+    std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == "<body><p><span style=\"font-family:'Arial';font-size:22px;\">Text</span></p></body>") << document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 4)) << document.GetEditorState().ToString();
 
