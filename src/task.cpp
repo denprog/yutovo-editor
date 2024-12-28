@@ -1284,8 +1284,8 @@ bool MoveCaretTask::Execute()
         if (!document->selection.IsEmpty() && !select)
         {
             ElementSelection& s = document->selection.selection[document->selection.selection.size() - 1];
-            if (document->IsParagraph(s.element) || document->IsRow(s.element) || s.element->type == ElementType::CODE_BLOCK || 
-                s.element->type == ElementType::TEXT)
+            if (document->IsParagraph(s.element) || document->IsRow(s.element) || document->IsFormula(s.element) || 
+                s.element->type == ElementType::CODE_BLOCK || s.element->type == ElementType::TEXT)
             {
                 auto el = s.element->elements->Get(s.start + s.size - 1);
                 if (el)

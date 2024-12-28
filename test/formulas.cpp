@@ -1980,6 +1980,40 @@ TEST_F(FormulaTest, select16)
         ElementSelectionState{ElementId{0, 0, 0, 0, 0, 0}, 0, 1})) << document.GetEditorState().ToString();
 }
 
+//Check caret after undo
+TEST_F(FormulaTest, select17)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.InsertString("123", true);
+    document.InsertDivision(true);
+    document.InsertString("34", true);
+    document.InsertPlus(true);
+    document.InsertString("45", true);
+    document.InsertDivision(true);
+    document.InsertString("67", true);
+    document.MoveCaretEnd(false);
+    document.WaitTask(document.MoveCaretHome(true));
+    document.WaitTask(document.InsertSquareRoot(true));
+    ASSERT_TRUE(document.ToText() == 
+        U"(123)/(sqrt(34+(45)/(67)))"
+        ) << ToBasicString(document.ToText());
+
+    document.Undo();
+    document.WaitUndo();
+    document.WaitTask(document.MoveCaretRight(false));
+    ASSERT_TRUE(document.ToText() == 
+        U"(123)/(34+(45)/(67))"
+        ) << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0, 0, 0, 2, 3})) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.InsertPlus(true));
+    ASSERT_TRUE(document.ToText() == 
+        U"(123)/(34+(45)/(67)+)"
+        ) << ToBasicString(document.ToText());
+}
+
 TEST_F(FormulaTest, fonts1)
 {
     Start(600);
