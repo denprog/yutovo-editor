@@ -1500,6 +1500,7 @@ TEST_F(CodeTest, code25)
     document.MoveCaretRight(false);
     document.MoveCaretDown(true);
     document.WaitTask(document.MoveCaretDown(true));
+    std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 1, 0, 0, 3}, 
         ElementSelectionState{ElementId{0}, 0, 1}, 
         ElementSelectionState{ElementId{0, 1, 0, 0}, 0, 3})) << document.GetEditorState().ToString();
