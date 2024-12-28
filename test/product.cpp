@@ -152,6 +152,7 @@ TEST_F(FormulaTest, product2)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 2, 0, 0}, 
         ElementSelectionState{{0, 0, 0, 0, 0, 0, 0}, 2, 1})) << document.GetEditorState().ToString();
 
+    document.MoveCaretRight(false);
     document.WaitTask(document.MoveCaretRight(false));
     document.InsertString("55", true);
     document.WaitTask(document.MoveCaretHome(true));
