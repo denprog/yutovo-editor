@@ -121,6 +121,11 @@ bool Iteration::Remake(bool with_elements)
     return changed;
 }
 
+void Iteration::Normalize()
+{
+    Element::Normalize(); //skip Formula::Normalize()
+}
+
 bool Iteration::GetLeftCaretState(CaretState& caret_state, Selection* select)
 {
     if (select)

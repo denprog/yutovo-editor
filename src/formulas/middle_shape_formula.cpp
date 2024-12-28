@@ -148,6 +148,7 @@ bool MiddleShapeFormula::AfterInsert(bool with_undo)
                 for (int j = el_s.size - 1; j >= 0; --j)
                     GetFirst()->elements->Move(document->GetElement(GetChild(el_s.element->id, el_s.start + j)), 0);
             }
+            parent->parent->Normalize(); //merge rows after split
         }
         else
         {

@@ -20,6 +20,8 @@ public:
 
     static Element* FromJson(Element* parent, Document* document, const rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc);
 
+    virtual void Normalize();
+
     virtual void AddEmptyElement();
 
     virtual bool IsFormula();

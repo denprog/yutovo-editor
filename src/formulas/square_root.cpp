@@ -1,5 +1,6 @@
 #include "square_root.h"
 #include "code_row.h"
+#include "code_paragraph.h"
 #include "../str.h"
 #include "../document.h"
 
@@ -152,7 +153,7 @@ bool SquareRoot::AfterInsert(bool with_undo)
             caret->SetState(c);
 
         UpdateLevel(level);
-        parent->Normalize();
+        parent->parent->Normalize();
         return true;
     }
 
