@@ -1796,6 +1796,7 @@ bool CopyTask::Execute()
             ++i;
     }
 
+    auto last_selection_state = selection_state;
     auto s = selection_state.state[selection_state.state.size() - 1];
     ElementId _id = GetChild(s.id, s.start + s.size - 1);
     std::vector<ElementPtr> _copy;
@@ -1835,6 +1836,8 @@ bool CopyTask::Execute()
             _copy.push_back(el);
         }
     }
+
+    document->selection.Set(last_selection_state);
 
     copy = _copy;
 
