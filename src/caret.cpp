@@ -411,7 +411,10 @@ void Caret::MoveUp(Selection* selection)
     {
         //fix x position
         Rect x_rect = last_x_element->GetAbsoluteRect(last_x_element->GetCaretRect(last_x_pos));
-        r.left = x_rect.left;
+        if (last_pos)
+            r.left = x_rect.GetRight();
+        else
+            r.left = x_rect.left;
     }
     CaretState c;
     if (GetElement()->GetTopCaretState(r.left, r.top + 2, c, selection))
@@ -428,7 +431,10 @@ void Caret::MoveDown(Selection* selection)
     {
         //fix x position
         Rect x_rect = last_x_element->GetAbsoluteRect(last_x_element->GetCaretRect(last_x_pos));
-        r.left = x_rect.left;
+        if (last_pos)
+            r.left = x_rect.GetRight();
+        else
+            r.left = x_rect.left;
     }
     CaretState c;
     if (GetElement()->GetBottomCaretState(r.left, r.GetBottom() - 2, c, selection))

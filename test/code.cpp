@@ -1393,6 +1393,7 @@ TEST_F(CodeTest, code24)
     document.WaitTask(document.Copy(clipboard_json, clipboard_text));
 
     document.MoveCaretDown(false);
+    document.MoveCaretHome(false);
     document.WaitTask(document.MoveCaretEnd(true));
     document.WaitTask(document.Paste(clipboard_json));
     ASSERT_TRUE(document.ToHtml() == 

@@ -4860,4 +4860,65 @@ TEST_F(DocumentTest, clipboard80)
         ElementSelectionState{ElementId{0}, 0, 1})) << document.GetEditorState().ToString();
 }
 
+//Cut-paste rows with a code block
+TEST_F(DocumentTest, clipboard81)
+{
+    Start(472);
+
+    document.InsertString("In literary theory, a text is any object that can be read, whether this object is a work of literature", true);
+    document.InsertCode(false, true);
+    document.InsertString("123", true);
+    document.MoveCaretEnd(false);
+    document.WaitTask(document.MoveCaretUp(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 0, 6}, 
+        ElementSelectionState{ElementId{0, 0, 1, 0}, 6, 43}, 
+        ElementSelectionState{ElementId{0, 0}, 2, 1})) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.MoveCaretHome(true));
+    document.WaitTask(document.Cut(clipboard_json, clipboard_text));
+    ASSERT_TRUE(document.ToText() == U"In literary theory, a text is any object that can be ") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 53})) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.Paste(clipboard_json));
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">In literary theory, a text is any object that can be </span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">read, whether this object is a work of literature</span>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mi>123</mi>"\
+                    "</mrow>"\
+                "</math>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 2, 1})) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.ToText() == U"In literary theory, a text is any object that can be ") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 53})) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">In literary theory, a text is any object that can be </span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">read, whether this object is a work of literature</span>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mi>123</mi>"\
+                    "</mrow>"\
+                "</math>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 53}, 
+        ElementSelectionState{ElementId{0, 0}, 1, 2})) << document.GetEditorState().ToString();
+}
+
 }
