@@ -138,18 +138,6 @@ ElementId IdFromString(const std::string& id)
     return res;
 }
 
-std::string LogicalIdToString(const LogicalId& id)
-{
-	std::string res;
-	for (size_t i = 0; i < id.size(); ++i)
-	{
-		res += std::to_string(id[i]);
-		if (i < id.size() - 1)
-			res += ",";
-	}
-	return res;
-}
-
 LogicalId LogicalIdFromString(const std::string& id)
 {
     LogicalId res;

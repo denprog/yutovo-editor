@@ -291,7 +291,6 @@ struct FormattingScope
 std::string IdToString(const ElementId& id);
 ElementId IdFromString(const std::string& id);
 
-std::string LogicalIdToString(const LogicalId& id);
 LogicalId LogicalIdFromString(const std::string& id);
 
 bool IsChild(const ElementId& parent_id, const ElementId& child_id);
