@@ -19,6 +19,7 @@ using namespace yutovo_solver;
 //Solver
 
 Solver::Solver(Document* _document) :
+    guid(boost::uuids::to_string(boost::uuids::random_generator()())),
     document(_document),
     logger(Logger::GetInstance(document->config.logs_path, "yutovo_editor", true, true)),
 #ifdef REMOTE_SOLVER
@@ -32,7 +33,6 @@ Solver::Solver(Document* _document) :
     break_loop(std::thread(&Solver::MessageLoop, this, std::ref(break_socket), std::ref(break_tasks), std::ref(break_next_circle), std::ref(session)))
 #endif
 {
-    guid = boost::uuids::to_string(boost::uuids::random_generator()());
     result_types_seq = {ResultType::REAL, ResultType::INTEGER, ResultType::RATIONAL, ResultType::COMPLEX};
     language = document->config.language;
 }
