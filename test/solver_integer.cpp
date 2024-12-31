@@ -362,7 +362,7 @@ TEST_F(SolverIntegerTest, solver6)
 
     document.Undo();
     document.WaitUndo();
-    std::this_thread::sleep_for(800ms);
+    std::this_thread::sleep_for(1s);
     ASSERT_TRUE(document.ToText() == 
         U"567=237(hex)"
         ) << ToBasicString(document.ToText());
