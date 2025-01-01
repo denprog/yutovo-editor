@@ -401,10 +401,10 @@ bool AutoSolverTask::Execute(WebSocketPtr socket, Result& result)
     }
 
     //real config
-    doc.AddMember("precision", config.real_result.precision, alloc);
-    doc.AddMember("default_angle_measure", (int)config.real_result.default_angle_measure, alloc);
-    doc.AddMember("result_angle_measure", (int)config.real_result.result_angle_measure, alloc);
-    doc.AddMember("exponent_size", config.real_result.exp, alloc);
+    doc.AddMember("real_precision", config.real_result.precision, alloc);
+    doc.AddMember("real_default_angle_measure", (int)config.real_result.default_angle_measure, alloc);
+    doc.AddMember("real_result_angle_measure", (int)config.real_result.result_angle_measure, alloc);
+    doc.AddMember("real_exponent_size", config.real_result.exp, alloc);
 
     //integer config
     doc.AddMember("result_notation", (int)config.integer_result.result_notation, alloc);
@@ -414,10 +414,10 @@ bool AutoSolverTask::Execute(WebSocketPtr socket, Result& result)
     doc.AddMember("fraction_form", (int)config.rational_result.fraction_form, alloc);
 
     //complex config
-    doc.AddMember("precision", config.complex_result.precision, alloc);
-    doc.AddMember("default_angle_measure", (int)config.complex_result.default_angle_measure, alloc);
-    doc.AddMember("result_angle_measure", (int)config.complex_result.result_angle_measure, alloc);
-    doc.AddMember("exponent_size", config.complex_result.exp, alloc);
+    doc.AddMember("complex_precision", config.complex_result.precision, alloc);
+    doc.AddMember("complex_default_angle_measure", (int)config.complex_result.default_angle_measure, alloc);
+    doc.AddMember("complex_result_angle_measure", (int)config.complex_result.result_angle_measure, alloc);
+    doc.AddMember("complex_exponent_size", config.complex_result.exp, alloc);
     doc.AddMember("form", (int)config.complex_result.form, alloc);
     doc.AddMember("max_count", config.complex_result.max_count, alloc);
 
@@ -486,10 +486,10 @@ bool RealSolverTask::Execute(WebSocketPtr socket, Result& result)
     doc.AddMember("result_type", (int)ResultType::REAL, alloc);
     std::string s = ToBasicString(expression);
     doc.AddMember("expression", rapidjson::StringRef(s.c_str()), alloc);
-    doc.AddMember("precision", config.precision, alloc);
-    doc.AddMember("default_angle_measure", (int)config.default_angle_measure, alloc);
-    doc.AddMember("result_angle_measure", (int)config.result_angle_measure, alloc);
-    doc.AddMember("exponent_size", config.exp, alloc);
+    doc.AddMember("real_precision", config.precision, alloc);
+    doc.AddMember("real_default_angle_measure", (int)config.default_angle_measure, alloc);
+    doc.AddMember("real_result_angle_measure", (int)config.result_angle_measure, alloc);
+    doc.AddMember("real_exponent_size", config.exp, alloc);
 
     AddUnit(doc, config.unit);
 
@@ -664,10 +664,10 @@ bool ComplexSolverTask::Execute(WebSocketPtr socket, Result& result)
     doc.AddMember("result_type", (int)ResultType::COMPLEX, alloc);
     std::string s = ToBasicString(expression);
     doc.AddMember("expression", rapidjson::StringRef(s.c_str()), alloc);
-    doc.AddMember("precision", config.precision, alloc);
-    doc.AddMember("default_angle_measure", (int)config.default_angle_measure, alloc);
-    doc.AddMember("result_angle_measure", (int)config.result_angle_measure, alloc);
-    doc.AddMember("exponent_size", config.exp, alloc);
+    doc.AddMember("complex_precision", config.precision, alloc);
+    doc.AddMember("complex_default_angle_measure", (int)config.default_angle_measure, alloc);
+    doc.AddMember("complex_result_angle_measure", (int)config.result_angle_measure, alloc);
+    doc.AddMember("complex_exponent_size", config.exp, alloc);
     doc.AddMember("form", (int)config.form, alloc);
     doc.AddMember("max_count", config.max_count, alloc);
 

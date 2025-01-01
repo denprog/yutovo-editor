@@ -559,4 +559,23 @@ TEST_F(SolverComplexTest, solver19)
         ) << ToBasicString(document.ToText());
 }
 
+//Check precision
+TEST_F(SolverComplexTest, solver20)
+{
+    Start(600);
+
+    document.GetConfig(config);
+    config.complex_result.precision = 9;
+    config.auto_result.complex_result.precision = 9;
+    document.WaitTask(document.SetConfig(config, true));
+
+    document.InsertCode(false, true);
+    document.InsertString("123.123456789i", true);
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+    ASSERT_TRUE(document.ToText() == 
+        U"123.123456789i=123.123456789i"
+        ) << ToBasicString(document.ToText());
+}
+
 }
