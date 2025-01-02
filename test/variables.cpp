@@ -704,6 +704,7 @@ TEST_F(VariablesTest, variables10)
 
     document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
     document.WaitSolver();
+    std::this_thread::sleep_for(2s);
     ASSERT_TRUE(document.ToText() == 
         U"a=2\n" \
         U"(a)/(4)m=5.dm"
@@ -1042,7 +1043,7 @@ TEST_F(VariablesTest, variables17)
     document.InsertAssignment(true);
     document.InsertString("2", true);
     document.WaitSolver();
-    std::this_thread::sleep_for(600ms);
+    std::this_thread::sleep_for(2s);
     ASSERT_TRUE(document.ToText() == 
         U"m=2\n" \
         U"h=5\n" \
@@ -1095,7 +1096,7 @@ TEST_F(VariablesTest, variables18)
     document.InsertString("L", true);
     document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
     document.WaitSolver();
-    std::this_thread::sleep_for(600ms);
+    std::this_thread::sleep_for(2s);
     ASSERT_TRUE(document.ToText() == 
         U"p=1\n" \
         U"L=p\n" \
@@ -1118,6 +1119,51 @@ TEST_F(VariablesTest, variables18)
         U"L=1."
         ) << ToBasicString(document.ToText());
     ASSERT_TRUE(!document.HasErrorMarks({0})) << ErrorMarks();
+}
+
+//Insert a paragraph over a code block with a variable
+TEST_F(VariablesTest, variables19)
+{
+    Start(600);
+    
+    document.InsertCode(false, true);
+    document.InsertString("v", true);
+    document.InsertAssignment(true);
+    document.InsertString("3", true);
+    document.WaitTask(document.InsertParagraph(true));
+    document.InsertString("v", true);
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+
+    document.WaitTask(document.MoveCaretToDocumentEnd(false));
+    document.WaitTask(document.InsertParagraph(true));
+    document.InsertCode(false, true);
+    document.InsertString("v", true);
+    document.InsertAssignment(true);
+    document.InsertString("2", true);
+    document.WaitTask(document.InsertParagraph(true));
+    document.InsertString("v", true);
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(2s);
+    ASSERT_TRUE(document.ToText() == 
+        U"v=3\n" \
+        U"v=3.\n" \
+        U"v=2\n" \
+        U"v=2."
+        ) << ToBasicString(document.ToText());
+
+    document.WaitTask(document.MoveCaretToDocumentBegin(false));
+    document.WaitTask(document.InsertParagraph(true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(2s);
+    ASSERT_TRUE(document.ToText() == 
+        U"\n" \
+        U"v=3\n" \
+        U"v=3.\n" \
+        U"v=2\n" \
+        U"v=2."
+        ) << ToBasicString(document.ToText());
 }
 
 }
