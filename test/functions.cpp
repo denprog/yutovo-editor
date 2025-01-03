@@ -79,6 +79,7 @@ TEST_F(FormulaTest, functions2)
     document.InsertCloseFence(true);
     document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
     document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToText() == 
         U"f(x)=x*2\n" \
         U"f(5)=10.") << ToBasicString(document.ToText());
@@ -366,7 +367,7 @@ TEST_F(FormulaTest, user_functions2)
     document.InsertAssignment(true);
     document.InsertString("x", true);
     document.WaitSolver();
-    std::this_thread::sleep_for(600ms);
+    std::this_thread::sleep_for(2s);
     ASSERT_TRUE(document.ToText() == 
         U"m(x)=x\n" \
         U"h=5\n" \

@@ -1948,4 +1948,36 @@ TEST_F(DocumentTest, caret63)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 1, 0, 0, 0, 0, 1})) << document.GetEditorState().ToString();
 }
 
+//Move a code block on the previous row
+TEST_F(DocumentTest, caret64)
+{
+    Start(600);
+
+    int width = 600;
+    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
+        {
+            return Rect{0, 0, width, 400};
+        });
+
+    document.InsertCode(false, true);
+    document.InsertString("234234345435345345", true);
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+
+    document.WaitTask(document.MoveCaretToDocumentEnd(false));
+    document.InsertCode(false, true);
+    document.InsertString("234234345435345345", true);
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+
+    width = 1040;
+    document.WaitTask(document.MoveCaretToDocumentEnd(false));
+    document.WaitTask(document.Resize(width, 400));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 2})) << document.GetEditorState().ToString();
+    document.WaitTask(document.MoveCaretLeft(false));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 1, 0, 0, 1})) << document.GetEditorState().ToString();
+}
+
 }

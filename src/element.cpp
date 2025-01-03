@@ -1090,14 +1090,10 @@ void Elements::Add(ElementPtr element)
 void Elements::Insert(ElementPtr element, const uint pos)
 {
     CaretState c, last;
-    bool on = false;
     if (caret->IsInsideElement(element->id))
         c = caret->GetCaretState();
     else if (caret->IsOnElement(element->id))
-    {
         c = caret->GetCaretState();
-        on = true;
-    }
     else if (pos == parent->elements->Count() && pos > 0 && parent->elements->Get(pos - 1)->HasCaretState())
         parent->GetLastCaretState(last, nullptr);
     
@@ -1137,7 +1133,7 @@ void Elements::Insert(ElementPtr element, const uint pos)
         if (_el)
         {
             CaretState _c;
-            if (c.last_pos && (on ? _el->parent->GetLastCaretState(_c, nullptr) : _el->GetLastCaretState(_c, nullptr)))
+            if (c.last_pos && _el->GetLastCaretState(_c, nullptr))
                 caret->SetState(_c);
             else
                 caret->SetState(_id, true);
