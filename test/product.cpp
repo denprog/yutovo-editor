@@ -148,6 +148,7 @@ TEST_F(FormulaTest, product2)
 
     document.Undo();
     document.WaitUndo();
+    std::this_thread::sleep_for(200ms);
     ASSERT_TRUE(document.ToText() == U"prod(i=2,123,)") << ToBasicString(document.ToText());
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 2, 0, 0}, 
         ElementSelectionState{{0, 0, 0, 0, 0, 0, 0}, 2, 1})) << document.GetEditorState().ToString();
@@ -165,6 +166,7 @@ TEST_F(FormulaTest, product2)
 
     document.Undo();
     document.WaitUndo();
+    std::this_thread::sleep_for(200ms);
     ASSERT_TRUE(document.ToText() == U"prod(i=2,123,55)") << ToBasicString(document.ToText());
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 3, 0, 0}, 
         ElementSelectionState{{0, 0, 0, 0, 0, 0, 0}, 3, 1})) << document.GetEditorState().ToString();
