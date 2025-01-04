@@ -1863,7 +1863,7 @@ TEST_F(DocumentTest, clipboard34)
     std::vector<unsigned char> data;
     GetImageData(test_image, data);
 
-    document.InsertImage(data, true);
+    document.InsertImage(data, true, true);
     document.MoveCaretLeft(true);
     document.WaitTask(document.Copy(clipboard_json, clipboard_text));
 

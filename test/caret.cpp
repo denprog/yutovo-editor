@@ -1422,7 +1422,7 @@ TEST_F(DocumentTest, caret43)
     GetImageData(test_image, data);
 
     document.InsertString("Text", true);
-    document.WaitTask(document.InsertImage(data, true));
+    document.WaitTask(document.InsertImage(data, true, true));
 
     Rect rect;
     document.GetElementRect(ElementId{0, 0, 0, 0}, rect);
@@ -1591,7 +1591,7 @@ TEST_F(DocumentTest, caret50)
     std::vector<unsigned char> data;
     GetImageData(test_image, data);
 
-    document.WaitTask(document.InsertImage(data, true));
+    document.WaitTask(document.InsertImage(data, true, true));
 
     Rect rect;
     document.GetElementRect(ElementId{0, 0, 0, 0}, rect);
@@ -1978,6 +1978,43 @@ TEST_F(DocumentTest, caret64)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 2})) << document.GetEditorState().ToString();
     document.WaitTask(document.MoveCaretLeft(false));
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 1, 0, 0, 1})) << document.GetEditorState().ToString();
+}
+
+//Delete a code block and check caret
+TEST_F(DocumentTest, caret65)
+{
+    Start(700);
+
+    document.InsertCode(false, true);
+    document.WaitTask(document.InsertString("1234567891", true));
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+
+    document.WaitTask(document.MoveCaretToDocumentEnd(false));
+    document.InsertCode(false, true);
+    document.WaitTask(document.InsertString("1234567892", true));
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+
+    document.WaitTask(document.MoveCaretToDocumentEnd(false));
+    document.InsertCode(false, true);
+    document.WaitTask(document.InsertString("1234567893", true));
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+    ASSERT_TRUE(document.ToText() == 
+        U"1234567891=1234567891."\
+        U"1234567892=1234567892."\
+        U"1234567893=1234567893."
+        ) << ToBasicString(document.ToText());
+
+    document.MoveCaretToDocumentBegin(false);
+    document.WaitTask(document.MoveCaretWordRight(false));
+    document.WaitTask(document.DeleteElements(false, true));
+    ASSERT_TRUE(document.ToText() == 
+        U"1234567891=1234567891."\
+        U"1234567893=1234567893."
+        ) << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 1})) << document.GetEditorState().ToString();
 }
 
 }

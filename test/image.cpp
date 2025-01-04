@@ -22,7 +22,7 @@ TEST_F(DocumentTest, images1)
     std::vector<unsigned char> data;
     GetImageData(test_image, data);
 
-    document.WaitTask(document.InsertImage(data, true));
+    document.WaitTask(document.InsertImage(data, true, false));
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -62,7 +62,7 @@ TEST_F(DocumentTest, images2)
     std::vector<unsigned char> data;
     GetImageData(test_image, data);
 
-    document.WaitTask(document.InsertImage(data, true));
+    document.WaitTask(document.InsertImage(data, true, false));
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -108,7 +108,7 @@ TEST_F(DocumentTest, images3)
     std::vector<unsigned char> data;
     GetImageData(test_image, data);
 
-    document.WaitTask(document.InsertImage(data, true));
+    document.WaitTask(document.InsertImage(data, true, false));
     document.Save("images3_1.yut");
 
     document.WaitTask(document.New());
@@ -143,7 +143,7 @@ TEST_F(DocumentTest, images4)
     std::vector<unsigned char> data;
     GetImageData(test_image, data);
 
-    document.InsertImage(data, true);
+    document.InsertImage(data, true, false);
     document.InsertString("1", true);
     document.WaitTask(document.InsertString("2", true));
 
@@ -192,7 +192,7 @@ TEST_F(DocumentTest, images5)
     std::vector<unsigned char> data;
     GetImageData(test_image, data);
 
-    document.InsertImage(data, true);
+    document.InsertImage(data, true, false);
     document.InsertString("1", true);
     document.WaitTask(document.InsertString("2", true));
 
@@ -235,7 +235,7 @@ TEST_F(DocumentTest, images6)
     std::vector<unsigned char> data;
     GetImageData(test_image, data);
 
-    document.InsertImage(data, true);
+    document.InsertImage(data, true, false);
     document.InsertString("1", true);
     document.InsertString("2", true);
     document.WaitTask(document.DeleteElements(true, true));
@@ -274,7 +274,7 @@ TEST_F(DocumentTest, images7)
     GetImageData(test_image, data);
 
     document.InsertString("123", true);
-    document.WaitTask(document.InsertImage(data, true));
+    document.WaitTask(document.InsertImage(data, true, false));
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -303,7 +303,7 @@ TEST_F(DocumentTest, images8)
     std::vector<unsigned char> data;
     GetImageData(test_image, data);
 
-    document.WaitTask(document.InsertImage(data, true));
+    document.WaitTask(document.InsertImage(data, true, true));
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -314,7 +314,7 @@ TEST_F(DocumentTest, images8)
     
     ASSERT_TRUE(document.IsEditable(ElementId{0, 0, 0}));
 
-    document.WaitTask(document.InsertImage(data, true));
+    document.WaitTask(document.InsertImage(data, true, true));
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
