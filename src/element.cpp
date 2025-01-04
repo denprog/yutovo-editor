@@ -1145,7 +1145,10 @@ void Elements::Insert(ElementPtr element, const uint pos)
         {
             if (element->HasCaretState())
             {
-                caret->SetState(parent->id, GetChildPos(element->id) + 1, true);
+                if (parent->document->pasting)
+                    caret->SetState(parent->id, GetChildPos(element->id) + 1, true);
+                else
+                    caret->SetState(parent->id, GetChildPos(element->id), false);
             }
             else
             {

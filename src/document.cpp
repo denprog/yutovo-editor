@@ -365,12 +365,12 @@ uint Document::InsertString(const std::string& str, ElementId element_id, bool w
     return last_task_id;
 }
 
-uint Document::InsertElement(Element* element, bool with_undo, ElementId element_id)
+uint Document::InsertElement(Element* element, bool with_undo, ElementId element_id, bool pasting)
 {
     LOG_TRACE("Insert element: {}", ToBasicString(element->ToText()));
     std::vector<ElementPtr> elements;
     elements.emplace_back(element);
-    return InsertElements(elements, with_undo, element_id);
+    return InsertElements(elements, with_undo, element_id, pasting);
 }
 
 uint Document::InsertElements(std::vector<ElementPtr>& elements, bool with_undo, ElementId element_id, bool pasting)
@@ -545,16 +545,16 @@ uint Document::InsertProduct(bool with_undo)
     return InsertFormula(new Product(this), with_undo);
 }
 
-uint Document::InsertImage(const std::string& image_base64, bool with_undo)
+uint Document::InsertImage(const std::string& image_base64, bool with_undo, bool pasting)
 {
     LOG_TRACE("Insert image");
-    return InsertElement(new Image(this, image_base64), with_undo);
+    return InsertElement(new Image(this, image_base64), with_undo, ElementId{}, pasting);
 }
 
-uint Document::InsertImage(const std::vector<unsigned char>& image, bool with_undo)
+uint Document::InsertImage(const std::vector<unsigned char>& image, bool with_undo, bool pasting)
 {
     LOG_TRACE("Insert image");
-    return InsertElement(new Image(this, image), with_undo);
+    return InsertElement(new Image(this, image), with_undo, ElementId{}, pasting);
 }
 
 uint Document::InsertComma(bool with_undo)
@@ -2202,7 +2202,7 @@ uint Document::PasteImage(const std::vector<unsigned char>& image)
         return 0;
     }
 
-    InsertImage(image, true);
+    InsertImage(image, true, true);
     window->OnPasteResult(PasteResult::Success);
     return last_task_id;
 }
@@ -2216,7 +2216,7 @@ uint Document::PasteImage(const std::string& image_base64)
         return 0;
     }
 
-    InsertImage(image_base64, true);
+    InsertImage(image_base64, true, true);
     window->OnPasteResult(PasteResult::Success);
     return last_task_id;
 }
