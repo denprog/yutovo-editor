@@ -847,12 +847,14 @@ TEST_F(FormulaTest, division9)
         ElementSelectionState{{0}, 0, 1})) << document.GetEditorState().ToString();
     
     document.MoveCaretRight(false);
+    document.MoveCaretRight(false);
     document.MoveCaretLeft(false);
     document.MoveCaretLeft(false);
     document.WaitTask(document.MoveCaretRight(true));
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0, 0, 1}, 
         ElementSelectionState{{0}, 0, 1})) << document.GetEditorState().ToString();
 
+    document.MoveCaretRight(false);
     document.MoveCaretRight(false);
     document.MoveCaretLeft(false);
     document.MoveCaretLeft(false);

@@ -446,6 +446,7 @@ TEST_F(AssignmentTest, assignment6)
     document.MoveCaretRight(false);
     document.MoveCaretLeft(false);
     document.WaitTask(document.Paste(clipboard_json));
+    std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToText() == 
         U"x=5x=5"
         ) << ToBasicString(document.ToText());

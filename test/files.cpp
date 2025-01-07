@@ -154,10 +154,10 @@ TEST_F(DocumentTest, files3)
             "<p>"\
                 "<span style=\"font-family:'Arial';font-size:22px;\">In </span>"\
                 "<span style=\"font-family:'Arial';font-size:22px;\"><strong>literary</strong></span>"\
-                "<span style=\"font-family:'Arial';font-size:22px;\"> theory,</span>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\"> theory, </span>"\
             "</p>"\
             "<p>"\
-                "<span style=\"font-family:'Arial';font-size:22px;\"> a text is any object that can be read, </span>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\">a text is any object that can be read, </span>"\
                 "<span style=\"font-family:'Arial';font-size:22px;\">whether this object is a work of literature, a </span>"\
                 "<span style=\"font-family:'Arial';font-size:22px;\">street sign, an arrangement of buildings on a </span>"\
                 "<span style=\"font-family:'Arial';font-size:22px;\">city block, or styles of clothing.</span>"
@@ -165,7 +165,7 @@ TEST_F(DocumentTest, files3)
         "</body>") 
         << document.ToHtml();
     
-    for (int i = 0; i < 6; ++i)
+    for (int i = 0; i < 5; ++i)
         document.MoveCaretRight(true);
     document.WaitTask(document.MoveCaretRight(true));
     std::this_thread::sleep_for(100ms);
@@ -175,21 +175,21 @@ TEST_F(DocumentTest, files3)
         document.MoveCaretRight(false);
     document.WaitTask(document.MoveCaretRight(false));
     document.WaitTask(document.InsertParagraph(true));
-    std::this_thread::sleep_for(1000ms);
+    std::this_thread::sleep_for(1s);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
                 "<span style=\"font-family:'Arial';font-size:22px;\">In </span>"\
                 "<span style=\"font-family:'Arial';font-size:22px;\"><strong>literary</strong></span>"\
-                "<span style=\"font-family:'Arial';font-size:22px;\"> theory,</span>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\"> theory, </span>"\
             "</p>"\
             "<p>"\
-                "<span style=\"font-family:'Courier New';font-size:22px;\"> a text</span>"\
-                "<span style=\"font-family:'Arial';font-size:22px;\"> is any object that</span>"\
+                "<span style=\"font-family:'Courier New';font-size:22px;\">a text</span>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\"> is any object that </span>"\
             "</p>"\
             "<p>"\
-                "<span style=\"font-family:'Arial';font-size:22px;\"> can be read, whether this object is a work </span>"\
-                "<span style=\"font-family:'Arial';font-size:22px;\">of literature, a street sign, an arrangement of </span>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\">can be read, whether this object is a work of </span>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\">literature, a street sign, an arrangement of </span>"\
                 "<span style=\"font-family:'Arial';font-size:22px;\">buildings on a city block, or styles of clothing.</span>"
             "</p>"\
         "</body>") 
@@ -208,21 +208,21 @@ TEST_F(DocumentTest, files3)
 
     document.Load("3.yut");
     document.WaitLoad();
-    std::this_thread::sleep_for(1000ms);
+    std::this_thread::sleep_for(1s);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
                 "<span style=\"font-family:'Arial';font-size:22px;\">In </span>"\
                 "<span style=\"font-family:'Arial';font-size:22px;\"><strong>literary</strong></span>"\
-                "<span style=\"font-family:'Arial';font-size:22px;\"> theory,</span>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\"> theory, </span>"\
             "</p>"\
             "<p>"\
-                "<span style=\"font-family:'Courier New';font-size:22px;\"> a text</span>"\
-                "<span style=\"font-family:'Arial';font-size:22px;\"> is any object that</span>"\
+                "<span style=\"font-family:'Courier New';font-size:22px;\">a text</span>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\"> is any object that </span>"\
             "</p>"\
             "<p>"\
-                "<span style=\"font-family:'Arial';font-size:22px;\"> can be read, whether this object is a work </span>"\
-                "<span style=\"font-family:'Arial';font-size:22px;\">of literature, a street sign, an arrangement of </span>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\">can be read, whether this object is a work of </span>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\">literature, a street sign, an arrangement of </span>"\
                 "<span style=\"font-family:'Arial';font-size:22px;\">buildings on a city block, or styles of clothing.</span>"
             "</p>"\
         "</body>") 

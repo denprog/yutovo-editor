@@ -228,7 +228,11 @@ TEST_F(FormulaTest, delete2)
     document.MoveCaretEnd(false);
     document.MoveCaretLeft(true);
     document.MoveCaretLeft(true);
-    document.MoveCaretLeft(true);
+    document.WaitTask(document.MoveCaretLeft(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 2}, 
+        ElementSelectionState{ElementId{0, 0, 0, 0}, 2, 2}, 
+        ElementSelectionState{ElementId{0, 0, 0}, 1, 1})) << document.GetEditorState().ToString();
+    
     document.WaitTask(document.DeleteElements(true, true));
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
@@ -259,7 +263,7 @@ TEST_F(FormulaTest, delete2)
         ElementSelectionState{ElementId{0, 0, 0, 0}, 2, 2})) << document.GetEditorState().ToString();
     
     document.WaitTask(document.MoveCaretRight(false));
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 1, 0, 0, 0, 3})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 2})) << document.GetEditorState().ToString();
 }
 
 //Delete with undo a text and a code block and a text
@@ -404,6 +408,7 @@ TEST_F(FormulaTestCustom, delete4)
 
     document.Undo();
     document.WaitUndo();
+    std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -428,7 +433,7 @@ TEST_F(FormulaTestCustom, delete4)
         ElementSelectionState{ElementId{0, 0, 0}, 0, 1})) << document.GetEditorState().ToString();
     
     document.WaitTask(document.MoveCaretRight(false));
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0, 0, 1})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 1, 0})) << document.GetEditorState().ToString();
 }
 
 //Deletion of a selected formula

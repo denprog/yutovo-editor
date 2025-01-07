@@ -335,6 +335,7 @@ TEST_F(FormulaTest, nth_root4)
     document.MoveCaretLeft(true);
     document.WaitTask(document.Copy(clipboard_json, clipboard_text));
     document.MoveCaretRight(false);
+    document.MoveCaretRight(false);
     document.MoveCaretLeft(false);
     document.WaitTask(document.Paste(clipboard_json));
     ASSERT_TRUE(document.ToText() == 

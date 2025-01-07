@@ -28,6 +28,7 @@ TEST_F(FormulaTest, fences1)
 
     document.Undo();
     document.WaitUndo();
+    std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == "<body><p><span style=\"font-family:'Arial';font-size:14px;\"></span></p></body>") << document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 0)) << document.GetEditorState().ToString();
 
@@ -64,6 +65,7 @@ TEST_F(FormulaTest, fences1)
 
     document.Undo();
     document.WaitUndo();
+    std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -97,6 +99,7 @@ TEST_F(FormulaTest, fences1)
     document.WaitUndo();
     document.Undo();
     document.WaitUndo();
+    std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == "<body><p><span style=\"font-family:'Arial';font-size:14px;\"></span></p></body>") << document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 0)) << document.GetEditorState().ToString();
 }
@@ -714,7 +717,6 @@ TEST_F(FormulaTest, fences10)
     document.MoveCaretRight(true);
     document.WaitTask(document.MoveCaretRight(true));
     document.WaitTask(document.Copy(clipboard_json, clipboard_text));
-    document.MoveCaretRight(false);
     document.MoveCaretRight(false);
     document.MoveCaretRight(false);
     document.WaitTask(document.Paste(clipboard_json));

@@ -1261,21 +1261,8 @@ bool MoveCaretTask::Execute()
     case MoveCaretDir::LEFT:
         if (!document->selection.IsEmpty() && !select)
         {
-            ElementSelection& s = document->selection.selection[0];
-            if (document->IsParagraph(s.element) || document->IsRow(s.element) || s.element->type == ElementType::TEXT)
-            {
-                auto el = s.element->elements->Get(s.start);
-                if (el)
-                {
-                    CaretState c;
-                    if (el->GetFirstCaretState(c, nullptr))
-                    {
-                        caret->SetState(c);
-                        break;
-                    }
-                }
-            }
-            caret->SetState(s.element->id, s.start);
+            CaretState c = document->selection.GetFirstCaretState();
+            caret->SetState(c);
             break;
         }
         caret->MoveLeft(selection);
@@ -1283,22 +1270,8 @@ bool MoveCaretTask::Execute()
     case MoveCaretDir::RIGHT:
         if (!document->selection.IsEmpty() && !select)
         {
-            ElementSelection& s = document->selection.selection[document->selection.selection.size() - 1];
-            if (document->IsParagraph(s.element) || document->IsRow(s.element) || document->IsFormula(s.element) || 
-                s.element->type == ElementType::CODE_BLOCK || s.element->type == ElementType::TEXT)
-            {
-                auto el = s.element->elements->Get(s.start + s.size - 1);
-                if (el)
-                {
-                    CaretState c;
-                    if (el->GetLastCaretState(c, nullptr))
-                    {
-                        caret->SetState(c);
-                        break;
-                    }
-                }
-            }
-            caret->SetState(s.element->id, s.start + s.size);
+            CaretState c = document->selection.GetLastCaretState();
+            caret->SetState(c);
             break;
         }
         caret->MoveRight(selection);
