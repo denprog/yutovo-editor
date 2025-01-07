@@ -744,8 +744,8 @@ bool ChangeStringFormatTask::Execute()
             return document->GetStringFormat(f.family, f.size, f.bold, f.italic, f.underline, f.strikethrough, f.text_color, f.text_bg_color);
         };
     
-    std::function<bool (ElementPtr el, ElementId& changed_element)> change_string_format = 
-        [&](ElementPtr el, ElementId& changed_element)
+    std::function<bool (ElementPtr el, ElementId& changed_element, bool initial_element)> change_string_format = 
+        [&](ElementPtr el, ElementId& changed_element, bool initial_element)
         {
             ElementId _changed_element;
             if (document->IsString(el))
@@ -764,7 +764,7 @@ bool ChangeStringFormatTask::Execute()
                 for (int i = 0; i < el->elements->Count(); ++i)
                 {
                     auto _el = el->elements->Get(i);
-                    if (!change_string_format(_el, _changed_element))
+                    if (!change_string_format(_el, _changed_element, false))
                         ++f;
                     else
                     {
@@ -774,7 +774,7 @@ bool ChangeStringFormatTask::Execute()
                             changed_element = _changed_element;
                     }
                 }
-                if (el->elements->Count() > 0 && f == el->elements->Count())
+                if (initial_element && el->elements->Count() > 0 && f == el->elements->Count())
                 {
                     if (with_undo && last_undo_size < document->GetUndoSize())
                         document->Undo();
@@ -795,7 +795,7 @@ bool ChangeStringFormatTask::Execute()
         ElementId _changed_element;
         if (document->IsString(el))
         {
-            if (change_string_format(el, _changed_element))
+            if (change_string_format(el, _changed_element, true))
             {
                 if (!changed_element.empty())
                     changed_element = GetCommonParent(changed_element, _changed_element);
@@ -808,7 +808,7 @@ bool ChangeStringFormatTask::Execute()
         {
             for (int i = s.start; i < s.start + s.size; ++i)
             {
-                if (change_string_format(el->elements->Get(i), _changed_element))
+                if (change_string_format(el->elements->Get(i), _changed_element, true))
                 {
                     if (!changed_element.empty())
                         changed_element = GetCommonParent(changed_element, _changed_element);

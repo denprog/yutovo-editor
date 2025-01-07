@@ -836,6 +836,7 @@ TEST_F(DocumentTest, files21)
 
     document.Undo();
     document.WaitUndo();
+    std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.IsChanged());
 }
 

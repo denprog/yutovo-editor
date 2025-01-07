@@ -2156,6 +2156,7 @@ TEST_F(DocumentTest, fonts24)
 
     document.Undo();
     document.WaitUndo();
+    std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -2504,6 +2505,97 @@ TEST_F(DocumentTest, fonts29)
         ElementSelectionState{ElementId{0, 0, 2}, 1, 1}, 
         ElementSelectionState{ElementId{0, 1, 0}, 0, 1}, 
         ElementSelectionState{ElementId{0, 1, 0, 1}, 0, 4})) << document.GetEditorState().ToString();
+}
+
+//Set the same font family in the paragraph
+TEST_F(DocumentTest, fonts30)
+{
+    Start(600);
+
+    document.WaitTask(document.InsertString("Арифме́тика (др.-греч. ἀριθμητική, arithmētikḗ — от ἀριθμός, arithmós «число») — раздел математики,"\
+        " изучающий числа, их отношения и свойства.", true));
+    document.MoveCaretToDocumentBegin(false);
+    document.WaitTask(document.MoveCaretWordRight(true));
+    document.WaitTask(document.SetItalic(true));
+    document.MoveCaretToDocumentBegin(false);
+    document.MoveCaretDown(true);
+    document.MoveCaretDown(true);
+    document.WaitTask(document.MoveCaretDown(true));
+    document.WaitTask(document.SetBold(true));
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\"><strong><em>Арифме́тика</em></strong></span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\"><strong> (др.-греч. ἀριθμητική, arithmētikḗ — от </strong></span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\"><strong>ἀριθμός, arithmós «число») — раздел математики, </strong></span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\"><strong>изучающий числа, их отношения и свойства.</strong></span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 2, 0, 41}, 
+        ElementSelectionState{ElementId{0}, 0, 1})) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\"><em>Арифме́тика</em></span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\"> (др.-греч. ἀριθμητική, arithmētikḗ — от ἀριθμός, </span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">arithmós «число») — раздел математики, изучающий числа, </span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">их отношения и свойства.</span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 2, 0, 24}, 
+        ElementSelectionState{ElementId{0}, 0, 1})) << document.GetEditorState().ToString();
+}
+
+//Set the same font family in the paragraph
+TEST_F(DocumentTest, fonts31)
+{
+    Start(600);
+
+    document.WaitTask(document.InsertString("Арифме́тика (др.-греч. ἀριθμητική, arithmētikḗ — от ἀριθμός, arithmós «число») — раздел математики,"\
+        " изучающий числа, их отношения и свойства.", true));
+    document.MoveCaretToDocumentBegin(false);
+    document.WaitTask(document.MoveCaretWordRight(true));
+    document.WaitTask(document.SetItalic(true));
+    document.MoveCaretToDocumentBegin(false);
+    document.MoveCaretDown(true);
+    document.MoveCaretDown(true);
+    document.WaitTask(document.MoveCaretDown(true));
+    document.WaitTask(document.SetItalic(true));
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\"><em>Арифме́тика (др.-греч. ἀριθμητική, arithmētikḗ — от ἀριθμός, </em></span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\"><em>arithmós «число») — раздел математики, изучающий </em></span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\"><em>числа, их отношения и свойства.</em></span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 2, 0, 31}, 
+        ElementSelectionState{ElementId{0}, 0, 1})) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\"><em>Арифме́тика</em></span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\"> (др.-греч. ἀριθμητική, arithmētikḗ — от ἀριθμός, </span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">arithmós «число») — раздел математики, изучающий числа, </span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">их отношения и свойства.</span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 2, 0, 24}, 
+        ElementSelectionState{ElementId{0}, 0, 1})) << document.GetEditorState().ToString();
 }
 
 TEST_F(DocumentTest, delete1)
