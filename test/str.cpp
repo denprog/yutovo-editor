@@ -2598,6 +2598,60 @@ TEST_F(DocumentTest, fonts31)
         ElementSelectionState{ElementId{0}, 0, 1})) << document.GetEditorState().ToString();
 }
 
+//Set the same font family in a row
+TEST_F(DocumentTest, fonts32)
+{
+    Start(600);
+
+    document.WaitTask(document.InsertString("Арифме́тика (др.-греч. ἀριθμητική, arithmētikḗ — от ἀριθμός, arithmós «число») — раздел математики,"\
+        " изучающий числа, их отношения и свойства.", true));
+    document.MoveCaretToDocumentEnd(false);
+    document.WaitTask(document.MoveCaretHome(true));
+    document.WaitTask(document.SetItalic(true));
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">Арифме́тика (др.-греч. ἀριθμητική, arithmētikḗ — от ἀριθμός, </span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">arithmós «число») — раздел математики, изучающий числа, </span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\"><em>их отношения и свойства.</em></span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 2, 0, 0}, 
+        ElementSelectionState{ElementId{0, 0}, 2, 1})) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.SetItalic(true));
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">Арифме́тика (др.-греч. ἀριθμητική, arithmētikḗ — от ἀριθμός, </span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">arithmós «число») — раздел математики, изучающий числа, </span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\"><em>их отношения и свойства.</em></span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 2, 0, 0}, 
+        ElementSelectionState{ElementId{0, 0}, 2, 1})) << document.GetEditorState().ToString();
+    ASSERT_FALSE(document.CanRedo());
+
+    document.Undo();
+    document.WaitUndo();
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">Арифме́тика (др.-греч. ἀριθμητική, arithmētikḗ — от ἀριθμός, </span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">arithmós «число») — раздел математики, изучающий числа, </span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">их отношения и свойства.</span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 0, 56}, 
+        ElementSelectionState{ElementId{0, 0}, 2, 1})) << document.GetEditorState().ToString();
+}
+
 TEST_F(DocumentTest, delete1)
 {
     Start(600);
@@ -3345,6 +3399,30 @@ TEST_F(DocumentTest, undo1)
             "</p>"\
         "</body>") << 
         document.ToHtml();
+}
+
+//Check undo-redo on a deleting a readonly element
+TEST_F(DocumentTest, undo2)
+{
+    Start(600);
+
+    document.InsertString("Text", true);
+    document.InsertString("Bold", document.GetStringFormat("Times New Roman", 34, true, false, false, false), true);
+    document.WaitTask(document.InsertString("Italic", document.GetStringFormat("Courier", 24, false, true, false, false), true));
+    auto el = document.FindByString({0}, U"Bold");
+    el->editable = false;
+
+    document.MoveCaretWordLeft(true);
+    document.WaitTask(document.MoveCaretLeft(true));
+    document.WaitTask(document.InsertString("t", true));
+    document.WaitUndo();
+    std::this_thread::sleep_for(200ms);
+    ASSERT_FALSE(document.CanRedo());
+    ASSERT_TRUE(document.GetUndoSize() == 3);
+    ASSERT_TRUE(document.ToText() == U"TextBoldItalic") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 1, 3}, 
+        ElementSelectionState{ElementId{0, 0, 0, 1}, 3, 1}, 
+        ElementSelectionState{ElementId{0, 0, 0}, 2, 1})) << document.GetEditorState().ToString();
 }
 
 }
