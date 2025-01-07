@@ -1664,9 +1664,9 @@ TEST_F(DocumentTest, clipboard29)
     document.MoveCaretRight(false);
     document.WaitTask(document.Paste(clipboard_json));
     ASSERT_TRUE(document.ToText() == 
-        U"()/()()/()123"
+        U"()/()1()/()23"
         ) << ToBasicString(document.ToText());
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0, 0, 2, 0})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0, 0, 3, 0})) << document.GetEditorState().ToString();
 
     document.Undo();
     document.WaitUndo();
@@ -1674,7 +1674,7 @@ TEST_F(DocumentTest, clipboard29)
     ASSERT_TRUE(document.ToText() == 
         U"()/()123"
         ) << ToBasicString(document.ToText());
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0, 0, 1, 0})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0, 0, 1, 1})) << document.GetEditorState().ToString();
 }
 
 //Paste paragraphs in a code block

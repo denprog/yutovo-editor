@@ -135,6 +135,7 @@ TEST_F(FormulaTest, plus3)
         ElementSelectionState{{0}, 0, 1})) << document.GetEditorState().ToString();
     
     document.MoveCaretRight(false);
+    document.MoveCaretRight(false);
     document.WaitTask(document.MoveCaretLeft(true));
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0}, 
         ElementSelectionState{{0}, 0, 1})) << document.GetEditorState().ToString();

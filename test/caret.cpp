@@ -2017,4 +2017,86 @@ TEST_F(DocumentTest, caret65)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 1})) << document.GetEditorState().ToString();
 }
 
+//Select a code block with word right, word left
+TEST_F(DocumentTest, caret66)
+{
+    Start(600);
+
+    document.InsertString("Арифме́тика (др.-греч. ἀριθμητική, arithmētikḗ — от ἀριθμός, arithmós «число») — "\
+        "раздел математики, изучающий числа, их отношения и свойства.", true);
+    document.MoveCaretToDocumentBegin(false);
+    document.MoveCaretWordRight(false);
+    document.InsertCode(false, true);
+    document.InsertString("123", true);
+    document.InsertParagraph(true);
+    document.InsertString("23", true);
+    document.MoveCaretToDocumentBegin(false);
+    document.MoveCaretWordRight(true);
+    document.WaitTask(document.MoveCaretWordRight(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 2, 0}, 
+        ElementSelectionState{ElementId{0, 0, 0}, 0, 2})) << document.GetEditorState().ToString();
+    
+    document.MoveCaretRight(false);
+    document.MoveCaretWordLeft(true);
+    document.MoveCaretWordLeft(true);
+    document.WaitTask(document.MoveCaretWordLeft(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0}, 
+        ElementSelectionState{ElementId{0, 0, 0}, 0, 2})) << document.GetEditorState().ToString();
+}
+
+//Select a code block with word right, word left
+TEST_F(DocumentTest, caret67)
+{
+    Start(600);
+
+    document.InsertString("Арифме́тика ", true);
+    document.InsertCode(false, true);
+    document.InsertString("123", true);
+    document.InsertParagraph(true);
+    document.InsertString("23", true);
+    document.MoveCaretToDocumentBegin(false);
+    document.MoveCaretWordRight(true);
+    document.WaitTask(document.MoveCaretWordRight(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 2}, 
+        ElementSelectionState{ElementId{0}, 0, 1})) << document.GetEditorState().ToString();
+    
+    document.MoveCaretRight(false);
+    document.MoveCaretWordLeft(true);
+    document.MoveCaretWordLeft(true);
+    document.WaitTask(document.MoveCaretWordLeft(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0}, 
+        ElementSelectionState{ElementId{0}, 0, 1})) << document.GetEditorState().ToString();
+}
+
+//Select a code block with word right, word left
+TEST_F(DocumentTest, caret68)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.InsertString("123", true);
+    document.InsertParagraph(true);
+    document.InsertString("23", true);
+    document.MoveCaretToDocumentEnd(false);
+    document.InsertString("Арифме́тика (др.-греч. ἀριθμητική, arithmētikḗ — от ἀριθμός, arithmós «число») — "\
+        "раздел математики, изучающий числа, их отношения и свойства.", true);
+    document.MoveCaretToDocumentBegin(false);
+    document.MoveCaretWordRight(false);
+    document.MoveCaretWordRight(false);
+    document.MoveCaretWordLeft(true);
+    document.WaitTask(document.MoveCaretWordLeft(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0}, 
+        ElementSelectionState{ElementId{0, 0, 0}, 0, 1}, 
+        ElementSelectionState{ElementId{0, 0, 0, 1}, 0, 11})) << document.GetEditorState().ToString();
+    
+    document.WaitTask(document.MoveCaretLeft(false));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0})) << document.GetEditorState().ToString();
+    
+    document.MoveCaretWordRight(true);
+    document.WaitTask(document.MoveCaretWordRight(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 1, 11}, 
+        ElementSelectionState{ElementId{0, 0, 0}, 0, 1}, 
+        ElementSelectionState{ElementId{0, 0, 0, 1}, 0, 11})) << document.GetEditorState().ToString();
+}
+
 }

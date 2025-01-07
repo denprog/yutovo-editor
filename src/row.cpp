@@ -749,6 +749,7 @@ bool Row::GetWordRightCaretState(CaretState& caret_state, Selection* select)
     int p = yutovo::GetChildPos(id, caret_state.id);
     if (p < elements->Count())
     {
+        CaretState c;
         if (elements->Get(p)->HasCaretState() && p < elements->Count() - 1)
         {
             if (select)
@@ -757,7 +758,6 @@ bool Row::GetWordRightCaretState(CaretState& caret_state, Selection* select)
                 caret_state.SetState(id, p + 1);
             else
             {
-                CaretState c;
                 if (elements->Get(p + 1)->GetFirstCaretState(c, nullptr))
                     caret_state = c;
             }
@@ -770,9 +770,37 @@ bool Row::GetWordRightCaretState(CaretState& caret_state, Selection* select)
             caret_state.SetState(id, p + 1, true);
             return true;
         }
+        else if (select && p + 1 < elements->Count() && document->IsString(elements->Get(p + 1)))
+        {
+            if (elements->Get(p + 1)->GetFirstCaretState(c, nullptr) && elements->Get(p + 1)->GetWordRightCaretState(c, select))
+            {
+                caret_state = c;
+                return true;
+            }
+        }
+        else if (p + 2 < elements->Count() && select)
+        {
+            if (elements->Get(p + 2)->HasLastCaretState())
+            {
+                select->Add(id, p + 1, 1);
+                caret_state.SetState(id, p + 2, true);
+                return true;
+            }
+            if (elements->Get(p + 2)->GetFirstCaretState(c, nullptr))
+            {
+                select->Add(id, p + 1, 1);
+                caret_state = c;
+                return true;
+            }
+        }
         else if (p + 1 < elements->Count())
         {
-            CaretState c;
+            if (select && elements->Get(p + 1)->HasLastCaretState())
+            {
+                select->Add(id, p + 1, 1);
+                caret_state.SetState(id, p + 2, true);
+                return true;
+            }
             if (elements->Get(p + 1)->GetFirstCaretState(c, nullptr) && elements->Get(p + 1)->GetWordRightCaretState(c, select))
             {
                 caret_state = c;

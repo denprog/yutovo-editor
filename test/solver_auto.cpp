@@ -1536,6 +1536,7 @@ TEST_F(SolverAutoTest, solver35)
     document.WaitTask(document.MoveCaretHome(true));
     document.WaitTask(document.SetBold(true));
     document.WaitTask(document.MoveCaretRight(false));
+    std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 1, 0, 0, 2})) << document.GetEditorState().ToString();
 
     document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
