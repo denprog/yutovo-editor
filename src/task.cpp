@@ -375,6 +375,8 @@ bool DeleteElementsTask::Execute()
             uint start = 0, size = 0;
             ElementId p_id = selection_state.GetCommonElement(start, size);
             auto p = document->GetElement(p_id);
+            if (!p->editable)
+                return false;
             if (document->IsString(p))
             {
                 document->StoreUndo(p->parent->parent->id);
