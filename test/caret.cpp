@@ -2099,4 +2099,29 @@ TEST_F(DocumentTest, caret68)
         ElementSelectionState{ElementId{0, 0, 0, 1}, 0, 11})) << document.GetEditorState().ToString();
 }
 
+//Check non-editable result
+TEST_F(DocumentTest, caret69)
+{
+    Start(700);
+
+    document.InsertCode(false, true);
+    document.WaitTask(document.InsertString("123", true));
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+
+    document.MoveCaretRight(false);
+    document.MoveCaretRight(true);
+    document.WaitTask(document.MoveCaretRight(true));
+    ASSERT_TRUE(document.ToText() == 
+        U"123=123."
+        ) << ToBasicString(document.ToText());
+
+    document.WaitTask(document.DeleteElements(false, true));
+    ASSERT_TRUE(document.ToText() == 
+        U"123=123."
+        ) << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 2}, 
+        ElementSelectionState{ElementId{0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0}, 0, 2})) << document.GetEditorState().ToString();
+}
+
 }
