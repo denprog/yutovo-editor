@@ -1942,7 +1942,7 @@ bool Document::CanRedo()
         last_undo_task_id = undo_tasks.back()->id;
     
     int i = 0;
-    for (i = redo_tasks.size() - 1; i >=0; --i)
+    for (i = redo_tasks.size() - 1; i >= 0; --i)
     {
         if (redo_tasks[i]->id == last_undo_task_id)
             break;

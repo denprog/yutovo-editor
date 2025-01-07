@@ -816,6 +816,8 @@ bool ChangeStringFormatTask::Execute()
                         changed_element = GetCommonParent(changed_element, _changed_element);
                     else
                         changed_element = _changed_element;
+                    if (changed_element.empty())
+                        changed_element = el->elements->Get(i)->id;
                     changed = true;
                 }
             }
