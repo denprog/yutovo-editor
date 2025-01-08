@@ -971,4 +971,27 @@ TEST_F(FormulaTest, fences13)
         ElementSelectionState{ElementId{0, 0, 0, 0, 0, 0, 0, 2}, 1, 2})) << document.GetEditorState().ToString();
 }
 
+//Insert fences after selection
+TEST_F(FormulaTest, fences14)
+{
+    Start(600);
+
+    document.InsertString("Text", true);
+    document.MoveCaretHome(true);
+    document.WaitTask(document.InsertFences(true));
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mo>(</mo>"\
+                        "<mo>)</mo>"\
+                    "</mrow>"\
+                "</math>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0, 0, 1})) << document.GetEditorState().ToString();
+}
+
 }
