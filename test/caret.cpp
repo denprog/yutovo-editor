@@ -1496,11 +1496,13 @@ TEST_F(DocumentTest, caret46)
     for (int i = 0; i < 7; ++i)
         document.MoveCaretRight(false);
     document.MoveCaretDown(false);
+    document.MoveCaretHome(false);
     document.WaitTask(document.MoveCaretHome(false));
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0})) << document.GetEditorState().ToString();
 
     for (int i = 0; i < 7; ++i)
         document.MoveCaretRight(false);
+    document.MoveCaretEnd(false);
     document.MoveCaretEnd(false);
     document.WaitTask(document.MoveCaretEnd(false));
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 1})) << document.GetEditorState().ToString();
@@ -2122,6 +2124,65 @@ TEST_F(DocumentTest, caret69)
         ) << ToBasicString(document.ToText());
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 2}, 
         ElementSelectionState{ElementId{0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0}, 0, 2})) << document.GetEditorState().ToString();
+}
+
+//Select equation with Home
+TEST_F(DocumentTest, caret70)
+{
+    Start(700);
+
+    document.InsertCode(false, true);
+    document.WaitTask(document.InsertString("123", true));
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+    document.MoveCaretEnd(false);
+    document.MoveCaretLeft(false);
+    document.MoveCaretHome(true);
+    document.WaitTask(document.MoveCaretHome(true));
+    ASSERT_TRUE(document.ToText() == 
+        U"123=123."
+        ) << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0, 0, 0}, 
+        ElementSelectionState{ElementId{0}, 0, 1})) << document.GetEditorState().ToString();
+    
+    document.MoveCaretHome(false);
+    document.MoveCaretRight(false);
+    document.MoveCaretRight(false);
+    document.MoveCaretEnd(true);
+    document.WaitTask(document.MoveCaretEnd(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0, 0, 1}, 
+        ElementSelectionState{ElementId{0}, 0, 1})) << document.GetEditorState().ToString();
+}
+
+//Select a single element inside a code block
+TEST_F(DocumentTest, caret71)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.InsertString("234", true);
+    document.InsertPower(true);
+    document.InsertString("45", true);
+    document.MoveCaretHome(true);
+    document.WaitTask(document.MoveCaretHome(true));
+    ASSERT_TRUE(document.ToText() == 
+        U"pow(234,45)"
+        ) << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0, 0, 0}, 
+        ElementSelectionState{ElementId{0}, 0, 1})) << document.GetEditorState().ToString();
+    
+    document.WaitTask(document.MoveCaretLeft(false));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0})) << document.GetEditorState().ToString();
+
+    document.MoveCaretRight(false);
+    document.MoveCaretRight(false);
+    document.MoveCaretEnd(true);
+    document.WaitTask(document.MoveCaretEnd(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0, 0, 1}, 
+        ElementSelectionState{ElementId{0}, 0, 1})) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.MoveCaretRight(false));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 1})) << document.GetEditorState().ToString();
 }
 
 }

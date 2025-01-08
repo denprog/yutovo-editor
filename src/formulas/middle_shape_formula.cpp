@@ -245,6 +245,28 @@ bool MiddleShapeFormula::GetWordRightCaretState(CaretState& caret_state, Selecti
     return Formula::GetWordRightCaretState(caret_state, select);
 }
 
+bool MiddleShapeFormula::GetBeginCaretState(CaretState& caret_state, Selection* select)
+{
+    if (select && caret_state.IsInsideElement(id))
+    {
+        caret_state.SetState(parent->id, parent->elements->GetChildPos(id));
+        select->Add(parent->id, parent->elements->GetChildPos(id), 1);
+        return true;
+    }
+    return Formula::GetBeginCaretState(caret_state, select);
+}
+
+bool MiddleShapeFormula::GetEndCaretState(CaretState& caret_state, Selection* select)
+{
+    if (select && caret_state.IsInsideElement(id))
+    {
+        caret_state.SetState(parent->id, parent->elements->GetChildPos(id) + 1);
+        select->Add(parent->id, parent->elements->GetChildPos(id), 1);
+        return true;
+    }
+    return Formula::GetEndCaretState(caret_state, select);
+}
+
 CodeRow* MiddleShapeFormula::GetFirst() const
 {
     return (CodeRow*)elements->Get(0).get();
