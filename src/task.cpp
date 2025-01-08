@@ -482,7 +482,7 @@ bool InsertFormulasTask::Execute()
     assert(el);
 
     std::vector<ElementPtr> select_elements;
-    if (select_pos != -1)
+    if (select_pos != -1 && document->FindParent(caret_state.id, ElementType::CODE_BLOCK) != nullptr)
     {
         if (with_undo)
             document->StoreUndo(el->id);
