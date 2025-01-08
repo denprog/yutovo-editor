@@ -146,28 +146,6 @@ bool Division::GetBottomCaretState(const int x, const int y, CaretState& caret_s
     return parent->GetBottomCaretState(x, y, caret_state, select);
 }
 
-bool Division::GetBeginCaretState(CaretState& caret_state, Selection* select)
-{
-    if (select && caret_state.IsInsideElement(id))
-    {
-        caret_state.SetState(parent->id, parent->elements->GetChildPos(id));
-        select->Add(parent->id, parent->elements->GetChildPos(id), 1);
-        return true;
-    }
-    return MiddleShapeFormula::GetBeginCaretState(caret_state, select);
-}
-
-bool Division::GetEndCaretState(CaretState& caret_state, Selection* select)
-{
-    if (select && caret_state.IsInsideElement(id))
-    {
-        caret_state.SetState(parent->id, parent->elements->GetChildPos(id) + 1);
-        select->Add(parent->id, parent->elements->GetChildPos(id), 1);
-        return true;
-    }
-    return MiddleShapeFormula::GetEndCaretState(caret_state, select);
-}
-
 bool Division::UseSelection()
 {
     return true;

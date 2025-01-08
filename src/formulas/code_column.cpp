@@ -71,12 +71,7 @@ bool CodeColumn::GetBeginCaretState(CaretState& caret_state, Selection* select)
     if (row->GetFirstCaretState(c, select))
     {
         if (c == caret_state)
-        {
-            auto eq = document->FindParent(id, ElementType::EQUATION);
-            if (eq)
-                return eq->parent->GetBeginCaretState(caret_state, select);
             return parent->GetBeginCaretState(caret_state, select);
-        }
         caret_state = c;
         return true;
     }
@@ -92,12 +87,7 @@ bool CodeColumn::GetEndCaretState(CaretState& caret_state, Selection* select)
     if (row->GetLastCaretState(c, select))
     {
         if (c == caret_state)
-        {
-            auto eq = document->FindParent(id, ElementType::EQUATION);
-            if (eq)
-                return eq->parent->GetEndCaretState(caret_state, select);
             return parent->GetEndCaretState(caret_state, select);
-        }
         caret_state = c;
         return true;
     }
