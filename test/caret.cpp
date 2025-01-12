@@ -2185,4 +2185,70 @@ TEST_F(DocumentTest, caret71)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 1})) << document.GetEditorState().ToString();
 }
 
+//Word right, word left through out rows with code blocks
+TEST_F(DocumentTest, caret72)
+{
+    Start(600);
+
+    for (int i = 0; i < 7; ++i)
+    {
+        document.InsertCode(false, true);
+        document.InsertString("1234567", true);
+        document.MoveCaretToDocumentEnd(false);
+    }
+    document.MoveCaretToDocumentBegin(false);
+    for (int i = 0; i < 4; ++i)
+        document.MoveCaretWordRight(false);
+    document.WaitTask(document.MoveCaretWordRight(false));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 5})) << document.GetEditorState().ToString();
+    document.WaitTask(document.MoveCaretWordRight(false));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 0})) << document.GetEditorState().ToString();
+    document.WaitTask(document.MoveCaretWordRight(false));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 1})) << document.GetEditorState().ToString();
+    document.WaitTask(document.MoveCaretWordLeft(false));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 0})) << document.GetEditorState().ToString();
+    document.WaitTask(document.MoveCaretWordLeft(false));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 5})) << document.GetEditorState().ToString();
+    document.WaitTask(document.MoveCaretWordLeft(false));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 4})) << document.GetEditorState().ToString();
+}
+
+//Word right, word left through out paragraphs with code blocks
+TEST_F(DocumentTest, caret73)
+{
+    Start(600);
+
+    for (int i = 0; i < 4; ++i)
+    {
+        document.InsertCode(false, true);
+        document.InsertString("1234567", true);
+        document.MoveCaretToDocumentEnd(false);
+    }
+    document.InsertParagraph(false);
+    for (int i = 0; i < 2; ++i)
+    {
+        document.InsertCode(false, true);
+        document.InsertString("1234567", true);
+        document.MoveCaretToDocumentEnd(false);
+    }
+    document.WaitTask(document.MoveCaretWordLeft(false));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 1, 0, 1})) << document.GetEditorState().ToString();
+    document.WaitTask(document.MoveCaretWordLeft(false));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 1, 0, 0})) << document.GetEditorState().ToString();
+    document.WaitTask(document.MoveCaretWordLeft(false));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 4})) << document.GetEditorState().ToString();
+    document.WaitTask(document.MoveCaretWordLeft(false));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 3})) << document.GetEditorState().ToString();
+    document.WaitTask(document.MoveCaretWordRight(false));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 4})) << document.GetEditorState().ToString();
+    document.WaitTask(document.MoveCaretWordRight(false));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 1, 0, 0})) << document.GetEditorState().ToString();
+    document.WaitTask(document.MoveCaretWordRight(false));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 1, 0, 1})) << document.GetEditorState().ToString();
+    document.WaitTask(document.MoveCaretWordRight(false));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 1, 0, 2})) << document.GetEditorState().ToString();
+    document.WaitTask(document.MoveCaretWordRight(false));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 1, 0, 2})) << document.GetEditorState().ToString();
+}
+
 }

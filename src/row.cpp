@@ -746,10 +746,10 @@ bool Row::GetWordLeftCaretState(CaretState& caret_state, Selection* select)
 
 bool Row::GetWordRightCaretState(CaretState& caret_state, Selection* select)
 {
+    CaretState c;
     int p = yutovo::GetChildPos(id, caret_state.id);
     if (p < elements->Count())
     {
-        CaretState c;
         if (elements->Get(p)->HasCaretState() && p < elements->Count() - 1)
         {
             if (select)
@@ -821,12 +821,34 @@ bool Row::GetWordRightCaretState(CaretState& caret_state, Selection* select)
                 if (p < parent->parent->elements->Count() - 1)
                 {
                     //move to the next paragraph
-                    CaretState c;
                     if (parent->parent->elements->Get(p + 1)->GetFirstCaretState(c, nullptr))
                     {
                         caret_state = c;
                         return true;
                     }
+                }
+            }
+        }
+    }
+    if (GetLastCaretState(c, nullptr) && c == caret_state)
+    {
+        int p = parent->elements->GetChildPos(id);
+        if (p < parent->elements->Count() - 1)
+        {
+            //move to the next row
+            if (parent->elements->Get(p + 1)->GetFirstCaretState(caret_state, select))
+                return true;
+        }
+        else if (!select)
+        {
+            p = yutovo::GetChildPos(parent->id);
+            if (p < parent->parent->elements->Count() - 1)
+            {
+                //move to the next paragraph
+                if (parent->parent->elements->Get(p + 1)->GetFirstCaretState(c, nullptr))
+                {
+                    caret_state = c;
+                    return true;
                 }
             }
         }
