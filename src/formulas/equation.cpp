@@ -141,7 +141,10 @@ bool Equation::DeleteElements(bool left, bool with_undo, ElementId& changed_elem
     if (caret->IsOnElement(GetShape()->id) && !left)
     {
         if (with_undo)
-            document->StoreUndo(parent->id);
+        {
+            document->StoreUndo(parent->parent->id);
+            with_undo = false;
+        }
         elements->RemoveAt(2, 1);
     }
     return MiddleShapeFormula::DeleteElements(left, with_undo, changed_element);
