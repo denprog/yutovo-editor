@@ -1193,7 +1193,6 @@ bool UndoTask::Execute()
     document->caret->block = false;
     document->SetEditorState(before_state);
     document->RemoveErrorMarks(remake_id);
-    document->ReSolve(remake_id);
     return true;
 }
 

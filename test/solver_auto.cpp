@@ -1584,6 +1584,96 @@ TEST_F(SolverAutoTest, solver36)
         ToBasicString(document.ToText());
 }
 
+//Break a solving with a complex grammar
+TEST_F(SolverAutoTest, solver37)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.InsertString("234", true);
+    document.InsertDivision(true);
+    document.InsertString("3", true);
+    document.InsertDivision(true);
+    document.InsertString("4", true);
+    document.InsertDivision(true);
+    document.InsertString("6", true);
+    document.InsertDivision(true);
+    document.InsertString("7", true);
+    document.InsertDivision(true);
+    document.InsertString("6", true);
+    document.InsertDivision(true);
+    document.InsertString("7", true);
+    document.InsertDivision(true);
+    document.InsertString("2", true);
+    document.InsertDivision(true);
+    document.InsertString("4", true);
+    document.MoveCaretToDocumentEnd(false);
+    document.WaitTask(document.MoveCaretLeft(false));
+    time_t t = time(0);
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    std::this_thread::sleep_for(1s);
+
+    document.WaitTask(document.MoveCaretHome(false));
+    document.WaitTask(document.DeleteElements(false, true));
+    document.InsertString("234", true);
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(1s);
+    ASSERT_TRUE(document.ToText() == 
+        U"234=234.") << 
+        ToBasicString(document.ToText());
+    ASSERT_TRUE(time(0) - t <= 5);
+}
+
+//Break a solving with a complex grammar
+TEST_F(SolverAutoTest, solver38)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.InsertString("234", true);
+    document.InsertDivision(true);
+    document.InsertString("3", true);
+    document.InsertDivision(true);
+    document.InsertString("4", true);
+    document.InsertDivision(true);
+    document.InsertString("6", true);
+    document.InsertDivision(true);
+    document.InsertString("7", true);
+    document.InsertDivision(true);
+    document.InsertString("6", true);
+    document.InsertDivision(true);
+    document.InsertString("7", true);
+    document.InsertDivision(true);
+    document.InsertString("2", true);
+    document.InsertDivision(true);
+    document.InsertString("4", true);
+    document.MoveCaretToDocumentEnd(false);
+    document.WaitTask(document.MoveCaretLeft(false));
+    time_t t = time(0);
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    std::this_thread::sleep_for(2s);
+
+    document.WaitTask(document.DeleteElements(false, true));
+    std::this_thread::sleep_for(1s);
+
+    document.Undo();
+    document.WaitUndo();
+    document.Undo();
+    document.WaitUndo();
+
+    document.InsertParagraph(true);
+    document.InsertString("234", true);
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(2s);
+    ASSERT_TRUE(document.ToText() == 
+        U"(234)/((3)/((4)/((6)/((7)/((6)/((7)/((2)/(4))))))))\n"\
+        U"234=234.") << 
+        ToBasicString(document.ToText());
+    ASSERT_TRUE(time(0) - t <= 6);
+}
+
 //Solve with errors
 TEST_F(SolverAutoTest, errors1)
 {
