@@ -1,4 +1,4 @@
-#include "util.h"
+#include "editor_utils.h"
 #include <limits>
 #include <cmath>
 #include "row.h"
@@ -351,16 +351,6 @@ Element* CreateFromJson(Element* parent, Document* document, rapidjson::Value& v
         }
     }
     return el;
-}
-
-std::u32string ToUtfString(const std::string& str)
-{
-    return boost::locale::conv::utf_to_utf<char32_t>(str);
-}
-
-std::string ToBasicString(const std::u32string& str)
-{
-    return boost::locale::conv::utf_to_utf<char>(str);
 }
 
 std::string ErrorCodeToString(const yutovo_solver::ErrorCode error_code)

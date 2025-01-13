@@ -26,7 +26,7 @@
 #include "formulas/sum.h"
 #include "formulas/product.h"
 #include "formulas/comma.h"
-#include "util.h"
+#include "editor_utils.h"
 #include <assert.h>
 #include <chrono>
 #include <sstream>

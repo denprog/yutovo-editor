@@ -10,7 +10,7 @@
 #include "formulas/equation.h"
 #include "formulas/assignment.h"
 #include <yutovo_logger/logger.h>
-#include "util.h"
+#include "editor_utils.h"
 #include "result_codes.h"
 #include <assert.h>
 #include <boost/algorithm/string.hpp>

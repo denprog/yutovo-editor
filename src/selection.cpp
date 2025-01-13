@@ -1,6 +1,6 @@
 #include "selection.h"
 #include "document.h"
-#include "util.h"
+#include "editor_utils.h"
 #include <functional>
 
 namespace yutovo

@@ -4,7 +4,7 @@
 #include <memory>
 #include <fstream>
 #include "window.h"
-#include "util.h"
+#include "editor_utils.h"
 #include "caret_state.h"
 #include "parser_string.h"
 #include <rapidjson/document.h>

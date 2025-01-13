@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 #include "mock.h"
 #include <QPainter>
-#include "util.h"
+#include "editor_utils.h"
 
 namespace yutovo_test
 {
