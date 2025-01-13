@@ -13,7 +13,7 @@
 #include "text.h"
 #include "task.h"
 #include "solver.h"
-#include "util.h"
+#include "editor_utils.h"
 #include "editor_state.h"
 #include "config.h"
 #include "undo.h"

@@ -1,7 +1,7 @@
 #include "caret.h"
 #include "text.h"
 #include "document.h"
-#include "util.h"
+#include "editor_utils.h"
 #include <chrono>
 
 #pragma clang diagnostic push

@@ -5,7 +5,7 @@
 #include <QApplication>
 #include <gmock/gmock.h>
 #include "document.h"
-#include "util.h"
+#include "editor_utils.h"
 #include "window.h"
 
 namespace yutovo_test

@@ -1,5 +1,5 @@
-#ifndef __UTIL_H__
-#define __UTIL_H__
+#ifndef __EDITOR_UTILS_H__
+#define __EDITOR_UTILS_H__
 
 #include <stdint.h>
 #include <iostream>
@@ -313,9 +313,6 @@ ElementId GetCommonParent(const ElementId& id1, const ElementId& id2);
 ElementId GetCommonParent(const std::vector<ElementId>& ids);
 
 Element* CreateFromJson(Element* parent, Document* document, rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc);
-
-std::u32string ToUtfString(const std::string& str);
-std::string ToBasicString(const std::u32string& str);
 
 std::string ErrorCodeToString(const yutovo_solver::ErrorCode error_code);
 std::string ErrorCodeToString(const yutovo_calculator::ParserExceptionCode parser_error_code);

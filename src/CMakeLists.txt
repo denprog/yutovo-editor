@@ -54,7 +54,7 @@ add_library(${PROJECT_NAME}
     style.cpp
     text.cpp
     window.cpp
-    util.cpp
+    editor_utils.cpp
     result_codes.cpp
     solver.cpp
     solver_task.cpp
@@ -176,7 +176,7 @@ install(
         task.h
         window.h
         style.h
-        util.h
+        editor_utils.h
         config.h
         web_socket.h
         parser_string.h

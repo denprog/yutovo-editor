@@ -1,6 +1,6 @@
 #include "str.h"
 #include "document.h"
-#include "util.h"
+#include "editor_utils.h"
 #include <assert.h>
 #include <boost/locale.hpp>
 #include <boost/lexical_cast.hpp>

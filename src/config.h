@@ -2,7 +2,7 @@
 #define __CONFIG_H__
 
 #include <string>
-#include "util.h"
+#include "editor_utils.h"
 #include <yutovo_calculator/unit.h>
 #include <yutovo_calculator/math_helper.h>
 #include <yutovo_logger/logger.h>
