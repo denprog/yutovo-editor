@@ -176,6 +176,20 @@ void Config::RealResultConfig::FromJson(rapidjson::Value& value, rapidjson::Docu
         unit.FromString(ToUtfString(value["unit"].GetString()));
 }
 
+std::string Config::RealResultConfig::ToString()
+{
+    rapidjson::Document json;
+    json.SetObject();
+    rapidjson::Value c(rapidjson::kObjectType);
+    auto& alloc = json.GetAllocator();
+    ToJson(c, alloc);
+    json.AddMember("RealResultConfig", c, alloc);
+    rapidjson::StringBuffer buffer;
+    rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
+    json.Accept(writer);
+    return buffer.GetString();
+}
+
 //Config::IntegerResultConfig
 
 void Config::IntegerResultConfig::ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc)
@@ -193,6 +207,20 @@ void Config::IntegerResultConfig::FromJson(rapidjson::Value& value, rapidjson::D
         default_notation = (Notation)value["default_notation"].GetInt();
     if (value.HasMember("show_notation") && value["show_notation"].IsBool())
         show_notation = value["show_notation"].GetBool();
+}
+
+std::string Config::IntegerResultConfig::ToString()
+{
+    rapidjson::Document json;
+    json.SetObject();
+    rapidjson::Value c(rapidjson::kObjectType);
+    auto& alloc = json.GetAllocator();
+    ToJson(c, alloc);
+    json.AddMember("IntegerResultConfig", c, alloc);
+    rapidjson::StringBuffer buffer;
+    rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
+    json.Accept(writer);
+    return buffer.GetString();
 }
 
 //Config::RationalResultConfig
@@ -214,6 +242,20 @@ void Config::RationalResultConfig::FromJson(rapidjson::Value& value, rapidjson::
         fraction_form = (FractionForm)value["fraction_form"].GetInt();
     if (value.HasMember("unit") && value["unit"].IsString())
         unit.FromString(ToUtfString(value["unit"].GetString()));
+}
+
+std::string Config::RationalResultConfig::ToString()
+{
+    rapidjson::Document json;
+    json.SetObject();
+    rapidjson::Value c(rapidjson::kObjectType);
+    auto& alloc = json.GetAllocator();
+    ToJson(c, alloc);
+    json.AddMember("RationalResultConfig", c, alloc);
+    rapidjson::StringBuffer buffer;
+    rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
+    json.Accept(writer);
+    return buffer.GetString();
 }
 
 //Config::ComplexResultConfig
@@ -245,6 +287,20 @@ void Config::ComplexResultConfig::FromJson(rapidjson::Value& value, rapidjson::D
         form = (ComplexForm)value["form"].GetInt();
     if (value.HasMember("max_count") && value["max_count"].IsInt())
         max_count = value["max_count"].GetInt();
+}
+
+std::string Config::ComplexResultConfig::ToString()
+{
+    rapidjson::Document json;
+    json.SetObject();
+    rapidjson::Value c(rapidjson::kObjectType);
+    auto& alloc = json.GetAllocator();
+    ToJson(c, alloc);
+    json.AddMember("ComplexResultConfig", c, alloc);
+    rapidjson::StringBuffer buffer;
+    rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
+    json.Accept(writer);
+    return buffer.GetString();
 }
 
 //Config::AutoResultConfig
@@ -310,6 +366,20 @@ void Config::AutoResultConfig::FromJson(rapidjson::Value& value, rapidjson::Docu
         rapidjson::Value obj = value["complex_config"].GetObject();
         complex_result.FromJson(obj, alloc);
     }
+}
+
+std::string Config::AutoResultConfig::ToString()
+{
+    rapidjson::Document json;
+    json.SetObject();
+    rapidjson::Value c(rapidjson::kObjectType);
+    auto& alloc = json.GetAllocator();
+    ToJson(c, alloc);
+    json.AddMember("AutoResultConfig", c, alloc);
+    rapidjson::StringBuffer buffer;
+    rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
+    json.Accept(writer);
+    return buffer.GetString();
 }
 
 }

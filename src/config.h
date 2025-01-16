@@ -78,6 +78,8 @@ struct Config
         void ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc);
         void FromJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc);
 
+        std::string ToString();
+
         uint precision = 3;
         uint exp = 10;
         AngleMeasure default_angle_measure = AngleMeasure::Radian;
@@ -98,6 +100,8 @@ struct Config
         void ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc);
         void FromJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc);
 
+        std::string ToString();
+
         Notation result_notation = Notation::Decimal;
         Notation default_notation = Notation::Decimal;
         bool show_notation = true;
@@ -114,6 +118,8 @@ struct Config
 
         void ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc);
         void FromJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc);
+
+        std::string ToString();
 
         FractionForm fraction_form = FractionForm::Proper;
         yutovo_calculator::Unit unit;
@@ -132,6 +138,8 @@ struct Config
 
         void ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc);
         void FromJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc);
+
+        std::string ToString();
 
         uint precision = 3;
         uint exp = 10;
@@ -156,6 +164,8 @@ struct Config
 
         void ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc);
         void FromJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc);
+
+        std::string ToString();
 
         bool result_auto_advance = true;
         yutovo_solver::ResultType results_order[4] = {ResultType::REAL, ResultType::INTEGER, ResultType::RATIONAL, ResultType::COMPLEX};
