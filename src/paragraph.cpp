@@ -218,7 +218,7 @@ bool Paragraph::Remake(bool with_elements)
     {
         ElementPtr row = elements->Get(i);
         if (row->type == ElementType::ROW)
-            ((Row*)row.get())->Align(format->alignment);
+            ((Row*)row.get())->Align();
         row->GetMargin(left_m, top_m, right_m, bottom_m); //consider the margins
         row->rect.Move(format->indent_before, h + top_m); //move the row
         h += row->rect.height + format->line_spacing + top_m + bottom_m;

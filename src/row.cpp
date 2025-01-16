@@ -103,6 +103,8 @@ bool Row::Remake(bool with_elements)
 
     baseline += max_top_m;
 
+    Align();
+
     if (rect != last_rect)
     {
         last_rect = rect;
@@ -987,15 +989,18 @@ bool Row::IsEmpty()
     return elements->Get(0)->elements->Count() == 0;
 }
 
-void Row::Align(ParagraphFormat::Alignment alignment)
+void Row::Align()
 {
+    if (type != ElementType::ROW)
+        return;
+    
     int cx = 0;
     int left_m, top_m, right_m, bottom_m;
     ParagraphFormatPtr format = ((Paragraph*)parent)->format;
     int page_width = ((Text*)parent->parent)->page_width;
     int line_width = page_width - format->indent_before - format->indent_after;
 
-    switch (alignment)
+    switch (format->alignment)
     {
     case ParagraphFormat::Alignment::Left:
         break;
@@ -1081,6 +1086,9 @@ void Row::Align(ParagraphFormat::Alignment alignment)
         }
         break;
     }
+
+    UpdateRect();
+    UpdateDrawRect();
 }
 
 }
