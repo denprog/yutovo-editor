@@ -45,7 +45,7 @@ public:
 
     virtual bool IsEmpty();
 
-    virtual void Align(ParagraphFormat::Alignment alignment);
+    virtual void Align();
 };
 
 typedef std::shared_ptr<Row> RowPtr;
