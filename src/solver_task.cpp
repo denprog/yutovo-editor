@@ -206,7 +206,10 @@ void SolverTask::FillError(rapidjson::Document& doc, Result& result)
         if (error.HasMember("parser_error_code") && error["parser_error_code"].IsInt())
             result.error.parser_error_code = (yutovo_calculator::ParserExceptionCode)error["parser_error_code"].GetInt();
         if (result.error.error_code != ErrorCode::SOLVER_RESTARTED_ERROR && result.error.error_code != ErrorCode::OK)
-            LOG_ERROR("Solver error: {}", ErrorCodeToString(result.error.error_code));
+        {
+            LOG_ERROR("Solver error: {}{}", ErrorCodeToString(result.error.error_code), 
+                result.error.error_code == ErrorCode::PARSER_ERROR ? ": " + ErrorCodeToString(result.error.parser_error_code) : "");
+        }
         if (error.HasMember("pos") && error["pos"].IsInt())
             result.error.pos = error["pos"].GetInt();
         if (error.HasMember("size") && error["size"].IsInt())
@@ -230,7 +233,7 @@ void SolverTask::FillError(rapidjson::Document& doc, Result& result)
         return;
     }
     if (result.error.error_code != ErrorCode::SOLVER_RESTARTED_ERROR && result.error.error_code != ErrorCode::OK)
-        LOG_ERROR("Solver error: {}", (int)result.error.error_code);
+        LOG_ERROR("Solver error: {} {}", (int)result.error.error_code, ErrorCodeToString(result.error.error_code));
     result.error.error_code = ErrorCode::PARSER_ERROR;
 }
 
@@ -423,6 +426,8 @@ bool AutoSolverTask::Execute(WebSocketPtr socket, Result& result)
 
     AddUnit(doc, config.real_result.unit);
 
+    LOG_DEBUG("Solve expression:\"{}\", config:{}", s, config.ToString());
+
     if (!SendRequest(doc, result, socket))
         return false;
 
@@ -443,6 +448,7 @@ bool AutoSolverTask::Execute(WebSocketPtr socket, Result& result)
     if (doc.HasMember("error"))
     {
         FillError(doc, result);
+        LOG_DEBUG("Result:{}", "{" + result.ToString() + "}");
         return false;
     }
 
@@ -450,16 +456,27 @@ bool AutoSolverTask::Execute(WebSocketPtr socket, Result& result)
     switch (result.type)
     {
     case ResultType::REAL:
-        return FillRealResult(doc, result);
+        if (!FillRealResult(doc, result))
+            return false;
+        break;
     case ResultType::INTEGER:
-        return FillIntegerResult(doc, result);
+        if (!FillIntegerResult(doc, result))
+            return false;
+        break;
     case ResultType::RATIONAL:
-        return FillRationalResult(doc, result);
+        if (!FillRationalResult(doc, result))
+            return false;
+        break;
     case ResultType::COMPLEX:
-        return FillComplexResult(doc, result);
+        if (!FillComplexResult(doc, result))
+            return false;
+        break;
     default:
         return false;
     }
+
+    LOG_DEBUG("Result:{}", "{" + result.ToString() + "}");
+    return true;
 }
 
 //RealSolverTask
@@ -493,6 +510,8 @@ bool RealSolverTask::Execute(WebSocketPtr socket, Result& result)
 
     AddUnit(doc, config.unit);
 
+    LOG_DEBUG("Solve expression:\"{}\", config:{}", s, config.ToString());
+
     if (!SendRequest(doc, result, socket))
         return false;
 
@@ -513,14 +532,21 @@ bool RealSolverTask::Execute(WebSocketPtr socket, Result& result)
     if (doc.HasMember("error"))
     {
         FillError(doc, result);
+        LOG_DEBUG("Result:{}", "{" + result.ToString() + "}");
         return false;
     }
 
     GetResultType(doc, result);
     if (result.type != ResultType::REAL)
+    {
+        LOG_ERROR("Error: result type not Real");
         return false;
+    }
 
-    return FillRealResult(doc, result);
+    if (!FillRealResult(doc, result))
+        return false;
+    LOG_DEBUG("Result:{}", "{" + result.ToString() + "}");
+    return true;
 }
 
 //IntegerSolverTask
@@ -550,6 +576,8 @@ bool IntegerSolverTask::Execute(WebSocketPtr socket, Result& result)
     std::string s = ToBasicString(expression);
     doc.AddMember("expression", rapidjson::StringRef(s.c_str()), alloc);
 
+    LOG_DEBUG("Solve expression:\"{}\", config:{}", s, config.ToString());
+
     if (!SendRequest(doc, result, socket))
         return false;
 
@@ -571,14 +599,21 @@ bool IntegerSolverTask::Execute(WebSocketPtr socket, Result& result)
     if (doc.HasMember("error"))
     {
         FillError(doc, result);
+        LOG_DEBUG("Result:{}", "{" + result.ToString() + "}");
         return false;
     }
 
     GetResultType(doc, result);
     if (result.type != ResultType::INTEGER)
+    {
+        LOG_ERROR("Error: result type not Integer");
         return false;
+    }
 
-    return FillIntegerResult(doc, result);
+    if (!FillIntegerResult(doc, result))
+        return false;
+    LOG_DEBUG("Result:{}", "{" + result.ToString() + "}");
+    return true;
 }
 
 //RationalSolverTask
@@ -609,6 +644,8 @@ bool RationalSolverTask::Execute(WebSocketPtr socket, Result& result)
 
     AddUnit(doc, config.unit);
 
+    LOG_DEBUG("Solve expression:\"{}\", config:{}", s, config.ToString());
+
     if (!SendRequest(doc, result, socket))
         return false;
 
@@ -630,14 +667,21 @@ bool RationalSolverTask::Execute(WebSocketPtr socket, Result& result)
     if (doc.HasMember("error"))
     {
         FillError(doc, result);
+        LOG_DEBUG("Result:{}", "{" + result.ToString() + "}");
         return false;
     }
 
     GetResultType(doc, result);
     if (result.type != ResultType::RATIONAL)
+    {
+        LOG_ERROR("Error: result type not Rational");
         return false;
+    }
 
-    return FillRationalResult(doc, result);
+    if (!FillRationalResult(doc, result))
+        return false;
+    LOG_DEBUG("Result:{}", "{" + result.ToString() + "}");
+    return true;
 }
 
 //ComplexSolverTask
@@ -671,6 +715,8 @@ bool ComplexSolverTask::Execute(WebSocketPtr socket, Result& result)
     doc.AddMember("form", (int)config.form, alloc);
     doc.AddMember("max_count", config.max_count, alloc);
 
+    LOG_DEBUG("Solve expression:\"{}\", config:{}", s, config.ToString());
+
     if (!SendRequest(doc, result, socket))
         return false;
 
@@ -691,14 +737,21 @@ bool ComplexSolverTask::Execute(WebSocketPtr socket, Result& result)
     if (doc.HasMember("error"))
     {
         FillError(doc, result);
+        LOG_DEBUG("Result:{}", "{" + result.ToString() + "}");
         return false;
     }
 
     GetResultType(doc, result);
     if (result.type != ResultType::COMPLEX)
+    {
+        LOG_ERROR("Error: result type not Complex");
         return false;
+    }
 
-    return FillComplexResult(doc, result);
+    if (!FillComplexResult(doc, result))
+        return false;
+    LOG_DEBUG("Result:{}", "{" + result.ToString() + "}");
+    return true;
 }
 
 //BreakSolverTask
@@ -739,6 +792,7 @@ bool BreakSolverTask::Execute(WebSocketPtr socket, Result& result)
 
     if (doc.HasMember("error"))
     {
+        LOG_ERROR("Break error");
         FillError(doc, result);
         return false;
     }
@@ -804,6 +858,7 @@ bool RemoveIdentifierSolverTask::Execute(WebSocketPtr socket, Result& result)
 
     if (doc.HasMember("error"))
     {
+        LOG_ERROR("Remove identifier error");
         FillError(doc, result);
         return false;
     }
@@ -847,6 +902,7 @@ bool RemoveUserIdentifiersSolverTask::Execute(WebSocketPtr socket, Result& resul
 
     if (doc.HasMember("error"))
     {
+        LOG_ERROR("Remove user identifier error");
         FillError(doc, result);
         return false;
     }

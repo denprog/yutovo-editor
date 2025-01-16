@@ -64,6 +64,8 @@ typedef std::map<std::string, std::string> Value;
 
 struct Result
 {
+    std::string ToString();
+
     yutovo_solver::ResultType type = yutovo_solver::ResultType::NONE;
     std::vector<Value> values;
     yutovo_calculator::AngleMeasure angle_measure = yutovo_calculator::AngleMeasure::None;

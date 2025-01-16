@@ -50,7 +50,7 @@ WebSocket::~WebSocket()
 #endif
 #endif
     exit = true;
-    LOG_INFO("WebSocket closed");
+    LOG_DEBUG("WebSocket closed");
 }
 
 bool WebSocket::Connect()

@@ -319,6 +319,7 @@ std::string ErrorCodeToString(const yutovo_calculator::ParserExceptionCode parse
 
 std::string AngleMeasureToString(const AngleMeasure angle_measure);
 std::string NotationToString(const Notation notation);
+std::string ResultTypeToString(const yutovo_solver::ResultType result_type);
 
 struct ErrorMark
 {

@@ -428,6 +428,26 @@ std::string NotationToString(const Notation notation)
     return "";
 }
 
+std::string ResultTypeToString(const yutovo_solver::ResultType result_type)
+{
+    switch (result_type)
+    {
+	case yutovo_solver::ResultType::NONE:
+        return "None";
+	case yutovo_solver::ResultType::REAL:
+        return "Real";
+	case yutovo_solver::ResultType::INTEGER:
+        return "Integer";
+	case yutovo_solver::ResultType::RATIONAL:
+        return "Rational";
+	case yutovo_solver::ResultType::COMPLEX:
+        return "Complex";
+	case yutovo_solver::ResultType::AUTO:
+        return "Auto";
+    }
+    return "";
+}
+
 bool IsLess(const ElementId& id1, const ElementId& id2)
 {
 	for (size_t i = 0, j = 0; i < id1.size() && j < id2.size(); ++i, ++j)
