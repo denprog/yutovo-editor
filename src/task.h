@@ -192,13 +192,14 @@ struct MoveCaretTask : Task
         DOCUMENT_END,
         SELECT_ALL,
         SELECT_TO_POINT,
-        SELECT_OUT
+        SELECT_OUT,
+        CLICK_LINK
     };
 
     MoveCaretTask(ElementPtr _text, CaretPtr _caret, MoveCaretDir _dir, bool _visible);
     MoveCaretTask(ElementPtr _text, CaretPtr _caret, MoveCaretDir _dir, bool _visible, bool _select);
     MoveCaretTask(ElementPtr _text, CaretPtr _caret, MoveCaretDir _dir, bool _visible, bool _select, uint _task_id);
-    MoveCaretTask(ElementPtr _text, CaretPtr _caret, Point _point);
+    MoveCaretTask(ElementPtr _text, CaretPtr _caret, Point _point, MoveCaretDir _dir);
     MoveCaretTask(ElementPtr _text, CaretPtr _caret, Point _start, Point _end);
 
     virtual bool Execute();

@@ -4,6 +4,7 @@
 #include "row.h"
 #include "text.h"
 #include "image.h"
+#include "link.h"
 #include "formulas/code_row.h"
 #include "formulas/code_paragraph.h"
 #include "formulas/code_block.h"
@@ -98,6 +99,50 @@ bool UndoString::operator==(const String& el) const
 Element* UndoString::Restore(Document* document, Element* parent)
 {
     Element* el = new String(parent, str, format);
+    el->can_merge = can_merge;
+    return el;
+}
+
+//UndoLink
+
+UndoLink::UndoLink(std::u32string _str, std::u32string _url, StringFormatPtr _format, bool _can_merge) : 
+    UndoElement(ElementType::LINK),
+    str(_str),
+    url(_url),
+    format(_format),
+    can_merge(_can_merge)
+{
+}
+
+bool UndoLink::operator==(const UndoLink& el) const
+{
+    if (!UndoElement::operator==(el))
+        return false;
+    return str == el.str && url == el.url && *format == *el.format;
+}
+
+bool UndoLink::operator==(const Element& el) const
+{
+    if (!UndoElement::operator==(el))
+        return false;
+    Link& link = (Link&)el;
+    return str == el.elements->ToText() && url == link.url && *format == *(link).format;
+}
+
+bool UndoLink::operator==(const Link& el) const
+{
+    if (!UndoElement::operator==(el))
+        return false;
+    return str == el.elements->ToText() && url == el.url && *format == *el.format;
+}
+
+Element* UndoLink::Restore(Document* document, Element* parent)
+{
+    Element* el;
+    if (parent)
+        el = new Link(parent, str, url, format);
+    else
+        el = new Link(document, str, url, format);
     el->can_merge = can_merge;
     return el;
 }
@@ -686,6 +731,9 @@ UndoElementPtr UndoBase::StoreElement(const LogicalId id, ElementPtr el)
     {
     case ElementType::STRING:
         undo_element.reset(new UndoString(el->ToText(), ((String*)el.get())->format, el->can_merge));
+        break;
+    case ElementType::LINK:
+        undo_element.reset(new UndoLink(el->ToText(), ((Link*)el.get())->url, ((String*)el.get())->format, el->can_merge));
         break;
     case ElementType::PARAGRAPH:
         undo_element.reset(new UndoParagraph(((Paragraph*)el.get())->format));

@@ -1,5 +1,6 @@
 #include "document.h"
 #include "str.h"
+#include "link.h"
 #include "paragraph.h"
 #include "row.h"
 #include "image.h"
@@ -363,6 +364,24 @@ uint Document::InsertString(const std::string& str, ElementId element_id, bool w
     }
     next_circle = true;
     return last_task_id;
+}
+
+uint Document::InsertLink(const std::string& str, const std::string& url, bool with_undo)
+{
+    LOG_TRACE("Insert link: {} {}", str, url);
+    StringFormatPtr format;
+    if (GetCurrentStringFormat(format))
+        return InsertElement(new Link(this, str, url, format), with_undo);
+    return 0;
+}
+
+uint Document::InsertLink(const std::u32string& str, const std::u32string& url, bool with_undo)
+{
+    LOG_TRACE("Insert link: {} {}", ToBasicString(str), ToBasicString(url));
+    StringFormatPtr format;
+    if (GetCurrentStringFormat(format))
+        return InsertElement(new Link(this, str, url, format), with_undo);
+    return 0;
 }
 
 uint Document::InsertElement(Element* element, bool with_undo, ElementId element_id, bool pasting)
@@ -1378,6 +1397,18 @@ ElementPtr Document::FindByType(const ElementId& start_id, const ElementType typ
     return res;
 }
 
+bool Document::GetLink(const ElementId& id, std::u32string& str, std::u32string& url)
+{
+    std::lock_guard<std::recursive_mutex> lock(edit_mutex);
+    ElementPtr el = GetElement(id);
+    if (!el || el->type != ElementType::LINK)
+        return false;
+    Link* link = (Link*)el.get();
+    str = link->ToText();
+    url = link->url;
+    return true;
+}
+
 Rect Document::GetCaretRect(const CaretState& caret_state)
 {
     ElementPtr el = GetParent(caret_state.id);
@@ -1633,7 +1664,7 @@ bool Document::IsEmpty()
 
 bool Document::IsString(ElementPtr el)
 {
-    return el && (el->type == ElementType::STRING || el->type == ElementType::CODE_STRING);
+    return el && (el->type == ElementType::STRING || el->type == ElementType::CODE_STRING || el->type == ElementType::LINK);
 }
 
 bool Document::IsString(ElementId id)
@@ -1865,11 +1896,11 @@ uint Document::MoveCaretToDocumentEnd(bool select, bool move_into_view)
     return MoveCaret(MoveCaretTask::MoveCaretDir::DOCUMENT_END, select, false, move_into_view);
 }
 
-uint Document::MoveCaret(const int x, const int y)
+uint Document::MoveCaret(const int x, const int y, bool ctrl)
 {
     {
         std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
-        tasks.emplace_back(new MoveCaretTask(text, caret, Point{x, y}));
+        tasks.emplace_back(new MoveCaretTask(text, caret, Point{x, y}, ctrl ? MoveCaretTask::MoveCaretDir::CLICK_LINK : MoveCaretTask::MoveCaretDir::POINT));
         last_task_id = tasks.back()->id;
     }
     next_circle = true;

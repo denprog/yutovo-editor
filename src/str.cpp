@@ -293,7 +293,7 @@ bool String::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo, 
     if (!caret->IsInsideElement(id))
         return parent->InsertElements(_elements, with_undo, changed_element);
     
-    if (_elements.size() == 1 && document->IsString(_elements[0]))
+    if (_elements.size() == 1 && _elements[0]->type == type)
     {
         size_cache.clear();
         String* s = dynamic_cast<String*>(_elements[0].get());

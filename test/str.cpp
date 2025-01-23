@@ -48,10 +48,12 @@ TEST_F(DocumentTest, strings1)
     document.WaitTask(document.InsertString("Bold", document.GetStringFormat("Times New Roman", 34, true, false, false, false), true));
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
-        "<body><p>"\
-        "<span style=\"font-family:'Times New Roman';font-size:34px;\"><strong>Bold</strong></span>"\
-        "<span style=\"font-family:'Arial';font-size:22px;\">TextText</span>"\
-        "</p></body>") << 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Times New Roman';font-size:34px;\"><strong>Bold</strong></span>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\">TextText</span>"\
+            "</p>"\
+        "</body>") << 
         document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 4)) << document.GetEditorState().ToString();
 

@@ -42,6 +42,9 @@ public:
     uint InsertString(const std::string& str, const StringFormatPtr string_format, bool with_undo);
     uint InsertString(const std::string& str, ElementId element_id, bool with_undo);
 
+    uint InsertLink(const std::string& str, const std::string& url, bool with_undo);
+    uint InsertLink(const std::u32string& str, const std::u32string& url, bool with_undo);
+
     uint InsertElement(Element* element, bool with_undo, ElementId element_id = ElementId{}, bool pasting = false);
     uint InsertElements(std::vector<ElementPtr>& elements, bool with_undo, ElementId element_id = ElementId{}, 
         bool pasting = false);
@@ -128,6 +131,8 @@ public:
     ElementPtr FindByString(const ElementId& start_id, const std::u32string& str);
     ElementPtr FindByType(const ElementId& start_id, const ElementType type);
 
+    bool GetLink(const ElementId& id, std::u32string& str, std::u32string& url);
+
     Rect GetCaretRect(const CaretState& caret_state);
 
     bool GetCurrentStringFormat(StringFormatPtr& format);
@@ -167,7 +172,7 @@ public:
     uint MoveCaretToDocumentBegin(bool select);
     uint MoveCaretToDocumentEnd(bool select);
     uint MoveCaretToDocumentEnd(bool select, bool move_into_view);
-    uint MoveCaret(const int x, const int y);
+    uint MoveCaret(const int x, const int y, bool ctrl = false);
     uint SelectAll();
     uint Select(const int start_x, const int start_y, const int end_x, const int end_y);
     uint SelectOut();

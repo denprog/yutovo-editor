@@ -60,7 +60,8 @@ enum class ElementType
     SUM,
     PRODUCT,
     UNIT,
-    COMMA
+    COMMA,
+    LINK
 };
 
 enum IdentifierType

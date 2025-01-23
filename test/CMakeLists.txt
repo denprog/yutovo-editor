@@ -31,6 +31,7 @@ add_executable(${PROJECT_NAME}_tests
 	main.cpp
 	mock.cpp
 	str.cpp
+	link.cpp
 	paragraph.cpp
 	caret.cpp
 	files.cpp

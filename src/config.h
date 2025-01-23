@@ -54,6 +54,8 @@ struct Config
     Color error_marks_color = Color::Red();
     Color formula_bg_color = Color::White();
     Color bg_selection_color = Color::Blue();
+    Color link_color = Color::Blue();
+    Color link_visited_color = Color::FromHex("#ff69b4");
 
     //numbers gaps
     bool use_numbers_gaps = true;
