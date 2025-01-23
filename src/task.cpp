@@ -3,6 +3,7 @@
 #include "str.h"
 #include "paragraph.h"
 #include "row.h"
+#include "link.h"
 #include "formulas/code_block.h"
 #include "formulas/code_paragraph.h"
 #include "formulas/code_string.h"
@@ -1223,11 +1224,11 @@ MoveCaretTask::MoveCaretTask(ElementPtr _text, CaretPtr _caret, MoveCaretDir _di
     select = _select;
 }
 
-MoveCaretTask::MoveCaretTask(ElementPtr _text, CaretPtr _caret, Point _point) :
+MoveCaretTask::MoveCaretTask(ElementPtr _text, CaretPtr _caret, Point _point, MoveCaretDir _dir) :
     Task(_text),
     document(_text->document),
     caret(_caret),
-    dir(MoveCaretDir::POINT),
+    dir(_dir),
     point(_point),
     select(false)
 {
@@ -1255,10 +1256,19 @@ bool MoveCaretTask::Execute()
         caret->SetVisible(visible);
         return true;
     case MoveCaretDir::POINT:
+    case MoveCaretDir::CLICK_LINK:
         {
             CaretState c;
             if (text->GetNearestCaretState(point.x, point.y, c) && c.id != text->id)
+            {
                 caret->SetState(c, true);
+                if (dir == MoveCaretDir::CLICK_LINK)
+                {
+                    auto _el = document->GetElement(c.id);
+                    if (_el && _el->type == ElementType::LINK)
+                        ((Link*)_el.get())->Visit();
+                }
+            }
         }
         break;
     case MoveCaretDir::LEFT:

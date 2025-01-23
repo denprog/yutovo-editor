@@ -51,6 +51,7 @@ add_library(${PROJECT_NAME}
     row.cpp
     str.cpp
     image.cpp
+    link.cpp
     style.cpp
     text.cpp
     window.cpp

@@ -120,6 +120,10 @@ void Window::OnIdentifiersReceived(std::string json)
 {
 }
 
+void Window::OnLinkClicked(const ElementId& id, const std::u32string& url)
+{
+}
+
 #ifdef EMSCRIPTEN
 int Window::Connect(const std::string& addr)
 {

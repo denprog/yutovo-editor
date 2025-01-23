@@ -94,6 +94,8 @@ public:
 
     virtual void OnIdentifiersReceived(std::string json);
 
+    virtual void OnLinkClicked(const ElementId& id, const std::u32string& url);
+
 #ifdef EMSCRIPTEN
     virtual int Connect(const std::string& addr);
     virtual bool Send(const int socket_id, const std::string& message);

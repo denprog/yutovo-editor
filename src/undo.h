@@ -14,6 +14,7 @@ namespace yutovo
 struct UndoElement;
 class Element;
 class String;
+class Link;
 class Paragraph;
 class Image;
 class Text;
@@ -49,6 +50,22 @@ struct UndoString : UndoElement
     virtual Element* Restore(Document* document, Element* parent);
 
     std::u32string str;
+    StringFormatPtr format;
+    bool can_merge;
+};
+
+struct UndoLink : UndoElement
+{
+    UndoLink(std::u32string _str, std::u32string _url, StringFormatPtr _format, bool _can_merge);
+
+    virtual bool operator==(const UndoLink& el) const;
+    virtual bool operator==(const Element& el) const;
+    virtual bool operator==(const Link& el) const;
+
+    virtual Element* Restore(Document* document, Element* parent);
+
+    std::u32string str;
+    std::u32string url;
     StringFormatPtr format;
     bool can_merge;
 };

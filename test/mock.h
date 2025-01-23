@@ -79,6 +79,8 @@ public:
 
     MOCK_METHOD(void, OnCopyResult, (CopyResult result), (override));
     MOCK_METHOD(void, OnPasteResult, (PasteResult result), (override));
+
+    MOCK_METHOD(void, OnLinkClicked, (const ElementId& id, const std::u32string& url), (override));
 };
 
 struct DocumentTest : public testing::Test

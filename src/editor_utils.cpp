@@ -5,6 +5,7 @@
 #include "str.h"
 #include "image.h"
 #include "paragraph.h"
+#include "link.h"
 #include "element.h"
 #include "formulas/code_block.h"
 #include "formulas/code_paragraph.h"
@@ -329,7 +330,8 @@ Element* CreateFromJson(Element* parent, Document* document, rapidjson::Value& v
             {ElementType::SUM, &Sum::FromJson},
             {ElementType::PRODUCT, &Product::FromJson},
             {ElementType::UNIT, &Unit::FromJson},
-            {ElementType::COMMA, &Comma::FromJson}
+            {ElementType::COMMA, &Comma::FromJson},
+            {ElementType::LINK, &Link::FromJson}
         };
 
     if (!value.HasMember("type") || !value["type"].IsInt())
