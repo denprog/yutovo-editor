@@ -1500,7 +1500,7 @@ TEST_F(CodeTest, code25)
     document.MoveCaretToDocumentBegin(false);
     document.MoveCaretRight(false);
     document.MoveCaretRight(false);
-    document.MoveCaretDown(true);
+    document.WaitTask(document.MoveCaretDown(true));
     document.WaitTask(document.MoveCaretDown(true));
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 1, 0, 0, 3}, 

@@ -1702,13 +1702,13 @@ bool Document::GetStringFormat(const ElementId id, StringFormat& format)
     std::lock_guard<std::recursive_mutex> lock(edit_mutex);
     ElementPtr el = GetElement(id);
     ElementPtr p = GetParent(id);
-    if (IsString(el))
+    if (el && (el->type == ElementType::STRING || el->type == ElementType::CODE_STRING))
     {
         auto f = el->GetStringFormat();
         format = *f;
         return true;
     }
-    else if (IsString(p))
+    else if (p && (p->type == ElementType::STRING || p->type == ElementType::CODE_STRING))
     {
         auto f = p->GetStringFormat();
         format = *f;
@@ -1771,7 +1771,7 @@ bool Document::GetStringFormat(const ElementId id, StringFormat& format)
             for (int i = el->elements->Count() - 1; i >= 0; --i)
             {
                 auto s = el->elements->Get(i);
-                if (IsString(s))
+                if (s->type == ElementType::STRING || s->type == ElementType::CODE_STRING)
                 {
                     auto f = s->GetStringFormat();
                     format = *f;
@@ -1785,7 +1785,7 @@ bool Document::GetStringFormat(const ElementId id, StringFormat& format)
             for (int i = 0; i < el->elements->Count(); ++i)
             {
                 auto s = el->elements->Get(i);
-                if (IsString(s))
+                if (s->type == ElementType::STRING || s->type == ElementType::CODE_STRING)
                 {
                     auto f = s->GetStringFormat();
                     format = *f;
