@@ -2713,6 +2713,41 @@ TEST_F(ParagraphTest, format12)
         ElementSelectionState{ElementId{0, 1}, 0, 1})) << document.GetEditorState().ToString();
 }
 
+//Resize centered paragraph
+TEST_F(ParagraphTest, format13)
+{
+    Start(500);
+
+    int width = 500;
+    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
+        {
+            return Rect{0, 0, width, 400};
+        });
+
+    document.WaitTask(document.InsertString("Tradicionalmente, el medio de un documento era el papel y la información", true));
+    document.WaitTask(document.ChangeParagraphFormat(ParagraphFormat::Alignment::Center, true));
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p align=\"center\">"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">Tradicionalmente, el medio de un documento era el </span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">papel y la información</span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 0, 22})) << document.GetEditorState().ToString();
+
+    width = 800;
+    document.WaitTask(document.Resize(width, 400));
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p align=\"center\">"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">Tradicionalmente, el medio de un documento era el papel y la información</span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 72})) << document.GetEditorState().ToString();
+}
+
 //Delete a paragraph
 TEST_F(ParagraphTest, delete1)
 {

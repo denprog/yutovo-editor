@@ -103,7 +103,12 @@ bool Row::Remake(bool with_elements)
 
     baseline += max_top_m;
 
-    Align();
+    if (type == ElementType::ROW)
+    {
+        ParagraphFormatPtr format = ((Paragraph*)parent)->format;
+        if (format->alignment == ParagraphFormat::Alignment::Center || format->alignment == ParagraphFormat::Alignment::Right)
+            Align();
+    }
 
     if (rect != last_rect)
     {
@@ -1014,8 +1019,17 @@ void Row::Align()
                 el->rect.Move(line_width - el->rect.width - cx - left_m, 0);
                 cx += el->rect.width + left_m + right_m;
             }
+
+            UpdateRect();
+            UpdateDrawRect();
+
+            if (elements->Count() > 0)
+            {
+                rect.width -= elements->Get(0)->rect.left;
+                rect.left = elements->Get(0)->rect.left;
+            }
         }
-        break;
+        return;
     case ParagraphFormat::Alignment::Center:
         {
             int w = 0;
@@ -1033,8 +1047,17 @@ void Row::Align()
                 el->rect.Move(cx + left_m, 0);
                 cx += el->rect.width + left_m + right_m;
             }
+
+            UpdateRect();
+            UpdateDrawRect();
+
+            if (elements->Count() > 0)
+            {
+                rect.width -= elements->Get(0)->rect.left;
+                rect.left = elements->Get(0)->rect.left;
+            }
         }
-        break;
+        return;
     case ParagraphFormat::Alignment::Justify:
         if (yutovo::GetChildPos(id) != parent->elements->Count() - 1)
         {
