@@ -894,6 +894,12 @@ void StringElements::Draw() const
         //draw the string by symbols
         Rect r = parent->GetAbsoluteRect();
         parent->document->selection.Has(parent->id, start, size);
+        if (size > 0)
+        {
+            Size s1 = ((String*)parent)->GetTextSize(start);
+            Size s2 = ((String*)parent)->GetTextSize(start + size);
+            parent->window->DrawFillRect(Rect{r.left + s1.width, r.top, s2.width - s1.width, r.height}, format->text_bg_selection_color);
+        }
         for (int i = 0; i < str.length(); ++i)
         {
             Size s = ((String*)parent)->GetTextSize(i);
