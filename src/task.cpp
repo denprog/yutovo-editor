@@ -982,7 +982,7 @@ bool RedrawTask::Execute()
     element->UpdateDrawRect();
 
     window->SetDocumentSize({text->rect.width, text->rect.height});
-    window->Update(element->GetAbsoluteRect());
+    window->Update(element->draw_rect);
     if (move_into_view)
         document->UpdateCaretView();
     return true;

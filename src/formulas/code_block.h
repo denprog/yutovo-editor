@@ -28,6 +28,8 @@ public:
     virtual void Draw() const;
     virtual bool Remake(bool with_elements = false);
 
+    virtual void UpdateDrawRect();
+
     virtual bool GetWordLeftCaretState(CaretState& caret_state, Selection* select);
 
     virtual bool AfterInsert(bool with_undo);

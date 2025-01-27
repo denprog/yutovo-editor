@@ -140,12 +140,21 @@ bool CodeBlock::Remake(bool with_elements)
             baseline = el->baseline;
     }
 
+    UpdateDrawRect();
+
     if (rect != last_rect)
     {
         last_rect = rect;
         return true;
     }
     return changed;
+}
+
+void CodeBlock::UpdateDrawRect()
+{
+    Block::UpdateDrawRect();
+    draw_rect.width += 2;
+    draw_rect.height += 2;
 }
 
 bool CodeBlock::GetWordLeftCaretState(CaretState& caret_state, Selection* select)
