@@ -421,7 +421,7 @@ TEST_F(DocumentTest, selections3)
 //Selection of rows
 TEST_F(DocumentTest, selections4)
 {
-    Start(600);
+    Start(610);
 
     document.Load("../../test/tests/file1.txt");
     document.WaitLoad();
@@ -1751,7 +1751,7 @@ TEST_F(DocumentTest, fonts15)
 //Set/unset font attributes
 TEST_F(DocumentTest, fonts16)
 {
-    Start(700);
+    Start(710);
 
     document.WaitTask(document.InsertString("Арифме́тика (др.-греч. ἀριθμητική, arithmētikḗ — от ἀριθμός, arithmós «число») — раздел математики,"\
         " изучающий числа, их отношения и свойства. Предметом арифметики является понятие числа (натуральные, целые, рациональные, "\
@@ -1931,7 +1931,7 @@ TEST_F(DocumentTest, fonts19)
 //Set/unset font attributes
 TEST_F(DocumentTest, fonts20)
 {
-    Start(740);
+    Start(750);
 
     document.WaitTask(document.InsertString("Арифме́тика (др.-греч. ἀριθμητική, arithmētikḗ — от ἀριθμός, arithmós «число») — раздел математики,"\
         " изучающий числа, их отношения и свойства. Предметом арифметики является понятие числа (натуральные, целые, рациональные, "\
@@ -2247,7 +2247,7 @@ TEST_F(DocumentTest, fonts25)
 //Set/unset font attributes
 TEST_F(DocumentTest, fonts26)
 {
-    Start(600);
+    Start(610);
 
     document.WaitTask(document.InsertString("Арифме́тика (др.-греч. ἀριθμητική, arithmētikḗ — от ἀριθμός, arithmós «число») — раздел математики,"\
         " изучающий числа, их отношения и свойства.\nПредметом арифметики является понятие числа (натуральные, целые, рациональные, "\
@@ -2304,7 +2304,7 @@ TEST_F(DocumentTest, fonts26)
 //Set the same font family
 TEST_F(DocumentTest, fonts27)
 {
-    Start(600);
+    Start(610);
 
     document.WaitTask(document.InsertString("Арифме́тика (др.-греч. ἀριθμητική, arithmētikḗ — от ἀριθμός, arithmós «число») — раздел математики,"\
         " изучающий числа, их отношения и свойства.\nПредметом арифметики является понятие числа (натуральные, целые, рациональные, "\
@@ -2355,7 +2355,7 @@ TEST_F(DocumentTest, fonts27)
 //Set the same font family in two paragraphs
 TEST_F(DocumentTest, fonts28)
 {
-    Start(600);
+    Start(610);
 
     document.WaitTask(document.InsertString("Арифме́тика (др.-греч. ἀριθμητική, arithmētikḗ — от ἀριθμός, arithmós «число») — раздел математики,"\
         " изучающий числа, их отношения и свойства.\nПредметом арифметики является понятие числа (натуральные, целые, рациональные, "\
@@ -2426,7 +2426,7 @@ TEST_F(DocumentTest, fonts28)
 //Set the same font family in two paragraphs
 TEST_F(DocumentTest, fonts29)
 {
-    Start(600);
+    Start(610);
 
     document.WaitTask(document.InsertString("Арифме́тика (др.-греч. ἀριθμητική, arithmētikḗ — от ἀριθμός, arithmós «число») — раздел математики,"\
         " изучающий числа, их отношения и свойства.\nПредметом арифметики является понятие числа (натуральные, целые, рациональные, "\
@@ -2513,7 +2513,7 @@ TEST_F(DocumentTest, fonts29)
 //Set the same font family in the paragraph
 TEST_F(DocumentTest, fonts30)
 {
-    Start(600);
+    Start(610);
 
     document.WaitTask(document.InsertString("Арифме́тика (др.-греч. ἀριθμητική, arithmētikḗ — от ἀριθμός, arithmós «число») — раздел математики,"\
         " изучающий числа, их отношения и свойства.", true));
@@ -2559,7 +2559,7 @@ TEST_F(DocumentTest, fonts30)
 //Set the same font family in the paragraph
 TEST_F(DocumentTest, fonts31)
 {
-    Start(600);
+    Start(610);
 
     document.WaitTask(document.InsertString("Арифме́тика (др.-греч. ἀριθμητική, arithmētikḗ — от ἀριθμός, arithmós «число») — раздел математики,"\
         " изучающий числа, их отношения и свойства.", true));
@@ -2604,7 +2604,7 @@ TEST_F(DocumentTest, fonts31)
 //Set the same font family in a row
 TEST_F(DocumentTest, fonts32)
 {
-    Start(600);
+    Start(610);
 
     document.WaitTask(document.InsertString("Арифме́тика (др.-греч. ἀριθμητική, arithmētikḗ — от ἀριθμός, arithmós «число») — раздел математики,"\
         " изучающий числа, их отношения и свойства.", true));
@@ -2960,7 +2960,7 @@ TEST_F(DocumentTest, delete4)
 //Delete 3 rows
 TEST_F(DocumentTest, delete5)
 {
-    Start(390);
+    Start(400);
 
     document.WaitTask(document.InsertString("In literary theory, a text is any object that can be read, whether this object is a work of literature", true));
     document.MoveCaretToDocumentBegin(false);
@@ -2997,7 +2997,7 @@ TEST_F(DocumentTest, delete5)
 //Delete all
 TEST_F(DocumentTest, delete6)
 {
-    Start(368);
+    Start(378);
 
     document.WaitTask(document.InsertString("The source of the text itself is a little mysterious.", true));
     document.WaitTask(document.SelectAll());
@@ -3056,7 +3056,7 @@ TEST_F(DocumentTest, delete6)
 //Concatinate a row below, with result wider then the window
 TEST_F(DocumentTest, delete7)
 {
-    Start(330);
+    Start(340);
 
     document.WaitTask(document.InsertString("The source of the text itself is a little mysterious.", true));
     std::this_thread::sleep_for(400ms);
@@ -3263,7 +3263,7 @@ TEST_F(DocumentTest, delete10)
 //Backspace at the beginning of a string
 TEST_F(DocumentTest, delete11)
 {
-    Start(288);
+    Start(298);
 
     document.WaitTask(document.InsertString("The source of the text itself is a little mysterious.", true));
     document.WaitTask(document.MoveCaretHome(false));

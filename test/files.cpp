@@ -129,7 +129,7 @@ TEST_F(DocumentTest, files2)
 
 TEST_F(DocumentTest, files3)
 {
-    Start(630);
+    Start(640);
 
     document.SetFontSize(22);
     document.WaitTask(document.InsertString("In literary theory, a text is any object that can be read, whether this object is a work of literature, "\
@@ -643,7 +643,7 @@ TEST_F(DocumentTest, files15)
 //Save/load a file with a paragraph alignment
 TEST_F(DocumentTest, files16)
 {
-    Start(500);
+    Start(510);
 
     document.WaitTask(document.InsertString("Tradicionalmente, el medio de un documento era el papel y la información", true));
     document.WaitTask(document.ChangeParagraphFormat(ParagraphFormat::Alignment::Right, true));
@@ -774,6 +774,7 @@ TEST_F(DocumentTest, files20)
     }
 
     document.WaitTask(document.Save("files_20.yut"));
+    std::this_thread::sleep_for(200ms);
     ASSERT_TRUE(document.IsChanged() == false);
 
     document.Undo();

@@ -346,7 +346,7 @@ TEST_F(DocumentTest, caret6)
 //PageUp/PageDown
 TEST_F(DocumentTest, caret7)
 {
-    Start(670);
+    Start(680);
 
     EXPECT_CALL(window_mock, OnLoadResult).WillOnce([&](const uint task_id, IOResult result, const int document_id)
         {
@@ -388,7 +388,7 @@ TEST_F(DocumentTest, caret7)
 //Select all
 TEST_F(DocumentTest, caret8)
 {
-    Start(368);
+    Start(378);
     
     document.WaitTask(document.InsertString("The source of the text itself is a little mysterious.", true));
     std::this_thread::sleep_for(200ms);
@@ -515,7 +515,7 @@ TEST_F(DocumentTest, caret12)
 //Select all
 TEST_F(DocumentTest, caret13)
 {
-    Start(368);
+    Start(378);
     
     document.WaitTask(document.InsertString("The source of the text itself is a little mysterious.", true));
     document.InsertParagraph(true);
@@ -622,7 +622,7 @@ TEST_F(DocumentTest, caret17)
 //PageUp with selection
 TEST_F(DocumentTest, caret18)
 {
-    Start(670);
+    Start(680);
 
     EXPECT_CALL(window_mock, OnLoadResult).WillOnce([&](const uint task_id, IOResult result, const int document_id)
         {
@@ -670,7 +670,7 @@ TEST_F(DocumentTest, caret18)
 //PageDown with selection
 TEST_F(DocumentTest, caret19)
 {
-    Start(670);
+    Start(680);
 
     EXPECT_CALL(window_mock, OnLoadResult).WillOnce([&](const uint task_id, IOResult result, const int document_id)
         {
@@ -967,7 +967,7 @@ TEST_F(DocumentTest, caret27)
 //Selection inside a paragraph
 TEST_F(DocumentTest, caret28)
 {
-    Start(360);
+    Start(370);
 
     document.WaitTask(document.InsertString("In literary theory, a text is any object that can be read, whether this object is a work of literature", true));
     std::this_thread::sleep_for(100ms);
@@ -996,7 +996,7 @@ TEST_F(DocumentTest, caret28)
 //Selection inside a paragraph upward
 TEST_F(DocumentTest, caret29)
 {
-    Start(360);
+    Start(370);
 
     document.WaitTask(document.InsertString("In literary theory, a text is any object that can be read, whether this object is a work of literature", true));
     std::this_thread::sleep_for(100ms);
@@ -1031,7 +1031,7 @@ TEST_F(DocumentTest, caret29)
 //Selection inside a paragraph upward
 TEST_F(DocumentTest, caret30)
 {
-    Start(360);
+    Start(370);
 
     document.WaitTask(document.InsertString("In literary theory, a text is any object that can be read, whether this object is a work of literature", true));
     std::this_thread::sleep_for(100ms);
@@ -1535,7 +1535,7 @@ TEST_F(DocumentTest, caret47)
 //Select a word
 TEST_F(DocumentTest, caret48)
 {
-    Start(600);
+    Start(610);
 
     document.InsertString("Арифме́тика (др.-греч. ἀριθμητική, arithmētikḗ — от ἀριθμός, arithmós «число») — "\
         "раздел математики, изучающий числа, их отношения и свойства.", true);
@@ -1607,7 +1607,7 @@ TEST_F(DocumentTest, caret50)
 //Move to document begin/end with selection
 TEST_F(DocumentTest, caret51)
 {
-    Start(670);
+    Start(680);
 
     EXPECT_CALL(window_mock, OnLoadResult).WillOnce([&](const uint task_id, IOResult result, const int document_id)
         {
@@ -1642,7 +1642,7 @@ TEST_F(DocumentTest, caret51)
 //Move to document begin/end with selection
 TEST_F(DocumentTest, caret52)
 {
-    Start(670);
+    Start(680);
 
     EXPECT_CALL(window_mock, OnLoadResult).WillOnce([&](const uint task_id, IOResult result, const int document_id)
         {
@@ -1795,7 +1795,7 @@ TEST_F(DocumentTest, caret56)
 //Move caret to word left and to word right beetween rows
 TEST_F(DocumentTest, caret57)
 {
-    Start(300);
+    Start(310);
 
     document.InsertString("In literary theory, a text is any object that can be read, whether this object is a work of literature", true);
     document.MoveCaretToDocumentBegin(false);
@@ -1827,7 +1827,7 @@ TEST_F(DocumentTest, caret58)
 //Move caret to word left and to word right beetween paragraphs
 TEST_F(DocumentTest, caret59)
 {
-    Start(400);
+    Start(410);
 
     document.InsertString("In literary theory, a text is any object that can be read, whether this object is a work of literature", true);
     document.InsertParagraph(true);
@@ -1859,7 +1859,7 @@ TEST_F(DocumentTest, caret60)
 //Move a code block on the next row
 TEST_F(DocumentTest, caret61)
 {
-    Start(470);
+    Start(480);
 
     int width = 470;
     EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
@@ -1878,7 +1878,7 @@ TEST_F(DocumentTest, caret61)
     std::this_thread::sleep_for(600ms);
     document.WaitTask(document.MoveCaretLeft(false));
 
-    width = 400;
+    width = 410;
     document.WaitTask(document.Resize(width, 400));
 
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 2, 0, 0, 0, 0, 0, 1})) << document.GetEditorState().ToString();

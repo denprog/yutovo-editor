@@ -155,7 +155,7 @@ TEST_F(DocumentTest, clipboard3)
 
 TEST_F(DocumentTest, clipboard4)
 {
-    Start(620);
+    Start(630);
 
     EXPECT_CALL(window_mock, OnCopyResult).WillRepeatedly([&](CopyResult result)
         {
@@ -259,7 +259,7 @@ TEST_F(DocumentTest, clipboard5)
 //Paste with paragraph
 TEST_F(DocumentTest, clipboard6)
 {
-    Start(400);
+    Start(410);
 
     EXPECT_CALL(window_mock, OnPasteResult).WillRepeatedly([&](PasteResult result)
         {
@@ -1105,7 +1105,7 @@ TEST_F(DocumentTest, clipboard15)
 //Copy/Paste of paragraphs
 TEST_F(DocumentTest, clipboard16)
 {
-    Start(500);
+    Start(510);
 
     EXPECT_CALL(window_mock, OnCopyResult).WillRepeatedly([&](CopyResult result)
         {
@@ -1370,7 +1370,7 @@ TEST_F(DocumentTest, clipboard20)
 //Copy-paste rows
 TEST_F(DocumentTest, clipboard21)
 {
-    Start(490);
+    Start(500);
 
     EXPECT_CALL(window_mock, OnCopyResult).WillRepeatedly([&](CopyResult result)
         {
@@ -2825,7 +2825,7 @@ TEST_F(DocumentTest, clipboard53)
 //Copy paste paragraphs with a code block
 TEST_F(DocumentTest, clipboard54)
 {
-    Start(600);
+    Start(610);
 
     EXPECT_CALL(window_mock, OnCopyResult).WillRepeatedly([&](CopyResult result)
         {
