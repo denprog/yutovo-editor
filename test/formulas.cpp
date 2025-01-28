@@ -365,7 +365,7 @@ TEST_F(FormulaTest, delete3)
 //Delete a selected code block at the beginning of the text
 TEST_F(FormulaTestCustom, delete4)
 {
-    Start(433);
+    Start(443);
 
     document.WaitTask(document.InsertString("The source of the text itself is a little strange", true));
     document.WaitTask(document.MoveCaretHome(false));
@@ -769,7 +769,7 @@ TEST_F(FormulaTestCustom, delete9)
 //Delete a code block on the left
 TEST_F(FormulaTestCustom, delete10)
 {
-    Start(368);
+    Start(378);
 
     document.InsertString("The source of the text itself is a little mysterious.", true);
     document.WaitTask(document.InsertCode(false, true));
@@ -890,7 +890,7 @@ TEST_F(FormulaTest, delete13)
 
 TEST_F(FormulaTestCustom, insert1)
 {
-    Start(450);
+    Start(460);
 
     document.SetFontSize(22);
     document.WaitTask(document.InsertString("Tradicionalmente, el medio de un documento era el papel y la información", true));
@@ -954,7 +954,7 @@ TEST_F(FormulaTestCustom, insert1)
 //Insert code in text and reformat text
 TEST_F(FormulaTestCustom, insert2)
 {
-    Start(433);
+    Start(443);
 
     document.WaitTask(document.InsertString("The source of the text itself is a little strange", true));
     document.WaitTask(document.MoveCaretWordLeft(false));
@@ -1571,9 +1571,9 @@ TEST_F(FormulaTestCustom, select2)
 //Selection of a formula at the end of a row
 TEST_F(FormulaTestCustom, select3)
 {
-    Start(400);
+    Start(430);
 
-    int width = 400;
+    int width = 430;
     EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
         {
             return Rect{0, 0, width, 400};
@@ -1588,14 +1588,14 @@ TEST_F(FormulaTestCustom, select3)
     document.MoveCaretLeft(false);
     document.MoveCaretLeft(false);
     document.MoveCaretRight(true);
-    document.MoveCaretRight(true);
     document.WaitTask(document.MoveCaretRight(true));
-    std::this_thread::sleep_for(800ms);
+    document.WaitTask(document.MoveCaretRight(true));
+    std::this_thread::sleep_for(1s);
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 0, 2}, 
         ElementSelectionState{ElementId{0, 0, 0}, 1, 1},
         ElementSelectionState{ElementId{0, 0, 1, 0}, 0, 2})) << document.GetEditorState().ToString();
 
-    width = 380;
+    width = 400;
     document.WaitTask(document.Resize(width, 400));
     std::this_thread::sleep_for(200ms);
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 1, 2}, 
@@ -1606,9 +1606,9 @@ TEST_F(FormulaTestCustom, select3)
 //Selection of a child element of a formula at the end of a row
 TEST_F(FormulaTestCustom, select4)
 {
-    Start(424);
+    Start(400);
 
-    int width = 424;
+    int width = 400;
     EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
         {
             return Rect{0, 0, width, 400};
@@ -1617,18 +1617,19 @@ TEST_F(FormulaTestCustom, select4)
     document.WaitTask(document.InsertString("The source of the text itself is a little strange", true));
     document.MoveCaretUp(false);
     document.WaitTask(document.MoveCaretEnd(false));
-    document.InsertDivision(true);
+    document.WaitTask(document.InsertDivision(true));
+    std::this_thread::sleep_for(200ms);
     document.WaitTask(document.InsertString("123", true));
     document.MoveCaretLeft(true);
     document.WaitTask(document.MoveCaretLeft(true));
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 0, 0, 0, 0, 0, 0, 1}, 
         ElementSelectionState{ElementId{0, 0, 1, 0, 0, 0, 0, 0, 0}, 1, 2})) << document.GetEditorState().ToString();
 
-    width = 410;
+    width = 445;
     document.WaitTask(document.Resize(width, 400));
     std::this_thread::sleep_for(100ms);
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 1, 0, 0, 0, 0, 0, 1}, 
-        ElementSelectionState{ElementId{0, 0, 1, 1, 0, 0, 0, 0, 0}, 1, 2})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 1, 0, 0, 0, 0, 0, 1}, 
+        ElementSelectionState{ElementId{0, 0, 0, 1, 0, 0, 0, 0, 0}, 1, 2})) << document.GetEditorState().ToString();
 }
 
 //Selection of a part of row, a formula and a part of row
@@ -1653,20 +1654,20 @@ TEST_F(FormulaTestCustom, select5)
         document.MoveCaretRight(true);
     document.WaitTask(document.MoveCaretRight(true));
     std::this_thread::sleep_for(1s);
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 0, 4}, 
-        ElementSelectionState{ElementId{0, 0, 0, 0}, 39, 3},
-        ElementSelectionState{ElementId{0, 0, 0}, 1, 1},
-        ElementSelectionState{ElementId{0, 0, 1, 0}, 0, 4})) << document.GetEditorState().ToString();
-
-    width = 380;
-    document.WaitTask(document.Resize(width, 400));
-    std::this_thread::sleep_for(400ms);
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 1, 4}, 
         ElementSelectionState{ElementId{0, 0, 0, 0}, 39, 3},
         ElementSelectionState{ElementId{0, 0, 1}, 0, 1},
         ElementSelectionState{ElementId{0, 0, 1, 1}, 0, 4})) << document.GetEditorState().ToString();
 
-    width = 350;
+    width = 420;
+    document.WaitTask(document.Resize(width, 400));
+    std::this_thread::sleep_for(400ms);
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 0, 4}, 
+        ElementSelectionState{ElementId{0, 0, 0, 0}, 39, 3},
+        ElementSelectionState{ElementId{0, 0, 0}, 1, 1},
+        ElementSelectionState{ElementId{0, 0, 1, 0}, 0, 4})) << document.GetEditorState().ToString();
+
+    width = 360;
     document.WaitTask(document.Resize(width, 400));
     std::this_thread::sleep_for(400ms);
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 2, 4}, 
@@ -1674,13 +1675,13 @@ TEST_F(FormulaTestCustom, select5)
         ElementSelectionState{ElementId{0, 0, 1}, 1, 1},
         ElementSelectionState{ElementId{0, 0, 1, 2}, 0, 4})) << document.GetEditorState().ToString();
 
-    width = 380;
+    width = 410;
     document.WaitTask(document.Resize(width, 400));
     std::this_thread::sleep_for(400ms);
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 1, 4}, 
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 0, 4}, 
         ElementSelectionState{ElementId{0, 0, 0, 0}, 39, 3},
-        ElementSelectionState{ElementId{0, 0, 1}, 0, 1},
-        ElementSelectionState{ElementId{0, 0, 1, 1}, 0, 4})) << document.GetEditorState().ToString();
+        ElementSelectionState{ElementId{0, 0, 0}, 1, 1},
+        ElementSelectionState{ElementId{0, 0, 1, 0}, 0, 4})) << document.GetEditorState().ToString();
 }
 
 //Selection rows in a code block

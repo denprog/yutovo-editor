@@ -1220,7 +1220,7 @@ TEST_F(SolverAutoTest, solver25)
 //The code block is wider then a row
 TEST_F(SolverAutoTest, solver26)
 {
-    Start(600);
+    Start(610);
 
     EXPECT_CALL(window_mock, Translate).WillRepeatedly([&](ElementId id, const std::u32string& str)
         {

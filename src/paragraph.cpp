@@ -103,14 +103,16 @@ bool Paragraph::Remake(bool with_elements)
     if (document->break_remake)
         return false;
     
+    if (format->alignment == ParagraphFormat::Alignment::Justify)
+        MakePlain();
+    
     bool changed = Element::Remake(format->alignment == ParagraphFormat::Alignment::Justify ? true : with_elements);
 
     int left_m = 0, top_m = 0, right_m = 0, bottom_m = 0;
+    int page_width = type == ElementType::PARAGRAPH ? ((Text*)parent)->page_width : 0;
 
     if (format->word_wrap == ParagraphFormat::WordWrap::Normal)
     {
-        int page_width = ((Text*)parent)->page_width;
-
         for (int i = 0; i < elements->Count(); ++i)
         {
             ElementPtr row = elements->Get(i);
@@ -120,14 +122,14 @@ bool Paragraph::Remake(bool with_elements)
 
             bool b = true;
             //move or split element if it's more then row width
-            while (row->rect.width + format->indent_before > page_width)
+            while (row->rect.width + format->indent_before + format->indent_after > page_width)
             {
                 if (document->break_remake)
                     return false;
                 ElementPtr el = row->elements->Get(row->elements->Count() - 1);
                 if (!el)
                     break;
-                if (el->Split(page_width - format->indent_before, true))
+                if (el->Split(page_width - format->indent_before - format->indent_after, true))
                     el = row->elements->Get(row->elements->Count() - 1);
 
                 if (row->elements->Count() == 1)
@@ -160,7 +162,7 @@ bool Paragraph::Remake(bool with_elements)
                     return false;
                 auto el = next_row->elements->Get(0);
                 el->GetMargin(left_m, top_m, right_m, bottom_m);
-                if (el->rect.width + left_m + right_m >= page_width - row->rect.width - format->indent_before)
+                if (el->rect.width + left_m + right_m >= page_width - row->rect.width - format->indent_before - format->indent_after)
                     break;
                 
                 //move the element from the next row in the current one
@@ -186,7 +188,7 @@ bool Paragraph::Remake(bool with_elements)
             {
                 //try to split the first element and move it above
                 ElementPtr el = next_row->elements->Get(0);
-                while (el && el->Split(page_width - row->rect.width - format->indent_before, false))
+                while (el && el->Split(page_width - row->rect.width - format->indent_before - format->indent_after, false))
                 {
                     row->elements->Move(next_row->elements->Get(0), row->elements->Count());
                     row->Remake(true);
@@ -217,10 +219,21 @@ bool Paragraph::Remake(bool with_elements)
     for (int i = 0; i < elements->Count(); ++i)
     {
         ElementPtr row = elements->Get(i);
-        if (row->type == ElementType::ROW)
-            ((Row*)row.get())->Align();
         row->GetMargin(left_m, top_m, right_m, bottom_m); //consider the margins
-        row->rect.Move(format->indent_before, h + top_m); //move the row
+        //move the row
+        switch (format->alignment)
+        {
+        case ParagraphFormat::Alignment::Left:
+        case ParagraphFormat::Alignment::Justify:
+            row->rect.Move(format->indent_before, h + top_m);
+            break;
+        case ParagraphFormat::Alignment::Right:
+            row->rect.Move(page_width - row->rect.width - format->indent_after, h + top_m);
+            break;
+        case ParagraphFormat::Alignment::Center:
+            row->rect.Move(format->indent_before + (page_width - row->rect.width) / 2 - format->indent_after, h + top_m);
+            break;
+        }
         h += row->rect.height + format->line_spacing + top_m + bottom_m;
     }
 
