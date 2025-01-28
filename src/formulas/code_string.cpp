@@ -149,7 +149,10 @@ bool CodeString::InsertElements(std::vector<ElementPtr>& _elements, bool with_un
         if (document->IsString(el))
         {
             String* s = dynamic_cast<String*>(el.get());
-            if (s->ToText().find(U" ") != std::string::npos)
+            auto _s = s->ToText();
+            if (_s == U" " && ToText() == U"")
+                return false;
+            if (_s.find(U" ") != std::string::npos)
             {
                 if (with_undo)
                     document->StoreUndo(parent->id);
