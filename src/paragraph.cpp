@@ -216,6 +216,14 @@ bool Paragraph::Remake(bool with_elements)
     }
 
     int h = 0;
+    int w = page_width;
+    for (int i = 0; i < elements->Count(); ++i)
+    {
+        ElementPtr row = elements->Get(i);
+        row->rect.left = 0;
+        if (w < row->rect.width)
+            w = row->rect.width;
+    }
     for (int i = 0; i < elements->Count(); ++i)
     {
         ElementPtr row = elements->Get(i);
@@ -225,19 +233,23 @@ bool Paragraph::Remake(bool with_elements)
         {
         case ParagraphFormat::Alignment::Left:
         case ParagraphFormat::Alignment::Justify:
-            row->rect.Move(format->indent_before, h + top_m);
+            row->rect.Move(format->indent_before + left_m, h + top_m);
             break;
         case ParagraphFormat::Alignment::Right:
-            row->rect.Move(page_width - row->rect.width - format->indent_after, h + top_m);
+            if (row->rect.width > page_width)
+                row->rect.Move(w - row->rect.width + format->indent_before + left_m, h + top_m);
+            else
+                row->rect.Move(w - row->rect.width + format->indent_before - format->indent_after + left_m, h + top_m);
             break;
         case ParagraphFormat::Alignment::Center:
-            row->rect.Move(format->indent_before + (page_width - row->rect.width) / 2 - format->indent_after, h + top_m);
+            row->rect.Move(format->indent_before + (w - row->rect.width) / 2 - format->indent_after, h + top_m);
             break;
         }
         h += row->rect.height + format->line_spacing + top_m + bottom_m;
     }
 
     UpdateRect();
+    draw_rect.SetRect(parent->rect.left, rect.top, parent->rect.GetRight(), rect.GetBottom());
 
     if (elements->Count() > 0)
         baseline = elements->Get(0)->baseline;
