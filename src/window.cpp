@@ -80,7 +80,7 @@ void Window::OnDocumentChanged(const bool changed)
 {
 }
 
-void Window::OnSaveResult(const uint task_id, IOResult result)
+void Window::OnSaveResult(const uint task_id, IOResult result, const int document_id)
 {
 }
 

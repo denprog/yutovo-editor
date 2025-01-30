@@ -1429,67 +1429,89 @@ SaveTask::SaveTask(ElementPtr _text, const std::string _filename) :
 {
 }
 
-SaveTask::SaveTask(ElementPtr _text, std::u32string* _json_str) :
+SaveTask::SaveTask(ElementPtr _text, std::u32string* _json_str, const int _document_id) :
     Task(_text),
-    json_str(_json_str)
+    json_str(_json_str),
+    document_id(_document_id)
 {
 }
 
 bool SaveTask::Execute()
 {
-    rapidjson::Document json;
-    auto& alloc = json.GetAllocator();
-    json.SetObject();
-
-    //add config
-    rapidjson::Value config(rapidjson::kObjectType);
-    document->config.ToJson(config, alloc);
-    json.AddMember("config", config, alloc);
-
-    //add string formats
-    rapidjson::Value string_formats(rapidjson::kArrayType);
-    document->string_formats->ToJson(string_formats, alloc);
-    json.AddMember("string_formats", string_formats, alloc);
-
-    //add paragraph formats
-    rapidjson::Value paragraph_formats(rapidjson::kArrayType);
-    document->paragraph_formats->ToJson(paragraph_formats, alloc);
-    json.AddMember("paragraph_formats", paragraph_formats, alloc);
-
-    document->saving = true;
-    rapidjson::Value t(rapidjson::kObjectType);
-    text->ToJson(t, alloc);
-    json.AddMember("text", t, alloc);
-    document->saving = false;
-
-    //add caret and selection
-    rapidjson::Value caret_state(rapidjson::kObjectType);
-    auto c = document->caret->GetLogicalCaretState();
-    c.ToJson(caret_state, alloc);
-    json.AddMember("caret", caret_state, alloc);
-
-    rapidjson::Value selection_state(rapidjson::kArrayType);
-    auto s = document->selection.GetLogicalState();
-    s.ToJson(selection_state, alloc);
-    json.AddMember("selection", selection_state, alloc);
-
-    rapidjson::StringBuffer buffer;
-    if (document->config.pretty_json)
+    if (filename.substr(filename.find_last_of(".") + 1) == "yut" || json_str)
     {
-        rapidjson::PrettyWriter<rapidjson::StringBuffer> writer(buffer);
-        json.Accept(writer);
+        rapidjson::Document json;
+        auto& alloc = json.GetAllocator();
+        json.SetObject();
+
+        //add config
+        rapidjson::Value config(rapidjson::kObjectType);
+        document->config.ToJson(config, alloc);
+        json.AddMember("config", config, alloc);
+
+        //add string formats
+        rapidjson::Value string_formats(rapidjson::kArrayType);
+        document->string_formats->ToJson(string_formats, alloc);
+        json.AddMember("string_formats", string_formats, alloc);
+
+        //add paragraph formats
+        rapidjson::Value paragraph_formats(rapidjson::kArrayType);
+        document->paragraph_formats->ToJson(paragraph_formats, alloc);
+        json.AddMember("paragraph_formats", paragraph_formats, alloc);
+
+        document->saving = true;
+        rapidjson::Value t(rapidjson::kObjectType);
+        text->ToJson(t, alloc);
+        json.AddMember("text", t, alloc);
+        document->saving = false;
+
+        //add caret and selection
+        rapidjson::Value caret_state(rapidjson::kObjectType);
+        auto c = document->caret->GetLogicalCaretState();
+        c.ToJson(caret_state, alloc);
+        json.AddMember("caret", caret_state, alloc);
+
+        rapidjson::Value selection_state(rapidjson::kArrayType);
+        auto s = document->selection.GetLogicalState();
+        s.ToJson(selection_state, alloc);
+        json.AddMember("selection", selection_state, alloc);
+
+        rapidjson::StringBuffer buffer;
+        if (document->config.pretty_json)
+        {
+            rapidjson::PrettyWriter<rapidjson::StringBuffer> writer(buffer);
+            json.Accept(writer);
+        }
+        else
+        {
+            rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
+            json.Accept(writer);
+        }
+        std::string str = buffer.GetString();
+
+        if (json_str)
+            *json_str = ToUtfString(str);
+        else
+        {
+            try
+            {
+                std::ofstream file(filename);
+                file.exceptions(~std::ofstream::goodbit);
+                file << str;
+                file.close();
+            }
+            catch (const std::ios_base::failure& ex)
+            {
+                window->OnSaveResult(id, IOResult::InputStreamError, document_id);
+                LOG_ERROR("Error saving file '{}': {}", filename, ex.what());
+                return false;
+            }
+        }
     }
     else
     {
-        rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
-        json.Accept(writer);
-    }
-    std::string str = buffer.GetString();
-
-    if (json_str)
-        *json_str = ToUtfString(str);
-    else
-    {
+        //save as text file
+        std::string str = ToBasicString(text->ToText());
         try
         {
             std::ofstream file(filename);
@@ -1499,7 +1521,7 @@ bool SaveTask::Execute()
         }
         catch (const std::ios_base::failure& ex)
         {
-            window->OnSaveResult(id, IOResult::InputStreamError);
+            window->OnSaveResult(id, IOResult::InputStreamError, document_id);
             LOG_ERROR("Error saving file '{}': {}", filename, ex.what());
             return false;
         }
@@ -1507,7 +1529,7 @@ bool SaveTask::Execute()
 
     document->save_task_id = document->last_modify_task_id;
 
-    window->OnSaveResult(id, IOResult::Success);
+    window->OnSaveResult(id, IOResult::Success, document_id);
     return true;
 }
 

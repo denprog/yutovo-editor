@@ -18,6 +18,11 @@ TEST_F(DocumentTest, files1)
             return GetTextSizeMock(text, format);
         });
 
+    EXPECT_CALL(window_mock, OnSaveResult).WillOnce([&](const uint task_id, IOResult result, const int document_id)
+        {
+            ASSERT_TRUE(result == IOResult::Success);
+        });
+
     ASSERT_TRUE(document.IsChanged() == false);
     document.WaitTask(document.InsertString("Text", true));
     std::this_thread::sleep_for(200ms);
@@ -67,6 +72,11 @@ TEST_F(DocumentTest, files2)
     EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
         {
             return GetTextSizeMock(text, format);
+        });
+
+    EXPECT_CALL(window_mock, OnSaveResult).WillOnce([&](const uint task_id, IOResult result, const int document_id)
+        {
+            ASSERT_TRUE(result == IOResult::Success);
         });
 
     document.SetFontSize(22);
@@ -130,6 +140,11 @@ TEST_F(DocumentTest, files2)
 TEST_F(DocumentTest, files3)
 {
     Start(640);
+
+    EXPECT_CALL(window_mock, OnSaveResult).WillRepeatedly([&](const uint task_id, IOResult result, const int document_id)
+        {
+            ASSERT_TRUE(result == IOResult::Success);
+        });
 
     document.SetFontSize(22);
     document.WaitTask(document.InsertString("In literary theory, a text is any object that can be read, whether this object is a work of literature, "\
@@ -266,7 +281,7 @@ TEST_F(DocumentTest, files4)
         "</body>") 
         << document.ToHtml();
 
-    EXPECT_CALL(window_mock, OnSaveResult).WillOnce([&](const uint task_id, IOResult result)
+    EXPECT_CALL(window_mock, OnSaveResult).WillOnce([&](const uint task_id, IOResult result, const int document_id)
         {
             ASSERT_TRUE(result == IOResult::Success);
         });
@@ -309,12 +324,17 @@ TEST_F(DocumentTest, files4)
     ASSERT_TRUE(f.name == "Monospace") << f.name;
 }
 
-//Load a text file
+//Load and save a text file
 TEST_F(DocumentTest, files5)
 {
     Start(600);
 
-    EXPECT_CALL(window_mock, OnLoadResult).WillOnce([&](const uint task_id, IOResult result, const int document_id)
+    EXPECT_CALL(window_mock, OnLoadResult).WillRepeatedly([&](const uint task_id, IOResult result, const int document_id)
+        {
+            ASSERT_TRUE(result == IOResult::Success);
+        });
+
+    EXPECT_CALL(window_mock, OnSaveResult).WillOnce([&](const uint task_id, IOResult result, const int document_id)
         {
             ASSERT_TRUE(result == IOResult::Success);
         });
@@ -331,6 +351,15 @@ TEST_F(DocumentTest, files5)
     el = paragraph->elements->Get(0)->elements->Get(0);
     ASSERT_TRUE(el->type == ElementType::STRING && el->ToText().rfind(U"Основам арифметики", 0) == 0);
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 0)) << document.GetEditorState().ToString();
+
+    document.Save("files5.txt");
+    document.WaitTask(document.New());
+    document.Load("files5.txt");
+    document.WaitLoad();
+    std::this_thread::sleep_for(2000ms);
+
+    el = document.GetElement(ElementId{0, 0, 0, 0, 0});
+    ASSERT_TRUE(el->type == ElementType::STRING && el->ToText().rfind(U"Арифме́тика", 0) == 0);
 }
 
 //Load a broken file
@@ -447,6 +476,11 @@ TEST_F(DocumentTest, files10)
 {
     Start(600);
 
+    EXPECT_CALL(window_mock, OnSaveResult).WillOnce([&](const uint task_id, IOResult result, const int document_id)
+        {
+            ASSERT_TRUE(result == IOResult::Success);
+        });
+
     document.InsertCode(false, true);
     document.WaitTask(document.InsertString(" 123   4355 45 ", true));
     document.WaitTask(document.Save("files10.yut"));
@@ -483,6 +517,11 @@ TEST_F(DocumentTest, files11)
 {
     Start(600);
 
+    EXPECT_CALL(window_mock, OnSaveResult).WillOnce([&](const uint task_id, IOResult result, const int document_id)
+        {
+            ASSERT_TRUE(result == IOResult::Success);
+        });
+
     document.WaitTask(document.InsertString("Text ", true));
     document.SetColor(Color::Red());
     document.WaitTask(document.InsertString("red ", true));
@@ -516,6 +555,11 @@ TEST_F(DocumentTest, files11)
 TEST_F(DocumentTest, files12)
 {
     Start(600);
+
+    EXPECT_CALL(window_mock, OnSaveResult).WillOnce([&](const uint task_id, IOResult result, const int document_id)
+        {
+            ASSERT_TRUE(result == IOResult::Success);
+        });
 
     ASSERT_TRUE(document.IsChanged() == false);
     document.WaitTask(document.InsertString("Text ", true));
@@ -567,6 +611,11 @@ TEST_F(DocumentTest, files13)
 {
     Start(600);
 
+    EXPECT_CALL(window_mock, OnSaveResult).WillOnce([&](const uint task_id, IOResult result, const int document_id)
+        {
+            ASSERT_TRUE(result == IOResult::Success);
+        });
+
     document.config.solve_delay = 10000;
 
     document.InsertCode(false, true);
@@ -595,6 +644,11 @@ TEST_F(DocumentTest, files14)
 {
     Start(600);
 
+    EXPECT_CALL(window_mock, OnSaveResult).WillOnce([&](const uint task_id, IOResult result, const int document_id)
+        {
+            ASSERT_TRUE(result == IOResult::Success);
+        });
+
     document.SetLocale(yutovo_calculator::Language::Russian, true);
     document.InsertCode(false, true);
     document.WaitTask(document.InsertString("1+j", true));
@@ -615,6 +669,11 @@ TEST_F(DocumentTest, files14)
 TEST_F(DocumentTest, files15)
 {
     Start(600);
+
+    EXPECT_CALL(window_mock, OnSaveResult).WillOnce([&](const uint task_id, IOResult result, const int document_id)
+        {
+            ASSERT_TRUE(result == IOResult::Success);
+        });
 
     document.InsertCode(false, true);
     document.InsertString("d_m", true);
@@ -645,6 +704,11 @@ TEST_F(DocumentTest, files16)
 {
     Start(510);
 
+    EXPECT_CALL(window_mock, OnSaveResult).WillOnce([&](const uint task_id, IOResult result, const int document_id)
+        {
+            ASSERT_TRUE(result == IOResult::Success);
+        });
+
     document.WaitTask(document.InsertString("Tradicionalmente, el medio de un documento era el papel y la información", true));
     document.WaitTask(document.ChangeParagraphFormat(ParagraphFormat::Alignment::Right, true));
 
@@ -668,6 +732,11 @@ TEST_F(DocumentTest, files17)
 {
     Start(600);
 
+    EXPECT_CALL(window_mock, OnSaveResult).WillOnce([&](const uint task_id, IOResult result, const int document_id)
+        {
+            ASSERT_TRUE(result == IOResult::Success);
+        });
+
     document.SetLocale(yutovo_calculator::Language::Russian, true);
     document.InsertCode(false, true);
     document.InsertString("6кг", true);
@@ -687,6 +756,11 @@ TEST_F(DocumentTest, files17)
 TEST_F(DocumentTest, files18)
 {
     Start(600);
+
+    EXPECT_CALL(window_mock, OnSaveResult).WillOnce([&](const uint task_id, IOResult result, const int document_id)
+        {
+            ASSERT_TRUE(result == IOResult::Success);
+        });
 
     document.InsertCode(false, true);
     document.InsertSum(true);
@@ -714,6 +788,11 @@ TEST_F(DocumentTest, files18)
 TEST_F(DocumentTest, files19)
 {
     Start(600);
+
+    EXPECT_CALL(window_mock, OnSaveResult).WillOnce([&](const uint task_id, IOResult result, const int document_id)
+        {
+            ASSERT_TRUE(result == IOResult::Success);
+        });
 
     document.InsertCode(false, true);
     document.InsertProduct(true);
@@ -745,6 +824,11 @@ TEST_F(DocumentTest, files20)
     EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
         {
             return GetTextSizeMock(text, format);
+        });
+
+    EXPECT_CALL(window_mock, OnSaveResult).WillOnce([&](const uint task_id, IOResult result, const int document_id)
+        {
+            ASSERT_TRUE(result == IOResult::Success);
         });
 
     ASSERT_TRUE(document.IsChanged() == false);
@@ -827,6 +911,11 @@ TEST_F(DocumentTest, files21)
     EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
         {
             return GetTextSizeMock(text, format);
+        });
+
+    EXPECT_CALL(window_mock, OnSaveResult).WillOnce([&](const uint task_id, IOResult result, const int document_id)
+        {
+            ASSERT_TRUE(result == IOResult::Success);
         });
 
     ASSERT_TRUE(document.IsChanged() == false);
