@@ -74,7 +74,7 @@ public:
 
     MOCK_METHOD(std::u32string, Translate, (ElementId id, const std::u32string& str));
 
-    MOCK_METHOD(void, OnSaveResult, (const uint task_id, IOResult result), (override));
+    MOCK_METHOD(void, OnSaveResult, (const uint task_id, IOResult result, const int document_id), (override));
     MOCK_METHOD(void, OnLoadResult, (const uint task_id, IOResult result, const int document_id), (override));
 
     MOCK_METHOD(void, OnCopyResult, (CopyResult result), (override));

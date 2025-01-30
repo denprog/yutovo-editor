@@ -241,12 +241,13 @@ class StringElements;
 struct SaveTask : Task
 {
     SaveTask(ElementPtr _text, const std::string _filename);
-    SaveTask(ElementPtr _text, std::u32string* _json_str);
+    SaveTask(ElementPtr _text, std::u32string* _json_str, const int _document_id);
 
     virtual bool Execute();
 
     std::string filename;
     std::u32string* json_str = nullptr;
+    const int document_id = 0;
 };
 
 struct LoadTask : Task

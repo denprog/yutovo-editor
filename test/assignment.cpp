@@ -721,7 +721,7 @@ TEST_F(AssignmentTest, files1)
     document.InsertAssignment(true);
     document.WaitTask(document.InsertString("5", true));
 
-    EXPECT_CALL(window_mock, OnSaveResult).WillOnce([&](const uint task_id, IOResult result)
+    EXPECT_CALL(window_mock, OnSaveResult).WillOnce([&](const uint task_id, IOResult result, const int document_id)
         {
             ASSERT_TRUE(result == IOResult::Success);
         });
