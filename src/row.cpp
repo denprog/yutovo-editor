@@ -972,7 +972,12 @@ bool Row::GetNearestCaretState(const int x, const int y, CaretState& caret_state
         }
         if (dist1 < min_dist && dist1 < dist2)
         {
-            if (el && !el->GetNearestCaretState(x, y, caret_state))
+            if (!el)
+            {
+                caret_state = next;
+                return true;
+            }
+            if (!el->GetNearestCaretState(x, y, caret_state))
                 caret_state = next;
             return true;
         }
