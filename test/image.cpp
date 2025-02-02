@@ -325,4 +325,54 @@ TEST_F(DocumentTest, images8)
         document.ToHtml();
 }
 
+//Select text and image and change string format
+TEST_F(DocumentTest, images9)
+{
+    Start(600);
+
+    EXPECT_CALL(window_mock, GetImageSize).WillRepeatedly([&](const std::vector<unsigned char>& image)
+        {
+            return GetImageSizeMock(image);
+        });
+
+    QImage test_image("../../test/tests/Qt_small.png");
+    std::vector<unsigned char> data;
+    GetImageData(test_image, data);
+
+    document.InsertString("123", true);
+    document.InsertParagraph(true);
+    document.WaitTask(document.InsertImage(data, true, false));
+
+    document.WaitTask(document.SelectAll());
+    document.WaitTask(document.ChangeStringFormat("Times New Roman", 22, false, false, false, false, Color::Black(), Color::White(), true));
+
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Times New Roman';font-size:22px;\">123</span>"\
+            "</p>"\
+            "<p>"\
+                "<img src=\"data:image/png;base64," + Base64Encode(data) + "\">"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 1, 0, 1}, 
+        ElementSelectionState{ElementId{0}, 0, 2})) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">123</span>"\
+            "</p>"\
+            "<p>"\
+                "<img src=\"data:image/png;base64," + Base64Encode(data) + "\">"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 1, 0, 1}, 
+        ElementSelectionState{ElementId{0}, 0, 2})) << document.GetEditorState().ToString();
+}
+
 }

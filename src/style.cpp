@@ -368,6 +368,8 @@ ParagraphFormats::ParagraphFormats(StringFormatsPtr _string_formats) :
         string_formats->GetFormat("Arial", 26, true, false, false, false, Color::Black(), Color::White(), Color::Blue()));
     GetFormat("Header 3", ParagraphFormat::Alignment::Left, ParagraphFormat::WordWrap::Normal, 5, 10, 10, 0, 10, 10,
         string_formats->GetFormat("Arial", 22, true, false, false, false, Color::Black(), Color::White(), Color::Blue()));
+    GetFormat("Header 4", ParagraphFormat::Alignment::Left, ParagraphFormat::WordWrap::Normal, 5, 10, 10, 0, 10, 10,
+        string_formats->GetFormat("Arial", 16, true, false, false, false, Color::Black(), Color::White(), Color::Blue()));
     GetFormat("Monospace", ParagraphFormat::Alignment::Left, ParagraphFormat::WordWrap::Normal, 5, 10, 10, 0, 10, 10, 
         string_formats->GetFormat("Courier New", 12, false, false, false, false, Color::Black(), Color::White(), Color::Blue()));
     GetFormat("Code", ParagraphFormat::Alignment::Left, ParagraphFormat::WordWrap::None, 2, 2, 2, 0, 2, 2, 
