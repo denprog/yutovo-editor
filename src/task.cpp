@@ -813,13 +813,16 @@ bool ChangeStringFormatTask::Execute()
             {
                 if (change_string_format(el->elements->Get(i), _changed_element, true))
                 {
-                    if (!changed_element.empty())
-                        changed_element = GetCommonParent(changed_element, _changed_element);
-                    else
-                        changed_element = _changed_element;
-                    if (changed_element.empty())
-                        changed_element = el->elements->Get(i)->id;
-                    changed = true;
+                    if (!_changed_element.empty())
+                    {
+                        if (!changed_element.empty())
+                            changed_element = GetCommonParent(changed_element, _changed_element);
+                        else
+                            changed_element = _changed_element;
+                        if (changed_element.empty())
+                            changed_element = el->elements->Get(i)->id;
+                        changed = true;
+                    }
                 }
             }
         }
