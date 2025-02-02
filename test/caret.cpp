@@ -2251,4 +2251,31 @@ TEST_F(DocumentTest, caret73)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 1, 0, 2})) << document.GetEditorState().ToString();
 }
 
+//Click above an image
+TEST_F(DocumentTest, caret74)
+{
+    Start(600);
+
+    EXPECT_CALL(window_mock, GetImageSize).WillRepeatedly([&](const std::vector<unsigned char>& image)
+        {
+            return GetImageSizeMock(image);
+        });
+
+    QImage test_image("../../test/tests/Qt_large.bmp");
+    std::vector<unsigned char> data;
+    GetImageData(test_image, data);
+
+    document.InsertString("Text", true);
+    document.InsertParagraph(true);
+    document.WaitTask(document.InsertImage(data, true, true));
+
+    Rect rect;
+    document.GetElementRect(ElementId{0, 1, 0, 0}, rect);
+    document.WaitTask(document.MoveCaret(rect.left + rect.width / 2, rect.top - 5));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 1, 0, 0})) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.MoveCaretDown(false));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 1, 0, 0})) << document.GetEditorState().ToString();
+}
+
 }
