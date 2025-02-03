@@ -359,7 +359,7 @@ std::string ParagraphFormat::ToString()
 ParagraphFormats::ParagraphFormats(StringFormatsPtr _string_formats) :
     string_formats(_string_formats)
 {
-    //those are predefined paragraph styles
+    //there are predefined paragraph styles
     GetFormat("Text body", ParagraphFormat::Alignment::Left, ParagraphFormat::WordWrap::Normal, 5, 10, 10, 0, 10, 10, 
         string_formats->GetFormat("Arial", 14, false, false, false, false, Color::Black(), Color::White(), Color::Blue()));
     GetFormat("Header 1", ParagraphFormat::Alignment::Left, ParagraphFormat::WordWrap::Normal, 5, 10, 10, 0, 10, 10, 
@@ -370,6 +370,8 @@ ParagraphFormats::ParagraphFormats(StringFormatsPtr _string_formats) :
         string_formats->GetFormat("Arial", 22, true, false, false, false, Color::Black(), Color::White(), Color::Blue()));
     GetFormat("Header 4", ParagraphFormat::Alignment::Left, ParagraphFormat::WordWrap::Normal, 5, 10, 10, 0, 10, 10,
         string_formats->GetFormat("Arial", 16, true, false, false, false, Color::Black(), Color::White(), Color::Blue()));
+    GetFormat("Example", ParagraphFormat::Alignment::Left, ParagraphFormat::WordWrap::Normal, 5, 10, 10, 0, 10, 10,
+        string_formats->GetFormat("Arial", 14, false, true, false, false, Color::Black(), Color::White(), Color::Blue()));
     GetFormat("Monospace", ParagraphFormat::Alignment::Left, ParagraphFormat::WordWrap::Normal, 5, 10, 10, 0, 10, 10, 
         string_formats->GetFormat("Courier New", 12, false, false, false, false, Color::Black(), Color::White(), Color::Blue()));
     GetFormat("Code", ParagraphFormat::Alignment::Left, ParagraphFormat::WordWrap::None, 2, 2, 2, 0, 2, 2, 
