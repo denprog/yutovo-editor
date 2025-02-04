@@ -139,6 +139,7 @@ public:
     void SetCurrentStringFormat(StringFormatPtr& format);
 
     bool GetCurrentParagraphFormat(ParagraphFormatPtr& format);
+    uint SetCurrentParagraphFormat(const std::string& name);
 
     bool GetCurrentFormulaFormat(FormulaFormatPtr& format);
 
@@ -229,8 +230,6 @@ public:
     uint SetStrikethrough(const bool enabled);
     uint SetColor(const Color color);
     uint SetBgColor(const Color color);
-
-    uint SetCurrentParagraphFormat(const std::string& name);
 
     ElementPtr CreateParagraph(const ElementId& id);
 

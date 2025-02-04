@@ -4919,4 +4919,63 @@ TEST_F(DocumentTest, clipboard81)
         ElementSelectionState{ElementId{0, 0}, 1, 2})) << document.GetEditorState().ToString();
 }
 
+//Paste paragraphs from outside
+TEST_F(DocumentTest, clipboard82)
+{
+    Start(600);
+
+    EXPECT_CALL(window_mock, OnPasteResult).WillRepeatedly([&](PasteResult result)
+        {
+            ASSERT_TRUE(result == PasteResult::Success);
+        });
+
+    document.InsertString(U"Sample", true);
+    document.InsertParagraph(true);
+    document.InsertCode(false, true);
+    document.InsertString(U"123", true);
+    document.WaitTask(document.MoveCaretToDocumentEnd(false));
+    document.InsertParagraph(true);
+    document.WaitTask(document.MoveCaretToDocumentBegin(false));
+    document.WaitTask(document.SetCurrentParagraphFormat("Example"));
+    std::this_thread::sleep_for(200ms);
+    document.WaitTask(document.MoveCaretToDocumentEnd(false));
+    document.WaitTask(document.MoveCaretUp(true));
+
+    document.WaitTask(document.Copy(clipboard_json, clipboard_text));
+
+    document.WaitTask(document.MoveCaretToDocumentEnd(false));
+    document.WaitTask(document.Paste(clipboard_json));
+    document.WaitTask(document.InsertString(U"String", true));
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\"><em>Sample</em></span>"\
+            "</p>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mi>123</mi>"\
+                    "</mrow>"\
+                "</math>"\
+            "</p>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mi>123</mi>"\
+                    "</mrow>"\
+                "</math>"\
+            "</p>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">String</span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 3, 0, 0, 6})) << document.GetEditorState().ToString();
+    ParagraphFormat f;
+    ASSERT_TRUE(document.GetParagraphFormat(ElementId{0, 0, 0, 0, 0}, f));
+    ASSERT_TRUE(f.name == "Example");
+    ASSERT_TRUE(document.GetParagraphFormat(ElementId{0, 3, 0, 0, 0}, f));
+    ASSERT_TRUE(f.name == "Text body");
+}
+
 }
