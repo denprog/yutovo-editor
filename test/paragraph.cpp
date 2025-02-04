@@ -2758,6 +2758,29 @@ TEST_F(ParagraphTest, format13)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 72})) << document.GetEditorState().ToString();
 }
 
+//Copy-paste a paragraph with different style
+TEST_F(ParagraphTest, format14)
+{
+    Start(600);
+
+    document.InsertString("Sample", true);
+    document.InsertParagraph(true);
+    document.InsertString("String", true);
+    document.InsertParagraph(true);
+    document.WaitTask(document.MoveCaretToDocumentBegin(false));
+    document.WaitTask(document.SetCurrentParagraphFormat("Example"));
+    document.MoveCaretEnd(false);
+    document.WaitTask(document.MoveCaretHome(true));
+
+    document.WaitTask(document.Copy(clipboard_json, clipboard_text));
+
+    document.WaitTask(document.MoveCaretToDocumentEnd(false));
+    document.WaitTask(document.Paste(clipboard_json));
+    ParagraphFormat f;
+    ASSERT_TRUE(document.GetParagraphFormat(ElementId{0, 2, 0, 0, 0}, f));
+    ASSERT_TRUE(f.name == "Example");
+}
+
 //Delete a paragraph
 TEST_F(ParagraphTest, delete1)
 {
