@@ -1443,6 +1443,16 @@ bool Document::GetCurrentParagraphFormat(ParagraphFormatPtr& format)
     return false;
 }
 
+uint Document::SetCurrentParagraphFormat(const std::string& name)
+{
+    LOG_TRACE("Set current paragraph format: {}", name);
+    std::lock_guard<std::recursive_mutex> lock(edit_mutex);
+    current_paragraph_format = paragraph_formats->GetFormat(name);
+    if (current_paragraph_format)
+        return ChangeParagraphFormat(current_paragraph_format, true);
+    return 0;
+}
+
 bool Document::GetCurrentFormulaFormat(FormulaFormatPtr& format)
 {
     std::lock_guard<std::recursive_mutex> lock(edit_mutex);
@@ -1470,6 +1480,9 @@ void Document::UpdateFormats()
         current_string_format = string_formats->GetFormat(f);
         window->OnFormatChanged(MakeEditorState());
     }
+    ParagraphFormat p;
+    if (GetParagraphFormat(c.id, p))
+        current_paragraph_format = paragraph_formats->GetFormat(p.name);
 }
 
 uint Document::SetFontFamily(const std::string& family)
@@ -1610,16 +1623,6 @@ uint Document::SetBgColor(const Color color)
         else
             current_string_format = f;
     }
-    return 0;
-}
-
-uint Document::SetCurrentParagraphFormat(const std::string& name)
-{
-    LOG_TRACE("Set current paragraph format: {}", name);
-    std::lock_guard<std::recursive_mutex> lock(edit_mutex);
-    current_paragraph_format = paragraph_formats->GetFormat(name);
-    if (current_paragraph_format)
-        return ChangeParagraphFormat(current_paragraph_format, true);
     return 0;
 }
 
