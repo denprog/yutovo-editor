@@ -4784,6 +4784,7 @@ TEST_F(DocumentTest, clipboard80)
     document.MoveCaretEnd(false);
     document.WaitTask(document.MoveCaretHome(true));
     document.WaitTask(document.Cut(clipboard_json, clipboard_text));
+    std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\

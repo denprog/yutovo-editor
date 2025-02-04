@@ -39,11 +39,26 @@ Element* Row::Create(Element* parent)
     return new Row(parent);
 }
 
+void Row::ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc)
+{
+    Element::ToJson(value, alloc);
+
+    if (format)
+    {
+        rapidjson::Value _format_name(format->name.c_str(), alloc);
+        value.AddMember("format_name", _format_name, alloc);
+    }
+}
+
 Element* Row::FromJson(Element* parent, Document* document, const rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc)
 {
-    if (parent)
-        return new Row(parent, false);
-    return new Row(document);
+    ParagraphFormatPtr f;
+    if (value.HasMember("format_name") && value["format_name"].IsString())
+        f = document->paragraph_formats->GetFormat(value["format_name"].GetString());
+
+    Row* row = parent ? new Row(parent, false) : new Row(document);
+    row->format = f;
+    return row;
 }
 
 bool Row::Remake(bool with_elements)
@@ -215,6 +230,12 @@ bool Row::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo, Ele
     {
         if (document->IsRow(el))
         {
+            if (document->pasting && el->type == ElementType::ROW && type == ElementType::ROW)
+            {
+                Row* r = (Row*)el.get();
+                if (r->format)
+                    ((Paragraph*)parent)->format = r->format;
+            }
             for (int i = 0; i < el->elements->Count(); ++i)
             {
                 std::vector<ElementPtr> v;

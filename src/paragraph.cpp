@@ -597,6 +597,7 @@ ElementPtr Paragraph::GetPlainRow()
             row->elements->Add(_el);
         }
     }
+    ((Row*)row.get())->format = format;
     return row;
 }
 
