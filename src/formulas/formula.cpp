@@ -7,9 +7,12 @@ namespace yutovo
 //Formula
 
 Formula::Formula(Element* _parent) : 
-    Element(_parent),
-    formula_format(GetFormulaFormat())
+    Element(_parent)
 {
+    if (document)
+        document->GetCurrentFormulaFormat(formula_format);
+    else
+        formula_format = GetFormulaFormat();
 }
 
 Formula::Formula(Document* _document) :
