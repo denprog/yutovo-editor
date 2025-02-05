@@ -114,4 +114,59 @@ TEST_F(FormulaTest, sum1)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 2, 0, 1})) << document.GetEditorState().ToString();
 }
 
+//Insert division in a selected string inside expression
+TEST_F(FormulaTest, sum2)
+{
+    Start(600);
+
+    document.WaitTask(document.InsertSum(true));
+    for (int i = 0; i < 5; ++i)
+        document.MoveCaretRight(false);
+    document.InsertOpenFence(true);
+    document.InsertString("2pi", true);
+    document.InsertCloseFence(true);
+    document.MoveCaretLeft(false);
+    document.MoveCaretLeft(false);
+    document.MoveCaretLeft(true);
+    document.MoveCaretLeft(true);
+    document.MoveCaretLeft(true);
+    document.WaitTask(document.InsertDivision(true));
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<munderover>"\
+                            "<mo>Σ</mo>"\
+                            "<mrow>"\
+                                "<mi>Null</mi>"\
+                            "</mrow>"\
+                            "<mo>=</mo>"\
+                            "<mrow>"\
+                                "<mi>Null</mi>"\
+                            "</mrow>"\
+                            "<mrow>"\
+                                "<mi>Null</mi>"\
+                            "</mrow>"\
+                        "</munderover>"\
+                        "<mrow>"\
+                            "<mo>(</mo>"\
+                            "<mfrac>"\
+                                "<mrow>"\
+                                    "<mi>2pi</mi>"\
+                                "</mrow>"\
+                                "<mrow>"\
+                                    "<mi>Null</mi>"\
+                                "</mrow>"\
+                            "</mfrac>"\
+                            "<mo>)</mo>"\
+                        "</mrow>"\
+                    "</mrow>"\
+                "</math>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 3, 1, 2, 0, 0})) << document.GetEditorState().ToString();
+}
+
 }

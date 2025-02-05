@@ -95,6 +95,17 @@ void CodeRow::Normalize()
     }
 }
 
+bool CodeRow::Merge(const ElementPtr with_element)
+{
+    if (with_element->type != ElementType::CODE_ROW)
+        return false;
+    //merge the two rows
+    for (int j = 0; j < with_element->elements->Count();)
+        elements->Move(with_element->elements->Get(0), elements->Count());
+    with_element->parent->elements->RemoveAt(yutovo::GetChildPos(with_element->id), 1);
+    return true;
+}
+
 bool CodeRow::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo, ElementId& changed_element)
 {
     for (auto el : _elements)

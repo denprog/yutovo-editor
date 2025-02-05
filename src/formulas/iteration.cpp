@@ -124,6 +124,9 @@ bool Iteration::Remake(bool with_elements)
 void Iteration::Normalize()
 {
     Element::Normalize(); //skip Formula::Normalize()
+
+    if (elements->Count() > 4)
+        elements->Get(3)->Merge(elements->Get(4));
 }
 
 bool Iteration::GetLeftCaretState(CaretState& caret_state, Selection* select)
