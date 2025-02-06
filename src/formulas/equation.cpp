@@ -259,7 +259,7 @@ bool Equation::SetResult(ResultType _result_type, bool with_undo)
     return true;
 }
 
-bool Equation::SetConfig(int precision, int exp, AngleMeasure result_angle_measure, bool with_undo)
+bool Equation::SetConfig(int precision, int exp, AngleMeasure default_angle_measure, AngleMeasure result_angle_measure, bool with_undo)
 {
     switch (result->type)
     {
@@ -269,7 +269,7 @@ bool Equation::SetConfig(int precision, int exp, AngleMeasure result_angle_measu
         if (with_undo)
             document->StoreUndo(id);
         AutoResult* r = (AutoResult*)result.get();
-        return r->SetConfig(precision, exp, result_angle_measure);
+        return r->SetConfig(precision, exp, default_angle_measure, result_angle_measure);
     }
     case ElementType::REAL_RESULT:
     {
@@ -277,7 +277,7 @@ bool Equation::SetConfig(int precision, int exp, AngleMeasure result_angle_measu
         if (with_undo)
             document->StoreUndo(id);
         RealResult* r = (RealResult*)result.get();
-        return r->SetConfig(precision, exp, result_angle_measure);
+        return r->SetConfig(precision, exp, default_angle_measure, result_angle_measure);
     }
     case ElementType::COMPLEX_RESULT:
     {
@@ -285,7 +285,7 @@ bool Equation::SetConfig(int precision, int exp, AngleMeasure result_angle_measu
         if (with_undo)
             document->StoreUndo(id);
         ComplexResult* r = (ComplexResult*)result.get();
-        return r->SetConfig(precision, exp, result_angle_measure);
+        return r->SetConfig(precision, exp, default_angle_measure, result_angle_measure);
     }
     default:
         return false;
@@ -367,7 +367,8 @@ bool Equation::SetConfig(ComplexForm complex_form, bool with_undo)
     }
 }
 
-bool Equation::SetConfig(int precision, int exp, AngleMeasure result_angle_measure, bool with_undo, ComplexForm form, uint max_count)
+bool Equation::SetConfig(int precision, int exp, AngleMeasure default_angle_measure, AngleMeasure result_angle_measure, bool with_undo, 
+    ComplexForm form, uint max_count)
 {
     switch (result->type)
     {
@@ -377,7 +378,7 @@ bool Equation::SetConfig(int precision, int exp, AngleMeasure result_angle_measu
         if (with_undo)
             document->StoreUndo(id);
         AutoResult* r = (AutoResult*)result.get();
-        return r->SetConfig(precision, exp, result_angle_measure, form, max_count);
+        return r->SetConfig(precision, exp, default_angle_measure, result_angle_measure, form, max_count);
     }
     case ElementType::COMPLEX_RESULT:
     {
@@ -385,7 +386,7 @@ bool Equation::SetConfig(int precision, int exp, AngleMeasure result_angle_measu
         if (with_undo)
             document->StoreUndo(id);
         ComplexResult* r = (ComplexResult*)result.get();
-        return r->SetConfig(precision, exp, result_angle_measure, form, max_count);
+        return r->SetConfig(precision, exp, default_angle_measure, result_angle_measure, form, max_count);
     }
     default:
         return false;

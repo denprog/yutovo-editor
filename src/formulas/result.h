@@ -84,7 +84,7 @@ public:
 
     virtual void PutResult(Result& result);
 
-    bool SetConfig(const int precision, const int exp, const AngleMeasure result_angle_measure);
+    bool SetConfig(const int precision, const int exp, const AngleMeasure default_angle_measure, const AngleMeasure result_angle_measure);
     bool SetConfig(const yutovo_calculator::Unit& unit);
 
 public:
@@ -159,8 +159,9 @@ public:
 
     virtual void PutResult(Result& result);
 
-    bool SetConfig(const int precision, const int exp, const AngleMeasure result_angle_measure);
-    bool SetConfig(const int precision, const int exp, const AngleMeasure result_angle_measure, ComplexForm form, uint max_count);
+    bool SetConfig(const int precision, const int exp, const AngleMeasure default_angle_measure, const AngleMeasure result_angle_measure);
+    bool SetConfig(const int precision, const int exp, const AngleMeasure default_angle_measure, const AngleMeasure result_angle_measure, 
+        ComplexForm form, uint max_count);
     bool SetConfig(ComplexForm form);
 
 public:
@@ -200,10 +201,11 @@ public:
 
     virtual void BeforePaste();
 
-    bool SetConfig(const int precision, const int exp, const AngleMeasure result_angle_measure);
+    bool SetConfig(const int precision, const int exp, const AngleMeasure default_angle_measure, const AngleMeasure result_angle_measure);
     bool SetConfig(Notation default_notation, Notation result_notation);
     bool SetConfig(FractionForm fraction_form);
-    bool SetConfig(const int precision, const int exp, const AngleMeasure result_angle_measure, ComplexForm form, uint max_count);
+    bool SetConfig(const int precision, const int exp, const AngleMeasure default_angle_measure, const AngleMeasure result_angle_measure, 
+        ComplexForm form, uint max_count);
     bool SetConfig(ComplexForm form);
     bool SetConfig(const yutovo_calculator::Unit& unit);
 
