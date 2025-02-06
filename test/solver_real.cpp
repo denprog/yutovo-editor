@@ -272,7 +272,7 @@ TEST_F(SolverRealTest, solver8)
         U"arcsin(1)=1.571(rad)"
         ) << ToBasicString(document.ToText());
 
-    document.WaitTask(document.SetResultAngleMeasure({0, 0, 0, 0, 0, 0, 0, 2, 0, 0}, AngleMeasure::Degree, true));
+    document.WaitTask(document.SetAngleMeasure({0, 0, 0, 0, 0, 0, 0, 2, 0, 0}, AngleMeasure::Radian, AngleMeasure::Degree, true));
     document.WaitSolver();
     ASSERT_TRUE(document.ToText() == 
         U"arcsin(1)=90.(deg)"
@@ -353,6 +353,30 @@ TEST_F(SolverRealTest, solver12)
     document.WaitSolver();
     ASSERT_TRUE(document.ToText() == 
         U"11%234=25.74"
+        ) << ToBasicString(document.ToText());
+}
+
+//Change angle measure
+TEST_F(SolverRealTest, solver13)
+{
+    Start(600);
+    
+    document.InsertCode(false, true);
+    document.InsertString("sin", true);
+    document.InsertOpenFence(true);
+    document.InsertString("1", true);
+    document.InsertCloseFence(true);
+    document.WaitTask(document.InsertEquation(ResultType::REAL, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"sin(1)=0.841"
+        ) << ToBasicString(document.ToText());
+
+    document.WaitTask(document.SetAngleMeasure({0, 0, 0, 0, 0, 0, 0, 2, 0, 0}, AngleMeasure::Degree, AngleMeasure::Radian, true));
+    document.WaitSolver();
+    ASSERT_TRUE(document.ToText() == 
+        U"sin(1)=0.0175"
         ) << ToBasicString(document.ToText());
 }
 

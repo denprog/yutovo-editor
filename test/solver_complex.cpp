@@ -552,7 +552,7 @@ TEST_F(SolverComplexTest, solver19)
         U"arcsin(i)=0.881i(rad),3.142-0.881i(rad)"
         ) << ToBasicString(document.ToText());
 
-    document.WaitTask(document.SetResultAngleMeasure({0, 0, 0, 0, 0, 0, 0, 2, 0, 0}, AngleMeasure::Degree, true));
+    document.WaitTask(document.SetAngleMeasure({0, 0, 0, 0, 0, 0, 0, 2, 0, 0}, AngleMeasure::Radian, AngleMeasure::Degree, true));
     document.WaitSolver();
     ASSERT_TRUE(document.ToText() == 
         U"arcsin(i)=50.499i(deg),180.-50.499i(deg)"

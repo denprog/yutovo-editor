@@ -2270,11 +2270,13 @@ SetResultParamsTask::SetResultParamsTask(ElementPtr _text, ElementId _id, Fracti
     with_undo = _with_undo;
 }
 
-SetResultParamsTask::SetResultParamsTask(ElementPtr _text, ElementId _id, uint _precision, uint _exp, AngleMeasure _result_angle_measure, bool _with_undo) :
+SetResultParamsTask::SetResultParamsTask(ElementPtr _text, ElementId _id, uint _precision, uint _exp, AngleMeasure _default_angle_measure, 
+    AngleMeasure _result_angle_measure, bool _with_undo) :
     Task(_text),
     id(_id),
     precision(_precision),
     exp(_exp),
+    default_angle_measure(_default_angle_measure),
     result_angle_measure(_result_angle_measure)
 {
     with_undo = _with_undo;
@@ -2308,9 +2310,9 @@ bool SetResultParamsTask::Execute()
         return false;
     
     Equation* eq = (Equation*)el.get();
-    if (precision != -1 || exp != -1 || result_angle_measure != AngleMeasure::None)
+    if (precision != -1 || exp != -1 || (default_angle_measure != AngleMeasure::None && result_angle_measure != AngleMeasure::None))
     {
-        if (eq->SetConfig(precision, exp, result_angle_measure, with_undo))
+        if (eq->SetConfig(precision, exp, default_angle_measure, result_angle_measure, with_undo))
         {
             Remake(el->id, true);
             return true;

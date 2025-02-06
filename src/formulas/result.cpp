@@ -417,12 +417,14 @@ void RealResult::PutResult(Result& result)
     parent->Remake(true);
 }
 
-bool RealResult::SetConfig(const int precision, const int exp, const AngleMeasure result_angle_measure)
+bool RealResult::SetConfig(const int precision, const int exp, const AngleMeasure default_angle_measure, const AngleMeasure result_angle_measure)
 {
     if (precision != -1 && config.precision != precision)
         config.precision = precision;
     if (exp != -1 && config.exp != exp)
         config.exp = exp;
+    if (default_angle_measure != AngleMeasure::None && config.default_angle_measure != default_angle_measure)
+        config.default_angle_measure = default_angle_measure;
     if (result_angle_measure != AngleMeasure::None && config.result_angle_measure != result_angle_measure)
         config.result_angle_measure = result_angle_measure;
     
@@ -914,12 +916,14 @@ void ComplexResult::PutResult(Result& result)
     parent->Remake(true);
 }
 
-bool ComplexResult::SetConfig(const int precision, const int exp, const AngleMeasure result_angle_measure)
+bool ComplexResult::SetConfig(const int precision, const int exp, const AngleMeasure default_angle_measure, const AngleMeasure result_angle_measure)
 {
     if (precision != -1 && config.precision != precision)
         config.precision = precision;
     if (exp != -1 && config.exp != exp)
         config.exp = exp;
+    if (default_angle_measure != AngleMeasure::None && config.default_angle_measure != default_angle_measure)
+        config.default_angle_measure = default_angle_measure;
     if (result_angle_measure != AngleMeasure::None && config.result_angle_measure != result_angle_measure)
         config.result_angle_measure = result_angle_measure;
     
@@ -929,12 +933,15 @@ bool ComplexResult::SetConfig(const int precision, const int exp, const AngleMea
     return true;
 }
 
-bool ComplexResult::SetConfig(const int precision, const int exp, const AngleMeasure result_angle_measure, ComplexForm form, uint max_count)
+bool ComplexResult::SetConfig(const int precision, const int exp, const AngleMeasure default_angle_measure, const AngleMeasure result_angle_measure, 
+    ComplexForm form, uint max_count)
 {
     if (precision != -1 && config.precision != precision)
         config.precision = precision;
     if (exp != -1 && config.exp != exp)
         config.exp = exp;
+    if (default_angle_measure != AngleMeasure::None && config.default_angle_measure != default_angle_measure)
+        config.default_angle_measure = default_angle_measure;
     if (result_angle_measure != AngleMeasure::None && config.result_angle_measure != result_angle_measure)
         config.result_angle_measure = result_angle_measure;
     config.form = form;
@@ -1133,12 +1140,17 @@ void AutoResult::BeforePaste()
     parent->elements->RemoveAt(c - 1, 1);
 }
 
-bool AutoResult::SetConfig(const int precision, const int exp, const AngleMeasure result_angle_measure)
+bool AutoResult::SetConfig(const int precision, const int exp, const AngleMeasure default_angle_measure, const AngleMeasure result_angle_measure)
 {
     if (precision != -1 && config.real_result.precision != precision)
         config.real_result.precision = precision;
     if (exp != -1 && config.real_result.exp != exp)
         config.real_result.exp = exp;
+    if (default_angle_measure != AngleMeasure::None && config.real_result.default_angle_measure != default_angle_measure)
+    {
+        config.real_result.default_angle_measure = default_angle_measure;
+        config.complex_result.default_angle_measure = default_angle_measure;
+    }
     if (result_angle_measure != AngleMeasure::None && config.real_result.result_angle_measure != result_angle_measure)
     {
         config.real_result.result_angle_measure = result_angle_measure;
@@ -1178,12 +1190,15 @@ bool AutoResult::SetConfig(FractionForm fraction_form)
     return true;
 }
 
-bool AutoResult::SetConfig(const int precision, const int exp, const AngleMeasure result_angle_measure, ComplexForm form, uint max_count)
+bool AutoResult::SetConfig(const int precision, const int exp, const AngleMeasure default_angle_measure, const AngleMeasure result_angle_measure, 
+    ComplexForm form, uint max_count)
 {
     if (precision != -1 && config.complex_result.precision != precision)
         config.complex_result.precision = precision;
     if (exp != -1 && config.complex_result.exp != exp)
         config.complex_result.exp = exp;
+    if (default_angle_measure != AngleMeasure::None && config.complex_result.default_angle_measure != default_angle_measure)
+        config.complex_result.default_angle_measure = default_angle_measure;
     if (result_angle_measure != AngleMeasure::None && config.complex_result.result_angle_measure != result_angle_measure)
         config.complex_result.result_angle_measure = result_angle_measure;
     config.complex_result.form = form;

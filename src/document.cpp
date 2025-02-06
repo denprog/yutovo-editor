@@ -2450,7 +2450,7 @@ int Document::GetPrecision(ElementId _id)
 uint Document::SetPrecision(ElementId _id, uint precision, bool with_undo)
 {
     std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
-    tasks.emplace_back(new SetResultParamsTask(text, _id, precision, -1, AngleMeasure::None, with_undo));
+    tasks.emplace_back(new SetResultParamsTask(text, _id, precision, -1, AngleMeasure::None, AngleMeasure::None, with_undo));
     last_task_id = tasks.back()->id;
     return last_task_id;
 }
@@ -2476,9 +2476,27 @@ int Document::GetExp(ElementId _id)
 uint Document::SetExp(ElementId _id, uint exp, bool with_undo)
 {
     std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
-    tasks.emplace_back(new SetResultParamsTask(text, _id, -1, exp, AngleMeasure::None, with_undo));
+    tasks.emplace_back(new SetResultParamsTask(text, _id, -1, exp, AngleMeasure::None, AngleMeasure::None, with_undo));
     last_task_id = tasks.back()->id;
     return last_task_id;
+}
+
+AngleMeasure Document::GetDefaultAngleMeasure(ElementId _id)
+{
+    std::lock_guard<std::recursive_mutex> lock(edit_mutex);
+    auto el = GetElement(_id);
+    if (!el)
+        return AngleMeasure::None;
+    RealResult* r = dynamic_cast<RealResult*>(el.get());
+    if (r)
+        return r->config.default_angle_measure;
+    AutoResult* a_r = dynamic_cast<AutoResult*>(el.get());
+    if (a_r)
+        return a_r->config.real_result.default_angle_measure;
+    ComplexResult* c_r = dynamic_cast<ComplexResult*>(el.get());
+    if (c_r)
+        return c_r->config.default_angle_measure;
+    return AngleMeasure::None;
 }
 
 AngleMeasure Document::GetResultAngleMeasure(ElementId _id)
@@ -2499,10 +2517,10 @@ AngleMeasure Document::GetResultAngleMeasure(ElementId _id)
     return AngleMeasure::None;
 }
 
-uint Document::SetResultAngleMeasure(ElementId _id, AngleMeasure result_angle_measure, bool with_undo)
+uint Document::SetAngleMeasure(ElementId _id, AngleMeasure default_angle_measure, AngleMeasure result_angle_measure, bool with_undo)
 {
     std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
-    tasks.emplace_back(new SetResultParamsTask(text, _id, -1, -1, result_angle_measure, with_undo));
+    tasks.emplace_back(new SetResultParamsTask(text, _id, -1, -1, default_angle_measure, result_angle_measure, with_undo));
     last_task_id = tasks.back()->id;
     return last_task_id;
 }

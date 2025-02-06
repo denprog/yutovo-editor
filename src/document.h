@@ -265,8 +265,9 @@ public:
     int GetExp(ElementId _id);
     uint SetExp(ElementId _id, uint exp, bool with_undo);
 
+    AngleMeasure GetDefaultAngleMeasure(ElementId _id);
     AngleMeasure GetResultAngleMeasure(ElementId _id);
-    uint SetResultAngleMeasure(ElementId _id, AngleMeasure result_angle_measure, bool with_undo);
+    uint SetAngleMeasure(ElementId _id, AngleMeasure default_angle_measure, AngleMeasure result_angle_measure, bool with_undo);
 
     Notation GetResultNotation(ElementId _id);
     Notation GetDefaultNotation(ElementId _id);
