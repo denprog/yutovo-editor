@@ -169,4 +169,65 @@ TEST_F(FormulaTest, sum2)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 3, 1, 2, 0, 0})) << document.GetEditorState().ToString();
 }
 
+//Check selection between elements
+TEST_F(FormulaTest, sum3)
+{
+    Start(600);
+
+    document.InsertSum(true);
+    document.InsertString("n", true);
+    document.MoveCaretRight(false);
+    document.MoveCaretRight(false);
+    document.InsertString("1", true);
+    document.MoveCaretUp(false);
+    document.MoveCaretUp(false);
+    document.InsertString("20", true);
+    document.MoveCaretRight(false);
+    document.WaitTask(document.InsertString("123", true));
+
+    for (int i = 0; i < 4; ++i)
+        document.WaitTask(document.MoveCaretLeft(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 3, 0, 0}, 
+        ElementSelectionState{ElementId{0, 0, 0, 0, 0, 0, 0}, 3, 1})) << document.GetEditorState().ToString();
+    
+    document.WaitTask(document.MoveCaretLeft(false));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 0})) << document.GetEditorState().ToString();
+
+    document.MoveCaretUp(false);
+    document.MoveCaretUp(false);
+    document.MoveCaretRight(false);
+    document.MoveCaretRight(true);
+    document.WaitTask(document.MoveCaretRight(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 2, 0, 2}, 
+        ElementSelectionState{ElementId{0, 0, 0, 0, 0, 0, 0, 2, 0}, 1, 1})) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.MoveCaretWordRight(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 2, 0, 2}, 
+        ElementSelectionState{ElementId{0, 0, 0, 0, 0, 0, 0, 2, 0}, 1, 1})) << document.GetEditorState().ToString();
+    
+    document.WaitTask(document.MoveCaretDown(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0}, 
+        ElementSelectionState{ElementId{0}, 0, 1})) << document.GetEditorState().ToString();
+    
+    document.MoveCaretLeft(false);
+    document.MoveCaretRight(false);
+    document.MoveCaretRight(false);
+    document.WaitTask(document.MoveCaretRight(false));
+
+    document.WaitTask(document.MoveCaretUp(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0}, 
+        ElementSelectionState{ElementId{0}, 0, 1})) << document.GetEditorState().ToString();
+    
+    document.MoveCaretEnd(false);
+    document.MoveCaretLeft(false);
+    document.MoveCaretLeft(false);
+    document.WaitTask(document.MoveCaretWordLeft(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 3, 0, 0}, 
+        ElementSelectionState{ElementId{0, 0, 0, 0, 0, 0, 0, 3, 0}, 0, 2})) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.MoveCaretWordLeft(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 3, 0, 0}, 
+        ElementSelectionState{ElementId{0, 0, 0, 0, 0, 0, 0, 3, 0}, 0, 2})) << document.GetEditorState().ToString();
+}
+
 }
