@@ -133,8 +133,12 @@ bool Iteration::GetLeftCaretState(CaretState& caret_state, Selection* select)
 {
     if (select)
     {
-        if (caret->IsOnElement(GetLower()->id) || caret->IsOnElement(GetShape()->id) || caret->IsOnElement(GetUpper()->id) || caret->IsOnElement(GetRight()->id))
+        if (caret->IsOnElement(GetLower()->id) || caret->IsOnElement(GetShape()->id) || caret->IsOnElement(GetUpper()->id) || caret->IsOnElement(GetRight()->id) || 
+            caret->IsInsideElement(GetLower()->id) || caret->IsInsideElement(GetShape()->id) || caret->IsInsideElement(GetUpper()->id) || 
+            caret->IsInsideElement(GetRight()->id))
+        {
             return false;
+        }
     }
     return Formula::GetLeftCaretState(caret_state, select);
 }
@@ -143,8 +147,12 @@ bool Iteration::GetRightCaretState(CaretState& caret_state, Selection* select)
 {
     if (select)
     {
-        if (caret->IsOnElement(GetLower()->id) || caret->IsOnElement(GetShape()->id) || caret->IsOnElement(GetUpper()->id) || caret->IsOnElement(GetRight()->id))
+        if (caret->IsOnElement(GetLower()->id) || caret->IsOnElement(GetShape()->id) || caret->IsOnElement(GetUpper()->id) || caret->IsOnElement(GetRight()->id) || 
+            caret->IsInsideElement(GetLower()->id) || caret->IsInsideElement(GetShape()->id) || caret->IsInsideElement(GetUpper()->id) || 
+            caret->IsInsideElement(GetRight()->id))
+        {
             return false;
+        }
     }
     return Formula::GetRightCaretState(caret_state, select);
 }
@@ -153,8 +161,12 @@ bool Iteration::GetWordLeftCaretState(CaretState& caret_state, Selection* select
 {
     if (select)
     {
-        if (caret->IsOnElement(GetLower()->id) || caret->IsOnElement(GetShape()->id) || caret->IsOnElement(GetUpper()->id) || caret->IsOnElement(GetRight()->id))
+        if (caret->IsOnElement(GetLower()->id) || caret->IsOnElement(GetShape()->id) || caret->IsOnElement(GetUpper()->id) || caret->IsOnElement(GetRight()->id) || 
+            caret->IsInsideElement(GetLower()->id) || caret->IsInsideElement(GetShape()->id) || caret->IsInsideElement(GetUpper()->id) || 
+            caret->IsInsideElement(GetRight()->id))
+        {
             return false;
+        }
     }
     return Formula::GetWordLeftCaretState(caret_state, select);
 }
@@ -163,14 +175,25 @@ bool Iteration::GetWordRightCaretState(CaretState& caret_state, Selection* selec
 {
     if (select)
     {
-        if (caret->IsOnElement(GetLower()->id) || caret->IsOnElement(GetShape()->id) || caret->IsOnElement(GetUpper()->id) || caret->IsOnElement(GetRight()->id))
+        if (caret->IsOnElement(GetLower()->id) || caret->IsOnElement(GetShape()->id) || caret->IsOnElement(GetUpper()->id) || caret->IsOnElement(GetRight()->id) || 
+            caret->IsInsideElement(GetLower()->id) || caret->IsInsideElement(GetShape()->id) || caret->IsInsideElement(GetUpper()->id) || 
+            caret->IsInsideElement(GetRight()->id))
+        {
             return false;
+        }
     }
     return Formula::GetWordRightCaretState(caret_state, select);
 }
 
 bool Iteration::GetTopCaretState(const int x, const int y, CaretState& caret_state, Selection* select)
 {
+    if (select)
+    {
+        select->Add(id);
+        caret_state.SetState(parent->id, parent->elements->GetElementPos(id));
+        return true;
+    }
+
     Assignment* lower = GetLower();
     Shape* shape = GetShape();
     CodeRow* upper = GetUpper();
@@ -185,6 +208,13 @@ bool Iteration::GetTopCaretState(const int x, const int y, CaretState& caret_sta
 
 bool Iteration::GetBottomCaretState(const int x, const int y, CaretState& caret_state, Selection* select)
 {
+    if (select)
+    {
+        select->Add(id);
+        caret_state.SetState(parent->id, parent->elements->GetElementPos(id));
+        return true;
+    }
+    
     Assignment* lower = GetLower();
     Shape* shape = GetShape();
     CodeRow* upper = GetUpper();

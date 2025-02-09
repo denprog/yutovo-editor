@@ -795,7 +795,7 @@ bool Row::GetWordLeftCaretState(CaretState& caret_state, Selection* select)
     if (GetFirstCaretState(c, nullptr) && c == caret_state)
     {
         int p = parent->elements->GetChildPos(id);
-        if (p > 0)
+        if (type == ElementType::ROW && p > 0)
         {
             //move to the previous row
             if (parent->elements->Get(p - 1)->GetLastCaretState(caret_state, select))
@@ -883,7 +883,7 @@ bool Row::GetWordRightCaretState(CaretState& caret_state, Selection* select)
         }
         else
         {
-            if (parent->elements->GetChildPos(id) < parent->elements->Count() - 1)
+            if (type == ElementType::ROW && parent->elements->GetChildPos(id) < parent->elements->Count() - 1)
             {
                 //move to the next row
                 if (parent->elements->Get(yutovo::GetChildPos(id) + 1)->GetFirstCaretState(caret_state, select))
@@ -907,7 +907,7 @@ bool Row::GetWordRightCaretState(CaretState& caret_state, Selection* select)
     if (GetLastCaretState(c, nullptr) && c == caret_state)
     {
         int p = parent->elements->GetChildPos(id);
-        if (p < parent->elements->Count() - 1)
+        if (type == ElementType::ROW && p < parent->elements->Count() - 1)
         {
             //move to the next row
             if (parent->elements->Get(p + 1)->GetFirstCaretState(caret_state, select))
