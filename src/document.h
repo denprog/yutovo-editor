@@ -211,6 +211,7 @@ public:
 
     std::string ToHtml();
     std::u32string ToText();
+    std::u32string ToText(const ElementId& id);
 
     TextFormatPtr GetDefaultTextFormat();
     PageFormatPtr GetDefaultPageFormat();

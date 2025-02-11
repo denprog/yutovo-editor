@@ -2279,6 +2279,15 @@ std::u32string Document::ToText()
     return text->ToText();
 }
 
+std::u32string Document::ToText(const ElementId& id)
+{
+    std::lock_guard<std::recursive_mutex> lock(edit_mutex);
+    ElementPtr el = GetElement(id);
+    if (!el)
+        return U"";
+    return el->ToText();
+}
+
 TextFormatPtr Document::GetDefaultTextFormat()
 {
     return TextFormats::GetFormat(TextFormat::Paging::ONE_PAGE);
