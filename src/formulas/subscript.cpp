@@ -62,7 +62,7 @@ bool Subscript::Remake(bool with_elements)
     bool changed = MiddleShapeFormula::Remake(true);
 
     GetFirst()->rect.Move(0, 0);
-    GetShape()->rect.SetRect(0, 0, 1, GetLast()->rect.height + GetFirst()->rect.height / 2);
+    GetShape()->rect.SetRect(0, 0, 4, GetLast()->rect.height + GetFirst()->rect.height / 2);
     GetShape()->rect.Move(GetFirst()->rect.width, 0);
     GetLast()->rect.Move(GetFirst()->rect.width + GetShape()->rect.width, GetFirst()->rect.height / 2);
 
