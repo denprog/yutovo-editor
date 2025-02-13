@@ -1284,6 +1284,15 @@ ElementId Document::GetElementId(const LogicalId& _id, const int pos, bool& last
     return res;
 }
 
+ElementId Document::GetParentId(const ElementId& id, const ElementType type)
+{
+    std::lock_guard<std::recursive_mutex> lock(edit_mutex);
+    ElementPtr el = FindParent(id, type);
+    if (!el)
+        return ElementId{};
+    return el->id;
+}
+
 ElementPtr Document::FindElementOrParent(const ElementId& id, const ElementType type)
 {
     ElementPtr el = GetElement(id);

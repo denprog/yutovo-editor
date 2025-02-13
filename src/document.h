@@ -121,6 +121,7 @@ public:
     LogicalId GetLogicalId(const ElementId& _id, const int pos);
     ElementId GetElementId(const LogicalId& _id, bool& last_pos);
     ElementId GetElementId(const LogicalId& _id, const int pos, bool& last_pos);
+    ElementId GetParentId(const ElementId& id, const ElementType type);
 
     ElementPtr FindElementOrParent(const ElementId& id, const ElementType type);
     ElementPtr FindParent(const ElementId& id, const ElementType type);
