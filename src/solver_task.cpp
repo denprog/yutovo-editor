@@ -147,6 +147,8 @@ void SolverTask::FillUnit(rapidjson::Document& doc, Result& result)
         if (u.HasMember("power") && u["power"].IsInt())
             power = u["power"].GetInt();
         unit.unit.push_back(std::make_pair(name, power));
+        if (std::find(result.dependencies.begin(), result.dependencies.end(), ToBasicString(name)) == result.dependencies.end())
+            result.dependencies.push_back(ToBasicString(name));
     }
     result.unit = unit;
 }
