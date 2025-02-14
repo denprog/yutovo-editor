@@ -105,4 +105,40 @@ TEST_F(UnitTest, unit2)
         ) << ToBasicString(document.ToText());
 }
 
+//Change unit definition
+TEST_F(UnitTest, unit3)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.InsertString("d_m", true);
+    document.InsertUnit(true);
+    document.WaitTask(document.InsertString("10m", true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+
+    document.WaitTask(document.MoveCaretRight(false));
+    document.InsertParagraph(true);
+    document.InsertString("10m", true);
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"d_m~10m\n"\
+        U"10m=1.d_m"
+        ) << ToBasicString(document.ToText());
+    
+    document.MoveCaretUp(false);
+    document.MoveCaretEnd(false);
+    document.MoveCaretLeft(false);
+    document.WaitTask(document.MoveCaretLeft(false));
+    document.WaitTask(document.DeleteElements(true, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"d_m~1m\n"\
+        U"10m=100.dm"
+        ) << ToBasicString(document.ToText());
+}
+
 }
