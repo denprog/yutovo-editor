@@ -14,13 +14,6 @@ namespace yutovo
 
 using namespace yutovo_solver;
 
-enum class ExpressionType
-{
-    NONE = 0,
-	SOLVE = 1, //expression for solving
-	USER_SYMBOL //symbol of user variable or function
-};
-
 class Logger;
 
 struct SolverTask

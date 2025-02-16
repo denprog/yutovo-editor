@@ -395,6 +395,7 @@ bool AutoSolverTask::Execute(WebSocketPtr socket, Result& result)
     doc.AddMember("result_type", (int)ResultType::AUTO, alloc);
     std::string s = ToBasicString(expression);
     doc.AddMember("expression", rapidjson::StringRef(s.c_str()), alloc);
+    doc.AddMember("expression_type", (int)expression_type, alloc);
 
     //auto config
     rapidjson::Value d(rapidjson::kArrayType);
