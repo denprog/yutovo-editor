@@ -596,4 +596,42 @@ TEST_F(SolverComplexTest, solver21)
     ASSERT_TRUE(!document.HasErrorMarks({0})) << ErrorMarks();
 }
 
+//Check complex functions
+TEST_F(SolverComplexTest, solver22)
+{
+    Start(600);
+    
+    document.InsertCode(false, true);
+    document.InsertString("z", true);
+    document.InsertAssignment(true);
+    document.WaitTask(document.InsertString("4", true));
+
+    document.InsertParagraph(true);
+    document.InsertString("arg", true);
+    document.InsertOpenFence(true);
+    document.InsertString("z", true);
+    document.InsertCloseFence(true);
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+    ASSERT_TRUE(document.ToText() == 
+        U"z=4\n"
+        U"arg(z)=0.(rad)"
+        ) << ToBasicString(document.ToText());
+    ASSERT_TRUE(!document.HasErrorMarks({0})) << ErrorMarks();
+
+    document.MoveCaretEnd(false);
+    document.InsertParagraph(true);
+    document.InsertString("mod", true);
+    document.InsertOpenFence(true);
+    document.InsertString("z", true);
+    document.InsertCloseFence(true);
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+    ASSERT_TRUE(document.ToText() == 
+        U"z=4\n"
+        U"arg(z)=0.(rad)\n"
+        U"mod(z)=4."
+        ) << ToBasicString(document.ToText());
+}
+
 }
