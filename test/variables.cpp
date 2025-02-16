@@ -610,7 +610,7 @@ TEST_F(VariablesTest, variables8)
     document.GetConfig(config);
     ResultType order1[4] = {ResultType::RATIONAL, ResultType::INTEGER, ResultType::REAL, ResultType::COMPLEX};
     std::copy(order1, order1 + 4, config.auto_result.results_order);
-    document.SetConfig(config, true);
+    document.WaitTask(document.SetConfig(config, true));
 
     document.InsertCode(false, true);
     document.InsertString("d", true);
@@ -628,7 +628,7 @@ TEST_F(VariablesTest, variables8)
     document.InsertString("d", true);
     document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
     document.WaitSolver();
-    std::this_thread::sleep_for(600ms);
+    std::this_thread::sleep_for(1s);
     ASSERT_TRUE(document.ToText() == 
         U"d=(1)/(3)\n" \
         U"d=(1)/(3)"

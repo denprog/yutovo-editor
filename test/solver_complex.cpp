@@ -578,4 +578,22 @@ TEST_F(SolverComplexTest, solver20)
         ) << ToBasicString(document.ToText());
 }
 
+//Check no errors
+TEST_F(SolverComplexTest, solver21)
+{
+    Start(600);
+    
+    document.InsertCode(false, true);
+    document.InsertString("z", true);
+    document.InsertAssignment(true);
+    document.InsertString("2", true);
+    document.InsertPlus(true);
+    document.WaitTask(document.InsertString("3i", true));
+    document.WaitSolver();
+    ASSERT_TRUE(document.ToText() == 
+        U"z=2+3i"
+        ) << ToBasicString(document.ToText());
+    ASSERT_TRUE(!document.HasErrorMarks({0})) << ErrorMarks();
+}
+
 }

@@ -397,13 +397,10 @@ bool AutoSolverTask::Execute(WebSocketPtr socket, Result& result)
     doc.AddMember("expression", rapidjson::StringRef(s.c_str()), alloc);
 
     //auto config
-    if (expression_type != ExpressionType::USER_SYMBOL) //for user symbols solve with all the result types
-    {
-        rapidjson::Value d(rapidjson::kArrayType);
-        for (auto t : config.results_order)
-            d.PushBack((int)t, alloc);
-        doc.AddMember("results_order", d, alloc);
-    }
+    rapidjson::Value d(rapidjson::kArrayType);
+    for (auto t : config.results_order)
+        d.PushBack((int)t, alloc);
+    doc.AddMember("results_order", d, alloc);
 
     //real config
     doc.AddMember("real_precision", config.real_result.precision, alloc);
@@ -805,8 +802,8 @@ bool BreakSolverTask::Execute(WebSocketPtr socket, Result& result)
 //SetIdentifierSolverTask
 
 SetIdentifierSolverTask::SetIdentifierSolverTask(const LogicalId& _id, const std::string& _solver_guid, const std::string& _task_guid, uint _code_id, 
-    Document* _document, const std::u32string& _identifier, const std::u32string& _expression, const uint _delay, Logger* _logger) : 
-    AutoSolverTask(_id, _solver_guid, _task_guid, _code_id, ExpressionType::USER_SYMBOL, Config::AutoResultConfig{}, _expression, _delay, _logger),
+    Document* _document, Config::AutoResultConfig _config, const std::u32string& _identifier, const std::u32string& _expression, const uint _delay, Logger* _logger) : 
+    AutoSolverTask(_id, _solver_guid, _task_guid, _code_id, ExpressionType::USER_SYMBOL, _config, _expression, _delay, _logger),
     document(_document),
     identifier(_identifier)
 {
