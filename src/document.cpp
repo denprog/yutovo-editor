@@ -2412,11 +2412,11 @@ void Document::BreakSolving(const LogicalId& _id, const std::string& guid, uint 
     solver.BreakSolving(_id, code_id);
 }
 
-void Document::SetIdentifier(const LogicalId& _id, const std::string& guid, uint code_id, const std::u32string& identifier, 
+void Document::SetIdentifier(const LogicalId& _id, const std::string& guid, uint code_id, Config::AutoResultConfig& config, const std::u32string& identifier, 
     const std::u32string& expression, const uint delay)
 {
     solve_ids[guid] = _id;
-    solver.SetIdentifier(_id, guid, code_id, identifier, expression + U";", delay);
+    solver.SetIdentifier(_id, guid, code_id, config, identifier, expression + U";", delay);
 }
 
 void Document::RemoveIdentifier(const LogicalId& _id, uint code_id, const std::u32string& identifier, const uint delay)

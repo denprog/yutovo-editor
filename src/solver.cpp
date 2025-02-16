@@ -138,7 +138,7 @@ void Solver::BreakSolving(const LogicalId& id, const uint code_id)
     break_next_circle = true;
 }
 
-void Solver::SetIdentifier(const LogicalId& id, const std::string& task_guid, uint code_id, const std::u32string& identifier, 
+void Solver::SetIdentifier(const LogicalId& id, const std::string& task_guid, uint code_id, Config::AutoResultConfig& config, const std::u32string& identifier, 
     const std::u32string& expression, const uint delay)
 {
     {
@@ -152,7 +152,7 @@ void Solver::SetIdentifier(const LogicalId& id, const std::string& task_guid, ui
     }
 
     std::unique_lock<std::mutex> lock(tasks_mutex);
-    tasks.emplace_back(new SetIdentifierSolverTask(id, guid, task_guid, code_id, document, identifier, expression, delay, logger));
+    tasks.emplace_back(new SetIdentifierSolverTask(id, guid, task_guid, code_id, document, config, identifier, expression, delay, logger));
     tasks.emplace_back(new ListIdentifiersSolverTask(guid, code_id, document, logger)); //for syntax highlight
     tasks.emplace_back(nullptr);
     next_circle = true;
