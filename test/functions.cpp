@@ -323,14 +323,13 @@ TEST_F(FormulaTest, user_functions2)
             return str;
         });
 
-    document.SetLocale(yutovo_calculator::Language::Russian, true);
+    document.WaitTask(document.SetLocale(yutovo_calculator::Language::Russian, true));
     document.InsertCode(false, true);
     document.InsertString("h", true);
     document.InsertAssignment(true);
-    document.InsertString("5", true);
-    document.WaitSolver();
+    document.WaitTask(document.InsertString("5", true));
 
-    document.MoveCaretToDocumentEnd(false);
+    document.WaitTask(document.MoveCaretToDocumentEnd(false));
     document.InsertParagraph(true);
     document.InsertCode(false, true);
     document.InsertString("E", true);
@@ -365,7 +364,7 @@ TEST_F(FormulaTest, user_functions2)
     document.InsertString("x", true);
     document.InsertCloseFence(true);
     document.InsertAssignment(true);
-    document.InsertString("x", true);
+    document.WaitTask(document.InsertString("x", true));
     document.WaitSolver();
     std::this_thread::sleep_for(2s);
     ASSERT_TRUE(document.ToText() == 
