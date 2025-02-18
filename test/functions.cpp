@@ -328,6 +328,7 @@ TEST_F(FormulaTest, user_functions2)
     document.InsertString("h", true);
     document.InsertAssignment(true);
     document.WaitTask(document.InsertString("5", true));
+    document.WaitSolver();
 
     document.WaitTask(document.MoveCaretToDocumentEnd(false));
     document.InsertParagraph(true);
