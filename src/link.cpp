@@ -12,8 +12,10 @@ Link::Link(Element* parent) :
 {
     type = ElementType::LINK;
     if (document)
+    {
         format = document->string_formats->GetFormat(format->family, format->size, format->bold, format->italic, true, format->strikethrough, 
             document->config.link_color, format->text_bg_color, format->text_bg_selection_color);
+    }
 }
 
 Link::Link(Element* parent, const std::string _str, const std::string _url, bool _translate) : 
@@ -162,11 +164,15 @@ std::string Link::ToHtml()
 
 bool Link::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo, ElementId& changed_element)
 {
-    if (_elements.size() == 1 && _elements[0]->type == ElementType::LINK)
+    if (_elements.size() == 1)
     {
         Link* link = (Link*)_elements[0].get();
         if (link->ToText() == U"" || link->url.empty() || (link->ToText() == ToText() && url == link->url))
             return false;
+
+        format = document->string_formats->GetFormat(format->family, format->size, format->bold, format->italic, format->underline, format->strikethrough,
+            document->config.link_color, format->text_bg_color, format->text_bg_selection_color);
+
         if (with_undo)
             document->StoreUndo(id);
         SetString(link->ToText());
