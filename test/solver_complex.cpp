@@ -605,6 +605,7 @@ TEST_F(SolverComplexTest, solver22)
     document.InsertString("z", true);
     document.InsertAssignment(true);
     document.WaitTask(document.InsertString("4", true));
+    document.WaitSolver();
 
     document.InsertParagraph(true);
     document.InsertString("arg", true);
@@ -613,6 +614,7 @@ TEST_F(SolverComplexTest, solver22)
     document.InsertCloseFence(true);
     document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
     document.WaitSolver();
+    std::this_thread::sleep_for(1s);
     ASSERT_TRUE(document.ToText() == 
         U"z=4\n"
         U"arg(z)=0.(rad)"
@@ -627,6 +629,7 @@ TEST_F(SolverComplexTest, solver22)
     document.InsertCloseFence(true);
     document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
     document.WaitSolver();
+    std::this_thread::sleep_for(1s);
     ASSERT_TRUE(document.ToText() == 
         U"z=4\n"
         U"arg(z)=0.(rad)\n"
