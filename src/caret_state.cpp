@@ -171,11 +171,13 @@ bool CaretState::IsEmpty() const
     return id.empty();
 }
 
+#ifdef TEST
 std::string CaretState::ToString() const
 {
     std::string res = IdToString(id);
     return res;
 }
+#endif
 
 //LogicalCaretState
 

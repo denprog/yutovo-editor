@@ -59,7 +59,7 @@ struct SelectionState
 
     bool IsEmpty() const;
 
-#ifdef DEBUG
+#ifdef TEST
     std::string ToString() const;
 #endif
 

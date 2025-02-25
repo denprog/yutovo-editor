@@ -51,7 +51,7 @@ struct CaretState
 
     bool IsEmpty() const;
 
-#ifdef DEBUG
+#ifdef TEST
     std::string ToString() const;
 #endif
 
