@@ -320,7 +320,7 @@ private:
 
     void UpdateChanged();
 
-#ifdef DEBUG
+#ifdef TEST
 public:
     void WaitMainLoop();
     void WaitUndo();

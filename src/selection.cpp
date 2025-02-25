@@ -168,7 +168,7 @@ bool SelectionState::IsEmpty() const
     return state.empty();
 }
 
-#ifdef DEBUG
+#ifdef TEST
 std::string SelectionState::ToString() const
 {
     std::string res;

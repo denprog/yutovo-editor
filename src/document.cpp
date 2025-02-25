@@ -62,6 +62,10 @@ Document::Document(Window* _window, Config& _config) :
     current_paragraph_format = paragraph_formats->GetFormat("Text body");
     current_formula_format = formula_formats->GetFormat("Code");
     current_page_format = PageFormats::GetFormat(20, 20, 20, 20, 10);
+
+#ifndef DEBUG
+    config.pretty_json = false;
+#endif
 }
 
 Document::~Document()
@@ -2113,9 +2117,7 @@ uint Document::Load(const std::string& filename)
     {
         std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
         tasks.emplace_back(new LoadTask(text, filename));
-#ifdef DEBUG
         last_load_task_id = tasks.back()->id;
-#endif
     }
     next_circle = true;
     return last_load_task_id;
@@ -2126,9 +2128,7 @@ uint Document::LoadJson(const std::u32string& json_doc, const int document_id)
     {
         std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
         tasks.emplace_back(new LoadTask(text, json_doc, document_id));
-#ifdef DEBUG
         last_load_task_id = tasks.back()->id;
-#endif
     }
     next_circle = true;
     return last_load_task_id;
@@ -3035,7 +3035,7 @@ void Document::UpdateChanged()
     }
 }
 
-#ifdef DEBUG
+#ifdef TEST
 void Document::WaitMainLoop()
 {
     while (!last_task_executed)

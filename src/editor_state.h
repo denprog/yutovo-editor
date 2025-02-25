@@ -14,7 +14,7 @@ struct EditorState
 
     bool IsEmpty();
     
-#ifdef DEBUG
+#ifdef TEST
     std::string ToString() const;
 #endif
 

@@ -21,7 +21,7 @@ bool EditorState::IsEmpty()
     return caret_state.IsEmpty();
 }
 
-#ifdef DEBUG
+#ifdef TEST
 std::string EditorState::ToString() const
 {
     return caret_state.ToString() + " [" + selection_state.ToString() + "]";
