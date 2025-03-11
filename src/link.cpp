@@ -164,7 +164,7 @@ std::string Link::ToHtml()
 
 bool Link::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo, ElementId& changed_element)
 {
-    if (_elements.size() == 1)
+    if (_elements.size() == 1 && _elements[0]->type == ElementType::LINK)
     {
         Link* link = (Link*)_elements[0].get();
         if (link->ToText() == U"" || link->url.empty() || (link->ToText() == ToText() && url == link->url))

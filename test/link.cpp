@@ -135,7 +135,7 @@ TEST_F(DocumentTest, link2)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 8})) << document.GetEditorState().ToString();
 }
 
-//Insert a string after a code block and a link 
+//Insert a string after a code block and a link
 TEST_F(DocumentTest, link3)
 {
     Start(600);
@@ -181,6 +181,33 @@ TEST_F(DocumentTest, link3)
         "</body>") << 
         document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 2, 4})) << document.GetEditorState().ToString();
+}
+
+//Insert a space after a link
+TEST_F(DocumentTest, link4)
+{
+    Start(600);
+
+    document.WaitTask(document.InsertLink("link", "www.link.ru", true));
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<a url=\"www.link.ru\" style=\"font-family:'Arial';font-size:14px;text-decoration: underline;color:rgba(0,0,255,255);\">link</a>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 4})) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.InsertString(" ", true));
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<a url=\"www.link.ru\" style=\"font-family:'Arial';font-size:14px;text-decoration: underline;color:rgba(0,0,255,255);\">link</a>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\"> </span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 1, 1})) << document.GetEditorState().ToString();
 }
 
 }
