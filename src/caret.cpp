@@ -528,7 +528,7 @@ void Caret::MovePageUp(Selection* selection)
         return;
 #endif
     auto paragraph = document->FindParent(el->id, ElementType::PARAGRAPH);
-    auto row = document->FindParent(el->id, ElementType::ROW);
+    auto row = document->FindElementOrParent(el->id, ElementType::ROW);
     Rect view_port = window->GetViewPort(0);
     Point p = window->GetDocumentPoint();
     Rect cur = document->GetCaretRect(GetCaretState());
@@ -594,7 +594,7 @@ void Caret::MovePageDown(Selection* selection)
         return;
 #endif
     auto paragraph = document->FindParent(el->id, ElementType::PARAGRAPH);
-    auto row = document->FindParent(el->id, ElementType::ROW);
+    auto row = document->FindElementOrParent(el->id, ElementType::ROW);
     Rect view_port = window->GetViewPort(0);
     Point p = window->GetDocumentPoint();
     Rect cur = document->GetCaretRect(GetCaretState());

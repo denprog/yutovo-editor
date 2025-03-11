@@ -2278,4 +2278,45 @@ TEST_F(DocumentTest, caret74)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 1, 0, 0})) << document.GetEditorState().ToString();
 }
 
+//PgUp after selection of a code block
+TEST_F(DocumentTest, caret75)
+{
+    Start(600);
+
+    EXPECT_CALL(window_mock, GetViewPort).WillRepeatedly([&](const int)
+    {
+        return Rect{0, 0, 630, 255};
+    });
+
+    document.InsertString("String", true);
+    document.InsertParagraph(true);
+    document.InsertCode(false, true);
+    document.InsertString("12", true);
+    document.MoveCaretToDocumentEnd(false);
+    document.WaitTask(document.MoveCaretLeft(true));
+    document.WaitTask(document.MoveCaretPageUp(false));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0})) << document.GetEditorState().ToString();
+}
+
+//PgDown after selection of a code block
+TEST_F(DocumentTest, caret76)
+{
+    Start(600);
+
+    EXPECT_CALL(window_mock, GetViewPort).WillRepeatedly([&](const int)
+        {
+            return Rect{0, 0, 630, 255};
+        });
+
+    document.InsertCode(false, true);
+    document.InsertString("12", true);
+    document.MoveCaretToDocumentEnd(false);
+    document.InsertParagraph(false);
+    document.InsertString("String", true);
+    document.MoveCaretToDocumentBegin(false);
+    document.WaitTask(document.MoveCaretRight(true));
+    document.WaitTask(document.MoveCaretPageDown(false));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 1, 0, 0, 6})) << document.GetEditorState().ToString();
+}
+
 }
