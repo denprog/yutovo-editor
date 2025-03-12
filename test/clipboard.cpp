@@ -119,13 +119,13 @@ TEST_F(DocumentTest, clipboard2)
                 "<span style=\"font-family:'Times New Roman';font-size:14px;\"><em>itself </em></span>"\
                 "<span style=\"font-family:'Times New Roman';font-size:20px;\">is a little </span>"\
                 "<span style=\"font-family:'Times New Roman';font-size:20px;\">mysterious.</span>"\
-                "<span style=\"font-family:'Arial';font-size:22px;\"> of </span>"\
-                "<span style=\"font-family:'Courier New';font-size:22px;\"><strong>the text</strong></span>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\">of </span>"\
+                "<span style=\"font-family:'Courier New';font-size:22px;\"><strong>the text </strong></span>"\
             "</p>"\
         "</body>") 
         << document.ToHtml();
-    ASSERT_TRUE(clipboard_text == U" of the text") << ToBasicString(clipboard_text);
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 1, 2, 8)) << document.GetEditorState().ToString();
+    ASSERT_TRUE(clipboard_text == U"of the text ") << ToBasicString(clipboard_text);
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 1, 2, 9)) << document.GetEditorState().ToString();
 }
 
 TEST_F(DocumentTest, clipboard3)
@@ -894,7 +894,7 @@ TEST_F(DocumentTest, clipboard12)
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
-                "<span style=\"font-family:'Arial';font-size:14px;\">e</span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\"> </span>"\
                 "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
                     "<mrow>"\
                         "<mfrac>"\
@@ -907,7 +907,7 @@ TEST_F(DocumentTest, clipboard12)
                         "</mfrac>"\
                     "</mrow>"\
                 "</math>"\
-                "<span style=\"font-family:'Arial';font-size:14px;\"> so</span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">sou</span>"\
             "</p>"\
         "</body>") << 
         document.ToHtml();
@@ -1306,18 +1306,19 @@ TEST_F(DocumentTest, clipboard19)
     document.MoveCaretToDocumentBegin(false);
     document.MoveCaretDown(true);
     document.MoveCaretWordRight(true);
+    document.MoveCaretWordRight(true);
     document.WaitTask(document.MoveCaretWordRight(true));
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 0, 13}, 
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 0, 14}, 
         ElementSelectionState{ElementId{0, 0}, 0, 1}, 
-        ElementSelectionState{ElementId{0, 0, 1, 0}, 0, 13})) << document.GetEditorState().ToString();
+        ElementSelectionState{ElementId{0, 0, 1, 0}, 0, 14})) << document.GetEditorState().ToString();
 
     document.WaitTask(document.Copy(clipboard_json, clipboard_text));
 
     document.WaitTask(document.MoveCaretToDocumentBegin(false));
     document.WaitTask(document.Paste(clipboard_json));
-    ASSERT_TRUE(document.ToText() == U"In literary theory, a text is any object that can be read, whetherIn literary theory, a text"\
+    ASSERT_TRUE(document.ToText() == U"In literary theory, a text is any object that can be read, whether In literary theory, a text"\
         " is any object that can be read, whether this object is a work of literature") << ToBasicString(document.ToText());
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 0, 13})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 0, 14})) << document.GetEditorState().ToString();
 
     document.Undo();
     document.WaitUndo();
@@ -1345,10 +1346,11 @@ TEST_F(DocumentTest, clipboard20)
     document.MoveCaretToDocumentBegin(false);
     document.MoveCaretDown(true);
     document.MoveCaretWordRight(true);
+    document.MoveCaretWordRight(true);
     document.WaitTask(document.MoveCaretWordRight(true));
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 0, 13}, 
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 0, 14}, 
         ElementSelectionState{ElementId{0, 0}, 0, 1}, 
-        ElementSelectionState{ElementId{0, 0, 1, 0}, 0, 13})) << document.GetEditorState().ToString();
+        ElementSelectionState{ElementId{0, 0, 1, 0}, 0, 14})) << document.GetEditorState().ToString();
 
     document.WaitTask(document.Copy(clipboard_json, clipboard_text));
 
@@ -1356,15 +1358,15 @@ TEST_F(DocumentTest, clipboard20)
     document.MoveCaretWordRight(false);
     document.WaitTask(document.MoveCaretWordRight(false));
     document.WaitTask(document.Paste(clipboard_json));
-    ASSERT_TRUE(document.ToText() == U"In literaryIn literary theory, a text is any object that can be read, whether theory, a text"\
+    ASSERT_TRUE(document.ToText() == U"In literary In literary theory, a text is any object that can be read, whether theory, a text"\
         " is any object that can be read, whether this object is a work of literature") << ToBasicString(document.ToText());
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 0, 20})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 0, 21})) << document.GetEditorState().ToString();
 
     document.Undo();
     document.WaitUndo();
     ASSERT_TRUE(document.ToText() == U"In literary theory, a text is any object that can be read, whether this object is a work of literature") << 
         ToBasicString(document.ToText());
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 11})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 12})) << document.GetEditorState().ToString();
 }
 
 //Copy-paste rows
@@ -1386,18 +1388,19 @@ TEST_F(DocumentTest, clipboard21)
     document.MoveCaretToDocumentBegin(false);
     document.MoveCaretDown(true);
     document.MoveCaretWordRight(true);
+    document.MoveCaretWordRight(true);
     document.WaitTask(document.MoveCaretWordRight(true));
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 0, 13}, 
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 0, 14}, 
         ElementSelectionState{ElementId{0, 0}, 0, 1}, 
-        ElementSelectionState{ElementId{0, 0, 1, 0}, 0, 13})) << document.GetEditorState().ToString();
+        ElementSelectionState{ElementId{0, 0, 1, 0}, 0, 14})) << document.GetEditorState().ToString();
 
     document.WaitTask(document.Copy(clipboard_json, clipboard_text));
 
     document.WaitTask(document.MoveCaretHome(false));
     document.WaitTask(document.PasteText(std::move(clipboard_text)));
     ASSERT_TRUE(document.ToText() == U"In literary theory, a text is any object that can be In literary theory, a text is any object"\
-        " that can be read, whetherread, whether this object is a work of literature") << ToBasicString(document.ToText());
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 2, 0, 7})) << document.GetEditorState().ToString();
+        " that can be read, whether read, whether this object is a work of literature") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 2, 0, 8})) << document.GetEditorState().ToString();
 
     document.Undo();
     document.WaitUndo();
@@ -1825,18 +1828,18 @@ TEST_F(DocumentTest, clipboard33)
             "</p>"\
         "</body>") << 
         document.ToHtml();
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 1, 0, 0, 9})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 1, 0, 0, 10})) << document.GetEditorState().ToString();
 
     document.Undo();
     document.WaitUndo();
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
-                "<span style=\"font-family:'Arial';font-size:14px;\">In literarybe read</span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">In literary e read</span>"\
             "</p>"\
         "</body>") << 
         document.ToHtml();
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 11})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 12})) << document.GetEditorState().ToString();
 }
 
 //Copy-paste an image
@@ -3706,17 +3709,17 @@ TEST_F(DocumentTest, clipboard66)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 27}, 
         ElementSelectionState{ElementId{0, 0, 0, 0}, 27, 13},
         ElementSelectionState{ElementId{0}, 1, 1}, 
-        ElementSelectionState{ElementId{0, 2, 0, 0}, 0, 4})) << document.GetEditorState().ToString();
+        ElementSelectionState{ElementId{0, 2, 0, 0}, 0, 5})) << document.GetEditorState().ToString();
 
     document.WaitTask(document.Cut(clipboard_json, clipboard_text));
     ASSERT_TRUE(clipboard_text == 
         U"is any object\n"\
         U"\n"\
-        U"that"\
+        U"that "\
         ) << ToBasicString(clipboard_text);
     std::this_thread::sleep_for(200ms);
     ASSERT_TRUE(document.ToText() == 
-        U"In literary theory, a text  can be read"
+        U"In literary theory, a text can be read"
         ) << ToBasicString(document.ToText());
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 27})) << document.GetEditorState().ToString();
 
@@ -3726,13 +3729,13 @@ TEST_F(DocumentTest, clipboard66)
         U"\n"\
         U"that can be read"
         ) << ToBasicString(document.ToText());
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 2, 0, 0, 4})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 2, 0, 0, 5})) << document.GetEditorState().ToString();
 
     document.Undo();
     document.WaitUndo();
     std::this_thread::sleep_for(200ms);
     ASSERT_TRUE(document.ToText() == 
-        U"In literary theory, a text  can be read"
+        U"In literary theory, a text can be read"
         ) << ToBasicString(document.ToText());
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 27})) << document.GetEditorState().ToString();
 
@@ -3747,7 +3750,7 @@ TEST_F(DocumentTest, clipboard66)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 27}, 
         ElementSelectionState{ElementId{0, 0, 0, 0}, 27, 13},
         ElementSelectionState{ElementId{0}, 1, 1}, 
-        ElementSelectionState{ElementId{0, 2, 0, 0}, 0, 4})) << document.GetEditorState().ToString();
+        ElementSelectionState{ElementId{0, 2, 0, 0}, 0, 5})) << document.GetEditorState().ToString();
 }
 
 //Cut-paste paragraphs with empty ones
@@ -4119,7 +4122,7 @@ TEST_F(DocumentTest, clipboard72)
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
-                "<span style=\"font-family:'Arial';font-size:14px;\">Предметом аText</span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">Предметом арText</span>"\
             "</p>"\
             "<p>"\
                 "<span style=\"font-family:'Arial';font-size:14px;\"></span>"\
@@ -4128,7 +4131,7 @@ TEST_F(DocumentTest, clipboard72)
                 "<span style=\"font-family:'Arial';font-size:14px;\">String</span>"\
             "</p>"\
             "<p>"\
-                "<span style=\"font-family:'Arial';font-size:14px;\">рифметики является</span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">ифметики является</span>"\
             "</p>"\
             "<p>"\
                 "<span style=\"font-family:'Arial';font-size:14px;\"></span>"\
@@ -4174,7 +4177,7 @@ TEST_F(DocumentTest, clipboard72)
             "</p>"\
         "</body>") << 
         document.ToHtml();
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 11})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 12})) << document.GetEditorState().ToString();
 }
 
 //Copy-paste paragraphs into an element of a different font
@@ -4223,7 +4226,7 @@ TEST_F(DocumentTest, clipboard73)
         "<body>"\
             "<p>"\
                 "<span style=\"font-family:'Arial';font-size:14px;\">Предметом </span>"\
-                "<span style=\"font-family:'Arial';font-size:14px;\"><strong>а</strong></span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\"><strong>ар</strong></span>"\
                 "<span style=\"font-family:'Arial';font-size:14px;\">Text</span>"\
             "</p>"\
             "<p>"\
@@ -4233,8 +4236,8 @@ TEST_F(DocumentTest, clipboard73)
                 "<span style=\"font-family:'Arial';font-size:14px;\">String</span>"\
             "</p>"\
             "<p>"\
-                "<span style=\"font-family:'Arial';font-size:14px;\"><strong>рифметики</strong></span>"\
-                "<span style=\"font-family:'Arial';font-size:14px;\"> является</span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\"><strong>ифметики </strong></span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">является</span>"\
             "</p>"\
             "<p>"\
                 "<span style=\"font-family:'Arial';font-size:14px;\"></span>"\
@@ -4262,8 +4265,8 @@ TEST_F(DocumentTest, clipboard73)
         "<body>"\
             "<p>"\
                 "<span style=\"font-family:'Arial';font-size:14px;\">Предметом </span>"\
-                "<span style=\"font-family:'Arial';font-size:14px;\"><strong>арифметики</strong></span>"\
-                "<span style=\"font-family:'Arial';font-size:14px;\"> является</span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\"><strong>арифметики </strong></span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">является</span>"\
             "</p>"\
             "<p>"\
                 "<span style=\"font-family:'Arial';font-size:14px;\"></span>"\
@@ -4282,7 +4285,7 @@ TEST_F(DocumentTest, clipboard73)
             "</p>"\
         "</body>") << 
         document.ToHtml();
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 1, 1})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 1, 2})) << document.GetEditorState().ToString();
 }
 
 //Copy-paste a code block and a string

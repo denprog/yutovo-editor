@@ -1074,13 +1074,20 @@ bool StringElements::GetWordLeftCaretState(CaretState& caret_state, Selection* s
     uint pos = caret_state.GetPos();
     if (pos == 0 || pos > str.length())
         return false;
-    for (int i = pos - 2; i >= 0; --i)
+    for (int i = pos - 1; i > 0; --i)
     {
-        if (str[i] == ' ')
+        if (isspace(str[i]))
         {
-            caret_state.SetState(GetElementId(i + 1));
+            while (isspace(str[i]))
+                --i;
+            ++i;
+        }
+        if ((IsOpenDelimiter(str[i - 1]) || IsCloseDelimiter(str[i]) || IsOpenDelimiter(str[i])) || 
+            (IsCloseDelimiter(str[i - 1]) || IsDelimiter(str[i - 1]) || str[i] == U'.' || str[i] == U',') && !(str[i - 1] == U'.' || str[i - 1] == U','))
+        {
+            caret_state.SetState(GetElementId(i));
             if (select)
-                select->Add(parent->id, i + 1, pos - i - 1);
+                select->Add(parent->id, i, pos - i);
             return true;
         }
     }
@@ -1107,7 +1114,11 @@ bool StringElements::GetWordRightCaretState(CaretState& caret_state, Selection* 
     }
     for (int i = pos + 1; i < str.length(); ++i)
     {
-        if (str[i] == ' ')
+        while (isspace(str[i]))
+            ++i;
+        if ((IsCloseDelimiter(str[i]) || IsCloseDelimiter(str[i - 1])) ||
+            (IsOpenDelimiter(str[i - 1]) || IsDelimiter(str[i - 1]) || str[i] == U'.' || str[i] == U',') && 
+            !(str[i - 1] == U'.' || str[i - 1] == U','))
         {
             caret_state.SetState(GetElementId(i));
             if (select)
@@ -1146,7 +1157,7 @@ bool StringElements::GetSelectOutCaretState(CaretState& caret_state, Selection* 
     while (p >= 0)
     {
         char32_t ch = str[p];
-        if (is_delim(ch))
+        if (IsOpenDelimiter(ch) || IsCloseDelimiter(ch) || IsDelimiter(ch))
             break;
         --p;
     }
@@ -1154,7 +1165,7 @@ bool StringElements::GetSelectOutCaretState(CaretState& caret_state, Selection* 
     while (p < (int)str.length())
     {
         char32_t ch = str[p];
-        if (is_delim(ch))
+        if (IsOpenDelimiter(ch) || IsCloseDelimiter(ch) || IsDelimiter(ch))
             break;
         ++p;
     }
@@ -1173,6 +1184,39 @@ std::string StringElements::ToHtml()
 std::u32string StringElements::ToText()
 {
     return str;
+}
+
+bool StringElements::IsOpenDelimiter(char32_t ch)
+{
+    static std::u32string delims = U"«([{";
+    for (char32_t d : delims)
+    {
+        if (ch == d)
+            return true;
+    }
+    return false;
+}
+
+bool StringElements::IsCloseDelimiter(char32_t ch)
+{
+    static std::u32string delims = U"»)]}";
+    for (char32_t d : delims)
+    {
+        if (ch == d)
+            return true;
+    }
+    return false;
+}
+
+bool StringElements::IsDelimiter(char32_t ch)
+{
+    static std::u32string delims = U" \n\t\v\f\r!\"#$%&\'*+,-./\\^`|~";
+    for (char32_t d : delims)
+    {
+        if (ch == d)
+            return true;
+    }
+    return false;
 }
 
 }

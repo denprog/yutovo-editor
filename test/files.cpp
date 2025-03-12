@@ -92,6 +92,7 @@ TEST_F(DocumentTest, files2)
     document.SetFontSize(20);
     document.SetItalic(false);
     document.WaitTask(document.InsertString("is a little mysterious.", true));
+    document.MoveCaretWordLeft(true);
     document.WaitTask(document.MoveCaretWordLeft(true));
     ASSERT_TRUE(document.IsChanged() == true);
     std::this_thread::sleep_for(1s);

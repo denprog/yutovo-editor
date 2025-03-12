@@ -436,23 +436,23 @@ TEST_F(DocumentTest, selections4)
 
     document.MoveCaretWordRight(false);
     document.WaitTask(document.MoveCaretDown(true));
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 0, 12}, 
-        ElementSelectionState{ElementId{0, 0, 0, 0}, 11, 50}, 
-        ElementSelectionState{ElementId{0, 0, 1, 0}, 0, 12})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 0, 13}, 
+        ElementSelectionState{ElementId{0, 0, 0, 0}, 12, 49}, 
+        ElementSelectionState{ElementId{0, 0, 1, 0}, 0, 13})) << document.GetEditorState().ToString();
 
     document.WaitTask(document.MoveCaretDown(true));
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 2, 0, 11}, 
-        ElementSelectionState{ElementId{0, 0, 0, 0}, 11, 50}, 
+        ElementSelectionState{ElementId{0, 0, 0, 0}, 12, 49}, 
         ElementSelectionState{ElementId{0, 0}, 1, 1}, 
         ElementSelectionState{ElementId{0, 0, 2, 0}, 0, 11})) << document.GetEditorState().ToString();
 
     document.WaitTask(document.MoveCaretUp(true));
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 0, 12}, 
-        ElementSelectionState{ElementId{0, 0, 0, 0}, 11, 50}, 
-        ElementSelectionState{ElementId{0, 0, 1, 0}, 0, 12})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 0, 13}, 
+        ElementSelectionState{ElementId{0, 0, 0, 0}, 12, 49}, 
+        ElementSelectionState{ElementId{0, 0, 1, 0}, 0, 13})) << document.GetEditorState().ToString();
 
     document.WaitTask(document.MoveCaretUp(true));
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 11})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 12})) << document.GetEditorState().ToString();
 }
 
 //Select all
@@ -509,12 +509,12 @@ TEST_F(DocumentTest, selections7)
     document.MoveCaretWordRight(false);
     document.WaitTask(document.MoveCaretDown(true));
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 0, 3}, 
-        ElementSelectionState{ElementId{0, 0, 0, 0}, 3, 39},
+        ElementSelectionState{ElementId{0, 0, 0, 0}, 4, 38},
         ElementSelectionState{ElementId{0, 0, 1, 0}, 0, 3})) << document.GetEditorState().ToString();
 
     document.WaitTask(document.MoveCaretDown(true));
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 0, 11}, 
-        ElementSelectionState{ElementId{0, 0, 0, 0}, 3, 39},
+        ElementSelectionState{ElementId{0, 0, 0, 0}, 4, 38},
         ElementSelectionState{ElementId{0, 0}, 1, 1})) << document.GetEditorState().ToString();
 }
 
@@ -1614,12 +1614,12 @@ TEST_F(DocumentTest, fonts13)
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
-                "<span style=\"font-family:'Arial';font-size:14px;\"><strong>In</strong></span>"\
-                "<span style=\"font-family:'Arial';font-size:14px;\"> literary theory, a text is any object that can be read</span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\"><strong>In </strong></span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">literary theory, a text is any object that can be read</span>"\
             "</p>"\
         "</body>") << 
         document.ToHtml();
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 2}, 
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 3}, 
         ElementSelectionState{ElementId{0, 0, 0}, 0, 1})) << document.GetEditorState().ToString();
 
     document.WaitTask(document.SetBold(false));
@@ -1630,20 +1630,20 @@ TEST_F(DocumentTest, fonts13)
             "</p>"\
         "</body>") << 
         document.ToHtml();
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 2}, 
-        ElementSelectionState{ElementId{0, 0, 0, 0}, 0, 2})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 3}, 
+        ElementSelectionState{ElementId{0, 0, 0, 0}, 0, 3})) << document.GetEditorState().ToString();
 
     document.Undo();
     document.WaitUndo();
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
-                "<span style=\"font-family:'Arial';font-size:14px;\"><strong>In</strong></span>"\
-                "<span style=\"font-family:'Arial';font-size:14px;\"> literary theory, a text is any object that can be read</span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\"><strong>In </strong></span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">literary theory, a text is any object that can be read</span>"\
             "</p>"\
         "</body>") << 
         document.ToHtml();
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 2}, 
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 3}, 
         ElementSelectionState{ElementId{0, 0, 0}, 0, 1})) << document.GetEditorState().ToString();
 
     document.Undo();
@@ -1655,8 +1655,8 @@ TEST_F(DocumentTest, fonts13)
             "</p>"\
         "</body>") << 
         document.ToHtml();
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 2}, 
-        ElementSelectionState{ElementId{0, 0, 0, 0}, 0, 2})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 3}, 
+        ElementSelectionState{ElementId{0, 0, 0, 0}, 0, 3})) << document.GetEditorState().ToString();
 }
 
 //Set/unset font attributes
@@ -2068,15 +2068,15 @@ TEST_F(DocumentTest, fonts22)
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
-                "<span style=\"font-family:'Arial';font-size:14px;color:rgba(255,0,0,255);\">In</span>"\
-                "<span style=\"font-family:'Arial';font-size:14px;\"> literary theory, a text is </span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;color:rgba(255,0,0,255);\">In </span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">literary theory, a text is </span>"\
                 "<span style=\"font-family:'Arial';font-size:14px;\">any object that can be </span>"\
                 "<span style=\"font-family:'Arial';font-size:14px;\">read, whether this object </span>"
                 "<span style=\"font-family:'Arial';font-size:14px;\">is a work of literature</span>"
             "</p>"\
         "</body>") << 
         document.ToHtml();
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 2}, 
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 3}, 
         ElementSelectionState{ElementId{0, 0, 0}, 0, 1})) << document.GetEditorState().ToString();
     
     document.MoveCaretWordRight(false);
@@ -2085,17 +2085,17 @@ TEST_F(DocumentTest, fonts22)
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
-                "<span style=\"font-family:'Arial';font-size:14px;color:rgba(255,0,0,255);\">In</span>"\
-                "<span style=\"font-family:'Arial';font-size:14px;\"> literary</span>"\
-                "<span style=\"font-family:'Arial';font-size:14px;bgcolor:rgba(0,255,0,255);\"> theory,</span>"\
-                "<span style=\"font-family:'Arial';font-size:14px;\"> a text is </span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;color:rgba(255,0,0,255);\">In </span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">literary </span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;bgcolor:rgba(0,255,0,255);\">theory</span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">, a text is </span>"\
                 "<span style=\"font-family:'Arial';font-size:14px;\">any object that can be </span>"\
                 "<span style=\"font-family:'Arial';font-size:14px;\">read, whether this object </span>"
                 "<span style=\"font-family:'Arial';font-size:14px;\">is a work of literature</span>"
             "</p>"\
         "</body>") << 
         document.ToHtml();
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 2, 8}, 
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 2, 6}, 
         ElementSelectionState{ElementId{0, 0, 0}, 2, 1})) << document.GetEditorState().ToString();
 
     document.Undo();
@@ -2104,16 +2104,16 @@ TEST_F(DocumentTest, fonts22)
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
-                "<span style=\"font-family:'Arial';font-size:14px;color:rgba(255,0,0,255);\">In</span>"\
-                "<span style=\"font-family:'Arial';font-size:14px;\"> literary theory, a text is </span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;color:rgba(255,0,0,255);\">In </span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">literary theory, a text is </span>"\
                 "<span style=\"font-family:'Arial';font-size:14px;\">any object that can be </span>"\
                 "<span style=\"font-family:'Arial';font-size:14px;\">read, whether this object </span>"
                 "<span style=\"font-family:'Arial';font-size:14px;\">is a work of literature</span>"
             "</p>"\
         "</body>") << 
         document.ToHtml();
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 1, 17}, 
-        ElementSelectionState{ElementId{0, 0, 0, 1}, 9, 8})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 1, 15}, 
+        ElementSelectionState{ElementId{0, 0, 0, 1}, 9, 6})) << document.GetEditorState().ToString();
 }
 
 //Text colors
@@ -2380,13 +2380,13 @@ TEST_F(DocumentTest, fonts28)
                 "<span style=\"font-family:'Arial';font-size:14px;\">Арифме́тика (др.-греч. ἀριθμητική, arithmētikḗ — от ἀριθμός, </span>"\
                 "<span style=\"font-family:'Arial';font-size:14px;\">arithmós «число») — раздел математики, изучающий числа, </span>"\
                 "<span style=\"font-family:'Arial';font-size:14px;\">их </span>"\
-                "<span style=\"font-family:'Arial';font-size:14px;\"><em>отношения</em></span>"\
-                "<span style=\"font-family:'Arial';font-size:14px;\"> и свойства.</span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\"><em>отношения </em></span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">и свойства.</span>"\
             "</p>"\
             "<p>"\
                 "<span style=\"font-family:'Arial';font-size:14px;\">Предметом </span>"\
-                "<span style=\"font-family:'Arial';font-size:14px;\"><em>арифметики</em></span>"\
-                "<span style=\"font-family:'Arial';font-size:14px;\"> является понятие числа </span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\"><em>арифметики </em></span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">является понятие числа </span>"\
                 "<span style=\"font-family:'Arial';font-size:14px;\">(натуральные, целые, рациональные, вещественные, </span>"\
                 "<span style=\"font-family:'Arial';font-size:14px;\">комплексные числа) и его свойства.</span>"\
             "</p>"\
@@ -2408,19 +2408,19 @@ TEST_F(DocumentTest, fonts28)
             "<p>"\
                 "<span style=\"font-family:'Arial';font-size:14px;\">Арифме́тика (др.-греч. ἀριθμητική, arithmētikḗ — от ἀριθμός, </span>"\
                 "<span style=\"font-family:'Arial';font-size:14px;\">arithmós «число») — раздел математики, изучающий числа, </span>"\
-                "<span style=\"font-family:'Arial';font-size:14px;\">их </span>"\
-                "<span style=\"font-family:'Arial';font-size:14px;\"><em>отношения и свойства.</em></span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">их</span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\"><em> отношения и свойства.</em></span>"\
             "</p>"\
             "<p>"\
-                "<span style=\"font-family:'Arial';font-size:14px;\"><em>Предметом арифметики</em></span>"\
-                "<span style=\"font-family:'Arial';font-size:14px;\"> является понятие числа </span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\"><em>Предметом арифметики </em></span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">является понятие числа </span>"\
                 "<span style=\"font-family:'Arial';font-size:14px;\">(натуральные, целые, рациональные, вещественные, </span>"\
                 "<span style=\"font-family:'Arial';font-size:14px;\">комплексные числа) и его свойства.</span>"\
             "</p>"\
         "</body>") << 
         document.ToHtml();
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 1, 0, 0, 20}, 
-        ElementSelectionState{ElementId{0, 0, 2, 1}, 2, 19}, 
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 1, 0, 0, 21}, 
+        ElementSelectionState{ElementId{0, 0, 2}, 1, 1}, 
         ElementSelectionState{ElementId{0, 1, 0}, 0, 1})) << document.GetEditorState().ToString();
 }
 
@@ -2436,6 +2436,7 @@ TEST_F(DocumentTest, fonts29)
     document.MoveCaretDown(false);
     document.MoveCaretDown(false);
     document.MoveCaretEnd(false);
+    document.MoveCaretWordLeft(true);
     document.WaitTask(document.MoveCaretWordLeft(true));
     document.WaitTask(document.SetItalic(true));
     document.MoveCaretHome(false);
@@ -2452,8 +2453,8 @@ TEST_F(DocumentTest, fonts29)
                 "<span style=\"font-family:'Arial';font-size:14px;\"><em>свойства.</em></span>"\
             "</p>"\
             "<p>"\
-                "<span style=\"font-family:'Arial';font-size:14px;\"><em>Предметом</em></span>"\
-                "<span style=\"font-family:'Arial';font-size:14px;\"> арифметики является понятие числа </span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\"><em>Предметом </em></span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">арифметики является понятие числа </span>"\
                 "<span style=\"font-family:'Arial';font-size:14px;\">(натуральные, целые, рациональные, вещественные, </span>"\
                 "<span style=\"font-family:'Arial';font-size:14px;\">комплексные числа) и его свойства.</span>"\
             "</p>"\
@@ -2462,6 +2463,7 @@ TEST_F(DocumentTest, fonts29)
     
     document.MoveCaretUp(false);
     document.MoveCaretEnd(false);
+    document.MoveCaretWordLeft(false);
     document.MoveCaretWordLeft(false);
     document.WaitTask(document.MoveCaretDown(true));
     document.WaitTask(document.SetItalic(true));
@@ -2498,17 +2500,17 @@ TEST_F(DocumentTest, fonts29)
                 "<span style=\"font-family:'Arial';font-size:14px;\"><em>свойства.</em></span>"\
             "</p>"\
             "<p>"\
-                "<span style=\"font-family:'Arial';font-size:14px;\"><em>Предметом</em></span>"\
-                "<span style=\"font-family:'Arial';font-size:14px;\"> арифметики является понятие числа </span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\"><em>Предметом </em></span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">арифметики является понятие числа </span>"\
                 "<span style=\"font-family:'Arial';font-size:14px;\">(натуральные, целые, рациональные, вещественные, </span>"\
                 "<span style=\"font-family:'Arial';font-size:14px;\">комплексные числа) и его свойства.</span>"\
             "</p>"\
         "</body>") << 
         document.ToHtml();
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 1, 0, 1, 4}, 
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 1, 0, 1, 3}, 
         ElementSelectionState{ElementId{0, 0, 2}, 1, 1}, 
         ElementSelectionState{ElementId{0, 1, 0}, 0, 1}, 
-        ElementSelectionState{ElementId{0, 1, 0, 1}, 0, 4})) << document.GetEditorState().ToString();
+        ElementSelectionState{ElementId{0, 1, 0, 1}, 0, 3})) << document.GetEditorState().ToString();
 }
 
 //Set the same font family in the paragraph
@@ -2530,8 +2532,8 @@ TEST_F(DocumentTest, fonts30)
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
-                "<span style=\"font-family:'Arial';font-size:14px;\"><strong><em>Арифме́тика</em></strong></span>"\
-                "<span style=\"font-family:'Arial';font-size:14px;\"><strong> (др.-греч. ἀριθμητική, arithmētikḗ — от </strong></span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\"><strong><em>Арифме́тика </em></strong></span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\"><strong>(др.-греч. ἀριθμητική, arithmētikḗ — от </strong></span>"\
                 "<span style=\"font-family:'Arial';font-size:14px;\"><strong>ἀριθμός, arithmós «число») — раздел математики, </strong></span>"\
                 "<span style=\"font-family:'Arial';font-size:14px;\"><strong>изучающий числа, их отношения и свойства.</strong></span>"\
             "</p>"\
@@ -2546,8 +2548,8 @@ TEST_F(DocumentTest, fonts30)
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
-                "<span style=\"font-family:'Arial';font-size:14px;\"><em>Арифме́тика</em></span>"\
-                "<span style=\"font-family:'Arial';font-size:14px;\"> (др.-греч. ἀριθμητική, arithmētikḗ — от ἀριθμός, </span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\"><em>Арифме́тика </em></span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">(др.-греч. ἀριθμητική, arithmētikḗ — от ἀριθμός, </span>"\
                 "<span style=\"font-family:'Arial';font-size:14px;\">arithmós «число») — раздел математики, изучающий числа, </span>"\
                 "<span style=\"font-family:'Arial';font-size:14px;\">их отношения и свойства.</span>"\
             "</p>"\
@@ -2591,8 +2593,8 @@ TEST_F(DocumentTest, fonts31)
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
-                "<span style=\"font-family:'Arial';font-size:14px;\"><em>Арифме́тика</em></span>"\
-                "<span style=\"font-family:'Arial';font-size:14px;\"> (др.-греч. ἀριθμητική, arithmētikḗ — от ἀριθμός, </span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\"><em>Арифме́тика </em></span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">(др.-греч. ἀριθμητική, arithmētikḗ — от ἀριθμός, </span>"\
                 "<span style=\"font-family:'Arial';font-size:14px;\">arithmós «число») — раздел математики, изучающий числа, </span>"\
                 "<span style=\"font-family:'Arial';font-size:14px;\">их отношения и свойства.</span>"\
             "</p>"\
