@@ -354,19 +354,19 @@ TEST_F(ParagraphTest, resizing4)
     document.MoveCaretWordRight(false);
     document.MoveCaretWordRight(false);
     document.WaitTask(document.MoveCaretDown(true));
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 0, 13}, 
-        ElementSelectionState{ElementId{0, 0, 0, 0}, 10, 23}, 
-        ElementSelectionState{ElementId{0, 0, 1, 0}, 0, 13})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 0, 14}, 
+        ElementSelectionState{ElementId{0, 0, 0, 0}, 11, 22}, 
+        ElementSelectionState{ElementId{0, 0, 1, 0}, 0, 14})) << document.GetEditorState().ToString();
 
     width = 260;
     document.WaitTask(document.Resize(width, 400));
 
     width = 236;
     document.WaitTask(document.Resize(width, 400));
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 2, 0, 4}, 
-        ElementSelectionState{ElementId{0, 0, 0, 0}, 10, 8}, 
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 2, 0, 5}, 
+        ElementSelectionState{ElementId{0, 0, 0, 0}, 11, 7}, 
         ElementSelectionState{ElementId{0, 0}, 1, 1}, 
-        ElementSelectionState{ElementId{0, 0, 2, 0}, 0, 4})) << document.GetEditorState().ToString();
+        ElementSelectionState{ElementId{0, 0, 2, 0}, 0, 5})) << document.GetEditorState().ToString();
 }
 
 //Resize with selection
@@ -883,13 +883,13 @@ TEST_F(ParagraphTest, paragraph2)
         "<body>"\
             "<p>"\
                 "<span style=\"font-family:'Courier New';font-size:12px;\">The </span>"\
-                "<span style=\"font-family:'Courier New';font-size:12px;\"><strong>source</strong></span>"\
-                "<span style=\"font-family:'Courier New';font-size:12px;\"> of the text itself is a little </span>"\
+                "<span style=\"font-family:'Courier New';font-size:12px;\"><strong>source </strong></span>"\
+                "<span style=\"font-family:'Courier New';font-size:12px;\">of the text itself is a little </span>"\
                 "<span style=\"font-family:'Courier New';font-size:12px;\">mysterious.</span>"\
             "</p>"\
         "</body>") 
         << document.ToHtml();
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 1, 6}, 
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 1, 7}, 
         ElementSelectionState{ElementId{0, 0, 0}, 1, 1})) << document.GetEditorState().ToString();
 
     document.Undo();
@@ -898,12 +898,12 @@ TEST_F(ParagraphTest, paragraph2)
         "<body>"\
             "<p>"\
                 "<span style=\"font-family:'Arial';font-size:14px;\">The </span>"\
-                "<span style=\"font-family:'Arial';font-size:14px;\"><strong>source</strong></span>"\
-                "<span style=\"font-family:'Arial';font-size:14px;\"> of the text itself is a little mysterious.</span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\"><strong>source </strong></span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">of the text itself is a little mysterious.</span>"\
             "</p>"\
         "</body>") 
         << document.ToHtml();
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 1, 6}, 
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 1, 7}, 
         ElementSelectionState{ElementId{0, 0, 0}, 1, 1})) << document.GetEditorState().ToString();
 
     document.Undo();
@@ -915,7 +915,7 @@ TEST_F(ParagraphTest, paragraph2)
             "</p>"\
         "</body>") 
         << document.ToHtml();
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 10, 4, 6)) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 11, 4, 7)) << document.GetEditorState().ToString();
 
     document.Redo();
     document.WaitRedo();
@@ -924,12 +924,12 @@ TEST_F(ParagraphTest, paragraph2)
         "<body>"\
             "<p>"\
                 "<span style=\"font-family:'Arial';font-size:14px;\">The </span>"\
-                "<span style=\"font-family:'Arial';font-size:14px;\"><strong>source</strong></span>"\
-                "<span style=\"font-family:'Arial';font-size:14px;\"> of the text itself is a little mysterious.</span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\"><strong>source </strong></span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">of the text itself is a little mysterious.</span>"\
             "</p>"\
         "</body>") 
         << document.ToHtml();
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 1, 6}, 
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 1, 7}, 
         ElementSelectionState{ElementId{0, 0, 0}, 1, 1})) << document.GetEditorState().ToString();
 
     document.Redo();
@@ -938,13 +938,13 @@ TEST_F(ParagraphTest, paragraph2)
         "<body>"\
             "<p>"\
                 "<span style=\"font-family:'Courier New';font-size:12px;\">The </span>"\
-                "<span style=\"font-family:'Courier New';font-size:12px;\"><strong>source</strong></span>"\
-                "<span style=\"font-family:'Courier New';font-size:12px;\"> of the text itself is a little </span>"\
+                "<span style=\"font-family:'Courier New';font-size:12px;\"><strong>source </strong></span>"\
+                "<span style=\"font-family:'Courier New';font-size:12px;\">of the text itself is a little </span>"\
                 "<span style=\"font-family:'Courier New';font-size:12px;\">mysterious.</span>"\
             "</p>"\
         "</body>") 
         << document.ToHtml();
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 1, 6}, 
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 1, 7}, 
         ElementSelectionState{ElementId{0, 0, 0}, 1, 1})) << document.GetEditorState().ToString();
 
     document.WaitTask(document.SetCurrentParagraphFormat("Monospace"));
@@ -952,13 +952,13 @@ TEST_F(ParagraphTest, paragraph2)
         "<body>"\
             "<p>"\
                 "<span style=\"font-family:'Courier New';font-size:12px;\">The </span>"\
-                "<span style=\"font-family:'Courier New';font-size:12px;\"><strong>source</strong></span>"\
-                "<span style=\"font-family:'Courier New';font-size:12px;\"> of the text itself is a little </span>"\
+                "<span style=\"font-family:'Courier New';font-size:12px;\"><strong>source </strong></span>"\
+                "<span style=\"font-family:'Courier New';font-size:12px;\">of the text itself is a little </span>"\
                 "<span style=\"font-family:'Courier New';font-size:12px;\">mysterious.</span>"\
             "</p>"\
         "</body>") 
         << document.ToHtml();
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 1, 6}, 
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 1, 7}, 
         ElementSelectionState{ElementId{0, 0, 0}, 1, 1})) << document.GetEditorState().ToString();
 
     document.WaitTask(document.SetCurrentParagraphFormat("Monospace"));
@@ -968,12 +968,12 @@ TEST_F(ParagraphTest, paragraph2)
         "<body>"\
             "<p>"\
                 "<span style=\"font-family:'Arial';font-size:14px;\">The </span>"\
-                "<span style=\"font-family:'Arial';font-size:14px;\"><strong>source</strong></span>"\
-                "<span style=\"font-family:'Arial';font-size:14px;\"> of the text itself is a little mysterious.</span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\"><strong>source </strong></span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">of the text itself is a little mysterious.</span>"\
             "</p>"\
         "</body>") 
         << document.ToHtml();
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 1, 6}, 
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 1, 7}, 
         ElementSelectionState{ElementId{0, 0, 0}, 1, 1})) << document.GetEditorState().ToString();
 }
 
@@ -1110,11 +1110,11 @@ TEST_F(ParagraphTest, paragraph5)
     document.WaitTask(document.InsertParagraph(true));
 
     auto el = document.GetElement(ElementId{0, 0});
-    ASSERT_TRUE(el->type == ElementType::PARAGRAPH && el->ToText() == U"Арифме́тика") << ToBasicString(el->ToText());
+    ASSERT_TRUE(el->type == ElementType::PARAGRAPH && el->ToText() == U"Арифме́тика ") << ToBasicString(el->ToText());
     ASSERT_TRUE(el->elements->Count() == 1) << el->elements->Count();
 
     el = document.GetElement(ElementId{0, 1});
-    ASSERT_TRUE(el->type == ElementType::PARAGRAPH && el->ToText().rfind(U" (др.-греч.", 0) == 0) << ToBasicString(el->ToText());
+    ASSERT_TRUE(el->type == ElementType::PARAGRAPH && el->ToText().rfind(U"(др.-греч.", 0) == 0) << ToBasicString(el->ToText());
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(1, 0, 0, 0)) << document.GetEditorState().ToString();
     ASSERT_TRUE(el->elements->Count() == 16) << el->elements->Count();
 
@@ -1126,7 +1126,7 @@ TEST_F(ParagraphTest, paragraph5)
     el = document.GetElement(ElementId{0, 0});
     std::this_thread::sleep_for(200ms);
     ASSERT_TRUE(el->type == ElementType::PARAGRAPH && el->ToText().rfind(U"Арифме́тика (др.-греч.", 0) == 0) << ToBasicString(el->ToText());
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 11)) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 12)) << document.GetEditorState().ToString();
 }
 
 //Insert paragraphs in a multiline text
@@ -1142,10 +1142,10 @@ TEST_F(ParagraphTest, paragraph6)
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
-                "<span style=\"font-family:'Arial';font-size:14px;\">In literary</span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">In literary </span>"\
             "</p>"\
             "<p>"\
-                "<span style=\"font-family:'Arial';font-size:14px;\"> theory, a text is any object that can be </span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">theory, a text is any object that can be </span>"\
                 "<span style=\"font-family:'Arial';font-size:14px;\">read, whether this object is a work of </span>"\
                 "<span style=\"font-family:'Arial';font-size:14px;\">literature</span>"
             "</p>"\
@@ -1169,10 +1169,10 @@ TEST_F(ParagraphTest, paragraph6)
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
-                "<span style=\"font-family:'Arial';font-size:14px;\">In literary</span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">In literary </span>"\
             "</p>"\
             "<p>"\
-                "<span style=\"font-family:'Arial';font-size:14px;\"> theory, a text is any object that can be </span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">theory, a text is any object that can be </span>"\
                 "<span style=\"font-family:'Arial';font-size:14px;\">read, whether this object is a work of </span>"\
                 "<span style=\"font-family:'Arial';font-size:14px;\">literature</span>"
             "</p>"\
@@ -1336,13 +1336,13 @@ TEST_F(ParagraphTest, paragraph10)
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
-                "<span style=\"font-family:'Arial';font-size:14px;\">In literary</span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">In literary </span>"\
             "</p>"\
             "<p>"\
                 "<span style=\"font-family:'Arial';font-size:14px;\"></span>"\
             "</p>"\
             "<p>"\
-                "<span style=\"font-family:'Arial';font-size:14px;\"> theory, a text is any object that can be </span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">theory, a text is any object that can be </span>"\
                 "<span style=\"font-family:'Arial';font-size:14px;\">read, whether this object is a work of </span>"\
                 "<span style=\"font-family:'Arial';font-size:14px;\">literature</span>"
             "</p>"\
@@ -1355,10 +1355,10 @@ TEST_F(ParagraphTest, paragraph10)
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
-                "<span style=\"font-family:'Arial';font-size:14px;\">In literary</span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">In literary </span>"\
             "</p>"\
             "<p>"\
-                "<span style=\"font-family:'Arial';font-size:14px;\"> theory, a text is any object that can be </span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">theory, a text is any object that can be </span>"\
                 "<span style=\"font-family:'Arial';font-size:14px;\">read, whether this object is a work of </span>"\
                 "<span style=\"font-family:'Arial';font-size:14px;\">literature</span>"
             "</p>"\
@@ -1377,7 +1377,7 @@ TEST_F(ParagraphTest, paragraph10)
             "</p>"\
         "</body>") 
         << document.ToHtml();
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 11})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 12})) << document.GetEditorState().ToString();
 }
 
 //Insert a paragraph and a text after a code block
@@ -2083,33 +2083,33 @@ TEST_F(ParagraphTest, paragraph23)
     document.WaitTask(document.MoveCaretWordRight(false));
     document.WaitTask(document.MoveCaretWordLeft(true));
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 5, 0, 0, 0}, 
-        ElementSelectionState{ElementId{0, 5, 0, 0}, 0, 4})) << document.GetEditorState().ToString();
+        ElementSelectionState{ElementId{0, 5, 0, 0}, 0, 5})) << document.GetEditorState().ToString();
     
     document.WaitTask(document.MoveCaretWordLeft(true));
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 3, 0, 0, 0}, 
         ElementSelectionState{ElementId{0}, 4, 1}, 
-        ElementSelectionState{ElementId{0, 5, 0, 0}, 0, 4})) << document.GetEditorState().ToString();
+        ElementSelectionState{ElementId{0, 5, 0, 0}, 0, 5})) << document.GetEditorState().ToString();
 
     document.WaitTask(document.MoveCaretWordLeft(true));
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 2, 0, 0, 40}, 
         ElementSelectionState{ElementId{0}, 3, 2}, 
-        ElementSelectionState{ElementId{0, 5, 0, 0}, 0, 4})) << document.GetEditorState().ToString();
+        ElementSelectionState{ElementId{0, 5, 0, 0}, 0, 5})) << document.GetEditorState().ToString();
 
-    for (int i = 0; i < 8; ++i)
+    for (int i = 0; i < 9; ++i)
         document.WaitTask(document.MoveCaretWordLeft(true));
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 2, 0, 0, 0}, 
         ElementSelectionState{ElementId{0}, 2, 3}, 
-        ElementSelectionState{ElementId{0, 5, 0, 0}, 0, 4})) << document.GetEditorState().ToString();
+        ElementSelectionState{ElementId{0, 5, 0, 0}, 0, 5})) << document.GetEditorState().ToString();
 
     document.WaitTask(document.MoveCaretWordLeft(true));
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0}, 
         ElementSelectionState{ElementId{0}, 1, 4}, 
-        ElementSelectionState{ElementId{0, 5, 0, 0}, 0, 4})) << document.GetEditorState().ToString();
+        ElementSelectionState{ElementId{0, 5, 0, 0}, 0, 5})) << document.GetEditorState().ToString();
 
     document.WaitTask(document.MoveCaretWordLeft(true));
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0}, 
         ElementSelectionState{ElementId{0}, 0, 5}, 
-        ElementSelectionState{ElementId{0, 5, 0, 0}, 0, 4})) << document.GetEditorState().ToString();
+        ElementSelectionState{ElementId{0, 5, 0, 0}, 0, 5})) << document.GetEditorState().ToString();
 }
 
 //Check format
@@ -3035,8 +3035,8 @@ TEST_F(ParagraphTest, delete6)
         "<body>"\
             "<p>"\
                 "<span style=\"font-family:'Arial';font-size:14px;\">In literary theory, a text is any object </span>"\
-                "<span style=\"font-family:'Arial';font-size:14px;\"><strong>that</strong></span>"\
-                "<span style=\"font-family:'Arial';font-size:14px;\"> can be read, whether this object is </span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\"><strong>that </strong></span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">can be read, whether this object is </span>"\
                 "<span style=\"font-family:'Arial';font-size:14px;\">a work of literature</span>"\
             "</p>"\
         "</body>") << 
@@ -3060,8 +3060,8 @@ TEST_F(ParagraphTest, delete6)
         "<body>"\
             "<p>"\
                 "<span style=\"font-family:'Arial';font-size:14px;\">In literary theory, a text is any object </span>"\
-                "<span style=\"font-family:'Arial';font-size:14px;\"><strong>that</strong></span>"\
-                "<span style=\"font-family:'Arial';font-size:14px;\"> can be read, whether this object is </span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\"><strong>that </strong></span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">can be read, whether this object is </span>"\
                 "<span style=\"font-family:'Arial';font-size:14px;\">a work of literature</span>"\
             "</p>"\
         "</body>") << 
@@ -3142,13 +3142,13 @@ TEST_F(ParagraphTest, delete8)
         "<body>"\
             "<p>"\
                 "<span style=\"font-family:'Arial';font-size:14px;\">In literary theory, a text is any object </span>"\
-                "<span style=\"font-family:'Arial';font-size:14px;\">that</span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">that </span>"\
                 "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
                     "<mrow>"\
                         "<mi>Null</mi>"\
                     "</mrow>"\
                 "</math>"\
-                "<span style=\"font-family:'Arial';font-size:14px;\"> can be read, whether this </span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">can be read, whether this </span>"\
                 "<span style=\"font-family:'Arial';font-size:14px;\">object </span>"\
                 "<span style=\"font-family:'Arial';font-size:14px;\"><strong>is </strong></span>"\
                 "<span style=\"font-family:'Arial';font-size:14px;\">a work of literature</span>"\
@@ -3174,13 +3174,13 @@ TEST_F(ParagraphTest, delete8)
         "<body>"\
             "<p>"\
                 "<span style=\"font-family:'Arial';font-size:14px;\">In literary theory, a text is any object </span>"\
-                "<span style=\"font-family:'Arial';font-size:14px;\">that</span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">that </span>"\
                 "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
                     "<mrow>"\
                         "<mi>Null</mi>"\
                     "</mrow>"\
                 "</math>"\
-                "<span style=\"font-family:'Arial';font-size:14px;\"> can be read, whether this </span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">can be read, whether this </span>"\
                 "<span style=\"font-family:'Arial';font-size:14px;\">object </span>"\
                 "<span style=\"font-family:'Arial';font-size:14px;\"><strong>is </strong></span>"\
                 "<span style=\"font-family:'Arial';font-size:14px;\">a work of literature</span>"\
@@ -3294,7 +3294,7 @@ TEST_F(ParagraphTest, delete11)
         "<body>"\
             "<p>"\
                 "<span style=\"font-family:'Arial';font-size:14px;\">In literary theory, a text is any object </span>"\
-                "<span style=\"font-family:'Arial';font-size:14px;\">that can be read, whether this</span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">that can be read, whether this </span>"\
                 "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
                     "<mrow>"\
                         "<mfrac>"\
@@ -3307,7 +3307,7 @@ TEST_F(ParagraphTest, delete11)
                         "</mfrac>"\
                     "</mrow>"\
                 "</math>"\
-                "<span style=\"font-family:'Arial';font-size:14px;\"> object is a work of literature</span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">object is a work of literature</span>"\
             "</p>"\
         "</body>") << 
         document.ToHtml();
@@ -3321,7 +3321,7 @@ TEST_F(ParagraphTest, delete11)
         "<body>"\
             "<p>"\
                 "<span style=\"font-family:'Arial';font-size:14px;\">In literary theory, a text is any object </span>"\
-                "<span style=\"font-family:'Arial';font-size:14px;\">that can be read, whether re</span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">that can be read, whether e</span>"\
             "</p>"\
         "</body>") << 
         document.ToHtml();
@@ -3333,7 +3333,7 @@ TEST_F(ParagraphTest, delete11)
         "<body>"\
             "<p>"\
                 "<span style=\"font-family:'Arial';font-size:14px;\">In literary theory, a text is any object </span>"\
-                "<span style=\"font-family:'Arial';font-size:14px;\">that can be read, whether this</span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">that can be read, whether this </span>"\
                 "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
                     "<mrow>"\
                         "<mfrac>"\
@@ -3346,12 +3346,12 @@ TEST_F(ParagraphTest, delete11)
                         "</mfrac>"\
                     "</mrow>"\
                 "</math>"\
-                "<span style=\"font-family:'Arial';font-size:14px;\"> object is a work of literature</span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">object is a work of literature</span>"\
             "</p>"\
         "</body>") << 
         document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 2, 0, 29}, 
-        ElementSelectionState{ElementId{0, 0, 1, 0}, 26, 4}, 
+        ElementSelectionState{ElementId{0, 0, 1, 0}, 26, 5}, 
         ElementSelectionState{ElementId{0, 0, 1}, 1, 1}, 
         ElementSelectionState{ElementId{0, 0, 2, 0}, 0, 29})) << document.GetEditorState().ToString();
 }
@@ -3376,10 +3376,10 @@ TEST_F(ParagraphTest, delete12)
 
     document.Undo();
     document.WaitUndo();
-    ASSERT_TRUE(document.ToText() == U"In literary theory, a text is any object that can be read, whether this()/() object is a work of literature") << 
+    ASSERT_TRUE(document.ToText() == U"In literary theory, a text is any object that can be read, whether this ()/()object is a work of literature") << 
         ToBasicString(document.ToText());;
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 3, 0, 9}, 
-        ElementSelectionState{ElementId{0, 0, 2, 0}, 8, 4}, 
+        ElementSelectionState{ElementId{0, 0, 2, 0}, 8, 5}, 
         ElementSelectionState{ElementId{0, 0, 2}, 1, 2}, 
         ElementSelectionState{ElementId{0, 0, 3, 0}, 0, 9})) << document.GetEditorState().ToString();
 }
@@ -3399,26 +3399,26 @@ TEST_F(ParagraphTest, delete13)
     document.MoveCaretDown(true);
     document.MoveCaretDown(true);
     document.WaitTask(document.MoveCaretDown(true));
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 1, 1, 0, 15}, 
-        ElementSelectionState{ElementId{0, 0, 0, 0}, 11, 50}, 
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 1, 1, 0, 16}, 
+        ElementSelectionState{ElementId{0, 0, 0, 0}, 12, 49}, 
         ElementSelectionState{ElementId{0, 0}, 1, 2}, 
         ElementSelectionState{ElementId{0, 1}, 0, 1}, 
-        ElementSelectionState{ElementId{0, 1, 1, 0}, 0, 15})) << document.GetEditorState().ToString();
+        ElementSelectionState{ElementId{0, 1, 1, 0}, 0, 16})) << document.GetEditorState().ToString();
 
     document.WaitTask(document.DeleteElements(false, true));
-    ASSERT_TRUE(document.ToText() == U"Арифме́тикаa work of literature") << ToBasicString(document.ToText());
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 11})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.ToText() == U"Арифме́тика  work of literature") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 12})) << document.GetEditorState().ToString();
 
     document.Undo();
     document.WaitUndo();
     ASSERT_TRUE(document.ToText() == U"Арифме́тика (др.-греч. ἀριθμητική, arithmētikḗ — от ἀριθμός, arithmós «число») — "\
         "раздел математики, изучающий числа, их отношения и свойства.\n"\
         "In literary theory, a text is any object that can be read, whether this object is a work of literature") << ToBasicString(document.ToText());
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 1, 1, 0, 15}, 
-        ElementSelectionState{ElementId{0, 0, 0, 0}, 11, 50}, 
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 1, 1, 0, 16}, 
+        ElementSelectionState{ElementId{0, 0, 0, 0}, 12, 49}, 
         ElementSelectionState{ElementId{0, 0}, 1, 2}, 
         ElementSelectionState{ElementId{0, 1}, 0, 1}, 
-        ElementSelectionState{ElementId{0, 1, 1, 0}, 0, 15})) << document.GetEditorState().ToString();
+        ElementSelectionState{ElementId{0, 1, 1, 0}, 0, 16})) << document.GetEditorState().ToString();
 }
 
 //Delete rows with a code block
@@ -3442,7 +3442,7 @@ TEST_F(ParagraphTest, delete14)
     document.MoveCaretWordLeft(false);
     document.WaitTask(document.MoveCaretDown(true));
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 1, 1}, 
-        ElementSelectionState{ElementId{0, 0, 0, 0}, 34, 6}, 
+        ElementSelectionState{ElementId{0, 0, 0, 0}, 34, 7}, 
         ElementSelectionState{ElementId{0, 0, 0}, 1, 2}, 
         ElementSelectionState{ElementId{0, 0, 1}, 0, 1}, 
         ElementSelectionState{ElementId{0, 0, 1, 1}, 0, 1})) << document.GetEditorState().ToString();
@@ -3453,10 +3453,10 @@ TEST_F(ParagraphTest, delete14)
 
     document.Undo();
     document.WaitUndo();
-    ASSERT_TRUE(document.ToText() == U"In literary theory, a text is any object()/() that can be read, whether this object is a work of literature") << 
+    ASSERT_TRUE(document.ToText() == U"In literary theory, a text is any object ()/()that can be read, whether this object is a work of literature") << 
         ToBasicString(document.ToText());
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 1, 1}, 
-        ElementSelectionState{ElementId{0, 0, 0, 0}, 34, 6}, 
+        ElementSelectionState{ElementId{0, 0, 0, 0}, 34, 7}, 
         ElementSelectionState{ElementId{0, 0, 0}, 1, 2}, 
         ElementSelectionState{ElementId{0, 0, 1}, 0, 1}, 
         ElementSelectionState{ElementId{0, 0, 1, 1}, 0, 1})) << document.GetEditorState().ToString();
@@ -3510,13 +3510,13 @@ TEST_F(ParagraphTest, delete16)
     document.MoveCaretDown(true);
     document.MoveCaretDown(true);
     document.WaitTask(document.MoveCaretDown(true));
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 4, 0, 11}, 
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 4, 0, 12}, 
         ElementSelectionState{ElementId{0, 0, 1, 0}, 13, 26}, 
         ElementSelectionState{ElementId{0, 0}, 2, 2}, 
-        ElementSelectionState{ElementId{0, 0, 4, 0}, 0, 11})) << document.GetEditorState().ToString();
+        ElementSelectionState{ElementId{0, 0, 4, 0}, 0, 12})) << document.GetEditorState().ToString();
 
     document.WaitTask(document.DeleteElements(false, true));
-    ASSERT_TRUE(document.ToText() == U"Арифме́тика (др.-греч. ἀριθμητική, arithmētikḗ — от ἀριθμός, aла "\
+    ASSERT_TRUE(document.ToText() == U"Арифме́тика (др.-греч. ἀριθμητική, arithmētikḗ — от ἀριθμός, aа "\
         "(натуральные, целые, рациональные, вещественные, комплексные числа) и его свойства.") << ToBasicString(document.ToText());
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 0, 13})) << document.GetEditorState().ToString();
 
@@ -3525,10 +3525,10 @@ TEST_F(ParagraphTest, delete16)
     ASSERT_TRUE(document.ToText() == U"Арифме́тика (др.-греч. ἀριθμητική, arithmētikḗ — от ἀριθμός, arithmós «число») — раздел математики"\
         ", изучающий числа, их отношения и свойства. Предметом арифметики является понятие числа (натуральные, целые, рациональные, "\
         "вещественные, комплексные числа) и его свойства.") << ToBasicString(document.ToText());
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 4, 0, 11}, 
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 4, 0, 12}, 
         ElementSelectionState{ElementId{0, 0, 1, 0}, 13, 26}, 
         ElementSelectionState{ElementId{0, 0}, 2, 2}, 
-        ElementSelectionState{ElementId{0, 0, 4, 0}, 0, 11})) << document.GetEditorState().ToString();
+        ElementSelectionState{ElementId{0, 0, 4, 0}, 0, 12})) << document.GetEditorState().ToString();
 }
 
 //Delete a paragraph
@@ -3657,7 +3657,7 @@ TEST_F(ParagraphTest, delete20)
     document.WaitTask(document.DeleteElements(false, true));
     std::this_thread::sleep_for(200ms);
     ASSERT_TRUE(document.ToText() == 
-        U"Арифме́тика (др.-греч. ἀριθμητική, arithmētikḗ — от ἀριθμός, arithmós «число») — раздел математики, изучающий числа, их ."
+        U"Арифме́тика (др.-греч. ἀριθμητική, arithmētikḗ — от ἀριθμός, arithmós «число») — раздел математики, изучающий числа, их а."
         ) << ToBasicString(document.ToText());
 }
 
@@ -3677,7 +3677,7 @@ TEST_F(ParagraphTest, delete21)
     document.WaitTask(document.DeleteElements(false, true));
     std::this_thread::sleep_for(200ms);
     ASSERT_TRUE(document.ToText() == 
-        U"Арифме́тикараздел математики, изучающий числа, их отношения и свойства.\n"\
+        U"Арифме́тика аздел математики, изучающий числа, их отношения и свойства.\n"\
         U"Предметом арифметики является понятие числа (натуральные, целые, рациональные, вещественные, комплексные числа) и его свойства."
         ) << ToBasicString(document.ToText());
     
@@ -3693,7 +3693,7 @@ TEST_F(ParagraphTest, delete21)
     document.WaitRedo();
     std::this_thread::sleep_for(200ms);
     ASSERT_TRUE(document.ToText() == 
-        U"Арифме́тикараздел математики, изучающий числа, их отношения и свойства.\n"\
+        U"Арифме́тика аздел математики, изучающий числа, их отношения и свойства.\n"\
         U"Предметом арифметики является понятие числа (натуральные, целые, рациональные, вещественные, комплексные числа) и его свойства."
         ) << ToBasicString(document.ToText());
 }

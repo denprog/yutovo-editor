@@ -47,7 +47,7 @@ TEST_F(DocumentTest, caret1)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 0)) << document.GetEditorState().ToString();
 
     document.WaitTask(document.MoveCaretWordRight(false));
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 4)) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 5)) << document.GetEditorState().ToString();
 
     document.WaitTask(document.MoveCaretWordRight(false));
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 10)) << document.GetEditorState().ToString();
@@ -77,7 +77,7 @@ TEST_F(DocumentTest, caret1)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 0)) << document.GetEditorState().ToString();
 
     document.WaitTask(document.MoveCaretWordRight(false));
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 4)) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 5)) << document.GetEditorState().ToString();
 
     document.MoveCaretWordRight(false);
     document.MoveCaretWordRight(false);
@@ -121,10 +121,10 @@ TEST_F(DocumentTest, caret1)
 
     document.MoveCaretHome(false);
     document.WaitTask(document.MoveCaretWordRight(true));
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 4, 0, 4)) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 5, 0, 5)) << document.GetEditorState().ToString();
 
     document.WaitTask(document.MoveCaretWordRight(true));
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 10, 0, 10)) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 11, 0, 11)) << document.GetEditorState().ToString();
 
     document.WaitTask(document.MoveCaretWordRight(true));
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 16}, 
@@ -141,14 +141,14 @@ TEST_F(DocumentTest, caret1)
     document.MoveCaretHome(false);
     document.MoveCaretWordRight(false);
     document.WaitTask(document.MoveCaretWordRight(false));
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 10)) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 11)) << document.GetEditorState().ToString();
 
     document.WaitTask(document.MoveCaretWordRight(true));
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 16, 10, 6)) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 16, 11, 5)) << document.GetEditorState().ToString();
 
     document.WaitTask(document.MoveCaretWordRight(true));
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 1, 4}, 
-        ElementSelectionState{ElementId{0, 0, 0, 0}, 10, 6},
+        ElementSelectionState{ElementId{0, 0, 0, 0}, 11, 5},
         ElementSelectionState{ElementId{0, 0, 0}, 1, 1})) << document.GetEditorState().ToString();
 }
 
@@ -206,6 +206,7 @@ TEST_F(DocumentTest, caret3)
     document.SetFontSize(22);
     document.InsertString("The source of the text itself is a little mysterious.", true);
     document.MoveCaretWordLeft(false);
+    document.MoveCaretWordLeft(false);
     document.WaitTask(document.InsertParagraph(true));
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
@@ -246,7 +247,7 @@ TEST_F(DocumentTest, caret4)
     document.WaitTask(document.MoveCaretWordRight(true));
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 2, 6}, 
-        ElementSelectionState{ElementId{0, 0, 0, 0}, 10, 7},
+        ElementSelectionState{ElementId{0, 0, 0, 0}, 11, 6},
         ElementSelectionState{ElementId{0, 0, 0}, 1, 2})) << document.GetEditorState().ToString();
 }
 
@@ -374,7 +375,7 @@ TEST_F(DocumentTest, caret7)
     document.MoveCaretDown(false);
     document.MoveCaretWordRight(false);
     document.WaitTask(document.MoveCaretPageDown(false));
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 11, 0, 8})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 11, 0, 7})) << document.GetEditorState().ToString();
 
     for (int i = 0; i < 6; ++i)
         document.MoveCaretPageDown(false);
@@ -640,6 +641,7 @@ TEST_F(DocumentTest, caret18)
 
     document.MoveCaretToDocumentEnd(false);
     document.MoveCaretWordLeft(false);
+    document.MoveCaretWordLeft(false);
     document.WaitTask(document.MoveCaretPageUp(true));
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 3, 10, 0, 30}, 
         ElementSelectionState{ElementId{0, 3, 10, 0}, 30, 8},
@@ -684,12 +686,12 @@ TEST_F(DocumentTest, caret19)
 
     document.Load("../../test/tests/file1.txt");
     document.WaitLoad();
-    std::this_thread::sleep_for(2000ms);
+    std::this_thread::sleep_for(2s);
 
     document.MoveCaretWordRight(false);
     document.WaitTask(document.MoveCaretPageDown(true));
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 9, 0, 12}, 
-        ElementSelectionState{ElementId{0, 0, 0, 0}, 11, 59},
+        ElementSelectionState{ElementId{0, 0, 0, 0}, 12, 58},
         ElementSelectionState{ElementId{0, 0}, 1, 8},
         ElementSelectionState{ElementId{0, 0, 9, 0}, 0, 12})) << document.GetEditorState().ToString();
     
@@ -706,17 +708,17 @@ TEST_F(DocumentTest, caret19)
     document.MoveCaretWordRight(false);
     document.InsertDivision(true);
     document.WaitTask(document.MoveCaretPageDown(true));
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 7, 0, 13}, 
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 7, 0, 14}, 
         ElementSelectionState{ElementId{0, 0, 0}, 1, 2},
         ElementSelectionState{ElementId{0, 0}, 1, 6},
-        ElementSelectionState{ElementId{0, 0, 7, 0}, 0, 13})) << document.GetEditorState().ToString();
+        ElementSelectionState{ElementId{0, 0, 7, 0}, 0, 14})) << document.GetEditorState().ToString();
 
     document.MoveCaretToDocumentBegin(false);
     document.MoveCaretRight(false);
     document.MoveCaretRight(false);
     document.WaitTask(document.MoveCaretPageDown(true));
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 8, 0, 3}, 
-        ElementSelectionState{ElementId{0, 0, 0, 0}, 2, 9},
+        ElementSelectionState{ElementId{0, 0, 0, 0}, 2, 10},
         ElementSelectionState{ElementId{0, 0, 0}, 1, 2},
         ElementSelectionState{ElementId{0, 0}, 1, 7},
         ElementSelectionState{ElementId{0, 0, 8, 0}, 0, 3})) << document.GetEditorState().ToString();
@@ -1299,6 +1301,7 @@ TEST_F(DocumentTest, caret37)
     document.WaitTask(document.InsertString("Арифме́тика (др.-греч. ἀριθμητική, arithmētikḗ — от ἀριθμός, arithmós «число») — "\
         "раздел математики, изучающий числа, их отношения и свойства.", true));
     document.MoveCaretWordLeft(false);
+    document.MoveCaretWordLeft(false);
     document.WaitTask(document.InsertDivision(true));
 
     Rect rect1, rect2;
@@ -1546,8 +1549,9 @@ TEST_F(DocumentTest, caret48)
     document.MoveCaretUp(false);
     document.MoveCaretUp(false);
     document.MoveCaretHome(false);
-    for (int i = 0; i < 4; ++i)
+    for (int i = 0; i < 6; ++i)
         document.MoveCaretWordRight(false);
+    document.MoveCaretRight(false);
     document.WaitTask(document.SelectOut());
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 0, 26}, 
         ElementSelectionState{ElementId{0, 0, 1, 0}, 20, 6})) << document.GetEditorState().ToString();
@@ -1624,13 +1628,15 @@ TEST_F(DocumentTest, caret51)
     std::this_thread::sleep_for(2000ms);
 
     document.MoveCaretWordRight(false);
+    document.MoveCaretWordRight(false);
     document.WaitTask(document.MoveCaretToDocumentEnd(true));
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 5, 1, 0, 42}, 
-        ElementSelectionState{ElementId{0, 0, 0, 0}, 11, 59},
+        ElementSelectionState{ElementId{0, 0, 0, 0}, 13, 57},
         ElementSelectionState{ElementId{0, 0}, 1, 13},
         ElementSelectionState{ElementId{0}, 1, 5})) << document.GetEditorState().ToString();
     
     document.MoveCaretToDocumentEnd(false);
+    document.MoveCaretWordLeft(false);
     document.MoveCaretWordLeft(false);
     document.WaitTask(document.MoveCaretToDocumentBegin(true));
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0}, 
@@ -1675,6 +1681,7 @@ TEST_F(DocumentTest, caret52)
     document.MoveCaretLeft(false);
     document.MoveCaretLeft(false);
     document.MoveCaretWordLeft(false);
+    document.MoveCaretWordLeft(false);
     document.WaitTask(document.MoveCaretToDocumentBegin(true));
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0}, 
         ElementSelectionState{ElementId{0}, 0, 5},
@@ -1716,9 +1723,9 @@ TEST_F(DocumentTest, caret54)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 1, 0}, 
         ElementSelectionState{ElementId{0, 0, 0}, 0, 1})) << document.GetEditorState().ToString();
     document.WaitTask(document.MoveCaretWordRight(true));
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 1, 4}, 
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 1, 5}, 
         ElementSelectionState{ElementId{0, 0, 0}, 0, 1},
-        ElementSelectionState{ElementId{0, 0, 0, 1}, 0, 4})) << document.GetEditorState().ToString();
+        ElementSelectionState{ElementId{0, 0, 0, 1}, 0, 5})) << document.GetEditorState().ToString();
 
     document.MoveCaretToDocumentEnd(false);
     document.InsertCode(false, true);
@@ -1781,7 +1788,7 @@ TEST_F(DocumentTest, caret56)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 0, 0})) << document.GetEditorState().ToString();
 
     document.WaitTask(document.MoveCaretWordRight(false));
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 0, 4})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 0, 5})) << document.GetEditorState().ToString();
 
     document.WaitTask(document.MoveCaretWordLeft(false));
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 0, 0})) << document.GetEditorState().ToString();
@@ -1800,7 +1807,7 @@ TEST_F(DocumentTest, caret57)
     document.InsertString("In literary theory, a text is any object that can be read, whether this object is a work of literature", true);
     document.MoveCaretToDocumentBegin(false);
     document.MoveCaretDown(false);
-    for (int i = 0; i < 7; ++i)
+    for (int i = 0; i < 8; ++i)
         document.WaitTask(document.MoveCaretWordRight(false));
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 2, 0, 0})) << document.GetEditorState().ToString();
 
@@ -2089,16 +2096,16 @@ TEST_F(DocumentTest, caret68)
     document.WaitTask(document.MoveCaretWordLeft(true));
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0}, 
         ElementSelectionState{ElementId{0, 0, 0}, 0, 1}, 
-        ElementSelectionState{ElementId{0, 0, 0, 1}, 0, 11})) << document.GetEditorState().ToString();
+        ElementSelectionState{ElementId{0, 0, 0, 1}, 0, 12})) << document.GetEditorState().ToString();
     
     document.WaitTask(document.MoveCaretLeft(false));
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0})) << document.GetEditorState().ToString();
     
     document.MoveCaretWordRight(true);
     document.WaitTask(document.MoveCaretWordRight(true));
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 1, 11}, 
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 1, 12}, 
         ElementSelectionState{ElementId{0, 0, 0}, 0, 1}, 
-        ElementSelectionState{ElementId{0, 0, 0, 1}, 0, 11})) << document.GetEditorState().ToString();
+        ElementSelectionState{ElementId{0, 0, 0, 1}, 0, 12})) << document.GetEditorState().ToString();
 }
 
 //Check non-editable result
@@ -2317,6 +2324,227 @@ TEST_F(DocumentTest, caret76)
     document.WaitTask(document.MoveCaretRight(true));
     document.WaitTask(document.MoveCaretPageDown(false));
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 1, 0, 0, 6})) << document.GetEditorState().ToString();
+}
+
+//Move word right in a string with commas, quotes, braces, dotas
+TEST_F(DocumentTest, caret77)
+{
+    Start(590);
+
+    document.InsertString("Арифме́тика (др.-греч. ἀριθμητική, arithmētikḗ — от ἀριθμός, arithmós «число») — "\
+        "раздел математики, 123, изучающий числа, их отношения и свойства. String.", true);
+    document.MoveCaretToDocumentBegin(false);
+    document.WaitTask(document.MoveCaretWordRight(false));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 12})) << document.GetEditorState().ToString();
+    document.WaitTask(document.MoveCaretWordRight(false));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 13})) << document.GetEditorState().ToString();
+    document.WaitTask(document.MoveCaretWordRight(false));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 15})) << document.GetEditorState().ToString();
+    document.WaitTask(document.MoveCaretWordRight(false));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 17})) << document.GetEditorState().ToString();
+    document.WaitTask(document.MoveCaretWordRight(false));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 21})) << document.GetEditorState().ToString();
+    document.WaitTask(document.MoveCaretWordRight(false));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 23})) << document.GetEditorState().ToString();
+    document.WaitTask(document.MoveCaretWordRight(false));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 33})) << document.GetEditorState().ToString();
+    document.WaitTask(document.MoveCaretWordRight(false));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 35})) << document.GetEditorState().ToString();
+    document.WaitTask(document.MoveCaretWordRight(false));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 47})) << document.GetEditorState().ToString();
+    document.WaitTask(document.MoveCaretWordRight(false));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 49})) << document.GetEditorState().ToString();
+    document.WaitTask(document.MoveCaretWordRight(false));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 52})) << document.GetEditorState().ToString();
+    document.WaitTask(document.MoveCaretWordRight(false));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 0, 0})) << document.GetEditorState().ToString();
+    document.WaitTask(document.MoveCaretWordRight(false));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 0, 7})) << document.GetEditorState().ToString();
+    document.WaitTask(document.MoveCaretWordRight(false));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 0, 9})) << document.GetEditorState().ToString();
+    document.WaitTask(document.MoveCaretWordRight(false));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 0, 18})) << document.GetEditorState().ToString();
+    document.WaitTask(document.MoveCaretWordRight(false));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 0, 19})) << document.GetEditorState().ToString();
+    document.WaitTask(document.MoveCaretWordRight(false));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 0, 24})) << document.GetEditorState().ToString();
+    document.WaitTask(document.MoveCaretWordRight(false));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 0, 25})) << document.GetEditorState().ToString();
+    document.WaitTask(document.MoveCaretWordRight(false));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 0, 27})) << document.GetEditorState().ToString();
+    document.WaitTask(document.MoveCaretWordRight(false));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 0, 29})) << document.GetEditorState().ToString();
+    document.WaitTask(document.MoveCaretWordRight(false));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 0, 36})) << document.GetEditorState().ToString();
+    document.WaitTask(document.MoveCaretWordRight(false));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 0, 46})) << document.GetEditorState().ToString();
+    document.WaitTask(document.MoveCaretWordRight(false));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 0, 48})) << document.GetEditorState().ToString();
+    document.WaitTask(document.MoveCaretWordRight(false));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 0, 51})) << document.GetEditorState().ToString();
+    document.WaitTask(document.MoveCaretWordRight(false));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 0, 53})) << document.GetEditorState().ToString();
+    document.WaitTask(document.MoveCaretWordRight(false));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 2, 0, 0})) << document.GetEditorState().ToString();
+    document.WaitTask(document.MoveCaretWordRight(false));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 2, 0, 10})) << document.GetEditorState().ToString();
+    document.WaitTask(document.MoveCaretWordRight(false));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 2, 0, 15})) << document.GetEditorState().ToString();
+    document.WaitTask(document.MoveCaretWordRight(false));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 2, 0, 17})) << document.GetEditorState().ToString();
+    document.WaitTask(document.MoveCaretWordRight(false));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 2, 0, 20})) << document.GetEditorState().ToString();
+    document.WaitTask(document.MoveCaretWordRight(false));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 2, 0, 30})) << document.GetEditorState().ToString();
+    document.WaitTask(document.MoveCaretWordRight(false));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 2, 0, 32})) << document.GetEditorState().ToString();
+    document.WaitTask(document.MoveCaretWordRight(false));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 2, 0, 40})) << document.GetEditorState().ToString();
+    document.WaitTask(document.MoveCaretWordRight(false));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 2, 0, 42})) << document.GetEditorState().ToString();
+    document.WaitTask(document.MoveCaretWordRight(false));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 2, 0, 48})) << document.GetEditorState().ToString();
+    document.WaitTask(document.MoveCaretWordRight(false));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 2, 0, 49})) << document.GetEditorState().ToString();
+    document.WaitTask(document.MoveCaretWordRight(false));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 2, 0, 49})) << document.GetEditorState().ToString();
+}
+
+//Move word left in a string with commas, quotes, braces, dotas
+TEST_F(DocumentTest, caret78)
+{
+    Start(590);
+
+    document.InsertString("Арифме́тика (др.-греч. ἀριθμητική, arithmētikḗ — от ἀριθμός, arithmós «число») — "\
+        "раздел математики, 123, изучающий числа, их отношения и свойства. String.", true);
+    document.MoveCaretToDocumentEnd(false);
+    document.WaitTask(document.MoveCaretWordLeft(false));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 2, 0, 48})) << document.GetEditorState().ToString();
+    document.WaitTask(document.MoveCaretWordLeft(false));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 2, 0, 42})) << document.GetEditorState().ToString();
+    document.WaitTask(document.MoveCaretWordLeft(false));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 2, 0, 40})) << document.GetEditorState().ToString();
+    document.WaitTask(document.MoveCaretWordLeft(false));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 2, 0, 32})) << document.GetEditorState().ToString();
+    document.WaitTask(document.MoveCaretWordLeft(false));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 2, 0, 30})) << document.GetEditorState().ToString();
+    document.WaitTask(document.MoveCaretWordLeft(false));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 2, 0, 20})) << document.GetEditorState().ToString();
+    document.WaitTask(document.MoveCaretWordLeft(false));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 2, 0, 17})) << document.GetEditorState().ToString();
+    document.WaitTask(document.MoveCaretWordLeft(false));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 2, 0, 15})) << document.GetEditorState().ToString();
+    document.WaitTask(document.MoveCaretWordLeft(false));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 2, 0, 10})) << document.GetEditorState().ToString();
+    document.WaitTask(document.MoveCaretWordLeft(false));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 2, 0, 0})) << document.GetEditorState().ToString();
+    document.WaitTask(document.MoveCaretWordLeft(false));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 0, 53})) << document.GetEditorState().ToString();
+    document.WaitTask(document.MoveCaretWordLeft(false));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 0, 51})) << document.GetEditorState().ToString();
+    document.WaitTask(document.MoveCaretWordLeft(false));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 0, 48})) << document.GetEditorState().ToString();
+    document.WaitTask(document.MoveCaretWordLeft(false));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 0, 46})) << document.GetEditorState().ToString();
+    document.WaitTask(document.MoveCaretWordLeft(false));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 0, 36})) << document.GetEditorState().ToString();
+    document.WaitTask(document.MoveCaretWordLeft(false));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 0, 29})) << document.GetEditorState().ToString();
+    document.WaitTask(document.MoveCaretWordLeft(false));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 0, 27})) << document.GetEditorState().ToString();
+    document.WaitTask(document.MoveCaretWordLeft(false));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 0, 26})) << document.GetEditorState().ToString();
+    document.WaitTask(document.MoveCaretWordLeft(false));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 0, 25})) << document.GetEditorState().ToString();
+    document.WaitTask(document.MoveCaretWordLeft(false));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 0, 24})) << document.GetEditorState().ToString();
+    document.WaitTask(document.MoveCaretWordLeft(false));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 0, 19})) << document.GetEditorState().ToString();
+    document.WaitTask(document.MoveCaretWordLeft(false));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 0, 18})) << document.GetEditorState().ToString();
+    document.WaitTask(document.MoveCaretWordLeft(false));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 0, 9})) << document.GetEditorState().ToString();
+    document.WaitTask(document.MoveCaretWordLeft(false));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 0, 7})) << document.GetEditorState().ToString();
+    document.WaitTask(document.MoveCaretWordLeft(false));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 0, 0})) << document.GetEditorState().ToString();
+    document.WaitTask(document.MoveCaretWordLeft(false));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 52})) << document.GetEditorState().ToString();
+    document.WaitTask(document.MoveCaretWordLeft(false));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 49})) << document.GetEditorState().ToString();
+    document.WaitTask(document.MoveCaretWordLeft(false));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 47})) << document.GetEditorState().ToString();
+    document.WaitTask(document.MoveCaretWordLeft(false));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 35})) << document.GetEditorState().ToString();
+    document.WaitTask(document.MoveCaretWordLeft(false));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 33})) << document.GetEditorState().ToString();
+    document.WaitTask(document.MoveCaretWordLeft(false));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 23})) << document.GetEditorState().ToString();
+    document.WaitTask(document.MoveCaretWordLeft(false));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 21})) << document.GetEditorState().ToString();
+    document.WaitTask(document.MoveCaretWordLeft(false));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 17})) << document.GetEditorState().ToString();
+    document.WaitTask(document.MoveCaretWordLeft(false));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 15})) << document.GetEditorState().ToString();
+    document.WaitTask(document.MoveCaretWordLeft(false));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 13})) << document.GetEditorState().ToString();
+    document.WaitTask(document.MoveCaretWordLeft(false));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 12})) << document.GetEditorState().ToString();
+    document.WaitTask(document.MoveCaretWordLeft(false));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0})) << document.GetEditorState().ToString();
+    document.WaitTask(document.MoveCaretWordLeft(false));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0})) << document.GetEditorState().ToString();
+}
+
+//Select word left in a string with commas, quotes, braces, dotas
+TEST_F(DocumentTest, caret79)
+{
+    Start(590);
+
+    document.InsertString("Арифме́тика (др.-греч. ἀριθμητική, arithmētikḗ — от ἀριθμός, arithmós «число») — "\
+        "раздел математики, 123, изучающий числа, их отношения и свойства. String.", true);
+    document.MoveCaretToDocumentEnd(false);
+    document.WaitTask(document.MoveCaretWordLeft(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 2, 0, 48}, 
+        ElementSelectionState{ElementId{0, 0, 2, 0}, 48, 1})) << document.GetEditorState().ToString();
+    document.WaitTask(document.MoveCaretWordLeft(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 2, 0, 42}, 
+        ElementSelectionState{ElementId{0, 0, 2, 0}, 42, 7})) << document.GetEditorState().ToString();
+    document.WaitTask(document.MoveCaretWordLeft(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 2, 0, 40}, 
+        ElementSelectionState{ElementId{0, 0, 2, 0}, 40, 9})) << document.GetEditorState().ToString();
+    document.WaitTask(document.MoveCaretWordLeft(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 2, 0, 32}, 
+        ElementSelectionState{ElementId{0, 0, 2, 0}, 32, 17})) << document.GetEditorState().ToString();
+    document.WaitTask(document.MoveCaretWordLeft(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 2, 0, 30}, 
+        ElementSelectionState{ElementId{0, 0, 2, 0}, 30, 19})) << document.GetEditorState().ToString();
+}
+
+//Move word right, word left in a string with spaces
+TEST_F(DocumentTest, caret80)
+{
+    Start(590);
+
+    document.InsertString("Арифме́тика  (др.-греч. ἀριθμητική,    arithmētikḗ — от ἀριθμός, arithmós «число»)  — "\
+        "раздел математики, 123, изучающий числа, их отношения и свойства. String.", true);
+    document.MoveCaretToDocumentBegin(false);
+    document.WaitTask(document.MoveCaretWordRight(false));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 13})) << document.GetEditorState().ToString();
+    for (int i = 0; i < 7; ++i)
+        document.WaitTask(document.MoveCaretWordRight(false));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 39})) << document.GetEditorState().ToString();
+
+    document.MoveCaretRight(false);
+    document.WaitTask(document.MoveCaretWordLeft(false));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 39})) << document.GetEditorState().ToString();
+    document.WaitTask(document.MoveCaretWordLeft(false));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 34})) << document.GetEditorState().ToString();
+    for (int i = 0; i < 6; ++i)
+        document.WaitTask(document.MoveCaretWordLeft(false));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 13})) << document.GetEditorState().ToString();
+    document.WaitTask(document.MoveCaretWordLeft(false));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0})) << document.GetEditorState().ToString();
 }
 
 }

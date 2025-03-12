@@ -1339,20 +1339,20 @@ TEST_F(CodeTest, code23)
     document.WaitTask(document.MoveCaretWordRight(true));
     document.WaitTask(document.InsertCode(false, true));
     ASSERT_TRUE(document.ToText() == 
-        U"А (др.-греч. ἀριθμητική, arithmētikḗ — от ἀριθμός, arithmós «число») — раздел математики, изучающий числа, их отношения и свойства."\
+        U"А(др.-греч. ἀριθμητική, arithmētikḗ — от ἀριθμός, arithmós «число») — раздел математики, изучающий числа, их отношения и свойства."\
         ) << ToBasicString(document.ToText());
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 1, 0, 0, 0, 0})) << document.GetEditorState().ToString();
 
     document.WaitTask(document.InsertString("234", true));
     ASSERT_TRUE(document.ToText() == 
-        U"А234 (др.-греч. ἀριθμητική, arithmētikḗ — от ἀριθμός, arithmós «число») — раздел математики, изучающий числа, их отношения и свойства."\
+        U"А234(др.-греч. ἀριθμητική, arithmētikḗ — от ἀριθμός, arithmós «число») — раздел математики, изучающий числа, их отношения и свойства."\
         ) << ToBasicString(document.ToText());
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 1, 0, 0, 0, 3})) << document.GetEditorState().ToString();
 
     document.Undo();
     document.WaitUndo();
     ASSERT_TRUE(document.ToText() == 
-        U"А (др.-греч. ἀριθμητική, arithmētikḗ — от ἀριθμός, arithmós «число») — раздел математики, изучающий числа, их отношения и свойства."\
+        U"А(др.-греч. ἀριθμητική, arithmētikḗ — от ἀριθμός, arithmós «число») — раздел математики, изучающий числа, их отношения и свойства."\
         ) << ToBasicString(document.ToText());
 
     document.Undo();
@@ -1360,8 +1360,8 @@ TEST_F(CodeTest, code23)
     ASSERT_TRUE(document.ToText() == 
         U"Арифме́тика (др.-греч. ἀριθμητική, arithmētikḗ — от ἀριθμός, arithmós «число») — раздел математики, изучающий числа, их отношения и свойства."\
         ) << ToBasicString(document.ToText());
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 11}, 
-        ElementSelectionState{ElementId{0, 0, 0, 0}, 1, 10})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 12}, 
+        ElementSelectionState{ElementId{0, 0, 0, 0}, 1, 11})) << document.GetEditorState().ToString();
 }
 
 //Paste a code block inside a code block with selection
