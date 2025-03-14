@@ -283,7 +283,7 @@ void Caret::MoveToDocumentBegin(Selection* selection)
 #endif
 
     auto paragraph = document->FindParent(el->id, ElementType::PARAGRAPH);
-    auto row = document->FindParent(el->id, ElementType::ROW);
+    auto row = document->FindElementOrParent(el->id, ElementType::ROW);
     Rect view_port = window->GetViewPort(0);
     Point p = window->GetDocumentPoint();
     Rect cur = document->GetCaretRect(GetCaretState());
@@ -299,7 +299,9 @@ void Caret::MoveToDocumentBegin(Selection* selection)
         {
             CaretState c = GetCaretState();
             int p = GetChildPos(row->id, c.id);
-            selection->Add(GetChild(row->id, p), 0, c.id[row->id.size() + 1]);
+            auto _el = document->GetElement(GetChild(row->id, p));
+            if (document->IsString(_el))
+                selection->Add(_el->id, 0, c.id[row->id.size() + 1]);
             if (p > 0)
                 selection->Add(row->id, 0, p);
         }
@@ -335,7 +337,7 @@ void Caret::MoveToDocumentEnd(Selection* selection)
 #endif
 
     auto paragraph = document->FindParent(el->id, ElementType::PARAGRAPH);
-    auto row = document->FindParent(el->id, ElementType::ROW);
+    auto row = document->FindElementOrParent(el->id, ElementType::ROW);
     int paragraph_pos = document->text->elements->GetChildPos(paragraph->id);
     int row_pos = paragraph->elements->GetChildPos(row->id);
     paragraph = document->text->elements->Get(paragraph_pos);
@@ -346,10 +348,21 @@ void Caret::MoveToDocumentEnd(Selection* selection)
         {
             CaretState c = GetCaretState();
             int p = GetChildPos(row->id, c.id);
-            auto _el = document->GetElement(GetChild(row->id, p));
-            selection->Add(_el, c.id[row->id.size() + 1], _el->elements->Count() - c.id[row->id.size() + 1]);
-            if (row->elements->Count() > p + 1)
-                selection->Add(row->id, p + 1, row->elements->Count() - p - 1);
+            if (c.last_pos)
+            {
+                auto _el = document->GetElement(GetChild(row->id, p - 1));
+                selection->Add(_el, c.id[row->id.size() + 1] - 1, _el->elements->Count() - c.id[row->id.size() + 1]);
+            }
+            else
+            {
+                auto _el = document->GetElement(GetChild(row->id, p));
+                if (document->IsString(_el))
+                    selection->Add(_el, c.id[row->id.size() + 1], _el->elements->Count() - c.id[row->id.size() + 1]);
+                else
+                    selection->Add(_el->id);
+                if (row->elements->Count() > p + 1)
+                    selection->Add(row->id, p + 1, row->elements->Count() - p - 1);
+            }
         }
         else
             selection->Add(paragraph, j, 1);
@@ -548,7 +561,9 @@ void Caret::MovePageUp(Selection* selection)
                 {
                     CaretState c = GetCaretState();
                     int p = GetChildPos(row->id, c.id);
-                    selection->Add(GetChild(row->id, p), 0, c.id[row->id.size() + 1]);
+                    auto _el = document->GetElement(GetChild(row->id, p));
+                    if (document->IsString(_el))
+                        selection->Add(_el->id, 0, c.id[row->id.size() + 1]);
                     if (p > 0)
                         selection->Add(row->id, 0, p);
                 }
@@ -580,7 +595,7 @@ void Caret::MovePageUp(Selection* selection)
         row_pos = -1;
     }
 
-    MoveToDocumentBegin(selection);
+    MoveToDocumentBegin(nullptr);
 }
 
 void Caret::MovePageDown(Selection* selection)
@@ -615,10 +630,21 @@ void Caret::MovePageDown(Selection* selection)
                 {
                     CaretState c = GetCaretState();
                     int p = GetChildPos(row->id, c.id);
-                    auto _el = document->GetElement(GetChild(row->id, p));
-                    selection->Add(_el, c.id[row->id.size() + 1], _el->elements->Count() - c.id[row->id.size() + 1]);
-                    if (row->elements->Count() > p + 1)
-                        selection->Add(row->id, p + 1, row->elements->Count() - p - 1);
+                    if (c.last_pos)
+                    {
+                        auto _el = document->GetElement(GetChild(row->id, p - 1));
+                        selection->Add(_el, c.id[row->id.size() + 1] - 1, _el->elements->Count() - c.id[row->id.size() + 1]);
+                    }
+                    else
+                    {
+                        auto _el = document->GetElement(GetChild(row->id, p));
+                        if (document->IsString(_el))
+                            selection->Add(_el, c.id[row->id.size() + 1], _el->elements->Count() - c.id[row->id.size() + 1]);
+                        else
+                            selection->Add(_el->id);
+                        if (row->elements->Count() > p + 1)
+                            selection->Add(row->id, p + 1, row->elements->Count() - p - 1);
+                    }
                 }
                 else if (r.GetBottom() < cur.top + view_port.height)
                     selection->Add(paragraph, j, 1);
