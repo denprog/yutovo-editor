@@ -128,6 +128,14 @@ void Assignment::LogicalIdChanged(const LogicalId& last_id)
     auto code = document->FindParent(id, ElementType::CODE_BLOCK);
     if (!code)
         return;
+
+    //update the ids in the expression
+    ParserString expr;
+    GetFirst()->ToParserString(expr);
+    expr.Add(id, solve_sign);
+    GetLast()->ToParserString(expr);
+    last_expression = expr;
+            
     //move the identifier in the solver
     document->RemoveIdentifier(last_id, ((CodeBlock*)code.get())->code_id, last_identifier, document->config.solve_delay);
     document->SetIdentifier(logical_id, guid, ((CodeBlock*)code.get())->code_id, document->config.auto_result, 

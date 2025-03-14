@@ -1166,4 +1166,145 @@ TEST_F(VariablesTest, variables19)
         ) << ToBasicString(document.ToText());
 }
 
+//Check error marks
+TEST_F(VariablesTest, variables20)
+{
+    Start(600);
+
+    EXPECT_CALL(window_mock, Translate).WillRepeatedly([&](ElementId id, const std::u32string& str)
+        {
+            return str;
+        });
+
+    document.SetLocale(yutovo_calculator::Language::Russian, true);
+    document.InsertString("Example 1", true);
+    document.InsertParagraph(true);
+    document.InsertString("Вычисление", true);
+    document.InsertParagraph(true);
+    document.InsertCode(false, true);
+    document.InsertString("Р_З", true);
+    document.InsertAssignment(true);
+    document.InsertString("6370", true);
+    document.InsertString(" ", true);
+    document.InsertString("км", true);
+    document.WaitSolver();
+
+    document.InsertParagraph(true);
+    document.InsertString("v", true);
+    document.InsertAssignment(true);
+    document.InsertSquareRoot(true);
+    document.InsertString("Р_З", true);
+    document.InsertMultiply(true);
+    document.InsertString("g_a", true);
+    document.WaitSolver();
+    std::this_thread::sleep_for(2s);
+    
+    document.WaitTask(document.MoveCaretEnd(false));
+    document.InsertParagraph(true);
+    document.InsertString("v", true);
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(2s);
+
+    document.MoveCaretToDocumentEnd(false);
+    document.InsertParagraph(true);
+    document.InsertString("Example 2", true);
+    document.WaitTask(document.InsertParagraph(true));
+    document.WaitTask(document.InsertString("String", true));
+    std::this_thread::sleep_for(2s);
+    ASSERT_TRUE(document.ToText() == 
+        U"Example 1\n" \
+        U"Вычисление\n" \
+        U"Р_З=6370км\n" \
+        U"v=sqrt(Р_З*g_a)\n" \
+        U"v=7.904(км)/(с)\n" \
+        U"Example 2\n"
+        U"String"
+        ) << ToBasicString(document.ToText());
+    
+    document.MoveCaretToDocumentBegin(false);
+    document.MoveCaretDown(false);
+    document.MoveCaretDown(false);
+    document.MoveCaretEnd(false);
+    document.MoveCaretLeft(false);
+    document.WaitTask(document.DeleteElements(true, true));
+    document.WaitTask(document.DeleteElements(true, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(2s);
+    ASSERT_TRUE(document.ToText() == 
+        U"Example 1\n" \
+        U"Вычисление\n" \
+        U"Р_З=6370\n" \
+        U"v=sqrt(Р_З*g_a)\n" \
+        U"v=Units are incompatible\n" \
+        U"Example 2\n"
+        U"String"
+        ) << ToBasicString(document.ToText());
+    int start, size;
+    ASSERT_TRUE(document.HasErrorMark(ElementId{0, 2, 0, 0, 1, 0, 0, 2}, start, size)) << ErrorMarks();
+    ASSERT_TRUE(start == 0 && size == 1);
+
+    document.MoveCaretToDocumentBegin(false);
+    document.MoveCaretEnd(true);
+    document.WaitTask(document.DeleteElements(false, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(2s);
+    ASSERT_TRUE(document.ToText() == 
+        U"Вычисление\n" \
+        U"Р_З=6370\n" \
+        U"v=sqrt(Р_З*g_a)\n" \
+        U"v=Units are incompatible\n" \
+        U"Example 2\n"
+        U"String"
+        ) << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.HasErrorMark(ElementId{0, 1, 0, 0, 1, 0, 0, 2}, start, size)) << ErrorMarks();
+    ASSERT_TRUE(start == 0 && size == 1);
+
+    document.Undo();
+    document.WaitUndo();
+    document.Undo();
+    document.WaitUndo();
+    document.Undo();
+    document.WaitUndo();
+    document.WaitSolver();
+    std::this_thread::sleep_for(1s);
+    ASSERT_TRUE(!document.HasErrorMarks({0})) << ErrorMarks();
+}
+
+//Check error marks
+TEST_F(VariablesTest, variables21)
+{
+    Start(600);
+
+    EXPECT_CALL(window_mock, Translate).WillRepeatedly([&](ElementId id, const std::u32string& str)
+        {
+            return str;
+        });
+
+    document.SetLocale(yutovo_calculator::Language::Russian, true);
+    document.InsertString("Example 1", true);
+    document.InsertParagraph(true);
+    document.InsertString("Вычисление", true);
+    document.InsertParagraph(true);
+    document.InsertCode(false, true);
+    document.InsertString("Р_З", true);
+    document.InsertAssignment(true);
+    document.InsertString("6370", true);
+    document.InsertString(" ", true);
+    document.InsertString("км", true);
+    document.WaitSolver();
+
+    document.WaitTask(document.DeleteElements(true, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(2s);
+    ASSERT_TRUE(document.ToText() == 
+        U"Example 1\n" \
+        U"Вычисление\n" \
+        U"Р_З=6370к" \
+        ) << ToBasicString(document.ToText());
+    int start, size;
+    ASSERT_TRUE(document.HasErrorMark(ElementId{0, 2, 0, 0, 1, 0, 0, 2}, start, size)) << ErrorMarks();
+    ASSERT_TRUE(start == 0 && size == 1);
+}
+
 }

@@ -1731,10 +1731,10 @@ void Elements::UpdateIds()
             el->logical_id.push_back(i);
         }
 
+        el->elements->UpdateIds();
+        
         if (!last_id.empty() && last_id != el->logical_id)
             el->LogicalIdChanged(last_id);
-
-        el->elements->UpdateIds();
     }
 }
 
