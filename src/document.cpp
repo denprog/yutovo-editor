@@ -941,6 +941,12 @@ ElementPtr Document::GetElement(const ElementId& _id)
     {
         if (!el || el->elements->Count() < _id[i])
             return nullptr;
+        if (IsString(el))
+        {
+            if (_id.size() == i + 1)
+                return el;
+            return nullptr;
+        }
         el = el->elements->Get(_id[i]);
     }
     return el;
@@ -2861,6 +2867,8 @@ ElementId Document::GetFirstVisibleRow(ElementId paragraph_id)
 void Document::AddErrorMark(const ElementId& _id, int start, int size)
 {
     auto el = GetElement(_id);
+    if (!el)
+        return;
     for (int i = start; i < start + size; ++i)
         el->elements->Get(i)->error_mark = true;
     
