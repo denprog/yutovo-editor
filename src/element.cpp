@@ -97,7 +97,16 @@ void Element::Draw() const
 
     int start, size;
     if (document->HasErrorMark(id, start, size))
+    {
+        int p_start, p_size;
+        if (parent && document->HasErrorMark(parent->id, p_start, p_size))
+        {
+            int p = yutovo::GetChildPos(id);
+            if (p >= p_start && p <= p_start + p_size)
+                return; //the error mark will draw in the parent
+        }
         DrawErrorMark(start, size);
+    }
 }
 
 void Element::DrawErrorMark(const int start, const int size) const
@@ -825,6 +834,14 @@ void Element::UpdateDrawRect()
         draw_rect.width = right - left;
     if (bottom - top > draw_rect.height)
         draw_rect.height = bottom - top;
+    
+    int start, size;
+    if (document->HasErrorMark(id, start, size))
+    {
+        draw_rect.left -= 2;
+        draw_rect.height += 2;
+        draw_rect.width += 4;
+    }
 }
 
 void Element::UpdateLevel(uint8_t _level)
@@ -1732,7 +1749,7 @@ void Elements::UpdateIds()
         }
 
         el->elements->UpdateIds();
-        
+
         if (!last_id.empty() && last_id != el->logical_id)
             el->LogicalIdChanged(last_id);
     }
