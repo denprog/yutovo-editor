@@ -1303,8 +1303,8 @@ TEST_F(VariablesTest, variables21)
         U"Р_З=6370к" \
         ) << ToBasicString(document.ToText());
     int start, size;
-    ASSERT_TRUE(document.HasErrorMark(ElementId{0, 2, 0, 0, 1, 0, 0, 2}, start, size)) << ErrorMarks();
-    ASSERT_TRUE(start == 0 && size == 1);
+    ASSERT_TRUE(document.HasErrorMark(ElementId{0, 2, 0, 0, 0, 0, 0}, start, size)) << ErrorMarks();
+    ASSERT_TRUE(start == 2 && size == 1);
 }
 
 }
