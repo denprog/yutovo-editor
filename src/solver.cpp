@@ -21,7 +21,7 @@ using namespace yutovo_solver;
 Solver::Solver(Document* _document) :
     guid(boost::uuids::to_string(boost::uuids::random_generator()())),
     document(_document),
-    logger(Logger::GetInstance(document->config.logs_path, "yutovo_editor", true, true)),
+    logger(Logger::GetInstance(document->config.logs_path + "/yutovo_editor", "yutovo_editor", true, true)),
 #ifdef REMOTE_SOLVER
     message_loop(std::thread(&Solver::MessageLoop, this, std::ref(socket), std::ref(tasks), std::ref(next_circle))),
     break_loop(std::thread(&Solver::MessageLoop, this, std::ref(break_socket), std::ref(break_tasks), std::ref(break_next_circle)))

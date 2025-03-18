@@ -47,7 +47,7 @@ Document::Document(Window* _window, Config& _config) :
     solver(this),
     undo_base(this),
     last_selection(this),
-    logger(Logger::GetInstance(config.logs_path, "yutovo_editor", true, true))
+    logger(Logger::GetInstance(config.logs_path + "/yutovo_editor", "yutovo_editor", true, true))
 {
     logger->SetLevel((int)_config.log_level);
     LOG_DEBUG("Document start");
