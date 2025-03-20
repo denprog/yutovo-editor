@@ -2107,11 +2107,11 @@ uint Document::Save(const std::string& filename)
     return last_task_id;
 }
 
-uint Document::SaveJson(std::u32string& json, const int document_id)
+uint Document::SaveJson(std::string& json, const int document_id, const bool gzip)
 {
     {
         std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
-        tasks.emplace_back(new SaveTask(text, &json, document_id));
+        tasks.emplace_back(new SaveTask(text, &json, document_id, gzip));
         last_task_id = tasks.back()->id;
     }
     next_circle = true;
@@ -2129,7 +2129,7 @@ uint Document::Load(const std::string& filename)
     return last_load_task_id;
 }
 
-uint Document::LoadJson(const std::u32string& json_doc, const int document_id)
+uint Document::LoadJson(const std::string& json_doc, const int document_id)
 {
     {
         std::lock_guard<std::recursive_mutex> lock(tasks_mutex);

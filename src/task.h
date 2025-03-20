@@ -241,26 +241,27 @@ class StringElements;
 struct SaveTask : Task
 {
     SaveTask(ElementPtr _text, const std::string _filename);
-    SaveTask(ElementPtr _text, std::u32string* _json_str, const int _document_id);
+    SaveTask(ElementPtr _text, std::string* _json_str, const int _document_id, const bool _gzip);
 
     virtual bool Execute();
 
     std::string filename;
-    std::u32string* json_str = nullptr;
+    std::string* json_str = nullptr;
     const int document_id = 0;
+    const bool gzip = false;
 };
 
 struct LoadTask : Task
 {
     LoadTask(ElementPtr _text, const std::string _filename);
-    LoadTask(ElementPtr _text, const std::u32string& _json_str, const int _document_id);
+    LoadTask(ElementPtr _text, const std::string& _json_str, const int _document_id);
 
     virtual bool Execute();
 
     bool LoadJson(rapidjson::Document& doc);
 
     std::string filename;
-    std::u32string json_str;
+    std::string json_str;
     const int document_id = 0;
 };
 
