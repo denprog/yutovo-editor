@@ -199,9 +199,9 @@ public:
 
     uint New();
     uint Save(const std::string& filename);
-    uint SaveJson(std::u32string& json, const int document_id);
+    uint SaveJson(std::string& json, const int document_id, const bool gzip);
     uint Load(const std::string& filename);
-    uint LoadJson(const std::u32string& json_doc, const int document_id);
+    uint LoadJson(const std::string& json_doc, const int document_id);
 
     uint Copy(std::u32string& out_json, std::u32string& out_text);
     uint Paste(std::u32string& in_json);

@@ -15,6 +15,11 @@
 #include "result_codes.h"
 #include <assert.h>
 #include <boost/algorithm/string.hpp>
+#include <fstream>
+#include <iostream>
+#include <boost/iostreams/filtering_streambuf.hpp>
+#include <boost/iostreams/copy.hpp>
+#include <boost/iostreams/filter/gzip.hpp>
 #include <sstream>
 #include <vector>
 #include <boost/locale.hpp>
@@ -1432,10 +1437,11 @@ SaveTask::SaveTask(ElementPtr _text, const std::string _filename) :
 {
 }
 
-SaveTask::SaveTask(ElementPtr _text, std::u32string* _json_str, const int _document_id) :
+SaveTask::SaveTask(ElementPtr _text, std::string* _json_str, const int _document_id, const bool _gzip) :
     Task(_text),
     json_str(_json_str),
-    document_id(_document_id)
+    document_id(_document_id),
+    gzip(_gzip)
 {
 }
 
@@ -1493,15 +1499,44 @@ bool SaveTask::Execute()
         std::string str = buffer.GetString();
 
         if (json_str)
-            *json_str = ToUtfString(str);
+        {
+            if (gzip)
+            {
+                try
+                {
+                    boost::iostreams::filtering_streambuf<boost::iostreams::input> in;
+                    in.push(boost::iostreams::gzip_compressor());
+                    std::stringstream data;
+                    data << str;
+                    in.push(data);
+                    std::stringstream s;
+                    boost::iostreams::copy(in, s);
+                    *json_str = s.str();
+                }
+                catch (const std::ios_base::failure& ex)
+                {
+                    window->OnSaveResult(id, IOResult::InputStreamError, document_id);
+                    LOG_ERROR("Error saving file '{}': {}", filename, ex.what());
+                    return false;
+                }
+            }
+            else
+            {
+                *json_str = str;
+            }
+        }
         else
         {
             try
             {
-                std::ofstream file(filename);
+                std::ofstream file(filename, std::ofstream::binary);
+                boost::iostreams::filtering_streambuf<boost::iostreams::input> in;
+                in.push(boost::iostreams::gzip_compressor());
+                std::stringstream data;
+                data << str;
+                in.push(data);
                 file.exceptions(~std::ofstream::goodbit);
-                file << str;
-                file.close();
+                boost::iostreams::copy(in, file);
             }
             catch (const std::ios_base::failure& ex)
             {
@@ -1544,7 +1579,7 @@ LoadTask::LoadTask(ElementPtr _text, const std::string _filename) :
 {
 }
 
-LoadTask::LoadTask(ElementPtr _text, const std::u32string& _json_str, const int _document_id) :
+LoadTask::LoadTask(ElementPtr _text, const std::string& _json_str, const int _document_id) :
     Task(_text),
     json_str(_json_str),
     document_id(_document_id)
@@ -1556,14 +1591,35 @@ bool LoadTask::Execute()
     ElementPtr t;
     std::string str;
     rapidjson::Document doc;
+    std::stringstream json;
 
     if (!json_str.empty())
     {
-        auto str = ToBasicString(json_str);
-        if (doc.Parse<0>(str.c_str()).HasParseError() || !doc.IsObject() || !LoadJson(doc))
+        if (doc.Parse<0>(json_str.c_str()).HasParseError() || !doc.IsObject() || !LoadJson(doc))
         {
-            window->OnLoadResult(id, IOResult::InputStreamError, document_id);
-            return false;
+            //try to load as compressed
+            try
+            {
+                boost::iostreams::filtering_streambuf<boost::iostreams::input> in;
+                in.push(boost::iostreams::gzip_decompressor());
+                std::stringstream data;
+                data << json_str;
+                in.push(data);
+                boost::iostreams::copy(in, json);
+    
+                doc.Parse<0>(json.str().c_str());
+                if (doc.HasParseError() || !doc.IsObject() || !LoadJson(doc))
+                {
+                    window->OnLoadResult(id, IOResult::InputStreamError, document_id);
+                    LOG_ERROR("Error parsing json");
+                    return false;
+                }
+            }
+            catch (const std::ios_base::failure& ex)
+            {
+                window->OnLoadResult(id, IOResult::InputStreamError, document_id);
+                return false;
+            }
         }
 
         //load text
@@ -1580,14 +1636,34 @@ bool LoadTask::Execute()
             return false;
         }
 
-        rapidjson::IStreamWrapper isw{file};
-
-        doc.ParseStream(isw);
-        if (doc.HasParseError() || !doc.IsObject() || !LoadJson(doc))
+        try
         {
-            window->OnLoadResult(id, IOResult::InputStreamError, document_id);
-            LOG_ERROR("Error parsing file '{}'", filename);
-            return false;
+            //try to open as compressed file
+            boost::iostreams::filtering_streambuf<boost::iostreams::input> in;
+            in.push(boost::iostreams::gzip_decompressor());
+            in.push(file);
+            boost::iostreams::copy(in, json);
+
+            doc.Parse<0>(json.str().c_str());
+            if (doc.HasParseError() || !doc.IsObject() || !LoadJson(doc))
+            {
+                window->OnLoadResult(id, IOResult::InputStreamError, document_id);
+                LOG_ERROR("Error parsing file '{}'", filename);
+                return false;
+            }
+        }
+        catch (const std::ios_base::failure& ex)
+        {
+            //try to open as decompressed file
+            std::ifstream file(filename);
+            rapidjson::IStreamWrapper isw{file};
+            doc.ParseStream(isw);
+            if (doc.HasParseError() || !doc.IsObject() || !LoadJson(doc))
+            {
+                window->OnLoadResult(id, IOResult::InputStreamError, document_id);
+                LOG_ERROR("Error parsing file '{}'", filename);
+                return false;
+            }
         }
 
         //load text

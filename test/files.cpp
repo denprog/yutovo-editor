@@ -419,7 +419,7 @@ TEST_F(DocumentTest, files9)
 {
     Start(600);
 
-    auto json = U"{\"string_formats\":[{\"id\":\"e9fe76c1-fdcb-41b4-a64c-b5d5e84eff91\",\"family\":\"Arial\",\"size\":14,\"bold\":false,"
+    auto json = "{\"string_formats\":[{\"id\":\"e9fe76c1-fdcb-41b4-a64c-b5d5e84eff91\",\"family\":\"Arial\",\"size\":14,\"bold\":false,"
         "\"italic\":false,\"underline\":false,\"color\":4278190080,\"selection_color\":4294967295},{\"id\":\"d7dbac2d-be4a-4895-b0a2-57ec557622a9\","
         "\"family\":\"Arial\",\"size\":30,\"bold\":true,\"italic\":false,\"underline\":false,\"color\":4278190080,\"selection_color\":4294967295},"
         "{\"id\":\"0d8fb519-1505-4eb1-a282-bd7623c09a6f\",\"family\":\"Arial\",\"size\":26,\"bold\":true,\"italic\":false,\"underline\":false,"
@@ -929,6 +929,45 @@ TEST_F(DocumentTest, files21)
     document.WaitUndo();
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.IsChanged());
+}
+
+//Check gzip
+TEST_F(DocumentTest, files22)
+{
+    Start(600);
+
+    EXPECT_CALL(window_mock, OnSaveResult).WillOnce([&](const uint task_id, IOResult result, const int document_id)
+        {
+            ASSERT_TRUE(result == IOResult::Success);
+        });
+
+    EXPECT_CALL(window_mock, OnLoadResult).WillOnce([&](const uint task_id, IOResult result, const int document_id)
+        {
+            ASSERT_TRUE(result == IOResult::Success);
+        });
+
+    ASSERT_TRUE(document.IsChanged() == false);
+    document.WaitTask(document.InsertString("Text", true));
+    std::string json;
+    document.WaitTask(document.SaveJson(json, 1, true));
+    std::this_thread::sleep_for(200ms);
+
+    document.WaitTask(document.New());
+    ASSERT_TRUE(document.IsChanged() == false);
+
+    std::this_thread::sleep_for(200ms);
+    document.LoadJson(json, 2);
+    document.WaitLoad();
+    std::this_thread::sleep_for(400ms);
+    ASSERT_TRUE(document.IsChanged() == false);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">Text</span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 4)) << document.GetEditorState().ToString();
 }
 
 }
