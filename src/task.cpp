@@ -63,7 +63,8 @@ void Task::Remake(ElementId _id, bool move_into_view)
     auto el = document->GetElement(_id);
     while (!el && !_id.empty())
     {
-        el = document->GetElement(GetParent(_id));
+        _id = GetParent(_id);
+        el = document->GetElement(_id);
     }
 
     if (!el)
@@ -2171,8 +2172,8 @@ bool ResolveDependeciesTask::Execute()
         auto p = document->FindElementOrParent(_after_id, ElementType::EQUATION);
         if (p)
             solvings.push_back(p->id);
-        
-        c->GetElementsBelow(_after_id, ElementType::EQUATION, solvings); //get equations below in the current code block
+
+        c->GetElementsBelow(_after_id, ElementType::EQUATION, solvings); //get equations below the current one
         for (ElementId _id : solvings)
         {
             auto _el = document->GetElement(_id);
@@ -2182,8 +2183,7 @@ bool ResolveDependeciesTask::Execute()
                 if (eq->Depends(s))
                 {
                     eq->last_expression.Reset();
-                    eq->ReSolve();
-                    Remake(eq->id, false);
+                    eq->ReSolve(false, true);
                 }
             }
         }
@@ -2209,7 +2209,7 @@ bool ResolveDependeciesTask::Execute()
             if (_c && _c->code_id == code_id)
             {
                 solvings.clear();
-                c->GetElements(ElementType::EQUATION, solvings);
+                _c->GetElements(ElementType::EQUATION, solvings);
                 for (ElementId _id : solvings)
                 {
                     auto _el = document->GetElement(_id);
@@ -2217,12 +2217,12 @@ bool ResolveDependeciesTask::Execute()
                     for (auto& s : id_arr)
                     {
                         if (eq->Depends(s))
-                            eq->ReSolve();
+                            eq->ReSolve(false, true);
                     }
                 }
 
                 solvings.clear();
-                c->GetElements(ElementType::ASSIGNMENT, solvings); //get assignments below in the current code block
+                _c->GetElements(ElementType::ASSIGNMENT, solvings); //get assignments below in the current code block
                 for (ElementId _id : solvings)
                 {
                     auto _el = document->GetElement(_id);

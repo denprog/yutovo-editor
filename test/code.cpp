@@ -1502,7 +1502,7 @@ TEST_F(CodeTest, code25)
     document.WaitTask(document.MoveCaretRight(false));
     document.WaitTask(document.MoveCaretDown(true));
     document.WaitTask(document.MoveCaretDown(true));
-    std::this_thread::sleep_for(2s);
+    std::this_thread::sleep_for(3s);
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 1, 0, 0, 3}, 
         ElementSelectionState{ElementId{0}, 0, 1}, 
         ElementSelectionState{ElementId{0, 1, 0, 0}, 0, 3})) << document.GetEditorState().ToString();
@@ -1559,6 +1559,7 @@ TEST_F(CodeTest, code27)
 
     document.Undo();
     document.WaitUndo();
+    std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\

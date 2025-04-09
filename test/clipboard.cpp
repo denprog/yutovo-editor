@@ -4685,8 +4685,8 @@ TEST_F(DocumentTest, clipboard79)
     document.InsertString("123", true);
     document.InsertParagraph(true);
     document.InsertString("55", true);
-    document.InsertParagraph(true);
-    document.InsertString("6789", true);
+    document.WaitTask(document.InsertParagraph(true));
+    document.WaitTask(document.InsertString("6789", true));
     document.MoveCaretToDocumentBegin(false);
     document.MoveCaretRight(false);
     document.MoveCaretDown(true);

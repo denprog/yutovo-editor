@@ -905,24 +905,13 @@ void Element::GetLogicalElements(ElementType _type, std::vector<LogicalId>& _ele
 
 void Element::GetElementsBelow(const ElementId from_id, ElementType _type, std::vector<ElementId>& _elements)
 {
-    ElementPtr el = document->GetElement(from_id);
-    if (!el)
-        return;
-    
-    Element* parent = el->parent;
-    ElementId _id = from_id;
-    while (parent)
+    int p = yutovo::GetChildPos(id, from_id);
+    for (int i = p; i < elements->Count(); ++i)
     {
-        int pos = parent->elements->GetElementPos(_id);
-        for (int i = pos + 1; i < parent->elements->Count(); ++i)
-        {
-            auto c = parent->elements->Get(i);
-            if (c->type == _type)
-                _elements.push_back(c->id);
-            c->GetElements(_type, _elements);
-        }
-        _id = parent->id;
-        parent = parent->parent;
+        auto c = elements->Get(i);
+        if (c->type == _type)
+            _elements.push_back(c->id);
+        c->GetElements(_type, _elements);
     }
 }
 
