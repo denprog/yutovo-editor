@@ -71,6 +71,8 @@ void ResultRow::PutWaitingSymbol()
         caret->SetState(id);
     elements->Get(0)->SetEditable(false);
     solving = true;
+    parent->parent->Remake(true);
+    parent->parent->UpdateRect();
 }
 
 void ResultRow::Solve(const ParserString& expression)

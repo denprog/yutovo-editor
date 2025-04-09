@@ -1307,4 +1307,163 @@ TEST_F(VariablesTest, variables21)
     ASSERT_TRUE(start == 2 && size == 1);
 }
 
+//Remove a variable and update all the equations below
+TEST_F(VariablesTest, variables22)
+{
+    Start(500);
+
+    EXPECT_CALL(window_mock, Translate).WillRepeatedly([&](ElementId id, const std::u32string& str)
+        {
+            return str;
+        });
+
+    document.SetLocale(yutovo_calculator::Language::Russian, true);
+    document.InsertCode(false, true);
+    document.InsertString("a", true);
+    document.InsertAssignment(true);
+    document.InsertString("2", true);
+    document.InsertParagraph(true);
+    document.InsertString("123a", true);
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(2s);
+    ASSERT_TRUE(document.ToText() == 
+        U"a=2\n" \
+        U"123a=246."
+        ) << ToBasicString(document.ToText());
+    
+    document.MoveCaretToDocumentBegin(false);
+    document.WaitTask(document.MoveCaretToDocumentEnd(true));
+    document.WaitTask(document.Copy(clipboard_json, clipboard_text));
+    document.WaitTask(document.MoveCaretEnd(false));
+    document.WaitTask(document.Paste(clipboard_json));
+    document.WaitTask(document.Paste(clipboard_json));
+    document.WaitTask(document.Paste(clipboard_json));
+    document.WaitTask(document.Paste(clipboard_json));
+
+    document.MoveCaretToDocumentBegin(false);
+    document.MoveCaretRight(false);
+    document.WaitTask(document.DeleteElements(false, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(4s);
+    ASSERT_TRUE(document.ToText() == 
+        U"\n"\
+        U"123a=Unknown identifier"\
+        U"a=2\n" \
+        U"123a=246."\
+        U"a=2\n" \
+        U"123a=246."\
+        U"a=2\n" \
+        U"123a=246."\
+        U"a=2\n" \
+        U"123a=246."
+        ) << ToBasicString(document.ToText());
+}
+
+//Remove a code block with a variable and update all the equations below
+TEST_F(VariablesTest, variables23)
+{
+    Start(500);
+
+    EXPECT_CALL(window_mock, Translate).WillRepeatedly([&](ElementId id, const std::u32string& str)
+        {
+            return str;
+        });
+
+    document.SetLocale(yutovo_calculator::Language::Russian, true);
+    document.InsertCode(false, true);
+    document.InsertString("a", true);
+    document.InsertAssignment(true);
+    document.InsertString("2", true);
+    document.InsertParagraph(true);
+    document.InsertString("123a", true);
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(2s);
+    ASSERT_TRUE(document.ToText() == 
+        U"a=2\n" \
+        U"123a=246."
+        ) << ToBasicString(document.ToText());
+    
+    document.MoveCaretToDocumentBegin(false);
+    document.WaitTask(document.MoveCaretToDocumentEnd(true));
+    document.WaitTask(document.Copy(clipboard_json, clipboard_text));
+    document.WaitTask(document.MoveCaretEnd(false));
+    document.WaitTask(document.Paste(clipboard_json));
+    document.WaitTask(document.Paste(clipboard_json));
+    document.WaitTask(document.Paste(clipboard_json));
+    document.WaitTask(document.Paste(clipboard_json));
+
+    document.MoveCaretToDocumentBegin(false);
+    document.WaitTask(document.DeleteElements(false, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(4s);
+    ASSERT_TRUE(document.ToText() == 
+        U"a=2\n" \
+        U"123a=246."\
+        U"a=2\n" \
+        U"123a=246."\
+        U"a=2\n" \
+        U"123a=246."\
+        U"a=2\n" \
+        U"123a=246."
+        ) << ToBasicString(document.ToText());
+}
+
+//Insert a string between code blocks with variables and update all the equations below
+TEST_F(VariablesTest, variables24)
+{
+    Start(500);
+
+    EXPECT_CALL(window_mock, Translate).WillRepeatedly([&](ElementId id, const std::u32string& str)
+        {
+            return str;
+        });
+
+    document.SetLocale(yutovo_calculator::Language::Russian, true);
+    document.InsertCode(false, true);
+    document.InsertString("a", true);
+    document.InsertAssignment(true);
+    document.InsertString("2", true);
+    document.InsertParagraph(true);
+    document.InsertString("123a", true);
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(2s);
+    ASSERT_TRUE(document.ToText() == 
+        U"a=2\n" \
+        U"123a=246."
+        ) << ToBasicString(document.ToText());
+    
+    document.MoveCaretToDocumentBegin(false);
+    document.WaitTask(document.MoveCaretToDocumentEnd(true));
+    document.WaitTask(document.Copy(clipboard_json, clipboard_text));
+    document.WaitTask(document.MoveCaretEnd(false));
+    document.WaitTask(document.Paste(clipboard_json));
+    document.WaitTask(document.Paste(clipboard_json));
+    document.WaitTask(document.Paste(clipboard_json));
+    document.WaitTask(document.Paste(clipboard_json));
+    document.WaitSolver();
+    std::this_thread::sleep_for(2s);
+
+    document.MoveCaretToDocumentBegin(false);
+    document.WaitTask(document.MoveCaretWordRight(false));
+    document.WaitTask(document.InsertString("String", true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(4s);
+    ASSERT_TRUE(document.ToText() == 
+        U"a=2\n" \
+        U"123a=246."\
+        U"String"\
+        U"a=2\n" \
+        U"123a=246."\
+        U"a=2\n" \
+        U"123a=246."\
+        U"a=2\n" \
+        U"123a=246."\
+        U"a=2\n" \
+        U"123a=246."
+        ) << ToBasicString(document.ToText());
+}
+
 }
