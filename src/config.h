@@ -33,6 +33,8 @@ struct Config
     bool with_border = true;
     bool formula_border = true;
     bool pretty_json = true; //for debug purposes
+    bool use_tabs = true;
+    uint tab_spaces = 4;
 
     //locale
     yutovo_calculator::Language language = yutovo_calculator::Language::English;

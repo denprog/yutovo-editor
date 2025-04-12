@@ -183,7 +183,7 @@ bool CodeString::ChangeStringFormat(const StringFormatPtr format, bool with_undo
 
 void CodeString::Draw() const
 {
-    int start = 0, size = 0;
+    uint start = 0, size = 0;
     std::u32string str = elements->ToText();
     Rect r = GetAbsoluteRect();
 
@@ -239,8 +239,9 @@ void CodeString::Draw() const
         }
     }
 
+    auto& tabs = ((StringElements*)elements.get())->tabs;
     document->selection.Has(id, (uint&)start, (uint&)size);
-    if (gap == 0)
+    if (gap == 0 && tabs.empty())
     {
         if (color2.first != -1)
             window->DrawText(ToBasicString(str), format, r, color2.second, format->text_bg_color);
@@ -260,19 +261,30 @@ void CodeString::Draw() const
     }
     else
     {
+        Rect r = GetAbsoluteRect();
+        if (selection->Has(id, start, size))
+        {
+            Size s1 = GetTextSize(start);
+            Size s2 = GetTextSize(start + size);
+            window->DrawFillRect(Rect{r.left + s1.width, r.top, s2.width - s1.width, r.height}, document->config.bg_selection_color);
+        }
+
         for (int i = 0; i < str.length(); ++i)
         {
-            Size s = GetTextSize(i);
-            std::u32string p = str.substr(i, 1);
-            if (i >= start && i < start + size)
+            if (std::find(tabs.begin(), tabs.end(), i) == tabs.end())
             {
-                window->DrawText(ToBasicString(p), format, Rect{r.left + s.width, r.top, r.width - s.width, r.height}, 
-                    format->text_bg_color, document->config.bg_selection_color);
-            }
-            else
-            {
-                window->DrawText(ToBasicString(p), format, Rect{r.left + s.width, r.top, r.width - s.width, r.height}, 
-                    document->config.numbers_color, format->text_bg_color);
+                Size s = GetTextSize(i);
+                std::u32string p = str.substr(i, 1);
+                if (i >= start && i < start + size)
+                {
+                    window->DrawText(ToBasicString(p), format, Rect{r.left + s.width, r.top, r.width - s.width, r.height}, 
+                        format->text_bg_color, document->config.bg_selection_color);
+                }
+                else
+                {
+                    window->DrawText(ToBasicString(p), format, Rect{r.left + s.width, r.top, r.width - s.width, r.height}, 
+                        document->config.numbers_color, format->text_bg_color);
+                }
             }
         }
     }
@@ -319,10 +331,29 @@ Size CodeString::GetTextSize(const uint pos) const
     if (it == size_cache.end())
     {
         auto& str = ((StringElements*)elements.get())->str;
+        auto& tabs = ((StringElements*)elements.get())->tabs;
         auto _str = str.substr(0, pos);
+        Size tabs_size;
+        if (!tabs.empty())
+        {
+            uint c = 0;
+            for (size_t i = 0; i < tabs.size(); ++i)
+            {
+                if (tabs[i] < pos)
+                {
+                    _str.erase(tabs[i] - c, 1);
+                    ++c;
+                }
+                else
+                    break;
+            }
+            if (c > 0)
+                tabs_size = window->GetTextSize(std::u32string(document->config.tab_spaces * c, U' '), format);
+        }
         if (gap == 0)
         {
             Size s = window->GetTextSize(_str, format);
+            s.width += tabs_size.width;
             size_cache[pos] = s;
             return s;
         }
@@ -365,7 +396,7 @@ Size CodeString::GetTextSize(const uint pos) const
         }
 
         if (_gap == 0 && pos < str.length())
-            s.width += gap_width;
+            s.width += gap_width + tabs_size.width;
         size_cache[pos] = s;
         return s;
     }

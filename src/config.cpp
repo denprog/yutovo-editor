@@ -12,6 +12,8 @@ void Config::ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType&
     //just locale and results for a while
     value.AddMember("language", (int)language, alloc);
 
+    value.AddMember("use_tabs", use_tabs, alloc);
+    value.AddMember("tab_spaces", tab_spaces, alloc);
     value.AddMember("code_block_border_color", (int)code_block_border_color.ToInt(), alloc);
     value.AddMember("numbers_color", (int)numbers_color.ToInt(), alloc);
     value.AddMember("variables_color", (int)variables_color.ToInt(), alloc);
@@ -63,9 +65,14 @@ void Config::ToJson(std::string& json)
 
 void Config::FromJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc)
 {
-    //just locale and results for a while
+    //not all the parameters are here for a while
     if (value.HasMember("language") && value["language"].IsInt())
         language = (yutovo_calculator::Language)value["language"].GetInt();
+    
+    if (value.HasMember("use_tabs") && value["use_tabs"].IsBool())
+        use_tabs = value["use_tabs"].GetBool();
+    if (value.HasMember("tab_spaces") && value["tab_spaces"].IsInt())
+        tab_spaces = value["tab_spaces"].GetInt();
     
     if (value.HasMember("real_result") && value["real_result"].IsObject())
     {

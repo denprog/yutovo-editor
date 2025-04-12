@@ -923,6 +923,7 @@ TEST_F(DocumentTest, files21)
     document.WaitTask(document.InsertString("t", true));
     std::this_thread::sleep_for(200ms);
     document.WaitTask(document.Save("1.yut"));
+    std::this_thread::sleep_for(200ms);
     ASSERT_FALSE(document.IsChanged());
 
     document.Undo();

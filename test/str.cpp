@@ -179,6 +179,125 @@ TEST_F(DocumentTest, strings3)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 5)) << document.GetEditorState().ToString();
 }
 
+//Insert tabulation
+TEST_F(DocumentTest, strings4)
+{
+    Start(600);
+
+    document.WaitTask(document.InsertString("	", true));
+    ASSERT_TRUE(document.ToText() == U"	") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 1)) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    ASSERT_TRUE(document.ToText() == U"") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 0)) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.InsertString("tab", true));
+    document.WaitTask(document.InsertString("	", true));
+    ASSERT_TRUE(document.ToText() == U"tab	") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 4)) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    ASSERT_TRUE(document.ToText() == U"tab") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 3)) << document.GetEditorState().ToString();
+
+    document.InsertString("	", true);
+    document.WaitTask(document.InsertString("string", true));
+    ASSERT_TRUE(document.ToText() == U"tab	string") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 10)) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    document.Undo();
+    document.WaitUndo();
+    ASSERT_TRUE(document.ToText() == U"tab") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 3)) << document.GetEditorState().ToString();
+}
+
+//Insert tabulation as spaces
+TEST_F(DocumentTest, strings5)
+{
+    Start(600);
+
+    Config config;
+    document.GetConfig(config);
+    config.use_tabs = false;
+    document.SetConfig(config, true);
+
+    document.WaitTask(document.InsertString("	", true));
+    ASSERT_TRUE(document.ToText() == U"    ") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 4)) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    ASSERT_TRUE(document.ToText() == U"") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 0)) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.InsertString("tab", true));
+    document.WaitTask(document.InsertString("	", true));
+    ASSERT_TRUE(document.ToText() == U"tab    ") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 7)) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    ASSERT_TRUE(document.ToText() == U"tab") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 3)) << document.GetEditorState().ToString();
+
+    document.InsertString("	", true);
+    document.WaitTask(document.InsertString("string", true));
+    ASSERT_TRUE(document.ToText() == U"tab    string") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 13)) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    document.Undo();
+    document.WaitUndo();
+    ASSERT_TRUE(document.ToText() == U"tab") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 3)) << document.GetEditorState().ToString();
+}
+
+//Insert tabulation
+TEST_F(DocumentTest, strings6)
+{
+    Start(600);
+
+    document.InsertString("123", true);
+    document.WaitTask(document.MoveCaretToDocumentBegin(false));
+    document.WaitTask(document.InsertString("	", true));
+    ASSERT_TRUE(document.ToText() == U"	123") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 1)) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    ASSERT_TRUE(document.ToText() == U"123") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 0)) << document.GetEditorState().ToString();
+}
+
+//Insert tabulation
+TEST_F(DocumentTest, strings7)
+{
+    Start(600);
+
+    document.InsertString("123", true);
+    document.InsertString("	", true);
+    document.WaitTask(document.MoveCaretToDocumentBegin(false));
+    document.WaitTask(document.InsertString("	", true));
+    ASSERT_TRUE(document.ToText() == U"	123	") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 1)) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    ASSERT_TRUE(document.ToText() == U"123	") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 0)) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    ASSERT_TRUE(document.ToText() == U"123") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 3)) << document.GetEditorState().ToString();
+}
+
 TEST_F(DocumentTest, selections1)
 {
     Start(600);
