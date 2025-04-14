@@ -96,6 +96,8 @@ public:
 
     virtual void OnLinkClicked(const ElementId& id, const std::u32string& url);
 
+    virtual void OnSolverAction(const std::string& json);
+
 #ifdef EMSCRIPTEN
     virtual int Connect(const std::string& addr);
     virtual bool Send(const int socket_id, const std::string& message);

@@ -92,6 +92,8 @@ bool WebSocket::Connect()
 
 bool WebSocket::Send(const std::string& message, Result& result)
 {
+    window->OnSolverAction(message);
+
 #ifdef REMOTE_SOLVER
 #ifdef EMSCRIPTEN
     if (!window->Send(socket_id, message))

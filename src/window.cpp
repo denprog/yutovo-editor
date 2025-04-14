@@ -124,6 +124,10 @@ void Window::OnLinkClicked(const ElementId& id, const std::u32string& url)
 {
 }
 
+void Window::OnSolverAction(const std::string& json)
+{
+}
+
 #ifdef EMSCRIPTEN
 int Window::Connect(const std::string& addr)
 {
