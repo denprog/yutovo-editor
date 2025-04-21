@@ -464,25 +464,25 @@ void CodeString::UpdateGap()
             case Notation::None:
                 break;
             case Notation::Binary:
-                if (str.find_first_not_of(U"01") == string::npos)
+                if (str.find_first_not_of(U"01") == std::string::npos)
                     _gap = document->config.binary_gap;
                 else
                     _gap = 0;
                 break;
             case Notation::Decimal:
-                if (str.find_first_not_of(U"0123456789") == string::npos)
+                if (str.find_first_not_of(U"0123456789") == std::string::npos)
                     _gap = document->config.decimal_gap;
                 else
                     _gap = 0;
                 break;
             case Notation::Octal:
-                if (str.find_first_not_of(U"01234567") == string::npos)
+                if (str.find_first_not_of(U"01234567") == std::string::npos)
                     _gap = document->config.octal_gap;
                 else
                     _gap = 0;
                 break;
             case Notation::Hexadecimal:
-                if (str.find_first_not_of(U"0123456789abcdefABCDEF") == string::npos)
+                if (str.find_first_not_of(U"0123456789abcdefABCDEF") == std::string::npos)
                     _gap = document->config.hexadecimal_gap;
                 else
                     _gap = 0;
@@ -491,7 +491,7 @@ void CodeString::UpdateGap()
         }
         else
         {
-            if (str.find_first_not_of(U"0123456789.") == string::npos)
+            if (str.find_first_not_of(U"0123456789.") == std::string::npos)
             {
                 if (std::count(str.begin(), str.end(), '.') > 1)
                     _gap = 0;
@@ -540,26 +540,26 @@ Notation CodeString::GetNotation() const
         case Notation::None:
             break;
         case Notation::Binary:
-            if (str.find_first_not_of(U"01") == string::npos)
+            if (str.find_first_not_of(U"01") == std::string::npos)
                 return Notation::Binary;
             break;
         case Notation::Decimal:
-            if (str.find_first_not_of(U"0123456789") == string::npos)
+            if (str.find_first_not_of(U"0123456789") == std::string::npos)
                 return Notation::Decimal;
             break;
         case Notation::Octal:
-            if (str.find_first_not_of(U"01234567") == string::npos)
+            if (str.find_first_not_of(U"01234567") == std::string::npos)
                 return Notation::Octal;
             break;
         case Notation::Hexadecimal:
-            if (str.find_first_not_of(U"0123456789abcdefABCDEF") == string::npos)
+            if (str.find_first_not_of(U"0123456789abcdefABCDEF") == std::string::npos)
                 return Notation::Hexadecimal;
             break;
         }
     }
     else
     {
-        if (str.find_first_not_of(U"0123456789.") == string::npos)
+        if (str.find_first_not_of(U"0123456789.") == std::string::npos)
             return Notation::Decimal;
     }
     return Notation::None;
