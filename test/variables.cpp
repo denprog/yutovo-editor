@@ -1466,4 +1466,76 @@ TEST_F(VariablesTest, variables24)
         ) << ToBasicString(document.ToText());
 }
 
+//Check the iteration variable doesn't have value outside of sum
+TEST_F(VariablesTest, variables25)
+{
+    Start(600);
+
+    EXPECT_CALL(window_mock, Translate).WillRepeatedly([&](ElementId id, const std::u32string& str)
+        {
+            return str;
+        });
+
+    document.WaitTask(document.InsertSum(true));
+    document.InsertString(U"p", true);
+    document.MoveCaretRight(false);
+    document.MoveCaretRight(false);
+    document.InsertString(U"0", true);
+    document.MoveCaretRight(false);
+    document.MoveCaretRight(false);
+    document.InsertString(U"10", true);
+    document.MoveCaretRight(false);
+    document.WaitTask(document.InsertString(U"p", true));
+    document.WaitTask(document.MoveCaretRight(false));
+
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"sum(p=0,10,p)=55."
+        ) << ToBasicString(document.ToText());
+    
+    document.MoveCaretHome(false);
+    for (int i = 0; i < 3; ++i)
+        document.MoveCaretRight(false);
+
+    document.WaitTask(document.DeleteElements(false, true));
+    document.InsertString(U"t", true);
+    for (int i = 0; i < 8; ++i)
+        document.WaitTask(document.MoveCaretRight(false));
+    
+    document.WaitTask(document.DeleteElements(false, true));
+    document.InsertString(U"t", true);
+    document.WaitSolver();
+    std::this_thread::sleep_for(1s);
+    ASSERT_TRUE(document.ToText() == 
+        U"sum(t=0,10,t)=55."
+        ) << ToBasicString(document.ToText());
+
+    document.MoveCaretEnd(false);
+    document.MoveCaretEnd(false);
+    document.WaitTask(document.InsertParagraph(true));
+
+    document.InsertString(U"p", true);
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(2s);
+    ASSERT_TRUE(document.ToText() == 
+        U"sum(t=0,10,t)=55.\n"\
+        "p=Unknown identifier"
+        ) << ToBasicString(document.ToText());
+
+    document.MoveCaretEnd(false);
+    document.WaitTask(document.InsertParagraph(true));
+    document.InsertString(U"t", true);
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(2s);
+    ASSERT_TRUE(document.ToText() == 
+        U"sum(t=0,10,t)=55.\n"\
+        "p=Unknown identifier\n"\
+        "t=Unknown identifier"
+        ) << ToBasicString(document.ToText());
+}
+
 }
