@@ -10,6 +10,10 @@
 #include "caret.h"
 #include "solver.h"
 
+#ifdef DELETE
+#undef DELETE
+#endif
+
 namespace yutovo
 {
 

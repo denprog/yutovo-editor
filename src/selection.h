@@ -35,7 +35,7 @@ struct ElementSelectionState
 struct ElementLogicalSelectionState
 {
     void ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc);
-    bool FromJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc);
+    bool FromJson(const rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc);
 
     LogicalId id;
     uint start = 0;

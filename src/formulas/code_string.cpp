@@ -2,6 +2,9 @@
 #include "code_block.h"
 #include "result.h"
 #include <boost/lexical_cast.hpp>
+#ifdef min
+#undef min
+#endif
 #include <boost/uuid/uuid_io.hpp>
 
 namespace yutovo
@@ -93,7 +96,7 @@ void CodeString::ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorT
     value.AddMember("can_merge", can_merge, alloc);
 }
 
-Element* CodeString::FromJson(Element* parent, Document* document, const rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc)
+Element* CodeString::FromJson(Element* parent, Document* document, const rapidjson::Value::ConstObject& value, rapidjson::Document::AllocatorType& alloc)
 {
     CodeString* r = nullptr;
     bool _can_merge = true;

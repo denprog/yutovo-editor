@@ -33,7 +33,7 @@ Element* And::Create(Element* _parent)
     return new And(_parent);
 }
 
-Element* And::FromJson(Element* parent, Document* document, const rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc)
+Element* And::FromJson(Element* parent, Document* document, const rapidjson::Value::ConstObject& value, rapidjson::Document::AllocatorType& alloc)
 {
     And* p = nullptr;
     if (parent)

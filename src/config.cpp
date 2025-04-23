@@ -2,6 +2,10 @@
 #include <rapidjson/prettywriter.h>
 #include <rapidjson/istreamwrapper.h>
 
+#ifdef _MSC_VER
+#undef GetObject
+#endif
+
 namespace yutovo
 {
 
@@ -63,7 +67,7 @@ void Config::ToJson(std::string& json)
     json = buffer.GetString();
 }
 
-void Config::FromJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc)
+void Config::FromJson(const rapidjson::Value::ConstObject& value, rapidjson::Document::AllocatorType& alloc)
 {
     //not all the parameters are here for a while
     if (value.HasMember("language") && value["language"].IsInt())
@@ -76,31 +80,31 @@ void Config::FromJson(rapidjson::Value& value, rapidjson::Document::AllocatorTyp
     
     if (value.HasMember("real_result") && value["real_result"].IsObject())
     {
-        rapidjson::Value r = value["real_result"].GetObject();
+        auto r = value["real_result"].GetObject();
         real_result.FromJson(r, alloc);
     }
 
     if (value.HasMember("integer_result") && value["integer_result"].IsObject())
     {
-        rapidjson::Value r = value["integer_result"].GetObject();
+        auto  r = value["integer_result"].GetObject();
         integer_result.FromJson(r, alloc);
     }
 
     if (value.HasMember("rational_result") && value["rational_result"].IsObject())
     {
-        rapidjson::Value r = value["rational_result"].GetObject();
+        auto  r = value["rational_result"].GetObject();
         rational_result.FromJson(r, alloc);
     }
 
     if (value.HasMember("complex_result") && value["complex_result"].IsObject())
     {
-        rapidjson::Value r = value["complex_result"].GetObject();
+        auto  r = value["complex_result"].GetObject();
         complex_result.FromJson(r, alloc);
     }
 
     if (value.HasMember("auto_result") && value["auto_result"].IsObject())
     {
-        rapidjson::Value r = value["auto_result"].GetObject();
+        auto  r = value["auto_result"].GetObject();
         auto_result.FromJson(r, alloc);
     }
     else
@@ -143,10 +147,10 @@ bool Config::FromJson(const std::string& json)
 {
     rapidjson::Document doc;
     doc.Parse<0>(json.c_str());
-    if (doc.HasParseError())
+    if (doc.HasParseError() || !doc.IsObject())
         return false;
 
-    FromJson(doc, doc.GetAllocator());
+    FromJson((rapidjson::Value::ConstObject&)doc, doc.GetAllocator());
     return true;
 }
 
@@ -167,7 +171,7 @@ void Config::RealResultConfig::ToJson(rapidjson::Value& value, rapidjson::Docume
     }
 }
 
-void Config::RealResultConfig::FromJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc)
+void Config::RealResultConfig::FromJson(const rapidjson::Value::ConstObject& value, rapidjson::Document::AllocatorType& alloc)
 {
     if (value.HasMember("precision") && value["precision"].IsInt())
         precision = value["precision"].GetInt();
@@ -206,7 +210,7 @@ void Config::IntegerResultConfig::ToJson(rapidjson::Value& value, rapidjson::Doc
     value.AddMember("show_notation", show_notation, alloc);
 }
 
-void Config::IntegerResultConfig::FromJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc)
+void Config::IntegerResultConfig::FromJson(const rapidjson::Value::ConstObject& value, rapidjson::Document::AllocatorType& alloc)
 {
     if (value.HasMember("result_notation") && value["result_notation"].IsInt())
         result_notation = (Notation)value["result_notation"].GetInt();
@@ -243,7 +247,7 @@ void Config::RationalResultConfig::ToJson(rapidjson::Value& value, rapidjson::Do
     }
 }
 
-void Config::RationalResultConfig::FromJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc)
+void Config::RationalResultConfig::FromJson(const rapidjson::Value::ConstObject& value, rapidjson::Document::AllocatorType& alloc)
 {
     if (value.HasMember("fraction_form") && value["fraction_form"].IsInt())
         fraction_form = (FractionForm)value["fraction_form"].GetInt();
@@ -278,7 +282,7 @@ void Config::ComplexResultConfig::ToJson(rapidjson::Value& value, rapidjson::Doc
     value.AddMember("max_count", max_count, alloc);
 }
 
-void Config::ComplexResultConfig::FromJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc)
+void Config::ComplexResultConfig::FromJson(const rapidjson::Value::ConstObject& value, rapidjson::Document::AllocatorType& alloc)
 {
     if (value.HasMember("precision") && value["precision"].IsInt())
         precision = value["precision"].GetInt();
@@ -338,7 +342,7 @@ void Config::AutoResultConfig::ToJson(rapidjson::Value& value, rapidjson::Docume
     value.AddMember("complex_config", complex_config, alloc);
 }
 
-void Config::AutoResultConfig::FromJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc)
+void Config::AutoResultConfig::FromJson(const rapidjson::Value::ConstObject& value, rapidjson::Document::AllocatorType& alloc)
 {
     if (value.HasMember("result_auto_advance") && value["result_auto_advance"].IsBool())
         result_auto_advance = value["result_auto_advance"].GetBool();
@@ -355,22 +359,22 @@ void Config::AutoResultConfig::FromJson(rapidjson::Value& value, rapidjson::Docu
 
     if (value.HasMember("real_config") && value["real_config"].IsObject())
     {
-        rapidjson::Value obj = value["real_config"].GetObject();
+        auto obj = value["real_config"].GetObject();
         real_result.FromJson(obj, alloc);
     }
     if (value.HasMember("integer_config") && value["integer_config"].IsObject())
     {
-        rapidjson::Value obj = value["integer_config"].GetObject();
+        auto obj = value["integer_config"].GetObject();
         integer_result.FromJson(obj, alloc);
     }
     if (value.HasMember("rational_config") && value["rational_config"].IsObject())
     {
-        rapidjson::Value obj = value["rational_config"].GetObject();
+        auto obj = value["rational_config"].GetObject();
         rational_result.FromJson(obj, alloc);
     }
     if (value.HasMember("complex_config") && value["complex_config"].IsObject())
     {
-        rapidjson::Value obj = value["complex_config"].GetObject();
+        auto obj = value["complex_config"].GetObject();
         complex_result.FromJson(obj, alloc);
     }
 }

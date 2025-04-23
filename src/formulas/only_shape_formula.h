@@ -31,7 +31,7 @@ public:
     virtual void ToParserString(ParserString& str);
 
 protected:
-    bool SymbolFromJson(const rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc);
+    bool SymbolFromJson(const rapidjson::Value::ConstObject& value, rapidjson::Document::AllocatorType& alloc);
 
 protected:
     Shape *shape;

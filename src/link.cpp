@@ -102,7 +102,7 @@ void Link::ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& a
     value.AddMember("url", _url, alloc);
 }
 
-Element* Link::FromJson(Element* parent, Document* document, const rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc)
+Element* Link::FromJson(Element* parent, Document* document, const rapidjson::Value::ConstObject& value, rapidjson::Document::AllocatorType& alloc)
 {
     if (!value.HasMember("url") || !value["url"].IsString())
         return nullptr;

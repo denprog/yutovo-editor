@@ -342,10 +342,10 @@ void RealResult::ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorT
     value.AddMember("with_angle_measure", with_angle_measure, alloc);
 }
 
-Element* RealResult::FromJson(Element* parent, Document* document, const rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc)
+Element* RealResult::FromJson(Element* parent, Document* document, const rapidjson::Value::ConstObject& value, rapidjson::Document::AllocatorType& alloc)
 {
     Config::RealResultConfig config;
-    config.FromJson((rapidjson::Value&)value, alloc);
+    config.FromJson(value, alloc);
     auto* p = new RealResult(parent, config);
     if (value.HasMember("with_angle_measure") && value["with_angle_measure"].IsBool())
         p->with_angle_measure = value["with_angle_measure"].GetBool();
@@ -485,10 +485,10 @@ void IntegerResult::ToJson(rapidjson::Value& value, rapidjson::Document::Allocat
     value.AddMember("with_notation", with_notation, alloc);
 }
 
-Element* IntegerResult::FromJson(Element* parent, Document* document, const rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc)
+Element* IntegerResult::FromJson(Element* parent, Document* document, const rapidjson::Value::ConstObject& value, rapidjson::Document::AllocatorType& alloc)
 {
     Config::IntegerResultConfig config;
-    config.FromJson((rapidjson::Value&)value, alloc);
+    config.FromJson(value, alloc);
     auto* p = new IntegerResult(parent, config);
     if (value.HasMember("with_notation") && value["with_notation"].IsBool())
         p->with_notation = value["with_notation"].GetBool();
@@ -607,10 +607,10 @@ void RationalResult::ToJson(rapidjson::Value& value, rapidjson::Document::Alloca
     config.ToJson(value, alloc);
 }
 
-Element* RationalResult::FromJson(Element* parent, Document* document, const rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc)
+Element* RationalResult::FromJson(Element* parent, Document* document, const rapidjson::Value::ConstObject& value, rapidjson::Document::AllocatorType& alloc)
 {
     Config::RationalResultConfig config;
-    config.FromJson((rapidjson::Value&)value, alloc);
+    config.FromJson(value, alloc);
     return new RationalResult(parent, config);
 }
 
@@ -762,10 +762,10 @@ void ComplexResult::ToJson(rapidjson::Value& value, rapidjson::Document::Allocat
     value.AddMember("with_angle_measure", with_angle_measure, alloc);
 }
 
-Element* ComplexResult::FromJson(Element* parent, Document* document, const rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc)
+Element* ComplexResult::FromJson(Element* parent, Document* document, const rapidjson::Value::ConstObject& value, rapidjson::Document::AllocatorType& alloc)
 {
     Config::ComplexResultConfig config;
-    config.FromJson((rapidjson::Value&)value, alloc);
+    config.FromJson(value, alloc);
     auto* p = new ComplexResult(parent, config);
     if (value.HasMember("with_angle_measure") && value["with_angle_measure"].IsBool())
         p->with_angle_measure = value["with_angle_measure"].GetBool();
@@ -1029,10 +1029,10 @@ void AutoResult::ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorT
     config.ToJson(value, alloc);
 }
 
-Element* AutoResult::FromJson(Element* parent, Document* document, const rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc)
+Element* AutoResult::FromJson(Element* parent, Document* document, const rapidjson::Value::ConstObject& value, rapidjson::Document::AllocatorType& alloc)
 {
     Config::AutoResultConfig config;
-    config.FromJson((rapidjson::Value&)value, alloc);
+    config.FromJson(value, alloc);
     return new AutoResult(parent, config);
 }
 

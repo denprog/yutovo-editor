@@ -6,6 +6,14 @@
 #include <limits>
 #include <map>
 
+#ifdef min
+#undef min
+#endif
+
+#ifdef _MSC_VER
+#undef GetObject
+#endif
+
 namespace yutovo
 {
 
@@ -978,17 +986,17 @@ void Elements::ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorTyp
     value.AddMember("elements", arr, alloc);
 }
 
-bool Elements::FromJson(Document* document, rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc)
+bool Elements::FromJson(Document* document, const rapidjson::Value::ConstObject& value, rapidjson::Document::AllocatorType& alloc)
 {
     if (!value.HasMember("elements") || !value["elements"].IsArray())
         return false;
     
-    rapidjson::Value arr = value["elements"].GetArray();
+    rapidjson::Value::ConstArray arr = value["elements"].GetArray();
     for (rapidjson::SizeType i = 0; i < arr.Size(); ++i)
     {
         if (!arr[i].IsObject())
             return false;
-        rapidjson::Value value = arr[i].GetObject();
+        rapidjson::Value::ConstObject value = arr[i].GetObject();
         Element* el = CreateFromJson(parent, document, value, alloc);
         if (!el)
             return false;

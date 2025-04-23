@@ -50,7 +50,7 @@ void Row::ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& al
     }
 }
 
-Element* Row::FromJson(Element* parent, Document* document, const rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc)
+Element* Row::FromJson(Element* parent, Document* document, const rapidjson::Value::ConstObject& value, rapidjson::Document::AllocatorType& alloc)
 {
     ParagraphFormatPtr f;
     if (value.HasMember("format_name") && value["format_name"].IsString())

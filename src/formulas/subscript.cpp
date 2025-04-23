@@ -37,7 +37,7 @@ Element* Subscript::Create(Element* _parent)
     return new Subscript(_parent);
 }
 
-Element* Subscript::FromJson(Element* parent, Document* document, const rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc)
+Element* Subscript::FromJson(Element* parent, Document* document, const rapidjson::Value::ConstObject& value, rapidjson::Document::AllocatorType& alloc)
 {
     if (parent)
         return new Subscript(parent, false);

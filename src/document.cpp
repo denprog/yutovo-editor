@@ -32,6 +32,10 @@
 #include <chrono>
 #include <sstream>
 
+#ifdef _MSC_VER
+#undef GetObject
+#endif
+
 namespace yutovo
 {
 
@@ -2170,7 +2174,9 @@ uint Document::Paste(std::u32string& in_json)
     {
         //load string formats
         std::lock_guard<std::recursive_mutex> lock(edit_mutex);
-        string_formats->FromJson(doc["string_formats"], doc.GetAllocator());
+        // rapidjson::Value::Object p = doc["string_formats"].GetObject();
+        // string_formats->FromJson((rapidjson::Value::ConstObject&)p, doc.GetAllocator());
+        string_formats->FromJson(((const rapidjson::Value&)doc["string_formats"]).GetArray(), doc.GetAllocator());
     }
 
     if (!doc.HasMember("copy") || !doc["copy"].IsArray())
@@ -2181,13 +2187,13 @@ uint Document::Paste(std::u32string& in_json)
 
     //load elements
     std::vector<ElementPtr> elements;
-    rapidjson::Value arr = doc["copy"].GetArray();
+    rapidjson::Value::Array arr = doc["copy"].GetArray();
     for (rapidjson::SizeType i = 0; i < arr.Size(); ++i)
     {
         if (!arr[i].IsObject())
             return 0;
-        rapidjson::Value value = arr[i].GetObject();
-        ElementPtr el(CreateFromJson(nullptr, this, value, doc.GetAllocator()));
+        rapidjson::Value::Object value = arr[i].GetObject();
+        ElementPtr el(CreateFromJson(nullptr, this, (rapidjson::Value::ConstObject&)value, doc.GetAllocator()));
         if (!el)
             return 0;
         elements.push_back(el);

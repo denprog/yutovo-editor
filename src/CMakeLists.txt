@@ -3,17 +3,21 @@ cmake_minimum_required(VERSION 3.17)
 set(CMAKE_DEBUG_POSTFIX d)
 
 find_package(PkgConfig REQUIRED)
-
 if(EMSCRIPTEN)
     set(CMAKE_FIND_ROOT_PATH ${INSTALL_PATH}/wasm/cmake/)
 else()
     set(CMAKE_FIND_ROOT_PATH ${INSTALL_PATH}/lib/cmake/)
 endif()
 
+if(WIN32)
+    find_package(RapidJSON CONFIG REQUIRED PATHS ${INSTALL_PATH}/share/rapidjson)
+    find_package(Boost REQUIRED COMPONENTS iostreams)
+endif()
+
 if(NOT DEFINED REMOTE_SOLVER)
-    find_package(yutovo_solver REQUIRED)
-    find_package(yutovo_calculator REQUIRED)
-    find_package(yutovo_logger REQUIRED)
+    find_package(yutovo_solver REQUIRED PATHS ${INSTALL_PATH}/lib/cmake)
+    find_package(yutovo_calculator REQUIRED PATHS ${INSTALL_PATH}/lib/cmake)
+    find_package(yutovo_logger REQUIRED PATHS ${INSTALL_PATH}/lib/cmake)
 endif()
 
 set(Boost_USE_STATIC_LIBS ON)
@@ -23,8 +27,13 @@ if(EMSCRIPTEN)
     set(CMAKE_FIND_ROOT_PATH ${INSTALL_PATH}/wasm/cmake/)
 endif()
 
-set(Boost_INCLUDE_DIR "${INSTALL_PATH}/deploy/include")
-message("INSTALL_PATH is ${INSTALL_PATH}")
+if(WIN32)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /utf-8 /bigobj")
+	set(CMAKE_PREFIX_PATH "${INSTALL_PATH}")
+    pkg_check_modules(mpfr REQUIRED IMPORTED_TARGET GLOBAL mpfr)
+else()
+    set(Boost_INCLUDE_DIR "${INSTALL_PATH}/deploy/include")
+endif()
 
 if(EMSCRIPTEN)
     if (CMAKE_BUILD_TYPE STREQUAL "Debug")
@@ -94,11 +103,71 @@ add_library(${PROJECT_NAME}
     formulas/sum.cpp
     formulas/product.cpp
     formulas/comma.cpp
+
+    caret.h
+    caret_state.h
+    selection.h
+    editor_state.h
+    task.h
+    document.h
+    element.h
+    block.h
+    paragraph.h
+    row.h
+    str.h
+    image.h
+    link.h
+    style.h
+    text.h
+    window.h
+    editor_utils.h
+    result_codes.h
+    solver.h
+    solver_task.h
+    web_socket.h
+    parser_string.h
+    undo.h
+    config.h
+    formulas/formula.h
+    formulas/code_block.h
+    formulas/code_paragraph.h
+    formulas/code_string.h
+    formulas/code_row.h
+    formulas/shape.h
+    formulas/only_shape_formula.h
+    formulas/middle_shape_formula.h
+    formulas/plus.h
+    formulas/minus.h
+    formulas/multiply.h
+    formulas/division.h
+    formulas/power.h
+    formulas/nth_root.h
+    formulas/square_root.h
+    formulas/equation.h
+    formulas/result.h
+    formulas/fences.h
+    formulas/assignment.h
+    formulas/unit.h
+    formulas/subscript.h
+    formulas/exclamation.h
+    formulas/and.h
+    formulas/or.h
+    formulas/xor.h
+    formulas/percent.h
+    formulas/code_column.h
+    formulas/iteration.h
+    formulas/sum.h
+    formulas/product.h
+    formulas/comma.h
 )
 
-target_compile_options(${PROJECT_NAME} PUBLIC -Wno-deprecated-declarations)
-target_compile_options(${PROJECT_NAME} PUBLIC -Wno-unused-command-line-argument)
-target_compile_options(${PROJECT_NAME} PUBLIC -Wno-ambiguous-reversed-operator)
+if (WIN32)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /utf-8 /bigobj")
+else()
+    target_compile_options(${PROJECT_NAME} PUBLIC -Wno-deprecated-declarations)
+    target_compile_options(${PROJECT_NAME} PUBLIC -Wno-unused-command-line-argument)
+    target_compile_options(${PROJECT_NAME} PUBLIC -Wno-ambiguous-reversed-operator)
+endif()
 
 set_target_properties(${PROJECT_NAME} PROPERTIES
 	CXX_STANDARD 20
@@ -123,14 +192,23 @@ elseif(DEFINED REMOTE_SOLVER)
         crypto
     )
 else()
-    target_link_libraries(${PROJECT_NAME} PRIVATE 
-        stdc++
-        pthread
-        yutovo_solver
-        yutovo_calculator
-        yutovo_logger
-        boost_iostreams
-    )
+    if(WIN32)
+        target_link_libraries(${PROJECT_NAME} PRIVATE 
+            yutovo_solver
+            yutovo_logger
+        )
+        target_link_libraries(${PROJECT_NAME} PRIVATE Boost::iostreams)
+        target_link_libraries(${PROJECT_NAME} PRIVATE yutovo_calculator)
+    else()
+        target_link_libraries(${PROJECT_NAME} PRIVATE 
+            stdc++
+            pthread
+            yutovo_solver
+            yutovo_calculator
+            yutovo_logger
+            boost_iostreams
+        )
+    endif()
 endif()
 
 target_include_directories(${PROJECT_NAME} PUBLIC

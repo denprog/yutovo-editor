@@ -33,7 +33,7 @@ Element* Plus::Create(Element* _parent)
     return new Plus(_parent);
 }
 
-Element* Plus::FromJson(Element* parent, Document* document, const rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc)
+Element* Plus::FromJson(Element* parent, Document* document, const rapidjson::Value::ConstObject& value, rapidjson::Document::AllocatorType& alloc)
 {
     Plus* p = nullptr;
     if (parent)

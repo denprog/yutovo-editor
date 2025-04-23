@@ -2,9 +2,16 @@
 #include "document.h"
 #include <algorithm>
 #include <boost/lexical_cast.hpp>
+#ifdef min
+#undef min
+#endif
 #include <boost/uuid/uuid_generators.hpp>
 #include <boost/uuid/uuid_io.hpp>
 #include "rapidjson/writer.h"
+
+#ifdef _MSC_VER
+#undef GetObject
+#endif
 
 namespace yutovo
 {
@@ -63,7 +70,7 @@ void StringFormat::ToJson(rapidjson::Value& value, rapidjson::Document::Allocato
     value.PushBack(obj, alloc);
 }
 
-bool StringFormat::FromJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc)
+bool StringFormat::FromJson(const rapidjson::Value::ConstObject& value, rapidjson::Document::AllocatorType& alloc)
 {
     if (!value.HasMember("id") || !value["id"].IsString())
         return false;
@@ -215,17 +222,14 @@ void StringFormats::ToJson(rapidjson::Value& value, rapidjson::Document::Allocat
         f->ToJson(value, alloc);
 }
 
-bool StringFormats::FromJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc)
+bool StringFormats::FromJson(const rapidjson::Value::ConstArray& arr, rapidjson::Document::AllocatorType& alloc)
 {
-    if (!value.IsArray())
-        return false;
     std::vector<StringFormatPtr> _string_formats;
-    rapidjson::GenericArray arr = value.GetArray();
     for (rapidjson::SizeType i = 0; i < arr.Size(); ++i)
     {
         if (!arr[i].IsObject())
             return false;
-        rapidjson::Value value = arr[i].GetObject();
+        rapidjson::Value::ConstObject value = arr[i].GetObject();
         StringFormatPtr s(new StringFormat());
         if (!s->FromJson(value, alloc))
             return false;
@@ -282,7 +286,7 @@ void ParagraphFormat::ToJson(rapidjson::Value& value, rapidjson::Document::Alloc
     value.PushBack(obj, alloc);
 }
 
-bool ParagraphFormat::FromJson(Document* document, rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc)
+bool ParagraphFormat::FromJson(Document* document, const rapidjson::Value::ConstObject& value, rapidjson::Document::AllocatorType& alloc)
 {
     if (!value.HasMember("default_string_format") || !value["default_string_format"].IsString())
         return false;
@@ -421,19 +425,15 @@ void ParagraphFormats::ToJson(rapidjson::Value& value, rapidjson::Document::Allo
         f->ToJson(value, alloc);
 }
 
-bool ParagraphFormats::FromJson(Document* document, rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc)
+bool ParagraphFormats::FromJson(Document* document, const rapidjson::Value::ConstArray& arr, rapidjson::Document::AllocatorType& alloc)
 {
-    if (!value.IsArray())
-        return false;
     std::vector<ParagraphFormatPtr> _paragraph_formats;
-    rapidjson::GenericArray arr = value.GetArray();
     for (rapidjson::SizeType i = 0; i < arr.Size(); ++i)
     {
         if (!arr[i].IsObject())
             return false;
-        rapidjson::Value value = arr[i].GetObject();
         ParagraphFormatPtr p(new ParagraphFormat());
-        if (!p->FromJson(document, value, alloc))
+        if (!p->FromJson(document, arr[i].GetObject(), alloc))
             return false;
         auto it = std::find_if(paragraph_formats.begin(), paragraph_formats.end(), 
             [p](auto& f)

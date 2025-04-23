@@ -4,6 +4,10 @@
 #include "editor_utils.h"
 #include "document.h"
 
+#ifdef _MSC_VER
+#undef GetObject
+#endif
+
 namespace yutovo
 {
 
@@ -128,17 +132,17 @@ void SolverTask::FillUnit(rapidjson::Document& doc, Result& result)
         return;
     
     yutovo_calculator::Unit unit;
-    rapidjson::Value _unit = doc["unit"].GetObject();
+    auto _unit = doc["unit"].GetObject();
     if (!_unit.HasMember("value") || !_unit["value"].IsArray())
         return;
     if (_unit.HasMember("system"))
         unit.system = ToUtfString(_unit["system"].GetString());
-    rapidjson::GenericArray arr = _unit["value"].GetArray();
+    auto arr = _unit["value"].GetArray();
     for (rapidjson::SizeType i = 0; i < arr.Size(); ++i)
     {
         if (!arr[i].IsObject())
             return;
-        rapidjson::Value u = arr[i].GetObject();
+        auto u = arr[i].GetObject();
         std::u32string name;
         int power = 1;
         if (!u.HasMember("name") && !u["name"].IsString())
@@ -158,31 +162,31 @@ void SolverTask::FillCastUnits(rapidjson::Document& doc, Result& result)
     if (!doc.HasMember("cast_units") || !doc["cast_units"].IsArray())
         return;
 
-    rapidjson::GenericArray cast_units = doc["cast_units"].GetArray();
+    auto cast_units = doc["cast_units"].GetArray();
     for (rapidjson::SizeType i = 0; i < cast_units.Size(); ++i)
     {
         if (!cast_units[i].IsObject())
             return;
         
-        rapidjson::Value s_arr = cast_units[i].GetObject();
+        auto s_arr = cast_units[i].GetObject();
         if (!s_arr.HasMember("system") || !s_arr["system"].IsString())
             return;
         auto s = ToUtfString(s_arr["system"].GetString());
         if (!s_arr.HasMember("units") || !s_arr["units"].IsArray())
             return;
-        rapidjson::GenericArray units_arr = s_arr["units"].GetArray();
+        auto units_arr = s_arr["units"].GetArray();
         for (rapidjson::SizeType j = 0; j < units_arr.Size(); ++j)
         {
             if (!units_arr[j].IsArray())
                 return;
             
             yutovo_calculator::Unit unit;
-            rapidjson::Value u_arr = units_arr[j].GetArray();
+            auto u_arr = units_arr[j].GetArray();
             for (rapidjson::SizeType k = 0; k < u_arr.Size(); ++k)
             {
                 if (!u_arr[k].IsObject())
                     return;
-                rapidjson::Value u = u_arr[k].GetObject();
+                auto u = u_arr[k].GetObject();
 
                 std::u32string name;
                 int power = 1;
@@ -202,7 +206,7 @@ void SolverTask::FillError(rapidjson::Document& doc, Result& result)
 {
     if (doc["error"].IsObject())
     {
-        rapidjson::Value error = doc["error"].GetObject();
+        auto error = doc["error"].GetObject();
         if (error.HasMember("error_code") && error["error_code"].IsInt())
             result.error.error_code = (ErrorCode)error["error_code"].GetInt();
         if (error.HasMember("parser_error_code") && error["parser_error_code"].IsInt())
@@ -308,7 +312,7 @@ bool SolverTask::FillComplexResult(rapidjson::Document& doc, Result& result)
         return false;
     }
 
-    auto fill_exp = [&](rapidjson::Value& val, const std::string& param, const std::string& mantissa, const std::string& exponent)
+    auto fill_exp = [&](rapidjson::Value::Object& val, const std::string& param, const std::string& mantissa, const std::string& exponent)
     {
         if (!val[param.c_str()].IsObject())
         {
@@ -316,7 +320,7 @@ bool SolverTask::FillComplexResult(rapidjson::Document& doc, Result& result)
             result.error.error_code = ErrorCode::JSON_ERROR;
             return false;
         }
-        rapidjson::Value p = val[param.c_str()].GetObject();
+        auto p = val[param.c_str()].GetObject();
         if (!p.HasMember("mantissa") || !p["mantissa"].IsString())
         {
             LOG_ERROR("Mantissa error");
@@ -342,7 +346,7 @@ bool SolverTask::FillComplexResult(rapidjson::Document& doc, Result& result)
         }
         auto pos = std::to_string(i);
         result.values.push_back(Value{});
-        rapidjson::Value r = arr[i].GetObject();
+        rapidjson::Value::Object r = arr[i].GetObject();
         if (r.HasMember("module"))
         {
             if (!fill_exp(r, "module", "module_mantissa", "module_exponent"))
@@ -1006,12 +1010,12 @@ bool ListIdentifiersSolverTask::Execute(WebSocketPtr socket, Result& result)
 
     if (doc.HasMember("Functions") && doc["Functions"].IsArray())
     {
-        rapidjson::GenericArray arr = doc["Functions"].GetArray();
+        auto arr = doc["Functions"].GetArray();
         for (rapidjson::SizeType i = 0; i < arr.Size(); ++i)
         {
             if (arr[i].IsObject())
             {
-                rapidjson::Value obj = arr[i].GetObject();
+                auto obj = arr[i].GetObject();
                 std::u32string name;
                 if (obj.HasMember("name") && obj["name"].IsString())
                     functions.push_back(obj["name"].GetString());
@@ -1021,12 +1025,12 @@ bool ListIdentifiersSolverTask::Execute(WebSocketPtr socket, Result& result)
 
     if (doc.HasMember("Variables") && doc["Variables"].IsArray())
     {
-        rapidjson::GenericArray arr = doc["Variables"].GetArray();
+        auto arr = doc["Variables"].GetArray();
         for (rapidjson::SizeType i = 0; i < arr.Size(); ++i)
         {
             if (arr[i].IsObject())
             {
-                rapidjson::Value obj = arr[i].GetObject();
+                auto obj = arr[i].GetObject();
                 std::u32string name;
                 if (obj.HasMember("name") && obj["name"].IsString())
                     variables.push_back(obj["name"].GetString());
@@ -1036,7 +1040,7 @@ bool ListIdentifiersSolverTask::Execute(WebSocketPtr socket, Result& result)
 
     if (doc.HasMember("Units") && doc["Units"].IsArray())
     {
-        rapidjson::GenericArray arr = doc["Units"].GetArray();
+        auto arr = doc["Units"].GetArray();
         for (rapidjson::SizeType i = 0; i < arr.Size(); ++i)
         {
             if (arr[i].IsObject())
@@ -1055,7 +1059,7 @@ bool ListIdentifiersSolverTask::Execute(WebSocketPtr socket, Result& result)
                                     {
                                         for (rapidjson::SizeType k = 0; k < category.value.Size(); ++k)
                                         {
-                                            rapidjson::Value obj = category.value[k].GetObject();
+                                            auto obj = category.value[k].GetObject();
                                             std::u32string name;
                                             if (obj.HasMember("name") && obj["name"].IsString())
                                                 units.push_back(obj["name"].GetString());

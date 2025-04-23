@@ -9,10 +9,24 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-set(GTest_DIR "/usr/lib/x86_64-linux-gnu/cmake/GTest")
+if(WIN32)
+	set(CMAKE_PREFIX_PATH "${INSTALL_PATH}")
+else()
+	set(GTest_DIR "/usr/lib/x86_64-linux-gnu/cmake/GTest")
+endif()
 
 enable_testing()
-find_package(GTest REQUIRED)
+find_package(GTest REQUIRED PATHS ${INSTALL_PATH}/share/gtest)
+
+if(WIN32)
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /utf-8 /bigobj")
+	find_package(PkgConfig)
+	pkg_check_modules(mpfr REQUIRED IMPORTED_TARGET mpfr)
+	find_package(ZLIB REQUIRED)
+	find_package(yutovo_calculator REQUIRED PATHS ${INSTALL_PATH}/lib/cmake/)
+	find_package(Boost 1.81.0 REQUIRED PATHS ${INSTALL_PATH}/lib/cmake/)
+	find_package(RapidJSON CONFIG REQUIRED)
+endif()
 
 if(EMSCRIPTEN)
     set(CMAKE_FIND_ROOT_PATH ${INSTALL_PATH}/wasm/cmake/)
@@ -61,25 +75,40 @@ add_executable(${PROJECT_NAME}_tests
 	product.cpp
 )
 
-target_link_libraries(${PROJECT_NAME}_tests PUBLIC
-	stdc++
-    pthread
-	gtest
-	gtest_main
-	gmock
-	gmock_main
-	m
-	dl
-	${PROJECT_NAME}
-    Qt5::Widgets
-    yutovo_logger
-)
+if(WIN32)
+	target_link_libraries(${PROJECT_NAME}_tests PUBLIC
+		${PROJECT_NAME}
+	    Qt5::Widgets
+		yutovo_solver
+	    yutovo_logger
+	)
+	target_link_libraries(${PROJECT_NAME}_tests PRIVATE yutovo_calculator)
+	target_link_libraries(${PROJECT_NAME}_tests PRIVATE GTest::gtest GTest::gtest_main GTest::gmock GTest::gmock_main)
+    target_include_directories(${PROJECT_NAME}_tests PRIVATE
+        ../src
+    	${INSTALL_PATH}/include
+	)
+else()
+	target_link_libraries(${PROJECT_NAME}_tests PUBLIC
+		stdc++
+	    pthread
+		gtest
+		gtest_main
+		gmock
+		gmock_main
+		m
+		dl
+		${PROJECT_NAME}
+	    Qt5::Widgets
+	    yutovo_logger
+	)
+    target_include_directories(${PROJECT_NAME}_tests PRIVATE
+        ../src
+        ${THIRD_PARTY_PATH}
+	)
+endif()
 
-target_include_directories(${PROJECT_NAME}_tests PRIVATE
-    ../src
-    ${THIRD_PARTY_PATH}
-)
-
+include(GoogleTest)
 gtest_discover_tests(${PROJECT_NAME}_tests)
 
 install(

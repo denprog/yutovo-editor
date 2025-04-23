@@ -57,7 +57,7 @@ Element* CodeParagraph::Create(Element* parent)
     return new CodeParagraph(parent);
 }
 
-Element* CodeParagraph::FromJson(Element* parent, Document* document, const rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc)
+Element* CodeParagraph::FromJson(Element* parent, Document* document, const rapidjson::Value::ConstObject& value, rapidjson::Document::AllocatorType& alloc)
 {
     CodeParagraph* p = nullptr;
     if (parent)

@@ -60,7 +60,7 @@ void Paragraph::ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorTy
     value.AddMember("format_alignment", (int)format->alignment, alloc);
 }
 
-Element* Paragraph::FromJson(Element* parent, Document* document, const rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc)
+Element* Paragraph::FromJson(Element* parent, Document* document, const rapidjson::Value::ConstObject& value, rapidjson::Document::AllocatorType& alloc)
 {
     Paragraph* p = nullptr;
     if (parent)

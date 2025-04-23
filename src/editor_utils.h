@@ -8,6 +8,9 @@
 #include <yutovo_calculator/parser_exception.h>
 #include <yutovo_calculator/math_helper.h>
 #include <yutovo_solver/types.h>
+#ifdef min
+#undef min
+#endif
 #include <boost/uuid/uuid.hpp>
 #include <rapidjson/document.h>
 
@@ -313,7 +316,7 @@ LogicalId GetWithParent(const LogicalId& id, const LogicalId& parent_id);
 ElementId GetCommonParent(const ElementId& id1, const ElementId& id2);
 ElementId GetCommonParent(const std::vector<ElementId>& ids);
 
-Element* CreateFromJson(Element* parent, Document* document, rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc);
+Element* CreateFromJson(Element* parent, Document* document, const rapidjson::Value::ConstObject& value, rapidjson::Document::AllocatorType& alloc);
 
 std::string ErrorCodeToString(const yutovo_solver::ErrorCode error_code);
 std::string ErrorCodeToString(const yutovo_calculator::ParserExceptionCode parser_error_code);

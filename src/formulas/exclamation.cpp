@@ -33,7 +33,7 @@ Element* Exclamation::Create(Element* _parent)
     return new Exclamation(_parent);
 }
 
-Element* Exclamation::FromJson(Element* parent, Document* document, const rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc)
+Element* Exclamation::FromJson(Element* parent, Document* document, const rapidjson::Value::ConstObject& value, rapidjson::Document::AllocatorType& alloc)
 {
     Exclamation* p = nullptr;
     if (parent)
