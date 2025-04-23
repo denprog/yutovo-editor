@@ -10,8 +10,10 @@ else()
 endif()
 
 if(WIN32)
+    set(CMAKE_PREFIX_PATH "${INSTALL_PATH}")
     find_package(RapidJSON CONFIG REQUIRED PATHS ${INSTALL_PATH}/share/rapidjson)
     find_package(Boost REQUIRED COMPONENTS iostreams)
+    find_package(BZip2 REQUIRED)
 endif()
 
 if(NOT DEFINED REMOTE_SOLVER)
@@ -29,7 +31,6 @@ endif()
 
 if(WIN32)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /utf-8 /bigobj")
-	set(CMAKE_PREFIX_PATH "${INSTALL_PATH}")
     pkg_check_modules(mpfr REQUIRED IMPORTED_TARGET GLOBAL mpfr)
 else()
     set(Boost_INCLUDE_DIR "${INSTALL_PATH}/deploy/include")
@@ -198,6 +199,7 @@ else()
             yutovo_logger
         )
         target_link_libraries(${PROJECT_NAME} PRIVATE Boost::iostreams)
+        target_link_libraries(${PROJECT_NAME} PRIVATE BZip2::BZip2)
         target_link_libraries(${PROJECT_NAME} PRIVATE yutovo_calculator)
     else()
         target_link_libraries(${PROJECT_NAME} PRIVATE 

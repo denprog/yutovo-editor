@@ -26,6 +26,7 @@ if(WIN32)
 	find_package(yutovo_calculator REQUIRED PATHS ${INSTALL_PATH}/lib/cmake/)
 	find_package(Boost 1.81.0 REQUIRED PATHS ${INSTALL_PATH}/lib/cmake/)
 	find_package(RapidJSON CONFIG REQUIRED)
+	find_package(Boost REQUIRED COMPONENTS iostreams)
 endif()
 
 if(EMSCRIPTEN)
@@ -83,6 +84,7 @@ if(WIN32)
 	    yutovo_logger
 	)
 	target_link_libraries(${PROJECT_NAME}_tests PRIVATE yutovo_calculator)
+	target_link_libraries(${PROJECT_NAME} PRIVATE Boost::iostreams)
 	target_link_libraries(${PROJECT_NAME}_tests PRIVATE GTest::gtest GTest::gtest_main GTest::gmock GTest::gmock_main)
     target_include_directories(${PROJECT_NAME}_tests PRIVATE
         ../src
@@ -108,8 +110,10 @@ else()
 	)
 endif()
 
-include(GoogleTest)
-gtest_discover_tests(${PROJECT_NAME}_tests)
+if(NOT WIN32)
+	include(GoogleTest)
+	gtest_discover_tests(${PROJECT_NAME}_tests)
+endif()
 
 install(
     TARGETS ${PROJECT_NAME}_tests
