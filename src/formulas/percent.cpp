@@ -32,7 +32,7 @@ Element* Percent::Create(Element* _parent)
     return new Percent(_parent);
 }
 
-Element* Percent::FromJson(Element* parent, Document* document, const rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc)
+Element* Percent::FromJson(Element* parent, Document* document, const rapidjson::Value::ConstObject& value, rapidjson::Document::AllocatorType& alloc)
 {
     Percent* p = nullptr;
     if (parent)

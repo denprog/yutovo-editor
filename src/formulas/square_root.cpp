@@ -51,7 +51,7 @@ Element* SquareRoot::Create(Element* _parent)
     return new SquareRoot(_parent);
 }
 
-Element* SquareRoot::FromJson(Element* parent, Document* document, const rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc)
+Element* SquareRoot::FromJson(Element* parent, Document* document, const rapidjson::Value::ConstObject& value, rapidjson::Document::AllocatorType& alloc)
 {
     if (parent)
         return new SquareRoot(parent, false);

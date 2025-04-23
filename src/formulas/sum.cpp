@@ -35,7 +35,7 @@ Element* Sum::Create(Element* _parent)
     return new Sum(_parent);
 }
 
-Element* Sum::FromJson(Element* parent, Document* document, const rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc)
+Element* Sum::FromJson(Element* parent, Document* document, const rapidjson::Value::ConstObject& value, rapidjson::Document::AllocatorType& alloc)
 {
     if (parent)
         return new Sum(parent, false);

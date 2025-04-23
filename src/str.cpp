@@ -4,6 +4,9 @@
 #include <assert.h>
 #include <boost/locale.hpp>
 #include <boost/lexical_cast.hpp>
+#ifdef min
+#undef min
+#endif
 #include <boost/uuid/uuid_io.hpp>
 #include <boost/algorithm/string/replace.hpp>
 
@@ -157,7 +160,7 @@ void String::ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType&
     value.AddMember("format_id", _uuid, alloc);
 }
 
-Element* String::FromJson(Element* parent, Document* document, const rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc)
+Element* String::FromJson(Element* parent, Document* document, const rapidjson::Value::ConstObject& value, rapidjson::Document::AllocatorType& alloc)
 {
     if (value.HasMember("format_id") && value["format_id"].IsString())
     {
@@ -875,7 +878,7 @@ void StringElements::ToJson(rapidjson::Value& value, rapidjson::Document::Alloca
     value.AddMember("elements", _str, alloc);
 }
 
-bool StringElements::FromJson(Document* document, rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc)
+bool StringElements::FromJson(Document* document, const rapidjson::Value::ConstObject& value, rapidjson::Document::AllocatorType& alloc)
 {
     if (!value.HasMember("elements") || !value["elements"].IsString())
         return false;

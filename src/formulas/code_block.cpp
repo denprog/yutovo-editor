@@ -94,7 +94,7 @@ void CodeBlock::ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorTy
     value.AddMember("code_id", code_id, alloc);
 }
 
-Element* CodeBlock::FromJson(Element* parent, Document* document, const rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc)
+Element* CodeBlock::FromJson(Element* parent, Document* document, const rapidjson::Value::ConstObject& value, rapidjson::Document::AllocatorType& alloc)
 {
     if (!value.HasMember("code_id") || !value["code_id"].IsInt())
         return nullptr;

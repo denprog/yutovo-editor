@@ -1,5 +1,8 @@
 #include "assignment.h"
 #include "code_block.h"
+#ifdef min
+#undef min
+#endif
 #include <boost/uuid/uuid.hpp>
 #include <boost/uuid/uuid_generators.hpp>
 #include <boost/uuid/uuid_io.hpp>
@@ -48,7 +51,7 @@ void Assignment::ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorT
     value.AddMember("auto_solve", auto_solve, alloc);
 }
 
-Element* Assignment::FromJson(Element* parent, Document* document, const rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc)
+Element* Assignment::FromJson(Element* parent, Document* document, const rapidjson::Value::ConstObject& value, rapidjson::Document::AllocatorType& alloc)
 {
     bool _auto_solve = true;
     if (value.HasMember("auto_solve") && value["auto_solve"].IsBool())

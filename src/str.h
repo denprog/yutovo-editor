@@ -28,7 +28,7 @@ public:
     virtual Element* Create(Element* parent, const std::u32string _str, const StringFormatPtr _format);
 
     virtual void ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc);
-    static Element* FromJson(Element* parent, Document* document, const rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc);
+    static Element* FromJson(Element* parent, Document* document, const rapidjson::Value::ConstObject& value, rapidjson::Document::AllocatorType& alloc);
 
     virtual bool Remake(bool with_elements = false);
     virtual void Normalize();
@@ -100,7 +100,7 @@ public:
     StringElements(Element* parent, const std::u32string& _str);
 
     virtual void ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc);
-    virtual bool FromJson(Document* document, rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc);
+    virtual bool FromJson(Document* document, const rapidjson::Value::ConstObject& value, rapidjson::Document::AllocatorType& alloc);
 
     virtual Elements* Clone(Element* _parent);
 

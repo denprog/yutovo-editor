@@ -33,7 +33,7 @@ Element* Comma::Create(Element* _parent)
     return new Comma(_parent);
 }
 
-Element* Comma::FromJson(Element* parent, Document* document, const rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc)
+Element* Comma::FromJson(Element* parent, Document* document, const rapidjson::Value::ConstObject& value, rapidjson::Document::AllocatorType& alloc)
 {
     Comma* p = nullptr;
     if (parent)

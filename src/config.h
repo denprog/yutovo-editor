@@ -19,7 +19,7 @@ struct Config
 {
     void ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc);
     void ToJson(std::string& json);
-    void FromJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc);
+    void FromJson(const rapidjson::Value::ConstObject& value, rapidjson::Document::AllocatorType& alloc);
     bool FromJson(const std::string& json);
 
     //solver
@@ -80,7 +80,7 @@ struct Config
         }
 
         void ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc);
-        void FromJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc);
+        void FromJson(const rapidjson::Value::ConstObject& value, rapidjson::Document::AllocatorType& alloc);
 
         std::string ToString();
 
@@ -102,7 +102,7 @@ struct Config
         }
 
         void ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc);
-        void FromJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc);
+        void FromJson(const rapidjson::Value::ConstObject& value, rapidjson::Document::AllocatorType& alloc);
 
         std::string ToString();
 
@@ -121,7 +121,7 @@ struct Config
         }
 
         void ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc);
-        void FromJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc);
+        void FromJson(const rapidjson::Value::ConstObject& value, rapidjson::Document::AllocatorType& alloc);
 
         std::string ToString();
 
@@ -141,7 +141,7 @@ struct Config
         }
 
         void ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc);
-        void FromJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc);
+        void FromJson(const rapidjson::Value::ConstObject& value, rapidjson::Document::AllocatorType& alloc);
 
         std::string ToString();
 
@@ -167,7 +167,7 @@ struct Config
         }
 
         void ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc);
-        void FromJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc);
+        void FromJson(const rapidjson::Value::ConstObject& value, rapidjson::Document::AllocatorType& alloc);
 
         std::string ToString();
 

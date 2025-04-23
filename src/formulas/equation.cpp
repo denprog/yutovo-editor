@@ -63,7 +63,7 @@ void Equation::ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorTyp
     value.AddMember("result_type", (int)result_type, alloc);
 }
 
-Element* Equation::FromJson(Element* parent, Document* document, const rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc)
+Element* Equation::FromJson(Element* parent, Document* document, const rapidjson::Value::ConstObject& value, rapidjson::Document::AllocatorType& alloc)
 {
     if (!value.HasMember("result_type") || !value["result_type"].IsInt())
         return nullptr;

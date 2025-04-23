@@ -33,7 +33,7 @@ Element* Minus::Create(Element* _parent)
     return new Minus(_parent);
 }
 
-Element* Minus::FromJson(Element* parent, Document* document, const rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc)
+Element* Minus::FromJson(Element* parent, Document* document, const rapidjson::Value::ConstObject& value, rapidjson::Document::AllocatorType& alloc)
 {
     Minus* p = nullptr;
     if (parent)

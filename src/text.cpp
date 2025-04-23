@@ -32,7 +32,7 @@ Element* Text::Create(Element* parent)
     return nullptr;
 }
 
-Element* Text::FromJson(Element* parent, Document* document, const rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc)
+Element* Text::FromJson(Element* parent, Document* document, const rapidjson::Value::ConstObject& value, rapidjson::Document::AllocatorType& alloc)
 {
     return new Text(document, false);
 }

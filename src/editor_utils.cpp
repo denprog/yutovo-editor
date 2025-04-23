@@ -288,9 +288,9 @@ ElementId GetCommonParent(const std::vector<ElementId>& ids)
     return ElementId(ids[0], pos);
 }
 
-Element* CreateFromJson(Element* parent, Document* document, rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc)
+Element* CreateFromJson(Element* parent, Document* document, const rapidjson::Value::ConstObject& value, rapidjson::Document::AllocatorType& alloc)
 {
-    using CreateFunc = Element*(*)(Element*, Document*, const rapidjson::Value&, rapidjson::Document::AllocatorType&);
+    using CreateFunc = Element*(*)(Element*, Document*, const rapidjson::Value::ConstObject&, rapidjson::Document::AllocatorType&);
     static std::map<ElementType, CreateFunc> create_elements = 
         {
             {ElementType::TEXT, &Text::FromJson},

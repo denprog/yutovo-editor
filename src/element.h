@@ -185,7 +185,7 @@ public:
     ElementPtr operator[](const int pos);
 
     virtual void ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc);
-    virtual bool FromJson(Document* document, rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc);
+    virtual bool FromJson(Document* document, const rapidjson::Value::ConstObject& value, rapidjson::Document::AllocatorType& alloc);
 
     virtual Elements* Clone(Element* _parent);
     virtual void Clone(std::vector<ElementPtr>& _elements, const uint start, const uint size);

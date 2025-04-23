@@ -27,6 +27,10 @@
 #include <rapidjson/prettywriter.h>
 #include <rapidjson/istreamwrapper.h>
 
+#ifdef _MSC_VER
+#undef GetObject
+#endif
+
 namespace yutovo
 {
 
@@ -1624,8 +1628,8 @@ bool LoadTask::Execute()
         }
 
         //load text
-        rapidjson::Value _text = doc["text"].GetObject();
-        t = ElementPtr(CreateFromJson(nullptr, document, _text, doc.GetAllocator()));
+        rapidjson::Value::Object _text = doc["text"].GetObject();
+        t = ElementPtr(CreateFromJson(nullptr, document, (rapidjson::Value::ConstObject&)_text, doc.GetAllocator()));
     }
     else if (filename.substr(filename.find_last_of(".") + 1) == "yut")
     {
@@ -1668,8 +1672,8 @@ bool LoadTask::Execute()
         }
 
         //load text
-        rapidjson::Value _text = doc["text"].GetObject();
-        t = ElementPtr(CreateFromJson(nullptr, document, _text, doc.GetAllocator()));
+        rapidjson::Value::Object _text = doc["text"].GetObject();
+        t = ElementPtr(CreateFromJson(nullptr, document, (rapidjson::Value::ConstObject&)_text, doc.GetAllocator()));
     }
     else //".txt" and others load as text
     {
@@ -1808,7 +1812,8 @@ bool LoadTask::LoadJson(rapidjson::Document& doc)
     if (doc.HasMember("config") && doc["config"].IsObject())
     {
         //load config
-        document->config.FromJson(doc["config"], alloc);
+        rapidjson::Value::Object p = doc["config"].GetObject();
+        document->config.FromJson((rapidjson::Value::ConstObject&)p, alloc);
         document->solver.SetLocale(document->config.language);
         document->SetLocale(document->config.language, false);
     }
@@ -1816,13 +1821,13 @@ bool LoadTask::LoadJson(rapidjson::Document& doc)
     if (doc.HasMember("string_formats") && doc["string_formats"].IsArray())
     {
         //load string formats
-        document->string_formats->FromJson(doc["string_formats"], alloc);
+        document->string_formats->FromJson(((const rapidjson::Value&)doc["string_formats"]).GetArray(), alloc);
     }
 
     if (doc.HasMember("paragraph_formats"))
     {
         //load paragraph formats
-        document->paragraph_formats->FromJson(document, doc["paragraph_formats"], alloc);
+        document->paragraph_formats->FromJson(document, ((const rapidjson::Value&)doc["paragraph_formats"]).GetArray(), alloc);
     }
 
     if (!doc.HasMember("text") || !doc["text"].IsObject())

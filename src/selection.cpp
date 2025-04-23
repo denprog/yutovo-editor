@@ -3,6 +3,10 @@
 #include "editor_utils.h"
 #include <functional>
 
+#ifdef _MSC_VER
+#undef GetObject
+#endif
+
 namespace yutovo
 {
 
@@ -63,7 +67,7 @@ void ElementLogicalSelectionState::ToJson(rapidjson::Value& value, rapidjson::Do
     value.PushBack(obj, alloc);
 }
 
-bool ElementLogicalSelectionState::FromJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc)
+bool ElementLogicalSelectionState::FromJson(const rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc)
 {
     if (!value.HasMember("id") || !value["id"].IsString())
         return false;
@@ -201,12 +205,12 @@ bool LogicalSelectionState::FromJson(rapidjson::Value& value, rapidjson::Documen
     if (!value.IsArray())
         return false;
     std::vector<ElementLogicalSelectionState> _state;
-    rapidjson::GenericArray arr = value.GetArray();
+    rapidjson::Value::Array arr = value.GetArray();
     for (rapidjson::SizeType i = 0; i < arr.Size(); ++i)
     {
         if (!arr[i].IsObject())
             return false;
-        rapidjson::Value value = arr[i].GetObject();
+        const auto& value = arr[i].GetObject();
         ElementLogicalSelectionState s;
         if (!s.FromJson(value, alloc))
             return false;

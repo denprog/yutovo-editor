@@ -40,7 +40,7 @@ Element* OpenFence::Create(Element* _parent)
     return new OpenFence(_parent);
 }
 
-Element* OpenFence::FromJson(Element* parent, Document* document, const rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc)
+Element* OpenFence::FromJson(Element* parent, Document* document, const rapidjson::Value::ConstObject& value, rapidjson::Document::AllocatorType& alloc)
 {
     OpenFence* p = nullptr;
     if (parent)
@@ -197,7 +197,7 @@ Element* CloseFence::Create(Element* _parent)
     return new CloseFence(_parent);
 }
 
-Element* CloseFence::FromJson(Element* parent, Document* document, const rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc)
+Element* CloseFence::FromJson(Element* parent, Document* document, const rapidjson::Value::ConstObject& value, rapidjson::Document::AllocatorType& alloc)
 {
     CloseFence* p = nullptr;
     if (parent)

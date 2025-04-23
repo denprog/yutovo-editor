@@ -19,7 +19,7 @@ public:
     virtual Element* Create(Element* parent);
 
     virtual void ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc);
-    static Element* FromJson(Element* parent, Document* document, const rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc);
+    static Element* FromJson(Element* parent, Document* document, const rapidjson::Value::ConstObject& value, rapidjson::Document::AllocatorType& alloc);
 
     virtual bool Remake(bool with_elements = false);
     virtual void Normalize();

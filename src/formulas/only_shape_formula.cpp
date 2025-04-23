@@ -126,7 +126,7 @@ void OnlyShapeFormula::ToParserString(ParserString& str)
     str.Add(id, ToText());
 }
 
-bool OnlyShapeFormula::SymbolFromJson(const rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc)
+bool OnlyShapeFormula::SymbolFromJson(const rapidjson::Value::ConstObject& value, rapidjson::Document::AllocatorType& alloc)
 {
     if (!value.HasMember("symbol") || !value["symbol"].IsString())
         return false;

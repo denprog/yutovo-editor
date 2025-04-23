@@ -33,7 +33,7 @@ Element* Or::Create(Element* _parent)
     return new Or(_parent);
 }
 
-Element* Or::FromJson(Element* parent, Document* document, const rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc)
+Element* Or::FromJson(Element* parent, Document* document, const rapidjson::Value::ConstObject& value, rapidjson::Document::AllocatorType& alloc)
 {
     Or* p = nullptr;
     if (parent)

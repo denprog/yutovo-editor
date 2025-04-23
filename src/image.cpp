@@ -79,7 +79,7 @@ void Image::ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& 
     value.AddMember("image_base64", _image_base64, alloc);
 }
 
-Element* Image::FromJson(Element* parent, Document* document, const rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc)
+Element* Image::FromJson(Element* parent, Document* document, const rapidjson::Value::ConstObject& value, rapidjson::Document::AllocatorType& alloc)
 {
     if (!value.HasMember("image_base64") || !value["image_base64"].IsString())
         return nullptr;

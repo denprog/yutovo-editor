@@ -22,7 +22,7 @@ struct StringFormat
     bool operator!=(const StringFormat& f) const;
 
     void ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc);
-    bool FromJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc);
+    bool FromJson(const rapidjson::Value::ConstObject& value, rapidjson::Document::AllocatorType& alloc);
 
     std::string ToString();
 
@@ -56,7 +56,7 @@ public:
     void AddFormats(const StringFormats& source);
 
     void ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc);
-    bool FromJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc);
+    bool FromJson(const rapidjson::Value::ConstArray& value, rapidjson::Document::AllocatorType& alloc);
 
     void Clear()
     {
@@ -92,7 +92,7 @@ struct ParagraphFormat
     bool operator==(const ParagraphFormat& f) const;
 
     void ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc);
-    bool FromJson(Document* document, rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc);
+    bool FromJson(Document* document, const rapidjson::Value::ConstObject& arr, rapidjson::Document::AllocatorType& alloc);
 
     std::string ToString();
 
@@ -123,7 +123,7 @@ public:
     void GetFormats(std::vector<ParagraphFormatPtr>& formats);
 
     void ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc);
-    bool FromJson(Document* document, rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc);
+    bool FromJson(Document* document, const rapidjson::Value::ConstArray& arr, rapidjson::Document::AllocatorType& alloc);
     
 private:
     StringFormatsPtr string_formats;

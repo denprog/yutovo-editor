@@ -33,7 +33,7 @@ Element* Xor::Create(Element* _parent)
     return new Xor(_parent);
 }
 
-Element* Xor::FromJson(Element* parent, Document* document, const rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc)
+Element* Xor::FromJson(Element* parent, Document* document, const rapidjson::Value::ConstObject& value, rapidjson::Document::AllocatorType& alloc)
 {
     Xor* p = nullptr;
     if (parent)
