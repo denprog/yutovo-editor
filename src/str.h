@@ -137,6 +137,7 @@ protected:
     static bool IsOpenDelimiter(char32_t ch);
     static bool IsCloseDelimiter(char32_t ch);
     static bool IsDelimiter(char32_t ch);
+    static bool IsSpace(char32_t ch);
     void UpdateTabs();
 
 protected:

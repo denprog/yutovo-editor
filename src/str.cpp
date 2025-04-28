@@ -777,13 +777,13 @@ Size String::GetTextSize(const uint pos) const
         int spaces = std::count_if(str.begin(), str.end(),
             [](char32_t c)
             {
-                return std::isspace(c);
+                return StringElements::IsSpace(c);
             });
         if (spaces == 0)
             return s;
         for (int i = 0; i < pos; ++i)
         {
-            if (isspace(str[i]))
+            if (StringElements::IsSpace(str[i]))
                 s.width += floor(stretch_width / spaces);
         }
         s.width += tabs_size.width;
@@ -1111,9 +1111,9 @@ bool StringElements::GetWordLeftCaretState(CaretState& caret_state, Selection* s
         return false;
     for (int i = pos - 1; i > 0; --i)
     {
-        if (isspace(str[i]))
+        if (IsSpace(str[i]))
         {
-            while (isspace(str[i]))
+            while (IsSpace(str[i]))
                 --i;
             ++i;
         }
@@ -1149,7 +1149,7 @@ bool StringElements::GetWordRightCaretState(CaretState& caret_state, Selection* 
     }
     for (int i = pos + 1; i < str.length(); ++i)
     {
-        while (isspace(str[i]))
+        while (IsSpace(str[i]))
             ++i;
         if ((IsCloseDelimiter(str[i]) || IsCloseDelimiter(str[i - 1])) ||
             (IsOpenDelimiter(str[i - 1]) || IsDelimiter(str[i - 1]) || str[i] == U'.' || str[i] == U',') && 
@@ -1252,6 +1252,18 @@ bool StringElements::IsDelimiter(char32_t ch)
             return true;
     }
     return false;
+}
+
+bool StringElements::IsSpace(char32_t ch)
+{
+#ifdef _WIN32
+    std::u32string s(1, ch);
+    std::wstring w = boost::locale::conv::utf_to_utf<wchar_t>(s);
+    WORD type;
+    return GetStringTypeW(CT_CTYPE1, &w[0], 1, &type) && (type & C1_SPACE);
+#else
+    return std::isspace(ch);
+#endif
 }
 
 void StringElements::UpdateTabs()
