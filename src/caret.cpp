@@ -4,8 +4,10 @@
 #include "editor_utils.h"
 #include <chrono>
 
+#ifndef _WIN32
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wunused-value"
+#endif
 
 namespace yutovo
 {
@@ -351,7 +353,7 @@ void Caret::MoveToDocumentEnd(Selection* selection)
             if (c.last_pos)
             {
                 auto _el = document->GetElement(GetChild(row->id, p - 1));
-                selection->Add(_el, c.id[row->id.size() + 1] - 1, _el->elements->Count() - c.id[row->id.size() + 1]);
+                selection->Add(_el, c.id[row->id.size()] - 1, _el->elements->Count() - c.id[row->id.size()]);
             }
             else
             {
