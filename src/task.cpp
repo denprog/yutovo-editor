@@ -11,6 +11,7 @@
 #include "formulas/equation.h"
 #include "formulas/assignment.h"
 #include <yutovo_logger/logger.h>
+#include <yutovo_calculator/utils.h>
 #include "editor_utils.h"
 #include "result_codes.h"
 #include <assert.h>
@@ -22,6 +23,7 @@
 #include <boost/iostreams/filter/gzip.hpp>
 #include <sstream>
 #include <vector>
+#include <filesystem>
 #include <boost/locale.hpp>
 #include <yutovo_solver/types.h>
 #include <rapidjson/prettywriter.h>
@@ -1633,7 +1635,7 @@ bool LoadTask::Execute()
     }
     else if (filename.substr(filename.find_last_of(".") + 1) == "yut")
     {
-        std::ifstream file(filename);
+        std::ifstream file(yutovo_calculator::ToWString(filename), std::ios_base::binary);
         if (!file.is_open())
         {
             window->OnLoadResult(id, IOResult::InputStreamError, document_id);
@@ -1660,7 +1662,7 @@ bool LoadTask::Execute()
         catch (const std::ios_base::failure& ex)
         {
             //try to open as decompressed file
-            std::ifstream file(filename);
+            std::ifstream file(yutovo_calculator::ToWString(filename));
             rapidjson::IStreamWrapper isw{file};
             doc.ParseStream(isw);
             if (doc.HasParseError() || !doc.IsObject() || !LoadJson(doc))
@@ -1679,7 +1681,7 @@ bool LoadTask::Execute()
     {
         try
         {
-            std::ifstream file(filename);
+            std::ifstream file(yutovo_calculator::ToWString(filename));
             if (!file.is_open())
             {
                 window->OnLoadResult(id, IOResult::InputStreamError, document_id);
