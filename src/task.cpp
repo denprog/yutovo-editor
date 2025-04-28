@@ -1872,7 +1872,10 @@ bool CopyTask::Execute()
     {
         ElementPtr t = copy[0];
         for (int i = 0; i < t->elements->Count(); ++i)
+        {
             copy.push_back(t->elements->Get(i));
+            copy[copy.size() - 1]->parent = nullptr;
+        }
         copy.erase(copy.begin());
     }
 
