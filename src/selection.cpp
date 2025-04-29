@@ -409,6 +409,7 @@ void Selection::Add(const ElementPtr element, uint start, uint size)
         else
         {
             selection.emplace_back(ElementSelection{element, start, size});
+            it = selection.end() - 1;
         }
 
         if (it->size == 0)
