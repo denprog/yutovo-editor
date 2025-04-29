@@ -602,7 +602,7 @@ int UndoBase::Store(const ElementId& parent_id, const int pos, const int size)
     for (int i = pos; i < pos + size; ++i)
     {
         auto el = document->GetElement(GetChild(parent_id, i));
-        if (ids.empty() || ids[i - 1] != el->logical_id)
+        if (ids.empty() || ids[i - pos - 1] != el->logical_id)
         {
             if (el->logical_id.empty())
             {
