@@ -36,7 +36,7 @@ bool CodeColumn::Remake(bool with_elements)
 
     ParagraphFormatPtr format = GetParagraphFormat();
     int cy = 0;
-    int left_m, top_m, right_m, bottom_m;
+    int left_m = 0, top_m = 0, right_m = 0, bottom_m = 0;
     for (uint i = 0; i < elements->Count(); ++i)
     {
         auto el = elements->Get(i);

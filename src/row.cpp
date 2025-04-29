@@ -68,7 +68,7 @@ bool Row::Remake(bool with_elements)
 
     bool changed = Element::Remake(with_elements);
     int cx = 0;
-    int left_m, top_m, right_m, bottom_m;
+    int left_m = 0, top_m = 0, right_m = 0, bottom_m = 0;
 
     ParagraphFormatPtr format = parent->GetParagraphFormat();
     if (type == ElementType::ROW && format->alignment == ParagraphFormat::Alignment::Justify && yutovo::GetChildPos(id) != parent->elements->Count() - 1)
