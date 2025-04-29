@@ -1536,7 +1536,11 @@ bool SaveTask::Execute()
         {
             try
             {
+#ifdef _WIN32
+                std::ofstream file(yutovo_calculator::ToWString(filename), std::ios_base::binary);
+#else
                 std::ofstream file(filename, std::ofstream::binary);
+#endif
                 boost::iostreams::filtering_streambuf<boost::iostreams::input> in;
                 in.push(boost::iostreams::gzip_compressor());
                 std::stringstream data;
@@ -1559,7 +1563,11 @@ bool SaveTask::Execute()
         std::string str = ToBasicString(text->ToText());
         try
         {
+#ifdef _WIN32
+            std::ofstream file(yutovo_calculator::ToWString(filename));
+#else
             std::ofstream file(filename);
+#endif
             file.exceptions(~std::ofstream::goodbit);
             file << str;
             file.close();
@@ -1635,7 +1643,11 @@ bool LoadTask::Execute()
     }
     else if (filename.substr(filename.find_last_of(".") + 1) == "yut")
     {
+#ifdef _WIN32
         std::ifstream file(yutovo_calculator::ToWString(filename), std::ios_base::binary);
+#else
+        std::ifstream file(filename);
+#endif
         if (!file.is_open())
         {
             window->OnLoadResult(id, IOResult::InputStreamError, document_id);
@@ -1662,7 +1674,11 @@ bool LoadTask::Execute()
         catch (const std::ios_base::failure& ex)
         {
             //try to open as decompressed file
+#ifdef _WIN32
             std::ifstream file(yutovo_calculator::ToWString(filename));
+#else
+            std::ifstream file(filename);
+#endif
             rapidjson::IStreamWrapper isw{file};
             doc.ParseStream(isw);
             if (doc.HasParseError() || !doc.IsObject() || !LoadJson(doc))
@@ -1681,7 +1697,11 @@ bool LoadTask::Execute()
     {
         try
         {
+#ifdef _WIN32
             std::ifstream file(yutovo_calculator::ToWString(filename));
+#else
+            std::ifstream file(filename);
+#endif
             if (!file.is_open())
             {
                 window->OnLoadResult(id, IOResult::InputStreamError, document_id);
