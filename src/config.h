@@ -69,6 +69,8 @@ struct Config
     //logger
     LogLevel log_level = LogLevel::LEVEL_INFO;
     std::string logs_path = ".";
+    bool log_console = true;
+    bool log_file = true;
 
     //calculator
     struct RealResultConfig

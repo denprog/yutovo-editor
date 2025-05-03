@@ -24,7 +24,7 @@ namespace net = boost::asio;
 WebSocket::WebSocket(Config& _config, Window* _window) :
     config(_config),
     window(_window),
-    logger(Logger::GetInstance(config.logs_path + "/yutovo_editor", "yutovo_editor", true, true))
+    logger(Logger::GetInstance(config.logs_path + "/yutovo_editor", "yutovo_editor", config.log_console, config.log_file))
 #ifndef EMSCRIPTEN
     , ws(net::make_strand(ioc), ssl_context.ssl_context),
     ssl_context(logger)
@@ -35,7 +35,7 @@ WebSocket::WebSocket(Config& _config, Window* _window) :
 WebSocket::WebSocket(Config& _config, Window* _window, yutovo_solver::Session& _session) :
     config(_config),
     window(_window),
-    logger(Logger::GetInstance(config.logs_path + "/yutovo_editor", "yutovo_editor", true, true)),
+    logger(Logger::GetInstance(config.logs_path + "/yutovo_editor", "yutovo_editor", config.log_console, config.log_file)),
     session(_session)
 {
 }
