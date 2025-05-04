@@ -147,7 +147,7 @@ bool Config::FromJson(const std::string& json)
 {
     rapidjson::Document doc;
     doc.Parse<0>(json.c_str());
-    if (doc.HasParseError() || !doc.IsObject())
+    if (doc.HasParseError() || !doc.IsObject() || doc.ObjectEmpty())
         return false;
 
     FromJson((rapidjson::Value::ConstObject&)doc, doc.GetAllocator());
