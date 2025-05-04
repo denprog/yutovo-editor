@@ -512,8 +512,8 @@ TEST_F(SolverRationalTest, units4)
 
     document.GetConfig(config);
     config.rational_result.fraction_form = FractionForm::Improper;
-    document.SetConfig(config, true);
-    document.SetLocale(yutovo_calculator::Language::Russian, true);
+    document.WaitTask(document.SetConfig(config, true));
+    document.WaitTask(document.SetLocale(yutovo_calculator::Language::Russian, true));
 
     document.InsertDivision(true);
     document.InsertString("4Ом", true);

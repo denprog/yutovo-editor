@@ -650,7 +650,7 @@ TEST_F(DocumentTest, files14)
             ASSERT_TRUE(result == IOResult::Success);
         });
 
-    document.SetLocale(yutovo_calculator::Language::Russian, true);
+    document.WaitTask(document.SetLocale(yutovo_calculator::Language::Russian, true));
     document.InsertCode(false, true);
     document.WaitTask(document.InsertString("1+j", true));
     document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
@@ -738,7 +738,7 @@ TEST_F(DocumentTest, files17)
             ASSERT_TRUE(result == IOResult::Success);
         });
 
-    document.SetLocale(yutovo_calculator::Language::Russian, true);
+    document.WaitTask(document.SetLocale(yutovo_calculator::Language::Russian, true));
     document.InsertCode(false, true);
     document.InsertString("6кг", true);
     document.WaitTask(document.InsertEquation(ResultType::AUTO, true));

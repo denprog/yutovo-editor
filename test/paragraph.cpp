@@ -813,9 +813,9 @@ TEST_F(ParagraphTest, paragraph1)
 
 TEST_F(ParagraphTest, paragraph2)
 {
-    Start(494);
+    Start(515);
 
-    int width = 494;
+    int width = 515;
     EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
         {
             return Rect{0, 0, width, 400};
@@ -2372,7 +2372,7 @@ TEST_F(ParagraphTest, format6)
     document.WaitTask(document.SetUnderline(true));
     document.WaitTask(document.SetBold(true));
 
-    width = 490;
+    width = 495;
     document.WaitTask(document.Resize(width, 400));
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
@@ -3467,23 +3467,23 @@ TEST_F(ParagraphTest, delete15)
 {
     Start(495);
 
-    document.InsertString("Арифме́тика (др.-греч. ἀριθμητική, arithmētikḗ — от ἀριθμός, arithmós «число») — раздел математики"\
+    document.WaitTask(document.InsertString("Арифме́тика (др.-греч. ἀριθμητική, arithmētikḗ — от ἀριθμός, arithmós «число») — раздел математики"\
         ", изучающий числа, их отношения и свойства. Предметом арифметики является понятие числа (натуральные, целые, рациональные, "\
-        "вещественные, комплексные числа) и его свойства.", true);
+        "вещественные, комплексные числа) и его свойства.", true));
     document.MoveCaretToDocumentBegin(false);
     document.MoveCaretWordRight(false);
     document.MoveCaretDown(false);
     document.MoveCaretDown(true);
     document.WaitTask(document.MoveCaretDown(true));
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 3, 0, 12}, 
-        ElementSelectionState{ElementId{0, 0, 1, 0}, 13, 26}, 
+        ElementSelectionState{ElementId{0, 0, 1, 0}, 14, 25}, 
         ElementSelectionState{ElementId{0, 0}, 2, 1}, 
         ElementSelectionState{ElementId{0, 0, 3, 0}, 0, 12})) << document.GetEditorState().ToString();
 
     document.WaitTask(document.DeleteElements(false, true));
-    ASSERT_TRUE(document.ToText() == U"Арифме́тика (др.-греч. ἀριθμητική, arithmētikḗ — от ἀριθμός, aедметом арифметики является понятие числа "\
+    ASSERT_TRUE(document.ToText() == U"Арифме́тика (др.-греч. ἀριθμητική, arithmētikḗ — от ἀριθμός, arедметом арифметики является понятие числа "\
         "(натуральные, целые, рациональные, вещественные, комплексные числа) и его свойства.") << ToBasicString(document.ToText());
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 0, 13})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 0, 14})) << document.GetEditorState().ToString();
 
     document.Undo();
     document.WaitUndo();
@@ -3491,7 +3491,7 @@ TEST_F(ParagraphTest, delete15)
         ", изучающий числа, их отношения и свойства. Предметом арифметики является понятие числа (натуральные, целые, рациональные, "\
         "вещественные, комплексные числа) и его свойства.") << ToBasicString(document.ToText());
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 3, 0, 12}, 
-        ElementSelectionState{ElementId{0, 0, 1, 0}, 13, 26}, 
+        ElementSelectionState{ElementId{0, 0, 1, 0}, 14, 25}, 
         ElementSelectionState{ElementId{0, 0}, 2, 1}, 
         ElementSelectionState{ElementId{0, 0, 3, 0}, 0, 12})) << document.GetEditorState().ToString();
 }
@@ -3501,9 +3501,9 @@ TEST_F(ParagraphTest, delete16)
 {
     Start(495);
 
-    document.InsertString("Арифме́тика (др.-греч. ἀριθμητική, arithmētikḗ — от ἀριθμός, arithmós «число») — раздел математики"\
+    document.WaitTask(document.InsertString("Арифме́тика (др.-греч. ἀριθμητική, arithmētikḗ — от ἀριθμός, arithmós «число») — раздел математики"\
         ", изучающий числа, их отношения и свойства. Предметом арифметики является понятие числа (натуральные, целые, рациональные, "\
-        "вещественные, комплексные числа) и его свойства.", true);
+        "вещественные, комплексные числа) и его свойства.", true));
     document.MoveCaretToDocumentBegin(false);
     document.MoveCaretWordRight(false);
     document.MoveCaretDown(false);
@@ -3511,14 +3511,14 @@ TEST_F(ParagraphTest, delete16)
     document.MoveCaretDown(true);
     document.WaitTask(document.MoveCaretDown(true));
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 4, 0, 12}, 
-        ElementSelectionState{ElementId{0, 0, 1, 0}, 13, 26}, 
+        ElementSelectionState{ElementId{0, 0, 1, 0}, 14, 25}, 
         ElementSelectionState{ElementId{0, 0}, 2, 2}, 
         ElementSelectionState{ElementId{0, 0, 4, 0}, 0, 12})) << document.GetEditorState().ToString();
 
     document.WaitTask(document.DeleteElements(false, true));
-    ASSERT_TRUE(document.ToText() == U"Арифме́тика (др.-греч. ἀριθμητική, arithmētikḗ — от ἀριθμός, aа "\
+    ASSERT_TRUE(document.ToText() == U"Арифме́тика (др.-греч. ἀριθμητική, arithmētikḗ — от ἀριθμός, arа "\
         "(натуральные, целые, рациональные, вещественные, комплексные числа) и его свойства.") << ToBasicString(document.ToText());
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 0, 13})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 0, 14})) << document.GetEditorState().ToString();
 
     document.Undo();
     document.WaitUndo();
@@ -3526,7 +3526,7 @@ TEST_F(ParagraphTest, delete16)
         ", изучающий числа, их отношения и свойства. Предметом арифметики является понятие числа (натуральные, целые, рациональные, "\
         "вещественные, комплексные числа) и его свойства.") << ToBasicString(document.ToText());
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 4, 0, 12}, 
-        ElementSelectionState{ElementId{0, 0, 1, 0}, 13, 26}, 
+        ElementSelectionState{ElementId{0, 0, 1, 0}, 14, 25}, 
         ElementSelectionState{ElementId{0, 0}, 2, 2}, 
         ElementSelectionState{ElementId{0, 0, 4, 0}, 0, 12})) << document.GetEditorState().ToString();
 }

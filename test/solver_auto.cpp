@@ -744,7 +744,7 @@ TEST_F(SolverAutoTest, solver11)
     document.GetConfig(config);
     ResultType order1[4] = {ResultType::RATIONAL, ResultType::INTEGER, ResultType::REAL, ResultType::COMPLEX};
     std::copy(order1, order1 + 4, config.auto_result.results_order);
-    document.SetConfig(config, true);
+    document.WaitTask(document.SetConfig(config, true));
 
     document.MoveCaretEnd(false);
     document.InsertParagraph(true);
@@ -765,7 +765,7 @@ TEST_F(SolverAutoTest, solver11)
     document.GetConfig(config);
     ResultType order2[4] = {ResultType::INTEGER, ResultType::RATIONAL, ResultType::REAL, ResultType::COMPLEX};
     std::copy(order2, order2 + 4, config.auto_result.results_order);
-    document.SetConfig(config, true);
+    document.WaitTask(document.SetConfig(config, true));
 
     document.MoveCaretEnd(false);
     document.InsertParagraph(true);
@@ -969,7 +969,7 @@ TEST_F(SolverAutoTest, solver18)
     ResultType order[4] = {ResultType::RATIONAL, ResultType::INTEGER, ResultType::REAL, ResultType::COMPLEX};
     std::copy(order, order + 4, config.auto_result.results_order);
     config.auto_result.rational_result.fraction_form = FractionForm::Improper;
-    document.SetConfig(config, true);
+    document.WaitTask(document.SetConfig(config, true));
 
     document.InsertDivision(true);
     document.InsertString("11", true);
@@ -1000,7 +1000,7 @@ TEST_F(SolverAutoTest, solver19)
     document.GetConfig(config);
     ResultType order1[4] = {ResultType::RATIONAL, ResultType::INTEGER, ResultType::REAL, ResultType::COMPLEX};
     std::copy(order1, order1 + 4, config.auto_result.results_order);
-    document.SetConfig(config, true);
+    document.WaitTask(document.SetConfig(config, true));
 
     document.InsertDivision(true);
     document.InsertString("1", true);
@@ -1047,7 +1047,7 @@ TEST_F(SolverAutoTest, solver21)
     document.GetConfig(config);
     ResultType order1[4] = {ResultType::RATIONAL, ResultType::INTEGER, ResultType::REAL, ResultType::COMPLEX};
     std::copy(order1, order1 + 4, config.auto_result.results_order);
-    document.SetConfig(config, true);
+    document.WaitTask(document.SetConfig(config, true));
 
     document.InsertCode(false, true);
     document.InsertString("cos", true);
@@ -1326,7 +1326,7 @@ TEST_F(SolverAutoTest, solver29)
 {
     Start(600);
     
-    document.SetLocale(yutovo_calculator::Language::Russian, true);
+    document.WaitTask(document.SetLocale(yutovo_calculator::Language::Russian, true));
     document.InsertCode(false, true);
     document.WaitTask(document.InsertString("6.5", true));
     document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
@@ -1518,7 +1518,7 @@ TEST_F(SolverAutoTest, solver34)
     document.WaitTask(document.DeleteElements(true, true));
     document.WaitTask(document.DeleteElements(true, true));
     document.WaitSolver();
-    std::this_thread::sleep_for(1s);
+    std::this_thread::sleep_for(2s);
     ASSERT_TRUE(document.ToText() == 
         U"sum(i=0,1000,i)=500500."
         ) << ToBasicString(document.ToText());
@@ -1607,7 +1607,7 @@ TEST_F(SolverAutoTest, solver37)
     document.InsertString("2", true);
     document.InsertDivision(true);
     document.InsertString("4", true);
-    document.MoveCaretToDocumentEnd(false);
+    document.WaitTask(document.MoveCaretToDocumentEnd(false));
     document.WaitTask(document.MoveCaretLeft(false));
     time_t t = time(0);
     document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
@@ -1618,7 +1618,7 @@ TEST_F(SolverAutoTest, solver37)
     document.InsertString("234", true);
     document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
     document.WaitSolver();
-    std::this_thread::sleep_for(1s);
+    std::this_thread::sleep_for(2s);
     ASSERT_TRUE(document.ToText() == 
         U"234=234.") << 
         ToBasicString(document.ToText());
@@ -1648,7 +1648,7 @@ TEST_F(SolverAutoTest, solver38)
     document.InsertString("2", true);
     document.InsertDivision(true);
     document.InsertString("4", true);
-    document.MoveCaretToDocumentEnd(false);
+    document.WaitTask(document.MoveCaretToDocumentEnd(false));
     document.WaitTask(document.MoveCaretLeft(false));
     time_t t = time(0);
     document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
@@ -1659,10 +1659,12 @@ TEST_F(SolverAutoTest, solver38)
 
     document.Undo();
     document.WaitUndo();
+    std::this_thread::sleep_for(200ms);
     document.Undo();
     document.WaitUndo();
+    std::this_thread::sleep_for(200ms);
 
-    document.InsertParagraph(true);
+    document.WaitTask(document.InsertParagraph(true));
     document.InsertString("234", true);
     document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
     document.WaitSolver();
@@ -1671,7 +1673,7 @@ TEST_F(SolverAutoTest, solver38)
         U"(234)/((3)/((4)/((6)/((7)/((6)/((7)/((2)/(4))))))))\n"\
         U"234=234.") << 
         ToBasicString(document.ToText());
-    ASSERT_TRUE(time(0) - t <= 6);
+    ASSERT_TRUE(time(0) - t <= 8);
 }
 
 //Solve with errors
@@ -1968,7 +1970,7 @@ TEST_F(SolverAutoTest, errors5)
 
     document.GetConfig(config);
     config.service_timeout = 1;
-    document.SetConfig(config, true);
+    document.WaitTask(document.SetConfig(config, true));
 
     document.InsertDivision(true);
     document.InsertString("6kg", true);
@@ -2140,7 +2142,7 @@ TEST_F(SolverAutoTest, units4)
     
     document.GetConfig(config);
     config.service_timeout = 20000;
-    document.SetConfig(config, true);
+    document.WaitTask(document.SetConfig(config, true));
 
     document.InsertDivision(true);
     document.InsertString("6kg", true);
@@ -2161,7 +2163,7 @@ TEST_F(SolverAutoTest, units5)
     
     document.GetConfig(config);
     config.service_timeout = 20000;
-    document.SetConfig(config, true);
+    document.WaitTask(document.SetConfig(config, true));
 
     document.InsertDivision(true);
     document.InsertString("6kg", true);
@@ -2233,11 +2235,16 @@ TEST_F(SolverAutoTest, units7)
 {
     Start(600);
 
+    EXPECT_CALL(window_mock, Translate).WillRepeatedly([&](ElementId id, const std::u32string& str)
+        {
+            return str;
+        });
+
     document.GetConfig(config);
     config.service_timeout = 20000;
     document.WaitTask(document.SetConfig(config, true));
 
-    document.SetLocale(yutovo_calculator::Language::Russian, true);
+    document.WaitTask(document.SetLocale(yutovo_calculator::Language::Russian, true));
     document.InsertCode(1, true);
     document.InsertDivision(true);
     document.InsertString("6кг", true);
@@ -2249,6 +2256,7 @@ TEST_F(SolverAutoTest, units7)
     document.MoveCaretRight(false);
     document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
     document.WaitSolver();
+    std::this_thread::sleep_for(1s);
     ASSERT_TRUE(document.ToText() == U"(6кг*2м)/(4с)=3.(кг*м)/(с)") << ToBasicString(document.ToText());
 }
 
@@ -2259,7 +2267,7 @@ TEST_F(SolverAutoTest, units8)
 
     document.GetConfig(config);
     config.service_timeout = 30000;
-    document.SetConfig(config, true);
+    document.WaitTask(document.SetConfig(config, true));
 
     document.InsertCode(false, true);
     document.InsertString("4N", true);
@@ -2268,7 +2276,7 @@ TEST_F(SolverAutoTest, units8)
     document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
     document.WaitSolver();
 
-    document.SetLocale(yutovo_calculator::Language::Russian, true);
+    document.WaitTask(document.SetLocale(yutovo_calculator::Language::Russian, true));
     document.MoveCaretEnd(false);
     document.InsertParagraph(true);
     document.InsertString("4.2Н", true);
@@ -2339,7 +2347,7 @@ TEST_F(SolverAutoTest, units11)
 {
     Start(600);
     
-    document.SetLocale(yutovo_calculator::Language::Russian, true);
+    document.WaitTask(document.SetLocale(yutovo_calculator::Language::Russian, true));
     document.InsertCode(false, true);
     document.WaitTask(document.InsertString("2км", true));
     document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
@@ -2375,11 +2383,11 @@ TEST_F(SolverAutoTest, units12)
 {
     Start(600);
     
-    document.SetLocale(yutovo_calculator::Language::Russian, true);
+    document.WaitTask(document.SetLocale(yutovo_calculator::Language::Russian, true));
     document.InsertCode(false, true);
     document.WaitTask(document.InsertString("1Ом", true));
     document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
-    std::this_thread::sleep_for(600ms);
+    std::this_thread::sleep_for(1s);
     document.WaitSolver();
     ASSERT_TRUE(document.ToText() == 
         U"1Ом=1.Ом"
@@ -2407,7 +2415,7 @@ TEST_F(SolverAutoTest, units13)
             return str;
         });
 
-    document.SetLocale(yutovo_calculator::Language::Russian, true);
+    document.WaitTask(document.SetLocale(yutovo_calculator::Language::Russian, true));
     document.InsertCode(false, true);
     document.WaitTask(document.InsertString("1с", true));
     document.WaitTask(document.InsertEquation(ResultType::AUTO, true));

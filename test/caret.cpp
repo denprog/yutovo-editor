@@ -1916,7 +1916,7 @@ TEST_F(DocumentTest, caret63)
 {
     Start(600);
 
-    document.SetLocale(yutovo_calculator::Language::Russian, true);
+    document.WaitTask(document.SetLocale(yutovo_calculator::Language::Russian, true));
     document.InsertCode(false, true);
     document.InsertString("d", true);
     document.InsertAssignment(true);
