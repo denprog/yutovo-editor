@@ -2086,7 +2086,7 @@ TEST_F(DocumentTest, clipboard38)
 
     document.GetConfig(config);
     config.rational_result.fraction_form = FractionForm::Improper;
-    document.SetConfig(config, true);
+    document.WaitTask(document.SetConfig(config, true));
 
     document.InsertCode(false, true);
     document.InsertString("123", true);
@@ -2317,7 +2317,7 @@ TEST_F(DocumentTest, clipboard43)
     Config config;
     document.GetConfig(config);
     config.integer_result.show_notation = true;
-    document.SetConfig(config, true);
+    document.WaitTask(document.SetConfig(config, true));
 
     document.InsertCode(false, true);
     document.InsertString("2345", true);
@@ -2363,7 +2363,7 @@ TEST_F(DocumentTest, clipboard44)
     Config config;
     document.GetConfig(config);
     config.integer_result.show_notation = false;
-    document.SetConfig(config, true);
+    document.WaitTask(document.SetConfig(config, true));
 
     document.InsertCode(false, true);
     document.InsertString("2345", true);

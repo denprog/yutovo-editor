@@ -553,7 +553,7 @@ TEST_F(VariablesTest, errors5)
 {
     Start(600);
 
-    document.SetLocale(yutovo_calculator::Language::English, true);
+    document.WaitTask(document.SetLocale(yutovo_calculator::Language::English, true));
     document.InsertCode(false, true);
     document.InsertString("R", true);
     document.InsertAssignment(true);
@@ -1005,7 +1005,7 @@ TEST_F(VariablesTest, variables17)
 {
     Start(600);
     
-    document.SetLocale(yutovo_calculator::Language::Russian, true);
+    document.WaitTask(document.SetLocale(yutovo_calculator::Language::Russian, true));
     document.InsertCode(false, true);
     document.InsertString("h", true);
     document.InsertAssignment(true);
@@ -1176,7 +1176,7 @@ TEST_F(VariablesTest, variables20)
             return str;
         });
 
-    document.SetLocale(yutovo_calculator::Language::Russian, true);
+    document.WaitTask(document.SetLocale(yutovo_calculator::Language::Russian, true));
     document.InsertString("Example 1", true);
     document.InsertParagraph(true);
     document.InsertString("Вычисление", true);
@@ -1186,7 +1186,7 @@ TEST_F(VariablesTest, variables20)
     document.InsertAssignment(true);
     document.InsertString("6370", true);
     document.InsertString(" ", true);
-    document.InsertString("км", true);
+    document.WaitTask(document.InsertString("км", true));
     document.WaitSolver();
 
     document.InsertParagraph(true);
@@ -1195,7 +1195,7 @@ TEST_F(VariablesTest, variables20)
     document.InsertSquareRoot(true);
     document.InsertString("Р_З", true);
     document.InsertMultiply(true);
-    document.InsertString("g_a", true);
+    document.WaitTask(document.InsertString("g_a", true));
     document.WaitSolver();
     std::this_thread::sleep_for(2s);
     
@@ -1206,12 +1206,12 @@ TEST_F(VariablesTest, variables20)
     document.WaitSolver();
     std::this_thread::sleep_for(2s);
 
-    document.MoveCaretToDocumentEnd(false);
+    document.WaitTask(document.MoveCaretToDocumentEnd(false));
     document.InsertParagraph(true);
     document.InsertString("Example 2", true);
     document.WaitTask(document.InsertParagraph(true));
     document.WaitTask(document.InsertString("String", true));
-    std::this_thread::sleep_for(2s);
+    std::this_thread::sleep_for(3s);
     ASSERT_TRUE(document.ToText() == 
         U"Example 1\n" \
         U"Вычисление\n" \
@@ -1222,7 +1222,7 @@ TEST_F(VariablesTest, variables20)
         U"String"
         ) << ToBasicString(document.ToText());
     
-    document.MoveCaretToDocumentBegin(false);
+    document.WaitTask(document.MoveCaretToDocumentBegin(false));
     document.MoveCaretDown(false);
     document.MoveCaretDown(false);
     document.MoveCaretEnd(false);
@@ -1244,7 +1244,7 @@ TEST_F(VariablesTest, variables20)
     ASSERT_TRUE(document.HasErrorMark(ElementId{0, 2, 0, 0, 1, 0, 0, 2}, start, size)) << ErrorMarks();
     ASSERT_TRUE(start == 0 && size == 1);
 
-    document.MoveCaretToDocumentBegin(false);
+    document.WaitTask(document.MoveCaretToDocumentBegin(false));
     document.MoveCaretEnd(true);
     document.WaitTask(document.DeleteElements(false, true));
     document.WaitSolver();
@@ -1317,7 +1317,7 @@ TEST_F(VariablesTest, variables22)
             return str;
         });
 
-    document.SetLocale(yutovo_calculator::Language::Russian, true);
+    document.WaitTask(document.SetLocale(yutovo_calculator::Language::Russian, true));
     document.InsertCode(false, true);
     document.InsertString("a", true);
     document.InsertAssignment(true);
