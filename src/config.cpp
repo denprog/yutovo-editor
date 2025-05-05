@@ -1,6 +1,7 @@
 #include "config.h"
 #include <rapidjson/prettywriter.h>
 #include <rapidjson/istreamwrapper.h>
+#include "document.h"
 
 #ifdef _MSC_VER
 #undef GetObject
@@ -67,7 +68,7 @@ void Config::ToJson(std::string& json)
     json = buffer.GetString();
 }
 
-void Config::FromJson(const rapidjson::Value::ConstObject& value, rapidjson::Document::AllocatorType& alloc)
+void Config::FromJson(const rapidjson::Document& value, rapidjson::Document::AllocatorType& alloc)
 {
     //not all the parameters are here for a while
     if (value.HasMember("language") && value["language"].IsInt())
@@ -150,7 +151,7 @@ bool Config::FromJson(const std::string& json)
     if (doc.HasParseError() || !doc.IsObject() || doc.ObjectEmpty())
         return false;
 
-    FromJson((rapidjson::Value::ConstObject&)doc, doc.GetAllocator());
+    FromJson(doc, doc.GetAllocator());
     return true;
 }
 

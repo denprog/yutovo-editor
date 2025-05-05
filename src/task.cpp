@@ -1835,7 +1835,14 @@ bool LoadTask::LoadJson(rapidjson::Document& doc)
     {
         //load config
         rapidjson::Value::Object p = doc["config"].GetObject();
-        document->config.FromJson((rapidjson::Value::ConstObject&)p, alloc);
+
+        rapidjson::Document d;
+        auto& alloc = d.GetAllocator();
+        d.SetObject();
+        for (auto& v : p)
+            d.AddMember(v.name, v.value, alloc);
+
+        document->config.FromJson(d, alloc);
         document->solver.SetLocale(document->config.language);
         document->SetLocale(document->config.language, false);
     }
