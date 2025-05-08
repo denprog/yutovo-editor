@@ -505,6 +505,7 @@ bool String::ChangeStringFormat(const StringFormatPtr _format, bool with_undo, E
 void String::SetString(const std::u32string& str)
 {
     elements.reset(new StringElements(this, str));
+    size_cache.clear();
 }
 
 bool String::Split(const uint width, bool split_more)
