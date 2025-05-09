@@ -137,7 +137,7 @@ TEST_F(UnitTest, unit3)
     std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToText() == 
         U"d_m~1m\n"\
-        U"10m=100.dm"
+        U"10m=10.m"
         ) << ToBasicString(document.ToText());
 }
 
