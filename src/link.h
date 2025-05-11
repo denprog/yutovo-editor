@@ -26,6 +26,13 @@ public:
     virtual void ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc);
     static Element* FromJson(Element* parent, Document* document, const rapidjson::Value::ConstObject& value, rapidjson::Document::AllocatorType& alloc);
 
+    virtual bool Merge(const ElementPtr with_element);
+    virtual bool CanMerge(const ElementPtr with_element);
+
+    virtual bool AfterInsert(bool with_undo);
+
+    virtual StringFormatPtr GetStringFormat() const;
+
     virtual std::string ToHtml();
 
     virtual bool InsertElements(std::vector<ElementPtr>& _elements, bool with_undo, ElementId& changed_element);

@@ -588,9 +588,9 @@ int UndoBase::Store(const ElementId& id)
         el = document->GetParent(el->id);
     }
     ids.push_back(el->logical_id);
-    for (auto& id : ids)
+    for (auto& _id : ids)
     {
-        if (!Store(next_undo_id, id))
+        if (!Store(next_undo_id, _id))
             return -1;
     }
     return next_undo_id++;
