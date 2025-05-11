@@ -971,4 +971,38 @@ TEST_F(DocumentTest, files22)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 4)) << document.GetEditorState().ToString();
 }
 
+//Check format after load
+TEST_F(TwoDocumentsTest, files23)
+{
+    Start(600);
+
+    EXPECT_CALL(window_mock, OnSaveResult).WillOnce([&](const uint task_id, IOResult result, const int document_id)
+        {
+            ASSERT_TRUE(result == IOResult::Success);
+        });
+
+    EXPECT_CALL(window_mock2, OnLoadResult).WillOnce([&](const uint task_id, IOResult result, const int document_id)
+        {
+            ASSERT_TRUE(result == IOResult::Success);
+        });
+
+    document.InsertCode(false, true);
+    document.WaitTask(document.InsertString("123", true));
+    document.WaitTask(document.Save("files23.yut"));
+    std::this_thread::sleep_for(200ms);
+
+    document2.WaitTask(document2.InsertCode(false, true));
+    document2.Load("files23.yut");
+    document2.WaitLoad();
+    std::this_thread::sleep_for(400ms);
+
+    document2.WaitTask(document2.MoveCaretToDocumentBegin(false));
+    StringFormatPtr f;
+    document2.GetCurrentStringFormat(f);
+    ASSERT_TRUE(f->family == "Arial");
+    StringFormat format;
+    document2.GetStringFormat(ElementId{0, 0, 0}, format);
+    ASSERT_TRUE(format.family == "Arial");
+}
+
 }

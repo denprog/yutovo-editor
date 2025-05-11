@@ -5,6 +5,8 @@
 namespace yutovo
 {
 
+//CodeParagraph
+
 CodeParagraph::CodeParagraph(Element* _parent, bool with_row) :
     Paragraph(_parent, false)
 {
