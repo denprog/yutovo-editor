@@ -397,6 +397,7 @@ bool Paragraph::ChangeParagraphFormat(const ParagraphFormatPtr _format, bool wit
         elements->Get(i)->UpdateStringFormat(format->default_string_format, _format->default_string_format);
 
     format = _format;
+    current_string_format = format->default_string_format;
     changed_element = id;
     window->OnCaretMoved(document->MakeEditorState());
     

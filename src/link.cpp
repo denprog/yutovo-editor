@@ -131,6 +131,42 @@ Element* Link::FromJson(Element* parent, Document* document, const rapidjson::Va
     return new Link(parent, "", url);
 }
 
+bool Link::Merge(const ElementPtr with_element)
+{
+    if (with_element->type != ElementType::LINK)
+        return false;
+    return String::Merge(with_element);
+}
+
+bool Link::CanMerge(const ElementPtr with_element)
+{
+    if (!editable || with_element->type != ElementType::LINK)
+        return false;
+    Link* el = (Link*)with_element.get();
+    if (el->format != format)
+        return false;
+    return can_merge;
+}
+
+bool Link::AfterInsert(bool with_undo)
+{
+    if (!caret)
+        return false;
+    CaretState c;
+    if (GetLastCaretState(c, nullptr))
+        caret->SetState(c);
+    return true;
+}
+
+StringFormatPtr Link::GetStringFormat() const
+{
+    auto f = parent->GetStringFormat();
+    if (!f)
+        return format;
+    return document->string_formats->GetFormat(format->family, format->size, format->bold, format->italic, f->underline, format->strikethrough, 
+        f->text_color, format->text_bg_color, format->text_bg_selection_color);
+}
+
 std::string Link::ToHtml()
 {
     std::string s = "<a url=\"" + ToBasicString(url) + "\" ";
@@ -164,22 +200,48 @@ std::string Link::ToHtml()
 
 bool Link::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo, ElementId& changed_element)
 {
-    if (_elements.size() == 1 && _elements[0]->type == ElementType::LINK)
+    if (_elements.size() == 1)
     {
-        Link* link = (Link*)_elements[0].get();
-        if (link->ToText() == U"" || link->url.empty() || (link->ToText() == ToText() && url == link->url))
-            return false;
+        if (_elements[0]->type == ElementType::LINK)
+        {
+            Link* link = (Link*)_elements[0].get();
+            if (link->ToText() == U"" || link->url.empty() || (link->ToText() == ToText() && url == link->url))
+                return false;
 
-        format = document->string_formats->GetFormat(format->family, format->size, format->bold, format->italic, format->underline, format->strikethrough,
-            document->config.link_color, format->text_bg_color, format->text_bg_selection_color);
+            format = document->string_formats->GetFormat(format->family, format->size, format->bold, format->italic, format->underline, format->strikethrough,
+                document->config.link_color, format->text_bg_color, format->text_bg_selection_color);
 
-        if (with_undo)
-            document->StoreUndo(id);
-        SetString(link->ToText());
-        caret->SetState(id, elements->Count());
-        url = link->url; //just change the url
-        changed_element = id;
-        return true;
+            if (with_undo)
+                document->StoreUndo(id);
+            SetString(link->ToText());
+            caret->SetState(id, elements->Count());
+            url = link->url; //just change the url
+            changed_element = id;
+            return true;
+        }
+        else if (document->IsString(_elements[0]))
+        {
+            if (caret->IsInsideElement(id) && caret->GetPos() > 0 && caret->GetPos() < elements->Count())
+            {
+                size_cache.clear();
+                String* s = dynamic_cast<String*>(_elements[0].get());
+                if (!s->format || (format && s->format->family == format->family && s->format->size == format->size))
+                {
+                    if (with_undo)
+                        document->StoreUndo(id);
+                    elements->Insert(_elements[0], caret->GetPos());
+                    caret->SetState(elements->GetElementId(caret->GetPos() + s->elements->Count()));
+                    parent->Normalize();
+                    auto p = document->FindParent(id, ElementType::PARAGRAPH);
+                    p->elements->UpdateIds();
+                    changed_element = id;
+#ifdef DEBUG
+                    to_str = ToText();
+#endif
+                    return true;
+                }
+            }
+        }
     }
     return String::InsertElements(_elements, with_undo, changed_element);
 }

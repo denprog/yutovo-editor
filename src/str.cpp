@@ -663,7 +663,7 @@ bool String::CanMerge(const ElementPtr with_element)
 {
     if (!editable)
         return false;
-    if (!document->IsString(with_element))
+    if (!document->IsString(with_element) || with_element->type == ElementType::LINK)
         return false;
     String* el = (String*)with_element.get();
     if (el->format != format)
@@ -675,7 +675,9 @@ bool String::AfterInsert(bool with_undo)
 {
     if (!caret)
         return false;
-    CaretState c;
+    CaretState c = caret->GetCaretState();
+    if (document->GetElementType(c.id) == ElementType::LINK)
+        format = parent->GetStringFormat(); //get string format from the row
     if (GetLastCaretState(c, nullptr))
         caret->SetState(c);
     return true;

@@ -237,6 +237,7 @@ protected:
 protected:
     friend class UndoBase;
     friend class String;
+    friend class Link;
     
     Element* parent = nullptr;
     CaretPtr caret;
