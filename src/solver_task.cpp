@@ -414,8 +414,8 @@ bool AutoSolverTask::Execute(WebSocketPtr socket, Result& result)
     doc.AddMember("real_exponent_size", config.real_result.exp, alloc);
 
     //integer config
-    doc.AddMember("result_notation", (int)config.integer_result.result_notation, alloc);
-    doc.AddMember("default_notation", (int)config.integer_result.default_notation, alloc);
+    doc.AddMember("integer_result_notation", (int)config.integer_result.result_notation, alloc);
+    doc.AddMember("integer_default_notation", (int)config.integer_result.default_notation, alloc);
 
     //rational config
     doc.AddMember("fraction_form", (int)config.rational_result.fraction_form, alloc);
@@ -425,8 +425,8 @@ bool AutoSolverTask::Execute(WebSocketPtr socket, Result& result)
     doc.AddMember("complex_default_angle_measure", (int)config.complex_result.default_angle_measure, alloc);
     doc.AddMember("complex_result_angle_measure", (int)config.complex_result.result_angle_measure, alloc);
     doc.AddMember("complex_exponent_size", config.complex_result.exp, alloc);
-    doc.AddMember("form", (int)config.complex_result.form, alloc);
-    doc.AddMember("max_count", config.complex_result.max_count, alloc);
+    doc.AddMember("complex_form", (int)config.complex_result.form, alloc);
+    doc.AddMember("complex_max_count", config.complex_result.max_count, alloc);
 
     AddUnit(doc, config.real_result.unit);
 
@@ -575,8 +575,8 @@ bool IntegerSolverTask::Execute(WebSocketPtr socket, Result& result)
     doc.AddMember("code_id", code_id, alloc);
     doc.AddMember("solver_type", (int)SolverType::CALCULATOR, alloc);
     doc.AddMember("result_type", (int)ResultType::INTEGER, alloc);
-    doc.AddMember("result_notation", (int)config.result_notation, alloc);
-    doc.AddMember("default_notation", (int)config.default_notation, alloc);
+    doc.AddMember("integer_result_notation", (int)config.result_notation, alloc);
+    doc.AddMember("integer_default_notation", (int)config.default_notation, alloc);
     std::string s = ToBasicString(expression);
     doc.AddMember("expression", rapidjson::StringRef(s.c_str()), alloc);
 
@@ -716,8 +716,8 @@ bool ComplexSolverTask::Execute(WebSocketPtr socket, Result& result)
     doc.AddMember("complex_default_angle_measure", (int)config.default_angle_measure, alloc);
     doc.AddMember("complex_result_angle_measure", (int)config.result_angle_measure, alloc);
     doc.AddMember("complex_exponent_size", config.exp, alloc);
-    doc.AddMember("form", (int)config.form, alloc);
-    doc.AddMember("max_count", config.max_count, alloc);
+    doc.AddMember("complex_form", (int)config.form, alloc);
+    doc.AddMember("complex_max_count", config.max_count, alloc);
 
     LOG_DEBUG("Solve expression:\"{}\", config:{}", s, config.ToString());
 
