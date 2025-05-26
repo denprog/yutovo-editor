@@ -1579,4 +1579,30 @@ TEST_F(VariablesTest, variables26)
         ) << ToBasicString(document.ToText());
 }
 
+//Check no result
+TEST_F(VariablesTest, variables27)
+{
+    Start(600);
+
+    EXPECT_CALL(window_mock, Translate).WillRepeatedly([&](ElementId id, const std::u32string& str)
+        {
+            return str;
+        });
+
+    document.InsertCode(false, true);
+    document.InsertString("a", true);
+    document.WaitTask(document.InsertAssignment(true));
+    document.WaitTask(document.InsertString("5", true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+
+    document.WaitTask(document.MoveCaretRight(false));
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(2s);
+    ASSERT_TRUE(document.ToText() == 
+        U"a=5=No result"
+        ) << ToBasicString(document.ToText());
+}
+
 }

@@ -2747,11 +2747,8 @@ uint Document::PutResult(const std::string& guid, const Result& result)
     tasks.emplace_back(new ResultTask(text, it->second, result));
 
 #ifdef DEBUG
-    if ((result.type != ResultType::NONE && result.error.error_code != yutovo_solver::ErrorCode::SOLVER_RESTARTED_ERROR) ||    
-        result.error.error_code == yutovo_solver::ErrorCode::PARSER_ERROR)
-    {
+    if (result.error.error_code != yutovo_solver::ErrorCode::SOLVER_RESTARTED_ERROR || result.error.error_code == yutovo_solver::ErrorCode::PARSER_ERROR)
         last_solver_task_id = tasks.back()->id;
-    }
 #endif
     last_task_id = tasks.back()->id;
     return last_task_id;
