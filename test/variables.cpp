@@ -1605,4 +1605,57 @@ TEST_F(VariablesTest, variables27)
         ) << ToBasicString(document.ToText());
 }
 
+//Check variables after merging paragraphs
+TEST_F(VariablesTest, variables28)
+{
+    Start(600);
+
+    document.WaitTask(document.SetLocale(yutovo_calculator::Language::Russian, true));
+    document.InsertCode(false, true);
+    document.InsertString("k", true);
+    document.WaitTask(document.InsertAssignment(true));
+    document.WaitTask(document.InsertString("1м", true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+
+    document.InsertParagraph(true);
+    document.InsertString("k", true);
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(2s);
+    ASSERT_TRUE(document.ToText() == 
+        U"k=1м\n"\
+        U"k=1.м"
+        ) << ToBasicString(document.ToText());
+
+    document.MoveCaretUp(false);
+    document.MoveCaretEnd(false);
+    document.WaitTask(document.DeleteElements(false, true));
+
+    ElementPtr el = document.FindByString({0, 0, 0}, U"1.");
+    yutovo_calculator::Unit unit(U"см");
+    document.WaitTask(document.SetUnit(el->parent->parent->id, unit, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(2s);
+    ASSERT_TRUE(document.ToText() == 
+        U"k=1мk=100.см"
+        ) << ToBasicString(document.ToText());
+
+    document.Undo();
+    document.WaitUndo();
+    document.WaitSolver();
+    std::this_thread::sleep_for(2s);
+    ASSERT_TRUE(document.ToText() == 
+        U"k=1мk=1.м"
+        ) << ToBasicString(document.ToText());
+
+    document.Redo();
+    document.WaitRedo();
+    document.WaitSolver();
+    std::this_thread::sleep_for(2s);
+    ASSERT_TRUE(document.ToText() == 
+        U"k=1мk=100.см"
+        ) << ToBasicString(document.ToText());
+}
+
 }
