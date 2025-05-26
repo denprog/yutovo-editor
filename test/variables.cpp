@@ -1538,4 +1538,45 @@ TEST_F(VariablesTest, variables25)
         ) << ToBasicString(document.ToText());
 }
 
+//Recalculate after changing a variable with a subscript
+TEST_F(VariablesTest, variables26)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.InsertString("ф", true);
+    document.InsertSubscript(true);
+    document.InsertString("1", true);
+    document.WaitTask(document.MoveCaretRight(false));
+    document.InsertAssignment(true);
+    document.InsertString("5", true);
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+
+    document.InsertParagraph(true);
+    document.InsertString("ф", true);
+    document.InsertSubscript(true);
+    document.InsertString("1", true);
+    document.WaitTask(document.MoveCaretRight(false));
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(2s);
+    ASSERT_TRUE(document.ToText() == 
+        U"ф{1}=5\n" \
+        U"ф{1}=5."
+        ) << ToBasicString(document.ToText());
+    
+    document.MoveCaretUp(false);
+    document.MoveCaretEnd(false);
+    document.MoveCaretLeft(false);
+    document.WaitTask(document.DeleteElements(true, true));
+    document.WaitTask(document.InsertString("7", true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(2s);
+    ASSERT_TRUE(document.ToText() == 
+        U"ф{1}=7\n" \
+        U"ф{1}=7."
+        ) << ToBasicString(document.ToText());
+}
+
 }
