@@ -476,7 +476,9 @@ bool AutoSolverTask::Execute(WebSocketPtr socket, Result& result)
             return false;
         break;
     default:
-        return false;
+        result.error.error_code = ErrorCode::NO_RESULT;
+        LOG_DEBUG("Result: No result");
+        return true;
     }
 
     LOG_DEBUG("Result:{}", "{" + result.ToString() + "}");
@@ -541,6 +543,12 @@ bool RealSolverTask::Execute(WebSocketPtr socket, Result& result)
     }
 
     GetResultType(doc, result);
+    if (result.type == ResultType::NONE)
+    {
+        result.error.error_code = ErrorCode::NO_RESULT;
+        LOG_DEBUG("Result: No result");
+        return true;
+    }
     if (result.type != ResultType::REAL)
     {
         LOG_ERROR("Error: result type not Real");
@@ -608,7 +616,13 @@ bool IntegerSolverTask::Execute(WebSocketPtr socket, Result& result)
     }
 
     GetResultType(doc, result);
-    if (result.type != ResultType::INTEGER)
+    if (result.type == ResultType::NONE)
+    {
+        result.error.error_code = ErrorCode::NO_RESULT;
+        LOG_DEBUG("Result: No result");
+        return true;
+    }
+    else if (result.type != ResultType::INTEGER)
     {
         LOG_ERROR("Error: result type not Integer");
         return false;
@@ -676,7 +690,13 @@ bool RationalSolverTask::Execute(WebSocketPtr socket, Result& result)
     }
 
     GetResultType(doc, result);
-    if (result.type != ResultType::RATIONAL)
+    if (result.type == ResultType::NONE)
+    {
+        result.error.error_code = ErrorCode::NO_RESULT;
+        LOG_DEBUG("Result: No result");
+        return true;
+    }
+    else if (result.type != ResultType::RATIONAL)
     {
         LOG_ERROR("Error: result type not Rational");
         return false;
@@ -746,7 +766,13 @@ bool ComplexSolverTask::Execute(WebSocketPtr socket, Result& result)
     }
 
     GetResultType(doc, result);
-    if (result.type != ResultType::COMPLEX)
+    if (result.type == ResultType::NONE)
+    {
+        result.error.error_code = ErrorCode::NO_RESULT;
+        LOG_DEBUG("Result: No result");
+        return true;
+    }
+    else if (result.type != ResultType::COMPLEX)
     {
         LOG_ERROR("Error: result type not Complex");
         return false;
