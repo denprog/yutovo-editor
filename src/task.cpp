@@ -1198,7 +1198,6 @@ bool UndoTask::Execute()
                 else
                 {
                     p->elements->Insert(undo_elements[i], pos + i);
-                    p->elements->Get(pos + i)->AfterInsert(with_undo);
                 }
             }
         }
