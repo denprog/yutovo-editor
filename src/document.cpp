@@ -1029,7 +1029,7 @@ void Document::GetElements(const LogicalId& _id, std::vector<ElementPtr>& elemen
         if (_id[i] > 0 && _id[i] == el->elements->Count())
         {
             auto ch = el->elements->Get(_id[i - 1]);
-            if (!ch->HasLastCaretState())
+            if (!ch || !ch->HasLastCaretState())
                 return;
             el = el->elements->Get(_id[i - 1]);
         }
