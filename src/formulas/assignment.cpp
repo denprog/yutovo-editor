@@ -150,11 +150,14 @@ bool Assignment::AfterInsert(bool with_undo)
     int pos = parent->elements->GetElementPos(id);
     if (pos > 0)
         GetFirst()->elements->Clear();
-    for (int i = 0; i < pos; ++i)
+    for (int i = pos - 1; i >= 0; --i)
     {
-        auto el = parent->elements->Get(0);
-        GetFirst()->elements->Move(el, i);
+        auto el = parent->elements->Get(i);
+        if (el->type == ElementType::ASSIGNMENT || el->type == ElementType::EQUATION)
+            break;
+        GetFirst()->elements->Move(el, 0);
     }
+
     CaretState c;
     GetLast()->GetFirstCaretState(c, nullptr);
     caret->SetState(c);
