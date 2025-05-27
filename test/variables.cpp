@@ -1704,4 +1704,45 @@ TEST_F(VariablesTest, variables29)
         ) << ToBasicString(document.ToText());
 }
 
+//Check variables with subscript
+TEST_F(VariablesTest, variables30)
+{
+    Start(600);
+
+    document.WaitTask(document.SetLocale(yutovo_calculator::Language::Russian, true));
+    document.InsertCode(false, true);
+    document.InsertString("k", true);
+    document.InsertSubscript(true);
+    document.InsertString("e", true);
+    document.MoveCaretRight(false);
+    document.WaitTask(document.InsertAssignment(true));
+    document.WaitTask(document.InsertString("1м", true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+
+    document.InsertParagraph(true);
+    document.InsertString("k", true);
+    document.InsertSubscript(true);
+    document.InsertString("e", true);
+    document.MoveCaretRight(false);
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(2s);
+    ASSERT_TRUE(document.ToText() == 
+        U"k{e}=1м\n"\
+        U"k{e}=1.м"
+        ) << ToBasicString(document.ToText());
+    
+    document.MoveCaretUp(false);
+    document.MoveCaretRight(false);
+    document.MoveCaretRight(false);
+    document.WaitTask(document.DeleteElements(false, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(2s);
+    ASSERT_TRUE(document.ToText() == 
+        U"{e}=1м\n"\
+        U"k{e}=Unknown identifier"
+        ) << ToBasicString(document.ToText());
+}
+
 }
