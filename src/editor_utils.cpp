@@ -114,18 +114,6 @@ FormattingScope::~FormattingScope()
     window->OnFormattingFinished();
 }
 
-std::string IdToString(const ElementId& id)
-{
-	std::string res;
-	for (size_t i = 0; i < id.size(); ++i)
-	{
-		res += std::to_string(id[i]);
-		if (i < id.size() - 1)
-			res += ",";
-	}
-	return res;
-}
-
 ElementId IdFromString(const std::string& id)
 {
     ElementId res;

@@ -174,8 +174,7 @@ bool CaretState::IsEmpty() const
 #ifdef TEST
 std::string CaretState::ToString() const
 {
-    std::string res = IdToString(id);
-    return res;
+    return ElementIdToString(id);
 }
 #endif
 

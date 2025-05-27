@@ -73,7 +73,7 @@ Element::~Element()
 
 void Element::ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc)
 {
-    rapidjson::Value _id(IdToString(id).c_str(), alloc);
+    rapidjson::Value _id(ElementIdToString(id).c_str(), alloc);
     value.AddMember("id", _id, alloc);
     value.AddMember("type", (int)type, alloc);
     elements->ToJson(value, alloc);
