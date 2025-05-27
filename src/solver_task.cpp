@@ -430,7 +430,7 @@ bool AutoSolverTask::Execute(WebSocketPtr socket, Result& result)
 
     AddUnit(doc, config.real_result.unit);
 
-    LOG_DEBUG("Solve expression:\"{}\", config:{}", s, config.ToString());
+    LOG_DEBUG("Solve expression:\"{}\", id:{}, config:{}", s, LogicalIdToString(id), config.ToString());
 
     if (!SendRequest(doc, result, socket))
         return false;
@@ -516,7 +516,7 @@ bool RealSolverTask::Execute(WebSocketPtr socket, Result& result)
 
     AddUnit(doc, config.unit);
 
-    LOG_DEBUG("Solve expression:\"{}\", config:{}", s, config.ToString());
+    LOG_DEBUG("Solve expression:\"{}\", id:{}, config:{}", s, LogicalIdToString(id), config.ToString());
 
     if (!SendRequest(doc, result, socket))
         return false;
@@ -588,7 +588,7 @@ bool IntegerSolverTask::Execute(WebSocketPtr socket, Result& result)
     std::string s = ToBasicString(expression);
     doc.AddMember("expression", rapidjson::StringRef(s.c_str()), alloc);
 
-    LOG_DEBUG("Solve expression:\"{}\", config:{}", s, config.ToString());
+    LOG_DEBUG("Solve expression:\"{}\", id:{}, config:{}", s, LogicalIdToString(id), config.ToString());
 
     if (!SendRequest(doc, result, socket))
         return false;
@@ -662,7 +662,7 @@ bool RationalSolverTask::Execute(WebSocketPtr socket, Result& result)
 
     AddUnit(doc, config.unit);
 
-    LOG_DEBUG("Solve expression:\"{}\", config:{}", s, config.ToString());
+    LOG_DEBUG("Solve expression:\"{}\", id:{}, config:{}", s, LogicalIdToString(id), config.ToString());
 
     if (!SendRequest(doc, result, socket))
         return false;
@@ -739,7 +739,7 @@ bool ComplexSolverTask::Execute(WebSocketPtr socket, Result& result)
     doc.AddMember("complex_form", (int)config.form, alloc);
     doc.AddMember("complex_max_count", config.max_count, alloc);
 
-    LOG_DEBUG("Solve expression:\"{}\", config:{}", s, config.ToString());
+    LOG_DEBUG("Solve expression:\"{}\", id:{}, config:{}", s, LogicalIdToString(id), config.ToString());
 
     if (!SendRequest(doc, result, socket))
         return false;
@@ -868,7 +868,10 @@ bool RemoveIdentifierSolverTask::Execute(WebSocketPtr socket, Result& result)
     FillId(doc);
     doc.AddMember("code_id", code_id, alloc);
     doc.AddMember("solver_type", (int)SolverType::CALCULATOR, alloc);
-    doc.AddMember("expression", rapidjson::StringRef(ToBasicString(expression).c_str()), alloc);
+    std::string s = ToBasicString(expression);
+    doc.AddMember("expression", rapidjson::StringRef(s.c_str()), alloc);
+
+    LOG_DEBUG("Remove identifier:\"{}\", id:{}", s, LogicalIdToString(id));
 
     if (!SendRequest(doc, result, socket))
         return false;
@@ -914,6 +917,8 @@ bool RemoveUserIdentifiersSolverTask::Execute(WebSocketPtr socket, Result& resul
     doc.AddMember("command", "REMOVE_USER_IDENTIFIERS", alloc);
     doc.AddMember("guid", rapidjson::StringRef(solver_guid.c_str()), alloc);
 
+    LOG_DEBUG("Remove user identifiers");
+
     if (!SendRequest(doc, result, socket))
         return false;
     
@@ -957,6 +962,8 @@ bool SetLocaleSolverTask::Execute(WebSocketPtr socket, Result& result)
     doc.AddMember("command", "SET_LOCALE", alloc);
     doc.AddMember("guid", rapidjson::StringRef(solver_guid.c_str()), alloc);
     doc.AddMember("language", (int)language, alloc);
+
+    LOG_DEBUG("Set locale:\"{}\"", (int)language);
 
     if (!SendRequest(doc, result, socket))
         return false;
