@@ -179,7 +179,7 @@ std::string SelectionState::ToString() const
     for (size_t i = 0; i < state.size(); ++i)
     {
         const ElementSelectionState& s = state[i];
-        res += "[{" + IdToString(s.id) + "}," + std::to_string(s.start) + "," + std::to_string(s.size) + "]";
+        res += "[{" + ElementIdToString(s.id) + "}," + std::to_string(s.start) + "," + std::to_string(s.size) + "]";
         if (i < state.size() - 1)
             res += ",";
     }

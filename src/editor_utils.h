@@ -292,11 +292,6 @@ struct FormattingScope
     Window* window;
 };
 
-std::string IdToString(const ElementId& id);
-ElementId IdFromString(const std::string& id);
-
-LogicalId LogicalIdFromString(const std::string& id);
-
 bool IsChild(const ElementId& parent_id, const ElementId& child_id);
 bool IsChild(const LogicalId& parent_id, const LogicalId& child_id);
 bool IsDirectChild(const ElementId& parent_id, const ElementId& child_id);

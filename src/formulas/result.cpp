@@ -54,7 +54,7 @@ void ResultRow::ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorTy
         return;
     }
 
-    rapidjson::Value _id(IdToString(id).c_str(), alloc);
+    rapidjson::Value _id(ElementIdToString(id).c_str(), alloc);
     value.AddMember("id", _id, alloc);
     value.AddMember("type", (int)type, alloc);
 
@@ -398,7 +398,7 @@ void RealResult::PutResult(Result& result)
         Value& value = result.values[0];
         std::string mantissa = value["mantissa"];
         std::string exponent = value["exponent"];
-        //logger->Info("id={} mantissa={}", IdToString(id), mantissa);
+        //logger->Info("id={} mantissa={}", ElementIdToString(id), mantissa);
 
         AddNumber(mantissa);
         AddExponent(exponent);
