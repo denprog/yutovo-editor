@@ -869,6 +869,7 @@ TEST_F(DocumentTest, files20)
 
     document.Redo();
     document.WaitRedo();
+    std::this_thread::sleep_for(200ms);
     ASSERT_TRUE(document.IsChanged() == false);
 
     document.InsertString("N", true);

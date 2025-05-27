@@ -1601,7 +1601,7 @@ TEST_F(VariablesTest, variables27)
     document.WaitSolver();
     std::this_thread::sleep_for(2s);
     ASSERT_TRUE(document.ToText() == 
-        U"a=5=No result"
+        U"a=5=Expression expected"
         ) << ToBasicString(document.ToText());
 }
 
@@ -1655,6 +1655,52 @@ TEST_F(VariablesTest, variables28)
     std::this_thread::sleep_for(2s);
     ASSERT_TRUE(document.ToText() == 
         U"k=1мk=100.см"
+        ) << ToBasicString(document.ToText());
+}
+
+//Check variables after merging paragraphs
+TEST_F(VariablesTest, variables29)
+{
+    Start(600);
+
+    document.WaitTask(document.SetLocale(yutovo_calculator::Language::Russian, true));
+    document.InsertCode(false, true);
+    document.InsertString("k", true);
+    document.WaitTask(document.InsertAssignment(true));
+    document.WaitTask(document.InsertString("1м", true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+
+    document.InsertParagraph(true);
+    document.InsertString("k", true);
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(2s);
+    ASSERT_TRUE(document.ToText() == 
+        U"k=1м\n"\
+        U"k=1.м"
+        ) << ToBasicString(document.ToText());
+
+    document.MoveCaretUp(false);
+    document.MoveCaretEnd(false);
+    document.WaitTask(document.DeleteElements(false, true));
+    ASSERT_TRUE(document.ToText() == 
+        U"k=1мk=1.м"
+        ) << ToBasicString(document.ToText());
+    
+    document.MoveCaretRight(false);
+    document.MoveCaretRight(false);
+    document.MoveCaretRight(false);
+    document.WaitTask(document.DeleteElements(false, true));
+    ASSERT_TRUE(document.ToText() == 
+        U"k=1мk"
+        ) << ToBasicString(document.ToText());
+
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(2s);
+    ASSERT_TRUE(document.ToText() == 
+        U"k=1мk=1.м"
         ) << ToBasicString(document.ToText());
 }
 

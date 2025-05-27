@@ -156,10 +156,12 @@ bool Equation::AfterInsert(bool with_undo)
     if (pos > 0)
         GetFirst()->elements->Clear();
     ready = false;
-    for (int i = 0; i < pos; ++i)
+    for (int i = pos - 1; i >= 0; --i)
     {
-        auto el = parent->elements->Get(0);
-        GetFirst()->elements->Move(el, i);
+        auto el = parent->elements->Get(i);
+        if (el->type == ElementType::ASSIGNMENT || el->type == ElementType::EQUATION)
+            break;
+        GetFirst()->elements->Move(el, 0);
     }
     ready = true;
     caret->SetState(GetShape()->id);

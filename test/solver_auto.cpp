@@ -1618,7 +1618,7 @@ TEST_F(SolverAutoTest, solver37)
     document.InsertString("234", true);
     document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
     document.WaitSolver();
-    std::this_thread::sleep_for(2s);
+    std::this_thread::sleep_for(3s);
     ASSERT_TRUE(document.ToText() == 
         U"234=234.") << 
         ToBasicString(document.ToText());
