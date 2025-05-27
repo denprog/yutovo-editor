@@ -425,7 +425,7 @@ uint Document::DeleteElements(bool left, bool with_undo)
 
 uint Document::ClearElements(ElementId element_id, bool with_undo)
 {
-    LOG_TRACE("Clear elements: {}", IdToString(element_id));
+    LOG_TRACE("Clear elements: {}", ElementIdToString(element_id));
     {
         std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
         tasks.emplace_back(new DeleteElementsTask(text, element_id, with_undo));
