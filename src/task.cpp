@@ -1425,6 +1425,7 @@ bool NewTask::Execute()
 {
     document->caret->MoveToDocumentBegin(nullptr);
     document->ResetTasks();
+    document->solver.RemoveUserIdentifiers();
     document->current_paragraph_format = document->paragraph_formats->GetFormat("Text body");
     document->current_code_format = document->code_formats->GetFormat("Calculator");
     document->current_formula_format = document->formula_formats->GetFormat("Code");
