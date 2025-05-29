@@ -168,6 +168,38 @@ bool MiddleShapeFormula::AfterInsert(bool with_undo)
                     GetFirst()->elements->Move(document->GetElement(el1->id), 0);
                 }
             }
+            else if (el1 && el1->type == ElementType::CLOSE_FENCE)
+            {
+                //find open fence
+                int pos = parent->elements->GetElementPos(id);
+                int open_pos = -1;
+                int close_count = 1;
+                for (int i = pos - 2; i >= 0; --i)
+                {
+                    auto el = parent->elements->Get(i);
+                    if (el->type == ElementType::CLOSE_FENCE)
+                        ++close_count;
+                    else if (el->type == ElementType::OPEN_FENCE)
+                    {
+                        if (close_count == 1)
+                        {
+                            open_pos = i;
+                            break;
+                        }
+                        else
+                            --close_count;
+                    }
+                }
+
+                if (open_pos != -1)
+                {
+                    for (int i = pos - 1; i >= open_pos; --i)
+                    {
+                        auto _el = parent->elements->Get(i);
+                        GetFirst()->elements->Move(_el, 0);
+                    }
+                }
+            }
         }
 
         selection->Clear();

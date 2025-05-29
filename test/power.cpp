@@ -858,4 +858,60 @@ TEST_F(FormulaTest, power16)
         ElementSelectionState{ElementId{0, 0, 0, 0, 0, 0, 0, 2}, 0, 1})) << document.GetEditorState().ToString();
 }
 
+//Insert power after a closing fence
+TEST_F(FormulaTest, power17)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.InsertOpenFence(true);
+    document.InsertString("3", true);
+    document.InsertPlus(true);
+    document.InsertString("2", true);
+    document.InsertCloseFence(true);
+    document.WaitTask(document.InsertPower(true));
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<msup>"\
+                            "<mrow>"\
+                                "<mo>(</mo>" \
+                                "<mi>3</mi>"\
+                                "<mo>+</mo>"\
+                                "<mi>2</mi>"\
+                                "<mo>)</mo>" \
+                            "</mrow>"\
+                            "<mrow>"\
+                                "<mi>Null</mi>"\
+                            "</mrow>"\
+                        "</msup>"\
+                    "</mrow>"\
+                "</math>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 2, 0, 0})) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mo>(</mo>" \
+                        "<mi>3</mi>"\
+                        "<mo>+</mo>"\
+                        "<mi>2</mi>"\
+                        "<mo>)</mo>" \
+                    "</mrow>"\
+                "</math>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0, 0, 5})) << document.GetEditorState().ToString();
+}
+
 }
