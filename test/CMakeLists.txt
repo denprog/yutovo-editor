@@ -42,6 +42,8 @@ if(NOT DEFINED REMOTE_SOLVER)
     find_package(yutovo_solver REQUIRED)
 endif()
 
+find_package(ZLIB REQUIRED)
+
 add_executable(${PROJECT_NAME}_tests
 	main.cpp
 	mock.cpp
@@ -103,6 +105,8 @@ else()
 		${PROJECT_NAME}
 	    Qt5::Widgets
 	    yutovo_logger
+		libboost_iostreams.a
+		z
 	)
     target_include_directories(${PROJECT_NAME}_tests PRIVATE
         ../src
