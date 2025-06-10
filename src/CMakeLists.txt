@@ -208,7 +208,6 @@ else()
             yutovo_solver
             yutovo_calculator
             yutovo_logger
-            boost_iostreams
         )
     endif()
 endif()
