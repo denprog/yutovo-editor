@@ -31,7 +31,7 @@ Solver::Solver(Document* _document) :
 #else
     service_config(logger),
     service_context(&service_config, document->config.logs_path, document->config.log_console, document->config.log_file),
-    session(&service_context, document->config),
+    session(&service_context, document->config.logs_path, document->config.log_console, document->config.log_file),
     message_loop(std::thread(&Solver::MessageLoop, this, std::ref(socket), std::ref(tasks), std::ref(next_circle), std::ref(session))),
     break_loop(std::thread(&Solver::MessageLoop, this, std::ref(break_socket), std::ref(break_tasks), std::ref(break_next_circle), std::ref(session)))
 #endif
