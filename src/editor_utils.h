@@ -213,6 +213,11 @@ struct Color
         return a == compare.a && r == compare.r && g == compare.g && b == compare.b;
     }
 
+    bool operator!=(const Color& compare) const
+    {
+        return !(*this == compare);
+    }
+
     uint32_t ToInt() const
     {
         return (a << 24) + (r << 16) + (g << 8) + b;

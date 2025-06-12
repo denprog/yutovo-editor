@@ -171,7 +171,7 @@ else()
 endif()
 
 set_target_properties(${PROJECT_NAME} PROPERTIES
-	CXX_STANDARD 20
+	CXX_STANDARD 17
 	CXX_STANDARD_REQUIRED ON
 	CXX_EXTENSIONS OFF
 	POSITION_INDEPENDENT_CODE ON
@@ -185,6 +185,7 @@ if(EMSCRIPTEN)
     )
     #target_link_options(${PROJECT_NAME} PUBLIC "-fwasm-exceptions -s DISABLE_EXCEPTION_THROWING=0")
     target_link_options(${PROJECT_NAME} PUBLIC "-fexceptions -s DISABLE_EXCEPTION_THROWING=0")
+    target_compile_options(${PROJECT_NAME} PUBLIC -Wno-deprecated-literal-operator)
 elseif(DEFINED REMOTE_SOLVER)
     target_link_libraries(${PROJECT_NAME} PRIVATE 
         stdc++
