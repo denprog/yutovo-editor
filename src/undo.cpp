@@ -53,6 +53,11 @@ bool UndoElement::operator==(const UndoElement& el) const
     return true;
 }
 
+bool UndoElement::operator!=(const UndoElement& el) const
+{
+    return !(*this == el);
+}
+
 bool UndoElement::operator==(const Element& el) const
 {
     if (type != el.type || elements.size() != el.elements->Count())
@@ -63,6 +68,11 @@ bool UndoElement::operator==(const Element& el) const
             return false;
     }
     return true;
+}
+
+bool UndoElement::operator!=(const Element& el) const
+{
+    return !(*this == el);
 }
 
 //UndoString
@@ -706,7 +716,7 @@ UndoElementPtr UndoBase::StoreElement(const LogicalId id, ElementPtr el)
         auto _it = std::find_if(item.undo_elements.begin(), item.undo_elements.end(), 
             [el](UndoElementPtr& undo_element)
             {
-                return *el == *undo_element;
+                return *undo_element == *el;
             });
         if (_it != item.undo_elements.end())
         {

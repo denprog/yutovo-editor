@@ -31,7 +31,9 @@ struct UndoElement
     UndoElement(ElementType _type);
 
     virtual bool operator==(const UndoElement& el) const;
+    virtual bool operator!=(const UndoElement& el) const;
     virtual bool operator==(const Element& el) const;
+    virtual bool operator!=(const Element& el) const;
 
     virtual Element* Restore(Document* document, Element* parent) = 0;
 
