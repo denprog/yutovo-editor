@@ -316,7 +316,12 @@ void CodeString::UpdateRect(bool with_elements)
 
     if (elements->Count() == 0)
         rect.SetSize(rect.width + empty_rect_width, rect.height);
-    baseline = rect.height / 2;
+    if (format->subscript)
+        baseline = -window->GetFontAscent(format);
+    else if (format->superscript)
+        baseline = window->GetFontAscent(format);
+    else
+        baseline = rect.height / 2;
 }
 
 Rect CodeString::GetCaretRect(const uint pos) const

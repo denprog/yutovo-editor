@@ -113,7 +113,8 @@ StringFormatPtr OnlyShapeFormula::GetStringFormat() const
         else
             size = 8;
     }
-    return document->GetStringFormat(f->family, size, f->bold, f->italic, f->underline, f->strikethrough, f->text_color, f->text_bg_color);
+    return document->GetStringFormat(f->family, size, f->bold, f->italic, f->underline, f->strikethrough, f->subscript, f->superscript, 
+        f->text_color, f->text_bg_color);
 }
 
 std::u32string OnlyShapeFormula::ToText()

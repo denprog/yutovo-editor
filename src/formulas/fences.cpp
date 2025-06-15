@@ -88,7 +88,7 @@ bool OpenFence::Remake(bool with_elements)
             baseline = s.height * 2 / 3;
             rect.SetRect(0, 0, s.width, s.height);
             shape->rect = rect;
-            format = document->string_formats->GetFormat(family_name, size, false, false, false, false, Color::Black(), Color::White(), Color::Blue());
+            format = document->string_formats->GetFormat(family_name, size, false, false, false, false, false, false, Color::Black(), Color::White(), Color::Blue());
         };
 
     if (parent->elements->IsLast(id) || (parent->elements->Count() == 2 && parent->elements->Get(1)->type == ElementType::CLOSE_FENCE))
@@ -145,7 +145,7 @@ bool OpenFence::Remake(bool with_elements)
     {
         rect.SetRect(0, 0, s.width, s.height);
         shape->rect = rect;
-        format = document->string_formats->GetFormat(family_name, size, false, false, false, false, Color::Black(), Color::White(), Color::Blue());
+        format = document->string_formats->GetFormat(family_name, size, false, false, false, false, false, false, Color::Black(), Color::White(), Color::Blue());
     }
 
     if (rect != last_rect)
@@ -245,7 +245,7 @@ bool CloseFence::Remake(bool with_elements)
             baseline = s.height * 2 / 3;
             rect.SetRect(0, 0, s.width, s.height);
             shape->rect = rect;
-            format = document->string_formats->GetFormat(family_name, size, false, false, false, false, Color::Black(), Color::White(), Color::Blue());
+            format = document->string_formats->GetFormat(family_name, size, false, false, false, false, false, false, Color::Black(), Color::White(), Color::Blue());
         };
 
     if (parent->elements->IsFirst(id) || (parent->elements->Count() == 2 && parent->elements->Get(0)->type == ElementType::OPEN_FENCE))
@@ -296,7 +296,7 @@ bool CloseFence::Remake(bool with_elements)
     {
         rect.SetRect(0, 0, s.width, s.height);
         shape->rect = rect;
-        format = document->string_formats->GetFormat(family_name, size, false, false, false, false, Color::Black(), Color::White(), Color::Blue());
+        format = document->string_formats->GetFormat(family_name, size, false, false, false, false, false, false, Color::Black(), Color::White(), Color::Blue());
     }
 
     if (rect != last_rect)

@@ -344,7 +344,7 @@ TEST_F(DocumentTest, images9)
     document.WaitTask(document.InsertImage(data, true, false));
 
     document.WaitTask(document.SelectAll());
-    document.WaitTask(document.ChangeStringFormat("Times New Roman", 22, false, false, false, false, Color::Black(), Color::White(), true));
+    document.WaitTask(document.ChangeStringFormat("Times New Roman", 22, false, false, false, false, false, false, Color::Black(), Color::White(), true));
 
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\

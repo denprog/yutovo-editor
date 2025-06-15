@@ -87,7 +87,8 @@ struct ChangeStringFormatTask : Task
 {
     ChangeStringFormatTask(ElementPtr _text, const StringFormatPtr& _format, bool _with_undo);
     ChangeStringFormatTask(ElementPtr _text, const StringFormatPtr& _format, bool _set_family, bool _set_size, bool _set_bold, bool _set_italic, 
-        bool _set_strikethrough, bool _set_underline, bool _set_text_color, bool _set_text_bg_color, bool _with_undo);
+        bool _set_strikethrough, bool _set_underline, bool _set_subscript, bool _set_superscript, bool _set_text_color, bool _set_text_bg_color, 
+        bool _with_undo);
     ChangeStringFormatTask(ElementPtr _text, const StringFormatPtr& _format, uint _id);
 
     virtual bool Execute();
@@ -100,6 +101,8 @@ struct ChangeStringFormatTask : Task
     bool set_italic = true;
     bool set_underline = true;
     bool set_strikethrough = true;
+    bool set_subscript = true;
+    bool set_superscript = true;
     bool set_text_color = true;
     bool set_text_bg_color = true;
 

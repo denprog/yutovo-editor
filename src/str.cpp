@@ -271,6 +271,10 @@ std::string String::ToHtml()
     if (format->text_bg_color != Color::White())
         s += "bgcolor:" + format->text_bg_color.ToString() + ";";
     s += "\">";
+    if (format->subscript)
+        s += "<sub>";
+    if (format->superscript)
+        s += "<sup>";
     if (format->bold)
         s += "<strong>";
     if (format->italic)
@@ -280,6 +284,10 @@ std::string String::ToHtml()
         s += "</em>";
     if (format->bold)
         s += "</strong>";
+    if (format->subscript)
+        s += "</sub>";
+    if (format->superscript)
+        s += "</sup>";
     s += "</span>";
     return s;
 }
@@ -724,14 +732,14 @@ void String::UpdateStringFormat(const StringFormatPtr base_format, const StringF
         f.text_color = new_format->text_color;
     if (base_format->text_bg_color == format->text_bg_color)
         f.text_bg_color = new_format->text_bg_color;
-    format = document->GetStringFormat(f.family, f.size, f.bold, f.italic, f.underline, f.strikethrough, f.text_color, f.text_bg_color);
+    format = document->GetStringFormat(f.family, f.size, f.bold, f.italic, f.underline, f.strikethrough, f.subscript, f.superscript, f.text_color, f.text_bg_color);
     size_cache.clear();
 }
 
 void String::UpdateFormat(StringFormatPtr& _format)
 {
     format = document->GetStringFormat(_format->family, GetFontSize(_format->size), _format->bold, _format->italic, _format->underline, 
-        _format->strikethrough, _format->text_color, _format->text_bg_color);
+        _format->strikethrough, _format->subscript, _format->superscript, _format->text_color, _format->text_bg_color);
 }
 
 int String::GetFontSize(const uint size)
@@ -815,7 +823,7 @@ void String::UpdateLevel(uint8_t _level)
     size_cache.clear();
     auto f = parent->GetStringFormat();
     format = document->GetStringFormat(f->family, GetFontSize(f->size), format->bold, format->italic, format->underline, 
-        format->strikethrough, format->text_color, format->text_bg_color);
+        format->strikethrough, format->subscript, format->superscript, format->text_color, format->text_bg_color);
 }
 
 void String::SetEditable(bool _editable)

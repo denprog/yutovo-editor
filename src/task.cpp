@@ -694,7 +694,8 @@ ChangeStringFormatTask::ChangeStringFormatTask(ElementPtr _text, const StringFor
 }
 
 ChangeStringFormatTask::ChangeStringFormatTask(ElementPtr _text, const StringFormatPtr& _format, bool _set_family, bool _set_size, 
-    bool _set_bold, bool _set_italic, bool _set_underline, bool _set_strikethrough, bool _set_text_color, bool _set_text_bg_color, bool _with_undo) :
+    bool _set_bold, bool _set_italic, bool _set_underline, bool _set_strikethrough, bool _set_subscript, bool _set_superscript, 
+    bool _set_text_color, bool _set_text_bg_color, bool _with_undo) :
     ChangeStringFormatTask(_text, _format, _with_undo)
 {
     set_family = _set_family;
@@ -703,6 +704,8 @@ ChangeStringFormatTask::ChangeStringFormatTask(ElementPtr _text, const StringFor
     set_italic = _set_italic;
     set_underline = _set_underline;
     set_strikethrough = _set_strikethrough;
+    set_subscript = _set_subscript;
+    set_superscript = _set_superscript;
     set_text_color = _set_text_color;
     set_text_bg_color = _set_text_bg_color;
 }
@@ -756,7 +759,8 @@ bool ChangeStringFormatTask::Execute()
                 f.text_color = format->text_color;
             if (set_text_bg_color)
                 f.text_bg_color = format->text_bg_color;
-            return document->GetStringFormat(f.family, f.size, f.bold, f.italic, f.underline, f.strikethrough, f.text_color, f.text_bg_color);
+            return document->GetStringFormat(f.family, f.size, f.bold, f.italic, f.underline, f.strikethrough, f.subscript, f.superscript, 
+                f.text_color, f.text_bg_color);
         };
     
     std::function<bool (ElementPtr el, ElementId& changed_element, bool initial_element)> change_string_format = 
