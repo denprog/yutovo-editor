@@ -1196,7 +1196,7 @@ TEST_F(DocumentTest, fonts2)
 
     document.WaitTask(document.InsertString("Text", document.GetStringFormat("Arial", 24, false, false, false, false), true));
     document.MoveCaretLeft(true);
-    document.WaitTask(document.ChangeStringFormat("Times New Roman", 22, false, false, false, false, Color::Black(), Color::White(), true));
+    document.WaitTask(document.ChangeStringFormat("Times New Roman", 22, false, false, false, false, false, false, Color::Black(), Color::White(), true));
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -2275,7 +2275,7 @@ TEST_F(DocumentTest, fonts24)
 
     document.InsertString("Tradicionalmente, el medio de un documento era el papel y la información", true);
     document.MoveCaretWordLeft(true);
-    document.WaitTask(document.ChangeStringFormat("Times New Roman", 22, false, false, false, false, Color::Black(), Color::White(), true));
+    document.WaitTask(document.ChangeStringFormat("Times New Roman", 22, false, false, false, false, false, false, Color::Black(), Color::White(), true));
 
     width = 800;
     document.WaitTask(document.Resize(width, 400));
@@ -2783,6 +2783,112 @@ TEST_F(DocumentTest, fonts32)
         ElementSelectionState{ElementId{0, 0}, 2, 1})) << document.GetEditorState().ToString();
 }
 
+//subscript
+TEST_F(DocumentTest, fonts33)
+{
+    Start(600);
+
+    document.InsertString("Text", document.GetStringFormat("Arial", 24, false, false, false, false), true);
+    document.WaitTask(document.InsertString("sub", document.GetStringFormat("Arial", 24, false, false, false, false, true, false), true));
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:24px;\">Text</span>"\
+                "<span style=\"font-family:'Arial';font-size:24px;\"><sub>sub</sub></span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 1, 3})) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.InsertString("String", document.GetStringFormat("Arial", 24, false, true, false, false, false, false), true));
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:24px;\">Text</span>"\
+                "<span style=\"font-family:'Arial';font-size:24px;\"><sub>sub</sub></span>"\
+                "<span style=\"font-family:'Arial';font-size:24px;\"><em>String</em></span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 2, 6})) << document.GetEditorState().ToString();
+    
+    document.Undo();
+    document.WaitUndo();
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:24px;\">Text</span>"\
+                "<span style=\"font-family:'Arial';font-size:24px;\"><sub>sub</sub></span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 1, 3})) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:24px;\">Text</span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 4})) << document.GetEditorState().ToString();
+}
+
+//superscript
+TEST_F(DocumentTest, fonts34)
+{
+    Start(600);
+
+    document.InsertString("Arial", document.GetStringFormat("Arial", 24, false, false, false, false), true);
+    document.WaitTask(document.InsertString("super", document.GetStringFormat("Arial", 24, false, false, false, false, false, true), true));
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:24px;\">Arial</span>"\
+                "<span style=\"font-family:'Arial';font-size:24px;\"><sup>super</sup></span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 1, 5})) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.InsertString("String", document.GetStringFormat("Arial", 24, false, true, false, false, false, false), true));
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:24px;\">Arial</span>"\
+                "<span style=\"font-family:'Arial';font-size:24px;\"><sup>super</sup></span>"\
+                "<span style=\"font-family:'Arial';font-size:24px;\"><em>String</em></span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 2, 6})) << document.GetEditorState().ToString();
+    
+    document.Undo();
+    document.WaitUndo();
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:24px;\">Arial</span>"\
+                "<span style=\"font-family:'Arial';font-size:24px;\"><sup>super</sup></span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 1, 5})) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:24px;\">Arial</span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 5})) << document.GetEditorState().ToString();
+}
+
 TEST_F(DocumentTest, delete1)
 {
     Start(600);
@@ -2991,9 +3097,9 @@ TEST_F(DocumentTest, delete3)
 {
     Start(600);
 
-    document.InsertString("Text", document.GetStringFormat("Arial", 24, false, false, false, false), true);
-    document.InsertString("Italic", document.GetStringFormat("Times New Roman", 18, false, true, false, false), true);
-    document.InsertString("Normal", document.GetStringFormat("Arial", 22, false, false, false, false), true);
+    document.InsertString("Text", document.GetStringFormat("Arial", 24, false, false, false, false, false, false), true);
+    document.InsertString("Italic", document.GetStringFormat("Times New Roman", 18, false, true, false, false, false, false), true);
+    document.InsertString("Normal", document.GetStringFormat("Arial", 22, false, false, false, false, false, false), true);
     for (int i = 0; i < 5; ++i)
         document.DeleteElements(true, true);
     document.WaitMainLoop();
@@ -3538,8 +3644,8 @@ TEST_F(DocumentTest, undo2)
     Start(600);
 
     document.InsertString("Text", true);
-    document.InsertString("Bold", document.GetStringFormat("Times New Roman", 34, true, false, false, false), true);
-    document.WaitTask(document.InsertString("Italic", document.GetStringFormat("Courier", 24, false, true, false, false), true));
+    document.InsertString("Bold", document.GetStringFormat("Times New Roman", 34, true, false, false, false, false, false), true);
+    document.WaitTask(document.InsertString("Italic", document.GetStringFormat("Courier", 24, false, true, false, false, false, false), true));
     auto el = document.FindByString({0}, U"Bold");
     el->editable = false;
 

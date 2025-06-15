@@ -14,9 +14,9 @@ struct StringFormat
 {
     StringFormat() = default;
     StringFormat(const boost::uuids::uuid _id, const std::string _family, uint _size, bool _bold, bool _italic, bool _underline, bool _strikethrough, 
+        bool _subscript, bool _superscript, Color _text_color, Color _text_bg_color, Color _text_bg_selection_color);
+    StringFormat(const std::string _family, uint _size, bool _bold, bool _italic, bool _underline, bool _strikethrough, bool _subscript, bool _superscript, 
         Color _text_color, Color _text_bg_color, Color _text_bg_selection_color);
-    StringFormat(const std::string _family, uint _size, bool _bold, bool _italic, bool _underline, bool _strikethrough, Color _text_color, Color _text_bg_color, 
-        Color _text_bg_selection_color);
  
     bool operator==(const StringFormat& f) const;
     bool operator!=(const StringFormat& f) const;
@@ -36,6 +36,8 @@ struct StringFormat
     bool italic = false;
     bool underline = false;
     bool strikethrough = false;
+    bool subscript = false;
+    bool superscript = false;
     Color text_color;
     Color text_bg_color;
     Color text_bg_selection_color;
@@ -49,8 +51,8 @@ class StringFormats
 public:
     ~StringFormats();
     
-    StringFormatPtr GetFormat(const std::string _family, uint _size, bool _bold, bool _italic, bool _underline, bool _strikethrough, 
-        Color _text_color, Color _text_bg_color, Color _text_bg_selection_color);
+    StringFormatPtr GetFormat(const std::string _family, uint _size, bool _bold, bool _italic, bool _underline, bool _strikethrough, bool _subscript, 
+        bool _superscript, Color _text_color, Color _text_bg_color, Color _text_bg_selection_color);
     StringFormatPtr GetFormat(const StringFormat& source);
     StringFormatPtr GetFormat(const boost::uuids::uuid& _id);
     void AddFormats(const StringFormats& source);
