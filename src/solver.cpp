@@ -30,8 +30,8 @@ Solver::Solver(Document* _document) :
     break_loop(std::thread(&Solver::MessageLoop, this, std::ref(break_socket), std::ref(break_tasks), std::ref(break_next_circle)))
 #else
     service_config(logger),
-    service_context(&service_config),
-    session(&service_context, logger),
+    service_context(&service_config, document->config),
+    session(&service_context, document->config),
     message_loop(std::thread(&Solver::MessageLoop, this, std::ref(socket), std::ref(tasks), std::ref(next_circle), std::ref(session))),
     break_loop(std::thread(&Solver::MessageLoop, this, std::ref(break_socket), std::ref(break_tasks), std::ref(break_next_circle), std::ref(session)))
 #endif
