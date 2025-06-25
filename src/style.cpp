@@ -234,7 +234,6 @@ void StringFormats::ToJson(rapidjson::Value& value, rapidjson::Document::Allocat
 
 bool StringFormats::FromJson(const rapidjson::Value::ConstArray& arr, rapidjson::Document::AllocatorType& alloc)
 {
-    std::vector<StringFormatPtr> _string_formats;
     for (rapidjson::SizeType i = 0; i < arr.Size(); ++i)
     {
         if (!arr[i].IsObject())
@@ -438,7 +437,6 @@ void ParagraphFormats::ToJson(rapidjson::Value& value, rapidjson::Document::Allo
 
 bool ParagraphFormats::FromJson(Document* document, const rapidjson::Value::ConstArray& arr, rapidjson::Document::AllocatorType& alloc)
 {
-    std::vector<ParagraphFormatPtr> _paragraph_formats;
     for (rapidjson::SizeType i = 0; i < arr.Size(); ++i)
     {
         if (!arr[i].IsObject())

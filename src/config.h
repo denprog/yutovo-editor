@@ -183,6 +183,33 @@ struct Config
     };
 
     AutoResultConfig auto_result;
+
+    //include documents
+    struct IncludeDocument
+    {
+        bool operator==(const IncludeDocument& other) const
+        {
+            return file_name == other.file_name && enabled == other.enabled;
+        }
+
+        void ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc);
+        bool FromJson(const rapidjson::Value::ConstObject& value, rapidjson::Document::AllocatorType& alloc);
+
+        std::string file_name;
+        bool enabled = true;
+    };
+
+    struct IncludeDocuments
+    {
+        void ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc);
+        bool FromJson(const rapidjson::Value::ConstArray& arr, rapidjson::Document::AllocatorType& alloc);
+
+        std::string ToString();
+
+        std::vector<IncludeDocument> documents;
+    };
+
+    IncludeDocuments include_documents;
 };
 
 }

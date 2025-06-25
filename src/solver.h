@@ -37,6 +37,7 @@ public:
         const std::u32string& expression, const uint delay);
     void RemoveIdentifier(const LogicalId& id, uint code_id, const std::u32string& identifier, const uint delay);
     void RemoveUserIdentifiers();
+    void ClearExport();
     void SetLocale(const yutovo_calculator::Language _language);
     void ListIdentifiers(uint code_id);
 
@@ -50,7 +51,7 @@ private:
     void EraseSolveTasks(const LogicalId id);
 
 public:
-    std::string guid;
+    std::string solver_guid;
     
 private:
     Document* document;

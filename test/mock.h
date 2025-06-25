@@ -76,6 +76,7 @@ public:
 
     MOCK_METHOD(void, OnSaveResult, (const uint task_id, IOResult result, const int document_id), (override));
     MOCK_METHOD(void, OnLoadResult, (const uint task_id, IOResult result, const int document_id), (override));
+    MOCK_METHOD(void, OnLoadInclude, (const std::string& file_name, const int document_id), (override));
 
     MOCK_METHOD(void, OnCopyResult, (CopyResult result), (override));
     MOCK_METHOD(void, OnPasteResult, (PasteResult result), (override));
@@ -386,6 +387,40 @@ struct TwoDocumentsTest : DocumentTest
     }
 
     MainWindow main_window2;
+    ::testing::NiceMock<WindowMock> window_mock2;
+    yutovo::Config config2;
+    Document document2;
+};
+
+struct IncludeDocumentsTest : DocumentTest
+{
+    IncludeDocumentsTest() : 
+        document2(&window_mock2, config2)
+    {
+    }
+
+    void Start(int width)
+    {
+        DocumentTest::Start(width);
+
+        EXPECT_CALL(window_mock2, GetRect).WillRepeatedly(
+            [width]()
+            {
+                return Rect{0, 0, width, 400};
+            });
+            
+        EXPECT_CALL(window_mock2, GetTextSize).WillRepeatedly(
+            [&](const std::u32string& text, const StringFormatPtr format)
+            {
+                return GetTextSizeMock(text, format);
+            });
+        
+        document2.config.solve_delay = 0;
+        document2.Start();
+    }
+
+    ::testing::NiceMock<WindowMock> include_window1, include_window2, include_window3, include_window4;
+
     ::testing::NiceMock<WindowMock> window_mock2;
     yutovo::Config config2;
     Document document2;
