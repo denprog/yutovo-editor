@@ -27,7 +27,8 @@ namespace yutovo
 class Document
 {
 public:
-    Document(Window* _window, Config& _config);
+    Document(Window* _window, Config& _config, const std::string _document_guid = "");
+    Document(Document* _parent, Window* _window, Config& _config);
     ~Document();
 
     void Start();
@@ -108,6 +109,8 @@ public:
     size_t GetUndoSize();
 
     void ResetTasks();
+
+    uint SetIncludeDocuments(const std::vector<std::pair<bool, std::string>>& files);
 
     ElementPtr GetElement(const ElementId& _id);
     ElementPtr GetLogicalElement(const LogicalId& _id);
@@ -200,7 +203,8 @@ public:
     uint New();
     uint Save(const std::string& filename);
     uint SaveJson(std::string& json, const int document_id, const bool gzip);
-    uint Load(const std::string& filename);
+    uint Load(const std::string& filename, bool include = false);
+    uint LoadInclude(const std::string& filename, Window* _window);
     uint LoadJson(const std::string& json_doc, const int document_id);
 
     uint Copy(std::u32string& out_json, std::u32string& out_text);
@@ -260,6 +264,7 @@ public:
         const std::u32string& expression, const uint delay);
     void RemoveIdentifier(const LogicalId& _id, uint code_id, const std::u32string& identifier, const uint delay);
     void RemoveUserIdentifiers();
+    void ClearExport();
 
     ResultType GetResultType(ElementId _id);
     uint SetResultType(ElementId _id, ResultType result_type, bool with_undo);
@@ -323,6 +328,8 @@ private:
 
     void UpdateChanged();
 
+    bool CheckIncludeFile(rapidjson::Document& doc);
+
 #ifdef TEST
 public:
     void WaitMainLoop();
@@ -352,6 +359,7 @@ private:
     friend class MoveCaretTask;
     friend class SetEditorStateTask;
     friend class GetEditorStateTask;
+    friend class ResolveTask;
     friend class NewTask;
     friend class LoadTask;
     friend class SaveTask;
@@ -389,6 +397,8 @@ private:
 
     ElementPtr text;
 
+    int include_pos = -1;
+
 public:
     CaretPtr caret;
     Selection selection;
@@ -410,7 +420,14 @@ public:
     std::atomic<bool> changed{false};
     uint save_task_id = 0;
 
+    std::string file_guid; //unique document id
+
+    std::string document_guid; //for identifing include documents
+
 private:
+    Document* parent = nullptr; //parent of include document
+    std::vector<std::unique_ptr<Document>> include_documents;
+
     std::list<TaskPtr> tasks;
     std::deque<TaskPtr> undo_tasks;
     std::vector<TaskPtr> redo_tasks;

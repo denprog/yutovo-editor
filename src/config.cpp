@@ -53,6 +53,11 @@ void Config::ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType&
     auto_result_config.SetObject();
     auto_result.ToJson(auto_result_config, alloc);
     value.AddMember("auto_result", auto_result_config, alloc);
+
+    rapidjson::Value include_files_config("include_documents", alloc);
+    include_files_config.SetArray();
+    include_documents.ToJson(include_files_config, alloc);
+    value.AddMember("include_documents", include_files_config, alloc);
 }
 
 void Config::ToJson(std::string& json)
@@ -142,6 +147,9 @@ void Config::FromJson(const rapidjson::Document& value, rapidjson::Document::All
 
     if (value.HasMember("bg_selection_color") && value["bg_selection_color"].IsInt64())
         bg_selection_color = Color::FromInt(value["bg_selection_color"].GetInt64());
+    
+    if (value.HasMember("include_documents") && value["include_documents"].IsArray())
+        include_documents.FromJson(((const rapidjson::Value&)value["include_documents"]).GetArray(), alloc);
 }
 
 bool Config::FromJson(const std::string& json)
@@ -388,6 +396,69 @@ std::string Config::AutoResultConfig::ToString()
     auto& alloc = json.GetAllocator();
     ToJson(c, alloc);
     json.AddMember("AutoResultConfig", c, alloc);
+    rapidjson::StringBuffer buffer;
+    rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
+    json.Accept(writer);
+    return buffer.GetString();
+}
+
+//Config::IncludeDocument
+
+void Config::IncludeDocument::ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc)
+{
+    rapidjson::Value obj(rapidjson::kObjectType);
+    rapidjson::Value _file_name(file_name.c_str(), alloc);
+    obj.AddMember("file_name", _file_name, alloc);
+    obj.AddMember("enabled", enabled, alloc);
+    value.PushBack(obj, alloc);
+}
+
+bool Config::IncludeDocument::FromJson(const rapidjson::Value::ConstObject& value, rapidjson::Document::AllocatorType& alloc)
+{
+    if (!value.HasMember("file_name") || !value["file_name"].IsString())
+        return false;
+    file_name = value["file_name"].GetString();
+
+    if (!value.HasMember("enabled") || !value["enabled"].IsBool())
+        return true;
+    enabled = value["enabled"].GetBool();
+    return true;
+}
+
+//Config::IncludeDocuments
+
+void Config::IncludeDocuments::ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc)
+{
+    for (auto& f : documents)
+        f.ToJson(value, alloc);
+}
+
+bool Config::IncludeDocuments::FromJson(const rapidjson::Value::ConstArray& arr, rapidjson::Document::AllocatorType& alloc)
+{
+    documents.clear();
+    for (rapidjson::SizeType i = 0; i < arr.Size(); ++i)
+    {
+        if (!arr[i].IsObject())
+            return false;
+        rapidjson::Value::ConstObject value = arr[i].GetObject();
+        IncludeDocument s;
+        if (!s.FromJson(value, alloc))
+            return false;
+        auto it = std::find_if(documents.begin(), documents.end(), 
+            [s](auto& f)
+            {
+                return f.file_name == s.file_name;
+            });
+        if (it == documents.end())
+            documents.push_back(s);
+    }
+    return true;
+}
+
+std::string Config::IncludeDocuments::ToString()
+{
+    rapidjson::Document json;
+    json.SetObject();
     rapidjson::StringBuffer buffer;
     rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
     json.Accept(writer);

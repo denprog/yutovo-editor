@@ -16,9 +16,10 @@ using namespace std::chrono;
 
 //SolverTask
 
-SolverTask::SolverTask(const LogicalId& _id, const std::string& _solver_guid, const std::string& _task_guid, uint _code_id, 
-    ExpressionType _expression_type, const std::u32string& _expression, const uint _delay, Logger* _logger) :
+SolverTask::SolverTask(const LogicalId& _id, const std::string& _document_guid, const std::string& _solver_guid, const std::string& _task_guid, 
+    uint _code_id, ExpressionType _expression_type, const std::u32string& _expression, const uint _delay, Logger* _logger) :
     id(_id),
+    document_guid(_document_guid), 
     solver_guid(_solver_guid),
     task_guid(_task_guid),
     code_id(_code_id),
@@ -30,9 +31,10 @@ SolverTask::SolverTask(const LogicalId& _id, const std::string& _solver_guid, co
     cur_time = duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
 }
 
-SolverTask::SolverTask(const LogicalId& _id, const std::string& _solver_guid, uint _code_id, 
+SolverTask::SolverTask(const LogicalId& _id, const std::string& _document_guid, const std::string& _solver_guid, uint _code_id, 
     ExpressionType _expression_type, const std::u32string& _expression, const uint _delay, Logger* _logger) : 
     id(_id),
+    document_guid(_document_guid), 
     solver_guid(_solver_guid),
     code_id(_code_id),
     expression_type(_expression_type),
@@ -43,15 +45,22 @@ SolverTask::SolverTask(const LogicalId& _id, const std::string& _solver_guid, ui
     cur_time = duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
 }
 
-SolverTask::SolverTask(const std::string& _solver_guid, Logger* _logger) :
+SolverTask::SolverTask(const std::string& _document_guid, const std::string& _solver_guid, Logger* _logger) :
+    document_guid(_document_guid), 
     solver_guid(_solver_guid),
     logger(_logger)
 {
     cur_time = duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
 }
 
-SolverTask::SolverTask(const LogicalId& _id, const std::string& _solver_guid, uint _code_id, Logger* _logger) :
+SolverTask::SolverTask(const std::string& _document_guid, Logger* _logger) : 
+    SolverTask(_document_guid, "", _logger)
+{
+}
+
+SolverTask::SolverTask(const LogicalId& _id, const std::string& _document_guid, const std::string& _solver_guid, uint _code_id, Logger* _logger) :
     id(_id),
+    document_guid(_document_guid), 
     solver_guid(_solver_guid),
     code_id(_code_id),
     logger(_logger)
@@ -377,9 +386,10 @@ bool SolverTask::FillComplexResult(rapidjson::Document& doc, Result& result)
 
 //AutoSolverTask
 
-AutoSolverTask::AutoSolverTask(const LogicalId& _id, const std::string& _solver_guid, const std::string& _task_guid, uint _code_id, 
-    ExpressionType _expression_type, Config::AutoResultConfig _config, const std::u32string& _expression, const uint _delay, Logger* _logger) :
-    SolverTask(_id, _solver_guid, _task_guid, _code_id, _expression_type, _expression, _delay, _logger),
+AutoSolverTask::AutoSolverTask(const LogicalId& _id, const std::string& _document_guid, const std::string& _solver_guid, 
+    const std::string& _task_guid, uint _code_id, ExpressionType _expression_type, Config::AutoResultConfig _config, 
+    const std::u32string& _expression, const uint _delay, Logger* _logger) :
+    SolverTask(_id, _document_guid, _solver_guid, _task_guid, _code_id, _expression_type, _expression, _delay, _logger),
     config(_config)
 {
 }
@@ -391,7 +401,8 @@ bool AutoSolverTask::Execute(WebSocketPtr socket, Result& result)
     auto& alloc = doc.GetAllocator();
     doc.SetObject();
     doc.AddMember("command", "SOLVE_CODE", alloc);
-    doc.AddMember("guid", rapidjson::StringRef(solver_guid.c_str()), alloc);
+    doc.AddMember("document_guid", rapidjson::StringRef(document_guid.c_str()), alloc);
+    doc.AddMember("solver_guid", rapidjson::StringRef(solver_guid.c_str()), alloc);
     FillId(doc);
     doc.AddMember("timestamp", cur_time, alloc);
     doc.AddMember("code_id", code_id, alloc);
@@ -487,9 +498,10 @@ bool AutoSolverTask::Execute(WebSocketPtr socket, Result& result)
 
 //RealSolverTask
 
-RealSolverTask::RealSolverTask(const LogicalId& _id, const std::string& _solver_guid, const std::string& _task_guid, uint _code_id, 
-    ExpressionType _expression_type, Config::RealResultConfig _config, const std::u32string& _expression, const uint _delay, Logger* _logger) :
-    SolverTask(_id, _solver_guid, _task_guid, _code_id, _expression_type, _expression, _delay, _logger),
+RealSolverTask::RealSolverTask(const LogicalId& _id, const std::string& _document_guid, const std::string& _solver_guid, 
+    const std::string& _task_guid, uint _code_id, ExpressionType _expression_type, Config::RealResultConfig _config, 
+    const std::u32string& _expression, const uint _delay, Logger* _logger) :
+    SolverTask(_id, _document_guid, _solver_guid, _task_guid, _code_id, _expression_type, _expression, _delay, _logger),
     config(_config)
 {
 }
@@ -501,7 +513,8 @@ bool RealSolverTask::Execute(WebSocketPtr socket, Result& result)
     auto& alloc = doc.GetAllocator();
     doc.SetObject();
     doc.AddMember("command", "SOLVE_CODE", alloc);
-    doc.AddMember("guid", rapidjson::StringRef(solver_guid.c_str()), alloc);
+    doc.AddMember("document_guid", rapidjson::StringRef(document_guid.c_str()), alloc);
+    doc.AddMember("solver_guid", rapidjson::StringRef(solver_guid.c_str()), alloc);
     FillId(doc);
     doc.AddMember("timestamp", cur_time, alloc);
     doc.AddMember("code_id", code_id, alloc);
@@ -563,9 +576,10 @@ bool RealSolverTask::Execute(WebSocketPtr socket, Result& result)
 
 //IntegerSolverTask
 
-IntegerSolverTask::IntegerSolverTask(const LogicalId& _id, const std::string& _solver_guid, const std::string& _task_guid, uint _code_id, 
-    ExpressionType _expression_type, Config::IntegerResultConfig _config, const std::u32string& _expression, const uint _delay, Logger* _logger) :
-    SolverTask(_id, _solver_guid, _task_guid, _code_id, _expression_type, _expression, _delay, _logger),
+IntegerSolverTask::IntegerSolverTask(const LogicalId& _id, const std::string& _document_guid, const std::string& _solver_guid, 
+    const std::string& _task_guid, uint _code_id, ExpressionType _expression_type, Config::IntegerResultConfig _config, 
+    const std::u32string& _expression, const uint _delay, Logger* _logger) :
+    SolverTask(_id, _document_guid, _solver_guid, _task_guid, _code_id, _expression_type, _expression, _delay, _logger),
     config(_config)
 {
 }
@@ -577,7 +591,8 @@ bool IntegerSolverTask::Execute(WebSocketPtr socket, Result& result)
     auto& alloc = doc.GetAllocator();
     doc.SetObject();
     doc.AddMember("command", "SOLVE_CODE", alloc);
-    doc.AddMember("guid", rapidjson::StringRef(solver_guid.c_str()), alloc);
+    doc.AddMember("document_guid", rapidjson::StringRef(document_guid.c_str()), alloc);
+    doc.AddMember("solver_guid", rapidjson::StringRef(solver_guid.c_str()), alloc);
     FillId(doc);
     doc.AddMember("timestamp", cur_time, alloc);
     doc.AddMember("code_id", code_id, alloc);
@@ -636,9 +651,10 @@ bool IntegerSolverTask::Execute(WebSocketPtr socket, Result& result)
 
 //RationalSolverTask
 
-RationalSolverTask::RationalSolverTask(const LogicalId& _id, const std::string& _solver_guid, const std::string& _task_guid, uint _code_id, 
-    ExpressionType _expression_type, Config::RationalResultConfig _config, const std::u32string& _expression, const uint _delay, Logger* _logger) :
-    SolverTask(_id, _solver_guid, _task_guid, _code_id, _expression_type, _expression, _delay, _logger),
+RationalSolverTask::RationalSolverTask(const LogicalId& _id, const std::string& _document_guid, const std::string& _solver_guid, 
+    const std::string& _task_guid, uint _code_id, ExpressionType _expression_type, Config::RationalResultConfig _config, 
+    const std::u32string& _expression, const uint _delay, Logger* _logger) :
+    SolverTask(_id, _document_guid, _solver_guid, _task_guid, _code_id, _expression_type, _expression, _delay, _logger),
     config(_config)
 {
 }
@@ -650,7 +666,8 @@ bool RationalSolverTask::Execute(WebSocketPtr socket, Result& result)
     auto& alloc = doc.GetAllocator();
     doc.SetObject();
     doc.AddMember("command", "SOLVE_CODE", alloc);
-    doc.AddMember("guid", rapidjson::StringRef(solver_guid.c_str()), alloc);
+    doc.AddMember("document_guid", rapidjson::StringRef(document_guid.c_str()), alloc);
+    doc.AddMember("solver_guid", rapidjson::StringRef(solver_guid.c_str()), alloc);
     FillId(doc);
     doc.AddMember("timestamp", cur_time, alloc);
     doc.AddMember("code_id", code_id, alloc);
@@ -710,9 +727,10 @@ bool RationalSolverTask::Execute(WebSocketPtr socket, Result& result)
 
 //ComplexSolverTask
 
-ComplexSolverTask::ComplexSolverTask(const LogicalId& _id, const std::string& _solver_guid, const std::string& _task_guid, uint _code_id, 
-    ExpressionType _expression_type, Config::ComplexResultConfig _config, const std::u32string& _expression, const uint _delay, Logger* _logger) :
-    SolverTask(_id, _solver_guid, _task_guid, _code_id, _expression_type, _expression, _delay, _logger),
+ComplexSolverTask::ComplexSolverTask(const LogicalId& _id, const std::string& _document_guid, const std::string& _solver_guid, 
+    const std::string& _task_guid, uint _code_id, ExpressionType _expression_type, Config::ComplexResultConfig _config, 
+    const std::u32string& _expression, const uint _delay, Logger* _logger) :
+    SolverTask(_id, _document_guid, _solver_guid, _task_guid, _code_id, _expression_type, _expression, _delay, _logger),
     config(_config)
 {
 }
@@ -724,7 +742,8 @@ bool ComplexSolverTask::Execute(WebSocketPtr socket, Result& result)
     auto& alloc = doc.GetAllocator();
     doc.SetObject();
     doc.AddMember("command", "SOLVE_CODE", alloc);
-    doc.AddMember("guid", rapidjson::StringRef(solver_guid.c_str()), alloc);
+    doc.AddMember("document_guid", rapidjson::StringRef(document_guid.c_str()), alloc);
+    doc.AddMember("solver_guid", rapidjson::StringRef(solver_guid.c_str()), alloc);
     FillId(doc);
     doc.AddMember("timestamp", cur_time, alloc);
     doc.AddMember("code_id", code_id, alloc);
@@ -786,8 +805,8 @@ bool ComplexSolverTask::Execute(WebSocketPtr socket, Result& result)
 
 //BreakSolverTask
 
-BreakSolverTask::BreakSolverTask(const LogicalId& _id, const std::string& _solver_guid, uint _code_id, Logger* _logger) :
-    SolverTask(_id, _solver_guid, _code_id, _logger)
+BreakSolverTask::BreakSolverTask(const LogicalId& _id, const std::string& _document_guid, const std::string& _solver_guid, uint _code_id, Logger* _logger) :
+    SolverTask(_id, _document_guid, _solver_guid, _code_id, _logger)
 {
     delay = 0;
 }
@@ -799,7 +818,8 @@ bool BreakSolverTask::Execute(WebSocketPtr socket, Result& result)
     auto& alloc = doc.GetAllocator();
     doc.SetObject();
     doc.AddMember("command", "BREAK_SOLVING", alloc);
-    doc.AddMember("guid", rapidjson::StringRef(solver_guid.c_str()), alloc);
+    doc.AddMember("document_guid", rapidjson::StringRef(document_guid.c_str()), alloc);
+    doc.AddMember("solver_guid", rapidjson::StringRef(solver_guid.c_str()), alloc);
     FillId(doc);
     doc.AddMember("timestamp", cur_time, alloc);
     doc.AddMember("code_id", code_id, alloc);
@@ -832,9 +852,10 @@ bool BreakSolverTask::Execute(WebSocketPtr socket, Result& result)
 
 //SetIdentifierSolverTask
 
-SetIdentifierSolverTask::SetIdentifierSolverTask(const LogicalId& _id, const std::string& _solver_guid, const std::string& _task_guid, uint _code_id, 
-    Document* _document, Config::AutoResultConfig _config, const std::u32string& _identifier, const std::u32string& _expression, const uint _delay, Logger* _logger) : 
-    AutoSolverTask(_id, _solver_guid, _task_guid, _code_id, ExpressionType::USER_SYMBOL, _config, _expression, _delay, _logger),
+SetIdentifierSolverTask::SetIdentifierSolverTask(const LogicalId& _id, const std::string& _document_guid, const std::string& _solver_guid, 
+    const std::string& _task_guid, uint _code_id, Document* _document, Config::AutoResultConfig _config, const std::u32string& _identifier, 
+    const std::u32string& _expression, const uint _delay, Logger* _logger) : 
+    AutoSolverTask(_id, _document_guid, _solver_guid, _task_guid, _code_id, ExpressionType::USER_SYMBOL, _config, _expression, _delay, _logger),
     document(_document),
     identifier(_identifier)
 {
@@ -850,9 +871,9 @@ bool SetIdentifierSolverTask::Execute(WebSocketPtr socket, Result& result)
 
 //RemoveIdentifierSolverTask
 
-RemoveIdentifierSolverTask::RemoveIdentifierSolverTask(const LogicalId& _id, const std::string& _solver_guid, uint _code_id, Document* _document, 
-    const std::u32string& _expression, const uint _delay, Logger* _logger) :
-    SolverTask(_id, _solver_guid, _code_id, ExpressionType::USER_SYMBOL, _expression, _delay, _logger),
+RemoveIdentifierSolverTask::RemoveIdentifierSolverTask(const LogicalId& _id, const std::string& _document_guid, const std::string& _solver_guid, 
+    uint _code_id, Document* _document, const std::u32string& _expression, const uint _delay, Logger* _logger) :
+    SolverTask(_id, _document_guid, _solver_guid, _code_id, ExpressionType::USER_SYMBOL, _expression, _delay, _logger),
     document(_document)
 {
 }
@@ -864,7 +885,8 @@ bool RemoveIdentifierSolverTask::Execute(WebSocketPtr socket, Result& result)
     auto& alloc = doc.GetAllocator();
     doc.SetObject();
     doc.AddMember("command", "REMOVE_IDENTIFIER", alloc);
-    doc.AddMember("guid", rapidjson::StringRef(solver_guid.c_str()), alloc);
+    doc.AddMember("document_guid", rapidjson::StringRef(document_guid.c_str()), alloc);
+    doc.AddMember("solver_guid", rapidjson::StringRef(solver_guid.c_str()), alloc);
     FillId(doc);
     doc.AddMember("code_id", code_id, alloc);
     doc.AddMember("solver_type", (int)SolverType::CALCULATOR, alloc);
@@ -903,8 +925,8 @@ bool RemoveIdentifierSolverTask::Execute(WebSocketPtr socket, Result& result)
 
 //RemoveUserIdentifiersSolverTask
 
-RemoveUserIdentifiersSolverTask::RemoveUserIdentifiersSolverTask(const std::string& _solver_guid, Logger* _logger) :
-    SolverTask(_solver_guid, _logger)
+RemoveUserIdentifiersSolverTask::RemoveUserIdentifiersSolverTask(const std::string& _document_guid, const std::string& _solver_guid, Logger* _logger) :
+    SolverTask(_document_guid, _solver_guid, _logger)
 {
 }
 
@@ -915,7 +937,8 @@ bool RemoveUserIdentifiersSolverTask::Execute(WebSocketPtr socket, Result& resul
     auto& alloc = doc.GetAllocator();
     doc.SetObject();
     doc.AddMember("command", "REMOVE_USER_IDENTIFIERS", alloc);
-    doc.AddMember("guid", rapidjson::StringRef(solver_guid.c_str()), alloc);
+    doc.AddMember("document_guid", rapidjson::StringRef(document_guid.c_str()), alloc);
+    doc.AddMember("solver_guid", rapidjson::StringRef(solver_guid.c_str()), alloc);
 
     LOG_DEBUG("Remove user identifiers");
 
@@ -945,10 +968,55 @@ bool RemoveUserIdentifiersSolverTask::Execute(WebSocketPtr socket, Result& resul
     return true;
 }
 
+//ClearExportSolverTask
+
+ClearExportSolverTask::ClearExportSolverTask(const std::string& _document_guid, Logger* _logger) :
+    SolverTask(_document_guid, _logger)
+{
+}
+
+bool ClearExportSolverTask::Execute(WebSocketPtr socket, Result& result)
+{
+    //request
+    rapidjson::Document doc;
+    auto& alloc = doc.GetAllocator();
+    doc.SetObject();
+    doc.AddMember("command", "CLEAR_EXPORT", alloc);
+    doc.AddMember("document_guid", rapidjson::StringRef(document_guid.c_str()), alloc);
+
+    LOG_DEBUG("Clear export");
+
+    if (!SendRequest(doc, result, socket))
+        return false;
+    
+    //reply
+    std::string json;
+    if (!socket->Receive(json, result))
+        return false;
+    
+    doc.Parse<0>(json.c_str());
+    if (doc.HasParseError())
+    {
+        LOG_ERROR("Json error");
+        result.error.error_code = ErrorCode::JSON_ERROR;
+        return false;
+    }
+
+    if (doc.HasMember("error"))
+    {
+        LOG_ERROR("Clear export error");
+        FillError(doc, result);
+        return false;
+    }
+
+    return true;
+}
+
 //SetLocaleSolverTask
 
-SetLocaleSolverTask::SetLocaleSolverTask(const std::string& _solver_guid, const yutovo_calculator::Language _language, Document* _document, Logger* _logger) :
-    SolverTask(_solver_guid, _logger),
+SetLocaleSolverTask::SetLocaleSolverTask(const std::string& _document_guid, const std::string& _solver_guid, 
+    const yutovo_calculator::Language _language, Document* _document, Logger* _logger) :
+    SolverTask(_document_guid, _solver_guid, _logger),
     language(_language),
     document(_document)
 {
@@ -960,7 +1028,8 @@ bool SetLocaleSolverTask::Execute(WebSocketPtr socket, Result& result)
     auto& alloc = doc.GetAllocator();
     doc.SetObject();
     doc.AddMember("command", "SET_LOCALE", alloc);
-    doc.AddMember("guid", rapidjson::StringRef(solver_guid.c_str()), alloc);
+    doc.AddMember("document_guid", rapidjson::StringRef(document_guid.c_str()), alloc);
+    doc.AddMember("solver_guid", rapidjson::StringRef(solver_guid.c_str()), alloc);
     doc.AddMember("language", (int)language, alloc);
 
     LOG_DEBUG("Set locale:\"{}\"", (int)language);
@@ -994,8 +1063,9 @@ bool SetLocaleSolverTask::Execute(WebSocketPtr socket, Result& result)
 
 //ListIdentifiersSolverTask
 
-ListIdentifiersSolverTask::ListIdentifiersSolverTask(const std::string& _solver_guid, const uint _code_id, Document* _document, Logger* _logger) :
-    SolverTask(_solver_guid, _logger),
+ListIdentifiersSolverTask::ListIdentifiersSolverTask(const std::string& _document_guid, const std::string& _solver_guid, const uint _code_id, 
+    Document* _document, Logger* _logger) :
+    SolverTask(_document_guid, _solver_guid, _logger),
     code_id(_code_id),
     document(_document)
 {
@@ -1007,7 +1077,8 @@ bool ListIdentifiersSolverTask::Execute(WebSocketPtr socket, Result& result)
     auto& alloc = doc.GetAllocator();
     doc.SetObject();
     doc.AddMember("command", "LIST_IDENTIFIERS", alloc);
-    doc.AddMember("guid", rapidjson::StringRef(solver_guid.c_str()), alloc);
+    doc.AddMember("document_guid", rapidjson::StringRef(document_guid.c_str()), alloc);
+    doc.AddMember("solver_guid", rapidjson::StringRef(solver_guid.c_str()), alloc);
     doc.AddMember("code_id", code_id, alloc);
     doc.AddMember("solver_type", (int)SolverType::CALCULATOR, alloc);
 

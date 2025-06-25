@@ -31,6 +31,13 @@
 #include <assert.h>
 #include <chrono>
 #include <sstream>
+#include <boost/uuid/uuid.hpp>
+#include <boost/uuid/uuid_generators.hpp>
+#include <boost/uuid/uuid_io.hpp>
+#include <boost/iostreams/filtering_streambuf.hpp>
+#include <boost/iostreams/copy.hpp>
+#include <boost/iostreams/filter/gzip.hpp>
+#include <rapidjson/istreamwrapper.h>
 
 #ifdef _MSC_VER
 #undef GetObject
@@ -44,10 +51,12 @@ using namespace std::chrono;
 
 //Document
 
-Document::Document(Window* _window, Config& _config) :
+Document::Document(Window* _window, Config& _config, const std::string _document_guid) :
     window(_window),
     selection(this),
     config(_config),
+    file_guid(boost::uuids::to_string(boost::uuids::random_generator()())),
+    document_guid(_document_guid),
     solver(this),
     undo_base(this),
     last_selection(this),
@@ -55,6 +64,9 @@ Document::Document(Window* _window, Config& _config) :
 {
     logger->SetLevel((int)_config.log_level);
     LOG_DEBUG("Document start");
+
+    if (document_guid.empty())
+        document_guid = boost::uuids::to_string(boost::uuids::random_generator()());
 
     string_formats.reset(new StringFormats());
     paragraph_formats.reset(new ParagraphFormats(string_formats));
@@ -70,6 +82,12 @@ Document::Document(Window* _window, Config& _config) :
 #ifndef DEBUG
     config.pretty_json = false;
 #endif
+}
+
+Document::Document(Document* _parent, Window* _window, Config& _config) : 
+    Document(_window, _config, _parent->document_guid)
+{
+    parent = _parent;
 }
 
 Document::~Document()
@@ -933,6 +951,16 @@ void Document::ResetTasks()
     undo_tasks.clear();
     redo_tasks.clear();
     changed = false;
+}
+
+uint Document::SetIncludeDocuments(const std::vector<std::pair<bool, std::string>>& files)
+{
+    include_documents.clear();
+    Config c = config;
+    c.include_documents.documents.clear();
+    for (auto& p : files)
+        c.include_documents.documents.push_back(Config::IncludeDocument{p.second, p.first});
+    return SetConfig(c, false);
 }
 
 ElementPtr Document::GetElement(const ElementId& _id)
@@ -2164,15 +2192,70 @@ uint Document::SaveJson(std::string& json, const int document_id, const bool gzi
     return last_task_id;
 }
 
-uint Document::Load(const std::string& filename)
+uint Document::Load(const std::string& filename, bool include)
 {
     {
         std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
-        tasks.emplace_back(new LoadTask(text, filename));
+        tasks.emplace_back(new LoadTask(text, filename, include));
         last_load_task_id = tasks.back()->id;
     }
     next_circle = true;
     return last_load_task_id;
+}
+
+uint Document::LoadInclude(const std::string& filename, Window* _window)
+{
+#ifdef _WIN32
+    std::ifstream file(yutovo_calculator::ToWString(filename), std::ios_base::binary);
+#else
+    std::ifstream file(filename);
+#endif
+    if (!file.is_open())
+    {
+        window->OnLoadResult(-1, IOResult::InputStreamError, -1);
+        LOG_ERROR("Error loading include file '{}': File not open", filename);
+        return 0;
+    }
+
+    rapidjson::Document doc;
+    std::stringstream json;
+    try
+    {
+        //try to open as compressed file
+        boost::iostreams::filtering_streambuf<boost::iostreams::input> in;
+        in.push(boost::iostreams::gzip_decompressor());
+        in.push(file);
+        boost::iostreams::copy(in, json);
+
+        doc.Parse<0>(json.str().c_str());
+        if (doc.HasParseError() || !doc.IsObject() || !CheckIncludeFile(doc))
+        {
+            window->OnLoadResult(-1, IOResult::InputStreamError, -1);
+            return 0;
+        }
+    }
+    catch (const std::ios_base::failure& ex)
+    {
+        //try to open as decompressed file
+#ifdef _WIN32
+        std::ifstream file(yutovo_calculator::ToWString(filename));
+#else
+        std::ifstream file(filename);
+#endif
+        rapidjson::IStreamWrapper isw{file};
+        doc.ParseStream(isw);
+        if (doc.HasParseError() || !doc.IsObject() || !CheckIncludeFile(doc))
+        {
+            window->OnLoadResult(-1, IOResult::InputStreamError, -1);
+            return false;
+        }
+    }
+
+    include_documents.emplace_back(new Document(this, _window, config));
+    auto p = include_documents[include_documents.size() - 1].get();
+    p->Start();
+    p->Load(filename, true);
+    return 0;
 }
 
 uint Document::LoadJson(const std::string& json_doc, const int document_id)
@@ -2216,8 +2299,6 @@ uint Document::Paste(std::u32string& in_json)
     {
         //load string formats
         std::lock_guard<std::recursive_mutex> lock(edit_mutex);
-        // rapidjson::Value::Object p = doc["string_formats"].GetObject();
-        // string_formats->FromJson((rapidjson::Value::ConstObject&)p, doc.GetAllocator());
         string_formats->FromJson(((const rapidjson::Value&)doc["string_formats"]).GetArray(), doc.GetAllocator());
     }
 
@@ -2482,6 +2563,11 @@ void Document::RemoveIdentifier(const LogicalId& _id, uint code_id, const std::u
 void Document::RemoveUserIdentifiers()
 {
     solver.RemoveUserIdentifiers();
+}
+
+void Document::ClearExport()
+{
+    solver.ClearExport();
 }
 
 ResultType Document::GetResultType(ElementId _id)
@@ -2811,7 +2897,7 @@ void Document::AddChangedElement(const ElementId& _id)
 
 void Document::GetSolverGuid(std::string& guid)
 {
-    guid = solver.guid;
+    guid = solver.solver_guid;
 }
 
 uint Document::SetLocale(const yutovo_calculator::Language language, bool with_undo)
@@ -3087,6 +3173,26 @@ void Document::UpdateChanged()
         window->OnDocumentChanged(changed);
         last_changed = changed;
     }
+}
+
+bool Document::CheckIncludeFile(rapidjson::Document& doc)
+{
+    if (!doc.HasMember("file_guid") || !doc["file_guid"].IsString())
+        return false;
+
+    //check cicle include files
+    std::string _file_guid = doc["file_guid"].GetString();
+    Document* p = this;
+    while (p)
+    {
+        if (p->file_guid == _file_guid)
+        {
+            LOG_ERROR("Error cicle include files");
+            return false;
+        }
+        p = p->parent;
+    }
+    return true;
 }
 
 #ifdef TEST

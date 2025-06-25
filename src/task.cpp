@@ -28,6 +28,9 @@
 #include <yutovo_solver/types.h>
 #include <rapidjson/prettywriter.h>
 #include <rapidjson/istreamwrapper.h>
+#include <boost/uuid/uuid.hpp>
+#include <boost/uuid/uuid_generators.hpp>
+#include <boost/uuid/uuid_io.hpp>
 
 #ifdef _MSC_VER
 #undef GetObject
@@ -1427,9 +1430,13 @@ NewTask::NewTask(ElementPtr _text) :
 
 bool NewTask::Execute()
 {
+    document->file_guid = boost::uuids::to_string(boost::uuids::random_generator()());
     document->caret->MoveToDocumentBegin(nullptr);
+    document->include_documents.clear();
+    document->config.include_documents.documents.clear();
     document->ResetTasks();
-    document->solver.RemoveUserIdentifiers();
+    document->RemoveUserIdentifiers();
+    document->ClearExport();
     document->current_paragraph_format = document->paragraph_formats->GetFormat("Text body");
     document->current_code_format = document->code_formats->GetFormat("Calculator");
     document->current_formula_format = document->formula_formats->GetFormat("Code");
@@ -1463,6 +1470,10 @@ bool SaveTask::Execute()
         rapidjson::Document json;
         auto& alloc = json.GetAllocator();
         json.SetObject();
+
+        //add guid
+        rapidjson::Value d(document->file_guid.c_str(), alloc);
+        json.AddMember("file_guid", d, alloc);
 
         //add config
         rapidjson::Value config(rapidjson::kObjectType);
@@ -1592,9 +1603,10 @@ bool SaveTask::Execute()
 
 //LoadTask
 
-LoadTask::LoadTask(ElementPtr _text, const std::string _filename) :
+LoadTask::LoadTask(ElementPtr _text, const std::string _filename, const bool _include) :
     Task(_text),
-    filename(_filename)
+    filename(_filename),
+    include(_include)
 {
 }
 
@@ -1746,6 +1758,9 @@ bool LoadTask::Execute()
     document->text->Remake(true);
     document->text->ReSolve();
 
+    if (document->parent)
+        document->parent->ReSolve(ElementId{0});
+    
     bool r = false;
     if (doc.IsObject())
     {
@@ -1835,6 +1850,9 @@ bool LoadTask::LoadJson(rapidjson::Document& doc)
 {
     auto& alloc = doc.GetAllocator();
 
+    if (doc.HasMember("file_guid") && doc["file_guid"].IsString())
+        document->file_guid = doc["file_guid"].GetString();
+
     if (doc.HasMember("config") && doc["config"].IsObject())
     {
         //load config
@@ -1846,7 +1864,21 @@ bool LoadTask::LoadJson(rapidjson::Document& doc)
         for (auto& v : p)
             d.AddMember(v.name, v.value, alloc);
 
+        auto c = document->config;
         document->config.FromJson(d, alloc);
+        if (document->config.include_documents.documents != c.include_documents.documents)
+        {
+            document->include_documents.clear();
+            document->RemoveUserIdentifiers();
+            document->ClearExport();
+            for (Config::IncludeDocument& inc : document->config.include_documents.documents)
+            {
+                if (!inc.enabled)
+                    continue;
+                window->OnLoadInclude(inc.file_name, -1);
+            }
+        }
+        
         document->solver.SetLocale(document->config.language);
         document->SetLocale(document->config.language, false);
     }
@@ -2139,6 +2171,8 @@ bool ResolveTask::Execute()
                 document->changed_elements.clear();
             }
         }
+        if (document->parent && id.size() == 1)
+            document->parent->ReSolve(ElementId{0});
         return true;
     }
 
@@ -2164,6 +2198,8 @@ bool ResolveTask::Execute()
                 }
             }
         }
+        if (document->parent && id.size() == 1)
+            document->parent->ReSolve(ElementId{0});
         return true;
     }
     
@@ -2185,6 +2221,9 @@ bool ResolveTask::Execute()
             }
         }
     }
+
+    if (document->parent && id.size() == 1)
+        document->parent->ReSolve(ElementId{0});
     return true;
 }
 
@@ -2546,6 +2585,20 @@ bool SetConfigTask::Execute()
         }
         remake = true;
     }
+
+    if (config.include_documents.documents != c.include_documents.documents)
+    {
+        document->include_documents.clear();
+        document->RemoveUserIdentifiers();
+        document->ClearExport();
+        for (Config::IncludeDocument& inc : config.include_documents.documents)
+        {
+            if (!inc.enabled)
+                continue;
+            window->OnLoadInclude(inc.file_name, -1);
+        }
+    }
+
     document->config = config;
     document->current_code_format->border_color = config.code_block_border_color;
 
