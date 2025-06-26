@@ -172,6 +172,15 @@ struct ListIdentifiersSolverTask : SolverTask
     Document* document;
 };
 
+struct ResolveFinishedSolverTask : SolverTask
+{
+    ResolveFinishedSolverTask(Document* _document, Logger* _logger);
+
+    virtual bool Execute(WebSocketPtr socket, Result& result);
+
+    Document* document;
+};
+
 typedef std::shared_ptr<SolverTask> SolverTaskPtr;
 
 }

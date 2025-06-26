@@ -1250,7 +1250,6 @@ TEST_F(IncludeDocumentsTest, include_files4)
     document.WaitTask(document.InsertString("5", true));
     document.WaitSolver();
     std::this_thread::sleep_for(200ms);
-    //document.WaitTask(document.SetIncludeDocuments({std::pair{true, "include2.yut"}}));
     document.WaitTask(document.Save("include1.yut"));
     std::this_thread::sleep_for(200ms);
 
@@ -1613,6 +1612,64 @@ TEST_F(IncludeDocumentsTest, include_files8)
     std::this_thread::sleep_for(2s);
     ASSERT_TRUE(document2.ToText() == 
         U"var1=3(1)/(3)"\
+        ) << ToBasicString(document2.ToText());
+}
+
+//load include file from a directory
+TEST_F(IncludeDocumentsTest, include_files9)
+{
+    Start(600);
+
+    EXPECT_CALL(window_mock, OnSaveResult).WillRepeatedly([&](const uint task_id, IOResult result, const int document_id)
+        {
+            ASSERT_TRUE(result == IOResult::Success);
+        });
+
+    EXPECT_CALL(window_mock, OnLoadInclude).WillRepeatedly([&](const std::string& file_name, const int document_id)
+        {
+            document.LoadInclude(file_name, &include_window1);
+            std::this_thread::sleep_for(400ms);
+        });
+
+    EXPECT_CALL(window_mock, Translate).WillRepeatedly([&](ElementId id, const std::u32string& str)
+        {
+            return str;
+        });
+
+    //include1.yut
+    document.InsertCode(false, true);
+    document.InsertString("var1", true);
+    document.InsertAssignment(true);
+    document.InsertString("10", true);
+    document.WaitSolver();
+    document.WaitTask(document.Save("test/include9.yut"));
+    std::this_thread::sleep_for(200ms);
+
+    document.WaitTask(document.New());
+    ASSERT_TRUE(document.IsChanged() == false);
+    std::this_thread::sleep_for(200ms);
+
+    EXPECT_CALL(window_mock2, OnLoadInclude).WillRepeatedly([&](const std::string& file_name, const int document_id)
+        {
+            document2.LoadInclude(file_name, &include_window2);
+            std::this_thread::sleep_for(400ms);
+        });
+
+    EXPECT_CALL(window_mock2, Translate).WillRepeatedly([&](ElementId id, const std::u32string& str)
+        {
+            return str;
+        });
+
+    document2.InsertCode(false, true);
+    document2.WaitTask(document2.Save("test/include_files9.yut"));
+    document2.WaitTask(document2.SetIncludeDocuments({std::pair{true, "include9.yut"}}));
+    std::this_thread::sleep_for(2s);
+    document2.InsertString("var1", true);
+    document2.WaitTask(document2.InsertEquation(ResultType::AUTO, true));
+    document2.WaitSolver();
+    std::this_thread::sleep_for(2s);
+    ASSERT_TRUE(document2.ToText() == 
+        U"var1=10."\
         ) << ToBasicString(document2.ToText());
 }
 

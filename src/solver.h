@@ -40,6 +40,7 @@ public:
     void ClearExport();
     void SetLocale(const yutovo_calculator::Language _language);
     void ListIdentifiers(uint code_id);
+    void ResolveFinished();
 
 private:
 #ifdef REMOTE_SOLVER

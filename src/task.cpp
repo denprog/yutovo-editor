@@ -994,6 +994,8 @@ RedrawTask::RedrawTask(ElementPtr _text, const ElementId& _id, bool _move_into_v
 
 bool RedrawTask::Execute()
 {
+    if (document->parent)
+        return false; //do not redraw include documents
     ElementPtr element = document->GetElement(element_id);
     if (!element || document->WillRedraw(element_id, move_into_view)) //don't redraw if it will be redrawn later
         return false;
@@ -1596,6 +1598,7 @@ bool SaveTask::Execute()
     }
 
     document->save_task_id = document->last_modify_task_id;
+    document->path = std::filesystem::canonical(std::filesystem::absolute(filename).c_str());
 
     window->OnSaveResult(id, IOResult::Success, document_id);
     return true;
@@ -1671,6 +1674,8 @@ bool LoadTask::Execute()
             return false;
         }
 
+        document->path = filename;
+
         try
         {
             //try to open as compressed file
@@ -1724,6 +1729,9 @@ bool LoadTask::Execute()
                 LOG_ERROR("Error loading file '{}': File not open", filename);
                 return false;
             }
+
+            document->path = filename;
+
             file.seekg(0, std::ios::end);
             size_t size = file.tellg();
             str = std::string(size, ' ');
@@ -1759,7 +1767,7 @@ bool LoadTask::Execute()
     document->text->ReSolve();
 
     if (document->parent)
-        document->parent->ReSolve(ElementId{0});
+        document->ResolveFinished(); //notify parent document about resolving this one
     
     bool r = false;
     if (doc.IsObject())
@@ -2172,7 +2180,7 @@ bool ResolveTask::Execute()
             }
         }
         if (document->parent && id.size() == 1)
-            document->parent->ReSolve(ElementId{0});
+            document->ResolveFinished();
         return true;
     }
 
@@ -2199,7 +2207,7 @@ bool ResolveTask::Execute()
             }
         }
         if (document->parent && id.size() == 1)
-            document->parent->ReSolve(ElementId{0});
+            document->ResolveFinished();
         return true;
     }
     
@@ -2223,7 +2231,7 @@ bool ResolveTask::Execute()
     }
 
     if (document->parent && id.size() == 1)
-        document->parent->ReSolve(ElementId{0});
+        document->ResolveFinished();
     return true;
 }
 
