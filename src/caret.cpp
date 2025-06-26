@@ -229,6 +229,8 @@ void Caret::SetVisible(bool _visible)
 
 void Caret::Show()
 {
+    if (document->parent)
+        return;
     if (block || !document->config.caret_visible)
         return;
     auto el = GetElement();
@@ -245,6 +247,8 @@ void Caret::Show()
 
 void Caret::Hide()
 {
+    if (document->parent)
+        return;
     if (show)
     {
         window->RestoreRect();

@@ -1056,6 +1056,8 @@ Rect StringElements::GetCaretRect(const uint pos) const
 
 void StringElements::DrawCaret(const uint pos) const
 {
+    if (parent->document->parent)
+        return; //do not redraw include documents
     Rect r = parent->GetAbsoluteRect(GetCaretRect(pos));
     if (Count() == 0)
         parent->window->DrawLine(r.left + parent->rect.width / 2, r.top, r.left + parent->rect.width / 2, r.GetBottom() - 1, Color::Black());

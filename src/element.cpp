@@ -546,6 +546,8 @@ Rect Element::GetCaretRect() const
 
 void Element::DrawCaret(const uint pos) const
 {
+    if (document->parent)
+        return; //do not redraw include documents
     elements->DrawCaret(pos);
 }
 
