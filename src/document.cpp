@@ -31,6 +31,7 @@
 #include <assert.h>
 #include <chrono>
 #include <sstream>
+#include <filesystem>
 #include <boost/uuid/uuid.hpp>
 #include <boost/uuid/uuid_generators.hpp>
 #include <boost/uuid/uuid_io.hpp>
@@ -2206,15 +2207,35 @@ uint Document::Load(const std::string& filename, bool include)
 uint Document::LoadInclude(const std::string& filename, Window* _window)
 {
 #ifdef _WIN32
-    std::ifstream file(yutovo_calculator::ToWString(filename), std::ios_base::binary);
+    std::ifstream file;
+    file = std::ifstream(yutovo_calculator::ToWString(filename), std::ios_base::binary);
 #else
-    std::ifstream file(filename);
+    std::ifstream file;
+    file = std::ifstream(filename);
 #endif
-    if (!file.is_open())
+    std::string _filename = filename;
+    if (!file.is_open()) //try to open relatively to the current dir
     {
-        window->OnLoadResult(-1, IOResult::InputStreamError, -1);
-        LOG_ERROR("Error loading include file '{}': File not open", filename);
-        return 0;
+        try
+        {
+            std::filesystem::path p = path;
+            p = p.parent_path();
+            p /= filename; //try to open relatevely to the current document
+            _filename = std::filesystem::canonical(std::filesystem::absolute(p).c_str());
+            file = std::ifstream(_filename);
+            if (!file.is_open())
+            {
+                window->OnLoadResult(0, IOResult::InputStreamError, -1);
+                LOG_ERROR("Error loading include file '{}': File not open", filename);
+                return 0;
+            }
+        }
+        catch (const std::filesystem::filesystem_error& ex)
+        {
+            window->OnLoadResult(0, IOResult::InputStreamError, -1);
+            LOG_ERROR("Error loading include file '{}': File not open", filename);
+            return 0;
+        }
     }
 
     rapidjson::Document doc;
@@ -2230,7 +2251,7 @@ uint Document::LoadInclude(const std::string& filename, Window* _window)
         doc.Parse<0>(json.str().c_str());
         if (doc.HasParseError() || !doc.IsObject() || !CheckIncludeFile(doc))
         {
-            window->OnLoadResult(-1, IOResult::InputStreamError, -1);
+            window->OnLoadResult(0, IOResult::InputStreamError, -1);
             return 0;
         }
     }
@@ -2238,15 +2259,15 @@ uint Document::LoadInclude(const std::string& filename, Window* _window)
     {
         //try to open as decompressed file
 #ifdef _WIN32
-        std::ifstream file(yutovo_calculator::ToWString(filename));
+        std::ifstream file(yutovo_calculator::ToWString(_filename));
 #else
-        std::ifstream file(filename);
+        std::ifstream file(_filename);
 #endif
         rapidjson::IStreamWrapper isw{file};
         doc.ParseStream(isw);
         if (doc.HasParseError() || !doc.IsObject() || !CheckIncludeFile(doc))
         {
-            window->OnLoadResult(-1, IOResult::InputStreamError, -1);
+            window->OnLoadResult(0, IOResult::InputStreamError, -1);
             return false;
         }
     }
@@ -2254,7 +2275,7 @@ uint Document::LoadInclude(const std::string& filename, Window* _window)
     include_documents.emplace_back(new Document(this, _window, config));
     auto p = include_documents[include_documents.size() - 1].get();
     p->Start();
-    p->Load(filename, true);
+    p->Load(_filename, true);
     return 0;
 }
 
@@ -2910,6 +2931,11 @@ uint Document::SetLocale(const yutovo_calculator::Language language, bool with_u
 void Document::ListIdentifiers(const uint code_id)
 {
     solver.ListIdentifiers(code_id);
+}
+
+void Document::ResolveFinished()
+{
+    solver.ResolveFinished();
 }
 
 void Document::UpdateSolveId(const std::string& guid, const LogicalId& new_id)

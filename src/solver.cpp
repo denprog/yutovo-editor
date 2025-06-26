@@ -236,6 +236,14 @@ void Solver::ListIdentifiers(uint code_id)
     next_circle = true;
 }
 
+void Solver::ResolveFinished()
+{
+    std::unique_lock<std::mutex> lock(tasks_mutex);
+    tasks.emplace_back(new ResolveFinishedSolverTask(document, logger));
+    tasks.emplace_back(nullptr);
+    next_circle = true;
+}
+
 #ifdef REMOTE_SOLVER
 void Solver::MessageLoop(WebSocketPtr socket_, std::deque<SolverTaskPtr>& tasks_, std::atomic_bool& next_circle_)
 #else

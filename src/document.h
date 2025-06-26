@@ -303,6 +303,7 @@ public:
     void GetSolverGuid(std::string& guid);
     uint SetLocale(const yutovo_calculator::Language language, bool with_undo);
     void ListIdentifiers(const uint code_id);
+    void ResolveFinished();
 
     void UpdateSolveId(const std::string& guid, const LogicalId& new_id);
 
@@ -424,8 +425,11 @@ public:
 
     std::string document_guid; //for identifing include documents
 
-private:
     Document* parent = nullptr; //parent of include document
+
+    std::string path;
+
+private:
     std::vector<std::unique_ptr<Document>> include_documents;
 
     std::list<TaskPtr> tasks;

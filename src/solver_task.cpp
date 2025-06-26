@@ -1183,4 +1183,19 @@ bool ListIdentifiersSolverTask::Execute(WebSocketPtr socket, Result& result)
     return true;
 }
 
+//ResolveFinishedSolverTask
+
+ResolveFinishedSolverTask::ResolveFinishedSolverTask(Document* _document, Logger* _logger) :
+    SolverTask("", "", _logger),
+    document(_document)
+{
+}
+
+bool ResolveFinishedSolverTask::Execute(WebSocketPtr socket, Result& result)
+{
+    if (document->parent)
+        document->parent->ReSolve(ElementId{0});
+    return true;
+}
+
 }
