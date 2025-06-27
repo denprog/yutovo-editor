@@ -623,7 +623,7 @@ TEST_F(DocumentTest, caret17)
 //PageUp with selection
 TEST_F(DocumentTest, caret18)
 {
-    Start(680);
+    Start(678);
 
     EXPECT_CALL(window_mock, OnLoadResult).WillOnce([&](const uint task_id, IOResult result, const int document_id)
         {
@@ -643,8 +643,8 @@ TEST_F(DocumentTest, caret18)
     document.MoveCaretWordLeft(false);
     document.MoveCaretWordLeft(false);
     document.WaitTask(document.MoveCaretPageUp(true));
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 3, 10, 0, 30}, 
-        ElementSelectionState{ElementId{0, 3, 10, 0}, 30, 8},
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 3, 10, 0, 31}, 
+        ElementSelectionState{ElementId{0, 3, 10, 0}, 31, 7},
         ElementSelectionState{ElementId{0}, 4, 1},
         ElementSelectionState{ElementId{0, 5}, 0, 1},
         ElementSelectionState{ElementId{0, 5, 1, 0}, 0, 30})) << document.GetEditorState().ToString();
@@ -654,8 +654,8 @@ TEST_F(DocumentTest, caret18)
     document.MoveCaretWordLeft(false);
     document.InsertDivision(true);
     document.WaitTask(document.MoveCaretPageUp(true));
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 3, 9, 0, 43}, 
-        ElementSelectionState{ElementId{0, 3, 9, 0}, 43, 8},
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 3, 9, 0, 42}, 
+        ElementSelectionState{ElementId{0, 3, 9, 0}, 42, 9},
         ElementSelectionState{ElementId{0, 3}, 10, 1},
         ElementSelectionState{ElementId{0}, 4, 1},
         ElementSelectionState{ElementId{0, 5, 0}, 0, 1})) << document.GetEditorState().ToString();
@@ -663,10 +663,11 @@ TEST_F(DocumentTest, caret18)
     document.MoveCaretToDocumentEnd(false);
     document.MoveCaretUp(false);
     document.WaitTask(document.MoveCaretPageUp(true));
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 3, 10, 0, 38}, 
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 3, 9, 0, 41}, 
+        ElementSelectionState{ElementId{0, 3, 9, 0}, 41, 10},
+        ElementSelectionState{ElementId{0, 3}, 10, 1},
         ElementSelectionState{ElementId{0}, 4, 1},
-        ElementSelectionState{ElementId{0, 5, 0}, 0, 2},
-        ElementSelectionState{ElementId{0, 5, 0, 2}, 0, 7})) << document.GetEditorState().ToString();
+        ElementSelectionState{ElementId{0, 5, 0}, 0, 1})) << document.GetEditorState().ToString();
 }
 
 //PageDown with selection
@@ -873,7 +874,7 @@ TEST_F(DocumentTest, caret25)
     document.GetElementRect(ElementId{0, 0, 0, 1}, rect2);
     document.GetElementRect(ElementId{0, 0, 0, 2}, rect3);
     document.WaitTask(document.MoveCaret(rect3.GetRight() - 5, rect3.top + 5));
-    document.WaitTask(document.Select(rect3.GetRight() - 5, rect3.top + 5, rect3.GetRight() - 10, rect3.top + 5));
+    document.WaitTask(document.Select(rect3.GetRight(), rect3.top + 5, rect3.GetRight() - 10, rect3.top + 5));
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 2, 3}, 
         ElementSelectionState{ElementId{0, 0, 0, 2}, 3, 1})) << document.GetEditorState().ToString();
 
@@ -1014,13 +1015,13 @@ TEST_F(DocumentTest, caret29)
         ElementSelectionState{ElementId{0, 0, 2, 0}, 9, 1})) << document.GetEditorState().ToString();
 
     document.WaitTask(document.Select(100, rect3.top + 1, 110, rect2.top + 1));
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 0, 9}, 
-        ElementSelectionState{ElementId{0, 0, 1, 0}, 9, 22},
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 0, 10}, 
+        ElementSelectionState{ElementId{0, 0, 1, 0}, 10, 21},
         ElementSelectionState{ElementId{0, 0, 2, 0}, 0, 9})) << document.GetEditorState().ToString();
 
     document.WaitTask(document.Select(100, rect3.top + 1, 110, rect2.top - 1));
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 0, 9}, 
-        ElementSelectionState{ElementId{0, 0, 1, 0}, 9, 22},
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 0, 10}, 
+        ElementSelectionState{ElementId{0, 0, 1, 0}, 10, 21},
         ElementSelectionState{ElementId{0, 0, 2, 0}, 0, 9})) << document.GetEditorState().ToString();
 
     document.WaitTask(document.Select(100, rect3.top + 1, 110, rect1.top + 1));
@@ -1142,8 +1143,8 @@ TEST_F(DocumentTest, caret32)
         ElementSelectionState{ElementId{0, 1, 1, 0}, 0, 7})) << document.GetEditorState().ToString();
 
     document.WaitTask(document.Select(100, rect5.top + 1, 110, rect1.top + 1));
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 6}, 
-        ElementSelectionState{ElementId{0, 0, 0, 0}, 6, 46},
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 8}, 
+        ElementSelectionState{ElementId{0, 0, 0, 0}, 8, 44},
         ElementSelectionState{ElementId{0, 0}, 1, 2},
         ElementSelectionState{ElementId{0, 1}, 0, 1},
         ElementSelectionState{ElementId{0, 1, 1, 0}, 0, 7})) << document.GetEditorState().ToString();
@@ -1213,8 +1214,8 @@ TEST_F(DocumentTest, caret34)
         ElementSelectionState{ElementId{0, 1, 1, 2}, 0, 8})) << document.GetEditorState().ToString();
 
     document.WaitTask(document.Select(390, rect3.top + 1, 380, rect1.top + 1));
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 2, 0, 35}, 
-        ElementSelectionState{ElementId{0, 0, 2, 0}, 35, 6},
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 2, 0, 36}, 
+        ElementSelectionState{ElementId{0, 0, 2, 0}, 36, 5},
         ElementSelectionState{ElementId{0, 1}, 0, 1},
         ElementSelectionState{ElementId{0, 1, 1}, 0, 2},
         ElementSelectionState{ElementId{0, 1, 1, 2}, 0, 8})) << document.GetEditorState().ToString();
@@ -1248,11 +1249,11 @@ TEST_F(DocumentTest, caret35)
         ElementSelectionState{ElementId{0, 1, 0, 0}, 0, 20})) << document.GetEditorState().ToString();
 
     document.WaitTask(document.Select(100, rect1.top + 1, 180, rect3.top + 1));
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 1, 1, 0, 17}, 
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 1, 1, 0, 18}, 
         ElementSelectionState{ElementId{0, 0, 2, 0}, 6, 26},
         ElementSelectionState{ElementId{0, 0, 2}, 1, 2},
         ElementSelectionState{ElementId{0, 1}, 0, 1},
-        ElementSelectionState{ElementId{0, 1, 1, 0}, 0, 17})) << document.GetEditorState().ToString();
+        ElementSelectionState{ElementId{0, 1, 1, 0}, 0, 18})) << document.GetEditorState().ToString();
 }
 
 //Selection a row with a division
@@ -2195,7 +2196,7 @@ TEST_F(DocumentTest, caret71)
 //Word right, word left through out rows with code blocks
 TEST_F(DocumentTest, caret72)
 {
-    Start(600);
+    Start(635);
 
     for (int i = 0; i < 7; ++i)
     {
@@ -2329,7 +2330,7 @@ TEST_F(DocumentTest, caret76)
 //Move word right in a string with commas, quotes, braces, dotas
 TEST_F(DocumentTest, caret77)
 {
-    Start(590);
+    Start(585);
 
     document.InsertString("Арифме́тика (др.-греч. ἀριθμητική, arithmētikḗ — от ἀριθμός, arithmós «число») — "\
         "раздел математики, 123, изучающий числа, их отношения и свойства. String.", true);
@@ -2413,7 +2414,7 @@ TEST_F(DocumentTest, caret77)
 //Move word left in a string with commas, quotes, braces, dotas
 TEST_F(DocumentTest, caret78)
 {
-    Start(590);
+    Start(585);
 
     document.InsertString("Арифме́тика (др.-греч. ἀριθμητική, arithmētikḗ — от ἀριθμός, arithmós «число») — "\
         "раздел математики, 123, изучающий числа, их отношения и свойства. String.", true);
@@ -2499,7 +2500,7 @@ TEST_F(DocumentTest, caret78)
 //Select word left in a string with commas, quotes, braces, dotas
 TEST_F(DocumentTest, caret79)
 {
-    Start(590);
+    Start(585);
 
     document.InsertString("Арифме́тика (др.-греч. ἀριθμητική, arithmētikḗ — от ἀριθμός, arithmós «число») — "\
         "раздел математики, 123, изучающий числа, их отношения и свойства. String.", true);

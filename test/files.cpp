@@ -140,7 +140,7 @@ TEST_F(DocumentTest, files2)
 
 TEST_F(DocumentTest, files3)
 {
-    Start(640);
+    Start(642);
 
     EXPECT_CALL(window_mock, OnSaveResult).WillRepeatedly([&](const uint task_id, IOResult result, const int document_id)
         {
