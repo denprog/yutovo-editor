@@ -386,10 +386,11 @@ bool SolverTask::FillComplexResult(rapidjson::Document& doc, Result& result)
 
 //AutoSolverTask
 
-AutoSolverTask::AutoSolverTask(const LogicalId& _id, const std::string& _document_guid, const std::string& _solver_guid, 
+AutoSolverTask::AutoSolverTask(const LogicalId& _id, Document* _document, const std::string& _solver_guid, 
     const std::string& _task_guid, uint _code_id, ExpressionType _expression_type, Config::AutoResultConfig _config, 
     const std::u32string& _expression, const uint _delay, Logger* _logger) :
-    SolverTask(_id, _document_guid, _solver_guid, _task_guid, _code_id, _expression_type, _expression, _delay, _logger),
+    SolverTask(_id, _document->document_guid, _solver_guid, _task_guid, _code_id, _expression_type, _expression, _delay, _logger),
+    document(_document),
     config(_config)
 {
 }
@@ -411,6 +412,7 @@ bool AutoSolverTask::Execute(WebSocketPtr socket, Result& result)
     std::string s = ToBasicString(expression);
     doc.AddMember("expression", rapidjson::StringRef(s.c_str()), alloc);
     doc.AddMember("expression_type", (int)expression_type, alloc);
+    doc.AddMember("include_document", (bool)(document->parent != nullptr), alloc);
 
     //auto config
     rapidjson::Value d(rapidjson::kArrayType);
@@ -852,10 +854,10 @@ bool BreakSolverTask::Execute(WebSocketPtr socket, Result& result)
 
 //SetIdentifierSolverTask
 
-SetIdentifierSolverTask::SetIdentifierSolverTask(const LogicalId& _id, const std::string& _document_guid, const std::string& _solver_guid, 
-    const std::string& _task_guid, uint _code_id, Document* _document, Config::AutoResultConfig _config, const std::u32string& _identifier, 
+SetIdentifierSolverTask::SetIdentifierSolverTask(const LogicalId& _id, Document* _document, const std::string& _solver_guid, 
+    const std::string& _task_guid, uint _code_id, Config::AutoResultConfig _config, const std::u32string& _identifier, 
     const std::u32string& _expression, const uint _delay, Logger* _logger) : 
-    AutoSolverTask(_id, _document_guid, _solver_guid, _task_guid, _code_id, ExpressionType::USER_SYMBOL, _config, _expression, _delay, _logger),
+    AutoSolverTask(_id, _document, _solver_guid, _task_guid, _code_id, ExpressionType::USER_SYMBOL, _config, _expression, _delay, _logger),
     document(_document),
     identifier(_identifier)
 {
