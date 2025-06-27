@@ -59,11 +59,12 @@ struct SolverTask
 
 struct AutoSolverTask : SolverTask
 {
-    AutoSolverTask(const LogicalId& _id, const std::string& _document_guid, const std::string& _solver_guid, const std::string& _task_guid, uint _code_id, 
+    AutoSolverTask(const LogicalId& _id, Document* _document, const std::string& _solver_guid, const std::string& _task_guid, uint _code_id, 
         ExpressionType _expression_type, Config::AutoResultConfig _config, const std::u32string& _expression, const uint _delay, Logger* _logger);
 
     virtual bool Execute(WebSocketPtr socket, Result& result);
 
+    Document* document;
     Config::AutoResultConfig config;
 };
 
@@ -116,8 +117,8 @@ struct BreakSolverTask : SolverTask
 
 struct SetIdentifierSolverTask : AutoSolverTask
 {
-    SetIdentifierSolverTask(const LogicalId& _id, const std::string& _document_guid, const std::string& _solver_guid, const std::string& _task_guid, 
-        uint _code_id, Document* _document, Config::AutoResultConfig _config, const std::u32string& _identifier, const std::u32string& _expression, 
+    SetIdentifierSolverTask(const LogicalId& _id, Document* _document, const std::string& _solver_guid, const std::string& _task_guid, 
+        uint _code_id, Config::AutoResultConfig _config, const std::u32string& _identifier, const std::u32string& _expression, 
         const uint _delay, Logger* _logger);
 
     virtual bool Execute(WebSocketPtr socket, Result& result);

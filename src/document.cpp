@@ -3213,7 +3213,7 @@ bool Document::CheckIncludeFile(rapidjson::Document& doc)
     {
         if (p->file_guid == _file_guid)
         {
-            LOG_ERROR("Error cicle include files");
+            LOG_ERROR("Error circle include files");
             return false;
         }
         p = p->parent;

@@ -79,8 +79,7 @@ void Solver::Solve(const LogicalId& id, const std::string& task_guid, const uint
     EraseSolveTasks(id);
 
     std::unique_lock<std::mutex> lock(tasks_mutex);
-    tasks.emplace_back(new AutoSolverTask(id, document->document_guid, solver_guid, task_guid, code_id, ExpressionType::SOLVE, config, expression, 
-        delay, logger));
+    tasks.emplace_back(new AutoSolverTask(id, document, solver_guid, task_guid, code_id, ExpressionType::SOLVE, config, expression, delay, logger));
     tasks.emplace_back(nullptr);
     next_circle = true;
 }
@@ -161,8 +160,7 @@ void Solver::SetIdentifier(const LogicalId& id, const std::string& task_guid, ui
     }
 
     std::unique_lock<std::mutex> lock(tasks_mutex);
-    tasks.emplace_back(new SetIdentifierSolverTask(id, document->document_guid, solver_guid, task_guid, code_id, document, config, identifier, expression, 
-        delay, logger));
+    tasks.emplace_back(new SetIdentifierSolverTask(id, document, solver_guid, task_guid, code_id, config, identifier, expression, delay, logger));
     tasks.emplace_back(new ListIdentifiersSolverTask(document->document_guid, solver_guid, code_id, document, logger)); //for syntax highlight
     tasks.emplace_back(nullptr);
     next_circle = true;

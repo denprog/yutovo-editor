@@ -1598,7 +1598,8 @@ bool SaveTask::Execute()
     }
 
     document->save_task_id = document->last_modify_task_id;
-    document->path = std::filesystem::canonical(std::filesystem::absolute(filename).c_str());
+    if (!filename.empty())
+        document->path = std::filesystem::canonical(std::filesystem::absolute(filename).c_str());
 
     window->OnSaveResult(id, IOResult::Success, document_id);
     return true;
@@ -2179,7 +2180,7 @@ bool ResolveTask::Execute()
                 document->changed_elements.clear();
             }
         }
-        if (document->parent && id.size() == 1)
+        if (document->parent)
             document->ResolveFinished();
         return true;
     }
@@ -2206,7 +2207,7 @@ bool ResolveTask::Execute()
                 }
             }
         }
-        if (document->parent && id.size() == 1)
+        if (document->parent)
             document->ResolveFinished();
         return true;
     }
@@ -2230,7 +2231,7 @@ bool ResolveTask::Execute()
         }
     }
 
-    if (document->parent && id.size() == 1)
+    if (document->parent)
         document->ResolveFinished();
     return true;
 }
