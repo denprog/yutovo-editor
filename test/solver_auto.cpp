@@ -1260,7 +1260,7 @@ TEST_F(SolverAutoTest, solver26)
     ASSERT_TRUE(document.ToText() == 
         U"In literary theory, a text is any object that can be read, whether this object is a work of literature123456789=123456789."
         ) << ToBasicString(document.ToText());
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 1, 1, 0, 0, 0, 0, 0, 9})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 2, 0, 0, 0, 0, 0, 0, 9})) << document.GetEditorState().ToString();
 }
 
 //Solve after changing the result element position

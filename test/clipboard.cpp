@@ -259,7 +259,7 @@ TEST_F(DocumentTest, clipboard5)
 //Paste with paragraph
 TEST_F(DocumentTest, clipboard6)
 {
-    Start(410);
+    Start(412);
 
     EXPECT_CALL(window_mock, OnPasteResult).WillRepeatedly([&](PasteResult result)
         {

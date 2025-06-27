@@ -354,19 +354,19 @@ TEST_F(ParagraphTest, resizing4)
     document.MoveCaretWordRight(false);
     document.MoveCaretWordRight(false);
     document.WaitTask(document.MoveCaretDown(true));
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 0, 14}, 
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 0, 13}, 
         ElementSelectionState{ElementId{0, 0, 0, 0}, 11, 22}, 
-        ElementSelectionState{ElementId{0, 0, 1, 0}, 0, 14})) << document.GetEditorState().ToString();
+        ElementSelectionState{ElementId{0, 0, 1, 0}, 0, 13})) << document.GetEditorState().ToString();
 
     width = 260;
     document.WaitTask(document.Resize(width, 400));
 
     width = 236;
     document.WaitTask(document.Resize(width, 400));
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 2, 0, 5}, 
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 2, 0, 4}, 
         ElementSelectionState{ElementId{0, 0, 0, 0}, 11, 7}, 
         ElementSelectionState{ElementId{0, 0}, 1, 1}, 
-        ElementSelectionState{ElementId{0, 0, 2, 0}, 0, 5})) << document.GetEditorState().ToString();
+        ElementSelectionState{ElementId{0, 0, 2, 0}, 0, 4})) << document.GetEditorState().ToString();
 }
 
 //Resize with selection
@@ -813,9 +813,9 @@ TEST_F(ParagraphTest, paragraph1)
 
 TEST_F(ParagraphTest, paragraph2)
 {
-    Start(515);
+    Start(510);
 
-    int width = 515;
+    int width = 510;
     EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
         {
             return Rect{0, 0, width, 400};
@@ -1116,7 +1116,7 @@ TEST_F(ParagraphTest, paragraph5)
     el = document.GetElement(ElementId{0, 1});
     ASSERT_TRUE(el->type == ElementType::PARAGRAPH && el->ToText().rfind(U"(др.-греч.", 0) == 0) << ToBasicString(el->ToText());
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(1, 0, 0, 0)) << document.GetEditorState().ToString();
-    ASSERT_TRUE(el->elements->Count() == 16) << el->elements->Count();
+    ASSERT_TRUE(el->elements->Count() == 15) << el->elements->Count();
 
     document.WaitTask(document.MoveCaretUp(false));
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 0)) << document.GetEditorState().ToString();
@@ -2203,7 +2203,7 @@ TEST_F(ParagraphTest, format4)
 {
     Start(645);
 
-    int width = 640;
+    int width = 645;
     EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
         {
             return Rect{0, 0, width, 400};
@@ -2224,13 +2224,13 @@ TEST_F(ParagraphTest, format4)
         "<body>"\
             "<p>"\
                 "<span style=\"font-family:'Arial';font-size:14px;\">Арифметика является древнейшей и одной из основных </span>"\
-                "<span style=\"font-family:'Arial';font-size:14px;\">математических наук; она тесно связана с алгеброй, </span>"\
-                "<span style=\"font-family:'Arial';font-size:14px;text-decoration: underline;\">геометрией и теорией чисел[1][2].</span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">математических наук; она тесно связана с алгеброй, геометрией </span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;text-decoration: underline;\">и теорией чисел[1][2].</span>"\
             "</p>"\
             "<p>"\
                 "<span style=\"font-family:'Arial';font-size:14px;text-decoration: underline;\">Причиной возникновения арифметики стала практическая </span>"\
-                "<span style=\"font-family:'Arial';font-size:14px;\">потребность в счёте и вычислениях, связанных с задачами </span>"\
-                "<span style=\"font-family:'Arial';font-size:14px;\">учёта при централизации сельского хозяйства.</span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">потребность в счёте и вычислениях, связанных с задачами учёта </span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">при централизации сельского хозяйства.</span>"\
             "</p>"\
         "</body>") << 
         document.ToHtml();
@@ -2255,15 +2255,14 @@ TEST_F(ParagraphTest, format4)
             "<p>"\
                 "<span style=\"font-family:'Arial';font-size:14px;\">Причиной возникновения </span>"\
                 "<span style=\"font-family:'Arial';font-size:14px;\">арифметики стала практическая </span>"\
-                "<span style=\"font-family:'Arial';font-size:14px;\">потребность в счёте и </span>"\
-                "<span style=\"font-family:'Arial';font-size:14px;\">вычислениях, связанных с </span>"\
-                "<span style=\"font-family:'Arial';font-size:14px;\">задачами учёта при централизации </span>"\
-                "<span style=\"font-family:'Arial';font-size:14px;\">сельского хозяйства.</span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">потребность в счёте и вычислениях, </span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">связанных с задачами учёта при </span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">централизации сельского хозяйства.</span>"\
             "</p>"\
         "</body>") << 
         document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 1, 1, 0, 30}, 
-        ElementSelectionState{ElementId{0, 0, 3, 0}, 20, 13},
+        ElementSelectionState{ElementId{0, 0, 3, 0}, 31, 2},
         ElementSelectionState{ElementId{0, 0}, 4, 1},
         ElementSelectionState{ElementId{0, 1}, 0, 2})) << document.GetEditorState().ToString();
 }
@@ -2273,7 +2272,7 @@ TEST_F(ParagraphTest, format5)
 {
     Start(645);
 
-    int width = 640;
+    int width = 635;
     EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
         {
             return Rect{0, 0, width, 400};
@@ -2291,7 +2290,7 @@ TEST_F(ParagraphTest, format5)
     document.WaitTask(document.MoveCaretDown(true));
     document.WaitTask(document.SetUnderline(true));
 
-    width = 280;
+    width = 275;
     document.WaitTask(document.Resize(width, 400));
     std::this_thread::sleep_for(200ms);
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 1, 4, 0, 0}, 
@@ -2372,7 +2371,7 @@ TEST_F(ParagraphTest, format6)
     document.WaitTask(document.SetUnderline(true));
     document.WaitTask(document.SetBold(true));
 
-    width = 495;
+    width = 480;
     document.WaitTask(document.Resize(width, 400));
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
@@ -2384,8 +2383,8 @@ TEST_F(ParagraphTest, format6)
                 "<span style=\"font-family:'Arial';font-size:14px;text-decoration: underline;\"><strong>чисел[1][2].</strong></span>"\
             "</p>"\
             "<p>"\
-                "<span style=\"font-family:'Arial';font-size:14px;text-decoration: underline;\"><strong>Причиной возникновения арифметики </strong></span>"\
-                "<span style=\"font-family:'Arial';font-size:14px;text-decoration: underline;\"><strong>стала практическая потребность в счёте и </strong></span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;text-decoration: underline;\"><strong>Причиной возникновения арифметики стала </strong></span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;text-decoration: underline;\"><strong>практическая потребность в счёте и </strong></span>"\
                 "<span style=\"font-family:'Arial';font-size:14px;text-decoration: underline;\"><strong>вычислениях, связанных с задачами учёта </strong></span>"\
                 "<span style=\"font-family:'Arial';font-size:14px;\">при централизации сельского хозяйства.</span>"\
             "</p>"\
@@ -2412,22 +2411,20 @@ TEST_F(ParagraphTest, format6)
                 "<span style=\"font-family:'Arial';font-size:14px;text-decoration: underline;\">Причиной возникновения арифметики стала </span>"\
                 "<span style=\"font-family:'Arial';font-size:14px;text-decoration: underline;\">практическая потребность в счёте и </span>"\
                 "<span style=\"font-family:'Arial';font-size:14px;text-decoration: underline;\">вычислениях, связанных с задачами учёта </span>"\
-                "<span style=\"font-family:'Arial';font-size:14px;\">при </span>"\
-                "<span style=\"font-family:'Arial';font-size:14px;\">централизации сельского хозяйства.</span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">при централизации сельского хозяйства.</span>"\
             "</p>"\
         "</body>") << 
         document.ToHtml();
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 1, 2, 1, 0}, 
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 1, 3, 0, 0}, 
         ElementSelectionState{ElementId{0, 0, 1}, 1, 1},
         ElementSelectionState{ElementId{0, 0}, 2, 2},
-        ElementSelectionState{ElementId{0, 1}, 0, 2},
-        ElementSelectionState{ElementId{0, 1, 2}, 0, 1})) << document.GetEditorState().ToString();
+        ElementSelectionState{ElementId{0, 1}, 0, 3})) << document.GetEditorState().ToString();
 }
 
 //Change paragraph format
 TEST_F(ParagraphTest, format7)
 {
-    Start(500);
+    Start(495);
 
     document.InsertString("Tradicionalmente, el medio de un documento era el papel y la información", true);
     document.MoveCaretWordLeft(true);
@@ -2577,9 +2574,9 @@ TEST_F(ParagraphTest, format9)
 //Change paragraph alignment and resize
 TEST_F(ParagraphTest, format10)
 {
-    Start(500);
+    Start(495);
 
-    int width = 500;
+    int width = 495;
     EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
         {
             return Rect{0, 0, width, 400};
@@ -2645,7 +2642,7 @@ TEST_F(ParagraphTest, format11)
 //Change paragraph format for selected paragraphs
 TEST_F(ParagraphTest, format12)
 {
-    Start(500);
+    Start(495);
 
     document.InsertString("Tradicionalmente, el medio de un documento era el papel y la información", true);
     document.InsertParagraph(true);
@@ -2719,9 +2716,9 @@ TEST_F(ParagraphTest, format12)
 //Resize centered paragraph
 TEST_F(ParagraphTest, format13)
 {
-    Start(500);
+    Start(495);
 
-    int width = 500;
+    int width = 495;
     EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
         {
             return Rect{0, 0, width, 400};
@@ -3125,7 +3122,7 @@ TEST_F(ParagraphTest, delete7)
 //Delete rows
 TEST_F(ParagraphTest, delete8)
 {
-    Start(400);
+    Start(395);
 
     document.InsertString("In literary theory, a text is any object that can be read, whether this object is a work of literature", true);
     document.MoveCaretUp(false);
@@ -3283,7 +3280,7 @@ TEST_F(ParagraphTest, delete10)
 //Delete rows with a formula
 TEST_F(ParagraphTest, delete11)
 {
-    Start(390);
+    Start(385);
 
     document.InsertString("In literary theory, a text is any object that can be read, whether this object is a work of literature", true);
     document.MoveCaretUp(false);
@@ -3321,7 +3318,7 @@ TEST_F(ParagraphTest, delete11)
         "<body>"\
             "<p>"\
                 "<span style=\"font-family:'Arial';font-size:14px;\">In literary theory, a text is any object </span>"\
-                "<span style=\"font-family:'Arial';font-size:14px;\">that can be read, whether e</span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">that can be read, whether re</span>"\
             "</p>"\
         "</body>") << 
         document.ToHtml();
@@ -3350,10 +3347,10 @@ TEST_F(ParagraphTest, delete11)
             "</p>"\
         "</body>") << 
         document.ToHtml();
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 2, 0, 29}, 
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 2, 0, 28}, 
         ElementSelectionState{ElementId{0, 0, 1, 0}, 26, 5}, 
         ElementSelectionState{ElementId{0, 0, 1}, 1, 1}, 
-        ElementSelectionState{ElementId{0, 0, 2, 0}, 0, 29})) << document.GetEditorState().ToString();
+        ElementSelectionState{ElementId{0, 0, 2, 0}, 0, 28})) << document.GetEditorState().ToString();
 }
 
 //Delete rows with a formula
@@ -3370,7 +3367,7 @@ TEST_F(ParagraphTest, delete12)
     document.MoveCaretWordLeft(false);
     document.WaitTask(document.MoveCaretDown(true));
     document.WaitTask(document.DeleteElements(false, true));
-    ASSERT_TRUE(document.ToText() == U"In literary theory, a text is any object that can be read, whether iterature") << 
+    ASSERT_TRUE(document.ToText() == U"In literary theory, a text is any object that can be read, whether literature") << 
         ToBasicString(document.ToText());
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 2, 0, 8})) << document.GetEditorState().ToString();
 
@@ -3378,10 +3375,10 @@ TEST_F(ParagraphTest, delete12)
     document.WaitUndo();
     ASSERT_TRUE(document.ToText() == U"In literary theory, a text is any object that can be read, whether this ()/()object is a work of literature") << 
         ToBasicString(document.ToText());;
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 3, 0, 9}, 
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 3, 0, 8}, 
         ElementSelectionState{ElementId{0, 0, 2, 0}, 8, 5}, 
         ElementSelectionState{ElementId{0, 0, 2}, 1, 2}, 
-        ElementSelectionState{ElementId{0, 0, 3, 0}, 0, 9})) << document.GetEditorState().ToString();
+        ElementSelectionState{ElementId{0, 0, 3, 0}, 0, 8})) << document.GetEditorState().ToString();
 }
 
 //Delete rows in two paragraphs
@@ -3441,31 +3438,29 @@ TEST_F(ParagraphTest, delete14)
     document.MoveCaretLeft(false);
     document.MoveCaretWordLeft(false);
     document.WaitTask(document.MoveCaretDown(true));
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 1, 1}, 
-        ElementSelectionState{ElementId{0, 0, 0, 0}, 34, 7}, 
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 0, 26}, 
+        ElementSelectionState{ElementId{0, 0, 0, 0}, 30, 4}, 
         ElementSelectionState{ElementId{0, 0, 0}, 1, 2}, 
-        ElementSelectionState{ElementId{0, 0, 1}, 0, 1}, 
-        ElementSelectionState{ElementId{0, 0, 1, 1}, 0, 1})) << document.GetEditorState().ToString();
+        ElementSelectionState{ElementId{0, 0, 1, 0}, 0, 26})) << document.GetEditorState().ToString();
 
     document.WaitTask(document.DeleteElements(false, true));
-    ASSERT_TRUE(document.ToText() == U"In literary theory, a text is any s a work of literature") << ToBasicString(document.ToText());
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 1, 0})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.ToText() == U"In literary theory, a text is ct is a work of literature") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 30})) << document.GetEditorState().ToString();
 
     document.Undo();
     document.WaitUndo();
-    ASSERT_TRUE(document.ToText() == U"In literary theory, a text is any object ()/()that can be read, whether this object is a work of literature") << 
+    ASSERT_TRUE(document.ToText() == U"In literary theory, a text is any ()/()object that can be read, whether this object is a work of literature") << 
         ToBasicString(document.ToText());
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 1, 1}, 
-        ElementSelectionState{ElementId{0, 0, 0, 0}, 34, 7}, 
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 0, 26}, 
+        ElementSelectionState{ElementId{0, 0, 0, 0}, 30, 4}, 
         ElementSelectionState{ElementId{0, 0, 0}, 1, 2}, 
-        ElementSelectionState{ElementId{0, 0, 1}, 0, 1}, 
-        ElementSelectionState{ElementId{0, 0, 1, 1}, 0, 1})) << document.GetEditorState().ToString();
+        ElementSelectionState{ElementId{0, 0, 1, 0}, 0, 26})) << document.GetEditorState().ToString();
 }
 
 //Delete rows
 TEST_F(ParagraphTest, delete15)
 {
-    Start(495);
+    Start(490);
 
     document.WaitTask(document.InsertString("Арифме́тика (др.-греч. ἀριθμητική, arithmētikḗ — от ἀριθμός, arithmós «число») — раздел математики"\
         ", изучающий числа, их отношения и свойства. Предметом арифметики является понятие числа (натуральные, целые, рациональные, "\
@@ -3476,14 +3471,14 @@ TEST_F(ParagraphTest, delete15)
     document.MoveCaretDown(true);
     document.WaitTask(document.MoveCaretDown(true));
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 3, 0, 12}, 
-        ElementSelectionState{ElementId{0, 0, 1, 0}, 14, 25}, 
+        ElementSelectionState{ElementId{0, 0, 1, 0}, 13, 26}, 
         ElementSelectionState{ElementId{0, 0}, 2, 1}, 
         ElementSelectionState{ElementId{0, 0, 3, 0}, 0, 12})) << document.GetEditorState().ToString();
 
     document.WaitTask(document.DeleteElements(false, true));
-    ASSERT_TRUE(document.ToText() == U"Арифме́тика (др.-греч. ἀριθμητική, arithmētikḗ — от ἀριθμός, arедметом арифметики является понятие числа "\
+    ASSERT_TRUE(document.ToText() == U"Арифме́тика (др.-греч. ἀριθμητική, arithmētikḗ — от ἀριθμός, aедметом арифметики является понятие числа "\
         "(натуральные, целые, рациональные, вещественные, комплексные числа) и его свойства.") << ToBasicString(document.ToText());
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 0, 14})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 0, 13})) << document.GetEditorState().ToString();
 
     document.Undo();
     document.WaitUndo();
@@ -3491,7 +3486,7 @@ TEST_F(ParagraphTest, delete15)
         ", изучающий числа, их отношения и свойства. Предметом арифметики является понятие числа (натуральные, целые, рациональные, "\
         "вещественные, комплексные числа) и его свойства.") << ToBasicString(document.ToText());
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 3, 0, 12}, 
-        ElementSelectionState{ElementId{0, 0, 1, 0}, 14, 25}, 
+        ElementSelectionState{ElementId{0, 0, 1, 0}, 13, 26}, 
         ElementSelectionState{ElementId{0, 0}, 2, 1}, 
         ElementSelectionState{ElementId{0, 0, 3, 0}, 0, 12})) << document.GetEditorState().ToString();
 }
@@ -3511,14 +3506,14 @@ TEST_F(ParagraphTest, delete16)
     document.MoveCaretDown(true);
     document.WaitTask(document.MoveCaretDown(true));
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 4, 0, 12}, 
-        ElementSelectionState{ElementId{0, 0, 1, 0}, 14, 25}, 
+        ElementSelectionState{ElementId{0, 0, 1, 0}, 13, 26}, 
         ElementSelectionState{ElementId{0, 0}, 2, 2}, 
         ElementSelectionState{ElementId{0, 0, 4, 0}, 0, 12})) << document.GetEditorState().ToString();
 
     document.WaitTask(document.DeleteElements(false, true));
-    ASSERT_TRUE(document.ToText() == U"Арифме́тика (др.-греч. ἀριθμητική, arithmētikḗ — от ἀριθμός, arа "\
+    ASSERT_TRUE(document.ToText() == U"Арифме́тика (др.-греч. ἀριθμητική, arithmētikḗ — от ἀριθμός, aа "\
         "(натуральные, целые, рациональные, вещественные, комплексные числа) и его свойства.") << ToBasicString(document.ToText());
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 0, 14})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 0, 13})) << document.GetEditorState().ToString();
 
     document.Undo();
     document.WaitUndo();
@@ -3526,7 +3521,7 @@ TEST_F(ParagraphTest, delete16)
         ", изучающий числа, их отношения и свойства. Предметом арифметики является понятие числа (натуральные, целые, рациональные, "\
         "вещественные, комплексные числа) и его свойства.") << ToBasicString(document.ToText());
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 4, 0, 12}, 
-        ElementSelectionState{ElementId{0, 0, 1, 0}, 14, 25}, 
+        ElementSelectionState{ElementId{0, 0, 1, 0}, 13, 26}, 
         ElementSelectionState{ElementId{0, 0}, 2, 2}, 
         ElementSelectionState{ElementId{0, 0, 4, 0}, 0, 12})) << document.GetEditorState().ToString();
 }
@@ -3643,7 +3638,7 @@ TEST_F(ParagraphTest, delete19)
 //Delete words at the beginning of a row
 TEST_F(ParagraphTest, delete20)
 {
-    Start(1260);
+    Start(1250);
 
     document.WaitTask(document.InsertString("Арифме́тика (др.-греч. ἀριθμητική, arithmētikḗ — от ἀριθμός, arithmós «число») — раздел математики, "\
         "изучающий числа, их отношения и свойства.", true));
