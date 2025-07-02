@@ -92,25 +92,25 @@ void Config::FromJson(const rapidjson::Document& value, rapidjson::Document::All
 
     if (value.HasMember("integer_result") && value["integer_result"].IsObject())
     {
-        auto  r = value["integer_result"].GetObject();
+        auto r = value["integer_result"].GetObject();
         integer_result.FromJson(r, alloc);
     }
 
     if (value.HasMember("rational_result") && value["rational_result"].IsObject())
     {
-        auto  r = value["rational_result"].GetObject();
+        auto r = value["rational_result"].GetObject();
         rational_result.FromJson(r, alloc);
     }
 
     if (value.HasMember("complex_result") && value["complex_result"].IsObject())
     {
-        auto  r = value["complex_result"].GetObject();
+        auto r = value["complex_result"].GetObject();
         complex_result.FromJson(r, alloc);
     }
 
     if (value.HasMember("auto_result") && value["auto_result"].IsObject())
     {
-        auto  r = value["auto_result"].GetObject();
+        auto r = value["auto_result"].GetObject();
         auto_result.FromJson(r, alloc);
     }
     else
