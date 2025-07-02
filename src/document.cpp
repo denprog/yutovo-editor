@@ -2268,7 +2268,7 @@ uint Document::LoadInclude(const std::string& filename, Window* _window)
         if (doc.HasParseError() || !doc.IsObject() || !CheckIncludeFile(doc))
         {
             window->OnLoadResult(0, IOResult::InputStreamError, -1);
-            return false;
+            return 0;
         }
     }
 
@@ -2288,6 +2288,22 @@ uint Document::LoadJson(const std::string& json_doc, const int document_id)
     }
     next_circle = true;
     return last_load_task_id;
+}
+
+uint Document::LoadJsonInclude(const std::string& json_doc, const int document_id, Window* _window)
+{
+    rapidjson::Document doc;
+    if (doc.Parse<0>(json_doc.c_str()).HasParseError() || !doc.IsObject() || !CheckIncludeFile(doc))
+    {
+        window->OnLoadResult(0, IOResult::InputStreamError, -1);
+        return 0;
+    }
+
+    include_documents.emplace_back(new Document(this, _window, config));
+    auto p = include_documents[include_documents.size() - 1].get();
+    p->Start();
+    p->LoadJson(json_doc, true);
+    return 0;
 }
 
 uint Document::Copy(std::u32string& out_json, std::u32string& out_text)

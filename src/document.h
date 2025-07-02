@@ -206,6 +206,7 @@ public:
     uint Load(const std::string& filename, bool include = false);
     uint LoadInclude(const std::string& filename, Window* _window);
     uint LoadJson(const std::string& json_doc, const int document_id);
+    uint LoadJsonInclude(const std::string& json_doc, const int document_id, Window* _window);
 
     uint Copy(std::u32string& out_json, std::u32string& out_text);
     uint Paste(std::u32string& in_json);

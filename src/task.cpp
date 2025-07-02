@@ -1884,7 +1884,7 @@ bool LoadTask::LoadJson(rapidjson::Document& doc)
             {
                 if (!inc.enabled)
                     continue;
-                window->OnLoadInclude(inc.file_name, -1);
+                window->OnLoadInclude(inc.file_name, document_id);
             }
         }
         
