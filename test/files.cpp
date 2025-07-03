@@ -1294,7 +1294,7 @@ TEST_F(IncludeDocumentsTest, include_files4)
     std::this_thread::sleep_for(4s);
     ASSERT_TRUE(document2.IsChanged() == false);
     ASSERT_TRUE(document2.ToText() == 
-        U"var1=Unknown identifier"
+        U"var1=5."
         ) << ToBasicString(document2.ToText());
 }
 

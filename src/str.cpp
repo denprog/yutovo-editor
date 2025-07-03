@@ -445,7 +445,7 @@ bool String::DeleteElements(bool left, bool with_undo, ElementId& changed_elemen
 
     CaretState before_state = caret->GetCaretState();
     auto row = document->FindParentRow(id);
-    if (row)
+    if (row && !str.empty())
     {
         CaretState first_state, last_state;
         row->GetFirstCaretState(first_state, nullptr);
@@ -456,7 +456,7 @@ bool String::DeleteElements(bool left, bool with_undo, ElementId& changed_elemen
             parent->Normalize();
     }
 
-    if (str.length() == 0)
+    if (str.empty())
         changed_element = parent->id;
     else
         changed_element = id;

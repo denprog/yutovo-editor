@@ -3772,4 +3772,67 @@ TEST_F(ParagraphTest, delete23)
         ElementSelectionState{ElementId{0}, 0, 3})) << document.GetEditorState().ToString();
 }
 
+//Backspace at the beginning of the line
+TEST_F(ParagraphTest, delete24)
+{
+    Start(686);
+
+    document.WaitTask(document.InsertString("Instantaneous values are determined for a certain time t, based on the U", true));
+    document.WaitTask(document.SetSubscript(true));
+    std::this_thread::sleep_for(200ms);
+    document.WaitTask(document.InsertString("m", true));
+    std::this_thread::sleep_for(200ms);
+    document.WaitTask(document.SetSubscript(false));
+    std::this_thread::sleep_for(200ms);
+    document.WaitTask(document.InsertString(", phase shift angles", true));
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">Instantaneous values are determined for a certain time t, based on the U</span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\"><sub>m</sub></span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">, phase shift angles</span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    document.WaitTask(document.MoveCaretHome(false));
+    document.WaitTask(document.DeleteElements(true, true));
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">Instantaneous values are determined for a certain time t, based on the U, </span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">phase shift angles</span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 72})) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">Instantaneous values are determined for a certain time t, based on the U</span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\"><sub>m</sub></span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">, phase shift angles</span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 1, 1})) << document.GetEditorState().ToString();
+
+    document.Redo();
+    document.WaitRedo();
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">Instantaneous values are determined for a certain time t, based on the U, </span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">phase shift angles</span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 72})) << document.GetEditorState().ToString();
+}
+
 }
