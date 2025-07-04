@@ -409,7 +409,6 @@ void Config::IncludeDocument::ToJson(rapidjson::Value& value, rapidjson::Documen
     rapidjson::Value obj(rapidjson::kObjectType);
     rapidjson::Value _file_name(file_name.c_str(), alloc);
     obj.AddMember("file_name", _file_name, alloc);
-    obj.AddMember("enabled", enabled, alloc);
     value.PushBack(obj, alloc);
 }
 
@@ -418,10 +417,6 @@ bool Config::IncludeDocument::FromJson(const rapidjson::Value::ConstObject& valu
     if (!value.HasMember("file_name") || !value["file_name"].IsString())
         return false;
     file_name = value["file_name"].GetString();
-
-    if (!value.HasMember("enabled") || !value["enabled"].IsBool())
-        return true;
-    enabled = value["enabled"].GetBool();
     return true;
 }
 

@@ -1881,11 +1881,7 @@ bool LoadTask::LoadJson(rapidjson::Document& doc)
             document->RemoveUserIdentifiers();
             document->ClearExport();
             for (Config::IncludeDocument& inc : document->config.include_documents.documents)
-            {
-                if (!inc.enabled)
-                    continue;
                 window->OnLoadInclude(inc.file_name, document_id);
-            }
         }
         
         document->solver.SetLocale(document->config.language);
@@ -2601,11 +2597,7 @@ bool SetConfigTask::Execute()
         document->RemoveUserIdentifiers();
         document->ClearExport();
         for (Config::IncludeDocument& inc : config.include_documents.documents)
-        {
-            if (!inc.enabled)
-                continue;
             window->OnLoadInclude(inc.file_name, -1);
-        }
     }
 
     document->config = config;
