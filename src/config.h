@@ -189,14 +189,13 @@ struct Config
     {
         bool operator==(const IncludeDocument& other) const
         {
-            return file_name == other.file_name && enabled == other.enabled;
+            return file_name == other.file_name;
         }
 
         void ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc);
         bool FromJson(const rapidjson::Value::ConstObject& value, rapidjson::Document::AllocatorType& alloc);
 
         std::string file_name;
-        bool enabled = true;
     };
 
     struct IncludeDocuments

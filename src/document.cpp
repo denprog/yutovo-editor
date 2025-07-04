@@ -954,13 +954,13 @@ void Document::ResetTasks()
     changed = false;
 }
 
-uint Document::SetIncludeDocuments(const std::vector<std::pair<bool, std::string>>& files)
+uint Document::SetIncludeDocuments(const std::vector<std::string>& files)
 {
     include_documents.clear();
     Config c = config;
     c.include_documents.documents.clear();
-    for (auto& p : files)
-        c.include_documents.documents.push_back(Config::IncludeDocument{p.second, p.first});
+    for (auto& f : files)
+        c.include_documents.documents.push_back(Config::IncludeDocument{f});
     return SetConfig(c, false);
 }
 

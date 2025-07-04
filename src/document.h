@@ -110,7 +110,7 @@ public:
 
     void ResetTasks();
 
-    uint SetIncludeDocuments(const std::vector<std::pair<bool, std::string>>& files);
+    uint SetIncludeDocuments(const std::vector<std::string>& files);
 
     ElementPtr GetElement(const ElementId& _id);
     ElementPtr GetLogicalElement(const LogicalId& _id);

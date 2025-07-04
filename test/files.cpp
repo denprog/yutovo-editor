@@ -1038,7 +1038,7 @@ TEST_F(IncludeDocumentsTest, include_files1)
     document.WaitTask(document.New());
     ASSERT_TRUE(document.IsChanged() == false);
 
-    document.WaitTask(document.SetIncludeDocuments({std::pair{true, "include1.yut"}}));
+    document.WaitTask(document.SetIncludeDocuments(std::vector{std::string("include1.yut")}));
     std::this_thread::sleep_for(2s);
     document.WaitTask(document.InsertCode(false, true));
     document.InsertString("var", true);
@@ -1094,7 +1094,7 @@ TEST_F(IncludeDocumentsTest, include_files2)
     document.WaitTask(document.New());
     ASSERT_TRUE(document.IsChanged() == false);
 
-    document.WaitTask(document.SetIncludeDocuments({std::pair{true, "include1.yut"}}));
+    document.WaitTask(document.SetIncludeDocuments(std::vector{std::string("include1.yut")}));
     std::this_thread::sleep_for(2s);
     document.InsertCode(false, true);
     document.InsertString("var2", true);
@@ -1117,7 +1117,7 @@ TEST_F(IncludeDocumentsTest, include_files2)
     document.WaitTask(document.New());
     ASSERT_TRUE(document.IsChanged() == false);
 
-    document.WaitTask(document.SetIncludeDocuments({std::pair{true, "include2.yut"}}));
+    document.WaitTask(document.SetIncludeDocuments(std::vector{std::string("include2.yut")}));
     std::this_thread::sleep_for(4s);
     document.WaitTask(document.InsertCode(false, true));
     document.InsertString("var1", true);
@@ -1189,7 +1189,7 @@ TEST_F(IncludeDocumentsTest, include_files3)
     document.WaitTask(document.New());
     ASSERT_TRUE(document.IsChanged() == false);
 
-    document.WaitTask(document.SetIncludeDocuments({std::pair{true, "include1.yut"}}));
+    document.WaitTask(document.SetIncludeDocuments(std::vector{std::string("include1.yut")}));
     std::this_thread::sleep_for(2s);
     document.InsertCode(false, true);
     document.InsertString("var1", true);
@@ -1200,7 +1200,7 @@ TEST_F(IncludeDocumentsTest, include_files3)
         U"var1=5."
         ) << ToBasicString(document.ToText());
 
-    document.WaitTask(document.SetIncludeDocuments({std::pair{true, "include2.yut"}}));
+    document.WaitTask(document.SetIncludeDocuments(std::vector{std::string("include2.yut")}));
     std::this_thread::sleep_for(2s);
     document.WaitTask(document.InsertCode(false, true));
     document.InsertString("var1", true);
@@ -1251,7 +1251,7 @@ TEST_F(IncludeDocumentsTest, include_files4)
     document.WaitTask(document.InsertString("5", true));
     document.WaitSolver();
     std::this_thread::sleep_for(200ms);
-    document.WaitTask(document.SetIncludeDocuments({std::pair{true, "include2.yut"}}));
+    document.WaitTask(document.SetIncludeDocuments(std::vector{std::string("include2.yut")}));
     document.WaitTask(document.Save("include1.yut"));
     std::this_thread::sleep_for(200ms);
 
@@ -1260,7 +1260,7 @@ TEST_F(IncludeDocumentsTest, include_files4)
     std::this_thread::sleep_for(200ms);
 
     //include2.yut
-    document.WaitTask(document.SetIncludeDocuments({std::pair{true, "include1.yut"}}));
+    document.WaitTask(document.SetIncludeDocuments(std::vector{std::string("include1.yut")}));
     std::this_thread::sleep_for(2s);
     document.InsertCode(false, true);
     document.InsertString("var1", true);
@@ -1333,7 +1333,7 @@ TEST_F(IncludeDocumentsTest, include_files5)
     document.WaitTask(document.New());
     ASSERT_TRUE(document.IsChanged() == false);
 
-    document.WaitTask(document.SetIncludeDocuments({std::pair{true, "include1.yut"}}));
+    document.WaitTask(document.SetIncludeDocuments(std::vector{std::string("include1.yut")}));
     std::this_thread::sleep_for(2s);
     document.WaitTask(document.InsertCode(false, true));
     document.InsertString("func", true);
@@ -1380,7 +1380,7 @@ TEST_F(IncludeDocumentsTest, include_files6)
     document.WaitTask(document.New());
     ASSERT_TRUE(document.IsChanged() == false);
 
-    document.WaitTask(document.SetIncludeDocuments({std::pair{true, "include1.yut"}}));
+    document.WaitTask(document.SetIncludeDocuments(std::vector{std::string("include1.yut")}));
     std::this_thread::sleep_for(2s);
     document.WaitTask(document.InsertCode(false, true));
     document.InsertString("d_m", true);
@@ -1438,7 +1438,7 @@ TEST_F(IncludeDocumentsTest, include_files7)
     document.WaitTask(document.New());
     ASSERT_TRUE(document.IsChanged() == false);
 
-    document.WaitTask(document.SetIncludeDocuments({std::pair{true, "include1.yut"}}));
+    document.WaitTask(document.SetIncludeDocuments(std::vector{std::string("include1.yut")}));
     std::this_thread::sleep_for(2s);
     document.InsertCode(false, true);
     document.InsertString("var2", true);
@@ -1485,7 +1485,7 @@ TEST_F(IncludeDocumentsTest, include_files7)
             return str;
         });
 
-    document2.WaitTask(document2.SetIncludeDocuments({std::pair{true, "include2.yut"}, std::pair{true, "include3.yut"}}));
+    document2.WaitTask(document2.SetIncludeDocuments(std::vector{std::string("include2.yut"), std::string("include3.yut")}));
     std::this_thread::sleep_for(2s);
 
     document2.InsertCode(false, true);
@@ -1565,7 +1565,7 @@ TEST_F(IncludeDocumentsTest, include_files8)
     ASSERT_TRUE(document.IsChanged() == false);
 
     //include2.yut
-    document.WaitTask(document.SetIncludeDocuments({std::pair{true, "include1.yut"}}));
+    document.WaitTask(document.SetIncludeDocuments(std::vector{std::string("include1.yut")}));
     std::this_thread::sleep_for(1s);
     document.WaitTask(document.Save("include2.yut"));
     std::this_thread::sleep_for(200ms);
@@ -1574,7 +1574,7 @@ TEST_F(IncludeDocumentsTest, include_files8)
     ASSERT_TRUE(document.IsChanged() == false);
 
     //include3.yut
-    document.WaitTask(document.SetIncludeDocuments({std::pair{true, "include2.yut"}}));
+    document.WaitTask(document.SetIncludeDocuments(std::vector{std::string("include2.yut")}));
     std::this_thread::sleep_for(1s);
     document.WaitTask(document.Save("include3.yut"));
     std::this_thread::sleep_for(200ms);
@@ -1608,7 +1608,7 @@ TEST_F(IncludeDocumentsTest, include_files8)
             return str;
         });
 
-    document2.WaitTask(document2.SetIncludeDocuments({std::pair{true, "include3.yut"}}));
+    document2.WaitTask(document2.SetIncludeDocuments(std::vector{std::string("include3.yut")}));
     std::this_thread::sleep_for(4s);
     document2.InsertCode(false, true);
     document2.InsertString("var1", true);
@@ -1667,7 +1667,7 @@ TEST_F(IncludeDocumentsTest, include_files9)
 
     document2.InsertCode(false, true);
     document2.WaitTask(document2.Save("test/include_files9.yut"));
-    document2.WaitTask(document2.SetIncludeDocuments({std::pair{true, "include9.yut"}}));
+    document2.WaitTask(document2.SetIncludeDocuments(std::vector{std::string("include9.yut")}));
     std::this_thread::sleep_for(2s);
     document2.InsertString("var1", true);
     document2.WaitTask(document2.InsertEquation(ResultType::AUTO, true));
@@ -1720,7 +1720,7 @@ TEST_F(IncludeDocumentsTest, include_files10)
     std::this_thread::sleep_for(200ms);
 
     //include_files10.yut
-    document.WaitTask(document.SetIncludeDocuments({std::pair{true, "include1.yut"}}));
+    document.WaitTask(document.SetIncludeDocuments(std::vector{std::string("include1.yut")}));
     std::this_thread::sleep_for(2s);
     document.InsertCode(false, true);
     document.InsertString("var1", true);
