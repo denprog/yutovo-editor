@@ -146,7 +146,7 @@ struct RemoveUserIdentifiersSolverTask : SolverTask
 
 struct ClearExportSolverTask : SolverTask
 {
-    ClearExportSolverTask(const std::string& _document_guid, Logger* _logger);
+    ClearExportSolverTask(const std::string& _document_guid, const std::string& _solver_guid, Logger* _logger);
 
     virtual bool Execute(WebSocketPtr socket, Result& result);
 };

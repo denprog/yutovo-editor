@@ -972,8 +972,8 @@ bool RemoveUserIdentifiersSolverTask::Execute(WebSocketPtr socket, Result& resul
 
 //ClearExportSolverTask
 
-ClearExportSolverTask::ClearExportSolverTask(const std::string& _document_guid, Logger* _logger) :
-    SolverTask(_document_guid, _logger)
+ClearExportSolverTask::ClearExportSolverTask(const std::string& _document_guid, const std::string& _solver_guid, Logger* _logger) :
+    SolverTask(_document_guid, _solver_guid, _logger)
 {
 }
 
@@ -985,6 +985,7 @@ bool ClearExportSolverTask::Execute(WebSocketPtr socket, Result& result)
     doc.SetObject();
     doc.AddMember("command", "CLEAR_EXPORT", alloc);
     doc.AddMember("document_guid", rapidjson::StringRef(document_guid.c_str()), alloc);
+    doc.AddMember("solver_guid", rapidjson::StringRef(solver_guid.c_str()), alloc);
 
     LOG_DEBUG("Clear export");
 

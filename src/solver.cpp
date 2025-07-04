@@ -212,7 +212,7 @@ void Solver::RemoveUserIdentifiers()
 void Solver::ClearExport()
 {
     std::unique_lock<std::mutex> lock(tasks_mutex);
-    tasks.emplace_back(new ClearExportSolverTask(document->document_guid, logger));
+    tasks.emplace_back(new ClearExportSolverTask(document->document_guid, solver_guid, logger));
     tasks.emplace_back(nullptr);
     next_circle = true;
 }
