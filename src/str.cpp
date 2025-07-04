@@ -818,7 +818,7 @@ void String::UpdateLevel(uint8_t _level)
     if (level == _level)
         return;
     level = _level;
-    if (!parent)
+    if (!parent || !parent->parent)
         return;
     size_cache.clear();
     auto f = parent->GetStringFormat();

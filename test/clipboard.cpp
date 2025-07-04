@@ -4982,4 +4982,44 @@ TEST_F(DocumentTest, clipboard82)
     ASSERT_TRUE(f.name == "Text body");
 }
 
+//Paste from subscript
+TEST_F(DocumentTest, clipboard83)
+{
+    Start(600);
+
+    EXPECT_CALL(window_mock, OnPasteResult).WillRepeatedly([&](PasteResult result)
+        {
+            ASSERT_TRUE(result == PasteResult::Success);
+        });
+
+    document.InsertCode(false, true);
+    document.InsertString(U"Sample", true);
+    document.InsertSubscript(true);
+    document.WaitTask(document.InsertString(U"index", true));
+    document.WaitTask(document.MoveCaretHome(true));
+    document.WaitTask(document.Copy(clipboard_json, clipboard_text));
+
+    document.MoveCaretEnd(false);
+    document.WaitTask(document.MoveCaretEnd(false));
+
+    document.InsertParagraph(true);
+    document.InsertString(U"string", true);
+    document.WaitTask(document.InsertSubscript(true));
+    document.WaitTask(document.Paste(clipboard_json));
+    ASSERT_TRUE(document.ToText() == 
+        U"Sample{index}\n" \
+        U"string{index}"
+        ) << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 1, 0, 0, 2, 0, 5})) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"Sample{index}\n" \
+        U"string{}"
+        ) << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 1, 0, 0, 2, 0, 0})) << document.GetEditorState().ToString();
+}
+
 }
