@@ -497,6 +497,9 @@ bool InsertFormulasTask::Execute()
     ElementPtr el = document->GetParent(caret_state.id);
     assert(el);
 
+    if (!el->editable)
+        return false;
+
     std::vector<ElementPtr> select_elements;
     if (select_pos != -1 && document->FindParent(caret_state.id, ElementType::CODE_BLOCK) != nullptr)
     {
