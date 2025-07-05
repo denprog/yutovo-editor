@@ -1676,6 +1676,36 @@ TEST_F(SolverAutoTest, solver38)
     ASSERT_TRUE(time(0) - t <= 9);
 }
 
+//Inserting braces in a result
+TEST_F(SolverAutoTest, solver39)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.InsertString("234", true);
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(2s);
+
+    document.MoveCaretRight(false);
+    document.WaitTask(document.MoveCaretRight(false));
+    document.WaitTask(document.InsertFences(true));
+    ASSERT_TRUE(document.ToText() == 
+        U"234=234.") << 
+        ToBasicString(document.ToText());
+
+    document.WaitTask(document.InsertString("5", true));
+    ASSERT_TRUE(document.ToText() == 
+        U"234=234.") << 
+        ToBasicString(document.ToText());
+
+    document.Undo();
+    document.WaitUndo();
+    ASSERT_TRUE(document.ToText() == 
+        U"234") << 
+        ToBasicString(document.ToText());
+}
+
 //Solve with errors
 TEST_F(SolverAutoTest, errors1)
 {
