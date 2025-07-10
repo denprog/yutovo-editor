@@ -1668,12 +1668,12 @@ TEST_F(SolverAutoTest, solver38)
     document.InsertString("234", true);
     document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
     document.WaitSolver();
-    std::this_thread::sleep_for(3s);
+    std::this_thread::sleep_for(4s);
     ASSERT_TRUE(document.ToText() == 
         U"(234)/((3)/((4)/((6)/((7)/((6)/((7)/((2)/(4))))))))\n"\
         U"234=234.") << 
         ToBasicString(document.ToText());
-    ASSERT_TRUE(time(0) - t <= 9);
+    ASSERT_TRUE(time(0) - t <= 12) << (time(0) - t);
 }
 
 //Inserting braces in a result

@@ -48,8 +48,7 @@ Solver::~Solver()
         {
             std::unique_lock<std::mutex> lock(tasks_mutex);
             break_tasks.emplace_front(nullptr);
-            break_tasks.emplace_front(new BreakSolverTask(current_solving_id, document->document_guid, solver_guid, 
-                current_code_id, logger)); //first of all break this solving
+            break_tasks.emplace_front(new BreakSolverTask(current_solving_id, document, solver_guid, current_code_id, logger)); //first of all break this solving
             break_next_circle = true;
         }
     }
@@ -90,8 +89,7 @@ void Solver::Solve(const LogicalId& id, const std::string& task_guid, const uint
     EraseSolveTasks(id);
 
     std::unique_lock<std::mutex> lock(tasks_mutex);
-    tasks.emplace_back(new RealSolverTask(id, document->document_guid, solver_guid, task_guid, code_id, ExpressionType::SOLVE, config, expression, 
-        delay, logger));
+    tasks.emplace_back(new RealSolverTask(id, document, solver_guid, task_guid, code_id, ExpressionType::SOLVE, config, expression, delay, logger));
     tasks.emplace_back(nullptr);
     next_circle = true;
 }
@@ -102,8 +100,7 @@ void Solver::Solve(const LogicalId& id, const std::string& task_guid, const uint
     EraseSolveTasks(id);
 
     std::unique_lock<std::mutex> lock(tasks_mutex);
-    tasks.emplace_back(new IntegerSolverTask(id, document->document_guid, solver_guid, task_guid, code_id, ExpressionType::SOLVE, config, expression, 
-        delay, logger));
+    tasks.emplace_back(new IntegerSolverTask(id, document, solver_guid, task_guid, code_id, ExpressionType::SOLVE, config, expression, delay, logger));
     tasks.emplace_back(nullptr);
     next_circle = true;
 }
@@ -114,8 +111,7 @@ void Solver::Solve(const LogicalId& id, const std::string& task_guid, const uint
     EraseSolveTasks(id);
 
     std::unique_lock<std::mutex> lock(tasks_mutex);
-    tasks.emplace_back(new RationalSolverTask(id, document->document_guid, solver_guid, task_guid, code_id, ExpressionType::SOLVE, config, expression, 
-        delay, logger));
+    tasks.emplace_back(new RationalSolverTask(id, document, solver_guid, task_guid, code_id, ExpressionType::SOLVE, config, expression, delay, logger));
     tasks.emplace_back(nullptr);
     next_circle = true;
 }
@@ -126,8 +122,7 @@ void Solver::Solve(const LogicalId& id, const std::string& task_guid, const uint
     EraseSolveTasks(id);
 
     std::unique_lock<std::mutex> lock(tasks_mutex);
-    tasks.emplace_back(new ComplexSolverTask(id, document->document_guid, solver_guid, task_guid, code_id, ExpressionType::SOLVE, config, expression, 
-        delay, logger));
+    tasks.emplace_back(new ComplexSolverTask(id, document, solver_guid, task_guid, code_id, ExpressionType::SOLVE, config, expression, delay, logger));
     tasks.emplace_back(nullptr);
     next_circle = true;
 }
@@ -142,7 +137,7 @@ void Solver::BreakSolving(const LogicalId& id, const uint code_id)
 
     std::unique_lock<std::mutex> lock(tasks_mutex);
     break_tasks.emplace_front(nullptr);
-    break_tasks.emplace_front(new BreakSolverTask(id, document->document_guid, solver_guid, code_id, logger)); //first of all break this solving
+    break_tasks.emplace_front(new BreakSolverTask(id, document, solver_guid, code_id, logger)); //first of all break this solving
     break_next_circle = true;
 }
 
@@ -161,7 +156,7 @@ void Solver::SetIdentifier(const LogicalId& id, const std::string& task_guid, ui
 
     std::unique_lock<std::mutex> lock(tasks_mutex);
     tasks.emplace_back(new SetIdentifierSolverTask(id, document, solver_guid, task_guid, code_id, config, identifier, expression, delay, logger));
-    tasks.emplace_back(new ListIdentifiersSolverTask(document->document_guid, solver_guid, code_id, document, logger)); //for syntax highlight
+    tasks.emplace_back(new ListIdentifiersSolverTask(document, solver_guid, code_id, logger)); //for syntax highlight
     tasks.emplace_back(nullptr);
     next_circle = true;
 }
@@ -184,8 +179,8 @@ void Solver::RemoveIdentifier(const LogicalId& id, uint code_id, const std::u32s
     if (!id_arr.empty())
     {
         std::unique_lock<std::mutex> lock(tasks_mutex);
-        tasks.emplace_back(new RemoveIdentifierSolverTask(id, document->document_guid, solver_guid, code_id, document, id_arr[0], delay, logger));
-        tasks.emplace_back(new ListIdentifiersSolverTask(document->document_guid, solver_guid, code_id, document, logger)); //for syntax highlight
+        tasks.emplace_back(new RemoveIdentifierSolverTask(id, document, solver_guid, code_id, id_arr[0], delay, logger));
+        tasks.emplace_back(new ListIdentifiersSolverTask(document, solver_guid, code_id, logger)); //for syntax highlight
         tasks.emplace_back(nullptr);
         next_circle = true;
     }
@@ -204,7 +199,7 @@ void Solver::RemoveUserIdentifiers()
     }
 
     std::unique_lock<std::mutex> lock(tasks_mutex);
-    tasks.emplace_back(new RemoveUserIdentifiersSolverTask(document->document_guid, solver_guid, logger));
+    tasks.emplace_back(new RemoveUserIdentifiersSolverTask(document, solver_guid, logger));
     tasks.emplace_back(nullptr);
     next_circle = true;
 }
@@ -212,7 +207,7 @@ void Solver::RemoveUserIdentifiers()
 void Solver::ClearExport()
 {
     std::unique_lock<std::mutex> lock(tasks_mutex);
-    tasks.emplace_back(new ClearExportSolverTask(document->document_guid, solver_guid, logger));
+    tasks.emplace_back(new ClearExportSolverTask(document, solver_guid, logger));
     tasks.emplace_back(nullptr);
     next_circle = true;
 }
@@ -221,7 +216,7 @@ void Solver::SetLocale(const yutovo_calculator::Language _language)
 {
     language = _language;
     std::unique_lock<std::mutex> lock(tasks_mutex);
-    tasks.emplace_back(new SetLocaleSolverTask(document->document_guid, solver_guid, language, document, logger));
+    tasks.emplace_back(new SetLocaleSolverTask(document, solver_guid, language, logger));
     tasks.emplace_back(nullptr);
     next_circle = true;
 }
@@ -229,7 +224,7 @@ void Solver::SetLocale(const yutovo_calculator::Language _language)
 void Solver::ListIdentifiers(uint code_id)
 {
     std::unique_lock<std::mutex> lock(tasks_mutex);
-    tasks.emplace_back(new ListIdentifiersSolverTask(document->document_guid, solver_guid, code_id, document, logger));
+    tasks.emplace_back(new ListIdentifiersSolverTask(document, solver_guid, code_id, logger));
     tasks.emplace_back(nullptr);
     next_circle = true;
 }
@@ -455,14 +450,14 @@ void Solver::MessageLoop(WebSocketPtr socket_, std::deque<SolverTaskPtr>& tasks_
                 document->ReSolve(t->id); //re-solve the expression
 
                 std::unique_lock<std::mutex> lock(tasks_mutex);
-                tasks.emplace_back(new SetLocaleSolverTask(document->document_guid, solver_guid, language, document, logger));
-                tasks.emplace_back(new ListIdentifiersSolverTask(document->document_guid, solver_guid, t->code_id, document, logger)); //for syntax highlight
+                tasks.emplace_back(new SetLocaleSolverTask(document, solver_guid, language, logger));
+                tasks.emplace_back(new ListIdentifiersSolverTask(document, solver_guid, t->code_id, logger)); //for syntax highlight
                 next_circle = true;
             }
             else if (result.error.error_code == yutovo_solver::ErrorCode::TIMEOUT_ERROR)
             {
                 std::unique_lock<std::mutex> lock(tasks_mutex);
-                break_tasks.emplace_back(new BreakSolverTask(t->id, document->document_guid, solver_guid, t->code_id, logger)); //break the current solving
+                break_tasks.emplace_back(new BreakSolverTask(t->id, document, solver_guid, t->code_id, logger)); //break the current solving
                 break_next_circle = true;
             }
 
