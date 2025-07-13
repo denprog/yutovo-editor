@@ -68,7 +68,7 @@ SolverTask::SolverTask(const LogicalId& _id, Document* _document, const std::str
     cur_time = duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
 }
 
-bool SolverTask::SendRequest(const rapidjson::Document& json, Result& result, WebSocketPtr& socket)
+bool SolverTask::SendRequest(const rapidjson::Document& json, Result& result, WebSocketPtr& socket, bool log_action)
 {
     socket->Reset();
 
@@ -76,6 +76,13 @@ bool SolverTask::SendRequest(const rapidjson::Document& json, Result& result, We
     rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
     json.Accept(writer);
     std::string str = buffer.GetString();
+#ifdef EMSCRIPTEN
+    if (log_action && str.length() > 2)
+    {
+        str.insert(1, "\"solver_guid\":\"" + solver_guid + "\",");
+        document->window->OnSolverAction(str);
+    }
+#endif
     return socket->Send(str, result);
 }
 
@@ -444,7 +451,7 @@ bool AutoSolverTask::Execute(WebSocketPtr socket, Result& result)
 
     LOG_DEBUG("Solve expression:\"{}\", id:{}, config:{}", s, LogicalIdToString(id), config.ToString());
 
-    if (!SendRequest(doc, result, socket))
+    if (!SendRequest(doc, result, socket, true))
         return false;
 
     std::string json;
@@ -540,7 +547,7 @@ bool RealSolverTask::Execute(WebSocketPtr socket, Result& result)
 
     LOG_DEBUG("Solve expression:\"{}\", id:{}, config:{}", s, LogicalIdToString(id), config.ToString());
 
-    if (!SendRequest(doc, result, socket))
+    if (!SendRequest(doc, result, socket, true))
         return false;
 
     std::string json;
@@ -548,7 +555,11 @@ bool RealSolverTask::Execute(WebSocketPtr socket, Result& result)
         return false;
 
 #ifdef EMSCRIPTEN
-    document->window->OnSolverAction(json);
+    if (json.length() > 2)
+    {
+        json.insert(1, "\"solver_guid\":\"" + solver_guid + "\",");
+        document->window->OnSolverAction(json);
+    }
 #endif
 
     doc.Parse<0>(json.c_str());
@@ -618,7 +629,7 @@ bool IntegerSolverTask::Execute(WebSocketPtr socket, Result& result)
 
     LOG_DEBUG("Solve expression:\"{}\", id:{}, config:{}", s, LogicalIdToString(id), config.ToString());
 
-    if (!SendRequest(doc, result, socket))
+    if (!SendRequest(doc, result, socket, true))
         return false;
 
     //reply
@@ -626,7 +637,13 @@ bool IntegerSolverTask::Execute(WebSocketPtr socket, Result& result)
     if (!socket->Receive(json, result))
         return false;
     
-    document->window->OnSolverAction(json);
+#ifdef EMSCRIPTEN
+    if (json.length() > 2)
+    {
+        json.insert(1, "\"solver_guid\":\"" + solver_guid + "\",");
+        document->window->OnSolverAction(json);
+    }
+#endif
 
     doc.Parse<0>(json.c_str());
     if (doc.HasParseError())
@@ -696,7 +713,7 @@ bool RationalSolverTask::Execute(WebSocketPtr socket, Result& result)
 
     LOG_DEBUG("Solve expression:\"{}\", id:{}, config:{}", s, LogicalIdToString(id), config.ToString());
 
-    if (!SendRequest(doc, result, socket))
+    if (!SendRequest(doc, result, socket, true))
         return false;
 
     //reply
@@ -704,7 +721,13 @@ bool RationalSolverTask::Execute(WebSocketPtr socket, Result& result)
     if (!socket->Receive(json, result))
         return false;
     
-    document->window->OnSolverAction(json);
+#ifdef EMSCRIPTEN
+    if (json.length() > 2)
+    {
+        json.insert(1, "\"solver_guid\":\"" + solver_guid + "\",");
+        document->window->OnSolverAction(json);
+    }
+#endif
 
     doc.Parse<0>(json.c_str());
     if (doc.HasParseError())
@@ -777,14 +800,20 @@ bool ComplexSolverTask::Execute(WebSocketPtr socket, Result& result)
 
     LOG_DEBUG("Solve expression:\"{}\", id:{}, config:{}", s, LogicalIdToString(id), config.ToString());
 
-    if (!SendRequest(doc, result, socket))
+    if (!SendRequest(doc, result, socket, true))
         return false;
 
     std::string json;
     if (!socket->Receive(json, result))
         return false;
 
-    document->window->OnSolverAction(json);
+#ifdef EMSCRIPTEN
+    if (json.length() > 2)
+    {
+        json.insert(1, "\"solver_guid\":\"" + solver_guid + "\",");
+        document->window->OnSolverAction(json);
+    }
+#endif
 
     doc.Parse<0>(json.c_str());
     if (doc.HasParseError())
