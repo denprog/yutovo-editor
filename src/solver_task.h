@@ -28,7 +28,7 @@ struct SolverTask
 
     virtual bool Execute(WebSocketPtr socket, Result& result) = 0;
 
-    bool SendRequest(const rapidjson::Document& json, Result& result, WebSocketPtr& socket);
+    bool SendRequest(const rapidjson::Document& json, Result& result, WebSocketPtr& socket, bool log_action = false);
 
     void AddUnit(rapidjson::Document& json, const yutovo_calculator::Unit& unit);
 
