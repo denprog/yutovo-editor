@@ -1745,4 +1745,42 @@ TEST_F(VariablesTest, variables30)
         ) << ToBasicString(document.ToText());
 }
 
+//Recalculate after changing a variable
+TEST_F(VariablesTest, variables31)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.InsertString("d", true);
+    document.InsertAssignment(true);
+    document.WaitTask(document.InsertString("5", true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(1ms);
+
+    document.WaitTask(document.InsertParagraph(true));
+    document.InsertString("d", true);
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(2s);
+    ASSERT_TRUE(document.ToText() == 
+        U"d=5\n" \
+        U"d=5."
+        ) << ToBasicString(document.ToText());
+    
+    document.MoveCaretUp(false);
+    //document.MoveCaretEnd(false);
+    //document.MoveCaretLeft(false);
+    document.WaitTask(document.MoveCaretRight(false));
+    document.WaitTask(document.MoveCaretRight(false));
+    //document.WaitTask(document.DeleteElements(true, true));
+    document.InsertString("1", true);
+    document.WaitTask(document.InsertString("2", true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"d12=5\n" \
+        U"d=Unknown identifier"
+        ) << ToBasicString(document.ToText());
+}
+
 }

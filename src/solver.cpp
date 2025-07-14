@@ -163,16 +163,6 @@ void Solver::SetIdentifier(const LogicalId& id, const std::string& task_guid, ui
 
 void Solver::RemoveIdentifier(const LogicalId& id, uint code_id, const std::u32string& identifier, const uint delay)
 {
-    {
-        std::unique_lock<std::mutex> lock(tasks_mutex);
-        tasks.erase(std::remove_if(tasks.begin(), tasks.end(), 
-            [id](SolverTaskPtr& task)
-            {
-                return task && task->id == id && dynamic_cast<RemoveIdentifierSolverTask*>(task.get());
-            }
-            ), tasks.end());
-    }
-
     std::vector<std::u32string> id_arr;
     boost::split(id_arr, identifier, boost::is_any_of("()"));
 
