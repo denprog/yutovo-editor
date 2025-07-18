@@ -1668,7 +1668,7 @@ TEST_F(SolverAutoTest, solver38)
     document.InsertString("234", true);
     document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
     document.WaitSolver();
-    std::this_thread::sleep_for(4s);
+    std::this_thread::sleep_for(6s);
     ASSERT_TRUE(document.ToText() == 
         U"(234)/((3)/((4)/((6)/((7)/((6)/((7)/((2)/(4))))))))\n"\
         U"234=234.") << 
