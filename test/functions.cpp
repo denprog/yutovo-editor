@@ -304,8 +304,7 @@ TEST_F(FormulaTest, user_functions1)
     document.InsertCloseFence(true);
     document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
     document.WaitSolver();
-
-    std::this_thread::sleep_for(600ms);
+    std::this_thread::sleep_for(1s);
     ASSERT_TRUE(document.ToText() == 
         U"f(x,y)=pow(x,y)\n" \
         U"f(2,3)=8."
