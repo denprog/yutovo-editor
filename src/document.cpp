@@ -2221,7 +2221,7 @@ uint Document::LoadInclude(const std::string& filename, Window* _window)
             std::filesystem::path p = path;
             p = p.parent_path();
             p /= filename; //try to open relatevely to the current document
-            _filename = std::filesystem::canonical(std::filesystem::absolute(p).c_str());
+            _filename = std::filesystem::canonical(std::filesystem::absolute(p)).string();
             file = std::ifstream(_filename);
             if (!file.is_open())
             {
