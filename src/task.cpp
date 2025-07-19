@@ -1602,7 +1602,7 @@ bool SaveTask::Execute()
 
     document->save_task_id = document->last_modify_task_id;
     if (!filename.empty())
-        document->path = std::filesystem::canonical(std::filesystem::absolute(filename).c_str());
+        document->path = std::filesystem::canonical(std::filesystem::absolute(filename)).string();
 
     window->OnSaveResult(id, IOResult::Success, document_id);
     return true;
