@@ -234,6 +234,7 @@ void StringFormats::ToJson(rapidjson::Value& value, rapidjson::Document::Allocat
 
 bool StringFormats::FromJson(const rapidjson::Value::ConstArray& arr, rapidjson::Document::AllocatorType& alloc)
 {
+    std::vector<StringFormatPtr> _string_formats;
     for (rapidjson::SizeType i = 0; i < arr.Size(); ++i)
     {
         if (!arr[i].IsObject())
@@ -242,14 +243,15 @@ bool StringFormats::FromJson(const rapidjson::Value::ConstArray& arr, rapidjson:
         StringFormatPtr s(new StringFormat());
         if (!s->FromJson(value, alloc))
             return false;
-        auto it = std::find_if(string_formats.begin(), string_formats.end(), 
+        auto it = std::find_if(_string_formats.begin(), _string_formats.end(), 
             [s](auto& f)
             {
                 return f->id == s->id;
             });
-        if (it == string_formats.end())
-            string_formats.push_back(s);
+        if (it == _string_formats.end())
+            _string_formats.push_back(s);
     }
+    string_formats = _string_formats;
     return true;
 }
 
@@ -437,6 +439,7 @@ void ParagraphFormats::ToJson(rapidjson::Value& value, rapidjson::Document::Allo
 
 bool ParagraphFormats::FromJson(Document* document, const rapidjson::Value::ConstArray& arr, rapidjson::Document::AllocatorType& alloc)
 {
+    std::vector<ParagraphFormatPtr> _paragraph_formats;
     for (rapidjson::SizeType i = 0; i < arr.Size(); ++i)
     {
         if (!arr[i].IsObject())
@@ -444,14 +447,15 @@ bool ParagraphFormats::FromJson(Document* document, const rapidjson::Value::Cons
         ParagraphFormatPtr p(new ParagraphFormat());
         if (!p->FromJson(document, arr[i].GetObject(), alloc))
             return false;
-        auto it = std::find_if(paragraph_formats.begin(), paragraph_formats.end(), 
+        auto it = std::find_if(_paragraph_formats.begin(), _paragraph_formats.end(), 
             [p](auto& f)
             {
                 return *f == *p;
             });
-        if (it == paragraph_formats.end())
-            paragraph_formats.push_back(p);
+        if (it == _paragraph_formats.end())
+            _paragraph_formats.push_back(p);
     }
+    paragraph_formats = _paragraph_formats;
     return true;
 }
 
