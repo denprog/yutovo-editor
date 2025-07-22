@@ -2607,6 +2607,11 @@ void Document::ClearExport()
     solver.ClearExport();
 }
 
+void Document::RemoveSolver(uint code_id)
+{
+    solver.RemoveSolver(code_id);
+}
+
 ResultType Document::GetResultType(ElementId _id)
 {
     std::lock_guard<std::recursive_mutex> lock(edit_mutex);

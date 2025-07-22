@@ -42,6 +42,8 @@ public:
     void ListIdentifiers(uint code_id);
     void ResolveFinished();
 
+    void RemoveSolver(const uint code_id);
+
 private:
 #ifdef REMOTE_SOLVER
     void MessageLoop(WebSocketPtr socket_, std::deque<SolverTaskPtr>& tasks_, std::atomic_bool& next_circle_);
