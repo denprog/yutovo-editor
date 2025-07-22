@@ -227,6 +227,15 @@ void Solver::ResolveFinished()
     next_circle = true;
 }
 
+void Solver::RemoveSolver(const uint code_id)
+{
+    std::unique_lock<std::mutex> lock(tasks_mutex);
+    break_tasks.emplace_front(nullptr);
+    break_tasks.emplace_front(new RemoveSolverTask(document, solver_guid, code_id, logger)); //first of all break this solving
+    break_next_circle = true;
+}
+
+
 #ifdef REMOTE_SOLVER
 void Solver::MessageLoop(WebSocketPtr socket_, std::deque<SolverTaskPtr>& tasks_, std::atomic_bool& next_circle_)
 #else

@@ -172,6 +172,13 @@ struct ResolveFinishedSolverTask : SolverTask
     virtual bool Execute(WebSocketPtr socket, Result& result);
 };
 
+struct RemoveSolverTask : SolverTask
+{
+    RemoveSolverTask(Document* _document, const std::string& _solver_guid, uint _code_id, Logger* _logger);
+
+    virtual bool Execute(WebSocketPtr socket, Result& result);
+};
+
 typedef std::shared_ptr<SolverTask> SolverTaskPtr;
 
 }

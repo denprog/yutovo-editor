@@ -1240,4 +1240,47 @@ bool ResolveFinishedSolverTask::Execute(WebSocketPtr socket, Result& result)
     return true;
 }
 
+//RemoveSolverTask
+
+RemoveSolverTask::RemoveSolverTask(Document* _document, const std::string& _solver_guid, uint _code_id, Logger* _logger) :
+    SolverTask(LogicalId{0}, _document, _solver_guid, _code_id, _logger)
+{
+    delay = 0;
+}
+
+bool RemoveSolverTask::Execute(WebSocketPtr socket, Result& result)
+{
+    //request
+    rapidjson::Document doc;
+    auto& alloc = doc.GetAllocator();
+    doc.SetObject();
+    doc.AddMember("command", "REMOVE_SOLVER", alloc);
+    doc.AddMember("solver_guid", rapidjson::StringRef(solver_guid.c_str()), alloc);
+    doc.AddMember("code_id", code_id, alloc);
+
+    if (!SendRequest(doc, result, socket))
+        return false;
+
+    std::string json;
+    if (!socket->Receive(json, result))
+        return false;
+
+    doc.Parse<0>(json.c_str());
+    if (doc.HasParseError())
+    {
+        LOG_ERROR("Json error");
+        result.error.error_code = ErrorCode::JSON_ERROR;
+        return false;
+    }
+
+    if (doc.HasMember("error"))
+    {
+        LOG_ERROR("Remove solver error");
+        FillError(doc, result);
+        return false;
+    }
+
+    return true;
+}
+
 }

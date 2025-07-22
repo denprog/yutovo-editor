@@ -267,6 +267,8 @@ public:
     void RemoveUserIdentifiers();
     void ClearExport();
 
+    void RemoveSolver(uint code_id);
+
     ResultType GetResultType(ElementId _id);
     uint SetResultType(ElementId _id, ResultType result_type, bool with_undo);
 
