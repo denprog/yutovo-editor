@@ -844,6 +844,8 @@ CaretState Selection::GetFirstCaretState() const
     {
         if (el_s.start == 0 && el->GetFirstCaretState(c, nullptr))
             return c;
+        if (document->IsString(el->elements->Get(el_s.start)))
+            return CaretState(el->elements->Get(el_s.start)->id, 0);
         return CaretState(el_s.id, el_s.start);
     }
     if (el->type == ElementType::TEXT || document->IsParagraph(el))
