@@ -2886,6 +2886,27 @@ TEST_F(DocumentTest, fonts34)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 5})) << document.GetEditorState().ToString();
 }
 
+//check caret after changing font
+TEST_F(DocumentTest, fonts35)
+{
+    Start(600);
+
+    document.InsertString("This example", true);
+    document.WaitTask(document.MoveCaretWordLeft(true));
+    std::this_thread::sleep_for(200ms);
+    document.WaitTask(document.SetBold(true));
+    document.WaitTask(document.MoveCaretLeft(false));
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">This </span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\"><strong>example</strong></span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 1, 0})) << document.GetEditorState().ToString();
+}
+
 TEST_F(DocumentTest, delete1)
 {
     Start(600);
