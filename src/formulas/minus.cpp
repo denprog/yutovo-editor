@@ -48,7 +48,7 @@ Element* Minus::FromJson(Element* parent, Document* document, const rapidjson::V
     return p;
 }
 
-std::string Minus::ToHtml()
+std::string Minus::ToHtml() const
 {
     return "<mo>-</mo>";
 }

@@ -1277,7 +1277,7 @@ void AutoResult::GetCastUnits(std::vector<yutovo_calculator::Unit>& cast_units)
     }
 }
 
-std::string AutoResult::ToHtml()
+std::string AutoResult::ToHtml() const
 {
     if (elements->Count() > 0)
         return elements->Get(0)->ToHtml();

@@ -556,12 +556,12 @@ void Element::GetMargin(int& left, int& top, int& right, int& bottom) const
     left = top = right = bottom = 0;
 }
 
-std::string Element::ToHtml()
+std::string Element::ToHtml() const
 {
     return elements->ToHtml();
 }
 
-std::u32string Element::ToText()
+std::u32string Element::ToText() const
 {
     if (!elements)
         return U"";
@@ -1671,7 +1671,7 @@ bool Elements::GetSelectOutCaretState(CaretState& caret_state, Selection* select
     return true;
 }
 
-std::string Elements::ToHtml()
+std::string Elements::ToHtml() const
 {
     std::string html;
     for (auto it = elements.begin(); it != elements.end(); ++it)
@@ -1679,7 +1679,7 @@ std::string Elements::ToHtml()
     return html;
 }
 
-std::u32string Elements::ToText()
+std::u32string Elements::ToText() const
 {
     std::u32string t;
     for (auto it = elements.begin(); it != elements.end(); ++it)

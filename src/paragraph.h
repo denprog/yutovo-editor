@@ -50,7 +50,7 @@ public:
     virtual ParagraphFormatPtr GetParagraphFormat();
     virtual StringFormatPtr GetStringFormat() const;
     
-    virtual std::string ToHtml();
+    virtual std::string ToHtml() const;
 
     virtual ElementPtr GetPlainRow();
     virtual void MakePlain();

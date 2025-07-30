@@ -39,7 +39,7 @@ public:
 
     virtual bool AfterInsert(bool with_undo);
 
-    virtual std::string ToHtml();
+    virtual std::string ToHtml() const;
 
 protected:
     Assignment* GetLower() const;

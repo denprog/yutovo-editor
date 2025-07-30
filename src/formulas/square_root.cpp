@@ -216,7 +216,7 @@ bool SquareRoot::UseSelection()
     return true;
 }
 
-std::string SquareRoot::ToHtml()
+std::string SquareRoot::ToHtml() const
 {
     std::string s = "<msqrt>";
     s += GetLast()->ToHtml();
@@ -224,7 +224,7 @@ std::string SquareRoot::ToHtml()
     return s;
 }
 
-std::u32string SquareRoot::ToText()
+std::u32string SquareRoot::ToText() const
 {
     if (!GetLast())
         return U"";

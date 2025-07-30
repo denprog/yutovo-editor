@@ -175,7 +175,7 @@ bool Text::IsEmpty()
     return elements->Get(0)->IsEmpty();
 }
 
-std::string Text::ToHtml()
+std::string Text::ToHtml() const
 {
     return "<body>" + Block::ToHtml() + "</body>";
 }

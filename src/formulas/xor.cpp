@@ -48,7 +48,7 @@ Element* Xor::FromJson(Element* parent, Document* document, const rapidjson::Val
     return p;
 }
 
-std::string Xor::ToHtml()
+std::string Xor::ToHtml() const
 {
     return "<mo>^</mo>";
 }

@@ -24,7 +24,7 @@ public:
     virtual void Draw() const;
     virtual bool Remake(bool with_elements = false);
 
-    virtual std::string ToHtml();
+    virtual std::string ToHtml() const;
 
 private:
     StringFormatPtr format;
@@ -47,7 +47,7 @@ public:
     virtual void Draw() const;
     virtual bool Remake(bool with_elements = false);
 
-    virtual std::string ToHtml();
+    virtual std::string ToHtml() const;
 
 private:
     StringFormatPtr format;

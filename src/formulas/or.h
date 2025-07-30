@@ -19,7 +19,7 @@ public:
 
     static Element* FromJson(Element* parent, Document* document, const rapidjson::Value::ConstObject& value, rapidjson::Document::AllocatorType& alloc);
 
-    virtual std::string ToHtml();
+    virtual std::string ToHtml() const;
 };
 
 }

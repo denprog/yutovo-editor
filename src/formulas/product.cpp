@@ -42,7 +42,7 @@ Element* Product::FromJson(Element* parent, Document* document, const rapidjson:
     return new Product(document, false);
 }
 
-std::u32string Product::ToText()
+std::u32string Product::ToText() const
 {
     Assignment* lower = GetLower();
     CodeRow* upper = GetUpper();

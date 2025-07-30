@@ -48,7 +48,7 @@ Element* Comma::FromJson(Element* parent, Document* document, const rapidjson::V
     return p;
 }
 
-std::string Comma::ToHtml()
+std::string Comma::ToHtml() const
 {
     return "<mo>,</mo>";
 }

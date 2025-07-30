@@ -53,8 +53,8 @@ public:
     bool SetConfig(int precision, int exp, AngleMeasure default_angle_measure, AngleMeasure result_angle_measure, bool with_undo, ComplexForm form, uint max_count);
     bool SetConfig(const yutovo_calculator::Unit& unit, bool with_undo);
     
-    virtual std::string ToHtml();
-    virtual std::u32string ToText();
+    virtual std::string ToHtml() const;
+    virtual std::u32string ToText() const;
     virtual void ToParserString(ParserString& str);
 
 protected:

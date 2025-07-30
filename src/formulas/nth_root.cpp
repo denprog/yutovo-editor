@@ -127,7 +127,7 @@ bool NthRoot::UseSelection()
     return true;
 }
 
-std::string NthRoot::ToHtml()
+std::string NthRoot::ToHtml() const
 {
     std::string s = "<mroot>";
     s += GetLast()->ToHtml();
@@ -136,7 +136,7 @@ std::string NthRoot::ToHtml()
     return s;
 }
 
-std::u32string NthRoot::ToText()
+std::u32string NthRoot::ToText() const
 {
     if (!GetFirst() || !GetLast())
         return U"";

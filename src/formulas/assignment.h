@@ -40,8 +40,8 @@ public:
 
     virtual bool Depends(const std::string& identifier);
 
-    virtual std::string ToHtml();
-    virtual std::u32string ToText();
+    virtual std::string ToHtml() const;
+    virtual std::u32string ToText() const;
     virtual void ToParserString(ParserString& str);
 
 protected:

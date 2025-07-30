@@ -47,7 +47,7 @@ Element* Percent::FromJson(Element* parent, Document* document, const rapidjson:
     return p;
 }
 
-std::string Percent::ToHtml()
+std::string Percent::ToHtml() const
 {
     return "<mo>%</mo>";
 }

@@ -28,8 +28,8 @@ public:
 
     virtual bool UseSelection();
 
-    virtual std::string ToHtml();
-    virtual std::u32string ToText();
+    virtual std::string ToHtml() const;
+    virtual std::u32string ToText() const;
     virtual void ToParserString(ParserString& str);
 
     void AddBase(ElementPtr base);

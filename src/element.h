@@ -88,8 +88,8 @@ public:
 
     virtual void GetMargin(int& left, int& top, int& right, int& bottom) const;
 
-    virtual std::string ToHtml();
-    virtual std::u32string ToText();
+    virtual std::string ToHtml() const;
+    virtual std::u32string ToText() const;
     virtual void ToParserString(ParserString& str);
 
     virtual void UpdateRect(bool with_elements = false);
@@ -228,8 +228,8 @@ public:
     virtual bool GetWordRightCaretState(CaretState& caret_state, Selection* select);
     virtual bool GetSelectOutCaretState(CaretState& caret_state, Selection* select);
 
-    virtual std::string ToHtml();
-    virtual std::u32string ToText();
+    virtual std::string ToHtml() const;
+    virtual std::u32string ToText() const;
 
 protected:
     virtual void UpdateIds();

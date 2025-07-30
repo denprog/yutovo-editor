@@ -566,7 +566,7 @@ StringFormatPtr Paragraph::GetStringFormat() const
     return current_string_format;
 }
 
-std::string Paragraph::ToHtml()
+std::string Paragraph::ToHtml() const
 {
     std::string r = "<p";
     switch (format->alignment)

@@ -23,7 +23,7 @@ public:
 
     virtual void AddEmptyElement();
 
-    virtual std::u32string ToText();
+    virtual std::u32string ToText() const;
 };
 
 }

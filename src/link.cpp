@@ -167,7 +167,7 @@ StringFormatPtr Link::GetStringFormat() const
         format->subscript, format->superscript, f->text_color, format->text_bg_color, format->text_bg_selection_color);
 }
 
-std::string Link::ToHtml()
+std::string Link::ToHtml() const
 {
     std::string s = "<a url=\"" + ToBasicString(url) + "\" ";
     s += "style=\"font-family:'";

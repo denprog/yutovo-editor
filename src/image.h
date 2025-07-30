@@ -33,7 +33,7 @@ public:
     virtual bool HasCaretState();
     virtual bool HasLastCaretState();
 
-    virtual std::string ToHtml();
+    virtual std::string ToHtml() const;
 
 private:
     void Base64Encode();

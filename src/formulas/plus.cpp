@@ -48,7 +48,7 @@ Element* Plus::FromJson(Element* parent, Document* document, const rapidjson::Va
     return p;
 }
 
-std::string Plus::ToHtml()
+std::string Plus::ToHtml() const
 {
     return "<mo>+</mo>";
 }

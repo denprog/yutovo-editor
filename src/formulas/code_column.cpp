@@ -131,12 +131,12 @@ void CodeColumn::AddEmptyElement()
     elements->Add(ElementPtr(new CodeRow(this)));
 }
 
-std::string CodeColumn::ToHtml()
+std::string CodeColumn::ToHtml() const
 {
     return elements->ToHtml();
 }
 
-std::u32string CodeColumn::ToText()
+std::u32string CodeColumn::ToText() const
 {
     std::u32string res;
     for (int i = 0; i < elements->Count(); ++i)

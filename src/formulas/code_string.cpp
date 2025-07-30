@@ -425,7 +425,7 @@ bool CodeString::IsFormula()
     return true;
 }
 
-std::string CodeString::ToHtml()
+std::string CodeString::ToHtml() const
 {
     std::string s = "<mi>";
     if (elements->Count() == 0)

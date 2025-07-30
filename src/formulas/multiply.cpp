@@ -48,12 +48,12 @@ Element* Multiply::FromJson(Element* parent, Document* document, const rapidjson
     return p;
 }
 
-std::u32string Multiply::ToText()
+std::u32string Multiply::ToText() const
 {
     return U"*";
 }
 
-std::string Multiply::ToHtml()
+std::string Multiply::ToHtml() const
 {
     return "<mo>×</mo>";
 }

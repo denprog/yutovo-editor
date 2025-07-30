@@ -62,7 +62,8 @@ void OpenFence::Draw() const
         {
             if (format)
             {
-                window->DrawText("(", format, r, document->selection.IsSelected(id) ? formula_format->bg_color : formula_format->color, 
+                window->DrawText(ToBasicString(ToText()), format, r, 
+                    document->selection.IsSelected(id) ? formula_format->bg_color : formula_format->color, 
                     document->selection.IsSelected(id) ? formula_format->bg_selection_color : formula_format->bg_color);
             }
         };
@@ -84,7 +85,7 @@ bool OpenFence::Remake(bool with_elements)
         [&]()
         {
             Size s = window->GetTextSize(U" ", GetStringFormat());
-            int size = window->GetSymbolSize(U'(', (int)lround(s.height * 1.5), family_name, s, baseline);
+            int size = window->GetSymbolSize(symbol, (int)lround(s.height * 1.5), family_name, s, baseline);
             baseline = s.height * 2 / 3;
             rect.SetRect(0, 0, s.width, s.height);
             shape->rect = rect;
@@ -139,7 +140,7 @@ bool OpenFence::Remake(bool with_elements)
     }
 
     Size s;
-    int size = window->GetSymbolSize(U'(', (int)lround(max_height * 1.5), family_name, s, baseline);
+    int size = window->GetSymbolSize(symbol, (int)lround(max_height * 1.5), family_name, s, baseline);
     baseline = s.height * 2 / 3;
     if (size != 0)
     {
@@ -156,9 +157,9 @@ bool OpenFence::Remake(bool with_elements)
     return changed;
 }
 
-std::string OpenFence::ToHtml()
+std::string OpenFence::ToHtml() const
 {
-    return "<mo>(</mo>";
+    return "<mo>" + ToBasicString(ToText()) + "</mo>";
 }
 
 //CloseFence
@@ -219,7 +220,8 @@ void CloseFence::Draw() const
         {
             if (format)
             {
-                window->DrawText(")", format, r, document->selection.IsSelected(id) ? document->config.formula_bg_color : document->config.shapes_color, 
+                window->DrawText(ToBasicString(ToText()), format, r, 
+                    document->selection.IsSelected(id) ? document->config.formula_bg_color : document->config.shapes_color, 
                     document->selection.IsSelected(id) ? document->config.bg_selection_color : document->config.formula_bg_color);
             }
         };
@@ -241,7 +243,7 @@ bool CloseFence::Remake(bool with_elements)
         [&]()
         {
             Size s = window->GetTextSize(U" ", GetStringFormat());
-            int size = window->GetSymbolSize(U')', (int)lround(s.height * 1.5), family_name, s, baseline);
+            int size = window->GetSymbolSize(symbol, (int)lround(s.height * 1.5), family_name, s, baseline);
             baseline = s.height * 2 / 3;
             rect.SetRect(0, 0, s.width, s.height);
             shape->rect = rect;
@@ -290,7 +292,7 @@ bool CloseFence::Remake(bool with_elements)
     }
 
     Size s;
-    int size = window->GetSymbolSize(U')', (int)lround(max_height * 1.5), family_name, s, baseline);
+    int size = window->GetSymbolSize(symbol, (int)lround(max_height * 1.5), family_name, s, baseline);
     baseline = s.height * 2 / 3;
     if (size != 0)
     {
@@ -307,9 +309,9 @@ bool CloseFence::Remake(bool with_elements)
     return changed;
 }
 
-std::string CloseFence::ToHtml()
+std::string CloseFence::ToHtml() const
 {
-    return "<mo>)</mo>";
+    return "<mo>" + ToBasicString(ToText()) + "</mo>";
 }
 
 }

@@ -26,8 +26,8 @@ public:
 
     virtual void UpdateLevel(uint8_t _level);
 
-    virtual std::string ToHtml();
-    virtual std::u32string ToText();
+    virtual std::string ToHtml() const;
+    virtual std::u32string ToText() const;
     virtual void ToParserString(ParserString& str);
 };
 
