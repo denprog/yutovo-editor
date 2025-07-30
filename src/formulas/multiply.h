@@ -19,8 +19,8 @@ public:
 
     static Element* FromJson(Element* parent, Document* document, const rapidjson::Value::ConstObject& value, rapidjson::Document::AllocatorType& alloc);
 
-    virtual std::u32string ToText();
-    virtual std::string ToHtml();
+    virtual std::u32string ToText() const;
+    virtual std::string ToHtml() const;
 };
 
 }

@@ -48,7 +48,7 @@ Element* Or::FromJson(Element* parent, Document* document, const rapidjson::Valu
     return p;
 }
 
-std::string Or::ToHtml()
+std::string Or::ToHtml() const
 {
     return "<mo>&</mo>";
 }

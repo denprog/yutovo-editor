@@ -48,7 +48,7 @@ Element* Exclamation::FromJson(Element* parent, Document* document, const rapidj
     return p;
 }
 
-std::string Exclamation::ToHtml()
+std::string Exclamation::ToHtml() const
 {
     return "<mo>!</mo>";
 }

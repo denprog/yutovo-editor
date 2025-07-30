@@ -37,7 +37,7 @@ public:
 
     virtual bool GetElementAtCoords(const int x, const int y, ElementId& _id);
 
-    virtual std::string ToHtml();
+    virtual std::string ToHtml() const;
     virtual void ToParserString(ParserString& str);
 
     virtual bool InsertElements(std::vector<ElementPtr>& _elements, bool with_undo, ElementId& changed_element);
@@ -130,8 +130,8 @@ public:
     virtual bool GetWordRightCaretState(CaretState& caret_state, Selection* select);
     virtual bool GetSelectOutCaretState(CaretState& caret_state, Selection* select);
 
-    virtual std::string ToHtml();
-    virtual std::u32string ToText();
+    virtual std::string ToHtml() const;
+    virtual std::u32string ToText() const;
 
 protected:
     static bool IsOpenDelimiter(char32_t ch);

@@ -213,7 +213,7 @@ public:
 
     void GetCastUnits(std::vector<yutovo_calculator::Unit>& cast_units);
 
-    virtual std::string ToHtml();
+    virtual std::string ToHtml() const;
 
 public:
     Config::AutoResultConfig config;

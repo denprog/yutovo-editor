@@ -120,7 +120,7 @@ bool Power::UseSelection()
     return true;
 }
 
-std::string Power::ToHtml()
+std::string Power::ToHtml() const
 {
     if (!GetFirst() || !GetLast())
         return "";
@@ -131,7 +131,7 @@ std::string Power::ToHtml()
     return s;
 }
 
-std::u32string Power::ToText()
+std::u32string Power::ToText() const
 {
     if (!GetFirst() || !GetLast())
         return U"";

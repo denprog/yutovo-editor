@@ -117,7 +117,7 @@ StringFormatPtr OnlyShapeFormula::GetStringFormat() const
         f->text_color, f->text_bg_color);
 }
 
-std::u32string OnlyShapeFormula::ToText()
+std::u32string OnlyShapeFormula::ToText() const
 {
     return std::u32string(1, symbol);
 }

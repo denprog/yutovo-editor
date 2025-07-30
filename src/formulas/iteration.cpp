@@ -314,7 +314,7 @@ bool Iteration::AfterInsert(bool with_undo)
     return false;
 }
 
-std::string Iteration::ToHtml()
+std::string Iteration::ToHtml() const
 {
     std::string s = "<munderover>";
     s += "<mo>" + symbol_str + "</mo>";

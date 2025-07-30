@@ -32,7 +32,7 @@ public:
 
     virtual bool IsFormula();
 
-    virtual std::string ToHtml();
+    virtual std::string ToHtml() const;
 };
 
 }

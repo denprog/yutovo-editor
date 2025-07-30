@@ -113,7 +113,7 @@ void Subscript::UpdateLevel(uint8_t _level)
         GetLast()->UpdateLevel(_level + 1);
 }
 
-std::string Subscript::ToHtml()
+std::string Subscript::ToHtml() const
 {
     if (!GetFirst() || !GetLast())
         return "";
@@ -124,7 +124,7 @@ std::string Subscript::ToHtml()
     return s;
 }
 
-std::u32string Subscript::ToText()
+std::u32string Subscript::ToText() const
 {
     if (!GetFirst() || !GetLast())
         return U"";

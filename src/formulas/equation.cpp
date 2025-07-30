@@ -428,7 +428,7 @@ bool Equation::SetConfig(const yutovo_calculator::Unit& unit, bool with_undo)
     }
 }
 
-std::string Equation::ToHtml()
+std::string Equation::ToHtml() const
 {
     std::string s = GetFirst()->ToHtml();
     s += "<mo>=</mo>";
@@ -437,7 +437,7 @@ std::string Equation::ToHtml()
     return s;
 }
 
-std::u32string Equation::ToText()
+std::u32string Equation::ToText() const
 {
     std::u32string s;
     if (elements->Count() > 0)

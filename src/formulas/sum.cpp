@@ -42,7 +42,7 @@ Element* Sum::FromJson(Element* parent, Document* document, const rapidjson::Val
     return new Sum(document, false);
 }
 
-std::u32string Sum::ToText()
+std::u32string Sum::ToText() const
 {
     Assignment* lower = GetLower();
     CodeRow* upper = GetUpper();

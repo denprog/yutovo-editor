@@ -151,7 +151,7 @@ bool Division::UseSelection()
     return true;
 }
 
-std::string Division::ToHtml()
+std::string Division::ToHtml() const
 {
     std::string s = "<mfrac>";
     s += GetFirst()->ToHtml();
@@ -160,7 +160,7 @@ std::string Division::ToHtml()
     return s;
 }
 
-std::u32string Division::ToText()
+std::u32string Division::ToText() const
 {
     if (!GetFirst() || !GetLast())
         return U"";

@@ -175,7 +175,7 @@ bool CodeRow::IsFormula()
     return true;
 }
 
-std::string CodeRow::ToHtml()
+std::string CodeRow::ToHtml() const
 {
     std::string s = "<mrow>";
     s += elements->ToHtml();

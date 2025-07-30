@@ -230,7 +230,7 @@ bool Assignment::Depends(const std::string& identifier)
     return false;
 }
 
-std::string Assignment::ToHtml()
+std::string Assignment::ToHtml() const
 {
     std::string s = GetFirst()->ToHtml();
     s += "<mo>" + ToBasicString(solve_sign) + "</mo>";
@@ -239,7 +239,7 @@ std::string Assignment::ToHtml()
     return s;
 }
 
-std::u32string Assignment::ToText()
+std::u32string Assignment::ToText() const
 {
     std::u32string s;
     if (elements->Count() > 0)

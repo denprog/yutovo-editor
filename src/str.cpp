@@ -253,7 +253,7 @@ bool String::GetElementAtCoords(const int x, const int y, ElementId& _id)
     return true;
 }
 
-std::string String::ToHtml()
+std::string String::ToHtml() const
 {
     std::string s = "<span ";
     s += "style=\"font-family:'";
@@ -1224,12 +1224,12 @@ bool StringElements::GetSelectOutCaretState(CaretState& caret_state, Selection* 
     return true;
 }
 
-std::string StringElements::ToHtml()
+std::string StringElements::ToHtml() const
 {
     return ToBasicString(str);
 }
 
-std::u32string StringElements::ToText()
+std::u32string StringElements::ToText() const
 {
     return str;
 }

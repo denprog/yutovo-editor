@@ -25,8 +25,8 @@ public:
 
     virtual void AddEmptyElement();
 
-    virtual std::string ToHtml();
-    virtual std::u32string ToText();
+    virtual std::string ToHtml() const;
+    virtual std::u32string ToText() const;
 };
 
 }

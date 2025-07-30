@@ -104,7 +104,7 @@ bool CodeParagraph::IsFormula()
     return true;
 }
 
-std::string CodeParagraph::ToHtml()
+std::string CodeParagraph::ToHtml() const
 {
     std::string s = "<math xmlns='http://www.w3.org/1998/Math/MathML'>";
     s += Element::ToHtml();

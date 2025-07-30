@@ -37,7 +37,7 @@ public:
 
     virtual bool IsEmpty();
 
-    virtual std::string ToHtml();
+    virtual std::string ToHtml() const;
 
     virtual Rect GetAbsoluteRect() const;
 
