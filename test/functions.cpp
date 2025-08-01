@@ -62,9 +62,9 @@ TEST_F(FormulaTest, functions2)
 
     document.InsertCode(false, true);
     document.InsertString("f", true);
-    document.InsertOpenFence(true);
+    document.InsertOpenRoundBracket(true);
     document.InsertString("x", true);
-    document.InsertCloseFence(true);
+    document.InsertCloseRoundBracket(true);
     document.WaitTask(document.InsertAssignment(true));
     document.InsertString("x", true);
     document.InsertMultiply(true);
@@ -74,9 +74,9 @@ TEST_F(FormulaTest, functions2)
     document.MoveCaretRight(false);
     document.WaitTask(document.InsertParagraph(true));
     document.InsertString("f", true);
-    document.InsertOpenFence(true);
+    document.InsertOpenRoundBracket(true);
     document.WaitTask(document.InsertString("5", true));
-    document.InsertCloseFence(true);
+    document.InsertCloseRoundBracket(true);
     document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
     document.WaitSolver();
     std::this_thread::sleep_for(600ms);
@@ -102,9 +102,9 @@ TEST_F(FormulaTest, functions3)
 
     document.InsertCode(false, true);
     document.InsertString("f", true);
-    document.InsertOpenFence(true);
+    document.InsertOpenRoundBracket(true);
     document.InsertString("x", true);
-    document.InsertCloseFence(true);
+    document.InsertCloseRoundBracket(true);
     document.WaitTask(document.InsertAssignment(true));
     document.WaitTask(document.InsertString("x", true));
     document.WaitSolver();
@@ -113,18 +113,18 @@ TEST_F(FormulaTest, functions3)
     document.WaitTask(document.MoveCaretRight(false));
     document.WaitTask(document.InsertParagraph(true));
     document.InsertString("f", true);
-    document.InsertOpenFence(true);
+    document.InsertOpenRoundBracket(true);
     document.WaitTask(document.InsertString("2", true));
-    document.InsertCloseFence(true);
+    document.InsertCloseRoundBracket(true);
     document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
     document.WaitSolver();
 
     document.WaitTask(document.MoveCaretEnd(false));
     document.WaitTask(document.InsertParagraph(true));
     document.InsertString("f", true);
-    document.InsertOpenFence(true);
+    document.InsertOpenRoundBracket(true);
     document.InsertString("x", true);
-    document.InsertCloseFence(true);
+    document.InsertCloseRoundBracket(true);
     document.InsertAssignment(true);
     document.InsertString("x", true);
     document.InsertPlus(true);
@@ -134,9 +134,9 @@ TEST_F(FormulaTest, functions3)
     document.WaitTask(document.MoveCaretRight(false));
     document.WaitTask(document.InsertParagraph(true));
     document.InsertString("f", true);
-    document.InsertOpenFence(true);
+    document.InsertOpenRoundBracket(true);
     document.WaitTask(document.InsertString("3", true));
-    document.InsertCloseFence(true);
+    document.InsertCloseRoundBracket(true);
     document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
     document.WaitSolver();
     std::this_thread::sleep_for(1s);
@@ -283,11 +283,11 @@ TEST_F(FormulaTest, user_functions1)
 
     document.InsertCode(false, true);
     document.InsertString("f", true);
-    document.InsertOpenFence(true);
+    document.InsertOpenRoundBracket(true);
     document.InsertString("x", true);
     document.InsertComma(true);
     document.InsertString("y", true);
-    document.InsertCloseFence(true);
+    document.InsertCloseRoundBracket(true);
     document.WaitTask(document.InsertAssignment(true));
     document.InsertString("x", true);
     document.InsertPower(true);
@@ -297,11 +297,11 @@ TEST_F(FormulaTest, user_functions1)
     document.WaitTask(document.MoveCaretRight(false));
     document.WaitTask(document.InsertParagraph(true));
     document.InsertString("f", true);
-    document.InsertOpenFence(true);
+    document.InsertOpenRoundBracket(true);
     document.InsertString("2", true);
     document.InsertComma(true);
     document.InsertString("3", true);
-    document.InsertCloseFence(true);
+    document.InsertCloseRoundBracket(true);
     document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
     document.WaitSolver();
     std::this_thread::sleep_for(1s);
@@ -337,9 +337,9 @@ TEST_F(FormulaTest, user_functions2)
     document.InsertString("h", true);
     document.InsertMultiply(true);
     document.InsertString("m", true);
-    document.InsertOpenFence(true);
+    document.InsertOpenRoundBracket(true);
     document.InsertString("5", true);
-    document.WaitTask(document.InsertCloseFence(true));
+    document.WaitTask(document.InsertCloseRoundBracket(true));
     document.WaitSolver();
 
     document.WaitTask(document.InsertParagraph(true));
@@ -360,9 +360,9 @@ TEST_F(FormulaTest, user_functions2)
     document.WaitTask(document.InsertParagraph(true));
     document.WaitTask(document.MoveCaretUp(false));
     document.InsertString("m", true);
-    document.InsertOpenFence(true);
+    document.InsertOpenRoundBracket(true);
     document.InsertString("x", true);
-    document.InsertCloseFence(true);
+    document.InsertCloseRoundBracket(true);
     document.InsertAssignment(true);
     document.WaitTask(document.InsertString("x", true));
     document.WaitSolver();

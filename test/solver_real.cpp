@@ -78,9 +78,9 @@ TEST_F(SolverRealTest, solver2)
     
     document.InsertCode(false, true);
     document.InsertString("arcsin", true);
-    document.InsertOpenFence(true);
+    document.InsertOpenRoundBracket(true);
     document.InsertString("1", true);
-    document.InsertCloseFence(true);
+    document.InsertCloseRoundBracket(true);
     document.WaitTask(document.InsertEquation(ResultType::REAL, true));
     document.WaitSolver();
     std::this_thread::sleep_for(600ms);
@@ -91,9 +91,9 @@ TEST_F(SolverRealTest, solver2)
     document.MoveCaretEnd(false);
     document.InsertParagraph(true);
     document.InsertString("sin", true);
-    document.InsertOpenFence(true);
+    document.InsertOpenRoundBracket(true);
     document.InsertString("1", true);
-    document.InsertCloseFence(true);
+    document.InsertCloseRoundBracket(true);
     document.WaitTask(document.InsertEquation(ResultType::REAL, true));
     document.WaitSolver();
     ASSERT_TRUE(document.ToText() == 
@@ -110,9 +110,9 @@ TEST_F(SolverRealTest, solver2)
     document.MoveCaretEnd(false);
     document.InsertParagraph(true);
     document.InsertString("arcsin", true);
-    document.InsertOpenFence(true);
+    document.InsertOpenRoundBracket(true);
     document.InsertString("1", true);
-    document.InsertCloseFence(true);
+    document.InsertCloseRoundBracket(true);
     document.WaitTask(document.InsertEquation(ResultType::REAL, true));
     document.WaitSolver();
     ASSERT_TRUE(document.ToText() == 
@@ -129,9 +129,9 @@ TEST_F(SolverRealTest, solver3)
     
     document.InsertCode(false, true);
     document.InsertString("arccos", true);
-    document.InsertOpenFence(true);
+    document.InsertOpenRoundBracket(true);
     document.InsertString("0.5", true);
-    document.InsertCloseFence(true);
+    document.InsertCloseRoundBracket(true);
     document.WaitTask(document.InsertEquation(ResultType::REAL, true));
     document.WaitSolver();
     ASSERT_TRUE(document.ToText() == 
@@ -146,9 +146,9 @@ TEST_F(SolverRealTest, solver3)
     document.MoveCaretEnd(false);
     document.InsertParagraph(true);
     document.InsertString("arccos", true);
-    document.InsertOpenFence(true);
+    document.InsertOpenRoundBracket(true);
     document.InsertString("0.5", true);
-    document.InsertCloseFence(true);
+    document.InsertCloseRoundBracket(true);
     document.WaitTask(document.InsertEquation(ResultType::REAL, true));
     document.WaitSolver();
     ASSERT_TRUE(document.ToText() == 
@@ -262,9 +262,9 @@ TEST_F(SolverRealTest, solver8)
     
     document.InsertCode(false, true);
     document.InsertString("arcsin", true);
-    document.InsertOpenFence(true);
+    document.InsertOpenRoundBracket(true);
     document.InsertString("1", true);
-    document.InsertCloseFence(true);
+    document.InsertCloseRoundBracket(true);
     document.WaitTask(document.InsertEquation(ResultType::REAL, true));
     document.WaitSolver();
     std::this_thread::sleep_for(600ms);
@@ -363,9 +363,9 @@ TEST_F(SolverRealTest, solver13)
     
     document.InsertCode(false, true);
     document.InsertString("sin", true);
-    document.InsertOpenFence(true);
+    document.InsertOpenRoundBracket(true);
     document.InsertString("1", true);
-    document.InsertCloseFence(true);
+    document.InsertCloseRoundBracket(true);
     document.WaitTask(document.InsertEquation(ResultType::REAL, true));
     document.WaitSolver();
     std::this_thread::sleep_for(600ms);
@@ -393,7 +393,6 @@ TEST_F(SolverRealTest, units1)
 
     std::vector<yutovo_calculator::Unit> cast_units;
     document.GetCastUnits({0, 0, 0, 0, 0, 0, 0, 2, 0}, cast_units);
-    std::this_thread::sleep_for(200ms);
     ASSERT_TRUE(std::find(cast_units.begin(), cast_units.end(), yutovo_calculator::Unit(U"m")) != cast_units.end());
     ASSERT_TRUE(std::find(cast_units.begin(), cast_units.end(), yutovo_calculator::Unit(U"mm")) != cast_units.end());
     ASSERT_TRUE(std::find(cast_units.begin(), cast_units.end(), yutovo_calculator::Unit(U"km")) != cast_units.end());

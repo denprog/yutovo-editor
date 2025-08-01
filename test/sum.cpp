@@ -122,9 +122,9 @@ TEST_F(FormulaTest, sum2)
     document.WaitTask(document.InsertSum(true));
     for (int i = 0; i < 5; ++i)
         document.MoveCaretRight(false);
-    document.InsertOpenFence(true);
+    document.InsertOpenRoundBracket(true);
     document.InsertString("2pi", true);
-    document.InsertCloseFence(true);
+    document.InsertCloseRoundBracket(true);
     document.MoveCaretLeft(false);
     document.MoveCaretLeft(false);
     document.MoveCaretLeft(true);

@@ -61,13 +61,14 @@ add_executable(${PROJECT_NAME}_tests
 	power.cpp
 	nth_root.cpp
 	square_root.cpp
-	fences.cpp
+	brackets.cpp
 	formulas.cpp
 	solver_auto.cpp
 	solver_real.cpp
 	solver_integer.cpp
 	solver_rational.cpp
 	solver_complex.cpp
+	solver_array_real.cpp
 	assignment.cpp
 	unit.cpp
 	functions.cpp

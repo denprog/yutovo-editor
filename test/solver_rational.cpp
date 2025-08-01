@@ -420,9 +420,9 @@ TEST_F(SolverRationalTest, rational10)
 
     document.InsertCode(false, true);
     document.InsertString("f", true);
-    document.InsertOpenFence(true);
+    document.InsertOpenRoundBracket(true);
     document.InsertString("x", true);
-    document.WaitTask(document.InsertCloseFence(true));
+    document.WaitTask(document.InsertCloseRoundBracket(true));
     document.InsertAssignment(true);
     document.InsertString("x", true);
     document.InsertDivision(true);
@@ -432,9 +432,9 @@ TEST_F(SolverRationalTest, rational10)
     document.WaitTask(document.MoveCaretRight(false));
     document.InsertParagraph(true);
     document.InsertString("f", true);
-    document.InsertOpenFence(true);
+    document.InsertOpenRoundBracket(true);
     document.InsertString("4", true);
-    document.InsertCloseFence(true);
+    document.InsertCloseRoundBracket(true);
     document.WaitTask(document.InsertEquation(ResultType::RATIONAL, true));
     document.WaitSolver();
     std::this_thread::sleep_for(1s);

@@ -162,9 +162,9 @@ TEST_F(AssignmentTest, assignment3)
 
     document.InsertCode(false, true);
     document.InsertString("f", true);
-    document.InsertOpenFence(true);
+    document.InsertOpenRoundBracket(true);
     document.InsertString("x", true);
-    document.InsertCloseFence(true);
+    document.InsertCloseRoundBracket(true);
     document.InsertAssignment(true);
     document.InsertString("5", true);
     document.InsertPlus(true);
@@ -198,9 +198,9 @@ TEST_F(AssignmentTest, assignment3)
     document.WaitTask(document.MoveCaretRight(false));
     document.InsertParagraph(true);
     document.InsertString("f", true);
-    document.InsertOpenFence(true);
+    document.InsertOpenRoundBracket(true);
     document.InsertString("4", true);
-    document.InsertCloseFence(true);
+    document.InsertCloseRoundBracket(true);
     document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
     document.WaitSolver();
     std::this_thread::sleep_for(600ms);

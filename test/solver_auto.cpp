@@ -942,9 +942,9 @@ TEST_F(SolverAutoTest, solver17)
     
     document.InsertCode(false, true);
     document.InsertString("arcsin", true);
-    document.InsertOpenFence(true);
+    document.InsertOpenRoundBracket(true);
     document.InsertString("1", true);
-    document.InsertCloseFence(true);
+    document.InsertCloseRoundBracket(true);
     document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
     document.WaitSolver();
     std::this_thread::sleep_for(600ms);
@@ -1051,9 +1051,9 @@ TEST_F(SolverAutoTest, solver21)
 
     document.InsertCode(false, true);
     document.InsertString("cos", true);
-    document.InsertOpenFence(true);
+    document.InsertOpenRoundBracket(true);
     document.InsertString("0", true);
-    document.InsertCloseFence(true);
+    document.InsertCloseRoundBracket(true);
     document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
     document.WaitSolver();
     std::this_thread::sleep_for(600ms);
@@ -1303,9 +1303,9 @@ TEST_F(SolverAutoTest, solver28)
     
     document.InsertCode(false, true);
     document.InsertString("arcsin", true);
-    document.InsertOpenFence(true);
+    document.InsertOpenRoundBracket(true);
     document.InsertString("i", true);
-    document.InsertCloseFence(true);
+    document.InsertCloseRoundBracket(true);
     document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
     document.WaitSolver();
     std::this_thread::sleep_for(600ms);
@@ -1689,7 +1689,7 @@ TEST_F(SolverAutoTest, solver39)
 
     document.MoveCaretRight(false);
     document.WaitTask(document.MoveCaretRight(false));
-    document.WaitTask(document.InsertFences(true));
+    document.WaitTask(document.InsertRoundBrackets(true));
     ASSERT_TRUE(document.ToText() == 
         U"234=234.") << 
         ToBasicString(document.ToText());
@@ -2472,6 +2472,56 @@ TEST_F(SolverAutoTest, units13)
     ASSERT_TRUE(document.ToText() == 
         U"1м=Cannot cast to unit"
         ) << ToBasicString(document.ToText());
+}
+
+//Solve an array
+TEST_F(SolverAutoTest, arrays1)
+{
+    Start(600);
+    
+    document.InsertCode(false, true);
+    document.InsertOpenSquareBracket(true);
+    document.InsertString("1", true);
+    document.InsertComma(true);
+    document.InsertString("2.3", true);
+    document.InsertComma(true);
+    document.InsertString("4.56", true);
+    document.InsertCloseSquareBracket(true);
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(2s);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mrow>"\
+                            "<mo>[</mo>"\
+                            "<mi>1</mi>"\
+                            "<mo>,</mo>"\
+                            "<mi>2.3</mi>"\
+                            "<mo>,</mo>"\
+                            "<mi>4.56</mi>"\
+                            "<mo>]</mo>"\
+                        "</mrow>"\
+                        "<mo>=</mo>"\
+                            "<mrow>"\
+                                "<mrow>"\
+                                "<mo>[</mo>"\
+                                "<mi>1.</mi>"\
+                                "<mo>,</mo>"\
+                                "<mi>2.3</mi>"\
+                                "<mo>,</mo>"\
+                                "<mi>4.56</mi>"\
+                                "<mo>]</mo>"\
+                            "</mrow>"\
+                        "</mrow>"\
+                    "</mrow>"\
+                "</math>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 1})) << document.GetEditorState().ToString();
 }
 
 }

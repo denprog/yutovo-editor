@@ -20,7 +20,7 @@
 #include "formulas/result.h"
 #include "formulas/power.h"
 #include "formulas/equation.h"
-#include "formulas/fences.h"
+#include "formulas/brackets.h"
 #include "formulas/assignment.h"
 #include "formulas/subscript.h"
 #include "formulas/exclamation.h"
@@ -299,8 +299,10 @@ Element* CreateFromJson(Element* parent, Document* document, const rapidjson::Va
             {ElementType::SQUARE_ROOT, &SquareRoot::FromJson},
             {ElementType::NTH_ROOT, &NthRoot::FromJson},
             {ElementType::EQUATION, &Equation::FromJson},
-            {ElementType::OPEN_FENCE, &OpenFence::FromJson},
-            {ElementType::CLOSE_FENCE, &CloseFence::FromJson},
+            {ElementType::OPEN_ROUND_BRACKET, &OpenBracket::FromJson},
+            {ElementType::CLOSE_ROUND_BRACKET, &CloseBracket::FromJson},
+            {ElementType::OPEN_SQUARE_BRACKET, &OpenBracket::FromJson},
+            {ElementType::CLOSE_SQUARE_BRACKET, &CloseBracket::FromJson},
             {ElementType::REAL_RESULT, &RealResult::FromJson},
             {ElementType::INTEGER_RESULT, &IntegerResult::FromJson},
             {ElementType::RATIONAL_RESULT, &RationalResult::FromJson},
@@ -375,9 +377,11 @@ std::string ErrorCodeToString(const yutovo_calculator::ParserExceptionCode parse
             {ParserExceptionCode::DivisionByZero, "Division by zero"},
             {ParserExceptionCode::Overflow, "Overflow"},
             {ParserExceptionCode::ArgumentIsOver, "Argument is over"},
+            {ParserExceptionCode::ConversionDoesNotFit, "Conversion does not fit"},
+            {ParserExceptionCode::IncorrectComparison, "Incorrect comparasion"},
+            {ParserExceptionCode::IncorrectOperation, "Incorrect operation"},
             {ParserExceptionCode::UnitsAreIncompatible, "Units are incompatible"},
             {ParserExceptionCode::CannotCastToUnit, "Cannot cast to unit"},
-            {ParserExceptionCode::ConversionDoesNotFit, "Conversion does not fit"},
             {ParserExceptionCode::UnknownLanguage, "Unknown language"},
             {ParserExceptionCode::TimeExceed, "Solving time exceeded"},
             {ParserExceptionCode::Break, "Solving has interrupted"}

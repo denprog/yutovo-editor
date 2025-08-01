@@ -80,18 +80,18 @@ bool Subscript::Remake(bool with_elements)
 
 void Subscript::AfterChildInsert(const ElementId child_id, bool with_undo)
 {
-    //if a close fense was inserted, move elements from parent row into first child until open fence
+    //if a close bracket was inserted, move elements from parent row into first child until open bracket
     if (GetParent(child_id) != GetFirst()->id)
         return;
     auto el = document->GetElement(child_id);
-    if (el->type != ElementType::CLOSE_FENCE)
+    if (el->type != ElementType::CLOSE_ROUND_BRACKET)
         return;
     int pos = parent->elements->GetElementPos(id);
     int open_pos = 0;
     for (int i = pos - 1; i >= 0; --i)
     {
         auto c = parent->elements->Get(i);
-        if (c->type == ElementType::OPEN_FENCE)
+        if (c->type == ElementType::OPEN_ROUND_BRACKET)
         {
             open_pos = i;
             break;

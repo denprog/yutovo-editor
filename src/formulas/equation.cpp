@@ -480,6 +480,9 @@ void Equation::UpdateResult(ParserString& str)
         	case ResultType::COMPLEX:
                 result.reset(new ComplexResult(GetLast()));
                 break;
+        	case ResultType::ARRAY_REAL:
+                result.reset(new ArrayRealResult(GetLast()));
+                break;
             case ResultType::AUTO:
                 result.reset(new AutoResult(GetLast()));
                 break;

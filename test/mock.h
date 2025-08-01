@@ -338,6 +338,10 @@ struct SolverComplexTest : SolverTest
 {
 };
 
+struct SolverArrayRealTest : SolverTest
+{
+};
+
 struct AssignmentTest : SolverTest
 {
 };

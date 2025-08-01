@@ -9,7 +9,8 @@
 #include "code_block.h"
 #include "equation.h"
 #include "subscript.h"
-#include "fences.h"
+#include "brackets.h"
+#include "comma.h"
 #include <boost/uuid/uuid.hpp>
 #include <boost/uuid/uuid_generators.hpp>
 #include <boost/uuid/uuid_io.hpp>
@@ -160,12 +161,12 @@ void ResultRow::AddElement(ElementPtr element)
     GetCurRow()->AddElement(element);
 }
 
-void ResultRow::PutUnit(const Result& result)
+void ResultRow::PutUnit(const Value& value)
 {
-    if (result.unit.IsEmpty())
+    if (value.unit.IsEmpty())
         return;
     
-    const yutovo_calculator::Unit& unit = result.unit;
+    const yutovo_calculator::Unit& unit = value.unit;
 
     ElementPtr numerator(new CodeRow(this));
     numerator->elements->Clear();
@@ -279,6 +280,21 @@ void ResultRow::AddNumber(const std::string& number)
         AddElement(ElementPtr(new CodeString(this, number)));
 }
 
+void ResultRow::AddOpenSquareBracket()
+{
+    AddElement(ElementPtr(new OpenBracket(this, ElementType::OPEN_SQUARE_BRACKET)));
+}
+
+void ResultRow::AddCloseSquareBracket()
+{
+    AddElement(ElementPtr(new CloseBracket(this, ElementType::CLOSE_SQUARE_BRACKET)));
+}
+
+void ResultRow::AddComma()
+{
+    AddElement(ElementPtr(new Comma(this)));
+}
+
 void ResultRow::AddResult()
 {
     next_result = true; //adding next elements will be proceed on the next row
@@ -375,7 +391,10 @@ void RealResult::PutResult(Result& result)
     ElementPtr el = document->FindParent(id, ElementType::EQUATION);
     Equation* eq = (Equation*)el.get();
     eq->dependencies = result.dependencies;
-    cast_units = result.cast_units;
+    if (result.values.size() == 1)
+        cast_units = result.values[0].cast_units;
+    else
+        cast_units.clear();
 
     last_error_code = result.error.error_code;
     if (result.error.error_code == yutovo_solver::ErrorCode::SOLVER_RESTARTED_ERROR)
@@ -396,17 +415,16 @@ void RealResult::PutResult(Result& result)
         if (result.values.empty())
             return;
         Value& value = result.values[0];
-        std::string mantissa = value["mantissa"];
-        std::string exponent = value["exponent"];
-        //logger->Info("id={} mantissa={}", ElementIdToString(id), mantissa);
+        std::string mantissa = value.value["mantissa"];
+        std::string exponent = value.value["exponent"];
 
         AddNumber(mantissa);
         AddExponent(exponent);
-        PutUnit(result);
+        PutUnit(value);
 
-        if (config.show_angle_measure)
+        if (config.show_angle_measure && result.values.size() == 1)
         {
-            std::string angle_measure = AngleMeasureToString(result.angle_measure);
+            std::string angle_measure = AngleMeasureToString(result.values[0].angle_measure);
             with_angle_measure = !angle_measure.empty();
             if (!angle_measure.empty())
                 AddElement(ElementPtr(new CodeString(this, "(" + angle_measure + ")", GetStringFormat())));
@@ -536,15 +554,15 @@ void IntegerResult::PutResult(Result& result)
         if (result.values.empty())
             return;
         Value& value = result.values[0];
-        std::string val = value["value"];
+        std::string val = value.value["value"];
         elements->Clear();
         AddNumber(val);
 
-        config.result_notation = result.notation;
+        config.result_notation = value.notation;
         
         if (config.show_notation)
         {
-            std::string notation = NotationToString(result.notation);
+            std::string notation = NotationToString(value.notation);
             with_notation = !notation.empty();
             if (!notation.empty())
                 AddElement(ElementPtr(new CodeString(this, "(" + notation + ")", GetStringFormat())));
@@ -637,7 +655,10 @@ void RationalResult::PutResult(Result& result)
     ElementPtr el = document->FindParent(id, ElementType::EQUATION);
     Equation* eq = (Equation*)el.get();
     eq->dependencies = result.dependencies;
-    cast_units = result.cast_units;
+    if (result.values.size() == 1)
+        cast_units = result.values[0].cast_units;
+    else
+        cast_units.clear();
 
     last_error_code = result.error.error_code;
     if (result.error.error_code == yutovo_solver::ErrorCode::SOLVER_RESTARTED_ERROR)
@@ -658,9 +679,9 @@ void RationalResult::PutResult(Result& result)
             return;
         
         Value& value = result.values[0];
-        std::string integer = value["integer"];
-        std::string numerator = value["numerator"];
-        std::string denomerator = value["denomerator"];
+        std::string integer = value.value["integer"];
+        std::string numerator = value.value["numerator"];
+        std::string denomerator = value.value["denomerator"];
 
         elements->Clear();
         if (numerator[0] == '-')
@@ -693,7 +714,7 @@ void RationalResult::PutResult(Result& result)
             AddNumber(numerator);
         }
 
-        PutUnit(result);
+        PutUnit(result.values[0]);
     }
 
     if (elements->Count() > 0)
@@ -816,15 +837,15 @@ void ComplexResult::PutResult(Result& result)
         {
             for (Value& value : result.values)
             {
-                std::string mantissa = value["module_mantissa"];
-                std::string exponent = value["module_exponent"];
+                std::string mantissa = value.value["module_mantissa"];
+                std::string exponent = value.value["module_exponent"];
 
                 if (!mantissa.empty())
                     AddNumber(mantissa);
                 AddExponent(exponent);
 
-                mantissa = value["argument_mantissa"];
-                exponent = value["argument_exponent"];
+                mantissa = value.value["argument_mantissa"];
+                exponent = value.value["argument_exponent"];
 
                 if (config.form == ComplexForm::Exponential)
                 {
@@ -842,13 +863,13 @@ void ComplexResult::PutResult(Result& result)
                 }
                 else
                 {
-                    AddElement(ElementPtr(new OpenFence(this)));
+                    AddElement(ElementPtr(new OpenBracket(this, ElementType::OPEN_ROUND_BRACKET)));
 
                     AddElement(ElementPtr(new CodeString(this, "cos")));
-                    AddElement(ElementPtr(new OpenFence(this)));
+                    AddElement(ElementPtr(new OpenBracket(this, ElementType::OPEN_ROUND_BRACKET)));
                     AddNumber(mantissa);
                     AddExponent(exponent);
-                    AddElement(ElementPtr(new CloseFence(this)));
+                    AddElement(ElementPtr(new CloseBracket(this, ElementType::CLOSE_ROUND_BRACKET)));
 
                     AddElement(ElementPtr(new Plus(this)));
 
@@ -857,12 +878,12 @@ void ComplexResult::PutResult(Result& result)
                     AddElement(ElementPtr(new Multiply(this)));
 
                     AddElement(ElementPtr(new CodeString(this, "sin")));
-                    AddElement(ElementPtr(new OpenFence(this)));
+                    AddElement(ElementPtr(new OpenBracket(this, ElementType::OPEN_ROUND_BRACKET)));
                     AddNumber(mantissa);
                     AddExponent(exponent);
-                    AddElement(ElementPtr(new CloseFence(this)));
+                    AddElement(ElementPtr(new CloseBracket(this, ElementType::CLOSE_ROUND_BRACKET)));
 
-                    AddElement(ElementPtr(new CloseFence(this)));
+                    AddElement(ElementPtr(new CloseBracket(this, ElementType::CLOSE_ROUND_BRACKET)));
                 }
 
                 AddResult();
@@ -872,15 +893,15 @@ void ComplexResult::PutResult(Result& result)
         {
             for (Value& value : result.values)
             {
-                std::string re_mantissa = value["re_mantissa"];
-                std::string re_exponent = value["re_exponent"];
+                std::string re_mantissa = value.value["re_mantissa"];
+                std::string re_exponent = value.value["re_exponent"];
 
                 if (!re_mantissa.empty())
                     AddNumber(re_mantissa);
                 AddExponent(re_exponent);
 
-                std::string im_mantissa = value["im_mantissa"];
-                std::string im_exponent = value["im_exponent"];
+                std::string im_mantissa = value.value["im_mantissa"];
+                std::string im_exponent = value.value["im_exponent"];
 
                 if (!im_mantissa.empty())
                 {
@@ -901,7 +922,7 @@ void ComplexResult::PutResult(Result& result)
 
                 if (config.show_angle_measure)
                 {
-                    std::string angle_measure = AngleMeasureToString(result.angle_measure);
+                    std::string angle_measure = AngleMeasureToString(value.angle_measure);
                     with_angle_measure = !angle_measure.empty();
                     if (!angle_measure.empty())
                         AddElement(ElementPtr(new CodeString(this, "(" + angle_measure + ")", GetStringFormat())));
@@ -958,6 +979,168 @@ bool ComplexResult::SetConfig(const int precision, const int exp, const AngleMea
 bool ComplexResult::SetConfig(ComplexForm form)
 {
     config.form = form;
+    ParserString expr = last_expression;
+    last_expression.Reset();
+    Solve(expr);
+    return true;
+}
+
+//ArrayRealResult
+
+ArrayRealResult::ArrayRealResult(Document* _document) :
+    ResultRow(_document),
+    config(_document->config.array_real_result)
+{
+    type = ElementType::ARRAY_REAL_RESULT;
+}
+
+ArrayRealResult::ArrayRealResult(Element* parent) :
+    ResultRow(parent)
+{
+    type = ElementType::ARRAY_REAL_RESULT;
+
+    if (parent)
+        config = parent->document->config.array_real_result;
+}
+
+ArrayRealResult::ArrayRealResult(Element* parent, Config::ArrayRealResultConfig _config) :
+    ResultRow(parent), 
+    config(_config)
+{
+    type = ElementType::ARRAY_REAL_RESULT;
+}
+
+Element* ArrayRealResult::Clone()
+{
+    return new ArrayRealResult(*this);
+}
+
+Element* ArrayRealResult::Create(Element* _parent)
+{
+    return new RealResult(_parent);
+}
+
+void ArrayRealResult::ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc)
+{
+    ResultRow::ToJson(value, alloc);
+    config.ToJson(value, alloc);
+    value.AddMember("with_angle_measure", with_angle_measure, alloc);
+}
+
+Element* ArrayRealResult::FromJson(Element* parent, Document* document, const rapidjson::Value::ConstObject& value, rapidjson::Document::AllocatorType& alloc)
+{
+    Config::ArrayRealResultConfig config;
+    config.FromJson(value, alloc);
+    auto* p = new ArrayRealResult(parent, config);
+    if (value.HasMember("with_angle_measure") && value["with_angle_measure"].IsBool())
+        p->with_angle_measure = value["with_angle_measure"].GetBool();
+    return p;
+}
+
+void ArrayRealResult::Solve(const ParserString& expression)
+{
+    if (last_expression == expression && last_expression.Text() != U"")
+        return;
+    last_expression = expression;
+
+    PutWaitingSymbol();
+
+    solving_id = logical_id;
+    document->Solve(logical_id, guid, GetCodeId(), config, last_expression.Text(), 
+        (delay && last_error_code != yutovo_solver::ErrorCode::SOLVER_RESTARTED_ERROR) ? document->config.solve_delay : 0);
+    delay = true;
+}
+
+void ArrayRealResult::PutResult(Result& result)
+{
+    ResultRow::PutResult(result);
+
+    solving_id.clear();
+
+    ElementPtr el = document->FindParent(id, ElementType::EQUATION);
+    Equation* eq = (Equation*)el.get();
+    eq->dependencies = result.dependencies;
+
+    last_error_code = result.error.error_code;
+    if (result.error.error_code == yutovo_solver::ErrorCode::SOLVER_RESTARTED_ERROR)
+    {
+        eq->last_expression.Reset();
+        return;
+    }
+
+    elements->Clear();
+    if (result.error.error_code != yutovo_solver::ErrorCode::OK)
+    {
+        PutError(result.error); //put error message
+    }
+    else
+    {
+        document->RemoveErrorMarks(parent->parent->id);
+
+        if (result.values.empty())
+        {
+            AddOpenSquareBracket();
+            AddCloseSquareBracket();
+        }
+        else
+        {
+            auto add_value = 
+                [this](Value& value)
+                {
+                    std::string mantissa = value.value["mantissa"];
+                    std::string exponent = value.value["exponent"];
+                    AddNumber(mantissa);
+                    AddExponent(exponent);
+                    PutUnit(value);
+                };
+
+            if (result.values.size() == 1)
+            {
+                add_value(result.values[0]); //without square brackets
+            }
+            else
+            {
+                AddOpenSquareBracket();
+                for (size_t i = 0; i < result.values.size(); ++i)
+                {
+                    add_value(result.values[i]);
+                    if (i < result.values.size() - 1)
+                        AddComma();
+                }
+                AddCloseSquareBracket();
+            }
+        }
+    }
+
+    if (elements->Count() > 0)
+        elements->Get(0)->SetEditable(false);
+    Remake(true);
+    parent->Remake(true);
+}
+
+bool ArrayRealResult::SetConfig(const int precision, const int exp, const AngleMeasure default_angle_measure, const AngleMeasure result_angle_measure)
+{
+    if (precision != -1 && config.precision != precision)
+        config.precision = precision;
+    if (exp != -1 && config.exp != exp)
+        config.exp = exp;
+    if (default_angle_measure != AngleMeasure::None && config.default_angle_measure != default_angle_measure)
+        config.default_angle_measure = default_angle_measure;
+    if (result_angle_measure != AngleMeasure::None && config.result_angle_measure != result_angle_measure)
+        config.result_angle_measure = result_angle_measure;
+    
+    ParserString expr = last_expression;
+    last_expression.Reset();
+    Solve(expr);
+    return true;
+}
+
+bool ArrayRealResult::SetConfig(const yutovo_calculator::Unit& unit)
+{
+    if (config.unit == unit)
+        return false;
+    
+    config.unit = unit;
     ParserString expr = last_expression;
     last_expression.Reset();
     Solve(expr);
@@ -1088,6 +1271,9 @@ void AutoResult::PutResult(Result& result)
             break;
         case ResultType::COMPLEX:
             result_row.reset(new ComplexResult(this, config.complex_result));
+            break;
+    	case ResultType::ARRAY_REAL:
+            result_row.reset(new ArrayRealResult(this));
             break;
         default:
             return;
@@ -1251,6 +1437,8 @@ ResultType AutoResult::GetResultType()
         return ResultType::RATIONAL;
     case ElementType::COMPLEX_RESULT:
         return ResultType::COMPLEX;
+    case ElementType::ARRAY_REAL_RESULT:
+        return ResultType::ARRAY_REAL;
     case ElementType::ERROR_RESULT:
         return ResultType::AUTO;
     default:

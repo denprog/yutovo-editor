@@ -17,7 +17,7 @@
 #include "formulas/nth_root.h"
 #include "formulas/power.h"
 #include "formulas/equation.h"
-#include "formulas/fences.h"
+#include "formulas/brackets.h"
 #include "formulas/assignment.h"
 #include "formulas/unit.h"
 #include "formulas/equation.h"
@@ -307,11 +307,17 @@ Element* UndoFormula::Restore(Document* document, Element* parent)
             el->elements->Get(1)->elements->ReplaceAll(*last->elements);
         }
         break;
-    case ElementType::OPEN_FENCE:
-        el = parent ? new OpenFence(parent) : new OpenFence(document);
+    case ElementType::OPEN_ROUND_BRACKET:
+        el = parent ? new OpenBracket(parent, ElementType::OPEN_ROUND_BRACKET) : new OpenBracket(document, ElementType::OPEN_ROUND_BRACKET);
         break;
-    case ElementType::CLOSE_FENCE:
-        el = parent ? new CloseFence(parent) : new CloseFence(document);
+    case ElementType::CLOSE_ROUND_BRACKET:
+        el = parent ? new CloseBracket(parent, ElementType::CLOSE_ROUND_BRACKET) : new CloseBracket(document, ElementType::CLOSE_ROUND_BRACKET);
+        break;
+    case ElementType::OPEN_SQUARE_BRACKET:
+        el = parent ? new OpenBracket(parent, ElementType::OPEN_SQUARE_BRACKET) : new OpenBracket(document, ElementType::OPEN_SQUARE_BRACKET);
+        break;
+    case ElementType::CLOSE_SQUARE_BRACKET:
+        el = parent ? new CloseBracket(parent, ElementType::CLOSE_SQUARE_BRACKET) : new CloseBracket(document, ElementType::CLOSE_SQUARE_BRACKET);
         break;
     case ElementType::EXCLAMATION:
         el = parent ? new Exclamation(parent) : new Exclamation(document);
@@ -814,8 +820,10 @@ UndoElementPtr UndoBase::StoreElement(const LogicalId id, ElementPtr el)
     case ElementType::OR:
     case ElementType::XOR:
     case ElementType::PERCENT:
-    case ElementType::OPEN_FENCE:
-    case ElementType::CLOSE_FENCE:
+    case ElementType::OPEN_ROUND_BRACKET:
+    case ElementType::CLOSE_ROUND_BRACKET:
+    case ElementType::OPEN_SQUARE_BRACKET:
+    case ElementType::CLOSE_SQUARE_BRACKET:
     case ElementType::COMMA:
         undo_element.reset(new UndoFormula(el->type, ((Formula*)el.get())->formula_format));
         break;

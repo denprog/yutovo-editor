@@ -90,7 +90,7 @@ add_library(${PROJECT_NAME}
     formulas/square_root.cpp
     formulas/equation.cpp
     formulas/result.cpp
-    formulas/fences.cpp
+    formulas/brackets.cpp
     formulas/assignment.cpp
     formulas/unit.cpp
     formulas/subscript.cpp
@@ -146,7 +146,7 @@ add_library(${PROJECT_NAME}
     formulas/square_root.h
     formulas/equation.h
     formulas/result.h
-    formulas/fences.h
+    formulas/brackets.h
     formulas/assignment.h
     formulas/unit.h
     formulas/subscript.h

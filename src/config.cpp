@@ -349,6 +349,10 @@ void Config::AutoResultConfig::ToJson(rapidjson::Value& value, rapidjson::Docume
     rapidjson::Value complex_config(rapidjson::kObjectType);
     complex_result.ToJson(complex_config, alloc);
     value.AddMember("complex_config", complex_config, alloc);
+
+    rapidjson::Value array_real_config(rapidjson::kObjectType);
+    array_real_result.ToJson(array_real_config, alloc);
+    value.AddMember("array_real_config", array_real_config, alloc);
 }
 
 void Config::AutoResultConfig::FromJson(const rapidjson::Value::ConstObject& value, rapidjson::Document::AllocatorType& alloc)
@@ -385,6 +389,11 @@ void Config::AutoResultConfig::FromJson(const rapidjson::Value::ConstObject& val
     {
         auto obj = value["complex_config"].GetObject();
         complex_result.FromJson(obj, alloc);
+    }
+    if (value.HasMember("array_real_config") && value["array_real_config"].IsObject())
+    {
+        auto obj = value["array_real_config"].GetObject();
+        array_real_result.FromJson(obj, alloc);
     }
 }
 

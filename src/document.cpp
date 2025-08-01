@@ -15,7 +15,7 @@
 #include "formulas/nth_root.h"
 #include "formulas/square_root.h"
 #include "formulas/equation.h"
-#include "formulas/fences.h"
+#include "formulas/brackets.h"
 #include "formulas/assignment.h"
 #include "formulas/unit.h"
 #include "formulas/subscript.h"
@@ -519,16 +519,28 @@ uint Document::InsertEquation(yutovo_solver::ResultType result_type, bool with_u
     return InsertFormula(new Equation(this, result_type), with_undo);
 }
 
-uint Document::InsertOpenFence(bool with_undo)
+uint Document::InsertOpenRoundBracket(bool with_undo)
 {
-    LOG_TRACE("Insert open fence");
-    return InsertFormula(new OpenFence(this), with_undo);
+    LOG_TRACE("Insert open round bracket");
+    return InsertFormula(new OpenBracket(this, ElementType::OPEN_ROUND_BRACKET), with_undo);
 }
 
-uint Document::InsertCloseFence(bool with_undo)
+uint Document::InsertCloseRoundBracket(bool with_undo)
 {
-    LOG_TRACE("Insert close fence");
-    return InsertFormula(new CloseFence(this), with_undo);
+    LOG_TRACE("Insert close round bracket");
+    return InsertFormula(new CloseBracket(this, ElementType::CLOSE_ROUND_BRACKET), with_undo);
+}
+
+uint Document::InsertOpenSquareBracket(bool with_undo)
+{
+    LOG_TRACE("Insert open square bracket");
+    return InsertFormula(new OpenBracket(this, ElementType::OPEN_SQUARE_BRACKET), with_undo);
+}
+
+uint Document::InsertCloseSquareBracket(bool with_undo)
+{
+    LOG_TRACE("Insert close square bracket");
+    return InsertFormula(new CloseBracket(this, ElementType::CLOSE_SQUARE_BRACKET), with_undo);
 }
 
 uint Document::InsertAssignment(bool with_undo)
@@ -609,12 +621,24 @@ uint Document::InsertComma(bool with_undo)
     return InsertFormula(new Comma(this), with_undo);
 }
 
-uint Document::InsertFences(bool with_undo)
+uint Document::InsertRoundBrackets(bool with_undo)
 {
-    LOG_TRACE("Insert fences");
+    LOG_TRACE("Insert round brackets");
     std::vector<ElementPtr> els;
-    els.emplace_back(new OpenFence(this));
-    els.emplace_back(new CloseFence(this));
+    els.emplace_back(new OpenBracket(this, ElementType::OPEN_ROUND_BRACKET));
+    els.emplace_back(new CloseBracket(this, ElementType::CLOSE_ROUND_BRACKET));
+    uint r = InsertFormulas(els, with_undo, false, false, 1);
+    if (r > 0)
+        MoveCaretLeft(false, true);
+    return r;
+}
+
+uint Document::InsertSquareBrackets(bool with_undo)
+{
+    LOG_TRACE("Insert square brackets");
+    std::vector<ElementPtr> els;
+    els.emplace_back(new OpenBracket(this, ElementType::OPEN_SQUARE_BRACKET));
+    els.emplace_back(new CloseBracket(this, ElementType::CLOSE_SQUARE_BRACKET));
     uint r = InsertFormulas(els, with_undo, false, false, 1);
     if (r > 0)
         MoveCaretLeft(false, true);
@@ -629,8 +653,8 @@ uint Document::InsertFunction(const std::string& name, bool with_undo)
         return 0;
     std::vector<ElementPtr> els;
     els.emplace_back(new CodeString(this, name, format->string_format));
-    els.emplace_back(new OpenFence(this));
-    els.emplace_back(new CloseFence(this));
+    els.emplace_back(new OpenBracket(this, ElementType::OPEN_ROUND_BRACKET));
+    els.emplace_back(new CloseBracket(this, ElementType::CLOSE_ROUND_BRACKET));
     uint r = InsertFormulas(els, with_undo, false, false, 2);
     if (r > 0)
         MoveCaretLeft(false, true);
@@ -2572,6 +2596,13 @@ void Document::Solve(const LogicalId& _id, const std::string& guid, uint code_id
 
 void Document::Solve(const LogicalId& _id, const std::string& guid, uint code_id, Config::ComplexResultConfig& config, 
     const std::u32string& expression, const uint delay)
+{
+    solve_ids[guid] = _id;
+    solver.Solve(_id, guid, code_id, config, expression + U";", delay);
+}
+
+void Document::Solve(const LogicalId& _id, const std::string& guid, uint code_id, Config::ArrayRealResultConfig& config, const std::u32string& expression, 
+    const uint delay)
 {
     solve_ids[guid] = _id;
     solver.Solve(_id, guid, code_id, config, expression + U";", delay);
