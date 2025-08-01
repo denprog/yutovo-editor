@@ -543,9 +543,9 @@ TEST_F(SolverComplexTest, solver19)
     
     document.InsertCode(false, true);
     document.InsertString("arcsin", true);
-    document.InsertOpenFence(true);
+    document.InsertOpenRoundBracket(true);
     document.InsertString("i", true);
-    document.InsertCloseFence(true);
+    document.InsertCloseRoundBracket(true);
     document.WaitTask(document.InsertEquation(ResultType::COMPLEX, true));
     document.WaitSolver();
     ASSERT_TRUE(document.ToText() == 
@@ -609,9 +609,9 @@ TEST_F(SolverComplexTest, solver22)
 
     document.InsertParagraph(true);
     document.InsertString("arg", true);
-    document.InsertOpenFence(true);
+    document.InsertOpenRoundBracket(true);
     document.InsertString("z", true);
-    document.InsertCloseFence(true);
+    document.InsertCloseRoundBracket(true);
     document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
     document.WaitSolver();
     std::this_thread::sleep_for(1s);
@@ -624,9 +624,9 @@ TEST_F(SolverComplexTest, solver22)
     document.MoveCaretEnd(false);
     document.InsertParagraph(true);
     document.InsertString("mod", true);
-    document.InsertOpenFence(true);
+    document.InsertOpenRoundBracket(true);
     document.InsertString("z", true);
-    document.InsertCloseFence(true);
+    document.InsertCloseRoundBracket(true);
     document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
     document.WaitSolver();
     std::this_thread::sleep_for(1s);

@@ -1,5 +1,5 @@
-#ifndef __FENCES_H__
-#define __FENCES_H__
+#ifndef __BRACKETS_H__
+#define __BRACKETS_H__
 
 #include "only_shape_formula.h"
 
@@ -8,12 +8,12 @@ namespace yutovo
 
 #define BRACES_Y_OFFSET 0.1
 
-class OpenFence : public OnlyShapeFormula
+class OpenBracket : public OnlyShapeFormula
 {
 public:
-    OpenFence(Element* _parent);
-    OpenFence(Document* _document);
-    OpenFence(const OpenFence& source);
+    OpenBracket(Element* _parent, ElementType _type);
+    OpenBracket(Document* _document, ElementType _type);
+    OpenBracket(const OpenBracket& source);
 
     virtual Element* Clone();
 
@@ -31,12 +31,12 @@ private:
     static const std::string family_name;
 };
 
-class CloseFence : public OnlyShapeFormula
+class CloseBracket : public OnlyShapeFormula
 {
 public:
-    CloseFence(Element* _parent);
-    CloseFence(Document* _document);
-    CloseFence(const CloseFence& source);
+    CloseBracket(Element* _parent, ElementType _type);
+    CloseBracket(Document* _document, ElementType _type);
+    CloseBracket(const CloseBracket& source);
 
     virtual Element* Clone();
 

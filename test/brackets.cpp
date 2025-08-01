@@ -8,11 +8,11 @@ namespace yutovo_test
 using namespace yutovo;
 using namespace std::chrono_literals;
 
-TEST_F(FormulaTest, fences1)
+TEST_F(FormulaTest, brackets1)
 {
     Start(600);
 
-    document.WaitTask(document.InsertOpenFence(true));
+    document.WaitTask(document.InsertOpenRoundBracket(true));
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -47,7 +47,7 @@ TEST_F(FormulaTest, fences1)
         document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 1})) << document.GetEditorState().ToString();
 
-    document.WaitTask(document.InsertCloseFence(true));
+    document.WaitTask(document.InsertCloseRoundBracket(true));
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
@@ -104,14 +104,14 @@ TEST_F(FormulaTest, fences1)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 0)) << document.GetEditorState().ToString();
 }
 
-//Inserting open fence in text
-TEST_F(FormulaTest, fences2)
+//Inserting open round bracket in text
+TEST_F(FormulaTest, brackets2)
 {
     Start(600);
 
     document.InsertCode(false, true);
     document.InsertString("123", true);
-    document.WaitTask(document.InsertOpenFence(true));
+    document.WaitTask(document.InsertOpenRoundBracket(true));
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -142,7 +142,7 @@ TEST_F(FormulaTest, fences2)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 3})) << document.GetEditorState().ToString();
 
     document.MoveCaretHome(false);
-    document.WaitTask(document.InsertOpenFence(true));
+    document.WaitTask(document.InsertOpenRoundBracket(true));
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -173,7 +173,7 @@ TEST_F(FormulaTest, fences2)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 0})) << document.GetEditorState().ToString();
 
     document.MoveCaretRight(false);
-    document.WaitTask(document.InsertOpenFence(true));
+    document.WaitTask(document.InsertOpenRoundBracket(true));
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -205,14 +205,14 @@ TEST_F(FormulaTest, fences2)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 1})) << document.GetEditorState().ToString();
 }
 
-//Inserting close fence in text
-TEST_F(FormulaTest, fences3)
+//Inserting close round bracket in text
+TEST_F(FormulaTest, brackets3)
 {
     Start(600);
 
     document.InsertCode(false, true);
     document.InsertString("123", true);
-    document.WaitTask(document.InsertCloseFence(true));
+    document.WaitTask(document.InsertCloseRoundBracket(true));
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -243,7 +243,7 @@ TEST_F(FormulaTest, fences3)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 3})) << document.GetEditorState().ToString();
 
     document.MoveCaretHome(false);
-    document.WaitTask(document.InsertCloseFence(true));
+    document.WaitTask(document.InsertCloseRoundBracket(true));
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -274,7 +274,7 @@ TEST_F(FormulaTest, fences3)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 0})) << document.GetEditorState().ToString();
 
     document.MoveCaretRight(false);
-    document.WaitTask(document.InsertCloseFence(true));
+    document.WaitTask(document.InsertCloseRoundBracket(true));
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -307,17 +307,17 @@ TEST_F(FormulaTest, fences3)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 1})) << document.GetEditorState().ToString();
 }
 
-//Inserting fences in text
-TEST_F(FormulaTest, fences4)
+//Inserting brackets in text
+TEST_F(FormulaTest, brackets4)
 {
     Start(600);
 
     document.InsertCode(false, true);
-    document.InsertOpenFence(true);
+    document.InsertOpenRoundBracket(true);
     document.InsertString("123", true);
     document.InsertPlus(true);
     document.InsertString("56", true);
-    document.WaitTask(document.InsertCloseFence(true));
+    document.WaitTask(document.InsertCloseRoundBracket(true));
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -336,8 +336,8 @@ TEST_F(FormulaTest, fences4)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 5})) << document.GetEditorState().ToString();
 }
 
-//Inserting fences in power element
-TEST_F(FormulaTest, fences5)
+//Inserting brackets in power element
+TEST_F(FormulaTest, brackets5)
 {
     Start(600);
 
@@ -350,7 +350,7 @@ TEST_F(FormulaTest, fences5)
     document.MoveCaretLeft(false);
     document.MoveCaretLeft(false);
     document.WaitTask(document.MoveCaretLeft(false));
-    document.WaitTask(document.InsertCloseFence(true));
+    document.WaitTask(document.InsertCloseRoundBracket(true));
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
@@ -376,7 +376,7 @@ TEST_F(FormulaTest, fences5)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 0, 4})) << document.GetEditorState().ToString();
 
     document.MoveCaretHome(false);
-    document.WaitTask(document.InsertOpenFence(true));
+    document.WaitTask(document.InsertOpenRoundBracket(true));
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
@@ -503,8 +503,8 @@ TEST_F(FormulaTest, fences5)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 0, 1, 0})) << document.GetEditorState().ToString();
 }
 
-//Inserting fences in power element
-TEST_F(FormulaTest, fences6)
+//Inserting brackets in power element
+TEST_F(FormulaTest, brackets6)
 {
     Start(600);
 
@@ -512,7 +512,7 @@ TEST_F(FormulaTest, fences6)
     document.InsertString("2", true);
     document.InsertPlus(true);
     document.InsertString("34", true);
-    document.InsertOpenFence(true);
+    document.InsertOpenRoundBracket(true);
     document.InsertString("5", true);
     document.InsertMultiply(true);
     document.InsertString("67", true);
@@ -521,7 +521,7 @@ TEST_F(FormulaTest, fences6)
     document.MoveCaretLeft(false);
     document.MoveCaretLeft(false);
     document.WaitTask(document.MoveCaretLeft(false));
-    document.WaitTask(document.InsertCloseFence(true));
+    document.WaitTask(document.InsertCloseRoundBracket(true));
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -578,8 +578,8 @@ TEST_F(FormulaTest, fences6)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 6, 0, 0, 2})) << document.GetEditorState().ToString();
 }
 
-//Inserting fences in power element
-TEST_F(FormulaTest, fences7)
+//Inserting brackets in power element
+TEST_F(FormulaTest, brackets7)
 {
     Start(600);
 
@@ -592,7 +592,7 @@ TEST_F(FormulaTest, fences7)
     document.WaitTask(document.InsertString("6", true));
     for (int i = 0; i < 3; ++i)
         document.WaitTask(document.MoveCaretRight(false));
-    document.WaitTask(document.InsertCloseFence(true));
+    document.WaitTask(document.InsertCloseRoundBracket(true));
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -638,12 +638,12 @@ TEST_F(FormulaTest, fences7)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 1, 0, 0, 1})) << document.GetEditorState().ToString();
 }
 
-//Inserting open and close fences
-TEST_F(FormulaTest, fences8)
+//Inserting open and close brackets
+TEST_F(FormulaTest, brackets8)
 {
     Start(600);
 
-    document.WaitTask(document.InsertFences(true));
+    document.WaitTask(document.InsertRoundBrackets(true));
     std::this_thread::sleep_for(200ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
@@ -683,12 +683,12 @@ TEST_F(FormulaTest, fences8)
 }
 
 //Copy-paste
-TEST_F(FormulaTest, fences9)
+TEST_F(FormulaTest, brackets9)
 {
     Start(600);
 
-    document.InsertOpenFence(true);
-    document.WaitTask(document.InsertCloseFence(true));
+    document.InsertOpenRoundBracket(true);
+    document.WaitTask(document.InsertCloseRoundBracket(true));
     document.MoveCaretLeft(false);
     document.MoveCaretLeft(false);
     document.MoveCaretRight(true);
@@ -704,12 +704,12 @@ TEST_F(FormulaTest, fences9)
 }
 
 //Copy-paste
-TEST_F(FormulaTest, fences10)
+TEST_F(FormulaTest, brackets10)
 {
     Start(600);
 
-    document.InsertOpenFence(true);
-    document.InsertCloseFence(true);
+    document.InsertOpenRoundBracket(true);
+    document.InsertCloseRoundBracket(true);
     document.MoveCaretEnd(false);
     document.InsertCode(false, true);
     document.MoveCaretHome(false);
@@ -726,15 +726,15 @@ TEST_F(FormulaTest, fences10)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 1, 0, 0, 2})) << document.GetEditorState().ToString();
 }
 
-//Insert fences after selection
-TEST_F(FormulaTest, fences11)
+//Insert brackets after selection
+TEST_F(FormulaTest, brackets11)
 {
     Start(600);
 
     document.InsertCode(false, true);
     document.InsertString("123", true);
     document.WaitTask(document.MoveCaretHome(true));
-    document.WaitTask(document.InsertFences(true));
+    document.WaitTask(document.InsertRoundBrackets(true));
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -769,7 +769,7 @@ TEST_F(FormulaTest, fences11)
     document.MoveCaretHome(false);
     document.MoveCaretRight(false);
     document.WaitTask(document.MoveCaretRight(true));
-    document.WaitTask(document.InsertFences(true));
+    document.WaitTask(document.InsertRoundBrackets(true));
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -805,7 +805,7 @@ TEST_F(FormulaTest, fences11)
     document.MoveCaretEnd(false);
     document.MoveCaretLeft(false);
     document.WaitTask(document.MoveCaretLeft(true));
-    document.WaitTask(document.InsertFences(true));
+    document.WaitTask(document.InsertRoundBrackets(true));
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -841,7 +841,7 @@ TEST_F(FormulaTest, fences11)
 
     document.MoveCaretEnd(false);
     document.WaitTask(document.MoveCaretLeft(true));
-    document.WaitTask(document.InsertFences(true));
+    document.WaitTask(document.InsertRoundBrackets(true));
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -875,8 +875,8 @@ TEST_F(FormulaTest, fences11)
         ElementSelectionState{ElementId{0, 0, 0, 0, 0, 0, 0}, 2, 1})) << document.GetEditorState().ToString();
 }
 
-//Insert fences after selection
-TEST_F(FormulaTest, fences12)
+//Insert brackets after selection
+TEST_F(FormulaTest, brackets12)
 {
     Start(600);
 
@@ -885,7 +885,7 @@ TEST_F(FormulaTest, fences12)
     document.InsertCode(false, true);
     document.InsertString("123", true);
     document.WaitTask(document.MoveCaretHome(true));
-    document.WaitTask(document.InsertFences(true));
+    document.WaitTask(document.InsertRoundBrackets(true));
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -928,8 +928,8 @@ TEST_F(FormulaTest, fences12)
         ElementSelectionState{ElementId{0, 0, 0}, 1, 1})) << document.GetEditorState().ToString();
 }
 
-//Insert fences after selection
-TEST_F(FormulaTest, fences13)
+//Insert brackets after selection
+TEST_F(FormulaTest, brackets13)
 {
     Start(600);
 
@@ -956,7 +956,7 @@ TEST_F(FormulaTest, fences13)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0, 0, 0, 2, 3}, 
         ElementSelectionState{ElementId{0, 0, 0, 0, 0, 0, 0, 2}, 1, 2})) << document.GetEditorState().ToString();
     
-    document.WaitTask(document.InsertFences(true));
+    document.WaitTask(document.InsertRoundBrackets(true));
     ASSERT_TRUE(document.ToText() == 
         U"(12)/(2(+(33)/(4))*6)"
         ) << ToBasicString(document.ToText());
@@ -971,14 +971,14 @@ TEST_F(FormulaTest, fences13)
         ElementSelectionState{ElementId{0, 0, 0, 0, 0, 0, 0, 2}, 1, 2})) << document.GetEditorState().ToString();
 }
 
-//Insert fences after selection
-TEST_F(FormulaTest, fences14)
+//Insert brackets after selection
+TEST_F(FormulaTest, brackets14)
 {
     Start(600);
 
     document.InsertString("Text", true);
     document.MoveCaretHome(true);
-    document.WaitTask(document.InsertFences(true));
+    document.WaitTask(document.InsertRoundBrackets(true));
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -992,6 +992,147 @@ TEST_F(FormulaTest, fences14)
         "</body>") << 
         document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0, 0, 1})) << document.GetEditorState().ToString();
+}
+
+//Insert square brackets
+TEST_F(FormulaTest, brackets15)
+{
+    Start(600);
+
+    document.WaitTask(document.InsertOpenSquareBracket(true));
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mo>[</mo>" \
+                    "</mrow>"\
+                "</math>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 1})) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    std::this_thread::sleep_for(100ms);
+    ASSERT_TRUE(document.ToHtml() == "<body><p><span style=\"font-family:'Arial';font-size:14px;\"></span></p></body>") << document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 0)) << document.GetEditorState().ToString();
+
+    document.Redo();
+    document.WaitRedo();
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mo>[</mo>" \
+                    "</mrow>"\
+                "</math>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 1})) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.InsertCloseSquareBracket(true));
+    std::this_thread::sleep_for(100ms);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mo>[</mo>" \
+                        "<mo>]</mo>" \
+                    "</mrow>"\
+                "</math>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 2})) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    std::this_thread::sleep_for(100ms);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mo>[</mo>" \
+                    "</mrow>"\
+                "</math>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 1})) << document.GetEditorState().ToString();
+
+    document.Redo();
+    document.WaitRedo();
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mo>[</mo>" \
+                        "<mo>]</mo>" \
+                    "</mrow>"\
+                "</math>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 2})) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    document.Undo();
+    document.WaitUndo();
+    std::this_thread::sleep_for(100ms);
+    ASSERT_TRUE(document.ToHtml() == "<body><p><span style=\"font-family:'Arial';font-size:14px;\"></span></p></body>") << document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 0)) << document.GetEditorState().ToString();
+}
+
+//Inserting open and close square brackets
+TEST_F(FormulaTest, brackets16)
+{
+    Start(600);
+
+    document.WaitTask(document.InsertSquareBrackets(true));
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mo>[</mo>"\
+                        "<mo>]</mo>"\
+                    "</mrow>"\
+                "</math>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 1})) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    ASSERT_TRUE(document.ToHtml() == "<body><p><span style=\"font-family:'Arial';font-size:14px;\"></span></p></body>") << document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 0)) << document.GetEditorState().ToString();
+
+    document.Redo();
+    document.WaitRedo();
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mo>[</mo>"\
+                        "<mo>]</mo>"\
+                    "</mrow>"\
+                "</math>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 2})) << document.GetEditorState().ToString();
 }
 
 }

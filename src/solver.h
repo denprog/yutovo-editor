@@ -30,6 +30,8 @@ public:
         const std::u32string& expression, const uint delay);
     void Solve(const LogicalId& id, const std::string& task_guid, const uint code_id, Config::ComplexResultConfig& config, 
         const std::u32string& expression, const uint delay);
+    void Solve(const LogicalId& id, const std::string& task_guid, const uint code_id, Config::ArrayRealResultConfig& config, 
+        const std::u32string& expression, const uint delay);
 
     void BreakSolving(const LogicalId& id, const uint code_id);
 

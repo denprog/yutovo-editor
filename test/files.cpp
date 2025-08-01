@@ -855,6 +855,7 @@ TEST_F(DocumentTest, files20)
     {
         document.Redo();
         document.WaitRedo();
+        std::this_thread::sleep_for(200ms);
         ASSERT_TRUE(document.IsChanged() == true);
     }
 
@@ -1004,6 +1005,47 @@ TEST_F(TwoDocumentsTest, files23)
     StringFormat format;
     document2.GetStringFormat(ElementId{0, 0, 0}, format);
     ASSERT_TRUE(format.family == "Arial");
+}
+
+//Save file with square brackets
+TEST_F(DocumentTest, files24)
+{
+    Start(600);
+
+    EXPECT_CALL(window_mock, OnSaveResult).WillOnce([&](const uint task_id, IOResult result, const int document_id)
+        {
+            ASSERT_TRUE(result == IOResult::Success);
+        });
+
+    EXPECT_CALL(window_mock, Translate).WillRepeatedly([&](ElementId id, const std::u32string& str)
+        {
+            return str;
+        });
+
+    document.InsertCode(false, true);
+    document.InsertOpenSquareBracket(true);
+    document.WaitTask(document.InsertCloseSquareBracket(true));
+    document.WaitTask(document.Save("files24.yut"));
+    std::this_thread::sleep_for(200ms);
+
+    document.WaitTask(document.New());
+    ASSERT_TRUE(document.IsChanged() == false);
+
+    document.Load("files24.yut");
+    document.WaitLoad();
+    std::this_thread::sleep_for(400ms);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mo>[</mo>"\
+                        "<mo>]</mo>"\
+                    "</mrow>"\
+                "</math>"\
+            "</p>"\
+        "</body>") 
+        << document.ToHtml();
 }
 
 //Check include file
@@ -1321,9 +1363,9 @@ TEST_F(IncludeDocumentsTest, include_files5)
 
     document.InsertCode(false, true);
     document.InsertString("func", true);
-    document.InsertOpenFence(true);
+    document.InsertOpenRoundBracket(true);
     document.InsertString("x", true);
-    document.InsertCloseFence(true);
+    document.InsertCloseRoundBracket(true);
     document.InsertAssignment(true);
     document.WaitTask(document.InsertString("x", true));
     document.WaitSolver();
@@ -1337,9 +1379,9 @@ TEST_F(IncludeDocumentsTest, include_files5)
     std::this_thread::sleep_for(2s);
     document.WaitTask(document.InsertCode(false, true));
     document.InsertString("func", true);
-    document.InsertOpenFence(true);
+    document.InsertOpenRoundBracket(true);
     document.InsertString("5", true);
-    document.InsertCloseFence(true);
+    document.InsertCloseRoundBracket(true);
     document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
     document.WaitSolver();
     std::this_thread::sleep_for(2s);
@@ -1459,9 +1501,9 @@ TEST_F(IncludeDocumentsTest, include_files7)
 
     document.InsertCode(false, true);
     document.InsertString("func", true);
-    document.InsertOpenFence(true);
+    document.InsertOpenRoundBracket(true);
     document.InsertString("x", true);
-    document.InsertCloseFence(true);
+    document.InsertCloseRoundBracket(true);
     document.InsertAssignment(true);
     document.WaitTask(document.InsertString("x", true));
     document.WaitSolver();
@@ -1504,9 +1546,9 @@ TEST_F(IncludeDocumentsTest, include_files7)
     document2.WaitTask(document2.InsertParagraph(true));
 
     document2.InsertString("func", true);
-    document2.InsertOpenFence(true);
+    document2.InsertOpenRoundBracket(true);
     document2.InsertString("var2", true);
-    document2.InsertCloseFence(true);
+    document2.InsertCloseRoundBracket(true);
     document2.WaitTask(document2.InsertEquation(ResultType::RATIONAL, true));
     document2.WaitSolver();
     std::this_thread::sleep_for(2s);

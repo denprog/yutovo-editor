@@ -2220,9 +2220,9 @@ TEST_F(DocumentTest, clipboard41)
     
     document.InsertCode(false, true);
     document.InsertString("arcsin", true);
-    document.InsertOpenFence(true);
+    document.InsertOpenRoundBracket(true);
     document.InsertString("1", true);
-    document.InsertCloseFence(true);
+    document.InsertCloseRoundBracket(true);
     document.WaitTask(document.InsertEquation(ResultType::REAL, true));
     document.WaitSolver();
     ASSERT_TRUE(document.ToText() == 

@@ -2081,6 +2081,7 @@ bool ResultTask::Execute()
     case ElementType::INTEGER_RESULT:
     case ElementType::RATIONAL_RESULT:
     case ElementType::COMPLEX_RESULT:
+    case ElementType::ARRAY_REAL_RESULT:
     {
         ResultRow* r = dynamic_cast<ResultRow*>(el.get());
         if (!r)

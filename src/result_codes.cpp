@@ -12,13 +12,13 @@ std::string Result::ToString()
     {
         if (i++ > 0)
             r += ",";
-        r += v["mantissa"] + "E" + v["exponent"];
+        r += v.value["mantissa"] + "E" + v.value["exponent"] + ",";
+        r += "angle_measure:" + AngleMeasureToString(v.angle_measure) + ",";
+        r += "notation:" + NotationToString(v.notation) + ",";
+        if (!v.unit.IsEmpty())
+            r += "unit:" + ToBasicString(v.unit.ToString()) + ",";
     }
     r += "},";
-    r += "angle_measure:" + AngleMeasureToString(angle_measure) + ",";
-    r += "notation:" + NotationToString(notation) + ",";
-    if (!unit.IsEmpty())
-        r += "unit:" + ToBasicString(unit.ToString()) + ",";
     if (error.error_code != yutovo_solver::ErrorCode::OK)
         r += "error:" + ErrorCodeToString(error.error_code) + ",";
     if (error.parser_error_code != yutovo_calculator::ParserExceptionCode::None)

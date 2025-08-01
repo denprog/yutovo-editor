@@ -37,10 +37,13 @@ public:
 
     virtual void AddElement(ElementPtr element);
     
-    void PutUnit(const Result& result);
+    void PutUnit(const Value& value);
     void AddExponent(Element* parent, const std::string& exponent);
     void AddExponent(const std::string& exponent);
     void AddNumber(const std::string& number);
+    void AddOpenSquareBracket();
+    void AddCloseSquareBracket();
+    void AddComma();
 
     void AddResult();
 
@@ -166,6 +169,36 @@ public:
 
 public:
     Config::ComplexResultConfig config;
+    bool with_angle_measure = false;
+};
+
+typedef std::shared_ptr<ResultRow> ResultPtr;
+
+class ArrayRealResult : public ResultRow
+{
+public:
+    ArrayRealResult(Document* _document);
+    ArrayRealResult(Element* parent);
+    ArrayRealResult(Element* parent, Config::ArrayRealResultConfig _config);
+    ArrayRealResult(const ArrayRealResult& source) = default;
+
+    virtual Element* Clone();
+
+    virtual Element* Create(Element* _parent);
+
+    virtual void ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc);
+    static Element* FromJson(Element* parent, Document* document, const rapidjson::Value::ConstObject& value, rapidjson::Document::AllocatorType& alloc);
+
+    virtual void Solve(const ParserString& expression);
+
+    virtual void PutResult(Result& result);
+
+    bool SetConfig(const int precision, const int exp, const AngleMeasure default_angle_measure, const AngleMeasure result_angle_measure);
+    bool SetConfig(const yutovo_calculator::Unit& unit);
+
+public:
+    Config::ArrayRealResultConfig config;
+    std::vector<yutovo_calculator::Unit> cast_units;
     bool with_angle_measure = false;
 };
 

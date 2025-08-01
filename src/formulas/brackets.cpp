@@ -1,52 +1,58 @@
-#include "fences.h"
+#include "brackets.h"
 #include "../document.h"
 
 namespace yutovo
 {
 
-//OpenFence
+//OpenBracket
 
-const std::string OpenFence::family_name = "Arial";
+const std::string OpenBracket::family_name = "Arial";
 
-OpenFence::OpenFence(Element* _parent) : 
-    OnlyShapeFormula(_parent, '(')
+OpenBracket::OpenBracket(Element* _parent, ElementType _type) : 
+    OnlyShapeFormula(_parent, _type == ElementType::OPEN_ROUND_BRACKET ? '(' : '[')
 {
-    type = ElementType::OPEN_FENCE;
+    assert(_type == ElementType::OPEN_ROUND_BRACKET || _type == ElementType::OPEN_SQUARE_BRACKET);
+    type = _type;
     remake_always = true;
     formula_format = document->formula_formats->GetFormat("Formula");
 }
 
-OpenFence::OpenFence(Document* _document) :
-    OnlyShapeFormula(_document, '(')
+OpenBracket::OpenBracket(Document* _document, ElementType _type) :
+    OnlyShapeFormula(_document, _type == ElementType::OPEN_ROUND_BRACKET ? '(' : '[')
 {
-    type = ElementType::OPEN_FENCE;
+    assert(_type == ElementType::OPEN_ROUND_BRACKET || _type == ElementType::OPEN_SQUARE_BRACKET);
+    type = _type;
     remake_always = true;
     formula_format = document->formula_formats->GetFormat("Formula");
 }
 
-OpenFence::OpenFence(const OpenFence& source) :
+OpenBracket::OpenBracket(const OpenBracket& source) :
     OnlyShapeFormula(source)
 {
     remake_always = true;
 }
 
-Element* OpenFence::Clone()
+Element* OpenBracket::Clone()
 {
-    return new OpenFence(*this);
+    return new OpenBracket(*this);
 }
 
-Element* OpenFence::Create(Element* _parent)
+Element* OpenBracket::Create(Element* _parent)
 {
-    return new OpenFence(_parent);
+    return new OpenBracket(_parent, type);
 }
 
-Element* OpenFence::FromJson(Element* parent, Document* document, const rapidjson::Value::ConstObject& value, rapidjson::Document::AllocatorType& alloc)
+Element* OpenBracket::FromJson(Element* parent, Document* document, const rapidjson::Value::ConstObject& value, rapidjson::Document::AllocatorType& alloc)
 {
-    OpenFence* p = nullptr;
+    ElementType type = ElementType::OPEN_ROUND_BRACKET;
+    if (value.HasMember("type") && value["type"].IsInt())
+        type = (ElementType)value["type"].GetInt();
+
+    OpenBracket* p = nullptr;
     if (parent)
-        p = new OpenFence(parent);
+        p = new OpenBracket(parent, type);
     else
-        p = new OpenFence(document);
+        p = new OpenBracket(document, type);
     if (!p->SymbolFromJson(value, alloc))
     {
         delete p;
@@ -55,7 +61,7 @@ Element* OpenFence::FromJson(Element* parent, Document* document, const rapidjso
     return p;
 }
 
-void OpenFence::Draw() const
+void OpenBracket::Draw() const
 {
     shape->draw_func = 
         [&](const Rect& r)
@@ -77,7 +83,7 @@ void OpenFence::Draw() const
     Formula::Draw();
 }
 
-bool OpenFence::Remake(bool with_elements)
+bool OpenBracket::Remake(bool with_elements)
 {
     bool changed = OnlyShapeFormula::Remake(with_elements);
 
@@ -89,25 +95,32 @@ bool OpenFence::Remake(bool with_elements)
             baseline = s.height * 2 / 3;
             rect.SetRect(0, 0, s.width, s.height);
             shape->rect = rect;
-            format = document->string_formats->GetFormat(family_name, size, false, false, false, false, false, false, Color::Black(), Color::White(), Color::Blue());
+            format = document->string_formats->GetFormat(family_name, size, false, false, false, false, false, false, Color::Black(), 
+                Color::White(), Color::Blue());
         };
 
-    if (parent->elements->IsLast(id) || (parent->elements->Count() == 2 && parent->elements->Get(1)->type == ElementType::CLOSE_FENCE))
+    if (parent->elements->IsLast(id) || 
+        (type == ElementType::OPEN_ROUND_BRACKET && parent->elements->Count() == 2 && parent->elements->Get(0)->type == ElementType::CLOSE_ROUND_BRACKET) ||
+        (type == ElementType::OPEN_SQUARE_BRACKET && parent->elements->Count() == 2 && parent->elements->Get(0)->type == ElementType::CLOSE_SQUARE_BRACKET))
     {
         empty_brace();
         return changed;
     }
     
-    //set rect of the shape by the next elements until close fence
+    //set rect of the shape by the next elements until close bracket
     int pos = parent->elements->GetElementPos(id);
     int close_pos = -1;
     int open_count = 0;
     for (int i = pos + 1; i < parent->elements->Count(); ++i)
     {
         auto el = parent->elements->Get(i);
-        if (el->type == ElementType::OPEN_FENCE)
+        if ((type == ElementType::OPEN_ROUND_BRACKET && el->type == ElementType::OPEN_ROUND_BRACKET) || 
+            (type == ElementType::OPEN_SQUARE_BRACKET && el->type == ElementType::OPEN_SQUARE_BRACKET))
+        {
             ++open_count;
-        else if (el->type == ElementType::CLOSE_FENCE)
+        }
+        else if ((type == ElementType::OPEN_ROUND_BRACKET && el->type == ElementType::CLOSE_ROUND_BRACKET) || 
+            (type == ElementType::OPEN_SQUARE_BRACKET && el->type == ElementType::CLOSE_SQUARE_BRACKET))
         {
             if (open_count == 0)
             {
@@ -146,7 +159,8 @@ bool OpenFence::Remake(bool with_elements)
     {
         rect.SetRect(0, 0, s.width, s.height);
         shape->rect = rect;
-        format = document->string_formats->GetFormat(family_name, size, false, false, false, false, false, false, Color::Black(), Color::White(), Color::Blue());
+        format = document->string_formats->GetFormat(family_name, size, false, false, false, false, false, false, Color::Black(), 
+            Color::White(), Color::Blue());
     }
 
     if (rect != last_rect)
@@ -157,54 +171,60 @@ bool OpenFence::Remake(bool with_elements)
     return changed;
 }
 
-std::string OpenFence::ToHtml() const
+std::string OpenBracket::ToHtml() const
 {
     return "<mo>" + ToBasicString(ToText()) + "</mo>";
 }
 
-//CloseFence
+//CloseBracket
 
-const std::string CloseFence::family_name = "Arial";
+const std::string CloseBracket::family_name = "Arial";
 
-CloseFence::CloseFence(Element* _parent) : 
-    OnlyShapeFormula(_parent, ')')
+CloseBracket::CloseBracket(Element* _parent, ElementType _type) : 
+    OnlyShapeFormula(_parent, _type == ElementType::CLOSE_ROUND_BRACKET ? ')' : ']')
 {
-    type = ElementType::CLOSE_FENCE;
+    assert(_type == ElementType::CLOSE_ROUND_BRACKET || _type == ElementType::CLOSE_SQUARE_BRACKET);
+    type = _type;
     remake_always = true;
     formula_format = document->formula_formats->GetFormat("Formula");
 }
 
-CloseFence::CloseFence(Document* _document) :
-    OnlyShapeFormula(_document, ')')
+CloseBracket::CloseBracket(Document* _document, ElementType _type) :
+    OnlyShapeFormula(_document, _type == ElementType::CLOSE_ROUND_BRACKET ? ')' : ']')
 {
-    type = ElementType::CLOSE_FENCE;
+    assert(_type == ElementType::CLOSE_ROUND_BRACKET || _type == ElementType::CLOSE_SQUARE_BRACKET);
+    type = _type;
     remake_always = true;
     formula_format = document->formula_formats->GetFormat("Formula");
 }
 
-CloseFence::CloseFence(const CloseFence& source) :
+CloseBracket::CloseBracket(const CloseBracket& source) :
     OnlyShapeFormula(source)
 {
     remake_always = true;
 }
 
-Element* CloseFence::Clone()
+Element* CloseBracket::Clone()
 {
-    return new CloseFence(*this);
+    return new CloseBracket(*this);
 }
 
-Element* CloseFence::Create(Element* _parent)
+Element* CloseBracket::Create(Element* _parent)
 {
-    return new CloseFence(_parent);
+    return new CloseBracket(_parent, type);
 }
 
-Element* CloseFence::FromJson(Element* parent, Document* document, const rapidjson::Value::ConstObject& value, rapidjson::Document::AllocatorType& alloc)
+Element* CloseBracket::FromJson(Element* parent, Document* document, const rapidjson::Value::ConstObject& value, rapidjson::Document::AllocatorType& alloc)
 {
-    CloseFence* p = nullptr;
+    ElementType type = ElementType::CLOSE_ROUND_BRACKET;
+    if (value.HasMember("type") && value["type"].IsInt())
+        type = (ElementType)value["type"].GetInt();
+
+    CloseBracket* p = nullptr;
     if (parent)
-        p = new CloseFence(parent);
+        p = new CloseBracket(parent, type);
     else
-        p = new CloseFence(document);
+        p = new CloseBracket(document, type);
     if (!p->SymbolFromJson(value, alloc))
     {
         delete p;
@@ -213,7 +233,7 @@ Element* CloseFence::FromJson(Element* parent, Document* document, const rapidjs
     return p;
 }
 
-void CloseFence::Draw() const
+void CloseBracket::Draw() const
 {
     shape->draw_func = 
         [&](const Rect& r)
@@ -235,7 +255,7 @@ void CloseFence::Draw() const
     Formula::Draw();
 }
 
-bool CloseFence::Remake(bool with_elements)
+bool CloseBracket::Remake(bool with_elements)
 {
     bool changed = OnlyShapeFormula::Remake(with_elements);
 
@@ -247,25 +267,32 @@ bool CloseFence::Remake(bool with_elements)
             baseline = s.height * 2 / 3;
             rect.SetRect(0, 0, s.width, s.height);
             shape->rect = rect;
-            format = document->string_formats->GetFormat(family_name, size, false, false, false, false, false, false, Color::Black(), Color::White(), Color::Blue());
+            format = document->string_formats->GetFormat(family_name, size, false, false, false, false, false, false, Color::Black(), 
+                Color::White(), Color::Blue());
         };
 
-    if (parent->elements->IsFirst(id) || (parent->elements->Count() == 2 && parent->elements->Get(0)->type == ElementType::OPEN_FENCE))
+    if (parent->elements->IsFirst(id) || 
+        (type == ElementType::CLOSE_ROUND_BRACKET && parent->elements->Count() == 2 && parent->elements->Get(0)->type == ElementType::OPEN_ROUND_BRACKET) ||
+        (type == ElementType::CLOSE_SQUARE_BRACKET && parent->elements->Count() == 2 && parent->elements->Get(0)->type == ElementType::OPEN_SQUARE_BRACKET))
     {
         empty_brace();
         return changed;
     }
     
-    //set rect of the shape by the previous elements until corresponsing open fence
+    //set rect of the shape by the previous elements until corresponsing open bracket
     int pos = parent->elements->GetElementPos(id);
     int open_pos = -1;
     int close_count = 0;
     for (int i = pos - 1; i >= 0; --i)
     {
         auto el = parent->elements->Get(i);
-        if (el->type == ElementType::CLOSE_FENCE)
+        if ((type == ElementType::CLOSE_ROUND_BRACKET && el->type == ElementType::CLOSE_ROUND_BRACKET) || 
+            (type == ElementType::CLOSE_SQUARE_BRACKET && el->type == ElementType::CLOSE_SQUARE_BRACKET))
+        {
             ++close_count;
-        else if (el->type == ElementType::OPEN_FENCE)
+        }
+        else if ((type == ElementType::CLOSE_ROUND_BRACKET && el->type == ElementType::OPEN_ROUND_BRACKET) || 
+            (type == ElementType::CLOSE_SQUARE_BRACKET && el->type == ElementType::OPEN_SQUARE_BRACKET))
         {
             if (close_count == 0)
             {
@@ -298,7 +325,8 @@ bool CloseFence::Remake(bool with_elements)
     {
         rect.SetRect(0, 0, s.width, s.height);
         shape->rect = rect;
-        format = document->string_formats->GetFormat(family_name, size, false, false, false, false, false, false, Color::Black(), Color::White(), Color::Blue());
+        format = document->string_formats->GetFormat(family_name, size, false, false, false, false, false, false, Color::Black(), 
+            Color::White(), Color::Blue());
     }
 
     if (rect != last_rect)
@@ -309,7 +337,7 @@ bool CloseFence::Remake(bool with_elements)
     return changed;
 }
 
-std::string CloseFence::ToHtml() const
+std::string CloseBracket::ToHtml() const
 {
     return "<mo>" + ToBasicString(ToText()) + "</mo>";
 }

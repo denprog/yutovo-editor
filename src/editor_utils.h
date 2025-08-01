@@ -44,8 +44,8 @@ enum class ElementType
     SQUARE_ROOT,
     NTH_ROOT,
     EQUATION,
-    OPEN_FENCE,
-    CLOSE_FENCE,
+    OPEN_ROUND_BRACKET,
+    CLOSE_ROUND_BRACKET,
     REAL_RESULT,
     INTEGER_RESULT,
     RATIONAL_RESULT,
@@ -64,7 +64,10 @@ enum class ElementType
     PRODUCT,
     UNIT,
     COMMA,
-    LINK
+    LINK,
+    OPEN_SQUARE_BRACKET,
+    CLOSE_SQUARE_BRACKET,
+    ARRAY_REAL_RESULT
 };
 
 enum IdentifierType

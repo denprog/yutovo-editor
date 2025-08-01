@@ -859,17 +859,17 @@ TEST_F(FormulaTest, power16)
         ElementSelectionState{ElementId{0, 0, 0, 0, 0, 0, 0, 2}, 0, 1})) << document.GetEditorState().ToString();
 }
 
-//Insert power after a closing fence
+//Insert power after a closing bracket
 TEST_F(FormulaTest, power17)
 {
     Start(600);
 
     document.InsertCode(false, true);
-    document.InsertOpenFence(true);
+    document.InsertOpenRoundBracket(true);
     document.InsertString("3", true);
     document.InsertPlus(true);
     document.InsertString("2", true);
-    document.InsertCloseFence(true);
+    document.InsertCloseRoundBracket(true);
     document.WaitTask(document.InsertPower(true));
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\

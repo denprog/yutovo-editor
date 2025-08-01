@@ -158,6 +158,17 @@ struct Config
 
     ComplexResultConfig complex_result;
 
+    struct ArrayRealResultConfig : RealResultConfig
+    {
+        bool operator==(const ArrayRealResultConfig& other) const
+        {
+            return precision == other.precision && exp == other.exp && default_angle_measure == other.default_angle_measure &&
+                result_angle_measure == other.result_angle_measure && show_angle_measure == other.show_angle_measure;
+        }
+    };
+
+    ArrayRealResultConfig array_real_result;
+
     struct AutoResultConfig
     {
         bool operator==(const AutoResultConfig& other) const
@@ -165,7 +176,8 @@ struct Config
             return result_auto_advance == other.result_auto_advance && 
                 std::equal(std::begin(results_order), std::end(results_order), std::begin(other.results_order)) && 
                 real_result == other.real_result && integer_result == other.integer_result && 
-                rational_result == other.rational_result && complex_result == other.complex_result;
+                rational_result == other.rational_result && complex_result == other.complex_result && 
+                array_real_result == other.array_real_result;
         }
 
         void ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc);
@@ -174,12 +186,14 @@ struct Config
         std::string ToString();
 
         bool result_auto_advance = true;
-        yutovo_solver::ResultType results_order[4] = {ResultType::REAL, ResultType::INTEGER, ResultType::RATIONAL, ResultType::COMPLEX};
+        yutovo_solver::ResultType results_order[5] = {ResultType::REAL, ResultType::INTEGER, ResultType::RATIONAL, ResultType::COMPLEX, 
+            ResultType::ARRAY_REAL};
 
         RealResultConfig real_result;
         IntegerResultConfig integer_result;
         RationalResultConfig rational_result;
         ComplexResultConfig complex_result;
+        ArrayRealResultConfig array_real_result;
     };
 
     AutoResultConfig auto_result;

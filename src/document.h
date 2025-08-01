@@ -63,8 +63,10 @@ public:
     uint InsertNthRoot(bool with_undo);
     uint InsertSquareRoot(bool with_undo);
     uint InsertEquation(yutovo_solver::ResultType result_type, bool with_undo);
-    uint InsertOpenFence(bool with_undo);
-    uint InsertCloseFence(bool with_undo);
+    uint InsertOpenRoundBracket(bool with_undo);
+    uint InsertCloseRoundBracket(bool with_undo);
+    uint InsertOpenSquareBracket(bool with_undo);
+    uint InsertCloseSquareBracket(bool with_undo);
     uint InsertAssignment(bool with_undo);
     uint InsertUnit(bool with_undo);
     uint InsertSubscript(bool with_undo);
@@ -79,7 +81,8 @@ public:
     uint InsertImage(const std::vector<unsigned char>& image, bool with_undo, bool pasting);
     uint InsertComma(bool with_undo);
 
-    uint InsertFences(bool with_undo);
+    uint InsertRoundBrackets(bool with_undo);
+    uint InsertSquareBrackets(bool with_undo);
     
     uint InsertFunction(const std::string& name, bool with_undo);
     uint InsertSubscriptFunction(const std::string& name, bool with_undo);
@@ -258,6 +261,8 @@ public:
     void Solve(const LogicalId& _id, const std::string& guid, uint code_id, Config::RationalResultConfig& config, const std::u32string& expression, 
         const uint delay);
     void Solve(const LogicalId& _id, const std::string& guid, uint code_id, Config::ComplexResultConfig& config, const std::u32string& expression, 
+        const uint delay);
+    void Solve(const LogicalId& _id, const std::string& guid, uint code_id, Config::ArrayRealResultConfig& config, const std::u32string& expression, 
         const uint delay);
     void BreakSolving(const LogicalId& _id, const std::string& guid, uint code_id);
 

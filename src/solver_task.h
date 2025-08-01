@@ -36,14 +36,15 @@ struct SolverTask
     void GetDependencies(const rapidjson::Document& json, Result& result);
 
     void FillId(rapidjson::Document& doc);
-    void FillUnit(rapidjson::Document& doc, Result& result);
-    void FillCastUnits(rapidjson::Document& doc, Result& result);
+    void FillUnit(const rapidjson::Value& doc, Result& result, Value& value);
+    void FillCastUnits(const rapidjson::Value& doc, Value& value);
     void FillError(rapidjson::Document& doc, Result& result);
 
     bool FillRealResult(rapidjson::Document& doc, Result& result);
     bool FillIntegerResult(rapidjson::Document& doc, Result& result);
     bool FillRationalResult(rapidjson::Document& doc, Result& result);
     bool FillComplexResult(rapidjson::Document& doc, Result& result);
+    bool FillArrayRealResult(rapidjson::Document& doc, Result& result);
 
     Document* document;
     LogicalId id;
@@ -105,6 +106,16 @@ struct ComplexSolverTask : SolverTask
     virtual bool Execute(WebSocketPtr socket, Result& result);
 
     Config::ComplexResultConfig config;
+};
+
+struct ArrayRealSolverTask : SolverTask
+{
+    ArrayRealSolverTask(const LogicalId& _id, Document* _document, const std::string& _solver_guid, const std::string& _task_guid, uint _code_id, 
+        ExpressionType _expression_type, Config::ArrayRealResultConfig _config, const std::u32string& _expression, const uint _delay, Logger* _logger);
+
+    virtual bool Execute(WebSocketPtr socket, Result& result);
+
+    Config::ArrayRealResultConfig config;
 };
 
 struct BreakSolverTask : SolverTask

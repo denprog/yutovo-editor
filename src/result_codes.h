@@ -60,7 +60,15 @@ struct Warning
 };
 
 typedef std::vector<std::string> Dependencies;
-typedef std::map<std::string, std::string> Value;
+
+struct Value
+{
+    std::map<std::string, std::string> value;
+    yutovo_calculator::Unit unit;
+    yutovo_calculator::AngleMeasure angle_measure = yutovo_calculator::AngleMeasure::None;
+    yutovo_calculator::Notation notation = yutovo_calculator::Notation::None;
+    std::vector<yutovo_calculator::Unit> cast_units;
+};
 
 struct Result
 {
@@ -68,10 +76,6 @@ struct Result
 
     yutovo_solver::ResultType type = yutovo_solver::ResultType::NONE;
     std::vector<Value> values;
-    yutovo_calculator::AngleMeasure angle_measure = yutovo_calculator::AngleMeasure::None;
-    yutovo_calculator::Notation notation = yutovo_calculator::Notation::None;
-    yutovo_calculator::Unit unit;
-    std::vector<yutovo_calculator::Unit> cast_units;
     Dependencies dependencies;
     Error error;
     std::vector<Warning> warnings;
