@@ -2143,12 +2143,12 @@ bool ResultTask::Execute()
 
     auto _el = document->FindParent(el->id, ElementType::EQUATION);
     if (_el)
-        Remake(_el->id, true);
+        Remake(_el->id, false);
     else
     {
         _el = document->FindParent(el->id, ElementType::ASSIGNMENT);
         if (_el)
-            Remake(_el->id, true);
+            Remake(_el->id, false);
     }
     return true;
 }
@@ -2176,7 +2176,7 @@ bool ResolveTask::Execute()
             if (!document->changed_elements.empty())
             {
                 for (auto ch : document->changed_elements)
-                    Remake(ch, true);
+                    Remake(ch, false);
                 document->changed_elements.clear();
             }
         }
@@ -2202,7 +2202,7 @@ bool ResolveTask::Execute()
                 if (!document->changed_elements.empty())
                 {
                     for (auto ch : document->changed_elements)
-                        Remake(ch, true);
+                        Remake(ch, false);
                     document->changed_elements.clear();
                 }
             }
@@ -2225,7 +2225,7 @@ bool ResolveTask::Execute()
             if (!document->changed_elements.empty())
             {
                 for (auto ch : document->changed_elements)
-                    Remake(ch, true);
+                    Remake(ch, false);
                 document->changed_elements.clear();
             }
         }
