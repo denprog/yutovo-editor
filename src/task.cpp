@@ -1891,6 +1891,8 @@ bool LoadTask::LoadJson(rapidjson::Document& doc)
         document->SetLocale(document->config.language, false);
     }
 
+    document->ResetStringFormats();
+
     if (doc.HasMember("string_formats") && doc["string_formats"].IsArray())
     {
         //load string formats
@@ -1912,6 +1914,11 @@ bool LoadTask::LoadJson(rapidjson::Document& doc)
         LOG_ERROR("File '{}' does not contain text", filename);
         return false;
     }
+
+    document->ResetCodeFormats();
+
+    document->SetCurrentParagraphFormat("Text body");
+    document->SetCurrentFormulaFormat("Code");
 
     return true;
 }

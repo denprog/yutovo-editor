@@ -149,6 +149,7 @@ public:
     uint SetCurrentParagraphFormat(const std::string& name);
 
     bool GetCurrentFormulaFormat(FormulaFormatPtr& format);
+    void SetCurrentFormulaFormat(const std::string& name);
 
     ElementType GetElementType(const ElementId id);
     bool IsEditable(const ElementId id);
@@ -232,6 +233,8 @@ public:
     StringFormatPtr GetStringFormat(const boost::uuids::uuid& id);
 
     void UpdateFormats();
+    void ResetStringFormats();
+    void ResetCodeFormats();
 
     uint SetFontFamily(const std::string& family);
     uint SetFontSize(const uint size);
