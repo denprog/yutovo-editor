@@ -5022,4 +5022,55 @@ TEST_F(DocumentTest, clipboard83)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 1, 0, 0, 2, 0, 0})) << document.GetEditorState().ToString();
 }
 
+//Paste from result after loading
+TEST_F(TwoDocumentsTest, clipboard84)
+{
+    Start(600);
+
+    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
+        {
+            return GetTextSizeMock(text, format);
+        });
+
+    EXPECT_CALL(window_mock, OnSaveResult).WillOnce([&](const uint task_id, IOResult result, const int document_id)
+        {
+            ASSERT_TRUE(result == IOResult::Success);
+        });
+
+    EXPECT_CALL(window_mock, OnPasteResult).WillRepeatedly([&](PasteResult result)
+        {
+            ASSERT_TRUE(result == PasteResult::Success);
+        });
+
+    document.InsertCode(false, true);
+    document.InsertString("123", true);
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(1s);
+    ASSERT_TRUE(document.ToText() == 
+        U"123=123."
+        ) << ToBasicString(document.ToText());
+    
+    document.WaitTask(document.Save("clipboard84.yut"));
+    std::this_thread::sleep_for(200ms);
+
+    document2.Load("clipboard84.yut");
+    document2.WaitLoad();
+    document2.WaitSolver();
+    std::this_thread::sleep_for(2s);
+    ASSERT_TRUE(document.IsChanged() == false);
+
+    document2.MoveCaretRight(false);
+    document2.WaitTask(document2.MoveCaretEnd(true));
+    document2.WaitTask(document2.Copy(clipboard_json, clipboard_text));
+    document2.WaitTask(document2.MoveCaretToDocumentEnd(false));
+    document2.WaitTask(document2.InsertParagraph(true));
+    std::this_thread::sleep_for(200ms);
+    document2.WaitTask(document2.Paste(clipboard_json));
+    ASSERT_TRUE(document2.ToText() == 
+        U"123=123.\n"\
+        U"123."
+        ) << ToBasicString(document2.ToText());
+}
+
 }

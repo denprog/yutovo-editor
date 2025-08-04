@@ -1541,6 +1541,12 @@ bool Document::GetCurrentFormulaFormat(FormulaFormatPtr& format)
     return false;
 }
 
+void Document::SetCurrentFormulaFormat(const std::string& name)
+{
+    std::lock_guard<std::recursive_mutex> lock(edit_mutex);
+    current_formula_format = formula_formats->GetFormat("Code");
+}
+
 void Document::UpdateFormats()
 {
     std::lock_guard<std::recursive_mutex> lock(edit_mutex);
@@ -1560,6 +1566,21 @@ void Document::UpdateFormats()
     ParagraphFormat p;
     if (GetParagraphFormat(c.id, p))
         current_paragraph_format = paragraph_formats->GetFormat(p.name);
+}
+
+void Document::ResetStringFormats()
+{
+    std::lock_guard<std::recursive_mutex> lock(edit_mutex);
+    string_formats.reset(new StringFormats());
+    paragraph_formats.reset(new ParagraphFormats(string_formats));
+}
+
+void Document::ResetCodeFormats()
+{
+    std::lock_guard<std::recursive_mutex> lock(edit_mutex);
+    code_formats.reset(new CodeFormats());
+    current_code_format = code_formats->GetFormat("Calculator", 5, 5, 5, 5, 2, 2, 2, 2, 2, Color::Blue());
+    formula_formats.reset(new FormulaFormats(string_formats));
 }
 
 uint Document::SetFontFamily(const std::string& family)
