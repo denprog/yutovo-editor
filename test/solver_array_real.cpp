@@ -286,4 +286,76 @@ TEST_F(SolverArrayRealTest, solver6)
         ) << ToBasicString(document.ToText());
 }
 
+//Set precision and exponential threshold
+TEST_F(SolverArrayRealTest, solver7)
+{
+    Start(600);
+
+    EXPECT_CALL(window_mock, Translate).WillRepeatedly([&](ElementId id, const std::u32string& str)
+        {
+            return str;
+        });
+
+    document.InsertCode(false, true);
+    document.InsertOpenSquareBracket(true);
+    document.InsertString("123.324324325", true);
+    document.InsertComma(true);
+    document.InsertString("34.45435345", true);
+    document.InsertCloseSquareBracket(true);
+    document.WaitTask(document.InsertEquation(ResultType::ARRAY_REAL, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(2s);
+    ASSERT_TRUE(document.ToText() == 
+        U"[123.324324325,34.45435345]=[123.324,34.454]"
+        ) << ToBasicString(document.ToText());
+
+    document.WaitTask(document.SetPrecision({0, 0, 0, 0, 0, 0, 0, 2, 0, 0}, 6, true));
+    document.WaitSolver();
+    ASSERT_TRUE(document.ToText() == 
+        U"[123.324324325,34.45435345]=[123.324324,34.454353]"
+        ) << ToBasicString(document.ToText());
+
+    document.WaitTask(document.SetExp({0, 0, 0, 0, 0, 0, 0, 2, 0, 0}, 1, true));
+    document.WaitSolver();
+    ASSERT_TRUE(document.ToText() == 
+        U"[123.324324325,34.45435345]=[1.233243*pow(10,2),3.445435*pow(10,1)]"
+        ) << ToBasicString(document.ToText());
+}
+
+//Set precision and exponential threshold
+TEST_F(SolverArrayRealTest, solver8)
+{
+    Start(600);
+
+    EXPECT_CALL(window_mock, Translate).WillRepeatedly([&](ElementId id, const std::u32string& str)
+        {
+            return str;
+        });
+
+    document.InsertCode(false, true);
+    document.InsertOpenSquareBracket(true);
+    document.InsertString("123.3245324325", true);
+    document.InsertComma(true);
+    document.InsertString("34.454535345", true);
+    document.InsertCloseSquareBracket(true);
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(2s);
+    ASSERT_TRUE(document.ToText() == 
+        U"[123.3245324325,34.454535345]=[123.325,34.455]"
+        ) << ToBasicString(document.ToText());
+
+    document.WaitTask(document.SetPrecision({0, 0, 0, 0, 0, 0, 0, 2, 0, 0}, 6, true));
+    document.WaitSolver();
+    ASSERT_TRUE(document.ToText() == 
+        U"[123.3245324325,34.454535345]=[123.324532,34.454535]"
+        ) << ToBasicString(document.ToText());
+
+    document.WaitTask(document.SetExp({0, 0, 0, 0, 0, 0, 0, 2, 0, 0}, 1, true));
+    document.WaitSolver();
+    ASSERT_TRUE(document.ToText() == 
+        U"[123.3245324325,34.454535345]=[1.233245*pow(10,2),3.445454*pow(10,1)]"
+        ) << ToBasicString(document.ToText());
+}
+
 }

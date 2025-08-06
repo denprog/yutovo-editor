@@ -437,6 +437,8 @@ std::string ResultTypeToString(const yutovo_solver::ResultType result_type)
         return "Rational";
 	case yutovo_solver::ResultType::COMPLEX:
         return "Complex";
+	case yutovo_solver::ResultType::ARRAY_REAL:
+        return "ArrayReal";
 	case yutovo_solver::ResultType::AUTO:
         return "Auto";
     }

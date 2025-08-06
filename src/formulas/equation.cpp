@@ -289,6 +289,14 @@ bool Equation::SetConfig(int precision, int exp, AngleMeasure default_angle_meas
         ComplexResult* r = (ComplexResult*)result.get();
         return r->SetConfig(precision, exp, default_angle_measure, result_angle_measure);
     }
+    case ElementType::ARRAY_REAL_RESULT:
+    {
+        caret->SetState(id, 1, true);
+        if (with_undo)
+            document->StoreUndo(id);
+        ArrayRealResult* r = (ArrayRealResult*)result.get();
+        return r->SetConfig(precision, exp, default_angle_measure, result_angle_measure);
+    }
     default:
         return false;
     }
