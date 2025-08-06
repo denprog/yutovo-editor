@@ -362,11 +362,28 @@ void Config::AutoResultConfig::FromJson(const rapidjson::Value::ConstObject& val
     if (value.HasMember("results_order") && value["results_order"].IsArray())
     {
         const auto& arr = value["results_order"].GetArray();
-        for (rapidjson::SizeType i = 0; i < arr.Size() && i < std::size(results_order); ++i)
+        //fill unique result types
+        rapidjson::SizeType i = 0;
+        for (; i < arr.Size() && i < std::size(results_order); ++i)
         {
             if (!arr[i].IsInt())
                 return;
-            results_order[i] = (yutovo_solver::ResultType)arr[i].GetInt();
+            yutovo_solver::ResultType r = (yutovo_solver::ResultType)arr[i].GetInt();
+            if (std::find(std::begin(results_order), std::end(results_order), r) == std::end(results_order))
+                results_order[i] = (yutovo_solver::ResultType)arr[i].GetInt();
+        }
+        for (; i < std::size(results_order); ++i)
+        {
+            if (std::find(std::begin(results_order), std::end(results_order), ResultType::REAL) == std::end(results_order))
+                results_order[i] = ResultType::REAL;
+            if (std::find(std::begin(results_order), std::end(results_order), ResultType::INTEGER) == std::end(results_order))
+                results_order[i] = ResultType::INTEGER;
+            if (std::find(std::begin(results_order), std::end(results_order), ResultType::RATIONAL) == std::end(results_order))
+                results_order[i] = ResultType::RATIONAL;
+            if (std::find(std::begin(results_order), std::end(results_order), ResultType::COMPLEX) == std::end(results_order))
+                results_order[i] = ResultType::COMPLEX;
+            if (std::find(std::begin(results_order), std::end(results_order), ResultType::ARRAY_REAL) == std::end(results_order))
+                results_order[i] = ResultType::ARRAY_REAL;
         }
     }
 
