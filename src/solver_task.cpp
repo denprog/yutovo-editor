@@ -413,7 +413,7 @@ bool SolverTask::FillArrayRealResult(rapidjson::Document& doc, Result& result)
         }
         Value value;
         value.value["mantissa"] = u["mantissa"].GetString();
-        if (doc.HasMember("exponent") && doc["exponent"].IsString())
+        if (u.HasMember("exponent") && u["exponent"].IsString())
             value.value["exponent"] = u["exponent"].GetString();
         if (u.HasMember("angle_measure") && u["angle_measure"].IsInt())
             value.angle_measure = (AngleMeasure)u["angle_measure"].GetInt();
