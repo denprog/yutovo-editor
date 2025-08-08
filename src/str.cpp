@@ -184,7 +184,21 @@ Element* String::FromJson(Element* parent, Document* document, const rapidjson::
         }
     }
 
-    return new String(parent, U"");
+    StringFormatPtr f;
+    if (parent)
+    {
+        f = parent->GetStringFormat();
+        if (f)
+            return new String(parent, U"", f);
+    }
+
+    if (document->GetCurrentStringFormat(f))
+    {
+        if (parent)
+            return new String(parent, U"", f);
+        return new String(document, U"", f);
+    }
+    return nullptr;
 }
 
 bool String::Remake(bool with_elements)

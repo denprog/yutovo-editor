@@ -127,11 +127,23 @@ Element* CodeString::FromJson(Element* parent, Document* document, const rapidjs
         }
     }
 
+    StringFormatPtr f;
     if (parent)
-        r = new CodeString(parent);
-    else
-        r = new CodeString(document);
-    r->can_merge = _can_merge;
+    {
+        f = parent->GetStringFormat();
+        if (f)
+            r = new CodeString(parent, U"", f);
+    }
+
+    if (!r && document->GetCurrentStringFormat(f))
+    {
+        if (parent)
+            r = new CodeString(parent, U"", f);
+        else
+            r = new CodeString(document, U"", f);
+    }
+    if (r)
+        r->can_merge = _can_merge;
     return r;
 }
 
