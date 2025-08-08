@@ -95,7 +95,7 @@ bool OpenBracket::Remake(bool with_elements)
             baseline = s.height * 2 / 3;
             rect.SetRect(0, 0, s.width, s.height);
             shape->rect = rect;
-            format = document->string_formats->GetFormat(family_name, size, false, false, false, false, false, false, Color::Black(), 
+            format = document->GetStringFormat(family_name, size, false, false, false, false, false, false, Color::Black(), 
                 Color::White(), Color::Blue());
         };
 
@@ -159,7 +159,7 @@ bool OpenBracket::Remake(bool with_elements)
     {
         rect.SetRect(0, 0, s.width, s.height);
         shape->rect = rect;
-        format = document->string_formats->GetFormat(family_name, size, false, false, false, false, false, false, Color::Black(), 
+        format = document->GetStringFormat(family_name, size, false, false, false, false, false, false, Color::Black(), 
             Color::White(), Color::Blue());
     }
 
@@ -267,7 +267,7 @@ bool CloseBracket::Remake(bool with_elements)
             baseline = s.height * 2 / 3;
             rect.SetRect(0, 0, s.width, s.height);
             shape->rect = rect;
-            format = document->string_formats->GetFormat(family_name, size, false, false, false, false, false, false, Color::Black(), 
+            format = document->GetStringFormat(family_name, size, false, false, false, false, false, false, Color::Black(), 
                 Color::White(), Color::Blue());
         };
 
@@ -325,7 +325,7 @@ bool CloseBracket::Remake(bool with_elements)
     {
         rect.SetRect(0, 0, s.width, s.height);
         shape->rect = rect;
-        format = document->string_formats->GetFormat(family_name, size, false, false, false, false, false, false, Color::Black(), 
+        format = document->GetStringFormat(family_name, size, false, false, false, false, false, false, Color::Black(), 
             Color::White(), Color::Blue());
     }
 

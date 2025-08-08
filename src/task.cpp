@@ -1487,7 +1487,7 @@ bool SaveTask::Execute()
 
         //add string formats
         rapidjson::Value string_formats(rapidjson::kArrayType);
-        document->string_formats->ToJson(string_formats, alloc);
+        document->SaveStringFormats(string_formats, alloc);
         json.AddMember("string_formats", string_formats, alloc);
 
         //add paragraph formats
@@ -1891,12 +1891,11 @@ bool LoadTask::LoadJson(rapidjson::Document& doc)
         document->SetLocale(document->config.language, false);
     }
 
-    document->ResetStringFormats();
-
     if (doc.HasMember("string_formats") && doc["string_formats"].IsArray())
     {
         //load string formats
-        document->string_formats->FromJson(((const rapidjson::Value&)doc["string_formats"]).GetArray(), alloc);
+        if (!document->LoadStringFormats(((const rapidjson::Value&)doc["string_formats"]).GetArray(), alloc))
+            return false;
     }
 
     if (doc.HasMember("paragraph_formats"))
@@ -1914,8 +1913,6 @@ bool LoadTask::LoadJson(rapidjson::Document& doc)
         LOG_ERROR("File '{}' does not contain text", filename);
         return false;
     }
-
-    document->ResetCodeFormats();
 
     document->SetCurrentParagraphFormat("Text body");
     document->SetCurrentFormulaFormat("Code");
@@ -2035,7 +2032,7 @@ bool CopyTask::Execute()
 
     //add string formats
     rapidjson::Value string_formats(rapidjson::kArrayType);
-    document->string_formats->ToJson(string_formats, alloc);
+    document->SaveStringFormats(string_formats, alloc, copy);
     json.AddMember("string_formats", string_formats, alloc);
 
     rapidjson::Value arr(rapidjson::kArrayType);

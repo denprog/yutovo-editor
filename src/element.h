@@ -238,6 +238,7 @@ protected:
     friend class UndoBase;
     friend class String;
     friend class Link;
+    friend class StringFormats;
     
     Element* parent = nullptr;
     CaretPtr caret;

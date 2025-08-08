@@ -5116,4 +5116,61 @@ TEST_F(TwoDocumentsTest, clipboard85)
         ) << ToBasicString(document2.ToText());
 }
 
+//Paste from another document, save and load
+TEST_F(TwoDocumentsTest, clipboard86)
+{
+    Start(600);
+
+    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
+        {
+            return GetTextSizeMock(text, format);
+        });
+
+    EXPECT_CALL(window_mock2, OnSaveResult).WillOnce([&](const uint task_id, IOResult result, const int document_id)
+        {
+            ASSERT_TRUE(result == IOResult::Success);
+        });
+
+    EXPECT_CALL(window_mock2, OnPasteResult).WillOnce([&](PasteResult result)
+        {
+            ASSERT_TRUE(result == PasteResult::Success);
+        });
+
+    document.InsertString("Bold string", true);
+    document.MoveCaretToDocumentBegin(false);
+    document.WaitTask(document.MoveCaretWordRight(true));
+    document.WaitTask(document.SetBold(true));
+    document.MoveCaretToDocumentBegin(false);
+    document.WaitTask(document.MoveCaretEnd(true));
+    document.WaitTask(document.Copy(clipboard_json, clipboard_text));
+
+    document2.InsertString("Italic string", true);
+    document2.MoveCaretToDocumentBegin(false);
+    document2.WaitTask(document2.MoveCaretWordRight(true));
+    document2.WaitTask(document2.SetItalic(true));
+    document2.WaitTask(document2.SetFontSize(24));
+    document2.MoveCaretToDocumentEnd(false);
+    document2.WaitTask(document2.InsertParagraph(true));
+    document2.WaitTask(document2.Paste(clipboard_json));
+
+    document2.WaitTask(document2.Save("clipboard86.yut"));
+    std::this_thread::sleep_for(200ms);
+
+    document2.Load("clipboard86.yut");
+    document2.WaitLoad();
+    ASSERT_TRUE(document2.IsChanged() == false);
+    ASSERT_TRUE(document2.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:24px;\"><em>Italic </em></span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">string</span>"\
+            "</p>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\"><strong>Bold </strong></span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">string</span>"\
+            "</p>"\
+        "</body>") << 
+        document2.ToHtml();
+}
+
 }

@@ -791,7 +791,8 @@ ParagraphFormatPtr Element::GetParagraphFormat()
 
 StringFormatPtr Element::GetStringFormat() const
 {
-    assert(parent); //anybody must return string format
+    if (!parent)
+        return nullptr;
     return parent->GetStringFormat();
 }
 

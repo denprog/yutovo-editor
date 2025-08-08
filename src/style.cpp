@@ -232,6 +232,23 @@ void StringFormats::ToJson(rapidjson::Value& value, rapidjson::Document::Allocat
         f->ToJson(value, alloc);
 }
 
+void StringFormats::ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc, const std::vector<ElementPtr>& elements)
+{
+    std::function<void(const std::vector<ElementPtr>&)> add_format = 
+        [&](const std::vector<ElementPtr>& elements)
+        {
+            for (auto& el : elements)
+            {
+                if (el->type == ElementType::STRING || el->type == ElementType::CODE_STRING)
+                    el->GetStringFormat()->ToJson(value, alloc);
+                else
+                    add_format(el->elements->elements);
+            }
+        };
+
+    add_format(elements);
+}
+
 bool StringFormats::FromJson(const rapidjson::Value::ConstArray& arr, rapidjson::Document::AllocatorType& alloc)
 {
     std::vector<StringFormatPtr> _string_formats;
@@ -251,7 +268,16 @@ bool StringFormats::FromJson(const rapidjson::Value::ConstArray& arr, rapidjson:
         if (it == _string_formats.end())
             _string_formats.push_back(s);
     }
-    string_formats = _string_formats;
+    for (auto& f : _string_formats)
+    {
+        auto it = std::find_if(string_formats.begin(), string_formats.end(), 
+            [f](auto& s)
+            {
+                return f->id == s->id;
+            });
+        if (it == string_formats.end())
+            string_formats.push_back(f);
+    }
     return true;
 }
 
@@ -306,7 +332,7 @@ bool ParagraphFormat::FromJson(Document* document, const rapidjson::Value::Const
     try
     {
         auto id = boost::lexical_cast<boost::uuids::uuid>(id_str);
-        default_string_format = document->string_formats->GetFormat(id);
+        default_string_format = document->GetStringFormat(id);
     }
     catch (std::bad_cast& ex)
     {
@@ -314,7 +340,7 @@ bool ParagraphFormat::FromJson(Document* document, const rapidjson::Value::Const
     }
 
     if (!default_string_format)
-        default_string_format = document->string_formats->GetFormat("Arial", 14, false, false, false, false, false, false, Color::Black(), 
+        default_string_format = document->GetStringFormat("Arial", 14, false, false, false, false, false, false, Color::Black(), 
             Color::White(), Color::Blue());
 
     if (!value.HasMember("name") || !value["name"].IsString())

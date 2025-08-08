@@ -13,7 +13,7 @@ Link::Link(Element* parent) :
     type = ElementType::LINK;
     if (document)
     {
-        format = document->string_formats->GetFormat(format->family, format->size, format->bold, format->italic, true, format->strikethrough, 
+        format = document->GetStringFormat(format->family, format->size, format->bold, format->italic, true, format->strikethrough, 
             format->subscript, format->superscript, document->config.link_color, format->text_bg_color, format->text_bg_selection_color);
     }
 }
@@ -23,7 +23,7 @@ Link::Link(Element* parent, const std::string _str, const std::string _url, bool
     url(ToUtfString(_url))
 {
     type = ElementType::LINK;
-    format = document->string_formats->GetFormat(format->family, format->size, format->bold, format->italic, true, format->strikethrough, 
+    format = document->GetStringFormat(format->family, format->size, format->bold, format->italic, true, format->strikethrough, 
         format->subscript, format->superscript, document->config.link_color, format->text_bg_color, format->text_bg_selection_color);
 }
 
@@ -32,7 +32,7 @@ Link::Link(Element* parent, const std::string _str, const std::string _url, cons
     url(ToUtfString(_url))
 {
     type = ElementType::LINK;
-    format = document->string_formats->GetFormat(format->family, format->size, format->bold, format->italic, true, format->strikethrough, 
+    format = document->GetStringFormat(format->family, format->size, format->bold, format->italic, true, format->strikethrough, 
         format->subscript, format->superscript, document->config.link_color, format->text_bg_color, format->text_bg_selection_color);
 }
 
@@ -41,7 +41,7 @@ Link::Link(Element* parent, const std::u32string _str, const std::u32string _url
     url(_url)
 {
     type = ElementType::LINK;
-    format = document->string_formats->GetFormat(format->family, format->size, format->bold, format->italic, true, format->strikethrough, 
+    format = document->GetStringFormat(format->family, format->size, format->bold, format->italic, true, format->strikethrough, 
         format->subscript, format->superscript, document->config.link_color, format->text_bg_color, format->text_bg_selection_color);
 }
 
@@ -50,7 +50,7 @@ Link::Link(Element* parent, const std::u32string _str, const std::u32string _url
     url(_url)
 {
     type = ElementType::LINK;
-    format = document->string_formats->GetFormat(format->family, format->size, format->bold, format->italic, true, format->strikethrough, 
+    format = document->GetStringFormat(format->family, format->size, format->bold, format->italic, true, format->strikethrough, 
         format->subscript, format->superscript, document->config.link_color, format->text_bg_color, format->text_bg_selection_color);
 }
 
@@ -58,7 +58,7 @@ Link::Link(Document* _document) :
     String(_document)
 {
     type = ElementType::LINK;
-    format = document->string_formats->GetFormat(format->family, format->size, format->bold, format->italic, true, format->strikethrough, 
+    format = document->GetStringFormat(format->family, format->size, format->bold, format->italic, true, format->strikethrough, 
         format->subscript, format->superscript, document->config.link_color, format->text_bg_color, format->text_bg_selection_color);
 }
 
@@ -67,7 +67,7 @@ Link::Link(Document* _document, const std::string _str, const std::string _url, 
     url(ToUtfString(_url))
 {
     type = ElementType::LINK;
-    format = document->string_formats->GetFormat(format->family, format->size, format->bold, format->italic, true, format->strikethrough, 
+    format = document->GetStringFormat(format->family, format->size, format->bold, format->italic, true, format->strikethrough, 
         format->subscript, format->superscript, document->config.link_color, format->text_bg_color, format->text_bg_selection_color);
 }
 
@@ -76,7 +76,7 @@ Link::Link(Document* _document, const std::u32string _str, const std::u32string 
     url(_url)
 {
     type = ElementType::LINK;
-    format = document->string_formats->GetFormat(format->family, format->size, format->bold, format->italic, true, format->strikethrough, 
+    format = document->GetStringFormat(format->family, format->size, format->bold, format->italic, true, format->strikethrough, 
         format->subscript, format->superscript, document->config.link_color, format->text_bg_color, format->text_bg_selection_color);
 }
 
@@ -163,7 +163,7 @@ StringFormatPtr Link::GetStringFormat() const
     auto f = parent->GetStringFormat();
     if (!f)
         return format;
-    return document->string_formats->GetFormat(format->family, format->size, format->bold, format->italic, f->underline, format->strikethrough, 
+    return document->GetStringFormat(format->family, format->size, format->bold, format->italic, f->underline, format->strikethrough, 
         format->subscript, format->superscript, f->text_color, format->text_bg_color, format->text_bg_selection_color);
 }
 
@@ -208,7 +208,7 @@ bool Link::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo, El
             if (link->ToText() == U"" || link->url.empty() || (link->ToText() == ToText() && url == link->url))
                 return false;
 
-            format = document->string_formats->GetFormat(format->family, format->size, format->bold, format->italic, format->underline, format->strikethrough, 
+            format = document->GetStringFormat(format->family, format->size, format->bold, format->italic, format->underline, format->strikethrough, 
                 format->subscript, format->superscript, document->config.link_color, format->text_bg_color, format->text_bg_selection_color);
 
             if (with_undo)
@@ -249,7 +249,7 @@ bool Link::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo, El
 void Link::Visit()
 {
     window->OnLinkClicked(id, url);
-    format = document->string_formats->GetFormat(format->family, format->size, format->bold, format->italic, format->underline, format->strikethrough, 
+    format = document->GetStringFormat(format->family, format->size, format->bold, format->italic, format->underline, format->strikethrough, 
         format->subscript, format->superscript, document->config.link_visited_color, format->text_bg_color, format->text_bg_selection_color);
     document->Redraw(id, false);
 }
