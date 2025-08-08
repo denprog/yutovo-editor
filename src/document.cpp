@@ -1568,21 +1568,6 @@ void Document::UpdateFormats()
         current_paragraph_format = paragraph_formats->GetFormat(p.name);
 }
 
-void Document::ResetStringFormats()
-{
-    std::lock_guard<std::recursive_mutex> lock(edit_mutex);
-    string_formats.reset(new StringFormats());
-    paragraph_formats.reset(new ParagraphFormats(string_formats));
-}
-
-void Document::ResetCodeFormats()
-{
-    std::lock_guard<std::recursive_mutex> lock(edit_mutex);
-    code_formats.reset(new CodeFormats());
-    current_code_format = code_formats->GetFormat("Calculator", 5, 5, 5, 5, 2, 2, 2, 2, 2, Color::Blue());
-    formula_formats.reset(new FormulaFormats(string_formats));
-}
-
 uint Document::SetFontFamily(const std::string& family)
 {
     LOG_TRACE("Set font family: {}", family);
@@ -2551,10 +2536,36 @@ StringFormatPtr Document::GetStringFormat(const std::string& family, uint size, 
     return string_formats->GetFormat(family, size, bold, italic, underline, strikethrough, subscript, superscript, text_color, text_bg_color, Color::Blue());
 }
 
+StringFormatPtr Document::GetStringFormat(const std::string& family, uint size, bool bold, bool italic, bool underline, bool strikethrough, 
+    bool subscript, bool superscript, Color text_color, Color text_bg_color, Color text_bg_selection_color)
+{
+    std::lock_guard<std::recursive_mutex> lock(edit_mutex);
+    return string_formats->GetFormat(family, size, bold, italic, underline, strikethrough, subscript, superscript, text_color, text_bg_color, 
+        text_bg_selection_color);
+}
+
 StringFormatPtr Document::GetStringFormat(const boost::uuids::uuid& id)
 {
     std::lock_guard<std::recursive_mutex> lock(edit_mutex);
     return string_formats->GetFormat(id);
+}
+
+void Document::SaveStringFormats(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc)
+{
+    std::lock_guard<std::recursive_mutex> lock(edit_mutex);
+    string_formats->ToJson(value, alloc);
+}
+
+void Document::SaveStringFormats(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc, const std::vector<ElementPtr>& elements)
+{
+    std::lock_guard<std::recursive_mutex> lock(edit_mutex);
+    string_formats->ToJson(value, alloc, elements);
+}
+
+bool Document::LoadStringFormats(const rapidjson::Value::ConstArray& value, rapidjson::Document::AllocatorType& alloc)
+{
+    std::lock_guard<std::recursive_mutex> lock(edit_mutex);
+    return string_formats->FromJson(value, alloc);
 }
 
 EditorState Document::GetEditorState()

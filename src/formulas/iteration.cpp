@@ -89,7 +89,7 @@ bool Iteration::Remake(bool with_elements)
     if (size != 0)
     {
         shape->rect.SetRect(0, 0, s.width, s.height);
-        format = document->string_formats->GetFormat(family_name, size, false, false, false, false, false, false, Color::Black(), Color::White(), Color::Blue());
+        format = document->GetStringFormat(family_name, size, false, false, false, false, false, false, Color::Black(), Color::White(), Color::Blue());
     }
 
     int max_width = std::max(upper->rect.width, std::max(shape->rect.width, lower->rect.width));

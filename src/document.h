@@ -230,11 +230,14 @@ public:
         bool subscript = false, bool superscript = false);
     StringFormatPtr GetStringFormat(const std::string& family, uint size, bool bold, bool italic, bool underline, bool strikethrough, 
         bool subscript, bool superscript, Color text_color, Color text_bg_color);
+    StringFormatPtr GetStringFormat(const std::string& family, uint size, bool bold, bool italic, bool underline, bool strikethrough, 
+        bool subscript, bool superscript, Color text_color, Color text_bg_color, Color text_bg_selection_color);
     StringFormatPtr GetStringFormat(const boost::uuids::uuid& id);
+    void SaveStringFormats(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc);
+    void SaveStringFormats(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc, const std::vector<ElementPtr>& elements);
+    bool LoadStringFormats(const rapidjson::Value::ConstArray& value, rapidjson::Document::AllocatorType& alloc);
 
     void UpdateFormats();
-    void ResetStringFormats();
-    void ResetCodeFormats();
 
     uint SetFontFamily(const std::string& family);
     uint SetFontSize(const uint size);
@@ -394,7 +397,6 @@ private:
 public:
     Window* window;
 
-    StringFormatsPtr string_formats;
     ParagraphFormatsPtr paragraph_formats;
     CodeFormatsPtr code_formats;
     FormulaFormatsPtr formula_formats;
@@ -402,6 +404,7 @@ public:
     PageFormatPtr current_page_format;
 
 private:
+    StringFormatsPtr string_formats;
     StringFormatPtr current_string_format;
     ParagraphFormatPtr current_paragraph_format;
     CodeFormatPtr current_code_format;

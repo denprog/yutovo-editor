@@ -10,6 +10,8 @@
 namespace yutovo
 {
 
+typedef std::shared_ptr<Element> ElementPtr;
+
 struct StringFormat
 {
     StringFormat() = default;
@@ -58,6 +60,7 @@ public:
     void AddFormats(const StringFormats& source);
 
     void ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc);
+    void ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc, const std::vector<ElementPtr>& elements);
     bool FromJson(const rapidjson::Value::ConstArray& value, rapidjson::Document::AllocatorType& alloc);
 
     void Clear()
