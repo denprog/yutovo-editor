@@ -757,6 +757,7 @@ TEST_F(CodeTest, code10)
 
     document.Undo();
     document.WaitUndo();
+    std::this_thread::sleep_for(200ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -773,6 +774,7 @@ TEST_F(CodeTest, code10)
 
     document.Redo();
     document.WaitRedo();
+    std::this_thread::sleep_for(200ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\

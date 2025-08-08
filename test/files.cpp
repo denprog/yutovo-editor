@@ -1559,7 +1559,7 @@ TEST_F(IncludeDocumentsTest, include_files7)
         ) << ToBasicString(document2.ToText());
 }
 
-//chain of 3 include files
+//Chain of 3 include files
 TEST_F(IncludeDocumentsTest, include_files8)
 {
     Start(600);
@@ -1662,7 +1662,7 @@ TEST_F(IncludeDocumentsTest, include_files8)
         ) << ToBasicString(document2.ToText());
 }
 
-//load include file from a directory
+//Load include file from a directory
 TEST_F(IncludeDocumentsTest, include_files9)
 {
     Start(600);
@@ -1791,6 +1791,160 @@ TEST_F(IncludeDocumentsTest, include_files10)
     ASSERT_TRUE(document2.IsChanged() == false);
     ASSERT_TRUE(document2.ToText() == 
         U"var1=5."
+        ) << ToBasicString(document2.ToText());
+}
+
+//Use a variable from an include file
+TEST_F(IncludeDocumentsTest, include_files11)
+{
+    Start(600);
+
+    EXPECT_CALL(window_mock, OnSaveResult).WillRepeatedly([&](const uint task_id, IOResult result, const int document_id)
+        {
+            ASSERT_TRUE(result == IOResult::Success);
+        });
+
+    EXPECT_CALL(window_mock2, OnLoadInclude).WillRepeatedly([&](const std::string& file_name, const int document_id)
+        {
+            document2.LoadInclude(file_name, &include_window1);
+            std::this_thread::sleep_for(400ms);
+        });
+
+    EXPECT_CALL(window_mock, Translate).WillRepeatedly([&](ElementId id, const std::u32string& str)
+        {
+            return str;
+        });
+
+    //include1.yut
+    document.InsertCode(false, true);
+    document.InsertString("var", true);
+    document.InsertAssignment(true);
+    document.WaitTask(document.InsertString("5", true));
+    document.WaitTask(document.InsertParagraph(true));
+    document.InsertString("S", true);
+    document.InsertAssignment(true);
+    document.WaitTask(document.InsertString("var", true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"var=5\n"\
+        U"S=var"
+        ) << ToBasicString(document.ToText());
+    document.WaitTask(document.Save("include1.yut"));
+    std::this_thread::sleep_for(200ms);
+
+    document2.WaitTask(document2.SetIncludeDocuments(std::vector{std::string("include1.yut")}));
+    std::this_thread::sleep_for(2s);
+    document2.WaitTask(document2.InsertParagraph(true)); //the next code block is "below" the code block from the include file
+    document2.InsertCode(false, true);
+    document2.InsertString("var", true);
+    document2.InsertAssignment(true);
+    document2.WaitTask(document2.InsertString("55", true));
+    document2.WaitTask(document2.InsertParagraph(true));
+    document2.InsertString("S", true);
+    document2.WaitTask(document2.InsertEquation(ResultType::AUTO, true));
+    document2.WaitSolver();
+    std::this_thread::sleep_for(2s);
+    ASSERT_TRUE(document2.ToText() == 
+        U"\n"\
+        U"var=55\n"\
+        U"S=55."
+        ) << ToBasicString(document2.ToText());
+
+    document2.MoveCaretUp(false);
+    document2.MoveCaretEnd(false);
+    document2.WaitTask(document2.MoveCaretLeft(false));
+    document2.WaitTask(document2.InsertString("7", true));
+    document2.WaitSolver();
+    std::this_thread::sleep_for(2s);
+    ASSERT_TRUE(document2.ToText() == 
+        U"\n"\
+        U"var=557\n"\
+        U"S=557."
+        ) << ToBasicString(document2.ToText());
+}
+
+//Use a function from an include file
+TEST_F(IncludeDocumentsTest, include_files12)
+{
+    Start(600);
+
+    EXPECT_CALL(window_mock, OnSaveResult).WillRepeatedly([&](const uint task_id, IOResult result, const int document_id)
+        {
+            ASSERT_TRUE(result == IOResult::Success);
+        });
+
+    EXPECT_CALL(window_mock2, OnLoadInclude).WillRepeatedly([&](const std::string& file_name, const int document_id)
+        {
+            document2.LoadInclude(file_name, &include_window1);
+            std::this_thread::sleep_for(400ms);
+        });
+
+    EXPECT_CALL(window_mock, Translate).WillRepeatedly([&](ElementId id, const std::u32string& str)
+        {
+            return str;
+        });
+
+    //include1.yut
+    document.InsertCode(false, true);
+    document.InsertString("func", true);
+    document.InsertOpenRoundBracket(true);
+    document.InsertString("x", true);
+    document.InsertCloseRoundBracket(true);
+    document.InsertAssignment(true);
+    document.WaitTask(document.InsertString("x", true));
+
+    document.WaitTask(document.InsertParagraph(true));
+    document.InsertString("var", true);
+    document.InsertAssignment(true);
+    document.WaitTask(document.InsertString("func", true));
+    document.InsertOpenRoundBracket(true);
+    document.InsertString("2", true);
+    document.WaitTask(document.InsertCloseRoundBracket(true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"func(x)=x\n"\
+        U"var=func(2)"
+        ) << ToBasicString(document.ToText());
+    document.WaitTask(document.Save("include1.yut"));
+    std::this_thread::sleep_for(200ms);
+
+    document2.WaitTask(document2.SetIncludeDocuments(std::vector{std::string("include1.yut")}));
+    std::this_thread::sleep_for(2s);
+
+    document2.WaitTask(document2.InsertParagraph(true)); //the next code block is "below" the code block from the include file
+    document2.InsertCode(false, true);
+    document2.InsertString("func", true);
+    document2.InsertOpenRoundBracket(true);
+    document2.InsertString("x", true);
+    document2.InsertCloseRoundBracket(true);
+    document2.InsertAssignment(true);
+    document2.InsertString("x", true);
+    document2.InsertMultiply(true);
+    document2.WaitTask(document2.InsertString("2", true));
+
+    document2.WaitTask(document2.InsertParagraph(true));
+    document2.InsertString("var", true);
+    document2.WaitTask(document2.InsertEquation(ResultType::AUTO, true));
+    document2.WaitSolver();
+    std::this_thread::sleep_for(2s);
+    ASSERT_TRUE(document2.ToText() == 
+        U"\n"\
+        U"func(x)=x*2\n"\
+        U"var=4."
+        ) << ToBasicString(document2.ToText());
+
+    document2.MoveCaretUp(false);
+    document2.MoveCaretEnd(false);
+    document2.WaitTask(document2.MoveCaretLeft(false));
+    document2.WaitTask(document2.InsertString("2", true));
+    document2.WaitSolver();
+    std::this_thread::sleep_for(2s);
+    ASSERT_TRUE(document2.ToText() == 
+        U"\n"\
+        U"func(x)=x*22\n"\
+        U"var=44."
         ) << ToBasicString(document2.ToText());
 }
 
