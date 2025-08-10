@@ -308,6 +308,7 @@ Element* CreateFromJson(Element* parent, Document* document, const rapidjson::Va
             {ElementType::RATIONAL_RESULT, &RationalResult::FromJson},
             {ElementType::COMPLEX_RESULT, &ComplexResult::FromJson},
             {ElementType::AUTO_RESULT, &AutoResult::FromJson},
+            {ElementType::ARRAY_REAL_RESULT, &ArrayRealResult::FromJson},
             {ElementType::ERROR_RESULT, &ErrorResult::FromJson},
             {ElementType::ASSIGNMENT, &Assignment::FromJson},
             {ElementType::SUBSCRIPT, &Subscript::FromJson},
