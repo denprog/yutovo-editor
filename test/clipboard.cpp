@@ -5173,4 +5173,94 @@ TEST_F(TwoDocumentsTest, clipboard86)
         document2.ToHtml();
 }
 
+//Paste from an exponent
+TEST_F(DocumentTest, clipboard87)
+{
+    Start(600);
+
+    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
+        {
+            return GetTextSizeMock(text, format);
+        });
+
+    EXPECT_CALL(window_mock, OnPasteResult).WillOnce([&](PasteResult result)
+        {
+            ASSERT_TRUE(result == PasteResult::Success);
+        });
+
+    document.InsertCode(false, true);
+    document.InsertString("2", true);
+    document.InsertPower(true);
+    document.WaitTask(document.InsertString("multi string", true));
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<msup>"\
+                            "<mrow>"\
+                                "<mi>2</mi>"\
+                            "</mrow>"\
+                            "<mrow>"\
+                                "<mi>multi</mi>"\
+                                "<mi>string</mi>"\
+                            "</mrow>"\
+                        "</msup>"\
+                    "</mrow>"\
+                "</math>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    document.WaitTask(document.MoveCaretHome(true));
+    document.InsertDivision(true);
+    document.InsertString("3", true);
+    document.MoveCaretRight(false);
+    document.MoveCaretRight(false);
+    document.InsertPlus(true);
+    document.InsertString("4", true);
+    document.WaitTask(document.InsertPower(true));
+
+    for (int i = 0; i < 9; ++i)
+        document.WaitTask(document.MoveCaretLeft(false));
+    document.WaitTask(document.DeleteElements(false, true));
+    document.WaitTask(document.DeleteElements(false, true));
+
+    document.WaitTask(document.MoveCaretHome(true));
+    document.WaitTask(document.Copy(clipboard_json, clipboard_text));
+
+    document.MoveCaretEnd(false);
+    document.MoveCaretEnd(false);
+    document.WaitTask(document.MoveCaretLeft(false));
+    document.WaitTask(document.Paste(clipboard_json));
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<msup>"\
+                            "<mrow>"\
+                                "<mi>2</mi>"\
+                            "</mrow>"\
+                            "<mrow>"\
+                                "<mi>multi</mi>"\
+                                "<mi>string</mi>"\
+                            "</mrow>"\
+                        "</msup>"\
+                        "<mo>+</mo>"\
+                        "<msup>"\
+                            "<mrow>"\
+                                "<mi>4</mi>"\
+                            "</mrow>"\
+                            "<mrow>"\
+                                "<mi>multi</mi>"\
+                                "<mi>string</mi>"\
+                            "</mrow>"\
+                        "</msup>"\
+                    "</mrow>"\
+                "</math>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+}
+
 }

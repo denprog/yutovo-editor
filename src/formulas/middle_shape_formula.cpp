@@ -116,6 +116,21 @@ bool MiddleShapeFormula::DeleteElements(bool left, bool with_undo, ElementId& ch
 
     auto t = parent->elements->Get(p + c1 + c2); //for not removing this element until this function ends
     parent->elements->Remove(id);
+
+    //move inner code rows here
+    for (int i = 0; i < parent->elements->Count();)
+    {
+        auto el = (*parent->elements)[i];
+        if (el->type != ElementType::CODE_ROW || el->elements->Count() == 0)
+        {
+            ++i;
+            continue;
+        }
+        for (int j = 0, k = 0; j < el->elements->Count();)
+            parent->elements->Move(el->elements->Get(0), i + 1 + k++);
+        parent->elements->RemoveAt(i, 1);
+    }
+    
     parent->Normalize();
     changed_element = parent->id;
     return true;
