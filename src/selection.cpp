@@ -775,10 +775,18 @@ LogicalSelectionState Selection::GetLogicalState() const
                 for (int j = 0; j < row->elements->Count(); ++j)
                 {
                     auto _el = row->elements->Get(j);
-                    LogicalId start = document->GetLogicalId(_el->id, 0);
-                    LogicalId end = document->GetLogicalId(_el->id, _el->elements->Count() - 1);
-                    state.state.push_back(ElementLogicalSelectionState{_el->logical_id, (uint)GetChildPos(start), 
-                        uint(GetChildPos(end) - GetChildPos(start)) + 1});
+                    if (_el->elements->Count() > 0)
+                    {
+                        LogicalId start = document->GetLogicalId(_el->id, 0);
+                        LogicalId end = document->GetLogicalId(_el->id, _el->elements->Count() - 1);
+                        state.state.push_back(ElementLogicalSelectionState{_el->logical_id, (uint)GetChildPos(start), 
+                            uint(GetChildPos(end) - GetChildPos(start)) + 1});
+                    }
+                    else
+                    {
+                        state.state.push_back(ElementLogicalSelectionState{yutovo::GetParent(_el->logical_id), 
+                            (uint)yutovo::GetChildPos(_el->logical_id), 1});
+                    }
                 }
             }
         }

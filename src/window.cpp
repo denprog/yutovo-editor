@@ -68,7 +68,7 @@ void Window::OnFormatChanged(const EditorState editor_state)
 {
 }
 
-void Window::OnIdentifierChanged(const ElementId id)
+void Window::OnIdentifierChanged(const LogicalId id)
 {
 }
 

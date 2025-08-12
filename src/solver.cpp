@@ -446,11 +446,7 @@ void Solver::MessageLoop(WebSocketPtr socket_, std::deque<SolverTaskPtr>& tasks_
             }
 
             if (t->expression_type == ExpressionType::USER_SYMBOL)
-            {
-                auto el = document->GetLogicalElement(t->id);
-                if (el)
-                    document->window->OnIdentifierChanged(el->id);
-            }
+                document->window->OnIdentifierChanged(t->id);
 
             if (!result.values.empty() || (result.values.empty() && result.type == yutovo_solver::ResultType::ARRAY_REAL) || 
                 result.error.error_code != yutovo_solver::ErrorCode::OK)
