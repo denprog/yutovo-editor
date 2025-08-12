@@ -455,6 +455,8 @@ bool String::DeleteElements(bool left, bool with_undo, ElementId& changed_elemen
             pos = caret_pos;
         }
         caret->SetPos(pos, true);
+        if (elements->Count() == 0)
+            can_merge = true;
     }
 
     CaretState before_state = caret->GetCaretState();

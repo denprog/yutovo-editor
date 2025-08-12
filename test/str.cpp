@@ -3618,6 +3618,72 @@ TEST_F(DocumentTest, delete13)
         ElementSelectionState{ElementId{0, 0, 0, 0}, 0, 5})) << document.GetEditorState().ToString();
 }
 
+//Delete strings in a code block divided with a space
+TEST_F(DocumentTest, delete14)
+{
+    Start(400);
+
+    document.WaitTask(document.InsertCode(false, true));
+    document.InsertParagraph(true);
+    document.InsertString("Initial amount", true);
+    document.InsertMultiply(true);
+    document.WaitTask(document.InsertString("234", true));
+    document.WaitTask(document.MoveCaretHome(false));
+
+    for (int i = 0; i < 13; ++i)
+        document.WaitTask(document.DeleteElements(false, true));
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mi>Null</mi>"\
+                    "</mrow>"\
+                "</math>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mo>×</mo>"\
+                        "<mi>234</mi>"\
+                    "</mrow>"\
+                "</math>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+}
+
+//Delete strings in a code block
+TEST_F(DocumentTest, delete15)
+{
+    Start(400);
+
+    document.WaitTask(document.InsertCode(false, true));
+    document.InsertParagraph(true);
+    document.InsertString("Initial", true);
+    document.InsertMultiply(true);
+    document.WaitTask(document.InsertString("234", true));
+    document.WaitTask(document.MoveCaretHome(false));
+
+    for (int i = 0; i < 7; ++i)
+        document.WaitTask(document.DeleteElements(false, true));
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mi>Null</mi>"\
+                    "</mrow>"\
+                "</math>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mo>×</mo>"\
+                        "<mi>234</mi>"\
+                    "</mrow>"\
+                "</math>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+}
+
 //Restrict Undo
 TEST_F(DocumentTest, undo1)
 {
