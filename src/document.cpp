@@ -1089,13 +1089,15 @@ void Document::GetElements(const LogicalId& _id, std::vector<ElementPtr>& elemen
         }
         else
             el = el->elements->Get(_id[i]);
-        if (el->type == ElementType::PARAGRAPH)
+        if (el && el->type == ElementType::PARAGRAPH)
         {
             el = find_in_paragraph(el, i);
             ++i;
         }
     }
 
+    if (!el)
+        return;
     elements.push_back(el);
 
     int pos = GetChildPos(el->id);

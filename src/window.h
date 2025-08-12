@@ -72,7 +72,7 @@ public:
 
     virtual void OnFormatChanged(const EditorState editor_state);
 
-    virtual void OnIdentifierChanged(const ElementId id);
+    virtual void OnIdentifierChanged(const LogicalId id);
 
     virtual void OnLanguageChanged(const yutovo_calculator::Language language);
 

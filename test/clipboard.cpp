@@ -5263,4 +5263,94 @@ TEST_F(DocumentTest, clipboard87)
         document.ToHtml();
 }
 
+//Paste an image before a code block with variables
+TEST_F(DocumentTest, clipboard88)
+{
+    Start(600);
+
+    EXPECT_CALL(window_mock, OnLoadResult).WillOnce([&](const uint task_id, IOResult result, const int document_id)
+        {
+            ASSERT_TRUE(result == IOResult::Success);
+        });
+
+    document.Load("../../test/tests/crash_1.yut");
+    document.WaitLoad();
+    std::this_thread::sleep_for(2s);
+
+    document.WaitTask(document.MoveCaretToDocumentBegin(false));
+    document.WaitTask(document.InsertParagraph(true));
+
+    QImage test_image("../../test/tests/crash_1.png");
+    std::vector<unsigned char> data;
+    GetImageData(test_image, data);
+
+    document.InsertImage(data, true, true);
+    document.MoveCaretLeft(true);
+    document.WaitTask(document.Copy(clipboard_json, clipboard_text));
+
+    document.WaitTask(document.DeleteElements(false, true));
+
+    document.WaitTask(document.Paste(clipboard_json));
+    ASSERT_TRUE(document.ToHtml().find("data:image/png;base64") != std::string::npos) << document.ToHtml();
+
+    for (int i = 0; i < 10; ++i)
+    {
+        document.Undo();
+        document.WaitUndo();
+        std::this_thread::sleep_for(200ms);
+        document.WaitTask(document.Paste(clipboard_json));
+        ASSERT_TRUE(document.ToHtml().find("data:image/png;base64") != std::string::npos) << document.ToHtml();
+    }
+}
+
+//Paste an image before a code block with variables
+TEST_F(DocumentTest, clipboard89)
+{
+    Start(600);
+
+    EXPECT_CALL(window_mock, OnLoadResult).WillOnce([&](const uint task_id, IOResult result, const int document_id)
+        {
+            ASSERT_TRUE(result == IOResult::Success);
+        });
+
+    document.Load("../../test/tests/crash_1.yut");
+    document.WaitLoad();
+    std::this_thread::sleep_for(2s);
+
+    document.WaitTask(document.MoveCaretToDocumentBegin(false));
+    document.WaitTask(document.InsertParagraph(true));
+
+    QImage test_image("../../test/tests/crash_1.png");
+    std::vector<unsigned char> data;
+    GetImageData(test_image, data);
+
+    document.WaitTask(document.MoveCaretToDocumentBegin(false));
+    document.WaitTask(document.InsertImage(data, true, true));
+    document.WaitTask(document.MoveCaretLeft(true));
+    document.WaitTask(document.Copy(clipboard_json, clipboard_text));
+
+    document.WaitTask(document.DeleteElements(false, true));
+
+    document.WaitTask(document.Paste(clipboard_json));
+    ASSERT_TRUE(document.ToHtml().find("data:image/png;base64") != std::string::npos) << document.ToHtml();
+
+    for (int i = 0; i < 10; ++i)
+    {
+        document.Undo();
+        document.WaitUndo();
+        document.WaitTask(document.Paste(clipboard_json));
+        ASSERT_TRUE(document.ToHtml().find("data:image/png;base64") != std::string::npos) << document.ToHtml();
+    }
+
+    for (int i = 0; i < 10; ++i)
+    {
+        document.Undo();
+        document.WaitUndo();
+        std::this_thread::sleep_for(200ms);
+        document.WaitTask(document.Paste(clipboard_json));
+        ASSERT_TRUE(document.ToHtml().find("data:image/png;base64") != std::string::npos) << document.ToHtml();
+        std::this_thread::sleep_for(500ms);
+    }
+}
+
 }
