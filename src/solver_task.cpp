@@ -1359,7 +1359,10 @@ ResolveFinishedSolverTask::ResolveFinishedSolverTask(Document* _document, Logger
 bool ResolveFinishedSolverTask::Execute(WebSocketPtr socket, Result& result)
 {
     if (document->parent)
+    {
+        document->parent->PauseSolver(false);
         document->parent->ReSolve(ElementId{0});
+    }
     return true;
 }
 

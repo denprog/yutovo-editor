@@ -207,7 +207,7 @@ public:
     uint New();
     uint Save(const std::string& filename);
     uint SaveJson(std::string& json, const int document_id, const bool gzip);
-    uint Load(const std::string& filename, bool include = false);
+    uint Load(const std::string& filename);
     uint LoadInclude(const std::string& filename, Window* _window);
     uint LoadJson(const std::string& json_doc, const int document_id);
     uint LoadJsonInclude(const std::string& json_doc, const int document_id, Window* _window);
@@ -318,6 +318,7 @@ public:
     uint SetLocale(const yutovo_calculator::Language language, bool with_undo);
     void ListIdentifiers(const uint code_id);
     void ResolveFinished();
+    void PauseSolver(bool pause);
 
     void UpdateSolveId(const std::string& guid, const LogicalId& new_id);
 

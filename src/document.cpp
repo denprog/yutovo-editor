@@ -2225,11 +2225,11 @@ uint Document::SaveJson(std::string& json, const int document_id, const bool gzi
     return last_task_id;
 }
 
-uint Document::Load(const std::string& filename, bool include)
+uint Document::Load(const std::string& filename)
 {
     {
         std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
-        tasks.emplace_back(new LoadTask(text, filename, include));
+        tasks.emplace_back(new LoadTask(text, filename));
         last_load_task_id = tasks.back()->id;
     }
     next_circle = true;
@@ -2304,10 +2304,12 @@ uint Document::LoadInclude(const std::string& filename, Window* _window)
         }
     }
 
+    solver.PauseSolver(true);
+
     include_documents.emplace_back(new Document(this, _window, config));
     auto p = include_documents[include_documents.size() - 1].get();
     p->Start();
-    p->Load(_filename, true);
+    p->Load(_filename);
     return 0;
 }
 
@@ -3022,6 +3024,11 @@ void Document::ListIdentifiers(const uint code_id)
 void Document::ResolveFinished()
 {
     solver.ResolveFinished();
+}
+
+void Document::PauseSolver(bool pause)
+{
+    solver.PauseSolver(pause);
 }
 
 void Document::UpdateSolveId(const std::string& guid, const LogicalId& new_id)
