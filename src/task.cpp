@@ -1477,6 +1477,8 @@ bool SaveTask::Execute()
         json.SetObject();
 
         //add guid
+        if (document->path != filename)
+            document->file_guid = boost::uuids::to_string(boost::uuids::random_generator()());
         rapidjson::Value d(document->file_guid.c_str(), alloc);
         json.AddMember("file_guid", d, alloc);
 
