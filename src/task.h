@@ -260,7 +260,7 @@ struct SaveTask : Task
 
 struct LoadTask : Task
 {
-    LoadTask(ElementPtr _text, const std::string _filename, const bool _include = false);
+    LoadTask(ElementPtr _text, const std::string _filename);
     LoadTask(ElementPtr _text, const std::string& _json_str, const int _document_id);
 
     virtual bool Execute();
@@ -270,7 +270,6 @@ struct LoadTask : Task
     std::string filename;
     std::string json_str;
     const int document_id = 0;
-    const bool include = false;
 };
 
 struct CopyTask : Task

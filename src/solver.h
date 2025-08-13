@@ -44,6 +44,8 @@ public:
     void ListIdentifiers(uint code_id);
     void ResolveFinished();
 
+    void PauseSolver(bool pause);
+
     void RemoveSolver(const uint code_id);
 
 private:
@@ -80,6 +82,7 @@ private:
 
     std::mutex tasks_mutex;
     std::atomic_bool next_circle, break_next_circle;
+    std::atomic_bool pause_solver{false};
 
     std::thread message_loop;
     std::thread break_loop;

@@ -1610,10 +1610,9 @@ bool SaveTask::Execute()
 
 //LoadTask
 
-LoadTask::LoadTask(ElementPtr _text, const std::string _filename, const bool _include) :
+LoadTask::LoadTask(ElementPtr _text, const std::string _filename) :
     Task(_text),
-    filename(_filename),
-    include(_include)
+    filename(_filename)
 {
 }
 
