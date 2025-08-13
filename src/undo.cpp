@@ -450,7 +450,7 @@ bool UndoCodeBlock::operator==(const CodeBlock& el) const
 
 Element* UndoCodeBlock::Restore(Document* document, Element* parent)
 {
-    CodeBlock* c = parent ? new CodeBlock(parent, code_id) : new CodeBlock(document, code_id);
+    CodeBlock* c = parent ? new CodeBlock(parent, code_id, true, false) : new CodeBlock(document, code_id, true, false);
     c->code_format = code_format;
     c->paragraph_format = paragraph_format;
     c->formula_format = formula_format;

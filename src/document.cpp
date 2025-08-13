@@ -459,7 +459,7 @@ uint Document::InsertCode(bool next_code_id, bool with_undo)
     LOG_TRACE("Insert code: {}", next_code_id);
     if (next_code_id)
         ++cur_code_id;
-    return InsertFormula(new CodeBlock(this, cur_code_id), with_undo);
+    return InsertFormula(new CodeBlock(this, cur_code_id, true, true), with_undo);
 }
 
 uint Document::InsertCodeString(const std::string& str, bool with_undo)
