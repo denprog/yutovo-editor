@@ -578,7 +578,7 @@ bool InsertFormulasTask::Execute()
                 return false;
             }
             
-            ElementPtr code(new CodeBlock(row.get(), document->cur_code_id));
+            ElementPtr code(new CodeBlock(row.get(), document->cur_code_id, true, false));
             std::vector v{code};
             if (!row->InsertElements(v, with_undo, changed_element))
             {

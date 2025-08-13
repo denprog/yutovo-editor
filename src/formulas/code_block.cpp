@@ -23,7 +23,7 @@ CodeBlock::CodeBlock(Document* _document, uint _code_id, bool add_empty, bool li
         document->ListIdentifiers(code_id);
 }
 
-CodeBlock::CodeBlock(Element* parent, uint _code_id, bool add_empty) :
+CodeBlock::CodeBlock(Element* parent, uint _code_id, bool add_empty, bool list_identifiers) :
     Block(parent),
     code_id(_code_id)
 {
@@ -35,7 +35,8 @@ CodeBlock::CodeBlock(Element* parent, uint _code_id, bool add_empty) :
         AddEmptyElement(); //code block has to have at least one code paragraph
 
     document->SetLocale(document->config.language, false);
-    document->ListIdentifiers(code_id);
+    if (list_identifiers)
+        document->ListIdentifiers(code_id);
 }
 
 CodeBlock::CodeBlock(Document* _document, Element* parent, uint _code_id, bool add_empty) :
@@ -64,7 +65,7 @@ Element* CodeBlock::Clone()
 
 Element* CodeBlock::Create(Element* parent)
 {
-    return new CodeBlock(parent, parent->document->cur_code_id);
+    return new CodeBlock(parent, parent->document->cur_code_id, true, true);
 }
 
 bool CodeBlock::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo, ElementId& changed_element)
@@ -100,8 +101,8 @@ Element* CodeBlock::FromJson(Element* parent, Document* document, const rapidjso
         return nullptr;
     auto code_id = value["code_id"].GetInt();
     if (parent)
-        return new CodeBlock(parent, code_id, false);
-    return new CodeBlock(document, code_id, false);
+        return new CodeBlock(parent, code_id, false, false);
+    return new CodeBlock(document, code_id, false, false);
 }
 
 void CodeBlock::Draw() const
