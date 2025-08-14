@@ -939,6 +939,16 @@ bool Row::GetNearestCaretState(const int x, const int y, CaretState& caret_state
     for (int i = 0; i < elements->Count(); ++i)
     {
         auto _el = elements->Get(i);
+        if (_el->type == ElementType::CODE_BLOCK)
+        {
+            Rect r = _el->GetAbsoluteRect();
+            if (r.IsPointInside(x, y))
+            {
+                min_dist = 0;
+                el = _el;
+                break;
+            }
+        }
         if (!_el->GetFirstCaretState(next, nullptr) || !_el->GetLastCaretState(last, nullptr))
         {
             if (_el->HasCaretState())
