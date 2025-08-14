@@ -2704,4 +2704,19 @@ TEST_F(DocumentTest, caret86)
         ElementSelectionState{ElementId{0}, 0, 2})) << document.GetEditorState().ToString();
 }
 
+//Click inside a code block
+TEST_F(DocumentTest, caret87)
+{
+    Start(600);
+
+    document.Load("../../test/tests/caret_move_1.yut");
+    document.WaitLoad();
+    std::this_thread::sleep_for(2000ms);
+
+    Rect rect;
+    document.GetElementRect(ElementId{0, 1, 0, 0, 1, 0, 0, 2, 1}, rect);
+    document.WaitTask(document.MoveCaret(rect.left + rect.width / 2, rect.top + 5));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 1, 0, 0, 1, 0, 0, 2, 1, 0})) << document.GetEditorState().ToString();
+}
+
 }
