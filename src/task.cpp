@@ -1123,14 +1123,16 @@ bool UndoTask::Execute()
         if (undo_elements[0]->type == ElementType::PARAGRAPH)
         {
             if (delete_size > 0)
+            {
                 p->parent->elements->RemoveAt(pos, delete_size);
+                for (size_t i = 0; i < undo_elements.size(); ++i)
+                    p->parent->elements->Insert(undo_elements[i], GetChildPos(id) + i);
+            }
             else
             {
-                p->parent->elements->RemoveAt(GetChildPos(id), 
-                    p->parent->elements->Count() > undo_elements.size() ? undo_elements.size() : p->parent->elements->Count());
+                p->parent->elements->Replace(GetChildPos(id), 
+                    p->parent->elements->Count() > undo_elements.size() ? undo_elements.size() : p->parent->elements->Count(), undo_elements);
             }
-            for (size_t i = 0; i < undo_elements.size(); ++i)
-                p->parent->elements->Insert(undo_elements[i], GetChildPos(id) + i);
             remake_id = p->parent->id;
         }
         else

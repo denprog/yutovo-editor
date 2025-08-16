@@ -1768,11 +1768,8 @@ TEST_F(VariablesTest, variables31)
         ) << ToBasicString(document.ToText());
     
     document.MoveCaretUp(false);
-    //document.MoveCaretEnd(false);
-    //document.MoveCaretLeft(false);
     document.WaitTask(document.MoveCaretRight(false));
     document.WaitTask(document.MoveCaretRight(false));
-    //document.WaitTask(document.DeleteElements(true, true));
     document.InsertString("1", true);
     document.WaitTask(document.InsertString("2", true));
     document.WaitSolver();
@@ -1780,6 +1777,46 @@ TEST_F(VariablesTest, variables31)
     ASSERT_TRUE(document.ToText() == 
         U"d12=5\n" \
         U"d=Unknown identifier"
+        ) << ToBasicString(document.ToText());
+}
+
+//Code should not recalculate because of changing a string above its code block
+TEST_F(VariablesTest, variables32)
+{
+    Start(600);
+
+    document.InsertString("String", true);
+    document.WaitTask(document.InsertParagraph(true));
+    
+    document.InsertCode(false, true);
+    document.InsertString("d", true);
+    document.InsertAssignment(true);
+    document.WaitTask(document.InsertString("123", true));
+    document.WaitSolver();
+    document.WaitTask(document.InsertParagraph(true));
+
+    document.InsertString("d", true);
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(2s);
+    ASSERT_TRUE(document.ToText() == 
+        U"String\n"\
+        U"d=123\n"\
+        U"d=123."
+        ) << ToBasicString(document.ToText());
+
+    document.MoveCaretToDocumentBegin(false);
+    document.MoveCaretRight(true);
+    document.MoveCaretRight(true);
+    document.WaitTask(document.MoveCaretRight(true));
+    document.WaitTask(document.DeleteElements(false, true));
+    document.Undo();
+    document.WaitUndo();
+    std::this_thread::sleep_for(100ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"String\n"\
+        U"d=123\n"\
+        U"d=123."
         ) << ToBasicString(document.ToText());
 }
 

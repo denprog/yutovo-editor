@@ -209,6 +209,7 @@ public:
     virtual void Move(const ElementPtr element, const uint pos);
     virtual void Move(const Elements& _elements, const uint pos);
     virtual void Replace(ElementPtr element, const uint pos);
+    virtual void Replace(const uint pos, const int size, std::vector<ElementPtr>& _elements);
     virtual void ReplaceAll(const Elements& _elements);
     virtual void Clear();
 
