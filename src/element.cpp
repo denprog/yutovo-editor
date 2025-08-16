@@ -1324,6 +1324,95 @@ void Elements::Replace(ElementPtr element, const uint pos)
         parent->document->selection.Add(elements[pos]->id);
 }
 
+void Elements::Replace(const uint pos, const int size, std::vector<ElementPtr>& _elements)
+{
+    selection->Remove(parent->id, pos, size);
+    int cs_pos = -1;
+    if (!parent->id.empty())
+    {
+        for (int i = pos; i < pos + size; ++i)
+        {
+            if (caret->IsInsideElement(elements[i]->id) || caret->IsOnElement(elements[i]->id))
+                cs_pos = i;
+        }
+    }
+
+    for (int i = 0; i < size; ++i) //update selection positions before deleting elements
+        selection->RemoveElement(GetElementId(pos + i));
+    
+    for (uint i = pos; i < pos + size; ++i)
+        elements[i]->BeforeDelete();
+
+    for (int i = pos + size + 1; i < Count(); ++i) //elements after will be replaced
+        elements[i]->BeforeReplace();
+
+    elements.erase(elements.begin() + pos, elements.begin() + pos + size);
+
+    for (size_t i = 0; i < _elements.size(); ++i)
+    {
+        auto& el = _elements[i];
+        el->parent = parent;
+        el->document = parent->document;
+        el->window = parent->window;
+        elements.insert(elements.begin() + pos + i, el);
+    }
+
+    size_t i = 0;
+    for (; i < _elements.size(); ++i)
+    {
+        auto& el = elements[pos + i];
+        el->id = parent->id;
+        el->id.push_back(i + pos);
+        if (el->type != ElementType::ROW)
+        {
+            el->logical_id = parent->logical_id;
+            el->logical_id.push_back(i + pos);
+        }
+        el->elements->UpdateIds();
+    }
+    if (size != _elements.size())
+    {
+        for (; i < elements.size(); ++i)
+            elements[pos + i]->elements->UpdateIds();
+    }
+
+    selection->Optimize();
+
+    for (int i = pos + 1; i < Count(); ++i) //elements after were replaced
+        elements[i]->AfterReplace();
+
+    if (cs_pos != -1 && Count() > 0)
+    {
+        if (pos == Count() && elements[pos - 1]->HasLastCaretState())
+        {
+            caret->SetState(parent->id, pos);
+        }
+        else
+        {
+            ElementPtr el = Get(pos < Count() ? pos : pos - 1);
+            if (el->HasCaretState())
+            {
+                caret->SetState(el->id);
+            }
+            else
+            {
+                CaretState s;
+                if (pos < Count())
+                    el->GetFirstCaretState(s, nullptr);
+                else
+                    el->GetLastCaretState(s, nullptr);
+                caret->SetState(s);
+            }
+        }
+    }
+    else
+        caret->Update();
+
+#ifdef DEBUG
+    parent->to_str = parent->ToText();
+#endif
+}
+
 void Elements::ReplaceAll(const Elements& _elements)
 {
     Clear();
