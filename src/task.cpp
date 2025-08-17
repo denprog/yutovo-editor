@@ -170,6 +170,9 @@ bool InsertElementsTask::Execute()
     }
     assert(el != nullptr);
 
+    if (!el->editable)
+        return false;
+
     CaretState c;
     if (with_undo && !selection_state.IsEmpty())
     {
@@ -614,7 +617,7 @@ bool InsertFormulasTask::Execute()
             _el->parent = nullptr;
             std::vector<ElementPtr> t{_el};
             ElementId changed_element;
-            if (el->editable && !el->InsertElements(t, insert_code_block ? false : with_undo, changed_element))
+            if (!el->InsertElements(t, insert_code_block ? false : with_undo, changed_element))
             {
                 if (with_undo && last_undo_size < document->GetUndoSize())
                     document->Undo();
