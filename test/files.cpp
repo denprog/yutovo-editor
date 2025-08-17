@@ -1948,4 +1948,108 @@ TEST_F(IncludeDocumentsTest, include_files12)
         ) << ToBasicString(document2.ToText());
 }
 
+//Change include file to incorrect name
+TEST_F(IncludeDocumentsTest, include_files13)
+{
+    Start(600);
+
+    EXPECT_CALL(window_mock, OnSaveResult).WillRepeatedly([&](const uint task_id, IOResult result, const int document_id)
+        {
+            ASSERT_TRUE(result == IOResult::Success);
+        });
+
+    EXPECT_CALL(window_mock2, OnLoadInclude).WillRepeatedly([&](const std::string& file_name, const int document_id)
+        {
+            document2.LoadInclude(file_name, &include_window1);
+            std::this_thread::sleep_for(400ms);
+        });
+
+    EXPECT_CALL(window_mock2, Translate).WillRepeatedly([&](ElementId id, const std::u32string& str)
+        {
+            return str;
+        });
+
+    //include1.yut
+    document.InsertCode(false, true);
+    document.InsertString("v", true);
+    document.InsertAssignment(true);
+    document.WaitTask(document.InsertString("123", true));
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"v=123"
+        ) << ToBasicString(document.ToText());
+    document.WaitTask(document.Save("include1.yut"));
+    std::this_thread::sleep_for(200ms);
+
+    document2.WaitTask(document2.SetIncludeDocuments(std::vector{std::string("include1.yut")}));
+    std::this_thread::sleep_for(2s);
+    document2.InsertCode(false, true);
+    document2.InsertString("v", true);
+    document2.WaitTask(document2.InsertEquation(ResultType::AUTO, true));
+    document2.WaitSolver();
+    std::this_thread::sleep_for(2s);
+    ASSERT_TRUE(document2.ToText() == 
+        U"v=123."
+        ) << ToBasicString(document2.ToText());
+
+    document2.WaitTask(document2.SetIncludeDocuments(std::vector{std::string("include234.yut")}));
+    document2.WaitSolver();
+    std::this_thread::sleep_for(2s);
+    ASSERT_TRUE(document2.ToText() == 
+        U"v=Unknown identifier"
+        ) << ToBasicString(document2.ToText());
+}
+
+//Remove include file
+TEST_F(IncludeDocumentsTest, include_files14)
+{
+    Start(600);
+
+    EXPECT_CALL(window_mock, OnSaveResult).WillRepeatedly([&](const uint task_id, IOResult result, const int document_id)
+        {
+            ASSERT_TRUE(result == IOResult::Success);
+        });
+
+    EXPECT_CALL(window_mock2, OnLoadInclude).WillRepeatedly([&](const std::string& file_name, const int document_id)
+        {
+            document2.LoadInclude(file_name, &include_window1);
+            std::this_thread::sleep_for(400ms);
+        });
+
+    EXPECT_CALL(window_mock2, Translate).WillRepeatedly([&](ElementId id, const std::u32string& str)
+        {
+            return str;
+        });
+
+    //include1.yut
+    document.InsertCode(false, true);
+    document.InsertString("v", true);
+    document.InsertAssignment(true);
+    document.WaitTask(document.InsertString("123", true));
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"v=123"
+        ) << ToBasicString(document.ToText());
+    document.WaitTask(document.Save("include1.yut"));
+    std::this_thread::sleep_for(200ms);
+
+    document2.WaitTask(document2.SetIncludeDocuments(std::vector{std::string("include1.yut")}));
+    std::this_thread::sleep_for(2s);
+    document2.InsertCode(false, true);
+    document2.InsertString("v", true);
+    document2.WaitTask(document2.InsertEquation(ResultType::AUTO, true));
+    document2.WaitSolver();
+    std::this_thread::sleep_for(2s);
+    ASSERT_TRUE(document2.ToText() == 
+        U"v=123."
+        ) << ToBasicString(document2.ToText());
+
+    document2.WaitTask(document2.SetIncludeDocuments(std::vector<std::string>()));
+    document2.WaitSolver();
+    std::this_thread::sleep_for(2s);
+    ASSERT_TRUE(document2.ToText() == 
+        U"v=Unknown identifier"
+        ) << ToBasicString(document2.ToText());
+}
+
 }

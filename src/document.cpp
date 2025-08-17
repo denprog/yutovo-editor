@@ -2258,6 +2258,7 @@ uint Document::LoadInclude(const std::string& filename, Window* _window)
             if (!file.is_open())
             {
                 window->OnLoadResult(0, IOResult::InputStreamError, -1);
+                ReSolve(ElementId{0});
                 LOG_ERROR("Error loading include file '{}': File not open", filename);
                 return 0;
             }
@@ -2265,6 +2266,7 @@ uint Document::LoadInclude(const std::string& filename, Window* _window)
         catch (const std::filesystem::filesystem_error& ex)
         {
             window->OnLoadResult(0, IOResult::InputStreamError, -1);
+            ReSolve(ElementId{0});
             LOG_ERROR("Error loading include file '{}': File not open", filename);
             return 0;
         }
