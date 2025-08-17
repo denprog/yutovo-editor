@@ -2612,6 +2612,8 @@ bool SetConfigTask::Execute()
         document->ClearExport();
         for (Config::IncludeDocument& inc : config.include_documents.documents)
             window->OnLoadInclude(inc.file_name, -1);
+        if (config.include_documents.documents.empty())
+            document->ReSolve(ElementId{0});
     }
 
     document->config = config;
