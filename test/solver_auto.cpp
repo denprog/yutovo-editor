@@ -1706,6 +1706,33 @@ TEST_F(SolverAutoTest, solver39)
         ToBasicString(document.ToText());
 }
 
+//Check there is no redo at result
+TEST_F(SolverAutoTest, solver40)
+{
+    Start(600);
+    
+    document.InsertCode(false, true);
+    document.InsertString("234", true);
+    document.InsertPower(true);
+    document.InsertString("56", true);
+    document.WaitTask(document.MoveCaretRight(false));
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(1s);
+    ASSERT_TRUE(document.ToText() == 
+        U"pow(234,56)=4.743*pow(10,132)"
+        ) << ToBasicString(document.ToText());
+    
+    document.MoveCaretRight(false);
+    document.WaitTask(document.MoveCaretRight(false));
+    document.WaitTask(document.InsertString("4", true));
+    document.WaitTask(document.MoveCaretRight(false));
+    ASSERT_TRUE(!document.CanRedo());
+    document.WaitTask(document.InsertString("4", true));
+    ASSERT_TRUE(document.CanUndo());
+    ASSERT_TRUE(!document.CanRedo());
+}
+
 //Solve with errors
 TEST_F(SolverAutoTest, errors1)
 {

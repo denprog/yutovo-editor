@@ -3736,7 +3736,6 @@ TEST_F(DocumentTest, undo2)
     document.MoveCaretWordLeft(true);
     document.WaitTask(document.MoveCaretLeft(true));
     document.WaitTask(document.InsertString("t", true));
-    document.WaitUndo();
     std::this_thread::sleep_for(200ms);
     ASSERT_FALSE(document.CanRedo());
     ASSERT_TRUE(document.GetUndoSize() == 3);

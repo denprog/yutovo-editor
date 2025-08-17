@@ -3557,6 +3557,7 @@ TEST_F(ParagraphTest, delete17)
 
     document.Undo();
     document.WaitUndo();
+    std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToText() == U"In literary theory, a text is any object that can be read, whether this "\
         "object is a work of literature\nText") << ToBasicString(document.ToText());
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 1, 0, 0, 0}, 
