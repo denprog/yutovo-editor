@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.17)
 
-project(yutovo_editor
+project(yutovo-editor
     VERSION 0.1.0 
     LANGUAGES CXX
 )

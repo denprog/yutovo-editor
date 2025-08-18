@@ -5,10 +5,10 @@
 #include "result_codes.h"
 
 #ifndef REMOTE_SOLVER
-#include <yutovo_solver/service_config.h>
-#include <yutovo_solver/service_solver.h>
-#include <yutovo_solver/service_context.h>
-#include <yutovo_solver/session.h>
+#include <yutovo-solver/service_config.h>
+#include <yutovo-solver/service_solver.h>
+#include <yutovo-solver/service_context.h>
+#include <yutovo-solver/session.h>
 #endif
 
 #ifndef EMSCRIPTEN

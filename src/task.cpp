@@ -10,8 +10,8 @@
 #include "formulas/result.h"
 #include "formulas/equation.h"
 #include "formulas/assignment.h"
-#include <yutovo_logger/logger.h>
-#include <yutovo_calculator/utils.h>
+#include <yutovo-logger/logger.h>
+#include <yutovo-calculator/utils.h>
 #include "editor_utils.h"
 #include "result_codes.h"
 #include <assert.h>
@@ -25,7 +25,7 @@
 #include <vector>
 #include <filesystem>
 #include <boost/locale.hpp>
-#include <yutovo_solver/types.h>
+#include <yutovo-solver/types.h>
 #include <rapidjson/prettywriter.h>
 #include <rapidjson/istreamwrapper.h>
 #include <boost/uuid/uuid.hpp>
@@ -47,7 +47,7 @@ Task::Task(ElementPtr _text) :
     text(_text),
     document(text->document),
     window(document->window),
-    logger(Logger::GetInstance(document->config.logs_path + "/yutovo_editor", "yutovo_editor", document->config.log_console, document->config.log_file)),
+    logger(Logger::GetInstance(document->config.logs_path + "/yutovo-editor", "yutovo-editor", document->config.log_console, document->config.log_file)),
     id(next_id++)
 {
 }
@@ -56,7 +56,7 @@ Task::Task(ElementPtr _text, const uint _id) :
     text(_text),
     document(text->document),
     window(document->window),
-    logger(Logger::GetInstance(document->config.logs_path + "/yutovo_editor", "yutovo_editor", document->config.log_console, document->config.log_file)),
+    logger(Logger::GetInstance(document->config.logs_path + "/yutovo-editor", "yutovo-editor", document->config.log_console, document->config.log_file)),
     id(_id)
 {
 }

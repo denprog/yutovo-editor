@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include <yutovo_calculator/math_helper.h>
+#include <yutovo-calculator/math_helper.h>
 #include "mock.h"
 #include "style.h"
 

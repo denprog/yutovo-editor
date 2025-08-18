@@ -17,9 +17,9 @@ if(WIN32)
 endif()
 
 if(NOT DEFINED REMOTE_SOLVER)
-    find_package(yutovo_solver REQUIRED PATHS ${INSTALL_PATH}/lib/cmake)
-    find_package(yutovo_calculator REQUIRED PATHS ${INSTALL_PATH}/lib/cmake)
-    find_package(yutovo_logger REQUIRED PATHS ${INSTALL_PATH}/lib/cmake)
+    find_package(yutovo-solver REQUIRED PATHS ${INSTALL_PATH}/lib/cmake)
+    find_package(yutovo-calculator REQUIRED PATHS ${INSTALL_PATH}/lib/cmake)
+    find_package(yutovo-logger REQUIRED PATHS ${INSTALL_PATH}/lib/cmake)
 endif()
 
 set(Boost_USE_STATIC_LIBS ON)
@@ -196,19 +196,19 @@ elseif(DEFINED REMOTE_SOLVER)
 else()
     if(WIN32)
         target_link_libraries(${PROJECT_NAME} PRIVATE 
-            yutovo_solver
-            yutovo_logger
+            yutovo-solver
+            yutovo-logger
         )
         target_link_libraries(${PROJECT_NAME} PRIVATE Boost::iostreams)
         target_link_libraries(${PROJECT_NAME} PRIVATE BZip2::BZip2)
-        target_link_libraries(${PROJECT_NAME} PRIVATE yutovo_calculator)
+        target_link_libraries(${PROJECT_NAME} PRIVATE yutovo-calculator)
     else()
         target_link_libraries(${PROJECT_NAME} PRIVATE 
             stdc++
             pthread
-            yutovo_solver
-            yutovo_calculator
-            yutovo_logger
+            yutovo-solver
+            yutovo-calculator
+            yutovo-logger
         )
     endif()
 endif()

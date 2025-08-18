@@ -1,6 +1,6 @@
 #include "solver_task.h"
 #include "rapidjson/writer.h"
-#include <yutovo_logger/logger.h>
+#include <yutovo-logger/logger.h>
 #include "editor_utils.h"
 #include "document.h"
 
