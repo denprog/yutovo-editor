@@ -6,8 +6,8 @@
 #include <thread>
 #include <mutex>
 #include <condition_variable>
-#include <yutovo_solver/types.h>
-#include <yutovo_calculator/math_helper.h>
+#include <yutovo-solver/types.h>
+#include <yutovo-calculator/math_helper.h>
 
 namespace yutovo
 {

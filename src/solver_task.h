@@ -6,8 +6,8 @@
 #include <rapidjson/document.h>
 #include "web_socket.h"
 #include "result_codes.h"
-#include <yutovo_calculator/unit.h>
-#include <yutovo_calculator/math_helper.h>
+#include <yutovo-calculator/unit.h>
+#include <yutovo-calculator/math_helper.h>
 
 namespace yutovo
 {

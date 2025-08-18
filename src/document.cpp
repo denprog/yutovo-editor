@@ -61,7 +61,7 @@ Document::Document(Window* _window, Config& _config, const std::string _document
     solver(this),
     undo_base(this),
     last_selection(this),
-    logger(Logger::GetInstance(config.logs_path + "/yutovo_editor", "yutovo_editor", config.log_console, config.log_file))
+    logger(Logger::GetInstance(config.logs_path + "/yutovo-editor", "yutovo-editor", config.log_console, config.log_file))
 {
     logger->SetLevel((int)_config.log_level);
     LOG_DEBUG("Document start");

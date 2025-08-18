@@ -23,7 +23,7 @@ if(WIN32)
 	find_package(PkgConfig)
 	pkg_check_modules(mpfr REQUIRED IMPORTED_TARGET mpfr)
 	find_package(ZLIB REQUIRED)
-	find_package(yutovo_calculator REQUIRED PATHS ${INSTALL_PATH}/lib/cmake/)
+	find_package(yutovo-calculator REQUIRED PATHS ${INSTALL_PATH}/lib/cmake/)
 	find_package(Boost 1.81.0 REQUIRED PATHS ${INSTALL_PATH}/lib/cmake/)
 	find_package(RapidJSON CONFIG REQUIRED)
 	find_package(Boost REQUIRED COMPONENTS iostreams)
@@ -36,10 +36,10 @@ else()
 endif()
 
 find_package(Qt5 COMPONENTS Widgets REQUIRED)
-find_package(yutovo_logger REQUIRED PATHS ${INSTALL_PATH}/lib/cmake/)
+find_package(yutovo-logger REQUIRED PATHS ${INSTALL_PATH}/lib/cmake/)
 
 if(NOT DEFINED REMOTE_SOLVER)
-    find_package(yutovo_solver REQUIRED)
+    find_package(yutovo-solver REQUIRED)
 endif()
 
 find_package(ZLIB REQUIRED)
@@ -83,10 +83,10 @@ if(WIN32)
 	target_link_libraries(${PROJECT_NAME}_tests PUBLIC
 		${PROJECT_NAME}
 	    Qt5::Widgets
-		yutovo_solver
-	    yutovo_logger
+		yutovo-solver
+	    yutovo-logger
 	)
-	target_link_libraries(${PROJECT_NAME}_tests PRIVATE yutovo_calculator)
+	target_link_libraries(${PROJECT_NAME}_tests PRIVATE yutovo-calculator)
 	target_link_libraries(${PROJECT_NAME} PRIVATE Boost::iostreams)
 	target_link_libraries(${PROJECT_NAME}_tests PRIVATE GTest::gtest GTest::gtest_main GTest::gmock GTest::gmock_main)
     target_include_directories(${PROJECT_NAME}_tests PRIVATE
@@ -105,7 +105,7 @@ else()
 		dl
 		${PROJECT_NAME}
 	    Qt5::Widgets
-	    yutovo_logger
+	    yutovo-logger
 		libboost_iostreams.a
 		z
 	)

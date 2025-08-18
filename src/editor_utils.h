@@ -5,9 +5,9 @@
 #include <iostream>
 #include <iomanip>
 #include <boost/locale.hpp>
-#include <yutovo_calculator/parser_exception.h>
-#include <yutovo_calculator/math_helper.h>
-#include <yutovo_solver/types.h>
+#include <yutovo-calculator/parser_exception.h>
+#include <yutovo-calculator/math_helper.h>
+#include <yutovo-solver/types.h>
 #ifdef min
 #undef min
 #endif

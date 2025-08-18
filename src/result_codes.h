@@ -1,10 +1,10 @@
 #ifndef __RESULT_CODES_H__
 #define __RESULT_CODES_H__
 
-#include <yutovo_solver/types.h>
-#include <yutovo_calculator/parser_exception.h>
-#include <yutovo_calculator/unit.h>
-#include <yutovo_calculator/math_helper.h>
+#include <yutovo-solver/types.h>
+#include <yutovo-calculator/parser_exception.h>
+#include <yutovo-calculator/unit.h>
+#include <yutovo-calculator/math_helper.h>
 #include <map>
 #include <vector>
 #include "caret_state.h"

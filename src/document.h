@@ -17,9 +17,9 @@
 #include "editor_state.h"
 #include "config.h"
 #include "undo.h"
-#include <yutovo_logger/logger.h>
-#include <yutovo_solver/types.h>
-#include <yutovo_calculator/math_helper.h>
+#include <yutovo-logger/logger.h>
+#include <yutovo-solver/types.h>
+#include <yutovo-calculator/math_helper.h>
 
 namespace yutovo
 {

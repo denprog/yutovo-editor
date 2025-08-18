@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 #include "mock.h"
 #include "style.h"
-#include <yutovo_calculator/unit.h>
+#include <yutovo-calculator/unit.h>
 
 namespace yutovo_test
 {
