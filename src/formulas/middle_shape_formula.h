@@ -1,3 +1,10 @@
+/*
+ * Yutovo Editor
+ * Copyright (C) 2022-2025 Yutovo developers. All rights reserved.
+ * This file is a part of the Yutovo project
+ * SPDX-License-Identifier: GPL-3.0-only
+ */
+
 #ifndef __MIDDLE_SHAPE_FORMULA_H__
 #define __MIDDLE_SHAPE_FORMULA_H__
 
