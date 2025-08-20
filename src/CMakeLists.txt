@@ -222,10 +222,6 @@ target_include_directories(${PROJECT_NAME} PUBLIC
     $<INSTALL_INTERFACE:${INSTALL_PATH}/include>
 )
 
-target_include_directories(${PROJECT_NAME} PRIVATE
-    ${THIRD_PARTY_PATH}
-)
-
 if(EMSCRIPTEN)
     install(
         TARGETS ${PROJECT_NAME}

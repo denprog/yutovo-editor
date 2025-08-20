@@ -111,7 +111,6 @@ else()
 	)
     target_include_directories(${PROJECT_NAME}_tests PRIVATE
         ../src
-        ${THIRD_PARTY_PATH}
 	)
 endif()
 

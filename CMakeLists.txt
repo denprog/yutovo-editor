@@ -20,7 +20,6 @@ if(WIN32)
     set(PKG_CONFIG_PATH "c:/Lang/vcpkg/installed/x64-windows/lib/pkgconfig")
 else()
     set(INSTALL_PATH "$ENV{YUTOVO_DEPLOY}")
-    set(THIRD_PARTY_PATH "$ENV{YUTOVO_DEPLOY}/../third_party/")
 endif()
 
 # set(REMOTE_SOLVER true)
