@@ -29,7 +29,9 @@ endif()
 # set(REMOTE_SOLVER true)
 # add_compile_definitions(REMOTE_SOLVER)
 
+option(BUILD_TESTS "Build unit tests" ON)
+
 add_subdirectory(src)
-if ((NOT DEFINED EMSCRIPTEN) AND (NOT DEFINED no-test))
+if((NOT DEFINED EMSCRIPTEN) AND BUILD_TESTS)
     add_subdirectory(test)
 endif()
