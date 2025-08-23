@@ -156,7 +156,7 @@ public:
     int baseline = 0; //baseline for drawing
     uint8_t level = 1; //level of superscript or subscript
     
-    bool editable = true;
+    bool editable = true; //changing string or child elements array or splitting element, doesn't affect changing font
 
     bool can_merge = false;
 
