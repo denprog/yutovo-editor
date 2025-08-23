@@ -92,7 +92,8 @@ bool Iteration::Remake(bool with_elements)
     CodeRow* right = GetRight();
 
     Size s;
-    int size = window->GetSymbolSize(symbol, (int)lround(right->rect.height * 2), family_name, s, baseline);
+    int h = std::max(right->rect.height, std::max(right->baseline, right->rect.height - right->baseline));
+    int size = window->GetSymbolSize(symbol, (int)lround(h * 2), family_name, s, baseline);
     if (size != 0)
     {
         shape->rect.SetRect(0, 0, s.width, s.height);
