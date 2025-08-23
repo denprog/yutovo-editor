@@ -492,19 +492,16 @@ bool String::DeleteElements(bool left, bool with_undo, ElementId& changed_elemen
 
 bool String::ChangeStringFormat(const StringFormatPtr _format, bool with_undo, ElementId& changed_element)
 {
-    if (!editable)
-        return false;
-    
     size_cache.clear();
     uint start, size;
     if (selection->Has(id, start, size))
     {
         if (*format == *_format)
             return false;
-        if (with_undo)
-            document->StoreUndo(parent->parent->id);
         if (start == 0 && size == elements->Count())
         {
+            if (with_undo)
+                document->StoreUndo(parent->parent->id);
             //change format of the whole string
             format = _format;
             parent->Normalize();
@@ -515,6 +512,11 @@ bool String::ChangeStringFormat(const StringFormatPtr _format, bool with_undo, E
             return true;
         }
 
+        if (!editable)
+            return false;
+
+        if (with_undo)
+            document->StoreUndo(parent->parent->id);
         ElementPtr el = parent->elements->Get(id);
         if (SplitAt(start))
             el = parent->elements->Get(parent->elements->GetElementPos(id) + 1);
