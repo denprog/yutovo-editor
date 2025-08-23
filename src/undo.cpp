@@ -582,6 +582,46 @@ Element* UndoEquation::Restore(Document* document, Element* parent)
     return el;
 }
 
+//UndoResult
+
+UndoResult::UndoResult(ElementType _type) :
+    UndoElement(_type)
+{
+}
+
+Element* UndoResult::Restore(Document* document, Element* parent)
+{
+    ResultRow* el = nullptr;
+    assert(elements.size() == 1);
+    switch (type)
+    {
+    case ElementType::REAL_RESULT:
+        el = parent ? new RealResult(parent) : new RealResult(document);
+        break;
+    case ElementType::INTEGER_RESULT:
+        el = parent ? new IntegerResult(parent) : new IntegerResult(document);
+        break;
+    case ElementType::RATIONAL_RESULT:
+        el = parent ? new RationalResult(parent) : new RationalResult(document);
+        break;
+    case ElementType::COMPLEX_RESULT:
+        el = parent ? new ComplexResult(parent) : new ComplexResult(document);
+        break;
+    case ElementType::AUTO_RESULT:
+        el = parent ? new AutoResult(parent) : new AutoResult(document);
+        break;
+    case ElementType::ERROR_RESULT:
+        el = parent ? new ErrorResult(parent, Error{}) : new ErrorResult(document);
+        break;
+    default:
+        assert(false);
+    }
+
+    ElementPtr first(elements[0]->Restore(document, el));
+    el->elements->Add(first);
+    return el;
+}
+
 //ConfigElement
 
 ConfigElement::ConfigElement(const Config& _config) : 
@@ -875,6 +915,16 @@ UndoElementPtr UndoBase::StoreElement(const LogicalId id, ElementPtr el)
         if (!store_element(el->elements->Get(2), undo_element))
             return nullptr;
         if (!store_element(el->elements->Get(3), undo_element))
+            return nullptr;
+        break;
+    case ElementType::REAL_RESULT:
+    case ElementType::INTEGER_RESULT:
+    case ElementType::RATIONAL_RESULT:
+    case ElementType::COMPLEX_RESULT:
+    case ElementType::AUTO_RESULT:
+    case ElementType::ERROR_RESULT:
+        undo_element.reset(new UndoResult(el->type));
+        if (!store_element(el->elements->Get(0), undo_element))
             return nullptr;
         break;
     default:

@@ -169,6 +169,13 @@ struct UndoEquation : UndoFormula
     std::any config;
 };
 
+struct UndoResult : UndoElement
+{
+    UndoResult(ElementType _type);
+
+    virtual Element* Restore(Document* document, Element* parent);
+};
+
 class ConfigElement : public Element
 {
 public:
