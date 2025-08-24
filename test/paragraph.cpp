@@ -2390,8 +2390,8 @@ TEST_F(ParagraphTest, format6)
                 "<span style=\"font-family:'Arial';font-size:14px;text-decoration: underline;\"><strong>чисел[1][2].</strong></span>"\
             "</p>"\
             "<p>"\
-                "<span style=\"font-family:'Arial';font-size:14px;text-decoration: underline;\"><strong>Причиной возникновения арифметики стала </strong></span>"\
-                "<span style=\"font-family:'Arial';font-size:14px;text-decoration: underline;\"><strong>практическая потребность в счёте и </strong></span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;text-decoration: underline;\"><strong>Причиной возникновения арифметики </strong></span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;text-decoration: underline;\"><strong>стала практическая потребность в счёте и </strong></span>"\
                 "<span style=\"font-family:'Arial';font-size:14px;text-decoration: underline;\"><strong>вычислениях, связанных с задачами учёта </strong></span>"\
                 "<span style=\"font-family:'Arial';font-size:14px;\">при централизации сельского хозяйства.</span>"\
             "</p>"\
