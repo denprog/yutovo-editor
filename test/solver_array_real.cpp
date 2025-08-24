@@ -365,4 +365,49 @@ TEST_F(SolverArrayRealTest, solver8)
         ) << ToBasicString(document.ToText());
 }
 
+//Check correct error
+TEST_F(SolverArrayRealTest, errors1)
+{
+    Start(600);
+
+    EXPECT_CALL(window_mock, Translate).WillRepeatedly([&](ElementId id, const std::u32string& str)
+        {
+            return str;
+        });
+
+    document.InsertCode(false, true);
+    document.InsertString("d", true);
+    document.InsertAssignment(true);
+    document.InsertOpenSquareBracket(true);
+    document.InsertString("1", true);
+    document.InsertComma(true);
+    document.InsertString("2", true);
+    document.InsertComma(true);
+    document.InsertString("3", true);
+    document.InsertCloseSquareBracket(true);
+    document.InsertParagraph(true);
+
+    document.WaitTask(document.InsertSum(true));
+    document.InsertString("n", true);
+    document.MoveCaretRight(false);
+    document.MoveCaretRight(false);
+    document.InsertString("1", true);
+    document.MoveCaretRight(false);
+    document.MoveCaretRight(false);
+    document.InsertString("3", true);
+    document.MoveCaretRight(false);
+    document.InsertString("d", true);
+    document.InsertSubscript(true);
+    document.InsertString("n", true);
+    document.MoveCaretRight(false);
+    document.WaitTask(document.MoveCaretRight(false));
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(2s);
+    ASSERT_TRUE(document.ToText() == 
+        U"d=[1,2,3]\n"\
+        U"sum(n=1,3,d{n})=Argument is over"
+        ) << ToBasicString(document.ToText());
+}
+
 }
