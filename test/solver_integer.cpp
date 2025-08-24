@@ -776,7 +776,7 @@ TEST_F(SolverIntegerTest, notation6)
     document.WaitSolver();
     std::this_thread::sleep_for(1s);
     ASSERT_TRUE(document.ToText() == 
-        U"bin[123]=Syntax error"
+        U"bin[123]=Argument is over"
         ) << ToBasicString(document.ToText());
     ASSERT_TRUE(document.GetResultType({0, 0, 0, 0, 0, 0, 0, 2, 0}) == ResultType::AUTO);
 }
