@@ -1718,7 +1718,7 @@ TEST_F(VariablesTest, variables30)
 
     document.WaitTask(document.SetLocale(yutovo_calculator::Language::Russian, true));
     document.InsertCode(false, true);
-    document.InsertString("k", true);
+    document.InsertString("q", true);
     document.InsertSubscript(true);
     document.InsertString("e", true);
     document.MoveCaretRight(false);
@@ -1728,7 +1728,7 @@ TEST_F(VariablesTest, variables30)
     std::this_thread::sleep_for(600ms);
 
     document.InsertParagraph(true);
-    document.InsertString("k", true);
+    document.InsertString("q", true);
     document.InsertSubscript(true);
     document.InsertString("e", true);
     document.MoveCaretRight(false);
@@ -1736,8 +1736,8 @@ TEST_F(VariablesTest, variables30)
     document.WaitSolver();
     std::this_thread::sleep_for(2s);
     ASSERT_TRUE(document.ToText() == 
-        U"k{e}=1м\n"\
-        U"k{e}=1.м"
+        U"q{e}=1м\n"\
+        U"q{e}=1.м"
         ) << ToBasicString(document.ToText());
     
     document.MoveCaretUp(false);
@@ -1748,7 +1748,7 @@ TEST_F(VariablesTest, variables30)
     std::this_thread::sleep_for(2s);
     ASSERT_TRUE(document.ToText() == 
         U"{e}=1м\n"\
-        U"k{e}=Unknown identifier"
+        U"q{e}=Unknown identifier"
         ) << ToBasicString(document.ToText());
 }
 
