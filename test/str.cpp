@@ -1928,7 +1928,7 @@ TEST_F(DocumentTest, fonts16)
 //Set/unset font attributes
 TEST_F(DocumentTest, fonts17)
 {
-    Start(690);
+    Start(720);
 
     document.WaitTask(document.InsertString("Арифме́тика (др.-греч. ἀριθμητική, arithmētikḗ — от ἀριθμός, arithmós «число») — раздел математики,"\
         " изучающий числа, их отношения и свойства. Предметом арифметики является понятие числа (натуральные, целые, рациональные, "\
@@ -2086,13 +2086,14 @@ TEST_F(DocumentTest, fonts20)
             "<p>"\
                 "<span style=\"font-family:'Arial';font-size:14px;\">Арифме́тика (др.-греч. ἀριθμητική, arithmētikḗ — от ἀριθμός, arithmós </span>"\
                 "<span style=\"font-family:'Arial';font-size:14px;\"><strong>«число») — раздел математики, изучающий числа, их отношения и </strong></span>"\
-                "<span style=\"font-family:'Arial';font-size:14px;\"><strong>свойства. Предметом арифметики является понятие числа (натуральные, </strong></span>"\
-                "<span style=\"font-family:'Arial';font-size:14px;\"><strong>целые, рациональные, вещественные, комплексные числа) и его свойства.</strong></span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\"><strong>свойства. Предметом арифметики является понятие числа </strong></span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\"><strong>(натуральные, целые, рациональные, вещественные, комплексные </strong></span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\"><strong>числа) и его свойства.</strong></span>"\
             "</p>"\
         "</body>") << 
         document.ToHtml();
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 3, 0, 69}, 
-        ElementSelectionState{ElementId{0, 0}, 1, 3})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 4, 0, 22}, 
+        ElementSelectionState{ElementId{0, 0}, 1, 4})) << document.GetEditorState().ToString();
 
     document.Undo();
     document.WaitUndo();
@@ -2645,7 +2646,7 @@ TEST_F(DocumentTest, fonts29)
 //Set the same font family in the paragraph
 TEST_F(DocumentTest, fonts30)
 {
-    Start(590);
+    Start(610);
 
     document.WaitTask(document.InsertString("Арифме́тика (др.-греч. ἀριθμητική, arithmētikḗ — от ἀριθμός, arithmós «число») — раздел математики,"\
         " изучающий числа, их отношения и свойства.", true));
@@ -2662,13 +2663,13 @@ TEST_F(DocumentTest, fonts30)
         "<body>"\
             "<p>"\
                 "<span style=\"font-family:'Arial';font-size:14px;\"><strong><em>Арифме́тика </em></strong></span>"\
-                "<span style=\"font-family:'Arial';font-size:14px;\"><strong>(др.-греч. ἀριθμητική, arithmētikḗ — от ἀριθμός, </strong></span>"\
-                "<span style=\"font-family:'Arial';font-size:14px;\"><strong>arithmós «число») — раздел математики, изучающий </strong></span>"\
-                "<span style=\"font-family:'Arial';font-size:14px;\"><strong>числа, их отношения и свойства.</strong></span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\"><strong>(др.-греч. ἀριθμητική, arithmētikḗ — от </strong></span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\"><strong>ἀριθμός, arithmós «число») — раздел математики, </strong></span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\"><strong>изучающий числа, их отношения и свойства.</strong></span>"\
             "</p>"\
         "</body>") << 
         document.ToHtml();
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 2, 0, 31}, 
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 2, 0, 41}, 
         ElementSelectionState{ElementId{0}, 0, 1})) << document.GetEditorState().ToString();
 
     document.Undo();
@@ -2679,12 +2680,12 @@ TEST_F(DocumentTest, fonts30)
             "<p>"\
                 "<span style=\"font-family:'Arial';font-size:14px;\"><em>Арифме́тика </em></span>"\
                 "<span style=\"font-family:'Arial';font-size:14px;\">(др.-греч. ἀριθμητική, arithmētikḗ — от ἀριθμός, </span>"\
-                "<span style=\"font-family:'Arial';font-size:14px;\">arithmós «число») — раздел математики, изучающий </span>"\
-                "<span style=\"font-family:'Arial';font-size:14px;\">числа, их отношения и свойства.</span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">arithmós «число») — раздел математики, изучающий числа, </span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">их отношения и свойства.</span>"\
             "</p>"\
         "</body>") << 
         document.ToHtml();
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 2, 0, 31}, 
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 2, 0, 24}, 
         ElementSelectionState{ElementId{0}, 0, 1})) << document.GetEditorState().ToString();
 }
 
