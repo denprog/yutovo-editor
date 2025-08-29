@@ -6,10 +6,11 @@ Yutovo editor combines the capabilities of editing text, mathematical formulas a
 ## Building for Ubuntu
 
 If you haven't yet, build [yutovo-logger](https://github.com/denprog/yutovo-logger), [yutovo-calculator](https://github.com/denprog/yutovo-calculator) and [yutovo-solver](https://github.com/denprog/yutovo-solver).
+
 Install the dependencies:
 
 ```
-sudo update && sudo apt install -y qtbase5-dev qtchooser qt5-qmake
+sudo update && sudo apt install -y qtbase5-dev qtchooser qt5-qmake libgtest-dev libgmock-dev libqt5widgets5 libmpfr-dev
 ```
 This variable should be set to the yutovo directory:
 
@@ -34,4 +35,62 @@ Run the tests:
 
 ```
 ./test/yutovo-editor_tests
+```
+
+## Building for Emscripten
+
+If you haven't yet, build [yutovo-logger](https://github.com/denprog/yutovo-logger), [yutovo-calculator](https://github.com/denprog/yutovo-calculator) and [yutovo-solver](https://github.com/denprog/yutovo-solver).
+
+Clone the project in the yutovo dir (select another branch if you want):
+
+```
+cd yutovo
+git clone -b develop https://github.com/denprog/yutovo-editor.git
+```
+
+Create the build directory:
+
+```
+cd yutovo-editor
+mkdir -p build_web/debug
+cd build_web/debug
+```
+Set these variables:
+
+```
+export YUTOVO_DEPLOY=~/yutovo/deploy
+source ~/emsdk/emsdk_env.sh
+```
+
+Build the project:
+
+```
+emcmake cmake -DCMAKE_BUILD_TYPE=Debug ../..
+make -sj && make install
+```
+
+## Building for Windows
+
+If you haven't yet, build [yutovo-logger](https://github.com/denprog/yutovo-logger), [yutovo-calculator](https://github.com/denprog/yutovo-calculator) and [yutovo-solver](https://github.com/denprog/yutovo-solver).
+
+Clone the project in the yutovo dir (select another branch if you want):
+
+```
+cd yutovo
+git clone -b develop https://github.com/denprog/yutovo-editor.git
+```
+
+Create the build directory:
+
+```
+cd yutovo-editor
+mkdir -p build/debug
+cd build/debug
+```
+
+Build the project:
+
+```
+cmake -DCMAKE_BUILD_TYPE=Debug ../..
+make -sj && make install
 ```
