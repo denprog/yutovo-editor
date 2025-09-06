@@ -5360,4 +5360,48 @@ TEST_F(DocumentTest, clipboard89)
     }
 }
 
+//Copy/Paste between documents with different styles
+TEST_F(TwoDocumentsTest, clipboard90)
+{
+    Start(600);
+
+    EXPECT_CALL(window_mock, OnCopyResult).WillOnce([&](CopyResult result)
+        {
+            ASSERT_TRUE(result == CopyResult::Success);
+        });
+
+    EXPECT_CALL(window_mock2, OnPasteResult).WillOnce([&](PasteResult result)
+        {
+            ASSERT_TRUE(result == PasteResult::Success);
+        });
+
+    document.InsertString("Example style", true);
+    document.InsertParagraph(true);
+    document.InsertString("Text body style", true);
+    document.InsertParagraph(true);
+    document.WaitTask(document.MoveCaretToDocumentBegin(false));
+    document.WaitTask(document.SetCurrentParagraphFormat("Example"));
+
+    document.WaitTask(document.MoveCaretHome(false));
+    document.WaitTask(document.MoveCaretDown(true));
+    document.WaitTask(document.MoveCaretDown(true));
+    document.WaitTask(document.Copy(clipboard_json, clipboard_text));
+
+    document2.InsertString("ExampleParagraph", true);
+    document2.InsertParagraph(true);
+    document2.InsertString("TextBodyParagraph", true);
+    document2.WaitTask(document2.MoveCaretToDocumentBegin(false));
+    document2.WaitTask(document2.SetCurrentParagraphFormat("Example"));
+
+    document2.WaitTask(document2.MoveCaretHome(false));
+    document2.InsertParagraph(true);
+    document2.WaitTask(document2.MoveCaretToDocumentBegin(false));
+    document2.WaitTask(document2.Paste(clipboard_json));
+    ParagraphFormat f;
+    ASSERT_TRUE(document2.GetParagraphFormat(ElementId{0, 0, 0, 0, 0}, f));
+    ASSERT_TRUE(f.name == "Example");
+    ASSERT_TRUE(document2.GetParagraphFormat(ElementId{0, 3, 0, 0, 0}, f));
+    ASSERT_TRUE(f.name == "Example");
+}
+
 }
