@@ -153,7 +153,7 @@ public:
     void SetCurrentStringFormat(StringFormatPtr& format);
 
     bool GetCurrentParagraphFormat(ParagraphFormatPtr& format);
-    uint SetCurrentParagraphFormat(const std::string& name);
+    uint SetCurrentParagraphFormat(const std::string& name, bool with_undo = true);
 
     bool GetCurrentFormulaFormat(FormulaFormatPtr& format);
     void SetCurrentFormulaFormat(const std::string& name);
