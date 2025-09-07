@@ -1529,13 +1529,13 @@ bool Document::GetCurrentParagraphFormat(ParagraphFormatPtr& format)
     return false;
 }
 
-uint Document::SetCurrentParagraphFormat(const std::string& name)
+uint Document::SetCurrentParagraphFormat(const std::string& name, bool with_undo)
 {
     LOG_TRACE("Set current paragraph format: {}", name);
     std::lock_guard<std::recursive_mutex> lock(edit_mutex);
     current_paragraph_format = paragraph_formats->GetFormat(name);
     if (current_paragraph_format)
-        return ChangeParagraphFormat(current_paragraph_format, true);
+        return ChangeParagraphFormat(current_paragraph_format, with_undo);
     return 0;
 }
 

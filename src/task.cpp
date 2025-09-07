@@ -1918,7 +1918,7 @@ bool LoadTask::LoadJson(rapidjson::Document& doc)
         std::vector<ParagraphFormatPtr> formats;
         document->paragraph_formats->GetFormats(formats);
         if (!formats.empty())
-            document->SetCurrentParagraphFormat(formats[0]->name);
+            document->SetCurrentParagraphFormat(formats[0]->name, false);
     }
 
     if (!doc.HasMember("text") || !doc["text"].IsObject())
@@ -1927,7 +1927,7 @@ bool LoadTask::LoadJson(rapidjson::Document& doc)
         return false;
     }
 
-    document->SetCurrentParagraphFormat("Text body");
+    document->SetCurrentParagraphFormat("Text body", false);
     document->SetCurrentFormulaFormat("Code");
 
     return true;
