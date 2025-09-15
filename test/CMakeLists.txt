@@ -77,6 +77,7 @@ add_executable(${PROJECT_NAME}_tests
 	image.cpp
 	sum.cpp
 	product.cpp
+	graph.cpp
 )
 
 if(WIN32)

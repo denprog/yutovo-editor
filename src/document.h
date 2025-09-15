@@ -94,6 +94,8 @@ public:
     uint InsertFunction(const std::string& name, bool with_undo);
     uint InsertSubscriptFunction(const std::string& name, bool with_undo);
 
+    uint InsertGraph(bool with_undo);
+
     uint InsertFormula(Element* element, bool with_undo, bool with_last_task_id = false);
     uint InsertFormulas(std::vector<ElementPtr>& elements, bool with_undo, bool with_last_task_id = false, bool pasting = false, int select_pos = -1);
 
