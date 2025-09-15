@@ -205,6 +205,12 @@ struct Config
 
     AutoResultConfig auto_result;
 
+    struct GraphConfig
+    {
+        void ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc);
+        void FromJson(const rapidjson::Value::ConstObject& value, rapidjson::Document::AllocatorType& alloc);
+    };
+
     //include documents
     struct IncludeDocument
     {

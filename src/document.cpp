@@ -34,6 +34,7 @@
 #include "formulas/sum.h"
 #include "formulas/product.h"
 #include "formulas/comma.h"
+#include "formulas/graph.h"
 #include "editor_utils.h"
 #include <assert.h>
 #include <chrono>
@@ -673,6 +674,12 @@ uint Document::InsertSubscriptFunction(const std::string& name, bool with_undo)
     LOG_TRACE("Insert subscript function: {}", name);
     InsertCodeString(name, with_undo);
     return InsertFormula(new Subscript(this), with_undo, true);
+}
+
+uint Document::InsertGraph(bool with_undo)
+{
+    LOG_TRACE("Insert graph");
+    return InsertFormula(new Graph(this), with_undo, true);
 }
 
 uint Document::InsertFormula(Element* element, bool with_undo, bool with_last_task_id)

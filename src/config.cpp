@@ -435,6 +435,16 @@ std::string Config::AutoResultConfig::ToString()
     return buffer.GetString();
 }
 
+//Config::GraphConfig
+
+void Config::GraphConfig::ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc)
+{
+}
+
+void Config::GraphConfig::FromJson(const rapidjson::Value::ConstObject& value, rapidjson::Document::AllocatorType& alloc)
+{
+}
+
 //Config::IncludeDocument
 
 void Config::IncludeDocument::ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc)
