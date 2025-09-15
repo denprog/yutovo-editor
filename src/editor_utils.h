@@ -74,7 +74,8 @@ enum class ElementType
     LINK,
     OPEN_SQUARE_BRACKET,
     CLOSE_SQUARE_BRACKET,
-    ARRAY_REAL_RESULT
+    ARRAY_REAL_RESULT,
+    GRAPH_2D
 };
 
 enum IdentifierType

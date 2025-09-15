@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.17)
 
 set(CMAKE_DEBUG_POSTFIX d)
+set(CMAKE_CXX_STANDARD 20)
 
 find_package(PkgConfig REQUIRED)
 if(EMSCRIPTEN)
@@ -20,6 +21,7 @@ if(NOT DEFINED REMOTE_SOLVER)
     find_package(yutovo-solver REQUIRED PATHS ${INSTALL_PATH}/lib/cmake)
     find_package(yutovo-calculator REQUIRED PATHS ${INSTALL_PATH}/lib/cmake)
     find_package(yutovo-logger REQUIRED PATHS ${INSTALL_PATH}/lib/cmake)
+    find_package(MathGL2 REQUIRED PATHS ${INSTALL_PATH}/lib/cmake)
 endif()
 
 set(Boost_USE_STATIC_LIBS ON)
@@ -104,6 +106,7 @@ add_library(${PROJECT_NAME}
     formulas/sum.cpp
     formulas/product.cpp
     formulas/comma.cpp
+    formulas/graph.cpp
 
     caret.h
     caret_state.h
@@ -209,6 +212,7 @@ else()
             yutovo-solver
             yutovo-calculator
             yutovo-logger
+            mgl
         )
     endif()
 endif()
