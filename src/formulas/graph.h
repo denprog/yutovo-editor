@@ -17,24 +17,43 @@ namespace yutovo
 class Graph : public MiddleShapeFormula
 {
 public:
-    Graph(Element* _parent);
-    Graph(Document* _document);
+    Graph(Element* _parent, bool with_init = true);
+    Graph(Document* _document, bool with_init = true);
     Graph(const Graph& source);
+
+    void Init();
+
+    virtual bool AfterFromJson();
 
     virtual Element* Clone();
 
     virtual Element* Create(Element* _parent);
 
-    virtual void ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc);
     static Element* FromJson(Element* parent, Document* document, const rapidjson::Value::ConstObject& value, rapidjson::Document::AllocatorType& alloc);
 
     virtual void Draw() const;
     virtual bool Remake(bool with_elements = false);
 
+    virtual void UpdateLevel(uint8_t _level);
+
     virtual void Solve();
+    virtual void ReSolve(bool if_error = false, bool force = false);
+
+    virtual void ToParserString(ParserString& str);
+
+public:
+    Dependencies dependencies;
+    ParserString last_func_expr, last_arg_expr, last_x_left_expr, last_x_right_expr, 
+        last_y_down_expr, last_y_up_expr;
 
 protected:
-    mglGraph graph;
+    CodeRow* GetXLeft() const;
+    CodeRow* GetXRight() const;
+    CodeRow* GetYDown() const;
+    CodeRow* GetYUp() const;
+
+    mutable mglGraph graph;
+    bool empty = true;
 };
 
 }
