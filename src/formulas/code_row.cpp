@@ -17,6 +17,7 @@ CodeRow::CodeRow(Document* _document) :
     Row(_document)
 {
     type = ElementType::CODE_ROW;
+    can_merge = true;
 }
 
 CodeRow::CodeRow(Element* parent, bool with_string) :
@@ -25,6 +26,7 @@ CodeRow::CodeRow(Element* parent, bool with_string) :
     type = ElementType::CODE_ROW;
     if (with_string)
         AddEmptyElement();
+    can_merge = true;
 }
 
 Element* CodeRow::Clone()
@@ -104,7 +106,7 @@ void CodeRow::Normalize()
 
 bool CodeRow::Merge(const ElementPtr with_element)
 {
-    if (with_element->type != ElementType::CODE_ROW)
+    if (!can_merge || !with_element->can_merge || with_element->type != ElementType::CODE_ROW)
         return false;
     //merge the two rows
     for (int j = 0; j < with_element->elements->Count();)

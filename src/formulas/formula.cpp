@@ -49,7 +49,8 @@ void Formula::Normalize()
         if (el1->type == ElementType::CODE_ROW && el2->type == ElementType::CODE_ROW)
         {
             //merge the two rows
-            el1->Merge(el2);
+            if (!el1->Merge(el2))
+                ++i;
         }
         else
             ++i;
