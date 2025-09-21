@@ -17,6 +17,7 @@
 #include "formulas/result.h"
 #include "formulas/equation.h"
 #include "formulas/assignment.h"
+#include "formulas/graph.h"
 #include <yutovo-logger/logger.h>
 #include <yutovo-calculator/utils.h>
 #include "editor_utils.h"
@@ -2114,6 +2115,16 @@ bool ResultTask::Execute()
             return false;
         document->RemoveErrorMarks(r->id);
         r->PutResult(result);
+        break;
+    }
+    case ElementType::GRAPH_LINE:
+    {
+        Graph* r = dynamic_cast<Graph*>(el.get());
+        if (!r)
+            return false;
+        document->RemoveErrorMarks(r->id);
+        r->PutResult(result);
+        Remake(r->id, false);
         break;
     }
     default:

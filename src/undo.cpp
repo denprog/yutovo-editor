@@ -893,7 +893,7 @@ UndoElementPtr UndoBase::StoreElement(const LogicalId id, ElementPtr el)
     case ElementType::SUBSCRIPT:
     case ElementType::ASSIGNMENT:
     case ElementType::UNIT:
-    case ElementType::GRAPH_2D:
+    case ElementType::GRAPH_LINE:
         undo_element.reset(new UndoFormula(el->type, ((Formula*)el.get())->formula_format));
         if (!store_element(el->elements->Get(0), undo_element))
             return nullptr;
