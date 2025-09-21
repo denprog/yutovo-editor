@@ -39,6 +39,7 @@
 #include "formulas/product.h"
 #include "formulas/unit.h"
 #include "formulas/comma.h"
+#include "formulas/graph.h"
 
 namespace yutovo
 {
@@ -329,7 +330,8 @@ Element* CreateFromJson(Element* parent, Document* document, const rapidjson::Va
             {ElementType::PRODUCT, &Product::FromJson},
             {ElementType::UNIT, &Unit::FromJson},
             {ElementType::COMMA, &Comma::FromJson},
-            {ElementType::LINK, &Link::FromJson}
+            {ElementType::LINK, &Link::FromJson},
+            {ElementType::GRAPH_LINE, &Graph::FromJson}
         };
 
     if (!value.HasMember("type") || !value["type"].IsInt())

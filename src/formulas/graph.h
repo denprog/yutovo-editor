@@ -5,10 +5,11 @@
  * SPDX-License-Identifier: GPL-3.0-only
  */
 
-#ifndef __GRAPH_H__
-#define __GRAPH_H__
+#ifndef __GRAPH_FORMULA_H__
+#define __GRAPH_FORMULA_H__
 
 #include "middle_shape_formula.h"
+#include "config.h"
 #include "mgl2/mgl.h"
 
 namespace yutovo
@@ -34,17 +35,22 @@ public:
     virtual void Draw() const;
     virtual bool Remake(bool with_elements = false);
 
+    virtual bool DeleteElements(bool left, bool with_undo, ElementId& changed_element);
+
     virtual void UpdateLevel(uint8_t _level);
 
     virtual void Solve();
     virtual void ReSolve(bool if_error = false, bool force = false);
 
+    virtual void PutResult(Result& _result);
+
+    virtual bool Depends(const std::string& identifier);
+
     virtual void ToParserString(ParserString& str);
 
 public:
     Dependencies dependencies;
-    ParserString last_func_expr, last_arg_expr, last_x_left_expr, last_x_right_expr, 
-        last_y_down_expr, last_y_up_expr;
+    yutovo_solver::ErrorCode last_error_code = yutovo_solver::ErrorCode::OK;
 
 protected:
     CodeRow* GetXLeft() const;
@@ -53,7 +59,20 @@ protected:
     CodeRow* GetYUp() const;
 
     mutable mglGraph graph;
-    bool empty = true;
+
+    std::string guid;
+
+    Config::ArrayRealResultConfig config;
+
+    ParserString last_expression;
+
+    std::vector<double> x, y;
+
+    bool delay = false; //don't delay on the first calculation
+    bool solving = false;
+
+    int x_pos = 0;
+    int x_inc = 100;
 };
 
 }
