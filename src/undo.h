@@ -30,6 +30,7 @@ class CodeParagraph;
 class Formula;
 class CodeBlock;
 class Equation;
+class GraphLine;
 
 typedef std::shared_ptr<UndoElement> UndoElementPtr;
 
@@ -172,6 +173,15 @@ struct UndoEquation : UndoFormula
 struct UndoResult : UndoElement
 {
     UndoResult(ElementType _type);
+
+    virtual Element* Restore(Document* document, Element* parent);
+};
+
+struct UndoGraphLine : UndoFormula
+{
+    UndoGraphLine(GraphLine* graph);
+
+    virtual bool operator==(const UndoGraphLine& el) const;
 
     virtual Element* Restore(Document* document, Element* parent);
 };

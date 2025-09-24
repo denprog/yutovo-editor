@@ -331,7 +331,7 @@ Element* CreateFromJson(Element* parent, Document* document, const rapidjson::Va
             {ElementType::UNIT, &Unit::FromJson},
             {ElementType::COMMA, &Comma::FromJson},
             {ElementType::LINK, &Link::FromJson},
-            {ElementType::GRAPH_LINE, &Graph::FromJson}
+            {ElementType::GRAPH_LINE, &GraphLine::FromJson}
         };
 
     if (!value.HasMember("type") || !value["type"].IsInt())
