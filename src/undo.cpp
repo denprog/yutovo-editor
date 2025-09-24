@@ -37,6 +37,7 @@
 #include "formulas/sum.h"
 #include "formulas/product.h"
 #include "formulas/comma.h"
+#include "formulas/graph.h"
 
 namespace yutovo
 {
@@ -622,6 +623,30 @@ Element* UndoResult::Restore(Document* document, Element* parent)
     return el;
 }
 
+//UndoGraphLine
+
+UndoGraphLine::UndoGraphLine(GraphLine* graph) :
+    UndoFormula(ElementType::GRAPH_LINE, graph->formula_format)
+{
+}
+
+bool UndoGraphLine::operator==(const UndoGraphLine& el) const
+{
+    return UndoFormula::operator==(el);
+}
+
+Element* UndoGraphLine::Restore(Document* document, Element* parent)
+{
+    GraphLine* el = parent ? new GraphLine(parent) : new GraphLine(document);
+    el->formula_format = formula_format;
+    for (int i = 0; i < elements.size(); ++i)
+    {
+        ElementPtr ch(elements[i]->Restore(document, el));
+        el->elements->Get(i)->elements->ReplaceAll(*ch->elements);
+    }
+    return el;
+}
+
 //ConfigElement
 
 ConfigElement::ConfigElement(const Config& _config) : 
@@ -894,11 +919,12 @@ UndoElementPtr UndoBase::StoreElement(const LogicalId id, ElementPtr el)
     case ElementType::ASSIGNMENT:
     case ElementType::UNIT:
     case ElementType::GRAPH_LINE:
-        undo_element.reset(new UndoFormula(el->type, ((Formula*)el.get())->formula_format));
-        if (!store_element(el->elements->Get(0), undo_element))
-            return nullptr;
-        if (!store_element(el->elements->Get(2), undo_element))
-            return nullptr;
+        undo_element.reset(new UndoGraphLine(((GraphLine*)el.get())));
+        for (int i = 0; i < el->elements->Count() - 1; ++i)
+        {
+            if (!store_element(el->elements->Get(i), undo_element))
+                return nullptr;
+        }
         break;
     case ElementType::EQUATION:
         {

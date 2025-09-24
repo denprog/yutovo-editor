@@ -679,7 +679,7 @@ uint Document::InsertSubscriptFunction(const std::string& name, bool with_undo)
 uint Document::InsertGraph(bool with_undo)
 {
     LOG_TRACE("Insert graph");
-    return InsertFormula(new Graph(this), with_undo, true);
+    return InsertFormula(new GraphLine(this), with_undo, true);
 }
 
 uint Document::InsertFormula(Element* element, bool with_undo, bool with_last_task_id)

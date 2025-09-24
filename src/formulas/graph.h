@@ -15,12 +15,12 @@
 namespace yutovo
 {
 
-class Graph : public MiddleShapeFormula
+class GraphLine : public Formula
 {
 public:
-    Graph(Element* _parent, bool with_init = true);
-    Graph(Document* _document, bool with_init = true);
-    Graph(const Graph& source);
+    GraphLine(Element* _parent, bool with_init = true);
+    GraphLine(Document* _document, bool with_init = true);
+    GraphLine(const GraphLine& source);
 
     void Init();
 
@@ -42,7 +42,7 @@ public:
     virtual void Solve();
     virtual void ReSolve(bool if_error = false, bool force = false);
 
-    virtual void PutResult(Result& _result);
+    virtual void PutResult(Result& result);
 
     virtual bool Depends(const std::string& identifier);
 
@@ -53,10 +53,13 @@ public:
     yutovo_solver::ErrorCode last_error_code = yutovo_solver::ErrorCode::OK;
 
 protected:
-    CodeRow* GetXLeft() const;
-    CodeRow* GetXRight() const;
-    CodeRow* GetYDown() const;
     CodeRow* GetYUp() const;
+    CodeRow* GetYDown() const;
+    CodeRow* GetExpression() const;
+    CodeRow* GetXLeft() const;
+    CodeRow* GetVariable() const;
+    CodeRow* GetXRight() const;
+    Shape* GetShape() const;
 
     mutable mglGraph graph;
 
@@ -66,6 +69,7 @@ protected:
 
     ParserString last_expression;
 
+    double x_left = -1, x_right = 1, y_bottom = -1, y_top = 1;
     std::vector<double> x, y;
 
     bool delay = false; //don't delay on the first calculation
