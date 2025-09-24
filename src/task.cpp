@@ -2119,7 +2119,7 @@ bool ResultTask::Execute()
     }
     case ElementType::GRAPH_LINE:
     {
-        Graph* r = dynamic_cast<Graph*>(el.get());
+        GraphLine* r = dynamic_cast<GraphLine*>(el.get());
         if (!r)
             return false;
         document->RemoveErrorMarks(r->id);
