@@ -2660,12 +2660,12 @@ void Document::Solve(const LogicalId& _id, const std::string& guid, uint code_id
     solver.Solve(_id, guid, code_id, config, expression + U";", delay);
 }
 
-void Document::BreakSolving(const LogicalId& _id, const std::string& guid, uint code_id)
+void Document::BreakSolving(const LogicalId& _id, const std::string& guid, uint code_id, bool wait)
 {
     auto it = solve_ids.find(guid);
     if (it != solve_ids.end())
         solve_ids.erase(it);
-    solver.BreakSolving(_id, code_id);
+    solver.BreakSolving(_id, code_id, wait);
 }
 
 void Document::SetIdentifier(const LogicalId& _id, const std::string& guid, uint code_id, Config::AutoResultConfig& config, const std::u32string& identifier, 

@@ -39,6 +39,8 @@ public:
 
     virtual void UpdateLevel(uint8_t _level);
 
+    virtual bool AfterInsert(bool with_undo);
+
     virtual void Solve();
     virtual void ReSolve(bool if_error = false, bool force = false);
 
@@ -46,13 +48,21 @@ public:
 
     virtual bool Depends(const std::string& identifier);
 
+    virtual std::u32string ToText() const;
     virtual void ToParserString(ParserString& str);
 
 public:
     Dependencies dependencies;
     yutovo_solver::ErrorCode last_error_code = yutovo_solver::ErrorCode::OK;
 
+#ifdef TEST
+public:
+#else
 protected:
+#endif
+    double x_left = -1, x_right = 1, y_bottom = -1, y_top = 1;
+    std::vector<double> x, y;
+
     CodeRow* GetYUp() const;
     CodeRow* GetYDown() const;
     CodeRow* GetExpression() const;
@@ -68,9 +78,6 @@ protected:
     Config::ArrayRealResultConfig config;
 
     ParserString last_expression;
-
-    double x_left = -1, x_right = 1, y_bottom = -1, y_top = 1;
-    std::vector<double> x, y;
 
     bool delay = false; //don't delay on the first calculation
     bool solving = false;
