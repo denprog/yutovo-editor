@@ -8,6 +8,7 @@
 #include <gtest/gtest.h>
 #include "mock.h"
 #include "style.h"
+#include "formulas/graph.h"
 
 namespace yutovo_test
 {
@@ -33,12 +34,24 @@ TEST_F(FormulaTest, graphs1)
                         "<mrow>"\
                             "<mi>Null</mi>"\
                         "</mrow>"\
+                        "<mrow>"\
+                            "<mi>Null</mi>"\
+                        "</mrow>"\
+                        "<mrow>"\
+                            "<mi>Null</mi>"\
+                        "</mrow>"\
+                        "<mrow>"\
+                            "<mi>Null</mi>"\
+                        "</mrow>"\
+                        "<mrow>"\
+                            "<mi>Null</mi>"\
+                        "</mrow>"\
                     "</mrow>"\
                 "</math>"\
             "</p>"\
         "</body>") << 
         document.ToHtml();
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 0, 0, 0})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 1, 0, 0})) << document.GetEditorState().ToString();
 
     document.Undo();
     document.WaitUndo();
@@ -60,12 +73,205 @@ TEST_F(FormulaTest, graphs1)
                         "<mrow>"\
                             "<mi>Null</mi>"\
                         "</mrow>"\
+                        "<mrow>"\
+                            "<mi>Null</mi>"\
+                        "</mrow>"\
+                        "<mrow>"\
+                            "<mi>Null</mi>"\
+                        "</mrow>"\
+                        "<mrow>"\
+                            "<mi>Null</mi>"\
+                        "</mrow>"\
+                        "<mrow>"\
+                            "<mi>Null</mi>"\
+                        "</mrow>"\
                     "</mrow>"\
                 "</math>"\
             "</p>"\
         "</body>") << 
         document.ToHtml();
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 0, 0, 0})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 1, 0, 0})) << document.GetEditorState().ToString();
+}
+
+TEST_F(FormulaTest, graphs2)
+{
+    Start(600);
+
+    document.WaitTask(document.InsertGraph(true));
+    std::this_thread::sleep_for(100ms);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mrow>"\
+                            "<mi>Null</mi>"\
+                        "</mrow>"\
+                        "<mrow>"\
+                            "<mi>Null</mi>"\
+                        "</mrow>"\
+                        "<mrow>"\
+                            "<mi>Null</mi>"\
+                        "</mrow>"\
+                        "<mrow>"\
+                            "<mi>Null</mi>"\
+                        "</mrow>"\
+                        "<mrow>"\
+                            "<mi>Null</mi>"\
+                        "</mrow>"\
+                        "<mrow>"\
+                            "<mi>Null</mi>"\
+                        "</mrow>"\
+                    "</mrow>"\
+                "</math>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    
+    document.MoveCaretLeft(false);
+    document.WaitTask(document.InsertString("2", true));
+    document.MoveCaretRight(false);
+
+    document.WaitTask(document.InsertString("x", true));
+    document.InsertPlus(true);
+    document.WaitTask(document.InsertString("5", true));
+    document.MoveCaretRight(false);
+
+    document.InsertMinus(true);
+    document.WaitTask(document.InsertString("2", true));
+    document.MoveCaretRight(false);
+
+    document.InsertMinus(true);
+    document.WaitTask(document.InsertString("4", true));
+    document.MoveCaretRight(false);
+
+    document.WaitTask(document.InsertString("x", true));
+    document.MoveCaretRight(false);
+
+    document.WaitTask(document.InsertString("4", true));
+    document.WaitTask(document.MoveCaretRight(false));
+    document.WaitSolver();
+    std::this_thread::sleep_for(2s);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mrow>"\
+                            "<mi>2</mi>"\
+                        "</mrow>"\
+                        "<mrow>"\
+                            "<mi>x</mi>"\
+                            "<mo>+</mo>"\
+                            "<mi>5</mi>"\
+                        "</mrow>"\
+                        "<mrow>"\
+                            "<mo>-</mo>"\
+                            "<mi>2</mi>"\
+                        "</mrow>"\
+                        "<mrow>"\
+                            "<mo>-</mo>"\
+                            "<mi>4</mi>"\
+                        "</mrow>"\
+                        "<mrow>"\
+                            "<mi>x</mi>"\
+                        "</mrow>"\
+                        "<mrow>"\
+                            "<mi>4</mi>"\
+                        "</mrow>"\
+                    "</mrow>"\
+                "</math>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    auto el = document.FindByType({0}, ElementType::GRAPH_LINE);
+    GraphLine* graph = (GraphLine*)el.get();
+    ASSERT_TRUE(graph->y_bottom == -2);
+    ASSERT_TRUE(el->elements->Get(1)->ToText() == U"x+5");
+    ASSERT_TRUE(graph->y_top == 2);
+    ASSERT_TRUE(graph->x_left == -4);
+    ASSERT_TRUE(el->elements->Get(4)->ToText() == U"x");
+    ASSERT_TRUE(graph->x_right == 4);
+    const std::vector<double> _x{-4., -3.98, -3.96};
+    std::vector<double> x(graph->x.begin(), std::next(graph->x.begin(), 3));
+    ASSERT_TRUE(x == _x);
+    const std::vector<double> _y{1., 1.02, 1.04};
+    std::vector<double> y(graph->y.begin(), std::next(graph->y.begin(), 3));
+    ASSERT_TRUE(y == _y);
+}
+
+TEST_F(FormulaTest, graphs3)
+{
+    Start(600);
+
+    document.WaitTask(document.InsertGraph(true));
+    std::this_thread::sleep_for(100ms);
+    
+    document.MoveCaretLeft(false);
+    document.WaitTask(document.InsertString("2", true));
+    document.MoveCaretRight(false);
+
+    document.InsertString("sin", true);
+    document.InsertOpenRoundBracket(true);
+    document.InsertString("x", true);
+    document.InsertCloseRoundBracket(true);
+    document.MoveCaretRight(false);
+
+    document.InsertMinus(true);
+    document.WaitTask(document.InsertString("2", true));
+    document.MoveCaretRight(false);
+
+    document.InsertMinus(true);
+    document.WaitTask(document.InsertString("2", true));
+    document.MoveCaretRight(false);
+
+    document.WaitTask(document.InsertString("x", true));
+    document.MoveCaretRight(false);
+
+    document.WaitTask(document.InsertString("2", true));
+    document.WaitTask(document.MoveCaretRight(false));
+    document.WaitSolver();
+    std::this_thread::sleep_for(2s);
+    ASSERT_TRUE(document.ToText() == U"graph(2,sin(x),-2,-2,x,2)") << ToBasicString(document.ToText());
+
+    document.MoveCaretHome(false);
+    document.WaitTask(document.MoveCaretHome(false));
+    document.WaitTask(document.InsertParagraph(true));
+    document.WaitTask(document.MoveCaretUp(false));
+    document.WaitTask(document.DeleteElements(false, true));
+    std::this_thread::sleep_for(1s);
+    auto el = document.FindByType({0}, ElementType::GRAPH_LINE);
+    GraphLine* graph = (GraphLine*)el.get();
+    ASSERT_TRUE(!graph->x.empty());
+    ASSERT_TRUE(!graph->y.empty());
+}
+
+TEST_F(FormulaTest, graphs4)
+{
+    Start(600);
+
+    document.WaitTask(document.InsertGraph(true));
+    document.InsertString("x", true);
+    document.InsertDivision(true);
+    document.WaitTask(document.InsertString("x", true));
+    std::this_thread::sleep_for(100ms);
+    ASSERT_TRUE(document.ToText() == U"graph(,(x)/(x),,,,)") << ToBasicString(document.ToText());
+
+    document.WaitTask(document.MoveCaretUp(false));
+    document.WaitTask(document.DeleteElements(false, true));
+    ASSERT_TRUE(document.ToText() == U"graph(,xx,,,,)") << ToBasicString(document.ToText());
+
+    document.Undo();
+    document.WaitUndo();
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.ToText() == U"graph(,(x)/(x),,,,)") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 1, 0, 1})) << document.GetEditorState().ToString();
+
+    document.Redo();
+    document.WaitRedo();
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.ToText() == U"graph(,xx,,,,)") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 1, 0, 1})) << document.GetEditorState().ToString();
 }
 
 }

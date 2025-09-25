@@ -39,7 +39,13 @@ GraphLine::GraphLine(Document* _document, bool with_init) :
 GraphLine::GraphLine(const GraphLine& source) : 
     Formula(source),
     last_expression(source.last_expression),
-    dependencies(source.dependencies)
+    dependencies(source.dependencies),
+    x_left(source.x_left), 
+    x_right(source.x_right), 
+    y_bottom(source.y_bottom), 
+    y_top(source.y_top),
+    x(source.x), 
+    y(source.y)
 {
 }
 
@@ -180,6 +186,17 @@ void GraphLine::UpdateLevel(uint8_t _level)
         GetYUp()->UpdateLevel(_level + 2);
 }
 
+bool GraphLine::AfterInsert(bool with_undo)
+{
+    CaretState c;
+    if (elements->Get(1)->GetFirstCaretState(c, nullptr))
+    {
+        caret->SetState(c);
+        return true;
+    }
+    return false;
+}
+
 void GraphLine::Solve()
 {
     Formula::Solve();
@@ -229,7 +246,7 @@ void GraphLine::ReSolve(bool if_error, bool force)
     auto code = document->FindParent(id, ElementType::CODE_BLOCK);
     assert(code);
     if (solving)
-        document->BreakSolving(logical_id, guid, ((CodeBlock*)code.get())->code_id);
+        document->BreakSolving(logical_id, guid, ((CodeBlock*)code.get())->code_id, false);
 
     solving = true;
     document->Solve(logical_id, guid, ((CodeBlock*)code.get())->code_id, config, last_expression.Text(), 
@@ -304,6 +321,19 @@ bool GraphLine::Depends(const std::string& identifier)
     if (std::find(dependencies.begin(), dependencies.end(), identifier) != dependencies.end())
         return true;
     return false;
+}
+
+std::u32string GraphLine::ToText() const
+{
+    std::u32string s = U"graph(";
+    for (int i = 0; i < elements->Count(); ++i)
+    {
+        s += elements->Get(i)->ToText();
+        if (i < elements->Count() - 2)
+            s += U",";
+    }
+    s += U")";
+    return s;
 }
 
 void GraphLine::ToParserString(ParserString& str)

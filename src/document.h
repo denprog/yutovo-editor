@@ -279,7 +279,7 @@ public:
         const uint delay);
     void Solve(const LogicalId& _id, const std::string& guid, uint code_id, Config::ArrayRealResultConfig& config, const std::u32string& expression, 
         const uint delay);
-    void BreakSolving(const LogicalId& _id, const std::string& guid, uint code_id);
+    void BreakSolving(const LogicalId& _id, const std::string& guid, uint code_id, bool wait = true);
 
     void SetIdentifier(const LogicalId& _id, const std::string& guid, uint code_id, Config::AutoResultConfig& config, const std::u32string& identifier, 
         const std::u32string& expression, const uint delay);

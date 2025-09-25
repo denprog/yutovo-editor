@@ -918,6 +918,12 @@ UndoElementPtr UndoBase::StoreElement(const LogicalId id, ElementPtr el)
     case ElementType::SUBSCRIPT:
     case ElementType::ASSIGNMENT:
     case ElementType::UNIT:
+        undo_element.reset(new UndoFormula(el->type, ((Formula*)el.get())->formula_format));
+        if (!store_element(el->elements->Get(0), undo_element))
+            return nullptr;
+        if (!store_element(el->elements->Get(2), undo_element))
+            return nullptr;
+        break;
     case ElementType::GRAPH_LINE:
         undo_element.reset(new UndoGraphLine(((GraphLine*)el.get())));
         for (int i = 0; i < el->elements->Count() - 1; ++i)
