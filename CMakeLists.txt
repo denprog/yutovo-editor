@@ -15,7 +15,7 @@ else()
     add_compile_definitions(RELEASE)
 endif()
 
-if (NOT DEFINED EMSCRIPTEN)
+if ((NOT DEFINED EMSCRIPTEN) AND (CMAKE_BUILD_TYPE STREQUAL "Debug"))
     add_compile_definitions(TEST)
 endif()
 

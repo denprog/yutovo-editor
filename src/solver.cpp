@@ -55,7 +55,7 @@ Solver::~Solver()
         {
             std::unique_lock<std::mutex> lock(tasks_mutex);
             break_tasks.emplace_front(nullptr);
-            break_tasks.emplace_front(new BreakSolverTask(current_solving_id, document, solver_guid, current_code_id, logger)); //first of all break this solving
+            break_tasks.emplace_front(new BreakSolverTask(current_solving_id, document, solver_guid, current_code_id, true, logger)); //first of all break this solving
             break_next_circle = true;
         }
     }
@@ -145,7 +145,7 @@ void Solver::Solve(const LogicalId& id, const std::string& task_guid, const uint
     next_circle = true;
 }
 
-void Solver::BreakSolving(const LogicalId& id, const uint code_id)
+void Solver::BreakSolving(const LogicalId& id, const uint code_id, bool wait)
 {
     {
         std::unique_lock<std::mutex> lock(current_solving_mutex);
@@ -155,7 +155,7 @@ void Solver::BreakSolving(const LogicalId& id, const uint code_id)
 
     std::unique_lock<std::mutex> lock(tasks_mutex);
     break_tasks.emplace_front(nullptr);
-    break_tasks.emplace_front(new BreakSolverTask(id, document, solver_guid, code_id, logger)); //first of all break this solving
+    break_tasks.emplace_front(new BreakSolverTask(id, document, solver_guid, code_id, wait, logger)); //first of all break this solving
     break_next_circle = true;
 }
 
@@ -477,7 +477,7 @@ void Solver::MessageLoop(WebSocketPtr socket_, std::deque<SolverTaskPtr>& tasks_
             else if (result.error.error_code == yutovo_solver::ErrorCode::TIMEOUT_ERROR)
             {
                 std::unique_lock<std::mutex> lock(tasks_mutex);
-                break_tasks.emplace_back(new BreakSolverTask(t->id, document, solver_guid, t->code_id, logger)); //break the current solving
+                break_tasks.emplace_back(new BreakSolverTask(t->id, document, solver_guid, t->code_id, true, logger)); //break the current solving
                 break_next_circle = true;
             }
 
