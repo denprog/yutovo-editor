@@ -109,6 +109,11 @@ struct Point
         x = _x;
         y = _y;
     }
+
+    bool IsNull() const
+    {
+        return x == 0 && y == 0;
+    }
     
     int x = 0;
     int y = 0;

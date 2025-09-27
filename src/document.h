@@ -197,6 +197,11 @@ public:
 
     void SetCaretVisible(bool visible);
 
+    bool MouseLButtonDown(const int x, const int y);
+    bool MouseLButtonUp(const int x, const int y);
+    bool MouseMove(const int x, const int y);
+    bool MouseWheel(const int x, const int y, const Point pixel_delta, const Point angle_delta);
+
     void Undo();
     void Redo();
 
@@ -490,6 +495,8 @@ private:
     Selection last_selection;
 
     SelectionState last_editor_selection;
+
+    ElementId mouse_capture_id;
 
     Logger* logger;
 };
