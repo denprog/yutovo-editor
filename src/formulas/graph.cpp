@@ -9,6 +9,10 @@
 #include "document.h"
 #include "formulas/code_block.h"
 #include "code_row.h"
+#include "formulas/power.h"
+#include "formulas/code_string.h"
+#include "formulas/multiply.h"
+#include "formulas/minus.h"
 #include <boost/uuid/uuid.hpp>
 #include <boost/uuid/uuid_generators.hpp>
 #include <boost/uuid/uuid_io.hpp>
@@ -144,11 +148,11 @@ bool GraphLine::Remake(bool with_elements)
 
     bool changed = Formula::Remake(with_elements);
 
-    int x_left = std::max({GetExpression()->rect.width, GetYUp()->rect.width, GetYDown()->rect.width});
+    int x_left = std::max({GetExpression()->rect.width, GetYTop()->rect.width, GetYBottom()->rect.width});
     GetShape()->rect.SetRect(0, 0, 400, 400);
-    GetYUp()->rect.Move(x_left - GetYUp()->rect.width, GetShape()->rect.top);
+    GetYTop()->rect.Move(x_left - GetYTop()->rect.width, GetShape()->rect.top);
     GetExpression()->rect.Move(x_left - GetExpression()->rect.width, GetShape()->rect.height / 2 - GetExpression()->rect.height / 2);
-    GetYDown()->rect.Move(x_left - GetYDown()->rect.width, GetShape()->rect.GetBottom() - GetYDown()->rect.height);
+    GetYBottom()->rect.Move(x_left - GetYBottom()->rect.width, GetShape()->rect.GetBottom() - GetYBottom()->rect.height);
     GetShape()->rect.Move(x_left, 0);
     GetXLeft()->rect.Move(GetShape()->rect.left, GetShape()->rect.GetBottom() + 2);
     GetVariable()->rect.Move(x_left + 2 + GetShape()->rect.width / 2 - GetVariable()->rect.width / 2, GetShape()->rect.GetBottom() + 2);
@@ -180,10 +184,10 @@ void GraphLine::UpdateLevel(uint8_t _level)
         GetXLeft()->UpdateLevel(_level + 2);
     if (GetXRight())
         GetXRight()->UpdateLevel(_level + 2);
-    if (GetYDown())
-        GetYDown()->UpdateLevel(_level + 2);
-    if (GetYUp())
-        GetYUp()->UpdateLevel(_level + 2);
+    if (GetYBottom())
+        GetYBottom()->UpdateLevel(_level + 2);
+    if (GetYTop())
+        GetYTop()->UpdateLevel(_level + 2);
 }
 
 bool GraphLine::AfterInsert(bool with_undo)
@@ -206,8 +210,8 @@ void GraphLine::Solve()
     GetVariable()->ToParserString(arg_str);
     GetXLeft()->ToParserString(x_left_str);
     GetXRight()->ToParserString(x_right_str);
-    GetYDown()->ToParserString(y_down_str);
-    GetYUp()->ToParserString(y_up_str);
+    GetYBottom()->ToParserString(y_down_str);
+    GetYTop()->ToParserString(y_up_str);
 
     ParserString str;
     str.Add(id, U"graph_line(");
@@ -249,8 +253,15 @@ void GraphLine::ReSolve(bool if_error, bool force)
         document->BreakSolving(logical_id, guid, ((CodeBlock*)code.get())->code_id, false);
 
     solving = true;
-    document->Solve(logical_id, guid, ((CodeBlock*)code.get())->code_id, config, last_expression.Text(), 
-        (delay && last_error_code != yutovo_solver::ErrorCode::SOLVER_RESTARTED_ERROR) ? document->config.solve_delay : 0);
+    if (mouse_l_button_down)
+    {
+        document->Solve(logical_id, guid, ((CodeBlock*)code.get())->code_id, config, last_expression.Text(), 0);
+    }
+    else
+    {
+        document->Solve(logical_id, guid, ((CodeBlock*)code.get())->code_id, config, last_expression.Text(), 
+            (delay && last_error_code != yutovo_solver::ErrorCode::SOLVER_RESTARTED_ERROR) ? document->config.solve_delay : 0);
+    }
     document->AddChangedElement(id);
 }
 
@@ -323,6 +334,75 @@ bool GraphLine::Depends(const std::string& identifier)
     return false;
 }
 
+bool GraphLine::OnMouseLButtonDown(const int x, const int y)
+{
+    ElementId id;
+    if (!document->GetElementAtCoords(x, y, id))
+        return false;
+    if (id == GetShape()->id)
+    {
+        last_x = x;
+        last_y = y;
+        mouse_l_button_down = true;
+        return true;
+    }
+    return false;
+}
+
+bool GraphLine::OnMouseLButtonUp(const int x, const int y)
+{
+    if (mouse_l_button_down)
+    {
+        mouse_l_button_down = false;
+        return true;
+    }
+    return false;
+}
+
+bool GraphLine::OnMouseMove(const int x, const int y)
+{
+    if (!mouse_l_button_down)
+        return false;
+
+    double tx = (x_right - x_left) / (400 - 40);
+    double dx = tx * (last_x - x);
+    if (abs(dx) < abs(tx * 10))
+        return true;
+    double ty = (y_bottom - y_top) / (400 - 40);
+    double dy = ty * (last_y - y);
+    if (abs(dy) < abs(ty * 10))
+        return true;
+    SetNumber(x_left + dx, GetXLeft());
+    SetNumber(x_right + dx, GetXRight());
+    SetNumber(y_bottom + dy, GetYBottom());
+    SetNumber(y_top + dy, GetYTop());
+    Solve();
+    ReSolve(false, true);
+    last_x = x;
+    last_y = y;
+    return true;
+}
+
+bool GraphLine::OnMouseWheelVertical(const int pixels)
+{
+    double tx = (x_right - x_left) / (400 - 40);
+    double dx = tx * (pixels * 10);
+    double ty = (y_bottom - y_top) / (400 - 40);
+    double dy = ty * (pixels * 10);
+    SetNumber(x_left + dx, GetXLeft());
+    SetNumber(x_right - dx, GetXRight());
+    SetNumber(y_bottom - dy, GetYBottom());
+    SetNumber(y_top + dy, GetYTop());
+    Solve();
+    ReSolve(false, true);
+    return true;
+}
+
+bool GraphLine::OnMouseWheelHorizontal(const int pixels)
+{
+    return false;
+}
+
 std::u32string GraphLine::ToText() const
 {
     std::u32string s = U"graph(";
@@ -366,7 +446,57 @@ void GraphLine::ToParserString(ParserString& str)
     }
 }
 
-CodeRow* GraphLine::GetYUp() const
+void GraphLine::SetNumber(const double num, CodeRow* el)
+{
+    el->elements->Clear();
+    std::ostringstream oss;
+    oss.precision(3);
+    oss << std::scientific << num;
+    std::string s = oss.str();
+    std::string m = s.substr(0, s.find('e'));
+    std::string e = s.substr(s.find('e') + 1);
+    int exp = std::stoi(e);
+    if (std::abs(exp) < 3)
+    {
+        std::ostringstream os;
+        os.precision(3);
+        os << std::fixed << num;
+        m = os.str();
+        e = "";
+    }
+
+    if (m.find('.') != std::string::npos)
+        m = m.substr(0, m.find_last_not_of('0') + 1);
+
+    if (m.empty())
+    {
+        el->AddElement(CodeStringPtr(new CodeString(el, "0")));
+        return;
+    }
+    if (m[0] == '-')
+    {
+        el->AddElement(ElementPtr(new Minus(el)));
+        el->AddElement(CodeStringPtr(new CodeString(el, m.substr(1, m.size() - 1))));
+    }
+    else
+        el->AddElement(CodeStringPtr(new CodeString(el, m)));
+    if (!e.empty())
+    {
+        el->AddElement(ElementPtr(new Multiply(el)));
+        PowerPtr p(new Power(el));
+        el->AddElement(p);
+        p->AddBase(CodeStringPtr(new CodeString(p.get(), "10")));
+        if (e[0] == '-')
+        {
+            p->AddExponent(ElementPtr(new Minus(p.get())));
+            p->AddElement(CodeStringPtr(new CodeString(p.get(), e.substr(1, e.size() - 1))));
+        }
+        else
+            p->AddElement(CodeStringPtr(new CodeString(p.get(), e)));
+    }
+}
+
+CodeRow* GraphLine::GetYTop() const
 {
     return (CodeRow*)elements->Get(0).get();
 }
@@ -376,7 +506,7 @@ CodeRow* GraphLine::GetExpression() const
     return (CodeRow*)elements->Get(1).get();
 }
 
-CodeRow* GraphLine::GetYDown() const
+CodeRow* GraphLine::GetYBottom() const
 {
     return (CodeRow*)elements->Get(2).get();
 }
