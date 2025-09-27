@@ -563,6 +563,41 @@ void Element::GetMargin(int& left, int& top, int& right, int& bottom) const
     left = top = right = bottom = 0;
 }
 
+bool Element::OnMouseLButtonDown(const int x, const int y)
+{
+    if (parent)
+        return parent->OnMouseLButtonDown(x, y);
+    return false;
+}
+
+bool Element::OnMouseLButtonUp(const int x, const int y)
+{
+    if (parent)
+        return parent->OnMouseLButtonUp(x, y);
+    return false;
+}
+
+bool Element::OnMouseMove(const int x, const int y)
+{
+    if (parent)
+        return parent->OnMouseMove(x, y);
+    return false;
+}
+
+bool Element::OnMouseWheelVertical(const int pixels)
+{
+    if (parent)
+        return parent->OnMouseWheelVertical(pixels);
+    return false;
+}
+
+bool Element::OnMouseWheelHorizontal(const int pixels)
+{
+    if (parent)
+        return parent->OnMouseWheelHorizontal(pixels);
+    return false;
+}
+
 std::string Element::ToHtml() const
 {
     return elements->ToHtml();

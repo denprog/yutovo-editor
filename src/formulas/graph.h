@@ -48,8 +48,17 @@ public:
 
     virtual bool Depends(const std::string& identifier);
 
+    virtual bool OnMouseLButtonDown(const int x, const int y);
+    virtual bool OnMouseLButtonUp(const int x, const int y);
+    virtual bool OnMouseMove(const int x, const int y);
+    virtual bool OnMouseWheelVertical(const int pixels);
+    virtual bool OnMouseWheelHorizontal(const int pixels);
+
     virtual std::u32string ToText() const;
     virtual void ToParserString(ParserString& str);
+
+protected:
+    void SetNumber(const double num, CodeRow* el);
 
 public:
     Dependencies dependencies;
@@ -63,8 +72,8 @@ protected:
     double x_left = -1, x_right = 1, y_bottom = -1, y_top = 1;
     std::vector<double> x, y;
 
-    CodeRow* GetYUp() const;
-    CodeRow* GetYDown() const;
+    CodeRow* GetYTop() const;
+    CodeRow* GetYBottom() const;
     CodeRow* GetExpression() const;
     CodeRow* GetXLeft() const;
     CodeRow* GetVariable() const;
@@ -84,6 +93,9 @@ protected:
 
     int x_pos = 0;
     int x_inc = 100;
+
+    bool mouse_l_button_down = false;
+    int last_x = 0, last_y = 0;
 };
 
 }
