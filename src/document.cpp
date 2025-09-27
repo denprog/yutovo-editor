@@ -2080,6 +2080,95 @@ void Document::SetCaretVisible(bool visible)
     next_circle = true;
 }
 
+bool Document::MouseLButtonDown(const int x, const int y)
+{
+    std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
+    auto p = window->GetDocumentPoint();
+    ElementId id;
+    if (GetElementAtCoords(x + p.x, y + p.y, id))
+    {
+        ElementPtr el = GetElement(id);
+        if (el && el->OnMouseLButtonDown(x, y))
+        {
+            mouse_capture_id = id;
+            return true;
+        }
+    }
+    return false;
+}
+
+bool Document::MouseLButtonUp(const int x, const int y)
+{
+    std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
+    ElementPtr el = GetElement(mouse_capture_id);
+    if (el && el->OnMouseLButtonUp(x, y))
+        return true;
+    auto p = window->GetDocumentPoint();
+    ElementId id;
+    if (GetElementAtCoords(x + p.x, y + p.y, id))
+    {
+        el = GetElement(id);
+        if (el && el->OnMouseLButtonUp(x, y))
+            return true;
+    }
+    return false;
+}
+
+bool Document::MouseMove(const int x, const int y)
+{
+    std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
+    ElementPtr el = GetElement(mouse_capture_id);
+    if (el && el->OnMouseMove(x, y))
+        return true;
+    ElementId id;
+    el = GetElement(id);
+    if (el && el->OnMouseMove(x, y))
+        return true;
+    return false;
+}
+
+bool Document::MouseWheel(const int x, const int y, const Point pixel_delta, const Point angle_delta)
+{
+    std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
+    EditorState s = GetEditorState();
+    ElementId id;
+    ElementPtr el;
+    auto p = window->GetDocumentPoint();
+    GetElementAtCoords(x + p.x, y + p.y, id);
+    if (GetElementAtCoords(x, y, id))
+        el = GetElement(id);
+    if (!el)
+        return false;
+    
+    if (!pixel_delta.IsNull())
+    {
+        if (pixel_delta.x != 0)
+        {
+            if (el->OnMouseWheelHorizontal(pixel_delta.x))
+                return true;
+        }
+        if (pixel_delta.y != 0)
+        {
+            if (el->OnMouseWheelVertical(pixel_delta.y))
+                return true;
+        }
+    }
+    else if (!angle_delta.IsNull())
+    {
+        if (angle_delta.x != 0)
+        {
+            if (el->OnMouseWheelHorizontal(pixel_delta.x))
+                return true;
+        }
+        if (angle_delta.y != 0)
+        {
+            if (el->OnMouseWheelVertical(pixel_delta.y))
+                return true;
+        }
+    }
+    return false;
+}
+
 void Document::Undo()
 {
     if (!CanUndo())
