@@ -65,6 +65,8 @@ Element::Element(const Element& source) :
     remake_always(source.remake_always),
     can_merge(source.can_merge),
     error_mark(source.error_mark),
+    can_move_picture(source.can_move_picture),
+    can_resize(source.can_resize),
     logger(source.logger)
 {
     elements.reset(source.elements->Clone(this)); //deep copy
@@ -170,6 +172,24 @@ void Element::Normalize()
 {
     for (int i = 0; i < elements->Count(); ++i)
         elements->Get(i)->Normalize();
+}
+
+void Element::Resize(const int dx, const int dy)
+{
+    if (parent)
+        parent->Resize(dx, dy);
+}
+
+void Element::MovePicture(const int dx, const int dy)
+{
+    if (parent)
+        parent->MovePicture(dx, dy);
+}
+
+void Element::ZoomPicture(const int pixels)
+{
+    if (parent)
+        parent->ZoomPicture(pixels);
 }
 
 bool Element::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo, ElementId& changed_element)
@@ -661,9 +681,13 @@ Element* Element::GetElementInPos(const ElementId& _id, const uint pos)
     return elements->Get(i[0])->GetElementInPos(i, pos - 1);
 }
 
-bool Element::GetElementAtCoords(const int x, const int y, ElementId& _id)
+bool Element::GetElementAtCoords(const int x, const int y, const int margin, ElementId& _id)
 {
     Rect r = GetAbsoluteRect();
+    r.left -= margin;
+    r.top -= margin;
+    r.width += margin * 2;
+    r.height += margin * 2;
     if (!r.IsPointInside(x, y))
         return false;
     else if (elements->Count() == 0)
@@ -676,7 +700,7 @@ bool Element::GetElementAtCoords(const int x, const int y, ElementId& _id)
     for (int i = 0; i < elements->Count(); ++i)
     {
         ElementPtr el = elements->Get(i);
-        if (el->GetElementAtCoords(x, y, _id))
+        if (el->GetElementAtCoords(x, y, margin, _id))
             return true;
         r = el->GetAbsoluteRect();
         if (r.IsPointInside(x, y))

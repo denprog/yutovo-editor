@@ -274,4 +274,27 @@ TEST_F(FormulaTest, graphs4)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 1, 0, 1})) << document.GetEditorState().ToString();
 }
 
+TEST_F(FormulaTest, graphs5)
+{
+    Start(600);
+
+    document.WaitTask(document.InsertGraph(true));
+    std::this_thread::sleep_for(100ms);
+    
+    document.InsertString("sin", true);
+    document.InsertOpenRoundBracket(true);
+    document.InsertString("x", true);
+    document.InsertCloseRoundBracket(true);
+    document.MoveCaretLeft(false);
+    document.MoveCaretLeft(false);
+    document.WaitTask(document.MoveCaretLeft(true));
+    document.WaitTask(document.InsertDivision(true));
+    ASSERT_TRUE(document.ToText() == U"graph(,sin((x)/()),,,,)") << ToBasicString(document.ToText());
+
+    document.Undo();
+    document.WaitUndo();
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.ToText() == U"graph(,sin(x),,,,)") << ToBasicString(document.ToText());
+}
+
 }

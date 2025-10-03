@@ -73,6 +73,11 @@ struct Config
     uint decimal_gap = 3;
     uint hexadecimal_gap = 4;
 
+    //graphs
+    Size init_size{400, 400};
+    uint init_graph_width = 1;
+    uint resize_margin_width = 5;
+
     //logger
     LogLevel log_level = LogLevel::LEVEL_INFO;
     std::string logs_path = ".";
