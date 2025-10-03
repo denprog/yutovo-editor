@@ -159,8 +159,12 @@ bool MiddleShapeFormula::AfterInsert(bool with_undo)
         if (!selection->IsEmpty())
         {
             ElementSelection& select = selection->selection[0];
-            if (select.start > 0)
-                select.element->SplitAt(select.start);
+            uint s = select.start;
+            if (s > 0)
+            {
+                select.element->can_merge = true;
+                select.element->SplitAt(s);
+            }
 
             //move the selected elements in the GetFirst() element
             GetFirst()->elements->RemoveAt(0, 1);

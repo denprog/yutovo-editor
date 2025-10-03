@@ -254,6 +254,36 @@ struct Color
         return s.str();
     }
 
+    std::string ToHexBGR() const
+    {
+        std::stringstream s;
+        s << "#";
+        s << std::setfill('0') << std::setw(sizeof(uint8_t) * 2) << std::hex << (int)b << 
+            std::setfill('0') << std::setw(sizeof(uint8_t) * 2) << (int)g << 
+            std::setfill('0') << std::setw(sizeof(uint8_t) * 2) << (int)r;
+        return s.str();
+    }
+
+    std::string ToBGR() const
+    {
+        std::stringstream s;
+        s << "x";
+        s << std::setfill('0') << std::setw(sizeof(uint8_t) * 2) << std::hex << (int)b << 
+            std::setfill('0') << std::setw(sizeof(uint8_t) * 2) << (int)g << 
+            std::setfill('0') << std::setw(sizeof(uint8_t) * 2) << (int)r;
+        return s.str();
+    }
+
+    std::string ToRGB() const
+    {
+        std::stringstream s;
+        s << "x";
+        s << std::setfill('0') << std::setw(sizeof(uint8_t) * 2) << std::hex << (int)r << 
+            std::setfill('0') << std::setw(sizeof(uint8_t) * 2) << (int)g << 
+            std::setfill('0') << std::setw(sizeof(uint8_t) * 2) << (int)b;
+        return s.str();
+    }
+
     static Color FromInt(uint32_t c)
     {
         uint8_t a = (c & 0xff000000) >> 24;

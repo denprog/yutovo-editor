@@ -62,9 +62,13 @@ void GraphLine::Init()
     elements->Add(ElementPtr(new CodeRow(this))); //variable
     elements->Add(ElementPtr(new CodeRow(this))); //x right
     elements->Add(ElementPtr(new Shape(this))); //graph
+    GetShape()->can_resize = true;
+    GetShape()->can_move_picture = true;
     for (int i = 0; i < elements->Count(); ++i)
         elements->Get(i)->can_merge = false;
     UpdateLevel(level);
+    GetShape()->editable = false;
+    editable = false;
 }
 
 bool GraphLine::AfterFromJson()
@@ -73,6 +77,10 @@ bool GraphLine::AfterFromJson()
         return false;
     for (int i = 0; i < elements->Count(); ++i)
         elements->Get(i)->can_merge = false;
+    GetShape()->can_resize = true;
+    GetShape()->can_move_picture = true;
+    GetShape()->editable = false;
+    editable = false;
     return true;
 }
 
@@ -86,11 +94,19 @@ Element* GraphLine::Create(Element* _parent)
     return new GraphLine(_parent);
 }
 
+void GraphLine::ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc)
+{
+    Formula::ToJson(value, alloc);
+    format.ToJson(value, alloc);
+}
+
 Element* GraphLine::FromJson(Element* parent, Document* document, const rapidjson::Value::ConstObject& value, rapidjson::Document::AllocatorType& alloc)
 {
-    if (parent)
-        return new GraphLine(parent, false);
-    return new GraphLine(document, false);
+    GraphFormat f;
+    f.FromJson(value, alloc);
+    GraphLine* el = parent ? new GraphLine(parent, false) : new GraphLine(document, false);
+    el->format = f;
+    return el;
 }
 
 void GraphLine::Draw() const
@@ -108,10 +124,10 @@ void GraphLine::Draw() const
             y1 = double(r.height - 2 - 20) / r.height;
             y2 = double(r.height - 20) / r.height;
             graph.InPlot(x1, y1, x2, y2);
-            graph.SetFontSize(2);
+            graph.SetFontSize(level + 1);
             graph.Axis("xyz", "r-1", "h-1");
             graph.Grid("xyz", "h");
-            graph.SetQuality(MGL_DRAW_WIRE);
+            graph.SetQuality(MGL_DRAW_NORM);
 
             if (!x.empty() && !y.empty())
             {
@@ -125,7 +141,12 @@ void GraphLine::Draw() const
                         y_data.a[i] = y[i];
                     }
                 }
-                graph.Plot(x_data, y_data, "g-1");
+#ifdef EMSCRIPTEN
+                std::string f = "{" + format.plot_color.ToRGB() + "}-" + std::to_string(format.plot_width);
+#else
+                std::string f = "{" + format.plot_color.ToBGR() + "}-" + std::to_string(format.plot_width);
+#endif
+                graph.Plot(x_data, y_data, f.c_str());
             }
             
             const unsigned char* picture = graph.GetRGBA();
@@ -149,7 +170,7 @@ bool GraphLine::Remake(bool with_elements)
     bool changed = Formula::Remake(with_elements);
 
     int x_left = std::max({GetExpression()->rect.width, GetYTop()->rect.width, GetYBottom()->rect.width});
-    GetShape()->rect.SetRect(0, 0, 400, 400);
+    GetShape()->rect.SetRect(0, 0, format.size.width, format.size.height);
     GetYTop()->rect.Move(x_left - GetYTop()->rect.width, GetShape()->rect.top);
     GetExpression()->rect.Move(x_left - GetExpression()->rect.width, GetShape()->rect.height / 2 - GetExpression()->rect.height / 2);
     GetYBottom()->rect.Move(x_left - GetYBottom()->rect.width, GetShape()->rect.GetBottom() - GetYBottom()->rect.height);
@@ -168,6 +189,40 @@ bool GraphLine::Remake(bool with_elements)
         return true;
     }
     return changed;
+}
+
+void GraphLine::Resize(const int dx, const int dy)
+{
+    if (format.size.width + dx >= 100)
+        format.size.width += dx;
+    if (format.size.height + dy >= 100)
+        format.size.height += dy;
+}
+
+void GraphLine::MovePicture(const int dx, const int dy)
+{
+    double tx = (x_right - x_left) / (GetShape()->rect.width - 40);
+    double ty = (y_bottom - y_top) / (GetShape()->rect.height - 40);
+    double _dx = tx * dx;
+    double _dy = ty * dy;
+    SetNumber(x_left - _dx, GetXLeft());
+    SetNumber(x_right - _dx, GetXRight());
+    SetNumber(y_bottom - _dy, GetYBottom());
+    SetNumber(y_top - _dy, GetYTop());
+    document->AddResolveElement(id);
+}
+
+void GraphLine::ZoomPicture(const int pixels)
+{
+    double tx = (x_right - x_left) / (format.size.width - 40);
+    double dx = tx * (pixels * 10);
+    double ty = (y_bottom - y_top) / (format.size.height - 40);
+    double dy = ty * (pixels * 10);
+    SetNumber(x_left - x_left / dx, GetXLeft());
+    SetNumber(x_right - x_right / dx, GetXRight());
+    SetNumber(y_bottom + y_bottom / dy, GetYBottom());
+    SetNumber(y_top + y_top / dy, GetYTop());
+    document->AddResolveElement(id);
 }
 
 bool GraphLine::DeleteElements(bool left, bool with_undo, ElementId& changed_element)
@@ -253,15 +308,8 @@ void GraphLine::ReSolve(bool if_error, bool force)
         document->BreakSolving(logical_id, guid, ((CodeBlock*)code.get())->code_id, false);
 
     solving = true;
-    if (mouse_l_button_down)
-    {
-        document->Solve(logical_id, guid, ((CodeBlock*)code.get())->code_id, config, last_expression.Text(), 0);
-    }
-    else
-    {
-        document->Solve(logical_id, guid, ((CodeBlock*)code.get())->code_id, config, last_expression.Text(), 
-            (delay && last_error_code != yutovo_solver::ErrorCode::SOLVER_RESTARTED_ERROR) ? document->config.solve_delay : 0);
-    }
+    document->Solve(logical_id, guid, ((CodeBlock*)code.get())->code_id, config, last_expression.Text(), 
+        (delay && last_error_code != yutovo_solver::ErrorCode::SOLVER_RESTARTED_ERROR) ? document->config.solve_delay : 0);
     document->AddChangedElement(id);
 }
 
@@ -331,75 +379,6 @@ bool GraphLine::Depends(const std::string& identifier)
 {
     if (std::find(dependencies.begin(), dependencies.end(), identifier) != dependencies.end())
         return true;
-    return false;
-}
-
-bool GraphLine::OnMouseLButtonDown(const int x, const int y)
-{
-    ElementId id;
-    if (!document->GetElementAtCoords(x, y, id))
-        return false;
-    if (id == GetShape()->id)
-    {
-        last_x = x;
-        last_y = y;
-        mouse_l_button_down = true;
-        return true;
-    }
-    return false;
-}
-
-bool GraphLine::OnMouseLButtonUp(const int x, const int y)
-{
-    if (mouse_l_button_down)
-    {
-        mouse_l_button_down = false;
-        return true;
-    }
-    return false;
-}
-
-bool GraphLine::OnMouseMove(const int x, const int y)
-{
-    if (!mouse_l_button_down)
-        return false;
-
-    double tx = (x_right - x_left) / (400 - 40);
-    double dx = tx * (last_x - x);
-    if (abs(dx) < abs(tx * 10))
-        return true;
-    double ty = (y_bottom - y_top) / (400 - 40);
-    double dy = ty * (last_y - y);
-    if (abs(dy) < abs(ty * 10))
-        return true;
-    SetNumber(x_left + dx, GetXLeft());
-    SetNumber(x_right + dx, GetXRight());
-    SetNumber(y_bottom + dy, GetYBottom());
-    SetNumber(y_top + dy, GetYTop());
-    Solve();
-    ReSolve(false, true);
-    last_x = x;
-    last_y = y;
-    return true;
-}
-
-bool GraphLine::OnMouseWheelVertical(const int pixels)
-{
-    double tx = (x_right - x_left) / (400 - 40);
-    double dx = tx * (pixels * 10);
-    double ty = (y_bottom - y_top) / (400 - 40);
-    double dy = ty * (pixels * 10);
-    SetNumber(x_left + dx, GetXLeft());
-    SetNumber(x_right - dx, GetXRight());
-    SetNumber(y_bottom - dy, GetYBottom());
-    SetNumber(y_top + dy, GetYTop());
-    Solve();
-    ReSolve(false, true);
-    return true;
-}
-
-bool GraphLine::OnMouseWheelHorizontal(const int pixels)
-{
     return false;
 }
 

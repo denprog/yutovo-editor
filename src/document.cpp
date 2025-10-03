@@ -1224,12 +1224,12 @@ ElementPtr Document::GetLogicalParent(const LogicalId& _id)
     return GetElement(elements[0]->parent->id);
 }
 
-bool Document::GetElementAtCoords(const int x, const int y, ElementId& id)
+bool Document::GetElementAtCoords(const int x, const int y, const int margin, ElementId& id)
 {
     bool r = false;
     if (edit_mutex.try_lock())
     {
-        r = text->GetElementAtCoords(x, y, id);
+        r = text->GetElementAtCoords(x, y, margin, id);
         edit_mutex.unlock();
     }
     return r;
@@ -1563,6 +1563,34 @@ void Document::SetCurrentFormulaFormat(const std::string& name)
     current_formula_format = formula_formats->GetFormat("Code");
 }
 
+bool Document::GetGraphFormat(const ElementId& id, GraphFormat& format)
+{
+    std::lock_guard<std::recursive_mutex> lock(edit_mutex);
+    ElementPtr el = GetElement(id);
+    if (!el || el->type != ElementType::GRAPH_LINE)
+        return false;
+    format = ((GraphLine*)el.get())->format;
+    return true;
+}
+
+uint Document::SetGraphFormat(const ElementId& id, const GraphFormat& format)
+{
+    std::lock_guard<std::recursive_mutex> lock(edit_mutex);
+    std::function<bool()> func = 
+        [id, format, this]()
+        {
+            ElementPtr el = GetElement(id);
+            if (!el || el->type != ElementType::GRAPH_LINE)
+                return false;
+            ((GraphLine*)el.get())->format = format;
+            return true;
+        };
+    tasks.emplace_back(new SetFormatTask(text, id, func));
+    last_task_id = tasks.back()->id;
+    next_circle = true;
+    return last_task_id;
+}
+
 void Document::UpdateFormats()
 {
     std::lock_guard<std::recursive_mutex> lock(edit_mutex);
@@ -1773,7 +1801,16 @@ ElementPtr Document::CreateParagraph(const ElementId& id)
     return ElementPtr(new Paragraph(this, true));
 }
 
-ElementType Document::GetElementType(const ElementId id)
+ElementType Document::GetCurrentElementType()
+{
+    std::lock_guard<std::recursive_mutex> lock(edit_mutex);
+    auto el = caret->GetElement();
+    if (!el)
+        return ElementType::NONE;
+    return el->type;
+}
+
+ElementType Document::GetElementType(const ElementId& id)
 {
     std::lock_guard<std::recursive_mutex> lock(edit_mutex);
     ElementPtr el = GetElement(id);
@@ -1782,7 +1819,7 @@ ElementType Document::GetElementType(const ElementId id)
     return el->type;
 }
 
-bool Document::IsEditable(const ElementId id)
+bool Document::IsEditable(const ElementId& id)
 {
     std::lock_guard<std::recursive_mutex> lock(edit_mutex);
     ElementPtr el = GetElement(id);
@@ -1803,6 +1840,15 @@ bool Document::IsEmpty()
 {
     std::lock_guard<std::recursive_mutex> lock(edit_mutex);
     return text->IsEmpty();
+}
+
+bool Document::IsResizable(const ElementId& id)
+{
+    std::lock_guard<std::recursive_mutex> lock(edit_mutex);
+    ElementPtr el = GetElement(id);
+    if (!el)
+        return false;
+    return el->can_resize;
 }
 
 bool Document::IsString(ElementPtr el)
@@ -2083,14 +2129,40 @@ void Document::SetCaretVisible(bool visible)
 bool Document::MouseLButtonDown(const int x, const int y)
 {
     std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
-    auto p = window->GetDocumentPoint();
     ElementId id;
-    if (GetElementAtCoords(x + p.x, y + p.y, id))
+    int m = config.resize_margin_width;
+    if (GetElementAtCoords(x, y, m, id))
+    {
+        if (IsResizable(id))
+        {
+            Rect rect;
+            if (GetElementRect(id, rect))
+            {
+                if ((x <= rect.left + m && y <= rect.top + m) || (x >= rect.GetRight() - m && y >= rect.top - m) || 
+                    (x <= rect.left + m && y >= rect.GetBottom() - m) || (x >= rect.GetRight() - m && y >= rect.GetBottom() - m))
+                {
+                    resize_dir = ResizeDir::Both;
+                }
+                else if (x <= rect.left + m || (x <= rect.GetRight() + m && x >= rect.GetRight() - m))
+                    resize_dir = ResizeDir::Horizontal;
+                else if (y <= rect.top + m || (y <= rect.GetBottom() + m && y >= rect.GetBottom() - m))
+                    resize_dir = ResizeDir::Vertical;
+                mouse_capture_id = id;
+                last_mouse_pos.Set(x, y);
+                return true;
+            }
+        }
+    }
+
+    resize_dir = ResizeDir::None;
+
+    if (GetElementAtCoords(x, y, 0, id))
     {
         ElementPtr el = GetElement(id);
-        if (el && el->OnMouseLButtonDown(x, y))
+        if (el && el->can_move_picture)
         {
             mouse_capture_id = id;
+            last_mouse_pos.Set(x, y);
             return true;
         }
     }
@@ -2100,17 +2172,8 @@ bool Document::MouseLButtonDown(const int x, const int y)
 bool Document::MouseLButtonUp(const int x, const int y)
 {
     std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
-    ElementPtr el = GetElement(mouse_capture_id);
-    if (el && el->OnMouseLButtonUp(x, y))
-        return true;
-    auto p = window->GetDocumentPoint();
-    ElementId id;
-    if (GetElementAtCoords(x + p.x, y + p.y, id))
-    {
-        el = GetElement(id);
-        if (el && el->OnMouseLButtonUp(x, y))
-            return true;
-    }
+    resize_dir = ResizeDir::None;
+    mouse_capture_id = ElementId{};
     return false;
 }
 
@@ -2118,52 +2181,76 @@ bool Document::MouseMove(const int x, const int y)
 {
     std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
     ElementPtr el = GetElement(mouse_capture_id);
-    if (el && el->OnMouseMove(x, y))
+    if (!el)
+        return false;
+
+    if (resize_dir != ResizeDir::None)
+    {
+        switch (resize_dir)
+        {
+        case ResizeDir::Horizontal:
+            tasks.emplace_back(new ResizeElementTask(text, mouse_capture_id, x - last_mouse_pos.x, 0));
+            break;
+        case ResizeDir::Vertical:
+            tasks.emplace_back(new ResizeElementTask(text, mouse_capture_id, 0, y - last_mouse_pos.y));
+            break;
+        case ResizeDir::Both:
+            tasks.emplace_back(new ResizeElementTask(text, mouse_capture_id, x - last_mouse_pos.x, y - last_mouse_pos.y));
+            break;
+        default:
+            return false;
+        }
+        last_mouse_pos.Set(x, y);
+        last_task_id = tasks.back()->id;
+        next_circle = true;
         return true;
-    ElementId id;
-    el = GetElement(id);
-    if (el && el->OnMouseMove(x, y))
+    }
+
+    if (el->can_move_picture)
+    {
+        if (abs(x - last_mouse_pos.x) < 10 && abs(y - last_mouse_pos.y) < 10)
+            return true;
+        tasks.emplace_back(new MovePictureTask(text, mouse_capture_id, x - last_mouse_pos.x, y - last_mouse_pos.y));
+        last_mouse_pos.Set(x, y);
+        last_task_id = tasks.back()->id;
+        next_circle = true;
         return true;
+    }
+
     return false;
 }
 
 bool Document::MouseWheel(const int x, const int y, const Point pixel_delta, const Point angle_delta)
 {
     std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
-    EditorState s = GetEditorState();
     ElementId id;
-    ElementPtr el;
-    auto p = window->GetDocumentPoint();
-    GetElementAtCoords(x + p.x, y + p.y, id);
-    if (GetElementAtCoords(x, y, id))
-        el = GetElement(id);
-    if (!el)
+    ElementPtr el = GetElement(mouse_capture_id);
+    if (el)
+        return false;
+    if (!GetElementAtCoords(x, y, 0, id))
+        return false;
+    el = GetElement(id);
+    if (!el || !el->can_move_picture)
         return false;
     
     if (!pixel_delta.IsNull())
     {
-        if (pixel_delta.x != 0)
+        if (pixel_delta.x != 0 || pixel_delta.y != 0)
         {
-            if (el->OnMouseWheelHorizontal(pixel_delta.x))
-                return true;
-        }
-        if (pixel_delta.y != 0)
-        {
-            if (el->OnMouseWheelVertical(pixel_delta.y))
-                return true;
+            tasks.emplace_back(new ZoomPictureTask(text, id, abs(pixel_delta.x) > abs(pixel_delta.y) ? pixel_delta.x : pixel_delta.y));
+            last_task_id = tasks.back()->id;
+            next_circle = true;
+            return true;
         }
     }
     else if (!angle_delta.IsNull())
     {
-        if (angle_delta.x != 0)
+        if (angle_delta.x != 0 || angle_delta.y != 0)
         {
-            if (el->OnMouseWheelHorizontal(pixel_delta.x))
-                return true;
-        }
-        if (angle_delta.y != 0)
-        {
-            if (el->OnMouseWheelVertical(pixel_delta.y))
-                return true;
+            tasks.emplace_back(new ZoomPictureTask(text, id, abs(angle_delta.x) > abs(angle_delta.y) ? angle_delta.x : angle_delta.y));
+            last_task_id = tasks.back()->id;
+            next_circle = true;
+            return true;
         }
     }
     return false;
