@@ -30,10 +30,15 @@ public:
 
     virtual Element* Create(Element* _parent);
 
+    void ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc);
     static Element* FromJson(Element* parent, Document* document, const rapidjson::Value::ConstObject& value, rapidjson::Document::AllocatorType& alloc);
 
     virtual void Draw() const;
     virtual bool Remake(bool with_elements = false);
+    virtual void Resize(const int dx, const int dy);
+
+    virtual void MovePicture(const int dx, const int dy);
+    virtual void ZoomPicture(const int pixels);
 
     virtual bool DeleteElements(bool left, bool with_undo, ElementId& changed_element);
 
@@ -48,12 +53,6 @@ public:
 
     virtual bool Depends(const std::string& identifier);
 
-    virtual bool OnMouseLButtonDown(const int x, const int y);
-    virtual bool OnMouseLButtonUp(const int x, const int y);
-    virtual bool OnMouseMove(const int x, const int y);
-    virtual bool OnMouseWheelVertical(const int pixels);
-    virtual bool OnMouseWheelHorizontal(const int pixels);
-
     virtual std::u32string ToText() const;
     virtual void ToParserString(ParserString& str);
 
@@ -63,6 +62,7 @@ protected:
 public:
     Dependencies dependencies;
     yutovo_solver::ErrorCode last_error_code = yutovo_solver::ErrorCode::OK;
+    GraphFormat format;
 
 #ifdef TEST
 public:
@@ -93,9 +93,6 @@ protected:
 
     int x_pos = 0;
     int x_inc = 100;
-
-    bool mouse_l_button_down = false;
-    int last_x = 0, last_y = 0;
 };
 
 }

@@ -35,7 +35,7 @@ public:
 
     virtual bool HasCaretState();
 
-    virtual bool GetElementAtCoords(const int x, const int y, ElementId& _id);
+    virtual bool GetElementAtCoords(const int x, const int y, const int margin, ElementId& _id);
 
 public:
     std::function<void(const Rect& rect)> draw_func;

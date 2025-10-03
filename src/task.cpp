@@ -997,6 +997,65 @@ bool ChangePageFormatTask::Execute()
     return true;
 }
 
+//MovePictureTask
+
+MovePictureTask::MovePictureTask(ElementPtr _text, ElementId _id, const int _dx, const int _dy) : 
+    Task(_text),
+    id(_id),
+    dx(_dx),
+    dy(_dy)
+{
+}
+
+bool MovePictureTask::Execute()
+{
+    ElementPtr element = document->GetElement(id);
+    if (!element)
+        return false;
+    element->MovePicture(dx, dy);
+    Remake(GetParent(id), true);
+    return true;
+}
+
+//ZoomPictureTask
+
+ZoomPictureTask::ZoomPictureTask(ElementPtr _text, ElementId _id, const int _pixels) :
+    Task(_text),
+    id(_id),
+    pixels(_pixels)
+{
+}
+
+bool ZoomPictureTask::Execute()
+{
+    ElementPtr element = document->GetElement(id);
+    if (!element)
+        return false;
+    element->ZoomPicture(pixels);
+    Remake(GetParent(id), true);
+    return true;
+}
+
+//ResizeElementTask
+
+ResizeElementTask::ResizeElementTask(ElementPtr _text, ElementId _id, const int _dx, const int _dy) :
+    Task(_text),
+    id(_id),
+    dx(_dx),
+    dy(_dy)
+{
+}
+
+bool ResizeElementTask::Execute()
+{
+    ElementPtr element = document->GetElement(id);
+    if (!element)
+        return false;
+    element->Resize(dx, dy);
+    Remake(GetParent(id), true);
+    return true;
+}
+
 //RedrawTask
 
 RedrawTask::RedrawTask(ElementPtr _text, const ElementId& _id, bool _move_into_view) :
@@ -2643,6 +2702,23 @@ bool SetConfigTask::Execute()
         Remake(text->id, false);
     document->Redraw(text->id, false);
 
+    return true;
+}
+
+//SetFormatTask
+
+SetFormatTask::SetFormatTask(ElementPtr _text, const ElementId& _id, std::function<bool()> _func) : 
+    Task(_text),
+    id(_id),
+    func(_func)
+{
+}
+
+bool SetFormatTask::Execute()
+{
+    if (!func())
+        return false;
+    Remake(id, false);
     return true;
 }
 
