@@ -55,13 +55,16 @@ GraphLine::GraphLine(const GraphLine& source) :
 
 void GraphLine::Init()
 {
-    elements->Add(ElementPtr(new CodeRow(this))); //y up
-    elements->Add(ElementPtr(new CodeRow(this))); //expression
-    elements->Add(ElementPtr(new CodeRow(this))); //y down
-    elements->Add(ElementPtr(new CodeRow(this))); //x left
-    elements->Add(ElementPtr(new CodeRow(this))); //variable
-    elements->Add(ElementPtr(new CodeRow(this))); //x right
-    elements->Add(ElementPtr(new Shape(this))); //graph
+    if (elements->Count() == 0)
+    {
+        elements->Add(ElementPtr(new CodeRow(this))); //y up
+        elements->Add(ElementPtr(new CodeRow(this))); //expression
+        elements->Add(ElementPtr(new CodeRow(this))); //y down
+        elements->Add(ElementPtr(new CodeRow(this))); //x left
+        elements->Add(ElementPtr(new CodeRow(this))); //variable
+        elements->Add(ElementPtr(new CodeRow(this))); //x right
+        elements->Add(ElementPtr(new Shape(this))); //graph
+    }
     GetShape()->can_resize = true;
     GetShape()->can_move_picture = true;
     for (int i = 0; i < elements->Count(); ++i)
@@ -69,18 +72,51 @@ void GraphLine::Init()
     UpdateLevel(level);
     GetShape()->editable = false;
     editable = false;
+
+    GetShape()->draw_func = 
+        [&](const Rect& r)
+        {
+            graph.SetFlagAdv(1, MGL_NO_SCALE_REL);
+            graph.SetScaleText(false);
+            graph.SetSize(r.width, r.height, false);
+            graph.NewFrame();
+            graph.SetRanges(x_left, x_right, y_bottom, y_top);
+            graph.SubPlot(1, 1, 0, "#");
+            graph.InPlot(0.05, 0.95, 0.05, 0.95);
+            graph.SetFontSize(level);
+            graph.Axis("xyz", "r-1", "h-1");
+            graph.Grid("xyz", "h");
+            graph.SetQuality(MGL_DRAW_NORM);
+
+            if (!x.empty() && !y.empty())
+            {
+                mglData x_data(x.size());
+                mglData y_data(y.size());
+                for (size_t i = 0; i < x.size() && i < y.size(); ++i)
+                {
+                    if (x[i] >= x_left && x[i] <= x_right)
+                    {
+                        x_data.a[i] = x[i];
+                        y_data.a[i] = y[i];
+                    }
+                }
+#ifdef EMSCRIPTEN
+                std::string f = "{" + format.plot_color.ToRGB() + "}-" + std::to_string(format.plot_width);
+#else
+                std::string f = "{" + format.plot_color.ToBGR() + "}-" + std::to_string(format.plot_width);
+#endif
+                graph.Plot(x_data, y_data, f.c_str());
+            }
+            
+            const unsigned char* picture = graph.GetRGBA();
+            std::vector<unsigned char> arr(picture, picture + 4 * (graph.GetWidth() * graph.GetHeight()));
+            window->DrawImage(r.left + 1, r.top + 1, r.width, r.height, arr);
+        };
 }
 
 bool GraphLine::AfterFromJson()
 {
-    if (elements->Count() != 7)
-        return false;
-    for (int i = 0; i < elements->Count(); ++i)
-        elements->Get(i)->can_merge = false;
-    GetShape()->can_resize = true;
-    GetShape()->can_move_picture = true;
-    GetShape()->editable = false;
-    editable = false;
+    Init();
     return true;
 }
 
@@ -111,49 +147,6 @@ Element* GraphLine::FromJson(Element* parent, Document* document, const rapidjso
 
 void GraphLine::Draw() const
 {
-    GetShape()->draw_func = 
-        [&](const Rect& r)
-        {
-            graph.SetSize(r.width, r.height);
-            graph.NewFrame();
-            graph.SetRanges(x_left, x_right, y_bottom, y_top);
-            graph.SubPlot(1, 1, 0, "#");
-            double x1, x2, y1, y2;
-            x1 = double(20) / r.width;
-            x2 = double(20 + 2) / r.width;
-            y1 = double(r.height - 2 - 20) / r.height;
-            y2 = double(r.height - 20) / r.height;
-            graph.InPlot(x1, y1, x2, y2);
-            graph.SetFontSize(level + 1);
-            graph.Axis("xyz", "r-1", "h-1");
-            graph.Grid("xyz", "h");
-            graph.SetQuality(MGL_DRAW_NORM);
-
-            if (!x.empty() && !y.empty())
-            {
-                mglData x_data(x.size());
-                mglData y_data(y.size());
-                for (size_t i = 0; i < x.size() && i < y.size(); ++i)
-                {
-                    if (x[i] >= x_left && x[i] <= x_right)
-                    {
-                        x_data.a[i] = x[i];
-                        y_data.a[i] = y[i];
-                    }
-                }
-#ifdef EMSCRIPTEN
-                std::string f = "{" + format.plot_color.ToRGB() + "}-" + std::to_string(format.plot_width);
-#else
-                std::string f = "{" + format.plot_color.ToBGR() + "}-" + std::to_string(format.plot_width);
-#endif
-                graph.Plot(x_data, y_data, f.c_str());
-            }
-            
-            const unsigned char* picture = graph.GetRGBA();
-            std::vector<unsigned char> arr(picture, picture + 4 * (graph.GetWidth() * graph.GetHeight()));
-            window->DrawImage(r.left + 1, r.top + 1, r.width, r.height, arr);
-        };
-
     if (document->selection.IsSelected(id))
     {
         Rect abs_rect = GetAbsoluteRect();
