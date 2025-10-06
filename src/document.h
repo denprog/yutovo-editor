@@ -253,7 +253,7 @@ public:
     bool LoadStringFormats(const rapidjson::Value::ConstArray& value, rapidjson::Document::AllocatorType& alloc);
 
     bool GetGraphFormat(const ElementId& id, GraphFormat& format);
-    uint SetGraphFormat(const ElementId& id, const GraphFormat& format);
+    uint SetGraphFormat(const ElementId& id, const GraphFormat& format, bool with_undo);
     
     void UpdateFormats();
 
@@ -507,9 +507,14 @@ private:
     enum class ResizeDir
     {
         None = 0,
-        Horizontal,
-        Vertical,
-        Both
+        HorizontalLeft,
+        HorizontalRight,
+        VerticalLeft,
+        VerticalRight,
+        BothTopLeft,
+        BothTopRight,
+        BothBottomLeft,
+        BothBottomRight
     };
 
     ResizeDir resize_dir = ResizeDir::None;

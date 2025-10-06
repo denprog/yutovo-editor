@@ -418,7 +418,7 @@ struct SetConfigTask : Task
 
 struct SetFormatTask : Task
 {
-    SetFormatTask(ElementPtr _text, const ElementId& _id, std::function<bool()> _func);
+    SetFormatTask(ElementPtr _text, const ElementId& _id, std::function<bool()> _func, bool _with_undo);
 
     virtual bool Execute();
 
