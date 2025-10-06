@@ -626,7 +626,8 @@ Element* UndoResult::Restore(Document* document, Element* parent)
 //UndoGraphLine
 
 UndoGraphLine::UndoGraphLine(GraphLine* graph) :
-    UndoFormula(ElementType::GRAPH_LINE, graph->formula_format)
+    UndoFormula(ElementType::GRAPH_LINE, graph->formula_format),
+    format(graph->format)
 {
 }
 
@@ -638,6 +639,7 @@ bool UndoGraphLine::operator==(const UndoGraphLine& el) const
 Element* UndoGraphLine::Restore(Document* document, Element* parent)
 {
     GraphLine* el = parent ? new GraphLine(parent) : new GraphLine(document);
+    el->format = format;
     el->formula_format = formula_format;
     for (int i = 0; i < elements.size(); ++i)
     {

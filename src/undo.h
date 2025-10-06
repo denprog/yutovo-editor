@@ -184,6 +184,8 @@ struct UndoGraphLine : UndoFormula
     virtual bool operator==(const UndoGraphLine& el) const;
 
     virtual Element* Restore(Document* document, Element* parent);
+
+    GraphFormat format;
 };
 
 class ConfigElement : public Element
