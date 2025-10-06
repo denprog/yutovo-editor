@@ -15,23 +15,16 @@
 namespace yutovo
 {
 
-class GraphLine : public Formula
+class Graph : public Formula
 {
 public:
-    GraphLine(Element* _parent, bool with_init = true);
-    GraphLine(Document* _document, bool with_init = true);
-    GraphLine(const GraphLine& source);
+    Graph(Element* _parent, bool with_init = true);
+    Graph(Document* _document, bool with_init = true);
+    Graph(const Graph& source);
 
-    void Init();
+    virtual void Init();
 
     virtual bool AfterFromJson();
-
-    virtual Element* Clone();
-
-    virtual Element* Create(Element* _parent);
-
-    void ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc);
-    static Element* FromJson(Element* parent, Document* document, const rapidjson::Value::ConstObject& value, rapidjson::Document::AllocatorType& alloc);
 
     virtual void Draw() const;
     virtual bool Remake(bool with_elements = false);
@@ -46,15 +39,9 @@ public:
 
     virtual bool AfterInsert(bool with_undo);
 
-    virtual void Solve();
     virtual void ReSolve(bool if_error = false, bool force = false);
 
-    virtual void PutResult(Result& result);
-
     virtual bool Depends(const std::string& identifier);
-
-    virtual std::u32string ToText() const;
-    virtual void ToParserString(ParserString& str);
 
 protected:
     void SetNumber(const double num, CodeRow* el);
@@ -93,6 +80,37 @@ protected:
 
     int x_pos = 0;
     int x_inc = 100;
+};
+
+class GraphLine : public Graph
+{
+public:
+    GraphLine(Element* _parent, bool with_init = true);
+    GraphLine(Document* _document, bool with_init = true);
+    GraphLine(const GraphLine& source);
+
+    virtual void Init();
+
+    virtual Element* Clone();
+
+    virtual Element* Create(Element* _parent);
+
+    void ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc);
+    static Element* FromJson(Element* parent, Document* document, const rapidjson::Value::ConstObject& value, rapidjson::Document::AllocatorType& alloc);
+
+    virtual void Solve();
+
+    virtual void PutResult(Result& result);
+
+    virtual std::u32string ToText() const;
+    virtual void ToParserString(ParserString& str);
+
+#ifdef TEST
+public:
+#else
+protected:
+#endif
+    std::vector<double> x, y;
 };
 
 }

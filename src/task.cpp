@@ -2707,11 +2707,12 @@ bool SetConfigTask::Execute()
 
 //SetFormatTask
 
-SetFormatTask::SetFormatTask(ElementPtr _text, const ElementId& _id, std::function<bool()> _func) : 
+SetFormatTask::SetFormatTask(ElementPtr _text, const ElementId& _id, std::function<bool()> _func, bool _with_undo) : 
     Task(_text),
     id(_id),
     func(_func)
 {
+    with_undo = _with_undo;
 }
 
 bool SetFormatTask::Execute()

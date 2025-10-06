@@ -1573,19 +1573,21 @@ bool Document::GetGraphFormat(const ElementId& id, GraphFormat& format)
     return true;
 }
 
-uint Document::SetGraphFormat(const ElementId& id, const GraphFormat& format)
+uint Document::SetGraphFormat(const ElementId& id, const GraphFormat& format, bool with_undo)
 {
     std::lock_guard<std::recursive_mutex> lock(edit_mutex);
     std::function<bool()> func = 
-        [id, format, this]()
+        [id, format, with_undo, this]()
         {
             ElementPtr el = GetElement(id);
             if (!el || el->type != ElementType::GRAPH_LINE)
                 return false;
+            if (with_undo)
+                StoreUndo(el->id);
             ((GraphLine*)el.get())->format = format;
             return true;
         };
-    tasks.emplace_back(new SetFormatTask(text, id, func));
+    tasks.emplace_back(new SetFormatTask(text, id, func, with_undo));
     last_task_id = tasks.back()->id;
     next_circle = true;
     return last_task_id;
@@ -2138,15 +2140,22 @@ bool Document::MouseLButtonDown(const int x, const int y)
             Rect rect;
             if (GetElementRect(id, rect))
             {
-                if ((x <= rect.left + m && y <= rect.top + m) || (x >= rect.GetRight() - m && y >= rect.top - m) || 
-                    (x <= rect.left + m && y >= rect.GetBottom() - m) || (x >= rect.GetRight() - m && y >= rect.GetBottom() - m))
-                {
-                    resize_dir = ResizeDir::Both;
-                }
-                else if (x <= rect.left + m || (x <= rect.GetRight() + m && x >= rect.GetRight() - m))
-                    resize_dir = ResizeDir::Horizontal;
-                else if (y <= rect.top + m || (y <= rect.GetBottom() + m && y >= rect.GetBottom() - m))
-                    resize_dir = ResizeDir::Vertical;
+                if (x <= rect.left + m && y <= rect.top + m)
+                    resize_dir = ResizeDir::BothTopLeft;
+                else if (x <= rect.left + m && y >= rect.GetBottom() - m)
+                    resize_dir = ResizeDir::BothBottomLeft;
+                else if (x >= rect.GetRight() - m && y <= rect.top + m)
+                    resize_dir = ResizeDir::BothTopRight;
+                else if (x >= rect.GetRight() - m && y >= rect.GetBottom() - m)
+                    resize_dir = ResizeDir::BothBottomRight;
+                else if (x <= rect.left + m)
+                    resize_dir = ResizeDir::HorizontalLeft;
+                else if (x <= rect.GetRight() + m && x >= rect.GetRight() - m)
+                    resize_dir = ResizeDir::HorizontalRight;
+                else if (y <= rect.top + m)
+                    resize_dir = ResizeDir::VerticalLeft;
+                else if (y <= rect.GetBottom() + m && y >= rect.GetBottom() - m)
+                    resize_dir = ResizeDir::VerticalRight;
                 mouse_capture_id = id;
                 last_mouse_pos.Set(x, y);
                 return true;
@@ -2188,13 +2197,28 @@ bool Document::MouseMove(const int x, const int y)
     {
         switch (resize_dir)
         {
-        case ResizeDir::Horizontal:
+        case ResizeDir::HorizontalLeft:
+            tasks.emplace_back(new ResizeElementTask(text, mouse_capture_id, last_mouse_pos.x - x, 0));
+            break;
+        case ResizeDir::HorizontalRight:
             tasks.emplace_back(new ResizeElementTask(text, mouse_capture_id, x - last_mouse_pos.x, 0));
             break;
-        case ResizeDir::Vertical:
+        case ResizeDir::VerticalLeft:
+            tasks.emplace_back(new ResizeElementTask(text, mouse_capture_id, 0, last_mouse_pos.y - y));
+            break;
+        case ResizeDir::VerticalRight:
             tasks.emplace_back(new ResizeElementTask(text, mouse_capture_id, 0, y - last_mouse_pos.y));
             break;
-        case ResizeDir::Both:
+        case ResizeDir::BothTopLeft:
+            tasks.emplace_back(new ResizeElementTask(text, mouse_capture_id, last_mouse_pos.x - x, last_mouse_pos.y - y));
+            break;
+        case ResizeDir::BothTopRight:
+            tasks.emplace_back(new ResizeElementTask(text, mouse_capture_id, x - last_mouse_pos.x, last_mouse_pos.y - y));
+            break;
+        case ResizeDir::BothBottomLeft:
+            tasks.emplace_back(new ResizeElementTask(text, mouse_capture_id, last_mouse_pos.x - x, y - last_mouse_pos.y));
+            break;
+        case ResizeDir::BothBottomRight:
             tasks.emplace_back(new ResizeElementTask(text, mouse_capture_id, x - last_mouse_pos.x, y - last_mouse_pos.y));
             break;
         default:
@@ -3169,11 +3193,12 @@ uint Document::ReSolveErrors()
 
 uint Document::PutResult(const std::string& guid, const Result& result)
 {
-    std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
+    std::lock_guard<std::recursive_mutex> lock1(edit_mutex);
     auto it = solve_ids.find(guid);
     if (it == solve_ids.end())
         return 0;
     
+    std::lock_guard<std::recursive_mutex> lock2(tasks_mutex);
     tasks.emplace_back(new ResultTask(text, it->second, result));
 
 #ifdef DEBUG
