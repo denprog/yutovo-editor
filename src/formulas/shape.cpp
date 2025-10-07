@@ -6,6 +6,7 @@
  */
 
 #include "shape.h"
+#include "document.h"
 
 namespace yutovo
 {
@@ -43,6 +44,18 @@ void Shape::Draw() const
 {
     if (draw_func)
         draw_func(GetAbsoluteRect());
+    if (can_resize)
+    {
+        //draw the resize items
+        auto r = GetAbsoluteRect();
+        const auto f = GetStringFormat();
+        window->DrawRect(r, f->text_color);
+        int m = document->config.resize_margin_width;
+        window->DrawRect(Rect{r.left, r.top, m, m}, f->text_color);
+        window->DrawRect(Rect{r.GetRight() - m, r.top, m, m}, f->text_color);
+        window->DrawRect(Rect{r.GetRight() - m, r.GetBottom() - m, m, m}, f->text_color);
+        window->DrawRect(Rect{r.left, r.GetBottom() - m, m, m}, f->text_color);
+    }
 }
 
 bool Shape::Remake(bool with_elements)
@@ -55,9 +68,13 @@ bool Shape::HasCaretState()
     return true;
 }
 
-bool Shape::GetElementAtCoords(const int x, const int y, ElementId& _id)
+bool Shape::GetElementAtCoords(const int x, const int y, const int margin, ElementId& _id)
 {
     Rect r = parent->GetAbsoluteRect(GetCaretRect());
+    r.left -= margin;
+    r.top -= margin;
+    r.width += margin * 2;
+    r.height += margin * 2;
     if (r.IsPointInside(x, y))
     {
         _id = id;

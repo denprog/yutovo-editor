@@ -51,8 +51,8 @@ public:
     void SetResult(Config::IntegerResultConfig config);
     void SetResult(Config::RationalResultConfig config);
     void SetResult(Config::ComplexResultConfig config);
-
     bool SetResult(ResultType _result_type, bool with_undo);
+    
     bool SetConfig(int precision, int exp, AngleMeasure default_angle_measure, AngleMeasure result_angle_measure, bool with_undo);
     bool SetConfig(Notation default_notation, Notation result_notation, bool with_undo);
     bool SetConfig(FractionForm fraction_form, bool with_undo);

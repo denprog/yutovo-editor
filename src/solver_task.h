@@ -127,9 +127,11 @@ struct ArrayRealSolverTask : SolverTask
 
 struct BreakSolverTask : SolverTask
 {
-    BreakSolverTask(const LogicalId& _id, Document* _document, const std::string& _solver_guid, uint _code_id, Logger* _logger);
+    BreakSolverTask(const LogicalId& _id, Document* _document, const std::string& _solver_guid, uint _code_id, bool _wait, Logger* _logger);
 
     virtual bool Execute(WebSocketPtr socket, Result& result);
+
+    bool wait; //wait for starting the breaking task
 };
 
 struct SetIdentifierSolverTask : AutoSolverTask

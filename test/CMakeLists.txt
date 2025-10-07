@@ -6,7 +6,7 @@ set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 if(WIN32)
@@ -40,6 +40,12 @@ find_package(yutovo-logger REQUIRED PATHS ${INSTALL_PATH}/lib/cmake/)
 
 if(NOT DEFINED REMOTE_SOLVER)
     find_package(yutovo-solver REQUIRED)
+endif()
+
+if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+    add_compile_definitions(DEBUG)
+else()
+    add_compile_definitions(RELEASE)
 endif()
 
 find_package(ZLIB REQUIRED)
@@ -77,6 +83,7 @@ add_executable(${PROJECT_NAME}_tests
 	image.cpp
 	sum.cpp
 	product.cpp
+	graph.cpp
 )
 
 if(WIN32)

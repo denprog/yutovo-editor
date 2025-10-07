@@ -42,7 +42,7 @@ public:
 
     virtual void UpdateRect(bool with_elements = false);
 
-    virtual bool GetElementAtCoords(const int x, const int y, ElementId& _id);
+    virtual bool GetElementAtCoords(const int x, const int y, const int margin, ElementId& _id);
 
     virtual std::string ToHtml() const;
     virtual void ToParserString(ParserString& str);

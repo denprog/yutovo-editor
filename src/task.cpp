@@ -17,6 +17,7 @@
 #include "formulas/result.h"
 #include "formulas/equation.h"
 #include "formulas/assignment.h"
+#include "formulas/graph.h"
 #include <yutovo-logger/logger.h>
 #include <yutovo-calculator/utils.h>
 #include "editor_utils.h"
@@ -993,6 +994,65 @@ bool ChangePageFormatTask::Execute()
     Remake(ElementId{0}, true);
     document->UpdateFormats();
 
+    return true;
+}
+
+//MovePictureTask
+
+MovePictureTask::MovePictureTask(ElementPtr _text, ElementId _id, const int _dx, const int _dy) : 
+    Task(_text),
+    id(_id),
+    dx(_dx),
+    dy(_dy)
+{
+}
+
+bool MovePictureTask::Execute()
+{
+    ElementPtr element = document->GetElement(id);
+    if (!element)
+        return false;
+    element->MovePicture(dx, dy);
+    Remake(GetParent(id), true);
+    return true;
+}
+
+//ZoomPictureTask
+
+ZoomPictureTask::ZoomPictureTask(ElementPtr _text, ElementId _id, const int _pixels) :
+    Task(_text),
+    id(_id),
+    pixels(_pixels)
+{
+}
+
+bool ZoomPictureTask::Execute()
+{
+    ElementPtr element = document->GetElement(id);
+    if (!element)
+        return false;
+    element->ZoomPicture(pixels);
+    Remake(GetParent(id), true);
+    return true;
+}
+
+//ResizeElementTask
+
+ResizeElementTask::ResizeElementTask(ElementPtr _text, ElementId _id, const int _dx, const int _dy) :
+    Task(_text),
+    id(_id),
+    dx(_dx),
+    dy(_dy)
+{
+}
+
+bool ResizeElementTask::Execute()
+{
+    ElementPtr element = document->GetElement(id);
+    if (!element)
+        return false;
+    element->Resize(dx, dy);
+    Remake(GetParent(id), true);
     return true;
 }
 
@@ -2116,6 +2176,16 @@ bool ResultTask::Execute()
         r->PutResult(result);
         break;
     }
+    case ElementType::GRAPH_LINE:
+    {
+        GraphLine* r = dynamic_cast<GraphLine*>(el.get());
+        if (!r)
+            return false;
+        document->RemoveErrorMarks(r->id);
+        r->PutResult(result);
+        Remake(r->id, false);
+        break;
+    }
     default:
         return false;
     }
@@ -2632,6 +2702,24 @@ bool SetConfigTask::Execute()
         Remake(text->id, false);
     document->Redraw(text->id, false);
 
+    return true;
+}
+
+//SetFormatTask
+
+SetFormatTask::SetFormatTask(ElementPtr _text, const ElementId& _id, std::function<bool()> _func, bool _with_undo) : 
+    Task(_text),
+    id(_id),
+    func(_func)
+{
+    with_undo = _with_undo;
+}
+
+bool SetFormatTask::Execute()
+{
+    if (!func())
+        return false;
+    Remake(id, false);
     return true;
 }
 

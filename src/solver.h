@@ -40,7 +40,7 @@ public:
     void Solve(const LogicalId& id, const std::string& task_guid, const uint code_id, Config::ArrayRealResultConfig& config, 
         const std::u32string& expression, const uint delay);
 
-    void BreakSolving(const LogicalId& id, const uint code_id);
+    void BreakSolving(const LogicalId& id, const uint code_id, bool wait);
 
     void SetIdentifier(const LogicalId& id, const std::string& task_guid, uint code_id, Config::AutoResultConfig& config, const std::u32string& identifier, 
         const std::u32string& expression, const uint delay);

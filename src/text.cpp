@@ -115,7 +115,7 @@ void Text::UpdateDrawRect()
     draw_rect.height += page_format->bottom_indent + page_format->right_indent;
 }
 
-bool Text::GetElementAtCoords(const int x, const int y, ElementId& _id)
+bool Text::GetElementAtCoords(const int x, const int y, const int margin, ElementId& _id)
 {
     Rect r = GetAbsoluteRect();
     if (!r.IsPointInside(x, y))
@@ -125,7 +125,7 @@ bool Text::GetElementAtCoords(const int x, const int y, ElementId& _id)
     for (int i = 0; i < elements->Count(); ++i)
     {
         ElementPtr el = elements->Get(i);
-        if (el->GetElementAtCoords(x, y, _id))
+        if (el->GetElementAtCoords(x, y, margin, _id))
             return true;
     }
     _id = id;

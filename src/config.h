@@ -73,6 +73,11 @@ struct Config
     uint decimal_gap = 3;
     uint hexadecimal_gap = 4;
 
+    //graphs
+    Size init_size{400, 400};
+    uint init_graph_width = 1;
+    uint resize_margin_width = 5;
+
     //logger
     LogLevel log_level = LogLevel::LEVEL_INFO;
     std::string logs_path = ".";
@@ -204,6 +209,12 @@ struct Config
     };
 
     AutoResultConfig auto_result;
+
+    struct GraphConfig
+    {
+        void ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc);
+        void FromJson(const rapidjson::Value::ConstObject& value, rapidjson::Document::AllocatorType& alloc);
+    };
 
     //include documents
     struct IncludeDocument
