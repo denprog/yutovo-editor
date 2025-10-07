@@ -51,6 +51,10 @@ public:
     virtual bool Remake(bool with_elements = false);
     virtual void Normalize();
 
+    virtual void Resize(const int dx, const int dy);
+    virtual void MovePicture(const int dx, const int dy);
+    virtual void ZoomPicture(const int pixels);
+
     virtual bool InsertElements(std::vector<ElementPtr>& _elements, bool with_undo, ElementId& changed_element);
     virtual bool DeleteElements(bool left, bool with_undo, ElementId& changed_element);
     virtual bool ChangeStringFormat(const StringFormatPtr format, bool with_undo, ElementId& changed_element);
@@ -95,6 +99,12 @@ public:
 
     virtual void GetMargin(int& left, int& top, int& right, int& bottom) const;
 
+    virtual bool OnMouseLButtonDown(const int x, const int y);
+    virtual bool OnMouseLButtonUp(const int x, const int y);
+    virtual bool OnMouseMove(const int x, const int y);
+    virtual bool OnMouseWheelVertical(const int pixels);
+    virtual bool OnMouseWheelHorizontal(const int pixels);
+
     virtual std::string ToHtml() const;
     virtual std::u32string ToText() const;
     virtual void ToParserString(ParserString& str);
@@ -102,7 +112,7 @@ public:
     virtual void UpdateRect(bool with_elements = false);
 
     Element* GetElementInPos(const ElementId& _id, const uint pos);
-    virtual bool GetElementAtCoords(const int x, const int y, ElementId& _id);
+    virtual bool GetElementAtCoords(const int x, const int y, const int margin, ElementId& _id);
     virtual bool GetNearestElement(const int x, const int y, ElementId& _id, int& dist);
     virtual bool GetNearestCaretState(const int x, const int y, CaretState& caret_state);
 
@@ -157,10 +167,10 @@ public:
     uint8_t level = 1; //level of superscript or subscript
     
     bool editable = true; //changing string or child elements array or splitting element, doesn't affect changing font
-
-    bool can_merge = false;
-
-    bool error_mark = false;
+    bool can_merge = false; //can be merged with another element of the same type
+    bool error_mark = false; //has a error mark
+    bool can_move_picture = false; //the picture of the element can be moved usually with mouse
+    bool can_resize = false; //can be resized usually with mouse
 
 protected:
     friend class Elements;

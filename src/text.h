@@ -34,7 +34,7 @@ public:
     virtual void UpdateRect(bool with_elements = false);
     virtual void UpdateDrawRect();
 
-    virtual bool GetElementAtCoords(const int x, const int y, ElementId& _id);
+    virtual bool GetElementAtCoords(const int x, const int y, const int margin, ElementId& _id);
     virtual bool GetNearestElement(const int x, const int y, ElementId& _id, int& dist);
     virtual bool GetNearestCaretState(const int x, const int y, CaretState& caret_state);
 

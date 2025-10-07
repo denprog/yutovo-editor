@@ -557,6 +557,43 @@ FormulaFormatPtr FormulaFormats::GetFormat(const std::string& name, StringFormat
     return format;
 }
 
+//GraphFormat
+
+void GraphFormat::ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc)
+{
+    rapidjson::Value obj(rapidjson::kObjectType);
+    obj.AddMember("graph_width", (int)size.width, alloc);
+    obj.AddMember("graph_height", (int)size.height, alloc);
+    obj.AddMember("plot_color", plot_color.ToInt(), alloc);
+    obj.AddMember("plot_width", (int)plot_width, alloc);
+    value.AddMember("graph_format", obj, alloc);
+}
+
+bool GraphFormat::FromJson(const rapidjson::Value::ConstObject& value, rapidjson::Document::AllocatorType& alloc)
+{
+    if (value.HasMember("graph_format") && value["graph_format"].IsObject())
+    {
+        auto r = value["graph_format"].GetObject();
+        if (!r.HasMember("graph_width") || !r["graph_width"].IsInt() || (int)r["graph_width"].GetInt() < 100)
+            size.width = 400;
+        else
+            size.width = (int)r["graph_width"].GetInt();
+        if (!r.HasMember("graph_height") || !r["graph_height"].IsInt() || (int)r["graph_height"].GetInt() < 100)
+            size.height = 400;
+        else
+            size.height = (int)r["graph_height"].GetInt();
+        if (!r.HasMember("plot_color") || !r["plot_color"].IsUint())
+            plot_color = Color::Black();
+        else
+            plot_color = Color::FromInt(r["plot_color"].GetUint());
+        if (!r.HasMember("plot_width") || !r["plot_width"].IsInt() || (int)r["plot_width"].GetInt() < 1)
+            plot_width = 1;
+        else
+            plot_width = (int)r["plot_width"].GetInt();
+    }
+    return true;
+}
+
 //CodeFormat
 
 CodeFormat::CodeFormat(const std::string& _name, uint _left_indent, uint _top_indent, uint _right_indent, uint _bottom_indent, 

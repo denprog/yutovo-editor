@@ -94,6 +94,8 @@ public:
     uint InsertFunction(const std::string& name, bool with_undo);
     uint InsertSubscriptFunction(const std::string& name, bool with_undo);
 
+    uint InsertGraph(bool with_undo);
+
     uint InsertFormula(Element* element, bool with_undo, bool with_last_task_id = false);
     uint InsertFormulas(std::vector<ElementPtr>& elements, bool with_undo, bool with_last_task_id = false, bool pasting = false, int select_pos = -1);
 
@@ -127,7 +129,7 @@ public:
     void GetElements(const LogicalId& _id, std::vector<ElementPtr>& elements);
     ElementPtr GetParent(const ElementId& _id);
     ElementPtr GetLogicalParent(const LogicalId& _id);
-    bool GetElementAtCoords(const int x, const int y, ElementId& id);
+    bool GetElementAtCoords(const int x, const int y, const int margin, ElementId& id);
     bool GetElementRect(const ElementId id, Rect& rect);
 
     LogicalId GetLogicalId(const ElementId& _id);
@@ -158,10 +160,11 @@ public:
     bool GetCurrentFormulaFormat(FormulaFormatPtr& format);
     void SetCurrentFormulaFormat(const std::string& name);
 
-    ElementType GetElementType(const ElementId id);
-    bool IsEditable(const ElementId id);
-
+    ElementType GetCurrentElementType();
+    ElementType GetElementType(const ElementId& id);
+    bool IsEditable(const ElementId& id);
     bool IsEmpty();
+    bool IsResizable(const ElementId& id);
 
     bool IsString(ElementPtr el);
     bool IsString(ElementId id);
@@ -194,6 +197,11 @@ public:
     uint SelectOut();
 
     void SetCaretVisible(bool visible);
+
+    bool MouseLButtonDown(const int x, const int y);
+    bool MouseLButtonUp(const int x, const int y);
+    bool MouseMove(const int x, const int y);
+    bool MouseWheel(const int x, const int y, const Point pixel_delta, const Point angle_delta);
 
     void Undo();
     void Redo();
@@ -244,6 +252,9 @@ public:
     void SaveStringFormats(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc, const std::vector<ElementPtr>& elements);
     bool LoadStringFormats(const rapidjson::Value::ConstArray& value, rapidjson::Document::AllocatorType& alloc);
 
+    bool GetGraphFormat(const ElementId& id, GraphFormat& format);
+    uint SetGraphFormat(const ElementId& id, const GraphFormat& format, bool with_undo);
+    
     void UpdateFormats();
 
     uint SetFontFamily(const std::string& family);
@@ -277,7 +288,7 @@ public:
         const uint delay);
     void Solve(const LogicalId& _id, const std::string& guid, uint code_id, Config::ArrayRealResultConfig& config, const std::u32string& expression, 
         const uint delay);
-    void BreakSolving(const LogicalId& _id, const std::string& guid, uint code_id);
+    void BreakSolving(const LogicalId& _id, const std::string& guid, uint code_id, bool wait = true);
 
     void SetIdentifier(const LogicalId& _id, const std::string& guid, uint code_id, Config::AutoResultConfig& config, const std::u32string& identifier, 
         const std::u32string& expression, const uint delay);
@@ -488,6 +499,25 @@ private:
     Selection last_selection;
 
     SelectionState last_editor_selection;
+
+    ElementId mouse_capture_id;
+
+    Point last_mouse_pos{0, 0};
+
+    enum class ResizeDir
+    {
+        None = 0,
+        HorizontalLeft,
+        HorizontalRight,
+        VerticalLeft,
+        VerticalRight,
+        BothTopLeft,
+        BothTopRight,
+        BothBottomLeft,
+        BothBottomRight
+    };
+
+    ResizeDir resize_dir = ResizeDir::None;
 
     Logger* logger;
 };

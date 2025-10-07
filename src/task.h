@@ -138,6 +138,38 @@ struct ChangePageFormatTask : Task
     PageFormatPtr format;
 };
 
+struct MovePictureTask : Task
+{
+    MovePictureTask(ElementPtr _text, ElementId _id, const int _dx, const int _dy);
+
+    virtual bool Execute();
+
+    ElementId id;
+    const int dx;
+    const int dy;
+};
+
+struct ZoomPictureTask : Task
+{
+    ZoomPictureTask(ElementPtr _text, ElementId _id, const int _pixels);
+
+    virtual bool Execute();
+
+    ElementId id;
+    const int pixels;
+};
+
+struct ResizeElementTask : Task
+{
+    ResizeElementTask(ElementPtr _text, ElementId _id, const int _dx, const int _dy);
+
+    virtual bool Execute();
+
+    ElementId id;
+    const int dx;
+    const int dy;
+};
+
 struct RedrawTask : Task
 {
     RedrawTask(ElementPtr _text, const ElementId& _id, bool _move_into_view);
@@ -382,6 +414,16 @@ struct SetConfigTask : Task
 
     Config config;
     std::string config_str;
+};
+
+struct SetFormatTask : Task
+{
+    SetFormatTask(ElementPtr _text, const ElementId& _id, std::function<bool()> _func, bool _with_undo);
+
+    virtual bool Execute();
+
+    const ElementId id;
+    std::function<bool()> func;
 };
 
 }

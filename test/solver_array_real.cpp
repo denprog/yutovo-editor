@@ -403,7 +403,7 @@ TEST_F(SolverArrayRealTest, errors1)
     document.WaitTask(document.MoveCaretRight(false));
     document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
     document.WaitSolver();
-    std::this_thread::sleep_for(2s);
+    std::this_thread::sleep_for(3s);
     ASSERT_TRUE(document.ToText() == 
         U"d=[1,2,3]\n"\
         U"sum(n=1,3,d{n})=Argument is over"

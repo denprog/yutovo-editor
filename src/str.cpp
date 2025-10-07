@@ -244,7 +244,7 @@ void String::UpdateRect(bool with_elements)
     baseline = window->GetFontAscent(format);
 }
 
-bool String::GetElementAtCoords(const int x, const int y, ElementId& _id)
+bool String::GetElementAtCoords(const int x, const int y, const int margin, ElementId& _id)
 {
     Rect r = GetAbsoluteRect();
     if (!r.IsPointInside(x, y))

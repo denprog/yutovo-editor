@@ -983,8 +983,9 @@ bool ArrayRealSolverTask::Execute(WebSocketPtr socket, Result& result)
 
 //BreakSolverTask
 
-BreakSolverTask::BreakSolverTask(const LogicalId& _id, Document* _document, const std::string& _solver_guid, uint _code_id, Logger* _logger) :
-    SolverTask(_id, _document, _solver_guid, _code_id, _logger)
+BreakSolverTask::BreakSolverTask(const LogicalId& _id, Document* _document, const std::string& _solver_guid, uint _code_id, bool _wait, Logger* _logger) :
+    SolverTask(_id, _document, _solver_guid, _code_id, _logger),
+    wait(_wait)
 {
     delay = 0;
 }
@@ -1002,6 +1003,7 @@ bool BreakSolverTask::Execute(WebSocketPtr socket, Result& result)
     doc.AddMember("timestamp", cur_time, alloc);
     doc.AddMember("code_id", code_id, alloc);
     doc.AddMember("solver_type", (int)SolverType::CALCULATOR, alloc);
+    doc.AddMember("wait", wait, alloc);
 
     if (!SendRequest(doc, result, socket))
         return false;
