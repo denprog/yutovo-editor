@@ -49,7 +49,8 @@ void Formula::Normalize()
         if (el1->type == ElementType::CODE_ROW && el2->type == ElementType::CODE_ROW)
         {
             //merge the two rows
-            el1->Merge(el2);
+            if (!el1->Merge(el2))
+                ++i;
         }
         else
             ++i;
@@ -84,13 +85,13 @@ bool Formula::HasLastCaretState()
     return true;
 }
 
-bool Formula::GetElementAtCoords(const int x, const int y, ElementId& _id)
+bool Formula::GetElementAtCoords(const int x, const int y, const int margin, ElementId& _id)
 {
     //look in the child elements
     for (int i = 0; i < elements->Count(); ++i)
     {
         ElementPtr el = elements->Get(i);
-        if (el->GetElementAtCoords(x, y, _id))
+        if (el->GetElementAtCoords(x, y, margin, _id))
             return true;
     }
     Rect r = parent->GetAbsoluteRect(GetCaretRect());

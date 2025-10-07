@@ -74,7 +74,8 @@ enum class ElementType
     LINK,
     OPEN_SQUARE_BRACKET,
     CLOSE_SQUARE_BRACKET,
-    ARRAY_REAL_RESULT
+    ARRAY_REAL_RESULT,
+    GRAPH_LINE
 };
 
 enum IdentifierType
@@ -107,6 +108,11 @@ struct Point
     {
         x = _x;
         y = _y;
+    }
+
+    bool IsNull() const
+    {
+        return x == 0 && y == 0;
     }
     
     int x = 0;
@@ -242,6 +248,36 @@ struct Color
     {
         std::stringstream s;
         s << "#";
+        s << std::setfill('0') << std::setw(sizeof(uint8_t) * 2) << std::hex << (int)r << 
+            std::setfill('0') << std::setw(sizeof(uint8_t) * 2) << (int)g << 
+            std::setfill('0') << std::setw(sizeof(uint8_t) * 2) << (int)b;
+        return s.str();
+    }
+
+    std::string ToHexBGR() const
+    {
+        std::stringstream s;
+        s << "#";
+        s << std::setfill('0') << std::setw(sizeof(uint8_t) * 2) << std::hex << (int)b << 
+            std::setfill('0') << std::setw(sizeof(uint8_t) * 2) << (int)g << 
+            std::setfill('0') << std::setw(sizeof(uint8_t) * 2) << (int)r;
+        return s.str();
+    }
+
+    std::string ToBGR() const
+    {
+        std::stringstream s;
+        s << "x";
+        s << std::setfill('0') << std::setw(sizeof(uint8_t) * 2) << std::hex << (int)b << 
+            std::setfill('0') << std::setw(sizeof(uint8_t) * 2) << (int)g << 
+            std::setfill('0') << std::setw(sizeof(uint8_t) * 2) << (int)r;
+        return s.str();
+    }
+
+    std::string ToRGB() const
+    {
+        std::stringstream s;
+        s << "x";
         s << std::setfill('0') << std::setw(sizeof(uint8_t) * 2) << std::hex << (int)r << 
             std::setfill('0') << std::setw(sizeof(uint8_t) * 2) << (int)g << 
             std::setfill('0') << std::setw(sizeof(uint8_t) * 2) << (int)b;
