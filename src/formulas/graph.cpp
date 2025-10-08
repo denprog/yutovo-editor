@@ -26,16 +26,12 @@ Graph::Graph(Element* _parent, bool with_init) :
     Formula(_parent)
 {
     guid = boost::uuids::to_string(boost::uuids::random_generator()());
-    if (with_init)
-        Init();
 }
 
 Graph::Graph(Document* _document, bool with_init) :
     Formula(_document)
 {
     guid = boost::uuids::to_string(boost::uuids::random_generator()());
-    if (with_init)
-        Init();
 }
 
 Graph::Graph(const Graph& source) :
@@ -68,12 +64,6 @@ void Graph::Init()
     UpdateLevel(level);
     GetShape()->editable = false;
     editable = false;
-}
-
-bool Graph::AfterFromJson()
-{
-    Init();
-    return true;
 }
 
 void Graph::Draw() const
@@ -172,7 +162,7 @@ void Graph::UpdateLevel(uint8_t _level)
 bool Graph::AfterInsert(bool with_undo)
 {
     CaretState c;
-    if (elements->Get(1)->GetFirstCaretState(c, nullptr))
+    if (elements->Get(0)->GetFirstCaretState(c, nullptr))
     {
         caret->SetState(c);
         return true;
@@ -295,12 +285,16 @@ GraphLine::GraphLine(Element* _parent, bool with_init) :
     Graph(_parent, with_init)
 {
     type = ElementType::GRAPH_LINE;
+    if (with_init)
+        Init();
 }
 
 GraphLine::GraphLine(Document* _document, bool with_init) : 
     Graph(_document, with_init)
 {
     type = ElementType::GRAPH_LINE;
+    if (with_init)
+        Init();
 }
 
 GraphLine::GraphLine(const GraphLine& source) : 
@@ -308,6 +302,7 @@ GraphLine::GraphLine(const GraphLine& source) :
     x(source.x), 
     y(source.y)
 {
+    Init();
 }
 
 void GraphLine::Init()
@@ -353,6 +348,12 @@ void GraphLine::Init()
             std::vector<unsigned char> arr(picture, picture + 4 * (graph.GetWidth() * graph.GetHeight()));
             window->DrawImage(r.left + 1, r.top + 1, r.width, r.height, arr);
         };
+}
+
+bool GraphLine::AfterFromJson()
+{
+    Init();
+    return true;
 }
 
 Element* GraphLine::Clone()
@@ -407,10 +408,6 @@ void GraphLine::Solve()
     str.Add(y_up_str);
     str.Add(id, U",");
     str.Add(id, ToUtfString(std::to_string(graph.GetWidth())));
-    str.Add(id, U",");
-    str.Add(id, ToUtfString(std::to_string(x_pos)));
-    str.Add(id, U",");
-    str.Add(id, ToUtfString(std::to_string(x_inc)));
     str.Add(id, U")");
    
     if (last_expression != str)
