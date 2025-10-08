@@ -22,9 +22,7 @@ public:
     Graph(Document* _document, bool with_init = true);
     Graph(const Graph& source);
 
-    virtual void Init();
-
-    virtual bool AfterFromJson();
+    void Init();
 
     virtual void Draw() const;
     virtual bool Remake(bool with_elements = false);
@@ -57,7 +55,6 @@ public:
 protected:
 #endif
     double x_left = -1, x_right = 1, y_bottom = -1, y_top = 1;
-    std::vector<double> x, y;
 
     CodeRow* GetYTop() const;
     CodeRow* GetYBottom() const;
@@ -77,9 +74,6 @@ protected:
 
     bool delay = false; //don't delay on the first calculation
     bool solving = false;
-
-    int x_pos = 0;
-    int x_inc = 100;
 };
 
 class GraphLine : public Graph
@@ -89,7 +83,9 @@ public:
     GraphLine(Document* _document, bool with_init = true);
     GraphLine(const GraphLine& source);
 
-    virtual void Init();
+    void Init();
+
+    virtual bool AfterFromJson();
 
     virtual Element* Clone();
 
