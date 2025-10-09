@@ -3209,7 +3209,7 @@ uint Document::PutResult(const std::string& guid, const Result& result)
     return last_task_id;
 }
 
-void Document::AddResolveElement(const ElementId& _id)
+void Document::AddResolveElement(const LogicalId& _id)
 {
     if (std::find(resolve_elements.begin(), resolve_elements.end(), _id) == resolve_elements.end())
         resolve_elements.push_back(_id);

@@ -401,4 +401,53 @@ TEST_F(FormulaTest, graphs7)
         })) << y[0] << y[1] << y[2];
 }
 
+//Copy-paste a graph after changing its format
+TEST_F(FormulaTest, graphs8)
+{
+    Start(600);
+
+    document.WaitTask(document.InsertGraph(true));
+    document.InsertString("1", true);
+    document.MoveCaretRight(false);
+    document.InsertString("x", true);
+    document.MoveCaretRight(false);
+    document.InsertMinus(false);
+    document.InsertString("1", true);
+    document.MoveCaretRight(false);
+    document.InsertMinus(false);
+    document.InsertString("1", true);
+    document.MoveCaretRight(false);
+    document.InsertString("x", true);
+    document.MoveCaretRight(false);
+    document.WaitTask(document.InsertString("1", true));
+    document.WaitSolver();
+
+    auto el = document.FindByType(ElementId{0}, ElementType::GRAPH_LINE);
+    GraphFormat format;
+    ASSERT_TRUE(document.GetGraphFormat(el->id, format));
+    format.size.width = 500;
+    document.WaitTask(document.SetGraphFormat(el->id, format, true));
+
+    document.MoveCaretHome(false);
+    document.MoveCaretHome(false);
+    document.WaitTask(document.MoveCaretRight(true));
+    document.WaitTask(document.Copy(clipboard_json, clipboard_text));
+
+    document.MoveCaretToDocumentEnd(false);
+    document.WaitTask(document.Paste(clipboard_json));
+    document.WaitSolver();
+    std::this_thread::sleep_for(2s);
+    el = document.FindByType(ElementId{0, 0, 1, 0}, ElementType::GRAPH_LINE);
+    ASSERT_TRUE(document.GetGraphFormat(el->id, format));
+    ASSERT_TRUE(format.size.width == 500);
+    const std::vector<double> _y{-1., -0.996, -0.992};
+    GraphLine* graph = (GraphLine*)el.get();
+    std::vector<double> y(graph->y.begin(), std::next(graph->y.begin(), 3));
+    ASSERT_TRUE(std::equal(y.begin(), y.end(), _y.begin(), 
+        [](double x, double y)
+        {
+            return std::fabs(x - y) < 0.01;
+        })) << y[0] << y[1] << y[2];
+}
+
 }
