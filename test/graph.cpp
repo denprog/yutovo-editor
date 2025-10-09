@@ -51,7 +51,7 @@ TEST_F(FormulaTest, graphs1)
             "</p>"\
         "</body>") << 
         document.ToHtml();
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 1, 0, 0})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 0, 0, 0})) << document.GetEditorState().ToString();
 
     document.Undo();
     document.WaitUndo();
@@ -90,7 +90,7 @@ TEST_F(FormulaTest, graphs1)
             "</p>"\
         "</body>") << 
         document.ToHtml();
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 1, 0, 0})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 0, 0, 0})) << document.GetEditorState().ToString();
 }
 
 TEST_F(FormulaTest, graphs2)
@@ -128,7 +128,6 @@ TEST_F(FormulaTest, graphs2)
         "</body>") << 
         document.ToHtml();
     
-    document.MoveCaretLeft(false);
     document.WaitTask(document.InsertString("2", true));
     document.MoveCaretRight(false);
 
@@ -192,14 +191,14 @@ TEST_F(FormulaTest, graphs2)
     ASSERT_TRUE(graph->x_left == -4);
     ASSERT_TRUE(el->elements->Get(4)->ToText() == U"x");
     ASSERT_TRUE(graph->x_right == 4);
-    const std::vector<double> _x{-4., -3.98, -3.97};
+    const std::vector<double> _x{-4., -3.98, -3.96};
     std::vector<double> x(graph->x.begin(), std::next(graph->x.begin(), 3));
     ASSERT_TRUE(std::equal(x.begin(), x.end(), _x.begin(), 
         [](double x, double y)
         {
             return std::fabs(x - y) < 0.01;
         })) << x[0] << x[1] << x[2];
-    const std::vector<double> _y{1., 1.01, 1.03};
+    const std::vector<double> _y{1., 1.02, 1.04};
     std::vector<double> y(graph->y.begin(), std::next(graph->y.begin(), 3));
     ASSERT_TRUE(std::equal(y.begin(), y.end(), _y.begin(), 
         [](double x, double y)
@@ -215,7 +214,6 @@ TEST_F(FormulaTest, graphs3)
     document.WaitTask(document.InsertGraph(true));
     std::this_thread::sleep_for(100ms);
     
-    document.MoveCaretLeft(false);
     document.WaitTask(document.InsertString("2", true));
     document.MoveCaretRight(false);
 
@@ -259,6 +257,7 @@ TEST_F(FormulaTest, graphs4)
     Start(600);
 
     document.WaitTask(document.InsertGraph(true));
+    document.MoveCaretRight(false);
     document.InsertString("x", true);
     document.InsertDivision(true);
     document.WaitTask(document.InsertString("x", true));
@@ -279,7 +278,7 @@ TEST_F(FormulaTest, graphs4)
     document.WaitRedo();
     std::this_thread::sleep_for(200ms);
     ASSERT_TRUE(document.ToText() == U"graph_line(,xx,,,,)") << ToBasicString(document.ToText());
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 1, 0, 1})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 1, 1, 0})) << document.GetEditorState().ToString();
 }
 
 TEST_F(FormulaTest, graphs5)
@@ -289,6 +288,7 @@ TEST_F(FormulaTest, graphs5)
     document.WaitTask(document.InsertGraph(true));
     std::this_thread::sleep_for(100ms);
     
+    document.MoveCaretRight(false);
     document.InsertString("sin", true);
     document.InsertOpenRoundBracket(true);
     document.InsertString("x", true);
@@ -311,9 +311,10 @@ TEST_F(FormulaTest, graphs6)
     Start(600);
 
     document.WaitTask(document.InsertGraph(true));
+    std::this_thread::sleep_for(200ms);
     auto el = document.FindByType(ElementId{0}, ElementType::GRAPH_LINE);
     GraphFormat format;
-    document.WaitTask(document.GetGraphFormat(el->id, format));
+    ASSERT_TRUE(document.GetGraphFormat(el->id, format));
     format.size.width = 500;
     document.WaitTask(document.SetGraphFormat(el->id, format, true));
     format.size.width = 600;
@@ -334,6 +335,70 @@ TEST_F(FormulaTest, graphs6)
     std::this_thread::sleep_for(200ms);
     el = document.FindByType(ElementId{0}, ElementType::SHAPE);
     ASSERT_TRUE(el->rect.width == 600);
+}
+
+//Change user function which is used in the graph
+TEST_F(FormulaTest, graphs7)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.InsertString("f", true);
+    document.InsertOpenRoundBracket(true);
+    document.InsertString("x", true);
+    document.InsertCloseRoundBracket(true);
+    document.WaitTask(document.InsertAssignment(true));
+    document.InsertString("x", true);
+    document.InsertMultiply(true);
+    document.WaitTask(document.InsertString("2", true));
+    document.WaitSolver();
+
+    document.MoveCaretRight(false);
+    document.WaitTask(document.InsertParagraph(true));
+    document.WaitTask(document.InsertGraph(true));
+    document.InsertString("1", true);
+    document.MoveCaretRight(false);
+    document.InsertString("f", true);
+    document.InsertOpenRoundBracket(true);
+    document.InsertString("x", true);
+    document.InsertCloseRoundBracket(true);
+    document.MoveCaretRight(false);
+    document.InsertMinus(false);
+    document.InsertString("1", true);
+    document.MoveCaretRight(false);
+    document.InsertMinus(false);
+    document.InsertString("1", true);
+    document.MoveCaretRight(false);
+    document.InsertString("x", true);
+    document.MoveCaretRight(false);
+    document.WaitTask(document.InsertString("1", true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(2s);
+    auto el = document.FindByType({0}, ElementType::GRAPH_LINE);
+    GraphLine* graph = (GraphLine*)el.get();
+    const std::vector<double> _y1{-2., -1.99, -1.98};
+    std::vector<double> y(graph->y.begin(), std::next(graph->y.begin(), 3));
+    ASSERT_TRUE(std::equal(y.begin(), y.end(), _y1.begin(), 
+        [](double x, double y)
+        {
+            return std::fabs(x - y) < 0.01;
+        })) << y[0] << y[1] << y[2];
+
+    document.MoveCaretHome(false);
+    document.MoveCaretHome(false);
+    document.MoveCaretUp(false);
+    document.WaitTask(document.MoveCaretEnd(false));
+    document.WaitTask(document.MoveCaretLeft(false));
+    document.WaitTask(document.InsertString("0", true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(2s);
+    const std::vector<double> _y2{-20., -19.9, -19.8};
+    y = std::vector<double>(graph->y.begin(), std::next(graph->y.begin(), 3));
+    ASSERT_TRUE(std::equal(y.begin(), y.end(), _y2.begin(), 
+        [](double x, double y)
+        {
+            return std::fabs(x - y) < 0.01;
+        })) << y[0] << y[1] << y[2];
 }
 
 }

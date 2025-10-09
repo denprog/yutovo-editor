@@ -1032,7 +1032,7 @@ bool ZoomPictureTask::Execute()
     if (!element)
         return false;
     element->ZoomPicture(pixels);
-    Remake(GetParent(id), true);
+    Remake(GetParent(id), false);
     return true;
 }
 
@@ -2339,10 +2339,75 @@ bool ResolveDependeciesTask::Execute()
         return false;
     ElementId _after_id = _el->id;
     auto el = document->FindParent(_after_id, ElementType::CODE_BLOCK);
+    if (!_el)
+        return false;
     std::vector<ElementId> code_blocks;
     std::vector<ElementId> solvings;
     std::vector<std::string> id_arr;
     boost::split(id_arr, identifier, boost::is_any_of("()"));
+
+    auto resolve_equations = 
+        [&_after_id, &solvings, d = document, &id_arr](CodeBlock* c, bool below)
+        {
+            if (below)
+                c->GetElementsBelow(_after_id, ElementType::EQUATION, solvings); //get equations below in this code block
+            else
+                c->GetElements(ElementType::EQUATION, solvings);
+            for (ElementId _id : solvings)
+            {
+                auto _el = d->GetElement(_id);
+                Equation* eq = dynamic_cast<Equation*>(_el.get());
+                for (auto& s : id_arr)
+                {
+                    if (eq->Depends(s))
+                    {
+                        eq->last_expression.Reset();
+                        eq->ReSolve(false, true);
+                    }
+                }
+            }
+        };
+    
+    auto resolve_assignments = 
+        [&_after_id, &solvings, d = document, &id_arr](CodeBlock* c, bool below)
+        {
+            if (below)
+                c->GetElementsBelow(_after_id, ElementType::ASSIGNMENT, solvings); //get assignments below in this code block
+            else
+                c->GetElements(ElementType::ASSIGNMENT, solvings);
+            for (ElementId _id : solvings)
+            {
+                auto _el = d->GetElement(_id);
+                Assignment* s = dynamic_cast<Assignment*>(_el.get());
+                for (auto& _d : id_arr)
+                {
+                    if (s->Depends(_d))
+                        d->RemoveErrorMarks(s->id);
+                }
+            }
+        };
+
+    auto resolve_graphs = 
+        [&_after_id, &solvings, d = document, &id_arr](CodeBlock* c, bool below)
+        {
+            if (below)
+                c->GetElementsBelow(_after_id, ElementType::GRAPH_LINE, solvings); //get graphs below in this code block
+            else
+                c->GetElements(ElementType::GRAPH_LINE, solvings);
+            for (ElementId _id : solvings)
+            {
+                auto _el = d->GetElement(_id);
+                GraphLine* g = dynamic_cast<GraphLine*>(_el.get());
+                for (auto& _d : id_arr)
+                {
+                    if (g->Depends(_d))
+                    {
+                        g->last_expression.Reset();
+                        g->ReSolve(false, true);
+                    }
+                }
+            }
+        };
 
     if (el)
     {
@@ -2353,66 +2418,31 @@ bool ResolveDependeciesTask::Execute()
         if (p)
             solvings.push_back(p->id);
 
-        c->GetElementsBelow(_after_id, ElementType::EQUATION, solvings); //get equations below the current one
-        for (ElementId _id : solvings)
-        {
-            auto _el = document->GetElement(_id);
-            Equation* eq = dynamic_cast<Equation*>(_el.get());
-            for (auto& s : id_arr)
-            {
-                if (eq->Depends(s))
-                {
-                    eq->last_expression.Reset();
-                    eq->ReSolve(false, true);
-                }
-            }
-        }
+        resolve_equations(c, true);
 
         solvings.clear();
-        c->GetElementsBelow(_after_id, ElementType::ASSIGNMENT, solvings); //get assignments below in the current code block
-        for (ElementId _id : solvings)
-        {
-            auto _el = document->GetElement(_id);
-            Assignment* s = dynamic_cast<Assignment*>(_el.get());
-            for (auto& d : id_arr)
-            {
-                if (s->Depends(d))
-                    document->RemoveErrorMarks(s->id);
-            }
-        }
+        resolve_assignments(c, true);
+
+        solvings.clear();
+        resolve_graphs(c, true);
 
         text->GetElementsBelow(c->id, ElementType::CODE_BLOCK, code_blocks); //find all code blocks below
         for (ElementId _id : code_blocks)
         {
             auto el = document->GetElement(_id);
-            CodeBlock* _c = dynamic_cast<CodeBlock*>(el.get());
-            if (_c && _c->code_id == code_id)
+            if (!el)
+                continue;
+            c = dynamic_cast<CodeBlock*>(el.get());
+            if (c && c->code_id == code_id)
             {
                 solvings.clear();
-                _c->GetElements(ElementType::EQUATION, solvings);
-                for (ElementId _id : solvings)
-                {
-                    auto _el = document->GetElement(_id);
-                    Equation* eq = dynamic_cast<Equation*>(_el.get());
-                    for (auto& s : id_arr)
-                    {
-                        if (eq->Depends(s))
-                            eq->ReSolve(false, true);
-                    }
-                }
+                resolve_equations(c, false);
 
                 solvings.clear();
-                _c->GetElements(ElementType::ASSIGNMENT, solvings); //get assignments below in the current code block
-                for (ElementId _id : solvings)
-                {
-                    auto _el = document->GetElement(_id);
-                    Assignment* s = dynamic_cast<Assignment*>(_el.get());
-                    for (auto& d : id_arr)
-                    {
-                        if (s->Depends(d))
-                            document->RemoveErrorMarks(s->id);
-                    }
-                }
+                resolve_assignments(c, false);
+
+                solvings.clear();
+                resolve_graphs(c, false);
             }
         }
     }
@@ -2425,34 +2455,19 @@ bool ResolveDependeciesTask::Execute()
         for (ElementId _id : code_blocks)
         {
             auto _el = document->GetElement(_id);
-            CodeBlock* _c = dynamic_cast<CodeBlock*>(_el.get());
-            if (_c)
+            if (!_el)
+                continue;
+            CodeBlock* c = dynamic_cast<CodeBlock*>(_el.get());
+            if (c)
             {
                 solvings.clear();
-                _c->GetElements(ElementType::EQUATION, solvings);
-                for (ElementId _id : solvings)
-                {
-                    _el = document->GetElement(_id);
-                    Equation* eq = dynamic_cast<Equation*>(_el.get());
-                    for (auto& s : id_arr)
-                    {
-                        if (eq->Depends(s))
-                            eq->ReSolve(false, true);
-                    }
-                }
+                resolve_equations(c, false);
 
                 solvings.clear();
-                _c->GetElements(ElementType::ASSIGNMENT, solvings);
-                for (ElementId _id : solvings)
-                {
-                    auto _el = document->GetElement(_id);
-                    Assignment* s = dynamic_cast<Assignment*>(_el.get());
-                    for (auto& d : id_arr)
-                    {
-                        if (s->Depends(d))
-                            document->RemoveErrorMarks(s->id);
-                    }
-                }
+                resolve_assignments(c, false);
+
+                solvings.clear();
+                resolve_graphs(c, false);
             }
         }
     }
