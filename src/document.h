@@ -330,7 +330,7 @@ public:
     uint ReSolveDependencies(const LogicalId& after_id, const std::u32string& identifier);
     uint ReSolveErrors();
     uint PutResult(const std::string& guid, const Result& result);
-    void AddResolveElement(const ElementId& _id);
+    void AddResolveElement(const LogicalId& _id);
     void AddChangedElement(const ElementId& _id);
     void GetSolverGuid(std::string& guid);
     uint SetLocale(const yutovo_calculator::Language language, bool with_undo);
@@ -445,7 +445,7 @@ public:
     Config config;
 
     std::vector<ElementId> changed_elements;
-    std::vector<ElementId> resolve_elements;
+    std::vector<LogicalId> resolve_elements;
 
     std::map<std::string, LogicalId> solve_ids;
 

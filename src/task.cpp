@@ -102,7 +102,7 @@ void Task::Remake(ElementId _id, bool move_into_view)
 
     for (auto r : document->resolve_elements)
     {
-        auto el = document->GetElement(r);
+        auto el = document->GetLogicalElement(r);
         if (!el)
             continue;
         el->ReSolve();

@@ -331,7 +331,7 @@ bool Paragraph::InsertElements(std::vector<ElementPtr>& _elements, bool with_und
         return false;
     //re-solve all the paragraphs below
     for (int i = yutovo::GetChildPos(id); i < parent->elements->Count(); ++i)
-        document->AddResolveElement(yutovo::GetChild(parent->id, i));
+        document->AddResolveElement(yutovo::GetChild(parent->logical_id, i));
     return true;
 }
 
