@@ -194,7 +194,7 @@ void Assignment::Solve()
     str.Add(id, solve_sign);
     GetLast()->ToParserString(str);
     if (last_expression != str)
-        document->AddResolveElement(id);
+        document->AddResolveElement(logical_id);
 }
 
 void Assignment::ReSolve(bool if_error, bool force)

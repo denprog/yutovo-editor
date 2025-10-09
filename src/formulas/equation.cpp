@@ -190,7 +190,7 @@ void Equation::Solve()
     if (last_expression.Length() != 0)
         empty = false;
     if (last_expression != str || empty)
-        document->AddResolveElement(id);
+        document->AddResolveElement(logical_id);
 }
 
 void Equation::ReSolve(bool if_error, bool force)

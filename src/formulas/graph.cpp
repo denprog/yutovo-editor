@@ -38,6 +38,7 @@ Graph::Graph(const Graph& source) :
     Formula(source),
     last_expression(source.last_expression),
     dependencies(source.dependencies),
+    format(source.format),
     x_left(source.x_left), 
     x_right(source.x_right), 
     y_bottom(source.y_bottom), 
@@ -123,7 +124,7 @@ void Graph::MovePicture(const int dx, const int dy)
     SetNumber(x_right - _dx, GetXRight());
     SetNumber(y_bottom - _dy, GetYBottom());
     SetNumber(y_top - _dy, GetYTop());
-    document->AddResolveElement(id);
+    document->AddResolveElement(logical_id);
 }
 
 void Graph::ZoomPicture(const int pixels)
@@ -136,7 +137,7 @@ void Graph::ZoomPicture(const int pixels)
     SetNumber(x_right - x_right / dx, GetXRight());
     SetNumber(y_bottom + y_bottom / dy, GetYBottom());
     SetNumber(y_top + y_top / dy, GetYTop());
-    document->AddResolveElement(id);
+    document->AddResolveElement(logical_id);
 }
 
 bool Graph::DeleteElements(bool left, bool with_undo, ElementId& changed_element)
@@ -353,6 +354,7 @@ void GraphLine::Init()
 bool GraphLine::AfterFromJson()
 {
     Init();
+    last_expression.Reset();
     return true;
 }
 
@@ -409,11 +411,11 @@ void GraphLine::Solve()
     str.Add(id, U",");
     str.Add(id, ToUtfString(std::to_string(graph.GetWidth())));
     str.Add(id, U")");
-   
+
     if (last_expression != str)
     {
         last_expression = str;
-        document->AddResolveElement(id);
+        document->AddResolveElement(logical_id);
     }
 }
 
