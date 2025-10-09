@@ -422,6 +422,7 @@ void GraphLine::PutResult(Result& result)
     solving = false;
 
     last_error_code = result.error.error_code;
+    dependencies = result.dependencies;
     if (result.error.error_code == yutovo_solver::ErrorCode::SOLVER_RESTARTED_ERROR)
     {
         last_expression.Reset();
