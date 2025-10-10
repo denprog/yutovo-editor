@@ -450,4 +450,50 @@ TEST_F(FormulaTest, graphs8)
         })) << y[0] << y[1] << y[2];
 }
 
+//Check error marks
+TEST_F(FormulaTest, graphs9)
+{
+    Start(600);
+
+    document.WaitTask(document.InsertGraph(true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(2s);
+    auto el = document.FindByType(ElementId{0}, ElementType::GRAPH_LINE);
+    int start, size;
+    ASSERT_TRUE(document.HasErrorMark(el->id, start, size)) << ErrorMarks();
+
+    document.InsertString("1", true);
+    document.MoveCaretRight(false);
+    document.InsertString("x", true);
+    document.MoveCaretRight(false);
+    document.InsertMinus(false);
+    document.InsertString("1", true);
+    document.MoveCaretRight(false);
+    document.InsertMinus(false);
+    document.InsertString("1", true);
+    document.MoveCaretRight(false);
+    document.InsertString("x", true);
+    document.MoveCaretRight(false);
+    document.WaitTask(document.InsertString("1", true));
+    document.WaitSolver();
+
+    document.MoveCaretHome(false);
+    document.MoveCaretHome(false);
+    document.MoveCaretRight(false);
+    document.WaitTask(document.MoveCaretRight(false));
+    document.WaitTask(document.InsertDivision(true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(2s);
+    ASSERT_TRUE(document.HasErrorMark(el->elements->Get(0)->id, start, size)) << ErrorMarks();
+
+    document.WaitTask(document.InsertString("2", true));
+    document.MoveCaretRight(false);
+    document.MoveCaretRight(false);
+    document.WaitTask(document.MoveCaretRight(false));
+    document.WaitTask(document.InsertString("1", true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(2s);
+    ASSERT_TRUE(document.HasErrorMark(el->elements->Get(1)->id, start, size)) << ErrorMarks();
+}
+
 }

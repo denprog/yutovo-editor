@@ -41,12 +41,15 @@ public:
 
     virtual bool Depends(const std::string& identifier);
 
+    virtual void PutError(const Error& error);
+
 protected:
     void SetNumber(const double num, CodeRow* el);
 
 public:
     Dependencies dependencies;
     yutovo_solver::ErrorCode last_error_code = yutovo_solver::ErrorCode::OK;
+    yutovo_calculator::ParserExceptionCode last_parser_error_code = yutovo_calculator::ParserExceptionCode::None;
     GraphFormat format;
 
 #ifdef TEST
