@@ -186,6 +186,7 @@ void Graph::ReSolve(bool if_error, bool force)
     document->Solve(logical_id, guid, ((CodeBlock*)code.get())->code_id, config, last_expression.Text(), 
         (delay && last_error_code != yutovo_solver::ErrorCode::SOLVER_RESTARTED_ERROR) ? document->config.solve_delay : 0);
     document->AddChangedElement(id);
+    delay = true;
 }
 
 bool Graph::Depends(const std::string& identifier)
@@ -193,6 +194,22 @@ bool Graph::Depends(const std::string& identifier)
     if (std::find(dependencies.begin(), dependencies.end(), identifier) != dependencies.end())
         return true;
     return false;
+}
+
+void Graph::PutError(const Error& error)
+{
+    last_parser_error_code = error.parser_error_code;
+    ElementId err_id = last_expression.GetElement(error.pos, error.size);
+    if (!err_id.empty())
+    {
+        auto el = document->GetElement(err_id);
+        if (el)
+        {
+            document->RemoveErrorMarks(parent->parent->id);
+            document->AddErrorMark(err_id, 0, el->elements->Count());
+            document->Redraw(err_id, false);
+        }
+    }
 }
 
 void Graph::SetNumber(const double num, CodeRow* el)
@@ -313,17 +330,30 @@ void GraphLine::Init()
     GetShape()->draw_func = 
         [&](const Rect& r)
         {
+            graph.NewFrame();
             graph.SetFlagAdv(1, MGL_NO_SCALE_REL);
             graph.SetScaleText(false);
             graph.SetSize(r.width, r.height, false);
-            graph.NewFrame();
-            graph.SetRanges(x_left, x_right, y_bottom, y_top);
             graph.SubPlot(1, 1, 0, "#");
             graph.InPlot(0.05, 0.95, 0.05, 0.95);
-            graph.SetFontSize(level);
-            graph.Axis("xyz", "r-1", "h-1");
-            graph.Grid("xyz", "h");
-            graph.SetQuality(MGL_DRAW_NORM);
+
+            if (last_error_code != yutovo_solver::ErrorCode::SOLVER_RESTARTED_ERROR && last_error_code != yutovo_solver::ErrorCode::OK)
+            {
+                graph.SetRanges(-1, 1, -1, 1);
+                graph.SetFontSize(level + 2);
+                if (last_parser_error_code != yutovo_calculator::ParserExceptionCode::None)
+                    graph.Puts(mglPoint(0, 0), ErrorCodeToString(last_parser_error_code).c_str());
+                else
+                    graph.Puts(mglPoint(0, 0), ErrorCodeToString(last_error_code).c_str());
+            }
+            else
+            {
+                graph.SetRanges(x_left, x_right, y_bottom, y_top);
+                graph.SetFontSize(level);
+                graph.Axis("xyz", "r-1", "h-1");
+                graph.Grid("xyz", "h");
+                graph.SetQuality(MGL_DRAW_NORM);
+            }
 
             if (!x.empty() && !y.empty())
             {
@@ -387,27 +417,19 @@ void GraphLine::Solve()
 {
     Formula::Solve();
 
-    ParserString func_str, arg_str, x_left_str, x_right_str, y_down_str, y_up_str;
-    GetExpression()->ToParserString(func_str);
-    GetVariable()->ToParserString(arg_str);
-    GetXLeft()->ToParserString(x_left_str);
-    GetXRight()->ToParserString(x_right_str);
-    GetYBottom()->ToParserString(y_down_str);
-    GetYTop()->ToParserString(y_up_str);
-
     ParserString str;
     str.Add(id, U"graph_line(");
-    str.Add(func_str);
+    GetExpression()->ToParserString(str);
     str.Add(id, U",");
-    str.Add(arg_str);
+    GetVariable()->ToParserString(str);
     str.Add(id, U",");
-    str.Add(x_left_str);
+    GetXLeft()->ToParserString(str);
     str.Add(id, U",");
-    str.Add(x_right_str);
+    GetXRight()->ToParserString(str);
     str.Add(id, U",");
-    str.Add(y_down_str);
+    GetYBottom()->ToParserString(str);
     str.Add(id, U",");
-    str.Add(y_up_str);
+    GetYTop()->ToParserString(str);
     str.Add(id, U",");
     str.Add(id, ToUtfString(std::to_string(graph.GetWidth())));
     str.Add(id, U")");
@@ -432,13 +454,9 @@ void GraphLine::PutResult(Result& result)
     }
 
     if (result.error.error_code != yutovo_solver::ErrorCode::OK)
-    {
-        //put error message
-    }
+        PutError(result.error); //put error message
     else
-    {
         document->RemoveErrorMarks(id);
-    }
 
     std::locale::global(std::locale::classic());
 
