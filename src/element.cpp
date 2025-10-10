@@ -1506,7 +1506,7 @@ Rect Elements::GetCaretRect(const uint pos) const
     if (pos == Count())
     {
         Rect& rect = elements[pos - 1]->rect;
-        r = Rect{rect.GetRight() - 1, rect.top - 1, 2, rect.height + 2}; //for last caret state draw one line
+        r = Rect{rect.GetRight() + 1, rect.top - 1, 2, rect.height + 2}; //for last caret state draw one line
     }
     else
     {
