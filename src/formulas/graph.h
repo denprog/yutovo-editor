@@ -75,7 +75,6 @@ protected:
 
     ParserString last_expression;
 
-    bool delay = false; //don't delay on the first calculation
     bool solving = false;
 };
 
