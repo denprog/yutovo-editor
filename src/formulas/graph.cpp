@@ -184,9 +184,8 @@ void Graph::ReSolve(bool if_error, bool force)
 
     solving = true;
     document->Solve(logical_id, guid, ((CodeBlock*)code.get())->code_id, config, last_expression.Text(), 
-        (delay && last_error_code != yutovo_solver::ErrorCode::SOLVER_RESTARTED_ERROR) ? document->config.solve_delay : 0);
+        last_error_code != yutovo_solver::ErrorCode::SOLVER_RESTARTED_ERROR ? document->config.solve_delay : 0);
     document->AddChangedElement(id);
-    delay = true;
 }
 
 bool Graph::Depends(const std::string& identifier)
@@ -337,10 +336,16 @@ void GraphLine::Init()
             graph.SubPlot(1, 1, 0, "#");
             graph.InPlot(0.05, 0.95, 0.05, 0.95);
 
-            if (last_error_code != yutovo_solver::ErrorCode::SOLVER_RESTARTED_ERROR && last_error_code != yutovo_solver::ErrorCode::OK)
+            if (solving)
             {
                 graph.SetRanges(-1, 1, -1, 1);
-                graph.SetFontSize(level + 2);
+                graph.SetFontSize(level + 1);
+                graph.Puts(mglPoint(0, 0), "~");
+            }
+            else if (last_error_code != yutovo_solver::ErrorCode::SOLVER_RESTARTED_ERROR && last_error_code != yutovo_solver::ErrorCode::OK)
+            {
+                graph.SetRanges(-1, 1, -1, 1);
+                graph.SetFontSize(level + 1);
                 if (last_parser_error_code != yutovo_calculator::ParserExceptionCode::None)
                     graph.Puts(mglPoint(0, 0), ErrorCodeToString(last_parser_error_code).c_str());
                 else
@@ -353,28 +358,28 @@ void GraphLine::Init()
                 graph.Axis("xyz", "r-1", "h-1");
                 graph.Grid("xyz", "h");
                 graph.SetQuality(MGL_DRAW_NORM);
+
+                if (!x.empty() && !y.empty())
+                {
+                    mglData x_data(x.size());
+                    mglData y_data(y.size());
+                    for (size_t i = 0; i < x.size() && i < y.size(); ++i)
+                    {
+                        if (x[i] >= x_left && x[i] <= x_right)
+                        {
+                            x_data.a[i] = x[i];
+                            y_data.a[i] = y[i];
+                        }
+                    }
+    #ifdef EMSCRIPTEN
+                    std::string f = "{" + format.plot_color.ToRGB() + "}-" + std::to_string(format.plot_width);
+    #else
+                    std::string f = "{" + format.plot_color.ToBGR() + "}-" + std::to_string(format.plot_width);
+    #endif
+                    graph.Plot(x_data, y_data, f.c_str());
+                }
             }
 
-            if (!x.empty() && !y.empty())
-            {
-                mglData x_data(x.size());
-                mglData y_data(y.size());
-                for (size_t i = 0; i < x.size() && i < y.size(); ++i)
-                {
-                    if (x[i] >= x_left && x[i] <= x_right)
-                    {
-                        x_data.a[i] = x[i];
-                        y_data.a[i] = y[i];
-                    }
-                }
-#ifdef EMSCRIPTEN
-                std::string f = "{" + format.plot_color.ToRGB() + "}-" + std::to_string(format.plot_width);
-#else
-                std::string f = "{" + format.plot_color.ToBGR() + "}-" + std::to_string(format.plot_width);
-#endif
-                graph.Plot(x_data, y_data, f.c_str());
-            }
-            
             const unsigned char* picture = graph.GetRGBA();
             std::vector<unsigned char> arr(picture, picture + 4 * (graph.GetWidth() * graph.GetHeight()));
             window->DrawImage(r.left + 1, r.top + 1, r.width, r.height, arr);
