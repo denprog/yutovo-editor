@@ -51,6 +51,7 @@ public:
     yutovo_solver::ErrorCode last_error_code = yutovo_solver::ErrorCode::OK;
     yutovo_calculator::ParserExceptionCode last_parser_error_code = yutovo_calculator::ParserExceptionCode::None;
     GraphFormat format;
+    ParserString last_expression;
 
 #ifdef TEST
 public:
@@ -73,9 +74,8 @@ protected:
 
     Config::ArrayRealResultConfig config;
 
-    ParserString last_expression;
-
     bool solving = false;
+    bool moving = false;
 };
 
 class GraphLine : public Graph

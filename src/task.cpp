@@ -92,9 +92,7 @@ void Task::Remake(ElementId _id, bool move_into_view)
     {
         _el = _el->parent;
         while (_el->Remake())
-        {
             _el = _el->parent;
-        }
     }
 
     if (document->IsVisible(_el->id))
@@ -112,9 +110,7 @@ void Task::Remake(ElementId _id, bool move_into_view)
         {
             _el = _el->parent;
             while (_el->Remake())
-            {
                 _el = _el->parent;
-            }
         }
 
         if (document->IsVisible(_el->id))
@@ -263,6 +259,7 @@ bool InsertElementsTask::Execute()
 
     std::vector<ElementId> changed_elements;
     document->pasting = pasting;
+    document->editing = true;
     document->caret->notify = false;
     for (auto& _el : _elements)
     {
@@ -274,6 +271,7 @@ bool InsertElementsTask::Execute()
             if (with_undo && last_undo_size < document->GetUndoSize())
                 document->Undo();
             document->pasting = false;
+            document->editing = false;
             document->caret->notify = true;
             return false;
         }
@@ -303,6 +301,7 @@ bool InsertElementsTask::Execute()
             Remake(ch, true); //move into view
     }
     document->pasting = false;
+    document->editing = false;
     document->caret->notify = true;
     window->OnCaretMoved(document->MakeEditorState());
     document->UpdateFormats();
@@ -366,7 +365,10 @@ bool DeleteElementsTask::Execute()
     auto DeleteElements = [&](ElementPtr el, bool _left, ElementId& changed_element, bool _with_undo)
     {
         assert(el != nullptr);
-        return el->DeleteElements(_left, _with_undo, changed_element);
+        document->editing = true;
+        bool r = el->DeleteElements(_left, _with_undo, changed_element);
+        document->editing = false;
+        return r;
     };
 
     ElementId changed_element;
@@ -618,6 +620,7 @@ bool InsertFormulasTask::Execute()
 
     std::vector<ElementId> changed_elements;    
     document->pasting = pasting;
+    document->editing = true;
     if (select_pos == -1)
     {
         for (auto& _el : _elements)
@@ -630,6 +633,7 @@ bool InsertFormulasTask::Execute()
                 if (with_undo && last_undo_size < document->GetUndoSize())
                     document->Undo();
                 document->pasting = false;
+                document->editing = false;
                 document->caret->notify = true;
                 return false;
             }
@@ -660,6 +664,7 @@ bool InsertFormulasTask::Execute()
                 Remake(ch, true); //move into view
         }
         document->pasting = false;
+        document->editing = false;
         return true;
     }
     else
@@ -669,14 +674,17 @@ bool InsertFormulasTask::Execute()
             if (select_pos == i)
             {
                 document->pasting = true;
+                document->editing = true;
                 if (!el->InsertElements(select_elements, insert_code_block ? false : with_undo, changed_element))
                 {
                     if (with_undo && last_undo_size < document->GetUndoSize())
                         document->Undo();
                     document->pasting = false;
+                    document->editing = false;
                     return false;
                 }
                 document->pasting = false;
+                document->editing = false;
             }
 
             std::vector<ElementPtr> _els;
@@ -686,15 +694,18 @@ bool InsertFormulasTask::Execute()
                 if (with_undo && last_undo_size < document->GetUndoSize())
                     document->Undo();
                 document->pasting = false;
+                document->editing = false;
                 return false;
             }
         }
 
         Remake(changed_element, true); //move into view
         document->pasting = false;
+        document->editing = false;
         return true;
     }
     document->pasting = false;
+    document->editing = false;
 
     if (with_undo && last_undo_size < document->GetUndoSize())
         document->Undo();

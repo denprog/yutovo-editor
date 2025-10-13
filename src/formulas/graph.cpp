@@ -80,6 +80,9 @@ void Graph::Draw() const
 
 bool Graph::Remake(bool with_elements)
 {
+    if (document->editing)
+        moving = false;
+
     UpdateLevel(level);
 
     bool changed = Formula::Remake(with_elements);
@@ -116,6 +119,7 @@ void Graph::Resize(const int dx, const int dy)
 
 void Graph::MovePicture(const int dx, const int dy)
 {
+    moving = true;
     double tx = (x_right - x_left) / (GetShape()->rect.width - 40);
     double ty = (y_bottom - y_top) / (GetShape()->rect.height - 40);
     double _dx = tx * dx;
@@ -129,6 +133,7 @@ void Graph::MovePicture(const int dx, const int dy)
 
 void Graph::ZoomPicture(const int pixels)
 {
+    moving = true;
     double tx = (x_right - x_left) / (format.size.width - 40);
     double dx = tx * (pixels * 10);
     double ty = (y_bottom - y_top) / (format.size.height - 40);
@@ -184,7 +189,7 @@ void Graph::ReSolve(bool if_error, bool force)
 
     solving = true;
     document->Solve(logical_id, guid, ((CodeBlock*)code.get())->code_id, config, last_expression.Text(), 
-        last_error_code != yutovo_solver::ErrorCode::SOLVER_RESTARTED_ERROR ? document->config.solve_delay : 0);
+        (!moving && last_error_code != yutovo_solver::ErrorCode::SOLVER_RESTARTED_ERROR) ? document->config.solve_delay : 0);
     document->AddChangedElement(id);
 }
 
@@ -336,13 +341,13 @@ void GraphLine::Init()
             graph.SubPlot(1, 1, 0, "#");
             graph.InPlot(0.05, 0.95, 0.05, 0.95);
 
-            if (solving)
+            if (solving && !moving)
             {
                 graph.SetRanges(-1, 1, -1, 1);
                 graph.SetFontSize(level + 1);
                 graph.Puts(mglPoint(0, 0), "~");
             }
-            else if (last_error_code != yutovo_solver::ErrorCode::SOLVER_RESTARTED_ERROR && last_error_code != yutovo_solver::ErrorCode::OK)
+            else if (last_error_code != yutovo_solver::ErrorCode::SOLVER_RESTARTED_ERROR && last_error_code != yutovo_solver::ErrorCode::OK && !moving)
             {
                 graph.SetRanges(-1, 1, -1, 1);
                 graph.SetFontSize(level + 1);
