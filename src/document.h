@@ -439,6 +439,7 @@ public:
 
     bool pasting = false;
     bool saving = false;
+    bool editing = false;
 
     uint cur_code_id = 1;
 
