@@ -220,9 +220,10 @@ CaretState Caret::GetCaretState()
 
 LogicalCaretState Caret::GetLogicalCaretState()
 {
-    if (block)
+    Element* el = GetElement();
+    if (block || ! el)
         return LogicalCaretState(LogicalId{});
-    return LogicalCaretState(document->GetLogicalId(GetElement()->id, GetPos()));
+    return LogicalCaretState(document->GetLogicalId(el->id, GetPos()));
 }
 
 void Caret::SetVisible(bool _visible)
