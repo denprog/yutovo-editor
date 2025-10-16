@@ -271,7 +271,6 @@ bool InsertElementsTask::Execute()
             if (with_undo && last_undo_size < document->GetUndoSize())
                 document->Undo();
             document->pasting = false;
-            document->editing = false;
             document->caret->notify = true;
             return false;
         }
@@ -301,7 +300,6 @@ bool InsertElementsTask::Execute()
             Remake(ch, true); //move into view
     }
     document->pasting = false;
-    document->editing = false;
     document->caret->notify = true;
     window->OnCaretMoved(document->MakeEditorState());
     document->UpdateFormats();
@@ -366,9 +364,7 @@ bool DeleteElementsTask::Execute()
     {
         assert(el != nullptr);
         document->editing = true;
-        bool r = el->DeleteElements(_left, _with_undo, changed_element);
-        document->editing = false;
-        return r;
+        return el->DeleteElements(_left, _with_undo, changed_element);
     };
 
     ElementId changed_element;
@@ -633,7 +629,6 @@ bool InsertFormulasTask::Execute()
                 if (with_undo && last_undo_size < document->GetUndoSize())
                     document->Undo();
                 document->pasting = false;
-                document->editing = false;
                 document->caret->notify = true;
                 return false;
             }
@@ -664,7 +659,6 @@ bool InsertFormulasTask::Execute()
                 Remake(ch, true); //move into view
         }
         document->pasting = false;
-        document->editing = false;
         return true;
     }
     else
@@ -680,11 +674,9 @@ bool InsertFormulasTask::Execute()
                     if (with_undo && last_undo_size < document->GetUndoSize())
                         document->Undo();
                     document->pasting = false;
-                    document->editing = false;
                     return false;
                 }
                 document->pasting = false;
-                document->editing = false;
             }
 
             std::vector<ElementPtr> _els;
@@ -694,18 +686,15 @@ bool InsertFormulasTask::Execute()
                 if (with_undo && last_undo_size < document->GetUndoSize())
                     document->Undo();
                 document->pasting = false;
-                document->editing = false;
                 return false;
             }
         }
 
         Remake(changed_element, true); //move into view
         document->pasting = false;
-        document->editing = false;
         return true;
     }
     document->pasting = false;
-    document->editing = false;
 
     if (with_undo && last_undo_size < document->GetUndoSize())
         document->Undo();
@@ -1023,6 +1012,7 @@ bool MovePictureTask::Execute()
     ElementPtr element = document->GetElement(id);
     if (!element)
         return false;
+    document->editing = false;
     element->MovePicture(dx, dy);
     Remake(GetParent(id), true);
     return true;
@@ -1042,6 +1032,7 @@ bool ZoomPictureTask::Execute()
     ElementPtr element = document->GetElement(id);
     if (!element)
         return false;
+    document->editing = false;
     element->ZoomPicture(pixels);
     Remake(GetParent(id), false);
     return true;
