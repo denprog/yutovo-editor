@@ -39,6 +39,8 @@ public:
 
     virtual void ReSolve(bool if_error = false, bool force = false);
 
+    virtual void LogicalIdChanged(const LogicalId& last_id);
+
     virtual bool Depends(const std::string& identifier);
 
     virtual void PutError(const Error& error);

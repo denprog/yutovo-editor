@@ -134,14 +134,15 @@ void Graph::MovePicture(const int dx, const int dy)
 void Graph::ZoomPicture(const int pixels)
 {
     moving = true;
-    double tx = (x_right - x_left) / (format.size.width - 40);
-    double dx = tx * (pixels * 10);
-    double ty = (y_bottom - y_top) / (format.size.height - 40);
-    double dy = ty * (pixels * 10);
-    SetNumber(x_left - x_left / dx, GetXLeft());
-    SetNumber(x_right - x_right / dx, GetXRight());
-    SetNumber(y_bottom + y_bottom / dy, GetYBottom());
-    SetNumber(y_top + y_top / dy, GetYTop());
+    double k = pixels > 0 ? (1 + double(pixels) / 15) : (-(1 / (double(pixels) / 15 - 1)));
+    double w = (x_right - x_left) / k;
+    double c = (x_right + x_left) / 2;
+    SetNumber(c - w / 2, GetXLeft());
+    SetNumber(c + w / 2, GetXRight());
+    w = (y_top - y_bottom) / k;
+    c = (y_top + y_bottom) / 2;
+    SetNumber(c - w / 2, GetYBottom());
+    SetNumber(c + w / 2, GetYTop());
     document->AddResolveElement(logical_id);
 }
 
@@ -191,6 +192,11 @@ void Graph::ReSolve(bool if_error, bool force)
     document->Solve(logical_id, guid, ((CodeBlock*)code.get())->code_id, config, last_expression.Text(), 
         (!moving && last_error_code != yutovo_solver::ErrorCode::SOLVER_RESTARTED_ERROR) ? document->config.solve_delay : 0);
     document->AddChangedElement(id);
+}
+
+void Graph::LogicalIdChanged(const LogicalId& last_id)
+{
+    solving = false;
 }
 
 bool Graph::Depends(const std::string& identifier)
@@ -258,11 +264,22 @@ void Graph::SetNumber(const double num, CodeRow* el)
         p->AddBase(CodeStringPtr(new CodeString(p.get(), "10")));
         if (e[0] == '-')
         {
+            e = e.substr(1, e.size() - 1);
+            e.erase(0, e.find_first_not_of('0'));
+            if (e.empty())
+                e = "0";
             p->AddExponent(ElementPtr(new Minus(p.get())));
-            p->AddElement(CodeStringPtr(new CodeString(p.get(), e.substr(1, e.size() - 1))));
+            p->AddExponent(CodeStringPtr(new CodeString(p.get(), e)));
         }
         else
-            p->AddElement(CodeStringPtr(new CodeString(p.get(), e)));
+        {
+            if (e[0] == '+')
+                e = e.substr(1, e.size() - 1);
+            e.erase(0, e.find_first_not_of('0'));
+            if (e.empty())
+                e = "0";
+            p->AddExponent(CodeStringPtr(new CodeString(p.get(), e)));
+        }
     }
 }
 
