@@ -496,4 +496,170 @@ TEST_F(FormulaTest, graphs9)
     ASSERT_TRUE(document.HasErrorMark(el->elements->Get(1)->id, start, size)) << ErrorMarks();
 }
 
+//Check redrawing graph after undo
+TEST_F(FormulaTest, graphs10)
+{
+    Start(600);
+
+    document.InsertString("Graph:", true);
+    document.WaitTask(document.InsertParagraph(true));
+
+    document.WaitTask(document.InsertGraph(true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(1s);
+    document.InsertString("1", true);
+    document.MoveCaretRight(false);
+    document.InsertString("x", true);
+    document.MoveCaretRight(false);
+    document.InsertMinus(false);
+    document.InsertString("1", true);
+    document.MoveCaretRight(false);
+    document.InsertMinus(false);
+    document.InsertString("1", true);
+    document.MoveCaretRight(false);
+    document.InsertString("x", true);
+    document.MoveCaretRight(false);
+    document.WaitTask(document.InsertString("1", true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(1s);
+
+    document.MoveCaretToDocumentBegin(false);
+    document.WaitTask(document.MoveCaretEnd(false));
+    document.WaitTask(document.InsertParagraph(true));
+    document.WaitTask(document.InsertParagraph(true));
+
+    document.Undo();
+    document.WaitUndo();
+    document.Undo();
+    document.WaitUndo();
+
+    document.WaitSolver();
+    std::this_thread::sleep_for(2s);
+    const std::vector<double> _y{-1., -0.996, -0.992};
+    auto el = document.FindByType(ElementId{0}, ElementType::GRAPH_LINE);
+    GraphLine* graph = (GraphLine*)el.get();
+    std::vector<double> y(graph->y.begin(), std::next(graph->y.begin(), 3));
+    ASSERT_TRUE(std::equal(y.begin(), y.end(), _y.begin(), 
+        [](double x, double y)
+        {
+            return std::fabs(x - y) < 0.01;
+        })) << y[0] << y[1] << y[2];
+}
+
+//Zooming a graph
+TEST_F(FormulaTest, graphs11)
+{
+    Start(600);
+
+    document.WaitTask(document.InsertGraph(true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(200ms);
+    auto el = document.FindByType(ElementId{0}, ElementType::GRAPH_LINE);
+    GraphFormat format;
+    ASSERT_TRUE(document.GetGraphFormat(el->id, format));
+    format.size.width = 400;
+    document.WaitTask(document.SetGraphFormat(el->id, format, true));
+    format.size.width = 400;
+    document.WaitTask(document.SetGraphFormat(el->id, format, true));
+
+    document.InsertString("2", true);
+    document.MoveCaretRight(false);
+    document.InsertString("x", true);
+    document.MoveCaretRight(false);
+    document.InsertMinus(false);
+    document.InsertString("2", true);
+    document.MoveCaretRight(false);
+    document.InsertMinus(false);
+    document.InsertString("2", true);
+    document.MoveCaretRight(false);
+    document.InsertString("x", true);
+    document.MoveCaretRight(false);
+    document.WaitTask(document.InsertString("2", true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(1s);
+
+    auto r = el->GetAbsoluteRect();
+    ASSERT_TRUE(document.MouseWheel(r.left + r.width / 2, r.top + r.height / 2, Point{0, 15}, Point{0, 15}));
+    document.WaitSolver();
+    std::this_thread::sleep_for(1s);
+    ASSERT_TRUE(el->elements->Get(0)->ToText() == U"1.") << ToBasicString(el->elements->Get(0)->ToText());
+    ASSERT_TRUE(el->elements->Get(2)->ToText() == U"-1.") << ToBasicString(el->elements->Get(2)->ToText());
+    ASSERT_TRUE(el->elements->Get(3)->ToText() == U"-1.");
+    ASSERT_TRUE(el->elements->Get(5)->ToText() == U"1.");
+
+    ASSERT_TRUE(document.MouseWheel(r.left + r.width / 2, r.top + r.height / 2, Point{0, 15}, Point{0, 15}));
+    document.WaitSolver();
+    std::this_thread::sleep_for(1s);
+    ASSERT_TRUE(el->elements->Get(0)->ToText() == U"0.5");
+    ASSERT_TRUE(el->elements->Get(2)->ToText() == U"-0.5");
+    ASSERT_TRUE(el->elements->Get(3)->ToText() == U"-0.5");
+    ASSERT_TRUE(el->elements->Get(5)->ToText() == U"0.5");
+
+    ASSERT_TRUE(document.MouseWheel(r.left + r.width / 2, r.top + r.height / 2, Point{0, 15}, Point{0, 15}));
+    document.WaitSolver();
+    std::this_thread::sleep_for(1s);
+    ASSERT_TRUE(el->elements->Get(0)->ToText() == U"0.25");
+    ASSERT_TRUE(el->elements->Get(2)->ToText() == U"-0.25");
+    ASSERT_TRUE(el->elements->Get(3)->ToText() == U"-0.25");
+    ASSERT_TRUE(el->elements->Get(5)->ToText() == U"0.25");
+
+    ASSERT_TRUE(document.MouseWheel(r.left + r.width / 2, r.top + r.height / 2, Point{0, -15}, Point{0, -15}));
+    document.WaitSolver();
+    std::this_thread::sleep_for(1s);
+    ASSERT_TRUE(el->elements->Get(0)->ToText() == U"0.5");
+    ASSERT_TRUE(el->elements->Get(2)->ToText() == U"-0.5");
+    ASSERT_TRUE(el->elements->Get(3)->ToText() == U"-0.5");
+    ASSERT_TRUE(el->elements->Get(5)->ToText() == U"0.5");
+
+    ASSERT_TRUE(document.MouseWheel(r.left + r.width / 2, r.top + r.height / 2, Point{0, -15}, Point{0, -15}));
+    document.WaitSolver();
+    std::this_thread::sleep_for(1s);
+    ASSERT_TRUE(el->elements->Get(0)->ToText() == U"1.");
+    ASSERT_TRUE(el->elements->Get(2)->ToText() == U"-1.");
+    ASSERT_TRUE(el->elements->Get(3)->ToText() == U"-1.");
+    ASSERT_TRUE(el->elements->Get(5)->ToText() == U"1.");
+}
+
+//Zooming a graph
+TEST_F(FormulaTest, graphs12)
+{
+    Start(600);
+
+    document.WaitTask(document.InsertGraph(true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(200ms);
+    auto el = document.FindByType(ElementId{0}, ElementType::GRAPH_LINE);
+    GraphFormat format;
+    ASSERT_TRUE(document.GetGraphFormat(el->id, format));
+    format.size.width = 400;
+    document.WaitTask(document.SetGraphFormat(el->id, format, true));
+    format.size.width = 400;
+    document.WaitTask(document.SetGraphFormat(el->id, format, true));
+
+    document.InsertString("2000", true);
+    document.MoveCaretRight(false);
+    document.InsertString("x", true);
+    document.MoveCaretRight(false);
+    document.InsertMinus(false);
+    document.InsertString("2000", true);
+    document.MoveCaretRight(false);
+    document.InsertMinus(false);
+    document.InsertString("2000", true);
+    document.MoveCaretRight(false);
+    document.InsertString("x", true);
+    document.MoveCaretRight(false);
+    document.WaitTask(document.InsertString("2000", true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(1s);
+
+    auto r = el->GetAbsoluteRect();
+    ASSERT_TRUE(document.MouseWheel(r.left + r.width / 2, r.top + r.height / 2, Point{0, -15}, Point{0, -15}));
+    document.WaitSolver();
+    std::this_thread::sleep_for(1s);
+    ASSERT_TRUE(el->elements->Get(0)->ToText() == U"4.*pow(10,3)") << ToBasicString(el->elements->Get(0)->ToText());
+    ASSERT_TRUE(el->elements->Get(2)->ToText() == U"-4.*pow(10,3)") << ToBasicString(el->elements->Get(2)->ToText());
+    ASSERT_TRUE(el->elements->Get(3)->ToText() == U"-4.*pow(10,3)");
+    ASSERT_TRUE(el->elements->Get(5)->ToText() == U"4.*pow(10,3)");
+}
+
 }
