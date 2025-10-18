@@ -157,13 +157,13 @@ void Graph::UpdateLevel(uint8_t _level)
     if (_level >= MAX_LEVEL)
         return;
     if (GetXLeft())
-        GetXLeft()->UpdateLevel(_level + 2);
+        GetXLeft()->UpdateLevel(_level + 1);
     if (GetXRight())
-        GetXRight()->UpdateLevel(_level + 2);
+        GetXRight()->UpdateLevel(_level + 1);
     if (GetYBottom())
-        GetYBottom()->UpdateLevel(_level + 2);
+        GetYBottom()->UpdateLevel(_level + 1);
     if (GetYTop())
-        GetYTop()->UpdateLevel(_level + 2);
+        GetYTop()->UpdateLevel(_level + 1);
 }
 
 bool Graph::AfterInsert(bool with_undo)
