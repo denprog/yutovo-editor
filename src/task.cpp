@@ -1014,7 +1014,7 @@ bool MovePictureTask::Execute()
         return false;
     document->editing = false;
     element->MovePicture(dx, dy);
-    Remake(GetParent(id), true);
+    Remake(GetParent(id), false);
     return true;
 }
 
@@ -1054,7 +1054,7 @@ bool ResizeElementTask::Execute()
     if (!element)
         return false;
     element->Resize(dx, dy);
-    Remake(GetParent(id), true);
+    Remake(GetParent(id), false);
     return true;
 }
 
@@ -2405,6 +2405,7 @@ bool ResolveDependeciesTask::Execute()
                     if (g->Depends(_d))
                     {
                         g->last_expression.Reset();
+                        g->Solve();
                         g->ReSolve(false, true);
                     }
                 }
