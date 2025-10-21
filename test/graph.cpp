@@ -662,4 +662,45 @@ TEST_F(FormulaTest, graphs12)
     ASSERT_TRUE(el->elements->Get(5)->ToText() == U"4.*pow(10,3)");
 }
 
+//Check the ln function
+TEST_F(FormulaTest, graphs13)
+{
+    Start(600);
+
+    document.WaitTask(document.InsertGraph(true));
+    document.InsertString("10", true);
+    document.MoveCaretRight(false);
+    document.InsertString("ln", true);
+    document.InsertOpenRoundBracket(true);
+    document.InsertString("yy", true);
+    document.InsertCloseRoundBracket(true);
+    document.MoveCaretRight(false);
+    document.InsertMinus(false);
+    document.InsertString("10", true);
+    document.MoveCaretRight(false);
+    document.InsertMinus(false);
+    document.InsertString("2", true);
+    document.MoveCaretRight(false);
+    document.InsertString("yy", true);
+    document.MoveCaretRight(false);
+    document.WaitTask(document.InsertString("5", true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(2s);
+    auto el = document.FindByType({0}, ElementType::GRAPH_LINE);
+    GraphLine* graph = (GraphLine*)el.get();
+    auto it = std::find_if(graph->x.begin(), graph->x.end(), 
+        [](auto& x)
+        {
+            return x > -0.01 && x < 0.01;
+        });
+    const std::vector<double> _y1{std::nan(""), -4.382, -3.507};
+    int p = static_cast<int>(it - graph->x.begin());
+    std::vector<double> y(graph->y.begin() + p, std::next(graph->y.begin() + p, 3));
+    ASSERT_TRUE(std::equal(y.begin(), y.end(), _y1.begin(), 
+        [](double x, double y)
+        {
+            return std::fabs(x - y) < 0.01 || (std::isnan(x) && std::isnan(y));
+        })) << y[0] << y[1] << y[2];
+}
+
 }

@@ -42,7 +42,9 @@ Graph::Graph(const Graph& source) :
     x_left(source.x_left), 
     x_right(source.x_right), 
     y_bottom(source.y_bottom), 
-    y_top(source.y_top)
+    y_top(source.y_top),
+    guid(source.guid),
+    config(source.config)
 {
 }
 
@@ -393,11 +395,11 @@ void GraphLine::Init()
                             y_data.a[i] = y[i];
                         }
                     }
-    #ifdef EMSCRIPTEN
+#ifdef EMSCRIPTEN
                     std::string f = "{" + format.plot_color.ToRGB() + "}-" + std::to_string(format.plot_width);
-    #else
+#else
                     std::string f = "{" + format.plot_color.ToBGR() + "}-" + std::to_string(format.plot_width);
-    #endif
+#endif
                     graph.Plot(x_data, y_data, f.c_str());
                 }
             }
