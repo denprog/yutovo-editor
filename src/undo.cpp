@@ -608,6 +608,9 @@ Element* UndoResult::Restore(Document* document, Element* parent)
     case ElementType::COMPLEX_RESULT:
         el = parent ? new ComplexResult(parent) : new ComplexResult(document);
         break;
+    case ElementType::ARRAY_REAL_RESULT:
+        el = parent ? new ArrayRealResult(parent) : new ArrayRealResult(document);
+        break;
     case ElementType::AUTO_RESULT:
         el = parent ? new AutoResult(parent) : new AutoResult(document);
         break;
@@ -956,6 +959,7 @@ UndoElementPtr UndoBase::StoreElement(const LogicalId id, ElementPtr el)
     case ElementType::INTEGER_RESULT:
     case ElementType::RATIONAL_RESULT:
     case ElementType::COMPLEX_RESULT:
+    case ElementType::ARRAY_REAL_RESULT:
     case ElementType::AUTO_RESULT:
     case ElementType::ERROR_RESULT:
         undo_element.reset(new UndoResult(el->type));
