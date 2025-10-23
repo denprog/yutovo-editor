@@ -357,6 +357,10 @@ struct UnitTest : SolverTest
 {
 };
 
+struct ArrayTest : SolverTest
+{
+};
+
 struct VariablesTest : SolverTest
 {
     void Start(int width)
