@@ -8,6 +8,7 @@
 #include "graph.h"
 #include "document.h"
 #include "formulas/code_block.h"
+#include "formulas/code_paragraphs_block.h"
 #include "code_row.h"
 #include "formulas/power.h"
 #include "formulas/code_string.h"
@@ -16,6 +17,7 @@
 #include <boost/uuid/uuid.hpp>
 #include <boost/uuid/uuid_generators.hpp>
 #include <boost/uuid/uuid_io.hpp>
+#include <algorithm>
 
 namespace yutovo
 {
@@ -25,25 +27,22 @@ namespace yutovo
 Graph::Graph(Element* _parent, bool with_init) :
     Formula(_parent)
 {
-    guid = boost::uuids::to_string(boost::uuids::random_generator()());
 }
 
 Graph::Graph(Document* _document, bool with_init) :
     Formula(_document)
 {
-    guid = boost::uuids::to_string(boost::uuids::random_generator()());
 }
 
 Graph::Graph(const Graph& source) :
     Formula(source),
-    last_expression(source.last_expression),
+    last_expressions(source.last_expressions),
     dependencies(source.dependencies),
     format(source.format),
     x_left(source.x_left), 
     x_right(source.x_right), 
     y_bottom(source.y_bottom), 
     y_top(source.y_top),
-    guid(source.guid),
     config(source.config)
 {
 }
@@ -53,7 +52,7 @@ void Graph::Init()
     if (elements->Count() == 0)
     {
         elements->Add(ElementPtr(new CodeRow(this))); //y up
-        elements->Add(ElementPtr(new CodeRow(this))); //expression
+        elements->Add(ElementPtr(new CodeParagraphsBlock(this, true))); //expression
         elements->Add(ElementPtr(new CodeRow(this))); //y down
         elements->Add(ElementPtr(new CodeRow(this))); //x left
         elements->Add(ElementPtr(new CodeRow(this))); //variable
@@ -179,23 +178,6 @@ bool Graph::AfterInsert(bool with_undo)
     return false;
 }
 
-void Graph::ReSolve(bool if_error, bool force)
-{
-    if (if_error)
-        return;
-
-    document->RemoveErrorMarks(id);
-    auto code = document->FindParent(id, ElementType::CODE_BLOCK);
-    assert(code);
-    if (solving)
-        document->BreakSolving(logical_id, guid, ((CodeBlock*)code.get())->code_id, false);
-
-    solving = true;
-    document->Solve(logical_id, guid, ((CodeBlock*)code.get())->code_id, config, last_expression.Text(), 
-        (!moving && last_error_code != yutovo_solver::ErrorCode::SOLVER_RESTARTED_ERROR) ? document->config.solve_delay : 0);
-    document->AddChangedElement(id);
-}
-
 void Graph::LogicalIdChanged(const LogicalId& last_id)
 {
     solving = false;
@@ -208,24 +190,9 @@ bool Graph::Depends(const std::string& identifier)
     return false;
 }
 
-void Graph::PutError(const Error& error)
-{
-    last_parser_error_code = error.parser_error_code;
-    ElementId err_id = last_expression.GetElement(error.pos, error.size);
-    if (!err_id.empty())
-    {
-        auto el = document->GetElement(err_id);
-        if (el)
-        {
-            document->RemoveErrorMarks(parent->parent->id);
-            document->AddErrorMark(err_id, 0, el->elements->Count());
-            document->Redraw(err_id, false);
-        }
-    }
-}
-
 void Graph::SetNumber(const double num, CodeRow* el)
 {
+    bool b = document->caret->IsInsideElement(el->id);
     el->elements->Clear();
     std::ostringstream oss;
     oss.precision(3);
@@ -283,6 +250,15 @@ void Graph::SetNumber(const double num, CodeRow* el)
             p->AddExponent(CodeStringPtr(new CodeString(p.get(), e)));
         }
     }
+    if (b)
+    {
+        CaretState c;
+        if (el->GetFirstCaretState(c, nullptr))
+        {
+            document->caret->SetState(c);
+            document->selection.Clear();
+        }
+    }
 }
 
 CodeRow* Graph::GetYTop() const
@@ -290,9 +266,9 @@ CodeRow* Graph::GetYTop() const
     return (CodeRow*)elements->Get(0).get();
 }
 
-CodeRow* Graph::GetExpression() const
+CodeParagraphsBlock* Graph::GetExpression() const
 {
-    return (CodeRow*)elements->Get(1).get();
+    return (CodeParagraphsBlock*)elements->Get(1).get();
 }
 
 CodeRow* Graph::GetYBottom() const
@@ -340,8 +316,7 @@ GraphLine::GraphLine(Document* _document, bool with_init) :
 
 GraphLine::GraphLine(const GraphLine& source) : 
     Graph(source),
-    x(source.x), 
-    y(source.y)
+    plots(source.plots)
 {
     Init();
 }
@@ -383,24 +358,23 @@ void GraphLine::Init()
                 graph.Grid("xyz", "h");
                 graph.SetQuality(MGL_DRAW_NORM);
 
-                if (!x.empty() && !y.empty())
+                for (const Plot& p : plots)
                 {
-                    mglData x_data(x.size());
-                    mglData y_data(y.size());
-                    for (size_t i = 0; i < x.size() && i < y.size(); ++i)
+                    auto& x = p.x;
+                    auto& y = p.y;
+                    if (!x.empty() && !y.empty())
                     {
-                        if (x[i] >= x_left && x[i] <= x_right)
-                        {
-                            x_data.a[i] = x[i];
-                            y_data.a[i] = y[i];
-                        }
-                    }
+                        mglData x_data(x.size());
+                        mglData y_data(y.size());
+                        x_data.Set(x);
+                        y_data.Set(y);
 #ifdef EMSCRIPTEN
-                    std::string f = "{" + format.plot_color.ToRGB() + "}-" + std::to_string(format.plot_width);
+                        std::string f = "{" + format.plot_color.ToRGB() + "}-" + std::to_string(format.plot_width);
 #else
-                    std::string f = "{" + format.plot_color.ToBGR() + "}-" + std::to_string(format.plot_width);
+                        std::string f = "{" + format.plot_color.ToBGR() + "}-" + std::to_string(format.plot_width);
 #endif
-                    graph.Plot(x_data, y_data, f.c_str());
+                        graph.Plot(x_data, y_data, f.c_str());
+                    }
                 }
             }
 
@@ -412,8 +386,20 @@ void GraphLine::Init()
 
 bool GraphLine::AfterFromJson()
 {
+    if (elements->Count() < 7)
+        elements->Clear();
+    else if (elements->Get(1)->type != ElementType::CODE_PARAGRAPHS_BLOCK)
+    {
+        //this is old type of graph, transform it
+        ElementPtr el = elements->Get(1);
+        elements->RemoveAt(1, 1);
+        elements->Insert(ElementPtr(new CodeParagraphsBlock(this, true)), 1);
+        elements->Get(1)->elements->Clear();
+        elements->Get(1)->elements->Add(el);
+    }
+
     Init();
-    last_expression.Reset();
+    last_expressions.clear();
     return true;
 }
 
@@ -444,30 +430,71 @@ Element* GraphLine::FromJson(Element* parent, Document* document, const rapidjso
 
 void GraphLine::Solve()
 {
-    Formula::Solve();
-
-    ParserString str;
-    str.Add(id, U"graph_line(");
-    GetExpression()->ToParserString(str);
-    str.Add(id, U",");
-    GetVariable()->ToParserString(str);
-    str.Add(id, U",");
-    GetXLeft()->ToParserString(str);
-    str.Add(id, U",");
-    GetXRight()->ToParserString(str);
-    str.Add(id, U",");
-    GetYBottom()->ToParserString(str);
-    str.Add(id, U",");
-    GetYTop()->ToParserString(str);
-    str.Add(id, U",");
-    str.Add(id, ToUtfString(std::to_string(graph.GetWidth())));
-    str.Add(id, U")");
-
-    if (last_expression != str)
+    std::vector<ParserString> expressions;
+    for (int i = 0; i < GetExpression()->elements->Count(); ++i)
     {
-        last_expression = str;
+        ParserString str;
+        ElementPtr el = GetExpression()->elements->Get(i);
+        ElementId& _id = el->id;
+        str.Add(_id, U"graph_line(");
+        el->ToParserString(str);
+        str.Add(_id, U",");
+        GetVariable()->ToParserString(str);
+        str.Add(_id, U",");
+        GetXLeft()->ToParserString(str);
+        str.Add(_id, U",");
+        GetXRight()->ToParserString(str);
+        str.Add(_id, U",");
+        GetYBottom()->ToParserString(str);
+        str.Add(_id, U",");
+        GetYTop()->ToParserString(str);
+        str.Add(_id, U",");
+        str.Add(_id, ToUtfString(std::to_string(graph.GetWidth())));
+        str.Add(_id, U")");
+        expressions.push_back(str);
+    }
+
+    if (last_expressions != expressions)
+    {
+        last_expressions = expressions;
         document->AddResolveElement(logical_id);
     }
+}
+
+void GraphLine::ReSolve(bool if_error, bool force)
+{
+    if (if_error)
+        return;
+
+    document->RemoveErrorMarks(id);
+    auto code = document->FindParent(id, ElementType::CODE_BLOCK);
+    assert(code);
+
+    //plots count must be count of the expressions
+    while (plots.size() < GetExpression()->elements->Count())
+    {
+        std::string guid = boost::uuids::to_string(boost::uuids::random_generator()());
+        plots.push_back(Plot{guid});
+    }
+    if (plots.size() > GetExpression()->elements->Count())
+        plots.resize(GetExpression()->elements->Count());
+
+    if (solving)
+    {
+        for (size_t i = 0; i < plots.size(); ++i)
+            document->BreakSolving(GetExpression()->elements->Get(i)->logical_id, plots[i].guid, ((CodeBlock*)code.get())->code_id, false);
+    }
+
+    solving = true;
+    for (const Plot& p : plots)
+    {
+        for (size_t i = 0; i < plots.size() && i < last_expressions.size(); ++i)
+        {
+            document->Solve(GetExpression()->elements->Get(i)->logical_id, plots[i].guid, ((CodeBlock*)code.get())->code_id, config, last_expressions[i].Text(), 
+                (!moving && last_error_code != yutovo_solver::ErrorCode::SOLVER_RESTARTED_ERROR) ? document->config.solve_delay : 0);
+        }
+    }
+    document->AddChangedElement(id);
 }
 
 void GraphLine::PutResult(Result& result)
@@ -478,12 +505,40 @@ void GraphLine::PutResult(Result& result)
     dependencies = result.dependencies;
     if (result.error.error_code == yutovo_solver::ErrorCode::SOLVER_RESTARTED_ERROR)
     {
-        last_expression.Reset();
+        last_expressions.clear();
         return;
     }
 
+    auto it = std::find_if(plots.begin(), plots.end(), 
+        [result](const Plot& p)
+        {
+            return p.guid == result.guid;
+        });
+    if (it == plots.end())
+        return;
+
+    Plot& plot = *it;
+
     if (result.error.error_code != yutovo_solver::ErrorCode::OK)
-        PutError(result.error); //put error message
+    {
+        //put error message
+        size_t i = std::distance(plots.begin(), it);
+        last_parser_error_code = result.error.parser_error_code;
+        if (i < last_expressions.size())
+        {
+            ElementId err_id = last_expressions[i].GetElement(result.error.pos, result.error.size);
+            if (!err_id.empty())
+            {
+                auto el = document->GetElement(err_id);
+                if (el)
+                {
+                    document->RemoveErrorMarks(parent->parent->id);
+                    document->AddErrorMark(err_id, 0, el->elements->Count());
+                    document->Redraw(err_id, false);
+                }
+            }
+        }
+    }
     else
         document->RemoveErrorMarks(id);
 
@@ -504,8 +559,8 @@ void GraphLine::PutResult(Result& result)
             return r;
         };
 
-    x.clear();
-    y.clear();
+    plot.x.clear();
+    plot.y.clear();
 
     if (result.values.size() < 4)
     {
@@ -522,8 +577,8 @@ void GraphLine::PutResult(Result& result)
     //next items are the coords of the points
     for (size_t i = 4, j = 5; i < result.values.size() && j < result.values.size(); i += 2, j += 2)
     {
-        x.push_back(to_double(result.values[i]));
-        y.push_back(to_double(result.values[j]));
+        plot.x.push_back(to_double(result.values[i]));
+        plot.y.push_back(to_double(result.values[j]));
     }
 
     document->Redraw(id, false);

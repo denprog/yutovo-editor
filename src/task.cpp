@@ -1174,7 +1174,7 @@ bool UndoTask::Execute()
         document->RemoveErrorMarks(_el->id);
 
     ElementPtr p = document->GetLogicalElement(id);
-    if (id.size() > 2 && (p->type != ElementType::CODE_ROW && p->type != ElementType::CODE_BLOCK && 
+    if (id.size() > 2 && (p->type != ElementType::CODE_ROW && p->type != ElementType::CODE_BLOCK && p->type != ElementType::CODE_PARAGRAPHS_BLOCK && 
         !(undo_elements[0]->type == ElementType::CODE_ROW && p->parent->type != ElementType::CODE_PARAGRAPH)) || 
         (p->type == ElementType::CODE_BLOCK && undo_operation == UndoOperation::CHANGE))
     {
@@ -2161,35 +2161,36 @@ bool ResultTask::Execute()
     case ElementType::RATIONAL_RESULT:
     case ElementType::COMPLEX_RESULT:
     case ElementType::ARRAY_REAL_RESULT:
-    {
-        ResultRow* r = dynamic_cast<ResultRow*>(el.get());
-        if (!r)
-            return false;
-        document->RemoveErrorMarks(r->id);
-        r->PutResult(result);
-        break;
-    }
+        {
+            ResultRow* r = dynamic_cast<ResultRow*>(el.get());
+            if (!r)
+                return false;
+            document->RemoveErrorMarks(r->id);
+            r->PutResult(result);
+            break;
+        }
     case ElementType::ASSIGNMENT:
-    {
-        Assignment* r = dynamic_cast<Assignment*>(el.get());
-        if (!r)
-            return false;
-        document->RemoveErrorMarks(r->id);
-        r->PutResult(result);
-        break;
-    }
-    case ElementType::GRAPH_LINE:
-    {
-        GraphLine* r = dynamic_cast<GraphLine*>(el.get());
-        if (!r)
-            return false;
-        document->RemoveErrorMarks(r->id);
-        r->PutResult(result);
-        Remake(r->id, false);
-        break;
-    }
+        {
+            Assignment* r = dynamic_cast<Assignment*>(el.get());
+            if (!r)
+                return false;
+            document->RemoveErrorMarks(r->id);
+            r->PutResult(result);
+            break;
+        }
     default:
-        return false;
+        {
+            el = document->FindElementOrParent(el->id, ElementType::GRAPH_LINE);
+            if (!el)
+                return false;
+            GraphLine* r = dynamic_cast<GraphLine*>(el.get());
+            if (!r)
+                return false;
+            document->RemoveErrorMarks(r->id);
+            r->PutResult(result);
+            Remake(r->id, false);
+            break;
+        }
     }
 
     if (!result.error.id.empty() && result.error.error_code != ErrorCode::SOLVER_RESTARTED_ERROR && result.error.error_code != ErrorCode::OK)
@@ -2404,7 +2405,7 @@ bool ResolveDependeciesTask::Execute()
                 {
                     if (g->Depends(_d))
                     {
-                        g->last_expression.Reset();
+                        g->last_expressions.clear();
                         g->Solve();
                         g->ReSolve(false, true);
                     }

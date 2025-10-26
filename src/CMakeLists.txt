@@ -107,6 +107,7 @@ add_library(${PROJECT_NAME}
     formulas/product.cpp
     formulas/comma.cpp
     formulas/graph.cpp
+    formulas/code_paragraphs_block.cpp
 
     caret.h
     caret_state.h

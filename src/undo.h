@@ -27,6 +27,7 @@ class Image;
 class Text;
 class CodeRow;
 class CodeParagraph;
+class CodeParagraphsBlock;
 class Formula;
 class CodeBlock;
 class Equation;
@@ -147,6 +148,19 @@ struct UndoCodeBlock : UndoElement
 
     uint code_id;
     CodeFormatPtr code_format;
+    ParagraphFormatPtr paragraph_format;
+    FormulaFormatPtr formula_format;
+};
+
+struct UndoCodeParagraphsBlock : UndoElement
+{
+    UndoCodeParagraphsBlock(ParagraphFormatPtr _paragraph_format, FormulaFormatPtr _formula_format);
+
+    virtual bool operator==(const UndoCodeParagraphsBlock& el) const;
+    virtual bool operator==(const CodeParagraphsBlock& el) const;
+
+    virtual Element* Restore(Document* document, Element* parent);
+
     ParagraphFormatPtr paragraph_format;
     FormulaFormatPtr formula_format;
 };
