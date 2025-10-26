@@ -16,6 +16,7 @@
 #include "formulas/code_paragraph.h"
 #include "formulas/code_block.h"
 #include "formulas/code_string.h"
+#include "formulas/code_paragraphs_block.h"
 #include "formulas/plus.h"
 #include "formulas/minus.h"
 #include "formulas/multiply.h"
@@ -468,6 +469,40 @@ Element* UndoCodeBlock::Restore(Document* document, Element* parent)
     return c;
 }
 
+//UndoCodeParagraphsBlock
+
+UndoCodeParagraphsBlock::UndoCodeParagraphsBlock(ParagraphFormatPtr _paragraph_format, FormulaFormatPtr _formula_format) :
+    UndoElement(ElementType::CODE_PARAGRAPHS_BLOCK),
+    paragraph_format(_paragraph_format),
+    formula_format(_formula_format)
+{
+}
+
+bool UndoCodeParagraphsBlock::operator==(const UndoCodeParagraphsBlock& el) const
+{
+    if (!UndoElement::operator==(el))
+        return false;
+    return *paragraph_format == *el.paragraph_format && *formula_format == *el.formula_format;
+}
+
+bool UndoCodeParagraphsBlock::operator==(const CodeParagraphsBlock& el) const
+{
+    if (!UndoElement::operator==(el))
+        return false;
+    return *paragraph_format == *el.paragraph_format && *formula_format == *el.formula_format;
+}
+
+Element* UndoCodeParagraphsBlock::Restore(Document* document, Element* parent)
+{
+    CodeParagraphsBlock* c = parent ? new CodeParagraphsBlock(parent, false) : new CodeParagraphsBlock(document, false);
+    c->paragraph_format = paragraph_format;
+    c->formula_format = formula_format;
+    c->elements->Clear();
+    for (size_t i = 0; i < elements.size(); ++i)
+        c->elements->Add(ElementPtr(elements[i]->Restore(document, c)));
+    return c;
+}
+
 //UndoCodeString
 
 UndoCodeString::UndoCodeString(std::u32string _str, StringFormatPtr _format, bool _can_merge) :
@@ -893,6 +928,20 @@ UndoElementPtr UndoBase::StoreElement(const LogicalId id, ElementPtr el)
             undo_element->elements.push_back(undo_ch);
         }
         break;
+    case ElementType::CODE_PARAGRAPHS_BLOCK:
+        {
+            CodeParagraphsBlock* c = (CodeParagraphsBlock*)el.get();
+            undo_element.reset(new UndoCodeParagraphsBlock(c->paragraph_format, c->formula_format));
+            for (int i = 0; i < el->elements->Count(); ++i)
+            {
+                ElementPtr ch = el->elements->Get(i);
+                UndoElementPtr undo_ch = StoreElement(ch->logical_id, ch);
+                if (!undo_ch)
+                    return nullptr;
+                undo_element->elements.push_back(undo_ch);
+            }
+        }
+        break;
     case ElementType::CODE_STRING:
         undo_element.reset(new UndoCodeString(el->ToText(), ((CodeString*)el.get())->format, el->can_merge));
         break;
@@ -931,7 +980,7 @@ UndoElementPtr UndoBase::StoreElement(const LogicalId id, ElementPtr el)
         break;
     case ElementType::GRAPH_LINE:
         undo_element.reset(new UndoGraphLine(((GraphLine*)el.get())));
-        for (int i = 0; i < el->elements->Count() - 1; ++i)
+        for (int i = 0; i < el->elements->Count(); ++i)
         {
             if (!store_element(el->elements->Get(i), undo_element))
                 return nullptr;

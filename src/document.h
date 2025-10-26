@@ -329,7 +329,7 @@ public:
     void ReSolve(const LogicalId& _id);
     uint ReSolveDependencies(const LogicalId& after_id, const std::u32string& identifier);
     uint ReSolveErrors();
-    uint PutResult(const std::string& guid, const Result& result);
+    uint PutResult(const Result& result);
     void AddResolveElement(const LogicalId& _id);
     void AddChangedElement(const ElementId& _id);
     void GetSolverGuid(std::string& guid);

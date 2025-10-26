@@ -81,6 +81,7 @@ struct Result
 {
     std::string ToString();
 
+    std::string guid;
     yutovo_solver::ResultType type = yutovo_solver::ResultType::NONE;
     std::vector<Value> values;
     Dependencies dependencies;

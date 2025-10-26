@@ -31,9 +31,11 @@ TEST_F(FormulaTest, graphs1)
                         "<mrow>"\
                             "<mi>Null</mi>"\
                         "</mrow>"\
-                        "<mrow>"\
-                            "<mi>Null</mi>"\
-                        "</mrow>"\
+                        "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                            "<mrow>"\
+                                "<mi>Null</mi>"\
+                            "</mrow>"\
+                        "</math>"\
                         "<mrow>"\
                             "<mi>Null</mi>"\
                         "</mrow>"\
@@ -70,9 +72,11 @@ TEST_F(FormulaTest, graphs1)
                         "<mrow>"\
                             "<mi>Null</mi>"\
                         "</mrow>"\
-                        "<mrow>"\
-                            "<mi>Null</mi>"\
-                        "</mrow>"\
+                        "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                            "<mrow>"\
+                                "<mi>Null</mi>"\
+                            "</mrow>"\
+                        "</math>"\
                         "<mrow>"\
                             "<mi>Null</mi>"\
                         "</mrow>"\
@@ -107,9 +111,11 @@ TEST_F(FormulaTest, graphs2)
                         "<mrow>"\
                             "<mi>Null</mi>"\
                         "</mrow>"\
-                        "<mrow>"\
-                            "<mi>Null</mi>"\
-                        "</mrow>"\
+                        "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                            "<mrow>"\
+                                "<mi>Null</mi>"\
+                            "</mrow>"\
+                        "</math>"\
                         "<mrow>"\
                             "<mi>Null</mi>"\
                         "</mrow>"\
@@ -159,11 +165,13 @@ TEST_F(FormulaTest, graphs2)
                         "<mrow>"\
                             "<mi>2</mi>"\
                         "</mrow>"\
-                        "<mrow>"\
-                            "<mi>x</mi>"\
-                            "<mo>+</mo>"\
-                            "<mi>5</mi>"\
-                        "</mrow>"\
+                        "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                            "<mrow>"\
+                                "<mi>x</mi>"\
+                                "<mo>+</mo>"\
+                                "<mi>5</mi>"\
+                            "</mrow>"\
+                        "</math>"\
                         "<mrow>"\
                             "<mo>-</mo>"\
                             "<mi>2</mi>"\
@@ -185,6 +193,7 @@ TEST_F(FormulaTest, graphs2)
         document.ToHtml();
     auto el = document.FindByType({0}, ElementType::GRAPH_LINE);
     GraphLine* graph = (GraphLine*)el.get();
+    const GraphLine::Plot& plot = graph->plots[0];
     ASSERT_TRUE(graph->y_bottom == -2) << graph->y_bottom;
     ASSERT_TRUE(el->elements->Get(1)->ToText() == U"x+5");
     ASSERT_TRUE(graph->y_top == 2) << graph->y_top;
@@ -192,14 +201,14 @@ TEST_F(FormulaTest, graphs2)
     ASSERT_TRUE(el->elements->Get(4)->ToText() == U"x");
     ASSERT_TRUE(graph->x_right == 4);
     const std::vector<double> _x{-4., -3.98, -3.96};
-    std::vector<double> x(graph->x.begin(), std::next(graph->x.begin(), 3));
+    std::vector<double> x(plot.x.begin(), std::next(plot.x.begin(), 3));
     ASSERT_TRUE(std::equal(x.begin(), x.end(), _x.begin(), 
         [](double x, double y)
         {
             return std::fabs(x - y) < 0.01;
         })) << x[0] << x[1] << x[2];
     const std::vector<double> _y{1., 1.02, 1.04};
-    std::vector<double> y(graph->y.begin(), std::next(graph->y.begin(), 3));
+    std::vector<double> y(plot.y.begin(), std::next(plot.y.begin(), 3));
     ASSERT_TRUE(std::equal(y.begin(), y.end(), _y.begin(), 
         [](double x, double y)
         {
@@ -248,8 +257,9 @@ TEST_F(FormulaTest, graphs3)
     std::this_thread::sleep_for(1s);
     auto el = document.FindByType({0}, ElementType::GRAPH_LINE);
     GraphLine* graph = (GraphLine*)el.get();
-    ASSERT_TRUE(!graph->x.empty());
-    ASSERT_TRUE(!graph->y.empty());
+    const GraphLine::Plot& plot = graph->plots[0];
+    ASSERT_TRUE(!plot.x.empty());
+    ASSERT_TRUE(!plot.y.empty());
 }
 
 TEST_F(FormulaTest, graphs4)
@@ -272,13 +282,13 @@ TEST_F(FormulaTest, graphs4)
     document.WaitUndo();
     std::this_thread::sleep_for(200ms);
     ASSERT_TRUE(document.ToText() == U"graph_line(,(x)/(x),,,,)") << ToBasicString(document.ToText());
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 1, 0, 1})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1})) << document.GetEditorState().ToString();
 
     document.Redo();
     document.WaitRedo();
     std::this_thread::sleep_for(200ms);
     ASSERT_TRUE(document.ToText() == U"graph_line(,xx,,,,)") << ToBasicString(document.ToText());
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 1, 1, 0})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0})) << document.GetEditorState().ToString();
 }
 
 TEST_F(FormulaTest, graphs5)
@@ -376,8 +386,9 @@ TEST_F(FormulaTest, graphs7)
     std::this_thread::sleep_for(2s);
     auto el = document.FindByType({0}, ElementType::GRAPH_LINE);
     GraphLine* graph = (GraphLine*)el.get();
+    const GraphLine::Plot& plot = graph->plots[0];
     const std::vector<double> _y1{-2., -1.99, -1.98};
-    std::vector<double> y(graph->y.begin(), std::next(graph->y.begin(), 3));
+    std::vector<double> y(plot.y.begin(), std::next(plot.y.begin(), 3));
     ASSERT_TRUE(std::equal(y.begin(), y.end(), _y1.begin(), 
         [](double x, double y)
         {
@@ -393,7 +404,7 @@ TEST_F(FormulaTest, graphs7)
     document.WaitSolver();
     std::this_thread::sleep_for(2s);
     const std::vector<double> _y2{-20., -19.9, -19.8};
-    y = std::vector<double>(graph->y.begin(), std::next(graph->y.begin(), 3));
+    y = std::vector<double>(plot.y.begin(), std::next(plot.y.begin(), 3));
     ASSERT_TRUE(std::equal(y.begin(), y.end(), _y2.begin(), 
         [](double x, double y)
         {
@@ -442,7 +453,8 @@ TEST_F(FormulaTest, graphs8)
     ASSERT_TRUE(format.size.width == 500);
     const std::vector<double> _y{-1., -0.996, -0.992};
     GraphLine* graph = (GraphLine*)el.get();
-    std::vector<double> y(graph->y.begin(), std::next(graph->y.begin(), 3));
+    const GraphLine::Plot& plot = graph->plots[0];
+    std::vector<double> y(plot.y.begin(), std::next(plot.y.begin(), 3));
     ASSERT_TRUE(std::equal(y.begin(), y.end(), _y.begin(), 
         [](double x, double y)
         {
@@ -460,7 +472,7 @@ TEST_F(FormulaTest, graphs9)
     std::this_thread::sleep_for(2s);
     auto el = document.FindByType(ElementId{0}, ElementType::GRAPH_LINE);
     int start, size;
-    ASSERT_TRUE(document.HasErrorMark(el->id, start, size)) << ErrorMarks();
+    ASSERT_TRUE(document.HasErrorMark(el->elements->Get(1)->id, start, size)) << ErrorMarks();
 
     document.InsertString("1", true);
     document.MoveCaretRight(false);
@@ -493,7 +505,7 @@ TEST_F(FormulaTest, graphs9)
     document.WaitTask(document.InsertString("1", true));
     document.WaitSolver();
     std::this_thread::sleep_for(2s);
-    ASSERT_TRUE(document.HasErrorMark(el->elements->Get(1)->id, start, size)) << ErrorMarks();
+    ASSERT_TRUE(document.HasErrorMark(el->elements->Get(1)->elements->Get(0)->elements->Get(0)->id, start, size)) << ErrorMarks();
 }
 
 //Check redrawing graph after undo
@@ -538,7 +550,8 @@ TEST_F(FormulaTest, graphs10)
     const std::vector<double> _y{-1., -0.996, -0.992};
     auto el = document.FindByType(ElementId{0}, ElementType::GRAPH_LINE);
     GraphLine* graph = (GraphLine*)el.get();
-    std::vector<double> y(graph->y.begin(), std::next(graph->y.begin(), 3));
+    const GraphLine::Plot& plot = graph->plots[0];
+    std::vector<double> y(plot.y.begin(), std::next(plot.y.begin(), 3));
     ASSERT_TRUE(std::equal(y.begin(), y.end(), _y.begin(), 
         [](double x, double y)
         {
@@ -688,19 +701,153 @@ TEST_F(FormulaTest, graphs13)
     std::this_thread::sleep_for(2s);
     auto el = document.FindByType({0}, ElementType::GRAPH_LINE);
     GraphLine* graph = (GraphLine*)el.get();
-    auto it = std::find_if(graph->x.begin(), graph->x.end(), 
+    const GraphLine::Plot& plot = graph->plots[0];
+    auto it = std::find_if(plot.x.begin(), plot.x.end(), 
         [](auto& x)
         {
             return x > -0.01 && x < 0.01;
         });
     const std::vector<double> _y1{std::nan(""), -4.382, -3.507};
-    int p = static_cast<int>(it - graph->x.begin());
-    std::vector<double> y(graph->y.begin() + p, std::next(graph->y.begin() + p, 3));
+    int p = static_cast<int>(it - plot.x.begin());
+    std::vector<double> y(plot.y.begin() + p, std::next(plot.y.begin() + p, 3));
     ASSERT_TRUE(std::equal(y.begin(), y.end(), _y1.begin(), 
         [](double x, double y)
         {
             return std::fabs(x - y) < 0.01 || (std::isnan(x) && std::isnan(y));
         })) << y[0] << y[1] << y[2];
+}
+
+//Graph of two functions
+TEST_F(FormulaTest, graphs14)
+{
+    Start(600);
+
+    document.WaitTask(document.InsertGraph(true));
+
+    auto el = document.FindByType(ElementId{0}, ElementType::GRAPH_LINE);
+    GraphFormat format;
+    ASSERT_TRUE(document.GetGraphFormat(el->id, format));
+    format.size.width = 500;
+    document.WaitTask(document.SetGraphFormat(el->id, format, true));
+
+    document.InsertString("1", true);
+    document.MoveCaretRight(false);
+    document.InsertString("x", true);
+    document.InsertParagraph(true);
+    document.InsertMinus(false);
+    document.InsertString("x", true);
+    document.MoveCaretRight(false);
+    document.InsertMinus(false);
+    document.InsertString("1", true);
+    document.MoveCaretRight(false);
+    document.InsertMinus(false);
+    document.InsertString("1", true);
+    document.MoveCaretRight(false);
+    document.InsertString("x", true);
+    document.MoveCaretRight(false);
+    document.WaitTask(document.InsertString("1", true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(4s);
+
+    const std::vector<double> _y1{-1., -0.996, -0.992};
+    GraphLine* graph = (GraphLine*)el.get();
+    ASSERT_TRUE(graph->plots.size() >= 1);
+    GraphLine::Plot& plot = graph->plots[0];
+    ASSERT_TRUE(plot.y.size() > 3);
+    std::vector<double> y1(plot.y.begin(), std::next(plot.y.begin(), 3));
+    ASSERT_TRUE(std::equal(y1.begin(), y1.end(), _y1.begin(), 
+        [](double x, double y)
+        {
+            return std::fabs(x - y) < 0.01;
+        })) << y1[0] << y1[1] << y1[2];
+
+    const std::vector<double> _y2{1., 0.996, 0.992};
+    ASSERT_TRUE(graph->plots.size() == 2);
+    plot = graph->plots[1];
+    ASSERT_TRUE(plot.y.size() > 3);
+    std::vector<double> y2(plot.y.begin(), std::next(plot.y.begin(), 3));
+    ASSERT_TRUE(std::equal(y2.begin(), y2.end(), _y2.begin(), 
+        [](double x, double y)
+        {
+            return std::fabs(x - y) < 0.01;
+        })) << y2[0] << y2[1] << y2[2];
+}
+
+//Load old graph
+TEST_F(FormulaTest, graphs15)
+{
+    Start(600);
+
+    document.Load("../../test/tests/old_graph1.yut");
+    document.WaitLoad();
+    std::this_thread::sleep_for(2s);
+
+    auto el = document.FindByType(ElementId{0}, ElementType::GRAPH_LINE);
+    GraphFormat format;
+    ASSERT_TRUE(document.GetGraphFormat(el->id, format));
+    format.size.width = 500;
+    document.WaitTask(document.SetGraphFormat(el->id, format, true));
+
+    document.WaitSolver();
+    std::this_thread::sleep_for(1s);
+
+    const std::vector<double> _y{-1., -0.996, -0.992};
+    GraphLine* graph = (GraphLine*)el.get();
+    ASSERT_TRUE(graph->plots.size() == 1);
+    GraphLine::Plot& plot = graph->plots[0];
+    std::vector<double> y(plot.y.begin(), std::next(plot.y.begin(), 3));
+    ASSERT_TRUE(std::equal(y.begin(), y.end(), _y.begin(), 
+        [](double x, double y)
+        {
+            return std::fabs(x - y) < 0.01;
+        })) << y[0] << y[1] << y[2];
+}
+
+//Graph moving
+TEST_F(FormulaTest, graphs16)
+{
+    Start(600);
+
+    document.Load("../../test/tests/graph_moving.yut");
+    document.WaitLoad();
+    std::this_thread::sleep_for(2s);
+
+    auto el = document.FindByType(ElementId{0}, ElementType::GRAPH_LINE);
+    auto r = el->GetAbsoluteRect();
+    ASSERT_TRUE(document.MouseLButtonDown(r.left + r.width / 2, r.top + r.height / 2));
+    ASSERT_TRUE(document.MouseMove(r.left + r.width / 2 + 10, r.top + r.height / 2 + 10));
+    document.WaitSolver();
+    document.MouseLButtonUp(r.left + r.width / 2 + 10, r.top + r.height / 2 + 10);
+    std::this_thread::sleep_for(1s);
+
+    GraphLine* graph = (GraphLine*)el.get();
+    ASSERT_TRUE(graph->plots.size() == 2);
+    GraphLine::Plot& plot = graph->plots[0];
+    ASSERT_TRUE(plot.x.size() > 0 && plot.y.size() > 0);
+    plot = graph->plots[1];
+    ASSERT_TRUE(plot.x.size() > 0 && plot.y.size() > 0);
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 0, 0, 0})) << document.GetEditorState().ToString();
+}
+
+//Check of Undo
+TEST_F(FormulaTest, graphs17)
+{
+    Start(600);
+
+    document.Load("../../test/tests/graph_moving.yut");
+    document.WaitLoad();
+    std::this_thread::sleep_for(2s);
+
+    document.MoveCaretRight(false);
+    document.WaitTask(document.MoveCaretEnd(true));
+    ASSERT_TRUE(document.ToText() == U"graph_line(10,sin(x)*5\npow(x,2),-9.393,-14.306,x,11.694)") << ToBasicString(document.ToText());
+    document.WaitTask(document.DeleteElements(false, true));
+    ASSERT_TRUE(document.ToText() == U"graph_line(10,pow(x,2),-9.393,-14.306,x,11.694)") << ToBasicString(document.ToText());
+
+    document.Undo();
+    document.WaitUndo();
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.ToText() == U"graph_line(10,sin(x)*5\npow(x,2),-9.393,-14.306,x,11.694)") << ToBasicString(document.ToText());
 }
 
 }

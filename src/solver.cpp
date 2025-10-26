@@ -462,7 +462,8 @@ void Solver::MessageLoop(WebSocketPtr socket_, std::deque<SolverTaskPtr>& tasks_
             if (!result.values.empty() || (result.values.empty() && result.type == yutovo_solver::ResultType::ARRAY_REAL) || 
                 result.error.error_code != yutovo_solver::ErrorCode::OK)
             {
-                document->PutResult(t->task_guid, result);
+                result.guid = t->task_guid;
+                document->PutResult(result);
             }
             
             if (result.error.error_code == yutovo_solver::ErrorCode::SOLVER_RESTARTED_ERROR)

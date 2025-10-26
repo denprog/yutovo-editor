@@ -16,6 +16,7 @@
 #include "element.h"
 #include "formulas/code_block.h"
 #include "formulas/code_paragraph.h"
+#include "formulas/code_paragraphs_block.h"
 #include "formulas/code_row.h"
 #include "formulas/code_string.h"
 #include "formulas/plus.h"
@@ -331,7 +332,8 @@ Element* CreateFromJson(Element* parent, Document* document, const rapidjson::Va
             {ElementType::UNIT, &Unit::FromJson},
             {ElementType::COMMA, &Comma::FromJson},
             {ElementType::LINK, &Link::FromJson},
-            {ElementType::GRAPH_LINE, &GraphLine::FromJson}
+            {ElementType::GRAPH_LINE, &GraphLine::FromJson},
+            {ElementType::CODE_PARAGRAPHS_BLOCK, &CodeParagraphsBlock::FromJson}
         };
 
     if (!value.HasMember("type") || !value["type"].IsInt())

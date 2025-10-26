@@ -15,6 +15,8 @@
 namespace yutovo
 {
 
+class CodeParagraphsBlock;
+
 class Graph : public Formula
 {
 public:
@@ -37,13 +39,9 @@ public:
 
     virtual bool AfterInsert(bool with_undo);
 
-    virtual void ReSolve(bool if_error = false, bool force = false);
-
     virtual void LogicalIdChanged(const LogicalId& last_id);
 
     virtual bool Depends(const std::string& identifier);
-
-    virtual void PutError(const Error& error);
 
 protected:
     void SetNumber(const double num, CodeRow* el);
@@ -53,7 +51,7 @@ public:
     yutovo_solver::ErrorCode last_error_code = yutovo_solver::ErrorCode::OK;
     yutovo_calculator::ParserExceptionCode last_parser_error_code = yutovo_calculator::ParserExceptionCode::None;
     GraphFormat format;
-    ParserString last_expression;
+    std::vector<ParserString> last_expressions;
 
 #ifdef TEST
 public:
@@ -64,15 +62,13 @@ protected:
 
     CodeRow* GetYTop() const;
     CodeRow* GetYBottom() const;
-    CodeRow* GetExpression() const;
+    CodeParagraphsBlock* GetExpression() const;
     CodeRow* GetXLeft() const;
     CodeRow* GetVariable() const;
     CodeRow* GetXRight() const;
     Shape* GetShape() const;
 
     mutable mglGraph graph;
-
-    std::string guid;
 
     Config::ArrayRealResultConfig config;
 
@@ -100,6 +96,8 @@ public:
 
     virtual void Solve();
 
+    virtual void ReSolve(bool if_error = false, bool force = false);
+
     virtual void PutResult(Result& result);
 
     virtual std::u32string ToText() const;
@@ -110,7 +108,13 @@ public:
 #else
 protected:
 #endif
-    std::vector<double> x, y;
+    struct Plot
+    {
+        std::string guid;
+        std::vector<double> x, y;
+    };
+
+    std::vector<Plot> plots;
 };
 
 }

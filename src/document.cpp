@@ -3191,10 +3191,10 @@ uint Document::ReSolveErrors()
     return last_task_id;
 }
 
-uint Document::PutResult(const std::string& guid, const Result& result)
+uint Document::PutResult(const Result& result)
 {
     std::lock_guard<std::recursive_mutex> lock1(edit_mutex);
-    auto it = solve_ids.find(guid);
+    auto it = solve_ids.find(result.guid);
     if (it == solve_ids.end())
         return 0;
     
