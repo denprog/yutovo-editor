@@ -1593,6 +1593,36 @@ uint Document::SetGraphFormat(const ElementId& id, const GraphFormat& format, bo
     return last_task_id;
 }
 
+bool Document::GetPlotFormat(const ElementId& id, PlotFormat& format)
+{
+    std::lock_guard<std::recursive_mutex> lock(edit_mutex);
+    ElementPtr el = GetElement(id);
+    if (!el || el->type != ElementType::GRAPH_LINE)
+        return false;
+    ((GraphLine*)el.get())->GetPlotFormat(format);
+    return true;
+}
+
+uint Document::SetPlotFormat(const ElementId& id, const PlotFormat& format, bool with_undo)
+{
+    std::lock_guard<std::recursive_mutex> lock(edit_mutex);
+    std::function<bool()> func = 
+        [id, format, with_undo, this]()
+        {
+            ElementPtr el = GetElement(id);
+            if (!el || el->type != ElementType::GRAPH_LINE)
+                return false;
+            if (with_undo)
+                StoreUndo(el->id);
+            ((GraphLine*)el.get())->SetPlotFormat(format);
+            return true;
+        };
+    tasks.emplace_back(new SetFormatTask(text, id, func, with_undo));
+    last_task_id = tasks.back()->id;
+    next_circle = true;
+    return last_task_id;
+}
+
 void Document::UpdateFormats()
 {
     std::lock_guard<std::recursive_mutex> lock(edit_mutex);
@@ -2128,9 +2158,9 @@ void Document::SetCaretVisible(bool visible)
     next_circle = true;
 }
 
-bool Document::MouseLButtonDown(const int x, const int y)
+bool Document::MouseLButtonDown(const int x, const int y, MouseHoldType& hold_type, ElementId& hold_id)
 {
-    std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
+    std::lock_guard<std::recursive_mutex> lock(edit_mutex);
     ElementId id;
     int m = config.resize_margin_width;
     if (GetElementAtCoords(x, y, m, id))
@@ -2158,6 +2188,8 @@ bool Document::MouseLButtonDown(const int x, const int y)
                     resize_dir = ResizeDir::VerticalRight;
                 mouse_capture_id = id;
                 last_mouse_pos.Set(x, y);
+                hold_type = MouseHoldType::RESIZING;
+                hold_id = id;
                 return true;
             }
         }
@@ -2168,11 +2200,18 @@ bool Document::MouseLButtonDown(const int x, const int y)
     if (GetElementAtCoords(x, y, 0, id))
     {
         ElementPtr el = GetElement(id);
-        if (el && el->can_move_picture)
+        if (el)
         {
-            mouse_capture_id = id;
-            last_mouse_pos.Set(x, y);
-            return true;
+            if (el->MouseLButtonHold(x, y, hold_type, hold_id))
+                return true;
+            if (el->can_move_picture)
+            {
+                mouse_capture_id = id;
+                last_mouse_pos.Set(x, y);
+                hold_type = MouseHoldType::MOVING;
+                hold_id = id;
+                return true;
+            }
         }
     }
     return false;
@@ -2180,7 +2219,7 @@ bool Document::MouseLButtonDown(const int x, const int y)
 
 bool Document::MouseLButtonUp(const int x, const int y)
 {
-    std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
+    std::lock_guard<std::recursive_mutex> lock(edit_mutex);
     resize_dir = ResizeDir::None;
     mouse_capture_id = ElementId{};
     return false;
@@ -2188,13 +2227,14 @@ bool Document::MouseLButtonUp(const int x, const int y)
 
 bool Document::MouseMove(const int x, const int y)
 {
-    std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
+    std::lock_guard<std::recursive_mutex> lock(edit_mutex);
     ElementPtr el = GetElement(mouse_capture_id);
     if (!el)
         return false;
 
     if (resize_dir != ResizeDir::None)
     {
+        std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
         switch (resize_dir)
         {
         case ResizeDir::HorizontalLeft:
@@ -2234,6 +2274,8 @@ bool Document::MouseMove(const int x, const int y)
     {
         if (abs(x - last_mouse_pos.x) < 10 && abs(y - last_mouse_pos.y) < 10)
             return true;
+        
+        std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
         tasks.emplace_back(new MovePictureTask(text, mouse_capture_id, x - last_mouse_pos.x, y - last_mouse_pos.y));
         last_mouse_pos.Set(x, y);
         last_task_id = tasks.back()->id;
@@ -2246,7 +2288,7 @@ bool Document::MouseMove(const int x, const int y)
 
 bool Document::MouseWheel(const int x, const int y, const Point pixel_delta, const Point angle_delta)
 {
-    std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
+    std::lock_guard<std::recursive_mutex> lock(edit_mutex);
     ElementId id;
     ElementPtr el = GetElement(mouse_capture_id);
     if (el)
@@ -2261,6 +2303,7 @@ bool Document::MouseWheel(const int x, const int y, const Point pixel_delta, con
     {
         if (pixel_delta.x != 0 || pixel_delta.y != 0)
         {
+            std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
             tasks.emplace_back(new ZoomPictureTask(text, id, abs(pixel_delta.x) > abs(pixel_delta.y) ? pixel_delta.x : pixel_delta.y));
             last_task_id = tasks.back()->id;
             next_circle = true;
@@ -2271,6 +2314,7 @@ bool Document::MouseWheel(const int x, const int y, const Point pixel_delta, con
     {
         if (angle_delta.x != 0 || angle_delta.y != 0)
         {
+            std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
             tasks.emplace_back(new ZoomPictureTask(text, id, abs(angle_delta.x) > abs(angle_delta.y) ? angle_delta.x : angle_delta.y));
             last_task_id = tasks.back()->id;
             next_circle = true;

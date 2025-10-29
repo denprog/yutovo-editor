@@ -79,12 +79,20 @@ enum class ElementType
     CODE_PARAGRAPHS_BLOCK
 };
 
-enum IdentifierType
+enum class IdentifierType
 {
     NONE = 0,
     VARIABLE,
     FUNCTION,
     UNIT
+};
+
+enum class MouseHoldType
+{
+    NONE = 0,
+    RESIZING,
+    MOVING,
+    PLOT_FORMAT_DIALOG
 };
 
 class Document;
@@ -318,6 +326,21 @@ struct Color
     static Color Blue()
     {
         return Color{0xff, 0, 0, 0xff};
+    }
+
+    static Color Yellow()
+    {
+        return Color{0xff, 0xff, 0xff, 0x0};
+    }
+
+    static Color Magenta()
+    {
+        return Color{0xff, 0xff, 0x0, 0xff};
+    }
+
+    static Color Cian()
+    {
+        return Color{0xff, 0x0, 0xff, 0xff};
     }
 
     static Color Black()

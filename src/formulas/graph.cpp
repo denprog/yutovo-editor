@@ -8,6 +8,7 @@
 #include "graph.h"
 #include "document.h"
 #include "formulas/code_block.h"
+#include "formulas/code_paragraph.h"
 #include "formulas/code_paragraphs_block.h"
 #include "code_row.h"
 #include "formulas/power.h"
@@ -298,6 +299,8 @@ Shape* Graph::GetShape() const
 
 //GraphLine
 
+const std::vector<Color> GraphLine::default_colors = {Color::Red(), Color::Blue(), Color::Green(), Color::Magenta(), Color::Cian(), Color::Black()};
+
 GraphLine::GraphLine(Element* _parent, bool with_init) : 
     Graph(_parent, with_init)
 {
@@ -354,8 +357,14 @@ void GraphLine::Init()
             {
                 graph.SetRanges(x_left, x_right, y_bottom, y_top);
                 graph.SetFontSize(level);
-                graph.Axis("xyz", "r-1", "h-1");
-                graph.Grid("xyz", "h");
+#ifdef EMSCRIPTEN
+                std::string f = "{" + format.color.ToRGB() + "}";
+#else
+                std::string f = "{" + format.color.ToBGR() + "}";
+#endif
+                graph.Axis("xy", std::string(f + "-1").c_str(), "h-1");
+                if (format.grid_width > 0)
+                    graph.Grid("xy", std::string("h" + std::to_string(format.grid_width) + f).c_str());
                 graph.SetQuality(MGL_DRAW_NORM);
 
                 for (const Plot& p : plots)
@@ -369,9 +378,9 @@ void GraphLine::Init()
                         x_data.Set(x);
                         y_data.Set(y);
 #ifdef EMSCRIPTEN
-                        std::string f = "{" + format.plot_color.ToRGB() + "}-" + std::to_string(format.plot_width);
+                        f = "{" + p.format.color.ToRGB() + "}-" + std::to_string(p.format.width);
 #else
-                        std::string f = "{" + format.plot_color.ToBGR() + "}-" + std::to_string(format.plot_width);
+                        f = "{" + p.format.color.ToBGR() + "}-" + std::to_string(p.format.width);
 #endif
                         graph.Plot(x_data, y_data, f.c_str());
                     }
@@ -382,25 +391,6 @@ void GraphLine::Init()
             std::vector<unsigned char> arr(picture, picture + 4 * (graph.GetWidth() * graph.GetHeight()));
             window->DrawImage(r.left + 1, r.top + 1, r.width, r.height, arr);
         };
-}
-
-bool GraphLine::AfterFromJson()
-{
-    if (elements->Count() < 7)
-        elements->Clear();
-    else if (elements->Get(1)->type != ElementType::CODE_PARAGRAPHS_BLOCK)
-    {
-        //this is old type of graph, transform it
-        ElementPtr el = elements->Get(1);
-        elements->RemoveAt(1, 1);
-        elements->Insert(ElementPtr(new CodeParagraphsBlock(this, true)), 1);
-        elements->Get(1)->elements->Clear();
-        elements->Get(1)->elements->Add(el);
-    }
-
-    Init();
-    last_expressions.clear();
-    return true;
 }
 
 Element* GraphLine::Clone()
@@ -417,6 +407,15 @@ void GraphLine::ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorTy
 {
     Formula::ToJson(value, alloc);
     format.ToJson(value, alloc);
+    rapidjson::Value arr(rapidjson::kArrayType);
+    for (auto& p : plots)
+    {
+        rapidjson::Value v;
+        v.SetObject();
+        p.format.ToJson(v, alloc);
+        arr.PushBack(v, alloc);
+    }
+    value.AddMember("plots", arr, alloc);
 }
 
 Element* GraphLine::FromJson(Element* parent, Document* document, const rapidjson::Value::ConstObject& value, rapidjson::Document::AllocatorType& alloc)
@@ -425,7 +424,66 @@ Element* GraphLine::FromJson(Element* parent, Document* document, const rapidjso
     f.FromJson(value, alloc);
     GraphLine* el = parent ? new GraphLine(parent, false) : new GraphLine(document, false);
     el->format = f;
+
+    if (value.HasMember("plots") && value["plots"].IsArray())
+    {
+        rapidjson::Value::ConstArray arr = value["plots"].GetArray();
+        for (rapidjson::SizeType i = 0; i < arr.Size(); ++i)
+        {
+            std::string guid = boost::uuids::to_string(boost::uuids::random_generator()());
+            Plot p{guid};
+            if (arr[i].IsObject())
+            {
+                rapidjson::Value::ConstObject v = arr[i].GetObject();
+                p.format.FromJson(v, alloc);
+            }
+            el->plots.push_back(p);
+        }
+    }
+
     return el;
+}
+
+bool GraphLine::AfterFromJson()
+{
+    if (elements->Count() < 7)
+        elements->Clear();
+    else if (elements->Get(1)->type != ElementType::CODE_PARAGRAPHS_BLOCK)
+    {
+        //this is old type of graph, transform it
+        ElementPtr el = elements->Get(1);
+        elements->RemoveAt(1, 1);
+        ElementPtr b(new CodeParagraphsBlock(this, false));
+        elements->Insert(b, 1);
+        b->elements->Clear();
+
+        CodeParagraph* p = new CodeParagraph(b.get());
+        p->elements->Add(el);
+        StringFormatPtr f = GetStringFormat();
+        Color color;
+        uint width = 1;
+        GetPlotFormat(0, color, width);
+        p->SetMarker(U"█", document->GetStringFormat(f->family, f->size, f->bold, f->italic, f->underline, f->strikethrough, 
+            f->subscript, f->superscript, color, f->text_bg_color, f->text_bg_selection_color));
+        b->elements->Add(ElementPtr(p));
+    }
+    else
+    {
+        StringFormatPtr f = GetStringFormat();
+        Color color;
+        uint width = 1;
+        for (int i = 0; i < elements->Get(1)->elements->Count(); ++i)
+        {
+            CodeParagraph* p = (CodeParagraph*)elements->Get(1)->elements->Get(i).get();
+            GetPlotFormat(i, color, width);
+            p->SetMarker(U"█", document->GetStringFormat(f->family, f->size, f->bold, f->italic, f->underline, f->strikethrough, 
+                f->subscript, f->superscript, color, f->text_bg_color, f->text_bg_selection_color));
+        }
+    }
+
+    Init();
+    last_expressions.clear();
+    return true;
 }
 
 void GraphLine::Solve()
@@ -474,7 +532,7 @@ void GraphLine::ReSolve(bool if_error, bool force)
     while (plots.size() < GetExpression()->elements->Count())
     {
         std::string guid = boost::uuids::to_string(boost::uuids::random_generator()());
-        plots.push_back(Plot{guid});
+        plots.push_back(Plot{guid, default_colors[plots.size() % 4]});
     }
     if (plots.size() > GetExpression()->elements->Count())
         plots.resize(GetExpression()->elements->Count());
@@ -584,6 +642,27 @@ void GraphLine::PutResult(Result& result)
     document->Redraw(id, false);
 }
 
+bool GraphLine::MouseLButtonHold(const int x, const int y, MouseHoldType& hold_type, ElementId& hold_id)
+{
+    for (int i = 0; i < elements->Get(1)->elements->Count(); ++i)
+    {
+        ElementPtr el = elements->Get(1)->elements->Get(i);
+        if (el->elements->Count() == 0)
+            return false;
+        Rect r1 = el->GetAbsoluteRect();
+        Rect r2 = el->elements->Get(0)->GetAbsoluteRect();
+        Rect r{r1.left, r1.top, r2.left - r1.left, r2.GetBottom() - r1.top};
+        if (r.IsPointInside(x, y))
+        {
+            mouse_l_button_pos = i;
+            hold_type = MouseHoldType::PLOT_FORMAT_DIALOG;
+            hold_id = id;
+            return true;
+        }
+    }
+    return false;
+}
+
 std::u32string GraphLine::ToText() const
 {
     std::u32string s = U"graph_line(";
@@ -625,6 +704,41 @@ void GraphLine::ToParserString(ParserString& str)
         elements->Get(0)->ToParserString(str);
         str.Annotate(id, start, str.Length());
     }
+}
+
+void GraphLine::GetPlotFormat(const int pos, Color& color, uint& width)
+{
+    while (plots.size() < pos + 1)
+    {
+        std::string guid = boost::uuids::to_string(boost::uuids::random_generator()());
+        plots.push_back(Plot{guid, default_colors[plots.size() % default_colors.size()]});
+    }
+    color = plots[pos].format.color;
+    width = plots[pos].format.width;
+}
+
+void GraphLine::GetPlotFormat(PlotFormat& format)
+{
+    Color color;
+    uint width = 1;
+    GetPlotFormat(mouse_l_button_pos, color, width);
+    format.color = color;
+    format.width = width;
+}
+
+void GraphLine::SetPlotFormat(const PlotFormat& format)
+{
+    if (mouse_l_button_pos >= plots.size())
+        return;
+    plots[mouse_l_button_pos].format.color = format.color;
+    plots[mouse_l_button_pos].format.width = format.width;
+
+    ElementPtr p = elements->Get(1)->elements->Get(mouse_l_button_pos);
+    if (!p)
+        return;
+    StringFormatPtr f = GetStringFormat();
+    ((CodeParagraph*)p.get())->SetMarker(U"█", document->GetStringFormat(f->family, f->size, f->bold, f->italic, f->underline, f->strikethrough, 
+        f->subscript, f->superscript, format.color, f->text_bg_color, f->text_bg_selection_color));
 }
 
 }

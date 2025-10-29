@@ -99,11 +99,8 @@ public:
 
     virtual void GetMargin(int& left, int& top, int& right, int& bottom) const;
 
-    virtual bool OnMouseLButtonDown(const int x, const int y);
-    virtual bool OnMouseLButtonUp(const int x, const int y);
-    virtual bool OnMouseMove(const int x, const int y);
-    virtual bool OnMouseWheelVertical(const int pixels);
-    virtual bool OnMouseWheelHorizontal(const int pixels);
+    virtual bool MouseLButtonHold(const int x, const int y, MouseHoldType& hold_type, ElementId& hold_id);
+    virtual bool MouseRButtonHold(const int x, const int y, MouseHoldType& hold_type, ElementId& hold_id);
 
     virtual std::string ToHtml() const;
     virtual std::u32string ToText() const;

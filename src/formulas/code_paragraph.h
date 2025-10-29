@@ -33,6 +33,8 @@ public:
 
     virtual bool IsFormula();
 
+    virtual bool AfterInsert(bool with_undo);
+
     virtual std::string ToHtml() const;
 
     virtual ElementPtr GetPlainRow();

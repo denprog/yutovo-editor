@@ -198,7 +198,7 @@ public:
 
     void SetCaretVisible(bool visible);
 
-    bool MouseLButtonDown(const int x, const int y);
+    bool MouseLButtonDown(const int x, const int y, MouseHoldType& hold_type, ElementId& hold_id);
     bool MouseLButtonUp(const int x, const int y);
     bool MouseMove(const int x, const int y);
     bool MouseWheel(const int x, const int y, const Point pixel_delta, const Point angle_delta);
@@ -254,6 +254,8 @@ public:
 
     bool GetGraphFormat(const ElementId& id, GraphFormat& format);
     uint SetGraphFormat(const ElementId& id, const GraphFormat& format, bool with_undo);
+    bool GetPlotFormat(const ElementId& id, PlotFormat& format);
+    uint SetPlotFormat(const ElementId& id, const PlotFormat& format, bool with_undo);
     
     void UpdateFormats();
 

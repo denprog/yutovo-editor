@@ -168,9 +168,11 @@ Element* UndoLink::Restore(Document* document, Element* parent)
 
 //UndoParagraph
 
-UndoParagraph::UndoParagraph(ParagraphFormatPtr _format) :
+UndoParagraph::UndoParagraph(ParagraphFormatPtr _format, const std::u32string& _marker, const StringFormatPtr& _marker_format) :
     UndoElement(ElementType::PARAGRAPH),
-    format(_format)
+    format(_format),
+    marker(_marker),
+    marker_format(_marker_format)
 {
 }
 
@@ -178,14 +180,14 @@ bool UndoParagraph::operator==(const UndoParagraph& el) const
 {
     if (!UndoElement::operator==(el))
         return false;
-    return *format == *el.format;
+    return *format == *el.format && marker == el.marker && *marker_format == *el.marker_format;
 }
 
 bool UndoParagraph::operator==(const Paragraph& el) const
 {
     if (!UndoElement::operator==(el))
         return false;
-    return *format == *el.format;
+    return *format == *el.format && marker == el.marker && *marker_format == *el.marker_format;
 }
 
 Element* UndoParagraph::Restore(Document* document, Element* parent)
@@ -197,6 +199,8 @@ Element* UndoParagraph::Restore(Document* document, Element* parent)
         p = new Paragraph(document);
     p->format = format;
     p->current_string_format = format->default_string_format;
+    p->marker = marker;
+    p->marker_format = marker_format;
     auto r = p->elements->Get(0);
     r->elements->Clear();
     for (size_t i = 0; i < elements.size(); ++i)
@@ -402,8 +406,8 @@ Element* UndoCodeRow::Restore(Document* document, Element* parent)
 
 //UndoCodeParagraph
 
-UndoCodeParagraph::UndoCodeParagraph(ParagraphFormatPtr _format) :
-    UndoParagraph(_format)
+UndoCodeParagraph::UndoCodeParagraph(ParagraphFormatPtr _format, const std::u32string& _marker, const StringFormatPtr& marker_format) :
+    UndoParagraph(_format, _marker, marker_format)
 {
     type = ElementType::CODE_PARAGRAPH;
 }
@@ -412,20 +416,22 @@ bool UndoCodeParagraph::operator==(const UndoCodeParagraph& el) const
 {
     if (!UndoElement::operator==(el))
         return false;
-    return *format == *el.format;
+    return *format == *el.format && marker == el.marker && *marker_format == *el.marker_format;
 }
 
 bool UndoCodeParagraph::operator==(const CodeParagraph& el) const
 {
     if (!UndoElement::operator==(el))
         return false;
-    return *format == *el.format;
+    return *format == *el.format && marker == el.marker && *marker_format == *el.marker_format;
 }
 
 Element* UndoCodeParagraph::Restore(Document* document, Element* parent)
 {
     CodeParagraph* p = parent ? new CodeParagraph(parent) : new CodeParagraph(document);
     p->format = format;
+    p->marker = marker;
+    p->marker_format = marker_format;
     p->elements->Clear();
     for (size_t i = 0; i < elements.size(); ++i)
         p->elements->Add(ElementPtr(elements[i]->Restore(document, p)));
@@ -872,17 +878,20 @@ UndoElementPtr UndoBase::StoreElement(const LogicalId id, ElementPtr el)
         undo_element.reset(new UndoLink(el->ToText(), ((Link*)el.get())->url, ((String*)el.get())->format, el->can_merge));
         break;
     case ElementType::PARAGRAPH:
-        undo_element.reset(new UndoParagraph(((Paragraph*)el.get())->format));
-        for (int i = 0; i < el->elements->Count(); ++i)
         {
-            ElementPtr row = el->elements->Get(i);
-            for (int j = 0; j < row->elements->Count(); ++j)
+            Paragraph* p = (Paragraph*)el.get();
+            undo_element.reset(new UndoParagraph(p->format, p->marker, p->marker_format));
+            for (int i = 0; i < el->elements->Count(); ++i)
             {
-                auto ch = row->elements->Get(j);
-                UndoElementPtr undo_ch = StoreElement(ch->logical_id, ch);
-                if (!undo_ch)
-                    return nullptr;
-                undo_element->elements.push_back(undo_ch);
+                ElementPtr row = el->elements->Get(i);
+                for (int j = 0; j < row->elements->Count(); ++j)
+                {
+                    auto ch = row->elements->Get(j);
+                    UndoElementPtr undo_ch = StoreElement(ch->logical_id, ch);
+                    if (!undo_ch)
+                        return nullptr;
+                    undo_element->elements.push_back(undo_ch);
+                }
             }
         }
         break;
@@ -918,14 +927,17 @@ UndoElementPtr UndoBase::StoreElement(const LogicalId id, ElementPtr el)
         }
         break;
     case ElementType::CODE_PARAGRAPH:
-        undo_element.reset(new UndoCodeParagraph(((CodeParagraph*)el.get())->format));
-        for (int i = 0; i < el->elements->Count(); ++i)
         {
-            ElementPtr row = el->elements->Get(i);
-            UndoElementPtr undo_ch = StoreElement(row->logical_id, row);
-            if (!undo_ch)
-                return nullptr;
-            undo_element->elements.push_back(undo_ch);
+            CodeParagraph* p = (CodeParagraph*)el.get();
+            undo_element.reset(new UndoCodeParagraph(p->format, p->marker, p->marker_format));
+            for (int i = 0; i < el->elements->Count(); ++i)
+            {
+                ElementPtr row = el->elements->Get(i);
+                UndoElementPtr undo_ch = StoreElement(row->logical_id, row);
+                if (!undo_ch)
+                    return nullptr;
+                undo_element->elements.push_back(undo_ch);
+            }
         }
         break;
     case ElementType::CODE_PARAGRAPHS_BLOCK:
