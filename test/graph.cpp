@@ -814,7 +814,9 @@ TEST_F(FormulaTest, graphs16)
 
     auto el = document.FindByType(ElementId{0}, ElementType::GRAPH_LINE);
     auto r = el->GetAbsoluteRect();
-    ASSERT_TRUE(document.MouseLButtonDown(r.left + r.width / 2, r.top + r.height / 2));
+    MouseHoldType hold_type;
+    ElementId hold_id;
+    ASSERT_TRUE(document.MouseLButtonDown(r.left + r.width / 2, r.top + r.height / 2, hold_type, hold_id));
     ASSERT_TRUE(document.MouseMove(r.left + r.width / 2 + 10, r.top + r.height / 2 + 10));
     document.WaitSolver();
     document.MouseLButtonUp(r.left + r.width / 2 + 10, r.top + r.height / 2 + 10);
@@ -848,6 +850,45 @@ TEST_F(FormulaTest, graphs17)
     document.WaitUndo();
     std::this_thread::sleep_for(200ms);
     ASSERT_TRUE(document.ToText() == U"graph_line(10,sin(x)*5\npow(x,2),-9.393,-14.306,x,11.694)") << ToBasicString(document.ToText());
+}
+
+//Check plot format
+TEST_F(FormulaTest, graphs18)
+{
+    Start(600);
+
+    document.Load("../../test/tests/graph_moving.yut");
+    document.WaitLoad();
+    std::this_thread::sleep_for(2s);
+
+    auto el = document.FindByType(ElementId{0}, ElementType::GRAPH_LINE);
+    auto p1 = el->elements->Get(1)->elements->Get(0);
+    auto p2 = el->elements->Get(1)->elements->Get(1);
+    Rect r = p1->GetAbsoluteRect();
+    MouseHoldType hold_type;
+    ElementId id;
+    ASSERT_TRUE(document.MouseLButtonDown(r.left + 5, r.top + 5, hold_type, id));
+    ASSERT_TRUE(hold_type == MouseHoldType::PLOT_FORMAT_DIALOG && id == el->id);
+    r = p2->GetAbsoluteRect();
+    ASSERT_TRUE(document.MouseLButtonDown(r.left + 5, r.top + 5, hold_type, id));
+    ASSERT_TRUE(hold_type == MouseHoldType::PLOT_FORMAT_DIALOG && id == el->id);
+
+    PlotFormat format;
+    ASSERT_TRUE(document.GetPlotFormat(id, format));
+    format.width = 2;
+    format.color = Color::Blue();
+    document.WaitTask(document.SetPlotFormat(id, format, true));
+
+    format = PlotFormat{};
+    ASSERT_TRUE(document.GetPlotFormat(id, format));
+    ASSERT_TRUE(format.width == 2 && format.color == Color::Blue());
+
+    document.Undo();
+    document.WaitUndo();
+    std::this_thread::sleep_for(200ms);
+
+    ASSERT_TRUE(document.GetPlotFormat(id, format));
+    ASSERT_TRUE(format.width == 1 && format.color == Color::Red());
 }
 
 }

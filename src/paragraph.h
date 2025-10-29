@@ -62,9 +62,14 @@ public:
     virtual ElementPtr GetPlainRow();
     virtual void MakePlain();
 
+    virtual void SetMarker(const std::u32string& _marker, const StringFormatPtr& _marker_format);
+
 public:
     ParagraphFormatPtr format;
     StringFormatPtr current_string_format;
+
+    std::u32string marker;
+    StringFormatPtr marker_format;
 };
 
 }

@@ -562,10 +562,10 @@ FormulaFormatPtr FormulaFormats::GetFormat(const std::string& name, StringFormat
 void GraphFormat::ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc)
 {
     rapidjson::Value obj(rapidjson::kObjectType);
-    obj.AddMember("graph_width", (int)size.width, alloc);
-    obj.AddMember("graph_height", (int)size.height, alloc);
-    obj.AddMember("plot_color", plot_color.ToInt(), alloc);
-    obj.AddMember("plot_width", (int)plot_width, alloc);
+    obj.AddMember("width", (int)size.width, alloc);
+    obj.AddMember("height", (int)size.height, alloc);
+    obj.AddMember("color", color.ToInt(), alloc);
+    obj.AddMember("grid_width", (int)grid_width, alloc);
     value.AddMember("graph_format", obj, alloc);
 }
 
@@ -574,22 +574,47 @@ bool GraphFormat::FromJson(const rapidjson::Value::ConstObject& value, rapidjson
     if (value.HasMember("graph_format") && value["graph_format"].IsObject())
     {
         auto r = value["graph_format"].GetObject();
-        if (!r.HasMember("graph_width") || !r["graph_width"].IsInt() || (int)r["graph_width"].GetInt() < 100)
+        if (!r.HasMember("width") || !r["width"].IsInt() || (int)r["width"].GetInt() < 100)
             size.width = 400;
         else
-            size.width = (int)r["graph_width"].GetInt();
-        if (!r.HasMember("graph_height") || !r["graph_height"].IsInt() || (int)r["graph_height"].GetInt() < 100)
+            size.width = (int)r["width"].GetInt();
+        if (!r.HasMember("height") || !r["height"].IsInt() || (int)r["height"].GetInt() < 100)
             size.height = 400;
         else
-            size.height = (int)r["graph_height"].GetInt();
-        if (!r.HasMember("plot_color") || !r["plot_color"].IsUint())
-            plot_color = Color::Black();
+            size.height = (int)r["height"].GetInt();
+        if (!r.HasMember("color") || !r["color"].IsUint())
+            color = Color::Black();
         else
-            plot_color = Color::FromInt(r["plot_color"].GetUint());
-        if (!r.HasMember("plot_width") || !r["plot_width"].IsInt() || (int)r["plot_width"].GetInt() < 1)
-            plot_width = 1;
+            color = Color::FromInt(r["color"].GetUint());
+        if (!r.HasMember("grid_width") || !r["grid_width"].IsInt() || (int)r["grid_width"].GetInt() > 10)
+            grid_width = 1;
         else
-            plot_width = (int)r["plot_width"].GetInt();
+            grid_width = (int)r["grid_width"].GetInt();
+    }
+    return true;
+}
+
+void PlotFormat::ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc)
+{
+    rapidjson::Value obj(rapidjson::kObjectType);
+    obj.AddMember("width", (int)width, alloc);
+    obj.AddMember("color", color.ToInt(), alloc);
+    value.AddMember("plot_format", obj, alloc);
+}
+
+bool PlotFormat::FromJson(const rapidjson::Value::ConstObject& value, rapidjson::Document::AllocatorType& alloc)
+{
+    if (value.HasMember("plot_format") && value["plot_format"].IsObject())
+    {
+        auto r = value["plot_format"].GetObject();
+        if (!r.HasMember("width") || !r["width"].IsInt() || (int)r["width"].GetInt() > 10)
+            width = 1;
+        else
+            width = (int)r["width"].GetInt();
+        if (!r.HasMember("color") || !r["color"].IsUint())
+            color = Color::Black();
+        else
+            color = Color::FromInt(r["color"].GetUint());
     }
     return true;
 }

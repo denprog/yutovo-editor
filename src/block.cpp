@@ -207,6 +207,8 @@ bool Block::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo, E
             caret_next_row = true;
         }
 
+        insert_element->AfterInsert(with_undo);
+
         if (caret_next_row)
         {
             new_row = insert_element->elements->Get(0); //move elements into this one row, which will be splitted during paragraph formatting

@@ -8,6 +8,7 @@
 #include "code_paragraphs_block.h"
 #include "code_paragraph.h"
 #include "formula.h"
+#include "graph.h"
 
 namespace yutovo
 {
@@ -101,7 +102,18 @@ ParagraphFormatPtr CodeParagraphsBlock::GetParagraphFormat()
 
 void CodeParagraphsBlock::AddEmptyElement()
 {
-    AddElement(ElementPtr(new CodeParagraph(this)));
+    auto* p = new CodeParagraph(this);
+    GraphLine* graph = (GraphLine*)parent;
+    if (graph)
+    {
+        StringFormatPtr f = GetStringFormat();
+        Color color;
+        uint width = 1;
+        graph->GetPlotFormat(elements->Count(), color, width);
+        p->SetMarker(U"█", document->GetStringFormat(f->family, f->size, f->bold, f->italic, f->underline, f->strikethrough, 
+            f->subscript, f->superscript, color, f->text_bg_color, f->text_bg_selection_color));
+    }
+    AddElement(ElementPtr(p));
 }
 
 bool CodeParagraphsBlock::IsFormula()

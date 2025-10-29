@@ -191,8 +191,17 @@ struct GraphFormat
     bool FromJson(const rapidjson::Value::ConstObject& value, rapidjson::Document::AllocatorType& alloc);
 
     Size size{400, 400};
-    Color plot_color = Color::Red();
-    uint plot_width = 1;
+    Color color = Color::Black();
+    uint grid_width = 1;
+};
+
+struct PlotFormat
+{
+    void ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc);
+    bool FromJson(const rapidjson::Value::ConstObject& value, rapidjson::Document::AllocatorType& alloc);
+    
+    Color color = Color::Red();
+    uint width = 1;
 };
 
 typedef std::unique_ptr<GraphFormat> GraphFormatPtr;

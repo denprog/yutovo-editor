@@ -8,6 +8,9 @@
 #include "code_paragraph.h"
 #include "code_row.h"
 #include "code_string.h"
+#include "graph.h"
+#include <boost/lexical_cast.hpp>
+#include <boost/uuid/uuid_io.hpp>
 
 namespace yutovo
 {
@@ -80,6 +83,23 @@ Element* CodeParagraph::FromJson(Element* parent, Document* document, const rapi
         if (f)
             p->format = f;
     }
+
+    if (value.HasMember("marker") && value["marker"].IsString())
+        p->marker = ToUtfString(value["marker"].GetString());
+    if (value.HasMember("marker_format_id") && value["marker_format_id"].IsString())
+    {
+        auto format_id_str = value["marker_format_id"].GetString();
+        boost::uuids::uuid format_id;
+        try
+        {
+            format_id = boost::lexical_cast<boost::uuids::uuid>(format_id_str);
+        }
+        catch (std::bad_cast& ex)
+        {
+            return nullptr;
+        }
+        p->marker_format = document->GetStringFormat(format_id);
+    }
     return p;
 }
 
@@ -99,11 +119,27 @@ void CodeParagraph::Normalize()
         if (el1->type == ElementType::CODE_ROW && el2->type == ElementType::CODE_ROW)
         {
             //merge the two rows
-            el1->Merge(el2);
+            if (!el1->Merge(el2))
+                ++i;
         }
         else
             ++i;
     }
+}
+
+bool CodeParagraph::AfterInsert(bool with_undo)
+{
+    StringFormatPtr f = GetStringFormat();
+    ElementPtr graph = document->FindParent(id, ElementType::GRAPH_LINE);
+    if (graph)
+    {
+        Color color;
+        uint width = 1;
+        ((GraphLine*)graph.get())->GetPlotFormat(yutovo::GetChildPos(id), color, width);
+        SetMarker(U"█", document->GetStringFormat(f->family, f->size, f->bold, f->italic, f->underline, f->strikethrough, 
+            f->subscript, f->superscript, color, f->text_bg_color, f->text_bg_selection_color));
+    }
+    return true;
 }
 
 bool CodeParagraph::IsFormula()

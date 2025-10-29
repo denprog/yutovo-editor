@@ -8,6 +8,8 @@
 #include "paragraph.h"
 #include "document.h"
 #include "row.h"
+#include <boost/lexical_cast.hpp>
+#include <boost/uuid/uuid_io.hpp>
 
 namespace yutovo
 {
@@ -65,6 +67,13 @@ void Paragraph::ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorTy
     rapidjson::Value _format_name(format->name.c_str(), alloc);
     value.AddMember("format_name", _format_name, alloc);
     value.AddMember("format_alignment", (int)format->alignment, alloc);
+    if (!marker.empty())
+    {
+        rapidjson::Value _marker(ToBasicString(marker).c_str(), alloc);
+        value.AddMember("marker", _marker, alloc);
+        rapidjson::Value _uuid(boost::uuids::to_string(marker_format->id).c_str(), alloc);
+        value.AddMember("marker_format_id", _uuid, alloc);
+    }
 }
 
 Element* Paragraph::FromJson(Element* parent, Document* document, const rapidjson::Value::ConstObject& value, rapidjson::Document::AllocatorType& alloc)
@@ -90,6 +99,23 @@ Element* Paragraph::FromJson(Element* parent, Document* document, const rapidjso
         if (f)
             p->format = f;
     }
+
+    if (value.HasMember("marker") && value["marker"].IsString())
+        p->marker = ToUtfString(value["marker"].GetString());
+    if (value.HasMember("marker_format_id") && value["marker_format_id"].IsString())
+    {
+        auto format_id_str = value["marker_format_id"].GetString();
+        boost::uuids::uuid format_id;
+        try
+        {
+            format_id = boost::lexical_cast<boost::uuids::uuid>(format_id_str);
+        }
+        catch (std::bad_cast& ex)
+        {
+            return nullptr;
+        }
+        p->marker_format = document->GetStringFormat(format_id);
+    }
     return p;
 }
 
@@ -102,6 +128,16 @@ void Paragraph::Draw() const
         auto el = elements->Get(i);
         if (document->IsVisible(el->id))
             el->Draw();
+    }
+    if (!marker.empty())
+    {
+        ElementPtr el = elements->Get(0);
+        Rect r = GetAbsoluteRect();
+        Size s = window->GetTextSize(marker, marker_format);
+        int h = std::max(el->rect.height, s.height);
+        window->DrawText(ToBasicString(marker), marker_format, 
+            Rect{r.left, r.top + (h - s.height) / 2, s.width, s.height}, 
+            marker_format->text_color, current_string_format->text_bg_color);
     }
 }
 
@@ -117,6 +153,15 @@ bool Paragraph::Remake(bool with_elements)
 
     int left_m = 0, top_m = 0, right_m = 0, bottom_m = 0;
     int page_width = type == ElementType::PARAGRAPH ? ((Text*)parent)->page_width : 0;
+    int m = 0;
+
+    if (!marker.empty())
+    {
+        Size s = window->GetTextSize(marker, marker_format);
+        m = s.width;
+        if (page_width > 0)
+            page_width -= m;
+    }
 
     if (format->word_wrap == ParagraphFormat::WordWrap::Normal)
     {
@@ -240,16 +285,16 @@ bool Paragraph::Remake(bool with_elements)
         {
         case ParagraphFormat::Alignment::Left:
         case ParagraphFormat::Alignment::Justify:
-            row->rect.Move(format->indent_before + left_m, h + top_m);
+            row->rect.Move(m + format->indent_before + left_m, h + top_m);
             break;
         case ParagraphFormat::Alignment::Right:
             if (row->rect.width > page_width)
-                row->rect.Move(w - row->rect.width + format->indent_before + left_m, h + top_m);
+                row->rect.Move(m + w - row->rect.width + format->indent_before + left_m, h + top_m);
             else
-                row->rect.Move(w - row->rect.width + format->indent_before - format->indent_after + left_m, h + top_m);
+                row->rect.Move(m + w - row->rect.width + format->indent_before - format->indent_after + left_m, h + top_m);
             break;
         case ParagraphFormat::Alignment::Center:
-            row->rect.Move(format->indent_before + (w - row->rect.width) / 2 - format->indent_after, h + top_m);
+            row->rect.Move(m + format->indent_before + (w - row->rect.width) / 2 - format->indent_after, h + top_m);
             break;
         }
         h += row->rect.height + format->line_spacing + top_m + bottom_m;
@@ -617,6 +662,12 @@ void Paragraph::MakePlain()
     auto r = GetPlainRow();
     elements->Clear();
     elements->Add(r);
+}
+
+void Paragraph::SetMarker(const std::u32string& _marker, const StringFormatPtr& _marker_format)
+{
+    marker = _marker;
+    marker_format = _marker_format;
 }
 
 }

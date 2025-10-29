@@ -583,38 +583,17 @@ void Element::GetMargin(int& left, int& top, int& right, int& bottom) const
     left = top = right = bottom = 0;
 }
 
-bool Element::OnMouseLButtonDown(const int x, const int y)
+bool Element::MouseLButtonHold(const int x, const int y, MouseHoldType& hold_type, ElementId& hold_id)
 {
     if (parent)
-        return parent->OnMouseLButtonDown(x, y);
+        return parent->MouseLButtonHold(x, y, hold_type, hold_id);
     return false;
 }
 
-bool Element::OnMouseLButtonUp(const int x, const int y)
+bool Element::MouseRButtonHold(const int x, const int y, MouseHoldType& hold_type, ElementId& hold_id)
 {
     if (parent)
-        return parent->OnMouseLButtonUp(x, y);
-    return false;
-}
-
-bool Element::OnMouseMove(const int x, const int y)
-{
-    if (parent)
-        return parent->OnMouseMove(x, y);
-    return false;
-}
-
-bool Element::OnMouseWheelVertical(const int pixels)
-{
-    if (parent)
-        return parent->OnMouseWheelVertical(pixels);
-    return false;
-}
-
-bool Element::OnMouseWheelHorizontal(const int pixels)
-{
-    if (parent)
-        return parent->OnMouseWheelHorizontal(pixels);
+        return parent->MouseRButtonHold(x, y, hold_type, hold_id);
     return false;
 }
 
