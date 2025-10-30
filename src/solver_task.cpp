@@ -940,8 +940,16 @@ bool ArrayRealSolverTask::Execute(WebSocketPtr socket, Result& result)
 #ifdef EMSCRIPTEN
     if (json.length() > 2)
     {
-        json.insert(1, "\"solver_guid\":\"" + solver_guid + "\",");
-        document->window->OnSolverAction(json);
+        if (json.length() > 1024)
+        {
+            std::string _json("{\"solver_guid\":\"" + solver_guid + "\"}");
+            document->window->OnSolverAction(_json);
+        }
+        else
+        {
+            json.insert(1, "\"solver_guid\":\"" + solver_guid + "\",");
+            document->window->OnSolverAction(json);
+        }
     }
 #endif
 
