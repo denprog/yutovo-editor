@@ -190,6 +190,8 @@ if(EMSCRIPTEN)
     #target_link_options(${PROJECT_NAME} PUBLIC "-fwasm-exceptions -s DISABLE_EXCEPTION_THROWING=0")
     target_link_options(${PROJECT_NAME} PUBLIC "-fexceptions -s DISABLE_EXCEPTION_THROWING=0")
     target_compile_options(${PROJECT_NAME} PUBLIC -Wno-deprecated-literal-operator)
+    target_compile_options(${PROJECT_NAME} PRIVATE -Wno-overloaded-shift-op-parentheses)
+    target_compile_options(${PROJECT_NAME} PRIVATE -Wno-nontrivial-memcall)
 elseif(DEFINED REMOTE_SOLVER)
     target_link_libraries(${PROJECT_NAME} PRIVATE 
         stdc++
