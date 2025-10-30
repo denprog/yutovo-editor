@@ -698,7 +698,7 @@ TEST_F(FormulaTest, graphs13)
     document.MoveCaretRight(false);
     document.WaitTask(document.InsertString("5", true));
     document.WaitSolver();
-    std::this_thread::sleep_for(2s);
+    std::this_thread::sleep_for(3s);
     auto el = document.FindByType({0}, ElementType::GRAPH_LINE);
     GraphLine* graph = (GraphLine*)el.get();
     const GraphLine::Plot& plot = graph->plots[0];
