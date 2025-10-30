@@ -930,26 +930,27 @@ Elements* StringElements::Clone(Element* _parent)
 
 void StringElements::Draw() const
 {
-    StringFormatPtr format = ((String*)parent)->format;
+    String* p = (String*)parent;
+    StringFormatPtr format = p->format;
     uint start = 0, size = 0;
-    if (((String*)parent)->stretch_width == 0 && tabs.empty())
+    Rect r = p->GetAbsoluteRect();
+    if (p->stretch_width == 0 && tabs.empty())
     {
-        parent->window->DrawText(ToBasicString(str), format, parent->GetAbsoluteRect(), format->text_color, format->text_bg_color); //draw the string
-        if (parent->document->selection.Has(parent->id, start, size))
+        p->window->DrawText(ToBasicString(str), format, r, format->text_color, format->text_bg_color); //draw the string
+        if (p->document->selection.Has(p->id, start, size))
         {
             //draw text with selection
-            Rect r = parent->GetAbsoluteRect();
-            int p = parent->window->GetCharPos(str, format, start);
+            int pos = p->window->GetCharPos(str, format, start);
             if (str.empty() && start == 0 && size == 0)
             {
-                Size s = parent->window->GetTextSize(U" ", format);
-                parent->window->DrawText(" ", format, Rect{r.left + p, r.top, s.width, r.height}, 
+                Size s = p->window->GetTextSize(U" ", format);
+                p->window->DrawText(" ", format, Rect{r.left + pos, r.top, s.width, r.height}, 
                     format->text_bg_color, format->text_bg_selection_color);
             }
             else
             {
                 std::u32string u_part = str.substr(start, size);
-                parent->window->DrawText(ToBasicString(u_part), format, Rect{r.left + p, r.top, r.width - p, r.height}, 
+                p->window->DrawText(ToBasicString(u_part), format, Rect{r.left + pos, r.top, r.width - pos, r.height}, 
                     format->text_bg_color, format->text_bg_selection_color);
             }
         }
@@ -957,27 +958,26 @@ void StringElements::Draw() const
     else
     {
         //draw the string by symbols
-        Rect r = parent->GetAbsoluteRect();
         if (parent->document->selection.Has(parent->id, start, size))
         {
-            Size s1 = ((String*)parent)->GetTextSize(start);
-            Size s2 = ((String*)parent)->GetTextSize(start + size);
+            Size s1 = p->GetTextSize(start);
+            Size s2 = p->GetTextSize(start + size);
             parent->window->DrawFillRect(Rect{r.left + s1.width, r.top, s2.width - s1.width, r.height}, format->text_bg_selection_color);
         }
         for (int i = 0; i < str.length(); ++i)
         {
             if (std::find(tabs.begin(), tabs.end(), i) == tabs.end())
             {
-                Size s = ((String*)parent)->GetTextSize(i);
-                std::u32string p = str.substr(i, 1);
+                Size s = p->GetTextSize(i);
+                std::u32string sub = str.substr(i, 1);
                 if (i >= start && i < start + size)
                 {
-                    parent->window->DrawText(ToBasicString(p), format, Rect{r.left + s.width, r.top, r.width - s.width, r.height}, 
+                    p->window->DrawText(ToBasicString(sub), format, Rect{r.left + s.width, r.top, r.width - s.width, r.height}, 
                         format->text_bg_color, format->text_bg_selection_color);
                 }
                 else
                 {
-                    parent->window->DrawText(ToBasicString(p), format, Rect{r.left + s.width, r.top, r.width - s.width, r.height}, 
+                    p->window->DrawText(ToBasicString(sub), format, Rect{r.left + s.width, r.top, r.width - s.width, r.height}, 
                         format->text_color, format->text_bg_color);
                 }
             }
