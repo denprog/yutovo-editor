@@ -804,7 +804,6 @@ Rect Element::GetAbsoluteRect(const Rect& _rect) const
 Rect Element::GetAbsoluteRect() const
 {
     Rect r = rect;
-
     Element* p = parent;
     while (p)
     {

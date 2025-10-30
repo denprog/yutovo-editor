@@ -3827,6 +3827,55 @@ TEST_F(DocumentTest, delete15)
         document.ToHtml();
 }
 
+//Delete an empty selection
+TEST_F(DocumentTest, delete16)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.WaitTask(document.InsertString("123", true));
+    document.MoveCaretToDocumentEnd(false);
+    document.WaitTask(document.MoveCaretEnd(true));
+    document.WaitTask(document.DeleteElements(false, true));
+    ASSERT_TRUE(document.ToText() == 
+        U"123"
+        ) << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 1})) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    ASSERT_TRUE(document.ToText() == 
+        U""
+        ) << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0, 0, 0, 0})) << document.GetEditorState().ToString();
+}
+
+//Delete an empty selection at the end of a string
+TEST_F(DocumentTest, delete17)
+{
+    Start(600);
+
+    document.WaitTask(document.InsertString("123", true));
+    document.MoveCaretToDocumentEnd(false);
+    document.WaitTask(document.MoveCaretEnd(true));
+    ASSERT_TRUE(document.ToText() == 
+        U"123"
+        ) << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 3})) << document.GetEditorState().ToString();
+    document.WaitTask(document.DeleteElements(false, true));
+    ASSERT_TRUE(document.ToText() == 
+        U"123"
+        ) << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 3})) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    ASSERT_TRUE(document.ToText() == 
+        U""
+        ) << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0})) << document.GetEditorState().ToString();
+}
+
 //Restrict Undo
 TEST_F(DocumentTest, undo1)
 {
