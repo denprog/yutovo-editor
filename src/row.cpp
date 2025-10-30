@@ -586,7 +586,7 @@ bool Row::GetEndCaretState(CaretState& caret_state, Selection* select)
     int p1 = c.GetPosInElement(id);
     int p2 = caret_state.GetPosInElement(id);
     ElementSelection s;
-    if (!select->Has(GetChild(id, p1), s))
+    if (!select->Has(GetChild(id, p1), s) && c != caret_state)
         select->Add(id, p1, 1);
     if (caret_state.last_pos && p2 - p1 > 1 && p2 <= elements->Count())
         select->Add(id, p1 + 1, p2 - p1 - 1);
