@@ -20,6 +20,10 @@
 #include <boost/uuid/uuid_io.hpp>
 #include <algorithm>
 
+#ifdef _MSC_VER
+#undef GetObject
+#endif
+
 namespace yutovo
 {
 
@@ -427,7 +431,7 @@ Element* GraphLine::FromJson(Element* parent, Document* document, const rapidjso
 
     if (value.HasMember("plots") && value["plots"].IsArray())
     {
-        rapidjson::Value::ConstArray arr = value["plots"].GetArray();
+        rapidjson::Value::ConstArray& arr = value["plots"].GetArray();
         for (rapidjson::SizeType i = 0; i < arr.Size(); ++i)
         {
             std::string guid = boost::uuids::to_string(boost::uuids::random_generator()());
@@ -435,6 +439,8 @@ Element* GraphLine::FromJson(Element* parent, Document* document, const rapidjso
             if (arr[i].IsObject())
             {
                 rapidjson::Value::ConstObject v = arr[i].GetObject();
+                //auto v = arr[i].GetObject();
+                //const auto& v = arr[i];
                 p.format.FromJson(v, alloc);
             }
             el->plots.push_back(p);
