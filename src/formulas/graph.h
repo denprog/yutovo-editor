@@ -10,6 +10,10 @@
 
 #include "middle_shape_formula.h"
 #include "config.h"
+#ifdef _MSC_VER
+using std::abs;
+#define MGL_NO_CMATH_OVERLOADS
+#endif
 #include "mgl2/mgl.h"
 
 namespace yutovo

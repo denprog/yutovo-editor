@@ -111,12 +111,12 @@ struct ParagraphFormat
     std::string name;
     Alignment alignment = Alignment::Left;
     WordWrap word_wrap = WordWrap::Normal;
-    uint line_spacing;
-    uint indent_before;
-    uint indent_after;
-    uint indent_first_line;
-    uint spacing_before;
-    uint spacing_after;
+    uint line_spacing = 0;
+    uint indent_before = 0;
+    uint indent_after = 0;
+    uint indent_first_line = 0;
+    uint spacing_before = 0;
+    uint spacing_after = 0;
 
     StringFormatPtr default_string_format;
 };
