@@ -1346,6 +1346,8 @@ ElementId Document::GetElementId(const LogicalId& _id, const int pos, bool& last
                         res.push_back(pos - p);
                         if (pos - p == r->elements->Count())
                             last_pos = true;
+                        else
+                            p += r->elements->Count() - k - 1;
                         break;
                     }
                     else if (r->elements->Count() == k + 1 && _el->elements->Count() == j + 1 && GetChildPos(ch->logical_id) == pos - 1)
