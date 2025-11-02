@@ -3,6 +3,8 @@ Yutovo is a powerful calculator with graphical representation of mathematics ope
 
 Yutovo editor combines the capabilities of editing text, mathematical formulas and performing calculations.
 
+This is a completely custom editor that provides functions for displaying and editing text and formulas. It has an interface for modifying, customizing, and displaying the internal structure, as well as for executing code of formulas and obtaining calculation results.
+
 ## Building for Ubuntu
 
 If you haven't yet, build [yutovo-logger](https://github.com/denprog/yutovo-logger), [yutovo-calculator](https://github.com/denprog/yutovo-calculator) and [yutovo-solver](https://github.com/denprog/yutovo-solver).
