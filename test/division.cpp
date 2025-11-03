@@ -1272,4 +1272,39 @@ TEST_F(FormulaTest, division20)
         ElementSelectionState{{0, 0, 0, 0, 0, 0, 0}, 0, 1})) << document.GetEditorState().ToString();
 }
 
+//Select a division upside
+TEST_F(FormulaTest, division21)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.InsertString("88", true);
+    document.InsertDivision(true);
+    document.WaitTask(document.InsertString("789", true));
+    document.WaitTask(document.MoveCaretUp(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0}, 
+        ElementSelectionState{{0}, 0, 1})) << document.GetEditorState().ToString();
+    document.WaitTask(document.MoveCaretUp(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0})) << document.GetEditorState().ToString();
+}
+
+//Select a division downside
+TEST_F(FormulaTest, division22)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.InsertString("88", true);
+    document.InsertDivision(true);
+    document.WaitTask(document.InsertString("789", true));
+    document.MoveCaretUp(false);
+    document.MoveCaretUp(false);
+    document.WaitTask(document.MoveCaretDown(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 1}, 
+        ElementSelectionState{{0}, 0, 1})) << document.GetEditorState().ToString();
+    document.WaitTask(document.MoveCaretDown(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 1}, 
+        ElementSelectionState{{0}, 0, 1})) << document.GetEditorState().ToString();
+}
+
 }

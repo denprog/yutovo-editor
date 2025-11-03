@@ -922,4 +922,37 @@ TEST_F(FormulaTest, power17)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0, 0, 5})) << document.GetEditorState().ToString();
 }
 
+//Select a power upside
+TEST_F(FormulaTest, power18)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.InsertString("345", true);
+    document.InsertPower(true);
+    document.WaitTask(document.InsertString("56", true));
+    document.WaitTask(document.MoveCaretUp(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0}, 
+        ElementSelectionState{{0}, 0, 1})) << document.GetEditorState().ToString();
+    document.WaitTask(document.MoveCaretUp(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0})) << document.GetEditorState().ToString();
+}
+
+//Select a power downside
+TEST_F(FormulaTest, power19)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.InsertString("345", true);
+    document.InsertPower(true);
+    document.WaitTask(document.InsertString("56", true));
+    document.WaitTask(document.MoveCaretDown(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 1}, 
+        ElementSelectionState{{0}, 0, 1})) << document.GetEditorState().ToString();
+    document.WaitTask(document.MoveCaretDown(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 1}, 
+        ElementSelectionState{{0}, 0, 1})) << document.GetEditorState().ToString();
+}
+
 }
