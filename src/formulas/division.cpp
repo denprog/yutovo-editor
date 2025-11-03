@@ -133,6 +133,8 @@ bool Division::GetRightCaretState(CaretState& caret_state, Selection* select)
 
 bool Division::GetTopCaretState(const int x, const int y, CaretState& caret_state, Selection* select)
 {
+    if (select)
+        return MiddleShapeFormula::GetTopCaretState(x, y, caret_state, select);
     if (GetLast()->GetAbsoluteRect().GetBottom() <= y && !caret->IsOnElement(GetLast()->id))
         return GetLast()->GetTopCaretState(x, y, caret_state, select);
     if (GetShape()->GetAbsoluteRect().GetBottom() <= y && !caret->IsOnElement(GetShape()->id))
@@ -144,6 +146,8 @@ bool Division::GetTopCaretState(const int x, const int y, CaretState& caret_stat
 
 bool Division::GetBottomCaretState(const int x, const int y, CaretState& caret_state, Selection* select)
 {
+    if (select)
+        return MiddleShapeFormula::GetBottomCaretState(x, y, caret_state, select);
     if (GetFirst()->GetAbsoluteRect().top >= y)
         return GetFirst()->GetBottomCaretState(x, y, caret_state, select);
     if (GetShape()->GetAbsoluteRect().top >= y)

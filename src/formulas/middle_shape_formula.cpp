@@ -289,6 +289,44 @@ bool MiddleShapeFormula::GetRightCaretState(CaretState& caret_state, Selection* 
     return Formula::GetRightCaretState(caret_state, select);
 }
 
+bool MiddleShapeFormula::GetTopCaretState(const int x, const int y, CaretState& caret_state, Selection* select)
+{
+    if (select)
+    {
+        if (caret->IsOnElement(GetShape()->id))
+            return false;
+
+        CaretState c;
+        if ((GetLast()->GetFirstCaretState(c, nullptr) && caret_state == c) || (GetFirst()->GetFirstCaretState(c, nullptr) && caret_state == c))
+        {
+            caret_state.SetState(id);
+            select->Clear();
+            select->Add(parent->id, parent->elements->GetChildPos(id), 1);
+            return true;
+        }
+    }
+    return Formula::GetTopCaretState(x, y, caret_state, select);
+}
+
+bool MiddleShapeFormula::GetBottomCaretState(const int x, const int y, CaretState& caret_state, Selection* select)
+{
+    if (select)
+    {
+        if (caret->IsOnElement(GetShape()->id))
+            return false;
+        
+        CaretState c;
+        if ((GetLast()->GetLastCaretState(c, nullptr) && caret_state == c) || (GetFirst()->GetLastCaretState(c, nullptr) && caret_state == c))
+        {
+            caret_state.SetState(parent->id, parent->elements->GetChildPos(id) + 1);
+            select->Clear();
+            select->Add(parent->id, parent->elements->GetChildPos(id), 1);
+            return true;
+        }
+    }
+    return Formula::GetBottomCaretState(x, y, caret_state, select);
+}
+
 bool MiddleShapeFormula::GetWordLeftCaretState(CaretState& caret_state, Selection* select)
 {
     if (select && caret->IsOnElement(GetShape()->id))
