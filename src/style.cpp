@@ -424,7 +424,7 @@ ParagraphFormats::ParagraphFormats(StringFormatsPtr _string_formats) :
     GetFormat("Monospace", ParagraphFormat::Alignment::Left, ParagraphFormat::WordWrap::Normal, 5, 10, 10, 0, 10, 10, 
         string_formats->GetFormat("Courier New", 12, false, false, false, false, false, false, Color::Black(), Color::White(), Color::Blue()));
     GetFormat("Code", ParagraphFormat::Alignment::Left, ParagraphFormat::WordWrap::None, 2, 2, 2, 0, 2, 2, 
-        string_formats->GetFormat("Courier New", 14, false, false, false, false, false, false, Color::Black(), Color::White(), Color::Blue()));
+        string_formats->GetFormat("FreeMono", 14, false, false, false, false, false, false, Color::Black(), Color::White(), Color::Blue()));
 }
 
 ParagraphFormatPtr ParagraphFormats::GetFormat(std::string _name, ParagraphFormat::Alignment _alignment, ParagraphFormat::WordWrap _word_wrap, 
@@ -521,11 +521,11 @@ bool FormulaFormat::operator==(const FormulaFormat& f) const
 FormulaFormats::FormulaFormats(StringFormatsPtr _string_formats) :
     string_formats(_string_formats)
 {
-    GetFormat("Code", string_formats->GetFormat("Courier New", 14, false, false, false, false, false, false, Color::Black(), Color::White(), Color::Blue()), 
+    GetFormat("Code", string_formats->GetFormat("FreeMono", 14, false, false, false, false, false, false, Color::Black(), Color::White(), Color::Blue()), 
         2, 5, 2, 5, 2, Color::Black(), Color::White(), Color::Blue());
-    GetFormat("Formula", string_formats->GetFormat("Courier New", 14, false, false, false, false, false, false, Color::Black(), Color::White(), Color::Blue()), 
+    GetFormat("Formula", string_formats->GetFormat("FreeMono", 14, false, false, false, false, false, false, Color::Black(), Color::White(), Color::Blue()), 
         2, 2, 2, 2, 2, Color::Black(), Color::White(), Color::Blue());
-    GetFormat("OnlyShapeFormula", string_formats->GetFormat("Courier New", 14, false, false, false, false, false, false, Color::Black(), Color::White(), Color::Blue()), 
+    GetFormat("OnlyShapeFormula", string_formats->GetFormat("FreeMono", 14, false, false, false, false, false, false, Color::Black(), Color::White(), Color::Blue()), 
         0, 0, 0, 0, 0, Color{0xff, 0x40, 0x40, 0x40}, Color::White(), Color::Blue());
 }
 
