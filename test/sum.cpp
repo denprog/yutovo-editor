@@ -222,8 +222,8 @@ TEST_F(FormulaTest, sum3)
     document.WaitTask(document.MoveCaretRight(false));
 
     document.WaitTask(document.MoveCaretUp(true));
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0}, 
-        ElementSelectionState{ElementId{0}, 0, 1})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 0}, 
+        ElementSelectionState{ElementId{0, 0, 0, 0, 0, 0, 0}, 0, 1})) << document.GetEditorState().ToString();
     
     document.MoveCaretEnd(false);
     document.MoveCaretLeft(false);

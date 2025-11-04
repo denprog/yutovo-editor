@@ -165,6 +165,13 @@ void CodeBlock::UpdateDrawRect()
     draw_rect.height += 2;
 }
 
+bool CodeBlock::GetTopCaretState(const int x, const int y, CaretState& caret_state, Selection* select)
+{
+    if (select && select->IsSelected(id))
+        caret->SetState(id);
+    return Block::GetTopCaretState(x, y, caret_state, select);
+}
+
 bool CodeBlock::GetWordLeftCaretState(CaretState& caret_state, Selection* select)
 {
     if (caret_state.IsInsideElement(id))

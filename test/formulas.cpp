@@ -2039,9 +2039,9 @@ TEST_F(FormulaTest, select18)
     document.InsertSquareRoot(true);
     document.WaitTask(document.InsertString("123", true));
     auto el = document.FindByType(ElementId{0}, ElementType::SQUARE_ROOT);
-    Rect rect;
-    document.GetElementRect(el->id, rect);
-    document.WaitTask(document.Select(rect.left + 5, rect.top + 5, rect.GetRight() + 20, rect.top + 5));
+    Rect rect1;
+    document.GetElementRect(el->id, rect1);
+    document.WaitTask(document.Select(rect1.left + 5, rect1.top + 5, rect1.GetRight() + 20, rect1.top + 5));
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0, 0, 0, 0})) << document.GetEditorState().ToString();
     document.WaitTask(document.MoveCaretLeft(false));
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0, 0, 0})) << document.GetEditorState().ToString();
@@ -2049,7 +2049,7 @@ TEST_F(FormulaTest, select18)
     auto el2 = document.FindByType(ElementId{0}, ElementType::CODE_STRING);
     Rect rect2;
     document.GetElementRect(el2->id, rect2);
-    document.WaitTask(document.Select(rect.left + 5, rect.top + 5, rect2.GetRight() - 5, rect2.top + 5));
+    document.WaitTask(document.Select(rect1.left + 5, rect1.top + 5, rect2.GetRight() - 5, rect2.top + 5));
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0, 0, 0, 0})) << document.GetEditorState().ToString();
     document.WaitTask(document.MoveCaretLeft(false));
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0, 0, 0})) << document.GetEditorState().ToString();

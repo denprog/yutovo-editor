@@ -1531,7 +1531,8 @@ TEST_F(CodeTest, code26)
     document.MoveCaretUp(true);
     document.WaitTask(document.MoveCaretUp(true));
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 5}, 
-        ElementSelectionState{ElementId{0, 0, 0, 0}, 5, 1})) << document.GetEditorState().ToString();
+        ElementSelectionState{ElementId{0, 0, 0, 0}, 5, 1},
+        ElementSelectionState{ElementId{0}, 1, 1})) << document.GetEditorState().ToString();
     
     document.MoveCaretToDocumentEnd(false);
     document.MoveCaretLeft(false);
