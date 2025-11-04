@@ -41,6 +41,7 @@ public:
     
     virtual bool DeleteElements(bool left, bool with_undo, ElementId& changed_element);
 
+    virtual bool GetLeftCaretState(CaretState& caret_state, Selection* select);
     virtual bool GetRightCaretState(CaretState& caret_state, Selection* select);
 
     virtual bool UseSelection();

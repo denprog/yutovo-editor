@@ -31,8 +31,6 @@ public:
     virtual void Draw() const;
     virtual bool Remake(bool with_elements = false);
 
-    virtual bool GetLeftCaretState(CaretState& caret_state, Selection* select);
-    virtual bool GetRightCaretState(CaretState& caret_state, Selection* select);
     virtual bool GetTopCaretState(const int x, const int y, CaretState& caret_state, Selection* select);
     virtual bool GetBottomCaretState(const int x, const int y, CaretState& caret_state, Selection* select);
 

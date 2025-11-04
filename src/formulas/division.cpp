@@ -93,44 +93,6 @@ bool Division::Remake(bool with_elements)
     return changed;
 }
 
-bool Division::GetLeftCaretState(CaretState& caret_state, Selection* select)
-{
-    if (select)
-    {
-        if (caret->IsOnElement(GetShape()->id))
-            return false;
-        
-        CaretState c;
-        if ((GetLast()->GetFirstCaretState(c, nullptr) && caret_state == c) || (GetFirst()->GetFirstCaretState(c, nullptr) && caret_state == c))
-        {
-            caret_state.SetState(id);
-            select->Clear();
-            select->Add(parent->id, parent->elements->GetChildPos(id), 1);
-            return true;
-        }
-    }
-    return Formula::GetLeftCaretState(caret_state, select);
-}
-
-bool Division::GetRightCaretState(CaretState& caret_state, Selection* select)
-{
-    if (select)
-    {
-        if (caret->IsOnElement(GetShape()->id))
-            return false;
-        
-        CaretState c;
-        if ((GetLast()->GetLastCaretState(c, nullptr) && caret_state == c) || (GetFirst()->GetLastCaretState(c, nullptr) && caret_state == c))
-        {
-            caret_state.SetState(parent->id, parent->elements->GetChildPos(id) + 1);
-            select->Clear();
-            select->Add(parent->id, parent->elements->GetChildPos(id), 1);
-            return true;
-        }
-    }
-    return Formula::GetRightCaretState(caret_state, select);
-}
-
 bool Division::GetTopCaretState(const int x, const int y, CaretState& caret_state, Selection* select)
 {
     if (select)
