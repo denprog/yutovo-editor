@@ -1285,7 +1285,8 @@ TEST_F(FormulaTest, division21)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0}, 
         ElementSelectionState{{0}, 0, 1})) << document.GetEditorState().ToString();
     document.WaitTask(document.MoveCaretUp(true));
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0}, 
+        ElementSelectionState{{0}, 0, 1})) << document.GetEditorState().ToString();
 }
 
 //Select a division downside

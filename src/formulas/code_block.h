@@ -37,6 +37,7 @@ public:
 
     virtual void UpdateDrawRect();
 
+    virtual bool GetTopCaretState(const int x, const int y, CaretState& caret_state, Selection* select);
     virtual bool GetWordLeftCaretState(CaretState& caret_state, Selection* select);
 
     virtual bool AfterInsert(bool with_undo);
