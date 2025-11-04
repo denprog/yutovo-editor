@@ -211,6 +211,13 @@ bool SquareRoot::DeleteElements(bool left, bool with_undo, ElementId& changed_el
     return true;
 }
 
+bool SquareRoot::GetLeftCaretState(CaretState& caret_state, Selection* select)
+{
+    if (select && caret->IsOnElement(shape->id))
+        return false;
+    return Formula::GetLeftCaretState(caret_state, select);
+}
+
 bool SquareRoot::GetRightCaretState(CaretState& caret_state, Selection* select)
 {
     if (select && caret->IsOnElement(shape->id))

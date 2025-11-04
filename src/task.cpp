@@ -1430,7 +1430,7 @@ bool MoveCaretTask::Execute()
                 return false;
             document->selection.Clear();
 
-            CaretState start, end;
+            CaretState start, end, s;
             if (!text->GetNearestCaretState(point.x, point.y, start) || !text->GetNearestCaretState(end_point.x, end_point.y, end))
                 return false;
 
@@ -1441,7 +1441,10 @@ bool MoveCaretTask::Execute()
                 while (start < end)
                 {
                     caret->MoveRight(selection);
-                    start = caret->GetCaretState();
+                    s = caret->GetCaretState();
+                    if (s == start)
+                        break;
+                    start = s;
                 }
                 if (!selection->IsEmpty())
                     caret->SetState(selection->GetLastCaretState());
@@ -1451,7 +1454,10 @@ bool MoveCaretTask::Execute()
                 while (end < start)
                 {
                     caret->MoveLeft(selection);
-                    start = caret->GetCaretState();
+                    s = caret->GetCaretState();
+                    if (s == start)
+                        break;
+                    start = s;
                 }
                 if (!selection->IsEmpty())
                     caret->SetState(selection->GetFirstCaretState());

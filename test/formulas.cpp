@@ -2030,6 +2030,49 @@ TEST_F(FormulaTest, select17)
         ) << ToBasicString(document.ToText());
 }
 
+//Cannot select with mouse from a shape
+TEST_F(FormulaTest, select18)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.InsertSquareRoot(true);
+    document.WaitTask(document.InsertString("123", true));
+    auto el = document.FindByType(ElementId{0}, ElementType::SQUARE_ROOT);
+    Rect rect;
+    document.GetElementRect(el->id, rect);
+    document.WaitTask(document.Select(rect.left + 5, rect.top + 5, rect.GetRight() + 20, rect.top + 5));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0, 0, 0, 0})) << document.GetEditorState().ToString();
+    document.WaitTask(document.MoveCaretLeft(false));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0, 0, 0})) << document.GetEditorState().ToString();
+
+    auto el2 = document.FindByType(ElementId{0}, ElementType::CODE_STRING);
+    Rect rect2;
+    document.GetElementRect(el2->id, rect2);
+    document.WaitTask(document.Select(rect.left + 5, rect.top + 5, rect2.GetRight() - 5, rect2.top + 5));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0, 0, 0, 0})) << document.GetEditorState().ToString();
+    document.WaitTask(document.MoveCaretLeft(false));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0, 0, 0})) << document.GetEditorState().ToString();
+}
+
+//Cannot select with mouse from a shape
+TEST_F(FormulaTest, select19)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.InsertString("123", true);
+    document.InsertDivision(true);
+    document.WaitTask(document.InsertString("56", true));
+    auto el = document.FindByType(ElementId{0}, ElementType::SHAPE);
+    Rect rect;
+    document.GetElementRect(el->id, rect);
+    document.WaitTask(document.Select(rect.left + 5, rect.top + 1, rect.left + 10, rect.top + 20));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0, 0, 0, 1})) << document.GetEditorState().ToString();
+    document.WaitTask(document.MoveCaretLeft(false));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0, 0, 0, 0, 0, 3})) << document.GetEditorState().ToString();
+}
+
 TEST_F(FormulaTest, fonts1)
 {
     Start(600);
