@@ -2119,11 +2119,12 @@ uint Document::MoveCaretToDocumentEnd(bool select, bool move_into_view)
     return MoveCaret(MoveCaretTask::MoveCaretDir::DOCUMENT_END, select, false, move_into_view);
 }
 
-uint Document::MoveCaret(const int x, const int y, bool ctrl)
+uint Document::MoveCaret(const int x, const int y, bool click)
 {
     {
         std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
-        tasks.emplace_back(new MoveCaretTask(text, caret, Point{x, y}, ctrl ? MoveCaretTask::MoveCaretDir::CLICK_LINK : MoveCaretTask::MoveCaretDir::POINT));
+        tasks.emplace_back(new MoveCaretTask(text, caret, Point{x, y}, 
+            click ? MoveCaretTask::MoveCaretDir::CLICK_LINK : MoveCaretTask::MoveCaretDir::POINT));
         last_task_id = tasks.back()->id;
     }
     next_circle = true;

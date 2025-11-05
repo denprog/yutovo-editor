@@ -191,7 +191,7 @@ public:
     uint MoveCaretToDocumentBegin(bool select);
     uint MoveCaretToDocumentEnd(bool select);
     uint MoveCaretToDocumentEnd(bool select, bool move_into_view);
-    uint MoveCaret(const int x, const int y, bool ctrl = false);
+    uint MoveCaret(const int x, const int y, bool click = false);
     uint SelectAll();
     uint Select(const int start_x, const int start_y, const int end_x, const int end_y);
     uint SelectOut();
