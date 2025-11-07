@@ -34,8 +34,8 @@ namespace yutovo
 class Document
 {
 public:
-    Document(WindowPtr _window, Config& _config, const std::string _document_guid = "");
-    Document(Document* _parent, WindowPtr _window, Config& _config);
+    Document(Window* _window, Config& _config, const std::string _document_guid = "");
+    Document(Document* _parent, Window* _window, Config& _config);
     ~Document();
 
     void Start();
@@ -223,9 +223,9 @@ public:
     uint Save(const std::string& filename);
     uint SaveJson(std::string& json, const int document_id, const bool gzip);
     uint Load(const std::string& filename);
-    uint LoadInclude(const std::string& filename, WindowPtr _window);
+    uint LoadInclude(const std::string& filename, Window* _window);
     uint LoadJson(const std::string& json_doc, const int document_id);
-    uint LoadJsonInclude(const std::string& json_doc, const int document_id, WindowPtr _window);
+    uint LoadJsonInclude(const std::string& json_doc, const int document_id, Window* _window);
 
     uint Copy(std::u32string& out_json, std::u32string& out_text);
     uint Paste(std::u32string& in_json);
@@ -416,7 +416,7 @@ private:
     std::recursive_mutex last_tasks_mutex;
 
 public:
-    WindowPtr window;
+    Window* window;
 
     ParagraphFormatsPtr paragraph_formats;
     CodeFormatsPtr code_formats;

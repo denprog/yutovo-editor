@@ -271,17 +271,17 @@ void Solver::MessageLoop(WebSocketPtr socket_, std::deque<SolverTaskPtr>& tasks_
         std::unique_lock<std::mutex> lock(socket_mutex);
 #ifdef EMSCRIPTEN
 #ifdef REMOTE_SOLVER
-        socket_.reset(new WebSocket(document->config, document->window.get()));
+        socket_.reset(new WebSocket(document->config, document->window));
 #else
-        socket_.reset(new WebSocket(document->config, document->window.get(), _session));
+        socket_.reset(new WebSocket(document->config, document->window, _session));
 #endif
 #else
         try
         {
 #ifdef REMOTE_SOLVER
-            socket_.reset(new WebSocket(document->config, document->window.get()));
+            socket_.reset(new WebSocket(document->config, document->window));
 #else
-            socket_.reset(new WebSocket(document->config, document->window.get(), _session));
+            socket_.reset(new WebSocket(document->config, document->window, _session));
 #endif
         }
         catch (boost::system::system_error& ex)
@@ -353,9 +353,9 @@ void Solver::MessageLoop(WebSocketPtr socket_, std::deque<SolverTaskPtr>& tasks_
                 {
                     std::unique_lock<std::mutex> lock(socket_mutex);
 #ifdef REMOTE_SOLVER
-                    socket_.reset(new WebSocket(document->config, document->window.get())); //recreate the socket
+                    socket_.reset(new WebSocket(document->config, document->window)); //recreate the socket
 #else
-                    socket_.reset(new WebSocket(document->config, document->window.get(), _session));
+                    socket_.reset(new WebSocket(document->config, document->window, _session));
 #endif
                 }
                 if (!socket_->Connect() || !socket_->IsOpen())
@@ -430,9 +430,9 @@ void Solver::MessageLoop(WebSocketPtr socket_, std::deque<SolverTaskPtr>& tasks_
                     {
                         std::unique_lock<std::mutex> lock(socket_mutex);
 #ifdef REMOTE_SOLVER
-                        socket_.reset(new WebSocket(document->config, document->window.get())); //recreate the socket
+                        socket_.reset(new WebSocket(document->config, document->window)); //recreate the socket
 #else
-                        socket_.reset(new WebSocket(document->config, document->window.get(), _session)); //recreate the socket
+                        socket_.reset(new WebSocket(document->config, document->window, _session)); //recreate the socket
 #endif
                     }
                     if (!socket_->IsOpen())
