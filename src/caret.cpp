@@ -25,7 +25,7 @@ using namespace std::chrono_literals;
 
 Caret::Caret(Document* _document) :
     document(_document),
-    window(document->window.get())
+    window(document->window)
 {
 }
 

@@ -785,7 +785,7 @@ bool UndoBase::Restore(int undo_id, std::vector<ElementPtr>& elements)
         [&](ElementPtr el)
         {
             el->document = document;
-            el->window = document->window.get();
+            el->window = document->window;
             el->caret = document->caret;
             el->selection = &document->selection;
             el->elements->caret = document->caret;

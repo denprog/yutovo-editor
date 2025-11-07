@@ -60,7 +60,7 @@ using namespace std::chrono;
 
 //Document
 
-Document::Document(WindowPtr _window, Config& _config, const std::string _document_guid) :
+Document::Document(Window* _window, Config& _config, const std::string _document_guid) :
     window(_window),
     selection(this),
     config(_config),
@@ -93,7 +93,7 @@ Document::Document(WindowPtr _window, Config& _config, const std::string _docume
 #endif
 }
 
-Document::Document(Document* _parent, WindowPtr _window, Config& _config) : 
+Document::Document(Document* _parent, Window* _window, Config& _config) : 
     Document(_window, _config, _parent->document_guid)
 {
     parent = _parent;
@@ -2498,7 +2498,7 @@ uint Document::Load(const std::string& filename)
     return last_load_task_id;
 }
 
-uint Document::LoadInclude(const std::string& filename, WindowPtr _window)
+uint Document::LoadInclude(const std::string& filename, Window* _window)
 {
 #ifdef _WIN32
     std::ifstream file;
@@ -2588,7 +2588,7 @@ uint Document::LoadJson(const std::string& json_doc, const int document_id)
     return last_load_task_id;
 }
 
-uint Document::LoadJsonInclude(const std::string& json_doc, const int document_id, WindowPtr _window)
+uint Document::LoadJsonInclude(const std::string& json_doc, const int document_id, Window* _window)
 {
     rapidjson::Document doc;
     if (doc.Parse<0>(json_doc.c_str()).HasParseError() || !doc.IsObject() || !CheckIncludeFile(doc))

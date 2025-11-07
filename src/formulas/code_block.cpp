@@ -52,7 +52,7 @@ CodeBlock::CodeBlock(Document* _document, Element* parent, uint _code_id, bool a
 {
     type = ElementType::CODE_BLOCK;
     document = _document;
-    window = document->window.get();
+    window = document->window;
     caret = document->caret;
     selection = &document->selection;
     code_format = document->code_formats->GetFormat("Calculator");
