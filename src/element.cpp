@@ -29,7 +29,7 @@ namespace yutovo
 Element::Element(Document* _document) :
     parent(nullptr),
     document(_document),
-    window(_document->window),
+    window(_document->window.get()),
     caret(document->caret),
     selection(&document->selection),
     elements(new Elements(this)),
@@ -40,7 +40,7 @@ Element::Element(Document* _document) :
 Element::Element(Element* _parent) :
     parent(_parent),
     document(parent ? parent->document : nullptr), //parent == null when pasting from clipboard
-    window(document ? document->window : nullptr),
+    window(document ? document->window.get() : nullptr),
     caret(document ? document->caret : nullptr),
     selection(document ? &document->selection : nullptr),
     elements(new Elements(this))
