@@ -54,7 +54,7 @@ uint Task::next_id = 1;
 Task::Task(ElementPtr _text) : 
     text(_text),
     document(text->document),
-    window(document->window),
+    window(document->window.get()),
     logger(Logger::GetInstance(document->config.logs_path + "/yutovo-editor", "yutovo-editor", document->config.log_console, document->config.log_file)),
     id(next_id++)
 {
@@ -63,7 +63,7 @@ Task::Task(ElementPtr _text) :
 Task::Task(ElementPtr _text, const uint _id) :
     text(_text),
     document(text->document),
-    window(document->window),
+    window(document->window.get()),
     logger(Logger::GetInstance(document->config.logs_path + "/yutovo-editor", "yutovo-editor", document->config.log_console, document->config.log_file)),
     id(_id)
 {

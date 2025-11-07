@@ -30,6 +30,8 @@ using namespace yutovo_calculator;
 
 class Window;
 
+typedef std::shared_ptr<Window> WindowPtr;
+
 enum class ElementType
 {
     NONE = 0,
