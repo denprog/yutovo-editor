@@ -36,6 +36,7 @@ SolverTask::SolverTask(const LogicalId& _id, Document* _document, const std::str
     logger(_logger)
 {
     cur_time = duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
+    id_str = LogicalIdToString(id);
 }
 
 SolverTask::SolverTask(const LogicalId& _id, Document* _document, const std::string& _solver_guid, uint _code_id, 
@@ -50,6 +51,7 @@ SolverTask::SolverTask(const LogicalId& _id, Document* _document, const std::str
     logger(_logger)
 {
     cur_time = duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
+    id_str = LogicalIdToString(id);
 }
 
 SolverTask::SolverTask(Document* _document, const std::string& _solver_guid, Logger* _logger) :
@@ -489,7 +491,7 @@ bool AutoSolverTask::Execute(WebSocketPtr socket, Result& result)
 
     AddUnit(doc, config.real_result.unit);
 
-    LOG_DEBUG("Solve expression:\"{}\", id:{}, config:{}", s, LogicalIdToString(id), config.ToString());
+    LOG_DEBUG("Solve expression:\"{}\", id:{}, config:{}", s, id_str, config.ToString());
 
     if (!SendRequest(doc, result, socket, true))
         return false;
@@ -501,7 +503,7 @@ bool AutoSolverTask::Execute(WebSocketPtr socket, Result& result)
 #ifdef EMSCRIPTEN
     if (json.length() > 2)
     {
-        json.insert(1, "\"solver_guid\":\"" + solver_guid + "\",");
+        json.insert(1, "\"solver_guid\":\"" + solver_guid + "\",\"expression\":\"" + s + "\",\"id\":\"" + id_str + "\",");
         document->window->OnSolverAction(json);
     }
 #endif
@@ -580,6 +582,7 @@ bool RealSolverTask::Execute(WebSocketPtr socket, Result& result)
     doc.AddMember("code_id", code_id, alloc);
     doc.AddMember("solver_type", (int)SolverType::CALCULATOR, alloc);
     doc.AddMember("result_type", (int)ResultType::REAL, alloc);
+    doc.AddMember("expression_type", (int)expression_type, alloc);
     std::string s = ToBasicString(expression);
     doc.AddMember("expression", rapidjson::StringRef(s.c_str()), alloc);
     doc.AddMember("real_precision", config.precision, alloc);
@@ -589,7 +592,7 @@ bool RealSolverTask::Execute(WebSocketPtr socket, Result& result)
 
     AddUnit(doc, config.unit);
 
-    LOG_DEBUG("Solve expression:\"{}\", id:{}, config:{}", s, LogicalIdToString(id), config.ToString());
+    LOG_DEBUG("Solve expression:\"{}\", id:{}, config:{}", s, id_str, config.ToString());
 
     if (!SendRequest(doc, result, socket, true))
         return false;
@@ -601,7 +604,7 @@ bool RealSolverTask::Execute(WebSocketPtr socket, Result& result)
 #ifdef EMSCRIPTEN
     if (json.length() > 2)
     {
-        json.insert(1, "\"solver_guid\":\"" + solver_guid + "\",");
+        json.insert(1, "\"solver_guid\":\"" + solver_guid + "\",\"expression\":\"" + s + "\",\"id\":\"" + id_str + "\",");
         document->window->OnSolverAction(json);
     }
 #endif
@@ -666,12 +669,13 @@ bool IntegerSolverTask::Execute(WebSocketPtr socket, Result& result)
     doc.AddMember("code_id", code_id, alloc);
     doc.AddMember("solver_type", (int)SolverType::CALCULATOR, alloc);
     doc.AddMember("result_type", (int)ResultType::INTEGER, alloc);
+    doc.AddMember("expression_type", (int)expression_type, alloc);
     doc.AddMember("integer_result_notation", (int)config.result_notation, alloc);
     doc.AddMember("integer_default_notation", (int)config.default_notation, alloc);
     std::string s = ToBasicString(expression);
     doc.AddMember("expression", rapidjson::StringRef(s.c_str()), alloc);
 
-    LOG_DEBUG("Solve expression:\"{}\", id:{}, config:{}", s, LogicalIdToString(id), config.ToString());
+    LOG_DEBUG("Solve expression:\"{}\", id:{}, config:{}", s, id_str, config.ToString());
 
     if (!SendRequest(doc, result, socket, true))
         return false;
@@ -684,7 +688,7 @@ bool IntegerSolverTask::Execute(WebSocketPtr socket, Result& result)
 #ifdef EMSCRIPTEN
     if (json.length() > 2)
     {
-        json.insert(1, "\"solver_guid\":\"" + solver_guid + "\",");
+        json.insert(1, "\"solver_guid\":\"" + solver_guid + "\",\"expression\":\"" + s + "\",\"id\":\"" + id_str + "\",");
         document->window->OnSolverAction(json);
     }
 #endif
@@ -747,6 +751,7 @@ bool RationalSolverTask::Execute(WebSocketPtr socket, Result& result)
     FillId(doc);
     doc.AddMember("timestamp", cur_time, alloc);
     doc.AddMember("code_id", code_id, alloc);
+    doc.AddMember("expression_type", (int)expression_type, alloc);
     doc.AddMember("solver_type", (int)SolverType::CALCULATOR, alloc);
     doc.AddMember("result_type", (int)ResultType::RATIONAL, alloc);
     doc.AddMember("fraction_form", (int)config.fraction_form, alloc);
@@ -755,7 +760,7 @@ bool RationalSolverTask::Execute(WebSocketPtr socket, Result& result)
 
     AddUnit(doc, config.unit);
 
-    LOG_DEBUG("Solve expression:\"{}\", id:{}, config:{}", s, LogicalIdToString(id), config.ToString());
+    LOG_DEBUG("Solve expression:\"{}\", id:{}, config:{}", s, id_str, config.ToString());
 
     if (!SendRequest(doc, result, socket, true))
         return false;
@@ -768,7 +773,7 @@ bool RationalSolverTask::Execute(WebSocketPtr socket, Result& result)
 #ifdef EMSCRIPTEN
     if (json.length() > 2)
     {
-        json.insert(1, "\"solver_guid\":\"" + solver_guid + "\",");
+        json.insert(1, "\"solver_guid\":\"" + solver_guid + "\",\"expression\":\"" + s + "\",\"id\":\"" + id_str + "\",");
         document->window->OnSolverAction(json);
     }
 #endif
@@ -833,6 +838,7 @@ bool ComplexSolverTask::Execute(WebSocketPtr socket, Result& result)
     doc.AddMember("code_id", code_id, alloc);
     doc.AddMember("solver_type", (int)SolverType::CALCULATOR, alloc);
     doc.AddMember("result_type", (int)ResultType::COMPLEX, alloc);
+    doc.AddMember("expression_type", (int)expression_type, alloc);
     std::string s = ToBasicString(expression);
     doc.AddMember("expression", rapidjson::StringRef(s.c_str()), alloc);
     doc.AddMember("complex_precision", config.precision, alloc);
@@ -842,7 +848,7 @@ bool ComplexSolverTask::Execute(WebSocketPtr socket, Result& result)
     doc.AddMember("complex_form", (int)config.form, alloc);
     doc.AddMember("complex_max_count", config.max_count, alloc);
 
-    LOG_DEBUG("Solve expression:\"{}\", id:{}, config:{}", s, LogicalIdToString(id), config.ToString());
+    LOG_DEBUG("Solve expression:\"{}\", id:{}, config:{}", s, id_str, config.ToString());
 
     if (!SendRequest(doc, result, socket, true))
         return false;
@@ -854,7 +860,7 @@ bool ComplexSolverTask::Execute(WebSocketPtr socket, Result& result)
 #ifdef EMSCRIPTEN
     if (json.length() > 2)
     {
-        json.insert(1, "\"solver_guid\":\"" + solver_guid + "\",");
+        json.insert(1, "\"solver_guid\":\"" + solver_guid + "\",\"expression\":\"" + s + "\",\"id\":\"" + id_str + "\",");
         document->window->OnSolverAction(json);
     }
 #endif
@@ -919,6 +925,7 @@ bool ArrayRealSolverTask::Execute(WebSocketPtr socket, Result& result)
     doc.AddMember("code_id", code_id, alloc);
     doc.AddMember("solver_type", (int)SolverType::CALCULATOR, alloc);
     doc.AddMember("result_type", (int)ResultType::ARRAY_REAL, alloc);
+    doc.AddMember("expression_type", (int)expression_type, alloc);
     std::string s = ToBasicString(expression);
     doc.AddMember("expression", rapidjson::StringRef(s.c_str()), alloc);
     doc.AddMember("real_precision", config.precision, alloc);
@@ -928,7 +935,7 @@ bool ArrayRealSolverTask::Execute(WebSocketPtr socket, Result& result)
 
     AddUnit(doc, config.unit);
 
-    LOG_DEBUG("Solve expression:\"{}\", id:{}, config:{}", s, LogicalIdToString(id), config.ToString());
+    LOG_DEBUG("Solve expression:\"{}\", id:{}, config:{}", s, id_str, config.ToString());
 
     if (!SendRequest(doc, result, socket, true))
         return false;
@@ -947,7 +954,7 @@ bool ArrayRealSolverTask::Execute(WebSocketPtr socket, Result& result)
         }
         else
         {
-            json.insert(1, "\"solver_guid\":\"" + solver_guid + "\",");
+            json.insert(1, "\"solver_guid\":\"" + solver_guid + "\",\"expression\":\"" + s + "\",\"id\":\"" + id_str + "\",");
             document->window->OnSolverAction(json);
         }
     }
@@ -1079,7 +1086,7 @@ bool RemoveIdentifierSolverTask::Execute(WebSocketPtr socket, Result& result)
     std::string s = ToBasicString(expression);
     doc.AddMember("expression", rapidjson::StringRef(s.c_str()), alloc);
 
-    LOG_DEBUG("Remove identifier:\"{}\", id:{}", s, LogicalIdToString(id));
+    LOG_DEBUG("Remove identifier:\"{}\", id:{}", s, id_str);
 
     if (!SendRequest(doc, result, socket))
         return false;

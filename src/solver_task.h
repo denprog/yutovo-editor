@@ -55,6 +55,7 @@ struct SolverTask
 
     Document* document;
     LogicalId id;
+    std::string id_str;
     std::string solver_guid;
     std::string task_guid;
     uint code_id = 0;
