@@ -55,6 +55,14 @@ Element* Comma::FromJson(Element* parent, Document* document, const rapidjson::V
     return p;
 }
 
+void Comma::UpdateRect(bool with_elements)
+{
+    Size s = window->GetTextSize(std::u32string(1, symbol), GetStringFormat());
+    shape->rect.SetSize(s.width, s.height);
+    baseline = shape->rect.height / 3;
+    Formula::UpdateRect(false);
+}
+
 std::string Comma::ToHtml() const
 {
     return "<mo>,</mo>";
