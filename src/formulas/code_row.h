@@ -30,7 +30,7 @@ public:
 
     virtual bool Merge(const ElementPtr with_element);
 
-    virtual bool InsertElements(std::vector<ElementPtr>& _elements, bool with_undo, ElementId& changed_element);
+    virtual bool InsertElements(std::vector<ElementPtr>& _elements, bool insert_mode, bool with_undo, ElementId& changed_element);
 
     virtual bool GetBeginCaretState(CaretState& caret_state, Selection* select);
     virtual bool GetEndCaretState(CaretState& caret_state, Selection* select);

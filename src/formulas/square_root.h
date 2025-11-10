@@ -35,7 +35,7 @@ public:
     virtual void Draw() const;
     virtual bool Remake(bool with_elements = false);
 
-    virtual bool InsertElements(std::vector<ElementPtr>& _elements, bool with_undo, ElementId& changed_element);
+    virtual bool InsertElements(std::vector<ElementPtr>& _elements, bool insert_mode, bool with_undo, ElementId& changed_element);
     
     virtual bool AfterInsert(bool with_undo);
     

@@ -160,7 +160,7 @@ bool CodeString::Remake(bool with_elements)
     return String::Remake(with_elements);
 }
 
-bool CodeString::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo, ElementId& changed_element)
+bool CodeString::InsertElements(std::vector<ElementPtr>& _elements, bool insert_mode, bool with_undo, ElementId& changed_element)
 {
     gap = 0;
     UpdateGap();
@@ -183,7 +183,7 @@ bool CodeString::InsertElements(std::vector<ElementPtr>& _elements, bool with_un
             }
         }
     }
-    bool r = String::InsertElements(_elements, with_undo, changed_element);
+    bool r = String::InsertElements(_elements, insert_mode, with_undo, changed_element);
     if (!_changed_element.empty() && _changed_element.size() < changed_element.size())
         changed_element = _changed_element;
     return r;
@@ -318,7 +318,7 @@ void CodeString::Draw() const
         {
             auto r = GetAbsoluteRect();
             window->DrawRect(r, document->config.bg_selection_color);
-            window->DrawFillRect(Rect(r.left + 1, r.top + 1, r.width - 2, r.height -2 ), document->config.bg_selection_color);
+            window->DrawFillRect(Rect(r.left + 1, r.top + 1, r.width - 2, r.height - 2), document->config.bg_selection_color);
         }
         else
         {
@@ -348,7 +348,8 @@ Rect CodeString::GetCaretRect(const uint pos) const
     Rect r = String::GetCaretRect(pos);
     if (elements->Count() > 0)
         return r;
-    r.left += rect.width / 2;
+    if (document->insert_mode)
+        r.left += rect.width / 2;
     return r;
 }
 

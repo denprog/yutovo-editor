@@ -205,7 +205,7 @@ std::string Link::ToHtml() const
     return s;
 }
 
-bool Link::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo, ElementId& changed_element)
+bool Link::InsertElements(std::vector<ElementPtr>& _elements, bool insert_mode, bool with_undo, ElementId& changed_element)
 {
     if (_elements.size() == 1)
     {
@@ -236,7 +236,10 @@ bool Link::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo, El
                 {
                     if (with_undo)
                         document->StoreUndo(id);
-                    elements->Insert(_elements[0], caret->GetPos());
+                    if (insert_mode)
+                        elements->Insert(_elements[0], caret->GetPos());
+                    else
+                        elements->Replace(_elements[0], caret->GetPos());
                     caret->SetState(elements->GetElementId(caret->GetPos() + s->elements->Count()));
                     parent->Normalize();
                     auto p = document->FindParent(id, ElementType::PARAGRAPH);
@@ -250,7 +253,7 @@ bool Link::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo, El
             }
         }
     }
-    return String::InsertElements(_elements, with_undo, changed_element);
+    return String::InsertElements(_elements, insert_mode, with_undo, changed_element);
 }
 
 void Link::Visit()

@@ -270,6 +270,10 @@ public:
     uint SetColor(const Color color);
     uint SetBgColor(const Color color);
 
+    void SetInsertMode(const bool enabled);
+    void SwitchInsertMode();
+    bool GetInsertMode();
+
     ElementPtr CreateParagraph(const ElementId& id);
 
     EditorState GetEditorState();
@@ -464,6 +468,8 @@ public:
     Document* parent = nullptr; //parent of include document
 
     std::string path;
+
+    bool insert_mode = true; //or replace mode
 
 private:
     std::vector<std::unique_ptr<Document>> include_documents;

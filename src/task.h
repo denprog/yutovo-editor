@@ -61,6 +61,7 @@ struct InsertElementsTask : Task
     std::vector<ElementPtr> elements;
     LogicalEditorState before_state;
     bool pasting = false; //this is pasting from clipboard
+    bool insert_mode = true; //current insert mode
 };
 
 struct DeleteElementsTask : Task
@@ -88,6 +89,7 @@ struct InsertFormulasTask : Task
     LogicalEditorState before_state;
     bool pasting = false; //this is pasting from clipboard
     int select_pos = -1; //insert selected elements at this position
+    bool insert_mode = true; //current insert mode
 };
 
 struct ChangeStringFormatTask : Task

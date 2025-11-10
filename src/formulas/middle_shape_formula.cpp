@@ -51,7 +51,7 @@ void MiddleShapeFormula::Init()
     elements->Add(ElementPtr(new CodeRow(this)));
 }
 
-bool MiddleShapeFormula::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo, ElementId& changed_element)
+bool MiddleShapeFormula::InsertElements(std::vector<ElementPtr>& _elements, bool insert_mode, bool with_undo, ElementId& changed_element)
 {
     if (caret->GetPos() == 1 && caret->GetElement()->id == id)
         return false;
@@ -60,7 +60,7 @@ bool MiddleShapeFormula::InsertElements(std::vector<ElementPtr>& _elements, bool
         if (el->type == ElementType::CODE_PARAGRAPH && type != ElementType::ASSIGNMENT && type != ElementType::EQUATION)
             return false;
     }
-    return Formula::InsertElements(_elements, with_undo, changed_element);
+    return Formula::InsertElements(_elements, insert_mode, with_undo, changed_element);
 }
 
 bool MiddleShapeFormula::DeleteElements(bool left, bool with_undo, ElementId& changed_element)

@@ -47,7 +47,7 @@ public:
     virtual std::string ToHtml() const;
     virtual void ToParserString(ParserString& str);
 
-    virtual bool InsertElements(std::vector<ElementPtr>& _elements, bool with_undo, ElementId& changed_element);
+    virtual bool InsertElements(std::vector<ElementPtr>& _elements, bool insert_mode, bool with_undo, ElementId& changed_element);
     virtual bool DeleteElements(bool left, bool with_undo, ElementId& changed_element);
     virtual bool ChangeStringFormat(const StringFormatPtr format, bool with_undo, ElementId& changed_element);
 
@@ -120,6 +120,7 @@ public:
     virtual void Insert(ElementPtr element, const uint pos);
     virtual void Remove(const ElementPtr element);
     virtual void RemoveAt(const uint pos, const int size);
+    virtual void Replace(ElementPtr element, const uint pos);
     virtual void Clear();
     virtual uint Count() const;
 

@@ -357,11 +357,11 @@ void Paragraph::Normalize()
     }
 }
 
-bool Paragraph::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo, ElementId& changed_element)
+bool Paragraph::InsertElements(std::vector<ElementPtr>& _elements, bool insert_mode, bool with_undo, ElementId& changed_element)
 {
     if (_elements.size() == 1 && document->IsRow(_elements[0]))
     {
-        if (!Element::InsertElements(_elements, with_undo, changed_element))
+        if (!Element::InsertElements(_elements, insert_mode, with_undo, changed_element))
             return false;
         Normalize();
         changed_element = id;
@@ -370,9 +370,9 @@ bool Paragraph::InsertElements(std::vector<ElementPtr>& _elements, bool with_und
 
     auto el = document->GetElement(caret->GetCaretState().id);
     if (el && document->IsRow(el->id))
-        return el->InsertElements(_elements, with_undo, changed_element); //insert in the beginning of current row
+        return el->InsertElements(_elements, insert_mode, with_undo, changed_element); //insert in the beginning of current row
 
-    if (!parent->InsertElements(_elements, with_undo, changed_element))
+    if (!parent->InsertElements(_elements, insert_mode, with_undo, changed_element))
         return false;
     //re-solve all the paragraphs below
     for (int i = yutovo::GetChildPos(id); i < parent->elements->Count(); ++i)

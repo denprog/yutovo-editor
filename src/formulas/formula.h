@@ -19,7 +19,7 @@ public:
     Formula(Element* _parent);
     Formula(Document* _document);
 
-    virtual bool InsertElements(std::vector<ElementPtr>& _elements, bool with_undo, ElementId& changed_element);
+    virtual bool InsertElements(std::vector<ElementPtr>& _elements, bool insert_mode, bool with_undo, ElementId& changed_element);
     virtual bool ChangeParagraphFormat(const ParagraphFormatPtr format, bool with_undo, ElementId& changed_element);
 
     virtual void Normalize();

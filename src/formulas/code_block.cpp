@@ -75,7 +75,7 @@ Element* CodeBlock::Create(Element* parent)
     return new CodeBlock(parent, parent->document->cur_code_id, true, true);
 }
 
-bool CodeBlock::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo, ElementId& changed_element)
+bool CodeBlock::InsertElements(std::vector<ElementPtr>& _elements, bool insert_mode, bool with_undo, ElementId& changed_element)
 {
     if (caret->IsOnElement(id) && document->pasting)
     {
@@ -91,9 +91,9 @@ bool CodeBlock::InsertElements(std::vector<ElementPtr>& _elements, bool with_und
             else
                 _els.push_back(el);
         }
-        return parent->InsertElements(_els, with_undo, changed_element);
+        return parent->InsertElements(_els, insert_mode, with_undo, changed_element);
     }
-    return Block::InsertElements(_elements, with_undo, changed_element);
+    return Block::InsertElements(_elements, insert_mode, with_undo, changed_element);
 }
 
 void CodeBlock::ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc)

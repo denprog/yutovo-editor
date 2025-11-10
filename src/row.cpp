@@ -227,11 +227,11 @@ void Row::Normalize()
     }
 }
 
-bool Row::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo, ElementId& changed_element)
+bool Row::InsertElements(std::vector<ElementPtr>& _elements, bool insert_mode, bool with_undo, ElementId& changed_element)
 {
     CaretState caret_state = caret->GetCaretState();
     if (!caret_state.IsInsideElement(id) && caret_state.id != id)
-        return parent->InsertElements(_elements, with_undo, changed_element);
+        return parent->InsertElements(_elements, insert_mode, with_undo, changed_element);
 
     for (auto& el : _elements)
     {
@@ -247,14 +247,14 @@ bool Row::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo, Ele
             {
                 std::vector<ElementPtr> v;
                 v.push_back(el->elements->Get(i));
-                if (!InsertElements(v, with_undo, changed_element))
+                if (!InsertElements(v, i == 0 ? insert_mode : true, with_undo, changed_element))
                     return false;
             }
             changed_element = id;
             return true;
         }
         else if (document->IsParagraph(el) || el->type == ElementType::TEXT) //paragraphs can be inserted above
-            return parent->InsertElements(_elements, with_undo, changed_element);
+            return parent->InsertElements(_elements, insert_mode, with_undo, changed_element);
     }
 
     CaretState c;
@@ -266,7 +266,10 @@ bool Row::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo, Ele
         for (size_t i = 0; i < _elements.size(); ++i)
         {
             auto ins = _elements[i];
-            elements->Insert(ins, i);
+            if (insert_mode)
+                elements->Insert(ins, i);
+            else
+                elements->Replace(ins, i);
             if (i == 0 && elements->Get(i)->AfterInsert(with_undo))
             {
                 parent->Normalize();
@@ -285,7 +288,10 @@ bool Row::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo, Ele
         {
             auto ins = _elements[i];
             uint p = caret_state.GetPosInElement(id);
-            elements->Insert(ins, p + i);
+            if (insert_mode || (p + i == elements->Count()))
+                elements->Insert(ins, p + i);
+            else
+                elements->Replace(ins, p + i);
             if (document->pasting)
             {
                 if (ins->HasLastCaretState())
@@ -342,7 +348,13 @@ bool Row::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo, Ele
             }
             else if (el->GetFirstCaretState(c, nullptr) && c == caret_state)
             {
-                elements->Insert(ins, p + i);
+                if (insert_mode)
+                    elements->Insert(ins, p + i);
+                else
+                {
+                    el->SplitAt(caret_state.GetPos() + 1);
+                    elements->Replace(ins, p + i);
+                }
                 if (i == 0 && !document->pasting)
                     b = ins->AfterInsert(with_undo);
                 if (!b)
@@ -357,7 +369,13 @@ bool Row::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo, Ele
             {
                 if (el->SplitAt(caret_state.GetPos()))
                 {
-                    elements->Insert(ins, p + i + 1);
+                    if (insert_mode)
+                        elements->Insert(ins, p + i + 1);
+                    else
+                    {
+                        elements->Get(p + i + 1)->SplitAt(1);
+                        elements->Replace(ins, p + i + 1);
+                    }
                     if (i == 0 && !document->pasting)
                         b = ins->AfterInsert(with_undo);
                     if (!b)

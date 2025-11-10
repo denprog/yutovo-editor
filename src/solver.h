@@ -12,7 +12,6 @@
 #include <queue>
 #include <thread>
 #include <mutex>
-#include <condition_variable>
 #include <yutovo-solver/types.h>
 #include <yutovo-calculator/math_helper.h>
 

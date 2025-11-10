@@ -28,9 +28,9 @@ Formula::Formula(Document* _document) :
     document->GetCurrentFormulaFormat(formula_format);
 }
 
-bool Formula::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo, ElementId& changed_element)
+bool Formula::InsertElements(std::vector<ElementPtr>& _elements, bool insert_mode, bool with_undo, ElementId& changed_element)
 {
-    return parent->InsertElements(_elements, with_undo, changed_element);
+    return parent->InsertElements(_elements, insert_mode, with_undo, changed_element);
 }
 
 bool Formula::ChangeParagraphFormat(const ParagraphFormatPtr format, bool with_undo, ElementId& changed_element)

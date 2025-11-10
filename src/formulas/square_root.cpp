@@ -130,11 +130,11 @@ bool SquareRoot::Remake(bool with_elements)
     return changed;
 }
 
-bool SquareRoot::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo, ElementId& changed_element)
+bool SquareRoot::InsertElements(std::vector<ElementPtr>& _elements, bool insert_mode, bool with_undo, ElementId& changed_element)
 {
     if (caret->GetPos() == 0 && caret->GetElement()->id == id)
         return false;
-    return Formula::InsertElements(_elements, with_undo, changed_element);
+    return Formula::InsertElements(_elements, insert_mode, with_undo, changed_element);
 }
 
 bool SquareRoot::AfterInsert(bool with_undo)
