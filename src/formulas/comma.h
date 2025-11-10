@@ -26,6 +26,8 @@ public:
 
     static Element* FromJson(Element* parent, Document* document, const rapidjson::Value::ConstObject& value, rapidjson::Document::AllocatorType& alloc);
 
+    virtual void UpdateRect(bool with_elements);
+
     virtual std::string ToHtml() const;
 };
 
