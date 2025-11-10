@@ -1809,4 +1809,62 @@ TEST_F(CodeTest, code31)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 1})) << document.GetEditorState().ToString();
 }
 
+//Selection a code block in a row
+TEST_F(CodeTest, code32)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.InsertString("234", true);
+    document.MoveCaretToDocumentEnd(false);
+    document.InsertString("str", true);
+    document.InsertParagraph(true);
+    document.InsertString("String", true);
+    document.InsertCode(false, true);
+    document.WaitTask(document.InsertString("456456", true));
+    document.MoveCaretHome(false);
+    document.MoveCaretLeft(false);
+    document.WaitTask(document.MoveCaretLeft(false));
+    document.WaitTask(document.MoveCaretEnd(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 1, 0, 2}, 
+        ElementSelectionState{ElementId{0, 1, 0}, 1, 1})) << document.GetEditorState().ToString();
+    
+    document.WaitTask(document.MoveCaretWordLeft(false));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 1, 0, 1})) << document.GetEditorState().ToString();
+    document.WaitTask(document.MoveCaretEnd(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 1, 0, 2}, 
+        ElementSelectionState{ElementId{0, 1, 0}, 1, 1})) << document.GetEditorState().ToString();
+}
+
+//Selection code blocks in a row
+TEST_F(CodeTest, code33)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.InsertString("234", true);
+    document.MoveCaretToDocumentEnd(false);
+    document.InsertString("str", true);
+    document.InsertParagraph(true);
+    document.InsertString("String", true);
+    document.InsertCode(false, true);
+    document.InsertString("456456", true);
+    document.MoveCaretToDocumentEnd(false);
+    document.InsertCode(false, true);
+    document.InsertString("555", true);
+    document.MoveCaretHome(false);
+    document.MoveCaretWordLeft(false);
+    document.MoveCaretWordLeft(false);
+    document.WaitTask(document.MoveCaretLeft(false));
+    document.WaitTask(document.MoveCaretEnd(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 1, 0, 3}, 
+        ElementSelectionState{ElementId{0, 1, 0}, 1, 2})) << document.GetEditorState().ToString();
+    
+    document.WaitTask(document.MoveCaretLeft(false));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 1, 0, 1})) << document.GetEditorState().ToString();
+    document.WaitTask(document.MoveCaretEnd(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 1, 0, 3}, 
+        ElementSelectionState{ElementId{0, 1, 0}, 1, 2})) << document.GetEditorState().ToString();
+}
+
 }
