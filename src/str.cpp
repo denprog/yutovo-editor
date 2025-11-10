@@ -318,13 +318,13 @@ void String::ToParserString(ParserString& str)
     str.Add(id, elements->ToText());
 }
 
-bool String::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo, ElementId& changed_element)
+bool String::InsertElements(std::vector<ElementPtr>& _elements, bool insert_mode, bool with_undo, ElementId& changed_element)
 {
     if (!editable)
         return false;
     
     if (!caret->IsInsideElement(id))
-        return parent->InsertElements(_elements, with_undo, changed_element);
+        return parent->InsertElements(_elements, insert_mode, with_undo, changed_element);
     
     if (_elements.size() == 1 && _elements[0]->type == type)
     {
@@ -353,7 +353,10 @@ bool String::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo, 
         {
             if (with_undo)
                 document->StoreUndo(id);
-            elements->Insert(_elements[0], caret->GetPos());
+            if (insert_mode)
+                elements->Insert(_elements[0], caret->GetPos());
+            else
+                elements->Replace(_elements[0], caret->GetPos());
             caret->SetState(elements->GetElementId(caret->GetPos() + s->elements->Count()));
             parent->Normalize();
             auto p = document->FindParent(id, ElementType::PARAGRAPH);
@@ -366,7 +369,7 @@ bool String::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo, 
         }
     }
 
-    return parent->InsertElements(_elements, with_undo, changed_element);
+    return parent->InsertElements(_elements, insert_mode, with_undo, changed_element);
 }
 
 bool String::DeleteElements(bool left, bool with_undo, ElementId& changed_element)
@@ -1059,6 +1062,35 @@ void StringElements::RemoveAt(const uint pos, const int size)
 #endif
 }
 
+void StringElements::Replace(ElementPtr element, const uint pos)
+{
+    assert(parent->document->IsString(element));
+    assert(str.length() >= pos);
+    std::u32string s = element->ToText();
+
+    uint start, size;
+    if (selection->Has(parent->id, start, size))
+    {
+        selection->Remove(parent->id, start, size);
+        str.insert(pos, s);
+        selection->Add(parent->id, start, size);
+    }
+    else
+        str.replace(pos, 1, s);
+
+    if (selection->Has(element, start, size))
+    {
+        selection->Add(parent->id, Count(), size);
+        selection->Remove(element->id, start, size);
+    }
+
+    UpdateTabs();
+
+#ifdef DEBUG
+    parent->to_str = parent->ToText();
+#endif
+}
+
 void StringElements::Clear()
 {
     str = U"";
@@ -1076,7 +1108,18 @@ uint StringElements::Count() const
 Rect StringElements::GetCaretRect(const uint pos) const
 {
     Size s = ((String*)parent)->GetTextSize(pos);
-    return Rect(s.width, 0, 1, s.height);
+    if (parent->document->insert_mode)
+        return Rect(s.width, 0, 1, s.height);
+    if (str.empty())
+    {
+        if (parent->type == ElementType::CODE_STRING)
+            return Rect(parent->rect.left, parent->rect.top, parent->rect.width - 2, parent->rect.height - 2);
+        return Rect(s.width, 0, 4, s.height);
+    }
+    if (pos == str.length())
+        return Rect(s.width, 0, 1, s.height);
+    Size s2 = parent->window->GetTextSize(std::u32string(1, str[pos]), ((String*)parent)->format);
+    return Rect(s.width, 0, s2.width, s.height);
 }
 
 void StringElements::DrawCaret(const uint pos) const
@@ -1085,9 +1128,19 @@ void StringElements::DrawCaret(const uint pos) const
         return; //do not redraw include documents
     Rect r = parent->GetAbsoluteRect(GetCaretRect(pos));
     if (Count() == 0)
-        parent->window->DrawLine(r.left + parent->rect.width / 2, r.top, r.left + parent->rect.width / 2, r.GetBottom() - 1, Color::Black());
+    {
+        if (parent->document->insert_mode)
+            parent->window->DrawLine(r.left + parent->rect.width / 2, r.top, r.left + parent->rect.width / 2, r.GetBottom() - 1, Color::Black());
+        else
+            parent->window->DrawRect(r.left, r.top, r.width - 2, r.height - 2, Color::Black());
+    }
     else
-        parent->window->DrawLine(r.left, r.top, r.left, r.GetBottom() - 1, Color::Black());
+    {
+        if (parent->document->insert_mode || pos == str.length())
+            parent->window->DrawLine(r.left, r.top, r.left, r.GetBottom() - 1, Color::Black());
+        else
+            parent->window->DrawRect(r.left, r.top, r.width - 1, r.height - 1, Color::Black());
+    }
 }
 
 Rect StringElements::GetRect()

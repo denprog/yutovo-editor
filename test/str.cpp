@@ -305,6 +305,112 @@ TEST_F(DocumentTest, strings7)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 3)) << document.GetEditorState().ToString();
 }
 
+//Replace mode
+TEST_F(DocumentTest, strings8)
+{
+    Start(600);
+
+    document.SetInsertMode(false);
+    document.WaitTask(document.InsertString("123", true));
+    ASSERT_TRUE(document.ToText() == U"123") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 3})) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.MoveCaretToDocumentBegin(false));
+    document.WaitTask(document.InsertString("5", true));
+    ASSERT_TRUE(document.ToText() == U"523") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 1})) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    ASSERT_TRUE(document.ToText() == U"123") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0})) << document.GetEditorState().ToString();
+
+    document.Redo();
+    document.WaitRedo();
+    ASSERT_TRUE(document.ToText() == U"523") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 1})) << document.GetEditorState().ToString();
+
+    document.SetInsertMode(true);
+    document.WaitTask(document.InsertString("7", true));
+    ASSERT_TRUE(document.ToText() == U"5723") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 2})) << document.GetEditorState().ToString();
+}
+
+//Replace mode
+TEST_F(DocumentTest, strings9)
+{
+    Start(600);
+
+    document.SetInsertMode(false);
+    document.WaitTask(document.InsertString("12344", true));
+    document.MoveCaretToDocumentBegin(false);
+    document.MoveCaretRight(true);
+    document.WaitTask(document.MoveCaretRight(true));
+    document.WaitTask(document.InsertString("5", true));
+    ASSERT_TRUE(document.ToText() == U"5344") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 1})) << document.GetEditorState().ToString();
+    document.WaitTask(document.InsertString("8", true));
+    ASSERT_TRUE(document.ToText() == U"5844") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 2})) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    document.Undo();
+    document.WaitUndo();
+    ASSERT_TRUE(document.ToText() == U"12344") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 2}, 
+        ElementSelectionState{ElementId{0, 0, 0, 0}, 0, 2})) << document.GetEditorState().ToString();
+
+    document.Redo();
+    document.WaitRedo();
+    ASSERT_TRUE(document.ToText() == U"5344") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 1})) << document.GetEditorState().ToString();
+
+    document.SetInsertMode(true);
+    document.MoveCaretToDocumentBegin(false);
+    document.MoveCaretRight(true);
+    document.WaitTask(document.MoveCaretRight(true));
+    document.WaitTask(document.InsertString("7", true));
+    ASSERT_TRUE(document.ToText() == U"744") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 1})) << document.GetEditorState().ToString();
+
+    document.SwitchInsertMode();
+    document.MoveCaretToDocumentEnd(false);
+    document.WaitTask(document.InsertString("String", true));
+    ASSERT_TRUE(document.ToText() == U"744String") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 9})) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    ASSERT_TRUE(document.ToText() == U"744") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 3})) << document.GetEditorState().ToString();
+}
+
+//Replace mode
+TEST_F(DocumentTest, strings10)
+{
+    Start(600);
+
+    document.InsertString("12345", true);
+    document.SwitchInsertMode();
+    document.MoveCaretLeft(false);
+    document.MoveCaretLeft(false);
+    document.WaitTask(document.InsertString("6", true));
+    ASSERT_TRUE(document.ToText() == U"12365") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 4})) << document.GetEditorState().ToString();
+
+    document.SwitchInsertMode();
+    document.Undo();
+    document.WaitUndo();
+    ASSERT_TRUE(document.ToText() == U"12345") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 3})) << document.GetEditorState().ToString();
+
+    document.Redo();
+    document.WaitRedo();
+    ASSERT_TRUE(document.ToText() == U"12365") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 4})) << document.GetEditorState().ToString();
+}
+
 TEST_F(DocumentTest, selections1)
 {
     Start(600);

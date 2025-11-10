@@ -1829,6 +1829,25 @@ uint Document::SetBgColor(const Color color)
     return 0;
 }
 
+void Document::SetInsertMode(const bool enabled)
+{
+    std::lock_guard<std::recursive_mutex> lock(edit_mutex);
+    insert_mode = enabled;
+}
+
+void Document::SwitchInsertMode()
+{
+    std::lock_guard<std::recursive_mutex> lock(edit_mutex);
+    insert_mode = !insert_mode;
+    caret->Blink();
+}
+
+bool Document::GetInsertMode()
+{
+    std::lock_guard<std::recursive_mutex> lock(edit_mutex);
+    return insert_mode;
+}
+
 ElementPtr Document::CreateParagraph(const ElementId& id)
 {
     if (FindElementOrParent(id, ElementType::CODE_BLOCK))

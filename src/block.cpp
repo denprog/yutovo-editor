@@ -41,7 +41,7 @@ void Block::Normalize()
     }
 }
 
-bool Block::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo, ElementId& changed_element)
+bool Block::InsertElements(std::vector<ElementPtr>& _elements, bool insert_mode, bool with_undo, ElementId& changed_element)
 {
     const CaretState before_state = caret->GetCaretState();
     CaretState last;
@@ -56,7 +56,7 @@ bool Block::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo, E
         if (document->IsParagraph(before_state.id) && document->IsRow(_elements[0]))
         {
             ElementPtr el = document->GetElement(before_state.id);
-            return el->InsertElements(_elements, with_undo, changed_element);
+            return el->InsertElements(_elements, insert_mode, with_undo, changed_element);
         }
 
         std::vector<ElementPtr> _els;
@@ -86,7 +86,7 @@ bool Block::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo, E
                     els.clear();
                     els.push_back(row);
                     cur = document->GetElement(caret->GetElement()->id);
-                    if (!cur->InsertElements(els, with_undo, changed_element))
+                    if (!cur->InsertElements(els, insert_mode, with_undo, changed_element))
                         return false;
                     i = 1;
 
@@ -94,7 +94,7 @@ bool Block::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo, E
                     {
                         els.clear();
                         els.push_back(document->CreateParagraph(cur->id));
-                        if (!InsertElements(els, with_undo, changed_element))
+                        if (!InsertElements(els, insert_mode, with_undo, changed_element))
                             return false;
                     }
                 }
@@ -120,7 +120,7 @@ bool Block::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo, E
                         els.clear();
                         els.push_back(row);
                         cur = document->GetElement(caret->GetElement()->id);
-                        if (!cur->InsertElements(els, with_undo, changed_element))
+                        if (!cur->InsertElements(els, insert_mode, with_undo, changed_element))
                             return false;
                     }
                     else
@@ -128,14 +128,14 @@ bool Block::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo, E
                         Paragraph* p = ((Paragraph*)_els[i].get());
                         p->MakePlain();
                         els.push_back(_els[i]);
-                        if (!InsertElements(els, with_undo, changed_element))
+                        if (!InsertElements(els, insert_mode, with_undo, changed_element))
                             return false;
                     }
                     continue;
                 }
                 els.push_back(_els[i]);
                 cur = document->GetParent(before_state.id);
-                if (!cur || !cur->InsertElements(els, with_undo, changed_element))
+                if (!cur || !cur->InsertElements(els, insert_mode, with_undo, changed_element))
                     return false;
             }
         }
@@ -145,7 +145,7 @@ bool Block::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo, E
             if (!cur)
                 cur = document->GetParent(before_state.id);
             assert(cur.get() != this);
-            if (!cur || !cur->InsertElements(els, with_undo, changed_element))
+            if (!cur || !cur->InsertElements(els, insert_mode, with_undo, changed_element))
                 return false;
             for (int i = 1; i < _els.size(); ++i)
             {
@@ -154,7 +154,7 @@ bool Block::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo, E
                 els.clear();
                 ((Paragraph*)_els[i].get())->MakePlain();
                 els.push_back(_els[i]);
-                if (!InsertElements(els, with_undo, changed_element))
+                if (!InsertElements(els, insert_mode, with_undo, changed_element))
                     return false;
             }
         }

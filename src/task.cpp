@@ -123,14 +123,16 @@ void Task::Remake(ElementId _id, bool move_into_view)
 InsertElementsTask::InsertElementsTask(ElementPtr _text, std::vector<ElementPtr>& _elements, bool _with_undo, bool _pasting) :
     Task(_text),
     elements(_elements),
-    pasting(_pasting)
+    pasting(_pasting),
+    insert_mode(document->insert_mode)
 {
     with_undo = _with_undo;
 }
 
 InsertElementsTask::InsertElementsTask(ElementPtr _text, std::vector<ElementPtr>& _elements, uint _id) :
     Task(_text, _id),
-    elements(_elements)
+    elements(_elements),
+    insert_mode(document->insert_mode)
 {
     with_undo = false;
 }
@@ -261,12 +263,15 @@ bool InsertElementsTask::Execute()
     document->pasting = pasting;
     document->editing = true;
     document->caret->notify = false;
-    for (auto& _el : _elements)
+    if (!selection_state.IsEmpty())
+        insert_mode = true; //it was deletion before, replace mode is not enabled
+    for (size_t i = 0; i < _elements.size(); ++i)
     {
+        auto& _el = _elements[i];
         _el->parent = nullptr;
         std::vector<ElementPtr> t{ElementPtr(_el->Clone())};
         ElementId changed_element;
-        if (el->editable && !el->InsertElements(t, with_undo, changed_element))
+        if (el->editable && !el->InsertElements(t, i == 0 ? insert_mode : true, with_undo, changed_element))
         {
             if (with_undo && last_undo_size < document->GetUndoSize())
                 document->Undo();
@@ -479,14 +484,16 @@ InsertFormulasTask::InsertFormulasTask(ElementPtr _text, std::vector<ElementPtr>
     Task(_text),
     elements(_elements),
     pasting(_pasting), 
-    select_pos(_select_pos)
+    select_pos(_select_pos),
+    insert_mode(document->insert_mode)
 {
     with_undo = _with_undo;
 }
 
 InsertFormulasTask::InsertFormulasTask(ElementPtr _text, uint _id, std::vector<ElementPtr>& _elements, bool _with_undo) :
     Task(_text, _id),
-    elements(_elements)
+    elements(_elements),
+    insert_mode(document->insert_mode)
 {
     with_undo = _with_undo;
 }
@@ -573,6 +580,8 @@ bool InsertFormulasTask::Execute()
     }
 
     bool insert_code_block = false;
+    if (!selection_state.IsEmpty())
+        insert_mode = true; //it was a deletion before, replace mode is not enabled
     ElementId changed_element;
     if (elements[0]->type != ElementType::CODE_BLOCK)
     {
@@ -589,7 +598,7 @@ bool InsertFormulasTask::Execute()
             
             ElementPtr code(new CodeBlock(row.get(), document->cur_code_id, true, false));
             std::vector v{code};
-            if (!row->InsertElements(v, with_undo, changed_element))
+            if (!row->InsertElements(v, insert_mode, with_undo, changed_element))
             {
                 if (with_undo && last_undo_size < document->GetUndoSize())
                     document->Undo();
@@ -614,17 +623,18 @@ bool InsertFormulasTask::Execute()
             _elements[i]->BeforePaste();
     }
 
-    std::vector<ElementId> changed_elements;    
+    std::vector<ElementId> changed_elements;
     document->pasting = pasting;
     document->editing = true;
     if (select_pos == -1)
     {
-        for (auto& _el : _elements)
+        for (size_t i = 0; i < _elements.size(); ++i)
         {
+            auto& _el = _elements[i];
             _el->parent = nullptr;
             std::vector<ElementPtr> t{_el};
             ElementId changed_element;
-            if (!el->InsertElements(t, insert_code_block ? false : with_undo, changed_element))
+            if (!el->InsertElements(t, (insert_code_block || i > 0) ? true : insert_mode, insert_code_block ? false : with_undo, changed_element))
             {
                 if (with_undo && last_undo_size < document->GetUndoSize())
                     document->Undo();
@@ -669,7 +679,8 @@ bool InsertFormulasTask::Execute()
             {
                 document->pasting = true;
                 document->editing = true;
-                if (!el->InsertElements(select_elements, insert_code_block ? false : with_undo, changed_element))
+                if (!el->InsertElements(select_elements, 
+                    (insert_code_block || i > 0) ? true : insert_mode, insert_code_block ? false : with_undo, changed_element))
                 {
                     if (with_undo && last_undo_size < document->GetUndoSize())
                         document->Undo();
@@ -681,7 +692,7 @@ bool InsertFormulasTask::Execute()
 
             std::vector<ElementPtr> _els;
             _els.push_back(_elements[i]);
-            if (!el->InsertElements(_els, insert_code_block ? false : with_undo, changed_element))
+            if (!el->InsertElements(_els, (insert_code_block || i > 0) ? true : insert_mode, insert_code_block ? false : with_undo, changed_element))
             {
                 if (with_undo && last_undo_size < document->GetUndoSize())
                     document->Undo();

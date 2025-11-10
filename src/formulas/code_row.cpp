@@ -115,7 +115,7 @@ bool CodeRow::Merge(const ElementPtr with_element)
     return true;
 }
 
-bool CodeRow::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo, ElementId& changed_element)
+bool CodeRow::InsertElements(std::vector<ElementPtr>& _elements, bool insert_mode, bool with_undo, ElementId& changed_element)
 {
     for (auto el : _elements)
     {
@@ -135,7 +135,7 @@ bool CodeRow::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo,
                     ch.push_back(el->elements->Get(i));
             }
 
-            if (!Row::InsertElements(ch, with_undo, changed_element))
+            if (!Row::InsertElements(ch, insert_mode, with_undo, changed_element))
                 return false;
             return true;
         }
@@ -145,7 +145,7 @@ bool CodeRow::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo,
             return false;
         }
     }
-    return Row::InsertElements(_elements, with_undo, changed_element);
+    return Row::InsertElements(_elements, insert_mode, with_undo, changed_element);
 }
 
 bool CodeRow::GetBeginCaretState(CaretState& caret_state, Selection* select)

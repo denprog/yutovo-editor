@@ -11,7 +11,6 @@
 #include <memory>
 #include <thread>
 #include <mutex>
-#include <condition_variable>
 #include "window.h"
 #include "caret_state.h"
 #include "element.h"

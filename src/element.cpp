@@ -192,7 +192,7 @@ void Element::ZoomPicture(const int pixels)
         parent->ZoomPicture(pixels);
 }
 
-bool Element::InsertElements(std::vector<ElementPtr>& _elements, bool with_undo, ElementId& changed_element)
+bool Element::InsertElements(std::vector<ElementPtr>& _elements, bool insert_mode, bool with_undo, ElementId& changed_element)
 {
     auto c = caret->GetCaretState();
     if (c.IsInsideElement(id))
@@ -1488,11 +1488,21 @@ Rect Elements::GetCaretRect(const uint pos) const
     }
     else
     {
-        r = elements[pos]->rect; //draw caret of two lines
-        r.left -= 3;
-        r.width += 1;
-        r.top -= 1;
-        r.height += 6;
+        r = elements[pos]->rect;
+        if (parent->document->insert_mode)
+        {
+            r.left -= 3;
+            r.width += 1;
+            r.top -= 1;
+            r.height += 6;
+        }
+        else
+        {
+            r.left -= 3;
+            r.width += 6;
+            r.top -= 4;
+            r.height += 8;
+        }
     }
     return r;
 }
@@ -1507,8 +1517,15 @@ void Elements::DrawCaret(const uint pos) const
     else
     {
         Rect r = parent->GetAbsoluteRect(GetCaretRect(pos));
-        parent->window->DrawLine(r.left + 1, r.top + 1, r.left + 1, r.GetBottom() - 2, Color::Black());
-        parent->window->DrawLine(r.left + 1, r.GetBottom() - 2, r.GetRight() - 2, r.GetBottom() - 2, Color::Black());
+        if (parent->document->insert_mode) //draw caret of two lines
+        {
+            parent->window->DrawLine(r.left + 1, r.top + 1, r.left + 1, r.GetBottom() - 2, Color::Black());
+            parent->window->DrawLine(r.left + 1, r.GetBottom() - 2, r.GetRight() - 2, r.GetBottom() - 2, Color::Black());
+        }
+        else //draw caret of a rect
+        {
+            parent->window->DrawRect(r.left + 1, r.top + 1, r.width - 2, r.height - 2, Color::Black());
+        }
     }
 }
 
