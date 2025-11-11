@@ -949,7 +949,7 @@ bool ArrayRealSolverTask::Execute(WebSocketPtr socket, Result& result)
     {
         if (json.length() > 1024)
         {
-            std::string _json("{\"solver_guid\":\"" + solver_guid + "\"}");
+            std::string _json("{\"solver_guid\":\"" + solver_guid + "\",\"expression\":\"" + s + "\",\"id\":\"" + id_str + "\"}");
             document->window->OnSolverAction(_json);
         }
         else
