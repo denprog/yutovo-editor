@@ -1067,7 +1067,7 @@ TEST_F(IncludeDocumentsTest, include_files1)
 
     EXPECT_CALL(window_mock, OnLoadInclude).WillOnce([&](const std::string& file_name, const int document_id)
         {
-            document.LoadInclude(file_name, &include_window1);
+            document.LoadInclude(file_name);
             std::this_thread::sleep_for(400ms);
         });
 
@@ -1111,19 +1111,7 @@ TEST_F(IncludeDocumentsTest, include_files2)
 
     EXPECT_CALL(window_mock, OnLoadInclude).WillRepeatedly([&](const std::string& file_name, const int document_id)
         {
-            document.LoadInclude(file_name, &include_window1);
-            std::this_thread::sleep_for(400ms);
-        });
-
-    EXPECT_CALL(include_window1, OnLoadInclude).WillRepeatedly([&](const std::string& file_name, const int document_id)
-        {
-            document.LoadInclude(file_name, &include_window2);
-            std::this_thread::sleep_for(400ms);
-        });
-
-    EXPECT_CALL(include_window2, OnLoadInclude).WillRepeatedly([&](const std::string& file_name, const int document_id)
-        {
-            document.LoadInclude(file_name, &include_window3);
+            document.LoadInclude(file_name);
             std::this_thread::sleep_for(400ms);
         });
 
@@ -1195,19 +1183,7 @@ TEST_F(IncludeDocumentsTest, include_files3)
 
     EXPECT_CALL(window_mock, OnLoadInclude).WillRepeatedly([&](const std::string& file_name, const int document_id)
         {
-            document.LoadInclude(file_name, &include_window1);
-            std::this_thread::sleep_for(400ms);
-        });
-
-    EXPECT_CALL(include_window1, OnLoadInclude).WillRepeatedly([&](const std::string& file_name, const int document_id)
-        {
-            document.LoadInclude(file_name, &include_window2);
-            std::this_thread::sleep_for(400ms);
-        });
-
-    EXPECT_CALL(include_window2, OnLoadInclude).WillRepeatedly([&](const std::string& file_name, const int document_id)
-        {
-            document.LoadInclude(file_name, &include_window3);
+            document.LoadInclude(file_name);
             std::this_thread::sleep_for(400ms);
         });
 
@@ -1278,13 +1254,7 @@ TEST_F(IncludeDocumentsTest, include_files4)
 
     EXPECT_CALL(window_mock, OnLoadInclude).WillRepeatedly([&](const std::string& file_name, const int document_id)
         {
-            document.LoadInclude(file_name, &include_window1);
-            std::this_thread::sleep_for(400ms);
-        });
-
-    EXPECT_CALL(include_window1, OnLoadInclude).WillRepeatedly([&](const std::string& file_name, const int document_id)
-        {
-            document.LoadInclude(file_name, &include_window2);
+            document.LoadInclude(file_name);
             std::this_thread::sleep_for(400ms);
         });
 
@@ -1300,7 +1270,8 @@ TEST_F(IncludeDocumentsTest, include_files4)
     document.WaitTask(document.InsertString("5", true));
     document.WaitSolver();
     std::this_thread::sleep_for(200ms);
-    document.WaitTask(document.SetIncludeDocuments(std::vector{std::string("include2.yut")}));
+    document.SetIncludeDocuments(std::vector{std::string("include2.yut")});
+    std::this_thread::sleep_for(200ms);
     document.WaitTask(document.Save("include1.yut"));
     std::this_thread::sleep_for(200ms);
 
@@ -1316,9 +1287,9 @@ TEST_F(IncludeDocumentsTest, include_files4)
     document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
     document.WaitSolver();
     document.WaitTask(document.Save("include2.yut"));
-    std::this_thread::sleep_for(2s);
+    std::this_thread::sleep_for(4s);
     ASSERT_TRUE(document.ToText() == 
-        U"var1=5."
+        U"var1=Unknown identifier"
         ) << ToBasicString(document.ToText());
 
     EXPECT_CALL(window_mock2, Translate).WillRepeatedly([&](ElementId id, const std::u32string& str)
@@ -1326,24 +1297,19 @@ TEST_F(IncludeDocumentsTest, include_files4)
             return str;
         });
 
-    EXPECT_CALL(include_window3, OnLoadInclude).WillRepeatedly([&](const std::string& file_name, const int document_id)
-        {
-            document2.LoadInclude(file_name, &include_window4);
-            std::this_thread::sleep_for(400ms);
-        });
-
     EXPECT_CALL(window_mock2, OnLoadInclude).WillRepeatedly([&](const std::string& file_name, const int document_id)
         {
-            document2.LoadInclude(file_name, &include_window3);
+            document2.LoadInclude(file_name);
             std::this_thread::sleep_for(400ms);
         });
 
     document2.Load("include2.yut");
     document2.WaitLoad();
+    document2.WaitSolver();
     std::this_thread::sleep_for(4s);
     ASSERT_TRUE(document2.IsChanged() == false);
     ASSERT_TRUE(document2.ToText() == 
-        U"var1=5."
+        U"var1=Unknown identifier"
         ) << ToBasicString(document2.ToText());
 }
 
@@ -1359,7 +1325,7 @@ TEST_F(IncludeDocumentsTest, include_files5)
 
     EXPECT_CALL(window_mock, OnLoadInclude).WillOnce([&](const std::string& file_name, const int document_id)
         {
-            document.LoadInclude(file_name, &include_window1);
+            document.LoadInclude(file_name);
             std::this_thread::sleep_for(400ms);
         });
 
@@ -1409,7 +1375,7 @@ TEST_F(IncludeDocumentsTest, include_files6)
 
     EXPECT_CALL(window_mock, OnLoadInclude).WillOnce([&](const std::string& file_name, const int document_id)
         {
-            document.LoadInclude(file_name, &include_window1);
+            document.LoadInclude(file_name);
             std::this_thread::sleep_for(400ms);
         });
 
@@ -1453,19 +1419,7 @@ TEST_F(IncludeDocumentsTest, include_files7)
 
     EXPECT_CALL(window_mock, OnLoadInclude).WillRepeatedly([&](const std::string& file_name, const int document_id)
         {
-            document.LoadInclude(file_name, &include_window1);
-            std::this_thread::sleep_for(400ms);
-        });
-
-    EXPECT_CALL(include_window1, OnLoadInclude).WillRepeatedly([&](const std::string& file_name, const int document_id)
-        {
-            document.LoadInclude(file_name, &include_window2);
-            std::this_thread::sleep_for(400ms);
-        });
-
-    EXPECT_CALL(include_window2, OnLoadInclude).WillRepeatedly([&](const std::string& file_name, const int document_id)
-        {
-            document.LoadInclude(file_name, &include_window3);
+            document.LoadInclude(file_name);
             std::this_thread::sleep_for(400ms);
         });
 
@@ -1517,15 +1471,9 @@ TEST_F(IncludeDocumentsTest, include_files7)
     document.WaitTask(document.Save("include3.yut"));
     std::this_thread::sleep_for(200ms);
 
-    EXPECT_CALL(include_window4, OnLoadInclude).WillRepeatedly([&](const std::string& file_name, const int document_id)
-        {
-            document2.LoadInclude(file_name, &include_window3);
-            std::this_thread::sleep_for(400ms);
-        });
-
     EXPECT_CALL(window_mock2, OnLoadInclude).WillRepeatedly([&](const std::string& file_name, const int document_id)
         {
-            document2.LoadInclude(file_name, &include_window4);
+            document2.LoadInclude(file_name);
             std::this_thread::sleep_for(400ms);
         });
 
@@ -1578,19 +1526,7 @@ TEST_F(IncludeDocumentsTest, include_files8)
 
     EXPECT_CALL(window_mock, OnLoadInclude).WillRepeatedly([&](const std::string& file_name, const int document_id)
         {
-            document.LoadInclude(file_name, &include_window1);
-            std::this_thread::sleep_for(400ms);
-        });
-
-    EXPECT_CALL(include_window1, OnLoadInclude).WillRepeatedly([&](const std::string& file_name, const int document_id)
-        {
-            document.LoadInclude(file_name, &include_window2);
-            std::this_thread::sleep_for(400ms);
-        });
-
-    EXPECT_CALL(include_window2, OnLoadInclude).WillRepeatedly([&](const std::string& file_name, const int document_id)
-        {
-            document.LoadInclude(file_name, &include_window3);
+            document.LoadInclude(file_name);
             std::this_thread::sleep_for(400ms);
         });
 
@@ -1628,27 +1564,9 @@ TEST_F(IncludeDocumentsTest, include_files8)
     document.WaitTask(document.Save("include3.yut"));
     std::this_thread::sleep_for(200ms);
 
-    EXPECT_CALL(include_window1, OnLoadInclude).WillRepeatedly([&](const std::string& file_name, const int document_id)
-        {
-            document2.LoadInclude(file_name, &include_window1);
-            std::this_thread::sleep_for(400ms);
-        });
-
-    EXPECT_CALL(include_window3, OnLoadInclude).WillRepeatedly([&](const std::string& file_name, const int document_id)
-        {
-            document2.LoadInclude(file_name, &include_window2);
-            std::this_thread::sleep_for(400ms);
-        });
-
-    EXPECT_CALL(include_window4, OnLoadInclude).WillRepeatedly([&](const std::string& file_name, const int document_id)
-        {
-            document2.LoadInclude(file_name, &include_window3);
-            std::this_thread::sleep_for(400ms);
-        });
-
     EXPECT_CALL(window_mock2, OnLoadInclude).WillRepeatedly([&](const std::string& file_name, const int document_id)
         {
-            document2.LoadInclude(file_name, &include_window4);
+            document2.LoadInclude(file_name);
             std::this_thread::sleep_for(400ms);
         });
 
@@ -1681,7 +1599,7 @@ TEST_F(IncludeDocumentsTest, include_files9)
 
     EXPECT_CALL(window_mock, OnLoadInclude).WillRepeatedly([&](const std::string& file_name, const int document_id)
         {
-            document.LoadInclude(file_name, &include_window1);
+            document.LoadInclude(file_name);
             std::this_thread::sleep_for(400ms);
         });
 
@@ -1705,7 +1623,7 @@ TEST_F(IncludeDocumentsTest, include_files9)
 
     EXPECT_CALL(window_mock2, OnLoadInclude).WillRepeatedly([&](const std::string& file_name, const int document_id)
         {
-            document2.LoadInclude(file_name, &include_window2);
+            document2.LoadInclude(file_name);
             std::this_thread::sleep_for(400ms);
         });
 
@@ -1739,13 +1657,7 @@ TEST_F(IncludeDocumentsTest, include_files10)
 
     EXPECT_CALL(window_mock, OnLoadInclude).WillRepeatedly([&](const std::string& file_name, const int document_id)
         {
-            document.LoadInclude(file_name, &include_window1);
-            std::this_thread::sleep_for(400ms);
-        });
-
-    EXPECT_CALL(include_window1, OnLoadInclude).WillRepeatedly([&](const std::string& file_name, const int document_id)
-        {
-            document.LoadInclude(file_name, &include_window2);
+            document.LoadInclude(file_name);
             std::this_thread::sleep_for(400ms);
         });
 
@@ -1788,7 +1700,7 @@ TEST_F(IncludeDocumentsTest, include_files10)
 
     EXPECT_CALL(window_mock2, OnLoadInclude).WillRepeatedly([&](const std::string& file_name, const int document_id)
         {
-            document2.LoadInclude(file_name, &include_window3);
+            document2.LoadInclude(file_name);
             std::this_thread::sleep_for(400ms);
         });
 
@@ -1813,7 +1725,7 @@ TEST_F(IncludeDocumentsTest, include_files11)
 
     EXPECT_CALL(window_mock2, OnLoadInclude).WillRepeatedly([&](const std::string& file_name, const int document_id)
         {
-            document2.LoadInclude(file_name, &include_window1);
+            document2.LoadInclude(file_name);
             std::this_thread::sleep_for(400ms);
         });
 
@@ -1851,7 +1763,7 @@ TEST_F(IncludeDocumentsTest, include_files11)
     document2.InsertString("S", true);
     document2.WaitTask(document2.InsertEquation(ResultType::AUTO, true));
     document2.WaitSolver();
-    std::this_thread::sleep_for(2s);
+    std::this_thread::sleep_for(4s);
     ASSERT_TRUE(document2.ToText() == 
         U"\n"\
         U"var=55\n"\
@@ -1883,7 +1795,7 @@ TEST_F(IncludeDocumentsTest, include_files12)
 
     EXPECT_CALL(window_mock2, OnLoadInclude).WillRepeatedly([&](const std::string& file_name, const int document_id)
         {
-            document2.LoadInclude(file_name, &include_window1);
+            document2.LoadInclude(file_name);
             std::this_thread::sleep_for(400ms);
         });
 
@@ -1967,7 +1879,7 @@ TEST_F(IncludeDocumentsTest, include_files13)
 
     EXPECT_CALL(window_mock2, OnLoadInclude).WillRepeatedly([&](const std::string& file_name, const int document_id)
         {
-            document2.LoadInclude(file_name, &include_window1);
+            document2.LoadInclude(file_name);
             std::this_thread::sleep_for(400ms);
         });
 
@@ -2019,7 +1931,7 @@ TEST_F(IncludeDocumentsTest, include_files14)
 
     EXPECT_CALL(window_mock2, OnLoadInclude).WillRepeatedly([&](const std::string& file_name, const int document_id)
         {
-            document2.LoadInclude(file_name, &include_window1);
+            document2.LoadInclude(file_name);
             std::this_thread::sleep_for(400ms);
         });
 
@@ -2057,6 +1969,93 @@ TEST_F(IncludeDocumentsTest, include_files14)
     ASSERT_TRUE(document2.ToText() == 
         U"v=Unknown identifier"
         ) << ToBasicString(document2.ToText());
+}
+
+//Load include file from a json string
+TEST_F(IncludeDocumentsTest, include_files15)
+{
+    Start(600);
+
+    EXPECT_CALL(window_mock, OnSaveResult).WillRepeatedly([&](const uint task_id, IOResult result, const int document_id)
+        {
+            ASSERT_TRUE(result == IOResult::Success);
+        });
+
+    EXPECT_CALL(window_mock, OnLoadInclude).WillRepeatedly([&](const std::string& file_name, const int document_id)
+        {
+            ASSERT_TRUE(file_name == "include1.yut");
+            std::string json = "{\"file_guid\":\"6dfd2a78-44f9-4dfa-af67-620f0e36f8d9\",\"config\":{\"language\":1,\"use_tabs\":true,\"tab_spaces\":4,\
+            \"code_block_border_color\":-16776961,\"numbers_color\":-16776961,\"variables_color\":-16770754,\"functions_color\":-43776,\"units_color\"\
+            :-16755456,\"shapes_color\":-16777216,\"error_marks_color\":-65536,\"formula_bg_color\":-1,\"bg_selection_color\":-16776961,\"real_result\"\
+            :{\"precision\":3,\"exp\":10,\"default_angle_measure\":0,\"result_angle_measure\":0,\"show_angle_measure\":true},\"integer_result\":\
+            {\"result_notation\":2,\"default_notation\":2,\"show_notation\":true},\"rational_result\":{\"fraction_form\":0},\"complex_result\":\
+            {\"precision\":3,\"exp\":10,\"default_angle_measure\":0,\"result_angle_measure\":0,\"show_angle_measure\":true,\"form\":0,\"max_count\":10},\
+            \"auto_result\":{\"result_auto_advance\":true,\"results_order\":[1,2,3,4,6],\"real_config\":{\"precision\":3,\"exp\":10,\"default_angle_measure\":\
+            0,\"result_angle_measure\":0,\"show_angle_measure\":true},\"integer_config\":{\"result_notation\":2,\"default_notation\":2,\"show_notation\":true},\
+            \"rational_config\":{\"fraction_form\":0},\"complex_config\":{\"precision\":3,\"exp\":10,\"default_angle_measure\":0,\"result_angle_measure\":0,\
+            \"show_angle_measure\":true,\"form\":0,\"max_count\":10},\"array_real_config\":{\"precision\":3,\"exp\":10,\"default_angle_measure\":0,\
+            \"result_angle_measure\":0,\"show_angle_measure\":true}},\"include_documents\":[]},\"string_formats\":[{\"id\":\
+            \"0ddc5d06-7053-484c-ac3b-6a901ebaf535\",\"family\":\"Arial\",\"size\":14,\"bold\":false,\"italic\":false,\"underline\":false,\"strikethrough\":\
+            false,\"subscript\":false,\"superscript\":false,\"text_color\":4278190080,\"text_bg_color\":4294967295,\"text_bg_selection_color\":4278190335},\
+            {\"id\":\"b2bfc560-4091-4c68-9bfe-6b9fa0291659\",\"family\":\"Arial\",\"size\":30,\"bold\":true,\"italic\":false,\"underline\":false,\
+            \"strikethrough\":false,\"subscript\":false,\"superscript\":false,\"text_color\":4278190080,\"text_bg_color\":4294967295,\
+            \"text_bg_selection_color\":4278190335},{\"id\":\"370fa0b2-4e8d-4230-8799-98e5e893a158\",\"family\":\"Arial\",\"size\":26,\
+            \"bold\":true,\"italic\":false,\"underline\":false,\"strikethrough\":false,\"subscript\":false,\"superscript\":false,\"text_color\":\
+            4278190080,\"text_bg_color\":4294967295,\"text_bg_selection_color\":4278190335},{\"id\":\"fd3be7d1-f3c6-4863-af26-724fe4811ffa\",\
+            \"family\":\"Arial\",\"size\":22,\"bold\":true,\"italic\":false,\"underline\":false,\"strikethrough\":false,\"subscript\":false,\
+            \"superscript\":false,\"text_color\":4278190080,\"text_bg_color\":4294967295,\"text_bg_selection_color\":4278190335},{\"id\":\
+            \"0dbf1b76-9154-4091-9c9f-59c11efe2f75\",\"family\":\"Arial\",\"size\":16,\"bold\":true,\"italic\":false,\"underline\":false,\
+            \"strikethrough\":false,\"subscript\":false,\"superscript\":false,\"text_color\":4278190080,\"text_bg_color\":4294967295,\
+            \"text_bg_selection_color\":4278190335},{\"id\":\"efdfa0bf-6741-41be-9c2c-d9b654a60413\",\"family\":\"Arial\",\"size\":14,\
+            \"bold\":false,\"italic\":true,\"underline\":false,\"strikethrough\":false,\"subscript\":false,\"superscript\":false,\"text_color\":\
+            4278190080,\"text_bg_color\":4294967295,\"text_bg_selection_color\":4278190335},{\"id\":\"c1f538ec-1719-44c8-be9f-12e26721c45c\",\
+            \"family\":\"Courier New\",\"size\":12,\"bold\":false,\"italic\":false,\"underline\":false,\"strikethrough\":false,\"subscript\":\
+            false,\"superscript\":false,\"text_color\":4278190080,\"text_bg_color\":4294967295,\"text_bg_selection_color\":4278190335},\
+            {\"id\":\"3416bf54-af4e-4884-aa1b-dd75a81c283b\",\"family\":\"FreeMono\",\"size\":14,\"bold\":false,\"italic\":false,\"underline\":\
+            false,\"strikethrough\":false,\"subscript\":false,\"superscript\":false,\"text_color\":4278190080,\"text_bg_color\":4294967295,\
+            \"text_bg_selection_color\":4278190335}],\"paragraph_formats\":[{\"name\":\"Text body\",\"alignment\":0,\"word_wrap\":1,\"line_spacing\":5,\
+            \"indent_before\":10,\"indent_after\":10,\"indent_first_line\":0,\"spacing_before\":10,\"spacing_after\":10,\"default_string_format\":\
+            \"0ddc5d06-7053-484c-ac3b-6a901ebaf535\"},{\"name\":\"Header 1\",\"alignment\":0,\"word_wrap\":1,\"line_spacing\":5,\"indent_before\":10,\
+            \"indent_after\":10,\"indent_first_line\":0,\"spacing_before\":10,\"spacing_after\":10,\"default_string_format\":\
+            \"b2bfc560-4091-4c68-9bfe-6b9fa0291659\"},{\"name\":\"Header 2\",\"alignment\":0,\"word_wrap\":1,\"line_spacing\":5,\
+            \"indent_before\":10,\"indent_after\":10,\"indent_first_line\":0,\"spacing_before\":10,\"spacing_after\":10,\"default_string_format\":\
+            \"370fa0b2-4e8d-4230-8799-98e5e893a158\"},{\"name\":\"Header 3\",\"alignment\":0,\"word_wrap\":1,\"line_spacing\":5,\"indent_before\":10,\
+            \"indent_after\":10,\"indent_first_line\":0,\"spacing_before\":10,\"spacing_after\":10,\"default_string_format\":\
+            \"fd3be7d1-f3c6-4863-af26-724fe4811ffa\"},{\"name\":\"Header 4\",\"alignment\":0,\"word_wrap\":1,\"line_spacing\":5,\
+            \"indent_before\":10,\"indent_after\":10,\"indent_first_line\":0,\"spacing_before\":10,\"spacing_after\":10,\"default_string_format\":\
+            \"0dbf1b76-9154-4091-9c9f-59c11efe2f75\"},{\"name\":\"Example\",\"alignment\":0,\"word_wrap\":1,\"line_spacing\":5,\"indent_before\":10,\
+            \"indent_after\":10,\"indent_first_line\":0,\"spacing_before\":10,\"spacing_after\":10,\"default_string_format\":\
+            \"efdfa0bf-6741-41be-9c2c-d9b654a60413\"},{\"name\":\"Monospace\",\"alignment\":0,\"word_wrap\":1,\"line_spacing\":5,\
+            \"indent_before\":10,\"indent_after\":10,\"indent_first_line\":0,\"spacing_before\":10,\"spacing_after\":10,\"default_string_format\":\
+            \"c1f538ec-1719-44c8-be9f-12e26721c45c\"},{\"name\":\"Code\",\"alignment\":0,\"word_wrap\":0,\"line_spacing\":2,\"indent_before\":2,\
+            \"indent_after\":2,\"indent_first_line\":0,\"spacing_before\":2,\"spacing_after\":2,\"default_string_format\":\
+            \"3416bf54-af4e-4884-aa1b-dd75a81c283b\"}],\"text\":{\"id\":\"0\",\"type\":1,\"elements\":[{\"id\":\"0,0\",\"type\":2,\
+            \"elements\":[{\"id\":\"0,0,0\",\"type\":3,\"elements\":[{\"id\":\"0,0,0,0\",\"type\":5,\"elements\":[{\"id\":\"0,0,0,0,0\",\
+            \"type\":6,\"elements\":[{\"id\":\"0,0,0,0,0,0\",\"type\":7,\"elements\":[{\"id\":\"0,0,0,0,0,0,0\",\"type\":27,\"elements\":\
+            [{\"id\":\"0,0,0,0,0,0,0,0\",\"type\":7,\"elements\":[{\"id\":\"0,0,0,0,0,0,0,0,0\",\"type\":8,\"elements\":\"v\",\"format_id\":\
+            \"3416bf54-af4e-4884-aa1b-dd75a81c283b\",\"can_merge\":true}]},{\"id\":\"0,0,0,0,0,0,0,1\",\"type\":10,\"elements\":[]},{\"id\":\
+            \"0,0,0,0,0,0,0,2\",\"type\":7,\"elements\":[{\"id\":\"0,0,0,0,0,0,0,2,0\",\"type\":8,\"elements\":\"123\",\"format_id\":\
+            \"3416bf54-af4e-4884-aa1b-dd75a81c283b\",\"can_merge\":true}]}],\"auto_solve\":true}]}],\"format_name\":\"Code\",\"format_alignment\":0}],\
+            \"code_id\":1}]}],\"format_name\":\"Text body\",\"format_alignment\":0}]},\"caret\":{\"id\":\"0,0,0,0,0,0,2,0,3\"},\"selection\":[]}";
+            
+            document.LoadJsonInclude(json, document_id);
+            std::this_thread::sleep_for(400ms);
+        });
+
+    EXPECT_CALL(window_mock, Translate).WillRepeatedly([&](ElementId id, const std::u32string& str)
+        {
+            return str;
+        });
+
+    document.WaitTask(document.SetIncludeDocuments(std::vector{std::string("include1.yut")}));
+    document.InsertCode(false, true);
+    document.InsertString("v", true);
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(2s);
+    ASSERT_TRUE(document.ToText() == 
+        U"v=123."
+        ) << ToBasicString(document.ToText());
 }
 
 }

@@ -88,7 +88,7 @@ bool Subscript::Remake(bool with_elements)
 void Subscript::AfterChildInsert(const ElementId child_id, bool with_undo)
 {
     //if a close bracket was inserted, move elements from parent row into first child until open bracket
-    if (GetParent(child_id) != GetFirst()->id)
+    if (yutovo::GetParent(child_id) != GetFirst()->id)
         return;
     auto el = document->GetElement(child_id);
     if (el->type != ElementType::CLOSE_ROUND_BRACKET)

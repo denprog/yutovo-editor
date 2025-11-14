@@ -1080,10 +1080,8 @@ RedrawTask::RedrawTask(ElementPtr _text, const ElementId& _id, bool _move_into_v
 
 bool RedrawTask::Execute()
 {
-    if (document->parent)
-        return false; //do not redraw include documents
     ElementPtr element = document->GetElement(element_id);
-    if (!element || document->WillRedraw(element_id, move_into_view)) //don't redraw if it will be redrawn later
+    if (!element || document->WillRedraw(element_id, move_into_view) || !element->IsVisible()) //don't redraw if it will be redrawn later
         return false;
     
     Rect clear_rect = element->draw_rect.IsEmpty() ? element->GetAbsoluteRect() : element->draw_rect;
@@ -1528,7 +1526,6 @@ bool NewTask::Execute()
 {
     document->file_guid = boost::uuids::to_string(boost::uuids::random_generator()());
     document->caret->MoveToDocumentBegin(nullptr);
-    document->include_documents.clear();
     document->config.include_documents.documents.clear();
     document->ResetTasks();
     document->RemoveUserIdentifiers();
@@ -1703,16 +1700,18 @@ bool SaveTask::Execute()
 
 //LoadTask
 
-LoadTask::LoadTask(ElementPtr _text, const std::string _filename) :
+LoadTask::LoadTask(ElementPtr _text, const std::string& _filename, const bool _include) :
     Task(_text),
-    filename(_filename)
+    filename(_filename),
+    include(_include)
 {
 }
 
-LoadTask::LoadTask(ElementPtr _text, const std::string& _json_str, const int _document_id) :
+LoadTask::LoadTask(ElementPtr _text, const std::string& _json_str, const int _document_id, const bool _include) :
     Task(_text),
     json_str(_json_str),
-    document_id(_document_id)
+    document_id(_document_id),
+    include(_include)
 {
 }
 
@@ -1758,16 +1757,47 @@ bool LoadTask::Execute()
     }
     else if (filename.substr(filename.find_last_of(".") + 1) == "yut")
     {
+        std::ifstream file;
 #ifdef _WIN32
-        std::ifstream file(yutovo_calculator::ToWString(filename), std::ios_base::binary);
+        file = std::ifstream(yutovo_calculator::ToWString(filename), std::ios_base::binary);
 #else
-        std::ifstream file(filename);
+        file = std::ifstream(filename);
 #endif
+
         if (!file.is_open())
         {
-            window->OnLoadResult(id, IOResult::InputStreamError, document_id);
-            LOG_ERROR("Error loading file '{}': File not open", filename);
-            return false;
+            if (!include)
+            {
+                window->OnLoadResult(id, IOResult::InputStreamError, document_id);
+                LOG_ERROR("Error loading file '{}': File not open", filename);
+                return false;
+            }
+            else
+            {
+                //try to open relatively to the current dir
+                try
+                {
+                    std::filesystem::path p = document->path;
+                    p = p.parent_path();
+                    p /= filename; //try to open relatevely to the current document
+                    auto _filename = std::filesystem::canonical(std::filesystem::absolute(p)).string();
+                    file = std::ifstream(_filename);
+                    if (!file.is_open())
+                    {
+                        window->OnLoadResult(0, IOResult::InputStreamError, -1);
+                        document->text->ReSolve();
+                        LOG_ERROR("Error loading include file '{}': File not open", filename);
+                        return 0;
+                    }
+                }
+                catch (const std::filesystem::filesystem_error& ex)
+                {
+                    window->OnLoadResult(0, IOResult::InputStreamError, -1);
+                    document->text->ReSolve();
+                    LOG_ERROR("Error loading include file '{}': File not open", filename);
+                    return 0;
+                }
+            }
         }
 
         document->path = filename;
@@ -1853,7 +1883,52 @@ bool LoadTask::Execute()
     
     document->ResetTasks();
     document->RemoveUserIdentifiers();
-    document->text = t;
+
+    if (include)
+    {
+        //check circle include files
+        if (doc.HasMember("file_guid") && doc["file_guid"].IsString())
+        {
+            std::string s = doc["file_guid"].GetString();
+            if (!CheckIncludeDocument(s))
+            {
+                LOG_ERROR("Error circle include files");
+                int i = 0;
+                while (i < document->text->elements->Count() && !document->text->elements->Get(i)->visible)
+                    document->text->elements->RemoveAt(0, 1);
+                document->ClearIncludes();
+                document->ClearExport();
+                document->text->Remake(true);
+                document->text->ReSolve();
+                return false;
+            }
+        }
+
+        CaretState s = document->caret->GetCaretState();
+        int i = 0;
+        //move the paragraphs before the top of the current document, starting from -1 position
+        for (i = 0; i < t->elements->Count(); ++i)
+        {
+            ElementPtr el = t->elements->Get(i);
+            if (!document->IsParagraph(el))
+                break;
+        }
+        if (i == t->elements->Count())
+        {
+            for (i = t->elements->Count() - 1; i >= 0; --i)
+            {
+                ElementPtr el = t->elements->Get(i);
+                el->visible = false;
+                document->text->elements->Insert(el, 0);
+            }
+            if (s.id.size() > 2)
+                s.id[1] += t->elements->Count();
+            document->caret->SetState(s);
+        }
+    }
+    else
+        document->text = t;
+
     if (!str.empty())
     {
         document->MoveCaretToDocumentBegin(false);
@@ -1862,71 +1937,34 @@ bool LoadTask::Execute()
     document->text->Remake(true);
     document->text->ReSolve();
 
-    if (document->parent)
-        document->ResolveFinished(); //notify parent document about resolving this one
-    
-    bool r = false;
-    if (doc.IsObject())
+    if (!include)
     {
-        LogicalCaretState c;
-        LogicalSelectionState s;
-        if (doc.HasMember("caret") && doc["caret"].IsObject())
+        bool r = false;
+        if (doc.IsObject())
         {
-            if (c.FromJson(doc["caret"], doc.GetAllocator()))
+            LogicalCaretState c;
+            LogicalSelectionState s;
+            if (doc.HasMember("caret") && doc["caret"].IsObject())
             {
-                if (doc.HasMember("selection") && doc["selection"].IsArray())
+                if (c.FromJson(doc["caret"], doc.GetAllocator()))
                 {
-                    if (s.FromJson(doc["selection"], doc.GetAllocator()))
+                    if (doc.HasMember("selection") && doc["selection"].IsArray())
                     {
-                        LogicalId _id = yutovo::GetParent(c.id);
-                        if (document->GetLogicalElement(_id) == nullptr) //check caret state
+                        if (s.FromJson(doc["selection"], doc.GetAllocator()))
                         {
-                            ElementPtr p = nullptr;
-                            while (!p && !_id.empty())
+                            LogicalId _id = yutovo::GetParent(c.id);
+                            if (document->GetLogicalElement(_id) == nullptr) //check caret state
                             {
-                                p = document->GetLogicalElement(_id);
-                                if (p && !p->HasCaretState())
-                                    p.reset();
-                                _id = yutovo::GetParent(_id);
-                            }
-                            if (p)
-                                document->caret->SetState(p->id);
-                            else
-                            {
-                                CaretState c;
-                                document->text->GetFirstCaretState(c, nullptr);
-                                document->caret->SetState(c);
-                            }
-                        }
-                        else
-                        {
-                            bool r = true;
-                            if (s.state.size() > 0) //check selection state
-                            {
-                                for (auto& s : s.state)
+                                ElementPtr p = nullptr;
+                                while (!p && !_id.empty())
                                 {
-                                    std::vector<ElementPtr> elements;
-                                    document->GetElements(s.id, elements);
-                                    int c = 0;
-                                    for (auto& el : elements)
-                                        c += el->elements->Count();
-                                    if (elements.empty() || c < s.start || c < s.start + s.size)
-                                    {
-                                        r = false;
-                                        break;
-                                    }
+                                    p = document->GetLogicalElement(_id);
+                                    if (p && !p->HasCaretState())
+                                        p.reset();
+                                    _id = yutovo::GetParent(_id);
                                 }
-                            }
-                            if (r)
-                            {
-                                LogicalEditorState editor_state{c, s};
-                                document->SetEditorState(editor_state);
-                            }
-                            else
-                            {
-                                auto el = document->GetLogicalElement(GetParent(c.id));
-                                if (el)
-                                    document->caret->SetState(el->id);
+                                if (p)
+                                    document->caret->SetState(p->id);
                                 else
                                 {
                                     CaretState c;
@@ -1934,19 +1972,63 @@ bool LoadTask::Execute()
                                     document->caret->SetState(c);
                                 }
                             }
+                            else
+                            {
+                                bool r = true;
+                                if (s.state.size() > 0) //check selection state
+                                {
+                                    for (auto& s : s.state)
+                                    {
+                                        std::vector<ElementPtr> elements;
+                                        document->GetElements(s.id, elements);
+                                        int c = 0;
+                                        for (auto& el : elements)
+                                            c += el->elements->Count();
+                                        if (elements.empty() || c < s.start || c < s.start + s.size)
+                                        {
+                                            r = false;
+                                            break;
+                                        }
+                                    }
+                                }
+                                if (r)
+                                {
+                                    LogicalEditorState editor_state{c, s};
+                                    document->SetEditorState(editor_state);
+                                }
+                                else
+                                {
+                                    auto el = document->GetLogicalElement(GetParent(c.id));
+                                    if (el)
+                                        document->caret->SetState(el->id);
+                                    else
+                                    {
+                                        CaretState c;
+                                        document->text->GetFirstCaretState(c, nullptr);
+                                        document->caret->SetState(c);
+                                    }
+                                }
+                            }
+                            r = true;
                         }
-                        r = true;
                     }
                 }
             }
         }
+
+        if (!r)
+            document->MoveCaretToDocumentBegin(false);
     }
 
-    if (!r)
-        document->MoveCaretToDocumentBegin(false);
+    if (include)
+    {
+        if (doc.HasMember("file_guid") && doc["file_guid"].IsString())
+            document->include_file_guids.push_back(doc["file_guid"].GetString());
+    }
 
     document->Redraw();
     window->OnLoadResult(id, IOResult::Success, document_id);
+    document->LoadNextInclude();
     return true;
 }
 
@@ -1954,8 +2036,11 @@ bool LoadTask::LoadJson(rapidjson::Document& doc)
 {
     auto& alloc = doc.GetAllocator();
 
-    if (doc.HasMember("file_guid") && doc["file_guid"].IsString())
-        document->file_guid = doc["file_guid"].GetString();
+    if (!include)
+    {
+        if (doc.HasMember("file_guid") && doc["file_guid"].IsString())
+            document->file_guid = doc["file_guid"].GetString();
+    }
 
     if (doc.HasMember("config") && doc["config"].IsObject())
     {
@@ -1968,19 +2053,43 @@ bool LoadTask::LoadJson(rapidjson::Document& doc)
         for (auto& v : p)
             d.AddMember(v.name, v.value, alloc);
 
-        auto c = document->config;
-        document->config.FromJson(d, alloc);
-        if (document->config.include_documents.documents != c.include_documents.documents)
+        if (include)
         {
-            document->include_documents.clear();
-            document->RemoveUserIdentifiers();
-            document->ClearExport();
-            for (Config::IncludeDocument& inc : document->config.include_documents.documents)
-                window->OnLoadInclude(inc.file_name, document_id);
+            Config c;
+            c.FromJson(d, alloc);
+            for (Config::IncludeDocument& inc : c.include_documents.documents)
+            {
+                if (!CheckIncludeDocument(inc.file_name))
+                {
+                    LOG_ERROR("Error circle include files");
+                    int i = 0;
+                    while (i < document->text->elements->Count() && !document->text->elements->Get(i)->visible)
+                        document->text->elements->RemoveAt(0, 1);
+                    document->ClearIncludes();
+                    document->ClearExport();
+                    document->text->Remake(true);
+                    document->text->ReSolve();
+                    return false;
+                }
+            }
+            for (Config::IncludeDocument& inc : c.include_documents.documents)
+                document->AddInclude(inc.file_name, document_id);
         }
-        
-        document->solver.SetLocale(document->config.language);
-        document->SetLocale(document->config.language, false);
+        else
+        {
+            auto c = document->config;
+            document->config.FromJson(d, alloc);
+            if (document->config.include_documents.documents != c.include_documents.documents)
+            {
+                document->RemoveUserIdentifiers();
+                document->ClearExport();
+                for (Config::IncludeDocument& inc : document->config.include_documents.documents)
+                    document->AddInclude(inc.file_name, document_id);
+            }
+            
+            document->solver.SetLocale(document->config.language);
+            document->SetLocale(document->config.language, false);
+        }
     }
 
     if (doc.HasMember("string_formats") && doc["string_formats"].IsArray())
@@ -2009,6 +2118,18 @@ bool LoadTask::LoadJson(rapidjson::Document& doc)
     document->SetCurrentParagraphFormat("Text body", false);
     document->SetCurrentFormulaFormat("Code");
 
+    return true;
+}
+
+bool LoadTask::CheckIncludeDocument(const std::string& guid)
+{
+    if (document->file_guid == guid)
+        return false;
+    for (auto& _guid : document->include_file_guids)
+    {
+        if (_guid == guid)
+            return false;
+    }
     return true;
 }
 
@@ -2287,8 +2408,6 @@ bool ResolveTask::Execute()
                 document->changed_elements.clear();
             }
         }
-        if (document->parent)
-            document->ResolveFinished();
         return true;
     }
 
@@ -2314,8 +2433,6 @@ bool ResolveTask::Execute()
                 }
             }
         }
-        if (document->parent)
-            document->ResolveFinished();
         return true;
     }
     
@@ -2337,9 +2454,6 @@ bool ResolveTask::Execute()
             }
         }
     }
-
-    if (document->parent)
-        document->ResolveFinished();
     return true;
 }
 
@@ -2720,11 +2834,14 @@ bool SetConfigTask::Execute()
 
     if (config.include_documents.documents != c.include_documents.documents)
     {
-        document->include_documents.clear();
         document->RemoveUserIdentifiers();
         document->ClearExport();
+        int i = 0;
+        while (i < document->text->elements->Count() && !document->text->elements->Get(i)->visible)
+            document->text->elements->RemoveAt(0, 1);
+        document->ClearIncludes();
         for (Config::IncludeDocument& inc : config.include_documents.documents)
-            window->OnLoadInclude(inc.file_name, -1);
+            document->AddInclude(inc.file_name, -1);
         if (config.include_documents.documents.empty())
             document->ReSolve(ElementId{0});
     }
@@ -2737,6 +2854,7 @@ bool SetConfigTask::Execute()
     if (remake)
         Remake(text->id, false);
     document->Redraw(text->id, false);
+    document->LoadNextInclude();
 
     return true;
 }

@@ -67,6 +67,7 @@ Element::Element(const Element& source) :
     error_mark(source.error_mark),
     can_move_picture(source.can_move_picture),
     can_resize(source.can_resize),
+    visible(source.visible),
     logger(source.logger)
 {
     elements.reset(source.elements->Clone(this)); //deep copy
@@ -110,6 +111,8 @@ bool Element::Copy(std::vector<ElementPtr>& copy)
 
 void Element::Draw() const
 {
+    if (!IsVisible())
+        return;
     elements->Draw();
 
     int start, size;
@@ -136,7 +139,7 @@ void Element::DrawErrorMark(const int start, const int size) const
 
 bool Element::Remake(bool with_elements)
 {
-    if (document->break_remake)
+    if (document->break_remake || !visible)
         return false;
 
     bool changed = false;
@@ -146,7 +149,10 @@ bool Element::Remake(bool with_elements)
         {
             if (document->break_remake)
                 return false;
-            bool r = elements->Get(i)->Remake(true);
+            auto el = elements->Get(i);
+            if (!el->visible)
+                continue;
+            bool r = el->Remake(true);
             if (!changed && r)
                 changed = true;
         }
@@ -156,6 +162,8 @@ bool Element::Remake(bool with_elements)
         if (document->break_remake)
             return false;
         auto el = elements->Get(i);
+        if (!el->visible)
+            continue;
         if (el->remake_always)
         {
             bool r = el->Remake(false);
@@ -170,6 +178,8 @@ bool Element::Remake(bool with_elements)
 
 void Element::Normalize()
 {
+    if (!visible)
+        return;
     for (int i = 0; i < elements->Count(); ++i)
         elements->Get(i)->Normalize();
 }
@@ -370,16 +380,22 @@ void Element::LogicalIdChanged(const LogicalId& last_id)
 
 bool Element::GetFirstCaretState(CaretState& caret_state, Selection* select)
 {
+    if (!IsVisible())
+        return false;
     return elements->GetFirstCaretState(caret_state, select);
 }
 
 bool Element::GetLastCaretState(CaretState& caret_state, Selection* select)
 {
+    if (!IsVisible())
+        return false;
     return elements->GetLastCaretState(caret_state, select);
 }
 
 bool Element::GetLeftCaretState(CaretState& caret_state, Selection* select)
 {
+    if (!IsVisible())
+        return false;
     if (caret_state.IsInsideElement(id))
     {
         if (elements->GetLeftCaretState(caret_state, select))
@@ -392,6 +408,8 @@ bool Element::GetLeftCaretState(CaretState& caret_state, Selection* select)
 
 bool Element::GetRightCaretState(CaretState& caret_state, Selection* select)
 {
+    if (!IsVisible())
+        return false;
     if (caret_state.IsInsideElement(id))
     {
         if (elements->GetRightCaretState(caret_state, select))
@@ -404,6 +422,8 @@ bool Element::GetRightCaretState(CaretState& caret_state, Selection* select)
 
 bool Element::GetTopCaretState(const int x, const int y, CaretState& caret_state, Selection* select)
 {
+    if (!IsVisible())
+        return false;
     if (y < GetAbsoluteRect().GetBottom())
     {
         if (parent)
@@ -445,6 +465,8 @@ bool Element::GetTopCaretState(const int x, const int y, CaretState& caret_state
 
 bool Element::GetBottomCaretState(const int x, const int y, CaretState& caret_state, Selection* select)
 {
+    if (!IsVisible())
+        return false;
     if (y > GetAbsoluteRect().top)
     {
         if (parent)
@@ -486,6 +508,8 @@ bool Element::GetBottomCaretState(const int x, const int y, CaretState& caret_st
 
 bool Element::GetBeginCaretState(CaretState& caret_state, Selection* select)
 {
+    if (!IsVisible())
+        return false;
     if (select && caret_state.IsInsideElement(id))
         select->Add(id, 0, caret_state.GetPos());
     if (parent)
@@ -495,6 +519,8 @@ bool Element::GetBeginCaretState(CaretState& caret_state, Selection* select)
 
 bool Element::GetEndCaretState(CaretState& caret_state, Selection* select)
 {
+    if (!IsVisible())
+        return false;
     if (select && caret_state.IsInsideElement(id))
         select->Add(id, caret_state.GetPos(), elements->Count() - caret_state.GetPos());
     if (parent)
@@ -504,6 +530,8 @@ bool Element::GetEndCaretState(CaretState& caret_state, Selection* select)
 
 bool Element::GetWordLeftCaretState(CaretState& caret_state, Selection* select)
 {
+    if (!IsVisible())
+        return false;
     if (caret_state.IsInsideElement(id))
     {
         if (elements->GetWordLeftCaretState(caret_state, select))
@@ -516,6 +544,8 @@ bool Element::GetWordLeftCaretState(CaretState& caret_state, Selection* select)
 
 bool Element::GetWordRightCaretState(CaretState& caret_state, Selection* select)
 {
+    if (!IsVisible())
+        return false;
     if (caret_state.IsInsideElement(id))
     {
         if (elements->GetWordRightCaretState(caret_state, select))
@@ -528,6 +558,8 @@ bool Element::GetWordRightCaretState(CaretState& caret_state, Selection* select)
 
 bool Element::GetSelectOutCaretState(CaretState& caret_state, Selection* select)
 {
+    if (!IsVisible())
+        return false;
     if (caret_state.IsInsideElement(id))
     {
         if (elements->GetSelectOutCaretState(caret_state, select))
@@ -573,8 +605,6 @@ Rect Element::GetCaretRect() const
 
 void Element::DrawCaret(const uint pos) const
 {
-    if (document->parent)
-        return; //do not redraw include documents
     elements->DrawCaret(pos);
 }
 
@@ -624,6 +654,8 @@ void Element::ToParserString(ParserString& str)
 
 void Element::UpdateRect(bool with_elements)
 {
+    if (!IsVisible())
+        return;
     if (elements->Count() == 0)
     {
         rect.SetSize(0, 0);
@@ -650,18 +682,10 @@ void Element::UpdateRect(bool with_elements)
     rect.SetSize(right, bottom);
 }
 
-Element* Element::GetElementInPos(const ElementId& _id, const uint pos)
-{
-    if (pos == 0)
-        return this;
-    
-    ElementId i(_id);
-    i.erase(i.begin());
-    return elements->Get(i[0])->GetElementInPos(i, pos - 1);
-}
-
 bool Element::GetElementAtCoords(const int x, const int y, const int margin, ElementId& _id)
 {
+    if (!IsVisible())
+        return false;
     Rect r = GetAbsoluteRect();
     r.left -= margin;
     r.top -= margin;
@@ -693,6 +717,8 @@ bool Element::GetElementAtCoords(const int x, const int y, const int margin, Ele
 
 bool Element::GetNearestElement(const int x, const int y, ElementId& _id, int& dist)
 {
+    if (!IsVisible())
+        return false;
     Rect r = GetAbsoluteRect();
     int d = r.DistToPoint(x, y);
     if (d > dist)
@@ -712,6 +738,8 @@ bool Element::GetNearestElement(const int x, const int y, ElementId& _id, int& d
 
 bool Element::GetNearestCaretState(const int x, const int y, CaretState& caret_state)
 {
+    if (!IsVisible())
+        return false;
     int dist = std::numeric_limits<int>::max();
     CaretState next, last;
     if (!GetFirstCaretState(next, nullptr) || !GetLastCaretState(last, nullptr))
@@ -783,6 +811,16 @@ uint Element::GetChildPos(const Element* element)
     }
     assert(false);
     return 0;
+}
+
+Element* Element::GetParent(const int pos)
+{
+    if (id.size() <= pos)
+        return nullptr;
+    Element* res = this;
+    for (int i = id.size() - 1; i > pos && res; --i)
+        res = res->parent;
+    return res;
 }
 
 Rect Element::GetAbsoluteRect(const Rect& _rect) const
@@ -860,6 +898,8 @@ void Element::UpdateFormat(StringFormatPtr& _format)
 
 void Element::UpdateDrawRect()
 {
+    if (!IsVisible())
+        return;
     for (int i = 0; i < elements->Count(); ++i)
         elements->Get(i)->UpdateDrawRect();
     draw_rect = GetAbsoluteRect();
@@ -1001,6 +1041,18 @@ void Element::ReSolve(bool if_error, bool force)
         elements->Get(i)->ReSolve(if_error, force);
 }
 
+bool Element::IsVisible() const
+{
+    const Element* p = this;
+    while (p)
+    {
+        if (!p->visible)
+            return false;
+        p = p->parent;
+    }
+    return true;
+}
+
 //Elements
 
 Elements::Elements(Element* _parent) :
@@ -1074,7 +1126,10 @@ void Elements::Clone(std::vector<ElementPtr>& _elements, const uint start, const
 void Elements::Draw() const
 {
     for (auto el : elements)
-        el->Draw();
+    {
+        if (el->IsVisible())
+            el->Draw();
+    }
 }
 
 ElementPtr Elements::Get(uint pos)
@@ -1563,7 +1618,12 @@ bool Elements::GetFirstCaretState(CaretState& caret_state, Selection* select)
         caret_state.id = GetElementId(0);
         return true;
     }
-    return elements[0]->GetFirstCaretState(caret_state, select);
+    for (size_t i = 0; i < elements.size(); ++i)
+    {
+        if (elements[i]->IsVisible())
+            return elements[i]->GetFirstCaretState(caret_state, select);
+    }
+    return false;
 }
 
 bool Elements::GetLastCaretState(CaretState& caret_state, Selection* select)
@@ -1826,7 +1886,12 @@ std::string Elements::ToHtml() const
 {
     std::string html;
     for (auto it = elements.begin(); it != elements.end(); ++it)
-        html += (*it)->ToHtml();
+    {
+        auto& el = *it;
+        if (!el->IsVisible())
+            continue;
+        html += el->ToHtml();
+    }
     return html;
 }
 

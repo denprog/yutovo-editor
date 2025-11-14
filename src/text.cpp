@@ -39,6 +39,27 @@ Element* Text::Create(Element* parent)
     return nullptr;
 }
 
+void Text::ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc)
+{
+    rapidjson::Value _id(ElementIdToString(id).c_str(), alloc);
+    value.AddMember("id", _id, alloc);
+    value.AddMember("type", (int)type, alloc);
+
+    //don't write included documents
+    rapidjson::Value arr(rapidjson::kArrayType);
+    for (int i = 0; i < elements->Count(); ++i)
+    {
+        auto el = elements->Get(i);
+        if (!el->visible)
+            continue;
+        rapidjson::Value v;
+        v.SetObject();
+        el->ToJson(v, alloc);
+        arr.PushBack(v, alloc);
+    }
+    value.AddMember("elements", arr, alloc);
+}
+
 Element* Text::FromJson(Element* parent, Document* document, const rapidjson::Value::ConstObject& value, rapidjson::Document::AllocatorType& alloc)
 {
     return new Text(document, false);
@@ -83,6 +104,8 @@ bool Text::Remake(bool with_elements)
         if (document->break_remake)
             return false;
         ElementPtr p = elements->Get(i);
+        if (!p->visible)
+            continue;
         p->GetMargin(left_m, top_m, right_m, bottom_m); //consider the margins
         p->rect.Move(page_format->left_indent, h + top_m);
         h += p->rect.height + page_format->paragraph_spacing + bottom_m;
@@ -125,6 +148,8 @@ bool Text::GetElementAtCoords(const int x, const int y, const int margin, Elemen
     for (int i = 0; i < elements->Count(); ++i)
     {
         ElementPtr el = elements->Get(i);
+        if (!el->visible)
+            continue;
         if (el->GetElementAtCoords(x, y, margin, _id))
             return true;
     }
@@ -137,6 +162,8 @@ bool Text::GetNearestElement(const int x, const int y, ElementId& _id, int& dist
     for (int i = 0; i < elements->Count(); ++i)
     {
         auto el = elements->Get(i);
+        if (!el->visible)
+            continue;
         el->GetNearestElement(x, y, _id, dist);
     }
 
@@ -150,6 +177,8 @@ bool Text::GetNearestCaretState(const int x, const int y, CaretState& caret_stat
     for (int i = 0; i < elements->Count(); ++i) //TODO: binary search
     {
         auto _el = elements->Get(i);
+        if (!_el->visible)
+            continue;
         Rect r = _el->GetAbsoluteRect();
     	int dist = r.DistToPoint(x, y);
         if (dist < min_dist)

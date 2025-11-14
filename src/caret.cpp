@@ -237,8 +237,6 @@ void Caret::SetVisible(bool _visible)
 
 void Caret::Show()
 {
-    if (document->parent)
-        return;
     if (block || !document->config.caret_visible)
         return;
     auto el = GetElement();
@@ -255,8 +253,6 @@ void Caret::Show()
 
 void Caret::Hide()
 {
-    if (document->parent)
-        return;
     if (show)
     {
         window->RestoreRect();
@@ -316,14 +312,21 @@ void Caret::MoveToDocumentBegin(Selection* selection)
             auto _el = document->GetElement(GetChild(row->id, p));
             if (document->IsString(_el))
                 selection->Add(_el->id, 0, c.id[row->id.size() + 1]);
-            if (p > 0)
+            if (p > 0 && row->IsVisible())
                 selection->Add(row->id, 0, p);
         }
         else
             selection->Add(paragraph, j, 1);
     }
 
-    selection->Add(document->text, 0, paragraph_pos);
+    int j = 0;
+    for (int i = 0; i < document->text->elements->Count(); ++i, ++j)
+    {
+        if (document->text->elements->Get(i)->IsVisible())
+            break;
+    }
+    if (j < paragraph_pos)
+        selection->Add(document->text, j, paragraph_pos);
     MoveToDocumentBegin(nullptr);
 }
 
@@ -566,6 +569,8 @@ void Caret::MovePageUp(Selection* selection)
     for (int i = paragraph_pos; i >= 0; --i)
     {
         paragraph = document->text->elements->Get(i);
+        if (!paragraph->visible)
+            continue;
         for (int j = (row_pos == -1 ? paragraph->elements->Count() - 1 : row_pos); j >= 0; --j)
         {
             row = paragraph->elements->Get(j);

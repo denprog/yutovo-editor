@@ -24,13 +24,14 @@ using namespace std::chrono;
 //SolverTask
 
 SolverTask::SolverTask(const LogicalId& _id, Document* _document, const std::string& _solver_guid, const std::string& _task_guid, 
-    uint _code_id, ExpressionType _expression_type, const std::u32string& _expression, const uint _delay, Logger* _logger) :
+    uint _code_id, ExpressionType _expression_type, bool _include_document, const std::u32string& _expression, const uint _delay, Logger* _logger) :
     id(_id),
     document(_document),
     solver_guid(_solver_guid),
     task_guid(_task_guid),
     code_id(_code_id),
     expression_type(_expression_type),
+    include_document(_include_document),
     expression(_expression),
     delay(_delay),
     logger(_logger)
@@ -40,12 +41,13 @@ SolverTask::SolverTask(const LogicalId& _id, Document* _document, const std::str
 }
 
 SolverTask::SolverTask(const LogicalId& _id, Document* _document, const std::string& _solver_guid, uint _code_id, 
-    ExpressionType _expression_type, const std::u32string& _expression, const uint _delay, Logger* _logger) : 
+    ExpressionType _expression_type, bool _include_document, const std::u32string& _expression, const uint _delay, Logger* _logger) : 
     id(_id),
     document(_document), 
     solver_guid(_solver_guid),
     code_id(_code_id),
     expression_type(_expression_type),
+    include_document(_include_document),
     expression(_expression),
     delay(_delay),
     logger(_logger)
@@ -437,8 +439,8 @@ bool SolverTask::FillArrayRealResult(rapidjson::Document& doc, Result& result)
 
 AutoSolverTask::AutoSolverTask(const LogicalId& _id, Document* _document, const std::string& _solver_guid, 
     const std::string& _task_guid, uint _code_id, ExpressionType _expression_type, Config::AutoResultConfig _config, 
-    const std::u32string& _expression, const uint _delay, Logger* _logger) :
-    SolverTask(_id, _document, _solver_guid, _task_guid, _code_id, _expression_type, _expression, _delay, _logger),
+    bool _include_document, const std::u32string& _expression, const uint _delay, Logger* _logger) :
+    SolverTask(_id, _document, _solver_guid, _task_guid, _code_id, _expression_type, _include_document, _expression, _delay, _logger),
     config(_config)
 {
 }
@@ -460,7 +462,7 @@ bool AutoSolverTask::Execute(WebSocketPtr socket, Result& result)
     std::string s = ToBasicString(expression);
     doc.AddMember("expression", rapidjson::StringRef(s.c_str()), alloc);
     doc.AddMember("expression_type", (int)expression_type, alloc);
-    doc.AddMember("include_document", (bool)(document->parent != nullptr), alloc);
+    doc.AddMember("include_document", include_document, alloc);
 
     //auto config
     rapidjson::Value d(rapidjson::kArrayType);
@@ -562,8 +564,8 @@ bool AutoSolverTask::Execute(WebSocketPtr socket, Result& result)
 
 RealSolverTask::RealSolverTask(const LogicalId& _id, Document* _document, const std::string& _solver_guid, 
     const std::string& _task_guid, uint _code_id, ExpressionType _expression_type, Config::RealResultConfig _config, 
-    const std::u32string& _expression, const uint _delay, Logger* _logger) :
-    SolverTask(_id, _document, _solver_guid, _task_guid, _code_id, _expression_type, _expression, _delay, _logger),
+    bool _include_document, const std::u32string& _expression, const uint _delay, Logger* _logger) :
+    SolverTask(_id, _document, _solver_guid, _task_guid, _code_id, _expression_type, _include_document, _expression, _delay, _logger),
     config(_config)
 {
 }
@@ -589,6 +591,7 @@ bool RealSolverTask::Execute(WebSocketPtr socket, Result& result)
     doc.AddMember("real_default_angle_measure", (int)config.default_angle_measure, alloc);
     doc.AddMember("real_result_angle_measure", (int)config.result_angle_measure, alloc);
     doc.AddMember("real_exponent_size", config.exp, alloc);
+    doc.AddMember("include_document", include_document, alloc);
 
     AddUnit(doc, config.unit);
 
@@ -649,8 +652,8 @@ bool RealSolverTask::Execute(WebSocketPtr socket, Result& result)
 
 IntegerSolverTask::IntegerSolverTask(const LogicalId& _id, Document* _document, const std::string& _solver_guid, 
     const std::string& _task_guid, uint _code_id, ExpressionType _expression_type, Config::IntegerResultConfig _config, 
-    const std::u32string& _expression, const uint _delay, Logger* _logger) :
-    SolverTask(_id, _document, _solver_guid, _task_guid, _code_id, _expression_type, _expression, _delay, _logger),
+    bool _include_document, const std::u32string& _expression, const uint _delay, Logger* _logger) :
+    SolverTask(_id, _document, _solver_guid, _task_guid, _code_id, _expression_type, _include_document, _expression, _delay, _logger),
     config(_config)
 {
 }
@@ -672,6 +675,7 @@ bool IntegerSolverTask::Execute(WebSocketPtr socket, Result& result)
     doc.AddMember("expression_type", (int)expression_type, alloc);
     doc.AddMember("integer_result_notation", (int)config.result_notation, alloc);
     doc.AddMember("integer_default_notation", (int)config.default_notation, alloc);
+    doc.AddMember("include_document", include_document, alloc);
     std::string s = ToBasicString(expression);
     doc.AddMember("expression", rapidjson::StringRef(s.c_str()), alloc);
 
@@ -733,8 +737,8 @@ bool IntegerSolverTask::Execute(WebSocketPtr socket, Result& result)
 
 RationalSolverTask::RationalSolverTask(const LogicalId& _id, Document* _document, const std::string& _solver_guid, 
     const std::string& _task_guid, uint _code_id, ExpressionType _expression_type, Config::RationalResultConfig _config, 
-    const std::u32string& _expression, const uint _delay, Logger* _logger) :
-    SolverTask(_id, _document, _solver_guid, _task_guid, _code_id, _expression_type, _expression, _delay, _logger),
+    bool _include_document, const std::u32string& _expression, const uint _delay, Logger* _logger) :
+    SolverTask(_id, _document, _solver_guid, _task_guid, _code_id, _expression_type, _include_document, _expression, _delay, _logger),
     config(_config)
 {
 }
@@ -755,6 +759,7 @@ bool RationalSolverTask::Execute(WebSocketPtr socket, Result& result)
     doc.AddMember("solver_type", (int)SolverType::CALCULATOR, alloc);
     doc.AddMember("result_type", (int)ResultType::RATIONAL, alloc);
     doc.AddMember("fraction_form", (int)config.fraction_form, alloc);
+    doc.AddMember("include_document", include_document, alloc);
     std::string s = ToBasicString(expression);
     doc.AddMember("expression", rapidjson::StringRef(s.c_str()), alloc);
 
@@ -818,8 +823,8 @@ bool RationalSolverTask::Execute(WebSocketPtr socket, Result& result)
 
 ComplexSolverTask::ComplexSolverTask(const LogicalId& _id, Document* _document, const std::string& _solver_guid, 
     const std::string& _task_guid, uint _code_id, ExpressionType _expression_type, Config::ComplexResultConfig _config, 
-    const std::u32string& _expression, const uint _delay, Logger* _logger) :
-    SolverTask(_id, _document, _solver_guid, _task_guid, _code_id, _expression_type, _expression, _delay, _logger),
+    bool _include_document, const std::u32string& _expression, const uint _delay, Logger* _logger) :
+    SolverTask(_id, _document, _solver_guid, _task_guid, _code_id, _expression_type, _include_document, _expression, _delay, _logger),
     config(_config)
 {
 }
@@ -847,6 +852,7 @@ bool ComplexSolverTask::Execute(WebSocketPtr socket, Result& result)
     doc.AddMember("complex_exponent_size", config.exp, alloc);
     doc.AddMember("complex_form", (int)config.form, alloc);
     doc.AddMember("complex_max_count", config.max_count, alloc);
+    doc.AddMember("include_document", include_document, alloc);
 
     LOG_DEBUG("Solve expression:\"{}\", id:{}, config:{}", s, id_str, config.ToString());
 
@@ -904,9 +910,9 @@ bool ComplexSolverTask::Execute(WebSocketPtr socket, Result& result)
 //ArrayRealSolverTask
 
 ArrayRealSolverTask::ArrayRealSolverTask(const LogicalId& _id, Document* _document, const std::string& _solver_guid, const std::string& _task_guid, 
-    uint _code_id, ExpressionType _expression_type, Config::ArrayRealResultConfig _config, const std::u32string& _expression, const uint _delay, 
-    Logger* _logger) :
-    SolverTask(_id, _document, _solver_guid, _task_guid, _code_id, _expression_type, _expression, _delay, _logger),
+    uint _code_id, ExpressionType _expression_type, Config::ArrayRealResultConfig _config, bool _include_document, const std::u32string& _expression, 
+    const uint _delay, Logger* _logger) :
+    SolverTask(_id, _document, _solver_guid, _task_guid, _code_id, _expression_type, _include_document, _expression, _delay, _logger),
     config(_config)
 {
 }
@@ -932,6 +938,7 @@ bool ArrayRealSolverTask::Execute(WebSocketPtr socket, Result& result)
     doc.AddMember("real_default_angle_measure", (int)config.default_angle_measure, alloc);
     doc.AddMember("real_result_angle_measure", (int)config.result_angle_measure, alloc);
     doc.AddMember("real_exponent_size", config.exp, alloc);
+    doc.AddMember("include_document", include_document, alloc);
 
     AddUnit(doc, config.unit);
 
@@ -1048,9 +1055,9 @@ bool BreakSolverTask::Execute(WebSocketPtr socket, Result& result)
 //SetIdentifierSolverTask
 
 SetIdentifierSolverTask::SetIdentifierSolverTask(const LogicalId& _id, Document* _document, const std::string& _solver_guid, 
-    const std::string& _task_guid, uint _code_id, Config::AutoResultConfig _config, const std::u32string& _identifier, 
+    const std::string& _task_guid, uint _code_id, Config::AutoResultConfig _config, bool _include_document, const std::u32string& _identifier, 
     const std::u32string& _expression, const uint _delay, Logger* _logger) : 
-    AutoSolverTask(_id, _document, _solver_guid, _task_guid, _code_id, ExpressionType::USER_SYMBOL, _config, _expression, _delay, _logger),
+    AutoSolverTask(_id, _document, _solver_guid, _task_guid, _code_id, ExpressionType::USER_SYMBOL, _config, _include_document, _expression, _delay, _logger),
     identifier(_identifier)
 {
 }
@@ -1067,7 +1074,7 @@ bool SetIdentifierSolverTask::Execute(WebSocketPtr socket, Result& result)
 
 RemoveIdentifierSolverTask::RemoveIdentifierSolverTask(const LogicalId& _id, Document* _document, const std::string& _solver_guid, 
     uint _code_id, const std::u32string& _expression, const uint _delay, Logger* _logger) :
-    SolverTask(_id, _document, _solver_guid, _code_id, ExpressionType::USER_SYMBOL, _expression, _delay, _logger)
+    SolverTask(_id, _document, _solver_guid, _code_id, ExpressionType::USER_SYMBOL, false, _expression, _delay, _logger)
 {
 }
 
@@ -1370,23 +1377,6 @@ bool ListIdentifiersSolverTask::Execute(WebSocketPtr socket, Result& result)
 
     document->SetIdentifiers(code_id, variables, functions, units);
 
-    return true;
-}
-
-//ResolveFinishedSolverTask
-
-ResolveFinishedSolverTask::ResolveFinishedSolverTask(Document* _document, Logger* _logger) :
-    SolverTask(_document, "", _logger)
-{
-}
-
-bool ResolveFinishedSolverTask::Execute(WebSocketPtr socket, Result& result)
-{
-    if (document->parent)
-    {
-        document->parent->PauseSolver(false);
-        document->parent->ReSolve(ElementId{0});
-    }
     return true;
 }
 

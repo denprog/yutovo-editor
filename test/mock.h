@@ -434,8 +434,6 @@ struct IncludeDocumentsTest : DocumentTest
         document2.Start();
     }
 
-    ::testing::NiceMock<WindowMock> include_window1, include_window2, include_window3, include_window4;
-
     ::testing::NiceMock<WindowMock> window_mock2;
     yutovo::Config config2;
     Document document2;

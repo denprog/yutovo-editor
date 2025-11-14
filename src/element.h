@@ -108,7 +108,6 @@ public:
 
     virtual void UpdateRect(bool with_elements = false);
 
-    Element* GetElementInPos(const ElementId& _id, const uint pos);
     virtual bool GetElementAtCoords(const int x, const int y, const int margin, ElementId& _id);
     virtual bool GetNearestElement(const int x, const int y, ElementId& _id, int& dist);
     virtual bool GetNearestCaretState(const int x, const int y, CaretState& caret_state);
@@ -118,6 +117,7 @@ public:
     virtual void AddEmptyElement();
 
     uint GetChildPos(const Element* element);
+    Element* GetParent(const int pos);
 
     Rect GetAbsoluteRect(const Rect& _rect) const;
     virtual Rect GetAbsoluteRect() const;
@@ -148,6 +148,8 @@ public:
     virtual void Solve();
     virtual void ReSolve(bool if_error = false, bool force = false);
 
+    bool IsVisible() const;
+
 public:
     Element* parent = nullptr;
 
@@ -168,6 +170,7 @@ public:
     bool error_mark = false; //has a error mark
     bool can_move_picture = false; //the picture of the element can be moved usually with mouse
     bool can_resize = false; //can be resized usually with mouse
+    bool visible = true;
 
 protected:
     friend class Elements;

@@ -148,7 +148,7 @@ void Assignment::LogicalIdChanged(const LogicalId& last_id)
             
     //move the identifier in the solver
     document->RemoveIdentifier(last_id, ((CodeBlock*)code.get())->code_id, last_identifier, document->config.solve_delay);
-    document->SetIdentifier(logical_id, guid, ((CodeBlock*)code.get())->code_id, document->config.auto_result, 
+    document->SetIdentifier(logical_id, guid, ((CodeBlock*)code.get())->code_id, document->config.auto_result, !GetParent(1)->visible, 
         GetFirst()->ToText(), last_expression.Text(), document->config.solve_delay);
 }
 
@@ -216,8 +216,8 @@ void Assignment::ReSolve(bool if_error, bool force)
         auto code = document->FindParent(id, ElementType::CODE_BLOCK);
         if (last_identifier != U"")
             document->RemoveIdentifier(logical_id, ((CodeBlock*)code.get())->code_id, last_identifier, document->config.solve_delay);
-        document->SetIdentifier(logical_id, guid, ((CodeBlock*)code.get())->code_id, document->config.auto_result, GetFirst()->ToText(), expr.Text(), 
-            document->config.solve_delay);
+        document->SetIdentifier(logical_id, guid, ((CodeBlock*)code.get())->code_id, document->config.auto_result, !GetParent(1)->visible, 
+            GetFirst()->ToText(), expr.Text(), document->config.solve_delay);
         last_identifier = GetFirst()->ToText();
         last_expression = expr;
     }
