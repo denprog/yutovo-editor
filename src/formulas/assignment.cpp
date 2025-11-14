@@ -86,7 +86,7 @@ void Assignment::Draw() const
 void Assignment::UpdateRect(bool with_elements)
 {
     Size s = parent->window->GetTextSize(ToUtfString(draw_sign), GetStringFormat());
-    GetShape()->rect.SetSize(s.width, s.height * 3 / 4);
+    GetShape()->rect.SetSize(s.width, s.height);
     GetShape()->baseline = GetShape()->rect.height / 3 * 2;
 
     MiddleShapeFormula::UpdateRect(false);
