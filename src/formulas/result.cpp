@@ -384,7 +384,7 @@ void RealResult::Solve(const ParserString& expression)
     PutWaitingSymbol();
 
     solving_id = logical_id;
-    document->Solve(logical_id, guid, GetCodeId(), config, last_expression.Text(), 
+    document->Solve(logical_id, guid, GetCodeId(), config, !GetParent(1)->visible, last_expression.Text(), 
         (delay && last_error_code != yutovo_solver::ErrorCode::SOLVER_RESTARTED_ERROR) ? document->config.solve_delay : 0);
     delay = true;
 }
@@ -529,7 +529,7 @@ void IntegerResult::Solve(const ParserString& expression)
     PutWaitingSymbol();
 
     solving_id = logical_id;
-    document->Solve(logical_id, guid, GetCodeId(), config, last_expression.Text(), 
+    document->Solve(logical_id, guid, GetCodeId(), config, !GetParent(1)->visible, last_expression.Text(), 
         (delay && last_error_code != yutovo_solver::ErrorCode::SOLVER_RESTARTED_ERROR) ? document->config.solve_delay : 0);
     delay = true;
 }
@@ -648,7 +648,7 @@ void RationalResult::Solve(const ParserString& expression)
     PutWaitingSymbol();
 
     solving_id = logical_id;
-    document->Solve(logical_id, guid, GetCodeId(), config, last_expression.Text(), 
+    document->Solve(logical_id, guid, GetCodeId(), config, !GetParent(1)->visible, last_expression.Text(), 
         (delay && last_error_code != yutovo_solver::ErrorCode::SOLVER_RESTARTED_ERROR) ? document->config.solve_delay : 0);
     delay = true;
 }
@@ -809,7 +809,7 @@ void ComplexResult::Solve(const ParserString& expression)
     PutWaitingSymbol();
 
     solving_id = logical_id;
-    document->Solve(logical_id, guid, GetCodeId(), config, last_expression.Text(), 
+    document->Solve(logical_id, guid, GetCodeId(), config, !GetParent(1)->visible, last_expression.Text(), 
         (delay && last_error_code != yutovo_solver::ErrorCode::SOLVER_RESTARTED_ERROR) ? document->config.solve_delay : 0);
     delay = true;
 }
@@ -1053,7 +1053,7 @@ void ArrayRealResult::Solve(const ParserString& expression)
     PutWaitingSymbol();
 
     solving_id = logical_id;
-    document->Solve(logical_id, guid, GetCodeId(), config, last_expression.Text(), 
+    document->Solve(logical_id, guid, GetCodeId(), config, !GetParent(1)->visible, last_expression.Text(), 
         (delay && last_error_code != yutovo_solver::ErrorCode::SOLVER_RESTARTED_ERROR) ? document->config.solve_delay : 0);
     delay = true;
 }
@@ -1235,7 +1235,7 @@ void AutoResult::Solve(const ParserString& expression)
     PutWaitingSymbol();
 
     solving_id = logical_id;
-    document->Solve(logical_id, guid, GetCodeId(), config, last_expression.Text(), 
+    document->Solve(logical_id, guid, GetCodeId(), config, !GetParent(1)->visible, last_expression.Text(), 
         (delay && last_error_code != yutovo_solver::ErrorCode::SOLVER_RESTARTED_ERROR) ? document->config.solve_delay : 0);
     delay = true;
 }

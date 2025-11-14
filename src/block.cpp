@@ -381,6 +381,8 @@ bool Block::GetTopCaretState(const int x, const int y, CaretState& caret_state, 
     for (int i = 0; i < elements->Count(); ++i)
     {
         ElementPtr el = elements->Get(i);
+        if (!el->visible)
+            continue;
         if (y < el->GetAbsoluteRect().GetBottom() || el->rect.height == 0)
             break;
         p = el;
@@ -401,6 +403,8 @@ bool Block::GetBottomCaretState(const int x, const int y, CaretState& caret_stat
     for (int i = elements->Count() - 1; i >= 0; --i)
     {
         ElementPtr el = elements->Get(i);
+        if (!el->visible)
+            continue;
         if (y > el->GetAbsoluteRect().top || el->rect.height == 0)
             break;
         p = el;
@@ -424,7 +428,10 @@ std::u32string Block::ToText() const
     std::u32string t;
     for (int i = 0; i < elements->Count(); ++i)
     {
-        t += elements->Get(i)->ToText();
+        auto el = elements->Get(i);
+        if (!el->visible)
+            continue;
+        t += el->ToText();
         if (i < elements->Count() - 1)
             t += U"\n";
     }

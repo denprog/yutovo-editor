@@ -35,7 +35,6 @@ class Document
 {
 public:
     Document(Window* _window, Config& _config, const std::string _document_guid = "");
-    Document(Document* _parent, Window* _window, Config& _config);
     ~Document();
 
     void Start();
@@ -223,9 +222,12 @@ public:
     uint Save(const std::string& filename);
     uint SaveJson(std::string& json, const int document_id, const bool gzip);
     uint Load(const std::string& filename);
-    uint LoadInclude(const std::string& filename, Window* _window);
+    uint LoadInclude(const std::string& filename);
     uint LoadJson(const std::string& json_doc, const int document_id);
-    uint LoadJsonInclude(const std::string& json_doc, const int document_id, Window* _window);
+    uint LoadJsonInclude(const std::string& json_doc, const int document_id);
+    void ClearIncludes();
+    void AddInclude(const std::string& filename, const int document_id);
+    void LoadNextInclude();
 
     uint Copy(std::u32string& out_json, std::u32string& out_text);
     uint Paste(std::u32string& in_json);
@@ -282,22 +284,22 @@ public:
     void SetEditorState(EditorState& state);
     void SetEditorState(LogicalEditorState& state);
 
-    void Solve(const LogicalId& _id, const std::string& guid, uint code_id, Config::AutoResultConfig& auto_config, std::u32string& expression, 
-        const uint delay);
-    void Solve(const LogicalId& _id, const std::string& guid, uint code_id, Config::RealResultConfig& config, const std::u32string& expression, 
-        const uint delay);
-    void Solve(const LogicalId& _id, const std::string& guid, uint code_id, Config::IntegerResultConfig& config, const std::u32string& expression, 
-        const uint delay);
-    void Solve(const LogicalId& _id, const std::string& guid, uint code_id, Config::RationalResultConfig& config, const std::u32string& expression, 
-        const uint delay);
-    void Solve(const LogicalId& _id, const std::string& guid, uint code_id, Config::ComplexResultConfig& config, const std::u32string& expression, 
-        const uint delay);
-    void Solve(const LogicalId& _id, const std::string& guid, uint code_id, Config::ArrayRealResultConfig& config, const std::u32string& expression, 
-        const uint delay);
+    void Solve(const LogicalId& _id, const std::string& guid, uint code_id, Config::AutoResultConfig& auto_config, bool include_document, 
+        std::u32string& expression, const uint delay);
+    void Solve(const LogicalId& _id, const std::string& guid, uint code_id, Config::RealResultConfig& config, bool include_document, 
+        const std::u32string& expression, const uint delay);
+    void Solve(const LogicalId& _id, const std::string& guid, uint code_id, Config::IntegerResultConfig& config, bool include_document, 
+        const std::u32string& expression, const uint delay);
+    void Solve(const LogicalId& _id, const std::string& guid, uint code_id, Config::RationalResultConfig& config, bool include_document, 
+        const std::u32string& expression, const uint delay);
+    void Solve(const LogicalId& _id, const std::string& guid, uint code_id, Config::ComplexResultConfig& config, bool include_document, 
+        const std::u32string& expression, const uint delay);
+    void Solve(const LogicalId& _id, const std::string& guid, uint code_id, Config::ArrayRealResultConfig& config, bool include_document, 
+        const std::u32string& expression, const uint delay);
     void BreakSolving(const LogicalId& _id, const std::string& guid, uint code_id, bool wait = true);
 
-    void SetIdentifier(const LogicalId& _id, const std::string& guid, uint code_id, Config::AutoResultConfig& config, const std::u32string& identifier, 
-        const std::u32string& expression, const uint delay);
+    void SetIdentifier(const LogicalId& _id, const std::string& guid, uint code_id, Config::AutoResultConfig& config, bool include_document, 
+        const std::u32string& identifier, const std::u32string& expression, const uint delay);
     void RemoveIdentifier(const LogicalId& _id, uint code_id, const std::u32string& identifier, const uint delay);
     void RemoveUserIdentifiers();
     void ClearExport();
@@ -341,8 +343,6 @@ public:
     void GetSolverGuid(std::string& guid);
     uint SetLocale(const yutovo_calculator::Language language, bool with_undo);
     void ListIdentifiers(const uint code_id);
-    void ResolveFinished();
-    void PauseSolver(bool pause);
 
     void UpdateSolveId(const std::string& guid, const LogicalId& new_id);
 
@@ -367,8 +367,6 @@ private:
     void RestrictUndo();
 
     void UpdateChanged();
-
-    bool CheckIncludeFile(rapidjson::Document& doc);
 
 #ifdef TEST
 public:
@@ -465,14 +463,13 @@ public:
 
     std::string document_guid; //for identifing include documents
 
-    Document* parent = nullptr; //parent of include document
-
     std::string path;
 
     bool insert_mode = true; //or replace mode
 
 private:
-    std::vector<std::unique_ptr<Document>> include_documents;
+    std::queue<std::pair<int, std::string>> include_documents;
+    std::vector<std::string> include_file_guids; //for checking circle includes
 
     std::list<TaskPtr> tasks;
     std::deque<TaskPtr> undo_tasks;

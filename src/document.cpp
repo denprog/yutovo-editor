@@ -93,12 +93,6 @@ Document::Document(Window* _window, Config& _config, const std::string _document
 #endif
 }
 
-Document::Document(Document* _parent, Window* _window, Config& _config) : 
-    Document(_window, _config, _parent->document_guid)
-{
-    parent = _parent;
-}
-
 Document::~Document()
 {
     exit = true;
@@ -138,18 +132,24 @@ void Document::GetConfig(Config& _config)
 
 uint Document::SetConfig(const Config& _config, bool with_undo)
 {
-    std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
-    tasks.emplace_back(new SetConfigTask(text, _config, with_undo));
+    {
+        std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
+        tasks.emplace_back(new SetConfigTask(text, _config, with_undo));
+        last_task_id = tasks.back()->id;
+    }
     next_circle = true;
-    return tasks.back()->id;
+    return last_task_id;
 }
 
 uint Document::SetConfig(const std::string& _config, bool with_undo)
 {
-    std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
-    tasks.emplace_back(new SetConfigTask(text, _config, with_undo));
+    {
+        std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
+        tasks.emplace_back(new SetConfigTask(text, _config, with_undo));
+        last_task_id = tasks.back()->id;
+    }
     next_circle = true;
-    return tasks.back()->id;
+    return last_task_id;
 }
 
 void Document::MainLoop()
@@ -995,7 +995,6 @@ void Document::ResetTasks()
 
 uint Document::SetIncludeDocuments(const std::vector<std::string>& files)
 {
-    include_documents.clear();
     Config c = config;
     c.include_documents.documents.clear();
     for (auto& f : files)
@@ -2510,117 +2509,65 @@ uint Document::Load(const std::string& filename)
 {
     {
         std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
-        tasks.emplace_back(new LoadTask(text, filename));
+        tasks.emplace_back(new LoadTask(text, filename, false));
         last_load_task_id = tasks.back()->id;
     }
     next_circle = true;
     return last_load_task_id;
 }
 
-uint Document::LoadInclude(const std::string& filename, Window* _window)
+uint Document::LoadInclude(const std::string& filename)
 {
-#ifdef _WIN32
-    std::ifstream file;
-    file = std::ifstream(yutovo_calculator::ToWString(filename), std::ios_base::binary);
-#else
-    std::ifstream file;
-    file = std::ifstream(filename);
-#endif
-    std::string _filename = filename;
-    if (!file.is_open()) //try to open relatively to the current dir
     {
-        try
-        {
-            std::filesystem::path p = path;
-            p = p.parent_path();
-            p /= filename; //try to open relatevely to the current document
-            _filename = std::filesystem::canonical(std::filesystem::absolute(p)).string();
-            file = std::ifstream(_filename);
-            if (!file.is_open())
-            {
-                window->OnLoadResult(0, IOResult::InputStreamError, -1);
-                ReSolve(ElementId{0});
-                LOG_ERROR("Error loading include file '{}': File not open", filename);
-                return 0;
-            }
-        }
-        catch (const std::filesystem::filesystem_error& ex)
-        {
-            window->OnLoadResult(0, IOResult::InputStreamError, -1);
-            ReSolve(ElementId{0});
-            LOG_ERROR("Error loading include file '{}': File not open", filename);
-            return 0;
-        }
+        std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
+        tasks.emplace_back(new LoadTask(text, filename, true));
+        last_load_task_id = tasks.back()->id;
     }
-
-    rapidjson::Document doc;
-    std::stringstream json;
-    try
-    {
-        //try to open as compressed file
-        boost::iostreams::filtering_streambuf<boost::iostreams::input> in;
-        in.push(boost::iostreams::gzip_decompressor());
-        in.push(file);
-        boost::iostreams::copy(in, json);
-
-        doc.Parse<0>(json.str().c_str());
-        if (doc.HasParseError() || !doc.IsObject() || !CheckIncludeFile(doc))
-        {
-            window->OnLoadResult(0, IOResult::InputStreamError, -1);
-            return 0;
-        }
-    }
-    catch (const std::ios_base::failure& ex)
-    {
-        //try to open as decompressed file
-#ifdef _WIN32
-        std::ifstream file(yutovo_calculator::ToWString(_filename));
-#else
-        std::ifstream file(_filename);
-#endif
-        rapidjson::IStreamWrapper isw{file};
-        doc.ParseStream(isw);
-        if (doc.HasParseError() || !doc.IsObject() || !CheckIncludeFile(doc))
-        {
-            window->OnLoadResult(0, IOResult::InputStreamError, -1);
-            return 0;
-        }
-    }
-
-    solver.PauseSolver(true);
-
-    include_documents.emplace_back(new Document(this, _window, config));
-    auto p = include_documents[include_documents.size() - 1].get();
-    p->Start();
-    p->Load(_filename);
-    return 0;
+    next_circle = true;
+    return last_load_task_id;
 }
 
 uint Document::LoadJson(const std::string& json_doc, const int document_id)
 {
     {
         std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
-        tasks.emplace_back(new LoadTask(text, json_doc, document_id));
+        tasks.emplace_back(new LoadTask(text, json_doc, document_id, false));
         last_load_task_id = tasks.back()->id;
     }
     next_circle = true;
     return last_load_task_id;
 }
 
-uint Document::LoadJsonInclude(const std::string& json_doc, const int document_id, Window* _window)
+uint Document::LoadJsonInclude(const std::string& json_doc, const int document_id)
 {
-    rapidjson::Document doc;
-    if (doc.Parse<0>(json_doc.c_str()).HasParseError() || !doc.IsObject() || !CheckIncludeFile(doc))
     {
-        window->OnLoadResult(0, IOResult::InputStreamError, -1);
-        return 0;
+        std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
+        tasks.emplace_back(new LoadTask(text, json_doc, document_id, true));
+        last_load_task_id = tasks.back()->id;
     }
+    next_circle = true;
+    return last_load_task_id;
+}
 
-    include_documents.emplace_back(new Document(this, _window, config));
-    auto p = include_documents[include_documents.size() - 1].get();
-    p->Start();
-    p->LoadJson(json_doc, true);
-    return 0;
+void Document::ClearIncludes()
+{
+    std::queue<std::pair<int, std::string>> c;
+    std::swap(include_documents, c);
+    include_file_guids.clear();
+}
+
+void Document::AddInclude(const std::string& filename, const int document_id)
+{
+    include_documents.push({document_id, filename});
+}
+
+void Document::LoadNextInclude()
+{
+    if (include_documents.empty())
+        return;
+    auto& p = include_documents.front();
+    window->OnLoadInclude(p.second, p.first);
+    include_documents.pop();
 }
 
 uint Document::Copy(std::u32string& out_json, std::u32string& out_text)
@@ -2885,46 +2832,46 @@ void Document::SetEditorState(LogicalEditorState& state)
     caret->SetState(state.caret_state);
 }
 
-void Document::Solve(const LogicalId& _id, const std::string& guid, uint code_id, Config::AutoResultConfig& config, std::u32string& expression, 
-    const uint delay)
+void Document::Solve(const LogicalId& _id, const std::string& guid, uint code_id, Config::AutoResultConfig& config, bool include_document, 
+    std::u32string& expression, const uint delay)
 {
     solve_ids[guid] = _id;
-    solver.Solve(_id, guid, code_id, config, expression + U";", delay);
+    solver.Solve(_id, guid, code_id, config, include_document, expression + U";", delay);
 }
 
-void Document::Solve(const LogicalId& _id, const std::string& guid, uint code_id, Config::RealResultConfig& config, const std::u32string& expression, 
-    const uint delay)
-{
-    solve_ids[guid] = _id;
-    solver.Solve(_id, guid, code_id, config, expression + U";", delay);
-}
-
-void Document::Solve(const LogicalId& _id, const std::string& guid, uint code_id, Config::IntegerResultConfig& config, 
+void Document::Solve(const LogicalId& _id, const std::string& guid, uint code_id, Config::RealResultConfig& config, bool include_document, 
     const std::u32string& expression, const uint delay)
 {
     solve_ids[guid] = _id;
-    solver.Solve(_id, guid, code_id, config, expression + U";", delay);
+    solver.Solve(_id, guid, code_id, config, include_document, expression + U";", delay);
 }
 
-void Document::Solve(const LogicalId& _id, const std::string& guid, uint code_id, Config::RationalResultConfig& config, 
+void Document::Solve(const LogicalId& _id, const std::string& guid, uint code_id, Config::IntegerResultConfig& config, bool include_document, 
     const std::u32string& expression, const uint delay)
 {
     solve_ids[guid] = _id;
-    solver.Solve(_id, guid, code_id, config, expression + U";", delay);
+    solver.Solve(_id, guid, code_id, config, include_document, expression + U";", delay);
 }
 
-void Document::Solve(const LogicalId& _id, const std::string& guid, uint code_id, Config::ComplexResultConfig& config, 
+void Document::Solve(const LogicalId& _id, const std::string& guid, uint code_id, Config::RationalResultConfig& config, bool include_document, 
     const std::u32string& expression, const uint delay)
 {
     solve_ids[guid] = _id;
-    solver.Solve(_id, guid, code_id, config, expression + U";", delay);
+    solver.Solve(_id, guid, code_id, config, include_document, expression + U";", delay);
 }
 
-void Document::Solve(const LogicalId& _id, const std::string& guid, uint code_id, Config::ArrayRealResultConfig& config, const std::u32string& expression, 
-    const uint delay)
+void Document::Solve(const LogicalId& _id, const std::string& guid, uint code_id, Config::ComplexResultConfig& config, bool include_document, 
+    const std::u32string& expression, const uint delay)
 {
     solve_ids[guid] = _id;
-    solver.Solve(_id, guid, code_id, config, expression + U";", delay);
+    solver.Solve(_id, guid, code_id, config, include_document, expression + U";", delay);
+}
+
+void Document::Solve(const LogicalId& _id, const std::string& guid, uint code_id, Config::ArrayRealResultConfig& config, bool include_document, 
+    const std::u32string& expression, const uint delay)
+{
+    solve_ids[guid] = _id;
+    solver.Solve(_id, guid, code_id, config, include_document, expression + U";", delay);
 }
 
 void Document::BreakSolving(const LogicalId& _id, const std::string& guid, uint code_id, bool wait)
@@ -2935,11 +2882,11 @@ void Document::BreakSolving(const LogicalId& _id, const std::string& guid, uint 
     solver.BreakSolving(_id, code_id, wait);
 }
 
-void Document::SetIdentifier(const LogicalId& _id, const std::string& guid, uint code_id, Config::AutoResultConfig& config, const std::u32string& identifier, 
-    const std::u32string& expression, const uint delay)
+void Document::SetIdentifier(const LogicalId& _id, const std::string& guid, uint code_id, Config::AutoResultConfig& config, bool include_document, 
+    const std::u32string& identifier, const std::u32string& expression, const uint delay)
 {
     solve_ids[guid] = _id;
-    solver.SetIdentifier(_id, guid, code_id, config, identifier, expression + U";", delay);
+    solver.SetIdentifier(_id, guid, code_id, config, include_document, identifier, expression + U";", delay);
 }
 
 void Document::RemoveIdentifier(const LogicalId& _id, uint code_id, const std::u32string& identifier, const uint delay)
@@ -3305,16 +3252,6 @@ void Document::ListIdentifiers(const uint code_id)
     solver.ListIdentifiers(code_id);
 }
 
-void Document::ResolveFinished()
-{
-    solver.ResolveFinished();
-}
-
-void Document::PauseSolver(bool pause)
-{
-    solver.PauseSolver(pause);
-}
-
 void Document::UpdateSolveId(const std::string& guid, const LogicalId& new_id)
 {
     auto it = solve_ids.find(guid);
@@ -3576,26 +3513,6 @@ void Document::UpdateChanged()
         window->OnDocumentChanged(changed);
         last_changed = changed;
     }
-}
-
-bool Document::CheckIncludeFile(rapidjson::Document& doc)
-{
-    if (!doc.HasMember("file_guid") || !doc["file_guid"].IsString())
-        return false;
-
-    //check cicle include files
-    std::string _file_guid = doc["file_guid"].GetString();
-    Document* p = this;
-    while (p)
-    {
-        if (p->file_guid == _file_guid)
-        {
-            LOG_ERROR("Error circle include files");
-            return false;
-        }
-        p = p->parent;
-    }
-    return true;
 }
 
 #ifdef TEST

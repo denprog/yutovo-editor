@@ -552,7 +552,8 @@ void GraphLine::ReSolve(bool if_error, bool force)
     {
         for (size_t i = 0; i < plots.size() && i < last_expressions.size(); ++i)
         {
-            document->Solve(GetExpression()->elements->Get(i)->logical_id, plots[i].guid, ((CodeBlock*)code.get())->code_id, config, last_expressions[i].Text(), 
+            document->Solve(GetExpression()->elements->Get(i)->logical_id, plots[i].guid, ((CodeBlock*)code.get())->code_id, config, 
+                !GetParent(1)->visible, last_expressions[i].Text(), 
                 (!moving && last_error_code != yutovo_solver::ErrorCode::SOLVER_RESTARTED_ERROR) ? document->config.solve_delay : 0);
         }
     }

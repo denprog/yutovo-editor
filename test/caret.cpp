@@ -2779,4 +2779,92 @@ TEST_F(DocumentTest, caret89)
         ElementSelectionState{ElementId{0}, 0, 2})) << document.GetEditorState().ToString();
 }
 
+//Check caret moving with a document with an include file
+TEST_F(DocumentTest, caret90)
+{
+    Start(600);
+
+    EXPECT_CALL(window_mock, OnSaveResult).WillOnce([&](const uint task_id, IOResult result, const int document_id)
+        {
+            ASSERT_TRUE(result == IOResult::Success);
+        });
+
+    EXPECT_CALL(window_mock, OnLoadInclude).WillOnce([&](const std::string& file_name, const int document_id)
+        {
+            document.LoadInclude(file_name);
+            std::this_thread::sleep_for(400ms);
+        });
+
+    EXPECT_CALL(window_mock, Translate).WillRepeatedly([&](ElementId id, const std::u32string& str)
+        {
+            return str;
+        });
+
+    EXPECT_CALL(window_mock, GetViewPort).WillRepeatedly([&](const int)
+        {
+            return Rect{0, 0, 630, 255};
+        });
+
+    document.InsertCode(false, true);
+    document.InsertString("var", true);
+    document.InsertAssignment(true);
+    document.WaitTask(document.InsertString("5", true));
+    document.WaitSolver();
+    document.WaitTask(document.Save("include1.yut"));
+    std::this_thread::sleep_for(200ms);
+
+    document.WaitTask(document.New());
+    ASSERT_TRUE(document.IsChanged() == false);
+
+    document.WaitTask(document.SetIncludeDocuments(std::vector{std::string("include1.yut")}));
+    std::this_thread::sleep_for(2s);
+    document.InsertString("String", true);
+    document.InsertParagraph(true);
+    document.WaitTask(document.InsertCode(false, true));
+    document.InsertString("var", true);
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(2s);
+    ASSERT_TRUE(document.ToText() == 
+        U"String\n"\
+        U"var=5."\
+        ) << ToBasicString(document.ToText());
+    
+    document.WaitTask(document.MoveCaretToDocumentEnd(false));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 2, 0, 1})) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.MoveCaretToDocumentBegin(false));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 1, 0, 0, 0})) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.MoveCaretUp(false));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 1, 0, 0, 0})) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.MoveCaretToDocumentEnd(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 2, 0, 1}, 
+        ElementSelectionState{ElementId{0}, 1, 2})) << document.GetEditorState().ToString();
+
+    document.MoveCaretToDocumentEnd(false);
+    document.WaitTask(document.MoveCaretToDocumentBegin(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 1, 0, 0, 0}, 
+        ElementSelectionState{ElementId{0}, 1, 2})) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.MoveCaretToDocumentEnd(false));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 2, 0, 1})) << document.GetEditorState().ToString();
+    document.WaitTask(document.MoveCaretPageUp(false));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 1, 0, 0, 0})) << document.GetEditorState().ToString();
+
+    document.MoveCaretToDocumentBegin(false);
+    document.WaitTask(document.MoveCaretPageDown(false));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 2, 0, 1})) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.MoveCaretPageUp(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 1, 0, 0, 0}, 
+        ElementSelectionState{ElementId{0}, 1, 2})) << document.GetEditorState().ToString();
+
+    document.MoveCaretToDocumentBegin(false);
+    document.WaitTask(document.MoveCaretPageDown(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 2, 0, 1}, 
+        ElementSelectionState{ElementId{0}, 1, 2})) << document.GetEditorState().ToString();
+}
+
 }

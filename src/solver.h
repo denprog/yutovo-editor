@@ -26,31 +26,28 @@ public:
     Solver(Document* _document);
     ~Solver();
 
-    void Solve(const LogicalId& id, const std::string& task_guid, const uint code_id, Config::AutoResultConfig& config, 
+    void Solve(const LogicalId& id, const std::string& task_guid, const uint code_id, Config::AutoResultConfig& config, bool include_document, 
         const std::u32string& expression, const uint delay);
-    void Solve(const LogicalId& id, const std::string& task_guid, const uint code_id, Config::RealResultConfig& config, 
+    void Solve(const LogicalId& id, const std::string& task_guid, const uint code_id, Config::RealResultConfig& config, bool include_document, 
         const std::u32string& expression, const uint delay);
-    void Solve(const LogicalId& id, const std::string& task_guid, const uint code_id, Config::IntegerResultConfig& config, 
+    void Solve(const LogicalId& id, const std::string& task_guid, const uint code_id, Config::IntegerResultConfig& config, bool include_document, 
         const std::u32string& expression, const uint delay);
-    void Solve(const LogicalId& id, const std::string& task_guid, const uint code_id, Config::RationalResultConfig& config, 
+    void Solve(const LogicalId& id, const std::string& task_guid, const uint code_id, Config::RationalResultConfig& config, bool include_document, 
         const std::u32string& expression, const uint delay);
-    void Solve(const LogicalId& id, const std::string& task_guid, const uint code_id, Config::ComplexResultConfig& config, 
+    void Solve(const LogicalId& id, const std::string& task_guid, const uint code_id, Config::ComplexResultConfig& config, bool include_document, 
         const std::u32string& expression, const uint delay);
-    void Solve(const LogicalId& id, const std::string& task_guid, const uint code_id, Config::ArrayRealResultConfig& config, 
+    void Solve(const LogicalId& id, const std::string& task_guid, const uint code_id, Config::ArrayRealResultConfig& config, bool include_document, 
         const std::u32string& expression, const uint delay);
 
     void BreakSolving(const LogicalId& id, const uint code_id, bool wait);
 
-    void SetIdentifier(const LogicalId& id, const std::string& task_guid, uint code_id, Config::AutoResultConfig& config, const std::u32string& identifier, 
-        const std::u32string& expression, const uint delay);
+    void SetIdentifier(const LogicalId& id, const std::string& task_guid, uint code_id, Config::AutoResultConfig& config, bool include_document, 
+        const std::u32string& identifier, const std::u32string& expression, const uint delay);
     void RemoveIdentifier(const LogicalId& id, uint code_id, const std::u32string& identifier, const uint delay);
     void RemoveUserIdentifiers();
     void ClearExport();
     void SetLocale(const yutovo_calculator::Language _language);
     void ListIdentifiers(uint code_id);
-    void ResolveFinished();
-
-    void PauseSolver(bool pause);
 
     void RemoveSolver(const uint code_id);
 
@@ -88,7 +85,6 @@ private:
 
     std::mutex tasks_mutex;
     std::atomic_bool next_circle, break_next_circle;
-    std::atomic_bool pause_solver{false};
 
     std::thread message_loop;
     std::thread break_loop;

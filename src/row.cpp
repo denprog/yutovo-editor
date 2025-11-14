@@ -1073,8 +1073,6 @@ Rect Row::GetCaretRect(const uint pos) const
 
 void Row::DrawCaret(const uint pos) const
 {
-    if (document->parent)
-        return; //do not redraw include documents
     if (pos > 0 && pos == elements->Count() && elements->Get(pos - 1)->type == ElementType::CODE_BLOCK)
     {
         Rect r = GetAbsoluteRect(GetCaretRect(pos));
