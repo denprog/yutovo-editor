@@ -21,6 +21,7 @@ namespace yutovo
 
 enum class IOResult
 {
+    None = -1,
     Success = 0,
     OtherException,    //any exception not listed below
     UnsupportedVersion, //version is unsupported
