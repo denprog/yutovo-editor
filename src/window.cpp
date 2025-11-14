@@ -139,6 +139,10 @@ void Window::OnSolverAction(const std::string& json)
 {
 }
 
+void Window::OnSetConfig()
+{
+}
+
 #ifdef EMSCRIPTEN
 int Window::Connect(const std::string& addr)
 {

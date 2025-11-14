@@ -106,6 +106,8 @@ public:
 
     virtual void OnSolverAction(const std::string& json);
 
+    virtual void OnSetConfig();
+
 #ifdef EMSCRIPTEN
     virtual int Connect(const std::string& addr);
     virtual bool Send(const int socket_id, const std::string& message);

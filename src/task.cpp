@@ -2803,7 +2803,10 @@ bool SetConfigTask::Execute()
     {
         config = document->config;
         if (!config.FromJson(config_str)) //update only actual part from the string
+        {
+            window->OnSetConfig();
             return false;
+        }
     }
 
     if (with_undo)
@@ -2855,6 +2858,8 @@ bool SetConfigTask::Execute()
         Remake(text->id, false);
     document->Redraw(text->id, false);
     document->LoadNextInclude();
+
+    window->OnSetConfig();
 
     return true;
 }
