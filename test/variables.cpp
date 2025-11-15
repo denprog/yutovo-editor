@@ -747,6 +747,7 @@ TEST_F(VariablesTest, variables11)
         ) << ToBasicString(document.ToText());
     
     document.MoveCaretUp(false);
+    document.MoveCaretHome(false);
     document.WaitTask(document.MoveCaretRight(true));
     document.WaitTask(document.DeleteElements(false, true));
     document.WaitSolver();
@@ -786,6 +787,7 @@ TEST_F(VariablesTest, variables12)
         ) << ToBasicString(document.ToText());
     
     document.MoveCaretUp(false);
+    document.MoveCaretHome(false);
     document.DeleteElements(false, true);
     document.WaitTask(document.DeleteElements(false, true));
     document.WaitSolver();
@@ -825,6 +827,7 @@ TEST_F(VariablesTest, variables13)
         ) << ToBasicString(document.ToText());
 
     document.MoveCaretUp(false);
+    document.MoveCaretHome(false);
     document.WaitTask(document.MoveCaretUp(false));
     document.WaitTask(document.DeleteElements(false, true));
     document.WaitSolver();
@@ -991,6 +994,7 @@ TEST_F(VariablesTest, variables16)
     ASSERT_TRUE(document.HasErrorMark(ElementId{0, 0, 0, 0, 1, 0, 0, 2, 2}, start, size)) << ErrorMarks();
 
     document.MoveCaretUp(false);
+    document.MoveCaretHome(false);
     document.WaitTask(document.InsertParagraph(true));
     document.MoveCaretUp(false);
     document.InsertString("b", true);
@@ -1775,6 +1779,7 @@ TEST_F(VariablesTest, variables31)
         ) << ToBasicString(document.ToText());
     
     document.MoveCaretUp(false);
+    document.MoveCaretHome(false);
     document.WaitTask(document.MoveCaretRight(false));
     document.WaitTask(document.MoveCaretRight(false));
     document.InsertString("1", true);
