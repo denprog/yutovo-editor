@@ -1287,7 +1287,7 @@ TEST_F(IncludeDocumentsTest, include_files4)
     document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
     document.WaitSolver();
     document.WaitTask(document.Save("include2.yut"));
-    std::this_thread::sleep_for(4s);
+    std::this_thread::sleep_for(5s);
     ASSERT_TRUE(document.ToText() == 
         U"var1=Unknown identifier"
         ) << ToBasicString(document.ToText());

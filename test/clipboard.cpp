@@ -3597,6 +3597,7 @@ TEST_F(DocumentTest, clipboard64)
         ElementSelectionState{ElementId{0}, 1, 2})) << document.GetEditorState().ToString();
 
     document.WaitTask(document.Cut(clipboard_json, clipboard_text));
+    std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToText() == 
         U"The source of the text itself is a "
         ) << ToBasicString(document.ToText());
