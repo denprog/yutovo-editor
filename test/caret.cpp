@@ -1943,8 +1943,6 @@ TEST_F(DocumentTest, caret63)
 
     document.config.solve_delay = 500;
     document.MoveCaretUp(false);
-    for (int i = 0; i < 3; ++i)
-        document.MoveCaretRight(false);
     document.WaitTask(document.MoveCaretRight(false));
     document.WaitTask(document.InsertString("1", true));
     document.WaitTask(document.MoveCaretDown(false));
