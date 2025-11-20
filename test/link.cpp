@@ -648,4 +648,26 @@ TEST_F(DocumentTest, link11)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 2})) << document.GetEditorState().ToString();
 }
 
+//Copy link from another document
+TEST_F(TwoDocumentsTest, link12)
+{
+    Start(600);
+
+    document.WaitTask(document.InsertLink("link", "www.link.ru", true));
+    document.WaitTask(document.MoveCaretHome(true));
+    document.WaitTask(document.Copy(clipboard_json, clipboard_text));
+    document.WaitTask(document.MoveCaretEnd(false));
+
+    document2.WaitTask(document2.Paste(clipboard_json));
+    ASSERT_TRUE(document2.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<a url=\"www.link.ru\" style=\"font-family:'Arial';font-size:14px;text-decoration: underline;color:rgba(0,0,255,255);\">link</a>"\
+            "</p>"\
+        "</body>") << 
+        document2.ToHtml();
+    ASSERT_TRUE(clipboard_text == U"link") << ToBasicString(clipboard_text);
+    ASSERT_TRUE(document2.GetEditorState() == MakeEditorState(0, 0, 0, 4)) << document2.GetEditorState().ToString();
+}
+
 }
