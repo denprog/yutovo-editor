@@ -29,6 +29,8 @@ public:
     virtual void Draw() const;
     virtual bool Remake(bool with_elements = false);
 
+    virtual bool AfterInsert(bool with_undo);
+    
     virtual void AfterChildInsert(const ElementId child_id, bool with_undo);
 
     virtual void UpdateLevel(uint8_t _level);

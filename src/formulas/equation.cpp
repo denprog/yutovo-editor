@@ -102,6 +102,13 @@ void Equation::Draw() const
         };
 
     MiddleShapeFormula::Draw();
+
+    //if there are two or more formulas in a row, draw a frame for better view
+    if (parent->type == ElementType::CODE_ROW && parent->parent->type == ElementType::CODE_PARAGRAPH && parent->elements->Count() > 1)
+    {
+        Rect r = GetAbsoluteRect();
+        window->DrawRect(r.left, r.top, r.width, r.height, document->config.formula_frame_color);
+    }
 }
 
 void Equation::UpdateRect(bool with_elements)

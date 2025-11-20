@@ -1540,6 +1540,11 @@ uint Elements::Count() const
     return elements.size();
 }
 
+uint Elements::Size() const
+{
+    return elements.size();
+}
+
 Rect Elements::GetCaretRect(const uint pos) const
 {
     Rect r;
