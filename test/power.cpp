@@ -582,7 +582,7 @@ TEST_F(FormulaTest, power9)
     for (int i = 0; i < 4; ++i)
         document.WaitTask(document.MoveCaretRight(true));
     document.WaitTask(document.InsertPower(true));
-    ASSERT_TRUE(document.ToText() == U"pow(123+,)45+7") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.ToText() == U"pow((123+),)45+7") << ToBasicString(document.ToText());
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 2, 0, 0})) << document.GetEditorState().ToString();
 
     document.Undo();
@@ -593,7 +593,7 @@ TEST_F(FormulaTest, power9)
 
     document.WaitTask(document.MoveCaretRight(true));
     document.WaitTask(document.InsertPower(true));
-    ASSERT_TRUE(document.ToText() == U"pow(123+4,)5+7") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.ToText() == U"pow((123+4),)5+7") << ToBasicString(document.ToText());
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 2, 0, 0})) << document.GetEditorState().ToString();
 }
 
@@ -633,7 +633,7 @@ TEST_F(FormulaTest, power11)
     for (int i = 0; i < 4; ++i)
         document.WaitTask(document.MoveCaretRight(true));
     document.WaitTask(document.InsertPower(true));
-    ASSERT_TRUE(document.ToText() == U"1pow(23+4,)5+7") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.ToText() == U"1pow((23+4),)5+7") << ToBasicString(document.ToText());
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 1, 2, 0, 0})) << document.GetEditorState().ToString();
 }
 
@@ -774,7 +774,7 @@ TEST_F(FormulaTest, power15)
     for (int i = 0; i < 5; ++i)
         document.WaitTask(document.MoveCaretLeft(true));
     document.WaitTask(document.InsertPower(true));
-    ASSERT_TRUE(document.ToText() == U"pow(123+1,)") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.ToText() == U"pow((123+1),)") << ToBasicString(document.ToText());
 }
 
 //Select an element and insert power
@@ -954,6 +954,167 @@ TEST_F(FormulaTest, power19)
     document.WaitTask(document.MoveCaretDown(true));
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 1}, 
         ElementSelectionState{{0}, 0, 1})) << document.GetEditorState().ToString();
+}
+
+//Insert brackets if a row contains more then one element
+TEST_F(FormulaTest, power20)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.InsertString("345", true);
+    document.InsertPlus(true);
+    document.InsertString("77", true);
+    document.MoveCaretHome(true);
+    document.WaitTask(document.InsertPower(true));
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<msup>"\
+                            "<mrow>"\
+                                "<mo>(</mo>" \
+                                "<mi>345</mi>"\
+                                "<mo>+</mo>"\
+                                "<mi>77</mi>"\
+                                "<mo>)</mo>" \
+                            "</mrow>"\
+                            "<mrow>"\
+                                "<mi>Null</mi>"\
+                            "</mrow>"\
+                        "</msup>"\
+                    "</mrow>"\
+                "</math>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 2, 0, 0})) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mi>345</mi>"\
+                        "<mo>+</mo>"\
+                        "<mi>77</mi>"\
+                    "</mrow>"\
+                "</math>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0, 0, 0, 0}, 
+        ElementSelectionState{ElementId{0}, 0, 1})) << document.GetEditorState().ToString();
+
+    document.Redo();
+    document.WaitRedo();
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<msup>"\
+                            "<mrow>"\
+                                "<mo>(</mo>" \
+                                "<mi>345</mi>"\
+                                "<mo>+</mo>"\
+                                "<mi>77</mi>"\
+                                "<mo>)</mo>" \
+                            "</mrow>"\
+                            "<mrow>"\
+                                "<mi>Null</mi>"\
+                            "</mrow>"\
+                        "</msup>"\
+                    "</mrow>"\
+                "</math>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 2, 0, 0})) << document.GetEditorState().ToString();
+}
+
+//Insert brackets if a row contains more then one element
+TEST_F(FormulaTest, power21)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.InsertString("345", true);
+    document.InsertPlus(true);
+    document.InsertString("77", true);
+    document.MoveCaretHome(false);
+    document.MoveCaretEnd(true);
+    document.WaitTask(document.InsertPower(true));
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<msup>"\
+                            "<mrow>"\
+                                "<mo>(</mo>" \
+                                "<mi>345</mi>"\
+                                "<mo>+</mo>"\
+                                "<mi>77</mi>"\
+                                "<mo>)</mo>" \
+                            "</mrow>"\
+                            "<mrow>"\
+                                "<mi>Null</mi>"\
+                            "</mrow>"\
+                        "</msup>"\
+                    "</mrow>"\
+                "</math>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 2, 0, 0})) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mi>345</mi>"\
+                        "<mo>+</mo>"\
+                        "<mi>77</mi>"\
+                    "</mrow>"\
+                "</math>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0, 0, 2, 2}, 
+        ElementSelectionState{ElementId{0}, 0, 1})) << document.GetEditorState().ToString();
+
+    document.Redo();
+    document.WaitRedo();
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<msup>"\
+                            "<mrow>"\
+                                "<mo>(</mo>" \
+                                "<mi>345</mi>"\
+                                "<mo>+</mo>"\
+                                "<mi>77</mi>"\
+                                "<mo>)</mo>" \
+                            "</mrow>"\
+                            "<mrow>"\
+                                "<mi>Null</mi>"\
+                            "</mrow>"\
+                        "</msup>"\
+                    "</mrow>"\
+                "</math>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 2, 0, 0})) << document.GetEditorState().ToString();
 }
 
 }

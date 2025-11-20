@@ -63,6 +63,7 @@ struct Config
     Color shapes_color = Color::Black();
     Color error_marks_color = Color::Red();
     Color formula_bg_color = Color::White();
+    Color formula_frame_color = Color::FromHex("#b8d3ff");
     Color bg_selection_color = Color::Blue();
     Color link_color = Color::Blue();
     Color link_visited_color = Color::FromHex("#ff69b4");

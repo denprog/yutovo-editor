@@ -7,6 +7,7 @@
 
 #include "power.h"
 #include "code_row.h"
+#include "brackets.h"
 #include "../str.h"
 #include "../document.h"
 
@@ -83,6 +84,31 @@ bool Power::Remake(bool with_elements)
         return true;
     }
     return changed;
+}
+
+bool Power::AfterInsert(bool with_undo)
+{
+    if (!MiddleShapeFormula::AfterInsert(with_undo))
+        return false;
+    auto first = GetFirst();
+    if (first->elements->Count() == 1)
+    {
+        auto el = first->elements->Get(0);
+        if (el->type == ElementType::CODE_ROW && el->elements->Size() > 1)
+        {
+            //insert brackets
+            el->elements->Insert(ElementPtr(new OpenBracket(first, ElementType::OPEN_ROUND_BRACKET)), 0);
+            el->elements->Insert(ElementPtr(new CloseBracket(first, ElementType::CLOSE_ROUND_BRACKET)), el->elements->Count());
+        }
+    }
+    else if (first->elements->Count() > 1 && first->elements->Get(0)->type != ElementType::OPEN_ROUND_BRACKET && 
+        first->elements->Get(0)->type != ElementType::CLOSE_ROUND_BRACKET)
+    {
+        //insert brackets
+        first->elements->Insert(ElementPtr(new OpenBracket(first, ElementType::OPEN_ROUND_BRACKET)), 0);
+        first->elements->Insert(ElementPtr(new CloseBracket(first, ElementType::CLOSE_ROUND_BRACKET)), first->elements->Count());
+    }
+    return true;
 }
 
 void Power::AfterChildInsert(const ElementId child_id, bool with_undo)

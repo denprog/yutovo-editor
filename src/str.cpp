@@ -946,7 +946,7 @@ void StringElements::Draw() const
             int pos = p->window->GetCharPos(str, format, start);
             if (str.empty() && start == 0 && size == 0)
             {
-                Size s = p->window->GetTextSize(U" ", format);
+                yutovo::Size s = p->window->GetTextSize(U" ", format);
                 p->window->DrawText(" ", format, Rect{r.left + pos, r.top, s.width, r.height}, 
                     format->text_bg_color, format->text_bg_selection_color);
             }
@@ -963,15 +963,15 @@ void StringElements::Draw() const
         //draw the string by symbols
         if (parent->document->selection.Has(parent->id, start, size))
         {
-            Size s1 = p->GetTextSize(start);
-            Size s2 = p->GetTextSize(start + size);
+            yutovo::Size s1 = p->GetTextSize(start);
+            yutovo::Size s2 = p->GetTextSize(start + size);
             parent->window->DrawFillRect(Rect{r.left + s1.width, r.top, s2.width - s1.width, r.height}, format->text_bg_selection_color);
         }
         for (int i = 0; i < str.length(); ++i)
         {
             if (std::find(tabs.begin(), tabs.end(), i) == tabs.end())
             {
-                Size s = p->GetTextSize(i);
+                yutovo::Size s = p->GetTextSize(i);
                 std::u32string sub = str.substr(i, 1);
                 if (i >= start && i < start + size)
                 {
@@ -1105,9 +1105,14 @@ uint StringElements::Count() const
     return str.length();
 }
 
+uint StringElements::Size() const
+{
+    return 1;
+}
+
 Rect StringElements::GetCaretRect(const uint pos) const
 {
-    Size s = ((String*)parent)->GetTextSize(pos);
+    yutovo::Size s = ((String*)parent)->GetTextSize(pos);
     if (parent->document->insert_mode)
         return Rect(s.width, 0, 1, s.height);
     if (str.empty())
@@ -1118,7 +1123,7 @@ Rect StringElements::GetCaretRect(const uint pos) const
     }
     if (pos == str.length())
         return Rect(s.width, 0, 1, s.height);
-    Size s2 = parent->window->GetTextSize(std::u32string(1, str[pos]), ((String*)parent)->format);
+    yutovo::Size s2 = parent->window->GetTextSize(std::u32string(1, str[pos]), ((String*)parent)->format);
     return Rect(s.width, 0, s2.width, s.height);
 }
 
@@ -1143,15 +1148,15 @@ void StringElements::DrawCaret(const uint pos) const
 
 Rect StringElements::GetRect()
 {
-    Size s = ((String*)parent)->GetTextSize(str.length());
+    yutovo::Size s = ((String*)parent)->GetTextSize(str.length());
     return Rect{0, 0, s.width, s.height};
 }
 
 Rect StringElements::GetRect(const uint pos)
 {
     String* p = (String*)parent;
-    Size s1 = p->GetTextSize(pos);
-    Size s2 = p->GetTextSize(pos + 1);
+    yutovo::Size s1 = p->GetTextSize(pos);
+    yutovo::Size s2 = p->GetTextSize(pos + 1);
     return Rect{s1.width, p->rect.top, s2.width - s1.width, s2.height};
 }
 

@@ -232,6 +232,7 @@ public:
     virtual void Clear();
 
     virtual uint Count() const;
+    virtual uint Size() const;
 
     virtual Rect GetCaretRect(const uint pos) const;
     virtual void DrawCaret(const uint pos) const;
