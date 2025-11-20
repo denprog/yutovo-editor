@@ -2180,6 +2180,42 @@ void Document::SetCaretVisible(bool visible)
     next_circle = true;
 }
 
+void Document::CaretMoved()
+{
+    std::lock_guard<std::recursive_mutex> lock(edit_mutex);
+    caret_hilight_id.clear();
+
+    ElementPtr el = GetElement(last_caret_state.caret_state.id);
+    if (!el && last_caret_state.caret_state.last_pos)
+        el = GetParent(last_caret_state.caret_state.id);
+    if (el)
+    {
+        Element* p = el->parent;
+        while (p && !p->has_caret_hilight)
+            p = p->parent;
+        if (p)
+            Redraw(p->parent->id, false);
+    }
+
+    last_caret_state = MakeEditorState();
+    el = GetElement(last_caret_state.caret_state.id);
+    if (!el && last_caret_state.caret_state.last_pos)
+        el = GetParent(last_caret_state.caret_state.id);
+    if (el)
+    {
+        Element* p = el->parent;
+        while (p && !p->has_caret_hilight)
+            p = p->parent;
+        if (p)
+        {
+            caret_hilight_id = p->id;
+            Redraw(p->id, false);
+        }
+    }
+
+    window->OnCaretMoved(last_caret_state);
+}
+
 bool Document::MouseLButtonDown(const int x, const int y, MouseHoldType& hold_type, ElementId& hold_id)
 {
     std::lock_guard<std::recursive_mutex> lock(edit_mutex);

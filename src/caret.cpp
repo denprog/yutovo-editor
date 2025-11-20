@@ -69,7 +69,7 @@ void Caret::SetState(const CaretState& caret_state, bool update_x_pos)
     
     if (notify)
     {
-        window->OnCaretMoved(document->MakeEditorState());
+        document->CaretMoved();
         document->UpdateFormats();
     }
 }
@@ -124,7 +124,7 @@ void Caret::SetState(const ElementId id, const uint pos, bool update_x_pos)
     
     if (notify)
     {
-        window->OnCaretMoved(document->MakeEditorState());
+        document->CaretMoved();
         document->UpdateFormats();
     }
 }
@@ -150,7 +150,7 @@ void Caret::SetState(const ElementId id, bool update_x_pos)
     
     if (notify)
     {
-        window->OnCaretMoved(document->MakeEditorState());
+        document->CaretMoved();
         document->UpdateFormats();
     }
 }
@@ -181,7 +181,7 @@ void Caret::SetPos(const uint pos, bool update_x_pos)
     
     if (notify)
     {
-        window->OnCaretMoved(document->MakeEditorState());
+        document->CaretMoved();
         document->UpdateFormats();
     }
 }
@@ -710,7 +710,7 @@ void Caret::SelectOut(Selection* selection)
     }
 }
 
-bool Caret::IsInsideElement(const ElementId id)
+bool Caret::IsInsideElement(const ElementId& id)
 {
     if (block)
         false;
@@ -722,7 +722,7 @@ bool Caret::IsInsideElement(const ElementId id)
     return IsChild(id, el->id);
 }
 
-bool Caret::IsOnElement(const ElementId id)
+bool Caret::IsOnElement(const ElementId& id)
 {
     if (block)
         return false;

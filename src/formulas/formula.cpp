@@ -20,12 +20,14 @@ Formula::Formula(Element* _parent) :
         document->GetCurrentFormulaFormat(formula_format);
     else
         formula_format = GetFormulaFormat();
+    has_caret_hilight = true;
 }
 
 Formula::Formula(Document* _document) :
     Element(_document)
 {
     document->GetCurrentFormulaFormat(formula_format);
+    has_caret_hilight = true;
 }
 
 bool Formula::InsertElements(std::vector<ElementPtr>& _elements, bool insert_mode, bool with_undo, ElementId& changed_element)

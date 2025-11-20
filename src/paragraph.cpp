@@ -329,7 +329,7 @@ void Paragraph::Normalize()
         if (el->elements->Count() == 1 && document->IsString(el->elements->Get(0)) && el->elements->Get(0)->elements->Count() == 0)
         {
             elements->RemoveAt(i, 1);
-            window->OnCaretMoved(document->MakeEditorState());
+            document->CaretMoved();
         }
         else
             ++i;
@@ -451,7 +451,7 @@ bool Paragraph::ChangeParagraphFormat(const ParagraphFormatPtr _format, bool wit
     format = _format;
     current_string_format = format->default_string_format;
     changed_element = id;
-    window->OnCaretMoved(document->MakeEditorState());
+    document->CaretMoved();
     
     return true;
 }

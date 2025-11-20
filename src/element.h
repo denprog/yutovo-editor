@@ -171,6 +171,7 @@ public:
     bool can_move_picture = false; //the picture of the element can be moved usually with mouse
     bool can_resize = false; //can be resized usually with mouse
     bool visible = true;
+    bool has_caret_hilight = false; //this element is hilighted when the caret is inside
 
 protected:
     friend class Elements;

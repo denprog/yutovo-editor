@@ -306,7 +306,7 @@ bool InsertElementsTask::Execute()
     }
     document->pasting = false;
     document->caret->notify = true;
-    window->OnCaretMoved(document->MakeEditorState());
+    document->CaretMoved();
     document->UpdateFormats();
     return true;
 }
@@ -1492,7 +1492,7 @@ bool MoveCaretTask::Execute()
     }
 
     document->UpdateFormats();
-    window->OnCaretMoved(document->MakeEditorState());
+    document->CaretMoved();
     return true;
 }
 

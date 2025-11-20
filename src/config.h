@@ -48,6 +48,7 @@ struct Config
 
     //caret
     bool caret_visible = true;
+    bool hilight_caret_element = true; //show rectangle when caret is inside
     uint caret_blink_delay = 500; //milliseconds
 
     //undo
@@ -65,6 +66,7 @@ struct Config
     Color bg_selection_color = Color::Blue();
     Color link_color = Color::Blue();
     Color link_visited_color = Color::FromHex("#ff69b4");
+    Color hilight_color = Color::FromHex("#97deff");
 
     //numbers gaps
     bool use_numbers_gaps = true;

@@ -197,6 +197,8 @@ public:
 
     void SetCaretVisible(bool visible);
 
+    void CaretMoved();
+
     bool MouseLButtonDown(const int x, const int y, MouseHoldType& hold_type, ElementId& hold_id);
     bool MouseLButtonUp(const int x, const int y);
     bool MouseMove(const int x, const int y);
@@ -507,6 +509,10 @@ private:
     SelectionState last_editor_selection;
 
     ElementId mouse_capture_id;
+
+    EditorState last_caret_state;
+
+    ElementId caret_hilight_id;
 
     Point last_mouse_pos{0, 0};
 
