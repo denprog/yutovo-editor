@@ -30,8 +30,19 @@ Link::Link(Element* parent, const std::string _str, const std::string _url, bool
     url(ToUtfString(_url))
 {
     type = ElementType::LINK;
-    format = document->GetStringFormat(format->family, format->size, format->bold, format->italic, true, format->strikethrough, 
-        format->subscript, format->superscript, document->config.link_color, format->text_bg_color, format->text_bg_selection_color);
+    if (!format)
+    {
+        if (document->GetCurrentStringFormat(format))
+        {
+            format = document->GetStringFormat(format->family, format->size, format->bold, format->italic, true, format->strikethrough, 
+                format->subscript, format->superscript, document->config.link_color, format->text_bg_color, format->text_bg_selection_color);
+        }
+    }
+    else
+    {
+        format = document->GetStringFormat(format->family, format->size, format->bold, format->italic, true, format->strikethrough, 
+            format->subscript, format->superscript, document->config.link_color, format->text_bg_color, format->text_bg_selection_color);
+    }
 }
 
 Link::Link(Element* parent, const std::string _str, const std::string _url, const StringFormatPtr _format, bool _translate) : 
