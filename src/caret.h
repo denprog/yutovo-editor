@@ -59,8 +59,8 @@ public:
 
     void SelectOut(Selection* selection);
 
-    bool IsInsideElement(const ElementId id);
-    bool IsOnElement(const ElementId id);
+    bool IsInsideElement(const ElementId& id);
+    bool IsOnElement(const ElementId& id);
 
     void UpdateXPos();
 

@@ -68,6 +68,7 @@ Element::Element(const Element& source) :
     can_move_picture(source.can_move_picture),
     can_resize(source.can_resize),
     visible(source.visible),
+    has_caret_hilight(source.has_caret_hilight),
     logger(source.logger)
 {
     elements.reset(source.elements->Clone(this)); //deep copy
@@ -126,6 +127,12 @@ void Element::Draw() const
                 return; //the error mark will draw in the parent
         }
         DrawErrorMark(start, size);
+    }
+
+    if (document->caret_hilight_id == id)
+    {
+        Rect r = GetAbsoluteRect();
+        window->DrawRect(r.left, r.top, r.width, r.height, document->config.hilight_color);
     }
 }
 
@@ -931,7 +938,7 @@ void Element::UpdateDrawRect()
         draw_rect.height = bottom - top;
     
     int start, size;
-    if (document->HasErrorMark(id, start, size))
+    if (has_caret_hilight || document->HasErrorMark(id, start, size))
     {
         draw_rect.left -= 2;
         draw_rect.height += 2;

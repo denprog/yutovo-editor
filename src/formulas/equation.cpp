@@ -91,10 +91,10 @@ bool Equation::AfterFromJson()
 
 void Equation::Draw() const
 {
-    const auto f = GetStringFormat();
     GetShape()->draw_func = 
         [&](const Rect& r)
         {
+            const auto f = GetStringFormat();
             if (document->selection.IsSelected(id))
                 window->DrawText("=", f, r, document->config.formula_bg_color, document->config.bg_selection_color);
             else
