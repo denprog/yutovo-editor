@@ -22,6 +22,7 @@ public:
     Link(Element* parent, const std::u32string _str, const std::u32string _url);
     Link(Element* parent, const std::u32string _str, const std::u32string _url, const StringFormatPtr _format);
     Link(Document* _document);
+    Link(Document* _document, const std::u32string _str, const std::u32string _url);
     Link(Document* _document, const std::string _str, const std::string _url, const StringFormatPtr _format);
     Link(Document* _document, const std::u32string _str, const std::u32string _url, const StringFormatPtr _format);
 
@@ -29,6 +30,7 @@ public:
 
     virtual Element* Create(Element* parent);
     virtual Element* Create(Element* parent, const std::u32string _str, const std::u32string _url, const StringFormatPtr _format);
+    virtual Element* Create(Element* parent, const std::u32string _str, const StringFormatPtr _format);
 
     virtual void ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc);
     static Element* FromJson(Element* parent, Document* document, const rapidjson::Value::ConstObject& value, rapidjson::Document::AllocatorType& alloc);

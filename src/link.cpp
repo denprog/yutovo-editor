@@ -80,6 +80,26 @@ Link::Link(Document* _document) :
         format->subscript, format->superscript, document->config.link_color, format->text_bg_color, format->text_bg_selection_color);
 }
 
+Link::Link(Document* _document, const std::u32string _str, const std::u32string _url) :
+    String(_document, _str),
+    url(_url)
+{
+    type = ElementType::LINK;
+    if (!format)
+    {
+        if (document->GetCurrentStringFormat(format))
+        {
+            format = document->GetStringFormat(format->family, format->size, format->bold, format->italic, true, format->strikethrough, 
+                format->subscript, format->superscript, document->config.link_color, format->text_bg_color, format->text_bg_selection_color);
+        }
+    }
+    else
+    {
+        format = document->GetStringFormat(format->family, format->size, format->bold, format->italic, true, format->strikethrough, 
+            format->subscript, format->superscript, document->config.link_color, format->text_bg_color, format->text_bg_selection_color);
+    }
+}
+
 Link::Link(Document* _document, const std::string _str, const std::string _url, const StringFormatPtr _format) : 
     String(_document, _str, _format),
     url(ToUtfString(_url))
@@ -111,6 +131,11 @@ Element* Link::Create(Element* parent)
 Element* Link::Create(Element* parent, const std::u32string _str, const std::u32string _url, const StringFormatPtr _format)
 {
     return new Link(parent, _str, _url, _format);
+}
+
+Element* Link::Create(Element* parent, const std::u32string _str, const StringFormatPtr _format)
+{
+    return new Link(parent, _str, U"", _format);
 }
 
 void Link::ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc)
@@ -146,7 +171,9 @@ Element* Link::FromJson(Element* parent, Document* document, const rapidjson::Va
             return new Link(document, "", url, f);
         }
     }
-    return new Link(parent, "", url);
+    if (parent)
+        return new Link(parent, "", url);
+    return new Link(document, U"", ToUtfString(url));
 }
 
 bool Link::Merge(const ElementPtr with_element)
@@ -178,11 +205,9 @@ bool Link::AfterInsert(bool with_undo)
 
 StringFormatPtr Link::GetStringFormat() const
 {
-    auto f = parent->GetStringFormat();
-    if (!f)
+    if (format)
         return format;
-    return document->GetStringFormat(format->family, format->size, format->bold, format->italic, f->underline, format->strikethrough, 
-        format->subscript, format->superscript, f->text_color, format->text_bg_color, format->text_bg_selection_color);
+    return parent->GetStringFormat();
 }
 
 std::string Link::ToHtml() const

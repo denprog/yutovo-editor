@@ -34,7 +34,11 @@ Paragraph::Paragraph(Document* _document, bool with_row) :
     type = ElementType::PARAGRAPH;
 
     document->GetCurrentParagraphFormat(format);
-    document->GetCurrentStringFormat(current_string_format);
+    auto el = document->GetElement(caret->GetCaretState().id);
+    if (el && el->type == ElementType::LINK)
+        current_string_format = el->parent->GetStringFormat();
+    else
+        document->GetCurrentStringFormat(current_string_format);
     if (with_row)
         AddEmptyElement(); //paragraph has to have at least one row
 }
@@ -45,7 +49,11 @@ Paragraph::Paragraph(Document* _document, ParagraphFormatPtr _format, bool with_
 {
     type = ElementType::PARAGRAPH;
 
-    document->GetCurrentStringFormat(current_string_format);
+    auto el = document->GetElement(caret->GetCaretState().id);
+    if (el && el->type == ElementType::LINK)
+        current_string_format = el->parent->GetStringFormat();
+    else
+        document->GetCurrentStringFormat(current_string_format);
     if (with_row)
         AddEmptyElement(); //paragraph has to have at least one row
 }
