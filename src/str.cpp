@@ -99,6 +99,23 @@ String::String(Document* _document) :
     can_merge = true;
 
     elements.reset(new StringElements(this));
+
+#ifdef DEBUG
+    to_str = ToText();
+#endif
+}
+
+String::String(Document* _document, const std::u32string _str) :
+    Element(_document)
+{
+    type = ElementType::STRING;
+    can_merge = true;
+
+    elements.reset(new StringElements(this, _str));
+
+#ifdef DEBUG
+    to_str = ToText();
+#endif
 }
 
 String::String(Document* _document, const std::string _str, const StringFormatPtr _format) :
