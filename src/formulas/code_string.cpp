@@ -448,9 +448,7 @@ bool CodeString::IsFormula()
 std::string CodeString::ToHtml() const
 {
     std::string s = "<mi>";
-    if (elements->Count() == 0)
-        s += "Null";
-    else
+    if (elements->Count() > 0)
         s += elements->ToHtml();
     s += "</mi>";
     return s;

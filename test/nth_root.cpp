@@ -27,10 +27,10 @@ TEST_F(FormulaTest, nth_root1)
                     "<mrow>"\
                         "<mroot>"\
                             "<mrow>"\
-                                "<mi>Null</mi>"\
+                                "<mi></mi>"\
                             "</mrow>"\
                             "<mrow>"\
-                                "<mi>Null</mi>"\
+                                "<mi></mi>"\
                             "</mrow>"\
                         "</mroot>"\
                     "</mrow>"\
@@ -54,10 +54,10 @@ TEST_F(FormulaTest, nth_root1)
                     "<mrow>"\
                         "<mroot>"\
                             "<mrow>"\
-                                "<mi>Null</mi>"\
+                                "<mi></mi>"\
                             "</mrow>"\
                             "<mrow>"\
-                                "<mi>Null</mi>"\
+                                "<mi></mi>"\
                             "</mrow>"\
                         "</mroot>"\
                     "</mrow>"\
@@ -75,7 +75,7 @@ TEST_F(FormulaTest, nth_root1)
                     "<mrow>"\
                         "<mroot>"\
                             "<mrow>"\
-                                "<mi>Null</mi>"\
+                                "<mi></mi>"\
                             "</mrow>"\
                             "<mrow>"\
                                 "<mi>2</mi>"\

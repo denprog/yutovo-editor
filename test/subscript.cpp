@@ -27,10 +27,10 @@ TEST_F(FormulaTest, subscript1)
                     "<mrow>"\
                         "<msub>"\
                             "<mrow>"\
-                                "<mi>Null</mi>"\
+                                "<mi></mi>"\
                             "</mrow>"\
                             "<mrow>"\
-                                "<mi>Null</mi>"\
+                                "<mi></mi>"\
                             "</mrow>"\
                         "</msub>"\
                     "</mrow>"\
@@ -54,10 +54,10 @@ TEST_F(FormulaTest, subscript1)
                     "<mrow>"\
                         "<msub>"\
                             "<mrow>"\
-                                "<mi>Null</mi>"\
+                                "<mi></mi>"\
                             "</mrow>"\
                             "<mrow>"\
-                                "<mi>Null</mi>"\
+                                "<mi></mi>"\
                             "</mrow>"\
                         "</msub>"\
                     "</mrow>"\
@@ -79,7 +79,7 @@ TEST_F(FormulaTest, subscript1)
                                 "<mi>x</mi>"\
                             "</mrow>"\
                             "<mrow>"\
-                                "<mi>Null</mi>"\
+                                "<mi></mi>"\
                             "</mrow>"\
                         "</msub>"\
                     "</mrow>"\
@@ -130,7 +130,7 @@ TEST_F(FormulaTest, subscript2)
                                 "<mi>log</mi>"\
                             "</mrow>"\
                             "<mrow>"\
-                                "<mi>Null</mi>"\
+                                "<mi></mi>"\
                             "</mrow>"\
                         "</msub>"\
                     "</mrow>"\
@@ -157,7 +157,7 @@ TEST_F(FormulaTest, subscript2)
                                 "<mi>log</mi>"\
                             "</mrow>"\
                             "<mrow>"\
-                                "<mi>Null</mi>"\
+                                "<mi></mi>"\
                             "</mrow>"\
                         "</msub>"\
                     "</mrow>"\

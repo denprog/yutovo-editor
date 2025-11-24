@@ -52,6 +52,8 @@ public:
     virtual FormulaFormatPtr GetFormulaFormat() const;
     virtual ParagraphFormatPtr GetParagraphFormat();
 
+    virtual std::string ToHtml() const;
+
     virtual void AddEmptyElement();
 
     virtual bool IsFormula();

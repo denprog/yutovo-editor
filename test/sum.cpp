@@ -29,18 +29,22 @@ TEST_F(FormulaTest, sum1)
                         "<munderover>"\
                             "<mo>Σ</mo>"\
                             "<mrow>"\
-                                "<mi>Null</mi>"\
+                                "<mrow>"\
+                                    "<mi></mi>"\
+                                "</mrow>"\
+                                "<mo>=</mo>"\
+                                "<mrow>"\
+                                    "<mi></mi>"\
+                                "</mrow>"\
                             "</mrow>"\
-                            "<mo>=</mo>"\
                             "<mrow>"\
-                                "<mi>Null</mi>"\
-                            "</mrow>"\
-                            "<mrow>"\
-                                "<mi>Null</mi>"\
+                                "<mrow>"\
+                                    "<mi></mi>"\
+                                "</mrow>"\
                             "</mrow>"\
                         "</munderover>"\
                         "<mrow>"\
-                            "<mi>Null</mi>"\
+                            "<mi></mi>"\
                         "</mrow>"\
                     "</mrow>"\
                 "</math>"\
@@ -64,18 +68,22 @@ TEST_F(FormulaTest, sum1)
                         "<munderover>"\
                             "<mo>Σ</mo>"\
                             "<mrow>"\
-                                "<mi>Null</mi>"\
+                                "<mrow>"\
+                                    "<mi></mi>"\
+                                "</mrow>"\
+                                "<mo>=</mo>"\
+                                "<mrow>"\
+                                    "<mi></mi>"\
+                                "</mrow>"\
                             "</mrow>"\
-                            "<mo>=</mo>"\
                             "<mrow>"\
-                                "<mi>Null</mi>"\
-                            "</mrow>"\
-                            "<mrow>"\
-                                "<mi>Null</mi>"\
+                                "<mrow>"\
+                                    "<mi></mi>"\
+                                "</mrow>"\
                             "</mrow>"\
                         "</munderover>"\
                         "<mrow>"\
-                            "<mi>Null</mi>"\
+                            "<mi></mi>"\
                         "</mrow>"\
                     "</mrow>"\
                 "</math>"\
@@ -146,14 +154,18 @@ TEST_F(FormulaTest, sum2)
                         "<munderover>"\
                             "<mo>Σ</mo>"\
                             "<mrow>"\
-                                "<mi>Null</mi>"\
+                                "<mrow>"\
+                                    "<mi></mi>"\
+                                "</mrow>"\
+                                "<mo>=</mo>"\
+                                "<mrow>"\
+                                    "<mi></mi>"\
+                                "</mrow>"\
                             "</mrow>"\
-                            "<mo>=</mo>"\
                             "<mrow>"\
-                                "<mi>Null</mi>"\
-                            "</mrow>"\
-                            "<mrow>"\
-                                "<mi>Null</mi>"\
+                                "<mrow>"\
+                                    "<mi></mi>"\
+                                "</mrow>"\
                             "</mrow>"\
                         "</munderover>"\
                         "<mrow>"\
@@ -163,7 +175,7 @@ TEST_F(FormulaTest, sum2)
                                     "<mi>2pi</mi>"\
                                 "</mrow>"\
                                 "<mrow>"\
-                                    "<mi>Null</mi>"\
+                                    "<mi></mi>"\
                                 "</mrow>"\
                             "</mfrac>"\
                             "<mo>)</mo>"\

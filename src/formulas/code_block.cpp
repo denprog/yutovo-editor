@@ -244,6 +244,25 @@ ParagraphFormatPtr CodeBlock::GetParagraphFormat()
     return paragraph_format;
 }
 
+std::string CodeBlock::ToHtml() const
+{
+    if (elements->Count() <= 1)
+        return Block::ToHtml();
+
+    std::string html = "<span style=\"white-space:nowrap; display:inline-block;line-height:2;vertical-align:top;\">";
+    for (int i = 0; i < elements->Count(); ++i)
+    {
+        const auto& el = elements->Get(i);
+        if (!el->IsVisible())
+            continue;
+        html += el->ToHtml();
+        if (i < elements->Count() - 1)
+            html += "<br>";
+    }
+    html += "</span>";
+    return html;
+}
+
 void CodeBlock::AddEmptyElement()
 {
     AddElement(ElementPtr(new CodeParagraph(this)));

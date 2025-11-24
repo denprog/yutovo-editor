@@ -30,7 +30,7 @@ TEST_F(CodeTest, code1)
             "<p>"\
                 "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
                     "<mrow>"\
-                        "<mi>Null</mi>"\
+                        "<mi></mi>"\
                     "</mrow>"\
                 "</math>"\
             "</p>"\
@@ -59,7 +59,7 @@ TEST_F(CodeTest, code1)
             "<p>"\
                 "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
                     "<mrow>"\
-                        "<mi>Null</mi>"\
+                        "<mi></mi>"\
                     "</mrow>"\
                 "</math>"\
             "</p>"\
@@ -150,7 +150,7 @@ TEST_F(CodeTest, code2)
                 "<span style=\"font-family:'Arial';font-size:14px;\">Text</span>"\
                 "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
                     "<mrow>"\
-                        "<mi>Null</mi>"\
+                        "<mi></mi>"\
                     "</mrow>"\
                 "</math>"\
             "</p>"\
@@ -167,7 +167,7 @@ TEST_F(CodeTest, code2)
                 "<span style=\"font-family:'Arial';font-size:14px;\">Text</span>"\
                 "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
                     "<mrow>"\
-                        "<mi>Null</mi>"\
+                        "<mi></mi>"\
                     "</mrow>"\
                 "</math>"\
             "</p>"\
@@ -190,7 +190,7 @@ TEST_F(CodeTest, code3)
             "<p>"\
                 "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
                     "<mrow>"\
-                        "<mi>Null</mi>"\
+                        "<mi></mi>"\
                     "</mrow>"\
                 "</math>"\
             "</p>"\
@@ -210,7 +210,7 @@ TEST_F(CodeTest, code3)
             "<p>"\
                 "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
                     "<mrow>"\
-                        "<mi>Null</mi>"\
+                        "<mi></mi>"\
                     "</mrow>"\
                 "</math>"\
             "</p>"\
@@ -238,7 +238,7 @@ TEST_F(CodeTest, code4)
             "<p>"\
                 "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
                     "<mrow>"\
-                        "<mi>Null</mi>"\
+                        "<mi></mi>"\
                     "</mrow>"\
                 "</math>"\
             "</p>"\
@@ -253,7 +253,7 @@ TEST_F(CodeTest, code4)
             "<p>"\
                 "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
                     "<mrow>"\
-                        "<mi>Null</mi>"\
+                        "<mi></mi>"\
                     "</mrow>"\
                 "</math>"\
             "</p>"\
@@ -274,7 +274,7 @@ TEST_F(CodeTest, code4)
             "<p>"\
                 "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
                     "<mrow>"\
-                        "<mi>Null</mi>"\
+                        "<mi></mi>"\
                     "</mrow>"\
                 "</math>"\
             "</p>"\
@@ -290,12 +290,12 @@ TEST_F(CodeTest, code4)
             "<p>"\
                 "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
                     "<mrow>"\
-                        "<mi>Null</mi>"\
+                        "<mi></mi>"\
                     "</mrow>"\
                 "</math>"\
                 "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
                     "<mrow>"\
-                        "<mi>Null</mi>"\
+                        "<mi></mi>"\
                     "</mrow>"\
                 "</math>"\
             "</p>"\
@@ -310,7 +310,7 @@ TEST_F(CodeTest, code4)
             "<p>"\
                 "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
                     "<mrow>"\
-                        "<mi>Null</mi>"\
+                        "<mi></mi>"\
                     "</mrow>"\
                 "</math>"\
             "</p>"\
@@ -325,12 +325,12 @@ TEST_F(CodeTest, code4)
             "<p>"\
                 "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
                     "<mrow>"\
-                        "<mi>Null</mi>"\
+                        "<mi></mi>"\
                     "</mrow>"\
                 "</math>"\
                 "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
                     "<mrow>"\
-                        "<mi>Null</mi>"\
+                        "<mi></mi>"\
                     "</mrow>"\
                 "</math>"\
             "</p>"\
@@ -363,7 +363,7 @@ TEST_F(CodeTest, code5)
             "<p>"\
                 "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
                     "<mrow>"\
-                        "<mi>Null</mi>"\
+                        "<mi></mi>"\
                     "</mrow>"\
                 "</math>"\
             "</p>"\
@@ -393,12 +393,12 @@ TEST_F(CodeTest, code5)
             "<p>"\
                 "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
                     "<mrow>"\
-                        "<mi>Null</mi>"\
+                        "<mi></mi>"\
                     "</mrow>"\
                 "</math>"\
                 "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
                     "<mrow>"\
-                        "<mi>Null</mi>"\
+                        "<mi></mi>"\
                     "</mrow>"\
                 "</math>"\
             "</p>"\
@@ -414,7 +414,7 @@ TEST_F(CodeTest, code5)
             "<p>"\
                 "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
                     "<mrow>"\
-                        "<mi>Null</mi>"\
+                        "<mi></mi>"\
                     "</mrow>"\
                 "</math>"\
             "</p>"\
@@ -430,12 +430,12 @@ TEST_F(CodeTest, code5)
             "<p>"\
                 "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
                     "<mrow>"\
-                        "<mi>Null</mi>"\
+                        "<mi></mi>"\
                     "</mrow>"\
                 "</math>"\
                 "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
                     "<mrow>"\
-                        "<mi>Null</mi>"\
+                        "<mi></mi>"\
                     "</mrow>"\
                 "</math>"\
             "</p>"\
@@ -451,7 +451,7 @@ TEST_F(CodeTest, code5)
             "<p>"\
                 "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
                     "<mrow>"\
-                        "<mi>Null</mi>"\
+                        "<mi></mi>"\
                     "</mrow>"\
                 "</math>"\
             "</p>"\
@@ -512,7 +512,7 @@ TEST_F(CodeTest, code7)
             "<p>"\
                 "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
                     "<mrow>"\
-                        "<mi>Null</mi>"\
+                        "<mi></mi>"\
                     "</mrow>"\
                 "</math>"\
                 "<span style=\"font-family:'Arial';font-size:22px;\">The source of the </span>"\
@@ -531,13 +531,13 @@ TEST_F(CodeTest, code7)
             "<p>"\
                 "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
                     "<mrow>"\
-                        "<mi>Null</mi>"\
+                        "<mi></mi>"\
                     "</mrow>"\
                 "</math>"\
                 "<span style=\"font-family:'Arial';font-size:22px;\">The sour</span>"\
                 "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
                     "<mrow>"\
-                        "<mi>Null</mi>"\
+                        "<mi></mi>"\
                     "</mrow>"\
                 "</math>"\
                 "<span style=\"font-family:'Arial';font-size:22px;\">ce of </span>"\
@@ -555,13 +555,13 @@ TEST_F(CodeTest, code7)
             "<p>"\
                 "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
                     "<mrow>"\
-                        "<mi>Null</mi>"\
+                        "<mi></mi>"\
                     "</mrow>"\
                 "</math>"\
                 "<span style=\"font-family:'Arial';font-size:22px;\">The sour</span>"\
                 "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
                     "<mrow>"\
-                        "<mi>Null</mi>"\
+                        "<mi></mi>"\
                     "</mrow>"\
                 "</math>"\
                 "<span style=\"font-family:'Arial';font-size:22px;\">ce of </span>"\
@@ -569,7 +569,7 @@ TEST_F(CodeTest, code7)
                 "<span style=\"font-family:'Arial';font-size:22px;\">little mysterious.</span>"\
                 "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
                     "<mrow>"\
-                        "<mi>Null</mi>"\
+                        "<mi></mi>"\
                     "</mrow>"\
                 "</math>"\
             "</p>"\
@@ -584,13 +584,13 @@ TEST_F(CodeTest, code7)
             "<p>"\
                 "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
                     "<mrow>"\
-                        "<mi>Null</mi>"\
+                        "<mi></mi>"\
                     "</mrow>"\
                 "</math>"\
                 "<span style=\"font-family:'Arial';font-size:22px;\">The sour</span>"\
                 "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
                     "<mrow>"\
-                        "<mi>Null</mi>"\
+                        "<mi></mi>"\
                     "</mrow>"\
                 "</math>"\
                 "<span style=\"font-family:'Arial';font-size:22px;\">ce of </span>"\
@@ -607,13 +607,13 @@ TEST_F(CodeTest, code7)
             "<p>"\
                 "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
                     "<mrow>"\
-                        "<mi>Null</mi>"\
+                        "<mi></mi>"\
                     "</mrow>"\
                 "</math>"\
                 "<span style=\"font-family:'Arial';font-size:22px;\">The sour</span>"\
                 "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
                     "<mrow>"\
-                        "<mi>Null</mi>"\
+                        "<mi></mi>"\
                     "</mrow>"\
                 "</math>"\
                 "<span style=\"font-family:'Arial';font-size:22px;\">ce of </span>"\
@@ -621,7 +621,7 @@ TEST_F(CodeTest, code7)
                 "<span style=\"font-family:'Arial';font-size:22px;\">little mysterious.</span>"\
                 "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
                     "<mrow>"\
-                        "<mi>Null</mi>"\
+                        "<mi></mi>"\
                     "</mrow>"\
                 "</math>"\
             "</p>"\
@@ -641,7 +641,7 @@ TEST_F(CodeTest, code8)
             "<p>"\
                 "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
                     "<mrow>"\
-                        "<mi>Null</mi>"\
+                        "<mi></mi>"\
                     "</mrow>"\
                 "</math>"\
             "</p>"\
@@ -661,7 +661,7 @@ TEST_F(CodeTest, code8)
             "<p>"\
                 "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
                     "<mrow>"\
-                        "<mi>Null</mi>"\
+                        "<mi></mi>"\
                     "</mrow>"\
                 "</math>"\
                 "<span style=\"font-family:'Arial';font-size:14px;\">Text</span>"\
@@ -681,16 +681,19 @@ TEST_F(CodeTest, code9)
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
-                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
-                    "<mrow>"\
-                        "<mi>Null</mi>"\
-                    "</mrow>"\
-                "</math>"\
-                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
-                    "<mrow>"\
-                        "<mi>Null</mi>"\
-                    "</mrow>"\
-                "</math>"\
+                "<span style=\"white-space:nowrap; display:inline-block;line-height:2;vertical-align:top;\">"
+                    "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                        "<mrow>"\
+                            "<mi></mi>"\
+                        "</mrow>"\
+                    "</math>"\
+                    "<br>"
+                    "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                        "<mrow>"\
+                            "<mi></mi>"\
+                        "</mrow>"\
+                    "</math>"\
+                "</span>"
             "</p>"\
         "</body>") << 
         document.ToHtml();
@@ -704,7 +707,7 @@ TEST_F(CodeTest, code9)
             "<p>"\
                 "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
                     "<mrow>"\
-                        "<mi>Null</mi>"\
+                        "<mi></mi>"\
                     "</mrow>"\
                 "</math>"\
             "</p>"\
@@ -717,16 +720,19 @@ TEST_F(CodeTest, code9)
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
-                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
-                    "<mrow>"\
-                        "<mi>Null</mi>"\
-                    "</mrow>"\
-                "</math>"\
-                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
-                    "<mrow>"\
-                        "<mi>Null</mi>"\
-                    "</mrow>"\
-                "</math>"\
+                "<span style=\"white-space:nowrap; display:inline-block;line-height:2;vertical-align:top;\">"
+                    "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                        "<mrow>"\
+                            "<mi></mi>"\
+                        "</mrow>"\
+                    "</math>"\
+                    "<br>"
+                    "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                        "<mrow>"\
+                            "<mi></mi>"\
+                        "</mrow>"\
+                    "</math>"\
+                "</span>"
             "</p>"\
         "</body>") << 
         document.ToHtml();
@@ -747,16 +753,19 @@ TEST_F(CodeTest, code10)
         "<body>"\
             "<p>"\
                 "<span style=\"font-family:'Arial';font-size:14px;\">Text</span>"\
-                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
-                    "<mrow>"\
-                        "<mi>123</mi>"\
-                    "</mrow>"\
-                "</math>"\
-                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
-                    "<mrow>"\
-                        "<mi>4</mi>"\
-                    "</mrow>"\
-                "</math>"\
+                "<span style=\"white-space:nowrap; display:inline-block;line-height:2;vertical-align:top;\">"
+                    "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                        "<mrow>"\
+                            "<mi>123</mi>"\
+                        "</mrow>"\
+                    "</math>"\
+                    "<br>"
+                    "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                        "<mrow>"\
+                            "<mi>4</mi>"\
+                        "</mrow>"\
+                    "</math>"\
+                "</span>"
             "</p>"\
         "</body>") << 
         document.ToHtml();
@@ -786,16 +795,19 @@ TEST_F(CodeTest, code10)
         "<body>"\
             "<p>"\
                 "<span style=\"font-family:'Arial';font-size:14px;\">Text</span>"\
-                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
-                    "<mrow>"\
-                        "<mi>123</mi>"\
-                    "</mrow>"\
-                "</math>"\
-                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
-                    "<mrow>"\
-                        "<mi>4</mi>"\
-                    "</mrow>"\
-                "</math>"\
+                "<span style=\"white-space:nowrap; display:inline-block;line-height:2;vertical-align:top;\">"
+                    "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                        "<mrow>"\
+                            "<mi>123</mi>"\
+                        "</mrow>"\
+                    "</math>"\
+                    "<br>"
+                    "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                        "<mrow>"\
+                            "<mi>4</mi>"\
+                        "</mrow>"\
+                    "</math>"\
+                "</span>"
             "</p>"\
         "</body>") << 
         document.ToHtml();
@@ -806,23 +818,26 @@ TEST_F(CodeTest, code10)
         "<body>"\
             "<p>"\
                 "<span style=\"font-family:'Arial';font-size:14px;\">Text</span>"\
-                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
-                    "<mrow>"\
-                        "<mi>123</mi>"\
-                    "</mrow>"\
-                "</math>"\
-                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
-                    "<mrow>"\
-                        "<mfrac>"\
-                            "<mrow>"\
-                                "<mi>Null</mi>"\
-                            "</mrow>"\
-                            "<mrow>"\
-                                "<mi>4</mi>"\
-                            "</mrow>"\
-                        "</mfrac>"\
-                    "</mrow>"\
-                "</math>"\
+                "<span style=\"white-space:nowrap; display:inline-block;line-height:2;vertical-align:top;\">"
+                    "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                        "<mrow>"\
+                            "<mi>123</mi>"\
+                        "</mrow>"\
+                    "</math>"\
+                    "<br>"
+                    "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                        "<mrow>"\
+                            "<mfrac>"\
+                                "<mrow>"\
+                                    "<mi></mi>"\
+                                "</mrow>"\
+                                "<mrow>"\
+                                    "<mi>4</mi>"\
+                                "</mrow>"\
+                            "</mfrac>"\
+                        "</mrow>"\
+                    "</math>"\
+                "</span>"
             "</p>"\
         "</body>") << 
         document.ToHtml();
@@ -835,16 +850,19 @@ TEST_F(CodeTest, code10)
         "<body>"\
             "<p>"\
                 "<span style=\"font-family:'Arial';font-size:14px;\">Text</span>"\
-                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
-                    "<mrow>"\
-                        "<mi>123</mi>"\
-                    "</mrow>"\
-                "</math>"\
-                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
-                    "<mrow>"\
-                        "<mi>4</mi>"\
-                    "</mrow>"\
-                "</math>"\
+                "<span style=\"white-space:nowrap; display:inline-block;line-height:2;vertical-align:top;\">"
+                    "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                        "<mrow>"\
+                            "<mi>123</mi>"\
+                        "</mrow>"\
+                    "</math>"\
+                    "<br>"
+                    "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                        "<mrow>"\
+                            "<mi>4</mi>"\
+                        "</mrow>"\
+                    "</math>"\
+                "</span>"
             "</p>"\
         "</body>") << 
         document.ToHtml();
@@ -905,7 +923,7 @@ TEST_F(CodeTest, code12)
                 "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
                     "<mrow>"\
                         "<mi>123</mi>"\
-                        "<mi>Null</mi>"\
+                        "<mi></mi>"\
                     "</mrow>"\
                 "</math>"\
             "</p>"\
@@ -943,7 +961,7 @@ TEST_F(CodeTest, code13)
             "<p>"\
                 "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
                     "<mrow>"\
-                        "<mi>Null</mi>"\
+                        "<mi></mi>"\
                         "<mi>123</mi>"\
                     "</mrow>"\
                 "</math>"\
@@ -975,7 +993,7 @@ TEST_F(CodeTest, code13)
             "<p>"\
                 "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
                     "<mrow>"\
-                        "<mi>Null</mi>"\
+                        "<mi></mi>"\
                         "<mi>123</mi>"\
                     "</mrow>"\
                 "</math>"\
@@ -1066,11 +1084,11 @@ TEST_F(CodeTest, code15)
             "<p>"\
                 "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
                     "<mrow>"\
-                        "<mi>Null</mi>"\
+                        "<mi></mi>"\
                         "<mi>123</mi>"\
-                        "<mi>Null</mi>"\
+                        "<mi></mi>"\
                         "<mi>45</mi>"\
-                        "<mi>Null</mi>"\
+                        "<mi></mi>"\
                     "</mrow>"\
                 "</math>"\
             "</p>"\
@@ -1086,10 +1104,10 @@ TEST_F(CodeTest, code15)
             "<p>"\
                 "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
                     "<mrow>"\
-                        "<mi>Null</mi>"\
+                        "<mi></mi>"\
                         "<mi>123</mi>"\
                         "<mi>45</mi>"\
-                        "<mi>Null</mi>"\
+                        "<mi></mi>"\
                     "</mrow>"\
                 "</math>"\
             "</p>"\
@@ -1104,11 +1122,11 @@ TEST_F(CodeTest, code15)
             "<p>"\
                 "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
                     "<mrow>"\
-                        "<mi>Null</mi>"\
+                        "<mi></mi>"\
                         "<mi>123</mi>"\
-                        "<mi>Null</mi>"\
+                        "<mi></mi>"\
                         "<mi>45</mi>"\
-                        "<mi>Null</mi>"\
+                        "<mi></mi>"\
                     "</mrow>"\
                 "</math>"\
             "</p>"\
@@ -1122,10 +1140,10 @@ TEST_F(CodeTest, code15)
             "<p>"\
                 "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
                     "<mrow>"\
-                        "<mi>Null</mi>"\
+                        "<mi></mi>"\
                         "<mi>123</mi>"\
                         "<mi>45</mi>"\
-                        "<mi>Null</mi>"\
+                        "<mi></mi>"\
                     "</mrow>"\
                 "</math>"\
             "</p>"\
@@ -1140,11 +1158,11 @@ TEST_F(CodeTest, code15)
             "<p>"\
                 "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
                     "<mrow>"\
-                        "<mi>Null</mi>"\
+                        "<mi></mi>"\
                         "<mi>123</mi>"\
-                        "<mi>Null</mi>"\
+                        "<mi></mi>"\
                         "<mi>45</mi>"\
-                        "<mi>Null</mi>"\
+                        "<mi></mi>"\
                     "</mrow>"\
                 "</math>"\
             "</p>"\
@@ -1163,7 +1181,7 @@ TEST_F(CodeTest, code16)
             "<p>"\
                 "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
                     "<mrow>"\
-                        "<mi>Null</mi>"\
+                        "<mi></mi>"\
                     "</mrow>"\
                 "</math>"\
             "</p>"\
@@ -1183,7 +1201,7 @@ TEST_F(CodeTest, code16)
             "<p>"\
                 "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
                     "<mrow>"\
-                        "<mi>Null</mi>"\
+                        "<mi></mi>"\
                     "</mrow>"\
                 "</math>"\
             "</p>"\
@@ -1222,12 +1240,12 @@ TEST_F(CodeTest, code18)
             "<p>"\
                 "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
                     "<mrow>"\
-                        "<mi>Null</mi>"\
+                        "<mi></mi>"\
                     "</mrow>"\
                 "</math>"\
                 "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
                     "<mrow>"\
-                        "<mi>Null</mi>"\
+                        "<mi></mi>"\
                     "</mrow>"\
                 "</math>"\
             "</p>"\
@@ -1417,16 +1435,19 @@ TEST_F(CodeTest, code24)
                 "</math>"\
             "</p>"\
             "<p>"\
-                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
-                    "<mrow>"\
-                        "<mi>123</mi>"\
-                    "</mrow>"\
-                "</math>"\
-                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
-                    "<mrow>"\
-                        "<mi>77</mi>"\
-                    "</mrow>"\
-                "</math>"\
+                "<span style=\"white-space:nowrap; display:inline-block;line-height:2;vertical-align:top;\">"
+                    "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                        "<mrow>"\
+                            "<mi>123</mi>"\
+                        "</mrow>"\
+                    "</math>"\
+                    "<br>"
+                    "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                        "<mrow>"\
+                            "<mi>77</mi>"\
+                        "</mrow>"\
+                    "</math>"\
+                "</span>"
             "</p>"\
         "</body>") << 
         document.ToHtml();
@@ -1444,16 +1465,19 @@ TEST_F(CodeTest, code24)
                 "</math>"\
             "</p>"\
             "<p>"\
-                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
-                    "<mrow>"\
-                        "<mi>5555</mi>"\
-                    "</mrow>"\
-                "</math>"\
-                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
-                    "<mrow>"\
-                        "<mi>77</mi>"\
-                    "</mrow>"\
-                "</math>"\
+                "<span style=\"white-space:nowrap; display:inline-block;line-height:2;vertical-align:top;\">"
+                    "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                        "<mrow>"\
+                            "<mi>5555</mi>"\
+                        "</mrow>"\
+                    "</math>"\
+                    "<br>"
+                    "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                        "<mrow>"\
+                            "<mi>77</mi>"\
+                        "</mrow>"\
+                    "</math>"\
+                "</span>"
             "</p>"\
         "</body>") << 
         document.ToHtml();
@@ -1472,16 +1496,19 @@ TEST_F(CodeTest, code24)
                 "</math>"\
             "</p>"\
             "<p>"\
-                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
-                    "<mrow>"\
-                        "<mi>123</mi>"\
-                    "</mrow>"\
-                "</math>"\
-                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
-                    "<mrow>"\
-                        "<mi>77</mi>"\
-                    "</mrow>"\
-                "</math>"\
+                "<span style=\"white-space:nowrap; display:inline-block;line-height:2;vertical-align:top;\">"
+                    "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                        "<mrow>"\
+                            "<mi>123</mi>"\
+                        "</mrow>"\
+                    "</math>"\
+                    "<br>"
+                    "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                        "<mrow>"\
+                            "<mi>77</mi>"\
+                        "</mrow>"\
+                    "</math>"\
+                "</span>"
             "</p>"\
         "</body>") << 
         document.ToHtml();
@@ -1560,7 +1587,7 @@ TEST_F(CodeTest, code27)
                 "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
                     "<mrow>"\
                         "<mi>123</mi>"\
-                        "<mi>Null</mi>"\
+                        "<mi></mi>"\
                     "</mrow>"\
                 "</math>"\
             "</p>"\
@@ -1592,7 +1619,7 @@ TEST_F(CodeTest, code27)
                 "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
                     "<mrow>"\
                         "<mi>123</mi>"\
-                        "<mi>Null</mi>"\
+                        "<mi></mi>"\
                     "</mrow>"\
                 "</math>"\
             "</p>"\
@@ -1646,7 +1673,7 @@ TEST_F(CodeTest, code28)
             "<p>"\
                 "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
                     "<mrow>"\
-                        "<mi>Null</mi>"\
+                        "<mi></mi>"\
                     "</mrow>"\
                 "</math>"\
             "</p>"\

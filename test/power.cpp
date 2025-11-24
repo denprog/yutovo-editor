@@ -28,10 +28,10 @@ TEST_F(FormulaTest, power1)
                     "<mrow>"\
                         "<msup>"\
                             "<mrow>"\
-                                "<mi>Null</mi>"\
+                                "<mi></mi>"\
                             "</mrow>"\
                             "<mrow>"\
-                                "<mi>Null</mi>"\
+                                "<mi></mi>"\
                             "</mrow>"\
                         "</msup>"\
                     "</mrow>"\
@@ -55,10 +55,10 @@ TEST_F(FormulaTest, power1)
                     "<mrow>"\
                         "<msup>"\
                             "<mrow>"\
-                                "<mi>Null</mi>"\
+                                "<mi></mi>"\
                             "</mrow>"\
                             "<mrow>"\
-                                "<mi>Null</mi>"\
+                                "<mi></mi>"\
                             "</mrow>"\
                         "</msup>"\
                     "</mrow>"\
@@ -79,7 +79,7 @@ TEST_F(FormulaTest, power1)
                                 "<mi>2</mi>"\
                             "</mrow>"\
                             "<mrow>"\
-                                "<mi>Null</mi>"\
+                                "<mi></mi>"\
                             "</mrow>"\
                         "</msup>"\
                     "</mrow>"\
@@ -130,7 +130,7 @@ TEST_F(FormulaTest, power2)
                                 "<mi>123</mi>"\
                             "</mrow>"\
                             "<mrow>"\
-                                "<mi>Null</mi>"\
+                                "<mi></mi>"\
                             "</mrow>"\
                         "</msup>"\
                     "</mrow>"\
@@ -168,7 +168,7 @@ TEST_F(FormulaTest, power2)
                                 "<mi>123</mi>"\
                             "</mrow>"\
                             "<mrow>"\
-                                "<mi>Null</mi>"\
+                                "<mi></mi>"\
                             "</mrow>"\
                         "</msup>"\
                     "</mrow>"\
@@ -504,7 +504,7 @@ TEST_F(FormulaTest, power7)
                     "<mrow>"\
                         "<mfrac>"\
                             "<mrow>"\
-                                "<mi>Null</mi>"\
+                                "<mi></mi>"\
                             "</mrow>"\
                             "<mrow>"\
                                 "<msup>"\
@@ -512,7 +512,7 @@ TEST_F(FormulaTest, power7)
                                         "<mi>4567</mi>"\
                                     "</mrow>"\
                                     "<mrow>"\
-                                        "<mi>Null</mi>"\
+                                        "<mi></mi>"\
                                     "</mrow>"\
                                 "</msup>"\
                             "</mrow>"\
@@ -534,7 +534,7 @@ TEST_F(FormulaTest, power7)
                     "<mrow>"\
                         "<mfrac>"\
                             "<mrow>"\
-                                "<mi>Null</mi>"\
+                                "<mi></mi>"\
                             "</mrow>"\
                             "<mrow>"\
                                 "<mi>4567</mi>"\
@@ -812,7 +812,7 @@ TEST_F(FormulaTest, power16)
                                         "<mi>12</mi>"\
                                     "</mrow>"\
                                     "<mrow>"\
-                                        "<mi>Null</mi>"\
+                                        "<mi></mi>"\
                                     "</mrow>"\
                                 "</msup>"\
                                 "<mo>+</mo>"\
@@ -892,7 +892,7 @@ TEST_F(FormulaTest, power17)
                                 "<mo>)</mo>" \
                             "</mrow>"\
                             "<mrow>"\
-                                "<mi>Null</mi>"\
+                                "<mi></mi>"\
                             "</mrow>"\
                         "</msup>"\
                     "</mrow>"\
@@ -981,7 +981,7 @@ TEST_F(FormulaTest, power20)
                                 "<mo>)</mo>" \
                             "</mrow>"\
                             "<mrow>"\
-                                "<mi>Null</mi>"\
+                                "<mi></mi>"\
                             "</mrow>"\
                         "</msup>"\
                     "</mrow>"\
@@ -1025,7 +1025,7 @@ TEST_F(FormulaTest, power20)
                                 "<mo>)</mo>" \
                             "</mrow>"\
                             "<mrow>"\
-                                "<mi>Null</mi>"\
+                                "<mi></mi>"\
                             "</mrow>"\
                         "</msup>"\
                     "</mrow>"\
@@ -1062,7 +1062,7 @@ TEST_F(FormulaTest, power21)
                                 "<mo>)</mo>" \
                             "</mrow>"\
                             "<mrow>"\
-                                "<mi>Null</mi>"\
+                                "<mi></mi>"\
                             "</mrow>"\
                         "</msup>"\
                     "</mrow>"\
@@ -1106,7 +1106,7 @@ TEST_F(FormulaTest, power21)
                                 "<mo>)</mo>" \
                             "</mrow>"\
                             "<mrow>"\
-                                "<mi>Null</mi>"\
+                                "<mi></mi>"\
                             "</mrow>"\
                         "</msup>"\
                     "</mrow>"\

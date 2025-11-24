@@ -47,6 +47,8 @@ public:
 
     virtual bool Depends(const std::string& identifier);
 
+    virtual void GetImage(std::string& image_base64) const;
+
 protected:
     void SetNumber(const double num, CodeRow* el);
 
@@ -106,6 +108,7 @@ public:
 
     virtual bool MouseLButtonHold(const int x, const int y, MouseHoldType& hold_type, ElementId& hold_id);
 
+    virtual std::string ToHtml() const;
     virtual std::u32string ToText() const;
     virtual void ToParserString(ParserString& str);
 

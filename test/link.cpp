@@ -28,7 +28,7 @@ TEST_F(DocumentTest, link1)
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
-                "<a url=\"www.link.ru\" style=\"font-family:'Arial';font-size:14px;text-decoration: underline;color:rgba(0,0,255,255);\">link</a>"\
+                "<a href=\"www.link.ru\" style=\"font-family:'Arial';font-size:14px;text-decoration: underline;color:rgba(0,0,255,255);\">link</a>"\
             "</p>"\
         "</body>") << 
         document.ToHtml();
@@ -51,7 +51,7 @@ TEST_F(DocumentTest, link1)
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
-                "<a url=\"www.link.ru\" style=\"font-family:'Arial';font-size:14px;text-decoration: underline;color:rgba(0,0,255,255);\">link</a>"\
+                "<a href=\"www.link.ru\" style=\"font-family:'Arial';font-size:14px;text-decoration: underline;color:rgba(0,0,255,255);\">link</a>"\
             "</p>"\
         "</body>") << 
         document.ToHtml();
@@ -63,7 +63,7 @@ TEST_F(DocumentTest, link1)
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
-                "<a url=\"www.link.ru\" style=\"font-family:'Arial';font-size:14px;text-decoration: underline;color:rgba(255,105,180,255);\">link</a>"\
+                "<a href=\"www.link.ru\" style=\"font-family:'Arial';font-size:14px;text-decoration: underline;color:rgba(255,105,180,255);\">link</a>"\
             "</p>"\
         "</body>") << 
         document.ToHtml();
@@ -83,7 +83,7 @@ TEST_F(DocumentTest, link2)
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
-                "<a url=\"www.link.ru\" style=\"font-family:'Arial';font-size:14px;text-decoration: underline;color:rgba(0,0,255,255);\">link</a>"\
+                "<a href=\"www.link.ru\" style=\"font-family:'Arial';font-size:14px;text-decoration: underline;color:rgba(0,0,255,255);\">link</a>"\
             "</p>"\
         "</body>") << 
         document.ToHtml();
@@ -93,7 +93,7 @@ TEST_F(DocumentTest, link2)
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
-                "<a url=\"www.link1.ru\" style=\"font-family:'Arial';font-size:14px;text-decoration: underline;color:rgba(0,0,255,255);\">new link</a>"\
+                "<a href=\"www.link1.ru\" style=\"font-family:'Arial';font-size:14px;text-decoration: underline;color:rgba(0,0,255,255);\">new link</a>"\
             "</p>"\
         "</body>") << 
         document.ToHtml();
@@ -105,7 +105,7 @@ TEST_F(DocumentTest, link2)
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
-                "<a url=\"www.link.ru\" style=\"font-family:'Arial';font-size:14px;text-decoration: underline;color:rgba(0,0,255,255);\">link</a>"\
+                "<a href=\"www.link.ru\" style=\"font-family:'Arial';font-size:14px;text-decoration: underline;color:rgba(0,0,255,255);\">link</a>"\
             "</p>"\
         "</body>") << 
         document.ToHtml();
@@ -117,7 +117,7 @@ TEST_F(DocumentTest, link2)
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
-                "<a url=\"www.link1.ru\" style=\"font-family:'Arial';font-size:14px;text-decoration: underline;color:rgba(0,0,255,255);\">new link</a>"\
+                "<a href=\"www.link1.ru\" style=\"font-family:'Arial';font-size:14px;text-decoration: underline;color:rgba(0,0,255,255);\">new link</a>"\
             "</p>"\
         "</body>") << 
         document.ToHtml();
@@ -127,7 +127,7 @@ TEST_F(DocumentTest, link2)
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
-                "<a url=\"www.link1.ru\" style=\"font-family:'Arial';font-size:14px;text-decoration: underline;color:rgba(0,0,255,255);\">new lin</a>"\
+                "<a href=\"www.link1.ru\" style=\"font-family:'Arial';font-size:14px;text-decoration: underline;color:rgba(0,0,255,255);\">new lin</a>"\
             "</p>"\
         "</body>") << 
         document.ToHtml();
@@ -139,7 +139,7 @@ TEST_F(DocumentTest, link2)
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
-                "<a url=\"www.link1.ru\" style=\"font-family:'Arial';font-size:14px;text-decoration: underline;color:rgba(0,0,255,255);\">new link</a>"\
+                "<a href=\"www.link1.ru\" style=\"font-family:'Arial';font-size:14px;text-decoration: underline;color:rgba(0,0,255,255);\">new link</a>"\
             "</p>"\
         "</body>") << 
         document.ToHtml();
@@ -155,7 +155,7 @@ TEST_F(DocumentTest, link3)
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
-                "<a url=\"www.link.ru\" style=\"font-family:'Arial';font-size:14px;text-decoration: underline;color:rgba(0,0,255,255);\">link</a>"\
+                "<a href=\"www.link.ru\" style=\"font-family:'Arial';font-size:14px;text-decoration: underline;color:rgba(0,0,255,255);\">link</a>"\
             "</p>"\
         "</body>") << 
         document.ToHtml();
@@ -165,10 +165,10 @@ TEST_F(DocumentTest, link3)
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
-                "<a url=\"www.link.ru\" style=\"font-family:'Arial';font-size:14px;text-decoration: underline;color:rgba(0,0,255,255);\">link</a>"\
+                "<a href=\"www.link.ru\" style=\"font-family:'Arial';font-size:14px;text-decoration: underline;color:rgba(0,0,255,255);\">link</a>"\
                 "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
                     "<mrow>"\
-                        "<mi>Null</mi>"\
+                        "<mi></mi>"\
                     "</mrow>"\
                 "</math>"\
             "</p>"\
@@ -181,10 +181,10 @@ TEST_F(DocumentTest, link3)
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
-                "<a url=\"www.link.ru\" style=\"font-family:'Arial';font-size:14px;text-decoration: underline;color:rgba(0,0,255,255);\">link</a>"\
+                "<a href=\"www.link.ru\" style=\"font-family:'Arial';font-size:14px;text-decoration: underline;color:rgba(0,0,255,255);\">link</a>"\
                 "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
                     "<mrow>"\
-                        "<mi>Null</mi>"\
+                        "<mi></mi>"\
                     "</mrow>"\
                 "</math>"\
                 "<span style=\"font-family:'Arial';font-size:14px;\">Text</span>"\
@@ -203,7 +203,7 @@ TEST_F(DocumentTest, link4)
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
-                "<a url=\"www.link.ru\" style=\"font-family:'Arial';font-size:14px;text-decoration: underline;color:rgba(0,0,255,255);\">link</a>"\
+                "<a href=\"www.link.ru\" style=\"font-family:'Arial';font-size:14px;text-decoration: underline;color:rgba(0,0,255,255);\">link</a>"\
             "</p>"\
         "</body>") << 
         document.ToHtml();
@@ -213,7 +213,7 @@ TEST_F(DocumentTest, link4)
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
-                "<a url=\"www.link.ru\" style=\"font-family:'Arial';font-size:14px;text-decoration: underline;color:rgba(0,0,255,255);\">link</a>"\
+                "<a href=\"www.link.ru\" style=\"font-family:'Arial';font-size:14px;text-decoration: underline;color:rgba(0,0,255,255);\">link</a>"\
                 "<span style=\"font-family:'Arial';font-size:14px;\"> </span>"\
             "</p>"\
         "</body>") << 
@@ -230,7 +230,7 @@ TEST_F(DocumentTest, link5)
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
-                "<a url=\"www.link.ru\" style=\"font-family:'Arial';font-size:14px;text-decoration: underline;color:rgba(0,0,255,255);\">link</a>"\
+                "<a href=\"www.link.ru\" style=\"font-family:'Arial';font-size:14px;text-decoration: underline;color:rgba(0,0,255,255);\">link</a>"\
             "</p>"\
         "</body>") << 
         document.ToHtml();
@@ -245,7 +245,7 @@ TEST_F(DocumentTest, link5)
         "<body>"\
             "<p>"\
                 "<span style=\"font-family:'Arial';font-size:14px;\">1234</span>"\
-                "<a url=\"www.link.ru\" style=\"font-family:'Arial';font-size:14px;text-decoration: underline;color:rgba(0,0,255,255);\">link</a>"\
+                "<a href=\"www.link.ru\" style=\"font-family:'Arial';font-size:14px;text-decoration: underline;color:rgba(0,0,255,255);\">link</a>"\
             "</p>"\
         "</body>") << 
         document.ToHtml();
@@ -258,7 +258,7 @@ TEST_F(DocumentTest, link5)
         "<body>"\
             "<p>"\
                 "<span style=\"font-family:'Arial';font-size:14px;\">123</span>"\
-                "<a url=\"www.link.ru\" style=\"font-family:'Arial';font-size:14px;text-decoration: underline;color:rgba(0,0,255,255);\">link</a>"\
+                "<a href=\"www.link.ru\" style=\"font-family:'Arial';font-size:14px;text-decoration: underline;color:rgba(0,0,255,255);\">link</a>"\
             "</p>"\
         "</body>") << 
         document.ToHtml();
@@ -271,7 +271,7 @@ TEST_F(DocumentTest, link5)
         "<body>"\
             "<p>"\
                 "<span style=\"font-family:'Arial';font-size:14px;\">12</span>"\
-                "<a url=\"www.link.ru\" style=\"font-family:'Arial';font-size:14px;text-decoration: underline;color:rgba(0,0,255,255);\">link</a>"\
+                "<a href=\"www.link.ru\" style=\"font-family:'Arial';font-size:14px;text-decoration: underline;color:rgba(0,0,255,255);\">link</a>"\
             "</p>"\
         "</body>") << 
         document.ToHtml();
@@ -284,7 +284,7 @@ TEST_F(DocumentTest, link5)
         "<body>"\
             "<p>"\
                 "<span style=\"font-family:'Arial';font-size:14px;\">1</span>"\
-                "<a url=\"www.link.ru\" style=\"font-family:'Arial';font-size:14px;text-decoration: underline;color:rgba(0,0,255,255);\">link</a>"\
+                "<a href=\"www.link.ru\" style=\"font-family:'Arial';font-size:14px;text-decoration: underline;color:rgba(0,0,255,255);\">link</a>"\
             "</p>"\
         "</body>") << 
         document.ToHtml();
@@ -296,7 +296,7 @@ TEST_F(DocumentTest, link5)
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
-                "<a url=\"www.link.ru\" style=\"font-family:'Arial';font-size:14px;text-decoration: underline;color:rgba(0,0,255,255);\">link</a>"\
+                "<a href=\"www.link.ru\" style=\"font-family:'Arial';font-size:14px;text-decoration: underline;color:rgba(0,0,255,255);\">link</a>"\
             "</p>"\
         "</body>") << 
         document.ToHtml();
@@ -309,7 +309,7 @@ TEST_F(DocumentTest, link5)
         "<body>"\
             "<p>"\
                 "<span style=\"font-family:'Arial';font-size:14px;\">1</span>"\
-                "<a url=\"www.link.ru\" style=\"font-family:'Arial';font-size:14px;text-decoration: underline;color:rgba(0,0,255,255);\">link</a>"\
+                "<a href=\"www.link.ru\" style=\"font-family:'Arial';font-size:14px;text-decoration: underline;color:rgba(0,0,255,255);\">link</a>"\
             "</p>"\
         "</body>") << 
         document.ToHtml();
@@ -333,10 +333,10 @@ TEST_F(DocumentTest, link6)
             "<p>"\
                 "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
                     "<mrow>"\
-                        "<mi>Null</mi>"\
+                        "<mi></mi>"\
                     "</mrow>"\
                 "</math>"\
-                "<a url=\"www.link.ru\" style=\"font-family:'Arial';font-size:14px;text-decoration: underline;color:rgba(0,0,255,255);\">link</a>"\
+                "<a href=\"www.link.ru\" style=\"font-family:'Arial';font-size:14px;text-decoration: underline;color:rgba(0,0,255,255);\">link</a>"\
             "</p>"\
         "</body>") << 
         document.ToHtml();
@@ -350,7 +350,7 @@ TEST_F(DocumentTest, link6)
             "<p>"\
                 "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
                     "<mrow>"\
-                        "<mi>Null</mi>"\
+                        "<mi></mi>"\
                     "</mrow>"\
                 "</math>"\
             "</p>"\
@@ -368,7 +368,7 @@ TEST_F(DocumentTest, link7)
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
-                "<a url=\"www.link.ru\" style=\"font-family:'Arial';font-size:14px;text-decoration: underline;color:rgba(0,0,255,255);\">link</a>"\
+                "<a href=\"www.link.ru\" style=\"font-family:'Arial';font-size:14px;text-decoration: underline;color:rgba(0,0,255,255);\">link</a>"\
             "</p>"\
         "</body>") << 
         document.ToHtml();
@@ -379,7 +379,7 @@ TEST_F(DocumentTest, link7)
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
-                "<a url=\"www.link.ru\" style=\"font-family:'Arial';font-size:14px;text-decoration: underline;color:rgba(0,0,255,255);\">link</a>"\
+                "<a href=\"www.link.ru\" style=\"font-family:'Arial';font-size:14px;text-decoration: underline;color:rgba(0,0,255,255);\">link</a>"\
                 "<span style=\"font-family:'Arial';font-size:14px;\">12</span>"\
             "</p>"\
         "</body>") << 
@@ -392,7 +392,7 @@ TEST_F(DocumentTest, link7)
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
-                "<a url=\"www.link.ru\" style=\"font-family:'Arial';font-size:14px;text-decoration: underline;color:rgba(0,0,255,255);\">link</a>"\
+                "<a href=\"www.link.ru\" style=\"font-family:'Arial';font-size:14px;text-decoration: underline;color:rgba(0,0,255,255);\">link</a>"\
                 "<span style=\"font-family:'Arial';font-size:14px;\">1</span>"\
             "</p>"\
         "</body>") << 
@@ -405,7 +405,7 @@ TEST_F(DocumentTest, link7)
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
-                "<a url=\"www.link.ru\" style=\"font-family:'Arial';font-size:14px;text-decoration: underline;color:rgba(0,0,255,255);\">link</a>"\
+                "<a href=\"www.link.ru\" style=\"font-family:'Arial';font-size:14px;text-decoration: underline;color:rgba(0,0,255,255);\">link</a>"\
             "</p>"\
         "</body>") << 
         document.ToHtml();
@@ -417,7 +417,7 @@ TEST_F(DocumentTest, link7)
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
-                "<a url=\"www.link.ru\" style=\"font-family:'Arial';font-size:14px;text-decoration: underline;color:rgba(0,0,255,255);\">link</a>"\
+                "<a href=\"www.link.ru\" style=\"font-family:'Arial';font-size:14px;text-decoration: underline;color:rgba(0,0,255,255);\">link</a>"\
                 "<span style=\"font-family:'Arial';font-size:14px;\">1</span>"\
             "</p>"\
         "</body>") << 
@@ -436,7 +436,7 @@ TEST_F(DocumentTest, link8)
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
-                "<a url=\"www.link.ru\" style=\"font-family:'Arial';font-size:14px;text-decoration: underline;color:rgba(0,0,255,255);\">link</a>"\
+                "<a href=\"www.link.ru\" style=\"font-family:'Arial';font-size:14px;text-decoration: underline;color:rgba(0,0,255,255);\">link</a>"\
             "</p>"\
             "<p>"\
                 "<span style=\"font-family:'Arial';font-size:14px;\">1</span>"\
@@ -451,7 +451,7 @@ TEST_F(DocumentTest, link8)
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
-                "<a url=\"www.link.ru\" style=\"font-family:'Arial';font-size:14px;text-decoration: underline;color:rgba(0,0,255,255);\">link</a>"\
+                "<a href=\"www.link.ru\" style=\"font-family:'Arial';font-size:14px;text-decoration: underline;color:rgba(0,0,255,255);\">link</a>"\
             "</p>"\
             "<p>"\
                 "<span style=\"font-family:'Arial';font-size:14px;\"></span>"\
@@ -466,7 +466,7 @@ TEST_F(DocumentTest, link8)
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
-                "<a url=\"www.link.ru\" style=\"font-family:'Arial';font-size:14px;text-decoration: underline;color:rgba(0,0,255,255);\">link</a>"\
+                "<a href=\"www.link.ru\" style=\"font-family:'Arial';font-size:14px;text-decoration: underline;color:rgba(0,0,255,255);\">link</a>"\
             "</p>"\
         "</body>") << 
         document.ToHtml();
@@ -486,7 +486,7 @@ TEST_F(DocumentTest, link9)
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
-                "<a url=\"www.link.ru\" style=\"font-family:'Courier New';font-size:12px;text-decoration: underline;color:rgba(0,0,255,255);\">link</a>"\
+                "<a href=\"www.link.ru\" style=\"font-family:'Courier New';font-size:12px;text-decoration: underline;color:rgba(0,0,255,255);\">link</a>"\
                 "<span style=\"font-family:'Courier New';font-size:12px;\">123</span>"\
             "</p>"\
         "</body>") << 
@@ -499,7 +499,7 @@ TEST_F(DocumentTest, link9)
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
-                "<a url=\"www.link.ru\" style=\"font-family:'Courier New';font-size:12px;text-decoration: underline;color:rgba(0,0,255,255);\">link</a>"\
+                "<a href=\"www.link.ru\" style=\"font-family:'Courier New';font-size:12px;text-decoration: underline;color:rgba(0,0,255,255);\">link</a>"\
                 "<span style=\"font-family:'Courier New';font-size:12px;\">12</span>"\
             "</p>"\
         "</body>") << 
@@ -512,7 +512,7 @@ TEST_F(DocumentTest, link9)
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
-                "<a url=\"www.link.ru\" style=\"font-family:'Courier New';font-size:12px;text-decoration: underline;color:rgba(0,0,255,255);\">link</a>"\
+                "<a href=\"www.link.ru\" style=\"font-family:'Courier New';font-size:12px;text-decoration: underline;color:rgba(0,0,255,255);\">link</a>"\
                 "<span style=\"font-family:'Courier New';font-size:12px;\">1</span>"\
             "</p>"\
         "</body>") << 
@@ -525,7 +525,7 @@ TEST_F(DocumentTest, link9)
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
-                "<a url=\"www.link.ru\" style=\"font-family:'Courier New';font-size:12px;text-decoration: underline;color:rgba(0,0,255,255);\">link</a>"\
+                "<a href=\"www.link.ru\" style=\"font-family:'Courier New';font-size:12px;text-decoration: underline;color:rgba(0,0,255,255);\">link</a>"\
             "</p>"\
         "</body>") << 
         document.ToHtml();
@@ -549,7 +549,7 @@ TEST_F(DocumentTest, link9)
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
-                "<a url=\"www.link.ru\" style=\"font-family:'Courier New';font-size:12px;text-decoration: underline;color:rgba(0,0,255,255);\">link</a>"\
+                "<a href=\"www.link.ru\" style=\"font-family:'Courier New';font-size:12px;text-decoration: underline;color:rgba(0,0,255,255);\">link</a>"\
             "</p>"\
         "</body>") << 
         document.ToHtml();
@@ -561,7 +561,7 @@ TEST_F(DocumentTest, link9)
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
-                "<a url=\"www.link.ru\" style=\"font-family:'Courier New';font-size:12px;text-decoration: underline;color:rgba(0,0,255,255);\">link</a>"\
+                "<a href=\"www.link.ru\" style=\"font-family:'Courier New';font-size:12px;text-decoration: underline;color:rgba(0,0,255,255);\">link</a>"\
                 "<span style=\"font-family:'Courier New';font-size:12px;\">1</span>"\
             "</p>"\
         "</body>") << 
@@ -574,7 +574,7 @@ TEST_F(DocumentTest, link9)
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
-                "<a url=\"www.link.ru\" style=\"font-family:'Courier New';font-size:12px;text-decoration: underline;color:rgba(0,0,255,255);\">link</a>"\
+                "<a href=\"www.link.ru\" style=\"font-family:'Courier New';font-size:12px;text-decoration: underline;color:rgba(0,0,255,255);\">link</a>"\
                 "<span style=\"font-family:'Courier New';font-size:12px;\">12</span>"\
             "</p>"\
         "</body>") << 
@@ -587,7 +587,7 @@ TEST_F(DocumentTest, link9)
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
-                "<a url=\"www.link.ru\" style=\"font-family:'Courier New';font-size:12px;text-decoration: underline;color:rgba(0,0,255,255);\">link</a>"\
+                "<a href=\"www.link.ru\" style=\"font-family:'Courier New';font-size:12px;text-decoration: underline;color:rgba(0,0,255,255);\">link</a>"\
                 "<span style=\"font-family:'Courier New';font-size:12px;\">123</span>"\
             "</p>"\
         "</body>") << 
@@ -606,7 +606,7 @@ TEST_F(DocumentTest, link10)
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
-                "<a url=\"www.link.ru\" style=\"font-family:'Arial';font-size:14px;text-decoration: underline;color:rgba(0,0,255,255);\">linnk</a>"\
+                "<a href=\"www.link.ru\" style=\"font-family:'Arial';font-size:14px;text-decoration: underline;color:rgba(0,0,255,255);\">linnk</a>"\
             "</p>"\
         "</body>") << 
         document.ToHtml();
@@ -618,7 +618,7 @@ TEST_F(DocumentTest, link10)
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
-                "<a url=\"www.link.ru\" style=\"font-family:'Arial';font-size:14px;text-decoration: underline;color:rgba(0,0,255,255);\">link</a>"\
+                "<a href=\"www.link.ru\" style=\"font-family:'Arial';font-size:14px;text-decoration: underline;color:rgba(0,0,255,255);\">link</a>"\
             "</p>"\
         "</body>") << 
         document.ToHtml();
@@ -638,7 +638,7 @@ TEST_F(DocumentTest, link11)
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
-                "<a url=\"www.link.ru\" style=\"font-family:'Arial';font-size:14px;text-decoration: underline;color:rgba(0,0,255,255);\">limk</a>"\
+                "<a href=\"www.link.ru\" style=\"font-family:'Arial';font-size:14px;text-decoration: underline;color:rgba(0,0,255,255);\">limk</a>"\
             "</p>"\
         "</body>") << 
         document.ToHtml();
@@ -649,7 +649,7 @@ TEST_F(DocumentTest, link11)
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
-                "<a url=\"www.link.ru\" style=\"font-family:'Arial';font-size:14px;text-decoration: underline;color:rgba(0,0,255,255);\">link</a>"\
+                "<a href=\"www.link.ru\" style=\"font-family:'Arial';font-size:14px;text-decoration: underline;color:rgba(0,0,255,255);\">link</a>"\
             "</p>"\
         "</body>") << 
         document.ToHtml();
@@ -670,7 +670,7 @@ TEST_F(TwoDocumentsTest, link12)
     ASSERT_TRUE(document2.ToHtml() == 
         "<body>"\
             "<p>"\
-                "<a url=\"www.link.ru\" style=\"font-family:'Arial';font-size:14px;text-decoration: underline;color:rgba(0,0,255,255);\">link</a>"\
+                "<a href=\"www.link.ru\" style=\"font-family:'Arial';font-size:14px;text-decoration: underline;color:rgba(0,0,255,255);\">link</a>"\
             "</p>"\
         "</body>") << 
         document2.ToHtml();
@@ -698,7 +698,7 @@ TEST_F(TwoDocumentsTest, link13)
     ASSERT_TRUE(document2.ToHtml() == 
         "<body>"\
             "<p>"\
-                "<a url=\"www.link2.ru\" style=\"font-family:'Arial';font-size:14px;text-decoration: underline;color:rgba(0,0,255,255);\">link2</a>"\
+                "<a href=\"www.link2.ru\" style=\"font-family:'Arial';font-size:14px;text-decoration: underline;color:rgba(0,0,255,255);\">link2</a>"\
             "</p>"\
         "</body>") << 
         document2.ToHtml();
@@ -740,7 +740,7 @@ TEST_F(TwoDocumentsTest, link14)
         "<body>"\
             "<p>"\
                 "<span style=\"font-family:'Arial';font-size:14px;\">String </span>"\
-                "<a url=\"www.link.ru\" style=\"font-family:'Arial';font-size:14px;text-decoration: underline;color:rgba(0,0,255,255);\">link string</a>"\
+                "<a href=\"www.link.ru\" style=\"font-family:'Arial';font-size:14px;text-decoration: underline;color:rgba(0,0,255,255);\">link string</a>"\
             "</p>"\
         "</body>") << 
         document2.ToHtml();

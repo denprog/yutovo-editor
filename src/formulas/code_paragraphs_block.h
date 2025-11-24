@@ -32,6 +32,8 @@ public:
 
     ParagraphFormatPtr GetParagraphFormat();
 
+    std::string ToHtml() const;
+
     virtual void AddEmptyElement();
 
     virtual bool IsFormula();

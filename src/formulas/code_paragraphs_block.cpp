@@ -100,6 +100,22 @@ ParagraphFormatPtr CodeParagraphsBlock::GetParagraphFormat()
     return paragraph_format;
 }
 
+std::string CodeParagraphsBlock::ToHtml() const
+{
+    if (elements->Count() <= 1)
+        return Block::ToHtml();
+
+    std::string html;
+    for (int i = 0; i < elements->Count(); ++i)
+    {
+        const auto& el = elements->Get(i);
+        if (!el->IsVisible())
+            continue;
+        html += "<p>" + el->ToHtml() + "</p>";
+    }
+    return html;
+}
+
 void CodeParagraphsBlock::AddEmptyElement()
 {
     auto* p = new CodeParagraph(this);

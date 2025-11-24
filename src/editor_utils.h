@@ -406,6 +406,10 @@ struct ErrorMark
 
 bool IsLess(const ElementId& id1, const ElementId& id2);
 
+extern std::string base64_chars;
+
+std::string Base64Encode(const std::vector<unsigned char>& picture);
+
 #define LOG_TRACE(...) \
     if (logger->GetLevel() <= LogLevel::LEVEL_TRACE) \
         logger->Trace(__VA_ARGS__);
