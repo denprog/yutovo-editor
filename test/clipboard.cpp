@@ -561,7 +561,7 @@ TEST_F(DocumentTest, clipboard9)
                                 "<mi>123</mi>"\
                             "</mrow>"\
                             "<mrow>"\
-                                "<mi>Null</mi>"\
+                                "<mi></mi>"\
                             "</mrow>"\
                         "</mfrac>"\
                     "</mrow>"\
@@ -573,7 +573,7 @@ TEST_F(DocumentTest, clipboard9)
                                 "<mi>123</mi>"\
                             "</mrow>"\
                             "<mrow>"\
-                                "<mi>Null</mi>"\
+                                "<mi></mi>"\
                             "</mrow>"\
                         "</mfrac>"\
                     "</mrow>"\
@@ -596,7 +596,7 @@ TEST_F(DocumentTest, clipboard9)
                                 "<mi>123</mi>"\
                             "</mrow>"\
                             "<mrow>"\
-                                "<mi>Null</mi>"\
+                                "<mi></mi>"\
                             "</mrow>"\
                         "</mfrac>"\
                     "</mrow>"\
@@ -619,7 +619,7 @@ TEST_F(DocumentTest, clipboard9)
                                 "<mi>123</mi>"\
                             "</mrow>"\
                             "<mrow>"\
-                                "<mi>Null</mi>"\
+                                "<mi></mi>"\
                             "</mrow>"\
                         "</mfrac>"\
                     "</mrow>"\
@@ -631,7 +631,7 @@ TEST_F(DocumentTest, clipboard9)
                                 "<mi>123</mi>"\
                             "</mrow>"\
                             "<mrow>"\
-                                "<mi>Null</mi>"\
+                                "<mi></mi>"\
                             "</mrow>"\
                         "</mfrac>"\
                     "</mrow>"\
@@ -683,7 +683,7 @@ TEST_F(DocumentTest, clipboard10)
                                 "<mi>123</mi>"\
                             "</mrow>"\
                             "<mrow>"\
-                                "<mi>Null</mi>"\
+                                "<mi></mi>"\
                             "</mrow>"\
                         "</mfrac>"\
                     "</mrow>"\
@@ -719,7 +719,7 @@ TEST_F(DocumentTest, clipboard10)
                                 "<mi>123</mi>"\
                             "</mrow>"\
                             "<mrow>"\
-                                "<mi>Null</mi>"\
+                                "<mi></mi>"\
                             "</mrow>"\
                         "</mfrac>"\
                     "</mrow>"\
@@ -773,7 +773,7 @@ TEST_F(DocumentTest, clipboard11)
                                 "<mi>123</mi>"\
                             "</mrow>"\
                             "<mrow>"\
-                                "<mi>Null</mi>"\
+                                "<mi></mi>"\
                             "</mrow>"\
                         "</mfrac>"\
                     "</mrow>"\
@@ -785,7 +785,7 @@ TEST_F(DocumentTest, clipboard11)
                                 "<mi>56</mi>"\
                             "</mrow>"\
                             "<mrow>"\
-                                "<mi>Null</mi>"\
+                                "<mi></mi>"\
                             "</mrow>"\
                         "</mfrac>"\
                     "</mrow>"\
@@ -797,7 +797,7 @@ TEST_F(DocumentTest, clipboard11)
                                 "<mi>123</mi>"\
                             "</mrow>"\
                             "<mrow>"\
-                                "<mi>Null</mi>"\
+                                "<mi></mi>"\
                             "</mrow>"\
                         "</mfrac>"\
                     "</mrow>"\
@@ -828,7 +828,7 @@ TEST_F(DocumentTest, clipboard11)
                                 "<mi>123</mi>"\
                             "</mrow>"\
                             "<mrow>"\
-                                "<mi>Null</mi>"\
+                                "<mi></mi>"\
                             "</mrow>"\
                         "</mfrac>"\
                     "</mrow>"\
@@ -840,7 +840,7 @@ TEST_F(DocumentTest, clipboard11)
                                 "<mi>56</mi>"\
                             "</mrow>"\
                             "<mrow>"\
-                                "<mi>Null</mi>"\
+                                "<mi></mi>"\
                             "</mrow>"\
                         "</mfrac>"\
                     "</mrow>"\
@@ -852,7 +852,7 @@ TEST_F(DocumentTest, clipboard11)
                                 "<mi>56</mi>"\
                             "</mrow>"\
                             "<mrow>"\
-                                "<mi>Null</mi>"\
+                                "<mi></mi>"\
                             "</mrow>"\
                         "</mfrac>"\
                     "</mrow>"\
@@ -909,7 +909,7 @@ TEST_F(DocumentTest, clipboard12)
                                 "<mi>123</mi>"\
                             "</mrow>"\
                             "<mrow>"\
-                                "<mi>Null</mi>"\
+                                "<mi></mi>"\
                             "</mrow>"\
                         "</mfrac>"\
                     "</mrow>"\
@@ -960,7 +960,7 @@ TEST_F(DocumentTest, clipboard13)
                                 "<mi>123</mi>"\
                             "</mrow>"\
                             "<mrow>"\
-                                "<mi>Null</mi>"\
+                                "<mi></mi>"\
                             "</mrow>"\
                         "</mfrac>"\
                     "</mrow>"\
@@ -1015,7 +1015,7 @@ TEST_F(DocumentTest, clipboard14)
                                 "<mi>123</mi>"\
                             "</mrow>"\
                             "<mrow>"\
-                                "<mi>Null</mi>"\
+                                "<mi></mi>"\
                             "</mrow>"\
                         "</mfrac>"\
                     "</mrow>"\
@@ -1027,7 +1027,7 @@ TEST_F(DocumentTest, clipboard14)
                                 "<mi>123</mi>"\
                             "</mrow>"\
                             "<mrow>"\
-                                "<mi>Null</mi>"\
+                                "<mi></mi>"\
                             "</mrow>"\
                         "</mfrac>"\
                     "</mrow>"\
@@ -1478,7 +1478,7 @@ TEST_F(DocumentTest, clipboard23)
             "<p>"\
                 "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
                     "<mrow>"\
-                        "<mi>Null</mi>"\
+                        "<mi></mi>"\
                         "<mi>123</mi>"\
                         "<mi>45</mi>"\
                     "</mrow>"\
@@ -1495,7 +1495,7 @@ TEST_F(DocumentTest, clipboard23)
             "<p>"\
                 "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
                     "<mrow>"\
-                        "<mi>Null</mi>"\
+                        "<mi></mi>"\
                     "</mrow>"\
                 "</math>"\
             "</p>"\
@@ -3153,43 +3153,48 @@ TEST_F(DocumentTest, clipboard59)
                 "<span style=\"font-family:'Arial';font-size:14px;\">Paragraph3</span>"\
             "</p>"\
             "<p>"\
-                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
-                    "<mrow>"\
-                        "<mrow>"\
-                            "<mi>55</mi>"\
-                        "</mrow>"\
-                        "<mo>=</mo>"\
+                "<span style=\"white-space:nowrap; display:inline-block;line-height:2;vertical-align:top;\">"
+                    "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
                         "<mrow>"\
                             "<mrow>"\
-                                "<mi>55.</mi>"\
+                                "<mi>55</mi>"\
                             "</mrow>"\
+                            "<mo>=</mo>"\
+                            "<mrow>"\
+                                "<mrow>"\
+                                    "<mi>55.</mi>"\
+                                "</mrow>"\
+                            "</mrow>"\
+                            "<span style=\"font-family:'Arial';font-size:14px;\">Paragraph2</span>"\
                         "</mrow>"\
-                        "<span style=\"font-family:'Arial';font-size:14px;\">Paragraph2</span>"\
-                    "</mrow>"\
-                "</math>"\
-                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
-                    "<mrow>"\
-                        "<mrow>"\
-                            "<mi>123</mi>"\
-                        "</mrow>"\
-                        "<mo>=</mo>"\
+                    "</math>"\
+                    "<br>"
+                    "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
                         "<mrow>"\
                             "<mrow>"\
-                                "<mi>123.</mi>"\
+                                "<mi>123</mi>"\
+                            "</mrow>"\
+                            "<mo>=</mo>"\
+                            "<mrow>"\
+                                "<mrow>"\
+                                    "<mi>123.</mi>"\
+                                "</mrow>"\
                             "</mrow>"\
                         "</mrow>"\
-                    "</mrow>"\
-                "</math>"\
-                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
-                    "<mrow>"\
-                        "<span style=\"font-family:'Arial';font-size:14px;\">Paragraph3</span>"\
-                    "</mrow>"\
-                "</math>"\
-                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
-                    "<mrow>"\
-                        "<mi>Null</mi>"\
-                    "</mrow>"\
-                "</math>"\
+                    "</math>"\
+                    "<br>"
+                    "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                        "<mrow>"\
+                            "<span style=\"font-family:'Arial';font-size:14px;\">Paragraph3</span>"\
+                        "</mrow>"\
+                    "</math>"\
+                    "<br>"
+                    "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                        "<mrow>"\
+                            "<mi></mi>"\
+                        "</mrow>"\
+                    "</math>"\
+                "</span>"
             "</p>"\
         "</body>") << 
         document.ToHtml();
@@ -3359,30 +3364,35 @@ TEST_F(DocumentTest, clipboard61)
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
-                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
-                    "<mrow>"\
-                        "<mi>67123</mi>"\
-                        "<mo>+</mo>"\
-                        "<mi>55</mi>"\
-                    "</mrow>"\
-                "</math>"\
-                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
-                    "<mrow>"\
-                        "<mi>123</mi>"\
-                        "<mo>+</mo>"\
-                        "<mi>55</mi>"\
-                    "</mrow>"\
-                "</math>"\
-                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
-                    "<mrow>"\
-                        "<mi>Null</mi>"\
-                    "</mrow>"\
-                "</math>"\
-                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
-                    "<mrow>"\
-                        "<mi>67</mi>"\
-                    "</mrow>"\
-                "</math>"\
+                "<span style=\"white-space:nowrap; display:inline-block;line-height:2;vertical-align:top;\">"
+                    "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                        "<mrow>"\
+                            "<mi>67123</mi>"\
+                            "<mo>+</mo>"\
+                            "<mi>55</mi>"\
+                        "</mrow>"\
+                    "</math>"\
+                    "<br>"
+                    "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                        "<mrow>"\
+                            "<mi>123</mi>"\
+                            "<mo>+</mo>"\
+                            "<mi>55</mi>"\
+                        "</mrow>"\
+                    "</math>"\
+                    "<br>"
+                    "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                        "<mrow>"\
+                            "<mi></mi>"\
+                        "</mrow>"\
+                    "</math>"\
+                    "<br>"
+                    "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                        "<mrow>"\
+                            "<mi>67</mi>"\
+                        "</mrow>"\
+                    "</math>"\
+                "</span>"
             "</p>"\
         "</body>") << 
         document.ToHtml();
@@ -3393,44 +3403,51 @@ TEST_F(DocumentTest, clipboard61)
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
-                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
-                    "<mrow>"\
-                        "<mi>123</mi>"\
-                        "<mo>+</mo>"\
-                        "<mi>55</mi>"\
-                    "</mrow>"\
-                "</math>"\
-                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
-                    "<mrow>"\
-                        "<mi>123</mi>"\
-                        "<mo>+</mo>"\
-                        "<mi>55</mi>"\
-                    "</mrow>"\
-                "</math>"\
-                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
-                    "<mrow>"\
-                        "<mi>123</mi>"\
-                        "<mo>+</mo>"\
-                        "<mi>55</mi>"\
-                    "</mrow>"\
-                "</math>"\
-                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
-                    "<mrow>"\
-                        "<mi>123</mi>"\
-                        "<mo>+</mo>"\
-                        "<mi>55</mi>"\
-                    "</mrow>"\
-                "</math>"\
-                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
-                    "<mrow>"\
-                        "<mi>Null</mi>"\
-                    "</mrow>"\
-                "</math>"\
-                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
-                    "<mrow>"\
-                        "<mi>67</mi>"\
-                    "</mrow>"\
-                "</math>"\
+                "<span style=\"white-space:nowrap; display:inline-block;line-height:2;vertical-align:top;\">"
+                    "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                        "<mrow>"\
+                            "<mi>123</mi>"\
+                            "<mo>+</mo>"\
+                            "<mi>55</mi>"\
+                        "</mrow>"\
+                    "</math>"\
+                    "<br>"
+                    "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                        "<mrow>"\
+                            "<mi>123</mi>"\
+                            "<mo>+</mo>"\
+                            "<mi>55</mi>"\
+                        "</mrow>"\
+                    "</math>"\
+                    "<br>"
+                    "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                        "<mrow>"\
+                            "<mi>123</mi>"\
+                            "<mo>+</mo>"\
+                            "<mi>55</mi>"\
+                        "</mrow>"\
+                    "</math>"\
+                    "<br>"
+                    "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                        "<mrow>"\
+                            "<mi>123</mi>"\
+                            "<mo>+</mo>"\
+                            "<mi>55</mi>"\
+                        "</mrow>"\
+                    "</math>"\
+                    "<br>"
+                    "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                        "<mrow>"\
+                            "<mi></mi>"\
+                        "</mrow>"\
+                    "</math>"\
+                    "<br>"
+                    "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                        "<mrow>"\
+                            "<mi>67</mi>"\
+                        "</mrow>"\
+                    "</math>"\
+                "</span>"
             "</p>"\
         "</body>") << 
         document.ToHtml();
@@ -4717,21 +4734,25 @@ TEST_F(DocumentTest, clipboard79)
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
-                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
-                    "<mrow>"\
-                        "<mi>123</mi>"\
-                    "</mrow>"\
-                "</math>"\
-                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
-                    "<mrow>"\
-                        "<mi>55</mi>"\
-                    "</mrow>"\
-                "</math>"\
-                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
-                    "<mrow>"\
-                        "<mi>6789</mi>"\
-                    "</mrow>"\
-                "</math>"\
+                "<span style=\"white-space:nowrap; display:inline-block;line-height:2;vertical-align:top;\">"
+                    "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                        "<mrow>"\
+                            "<mi>123</mi>"\
+                        "</mrow>"\
+                    "</math>"\
+                    "<br>"
+                    "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                        "<mrow>"\
+                            "<mi>55</mi>"\
+                        "</mrow>"\
+                    "</math>"\
+                    "<br>"
+                    "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                        "<mrow>"\
+                            "<mi>6789</mi>"\
+                        "</mrow>"\
+                    "</math>"\
+                "</span>"
             "</p>"\
         "</body>") << 
         document.ToHtml();
@@ -4759,21 +4780,25 @@ TEST_F(DocumentTest, clipboard79)
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
-                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
-                    "<mrow>"\
-                        "<mi>123</mi>"\
-                    "</mrow>"\
-                "</math>"\
-                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
-                    "<mrow>"\
-                        "<mi>55</mi>"\
-                    "</mrow>"\
-                "</math>"\
-                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
-                    "<mrow>"\
-                        "<mi>6789</mi>"\
-                    "</mrow>"\
-                "</math>"\
+                "<span style=\"white-space:nowrap; display:inline-block;line-height:2;vertical-align:top;\">"
+                    "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                        "<mrow>"\
+                            "<mi>123</mi>"\
+                        "</mrow>"\
+                    "</math>"\
+                    "<br>"
+                    "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                        "<mrow>"\
+                            "<mi>55</mi>"\
+                        "</mrow>"\
+                    "</math>"\
+                    "<br>"
+                    "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                        "<mrow>"\
+                            "<mi>6789</mi>"\
+                        "</mrow>"\
+                    "</math>"\
+                "</span>"
             "</p>"\
         "</body>") << 
         document.ToHtml();

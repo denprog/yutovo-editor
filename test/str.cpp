@@ -1519,7 +1519,7 @@ TEST_F(DocumentTest, fonts4)
                 "<span style=\"font-family:'Arial';font-size:22px;\">Text</span>"\
                 "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
                     "<mrow>"\
-                        "<mi>Null</mi>"\
+                        "<mi></mi>"\
                     "</mrow>"\
                 "</math>"\
                 "<span style=\"font-family:'Arial';font-size:22px;\">T</span>"\
@@ -1546,7 +1546,7 @@ TEST_F(DocumentTest, fonts5)
                 "<span style=\"font-family:'Arial';font-size:22px;\">T</span>"\
                 "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
                     "<mrow>"\
-                        "<mi>Null</mi>"\
+                        "<mi></mi>"\
                     "</mrow>"\
                 "</math>"\
                 "<span style=\"font-family:'Arial';font-size:22px;\">Text</span>"\
@@ -3885,17 +3885,20 @@ TEST_F(DocumentTest, delete14)
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
-                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
-                    "<mrow>"\
-                        "<mi>Null</mi>"\
-                    "</mrow>"\
-                "</math>"\
-                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
-                    "<mrow>"\
-                        "<mo>×</mo>"\
-                        "<mi>234</mi>"\
-                    "</mrow>"\
-                "</math>"\
+                "<span style=\"white-space:nowrap; display:inline-block;line-height:2;vertical-align:top;\">"
+                    "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                        "<mrow>"\
+                            "<mi></mi>"\
+                        "</mrow>"\
+                    "</math>"\
+                    "<br>"
+                    "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                        "<mrow>"\
+                            "<mo>×</mo>"\
+                            "<mi>234</mi>"\
+                        "</mrow>"\
+                    "</math>"\
+                "</span>"
             "</p>"\
         "</body>") << 
         document.ToHtml();
@@ -3918,17 +3921,20 @@ TEST_F(DocumentTest, delete15)
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
-                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
-                    "<mrow>"\
-                        "<mi>Null</mi>"\
-                    "</mrow>"\
-                "</math>"\
-                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
-                    "<mrow>"\
-                        "<mo>×</mo>"\
-                        "<mi>234</mi>"\
-                    "</mrow>"\
-                "</math>"\
+                "<span style=\"white-space:nowrap; display:inline-block;line-height:2;vertical-align:top;\">"
+                    "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                        "<mrow>"\
+                            "<mi></mi>"\
+                        "</mrow>"\
+                    "</math>"\
+                    "<br>"
+                    "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                        "<mrow>"\
+                            "<mo>×</mo>"\
+                            "<mi>234</mi>"\
+                        "</mrow>"\
+                    "</math>"\
+                "</span>"
             "</p>"\
         "</body>") << 
         document.ToHtml();

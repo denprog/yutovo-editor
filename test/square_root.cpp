@@ -28,7 +28,7 @@ TEST_F(FormulaTest, square_root1)
                     "<mrow>"\
                         "<msqrt>"\
                             "<mrow>"\
-                                "<mi>Null</mi>"\
+                                "<mi></mi>"\
                             "</mrow>"\
                         "</msqrt>"\
                     "</mrow>"\
@@ -52,7 +52,7 @@ TEST_F(FormulaTest, square_root1)
                     "<mrow>"\
                         "<msqrt>"\
                             "<mrow>"\
-                                "<mi>Null</mi>"\
+                                "<mi></mi>"\
                             "</mrow>"\
                         "</msqrt>"\
                     "</mrow>"\
@@ -298,7 +298,7 @@ TEST_F(FormulaTest, square_root5)
                     "<mrow>"\
                         "<msqrt>"\
                             "<mrow>"\
-                                "<mi>Null</mi>"\
+                                "<mi></mi>"\
                             "</mrow>"\
                         "</msqrt>"\
                     "</mrow>"\

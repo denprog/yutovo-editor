@@ -53,7 +53,6 @@ public:
     std::vector<unsigned char> picture; //only PNG format for a while
 
 private:
-    static const std::string base;
     Size image_size;
     static const std::string broken_image;
 };

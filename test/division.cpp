@@ -27,10 +27,10 @@ TEST_F(FormulaTest, division1)
                     "<mrow>"\
                         "<mfrac>"\
                             "<mrow>"\
-                                "<mi>Null</mi>"\
+                                "<mi></mi>"\
                             "</mrow>"\
                             "<mrow>"\
-                                "<mi>Null</mi>"\
+                                "<mi></mi>"\
                             "</mrow>"\
                         "</mfrac>"\
                     "</mrow>"\
@@ -54,10 +54,10 @@ TEST_F(FormulaTest, division1)
                     "<mrow>"\
                         "<mfrac>"\
                             "<mrow>"\
-                                "<mi>Null</mi>"\
+                                "<mi></mi>"\
                             "</mrow>"\
                             "<mrow>"\
-                                "<mi>Null</mi>"\
+                                "<mi></mi>"\
                             "</mrow>"\
                         "</mfrac>"\
                     "</mrow>"\
@@ -79,7 +79,7 @@ TEST_F(FormulaTest, division1)
                                 "<mi>1</mi>"\
                             "</mrow>"\
                             "<mrow>"\
-                                "<mi>Null</mi>"\
+                                "<mi></mi>"\
                             "</mrow>"\
                         "</mfrac>"\
                     "</mrow>"\
@@ -124,10 +124,10 @@ TEST_F(FormulaTest, division1)
                     "<mrow>"\
                         "<mfrac>"\
                             "<mrow>"\
-                                "<mi>Null</mi>"\
+                                "<mi></mi>"\
                             "</mrow>"\
                             "<mrow>"\
-                                "<mi>Null</mi>"\
+                                "<mi></mi>"\
                             "</mrow>"\
                         "</mfrac>"\
                     "</mrow>"\
@@ -180,10 +180,10 @@ TEST_F(FormulaTest, division1)
                         "</mfrac>"\
                         "<mfrac>"\
                             "<mrow>"\
-                                "<mi>Null</mi>"\
+                                "<mi></mi>"\
                             "</mrow>"\
                             "<mrow>"\
-                                "<mi>Null</mi>"\
+                                "<mi></mi>"\
                             "</mrow>"\
                         "</mfrac>"\
                     "</mrow>"\
@@ -244,7 +244,7 @@ TEST_F(FormulaTest, division2)
                                 "<mi>123</mi>"\
                             "</mrow>"\
                             "<mrow>"\
-                                "<mi>Null</mi>"\
+                                "<mi></mi>"\
                             "</mrow>"\
                         "</mfrac>"\
                     "</mrow>"\
@@ -283,7 +283,7 @@ TEST_F(FormulaTest, division2)
                                 "<mi>123</mi>"\
                             "</mrow>"\
                             "<mrow>"\
-                                "<mi>Null</mi>"\
+                                "<mi></mi>"\
                             "</mrow>"\
                         "</mfrac>"\
                     "</mrow>"\
@@ -309,10 +309,10 @@ TEST_F(FormulaTest, division3)
                     "<mrow>"\
                         "<mfrac>"\
                             "<mrow>"\
-                                "<mi>Null</mi>"\
+                                "<mi></mi>"\
                             "</mrow>"\
                             "<mrow>"\
-                                "<mi>Null</mi>"\
+                                "<mi></mi>"\
                             "</mrow>"\
                         "</mfrac>"\
                     "</mrow>"\
@@ -335,10 +335,10 @@ TEST_F(FormulaTest, division3)
                     "<mrow>"\
                         "<mfrac>"\
                             "<mrow>"\
-                                "<mi>Null</mi>"\
+                                "<mi></mi>"\
                             "</mrow>"\
                             "<mrow>"\
-                                "<mi>Null</mi>"\
+                                "<mi></mi>"\
                             "</mrow>"\
                         "</mfrac>"\
                     "</mrow>"\
@@ -367,10 +367,10 @@ TEST_F(FormulaTest, division4)
                     "<mrow>"\
                         "<mfrac>"\
                             "<mrow>"\
-                                "<mi>Null</mi>"\
+                                "<mi></mi>"\
                             "</mrow>"\
                             "<mrow>"\
-                                "<mi>Null</mi>"\
+                                "<mi></mi>"\
                             "</mrow>"\
                         "</mfrac>"\
                     "</mrow>"\
@@ -405,15 +405,15 @@ TEST_F(FormulaTest, division5)
                     "<mrow>"\
                         "<mfrac>"\
                             "<mrow>"\
-                                "<mi>Null</mi>"\
+                                "<mi></mi>"\
                             "</mrow>"\
                             "<mrow>"\
                                 "<mfrac>"\
                                     "<mrow>"\
-                                        "<mi>Null</mi>"\
+                                        "<mi></mi>"\
                                     "</mrow>"\
                                     "<mrow>"\
-                                        "<mi>Null</mi>"\
+                                        "<mi></mi>"\
                                     "</mrow>"\
                                 "</mfrac>"\
                             "</mrow>"\
@@ -435,16 +435,16 @@ TEST_F(FormulaTest, division5)
                     "<mrow>"\
                         "<mfrac>"\
                             "<mrow>"\
-                                "<mi>Null</mi>"\
+                                "<mi></mi>"\
                             "</mrow>"\
                             "<mrow>"\
                                 "<mi>1</mi>"\
                                 "<mfrac>"\
                                     "<mrow>"\
-                                        "<mi>Null</mi>"\
+                                        "<mi></mi>"\
                                     "</mrow>"\
                                     "<mrow>"\
-                                        "<mi>Null</mi>"\
+                                        "<mi></mi>"\
                                     "</mrow>"\
                                 "</mfrac>"\
                             "</mrow>"\
@@ -472,15 +472,15 @@ TEST_F(FormulaTest, division6)
                             "<mrow>"\
                                 "<mfrac>"\
                                     "<mrow>"\
-                                        "<mi>Null</mi>"\
+                                        "<mi></mi>"\
                                     "</mrow>"\
                                     "<mrow>"\
-                                        "<mi>Null</mi>"\
+                                        "<mi></mi>"\
                                     "</mrow>"\
                                 "</mfrac>"\
                             "</mrow>"\
                             "<mrow>"\
-                                "<mi>Null</mi>"\
+                                "<mi></mi>"\
                             "</mrow>"\
                         "</mfrac>"\
                     "</mrow>"\
@@ -498,10 +498,10 @@ TEST_F(FormulaTest, division6)
                     "<mrow>"\
                         "<mfrac>"\
                             "<mrow>"\
-                                "<mi>Null</mi>"\
+                                "<mi></mi>"\
                             "</mrow>"\
                             "<mrow>"\
-                                "<mi>Null</mi>"\
+                                "<mi></mi>"\
                             "</mrow>"\
                         "</mfrac>"\
                     "</mrow>"\
@@ -522,15 +522,15 @@ TEST_F(FormulaTest, division6)
                             "<mrow>"\
                                 "<mfrac>"\
                                     "<mrow>"\
-                                        "<mi>Null</mi>"\
+                                        "<mi></mi>"\
                                     "</mrow>"\
                                     "<mrow>"\
-                                        "<mi>Null</mi>"\
+                                        "<mi></mi>"\
                                     "</mrow>"\
                                 "</mfrac>"\
                             "</mrow>"\
                             "<mrow>"\
-                                "<mi>Null</mi>"\
+                                "<mi></mi>"\
                             "</mrow>"\
                         "</mfrac>"\
                     "</mrow>"\
@@ -565,7 +565,7 @@ TEST_F(FormulaTest, division6)
                                 "</mfrac>"\
                             "</mrow>"\
                             "<mrow>"\
-                                "<mi>Null</mi>"\
+                                "<mi></mi>"\
                             "</mrow>"\
                         "</mfrac>"\
                     "</mrow>"\
@@ -584,10 +584,10 @@ TEST_F(FormulaTest, division6)
                     "<mrow>"\
                         "<mfrac>"\
                             "<mrow>"\
-                                "<mi>Null</mi>"\
+                                "<mi></mi>"\
                             "</mrow>"\
                             "<mrow>"\
-                                "<mi>Null</mi>"\
+                                "<mi></mi>"\
                             "</mrow>"\
                         "</mfrac>"\
                     "</mrow>"\
@@ -617,7 +617,7 @@ TEST_F(FormulaTest, division6)
                                 "</mfrac>"\
                             "</mrow>"\
                             "<mrow>"\
-                                "<mi>Null</mi>"\
+                                "<mi></mi>"\
                             "</mrow>"\
                         "</mfrac>"\
                     "</mrow>"\
@@ -648,7 +648,7 @@ TEST_F(FormulaTest, division6)
                                 "<mi>5</mi>"\
                             "</mrow>"\
                             "<mrow>"\
-                                "<mi>Null</mi>"\
+                                "<mi></mi>"\
                             "</mrow>"\
                         "</mfrac>"\
                     "</mrow>"\
@@ -671,7 +671,7 @@ TEST_F(FormulaTest, division6)
                                 "<mi>5</mi>"\
                             "</mrow>"\
                             "<mrow>"\
-                                "<mi>Null</mi>"\
+                                "<mi></mi>"\
                             "</mrow>"\
                         "</mfrac>"\
                     "</mrow>"\
@@ -898,7 +898,7 @@ TEST_F(FormulaTest, division10)
                                 "<mi>123</mi>"\
                             "</mrow>"\
                             "<mrow>"\
-                                "<mi>Null</mi>"\
+                                "<mi></mi>"\
                             "</mrow>"\
                         "</mfrac>"\
                     "</mrow>"\
@@ -910,7 +910,7 @@ TEST_F(FormulaTest, division10)
                                 "<mi>456</mi>"\
                             "</mrow>"\
                             "<mrow>"\
-                                "<mi>Null</mi>"\
+                                "<mi></mi>"\
                             "</mrow>"\
                         "</mfrac>"\
                     "</mrow>"\
@@ -936,7 +936,7 @@ TEST_F(FormulaTest, division10)
                                 "<mi>123</mi>"\
                             "</mrow>"\
                             "<mrow>"\
-                                "<mi>Null</mi>"\
+                                "<mi></mi>"\
                             "</mrow>"\
                         "</mfrac>"\
                     "</mrow>"\
@@ -1055,10 +1055,10 @@ TEST_F(FormulaTest, division12)
                     "<mrow>"\
                         "<mfrac>"\
                             "<mrow>"\
-                                "<mi>Null</mi>"\
+                                "<mi></mi>"\
                             "</mrow>"\
                             "<mrow>"\
-                                "<mi>Null</mi>"\
+                                "<mi></mi>"\
                             "</mrow>"\
                         "</mfrac>"\
                     "</mrow>"\

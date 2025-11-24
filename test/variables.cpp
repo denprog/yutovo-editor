@@ -37,32 +37,35 @@ TEST_F(VariablesTest, variables1)
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
-                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
-                    "<mrow>"\
-                        "<mrow>"\
-                            "<mi>d</mi>"\
-                        "</mrow>"\
-                        "<mo>=</mo>"\
-                        "<mrow>"\
-                            "<mi>4</mi>"\
-                        "</mrow>"\
-                    "</mrow>"\
-                "</math>"\
-                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
-                    "<mrow>"\
-                        "<mrow>"\
-                            "<mi>d</mi>"\
-                            "<mo>+</mo>"\
-                            "<mi>5</mi>"\
-                        "</mrow>"\
-                        "<mo>=</mo>"\
+                "<span style=\"white-space:nowrap; display:inline-block;line-height:2;vertical-align:top;\">"
+                    "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
                         "<mrow>"\
                             "<mrow>"\
-                                "<mi>9.</mi>"\
+                                "<mi>d</mi>"\
+                            "</mrow>"\
+                            "<mo>=</mo>"\
+                            "<mrow>"\
+                                "<mi>4</mi>"\
                             "</mrow>"\
                         "</mrow>"\
-                    "</mrow>"\
-                "</math>"\
+                    "</math>"\
+                    "<br>"
+                    "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                        "<mrow>"\
+                            "<mrow>"\
+                                "<mi>d</mi>"\
+                                "<mo>+</mo>"\
+                                "<mi>5</mi>"\
+                            "</mrow>"\
+                            "<mo>=</mo>"\
+                            "<mrow>"\
+                                "<mrow>"\
+                                    "<mi>9.</mi>"\
+                                "</mrow>"\
+                            "</mrow>"\
+                        "</mrow>"\
+                    "</math>"\
+                "</span>"
             "</p>"\
         "</body>") << 
         document.ToHtml();
@@ -75,32 +78,35 @@ TEST_F(VariablesTest, variables1)
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
-                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
-                    "<mrow>"\
-                        "<mrow>"\
-                            "<mi>d</mi>"\
-                        "</mrow>"\
-                        "<mo>=</mo>"\
-                        "<mrow>"\
-                            "<mi>42</mi>"\
-                        "</mrow>"\
-                    "</mrow>"\
-                "</math>"\
-                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
-                    "<mrow>"\
-                        "<mrow>"\
-                            "<mi>d</mi>"\
-                            "<mo>+</mo>"\
-                            "<mi>5</mi>"\
-                        "</mrow>"\
-                        "<mo>=</mo>"\
+                "<span style=\"white-space:nowrap; display:inline-block;line-height:2;vertical-align:top;\">"
+                    "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
                         "<mrow>"\
                             "<mrow>"\
-                                "<mi>47.</mi>"\
+                                "<mi>d</mi>"\
+                            "</mrow>"\
+                            "<mo>=</mo>"\
+                            "<mrow>"\
+                                "<mi>42</mi>"\
                             "</mrow>"\
                         "</mrow>"\
-                    "</mrow>"\
-                "</math>"\
+                    "</math>"\
+                    "<br>"
+                    "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                        "<mrow>"\
+                            "<mrow>"\
+                                "<mi>d</mi>"\
+                                "<mo>+</mo>"\
+                                "<mi>5</mi>"\
+                            "</mrow>"\
+                            "<mo>=</mo>"\
+                            "<mrow>"\
+                                "<mrow>"\
+                                    "<mi>47.</mi>"\
+                                "</mrow>"\
+                            "</mrow>"\
+                        "</mrow>"\
+                    "</math>"\
+                "</span>"
             "</p>"\
         "</body>") << 
         document.ToHtml();
@@ -129,32 +135,35 @@ TEST_F(VariablesTest, variables2)
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
-                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
-                    "<mrow>"\
-                        "<mrow>"\
-                            "<mi>d</mi>"\
-                        "</mrow>"\
-                        "<mo>=</mo>"\
-                        "<mrow>"\
-                            "<mi>5</mi>"\
-                        "</mrow>"\
-                    "</mrow>"\
-                "</math>"\
-                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
-                    "<mrow>"\
-                        "<mrow>"\
-                            "<mi>d</mi>"\
-                            "<mo>+</mo>"\
-                            "<mi>4</mi>"\
-                        "</mrow>"\
-                        "<mo>=</mo>"\
+                "<span style=\"white-space:nowrap; display:inline-block;line-height:2;vertical-align:top;\">"
+                    "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
                         "<mrow>"\
                             "<mrow>"\
-                                "<mi>9.</mi>"\
+                                "<mi>d</mi>"\
+                            "</mrow>"\
+                            "<mo>=</mo>"\
+                            "<mrow>"\
+                                "<mi>5</mi>"\
                             "</mrow>"\
                         "</mrow>"\
-                    "</mrow>"\
-                "</math>"\
+                    "</math>"\
+                    "<br>"
+                    "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                        "<mrow>"\
+                            "<mrow>"\
+                                "<mi>d</mi>"\
+                                "<mo>+</mo>"\
+                                "<mi>4</mi>"\
+                            "</mrow>"\
+                            "<mo>=</mo>"\
+                            "<mrow>"\
+                                "<mrow>"\
+                                    "<mi>9.</mi>"\
+                                "</mrow>"\
+                            "</mrow>"\
+                        "</mrow>"\
+                    "</math>"\
+                "</span>"
             "</p>"\
         "</body>") << 
         document.ToHtml();
@@ -168,32 +177,35 @@ TEST_F(VariablesTest, variables2)
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
-                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
-                    "<mrow>"\
-                        "<mrow>"\
-                            "<mi>d</mi>"\
-                        "</mrow>"\
-                        "<mo>=</mo>"\
-                        "<mrow>"\
-                            "<mi>5</mi>"\
-                        "</mrow>"\
-                    "</mrow>"\
-                "</math>"\
-                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
-                    "<mrow>"\
-                        "<mrow>"\
-                            "<mi>d</mi>"\
-                            "<mo>+</mo>"\
-                            "<mi>54</mi>"\
-                        "</mrow>"\
-                        "<mo>=</mo>"\
+                "<span style=\"white-space:nowrap; display:inline-block;line-height:2;vertical-align:top;\">"
+                    "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
                         "<mrow>"\
                             "<mrow>"\
-                                "<mi>59.</mi>"\
+                                "<mi>d</mi>"\
+                            "</mrow>"\
+                            "<mo>=</mo>"\
+                            "<mrow>"\
+                                "<mi>5</mi>"\
                             "</mrow>"\
                         "</mrow>"\
-                    "</mrow>"\
-                "</math>"\
+                    "</math>"\
+                    "<br>"
+                    "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                        "<mrow>"\
+                            "<mrow>"\
+                                "<mi>d</mi>"\
+                                "<mo>+</mo>"\
+                                "<mi>54</mi>"\
+                            "</mrow>"\
+                            "<mo>=</mo>"\
+                            "<mrow>"\
+                                "<mrow>"\
+                                    "<mi>59.</mi>"\
+                                "</mrow>"\
+                            "</mrow>"\
+                        "</mrow>"\
+                    "</math>"\
+                "</span>"
             "</p>"\
         "</body>") << 
         document.ToHtml();
@@ -223,26 +235,29 @@ TEST_F(VariablesTest, variables3)
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
-                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
-                    "<mrow>"\
-                        "<mi>Null</mi>"\
-                    "</mrow>"\
-                "</math>"\
-                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
-                    "<mrow>"\
+                "<span style=\"white-space:nowrap; display:inline-block;line-height:2;vertical-align:top;\">"
+                    "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
                         "<mrow>"\
-                            "<mi>d</mi>"\
-                            "<mo>+</mo>"\
-                            "<mi>5</mi>"\
+                            "<mi></mi>"\
                         "</mrow>"\
-                        "<mo>=</mo>"\
+                    "</math>"\
+                    "<br>"
+                    "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
                         "<mrow>"\
                             "<mrow>"\
-                                "<mi>Unknown identifier</mi>"\
+                                "<mi>d</mi>"\
+                                "<mo>+</mo>"\
+                                "<mi>5</mi>"\
+                            "</mrow>"\
+                            "<mo>=</mo>"\
+                            "<mrow>"\
+                                "<mrow>"\
+                                    "<mi>Unknown identifier</mi>"\
+                                "</mrow>"\
                             "</mrow>"\
                         "</mrow>"\
-                    "</mrow>"\
-                "</math>"\
+                    "</math>"\
+                "</span>"
             "</p>"\
         "</body>") << 
         document.ToHtml();
@@ -254,32 +269,35 @@ TEST_F(VariablesTest, variables3)
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
-                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
-                    "<mrow>"\
-                        "<mrow>"\
-                            "<mi>d</mi>"\
-                        "</mrow>"\
-                        "<mo>=</mo>"\
-                        "<mrow>"\
-                            "<mi>4</mi>"\
-                        "</mrow>"\
-                    "</mrow>"\
-                "</math>"\
-                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
-                    "<mrow>"\
-                        "<mrow>"\
-                            "<mi>d</mi>"\
-                            "<mo>+</mo>"\
-                            "<mi>5</mi>"\
-                        "</mrow>"\
-                        "<mo>=</mo>"\
+                "<span style=\"white-space:nowrap; display:inline-block;line-height:2;vertical-align:top;\">"
+                    "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
                         "<mrow>"\
                             "<mrow>"\
-                                "<mi>9.</mi>"\
+                                "<mi>d</mi>"\
+                            "</mrow>"\
+                            "<mo>=</mo>"\
+                            "<mrow>"\
+                                "<mi>4</mi>"\
                             "</mrow>"\
                         "</mrow>"\
-                    "</mrow>"\
-                "</math>"\
+                    "</math>"\
+                    "<br>"
+                    "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                        "<mrow>"\
+                            "<mrow>"\
+                                "<mi>d</mi>"\
+                                "<mo>+</mo>"\
+                                "<mi>5</mi>"\
+                            "</mrow>"\
+                            "<mo>=</mo>"\
+                            "<mrow>"\
+                                "<mrow>"\
+                                    "<mi>9.</mi>"\
+                                "</mrow>"\
+                            "</mrow>"\
+                        "</mrow>"\
+                    "</math>"\
+                "</span>"
             "</p>"\
         "</body>") << 
         document.ToHtml();

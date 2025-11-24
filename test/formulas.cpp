@@ -385,10 +385,10 @@ TEST_F(FormulaTestCustom, delete4)
                     "<mrow>"\
                         "<mfrac>"\
                             "<mrow>"\
-                                "<mi>Null</mi>"\
+                                "<mi></mi>"\
                             "</mrow>"\
                             "<mrow>"\
-                                "<mi>Null</mi>"\
+                                "<mi></mi>"\
                             "</mrow>"\
                         "</mfrac>"\
                     "</mrow>"\
@@ -423,10 +423,10 @@ TEST_F(FormulaTestCustom, delete4)
                     "<mrow>"\
                         "<mfrac>"\
                             "<mrow>"\
-                                "<mi>Null</mi>"\
+                                "<mi></mi>"\
                             "</mrow>"\
                             "<mrow>"\
-                                "<mi>Null</mi>"\
+                                "<mi></mi>"\
                             "</mrow>"\
                         "</mfrac>"\
                     "</mrow>"\
@@ -473,10 +473,10 @@ TEST_F(FormulaTestCustom, delete5)
                     "<mrow>"\
                         "<mfrac>"\
                             "<mrow>"\
-                                "<mi>Null</mi>"\
+                                "<mi></mi>"\
                             "</mrow>"\
                             "<mrow>"\
-                                "<mi>Null</mi>"\
+                                "<mi></mi>"\
                             "</mrow>"\
                         "</mfrac>"\
                     "</mrow>"\
@@ -513,10 +513,10 @@ TEST_F(FormulaTestCustom, delete6)
                     "<mrow>"\
                         "<mfrac>"\
                             "<mrow>"\
-                                "<mi>Null</mi>"\
+                                "<mi></mi>"\
                             "</mrow>"\
                             "<mrow>"\
-                                "<mi>Null</mi>"\
+                                "<mi></mi>"\
                             "</mrow>"\
                         "</mfrac>"\
                     "</mrow>"\
@@ -537,10 +537,10 @@ TEST_F(FormulaTestCustom, delete6)
                     "<mrow>"\
                         "<mfrac>"\
                             "<mrow>"\
-                                "<mi>Null</mi>"\
+                                "<mi></mi>"\
                             "</mrow>"\
                             "<mrow>"\
-                                "<mi>Null</mi>"\
+                                "<mi></mi>"\
                             "</mrow>"\
                         "</mfrac>"\
                     "</mrow>"\
@@ -550,10 +550,10 @@ TEST_F(FormulaTestCustom, delete6)
                     "<mrow>"\
                         "<mfrac>"\
                             "<mrow>"\
-                                "<mi>Null</mi>"\
+                                "<mi></mi>"\
                             "</mrow>"\
                             "<mrow>"\
-                                "<mi>Null</mi>"\
+                                "<mi></mi>"\
                             "</mrow>"\
                         "</mfrac>"\
                     "</mrow>"\
@@ -802,7 +802,7 @@ TEST_F(FormulaTestCustom, delete10)
                 "<span style=\"font-family:'Arial';font-size:14px;\">mysterious.</span>"\
                 "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
                     "<mrow>"\
-                        "<mi>Null</mi>"\
+                        "<mi></mi>"\
                     "</mrow>"\
                 "</math>"\
             "</p>"\
@@ -823,7 +823,7 @@ TEST_F(FormulaTest, delete11)
             "<p>"\
                 "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
                     "<mrow>"\
-                        "<mi>Null</mi>"\
+                        "<mi></mi>"\
                     "</mrow>"\
                 "</math>"\
             "</p>"\
@@ -915,7 +915,7 @@ TEST_F(FormulaTestCustom, insert1)
                 "<span style=\"font-family:'Arial';font-size:22px;\">un</span>"\
                 "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
                     "<mrow>"\
-                        "<mi>Null</mi>"\
+                        "<mi></mi>"\
                     "</mrow>"\
                 "</math>"\
                 "<span style=\"font-family:'Arial';font-size:22px;\"> documento era el papel </span>"\
@@ -947,7 +947,7 @@ TEST_F(FormulaTestCustom, insert1)
                 "<span style=\"font-family:'Arial';font-size:22px;\">un</span>"\
                 "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
                     "<mrow>"\
-                        "<mi>Null</mi>"\
+                        "<mi></mi>"\
                     "</mrow>"\
                 "</math>"\
                 "<span style=\"font-family:'Arial';font-size:22px;\"> documento era el papel </span>"\
@@ -975,10 +975,10 @@ TEST_F(FormulaTestCustom, insert2)
                     "<mrow>"\
                         "<mfrac>"\
                             "<mrow>"\
-                                "<mi>Null</mi>"\
+                                "<mi></mi>"\
                             "</mrow>"\
                             "<mrow>"\
-                                "<mi>Null</mi>"\
+                                "<mi></mi>"\
                             "</mrow>"\
                         "</mfrac>"\
                     "</mrow>"\
@@ -1015,10 +1015,10 @@ TEST_F(FormulaTestCustom, insert2)
                     "<mrow>"\
                         "<mfrac>"\
                             "<mrow>"\
-                                "<mi>Null</mi>"\
+                                "<mi></mi>"\
                             "</mrow>"\
                             "<mrow>"\
-                                "<mi>Null</mi>"\
+                                "<mi></mi>"\
                             "</mrow>"\
                         "</mfrac>"\
                     "</mrow>"\
@@ -1063,10 +1063,10 @@ TEST_F(FormulaTestCustom, insert3)
                     "<mrow>"\
                         "<mfrac>"\
                             "<mrow>"\
-                                "<mi>Null</mi>"\
+                                "<mi></mi>"\
                             "</mrow>"\
                             "<mrow>"\
-                                "<mi>Null</mi>"\
+                                "<mi></mi>"\
                             "</mrow>"\
                         "</mfrac>"\
                     "</mrow>"\
@@ -1099,10 +1099,10 @@ TEST_F(FormulaTestCustom, insert4)
                     "<mrow>"\
                         "<mfrac>"\
                             "<mrow>"\
-                                "<mi>Null</mi>"\
+                                "<mi></mi>"\
                             "</mrow>"\
                             "<mrow>"\
-                                "<mi>Null</mi>"\
+                                "<mi></mi>"\
                             "</mrow>"\
                         "</mfrac>"\
                     "</mrow>"\
@@ -1129,18 +1129,21 @@ TEST_F(FormulaTestCustom, insert5)
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
-                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
-                    "<mrow>"\
-                        "<mi>123</mi>"\
-                        "<mo>+</mo>"\
-                        "<mi>568</mi>"\
-                    "</mrow>"\
-                "</math>"\
-                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
-                    "<mrow>"\
-                        "<mi>90</mi>"\
-                    "</mrow>"\
-                "</math>"\
+                "<span style=\"white-space:nowrap; display:inline-block;line-height:2;vertical-align:top;\">"
+                    "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                        "<mrow>"\
+                            "<mi>123</mi>"\
+                            "<mo>+</mo>"\
+                            "<mi>568</mi>"\
+                        "</mrow>"\
+                    "</math>"\
+                    "<br>"
+                    "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                        "<mrow>"\
+                            "<mi>90</mi>"\
+                        "</mrow>"\
+                    "</math>"\
+                "</span>"
             "</p>"\
         "</body>") << 
         document.ToHtml();
@@ -1170,17 +1173,20 @@ TEST_F(FormulaTestCustom, insert5)
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
-                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
-                    "<mrow>"\
-                        "<mi>123</mi>"\
-                    "</mrow>"\
-                "</math>"\
-                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
-                    "<mrow>"\
-                        "<mo>+</mo>"\
-                        "<mi>56890</mi>"\
-                    "</mrow>"\
-                "</math>"\
+                "<span style=\"white-space:nowrap; display:inline-block;line-height:2;vertical-align:top;\">"
+                    "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                        "<mrow>"\
+                            "<mi>123</mi>"\
+                        "</mrow>"\
+                    "</math>"\
+                    "<br>"
+                    "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                        "<mrow>"\
+                            "<mo>+</mo>"\
+                            "<mi>56890</mi>"\
+                        "</mrow>"\
+                    "</math>"\
+                "</span>"
             "</p>"\
         "</body>") << 
         document.ToHtml();
@@ -1223,7 +1229,7 @@ TEST_F(FormulaTestCustom, insert6)
                                 "<mi>123</mi>"\
                             "</mrow>"\
                             "<mrow>"\
-                                "<mi>Null</mi>"\
+                                "<mi></mi>"\
                             "</mrow>"\
                         "</mfrac>"\
                     "</mrow>"\
@@ -1248,7 +1254,7 @@ TEST_F(FormulaTestCustom, insert6)
                                 "<mi>123</mi>"\
                             "</mrow>"\
                             "<mrow>"\
-                                "<mi>Null</mi>"\
+                                "<mi></mi>"\
                             "</mrow>"\
                         "</mfrac>"\
                         "<msup>"\
@@ -1256,7 +1262,7 @@ TEST_F(FormulaTestCustom, insert6)
                                 "<mi>56</mi>"\
                             "</mrow>"\
                             "<mrow>"\
-                                "<mi>Null</mi>"\
+                                "<mi></mi>"\
                             "</mrow>"\
                         "</msup>"\
                     "</mrow>"\
@@ -1283,24 +1289,27 @@ TEST_F(FormulaTestCustom, insert7)
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
-                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
-                    "<mrow>"\
-                        "<mi>3</mi>"\
-                        "<mo>+</mo>"\
-                    "</mrow>"\
-                "</math>"\
-                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
-                    "<mrow>"\
-                        "<mfrac>"\
-                            "<mrow>"\
-                                "<mi>123</mi>"\
-                            "</mrow>"\
-                            "<mrow>"\
-                                "<mi>Null</mi>"\
-                            "</mrow>"\
-                        "</mfrac>"\
-                    "</mrow>"\
-                "</math>"\
+                "<span style=\"white-space:nowrap; display:inline-block;line-height:2;vertical-align:top;\">"
+                    "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                        "<mrow>"\
+                            "<mi>3</mi>"\
+                            "<mo>+</mo>"\
+                        "</mrow>"\
+                    "</math>"\
+                    "<br>"
+                    "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                        "<mrow>"\
+                            "<mfrac>"\
+                                "<mrow>"\
+                                    "<mi>123</mi>"\
+                                "</mrow>"\
+                                "<mrow>"\
+                                    "<mi></mi>"\
+                                "</mrow>"\
+                            "</mfrac>"\
+                        "</mrow>"\
+                    "</math>"\
+                "</span>"
             "</p>"\
         "</body>") << 
         document.ToHtml();
@@ -1321,7 +1330,7 @@ TEST_F(FormulaTestCustom, insert7)
                                 "<mi>123</mi>"\
                             "</mrow>"\
                             "<mrow>"\
-                                "<mi>Null</mi>"\
+                                "<mi></mi>"\
                             "</mrow>"\
                         "</mfrac>"\
                     "</mrow>"\
@@ -1348,24 +1357,27 @@ TEST_F(FormulaTestCustom, insert8)
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
-                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
-                    "<mrow>"\
-                        "<mi>3</mi>"\
-                        "<mo>×</mo>"\
-                    "</mrow>"\
-                "</math>"\
-                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
-                    "<mrow>"\
-                        "<msup>"\
-                            "<mrow>"\
-                                "<mi>56</mi>"\
-                            "</mrow>"\
-                            "<mrow>"\
-                                "<mi>Null</mi>"\
-                            "</mrow>"\
-                        "</msup>"\
-                    "</mrow>"\
-                "</math>"\
+                "<span style=\"white-space:nowrap; display:inline-block;line-height:2;vertical-align:top;\">"
+                    "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                        "<mrow>"\
+                            "<mi>3</mi>"\
+                            "<mo>×</mo>"\
+                        "</mrow>"\
+                    "</math>"\
+                    "<br>"
+                    "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                        "<mrow>"\
+                            "<msup>"\
+                                "<mrow>"\
+                                    "<mi>56</mi>"\
+                                "</mrow>"\
+                                "<mrow>"\
+                                    "<mi></mi>"\
+                                "</mrow>"\
+                            "</msup>"\
+                        "</mrow>"\
+                    "</math>"\
+                "</span>"
             "</p>"\
         "</body>") << 
         document.ToHtml();
@@ -1386,7 +1398,7 @@ TEST_F(FormulaTestCustom, insert8)
                                 "<mi>56</mi>"\
                             "</mrow>"\
                             "<mrow>"\
-                                "<mi>Null</mi>"\
+                                "<mi></mi>"\
                             "</mrow>"\
                         "</msup>"\
                     "</mrow>"\
@@ -1525,7 +1537,7 @@ TEST_F(FormulaTestCustom, insert12)
                     "<mrow>"\
                         "<msqrt>"\
                             "<mrow>"\
-                                "<mi>Null</mi>"\
+                                "<mi></mi>"\
                             "</mrow>"\
                         "</msqrt>"\
                     "</mrow>"\
@@ -1640,10 +1652,10 @@ TEST_F(FormulaTestCustom, insert15)
                     "<mrow>"\
                         "<msup>"\
                             "<mrow>"\
-                                "<mi>Null</mi>"\
+                                "<mi></mi>"\
                             "</mrow>"\
                             "<mrow>"\
-                                "<mi>Null</mi>"\
+                                "<mi></mi>"\
                             "</mrow>"\
                         "</msup>"\
                     "</mrow>"\
@@ -1687,10 +1699,10 @@ TEST_F(FormulaTestCustom, insert16)
                     "<mrow>"\
                         "<mfrac>"\
                             "<mrow>"\
-                                "<mi>Null</mi>"\
+                                "<mi></mi>"\
                             "</mrow>"\
                             "<mrow>"\
-                                "<mi>Null</mi>"\
+                                "<mi></mi>"\
                             "</mrow>"\
                         "</mfrac>"\
                     "</mrow>"\
@@ -1728,10 +1740,10 @@ TEST_F(FormulaTestCustom, insert17)
                     "<mrow>"\
                         "<mfrac>"\
                             "<mrow>"\
-                                "<mi>Null</mi>"\
+                                "<mi></mi>"\
                             "</mrow>"\
                             "<mrow>"\
-                                "<mi>Null</mi>"\
+                                "<mi></mi>"\
                             "</mrow>"\
                         "</mfrac>"\
                     "</mrow>"\
@@ -1770,10 +1782,10 @@ TEST_F(FormulaTestCustom, insert18)
                     "<mrow>"\
                         "<mfrac>"\
                             "<mrow>"\
-                                "<mi>Null</mi>"\
+                                "<mi></mi>"\
                             "</mrow>"\
                             "<mrow>"\
-                                "<mi>Null</mi>"\
+                                "<mi></mi>"\
                             "</mrow>"\
                         "</mfrac>"\
                     "</mrow>"\
@@ -1811,10 +1823,10 @@ TEST_F(FormulaTestCustom, insert19)
                     "<mrow>"\
                         "<mfrac>"\
                             "<mrow>"\
-                                "<mi>Null</mi>"\
+                                "<mi></mi>"\
                             "</mrow>"\
                             "<mrow>"\
-                                "<mi>Null</mi>"\
+                                "<mi></mi>"\
                             "</mrow>"\
                         "</mfrac>"\
                     "</mrow>"\
@@ -1854,10 +1866,10 @@ TEST_F(FormulaTestCustom, insert20)
                     "<mrow>"\
                         "<mfrac>"\
                             "<mrow>"\
-                                "<mi>Null</mi>"\
+                                "<mi></mi>"\
                             "</mrow>"\
                             "<mrow>"\
-                                "<mi>Null</mi>"\
+                                "<mi></mi>"\
                             "</mrow>"\
                         "</mfrac>"\
                     "</mrow>"\
@@ -2423,7 +2435,7 @@ TEST_F(FormulaTest, fonts1)
                                 "<mi>123</mi>"\
                             "</mrow>"\
                             "<mrow>"\
-                                "<mi>Null</mi>"\
+                                "<mi></mi>"\
                             "</mrow>"\
                         "</mfrac>"\
                     "</mrow>"\
@@ -2448,7 +2460,7 @@ TEST_F(FormulaTest, fonts1)
                                 "<mi>123</mi>"\
                             "</mrow>"\
                             "<mrow>"\
-                                "<mi>Null</mi>"\
+                                "<mi></mi>"\
                             "</mrow>"\
                         "</mfrac>"\
                     "</mrow>"\

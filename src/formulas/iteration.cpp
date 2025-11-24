@@ -324,11 +324,12 @@ bool Iteration::AfterInsert(bool with_undo)
 
 std::string Iteration::ToHtml() const
 {
-    std::string s = "<munderover>";
-    s += "<mo>" + symbol_str + "</mo>";
-    s += GetLower()->ToHtml();
-    s += GetUpper()->ToHtml();
-    s += "</munderover>";
+    std::string s = 
+        "<munderover>" 
+            "<mo>" + symbol_str + "</mo>"
+            "<mrow>" + GetLower()->ToHtml() + "</mrow>"
+            "<mrow>" + GetUpper()->ToHtml() + "</mrow>"
+        "</munderover>";
     s += GetRight()->ToHtml();
     return s;
 }

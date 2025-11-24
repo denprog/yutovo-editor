@@ -28,18 +28,22 @@ TEST_F(FormulaTest, product1)
                         "<munderover>"\
                             "<mo>∏</mo>"\
                             "<mrow>"\
-                                "<mi>Null</mi>"\
+                                "<mrow>"\
+                                    "<mi></mi>"\
+                                "</mrow>"\
+                                "<mo>=</mo>"\
+                                "<mrow>"\
+                                    "<mi></mi>"\
+                                "</mrow>"\
                             "</mrow>"\
-                            "<mo>=</mo>"\
                             "<mrow>"\
-                                "<mi>Null</mi>"\
-                            "</mrow>"\
-                            "<mrow>"\
-                                "<mi>Null</mi>"\
+                               "<mrow>"\
+                                   "<mi></mi>"\
+                                "</mrow>"\
                             "</mrow>"\
                         "</munderover>"\
                         "<mrow>"\
-                            "<mi>Null</mi>"\
+                            "<mi></mi>"\
                         "</mrow>"\
                     "</mrow>"\
                 "</math>"\
@@ -63,18 +67,22 @@ TEST_F(FormulaTest, product1)
                         "<munderover>"\
                             "<mo>∏</mo>"\
                             "<mrow>"\
-                                "<mi>Null</mi>"\
+                                "<mrow>"\
+                                    "<mi></mi>"\
+                                "</mrow>"\
+                                "<mo>=</mo>"\
+                                "<mrow>"\
+                                    "<mi></mi>"\
+                                "</mrow>"\
                             "</mrow>"\
-                            "<mo>=</mo>"\
                             "<mrow>"\
-                                "<mi>Null</mi>"\
-                            "</mrow>"\
-                            "<mrow>"\
-                                "<mi>Null</mi>"\
+                                "<mrow>"\
+                                    "<mi></mi>"\
+                                "</mrow>"\
                             "</mrow>"\
                         "</munderover>"\
                         "<mrow>"\
-                            "<mi>Null</mi>"\
+                            "<mi></mi>"\
                         "</mrow>"\
                     "</mrow>"\
                 "</math>"\

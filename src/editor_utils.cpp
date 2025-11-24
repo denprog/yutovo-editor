@@ -469,4 +469,27 @@ bool IsLess(const ElementId& id1, const ElementId& id2)
 	return id1.size() < id2.size();
 }
 
+std::string base64_chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+
+std::string Base64Encode(const std::vector<unsigned char>& picture)
+{
+    std::string res;
+    int val = 0, valb = -6;
+    for (uchar c : picture)
+    {
+        val = (val << 8) + c;
+        valb += 8;
+        while (valb >= 0)
+        {
+            res.push_back(base64_chars[(val >> valb) & 0x3F]);
+            valb -= 6;
+        }
+    }
+    if (valb > -6)
+        res.push_back(base64_chars[((val << 8) >> (valb + 8)) & 0x3F]);
+    while (res.size() % 4)
+        res.push_back('=');
+    return res;
+}
+
 }

@@ -232,7 +232,7 @@ TEST_F(SolverAutoTest, solver4)
                                 "<mi>log</mi>"\
                             "</mrow>"\
                             "<mrow>"\
-                                "<mi>Null</mi>"\
+                                "<mi></mi>"\
                             "</mrow>"\
                         "</msub>"\
                     "</mrow>"\
@@ -349,10 +349,10 @@ TEST_F(SolverAutoTest, solver6)
                         "<mrow>"\
                             "<mfrac>"\
                                 "<mrow>"\
-                                    "<mi>Null</mi>"\
+                                    "<mi></mi>"\
                                 "</mrow>"\
                                 "<mrow>"\
-                                    "<mi>Null</mi>"\
+                                    "<mi></mi>"\
                                 "</mrow>"\
                             "</mfrac>"\
                         "</mrow>"\
@@ -414,7 +414,7 @@ TEST_F(SolverAutoTest, solver6)
                         "<mrow>"\
                             "<mfrac>"\
                                 "<mrow>"\
-                                    "<mi>Null</mi>"\
+                                    "<mi></mi>"\
                                 "</mrow>"\
                                 "<mrow>"\
                                     "<mi>2</mi>"\
@@ -587,26 +587,29 @@ TEST_F(SolverAutoTest, solver8)
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
-                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
-                    "<mrow>"\
-                        "<mi>Null</mi>"\
-                    "</mrow>"\
-                "</math>"\
-                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
-                    "<mrow>"\
+                "<span style=\"white-space:nowrap; display:inline-block;line-height:2;vertical-align:top;\">"
+                    "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
                         "<mrow>"\
-                            "<mi>32</mi>"\
-                            "<mo>+</mo>"\
-                            "<mi>3</mi>"\
+                            "<mi></mi>"\
                         "</mrow>"\
-                        "<mo>=</mo>"\
+                    "</math>"\
+                    "<br>"
+                    "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
                         "<mrow>"\
                             "<mrow>"\
-                                "<mi>35.</mi>"\
+                                "<mi>32</mi>"\
+                                "<mo>+</mo>"\
+                                "<mi>3</mi>"\
+                            "</mrow>"\
+                            "<mo>=</mo>"\
+                            "<mrow>"\
+                                "<mrow>"\
+                                    "<mi>35.</mi>"\
+                                "</mrow>"\
                             "</mrow>"\
                         "</mrow>"\
-                    "</mrow>"\
-                "</math>"\
+                    "</math>"\
+                "</span>"
             "</p>"\
         "</body>") << 
         document.ToHtml();
@@ -619,26 +622,29 @@ TEST_F(SolverAutoTest, solver8)
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
-                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
-                    "<mrow>"\
-                        "<mi>Null</mi>"\
-                    "</mrow>"\
-                "</math>"\
-                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
-                    "<mrow>"\
+                "<span style=\"white-space:nowrap; display:inline-block;line-height:2;vertical-align:top;\">"
+                    "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
                         "<mrow>"\
-                            "<mi>2</mi>"\
-                            "<mo>+</mo>"\
-                            "<mi>3</mi>"\
+                            "<mi></mi>"\
                         "</mrow>"\
-                        "<mo>=</mo>"\
+                    "</math>"\
+                    "<br>"
+                    "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
                         "<mrow>"\
                             "<mrow>"\
-                                "<mi>5.</mi>"\
+                                "<mi>2</mi>"\
+                                "<mo>+</mo>"\
+                                "<mi>3</mi>"\
+                            "</mrow>"\
+                            "<mo>=</mo>"\
+                            "<mrow>"\
+                                "<mrow>"\
+                                    "<mi>5.</mi>"\
+                                "</mrow>"\
                             "</mrow>"\
                         "</mrow>"\
-                    "</mrow>"\
-                "</math>"\
+                    "</math>"\
+                "</span>"
             "</p>"\
         "</body>") << 
         document.ToHtml();
@@ -1790,7 +1796,7 @@ TEST_F(SolverAutoTest, errors1)
                                     "<mi>3</mi>"\
                                 "</mrow>"\
                                 "<mrow>"\
-                                    "<mi>Null</mi>"\
+                                    "<mi></mi>"\
                                 "</mrow>"\
                             "</mfrac>"\
                         "</mrow>"\
@@ -1905,7 +1911,7 @@ TEST_F(SolverAutoTest, errors1)
                                     "<mi>3</mi>"\
                                 "</mrow>"\
                                 "<mrow>"\
-                                    "<mi>Null</mi>"\
+                                    "<mi></mi>"\
                                 "</mrow>"\
                             "</mfrac>"\
                         "</mrow>"\

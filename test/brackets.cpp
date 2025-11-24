@@ -898,7 +898,7 @@ TEST_F(FormulaTest, brackets12)
             "<p>"\
                 "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
                     "<mrow>"\
-                        "<mi>Null</mi>"\
+                        "<mi></mi>"\
                     "</mrow>"\
                 "</math>"\
                 "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
@@ -920,7 +920,7 @@ TEST_F(FormulaTest, brackets12)
             "<p>"\
                 "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
                     "<mrow>"\
-                        "<mi>Null</mi>"\
+                        "<mi></mi>"\
                     "</mrow>"\
                 "</math>"\
                 "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\

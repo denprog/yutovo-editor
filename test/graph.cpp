@@ -23,34 +23,76 @@ TEST_F(FormulaTest, graphs1)
 
     document.WaitTask(document.InsertGraph(true));
     std::this_thread::sleep_for(100ms);
+    std::string image_base64;
+    auto el = document.FindByType(ElementId{0}, ElementType::GRAPH_LINE);
+    ((GraphLine*)el.get())->GetImage(image_base64);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
-            "<p>"\
-                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
-                    "<mrow>"\
-                        "<mrow>"\
-                            "<mi>Null</mi>"\
-                        "</mrow>"\
-                        "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
-                            "<mrow>"\
-                                "<mi>Null</mi>"\
-                            "</mrow>"\
-                        "</math>"\
-                        "<mrow>"\
-                            "<mi>Null</mi>"\
-                        "</mrow>"\
-                        "<mrow>"\
-                            "<mi>Null</mi>"\
-                        "</mrow>"\
-                        "<mrow>"\
-                            "<mi>Null</mi>"\
-                        "</mrow>"\
-                        "<mrow>"\
-                            "<mi>Null</mi>"\
-                        "</mrow>"\
-                    "</mrow>"\
-                "</math>"\
-            "</p>"\
+            "<p>"
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"
+                    "<mrow>"
+                        "<table>"
+                            "<tr>"
+                                "<td style=\"height:100%; vertical-align:top;\">"
+                                    "<table style=\"height:100%;\">"
+                                        "<tr>"
+                                            "<td style=\"vertical-align:top;text-align:right;\">"
+                                                "<mrow>"
+                                                    "<mi></mi>"
+                                                "</mrow>"
+                                            "</td>"
+                                        "</tr>"
+                                        "<tr>"
+                                            "<td style=\"vertical-align:middle;\">"
+                                                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"
+                                                    "<mrow>"
+                                                        "<mi></mi>"
+                                                    "</mrow>"
+                                                "</math>"
+                                            "</td>"
+                                        "</tr>"
+                                        "<tr>"
+                                            "<td style=\"vertical-align:bottom;text-align:right\">"
+                                                "<mrow>"
+                                                    "<mi></mi>"
+                                                "</mrow>"
+                                            "</td>"
+                                        "</tr>"
+                                    "</table>"
+                                "</td>"
+                                "<td>"
+                                    "<img src=\"data:image/png;base64," + image_base64 + "\">"
+                                "</td>"
+                            "</tr>"
+                            "<tr>"
+                                "<td>"
+                                "</td>"
+                                "<td style=\"vertical-align:top;\">"
+                                    "<table style=\"width:100%;\">"
+                                        "<tr>"
+                                            "<td style=\"vertical-align:top;text-align:left;\">"
+                                                "<mrow>"
+                                                    "<mi></mi>"
+                                                "</mrow>"
+                                            "</td>"
+                                            "<td style=\"vertical-align:top;text-align:center\">"
+                                                "<mrow>"
+                                                    "<mi></mi>"
+                                                "</mrow>"
+                                            "</td>"
+                                            "<td style=\"vertical-align:top;text-align:right;\">"
+                                                "<mrow>"
+                                                    "<mi></mi>"
+                                                "</mrow>"
+                                            "</td>"
+                                        "</tr>"
+                                    "</table>"
+                                "</td>"
+                            "</tr>"
+                        "</table>"
+                    "</mrow>"
+                "</math>"
+            "</p>"
         "</body>") << 
         document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 0, 0, 0})) << document.GetEditorState().ToString();
@@ -64,34 +106,75 @@ TEST_F(FormulaTest, graphs1)
     document.Redo();
     document.WaitRedo();
     std::this_thread::sleep_for(200ms);
+    el = document.FindByType(ElementId{0}, ElementType::GRAPH_LINE);
+    ((GraphLine*)el.get())->GetImage(image_base64);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
-            "<p>"\
-                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
-                    "<mrow>"\
-                        "<mrow>"\
-                            "<mi>Null</mi>"\
-                        "</mrow>"\
-                        "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
-                            "<mrow>"\
-                                "<mi>Null</mi>"\
-                            "</mrow>"\
-                        "</math>"\
-                        "<mrow>"\
-                            "<mi>Null</mi>"\
-                        "</mrow>"\
-                        "<mrow>"\
-                            "<mi>Null</mi>"\
-                        "</mrow>"\
-                        "<mrow>"\
-                            "<mi>Null</mi>"\
-                        "</mrow>"\
-                        "<mrow>"\
-                            "<mi>Null</mi>"\
-                        "</mrow>"\
-                    "</mrow>"\
-                "</math>"\
-            "</p>"\
+            "<p>"
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"
+                    "<mrow>"
+                        "<table>"
+                            "<tr>"
+                                "<td style=\"height:100%; vertical-align:top;\">"
+                                    "<table style=\"height:100%;\">"
+                                        "<tr>"
+                                            "<td style=\"vertical-align:top;text-align:right;\">"
+                                                "<mrow>"
+                                                    "<mi></mi>"
+                                                "</mrow>"
+                                            "</td>"
+                                        "</tr>"
+                                        "<tr>"
+                                            "<td style=\"vertical-align:middle;\">"
+                                                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"
+                                                    "<mrow>"
+                                                        "<mi></mi>"
+                                                    "</mrow>"
+                                                "</math>"
+                                            "</td>"
+                                        "</tr>"
+                                        "<tr>"
+                                            "<td style=\"vertical-align:bottom;text-align:right\">"
+                                                "<mrow>"
+                                                    "<mi></mi>"
+                                                "</mrow>"
+                                            "</td>"
+                                        "</tr>"
+                                    "</table>"
+                                "</td>"
+                                "<td>"
+                                    "<img src=\"data:image/png;base64," + image_base64 + "\">"
+                                "</td>"
+                            "</tr>"
+                            "<tr>"
+                                "<td>"
+                                "</td>"
+                                "<td style=\"vertical-align:top;\">"
+                                    "<table style=\"width:100%;\">"
+                                        "<tr>"
+                                            "<td style=\"vertical-align:top;text-align:left;\">"
+                                                "<mrow>"
+                                                    "<mi></mi>"
+                                                "</mrow>"
+                                            "</td>"
+                                            "<td style=\"vertical-align:top;text-align:center\">"
+                                                "<mrow>"
+                                                    "<mi></mi>"
+                                                "</mrow>"
+                                            "</td>"
+                                            "<td style=\"vertical-align:top;text-align:right;\">"
+                                                "<mrow>"
+                                                    "<mi></mi>"
+                                                "</mrow>"
+                                            "</td>"
+                                        "</tr>"
+                                    "</table>"
+                                "</td>"
+                            "</tr>"
+                        "</table>"
+                    "</mrow>"
+                "</math>"
+            "</p>"
         "</body>") << 
         document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 0, 0, 0})) << document.GetEditorState().ToString();
@@ -102,38 +185,6 @@ TEST_F(FormulaTest, graphs2)
     Start(600);
 
     document.WaitTask(document.InsertGraph(true));
-    std::this_thread::sleep_for(100ms);
-    ASSERT_TRUE(document.ToHtml() == 
-        "<body>"\
-            "<p>"\
-                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
-                    "<mrow>"\
-                        "<mrow>"\
-                            "<mi>Null</mi>"\
-                        "</mrow>"\
-                        "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
-                            "<mrow>"\
-                                "<mi>Null</mi>"\
-                            "</mrow>"\
-                        "</math>"\
-                        "<mrow>"\
-                            "<mi>Null</mi>"\
-                        "</mrow>"\
-                        "<mrow>"\
-                            "<mi>Null</mi>"\
-                        "</mrow>"\
-                        "<mrow>"\
-                            "<mi>Null</mi>"\
-                        "</mrow>"\
-                        "<mrow>"\
-                            "<mi>Null</mi>"\
-                        "</mrow>"\
-                    "</mrow>"\
-                "</math>"\
-            "</p>"\
-        "</body>") << 
-        document.ToHtml();
-    
     document.WaitTask(document.InsertString("2", true));
     document.MoveCaretRight(false);
 
@@ -157,42 +208,83 @@ TEST_F(FormulaTest, graphs2)
     document.WaitTask(document.MoveCaretRight(false));
     document.WaitSolver();
     std::this_thread::sleep_for(3s);
+    std::string image_base64;
+    auto el = document.FindByType(ElementId{0}, ElementType::GRAPH_LINE);
+    GraphLine* graph = (GraphLine*)el.get();
+    graph->GetImage(image_base64);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
-            "<p>"\
-                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
-                    "<mrow>"\
-                        "<mrow>"\
-                            "<mi>2</mi>"\
-                        "</mrow>"\
-                        "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
-                            "<mrow>"\
-                                "<mi>x</mi>"\
-                                "<mo>+</mo>"\
-                                "<mi>5</mi>"\
-                            "</mrow>"\
-                        "</math>"\
-                        "<mrow>"\
-                            "<mo>-</mo>"\
-                            "<mi>2</mi>"\
-                        "</mrow>"\
-                        "<mrow>"\
-                            "<mo>-</mo>"\
-                            "<mi>4</mi>"\
-                        "</mrow>"\
-                        "<mrow>"\
-                            "<mi>x</mi>"\
-                        "</mrow>"\
-                        "<mrow>"\
-                            "<mi>4</mi>"\
-                        "</mrow>"\
-                    "</mrow>"\
-                "</math>"\
-            "</p>"\
+            "<p>"
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"
+                    "<mrow>"
+                        "<table>"
+                            "<tr>"
+                                "<td style=\"height:100%; vertical-align:top;\">"
+                                    "<table style=\"height:100%;\">"
+                                        "<tr>"
+                                            "<td style=\"vertical-align:top;text-align:right;\">"
+                                                "<mrow>"
+                                                    "<mi>2</mi>"
+                                                "</mrow>"
+                                            "</td>"
+                                        "</tr>"
+                                        "<tr>"
+                                            "<td style=\"vertical-align:middle;\">"
+                                                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"
+                                                    "<mrow>"
+                                                        "<mi>x</mi>"\
+                                                        "<mo>+</mo>"\
+                                                        "<mi>5</mi>"\
+                                                    "</mrow>"
+                                                "</math>"
+                                            "</td>"
+                                        "</tr>"
+                                        "<tr>"
+                                            "<td style=\"vertical-align:bottom;text-align:right\">"
+                                                "<mrow>"
+                                                    "<mo>-</mo>"\
+                                                    "<mi>2</mi>"\
+                                                "</mrow>"
+                                            "</td>"
+                                        "</tr>"
+                                    "</table>"
+                                "</td>"
+                                "<td>"
+                                    "<img src=\"data:image/png;base64," + image_base64 + "\">"
+                                "</td>"
+                            "</tr>"
+                            "<tr>"
+                                "<td>"
+                                "</td>"
+                                "<td style=\"vertical-align:top;\">"
+                                    "<table style=\"width:100%;\">"
+                                        "<tr>"
+                                            "<td style=\"vertical-align:top;text-align:left;\">"
+                                                "<mrow>"
+                                                    "<mo>-</mo>"\
+                                                    "<mi>4</mi>"\
+                                                "</mrow>"
+                                            "</td>"
+                                            "<td style=\"vertical-align:top;text-align:center\">"
+                                                "<mrow>"
+                                                    "<mi>x</mi>"
+                                                "</mrow>"
+                                            "</td>"
+                                            "<td style=\"vertical-align:top;text-align:right;\">"
+                                                "<mrow>"
+                                                    "<mi>4</mi>"
+                                                "</mrow>"
+                                            "</td>"
+                                        "</tr>"
+                                    "</table>"
+                                "</td>"
+                            "</tr>"
+                        "</table>"
+                    "</mrow>"
+                "</math>"
+            "</p>"
         "</body>") << 
         document.ToHtml();
-    auto el = document.FindByType({0}, ElementType::GRAPH_LINE);
-    GraphLine* graph = (GraphLine*)el.get();
     const GraphLine::Plot& plot = graph->plots[0];
     ASSERT_TRUE(graph->y_bottom == -2) << graph->y_bottom;
     ASSERT_TRUE(el->elements->Get(1)->ToText() == U"x+5");

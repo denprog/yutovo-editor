@@ -1005,10 +1005,10 @@ TEST_F(ParagraphTest, paragraph3)
                     "<mrow>"\
                         "<mfrac>"\
                             "<mrow>"\
-                                "<mi>Null</mi>"\
+                                "<mi></mi>"\
                             "</mrow>"\
                             "<mrow>"\
-                                "<mi>Null</mi>"\
+                                "<mi></mi>"\
                             "</mrow>"\
                         "</mfrac>"\
                     "</mrow>"\
@@ -1043,10 +1043,10 @@ TEST_F(ParagraphTest, paragraph4)
                     "<mrow>"\
                         "<mfrac>"\
                             "<mrow>"\
-                                "<mi>Null</mi>"\
+                                "<mi></mi>"\
                             "</mrow>"\
                             "<mrow>"\
-                                "<mi>Null</mi>"\
+                                "<mi></mi>"\
                             "</mrow>"\
                         "</mfrac>"\
                     "</mrow>"\
@@ -1065,10 +1065,10 @@ TEST_F(ParagraphTest, paragraph4)
                     "<mrow>"\
                         "<mfrac>"\
                             "<mrow>"\
-                                "<mi>Null</mi>"\
+                                "<mi></mi>"\
                             "</mrow>"\
                             "<mrow>"\
-                                "<mi>Null</mi>"\
+                                "<mi></mi>"\
                             "</mrow>"\
                         "</mfrac>"\
                     "</mrow>"\
@@ -1090,10 +1090,10 @@ TEST_F(ParagraphTest, paragraph4)
                     "<mrow>"\
                         "<mfrac>"\
                             "<mrow>"\
-                                "<mi>Null</mi>"\
+                                "<mi></mi>"\
                             "</mrow>"\
                             "<mrow>"\
-                                "<mi>Null</mi>"\
+                                "<mi></mi>"\
                             "</mrow>"\
                         "</mfrac>"\
                     "</mrow>"\
@@ -1251,7 +1251,7 @@ TEST_F(ParagraphTest, paragraph8)
             "<p>"\
                 "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
                     "<mrow>"\
-                        "<mi>Null</mi>"\
+                        "<mi></mi>"\
                     "</mrow>"\
                 "</math>"\
                 "<span style=\"font-family:'Arial';font-size:14px;\">Code</span>"\
@@ -1269,7 +1269,7 @@ TEST_F(ParagraphTest, paragraph8)
                 "<span style=\"font-family:'Arial';font-size:14px;\">Text </span>"\
                 "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
                     "<mrow>"\
-                        "<mi>Null</mi>"\
+                        "<mi></mi>"\
                     "</mrow>"\
                 "</math>"\
                 "<span style=\"font-family:'Arial';font-size:14px;\">Code</span>"\
@@ -1294,17 +1294,20 @@ TEST_F(ParagraphTest, paragraph9)
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
-                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
-                    "<mrow>"\
-                        "<mi>d</mi>"\
-                    "</mrow>"\
-                "</math>"\
-                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
-                    "<mrow>"\
-                        "<mo>+</mo>"\
-                        "<mi>5</mi>"\
-                    "</mrow>"\
-                "</math>"\
+                "<span style=\"white-space:nowrap; display:inline-block;line-height:2;vertical-align:top;\">"
+                    "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                        "<mrow>"\
+                            "<mi>d</mi>"\
+                        "</mrow>"\
+                    "</math>"\
+                    "<br>"
+                    "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                        "<mrow>"\
+                            "<mo>+</mo>"\
+                            "<mi>5</mi>"\
+                        "</mrow>"\
+                    "</math>"\
+                "</span>"
             "</p>"\
         "</body>") << 
         document.ToHtml();
@@ -1404,7 +1407,7 @@ TEST_F(ParagraphTest, paragraph11)
             "<p>"\
                 "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
                     "<mrow>"\
-                        "<mi>Null</mi>"\
+                        "<mi></mi>"\
                     "</mrow>"\
                 "</math>"\
             "</p>"\
@@ -3149,7 +3152,7 @@ TEST_F(ParagraphTest, delete8)
                 "<span style=\"font-family:'Arial';font-size:14px;\">that </span>"\
                 "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
                     "<mrow>"\
-                        "<mi>Null</mi>"\
+                        "<mi></mi>"\
                     "</mrow>"\
                 "</math>"\
                 "<span style=\"font-family:'Arial';font-size:14px;\">can be read, whether this </span>"\
@@ -3181,7 +3184,7 @@ TEST_F(ParagraphTest, delete8)
                 "<span style=\"font-family:'Arial';font-size:14px;\">that </span>"\
                 "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
                     "<mrow>"\
-                        "<mi>Null</mi>"\
+                        "<mi></mi>"\
                     "</mrow>"\
                 "</math>"\
                 "<span style=\"font-family:'Arial';font-size:14px;\">can be read, whether this </span>"\
@@ -3304,10 +3307,10 @@ TEST_F(ParagraphTest, delete11)
                     "<mrow>"\
                         "<mfrac>"\
                             "<mrow>"\
-                                "<mi>Null</mi>"\
+                                "<mi></mi>"\
                             "</mrow>"\
                             "<mrow>"\
-                                "<mi>Null</mi>"\
+                                "<mi></mi>"\
                             "</mrow>"\
                         "</mfrac>"\
                     "</mrow>"\
@@ -3343,10 +3346,10 @@ TEST_F(ParagraphTest, delete11)
                     "<mrow>"\
                         "<mfrac>"\
                             "<mrow>"\
-                                "<mi>Null</mi>"\
+                                "<mi></mi>"\
                             "</mrow>"\
                             "<mrow>"\
-                                "<mi>Null</mi>"\
+                                "<mi></mi>"\
                             "</mrow>"\
                         "</mfrac>"\
                     "</mrow>"\

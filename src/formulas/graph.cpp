@@ -19,6 +19,8 @@
 #include <boost/uuid/uuid_generators.hpp>
 #include <boost/uuid/uuid_io.hpp>
 #include <algorithm>
+#define STB_IMAGE_WRITE_IMPLEMENTATION
+#include "third_party/stb_image_write.h"
 
 #ifdef _MSC_VER
 #undef GetObject
@@ -26,6 +28,8 @@
 
 namespace yutovo
 {
+
+typedef unsigned char uchar;
 
 //Graph
 
@@ -195,6 +199,25 @@ bool Graph::Depends(const std::string& identifier)
     return false;
 }
 
+void Graph::GetImage(std::string& image_base64) const
+{
+    Draw();
+
+    const unsigned char* picture = graph.GetRGBA();
+    std::vector<unsigned char> rgba(picture, picture + 4 * (graph.GetWidth() * graph.GetHeight()));
+    std::vector<unsigned char> png;
+
+    stbi_write_png_to_func(
+        [](void* context, void* data, int size)
+        {
+            auto* v = static_cast<std::vector<unsigned char>*>(context);
+            v->insert(v->end(), (unsigned char*)data, (unsigned char*)data + size);
+        },
+        &png, graph.GetWidth(), graph.GetHeight(), 4, rgba.data(), graph.GetWidth() * 4);
+
+    image_base64 = yutovo::Base64Encode(png);
+}
+
 void Graph::SetNumber(const double num, CodeRow* el)
 {
     bool b = document->caret->IsInsideElement(el->id);
@@ -361,11 +384,7 @@ void GraphLine::Init()
             {
                 graph.SetRanges(x_left, x_right, y_bottom, y_top);
                 graph.SetFontSize(level);
-#ifdef EMSCRIPTEN
                 std::string f = "{" + format.color.ToRGB() + "}";
-#else
-                std::string f = "{" + format.color.ToBGR() + "}";
-#endif
                 graph.Axis("xy", std::string(f + "-1").c_str(), "h-1");
                 if (format.grid_width > 0)
                     graph.Grid("xy", std::string("h" + std::to_string(format.grid_width) + f).c_str());
@@ -381,11 +400,7 @@ void GraphLine::Init()
                         mglData y_data(y.size());
                         x_data.Set(x);
                         y_data.Set(y);
-#ifdef EMSCRIPTEN
                         f = "{" + p.format.color.ToRGB() + "}-" + std::to_string(p.format.width);
-#else
-                        f = "{" + p.format.color.ToBGR() + "}-" + std::to_string(p.format.width);
-#endif
                         graph.Plot(x_data, y_data, f.c_str());
                     }
                 }
@@ -666,6 +681,56 @@ bool GraphLine::MouseLButtonHold(const int x, const int y, MouseHoldType& hold_t
         }
     }
     return false;
+}
+
+std::string GraphLine::ToHtml() const
+{
+    std::string expr;
+    for (int i = 0; i < GetExpression()->elements->Count(); ++i)
+    {
+        const auto& el = GetExpression()->elements->Get(i);
+        if (!el->IsVisible())
+            continue;
+        expr += "<p><span style=\"color: " + plots[i].format.color.ToHex() + ";\">█&nbsp;</span>" + el->ToHtml() + "</p>";
+    }
+
+    std::string image_base64;
+    GetImage(image_base64);
+    std::string s =
+        "<table>"
+            "<tr>"
+                "<td style=\"height:100%; vertical-align:top;\">"
+                    "<table style=\"height:100%;\">"
+                        "<tr>"
+                            "<td style=\"vertical-align:top;text-align:right;\">" + GetYTop()->ToHtml() + "</td>"
+                        "</tr>"
+                        "<tr>"
+                            "<td style=\"vertical-align:middle;\">" + expr + "</td>"
+                        "</tr>"
+                        "<tr>"
+                            "<td style=\"vertical-align:bottom;text-align:right\">" + GetYBottom()->ToHtml() + "</td>"
+                        "</tr>"
+                    "</table>"
+                "</td>"
+                "<td>"
+                    "<img src=\"data:image/png;base64," + image_base64 + "\">"
+                "</td>"
+            "</tr>"
+            "<tr>"
+                "<td>"
+                "</td>"
+                "<td style=\"vertical-align:top;\">"
+                    "<table style=\"width:100%;\">"
+                        "<tr>"
+                            "<td style=\"vertical-align:top;text-align:left;\">" + GetXLeft()->ToHtml() + "</td>"
+                            "<td style=\"vertical-align:top;text-align:center\">" + GetVariable()->ToHtml() + "</td>"
+                            "<td style=\"vertical-align:top;text-align:right;\">" + GetXRight()->ToHtml() + "</td>"
+                        "</tr>"
+                    "</table>"
+                "</td>"
+            "</tr>"
+       "</table>";
+    return s;
 }
 
 std::u32string GraphLine::ToText() const

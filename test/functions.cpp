@@ -211,10 +211,10 @@ TEST_F(FormulaTest, functions4)
                         "<mo>-</mo>"\
                         "<mfrac>"\
                             "<mrow>"\
-                                "<mi>Null</mi>"\
+                                "<mi></mi>"\
                             "</mrow>"\
                             "<mrow>"\
-                                "<mi>Null</mi>"\
+                                "<mi></mi>"\
                             "</mrow>"\
                         "</mfrac>"\
                     "</mrow>"\
@@ -238,10 +238,10 @@ TEST_F(FormulaTest, functions4)
                         "<mo>-</mo>"\
                         "<mfrac>"\
                             "<mrow>"\
-                                "<mi>Null</mi>"\
+                                "<mi></mi>"\
                             "</mrow>"\
                             "<mrow>"\
-                                "<mi>Null</mi>"\
+                                "<mi></mi>"\
                             "</mrow>"\
                         "</mfrac>"\
                     "</mrow>"\
@@ -269,10 +269,10 @@ TEST_F(FormulaTest, functions4)
                         "<mo>-</mo>"\
                         "<mfrac>"\
                             "<mrow>"\
-                                "<mi>Null</mi>"\
+                                "<mi></mi>"\
                             "</mrow>"\
                             "<mrow>"\
-                                "<mi>Null</mi>"\
+                                "<mi></mi>"\
                             "</mrow>"\
                         "</mfrac>"\
                     "</mrow>"\

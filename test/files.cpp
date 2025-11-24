@@ -508,11 +508,11 @@ TEST_F(DocumentTest, files10)
             "<p>"\
                 "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
                     "<mrow>"\
-                        "<mi>Null</mi>"\
+                        "<mi></mi>"\
                         "<mi>123</mi>"\
                         "<mi>4355</mi>"\
                         "<mi>45</mi>"\
-                        "<mi>Null</mi>"\
+                        "<mi></mi>"\
                     "</mrow>"\
                 "</math>"\
             "</p>"\
@@ -1281,7 +1281,7 @@ TEST_F(IncludeDocumentsTest, include_files4)
 
     //include2.yut
     document.WaitTask(document.SetIncludeDocuments(std::vector{std::string("include1.yut")}));
-    std::this_thread::sleep_for(2s);
+    std::this_thread::sleep_for(4s);
     document.InsertCode(false, true);
     document.InsertString("var1", true);
     document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
