@@ -309,7 +309,6 @@ bool Paragraph::Remake(bool with_elements)
     }
 
     UpdateRect();
-    draw_rect.SetRect(parent->rect.left, rect.top, parent->rect.GetRight(), rect.GetBottom());
 
     if (elements->Count() > 0)
         baseline = elements->Get(0)->baseline;
