@@ -86,7 +86,7 @@ Document::Document(Window* _window, Config& _config, const std::string _document
 
     current_paragraph_format = paragraph_formats->GetFormat("Text body");
     current_formula_format = formula_formats->GetFormat("Code");
-    current_page_format = PageFormats::GetFormat(20, 20, 20, 20, 10);
+    current_text_format = TextFormats::GetFormat(TextFormat::Paging::WEB_VIEW, 20, 20, 20, 20, 10, Size{0, 0});
 
 #ifndef DEBUG
     config.pretty_json = false;
@@ -109,7 +109,7 @@ void Document::Start()
     window->Init(this);
 
     caret.reset(new Caret(this));
-    text.reset(new Text(this));
+    text.reset(new Text(this, current_text_format, true));
 
     caret->MoveToDocumentBegin(nullptr);
 
@@ -126,7 +126,7 @@ void Document::Start()
 
 void Document::GetConfig(Config& _config)
 {
-    std::unique_lock<std::recursive_mutex> lock(tasks_mutex);
+    std::unique_lock<std::recursive_mutex> lock(edit_mutex);
     _config = config;
 }
 
@@ -952,6 +952,16 @@ bool Document::StoreUndo(const Config& config)
     return true;
 }
 
+bool Document::StoreUndo(const TextFormat& format)
+{
+    RestrictUndo();
+    int undo_id = undo_base.Store(format);
+    if (undo_id < 0)
+        return false;
+    undo_tasks.push_back(TaskPtr(new UndoTask(text, undo_id, cur_task_id, UndoTask::UndoOperation::FORMAT)));
+    return true;
+}
+
 bool Document::RestoreUndo(const int undo_id, std::vector<ElementPtr>& elements)
 {
     return undo_base.Restore(undo_id, elements);
@@ -961,6 +971,12 @@ bool Document::RestoreUndo(const int undo_id, Config& config)
 {
     RestrictUndo();
     return undo_base.Restore(undo_id, config);
+}
+
+bool Document::RestoreUndo(const int undo_id, TextFormat& format)
+{
+    RestrictUndo();
+    return undo_base.Restore(undo_id, format);
 }
 
 void Document::RollbackUndo()
@@ -1620,6 +1636,34 @@ uint Document::SetPlotFormat(const ElementId& id, const PlotFormat& format, bool
             return true;
         };
     tasks.emplace_back(new SetFormatTask(text, id, func, with_undo));
+    last_task_id = tasks.back()->id;
+    next_circle = true;
+    return last_task_id;
+}
+
+bool Document::GetTextFormat(TextFormat& format)
+{
+    std::lock_guard<std::recursive_mutex> lock(edit_mutex);
+    format = *((Text*)text.get())->format;
+    return true;
+}
+
+uint Document::SetTextFormat(const TextFormat& format, bool with_undo)
+{
+    std::lock_guard<std::recursive_mutex> lock(edit_mutex);
+    std::function<bool()> func = 
+        [format, with_undo, this]()
+        {
+            if (with_undo)
+            {
+                TextFormat f;
+                GetTextFormat(f);
+                StoreUndo(f);
+            }
+            ((Text*)text.get())->SetTextFormat(format);
+            return true;
+        };
+    tasks.emplace_back(new SetFormatTask(text, text->id, func, with_undo));
     last_task_id = tasks.back()->id;
     next_circle = true;
     return last_task_id;
@@ -2680,7 +2724,7 @@ uint Document::Paste(std::u32string& in_json)
     else if (only_paragraphs)
     {
         //compound them in text to workout them in one iteration
-        ElementPtr t(new Text(this, false));
+        ElementPtr t(new Text(this, current_text_format, false));
         for (auto& el : elements)
             t->elements->Add(el);
         elements.clear();
@@ -2771,25 +2815,7 @@ std::u32string Document::ToText(const ElementId& id)
 
 TextFormatPtr Document::GetDefaultTextFormat()
 {
-    return TextFormats::GetFormat(TextFormat::Paging::ONE_PAGE);
-}
-
-PageFormatPtr Document::GetDefaultPageFormat()
-{
-    if (config.with_border)
-        return current_page_format;
-    return PageFormats::GetFormat(0, 0, 0, 0, 0);
-}
-
-uint Document::SetDefaultPageFormat(uint left_indent, uint top_indent, uint right_indent, uint bottom_indent, uint paragraph_spacing)
-{
-    {
-        std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
-        tasks.emplace_back(new ChangePageFormatTask(text, PageFormats::GetFormat(left_indent, top_indent, right_indent, bottom_indent, paragraph_spacing)));
-        last_task_id = tasks.back()->id;
-    }
-    next_circle = true;
-    return last_task_id;
+    return TextFormats::GetFormat(TextFormat::Paging::WEB_VIEW, 20, 20, 20, 20, 10, Size{0, 0});
 }
 
 StringFormatPtr Document::GetStringFormat(const std::string& family, uint size, bool bold, bool italic, bool underline, bool strikethrough, 

@@ -159,8 +159,9 @@ bool Paragraph::Remake(bool with_elements)
     
     bool changed = Element::Remake(format->alignment == ParagraphFormat::Alignment::Justify ? true : with_elements);
 
+    Text* text = type == ElementType::PARAGRAPH ? (Text*)parent : nullptr;
     int left_m = 0, top_m = 0, right_m = 0, bottom_m = 0;
-    int page_width = type == ElementType::PARAGRAPH ? ((Text*)parent)->page_width : 0;
+    int page_width = text ? text->pixel_size.width : 0;
     int m = 0;
 
     if (!marker.empty())

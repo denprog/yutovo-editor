@@ -990,24 +990,6 @@ bool ChangeParagraphFormatTask::Execute()
     return true;
 }
 
-//ChangePageFormatTask
-
-ChangePageFormatTask::ChangePageFormatTask(ElementPtr _text, const PageFormatPtr& _format) :
-    Task(_text), 
-    format(_format)
-{
-}
-
-bool ChangePageFormatTask::Execute()
-{
-    document->current_page_format = format;
-
-    Remake(ElementId{0}, true);
-    document->UpdateFormats();
-
-    return true;
-}
-
 //MovePictureTask
 
 MovePictureTask::MovePictureTask(ElementPtr _text, ElementId _id, const int _dx, const int _dy) : 
@@ -1152,6 +1134,13 @@ UndoTask::UndoTask(ElementPtr _text, int _undo_id, const uint task_id) :
 {
 }
 
+UndoTask::UndoTask(ElementPtr _text, int _undo_id, const uint task_id, UndoOperation _undo_operation) : 
+    Task(_text, task_id),
+    undo_id(_undo_id),
+    undo_operation(_undo_operation)
+{
+}
+
 bool UndoTask::Execute()
 {
     if (undo_operation == UndoOperation::DELETE)
@@ -1168,6 +1157,15 @@ bool UndoTask::Execute()
         if (!document->RestoreUndo(undo_id, config))
             return false;
         document->SetConfig(config, false);
+        return true;
+    }
+
+    if (undo_operation == UndoOperation::FORMAT)
+    {
+        TextFormat format;
+        if (!document->RestoreUndo(undo_id, format))
+            return false;
+        document->SetTextFormat(format, false);
         return true;
     }
 
@@ -1533,7 +1531,7 @@ bool NewTask::Execute()
     document->current_paragraph_format = document->paragraph_formats->GetFormat("Text body");
     document->current_code_format = document->code_formats->GetFormat("Calculator");
     document->current_formula_format = document->formula_formats->GetFormat("Code");
-    document->text.reset(new Text(text->document));
+    document->text.reset(new Text(text->document, text->document->current_text_format));
     document->text->Remake(true);
     document->MoveCaretToDocumentBegin(false);
     document->Redraw();
@@ -1871,7 +1869,7 @@ bool LoadTask::Execute()
             return false;
         }
 
-        t.reset(new Text(document));
+        t.reset(new Text(document, document->current_text_format));
     }
 
     if (!t)

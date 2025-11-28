@@ -131,15 +131,6 @@ struct ChangeParagraphFormatTask : Task
     LogicalEditorState before_state;
 };
 
-struct ChangePageFormatTask : Task
-{
-    ChangePageFormatTask(ElementPtr _text, const PageFormatPtr& _format);
-
-    virtual bool Execute();
-
-    PageFormatPtr format;
-};
-
 struct MovePictureTask : Task
 {
     MovePictureTask(ElementPtr _text, ElementId _id, const int _dx, const int _dy);
@@ -201,13 +192,15 @@ struct UndoTask : Task
         CHANGE = 1,
         INSERT,
         DELETE,
-        CONFIG
+        CONFIG,
+        FORMAT
     };
 
     UndoTask(ElementPtr _text, int _undo_id, ElementId _id, const int _pos, const int _delete_size, const uint task_id);
     UndoTask(ElementPtr _text, int _undo_id, ElementId _id, const int _pos, const int _size, const int _delete_size, 
         UndoOperation _undo_operation, const uint task_id);
     UndoTask(ElementPtr _text, int _undo_id, const uint task_id);
+    UndoTask(ElementPtr _text, int _undo_id, const uint task_id, UndoOperation _undo_operation);
 
     virtual bool Execute();
 

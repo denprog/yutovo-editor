@@ -714,6 +714,27 @@ Element* UndoConfig::Restore(Document* document, Element* parent)
     return new ConfigElement(config);
 }
 
+//FormatElement
+
+FormatElement::FormatElement(const TextFormat& _format) : 
+    Element((Element*)nullptr),
+    format(_format)
+{
+}
+
+//UndoFormat
+
+UndoFormat::UndoFormat(const TextFormat& _format) :
+    UndoElement(ElementType::NONE),
+    format(_format)
+{
+}
+
+Element* UndoFormat::Restore(Document* document, Element* parent)
+{
+    return new FormatElement(format);
+}
+
 //UndoBase
 
 UndoBase::UndoBase(Document* _document) :
@@ -775,6 +796,14 @@ int UndoBase::Store(const Config& config)
     return next_undo_id++;
 }
 
+int UndoBase::Store(const TextFormat& format)
+{
+    UndoElementPtr undo_element(new UndoFormat(format));
+    UndoItem item{LogicalId{}, 1, std::vector{undo_element}};
+    undo_items[next_undo_id].push_back(undo_element);
+    return next_undo_id++;
+}
+
 bool UndoBase::Restore(int undo_id, std::vector<ElementPtr>& elements)
 {
     auto it = undo_items.find(undo_id);
@@ -815,6 +844,18 @@ bool UndoBase::Restore(int undo_id, Config& config)
         return false;
     ElementPtr _el(it->second[0]->Restore(document, nullptr));
     config = ((ConfigElement*)_el.get())->config;
+    return true;
+}
+
+bool UndoBase::Restore(int undo_id, TextFormat& format)
+{
+    auto it = undo_items.find(undo_id);
+    if (it == undo_items.end())
+        return false;
+    if (it->second.empty())
+        return false;
+    ElementPtr _el(it->second[0]->Restore(document, nullptr));
+    format = ((FormatElement*)_el.get())->format;
     return true;
 }
 

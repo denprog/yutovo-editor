@@ -67,6 +67,11 @@ std::u32string Window::Translate(ElementId id, const std::u32string& str)
     return str;
 }
 
+int Window::ConvertToPixels(const int mm)
+{
+    return 0;
+}
+
 void Window::OnCaretMoved(const EditorState editor_state)
 {
 }

@@ -677,48 +677,72 @@ CodeFormatPtr CodeFormats::GetFormat(const std::string& name, uint left_indent, 
     return format;
 }
 
-//PageFormats
-
-bool PageFormat::operator==(const PageFormat& p) const
-{
-    return left_indent == p.left_indent && top_indent == p.top_indent && right_indent == p.right_indent && 
-        bottom_indent == p.bottom_indent && paragraph_spacing == p.paragraph_spacing;
-}
-
-std::vector<PageFormatPtr> PageFormats::page_formats;
-
-PageFormatPtr PageFormats::GetFormat(uint left_indent, uint top_indent, uint right_indent, uint bottom_indent, uint paragraph_spacing)
-{
-    for (auto& p : page_formats)
-    {
-        if (p->left_indent == left_indent && p->top_indent == top_indent && p->right_indent == right_indent && p->bottom_indent == bottom_indent && 
-            p->paragraph_spacing == paragraph_spacing)
-            return p;
-    }
-
-    PageFormatPtr p(new PageFormat{left_indent, top_indent, right_indent, bottom_indent, paragraph_spacing});
-    page_formats.push_back(p);
-    return p;
-}
-
 //TextFormat
 
 bool TextFormat::operator==(const TextFormat& t) const
 {
-    return paging == t.paging;
+    return paging == t.paging && left_indent == t.left_indent && top_indent == t.top_indent && right_indent == t.right_indent && 
+        bottom_indent == t.bottom_indent && paragraph_spacing == t.paragraph_spacing;
+}
+
+void TextFormat::ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc)
+{
+    rapidjson::Value obj(rapidjson::kObjectType);
+    obj.AddMember("paging", (int)paging, alloc);
+    obj.AddMember("left_indent", left_indent, alloc);
+    obj.AddMember("top_indent", top_indent, alloc);
+    obj.AddMember("right_indent", right_indent, alloc);
+    obj.AddMember("bottom_indent", bottom_indent, alloc);
+    obj.AddMember("paragraph_spacing", paragraph_spacing, alloc);
+    value.AddMember("text_format", obj, alloc);
+}
+
+bool TextFormat::FromJson(const rapidjson::Value::ConstObject& value, rapidjson::Document::AllocatorType& alloc)
+{
+    if (value.HasMember("text_format") && value["text_format"].IsObject())
+    {
+        auto r = value["text_format"].GetObject();
+        if (!r.HasMember("paging") || !r["paging"].IsInt() || (int)r["paging"].GetInt() != 0)
+            paging = Paging::WEB_VIEW;
+        else
+            paging = (Paging)r["paging"].GetInt();
+        if (r.HasMember("left_indent") && r["left_indent"].IsInt())
+            left_indent = r["left_indent"].GetInt();
+        if (r.HasMember("top_indent") && r["top_indent"].IsInt())
+            top_indent = r["top_indent"].GetInt();
+        if (r.HasMember("right_indent") && r["right_indent"].IsInt())
+            right_indent = r["right_indent"].GetInt();
+        if (r.HasMember("bottom_indent") && r["bottom_indent"].IsInt())
+            bottom_indent = r["bottom_indent"].GetInt();
+        if (r.HasMember("paragraph_spacing") && r["paragraph_spacing"].IsInt())
+            paragraph_spacing = r["paragraph_spacing"].GetInt();
+        if (left_indent < 0 || left_indent > 100)
+            left_indent = 10;
+        if (top_indent < 0 || top_indent > 100)
+            top_indent = 10;
+        if (right_indent < 0 || right_indent > 100)
+            right_indent = 10;
+        if (bottom_indent < 0 || bottom_indent > 100)
+            bottom_indent = 10;
+        if (paragraph_spacing < 0 || paragraph_spacing > 100)
+            paragraph_spacing = 10;
+    }
+    return true;
 }
 
 std::vector<TextFormatPtr> TextFormats::text_formats;
 
-TextFormatPtr TextFormats::GetFormat(TextFormat::Paging paging)
+TextFormatPtr TextFormats::GetFormat(TextFormat::Paging paging, uint left_indent, uint top_indent, uint right_indent, uint bottom_indent, uint paragraph_spacing, 
+    Size size)
 {
     for (auto& t : text_formats)
     {
-        if (t->paging == paging)
+        if (t->paging == paging && t->left_indent == left_indent && t->top_indent == top_indent && t->right_indent == right_indent && 
+            t->bottom_indent == bottom_indent && t->paragraph_spacing == paragraph_spacing && t->size == size)
             return t;
     }
 
-    TextFormatPtr t(new TextFormat{paging});
+    TextFormatPtr t(new TextFormat{paging, left_indent, top_indent, right_indent, bottom_indent, paragraph_spacing, size});
     text_formats.push_back(t);
     return t;
 }

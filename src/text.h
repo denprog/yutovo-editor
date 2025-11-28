@@ -19,7 +19,7 @@ namespace yutovo
 class Text : public Block
 {
 public:
-    Text(Document* _document, bool with_paragraph = true);
+    Text(Document* _document, TextFormatPtr _format, bool with_paragraph = true);
 
     virtual Element* Clone();
 
@@ -49,11 +49,13 @@ public:
 
     virtual Rect GetAbsoluteRect() const;
 
-public:
-    int page_width = 0;
+    void SetTextFormat(const TextFormat& _format);
 
-    TextFormatPtr text_format;
-    PageFormatPtr page_format;
+public:
+    TextFormatPtr format;
+
+    Size pixel_size;
+    int pages_count = 0;
 };
 
 }
