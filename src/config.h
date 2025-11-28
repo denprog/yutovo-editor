@@ -68,6 +68,9 @@ struct Config
     Color link_color = Color::Blue();
     Color link_visited_color = Color::FromHex("#ff69b4");
     Color hilight_color = Color::FromHex("#97deff");
+    Color page_color = Color::White();
+    Color page_bg_color = Color::FromHex("#1e4380ff");
+    Color page_border_color = Color::Blue();
 
     //numbers gaps
     bool use_numbers_gaps = true;

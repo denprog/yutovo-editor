@@ -15,10 +15,9 @@ namespace yutovo
 
 //Text
 
-Text::Text(Document* _document, bool with_paragraph) : 
+Text::Text(Document* _document, TextFormatPtr _format, bool with_paragraph) : 
     Block(_document),
-    text_format(document->GetDefaultTextFormat()),
-    page_format(document->GetDefaultPageFormat())
+    format(_format)
 {
     type = ElementType::TEXT;
 
@@ -41,16 +40,17 @@ Element* Text::Create(Element* parent)
 
 void Text::ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc)
 {
+    format->ToJson(value, alloc);
+
     rapidjson::Value _id(ElementIdToString(id).c_str(), alloc);
     value.AddMember("id", _id, alloc);
     value.AddMember("type", (int)type, alloc);
 
-    //don't write included documents
     rapidjson::Value arr(rapidjson::kArrayType);
     for (int i = 0; i < elements->Count(); ++i)
     {
         auto el = elements->Get(i);
-        if (!el->visible)
+        if (!el->visible) //don't write included documents
             continue;
         rapidjson::Value v;
         v.SetObject();
@@ -62,7 +62,9 @@ void Text::ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& a
 
 Element* Text::FromJson(Element* parent, Document* document, const rapidjson::Value::ConstObject& value, rapidjson::Document::AllocatorType& alloc)
 {
-    return new Text(document, false);
+    Text* t = new Text(document, document->current_text_format, false);
+    t->format->FromJson(value, alloc);
+    return t;
 }
 
 void Text::Draw() const
@@ -72,10 +74,10 @@ void Text::Draw() const
     window->DrawFillRect(v, Color::White());
     window->EndDrawOutside();
 
-    v.left += page_format->left_indent;
-    v.top += page_format->top_indent;
-    v.width -= page_format->right_indent + page_format->left_indent;
-    v.height -= page_format->bottom_indent + page_format->top_indent;
+    v.left += format->left_indent;
+    v.top += format->top_indent;
+    v.width -= format->right_indent + format->left_indent;
+    v.height -= format->bottom_indent + format->top_indent;
     window->SetViewPort(v);
 
     Block::Draw();
@@ -90,15 +92,13 @@ void Text::Draw() const
 
 bool Text::Remake(bool with_elements)
 {
-    page_format = document->GetDefaultPageFormat();
-
     Rect v = window->GetRect();
-    page_width = v.width - page_format->right_indent - page_format->left_indent;
+    pixel_size.width = v.width - format->right_indent - format->left_indent;
 
     Block::Remake(with_elements);
 
     int left_m = 0, top_m = 0, right_m = 0, bottom_m = 0;
-    int h = page_format->top_indent;
+    int h = format->top_indent;
     for (int i = 0; i < elements->Count(); ++i) //arrange paragraphs
     {
         if (document->break_remake)
@@ -107,8 +107,8 @@ bool Text::Remake(bool with_elements)
         if (!p->visible)
             continue;
         p->GetMargin(left_m, top_m, right_m, bottom_m); //consider the margins
-        p->rect.Move(page_format->left_indent, h + top_m);
-        h += p->rect.height + page_format->paragraph_spacing + bottom_m;
+        p->rect.Move(format->left_indent, h + top_m);
+        h += p->rect.height + format->paragraph_spacing + bottom_m;
     }
 
     UpdateRect();
@@ -121,10 +121,10 @@ void Text::UpdateRect(bool with_elements)
     Block::UpdateRect(with_elements);
 
     Rect v = window->GetRect();
-    page_width = v.width - page_format->right_indent - page_format->left_indent;
+    pixel_size.width = v.width - format->right_indent - format->left_indent;
 
-    v.width -= page_format->right_indent + page_format->left_indent;
-    v.height -= page_format->bottom_indent + page_format->right_indent;
+    v.width -= format->right_indent + format->left_indent;
+    v.height -= format->bottom_indent + format->right_indent;
     if (rect.width < v.width)
         rect.width = v.width;
     if (rect.height < v.height)
@@ -134,8 +134,8 @@ void Text::UpdateRect(bool with_elements)
 void Text::UpdateDrawRect()
 {
     Block::UpdateDrawRect();
-    draw_rect.width += page_format->right_indent + page_format->left_indent;
-    draw_rect.height += page_format->bottom_indent + page_format->right_indent;
+    draw_rect.width += format->right_indent + format->left_indent;
+    draw_rect.height += format->bottom_indent + format->right_indent;
 }
 
 bool Text::GetElementAtCoords(const int x, const int y, const int margin, ElementId& _id)
@@ -228,8 +228,15 @@ Rect Text::GetAbsoluteRect() const
     Point p = window->GetDocumentPoint();
     if (p.x + w.width > r.width)
         r.width = p.x + w.width;
-    r.height += page_format->bottom_indent + page_format->right_indent;
+    r.height += format->bottom_indent + format->right_indent;
     return r;
+}
+
+void Text::SetTextFormat(const TextFormat& _format)
+{
+    format = TextFormats::GetFormat(_format.paging, _format.left_indent, _format.top_indent, _format.right_indent, _format.bottom_indent, 
+        _format.paragraph_spacing, _format.size);
+    pixel_size = {window->ConvertToPixels(format->size.width), window->ConvertToPixels(format->size.height)};
 }
 
 }

@@ -248,38 +248,25 @@ private:
 
 typedef std::unique_ptr<CodeFormats> CodeFormatsPtr;
 
-struct PageFormat
-{
-    bool operator==(const PageFormat& p) const;
-
-    uint left_indent;
-    uint top_indent;
-    uint right_indent;
-    uint bottom_indent;
-    uint paragraph_spacing;
-};
-
-typedef std::shared_ptr<PageFormat> PageFormatPtr;
-
-class PageFormats
-{
-public:
-    static PageFormatPtr GetFormat(uint left_indent, uint top_indent, uint right_indent, uint bottom_indent, uint paragraph_spacing);
-
-private:
-    static std::vector<PageFormatPtr> page_formats;
-};
-
 struct TextFormat
 {
     enum class Paging
     {
-        ONE_PAGE = 0 //there is only one variant for now
+        WEB_VIEW = 0 //one infinite page
     };
 
     bool operator==(const TextFormat& t) const;
 
-    Paging paging = Paging::ONE_PAGE;
+    void ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc);
+    bool FromJson(const rapidjson::Value::ConstObject& value, rapidjson::Document::AllocatorType& alloc);
+
+    Paging paging = Paging::WEB_VIEW;
+    uint left_indent = 20;
+    uint top_indent = 20;
+    uint right_indent = 20;
+    uint bottom_indent = 20;
+    uint paragraph_spacing = 10;
+    Size size{210, 297}; //in mm, when TextFormat::Paging::PAGINATION, default is A4
 };
 
 typedef std::shared_ptr<TextFormat> TextFormatPtr;
@@ -287,7 +274,8 @@ typedef std::shared_ptr<TextFormat> TextFormatPtr;
 class TextFormats
 {
 public:
-    static TextFormatPtr GetFormat(TextFormat::Paging paging);
+    static TextFormatPtr GetFormat(TextFormat::Paging paging, uint left_indent, uint top_indent, uint right_indent, uint bottom_indent, uint paragraph_spacing, 
+        Size size);
 
 private:
     static std::vector<TextFormatPtr> text_formats;

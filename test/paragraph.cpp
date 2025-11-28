@@ -2788,6 +2788,66 @@ TEST_F(ParagraphTest, format14)
     ASSERT_TRUE(f.name == "Example");
 }
 
+//Change document's indents
+TEST_F(ParagraphTest, format15)
+{
+    Start(400);
+
+    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
+        {
+            return Rect{0, 0, 400, 400};
+        });
+
+    document.WaitTask(document.InsertString("The source of the text itself is a little mysterious.", true));
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">The source of the text itself is a little </span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">mysterious.</span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    
+    TextFormat format;
+    ASSERT_TRUE(document.GetTextFormat(format));
+    format.left_indent = 40;
+    format.right_indent = 40;
+    document.WaitTask(document.SetTextFormat(format, true));
+    std::this_thread::sleep_for(100ms);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">The source of the text itself is a </span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">little mysterious.</span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+
+    document.Undo();
+    document.WaitUndo();
+    std::this_thread::sleep_for(100ms);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">The source of the text itself is a little </span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">mysterious.</span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+
+    document.Redo();
+    document.WaitRedo();
+    std::this_thread::sleep_for(100ms);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">The source of the text itself is a </span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">little mysterious.</span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+}
+
 //Delete a paragraph
 TEST_F(ParagraphTest, delete1)
 {

@@ -1055,6 +1055,40 @@ TEST_F(DocumentTest, files24)
         << document.ToHtml();
 }
 
+//Save and restore text format
+TEST_F(DocumentTest, files25)
+{
+    Start(600);
+
+    EXPECT_CALL(window_mock, OnSaveResult).WillOnce([&](const uint task_id, IOResult result, const int document_id)
+        {
+            ASSERT_TRUE(result == IOResult::Success);
+        });
+
+    TextFormat format;
+    ASSERT_TRUE(document.GetTextFormat(format));
+    format.left_indent = 40;
+    format.right_indent = 40;
+    document.WaitTask(document.SetTextFormat(format, true));
+    std::this_thread::sleep_for(100ms);
+
+    document.WaitTask(document.Save("files25.yut"));
+    std::this_thread::sleep_for(200ms);
+
+    document.WaitTask(document.New());
+    ASSERT_TRUE(document.IsChanged() == false);
+    ASSERT_TRUE(document.GetTextFormat(format));
+    ASSERT_TRUE(format.left_indent == 20);
+    ASSERT_TRUE(format.right_indent == 20);
+
+    document.Load("files25.yut");
+    document.WaitLoad();
+    std::this_thread::sleep_for(400ms);
+    ASSERT_TRUE(document.GetTextFormat(format));
+    ASSERT_TRUE(format.left_indent == 40);
+    ASSERT_TRUE(format.right_indent == 40);
+}
+
 //Check include file
 TEST_F(IncludeDocumentsTest, include_files1)
 {

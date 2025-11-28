@@ -80,7 +80,7 @@ bool Row::Remake(bool with_elements)
     ParagraphFormatPtr format = parent->GetParagraphFormat();
     if (type == ElementType::ROW && format->alignment == ParagraphFormat::Alignment::Justify && yutovo::GetChildPos(id) != parent->elements->Count() - 1)
     {
-        int page_width = ((Text*)parent->parent)->page_width;
+        int page_width = ((Text*)parent->parent)->pixel_size.width;
         int line_width = page_width - format->indent_before - format->indent_after;
         std::map<int, int> elements_spaces;
         int all_spaces = 0;

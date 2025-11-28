@@ -231,6 +231,33 @@ struct UndoConfig : UndoElement
     Config config;
 };
 
+class FormatElement : public Element
+{
+public:
+    FormatElement(const TextFormat& _format);
+
+    virtual Element* Clone()
+    {
+        return nullptr;
+    }
+
+    virtual Element* Create(Element* parent)
+    {
+        return nullptr;
+    }
+
+    TextFormat format;
+};
+
+struct UndoFormat : UndoElement
+{
+    UndoFormat(const TextFormat& _format);
+
+    virtual Element* Restore(Document* document, Element* parent);
+
+    TextFormat format;
+};
+
 class UndoBase
 {
 public:
@@ -239,8 +266,10 @@ public:
     int Store(const ElementId& id);
     int Store(const ElementId& parent_id, const int pos, const int size);
     int Store(const Config& config);
+    int Store(const TextFormat& format);
     bool Restore(int undo_id, std::vector<ElementPtr>& elements);
     bool Restore(int undo_id, Config& config);
+    bool Restore(int undo_id, TextFormat& format);
 
 private:
     int Store(const int undo_id, const LogicalId& id);

@@ -75,6 +75,8 @@ public:
     virtual std::string Translate(ElementId id, const std::string& str);
     virtual std::u32string Translate(ElementId id, const std::u32string& str);
 
+    virtual int ConvertToPixels(const int mm);
+
     virtual void OnCaretMoved(const EditorState editor_state);
 
     virtual void OnFormatChanged(const EditorState editor_state);

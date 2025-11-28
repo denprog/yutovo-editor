@@ -114,8 +114,10 @@ public:
     bool StoreUndo(const ElementId& parent_id, const int pos, const int size, const int delete_size = 0);
     bool StoreUndo(const ElementId& parent_id, const int pos, const int size, const int delete_size, UndoTask::UndoOperation undo_operation);
     bool StoreUndo(const Config& config);
+    bool StoreUndo(const TextFormat& format);
     bool RestoreUndo(const int undo_id, std::vector<ElementPtr>& elements);
     bool RestoreUndo(const int undo_id, Config& config);
+    bool RestoreUndo(const int undo_id, TextFormat& format);
     void RollbackUndo();
     size_t GetUndoSize();
 
@@ -243,8 +245,6 @@ public:
     std::u32string ToText(const ElementId& id);
 
     TextFormatPtr GetDefaultTextFormat();
-    PageFormatPtr GetDefaultPageFormat();
-    uint SetDefaultPageFormat(uint left_indent, uint top_indent, uint right_indent, uint bottom_indent, uint paragraph_spacing);
     StringFormatPtr GetStringFormat(const std::string& family, uint size, bool bold, bool italic, bool underline, bool strikethrough, 
         bool subscript = false, bool superscript = false);
     StringFormatPtr GetStringFormat(const std::string& family, uint size, bool bold, bool italic, bool underline, bool strikethrough, 
@@ -260,6 +260,8 @@ public:
     uint SetGraphFormat(const ElementId& id, const GraphFormat& format, bool with_undo);
     bool GetPlotFormat(const ElementId& id, PlotFormat& format);
     uint SetPlotFormat(const ElementId& id, const PlotFormat& format, bool with_undo);
+    bool GetTextFormat(TextFormat& format);
+    uint SetTextFormat(const TextFormat& format, bool with_undo);
     
     void UpdateFormats();
 
@@ -426,7 +428,7 @@ public:
     CodeFormatsPtr code_formats;
     FormulaFormatsPtr formula_formats;
 
-    PageFormatPtr current_page_format;
+    TextFormatPtr current_text_format;
 
 private:
     StringFormatsPtr string_formats;
