@@ -38,6 +38,7 @@ public:
     ~Document();
 
     void Start();
+    void Start(const TextFormat _default_text_format);
 
     void GetConfig(Config& _config);
     uint SetConfig(const Config& _config, bool with_undo);
@@ -429,6 +430,7 @@ public:
     FormulaFormatsPtr formula_formats;
 
     TextFormatPtr current_text_format;
+    TextFormat default_text_format;
 
 private:
     StringFormatsPtr string_formats;

@@ -87,6 +87,7 @@ Document::Document(Window* _window, Config& _config, const std::string _document
     current_paragraph_format = paragraph_formats->GetFormat("Text body");
     current_formula_format = formula_formats->GetFormat("Code");
     current_text_format = TextFormats::GetFormat(TextFormat::Paging::WEB_VIEW, 20, 20, 20, 20, 10, Size{0, 0});
+    default_text_format = *current_text_format;
 
 #ifndef DEBUG
     config.pretty_json = false;
@@ -122,6 +123,13 @@ void Document::Start()
     std::tuple<char32_t, std::string, int> s2{U')', "Arial", 300};
     std::vector<std::tuple<char32_t, std::string, int>> s{s1, s2};
     window->PrepareSymbolsSizes(s);
+}
+
+void Document::Start(const TextFormat _default_text_format)
+{
+    default_text_format = _default_text_format;
+    current_text_format = GetDefaultTextFormat();
+    Start();
 }
 
 void Document::GetConfig(Config& _config)
@@ -2815,7 +2823,8 @@ std::u32string Document::ToText(const ElementId& id)
 
 TextFormatPtr Document::GetDefaultTextFormat()
 {
-    return TextFormats::GetFormat(TextFormat::Paging::WEB_VIEW, 20, 20, 20, 20, 10, Size{0, 0});
+    return TextFormats::GetFormat(default_text_format.paging, default_text_format.left_indent, default_text_format.top_indent, 
+        default_text_format.right_indent, default_text_format.bottom_indent, default_text_format.paragraph_spacing, default_text_format.size);
 }
 
 StringFormatPtr Document::GetStringFormat(const std::string& family, uint size, bool bold, bool italic, bool underline, bool strikethrough, 
