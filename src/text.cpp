@@ -40,8 +40,6 @@ Element* Text::Create(Element* parent)
 
 void Text::ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc)
 {
-    format->ToJson(value, alloc);
-
     rapidjson::Value _id(ElementIdToString(id).c_str(), alloc);
     value.AddMember("id", _id, alloc);
     value.AddMember("type", (int)type, alloc);
@@ -62,9 +60,7 @@ void Text::ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& a
 
 Element* Text::FromJson(Element* parent, Document* document, const rapidjson::Value::ConstObject& value, rapidjson::Document::AllocatorType& alloc)
 {
-    Text* t = new Text(document, document->current_text_format, false);
-    t->format->FromJson(value, alloc);
-    return t;
+    return new Text(document, document->current_text_format, false);
 }
 
 void Text::Draw() const
