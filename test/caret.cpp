@@ -2865,4 +2865,27 @@ TEST_F(DocumentTest, caret90)
         ElementSelectionState{ElementId{0}, 1, 2})) << document.GetEditorState().ToString();
 }
 
+//Check of selection in a number of paragraphs
+TEST_F(DocumentTest, caret91)
+{
+    Start(1300, 740);
+
+    EXPECT_CALL(window_mock, GetViewPort).WillRepeatedly([&](const int)
+        {
+            return Rect{0, 0, 1260, 700};
+        });
+
+    document.Load("../../test/tests/delete_paragraphs1.yut");
+    document.WaitLoad();
+    std::this_thread::sleep_for(4s);
+
+    for (int i = 0; i < 9; ++i)
+        document.WaitTask(document.MoveCaretPageDown(true));
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 30, 1, 0, 67}, 
+        ElementSelectionState{ElementId{0, 1, 0, 0}, 65, 76}, 
+        ElementSelectionState{ElementId{0, 1}, 1, 1}, 
+        ElementSelectionState{ElementId{0}, 2, 29})) << document.GetEditorState().ToString();
+}
+
 }

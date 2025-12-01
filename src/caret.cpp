@@ -648,14 +648,9 @@ void Caret::MovePageDown(Selection* selection)
                 if (j == row_pos && i == paragraph_pos)
                 {
                     CaretState c = GetCaretState();
-                    int p = GetChildPos(row->id, c.id);
-                    if (c.last_pos)
+                    if (!c.last_pos)
                     {
-                        auto _el = document->GetElement(GetChild(row->id, p - 1));
-                        selection->Add(_el, c.id[row->id.size()] - 1, _el->elements->Count() - c.id[row->id.size()]);
-                    }
-                    else
-                    {
+                        int p = GetChildPos(row->id, c.id);
                         auto _el = document->GetElement(GetChild(row->id, p));
                         if (document->IsString(_el))
                             selection->Add(_el, c.id[row->id.size() + 1], _el->elements->Count() - c.id[row->id.size() + 1]);

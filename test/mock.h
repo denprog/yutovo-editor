@@ -118,6 +118,25 @@ struct DocumentTest : public testing::Test
         document.Start();
     }
 
+    void Start(int width, int height)
+    {
+        EXPECT_CALL(window_mock, GetRect).WillRepeatedly(
+            [width, height]()
+            {
+                return Rect{0, 0, width, height};
+            });
+            
+        EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly(
+            [&](const std::u32string& text, const StringFormatPtr format)
+            {
+                return GetTextSizeMock(text, format);
+            });
+        
+        document.config.solve_delay = 0;
+        document.config.pretty_json = true;
+        document.Start();
+    }
+
     Size GetTextSizeMock(const std::u32string& text, const StringFormatPtr format);
 
     Size GetImageSizeMock(const std::vector<unsigned char>& image);
