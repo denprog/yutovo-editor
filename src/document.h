@@ -411,6 +411,8 @@ private:
     friend class DeleteElementsTask;
     friend class Caret;
     friend class Element;
+    friend class Elements;
+    friend class Assignment;
 
     void UpdateCaretView();
     void UpdateLastSelection();
@@ -534,6 +536,8 @@ private:
     };
 
     ResizeDir resize_dir = ResizeDir::None;
+
+    bool moving_element = false;
 
     Logger* logger;
 };

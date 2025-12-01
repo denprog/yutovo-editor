@@ -1403,11 +1403,13 @@ void Elements::RemoveAt(const uint pos, const int size)
 
 void Elements::Move(const ElementPtr element, const uint pos)
 {
+    parent->document->moving_element = true;
     element->BeforeReplace();
     Insert(ElementPtr(element->Clone()), pos);
     element->parent->elements->Remove(element);
     elements[pos]->AfterReplace();
     UpdateIds();
+    parent->document->moving_element = false;
 
 #ifdef DEBUG
     parent->to_str = parent->ToText();
