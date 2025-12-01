@@ -3907,4 +3907,85 @@ TEST_F(ParagraphTest, delete24)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 72})) << document.GetEditorState().ToString();
 }
 
+//Delete a number of paragraphs
+TEST_F(ParagraphTest, delete25)
+{
+    Start(1300);
+
+    document.Load("../../test/tests/delete_paragraphs1.yut");
+    document.WaitLoad();
+    std::this_thread::sleep_for(4s);
+
+    document.WaitTask(document.MoveCaretToDocumentEnd(true));
+    document.WaitTask(document.DeleteElements(false, true));
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">Yutovo es una calculadora poderosa con la visualización y "
+                    "edición gráfica habitual de operaciones matemáticas dentro de un editor de texto. Con </span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">él, puede hacer varios cálculos combinando cálculos y "
+                    "texto en un solo documento, a saber:</span>"\
+            "</p>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">Calcular expresiones de cualquier tamaño con cualquier precisión.</span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 1, 0, 0, 65})) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.GetElement({0})->elements->Count() == 31);
+}
+
+//Delete a number of paragraphs
+TEST_F(ParagraphTest, delete26)
+{
+    Start(1300, 740);
+
+    EXPECT_CALL(window_mock, GetViewPort).WillRepeatedly([&](const int)
+        {
+            return Rect{0, 0, 1260, 700};
+        });
+
+    document.Load("../../test/tests/delete_paragraphs1.yut");
+    document.WaitLoad();
+    std::this_thread::sleep_for(4s);
+
+    for (int i = 0; i < 9; ++i)
+        document.WaitTask(document.MoveCaretPageDown(true));
+    document.WaitTask(document.MoveCaretUp(true));
+    document.WaitTask(document.MoveCaretUp(true));
+    document.WaitTask(document.DeleteElements(false, true));
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">Yutovo es una calculadora poderosa con la visualización y "
+                    "edición gráfica habitual de operaciones matemáticas dentro de un editor de texto. Con </span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">él, puede hacer varios cálculos combinando cálculos y "
+                    "texto en un solo documento, a saber:</span>"\
+            "</p>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">Calcular expresiones de cualquier tamaño con cualquier precisión.</span>"\
+            "</p>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">Cálculos con números enteros. Se admiten operaciones básicas "
+                    "en los sistemas binario, octal, decimal y hexadecimal. Para convertir entre ellos, </span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">seleccione el sistema numérico en el menú contextual de resultados.</span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 1, 0, 0, 65})) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 29, 0, 1}, 
+        ElementSelectionState{ElementId{0, 1, 0, 0}, 65, 76}, 
+        ElementSelectionState{ElementId{0, 1}, 1, 1}, 
+        ElementSelectionState{ElementId{0}, 2, 28})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetElement({0})->elements->Count() == 31);
+}
+
 }
