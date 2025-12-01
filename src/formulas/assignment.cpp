@@ -40,6 +40,8 @@ Assignment::Assignment(const Assignment& source) :
     dependencies(source.dependencies),
     guid(source.guid)
 {
+    if (document->moving_element)
+        last_expression = source.last_expression;
 }
 
 Element* Assignment::Clone()
@@ -181,7 +183,7 @@ bool Assignment::AfterInsert(bool with_undo)
 
 void Assignment::BeforeDelete()
 {
-    if (!id.empty() && auto_solve)
+    if (!id.empty() && auto_solve && !document->moving_element)
     {
         auto code = document->FindParent(id, ElementType::CODE_BLOCK);
         if (code)

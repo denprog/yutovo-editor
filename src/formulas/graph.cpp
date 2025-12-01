@@ -526,7 +526,7 @@ void GraphLine::Solve()
         str.Add(_id, U",");
         GetYTop()->ToParserString(str);
         str.Add(_id, U",");
-        str.Add(_id, ToUtfString(std::to_string(graph.GetWidth())));
+        str.Add(_id, ToUtfString(std::to_string(rect.width)));
         str.Add(_id, U")");
         expressions.push_back(str);
     }

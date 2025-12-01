@@ -992,4 +992,37 @@ TEST_F(FormulaTest, graphs18)
     ASSERT_TRUE(format.width == 1 && format.color == Color::Red());
 }
 
+//Graph should not recalculate because of reformating paragraph
+TEST_F(FormulaTest, graphs19)
+{
+    Start(700);
+
+    int width = 700;
+    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
+        {
+            return Rect{0, 0, width, 400};
+        });
+
+    document.Load("../../test/tests/graphs19.yut");
+    document.WaitLoad();
+    std::this_thread::sleep_for(4s);
+
+    std::string image_base64_1;
+    auto el = document.FindByType(ElementId{0}, ElementType::GRAPH_LINE);
+    ((GraphLine*)el.get())->GetImage(image_base64_1);
+
+    width = 800;
+    document.WaitTask(document.Resize(width, 700));
+    std::this_thread::sleep_for(200ms);
+    std::string image_base64_2;
+    ((GraphLine*)el.get())->GetImage(image_base64_2);
+    ASSERT_TRUE(image_base64_1 == image_base64_2);
+
+    width = 300;
+    document.WaitTask(document.Resize(width, 700));
+    std::this_thread::sleep_for(200ms);
+    ((GraphLine*)el.get())->GetImage(image_base64_2);
+    ASSERT_TRUE(image_base64_1 == image_base64_2);
+}
+
 }

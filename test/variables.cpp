@@ -928,7 +928,6 @@ TEST_F(VariablesTest, variables14)
     ASSERT_TRUE(document.HasErrorMark(ElementId{0, 2, 0, 0, 0, 0, 0, 2, 2}, start, size)) << ErrorMarks();
 
     document.WaitTask(document.DeleteElements(false, true));
-    document.WaitSolver();
     std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToText() == 
         U"a=1\n" \
@@ -1847,6 +1846,30 @@ TEST_F(VariablesTest, variables32)
         U"String\n"\
         U"d=123\n"\
         U"d=123."
+        ) << ToBasicString(document.ToText());
+}
+
+//Code should not recalculate because of reformating paragraph of a variable
+TEST_F(VariablesTest, variables33)
+{
+    Start(500);
+
+    int width = 500;
+    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
+        {
+            return Rect{0, 0, width, 400};
+        });
+
+    document.Load("../../test/tests/variables33.yut");
+    document.WaitLoad();
+    std::this_thread::sleep_for(4s);
+
+    width = 450;
+    document.WaitTask(document.Resize(450, 700));
+    std::this_thread::sleep_for(100ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"Yutovo es una calculadora poderosa v=234con la visualización y edición gráfica habitual de operaciones matemáticas "
+        "dentro de un editor de texto. Con él, puede hacer varios cálculos v=234.combinando cálculos y texto en un solo documento, a saber:"
         ) << ToBasicString(document.ToText());
 }
 
