@@ -44,6 +44,13 @@ enum class PasteResult
     PasteError
 };
 
+enum class PdfResult
+{
+    None = -1,
+    Success = 0,
+    Error = 1
+};
+
 struct Error
 {
     yutovo_solver::ErrorCode error_code = yutovo_solver::ErrorCode::OK;

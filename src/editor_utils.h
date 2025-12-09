@@ -406,6 +406,13 @@ struct ErrorMark
 
 bool IsLess(const ElementId& id1, const ElementId& id2);
 
+void FlipImageVertically(std::vector<unsigned char>& rgba, const int width, const int height);
+
+bool IsPng(const std::vector<unsigned char>& image);
+
+void RgbaToPng(const std::vector<unsigned char>& rgba, const int width, const int height, std::vector<unsigned char>& png);
+bool PngToRgba(const std::vector<unsigned char>& png, std::vector<unsigned char>& rgba, int& width, int& height);
+
 extern std::string base64_chars;
 
 std::string Base64Encode(const std::vector<unsigned char>& picture);

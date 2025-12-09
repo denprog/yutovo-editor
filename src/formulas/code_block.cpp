@@ -114,9 +114,9 @@ Element* CodeBlock::FromJson(Element* parent, Document* document, const rapidjso
 
 void CodeBlock::Draw() const
 {
-    Element::Draw();
-    if (document->config.formula_border)
+    if (document->config.code_block_border)
         window->DrawRect(GetAbsoluteRect(), code_format->border_color);
+    Element::Draw();
 }
 
 bool CodeBlock::Remake(bool with_elements)

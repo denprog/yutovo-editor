@@ -167,6 +167,12 @@ bool String::Copy(std::vector<ElementPtr>& copy)
     return true;
 }
 
+void String::SetDocument(Document* _document)
+{
+    Element::SetDocument(_document);
+    size_cache.clear();
+}
+
 Element* String::Create(Element* parent)
 {
     return new String(parent);
@@ -1124,7 +1130,7 @@ uint StringElements::Count() const
 
 uint StringElements::Size() const
 {
-    return 1;
+    return 0;
 }
 
 Rect StringElements::GetCaretRect(const uint pos) const

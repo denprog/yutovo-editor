@@ -67,6 +67,7 @@ add_library(${PROJECT_NAME}
     style.cpp
     text.cpp
     window.cpp
+    pdf_window.cpp
     editor_utils.cpp
     result_codes.cpp
     solver.cpp
@@ -125,6 +126,7 @@ add_library(${PROJECT_NAME}
     style.h
     text.h
     window.h
+    pdf_window.h
     editor_utils.h
     result_codes.h
     solver.h
@@ -216,6 +218,9 @@ else()
             yutovo-calculator
             yutovo-logger
             mgl
+            ${INSTALL_PATH}/lib/libhpdf.a
+    		png
+    		z
         )
     endif()
 endif()
@@ -223,6 +228,7 @@ endif()
 target_include_directories(${PROJECT_NAME} PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
     ${INSTALL_PATH}/include
+    ${THIRD_PARTY_PATH}
 )
 
 target_include_directories(${PROJECT_NAME} PUBLIC
@@ -260,6 +266,7 @@ install(
         solver_task.h
         task.h
         window.h
+        pdf_window.h
         style.h
         editor_utils.h
         config.h

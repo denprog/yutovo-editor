@@ -7,6 +7,11 @@
 
 #include "mock.h"
 #include <QBuffer>
+#ifdef Q_OS_LINUX
+#include <fontconfig/fontconfig.h>
+#else
+#include <Windows.h>
+#endif
 
 namespace yutovo_test
 {
@@ -65,6 +70,42 @@ void DocumentTest::GetImageData(QImage& image, std::vector<unsigned char>& data)
     buffer.open(QIODevice::WriteOnly);
     image.save(&buffer, "PNG");
     data = std::vector<unsigned char>(arr.begin(), arr.end());
+}
+
+//PdfTest
+
+QString PdfTest::ResolveFontPath(const StringFormatPtr format)
+{
+#ifdef Q_OS_LINUX
+    FcInit();
+
+    FcPattern* pat = FcPatternCreate();
+    FcPatternAddString(pat, FC_FAMILY, reinterpret_cast<const FcChar8*>(format->family.c_str()));
+    FcPatternAddInteger(pat, FC_WEIGHT, format->bold ? FC_WEIGHT_BOLD : FC_WEIGHT_REGULAR);
+    FcPatternAddInteger(pat, FC_SLANT, format->italic ? FC_SLANT_ITALIC : FC_SLANT_ROMAN);
+    FcConfigSubstitute(nullptr, pat, FcMatchPattern);
+    FcDefaultSubstitute(pat);
+
+    FcResult result;
+    FcPattern* match = FcFontMatch(nullptr, pat, &result);
+    QString path;
+    if (match)
+    {
+        FcChar8* file = nullptr;
+        if (FcPatternGetString(match, FC_FILE, 0, &file) == FcResultMatch)
+            path = QString::fromUtf8(reinterpret_cast<char*>(file));
+        FcPatternDestroy(match);
+    }
+    FcPatternDestroy(pat);
+    return path;
+#else
+    WCHAR filePath[MAX_PATH];
+    DWORD size = MAX_PATH;
+    BOOL ok = GetFontResourceInfoW((LPCWSTR)family.toStdWString().c_str(), &size, filePath, GFRI_FONTFILENAME);
+    if (ok)
+        return QString::fromWCharArray(filePath);
+    return {};
+#endif
 }
 
 }

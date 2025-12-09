@@ -41,6 +41,10 @@
 #include "formulas/unit.h"
 #include "formulas/comma.h"
 #include "formulas/graph.h"
+#define STB_IMAGE_WRITE_IMPLEMENTATION
+#include <stb_image/stb_image_write.h>
+#define STB_IMAGE_IMPLEMENTATION
+#include <stb_image/stb_image.h>
 
 namespace yutovo
 {
@@ -467,6 +471,60 @@ bool IsLess(const ElementId& id1, const ElementId& id2)
 			return true;
 	}
 	return id1.size() < id2.size();
+}
+
+void FlipImageVertically(std::vector<unsigned char>& rgba, const int width, const int height)
+{
+    unsigned r = width * 4;
+    for (unsigned y = 0; y < height / 2; ++y)
+    {
+        unsigned char* row_top = rgba.data() + y * r;
+        unsigned char* row_bottom = rgba.data() + (height - 1 - y) * r;
+        for (unsigned x = 0; x < r; ++x)
+            std::swap(row_top[x], row_bottom[x]);
+    }   
+}
+
+bool IsPng(const std::vector<unsigned char>& image)
+{
+    if (image.size() < 8)
+        return false;
+
+    const unsigned char png_signature[8] = {0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A};
+    for (int i = 0; i < 8; ++i)
+    {
+        if (image[i] != png_signature[i])
+            return false;
+    }
+    return true;    
+}
+
+void RgbaToPng(const std::vector<unsigned char>& rgba, const int width, const int height, std::vector<unsigned char>& png)
+{
+    stbi_write_png_to_func(
+        [](void* context, void* data, int size)
+        {
+            auto* v = static_cast<std::vector<unsigned char>*>(context);
+            v->insert(v->end(), (unsigned char*)data, (unsigned char*)data + size);
+        },
+        &png, width, height, 4, rgba.data(), width * 4);
+}
+
+bool PngToRgba(const std::vector<unsigned char>& png, std::vector<unsigned char>& rgba, int& width, int& height)
+{
+    rgba.clear();
+
+    int channels;
+    unsigned char* pixels = stbi_load_from_memory(png.data(), static_cast<int>(png.size()), &width, &height, &channels, 4);
+    if (!pixels)
+        return false;
+
+    size_t size = static_cast<size_t>(width) * height * 4;
+    rgba.assign(pixels, pixels + size);
+
+    stbi_image_free(pixels);
+
+    return true;    
 }
 
 std::string base64_chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";

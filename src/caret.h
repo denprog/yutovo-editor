@@ -38,6 +38,7 @@ public:
     CaretState GetCaretState();
     LogicalCaretState GetLogicalCaretState();
 
+    bool IsVisible();
     void SetVisible(bool _visible);
 
     void Show();

@@ -110,6 +110,16 @@ bool Element::Copy(std::vector<ElementPtr>& copy)
     return true;
 }
 
+void Element::SetDocument(Document* _document)
+{
+    document = _document;
+    window = _document->window;
+    caret = _document->caret;
+    logger = _document->logger;
+    for (int i = 0; i < elements->Size(); ++i)
+        elements->Get(i)->SetDocument(_document);
+}
+
 void Element::Draw() const
 {
     if (!IsVisible())
