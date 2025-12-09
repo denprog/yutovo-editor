@@ -35,6 +35,7 @@ class Document
 {
 public:
     Document(Window* _window, Config& _config, const std::string _document_guid = "");
+    Document(Window* _window, Config& _config, const Document& source);
     ~Document();
 
     void Start();
@@ -413,6 +414,7 @@ private:
     friend class Element;
     friend class Elements;
     friend class Assignment;
+    friend class String;
 
     void UpdateCaretView();
     void UpdateLastSelection();
@@ -434,8 +436,9 @@ public:
     TextFormatPtr current_text_format;
     TextFormat default_text_format;
 
-private:
     StringFormatsPtr string_formats;
+
+private:
     StringFormatPtr current_string_format;
     ParagraphFormatPtr current_paragraph_format;
     CodeFormatPtr current_code_format;

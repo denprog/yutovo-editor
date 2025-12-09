@@ -85,6 +85,7 @@ add_executable(${PROJECT_NAME}_tests
 	product.cpp
 	graph.cpp
 	arrays.cpp
+	pdf.cpp
 )
 
 if(WIN32)
@@ -115,7 +116,8 @@ else()
 	    Qt5::Widgets
 	    yutovo-logger
 		libboost_iostreams.a
-		z
+		poppler-cpp
+		fontconfig
 	)
     target_include_directories(${PROJECT_NAME}_tests PRIVATE
         ../src

@@ -89,6 +89,46 @@ Document::Document(Window* _window, Config& _config, const std::string _document
     current_text_format = TextFormats::GetFormat(TextFormat::Paging::WEB_VIEW, 20, 20, 20, 20, 10, Size{0, 0});
     default_text_format = *current_text_format;
 
+    caret.reset(new Caret(this));
+    caret->SetVisible(config.caret_visible);
+
+#ifndef DEBUG
+    config.pretty_json = false;
+#endif
+}
+
+Document::Document(Window* _window, Config& _config, const Document& source) :
+    window(_window),
+    selection(this),
+    config(_config),
+    file_guid(boost::uuids::to_string(boost::uuids::random_generator()())),
+    document_guid(boost::uuids::to_string(boost::uuids::random_generator()())),
+    solver(this),
+    undo_base(this),
+    last_selection(this),
+    logger(Logger::GetInstance(config.logs_path + "/yutovo-editor", "yutovo-editor", config.log_console, config.log_file))
+{
+    logger->SetLevel((int)_config.log_level);
+    LOG_DEBUG("Document start");
+
+    string_formats.reset(new StringFormats());
+    paragraph_formats.reset(new ParagraphFormats(string_formats));
+    code_formats.reset(new CodeFormats());
+    formula_formats.reset(new FormulaFormats(string_formats));
+
+    current_code_format = code_formats->GetFormat("Calculator", 5, 5, 5, 5, 2, 2, 2, 2, 2, Color::Blue());
+
+    current_paragraph_format = paragraph_formats->GetFormat("Text body");
+    current_formula_format = formula_formats->GetFormat("Code");
+    current_text_format = TextFormats::GetFormat(TextFormat::Paging::WEB_VIEW, 20, 20, 20, 20, 10, Size{0, 0});
+    default_text_format = *current_text_format;
+
+    caret.reset(new Caret(this));
+    caret->SetVisible(config.caret_visible);
+
+    text.reset(source.text->Clone());
+    text->SetDocument(this);
+
 #ifndef DEBUG
     config.pretty_json = false;
 #endif
@@ -109,8 +149,10 @@ void Document::Start()
 
     window->Init(this);
 
-    caret.reset(new Caret(this));
-    text.reset(new Text(this, current_text_format, true));
+    if (!text || text->IsEmpty())
+        text.reset(new Text(this, current_text_format, true));
+    else
+        ((Text*)text.get())->SetTextFormat(*current_text_format);
 
     caret->MoveToDocumentBegin(nullptr);
 
@@ -1601,7 +1643,7 @@ bool Document::GetGraphFormat(const ElementId& id, GraphFormat& format)
 
 uint Document::SetGraphFormat(const ElementId& id, const GraphFormat& format, bool with_undo)
 {
-    std::lock_guard<std::recursive_mutex> lock(edit_mutex);
+    std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
     std::function<bool()> func = 
         [id, format, with_undo, this]()
         {
@@ -1631,7 +1673,7 @@ bool Document::GetPlotFormat(const ElementId& id, PlotFormat& format)
 
 uint Document::SetPlotFormat(const ElementId& id, const PlotFormat& format, bool with_undo)
 {
-    std::lock_guard<std::recursive_mutex> lock(edit_mutex);
+    std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
     std::function<bool()> func = 
         [id, format, with_undo, this]()
         {
@@ -1658,7 +1700,7 @@ bool Document::GetTextFormat(TextFormat& format)
 
 uint Document::SetTextFormat(const TextFormat& format, bool with_undo)
 {
-    std::lock_guard<std::recursive_mutex> lock(edit_mutex);
+    std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
     std::function<bool()> func = 
         [format, with_undo, this]()
         {
@@ -3342,6 +3384,8 @@ bool Document::IsVisible(ElementId _id)
     w.left += window->document_point.x;
     w.top += window->document_point.y;
     Rect r = el->GetAbsoluteRect();
+    if (config.draw_whole) //draw multiply pages
+        return !(r.left > w.GetRight() || w.left > r.GetRight() || w.top > r.GetBottom());
     return r.Intersects(w);
 }
 

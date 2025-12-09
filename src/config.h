@@ -38,10 +38,11 @@ struct Config
 
     //document
     bool with_border = true;
-    bool formula_border = true;
+    bool code_block_border = true;
     bool pretty_json = true; //for debug purposes
     bool use_tabs = true;
     uint tab_spaces = 4;
+    bool draw_whole = false;
 
     //locale
     yutovo_calculator::Language language = yutovo_calculator::Language::English;

@@ -15,6 +15,7 @@
 #include "caret_state.h"
 #include "parser_string.h"
 #include <rapidjson/document.h>
+#include "hpdf.h"
 
 namespace yutovo
 {
@@ -40,6 +41,8 @@ public:
 
     virtual Element* Clone() = 0;
     virtual bool Copy(std::vector<ElementPtr>& copy);
+
+    virtual void SetDocument(Document* _document);
 
     virtual Element* Create(Element* parent) = 0;
 

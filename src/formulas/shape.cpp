@@ -44,7 +44,7 @@ void Shape::Draw() const
 {
     if (draw_func)
         draw_func(GetAbsoluteRect());
-    if (can_resize)
+    if (can_resize && caret->IsVisible())
     {
         //draw the resize items
         auto r = GetAbsoluteRect();

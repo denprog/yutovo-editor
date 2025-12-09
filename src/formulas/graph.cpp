@@ -19,8 +19,6 @@
 #include <boost/uuid/uuid_generators.hpp>
 #include <boost/uuid/uuid_io.hpp>
 #include <algorithm>
-#define STB_IMAGE_WRITE_IMPLEMENTATION
-#include "third_party/stb_image_write.h"
 
 #ifdef _MSC_VER
 #undef GetObject
@@ -207,14 +205,7 @@ void Graph::GetImage(std::string& image_base64) const
     std::vector<unsigned char> rgba(picture, picture + 4 * (graph.GetWidth() * graph.GetHeight()));
     std::vector<unsigned char> png;
 
-    stbi_write_png_to_func(
-        [](void* context, void* data, int size)
-        {
-            auto* v = static_cast<std::vector<unsigned char>*>(context);
-            v->insert(v->end(), (unsigned char*)data, (unsigned char*)data + size);
-        },
-        &png, graph.GetWidth(), graph.GetHeight(), 4, rgba.data(), graph.GetWidth() * 4);
-
+    RgbaToPng(rgba, graph.GetWidth(), graph.GetHeight(), png);
     image_base64 = yutovo::Base64Encode(png);
 }
 

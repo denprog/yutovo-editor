@@ -32,6 +32,8 @@ public:
     virtual Element* Clone();
     virtual bool Copy(std::vector<ElementPtr>& copy);
 
+    virtual void SetDocument(Document* _document);
+
     virtual Element* Create(Element* parent);
     virtual Element* Create(Element* parent, const std::u32string _str, const StringFormatPtr _format);
 

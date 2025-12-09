@@ -170,10 +170,6 @@ void StringFormat::Reset()
 
 //StringFormats
 
-StringFormats::~StringFormats()
-{
-}
-
 StringFormatPtr StringFormats::GetFormat(const std::string _family, uint _size, bool _bold, bool _italic, bool _underline, bool _strikethrough, 
     bool _subscript, bool _superscript, Color _text_color, Color _text_bg_color, Color _text_bg_selection_color)
 {

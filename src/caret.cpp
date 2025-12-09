@@ -226,6 +226,11 @@ LogicalCaretState Caret::GetLogicalCaretState()
     return LogicalCaretState(document->GetLogicalId(el->id, GetPos()));
 }
 
+bool Caret::IsVisible()
+{
+    return visible;
+}
+
 void Caret::SetVisible(bool _visible)
 {
     if (block)

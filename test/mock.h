@@ -10,10 +10,12 @@
 
 #include <QMainWindow>
 #include <QApplication>
+#include <QFontDatabase>
 #include <gmock/gmock.h>
 #include "document.h"
 #include "editor_utils.h"
 #include "window.h"
+#include "pdf_window.h"
 
 namespace yutovo_test
 {
@@ -89,6 +91,18 @@ public:
     MOCK_METHOD(void, OnPasteResult, (PasteResult result), (override));
 
     MOCK_METHOD(void, OnLinkClicked, (const ElementId& id, const std::u32string& url), (override));
+};
+
+class PdfWindowMock : public PdfWindow
+{
+public:
+    PdfWindowMock(const Size& _page_size) :
+        PdfWindow(_page_size)
+    {
+    }
+
+    MOCK_METHOD(void, OnPdfExportResult, (const std::vector<uint8_t>& pdf, const PdfResult result), (override));
+    MOCK_METHOD(bool, GetFontPath, (const StringFormatPtr format, std::string& path), (override));
 };
 
 struct DocumentTest : public testing::Test
@@ -456,6 +470,30 @@ struct IncludeDocumentsTest : DocumentTest
     ::testing::NiceMock<WindowMock> window_mock2;
     yutovo::Config config2;
     Document document2;
+};
+
+struct PdfTest : DocumentTest
+{
+    void Start(int width, const Size& page_size)
+    {
+        pdf_window_mock.reset(new ::testing::NiceMock<PdfWindowMock>(page_size));
+
+        EXPECT_CALL(*pdf_window_mock, GetFontPath).WillRepeatedly([&](const StringFormatPtr format, std::string& path)
+            {
+                QString p = ResolveFontPath(format);
+                if (p.isEmpty())
+                    return false;
+                path = p.toUtf8().data();
+                return true;
+            });
+
+        DocumentTest::Start(width);
+    }
+
+    QString ResolveFontPath(const StringFormatPtr format);
+
+    std::unique_ptr<::testing::NiceMock<PdfWindowMock>> pdf_window_mock;
+    QFontDatabase database;
 };
 
 }

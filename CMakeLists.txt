@@ -26,6 +26,8 @@ else()
     set(INSTALL_PATH "$ENV{YUTOVO_DEPLOY}")
 endif()
 
+set(THIRD_PARTY_PATH "$ENV{YUTOVO_DEPLOY}/../third-party/")
+
 # set(REMOTE_SOLVER true)
 # add_compile_definitions(REMOTE_SOLVER)
 

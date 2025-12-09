@@ -58,8 +58,6 @@ typedef std::shared_ptr<StringFormat> StringFormatPtr;
 class StringFormats
 {
 public:
-    ~StringFormats();
-    
     StringFormatPtr GetFormat(const std::string _family, uint _size, bool _bold, bool _italic, bool _underline, bool _strikethrough, bool _subscript, 
         bool _superscript, Color _text_color, Color _text_bg_color, Color _text_bg_selection_color);
     StringFormatPtr GetFormat(const StringFormat& source);
