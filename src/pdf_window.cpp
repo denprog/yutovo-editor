@@ -11,8 +11,9 @@ void PdfErrorHandler(HPDF_STATUS error_no, HPDF_STATUS detail_no, void *user_dat
 
 //PdfWindow
 
-PdfWindow::PdfWindow(const Size& _page_size) :
-    page_size(_page_size)
+PdfWindow::PdfWindow(const Size& _page_size, bool _draw_footer) :
+    page_size(_page_size),
+    draw_footer(_draw_footer)
 {
     pdf = HPDF_New(PdfErrorHandler, nullptr);
     if (!pdf)
@@ -42,18 +43,21 @@ void PdfWindow::Init(Document* document)
 void PdfWindow::DrawText(const std::string& text, const StringFormatPtr format, const Rect& rect, const Color color, const Color bg_color)
 {
     Rect r(rect);
-    int b = view_port.height + y_filled;
-    if (rect.top > b || rect.GetBottom() > b)
+    if (draw_doc)
     {
-        y_filled += last_y_filled;
-        AddPage();
-        y_diff = y_top - r.top;
-    }
-    r.top += y_diff - (pages - 1) * page_size.height;
+        int b = view_port.height + y_filled;
+        if (rect.top > b || rect.GetBottom() > b)
+        {
+            y_filled += last_y_filled;
+            AddPage();
+            y_diff = y_top - r.top;
+        }
+        r.top += y_diff - (pages - 1) * page_size.height;
 
-    if (top_y_filled == 0)
-        top_y_filled = rect.top;
-    last_y_filled = rect.GetBottom() - top_y_filled;
+        if (top_y_filled == 0)
+            top_y_filled = rect.top;
+        last_y_filled = rect.GetBottom() - top_y_filled;
+    }
 
     HPDF_Font font = GetFont(format);
     ClipDraw clip_draw(*this);
@@ -96,16 +100,19 @@ void PdfWindow::DrawLine(const int x1, const int y1, const int x2, const int y2,
 {
     int b = pages * view_port.height;
     int _y1 = y1, _y2 = y2;
-    if (y1 > b || y2 > b)
+    if (draw_doc)
     {
-        AddPage();
-        if (_y1 < _y2)
-            y_diff = y_top - y1;
-        else
-            y_diff = y_top - y2;
+        if (y1 > b || y2 > b)
+        {
+            AddPage();
+            if (_y1 < _y2)
+                y_diff = y_top - y1;
+            else
+                y_diff = y_top - y2;
+        }
+        _y1 += y_diff - (pages - 1) * page_size.height;
+        _y2 += y_diff - (pages - 1) * page_size.height;
     }
-    _y1 += y_diff - (pages - 1) * page_size.height;
-    _y2 += y_diff - (pages - 1) * page_size.height;
 
     ClipDraw clip_draw(*this);
     HPDF_Page_SetRGBStroke(page, color.r / 255, color.g / 255, color.b / 255);
@@ -119,13 +126,16 @@ void PdfWindow::DrawRect(const int x1, const int y1, const int width, const int 
 {
     int b = view_port.height + y_filled;
     int _y1 = y1;
-    if (y1 > b || y1 + height > b)
+    if (draw_doc)
     {
-        y_filled += last_y_filled;
-        AddPage();
-        y_diff = y_top - y1;
+        if (y1 > b || y1 + height > b)
+        {
+            y_filled += last_y_filled;
+            AddPage();
+            y_diff = y_top - y1;
+        }
+        _y1 += y_diff - (pages - 1) * page_size.height;
     }
-    _y1 += y_diff - (pages - 1) * page_size.height;
 
     if (top_y_filled == 0)
         top_y_filled = y1;
@@ -155,12 +165,15 @@ void PdfWindow::DrawFillPath(const std::list<Point>& path, const Color color)
     auto p = path;
     auto it = p.begin();
     int b = pages * view_port.height;
-    if (it->y > b)
+    if (draw_doc)
     {
-        AddPage();
-        y_diff = y_top - it->y;
+        if (it->y > b)
+        {
+            AddPage();
+            y_diff = y_top - it->y;
+        }
+        it->y += y_diff - (pages - 1) * page_size.height;
     }
-    it->y += y_diff - (pages - 1) * page_size.height;
 
     ClipDraw clip_draw(*this);
     HPDF_Page_MoveTo(page, it->x, it->y);
@@ -205,13 +218,16 @@ void PdfWindow::DrawImage(const int x1, const int y1, const int width, const int
 {
     int _y1 = y1;
     int b = view_port.height + y_filled;
-    if (y1 > b || y1 + height > b)
+    if (draw_doc)
     {
-        y_filled += last_y_filled;
-        AddPage();
-        y_diff = y_top - y1;
+        if (y1 > b || y1 + height > b)
+        {
+            y_filled += last_y_filled;
+            AddPage();
+            y_diff = y_top - y1;
+        }
+        _y1 += y_diff - (pages - 1) * page_size.height;
     }
-    _y1 += y_diff - (pages - 1) * page_size.height;
 
     if (top_y_filled == 0)
         top_y_filled = y1;
@@ -246,7 +262,8 @@ int PdfWindow::GetSymbolSize(const char32_t symbol, const int height, const std:
     int font_size = 1;
     auto _symbol = std::u32string(1, symbol);
     baseline = 0;
-    StringFormatPtr format{new StringFormat(family_name, font_size, false, false, false, false, false, false, Color::Black(), Color::Black(), Color::Black())};
+    StringFormatPtr format{new StringFormat(family_name, font_size, false, false, false, false, false, false, Color::Black(), 
+        Color::Black(), Color::Black())};
     while (s.height < height)
     {
         HPDF_Font font = GetFont(format);
@@ -329,6 +346,30 @@ Rect PdfWindow::GetViewPort(const int pos)
 void PdfWindow::Update(const Rect& rect)
 {
     //redraw has finished - pdf is ready
+    if (draw_footer)
+    {
+        draw_doc = false;
+        std::u32string footer1(Translate({0}, U"This document was created with ")), footer2(U"Yutovo"), footer3(U".");
+        const char *url = "https://yutovo.com?ref=pdf";
+        StringFormatPtr format(new StringFormat("Arial", 10, false, false, false, false, false, false, Color::Black(), Color::White(), Color::White()));
+        StringFormatPtr format_link(new StringFormat("Arial", 10, false, false, true, false, false, false, Color::Blue(), Color::White(), Color::White()));
+        Size s1 = GetTextSize(footer1, format), s2 = GetTextSize(footer2, format_link), s3 = GetTextSize(footer3, format);
+        if (page_size.height - view_port.GetBottom() > s1.height + 5)
+        {
+            Rect r1{view_port.left, view_port.GetBottom() + 4, s1.width, s1.height};
+            Rect r2{view_port.left + s1.width, view_port.GetBottom() + 4, s2.width, s2.height};
+            Rect r3{view_port.left + s1.width + s2.width, view_port.GetBottom() + 4, s3.width, s3.height};
+            DrawLine(view_port.left, view_port.GetBottom() + 1, view_port.GetRight(), view_port.GetBottom(), Color::Black());
+            DrawText(ToBasicString(footer1), format, r1, Color::Black(), Color::White());
+            DrawText(ToBasicString(footer2), format_link, r2, Color::Blue(), Color::White());
+            DrawText(ToBasicString(footer3), format, r3, Color::Black(), Color::White());
+            auto dest = HPDF_Page_CreateDestination(page);
+            auto annot = HPDF_Page_CreateURILinkAnnot(page, {(HPDF_REAL)r2.left, (HPDF_REAL)(page_size.height - r2.GetBottom()), 
+                (HPDF_REAL)r2.GetRight(), (HPDF_REAL)(page_size.height - r2.top)}, url);
+            HPDF_LinkAnnot_SetBorderStyle(annot, 0, 0, 0);
+        }
+    }
+
     HPDF_SaveToStream(pdf);
     HPDF_UINT size = HPDF_GetStreamSize(pdf);
     result.resize(size);
@@ -348,16 +389,6 @@ Rect PdfWindow::GetRect()
 
 void PdfWindow::MoveDocument(const int left, const int top)
 {
-}
-
-std::string PdfWindow::Translate(ElementId id, const std::string& str)
-{
-    return "";
-}
-
-std::u32string PdfWindow::Translate(ElementId id, const std::u32string& str)
-{
-    return U"";
 }
 
 int PdfWindow::ConvertToPixels(const int mm)
