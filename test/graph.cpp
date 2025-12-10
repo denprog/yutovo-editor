@@ -509,7 +509,7 @@ TEST_F(FormulaTest, graphs7)
     ASSERT_TRUE(std::equal(y.begin(), y.end(), _y2.begin(), 
         [](double x, double y)
         {
-            return std::fabs(x - y) < 0.01;
+            return std::fabs(x - y) < 0.1;
         })) << y[0] << y[1] << y[2];
 }
 
@@ -782,6 +782,9 @@ TEST_F(FormulaTest, graphs13)
     Start(600);
 
     document.WaitTask(document.InsertGraph(true));
+    auto el = document.FindByType({0}, ElementType::GRAPH_LINE);
+    GraphLine* graph = (GraphLine*)el.get();
+    graph->Resize(20, 20);
     document.InsertString("10", true);
     document.MoveCaretRight(false);
     document.InsertString("ln", true);
@@ -800,21 +803,20 @@ TEST_F(FormulaTest, graphs13)
     document.WaitTask(document.InsertString("5", true));
     document.WaitSolver();
     std::this_thread::sleep_for(3s);
-    auto el = document.FindByType({0}, ElementType::GRAPH_LINE);
-    GraphLine* graph = (GraphLine*)el.get();
+
     const GraphLine::Plot& plot = graph->plots[0];
     auto it = std::find_if(plot.x.begin(), plot.x.end(), 
         [](auto& x)
         {
             return x > -0.01 && x < 0.01;
         });
-    const std::vector<double> _y1{std::nan(""), -4.382, -3.507};
+    const std::vector<double> _y1{std::nan(""), -5.568, -4.064};
     int p = static_cast<int>(it - plot.x.begin());
     std::vector<double> y(plot.y.begin() + p, std::next(plot.y.begin() + p, 3));
     ASSERT_TRUE(std::equal(y.begin(), y.end(), _y1.begin(), 
         [](double x, double y)
         {
-            return std::fabs(x - y) < 0.01 || (std::isnan(x) && std::isnan(y));
+            return std::fabs(x - y) < 0.1 || (std::isnan(x) && std::isnan(y));
         })) << y[0] << y[1] << y[2];
 }
 

@@ -498,6 +498,9 @@ bool GraphLine::AfterFromJson()
 
 void GraphLine::Solve()
 {
+    if (rect.width == 0)
+        return;
+        
     std::vector<ParserString> expressions;
     for (int i = 0; i < GetExpression()->elements->Count(); ++i)
     {
