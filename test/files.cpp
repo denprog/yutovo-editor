@@ -6,6 +6,7 @@
  */
 
 #include <gtest/gtest.h>
+#include <filesystem>
 #include "mock.h"
 #include "style.h"
 
@@ -1263,34 +1264,39 @@ TEST_F(IncludeDocumentsTest, include_files4)
             return str;
         });
 
+    std::filesystem::remove("include4_1.yut");
+    std::filesystem::remove("include4_2.yut");
+
     //include1.yut
+    document.WaitTask(document.New());
     document.InsertCode(false, true);
     document.InsertString("var1", true);
     document.InsertAssignment(true);
     document.WaitTask(document.InsertString("5", true));
     document.WaitSolver();
     std::this_thread::sleep_for(200ms);
-    document.SetIncludeDocuments(std::vector{std::string("include2.yut")});
+    document.SetIncludeDocuments(std::vector{std::string("include4_2.yut")});
     std::this_thread::sleep_for(200ms);
-    document.WaitTask(document.Save("include1.yut"));
+    document.WaitTask(document.Save("include4_1.yut"));
     std::this_thread::sleep_for(200ms);
 
     document.WaitTask(document.New());
     ASSERT_TRUE(document.IsChanged() == false);
-    std::this_thread::sleep_for(200ms);
+    std::this_thread::sleep_for(1s);
 
     //include2.yut
-    document.WaitTask(document.SetIncludeDocuments(std::vector{std::string("include1.yut")}));
+    document.WaitTask(document.Save("include4_2.yut"));
+    document.WaitTask(document.SetIncludeDocuments(std::vector{std::string("include4_1.yut")}));
     std::this_thread::sleep_for(4s);
     document.InsertCode(false, true);
     document.InsertString("var1", true);
     document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
     document.WaitSolver();
-    document.WaitTask(document.Save("include2.yut"));
-    std::this_thread::sleep_for(6s);
+    std::this_thread::sleep_for(2s);
     ASSERT_TRUE(document.ToText() == 
         U"var1=Unknown identifier"
         ) << ToBasicString(document.ToText());
+    document.WaitTask(document.Save("include4_2.yut"));
 
     EXPECT_CALL(window_mock2, Translate).WillRepeatedly([&](ElementId id, const std::u32string& str)
         {
@@ -1303,9 +1309,8 @@ TEST_F(IncludeDocumentsTest, include_files4)
             std::this_thread::sleep_for(400ms);
         });
 
-    document2.Load("include2.yut");
+    document2.Load("include4_2.yut");
     document2.WaitLoad();
-    document2.WaitSolver();
     std::this_thread::sleep_for(4s);
     ASSERT_TRUE(document2.IsChanged() == false);
     ASSERT_TRUE(document2.ToText() == 
