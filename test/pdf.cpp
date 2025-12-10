@@ -25,7 +25,7 @@ using namespace std::chrono_literals;
 //A little pdf with text
 TEST_F(PdfTest, pdf1)
 {
-    Start(600, {200, 200});
+    Start(600, {200, 200}, false);
 
     EXPECT_CALL(*pdf_window_mock, OnPdfExportResult).WillOnce([&](const std::vector<uint8_t>& pdf, const PdfResult result)
         {
@@ -74,7 +74,7 @@ TEST_F(PdfTest, pdf1)
 //Pdf with solvings
 TEST_F(PdfTest, pdf2)
 {
-    Start(600, {600, 400});
+    Start(600, {600, 400}, false);
 
     EXPECT_CALL(*pdf_window_mock, OnPdfExportResult).WillOnce([&](const std::vector<uint8_t>& pdf, const PdfResult result)
         {
@@ -115,7 +115,7 @@ TEST_F(PdfTest, pdf2)
 //Pdf with graph
 TEST_F(PdfTest, pdf3)
 {
-    Start(600, {600, 400});
+    Start(600, {600, 400}, false);
 
     EXPECT_CALL(*pdf_window_mock, OnPdfExportResult).WillOnce([&](const std::vector<uint8_t>& pdf, const PdfResult result)
         {
@@ -180,7 +180,7 @@ TEST_F(PdfTest, pdf3)
 //Pdf with formulas
 TEST_F(PdfTest, pdf4)
 {
-    Start(600, {595, 842});
+    Start(600, {595, 842}, false);
 
     EXPECT_CALL(*pdf_window_mock, OnPdfExportResult).WillOnce([&](const std::vector<uint8_t>& pdf, const PdfResult result)
         {
@@ -222,7 +222,7 @@ TEST_F(PdfTest, pdf4)
 //Two pages pdf
 TEST_F(PdfTest, pdf5)
 {
-    Start(600, {200, 200});
+    Start(600, {200, 200}, false);
 
     EXPECT_CALL(*pdf_window_mock, OnPdfExportResult).WillOnce([&](const std::vector<uint8_t>& pdf, const PdfResult result)
         {
@@ -263,7 +263,7 @@ TEST_F(PdfTest, pdf5)
 //Different fonts
 TEST_F(PdfTest, pdf6)
 {
-    Start(600, {600, 400});
+    Start(600, {600, 400}, false);
 
     EXPECT_CALL(*pdf_window_mock, OnPdfExportResult).WillOnce([&](const std::vector<uint8_t>& pdf, const PdfResult result)
         {
@@ -321,7 +321,7 @@ TEST_F(PdfTest, pdf6)
 //Check margins
 TEST_F(PdfTest, pdf7)
 {
-    Start(600, {200, 200});
+    Start(600, {200, 200}, false);
 
     EXPECT_CALL(*pdf_window_mock, OnPdfExportResult).WillOnce([&](const std::vector<uint8_t>& pdf, const PdfResult result)
         {
@@ -360,6 +360,50 @@ TEST_F(PdfTest, pdf7)
     b = page->text().to_utf8();
     text = std::string(b.begin(), b.end());
     ASSERT_TRUE(text == "потребность в счёте и\nвычислениях,\nсвязанных с задачами\nучёта при\nцентрализации\nсельского хозяйства.\n\f") << text;
+}
+
+//Check footer
+TEST_F(PdfTest, pdf8)
+{
+    Start(600, {595, 842}, true);
+
+    EXPECT_CALL(*pdf_window_mock, OnPdfExportResult).WillOnce([&](const std::vector<uint8_t>& pdf, const PdfResult result)
+        {
+            ASSERT_TRUE(result == PdfResult::Success);
+            std::ofstream file("pdf8.pdf", std::ios::binary);
+            file.write(reinterpret_cast<const char*>(pdf.data()), pdf.size());
+        });
+    
+    document.InsertString("Tradicionalmente, el medio de un documento era el papel y la información", true);
+    document.InsertParagraph(true);
+    document.WaitTask(document.InsertString("Причиной возникновения арифметики стала практическая потребность в счёте и "
+        "вычислениях, связанных с задачами учёта при централизации сельского хозяйства.", true));
+
+    config.with_border = false;
+    config.code_block_border = false;
+    config.caret_visible = false;
+    config.hilight_caret_element = false;
+    config.draw_whole = true;
+
+    Document pdf_document(pdf_window_mock.get(), config, document);
+    pdf_document.Start();
+    std::this_thread::sleep_for(2s);
+
+    std::unique_ptr<poppler::document> pdf(poppler::document::load_from_file("pdf8.pdf"));
+    ASSERT_TRUE(pdf);
+    ASSERT_TRUE(pdf->pages() == 1);
+    std::unique_ptr<poppler::page> page(pdf->create_page(0));
+    auto b = page->text().to_utf8();
+    std::string text(b.begin(), b.end());
+    ASSERT_TRUE(text == "  Tradicionalmente, el medio de un documento era el papel y la información\n"
+        "  Причиной возникновения арифметики стала практическая потребность в счёте и\n"
+        "  вычислениях, связанных с задачами учёта при централизации сельского\n"
+        "  хозяйства.\n"
+        "\n"
+        "\n"
+        "\n"
+        "\n"
+        "This document was created with Yutovo.\n\f") << text;
 }
 
 }

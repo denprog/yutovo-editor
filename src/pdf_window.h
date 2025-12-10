@@ -10,7 +10,7 @@ namespace yutovo
 class PdfWindow : public Window
 {
 public:
-    PdfWindow(const Size& _page_size);
+    PdfWindow(const Size& _page_size, bool _draw_footer);
     virtual ~PdfWindow();
 
     virtual void Init(Document* document);
@@ -50,9 +50,6 @@ public:
     virtual Rect GetRect();
 
     virtual void MoveDocument(const int left, const int top);
-
-    virtual std::string Translate(ElementId id, const std::string& str);
-    virtual std::u32string Translate(ElementId id, const std::u32string& str);
 
     virtual int ConvertToPixels(const int mm);
 
@@ -104,6 +101,7 @@ private:
     int y_filled = 0, top_y_filled = 0, last_y_filled = 0;
     std::map<boost::uuids::uuid, std::string> fonts_map;
     std::vector<uint8_t> result;
+    bool draw_footer;
 };
     
 }

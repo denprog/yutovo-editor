@@ -96,8 +96,8 @@ public:
 class PdfWindowMock : public PdfWindow
 {
 public:
-    PdfWindowMock(const Size& _page_size) :
-        PdfWindow(_page_size)
+    PdfWindowMock(const Size& _page_size, bool draw_footer) :
+        PdfWindow(_page_size, draw_footer)
     {
     }
 
@@ -474,9 +474,9 @@ struct IncludeDocumentsTest : DocumentTest
 
 struct PdfTest : DocumentTest
 {
-    void Start(int width, const Size& page_size)
+    void Start(int width, const Size& page_size, bool draw_footer)
     {
-        pdf_window_mock.reset(new ::testing::NiceMock<PdfWindowMock>(page_size));
+        pdf_window_mock.reset(new ::testing::NiceMock<PdfWindowMock>(page_size, draw_footer));
 
         EXPECT_CALL(*pdf_window_mock, GetFontPath).WillRepeatedly([&](const StringFormatPtr format, std::string& path)
             {
