@@ -225,10 +225,15 @@ else()
     endif()
 endif()
 
+if(EXISTS "${THIRD_PARTY_PATH}")
+    target_include_directories(${PROJECT_NAME} PUBLIC
+        $<BUILD_INTERFACE:${THIRD_PARTY_PATH}>
+    )
+endif()
+
 target_include_directories(${PROJECT_NAME} PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
     ${INSTALL_PATH}/include
-    ${THIRD_PARTY_PATH}
 )
 
 target_include_directories(${PROJECT_NAME} PUBLIC
