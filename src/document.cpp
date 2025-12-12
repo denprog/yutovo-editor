@@ -123,6 +123,8 @@ Document::Document(Window* _window, Config& _config, const Document& source) :
     current_text_format = TextFormats::GetFormat(TextFormat::Paging::WEB_VIEW, 20, 20, 20, 20, 10, Size{0, 0});
     default_text_format = *current_text_format;
 
+    identifiers = source.identifiers;
+
     caret.reset(new Caret(this));
     caret->SetVisible(config.caret_visible);
 
