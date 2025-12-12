@@ -1746,6 +1746,49 @@ TEST_F(SolverAutoTest, solver40)
     ASSERT_TRUE(!document.CanRedo());
 }
 
+//Set font attributes
+TEST_F(SolverAutoTest, solver41)
+{
+    Start(600);
+
+    document.config.solve_delay = 1000;
+
+    document.InsertCode(false, true);
+    document.InsertString("12345678901234", true);
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(2s);
+    ASSERT_TRUE(document.ToText() == 
+        U"12345678901234=1.235*pow(10,13)"
+        ) << ToBasicString(document.ToText());
+    
+    document.WaitTask(document.SelectAll());
+    std::this_thread::sleep_for(200ms);
+    document.WaitTask(document.SetItalic(true));
+    document.WaitTask(document.SetUnderline(true));
+    StringFormat format;
+    ElementId id = document.FindByString({0}, U"12345678901234")->id;
+    ASSERT_TRUE(document.GetStringFormat(id, format));
+    ASSERT_TRUE(format.italic);
+    ASSERT_TRUE(format.underline);
+
+    document.Undo();
+    document.WaitUndo();
+    std::this_thread::sleep_for(200ms);
+    //don't wait solving
+    ASSERT_TRUE(document.GetStringFormat(id, format));
+    ASSERT_TRUE(format.italic);
+    ASSERT_TRUE(!format.underline);
+
+    document.Undo();
+    document.WaitUndo();
+    std::this_thread::sleep_for(200ms);
+    //don't wait solving
+    ASSERT_TRUE(document.GetStringFormat(id, format));
+    ASSERT_TRUE(!format.italic);
+    ASSERT_TRUE(!format.underline);
+}
+
 //Solve with errors
 TEST_F(SolverAutoTest, errors1)
 {
