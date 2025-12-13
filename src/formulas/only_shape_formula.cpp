@@ -103,8 +103,8 @@ bool OnlyShapeFormula::GetLastCaretState(CaretState& caret_state, Selection* sel
 void OnlyShapeFormula::UpdateRect(bool with_elements)
 {
     Size s = window->GetTextSize(std::u32string(1, symbol), GetStringFormat());
-    shape->rect.SetSize(s.width, s.height * 3 / 4);
-    baseline = shape->rect.height / 3 * 2;
+    shape->rect.SetSize(s.width, s.height);
+    baseline = shape->rect.height / 2;
 
     Formula::UpdateRect(false);
 }

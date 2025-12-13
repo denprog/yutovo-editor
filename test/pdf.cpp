@@ -406,4 +406,47 @@ TEST_F(PdfTest, pdf8)
         "This document was created with Yutovo.\n\f") << text;
 }
 
+//Check of functions
+TEST_F(PdfTest, pdf9)
+{
+    Start(600, {595, 842}, false);
+
+    EXPECT_CALL(*pdf_window_mock, OnPdfExportResult).WillOnce([&](const std::vector<uint8_t>& pdf, const PdfResult result)
+        {
+            ASSERT_TRUE(result == PdfResult::Success);
+            std::ofstream file("pdf9.pdf", std::ios::binary);
+            file.write(reinterpret_cast<const char*>(pdf.data()), pdf.size());
+        });
+
+    document.InsertCode(false, true);
+    document.InsertString("sin", true);
+    document.InsertOpenRoundBracket(true);
+    document.InsertString("2", true);
+    document.InsertCloseRoundBracket(true);
+    document.InsertPlus(true);
+    document.InsertString("cos", true);
+    document.InsertOpenRoundBracket(true);
+    document.InsertString("5", true);
+    document.WaitTask(document.InsertCloseRoundBracket(true));
+    std::this_thread::sleep_for(2s);
+
+    config.with_border = false;
+    config.code_block_border = false;
+    config.caret_visible = false;
+    config.hilight_caret_element = false;
+    config.draw_whole = true;
+
+    Document pdf_document(pdf_window_mock.get(), config, document);
+    pdf_document.Start();
+    std::this_thread::sleep_for(1s);
+
+    std::unique_ptr<poppler::document> pdf(poppler::document::load_from_file("pdf9.pdf"));
+    ASSERT_TRUE(pdf);
+    ASSERT_TRUE(pdf->pages() == 1);
+    std::unique_ptr<poppler::page> page(pdf->create_page(0));
+    auto b = page->text().to_utf8();
+    std::string text(b.begin(), b.end());
+    ASSERT_TRUE(text == "sin ( 2 ) + cos ( 5 )\n\f") << text;
+}
+
 }
