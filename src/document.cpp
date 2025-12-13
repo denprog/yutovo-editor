@@ -71,7 +71,7 @@ Document::Document(Window* _window, Config& _config, const std::string _document
     last_selection(this),
     logger(Logger::GetInstance(config.logs_path + "/yutovo-editor", "yutovo-editor", config.log_console, config.log_file))
 {
-    logger->SetLevel((int)_config.log_level);
+    logger->SetLevel(_config.log_level);
     LOG_DEBUG("Document start");
 
     if (document_guid.empty())
@@ -108,7 +108,7 @@ Document::Document(Window* _window, Config& _config, const Document& source) :
     last_selection(this),
     logger(Logger::GetInstance(config.logs_path + "/yutovo-editor", "yutovo-editor", config.log_console, config.log_file))
 {
-    logger->SetLevel((int)_config.log_level);
+    logger->SetLevel(_config.log_level);
     LOG_DEBUG("Document start");
 
     string_formats.reset(new StringFormats());
