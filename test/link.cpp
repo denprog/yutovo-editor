@@ -751,4 +751,48 @@ TEST_F(TwoDocumentsTest, link14)
     ASSERT_TRUE(format.underline == true);
 }
 
+//Click outside of a link
+TEST_F(DocumentTest, link15)
+{
+    Start(600);
+
+    EXPECT_CALL(window_mock, OnLinkClicked).WillOnce([&](ElementId id, const std::u32string& url)
+        {
+            ASSERT_TRUE(url == U"www.link.ru");
+        });
+
+    document.WaitTask(document.InsertLink("link", "www.link.ru", true));
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<a href=\"www.link.ru\" style=\"font-family:'Arial';font-size:14px;text-decoration: underline;color:rgba(0,0,255,255);\">link</a>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 4})) << document.GetEditorState().ToString();
+
+    Rect rect;
+    document.GetElementRect(ElementId{0, 0, 0, 0}, rect);
+    document.WaitTask(document.MoveCaret(rect.GetRight() + 10, rect.top + 1, true));
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<a href=\"www.link.ru\" style=\"font-family:'Arial';font-size:14px;text-decoration: underline;color:rgba(0,0,255,255);\">link</a>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 4})) << document.GetEditorState().ToString();
+
+    document.GetElementRect(ElementId{0, 0, 0, 0}, rect);
+    document.WaitTask(document.MoveCaret(rect.GetRight() - 10, rect.top + 1, true));
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<a href=\"www.link.ru\" style=\"font-family:'Arial';font-size:14px;text-decoration: underline;color:rgba(255,105,180,255);\">link</a>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 3})) << document.GetEditorState().ToString();
+}
+
 }

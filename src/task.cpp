@@ -1377,7 +1377,11 @@ bool MoveCaretTask::Execute()
                 {
                     auto _el = document->GetElement(c.id);
                     if (_el && _el->type == ElementType::LINK)
-                        ((Link*)_el.get())->Visit();
+                    {
+                        Rect r = _el->GetAbsoluteRect();
+                        if (r.IsPointInside(point.x, point.y))
+                            ((Link*)_el.get())->Visit();
+                    }
                 }
             }
         }
@@ -2854,7 +2858,7 @@ bool SetConfigTask::Execute()
     document->config = config;
     document->current_code_format->border_color = config.code_block_border_color;
 
-    document->logger->SetLevel((int)config.log_level);
+    document->logger->SetLevel(config.log_level);
 
     if (remake)
         Remake(text->id, false);

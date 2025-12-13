@@ -2164,8 +2164,7 @@ TEST_F(FormulaTest, select11)
     for (int i = 0; i < 5; ++i)
         document.MoveCaretLeft(false);
     document.WaitTask(document.MoveCaretUp(true));
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0, 0, 0, 3}, 
-        ElementSelectionState{ElementId{0, 0, 0, 0, 0, 0, 0}, 2, 1},
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0, 0, 1}, 
         ElementSelectionState{ElementId{0, 0, 0, 0, 0, 0}, 1, 2},
         ElementSelectionState{ElementId{0, 0, 0, 0, 1, 0}, 0, 2})) << document.GetEditorState().ToString();
 
