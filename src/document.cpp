@@ -1633,6 +1633,14 @@ void Document::SetCurrentFormulaFormat(const std::string& name)
     current_formula_format = formula_formats->GetFormat("Code");
 }
 
+void Document::ChangeCurrentFormulaFormat(const StringFormatPtr& string_format)
+{
+    std::lock_guard<std::recursive_mutex> lock(edit_mutex);
+    current_formula_format = formula_formats->GetFormat(current_formula_format->name, string_format, current_formula_format->inter_spacing, 
+        current_formula_format->left_margin, current_formula_format->top_margin, current_formula_format->right_margin, 
+        current_formula_format->bottom_margin, current_formula_format->color, current_formula_format->bg_color, current_formula_format->bg_selection_color);
+}
+
 bool Document::GetGraphFormat(const ElementId& id, GraphFormat& format)
 {
     std::lock_guard<std::recursive_mutex> lock(edit_mutex);
@@ -1736,6 +1744,9 @@ void Document::UpdateFormats()
     {
         current_string_format = string_formats->GetFormat(f);
         window->OnFormatChanged(MakeEditorState());
+
+        if (el->type == ElementType::CODE_STRING)
+            ChangeCurrentFormulaFormat(current_string_format);
     }
     ParagraphFormat p;
     if (GetParagraphFormat(c.id, p))

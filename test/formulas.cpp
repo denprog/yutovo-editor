@@ -2716,12 +2716,12 @@ TEST_F(FormulaTest, fonts6)
 
     document.WaitTask(document.InsertString("f", true));
     ASSERT_TRUE(document.GetStringFormat(ElementId{0, 0, 0, 0, 0, 0, 0, 2, 0}, format));
-    ASSERT_FALSE(format.bold);
+    ASSERT_TRUE(format.bold);
 
     document.WaitTask(document.MoveCaretHome(true));
     document.WaitTask(document.SetUnderline(true));
     ASSERT_TRUE(document.GetStringFormat(ElementId{0, 0, 0, 0, 0, 0, 0, 2, 0}, format));
-    ASSERT_FALSE(format.bold);
+    ASSERT_TRUE(format.bold);
     ASSERT_TRUE(format.underline);
     ASSERT_TRUE(document.GetStringFormat(ElementId{0, 0, 0, 0, 0, 0, 0, 0, 0}, format));
     ASSERT_TRUE(format.bold);
@@ -2729,14 +2729,10 @@ TEST_F(FormulaTest, fonts6)
 
     document.MoveCaretHome(false);
     document.WaitTask(document.MoveCaretEnd(false));
-    // ASSERT_TRUE(document.GetStringFormat(ElementId{0, 0, 0, 0, 0}, format));
-    // ASSERT_FALSE(format.bold);
-    // ASSERT_FALSE(format.underline);
-
     document.WaitTask(document.InsertPlus(true));
     document.WaitTask(document.InsertString("55", true));
     ASSERT_TRUE(document.GetStringFormat(ElementId{0, 0, 0, 0, 0, 0, 2}, format));
-    ASSERT_FALSE(format.bold);
+    ASSERT_TRUE(format.bold);
     ASSERT_FALSE(format.underline);
 
     document.MoveCaretLeft(true);
@@ -2744,7 +2740,7 @@ TEST_F(FormulaTest, fonts6)
     document.WaitTask(document.SetFontSize(16));
     ASSERT_TRUE(document.GetStringFormat(ElementId{0, 0, 0, 0, 0, 0, 2}, format));
     ASSERT_TRUE(format.size == 16);
-    ASSERT_FALSE(format.bold);
+    ASSERT_TRUE(format.bold);
     ASSERT_FALSE(format.underline);
 
     document.MoveCaretLeft(false);
@@ -2755,14 +2751,14 @@ TEST_F(FormulaTest, fonts6)
         U"(123)/(f1)+55"
         ) << ToBasicString(document.ToText());
     ASSERT_TRUE(document.GetStringFormat(ElementId{0, 0, 0, 0, 0, 0, 0}, format));
-    ASSERT_FALSE(format.bold);
+    ASSERT_TRUE(format.bold);
     ASSERT_FALSE(format.underline);
     ASSERT_TRUE(format.size == 16);
 
     ASSERT_TRUE(document.GetStringFormat(ElementId{0, 0, 0, 0}, format));
-    ASSERT_FALSE(format.bold);
+    ASSERT_TRUE(format.bold);
     ASSERT_FALSE(format.underline);
-    ASSERT_FALSE(format.size == 16);
+    ASSERT_TRUE(format.size == 14);
 
     document.WaitTask(document.MoveCaretEnd(false));
     document.WaitTask(document.SetFontSize(22));
@@ -2772,12 +2768,106 @@ TEST_F(FormulaTest, fonts6)
         ) << ToBasicString(document.ToText());
     ASSERT_TRUE(document.GetStringFormat(ElementId{0, 0, 0, 0, 0, 0, 2}, format));
     ASSERT_TRUE(format.size == 16);
-    ASSERT_FALSE(format.bold);
+    ASSERT_TRUE(format.bold);
     ASSERT_FALSE(format.underline);
     ASSERT_TRUE(document.GetStringFormat(ElementId{0, 0, 0, 0, 0, 0, 3}, format));
     ASSERT_TRUE(format.size == 22);
-    ASSERT_FALSE(format.bold);
+    ASSERT_TRUE(format.bold);
     ASSERT_FALSE(format.underline);
+}
+
+//Check font between elements
+TEST_F(FormulaTest, fonts7)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.InsertString("exp", true);
+    document.InsertOpenRoundBracket(true);
+    document.InsertString("345", true);
+    document.InsertPlus(true);
+    document.InsertString("23", true);
+    document.WaitTask(document.InsertCloseRoundBracket(true));
+    document.WaitTask(document.MoveCaretHome(true));
+    document.WaitTask(document.SetFontFamily("Verdana"));
+
+    document.MoveCaretHome(false);
+    document.WaitTask(document.MoveCaretRight(false));
+    StringFormat format;
+    auto el = document.FindByString({0}, U"exp");
+    ASSERT_TRUE(document.GetStringFormat(el->id, format));
+    ASSERT_TRUE(format.family == "Verdana");
+
+    document.MoveCaretWordRight(false);
+    document.WaitTask(document.MoveCaretRight(false));
+    std::this_thread::sleep_for(200ms);
+    StringFormatPtr f;
+    document.GetCurrentStringFormat(f);
+    ASSERT_TRUE(f->family == "Verdana") << f->family;
+}
+
+//Check font between elements
+TEST_F(FormulaTest, fonts8)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.InsertString("exp", true);
+    document.InsertOpenRoundBracket(true);
+    document.InsertString("345", true);
+    document.InsertPlus(true);
+    document.InsertString("23", true);
+    document.InsertCloseRoundBracket(true);
+    document.InsertParagraph(true);
+    document.InsertString("55", true);
+    document.MoveCaretUp(false);
+    document.MoveCaretEnd(false);
+    document.WaitTask(document.MoveCaretHome(true));
+    document.WaitTask(document.SetFontFamily("Verdana"));
+
+    document.MoveCaretHome(false);
+    document.WaitTask(document.MoveCaretRight(false));
+    StringFormat format;
+    auto el = document.FindByString({0}, U"exp");
+    ASSERT_TRUE(document.GetStringFormat(el->id, format));
+    ASSERT_TRUE(format.family == "Verdana");
+
+    document.MoveCaretWordRight(false);
+    document.WaitTask(document.MoveCaretRight(false));
+    StringFormatPtr f;
+    document.GetCurrentStringFormat(f);
+    ASSERT_TRUE(f->family == "Verdana") << f->family;
+
+    document.MoveCaretEnd(false);
+    document.GetCurrentStringFormat(f);
+    ASSERT_TRUE(f->family == "Verdana") << f->family;
+}
+
+//Check font after delete
+TEST_F(FormulaTest, fonts9)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.InsertString("123", true);
+    document.InsertPower(true);
+    document.InsertString("2", true);
+    document.InsertPower(true);
+    document.InsertString("3", true);
+    document.InsertDivision(true);
+    document.InsertString("5", true);
+    document.MoveCaretHome(false);
+    document.MoveCaretHome(false);
+    document.WaitTask(document.MoveCaretLeft(false));
+    document.WaitTask(document.DeleteElements(false, true));
+    ASSERT_TRUE(document.ToText() == 
+        U"pow(123,2(3)/(5))"
+        ) << ToBasicString(document.ToText());
+
+    StringFormat format;
+    auto el = document.FindByString({0}, U"5");
+    ASSERT_TRUE(document.GetStringFormat(el->id, format));
+    ASSERT_TRUE(format.size == 12);
 }
 
 }

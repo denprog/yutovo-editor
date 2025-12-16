@@ -69,9 +69,7 @@ public:
 
     virtual StringFormatPtr GetStringFormat() const;
     virtual void UpdateStringFormat(const StringFormatPtr base_format, const StringFormatPtr new_format);
-    virtual void UpdateFormat(StringFormatPtr& _format);
 
-    virtual int GetFontSize(const uint size);
     virtual Size GetTextSize(const uint pos) const;
 
     virtual bool CanContinueSelection();

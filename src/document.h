@@ -162,6 +162,7 @@ public:
 
     bool GetCurrentFormulaFormat(FormulaFormatPtr& format);
     void SetCurrentFormulaFormat(const std::string& name);
+    void ChangeCurrentFormulaFormat(const StringFormatPtr& string_format);
 
     ElementType GetCurrentElementType();
     ElementType GetElementType(const ElementId& id);

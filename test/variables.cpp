@@ -1594,6 +1594,7 @@ TEST_F(VariablesTest, variables26)
         U"ф{1}=5."
         ) << ToBasicString(document.ToText());
     
+    document.MoveCaretHome(false);
     document.MoveCaretUp(false);
     document.MoveCaretEnd(false);
     document.MoveCaretLeft(false);
