@@ -810,7 +810,7 @@ bool ChangeStringFormatTask::Execute()
             }
             else
             {
-                if (document->IsParagraph(el))
+                if (document->IsParagraph(el) || document->IsFormula(el))
                 {
                     StringFormatPtr _format = get_string_format(el);
                     if (!el->ChangeStringFormat(_format, with_undo, _changed_element))
@@ -836,11 +836,7 @@ bool ChangeStringFormatTask::Execute()
                     }
                 }
                 if (initial_element && el->elements->Count() > 0 && f == el->elements->Count())
-                {
-                    if (with_undo && last_undo_size < document->GetUndoSize())
-                        document->Undo();
                     return false;
-                }
             }
             return true;
         };

@@ -2870,4 +2870,32 @@ TEST_F(FormulaTest, fonts9)
     ASSERT_TRUE(format.size == 12);
 }
 
+//Check font after changing it at a part of a row
+TEST_F(FormulaTest, fonts10)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.InsertString("exp", true);
+    document.InsertOpenRoundBracket(true);
+    document.InsertString("23", true);
+    document.InsertPlus(true);
+    document.InsertString("4", true);
+    document.InsertCloseRoundBracket(true);
+    document.WaitTask(document.MoveCaretHome(true));
+    document.InsertDivision(true);
+    document.InsertString("5", true);
+    document.MoveCaretUp(false);
+    document.MoveCaretUp(false);
+    document.MoveCaretEnd(false);
+    for (int i = 0; i < 6; ++i)
+        document.WaitTask(document.MoveCaretLeft(true));
+    document.WaitTask(document.SetFontSize(18));
+
+    auto el = document.FindByString({0}, U"23");
+    StringFormat format;
+    ASSERT_TRUE(document.GetStringFormat(el->id, format));
+    ASSERT_TRUE(format.size == 18);
+}
+
 }

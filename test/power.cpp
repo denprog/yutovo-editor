@@ -1117,4 +1117,27 @@ TEST_F(FormulaTest, power21)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 2, 0, 0})) << document.GetEditorState().ToString();
 }
 
+//Set font to both parts
+TEST_F(FormulaTest, power22)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.InsertString("123", true);
+    document.InsertPower(true);
+    document.InsertString("45", true);
+    document.MoveCaretHome(true);
+    document.WaitTask(document.MoveCaretHome(true));
+    document.WaitTask(document.SetFontSize(24));
+
+    auto el = document.FindByString({0}, U"123");
+    StringFormat format;
+    ASSERT_TRUE(document.GetStringFormat(el->id, format));
+    ASSERT_TRUE(format.size == 24);
+
+    el = document.FindByString({0}, U"45");
+    ASSERT_TRUE(document.GetStringFormat(el->id, format));
+    ASSERT_TRUE(format.size == 22);
+}
+
 }
