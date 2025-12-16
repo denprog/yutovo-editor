@@ -40,6 +40,14 @@ bool Formula::ChangeParagraphFormat(const ParagraphFormatPtr format, bool with_u
     return false;
 }
 
+bool Formula::ChangeStringFormat(const StringFormatPtr format, bool with_undo, ElementId& changed_element)
+{
+    formula_format->string_format = format;
+    changed_element = id;
+    document->CaretMoved();
+    return true;
+}
+
 void Formula::Normalize()
 {
     Element::Normalize();

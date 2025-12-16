@@ -858,7 +858,7 @@ void String::UpdateLevel(uint8_t _level)
         return;
     size_cache.clear();
     auto* p = parent;
-    while (p && p->level != 1)
+    while (p && (p->level != 1 || p->type == ElementType::CODE_ROW))
         p = p->parent;
     if (!p)
         return;
@@ -866,7 +866,7 @@ void String::UpdateLevel(uint8_t _level)
     int s = f->size - (level - p->level) * 2;
     if (s < 8)
         s = 8;
-    format = document->GetStringFormat(f->family, s, format->bold, format->italic, format->underline, 
+    format = document->GetStringFormat(format->family, s, format->bold, format->italic, format->underline, 
         format->strikethrough, format->subscript, format->superscript, format->text_color, format->text_bg_color);
 }
 
