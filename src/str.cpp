@@ -787,21 +787,6 @@ void String::UpdateStringFormat(const StringFormatPtr base_format, const StringF
     size_cache.clear();
 }
 
-void String::UpdateFormat(StringFormatPtr& _format)
-{
-    format = document->GetStringFormat(_format->family, GetFontSize(_format->size), _format->bold, _format->italic, _format->underline, 
-        _format->strikethrough, _format->subscript, _format->superscript, _format->text_color, _format->text_bg_color);
-}
-
-int String::GetFontSize(const uint size)
-{
-    if (level == 1)
-        return size;
-    if (size - (level - 1) * 2 > 8)
-        return size - (level - 1) * 2;
-    return 8;
-}
-
 Size String::GetTextSize(const uint pos) const
 {
     auto it = size_cache.find(pos);
@@ -872,8 +857,16 @@ void String::UpdateLevel(uint8_t _level)
     if (!parent || !parent->parent)
         return;
     size_cache.clear();
-    auto f = parent->GetStringFormat();
-    format = document->GetStringFormat(f->family, GetFontSize(f->size), format->bold, format->italic, format->underline, 
+    auto* p = parent;
+    while (p && p->level != 1)
+        p = p->parent;
+    if (!p)
+        return;
+    auto f = p->GetStringFormat();
+    int s = f->size - (level - p->level) * 2;
+    if (s < 8)
+        s = 8;
+    format = document->GetStringFormat(f->family, s, format->bold, format->italic, format->underline, 
         format->strikethrough, format->subscript, format->superscript, format->text_color, format->text_bg_color);
 }
 

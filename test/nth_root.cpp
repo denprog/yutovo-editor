@@ -408,7 +408,7 @@ TEST_F(FormulaTest, nth_root6)
 
     document.WaitTask(document.InsertString("55", true));
     ASSERT_TRUE(document.GetStringFormat(ElementId{0, 0, 0, 0, 0, 0, 0, 2, 0}, format));
-    ASSERT_FALSE(format.bold);
+    ASSERT_TRUE(format.bold);
 }
 
 }

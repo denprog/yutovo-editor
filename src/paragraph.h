@@ -37,7 +37,9 @@ public:
 
     virtual bool InsertElements(std::vector<ElementPtr>& _elements, bool insert_mode, bool with_undo, ElementId& changed_element);
     virtual bool DeleteElements(bool left, bool with_undo, ElementId& changed_element);
+
     virtual bool ChangeParagraphFormat(const ParagraphFormatPtr _format, bool with_undo, ElementId& changed_element);
+    virtual bool ChangeStringFormat(const StringFormatPtr _format, bool with_undo, ElementId& changed_element);
 
     virtual bool GetLeftCaretState(CaretState& caret_state, Selection* select);
     virtual bool GetRightCaretState(CaretState& caret_state, Selection* select);

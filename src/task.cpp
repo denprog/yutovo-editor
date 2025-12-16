@@ -767,10 +767,9 @@ bool ChangeStringFormatTask::Execute()
     }
 
     auto get_string_format = 
-        [&](String* str)
+        [&](ElementPtr el)
         {
-            //set only actual params
-            StringFormat f = *str->format;
+            StringFormat f = *el->GetStringFormat();
             if (set_family)
                 f.family = format->family;
             if (set_size)
@@ -790,14 +789,14 @@ bool ChangeStringFormatTask::Execute()
             return document->GetStringFormat(f.family, f.size, f.bold, f.italic, f.underline, f.strikethrough, f.subscript, f.superscript, 
                 f.text_color, f.text_bg_color);
         };
-    
+        
     std::function<bool (ElementPtr el, ElementId& changed_element, bool initial_element)> change_string_format = 
         [&](ElementPtr el, ElementId& changed_element, bool initial_element)
         {
             ElementId _changed_element;
             if (document->IsString(el))
             {
-                StringFormatPtr _format = get_string_format((String*)el.get());
+                StringFormatPtr _format = get_string_format(el);
                 if (!el->ChangeStringFormat(_format, with_undo, _changed_element))
                     return false;
                 if (!changed_element.empty())
@@ -805,8 +804,23 @@ bool ChangeStringFormatTask::Execute()
                 else
                     changed_element = _changed_element;
             }
+            else if (el->elements->Count() == 0)
+            {
+                return false;
+            }
             else
             {
+                if (document->IsParagraph(el))
+                {
+                    StringFormatPtr _format = get_string_format(el);
+                    if (!el->ChangeStringFormat(_format, with_undo, _changed_element))
+                        return false;
+                    if (!changed_element.empty())
+                        changed_element = GetCommonParent(changed_element, _changed_element);
+                    else
+                        changed_element = _changed_element;
+                }
+
                 int f = 0;
                 for (int i = 0; i < el->elements->Count(); ++i)
                 {

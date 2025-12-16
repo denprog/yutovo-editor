@@ -464,6 +464,15 @@ bool Paragraph::ChangeParagraphFormat(const ParagraphFormatPtr _format, bool wit
     return true;
 }
 
+bool Paragraph::ChangeStringFormat(const StringFormatPtr _format, bool with_undo, ElementId& changed_element)
+{
+    format->default_string_format = _format;
+    current_string_format = _format;
+    changed_element = id;
+    document->CaretMoved();
+    return true;
+}
+
 bool Paragraph::GetLeftCaretState(CaretState& caret_state, Selection* select)
 {
     if (select && IsEmpty())

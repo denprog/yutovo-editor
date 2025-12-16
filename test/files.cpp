@@ -1056,6 +1056,52 @@ TEST_F(DocumentTest, files24)
         << document.ToHtml();
 }
 
+//Check fonts after load
+TEST_F(DocumentTest, files25)
+{
+    Start(600);
+
+    EXPECT_CALL(window_mock, OnSaveResult).WillOnce([&](const uint task_id, IOResult result, const int document_id)
+        {
+            ASSERT_TRUE(result == IOResult::Success);
+        });
+
+    document.InsertCode(false, true);
+    document.InsertString("123", true);
+    document.InsertPower(true);
+    document.InsertString("4", true);
+    document.InsertPower(true);
+    document.InsertString("5", true);
+    document.InsertDivision(true);
+    document.WaitTask(document.InsertString("6", true));
+    ASSERT_TRUE(document.ToText() == 
+        U"pow(123,pow(4,(5)/(6)))"
+        ) << ToBasicString(document.ToText());
+
+    document.WaitTask(document.Save("files25.yut"));
+    std::this_thread::sleep_for(200ms);
+
+    document.WaitTask(document.New());
+    ASSERT_TRUE(document.IsChanged() == false);
+
+    document.Load("files25.yut");
+    document.WaitLoad();
+    std::this_thread::sleep_for(400ms);
+
+    StringFormat format;
+    auto el = document.FindByString({0}, U"4");
+    ASSERT_TRUE(document.GetStringFormat(el->id, format));
+    ASSERT_TRUE(format.size == 12) << format.size;
+
+    el = document.FindByString({0}, U"5");
+    ASSERT_TRUE(document.GetStringFormat(el->id, format));
+    ASSERT_TRUE(format.size == 10) << format.size;
+
+    el = document.FindByString({0}, U"6");
+    ASSERT_TRUE(document.GetStringFormat(el->id, format));
+    ASSERT_TRUE(format.size == 10) << format.size;
+}
+
 //Check include file
 TEST_F(IncludeDocumentsTest, include_files1)
 {

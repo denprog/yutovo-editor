@@ -389,7 +389,7 @@ TEST_F(FormulaTest, graphs4)
     document.WaitRedo();
     std::this_thread::sleep_for(200ms);
     ASSERT_TRUE(document.ToText() == U"graph_line(,xx,,,,)") << ToBasicString(document.ToText());
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1})) << document.GetEditorState().ToString();
 }
 
 TEST_F(FormulaTest, graphs5)
@@ -784,7 +784,6 @@ TEST_F(FormulaTest, graphs13)
     document.WaitTask(document.InsertGraph(true));
     auto el = document.FindByType({0}, ElementType::GRAPH_LINE);
     GraphLine* graph = (GraphLine*)el.get();
-    graph->Resize(20, 20);
     document.InsertString("10", true);
     document.MoveCaretRight(false);
     document.InsertString("ln", true);
@@ -810,7 +809,7 @@ TEST_F(FormulaTest, graphs13)
         {
             return x > -0.01 && x < 0.01;
         });
-    const std::vector<double> _y1{std::nan(""), -5.568, -4.064};
+    const std::vector<double> _y1{std::nan(""), -4.425, -3.652};
     int p = static_cast<int>(it - plot.x.begin());
     std::vector<double> y(plot.y.begin() + p, std::next(plot.y.begin() + p, 3));
     ASSERT_TRUE(std::equal(y.begin(), y.end(), _y1.begin(), 

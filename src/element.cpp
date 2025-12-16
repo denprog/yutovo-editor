@@ -958,9 +958,9 @@ void Element::UpdateDrawRect()
 
 void Element::UpdateLevel(uint8_t _level)
 {
+    level = _level;
     for (int i = 0; i < elements->Count(); ++i)
         elements->Get(i)->UpdateLevel(_level);
-    level = _level;
 }
 
 void Element::SetEditable(bool _editable)
