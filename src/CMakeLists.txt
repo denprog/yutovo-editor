@@ -217,7 +217,7 @@ else()
             yutovo-solver
             yutovo-calculator
             yutovo-logger
-            mgl
+            ${INSTALL_PATH}/lib/libmgl.a
             ${INSTALL_PATH}/lib/libhpdf.a
     		png
     		z
