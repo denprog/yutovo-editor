@@ -279,7 +279,7 @@ void PdfWindow::PrepareSymbolsSizes(const std::vector<std::tuple<char32_t, std::
 {
 }
 
-void PdfWindow::ClearRect(const int x1, const int y1, const int width, const int height)
+void PdfWindow::ClearRect(const int x1, const int y1, const int width, const int height, const Color color)
 {
 }
 

@@ -1077,7 +1077,7 @@ bool RedrawTask::Execute()
         return false;
     
     Rect clear_rect = element->draw_rect.IsEmpty() ? element->GetAbsoluteRect() : element->draw_rect;
-    window->ClearRect(clear_rect); //clear last rect before drawing
+    window->ClearRect(clear_rect, element->GetBackgroundColor()); //clear last rect before drawing
     element->Draw(); //draw element and update its rect
     element->UpdateDrawRect();
 

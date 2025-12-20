@@ -26,15 +26,6 @@ void Config::ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType&
 
     value.AddMember("use_tabs", use_tabs, alloc);
     value.AddMember("tab_spaces", tab_spaces, alloc);
-    value.AddMember("code_block_border_color", (int)code_block_border_color.ToInt(), alloc);
-    value.AddMember("numbers_color", (int)numbers_color.ToInt(), alloc);
-    value.AddMember("variables_color", (int)variables_color.ToInt(), alloc);
-    value.AddMember("functions_color", (int)functions_color.ToInt(), alloc);
-    value.AddMember("units_color", (int)units_color.ToInt(), alloc);
-    value.AddMember("shapes_color", (int)shapes_color.ToInt(), alloc);
-    value.AddMember("error_marks_color", (int)error_marks_color.ToInt(), alloc);
-    value.AddMember("formula_bg_color", (int)formula_bg_color.ToInt(), alloc);
-    value.AddMember("bg_selection_color", (int)bg_selection_color.ToInt(), alloc);
 
     rapidjson::Value real_result_config("real_result", alloc);
     real_result_config.SetObject();
@@ -128,33 +119,6 @@ void Config::FromJson(const rapidjson::Document& value, rapidjson::Document::All
         auto_result.complex_result = complex_result;
     }
 
-    if (value.HasMember("code_block_border_color") && value["code_block_border_color"].IsInt64())
-        code_block_border_color = Color::FromInt(value["code_block_border_color"].GetInt64());
-
-    if (value.HasMember("numbers_color") && value["numbers_color"].IsInt64())
-        numbers_color = Color::FromInt(value["numbers_color"].GetInt64());
-
-    if (value.HasMember("variables_color") && value["variables_color"].IsInt64())
-        variables_color = Color::FromInt(value["variables_color"].GetInt64());
-
-    if (value.HasMember("functions_color") && value["functions_color"].IsInt64())
-        functions_color = Color::FromInt(value["functions_color"].GetInt64());
-
-    if (value.HasMember("units_color") && value["units_color"].IsInt64())
-        units_color = Color::FromInt(value["units_color"].GetInt64());
-
-    if (value.HasMember("shapes_color") && value["shapes_color"].IsInt64())
-        shapes_color = Color::FromInt(value["shapes_color"].GetInt64());
-
-    if (value.HasMember("error_marks_color") && value["error_marks_color"].IsInt64())
-        error_marks_color = Color::FromInt(value["error_marks_color"].GetInt64());
-
-    if (value.HasMember("formula_bg_color") && value["formula_bg_color"].IsInt64())
-        formula_bg_color = Color::FromInt(value["formula_bg_color"].GetInt64());
-
-    if (value.HasMember("bg_selection_color") && value["bg_selection_color"].IsInt64())
-        bg_selection_color = Color::FromInt(value["bg_selection_color"].GetInt64());
-    
     if (value.HasMember("include_documents") && value["include_documents"].IsArray())
         include_documents.FromJson(((const rapidjson::Value&)value["include_documents"]).GetArray(), alloc);
 }

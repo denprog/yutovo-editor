@@ -114,6 +114,7 @@ Element* CodeBlock::FromJson(Element* parent, Document* document, const rapidjso
 
 void CodeBlock::Draw() const
 {
+    window->DrawFillRect(GetAbsoluteRect(), document->config.formula_bg_color);
     if (document->config.code_block_border)
         window->DrawRect(GetAbsoluteRect(), code_format->border_color);
     Element::Draw();
@@ -163,6 +164,11 @@ void CodeBlock::UpdateDrawRect()
     Block::UpdateDrawRect();
     draw_rect.width += 2;
     draw_rect.height += 2;
+}
+
+Color CodeBlock::GetBackgroundColor()
+{
+    return document->config.formula_bg_color;
 }
 
 bool CodeBlock::GetTopCaretState(const int x, const int y, CaretState& caret_state, Selection* select)

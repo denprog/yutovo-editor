@@ -266,11 +266,11 @@ void CodeString::Draw() const
     if (gap == 0 && tabs.empty())
     {
         if (color2.first != -1)
-            window->DrawText(ToBasicString(str), format, r, color2.second, format->text_bg_color);
+            window->DrawText(ToBasicString(str), format, r, color2.second, document->config.formula_bg_color);
         if (color1.first != -1)
-            window->DrawText(ToBasicString(str.substr(0, color1.first)), format, r, color1.second, format->text_bg_color);
+            window->DrawText(ToBasicString(str.substr(0, color1.first)), format, r, color1.second, document->config.formula_bg_color);
         else
-            window->DrawText(ToBasicString(str), format, r, format->text_color, format->text_bg_color); //draw the string
+            window->DrawText(ToBasicString(str), format, r, format->text_color, document->config.formula_bg_color); //draw the string
         if (size != 0)
         {
             //draw text with selection
@@ -278,7 +278,7 @@ void CodeString::Draw() const
             int p = window->GetCharPos(str, format, start);
             std::u32string u_part = str.substr(start, size);
             window->DrawText(ToBasicString(u_part), format, Rect{r.left + p, r.top, r.width - p, r.height}, 
-                format->text_bg_color, document->config.bg_selection_color);
+                document->config.formula_bg_color, document->config.bg_selection_color);
         }
     }
     else
@@ -300,12 +300,12 @@ void CodeString::Draw() const
                 if (i >= start && i < start + size)
                 {
                     window->DrawText(ToBasicString(p), format, Rect{r.left + s.width, r.top, r.width - s.width, r.height}, 
-                        format->text_bg_color, document->config.bg_selection_color);
+                        document->config.formula_bg_color, document->config.bg_selection_color);
                 }
                 else
                 {
                     window->DrawText(ToBasicString(p), format, Rect{r.left + s.width, r.top, r.width - s.width, r.height}, 
-                        document->config.numbers_color, format->text_bg_color);
+                        document->config.numbers_color, document->config.formula_bg_color);
                 }
             }
         }
