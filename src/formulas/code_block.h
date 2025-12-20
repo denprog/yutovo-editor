@@ -37,6 +37,8 @@ public:
 
     virtual void UpdateDrawRect();
 
+    virtual Color GetBackgroundColor();
+
     virtual bool GetTopCaretState(const int x, const int y, CaretState& caret_state, Selection* select);
     virtual bool GetWordLeftCaretState(CaretState& caret_state, Selection* select);
 

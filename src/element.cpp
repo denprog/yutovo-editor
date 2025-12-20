@@ -630,6 +630,13 @@ void Element::GetMargin(int& left, int& top, int& right, int& bottom) const
     left = top = right = bottom = 0;
 }
 
+Color Element::GetBackgroundColor()
+{
+    if (parent)
+        return parent->GetBackgroundColor();
+    return Color::White();
+}
+
 bool Element::MouseLButtonHold(const int x, const int y, MouseHoldType& hold_type, ElementId& hold_id)
 {
     if (parent)

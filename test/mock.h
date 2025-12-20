@@ -60,7 +60,7 @@ public:
     MOCK_METHOD(int, GetSymbolSize, (const char32_t symbol, const int height, const std::string& family_name, Size& size, int& baseline), (override));
     MOCK_METHOD(void, PrepareSymbolsSizes, (const std::vector<SymbolsSizes>& symbols_sizes), (override));
 
-    MOCK_METHOD(void, ClearRect, (const int x1, const int y1, const int width, const int height), (override));
+    MOCK_METHOD(void, ClearRect, (const int x1, const int y1, const int width, const int height, const Color color), (override));
     MOCK_METHOD(int, GetFontAscent, (const StringFormatPtr), (override));
     MOCK_METHOD(void, ClearSurface, (), (override));
 

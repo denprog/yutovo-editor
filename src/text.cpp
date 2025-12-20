@@ -112,6 +112,11 @@ bool Text::Remake(bool with_elements)
     return false;
 }
 
+Color Text::GetBackgroundColor()
+{
+    return document->config.page_color;
+}
+
 void Text::UpdateRect(bool with_elements)
 {
     Block::UpdateRect(with_elements);
