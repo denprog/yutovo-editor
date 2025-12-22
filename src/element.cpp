@@ -1022,6 +1022,18 @@ void Element::GetLogicalElements(ElementType _type, std::vector<LogicalId>& _ele
         _elements.push_back(document->GetLogicalId(_el));
 }
 
+void Element::GetElementsAbove(const ElementId from_id, ElementType _type, std::vector<ElementId>& _elements)
+{
+    int p = yutovo::GetChildPos(id, from_id);
+    for (int i = p - 1; i >= 0; --i)
+    {
+        auto c = elements->Get(i);
+        if (c->type == _type)
+            _elements.push_back(c->id);
+        c->GetElements(_type, _elements);
+    }
+}
+
 void Element::GetElementsBelow(const ElementId from_id, ElementType _type, std::vector<ElementId>& _elements)
 {
     int p = yutovo::GetChildPos(id, from_id);

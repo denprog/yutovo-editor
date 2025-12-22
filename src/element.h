@@ -143,6 +143,7 @@ public:
     virtual int FindElement(const ElementId from_id, bool forward, const ElementType type);
     virtual void GetElements(ElementType _type, std::vector<ElementId>& _elements);
     virtual void GetLogicalElements(ElementType _type, std::vector<LogicalId>& _elements);
+    virtual void GetElementsAbove(const ElementId from_id, ElementType _type, std::vector<ElementId>& _elements);
     virtual void GetElementsBelow(const ElementId from_id, ElementType _type, std::vector<ElementId>& _elements);
     virtual ElementId FindParent(const ElementType _type);
 

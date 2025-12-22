@@ -417,7 +417,7 @@ void RealResult::PutResult(Result& result)
     }
     else
     {
-        document->RemoveErrorMarks(parent->parent->id);
+        document->RemoveErrorMarks(parent->parent->id, &eq->dependencies);
 
         if (result.values.empty())
             return;
@@ -681,7 +681,7 @@ void RationalResult::PutResult(Result& result)
     }
     else
     {
-        document->RemoveErrorMarks(parent->parent->id);
+        document->RemoveErrorMarks(parent->parent->id, &eq->dependencies);
         if (result.values.empty())
             return;
         
@@ -838,7 +838,7 @@ void ComplexResult::PutResult(Result& result)
     }
     else
     {
-        document->RemoveErrorMarks(parent->parent->id);
+        document->RemoveErrorMarks(parent->parent->id, &eq->dependencies);
 
         if (config.form == ComplexForm::Exponential || config.form == ComplexForm::Trigonometric)
         {
@@ -1082,7 +1082,7 @@ void ArrayRealResult::PutResult(Result& result)
     }
     else
     {
-        document->RemoveErrorMarks(parent->parent->id);
+        document->RemoveErrorMarks(parent->parent->id, &eq->dependencies);
 
         if (result.values.empty())
         {
@@ -1262,7 +1262,7 @@ void AutoResult::PutResult(Result& result)
         PutError(result.error); //put error message
     else
     {
-        document->RemoveErrorMarks(parent->parent->id);
+        document->RemoveErrorMarks(parent->parent->id, &eq->dependencies);
         //put element of returned result type
         ResultPtr result_row;
         switch (result.type)

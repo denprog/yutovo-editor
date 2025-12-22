@@ -3484,12 +3484,50 @@ void Document::AddErrorMark(const ElementId& _id, int start, int size)
         el->parent->elements->Get(yutovo::GetChildPos(el->id))->error_mark = true;
 }
 
-void Document::RemoveErrorMarks(const ElementId& parent_id)
+void Document::RemoveErrorMarks(const ElementId& parent_id, Dependencies* dependencies)
 {
     auto el = GetElement(parent_id);
     if (!el)
         return;
     el->error_mark = false;
+
+    if (dependencies) //remove error marks in the dependencies
+    {
+        std::vector<ElementId> elements;
+        auto c = FindElementOrParent(parent_id, ElementType::CODE_BLOCK);
+        c->GetElementsAbove(parent_id, ElementType::ASSIGNMENT, elements);
+        for (auto& _id : elements)
+        {
+            auto _el = GetElement(_id);
+            Assignment* s = dynamic_cast<Assignment*>(_el.get());
+            for (auto& _d : *dependencies)
+            {
+                if (s->Depends(_d))
+                    RemoveErrorMarks(s->id);
+            }
+        }
+
+        std::vector<ElementId> code_blocks;
+        text->GetElementsAbove(c->id, ElementType::CODE_BLOCK, code_blocks); //find all code blocks above
+        for (ElementId code_id : code_blocks)
+        {
+            auto _el = GetElement(code_id);
+            auto* code = dynamic_cast<CodeBlock*>(_el.get());
+            elements.clear();
+            code->GetElements(ElementType::ASSIGNMENT, elements);
+            for (auto& _id : elements)
+            {
+                auto _el = GetElement(_id);
+                Assignment* s = dynamic_cast<Assignment*>(_el.get());
+                for (auto& _d : *dependencies)
+                {
+                    if (s->Depends(_d))
+                        RemoveErrorMarks(s->id);
+                }
+            }
+        }
+    }
+
     if (!IsString(el))
     {
         for (int i = 0; i < el->elements->Count(); ++i)
