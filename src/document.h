@@ -358,7 +358,7 @@ public:
     ElementId GetFirstVisibleRow(ElementId paragraph_id);
 
     void AddErrorMark(const ElementId& _id, int start, int size);
-    void RemoveErrorMarks(const ElementId& parent_id);
+    void RemoveErrorMarks(const ElementId& parent_id, Dependencies* dependencies = nullptr);
     bool HasErrorMark(const ElementId& _id, int& start, int& size);
     bool HasErrorMarks(const ElementId& _id);
 

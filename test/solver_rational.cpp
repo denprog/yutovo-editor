@@ -451,6 +451,124 @@ TEST_F(SolverRationalTest, rational10)
         ) << ToBasicString(document.ToText());
 }
 
+//Check error mark
+TEST_F(SolverRationalTest, rational11)
+{
+    Start(600);
+
+    EXPECT_CALL(window_mock, Translate).WillRepeatedly([&](ElementId id, const std::u32string& str)
+        {
+            return str;
+        });
+    
+    document.InsertCode(false, true);
+    document.InsertString("x", true);
+    document.InsertAssignment(true);
+    document.InsertSquareRoot(true);
+    document.InsertString("2", true);
+    document.MoveCaretEnd(false);
+    document.InsertParagraph(true);
+    document.InsertString("x", true);
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(2s);
+    ASSERT_TRUE(document.ToText() == 
+        U"x=sqrt(2)\n"\
+        U"x=1.414"
+        ) << ToBasicString(document.ToText());
+    
+    auto el = document.FindByString({0}, U"1.414");
+    document.WaitTask(document.SetResultType(el->id, ResultType::RATIONAL, true));
+    std::this_thread::sleep_for(2s);
+    ASSERT_TRUE(document.ToText() == 
+        U"x=sqrt(2)\n"\
+        U"x=Unknown identifier"
+        ) << ToBasicString(document.ToText());
+
+    document.Undo();
+    document.WaitUndo();
+    document.WaitSolver();
+    std::this_thread::sleep_for(2s);
+    ASSERT_TRUE(document.ToText() == 
+        U"x=sqrt(2)\n"\
+        U"x=1.414"
+        ) << ToBasicString(document.ToText());
+    int start, size;
+    ASSERT_TRUE(!document.HasErrorMark({0}, start, size)) << ErrorMarks();
+}
+
+//Check error mark
+TEST_F(SolverRationalTest, rational12)
+{
+    Start(600);
+
+    EXPECT_CALL(window_mock, Translate).WillRepeatedly([&](ElementId id, const std::u32string& str)
+        {
+            return str;
+        });
+    
+    document.Load("../../test/tests/rational12.yut");
+    document.WaitLoad();
+    std::this_thread::sleep_for(4s);
+
+    auto el = document.FindByString({0}, U"0.471");
+    document.WaitTask(document.SetResultType(el->id, ResultType::RATIONAL, true));
+    std::this_thread::sleep_for(2s);
+    ASSERT_TRUE(document.ToText() == 
+        U"f(x)=sqrt((x)/(3))\n"\
+        U"f((2)/(3))=Unknown identifier"
+        ) << ToBasicString(document.ToText());
+
+    int start, size;
+    ASSERT_TRUE(document.HasErrorMark({0, 0, 0, 0, 0, 0, 0, 2}, start, size)) << ErrorMarks();
+
+    document.Undo();
+    document.WaitUndo();
+    document.WaitSolver();
+    std::this_thread::sleep_for(2s);
+    ASSERT_TRUE(document.ToText() == 
+        U"f(x)=sqrt((x)/(3))\n"\
+        U"f((2)/(3))=0.471"
+        ) << ToBasicString(document.ToText());
+    ASSERT_TRUE(!document.HasErrorMark({0, 0, 0, 0, 0, 0, 0, 2}, start, size)) << ErrorMarks();
+}
+
+//Check error mark
+TEST_F(SolverRationalTest, rational13)
+{
+    Start(600);
+
+    EXPECT_CALL(window_mock, Translate).WillRepeatedly([&](ElementId id, const std::u32string& str)
+        {
+            return str;
+        });
+    
+    document.Load("../../test/tests/rational13.yut");
+    document.WaitLoad();
+    std::this_thread::sleep_for(4s);
+
+    auto el = document.FindByString({0}, U"0.471");
+    document.WaitTask(document.SetResultType(el->id, ResultType::RATIONAL, true));
+    std::this_thread::sleep_for(2s);
+    ASSERT_TRUE(document.ToText() == 
+        U"f(x)=sqrt((x)/(3))\n"\
+        U"f((2)/(3))=Unknown identifier"
+        ) << ToBasicString(document.ToText());
+
+    int start, size;
+    ASSERT_TRUE(document.HasErrorMark({0, 0, 0, 0, 0, 0, 0, 2}, start, size)) << ErrorMarks();
+
+    document.Undo();
+    document.WaitUndo();
+    document.WaitSolver();
+    std::this_thread::sleep_for(2s);
+    ASSERT_TRUE(document.ToText() == 
+        U"f(x)=sqrt((x)/(3))\n"\
+        U"f((2)/(3))=0.471"
+        ) << ToBasicString(document.ToText());
+    ASSERT_TRUE(!document.HasErrorMark({0, 0, 0, 0, 0, 0, 0, 2}, start, size)) << ErrorMarks();
+}
+
 TEST_F(SolverRationalTest, units1)
 {
     Start(600);
