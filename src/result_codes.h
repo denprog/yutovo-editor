@@ -27,7 +27,8 @@ enum class IOResult
     UnsupportedVersion, //version is unsupported
     InputStreamError, //error on input stream
     OutputStreamError, //error on output stream
-    ConnectionError //error of connecting
+    ConnectionError, //error of connecting
+    PermissionDenied //read-only or other permission error
 };
 
 enum class CopyResult
