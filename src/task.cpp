@@ -1677,8 +1677,16 @@ bool SaveTask::Execute()
             }
             catch (const std::ios_base::failure& ex)
             {
-                window->OnSaveResult(id, IOResult::InputStreamError, document_id);
-                LOG_ERROR("Error saving file '{}': {}", filename, ex.what());
+                if (errno == EACCES || errno == EPERM)
+                {
+                    window->OnSaveResult(id, IOResult::PermissionDenied, document_id);
+                    LOG_ERROR("Error saving file '{}': Permission denied: {}", filename, ex.what());
+                }
+                else
+                {
+                    window->OnSaveResult(id, IOResult::InputStreamError, document_id);
+                    LOG_ERROR("Error saving file '{}': {}", filename, ex.what());
+                }
                 return false;
             }
         }
