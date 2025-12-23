@@ -2898,4 +2898,267 @@ TEST_F(FormulaTest, fonts10)
     ASSERT_TRUE(format.size == 18);
 }
 
+//Change font of a result
+TEST_F(FormulaTest, fonts11)
+{
+    Start(600);
+
+    document.InsertParagraph(true);
+    document.InsertCode(false, true);
+    document.WaitTask(document.InsertString("123", true));
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+    document.MoveCaretHome(false);
+    document.MoveCaretHome(false);
+    document.WaitTask(document.MoveCaretEnd(true));
+    document.WaitTask(document.ChangeStringFormat("Times New Roman", 22, false, false, false, false, false, false, Color::Black(), Color::White(), true));
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\"></span>"\
+            "</p>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mrow>"\
+                            "<mi>123</mi>"\
+                        "</mrow>"\
+                        "<mo>=</mo>"\
+                        "<mrow>"\
+                            "<mrow>"\
+                                "<mi>123.</mi>"\
+                            "</mrow>"\
+                        "</mrow>"\
+                    "</mrow>"\
+                "</math>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 1, 0, 1}, 
+        ElementSelectionState{ElementId{0}, 1, 1})) << document.GetEditorState().ToString();
+
+    auto el = document.FindByString({0}, U"123");
+    StringFormat format;
+    ASSERT_TRUE(document.GetStringFormat(el->id, format));
+    ASSERT_TRUE(format.size == 22);
+        
+    el = document.FindByString({0}, U"123.");
+    ASSERT_TRUE(document.GetStringFormat(el->id, format));
+    ASSERT_TRUE(format.size == 22);
+
+    document.Undo();
+    document.WaitUndo();
+    std::this_thread::sleep_for(200ms);
+    document.WaitSolver();
+
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\"></span>"\
+            "</p>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mrow>"\
+                            "<mi>123</mi>"\
+                        "</mrow>"\
+                        "<mo>=</mo>"\
+                        "<mrow>"\
+                            "<mrow>"\
+                                "<mi>123.</mi>"\
+                            "</mrow>"\
+                        "</mrow>"\
+                    "</mrow>"\
+                "</math>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 1, 0, 1}, 
+        ElementSelectionState{ElementId{0}, 1, 1})) << document.GetEditorState().ToString();
+
+    el = document.FindByString({0}, U"123");
+    ASSERT_TRUE(document.GetStringFormat(el->id, format));
+    ASSERT_TRUE(format.size == 14);
+        
+    el = document.FindByString({0}, U"123.");
+    ASSERT_TRUE(document.GetStringFormat(el->id, format));
+    ASSERT_TRUE(format.size == 14);
+}
+
+//Don't change font of a part of result
+TEST_F(FormulaTest, fonts12)
+{
+    Start(600);
+
+    document.InsertParagraph(true);
+    document.InsertCode(false, true);
+    document.WaitTask(document.InsertString("1234", true));
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+    document.MoveCaretRight(false);
+    document.MoveCaretRight(true);
+    document.WaitTask(document.MoveCaretRight(true));
+    document.WaitTask(document.ChangeStringFormat("Times New Roman", 22, false, false, false, false, false, false, Color::Black(), Color::White(), true));
+
+    auto el = document.FindByString({0}, U"1234");
+    StringFormat format;
+    ASSERT_TRUE(document.GetStringFormat(el->id, format));
+    ASSERT_TRUE(format.size == 14);
+        
+    el = document.FindByString({0}, U"1234.");
+    ASSERT_TRUE(document.GetStringFormat(el->id, format));
+    ASSERT_TRUE(format.size == 14);
+
+    document.Undo();
+    document.WaitUndo();
+    std::this_thread::sleep_for(200ms);
+
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\"></span>"\
+            "</p>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mi>1234</mi>"\
+                    "</mrow>"\
+                "</math>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+
+    el = document.FindByString({0}, U"1234");
+    ASSERT_TRUE(document.GetStringFormat(el->id, format));
+    ASSERT_TRUE(format.size == 14);
+}
+
+//Change font of an equation and check result font
+TEST_F(FormulaTest, fonts13)
+{
+    Start(600);
+
+    document.InsertParagraph(true);
+    document.InsertCode(false, true);
+    document.InsertString("1234", true);
+    document.InsertPlus(true);
+    document.InsertString("45", true);
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(1s);
+
+    document.MoveCaretHome(false);
+    document.WaitTask(document.MoveCaretEnd(true));
+    document.WaitTask(document.ChangeStringFormat("Times New Roman", 22, true, false, false, false, false, false, Color::Black(), Color::White(), true));
+
+    document.MoveCaretHome(false);
+    document.MoveCaretRight(false);
+    document.WaitTask(document.InsertString("5", true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(2s);
+
+    auto el = document.FindByString({0}, U"51279.");
+    StringFormat format;
+    ASSERT_TRUE(document.GetStringFormat(el->id, format));
+    ASSERT_TRUE(format.size == 22);
+    ASSERT_TRUE(format.bold);
+
+    document.Undo();
+    document.WaitUndo();
+    document.WaitSolver();
+    std::this_thread::sleep_for(2s);
+    ASSERT_TRUE(document.ToText() == 
+        U"\n"
+        U"1234+45=1279."
+        ) << ToBasicString(document.ToText());
+
+    document.Undo();
+    document.WaitUndo();
+    document.WaitSolver();
+    std::this_thread::sleep_for(2s);
+    ASSERT_TRUE(document.ToText() == 
+        U"\n"
+        U"1234+45=1279."
+        ) << ToBasicString(document.ToText());
+
+    el = document.FindByString({0}, U"1279.");
+    ASSERT_TRUE(document.GetStringFormat(el->id, format));
+    ASSERT_TRUE(format.size == 14);
+    ASSERT_TRUE(format.family == "FreeMono");
+    ASSERT_TRUE(!format.bold);
+
+    el = document.FindByString({0}, U"1234");
+    ASSERT_TRUE(document.GetStringFormat(el->id, format));
+    ASSERT_TRUE(format.size == 14);
+    ASSERT_TRUE(format.family == "FreeMono");
+    ASSERT_TRUE(!format.bold);
+}
+
+//Change font of an equation and check result font
+TEST_F(FormulaTest, fonts14)
+{
+    Start(600);
+
+    document.InsertParagraph(true);
+    document.InsertCode(false, true);
+    document.InsertString("1234", true);
+    document.InsertPlus(true);
+    document.InsertString("45", true);
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(1s);
+
+    document.MoveCaretEnd(false);
+    document.InsertParagraph(true);
+    document.InsertString("88", true);
+    document.MoveCaretHome(false);
+    document.MoveCaretUp(false);
+    document.WaitTask(document.MoveCaretEnd(true));
+    document.WaitTask(document.ChangeStringFormat("Times New Roman", 22, true, false, false, false, false, false, Color::Black(), Color::White(), true));
+
+    document.MoveCaretHome(false);
+    document.MoveCaretRight(false);
+    document.WaitTask(document.InsertString("5", true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(2s);
+
+    auto el = document.FindByString({0}, U"51279.");
+    StringFormat format;
+    ASSERT_TRUE(document.GetStringFormat(el->id, format));
+    ASSERT_TRUE(format.size == 22);
+    ASSERT_TRUE(format.bold);
+
+    document.Undo();
+    document.WaitUndo();
+    document.WaitSolver();
+    std::this_thread::sleep_for(2s);
+    ASSERT_TRUE(document.ToText() == 
+        U"\n"
+        U"1234+45=1279.\n"
+        U"88"
+        ) << ToBasicString(document.ToText());
+
+    document.Undo();
+    document.WaitUndo();
+    document.WaitSolver();
+    std::this_thread::sleep_for(2s);
+    ASSERT_TRUE(document.ToText() == 
+        U"\n"
+        U"1234+45=1279.\n"
+        U"88"
+        ) << ToBasicString(document.ToText());
+
+    el = document.FindByString({0}, U"1279.");
+    ASSERT_TRUE(document.GetStringFormat(el->id, format));
+    ASSERT_TRUE(format.size == 14);
+    ASSERT_TRUE(format.family == "FreeMono");
+    ASSERT_TRUE(!format.bold);
+
+    el = document.FindByString({0}, U"1234");
+    ASSERT_TRUE(document.GetStringFormat(el->id, format));
+    ASSERT_TRUE(format.size == 14);
+    ASSERT_TRUE(format.family == "FreeMono");
+    ASSERT_TRUE(!format.bold);
+}
+
 }

@@ -42,7 +42,11 @@ bool Formula::ChangeParagraphFormat(const ParagraphFormatPtr format, bool with_u
 
 bool Formula::ChangeStringFormat(const StringFormatPtr format, bool with_undo, ElementId& changed_element)
 {
-    formula_format->string_format = format;
+    if (with_undo)
+        document->StoreUndo(id);
+    formula_format = document->formula_formats->GetFormat(formula_format->name, format, formula_format->inter_spacing, 
+        formula_format->left_margin, formula_format->top_margin, formula_format->right_margin, formula_format->bottom_margin, 
+        formula_format->color, formula_format->bg_color, formula_format->bg_selection_color);
     changed_element = id;
     document->CaretMoved();
     return true;
