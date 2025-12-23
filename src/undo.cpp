@@ -268,13 +268,13 @@ Element* UndoFormula::Restore(Document* document, Element* parent)
     switch (type)
     {
     case ElementType::PLUS:
-        el = new Plus(parent);
+        el = parent ? new Plus(parent) : new Plus(document);
         break;
     case ElementType::MINUS:
-        el = new Minus(parent);
+        el = parent ? new Minus(parent) : new Minus(document);
         break;
     case ElementType::MULTIPLY:
-        el = new Multiply(parent);
+        el = parent ? new Multiply(parent) : new Multiply(document);
         break;
     case ElementType::POWER:
     case ElementType::DIVISION:

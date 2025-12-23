@@ -784,24 +784,24 @@ TEST_F(FormulaTest, graphs13)
     document.WaitTask(document.InsertGraph(true));
     auto el = document.FindByType({0}, ElementType::GRAPH_LINE);
     GraphLine* graph = (GraphLine*)el.get();
-    document.InsertString("10", true);
+    document.WaitTask(document.InsertString("10", true));
     document.MoveCaretRight(false);
-    document.InsertString("ln", true);
+    document.WaitTask(document.InsertString("ln", true));
     document.InsertOpenRoundBracket(true);
-    document.InsertString("yy", true);
+    document.WaitTask(document.InsertString("yy", true));
     document.InsertCloseRoundBracket(true);
     document.MoveCaretRight(false);
     document.InsertMinus(false);
-    document.InsertString("10", true);
+    document.WaitTask(document.InsertString("10", true));
     document.MoveCaretRight(false);
     document.InsertMinus(false);
-    document.InsertString("2", true);
+    document.WaitTask(document.InsertString("2", true));
     document.MoveCaretRight(false);
-    document.InsertString("yy", true);
+    document.WaitTask(document.InsertString("yy", true));
     document.MoveCaretRight(false);
     document.WaitTask(document.InsertString("5", true));
     document.WaitSolver();
-    std::this_thread::sleep_for(3s);
+    std::this_thread::sleep_for(4s);
 
     const GraphLine::Plot& plot = graph->plots[0];
     auto it = std::find_if(plot.x.begin(), plot.x.end(), 
