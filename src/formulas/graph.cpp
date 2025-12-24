@@ -100,11 +100,16 @@ bool Graph::Remake(bool with_elements)
     GetYTop()->rect.Move(x_left - GetYTop()->rect.width, GetShape()->rect.top);
     GetExpression()->rect.Move(x_left - GetExpression()->rect.width, GetShape()->rect.height / 2 - GetExpression()->rect.height / 2);
     GetYBottom()->rect.Move(x_left - GetYBottom()->rect.width, GetShape()->rect.GetBottom() - GetYBottom()->rect.height);
-    GetShape()->rect.Move(x_left + 2, 0);
-    GetXLeft()->rect.Move(GetShape()->rect.left, GetShape()->rect.GetBottom() + 2);
-    GetVariable()->rect.Move(x_left + 2 + GetShape()->rect.width / 2 - GetVariable()->rect.width / 2, GetShape()->rect.GetBottom() + 2);
-    GetXRight()->rect.Move(GetShape()->rect.GetRight() - GetXRight()->rect.width, GetShape()->rect.GetBottom() + 2);
-
+    if (GetXLeft()->rect.width + GetVariable()->rect.width / 2 > GetShape()->rect.width / 2)
+        GetShape()->rect.Move(x_left + 2 + ((GetXLeft()->rect.width + GetVariable()->rect.width / 2) - GetShape()->rect.width / 2), 0);
+    else
+        GetShape()->rect.Move(x_left + 2, 0);
+    GetXLeft()->rect.Move(x_left, GetShape()->rect.GetBottom() + 2);
+    GetVariable()->rect.Move(GetShape()->rect.left + 2 + GetShape()->rect.width / 2 - GetVariable()->rect.width / 2, GetShape()->rect.GetBottom() + 2);
+    if (GetVariable()->rect.width / 2 + GetXRight()->rect.width > GetShape()->rect.width / 2 - 2)
+        GetXRight()->rect.Move(GetVariable()->rect.GetRight() + 2, GetShape()->rect.GetBottom() + 2);
+    else
+        GetXRight()->rect.Move(GetShape()->rect.GetRight() - GetXRight()->rect.width, GetShape()->rect.GetBottom() + 2);
     baseline = GetShape()->rect.GetBottom() - GetShape()->rect.height / 2;
 
     UpdateRect();
