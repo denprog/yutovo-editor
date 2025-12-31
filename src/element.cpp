@@ -1980,11 +1980,14 @@ void Elements::UpdateIds()
                 if (p > 0 && i == 0)
                 {
                     auto row = el->parent->parent->elements->Get(p - 1);
-                    auto last = row->elements->Get(row->elements->Count() - 1);
-                    if (last && last->CanMerge(el))
-                        el->logical_id = last->logical_id;
-                    else
-                        el->logical_id.push_back(yutovo::GetChildPos(last->logical_id) + 1);
+                    if (row->elements->Count() > 0)
+                    {
+                        auto last = row->elements->Get(row->elements->Count() - 1);
+                        if (last && last->CanMerge(el))
+                            el->logical_id = last->logical_id;
+                        else
+                            el->logical_id.push_back(yutovo::GetChildPos(last->logical_id) + 1);
+                    }
                 }
                 else if (i > 0)
                 {

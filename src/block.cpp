@@ -356,7 +356,7 @@ bool Block::DeleteElements(bool left, bool with_undo, ElementId& changed_element
             {
                 auto row = source_p->elements->Get(i);
                 for (uint j = 0; j < row->elements->Count();)
-                    dest_row->elements->Move(row->elements->Get(j), dest_row->elements->Count());
+                    dest_row->elements->Move(row->elements->Get(0), dest_row->elements->Count());
             }
         }
     }

@@ -3988,4 +3988,102 @@ TEST_F(ParagraphTest, delete26)
     ASSERT_TRUE(document.GetElement({0})->elements->Count() == 31);
 }
 
+//Delete a paragraph after a code block
+TEST_F(ParagraphTest, delete27)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.InsertString("5555555555555555", true);
+    document.MoveCaretToDocumentEnd(false);
+
+    document.InsertParagraph(true);
+    document.InsertCode(false, true);
+    document.InsertString("5555555555555555", true);
+    document.MoveCaretToDocumentEnd(false);
+
+    document.InsertCode(false, true);
+    document.InsertString("5555555555555555", true);
+    document.MoveCaretToDocumentEnd(false);
+
+    document.InsertCode(false, true);
+    document.InsertString("5555555555555555", true);
+    document.MoveCaretToDocumentEnd(false);
+
+    document.InsertCode(false, true);
+    document.InsertString("5555555555555555", true);
+    document.MoveCaretToDocumentBegin(false);
+    document.WaitTask(document.MoveCaretEnd(false));
+
+    document.WaitTask(document.DeleteElements(false, true));
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mi>5555555555555555</mi>"\
+                    "</mrow>"\
+                "</math>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mi>5555555555555555</mi>"\
+                    "</mrow>"\
+                "</math>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mi>5555555555555555</mi>"\
+                    "</mrow>"\
+                "</math>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mi>5555555555555555</mi>"\
+                    "</mrow>"\
+                "</math>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mi>5555555555555555</mi>"\
+                    "</mrow>"\
+                "</math>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+
+    document.Undo();
+    document.WaitUndo();
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mi>5555555555555555</mi>"\
+                    "</mrow>"\
+                "</math>"\
+            "</p>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mi>5555555555555555</mi>"\
+                    "</mrow>"\
+                "</math>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mi>5555555555555555</mi>"\
+                    "</mrow>"\
+                "</math>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mi>5555555555555555</mi>"\
+                    "</mrow>"\
+                "</math>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mi>5555555555555555</mi>"\
+                    "</mrow>"\
+                "</math>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+}
+
 }
