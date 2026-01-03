@@ -83,7 +83,7 @@ struct UndoLink : UndoElement
 
 struct UndoParagraph : UndoElement
 {
-    UndoParagraph(ParagraphFormatPtr _format, const std::u32string& _marker, const StringFormatPtr& _marker_format);
+    UndoParagraph(ParagraphFormatPtr _format, StringFormatPtr _current_string_format, const std::u32string& _marker, const StringFormatPtr& _marker_format);
 
     virtual bool operator==(const UndoParagraph& el) const;
     virtual bool operator==(const Paragraph& el) const;
@@ -91,6 +91,7 @@ struct UndoParagraph : UndoElement
     virtual Element* Restore(Document* document, Element* parent);
 
     ParagraphFormatPtr format;
+    StringFormatPtr current_string_format;
     std::u32string marker;
     StringFormatPtr marker_format;
 };
@@ -131,7 +132,7 @@ struct UndoCodeRow : UndoElement
 
 struct UndoCodeParagraph : UndoParagraph
 {
-    UndoCodeParagraph(ParagraphFormatPtr _format, const std::u32string& _marker, const StringFormatPtr& _marker_format);
+    UndoCodeParagraph(ParagraphFormatPtr _format, StringFormatPtr _current_string_format, const std::u32string& _marker, const StringFormatPtr& _marker_format);
 
     virtual bool operator==(const UndoCodeParagraph& el) const;
     virtual bool operator==(const CodeParagraph& el) const;

@@ -168,9 +168,11 @@ Element* UndoLink::Restore(Document* document, Element* parent)
 
 //UndoParagraph
 
-UndoParagraph::UndoParagraph(ParagraphFormatPtr _format, const std::u32string& _marker, const StringFormatPtr& _marker_format) :
+UndoParagraph::UndoParagraph(ParagraphFormatPtr _format, StringFormatPtr _current_string_format, const std::u32string& _marker, 
+    const StringFormatPtr& _marker_format) :
     UndoElement(ElementType::PARAGRAPH),
     format(_format),
+    current_string_format(_current_string_format),
     marker(_marker),
     marker_format(_marker_format)
 {
@@ -198,7 +200,7 @@ Element* UndoParagraph::Restore(Document* document, Element* parent)
     else
         p = new Paragraph(document);
     p->format = format;
-    p->current_string_format = format->default_string_format;
+    p->current_string_format = current_string_format;
     p->marker = marker;
     p->marker_format = marker_format;
     auto r = p->elements->Get(0);
@@ -406,8 +408,9 @@ Element* UndoCodeRow::Restore(Document* document, Element* parent)
 
 //UndoCodeParagraph
 
-UndoCodeParagraph::UndoCodeParagraph(ParagraphFormatPtr _format, const std::u32string& _marker, const StringFormatPtr& marker_format) :
-    UndoParagraph(_format, _marker, marker_format)
+UndoCodeParagraph::UndoCodeParagraph(ParagraphFormatPtr _format, StringFormatPtr _current_string_format, const std::u32string& _marker, 
+    const StringFormatPtr& marker_format) :
+    UndoParagraph(_format, _current_string_format, _marker, marker_format)
 {
     type = ElementType::CODE_PARAGRAPH;
 }
@@ -921,7 +924,7 @@ UndoElementPtr UndoBase::StoreElement(const LogicalId id, ElementPtr el)
     case ElementType::PARAGRAPH:
         {
             Paragraph* p = (Paragraph*)el.get();
-            undo_element.reset(new UndoParagraph(p->format, p->marker, p->marker_format));
+            undo_element.reset(new UndoParagraph(p->format, p->current_string_format, p->marker, p->marker_format));
             for (int i = 0; i < el->elements->Count(); ++i)
             {
                 ElementPtr row = el->elements->Get(i);
@@ -970,7 +973,7 @@ UndoElementPtr UndoBase::StoreElement(const LogicalId id, ElementPtr el)
     case ElementType::CODE_PARAGRAPH:
         {
             CodeParagraph* p = (CodeParagraph*)el.get();
-            undo_element.reset(new UndoCodeParagraph(p->format, p->marker, p->marker_format));
+            undo_element.reset(new UndoCodeParagraph(p->format, p->current_string_format, p->marker, p->marker_format));
             for (int i = 0; i < el->elements->Count(); ++i)
             {
                 ElementPtr row = el->elements->Get(i);

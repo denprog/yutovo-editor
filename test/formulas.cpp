@@ -3161,4 +3161,97 @@ TEST_F(FormulaTest, fonts14)
     ASSERT_TRUE(!format.bold);
 }
 
+//Don't set color after selection
+TEST_F(FormulaTest, fonts15)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.InsertString("123", true);
+    document.InsertParagraph(true);
+    document.InsertString("4567", true);
+    document.MoveCaretUp(false);
+    document.WaitTask(document.MoveCaretHome(true));
+    document.WaitTask(document.SetColor(Color::Red()));
+    auto s = document.FindByString({0}, U"123");
+    ASSERT_TRUE(s->type == ElementType::CODE_STRING && ((CodeString*)s.get())->GetStringFormat()->text_color == Color::Black());
+
+    document.Undo();
+    document.WaitUndo();
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"white-space:nowrap; display:inline-block;line-height:2;vertical-align:top;\">"
+                    "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                        "<mrow>"\
+                            "<mi>123</mi>"\
+                        "</mrow>"\
+                    "</math>"\
+                    "<br>"\
+                    "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                        "<mrow>"\
+                            "<mi></mi>"\
+                        "</mrow>"\
+                    "</math>"\
+                "</span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+}
+
+//Check font after solving when caret is inside a string with a different font
+TEST_F(FormulaTest, fonts16)
+{
+    Start(600);
+
+    document.WaitTask(document.SetLocale(yutovo_calculator::Language::Russian, true));
+    document.InsertCode(false, true);
+    document.InsertString("123", true);
+    document.InsertParagraph(true);
+    document.InsertString("7", true);
+    document.InsertString(" ", true);
+    document.InsertString("фут", true);
+    document.InsertSubscript(true);
+    document.InsertString("us", true);
+    document.MoveCaretRight(false);
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(1s);
+
+    auto s = document.FindByString({0}, U"7.");
+    ASSERT_TRUE(s->type == ElementType::CODE_STRING && ((CodeString*)s.get())->GetStringFormat()->size == 14);
+
+    document.MoveCaretUp(false);
+    document.WaitTask(document.MoveCaretHome(true));
+    document.WaitTask(document.SetFontSize(20));
+    document.WaitTask(document.MoveCaretRight(false));
+    document.WaitTask(document.ReSolve(ElementId{}));
+    document.WaitSolver();
+    std::this_thread::sleep_for(1s);
+
+    s = document.FindByString(s->parent->id, U"us");
+    ASSERT_TRUE(((CodeString*)s.get())->GetStringFormat()->size == 12) << ((CodeString*)s.get())->GetStringFormat()->size;
+}
+
+//Graph should not recalculate because of reformating paragraph
+TEST_F(FormulaTest, fonts17)
+{
+    Start(700);
+
+    document.Load("../../test/tests/fonts17.yut");
+    document.WaitLoad();
+    std::this_thread::sleep_for(2s);
+
+    document.WaitTask(document.MoveCaretRight(false));
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(1s);
+
+    auto s = document.FindByString({0}, U"7.");
+    ASSERT_TRUE(s->type == ElementType::CODE_STRING && ((CodeString*)s.get())->GetStringFormat()->size == 14) << 
+        ((CodeString*)s.get())->GetStringFormat()->size;
+    s = document.FindByString(s->parent->id, U"us");
+    ASSERT_TRUE(((CodeString*)s.get())->GetStringFormat()->size == 12) << ((CodeString*)s.get())->GetStringFormat()->size;
+}
+
 }

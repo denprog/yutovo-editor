@@ -460,12 +460,17 @@ bool Paragraph::ChangeParagraphFormat(const ParagraphFormatPtr _format, bool wit
     current_string_format = format->default_string_format;
     changed_element = id;
     document->CaretMoved();
-    
     return true;
 }
 
 bool Paragraph::ChangeStringFormat(const StringFormatPtr _format, bool with_undo, ElementId& changed_element)
 {
+    if (*current_string_format == *_format)
+        return false;
+
+    if (with_undo)
+        document->StoreUndo(id);
+
     format->default_string_format = _format;
     current_string_format = _format;
     changed_element = id;

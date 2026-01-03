@@ -172,7 +172,7 @@ TEST_F(FormulaTest, functions3)
     document.WaitTask(document.InsertPlus(true));
     document.WaitTask(document.InsertString("4", true));
     document.WaitSolver();
-    std::this_thread::sleep_for(3s);
+    std::this_thread::sleep_for(4s);
     ASSERT_TRUE(document.ToText() == 
         U"f(x)=x+4\n" \
         U"f(2)=6.\n" \

@@ -16,7 +16,7 @@ namespace yutovo
 Formula::Formula(Element* _parent) : 
     Element(_parent)
 {
-    if (document)
+    if (document && document->FindCodeBlock(parent->id) == 0)
         document->GetCurrentFormulaFormat(formula_format);
     else
         formula_format = GetFormulaFormat();
@@ -42,6 +42,8 @@ bool Formula::ChangeParagraphFormat(const ParagraphFormatPtr format, bool with_u
 
 bool Formula::ChangeStringFormat(const StringFormatPtr format, bool with_undo, ElementId& changed_element)
 {
+    if (*formula_format->string_format == *format)
+        return false;
     if (with_undo)
         document->StoreUndo(id);
     formula_format = document->formula_formats->GetFormat(formula_format->name, format, formula_format->inter_spacing, 

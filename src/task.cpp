@@ -769,6 +769,7 @@ bool ChangeStringFormatTask::Execute()
     auto get_string_format = 
         [&](ElementPtr el)
         {
+            bool c = document->FindCodeBlock(el->id) != 0; //don't set colors for formulas
             StringFormat f = *el->GetStringFormat();
             if (set_family)
                 f.family = format->family;
@@ -782,9 +783,9 @@ bool ChangeStringFormatTask::Execute()
                 f.underline = format->underline;
             if (set_strikethrough)
                 f.strikethrough = format->strikethrough;
-            if (set_text_color)
+            if (set_text_color && !c)
                 f.text_color = format->text_color;
-            if (set_text_bg_color)
+            if (set_text_bg_color && !c)
                 f.text_bg_color = format->text_bg_color;
             return document->GetStringFormat(f.family, f.size, f.bold, f.italic, f.underline, f.strikethrough, f.subscript, f.superscript, 
                 f.text_color, f.text_bg_color);
