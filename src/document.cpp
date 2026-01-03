@@ -1744,8 +1744,7 @@ void Document::UpdateFormats()
     {
         current_string_format = string_formats->GetFormat(f);
         window->OnFormatChanged(MakeEditorState());
-
-        if (el->type == ElementType::CODE_STRING)
+        if (FindCodeBlock(c.id) != 0)
             ChangeCurrentFormulaFormat(current_string_format);
     }
     ParagraphFormat p;

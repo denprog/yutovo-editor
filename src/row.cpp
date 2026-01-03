@@ -557,6 +557,7 @@ bool Row::ChangeStringFormat(const StringFormatPtr format, bool with_undo, Eleme
 {
     Element::ChangeStringFormat(format, with_undo, changed_element);
     
+    bool changed = false;
     SelectionState s = selection->GetState();
     for (auto& t : s.state)
     {
@@ -568,7 +569,8 @@ bool Row::ChangeStringFormat(const StringFormatPtr format, bool with_undo, Eleme
         if (el)
         {
             el->SplitAt(t.size);
-            el->ChangeStringFormat(format, with_undo, changed_element);
+            if (el->ChangeStringFormat(format, with_undo, changed_element) && !changed)
+                changed = true;
         }
     }
 
@@ -577,7 +579,7 @@ bool Row::ChangeStringFormat(const StringFormatPtr format, bool with_undo, Eleme
 #ifdef DEBUG
     to_str = ToText();
 #endif
-    return true;
+    return changed;
 }
 
 bool Row::GetBeginCaretState(CaretState& caret_state, Selection* select)

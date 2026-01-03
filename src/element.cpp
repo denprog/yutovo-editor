@@ -302,13 +302,14 @@ bool Element::DeleteElements(bool left, bool with_undo, ElementId& changed_eleme
 
 bool Element::ChangeStringFormat(const StringFormatPtr format, bool with_undo, ElementId& changed_element)
 {
+    bool changed = false;
     for (uint i = 0; i < elements->Count(); ++i)
     {
         auto el = elements->Get(i);
-        if (!el->ChangeStringFormat(format, with_undo, changed_element))
-            return false;
+        if (el->ChangeStringFormat(format, with_undo, changed_element) && !changed)
+            changed = true;
     }
-    return true;
+    return changed;
 }
 
 bool Element::ChangeParagraphFormat(const ParagraphFormatPtr format, bool with_undo, ElementId& changed_element)

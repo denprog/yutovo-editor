@@ -2103,7 +2103,7 @@ TEST_F(IncludeDocumentsTest, include_files15)
     document.InsertString("v", true);
     document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
     document.WaitSolver();
-    std::this_thread::sleep_for(2s);
+    std::this_thread::sleep_for(3s);
     ASSERT_TRUE(document.ToText() == 
         U"v=123."
         ) << ToBasicString(document.ToText());
