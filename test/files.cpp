@@ -2109,4 +2109,82 @@ TEST_F(IncludeDocumentsTest, include_files15)
         ) << ToBasicString(document.ToText());
 }
 
+//Reload document that includes another document
+TEST_F(IncludeDocumentsTest, include_files16)
+{
+    Start(600);
+
+    EXPECT_CALL(window_mock, OnLoadInclude).WillOnce([&](const std::string& file_name, const int document_id)
+        {
+            document.LoadInclude(file_name);
+            std::this_thread::sleep_for(400ms);
+        });
+
+    EXPECT_CALL(window_mock, Translate).WillRepeatedly([&](ElementId id, const std::u32string& str)
+        {
+            return str;
+        });
+
+    document.Load("../../test/tests/include_files16_2.yut");
+    document.WaitLoad();
+    std::this_thread::sleep_for(4s);
+    ASSERT_TRUE(document.ToText() == 
+        U"t=234\n"\
+        U"d=234."
+        ) << ToBasicString(document.ToText());
+
+    document.WaitTask(document.ReSolve(ElementId{}));
+    document.WaitSolver();
+    std::this_thread::sleep_for(2s);
+    ASSERT_TRUE(document.ToText() == 
+        U"t=234\n"\
+        U"d=234."
+        ) << ToBasicString(document.ToText());
+}
+
+//Include document with an array
+TEST_F(IncludeDocumentsTest, include_files17)
+{
+    Start(600);
+
+    EXPECT_CALL(window_mock, OnLoadInclude).WillOnce([&](const std::string& file_name, const int document_id)
+        {
+            document.LoadInclude(file_name);
+            std::this_thread::sleep_for(400ms);
+        });
+        
+    EXPECT_CALL(window_mock, Translate).WillRepeatedly([&](ElementId id, const std::u32string& str)
+        {
+            return str;
+        });
+
+    document.Load("../../test/tests/include_files17_2.yut");
+    document.WaitLoad();
+    std::this_thread::sleep_for(4s);
+    ASSERT_TRUE(document.ToText() == 
+        U"t=1234\n"\
+        U"d=2468."
+        ) << ToBasicString(document.ToText());
+
+    document.MoveCaretToDocumentBegin(false);
+    document.MoveCaretRight(false);
+    document.MoveCaretEnd(false);
+    document.MoveCaretLeft(false);
+    document.WaitTask(document.InsertString("5", true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(2s);
+    ASSERT_TRUE(document.ToText() == 
+        U"t=12345\n"\
+        U"d=24690."
+        ) << ToBasicString(document.ToText());
+
+    document.WaitTask(document.ReSolve(ElementId{}));
+    document.WaitSolver();
+    std::this_thread::sleep_for(2s);
+    ASSERT_TRUE(document.ToText() == 
+        U"t=12345\n"\
+        U"d=24690."
+        ) << ToBasicString(document.ToText());
+}
+
 }
