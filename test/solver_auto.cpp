@@ -2607,4 +2607,47 @@ TEST_F(SolverAutoTest, arrays1)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 1})) << document.GetEditorState().ToString();
 }
 
+//Solve with a list
+TEST_F(SolverAutoTest, lists1)
+{
+    Start(600);
+    
+    document.InsertCode(false, true);
+    EXPECT_CALL(window_mock, Translate).WillRepeatedly([&](ElementId id, const std::u32string& str)
+        {
+            return str;
+        });
+
+    document.Load("../../test/tests/lists1.yut");
+    document.WaitLoad();
+    document.WaitSolver();
+    std::this_thread::sleep_for(4s);
+    ASSERT_TRUE(document.ToText() == 
+        U"металлы=\"серебро\",\"медь\",\"алюминий\"\n"\
+        U"ρ{серебро}=0.0155мкОм*м\n"\
+        U"ρ{медь}=0.0175мкОм*м\n"\
+        U"ρ{алюминий}=0.027мкОм*м\n"\
+        U"проводник=\"алюминий\"\n"\
+        U"длина=1м\n"\
+        U"сечение=1pow(мм,2)\n"\
+        U"сопротивление=ρ{проводник}*(длина)/(сечение)\n"\
+        U"сопротивление=27.мОм"\
+        ) << ToBasicString(document.ToText());
+    
+    document.WaitTask(document.DeleteElements(true, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(2s);
+    ASSERT_TRUE(document.ToText() == 
+        U"металлы=\"серебро\",\"медь\",\"алюминий\"\n"\
+        U"ρ{серебро}=0.0155мкОм*м\n"\
+        U"ρ{медь}=0.0175мкОм*м\n"\
+        U"ρ{алюминий}=0.027мкОм*м\n"\
+        U"проводник=\"люминий\"\n"\
+        U"длина=1м\n"\
+        U"сечение=1pow(мм,2)\n"\
+        U"сопротивление=ρ{проводник}*(длина)/(сечение)\n"\
+        U"сопротивление=Unknown identifier"\
+        ) << ToBasicString(document.ToText());
+}
+
 }

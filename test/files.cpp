@@ -2187,4 +2187,59 @@ TEST_F(IncludeDocumentsTest, include_files17)
         ) << ToBasicString(document.ToText());
 }
 
+//Include document with a list and a string variable
+TEST_F(IncludeDocumentsTest, include_files18)
+{
+    Start(600);
+
+    EXPECT_CALL(window_mock, OnLoadInclude).WillOnce([&](const std::string& file_name, const int document_id)
+        {
+            document.LoadInclude(file_name);
+            std::this_thread::sleep_for(400ms);
+        });
+        
+    EXPECT_CALL(window_mock, Translate).WillRepeatedly([&](ElementId id, const std::u32string& str)
+        {
+            return str;
+        });
+
+    document.Load("../../test/tests/include_files18_2.yut");
+    document.WaitLoad();
+    document.WaitSolver();
+    std::this_thread::sleep_for(4s);
+    ASSERT_TRUE(document.ToText() == 
+        U"проводник=\"алюминий\"\n"\
+        U"длина=1м\n"\
+        U"сечение=1pow(мм,2)\n"\
+        U"сопротивление=27.мОм"\
+        ) << ToBasicString(document.ToText());
+
+    document.MoveCaretToDocumentBegin(false);
+    document.MoveCaretRight(false);
+    document.MoveCaretRight(false);
+    document.MoveCaretWordRight(false);
+    for (int i = 0; i < 4; ++i)
+        document.MoveCaretRight(false);
+    document.WaitTask(document.DeleteElements(true, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(2s);
+    ASSERT_TRUE(document.ToText() == 
+        U"проводник=\"люминий\"\n"\
+        U"длина=1м\n"\
+        U"сечение=1pow(мм,2)\n"\
+        U"сопротивление=Unknown identifier"\
+        ) << ToBasicString(document.ToText());
+    
+    document.Undo();
+    document.WaitUndo();
+    document.WaitSolver();
+    std::this_thread::sleep_for(2s);
+    ASSERT_TRUE(document.ToText() == 
+        U"проводник=\"алюминий\"\n"\
+        U"длина=1м\n"\
+        U"сечение=1pow(мм,2)\n"\
+        U"сопротивление=27.мОм"\
+        ) << ToBasicString(document.ToText());
+}
+
 }
