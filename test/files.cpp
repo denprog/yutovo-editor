@@ -2242,4 +2242,31 @@ TEST_F(IncludeDocumentsTest, include_files18)
         ) << ToBasicString(document.ToText());
 }
 
+//Delete at the beginning of the document with an include file
+TEST_F(IncludeDocumentsTest, include_files19)
+{
+    Start(600);
+
+    EXPECT_CALL(window_mock, OnLoadInclude).WillOnce([&](const std::string& file_name, const int document_id)
+        {
+            document.LoadInclude(file_name);
+            std::this_thread::sleep_for(400ms);
+        });
+        
+    document.Load("../../test/tests/include_files18_2.yut");
+    document.WaitLoad();
+    document.WaitSolver();
+    std::this_thread::sleep_for(4s);
+
+    document.MoveCaretToDocumentBegin(false);
+    document.WaitTask(document.DeleteElements(true, true));
+    ASSERT_TRUE(document.ToText() == 
+        U"проводник=\"алюминий\"\n"\
+        U"длина=1м\n"\
+        U"сечение=1pow(мм,2)\n"\
+        U"сопротивление=27.мОм"\
+        ) << ToBasicString(document.ToText());
+    ASSERT_TRUE(!document.CanUndo());
+}
+
 }

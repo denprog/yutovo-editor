@@ -338,7 +338,7 @@ bool Block::DeleteElements(bool left, bool with_undo, ElementId& changed_element
         ElementPtr paragraph = document->FindParentParagraph(el->id);
 
         p = elements->GetElementPos(paragraph->id);
-        if (left && p <= 0)
+        if (left && (p <= 0 || !elements->Get(p - 1)->visible))
             return false;
         if (!left && p == elements->Count() - 1)
             return false;
