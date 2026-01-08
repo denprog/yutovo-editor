@@ -129,14 +129,6 @@ InsertElementsTask::InsertElementsTask(ElementPtr _text, std::vector<ElementPtr>
     with_undo = _with_undo;
 }
 
-InsertElementsTask::InsertElementsTask(ElementPtr _text, std::vector<ElementPtr>& _elements, uint _id) :
-    Task(_text, _id),
-    elements(_elements),
-    insert_mode(document->insert_mode)
-{
-    with_undo = false;
-}
-
 InsertElementsTask::InsertElementsTask(ElementPtr _text, std::vector<ElementPtr>& _elements, uint _id, ElementId _element_id) :
     InsertElementsTask(_text, _elements, _id)
 {
@@ -320,24 +312,10 @@ DeleteElementsTask::DeleteElementsTask(ElementPtr _text, bool _left, bool _with_
     with_undo = _with_undo;
 }
 
-DeleteElementsTask::DeleteElementsTask(ElementPtr _text, bool _left, uint _id) :
-    Task(_text, _id),
-    left(_left)
-{
-    with_undo = false;
-}
-
 DeleteElementsTask::DeleteElementsTask(ElementPtr _text, ElementId _element_id, bool _with_undo) :
     Task(_text),
     element_id(_element_id)
 {
-}
-
-DeleteElementsTask::DeleteElementsTask(ElementPtr _text, ElementId _element_id, bool _with_undo, uint _id) :
-    Task(_text, _id),
-    element_id(_element_id)
-{
-    with_undo = _with_undo;
 }
 
 bool DeleteElementsTask::Execute()
@@ -738,12 +716,6 @@ ChangeStringFormatTask::ChangeStringFormatTask(ElementPtr _text, const StringFor
     set_text_bg_color = _set_text_bg_color;
 }
 
-ChangeStringFormatTask::ChangeStringFormatTask(ElementPtr _text, const StringFormatPtr& _format, uint _id) :
-    Task(_text, _id), 
-    format(_format)
-{
-}
-
 bool ChangeStringFormatTask::Execute()
 {
     size_t last_undo_size = document->GetUndoSize();
@@ -907,13 +879,6 @@ ChangeParagraphFormatTask::ChangeParagraphFormatTask(ElementPtr _text, ElementId
     format(_format)
 {
     with_undo = _with_undo;
-}
-
-ChangeParagraphFormatTask::ChangeParagraphFormatTask(ElementPtr _text, ElementId _element_id, const ParagraphFormatPtr& _format, uint _id) :
-    Task(_text, _id), 
-    element_id(_element_id),
-    format(_format)
-{
 }
 
 bool ChangeParagraphFormatTask::Execute()
@@ -1510,25 +1475,6 @@ bool MoveCaretTask::Execute()
 
     document->UpdateFormats();
     document->CaretMoved();
-    return true;
-}
-
-//SetEditorStateTask
-
-SetEditorStateTask::SetEditorStateTask(ElementPtr _text, const CaretState& _caret_state, const SelectionState& _selection_state, const uint task_id) :
-    Task(_text, task_id),
-    caret_state(_caret_state),
-    selection_state(_selection_state)
-{
-}
-
-bool SetEditorStateTask::Execute()
-{
-    document->caret->SetState(caret_state);
-    document->selection.Set(selection_state);
-
-    document->UpdateCaretView();
-    document->UpdateLastSelection();    
     return true;
 }
 

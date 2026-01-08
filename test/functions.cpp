@@ -107,6 +107,11 @@ TEST_F(FormulaTest, functions3)
 {
     Start(600);
 
+    EXPECT_CALL(window_mock, Translate).WillRepeatedly([&](ElementId id, const std::u32string& str)
+        {
+            return str;
+        });
+
     document.InsertCode(false, true);
     document.InsertString("f", true);
     document.InsertOpenRoundBracket(true);

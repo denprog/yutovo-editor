@@ -53,7 +53,7 @@ struct Config
     uint caret_blink_delay = 500; //milliseconds
 
     //undo
-    uint undo_size = 100; //count of undo groups
+    uint undo_size = 100; //maximum count of undo groups
 
     //colors
     Color code_block_border_color = Color::Blue();

@@ -3947,6 +3947,21 @@ TEST_F(DocumentTest, undo1)
             "</p>"\
         "</body>") << 
         document.ToHtml();
+    
+    document.Redo();
+    document.WaitRedo();
+    ASSERT_TRUE(document.ToText() == U"The ") << ToBasicString(document.ToText());
+    document.Redo();
+    document.WaitRedo();
+    ASSERT_TRUE(document.ToText() == U"The s") << ToBasicString(document.ToText());
+    document.Redo();
+    document.WaitRedo();
+    ASSERT_TRUE(document.ToText() == U"The so") << ToBasicString(document.ToText());
+    document.Redo();
+    document.WaitRedo();
+    ASSERT_TRUE(document.ToText() == U"The sou") << ToBasicString(document.ToText());
+    ASSERT_TRUE(!document.CanRedo());
+    ASSERT_TRUE(document.GetUndoSize() == 4);
 }
 
 //Check undo-redo on a deleting a readonly element
@@ -3970,6 +3985,73 @@ TEST_F(DocumentTest, undo2)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 1, 3}, 
         ElementSelectionState{ElementId{0, 0, 0, 1}, 3, 1}, 
         ElementSelectionState{ElementId{0, 0, 0}, 2, 1})) << document.GetEditorState().ToString();
+}
+
+//Set Undo size
+TEST_F(DocumentTest, undo3)
+{
+    Start(600);
+
+    document.InsertString("1", true);
+    document.InsertString("2", true);
+    document.InsertString("3", true);
+    document.InsertString("4", true);
+    document.InsertString("5", true);
+    document.InsertString("6", true);
+    document.InsertString("7", true);
+    document.InsertString("8", true);
+    document.InsertString("9", true);
+    document.WaitTask(document.InsertString("0", true));
+
+    Config config;
+    document.GetConfig(config);
+    config.undo_size = 4;
+    document.SetConfig(config, false);
+    ASSERT_TRUE(!document.CanRedo());
+
+    document.InsertString("1", true);
+    document.WaitTask(document.InsertString("2", true));
+    ASSERT_TRUE(!document.CanRedo());
+    ASSERT_TRUE(document.ToText() == U"123456789012") << ToBasicString(document.ToText());
+
+    document.Undo();
+    document.WaitUndo();
+    ASSERT_TRUE(document.ToText() == U"12345678901") << ToBasicString(document.ToText());
+    document.Undo();
+    document.WaitUndo();
+    ASSERT_TRUE(document.ToText() == U"1234567890") << ToBasicString(document.ToText());
+    document.Undo();
+    document.WaitUndo();
+    ASSERT_TRUE(document.ToText() == U"123456789") << ToBasicString(document.ToText());
+    document.Undo();
+    document.WaitUndo();
+    ASSERT_TRUE(document.ToText() == U"12345678") << ToBasicString(document.ToText());
+
+    ASSERT_TRUE(!document.CanUndo());
+    ASSERT_TRUE(document.IsChanged());
+    document.Undo();
+    std::this_thread::sleep_for(100ms);
+    ASSERT_TRUE(document.ToText() == U"12345678") << ToBasicString(document.ToText());
+
+    ASSERT_TRUE(document.CanRedo());
+    document.Redo();
+    document.WaitRedo();
+    ASSERT_TRUE(document.ToText() == U"123456789") << ToBasicString(document.ToText());
+    document.Redo();
+    document.WaitRedo();
+    ASSERT_TRUE(document.ToText() == U"1234567890") << ToBasicString(document.ToText());
+    document.Redo();
+    document.WaitRedo();
+    ASSERT_TRUE(document.ToText() == U"12345678901") << ToBasicString(document.ToText());
+    document.Redo();
+    document.WaitRedo();
+    ASSERT_TRUE(document.ToText() == U"123456789012") << ToBasicString(document.ToText());
+
+    ASSERT_TRUE(document.IsChanged());
+    ASSERT_TRUE(!document.CanRedo());
+    document.Redo();
+    std::this_thread::sleep_for(100ms);
+    ASSERT_TRUE(document.ToText() == U"123456789012") << ToBasicString(document.ToText());
 }
 
 }

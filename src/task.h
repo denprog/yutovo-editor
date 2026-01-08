@@ -52,7 +52,6 @@ typedef std::shared_ptr<Task> TaskPtr;
 struct InsertElementsTask : Task
 {
     InsertElementsTask(ElementPtr _text, std::vector<ElementPtr>& _elements, bool _with_undo, bool _pasting = false);
-    InsertElementsTask(ElementPtr _text, std::vector<ElementPtr>& _elements, uint _id);
     InsertElementsTask(ElementPtr _text, std::vector<ElementPtr>& _elements, uint _id, ElementId _element_id);
 
     virtual bool Execute();
@@ -67,9 +66,7 @@ struct InsertElementsTask : Task
 struct DeleteElementsTask : Task
 {
     DeleteElementsTask(ElementPtr _text, bool _left, bool _with_undo);
-    DeleteElementsTask(ElementPtr _text, bool _left, uint _id);
     DeleteElementsTask(ElementPtr _text, ElementId _element_id, bool _with_undo);
-    DeleteElementsTask(ElementPtr _text, ElementId _element_id, bool _with_undo, uint _id);
 
     virtual bool Execute();
 
@@ -98,7 +95,6 @@ struct ChangeStringFormatTask : Task
     ChangeStringFormatTask(ElementPtr _text, const StringFormatPtr& _format, bool _set_family, bool _set_size, bool _set_bold, bool _set_italic, 
         bool _set_strikethrough, bool _set_underline, bool _set_subscript, bool _set_superscript, bool _set_text_color, bool _set_text_bg_color, 
         bool _with_undo);
-    ChangeStringFormatTask(ElementPtr _text, const StringFormatPtr& _format, uint _id);
 
     virtual bool Execute();
 
@@ -121,7 +117,6 @@ struct ChangeStringFormatTask : Task
 struct ChangeParagraphFormatTask : Task
 {
     ChangeParagraphFormatTask(ElementPtr _text, ElementId _element_id, const ParagraphFormatPtr& _format, bool _with_undo);
-    ChangeParagraphFormatTask(ElementPtr _text, ElementId _element_id, const ParagraphFormatPtr& _format, uint _id);
 
     virtual bool Execute();
 
@@ -253,16 +248,6 @@ struct MoveCaretTask : Task
     bool visible = false;
     bool select = false;
     bool move_into_view = true;
-};
-
-struct SetEditorStateTask : Task
-{
-    SetEditorStateTask(ElementPtr _text, const CaretState& _caret_state, const SelectionState& _selection_state, const uint task_id);
-
-    virtual bool Execute();
-
-    CaretState caret_state;
-    SelectionState selection_state;
 };
 
 struct NewTask : Task

@@ -921,19 +921,17 @@ bool Document::StoreUndo(const ElementId& _id)
 {
     if (_id.size() == 1)
         return StoreUndo(_id, 0, text->elements->Count());
-    RestrictUndo();
 
     int undo_id = undo_base.Store(_id);
     if (undo_id < 0)
         return false;
     undo_tasks.push_back(TaskPtr(new UndoTask(text, undo_id, _id, 0, 0, cur_task_id)));
+    RestrictUndo();
     return true;
 }
 
 bool Document::StoreUndo(const ElementId& parent_id, const int pos, const int size, const int delete_size)
 {
-    RestrictUndo();
-
     int undo_id;
     ElementId _id;
     if (IsRow(parent_id))
@@ -943,7 +941,6 @@ bool Document::StoreUndo(const ElementId& parent_id, const int pos, const int si
         if (undo_id < 0)
             return false;
         undo_tasks.push_back(TaskPtr(new UndoTask(text, undo_id, p->id, 0, p->elements->Count(), cur_task_id)));
-        return true;
     }
     else
     {
@@ -953,13 +950,12 @@ bool Document::StoreUndo(const ElementId& parent_id, const int pos, const int si
     if (undo_id < 0)
         return false;
     undo_tasks.push_back(TaskPtr(new UndoTask(text, undo_id, _id, pos, delete_size, cur_task_id)));
+    RestrictUndo();
     return true;
 }
 
 bool Document::StoreUndo(const ElementId& parent_id, const int pos, const int size, const int delete_size, UndoTask::UndoOperation undo_operation)
 {
-    RestrictUndo();
-
     int undo_id;
     auto p = GetParent(parent_id);
     if (p && (p->type == ElementType::EQUATION || p->type == ElementType::ASSIGNMENT))
@@ -969,7 +965,6 @@ bool Document::StoreUndo(const ElementId& parent_id, const int pos, const int si
         if (undo_id < 0)
             return false;
         undo_tasks.push_back(TaskPtr(new UndoTask(text, undo_id, p->parent->id, _pos, 1, 0, UndoTask::UndoOperation::CHANGE, cur_task_id)));
-        return true;
     }
     else if (IsRow(parent_id))
     {
@@ -982,7 +977,6 @@ bool Document::StoreUndo(const ElementId& parent_id, const int pos, const int si
         if (undo_id < 0)
             return false;
         undo_tasks.push_back(TaskPtr(new UndoTask(text, undo_id, p->id, _pos, 1, 0, UndoTask::UndoOperation::CHANGE, cur_task_id)));
-        return true;
     }
     else
     {
@@ -991,26 +985,27 @@ bool Document::StoreUndo(const ElementId& parent_id, const int pos, const int si
     if (undo_id < 0)
         return false;
     undo_tasks.push_back(TaskPtr(new UndoTask(text, undo_id, parent_id, pos, size, delete_size, undo_operation, cur_task_id)));
+    RestrictUndo();
     return true;
 }
 
 bool Document::StoreUndo(const Config& config)
 {
-    RestrictUndo();
     int undo_id = undo_base.Store(config);
     if (undo_id < 0)
         return false;
     undo_tasks.push_back(TaskPtr(new UndoTask(text, undo_id, cur_task_id)));
+    RestrictUndo();
     return true;
 }
 
 bool Document::StoreUndo(const TextFormat& format)
 {
-    RestrictUndo();
     int undo_id = undo_base.Store(format);
     if (undo_id < 0)
         return false;
     undo_tasks.push_back(TaskPtr(new UndoTask(text, undo_id, cur_task_id, UndoTask::UndoOperation::FORMAT)));
+    RestrictUndo();
     return true;
 }
 
@@ -3638,32 +3633,31 @@ void Document::WaitTask(uint task_id, uint64_t timeout, uint64_t circle_delay)
 
 void Document::RestrictUndo()
 {
-    if (undo_tasks.empty() || undo_tasks.back()->id == cur_task_id) //restrict only if a group has ended
+    if (undo_tasks.empty())
         return;
     
     uint groups_count = 0;
     uint group_id = 0;
-    for (auto it = undo_tasks.begin(); it != undo_tasks.end(); ++it) //count groups
+    auto it = undo_tasks.end() - 1;
+    for (; it != undo_tasks.begin(); --it) //count groups
     {
         auto& t = *it;
         if (t->id != group_id)
         {
             if (++groups_count > config.undo_size - 1)
-            {
-                //restrict
-                group_id = (*undo_tasks.begin())->id;
-                for (auto _it = undo_tasks.begin(); _it != undo_tasks.end();)
-                {
-                    auto& t = *_it;
-                    if (t->id != group_id)
-                        break;
-                    _it = undo_tasks.erase(_it);
-                }
-                return;
-            }
-            group_id = t->id;
+                break;
         }
+        group_id = t->id;
     }
+    if (it == undo_tasks.begin())
+        return;
+    
+    //restrict the queues
+    auto d = std::distance(undo_tasks.begin(), it);
+    undo_tasks.erase(undo_tasks.begin(), it);
+    if (redo_tasks.size() > d)
+        redo_tasks.erase(redo_tasks.begin(), redo_tasks.begin() + d);
+    save_task_id = -1;
 }
 
 void Document::UpdateChanged()
@@ -3672,7 +3666,7 @@ void Document::UpdateChanged()
     if (save_task_id == 0 && undo_tasks.empty())
         changed = false;
     else
-        changed = !(last_modify_task_id == save_task_id);
+        changed = (last_modify_task_id != save_task_id);
     if (last_changed != changed)
     {
         window->OnDocumentChanged(changed);
