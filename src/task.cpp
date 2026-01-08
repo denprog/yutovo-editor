@@ -183,7 +183,7 @@ bool InsertElementsTask::Execute()
     if (with_undo && !selection_state.IsEmpty())
     {
         //remove selection before insert
-        auto DeleteElements = [&](ElementPtr _el)
+        auto delete_elements = [&](ElementPtr _el)
         {
             assert(_el != nullptr);
             ElementId changed_element;
@@ -199,7 +199,7 @@ bool InsertElementsTask::Execute()
         for (int i = selection_state.state.size() - 1; i >= 0; --i)
         {
             ElementSelectionState& s = selection_state.state[i];
-            if (!DeleteElements(document->GetElement(s.id)))
+            if (!delete_elements(document->GetElement(s.id)))
             {
                 if (with_undo && last_undo_size < document->GetUndoSize())
                     document->Undo();
@@ -365,7 +365,7 @@ bool DeleteElementsTask::Execute()
         document->SetEditorState(s);
     }
 
-    auto DeleteElements = [&](ElementPtr el, bool _left, ElementId& changed_element, bool _with_undo)
+    auto delete_elements = [&](ElementPtr el, bool _left, ElementId& changed_element, bool _with_undo)
     {
         assert(el != nullptr);
         document->editing = true;
@@ -378,7 +378,7 @@ bool DeleteElementsTask::Execute()
         auto el = document->GetParent(caret_state.id);
         if (!el->editable)
             return false;
-        if (DeleteElements(el, left, changed_element, with_undo))
+        if (delete_elements(el, left, changed_element, with_undo))
         {
             document->UpdateLastSelection();
             Remake(changed_element, true); //move into view
@@ -435,7 +435,7 @@ bool DeleteElementsTask::Execute()
             auto el = document->GetElement(s.id);
             if (!el->editable)
                 continue;
-            if (!DeleteElements(el, left, changed_element, false))
+            if (!delete_elements(el, left, changed_element, false))
             {
                 if (with_undo && last_undo_size < document->GetUndoSize())
                     document->Undo();
@@ -463,7 +463,7 @@ bool DeleteElementsTask::Execute()
         if (merge_paragraphs)
         {
             auto _el = document->caret->GetElement();
-            if (DeleteElements(document->GetElement(_el->id), document->caret->GetPos() == 0 ? true : false, changed_element, false))
+            if (delete_elements(document->GetElement(_el->id), document->caret->GetPos() == 0 ? true : false, changed_element, false))
             {
                 document->UpdateLastSelection();
                 Remake(changed_element, true);
@@ -553,7 +553,7 @@ bool InsertFormulasTask::Execute()
     if (!selection_state.IsEmpty() && ((document->FindParent(caret_state.id, ElementType::CODE_BLOCK) == nullptr) || !elements[0]->UseSelection()))
     {
         //remove selection before insert
-        auto DeleteElements = [&](ElementPtr _el)
+        auto delete_elements = [&](ElementPtr _el)
         {
             assert(_el != nullptr);
             ElementId changed_element;
@@ -569,7 +569,7 @@ bool InsertFormulasTask::Execute()
         for (int i = selection_state.state.size() - 1; i >= 0; --i)
         {
             ElementSelectionState& s = selection_state.state[i];
-            if (!DeleteElements(document->GetElement(s.id)))
+            if (!delete_elements(document->GetElement(s.id)))
             {
                 if (with_undo && last_undo_size < document->GetUndoSize())
                     document->Undo();
