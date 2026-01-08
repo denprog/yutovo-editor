@@ -469,7 +469,7 @@ public:
     std::atomic_bool break_remake = false;
 
     std::atomic<bool> changed{false};
-    uint save_task_id = 0;
+    int save_task_id = 0;
 
     std::string file_guid; //unique document id
 
@@ -485,7 +485,7 @@ private:
 
     std::list<TaskPtr> tasks;
     std::deque<TaskPtr> undo_tasks;
-    std::vector<TaskPtr> redo_tasks;
+    std::deque<TaskPtr> redo_tasks;
     std::vector<bool> undos; //requieres for undo
     std::vector<bool> redos; //requieres for redo
 
