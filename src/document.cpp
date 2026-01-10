@@ -167,6 +167,8 @@ void Document::Start()
     std::tuple<char32_t, std::string, int> s2{U')', "Arial", 300};
     std::vector<std::tuple<char32_t, std::string, int>> s{s1, s2};
     window->PrepareSymbolsSizes(s);
+
+    solver.SetLocale(config.language);
 }
 
 void Document::Start(const TextFormat _default_text_format)
