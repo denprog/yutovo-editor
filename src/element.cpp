@@ -923,7 +923,7 @@ void Element::UpdateFormat(StringFormatPtr& _format)
 
 void Element::UpdateDrawRect()
 {
-    if (!IsVisible())
+    if (!IsVisible() || elements->Count() == 0)
         return;
     for (int i = 0; i < elements->Count(); ++i)
         elements->Get(i)->UpdateDrawRect();

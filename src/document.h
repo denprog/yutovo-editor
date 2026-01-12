@@ -40,6 +40,7 @@ public:
 
     void Start();
     void Start(const TextFormat _default_text_format);
+    void Stop();
 
     void GetConfig(Config& _config);
     uint SetConfig(const Config& _config, bool with_undo);

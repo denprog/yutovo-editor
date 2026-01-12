@@ -113,15 +113,21 @@ struct DocumentTest : public testing::Test
     {
     }
 
+    void TearDown() override
+    {
+        document.Stop();
+        testing::Mock::VerifyAndClearExpectations(&window_mock);
+    }
+
     void Start(int width)
     {
-        EXPECT_CALL(window_mock, GetRect).WillRepeatedly(
+        ON_CALL(window_mock, GetRect).WillByDefault(
             [width]()
             {
                 return Rect{0, 0, width, 400};
             });
             
-        EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly(
+        ON_CALL(window_mock, GetTextSize).WillByDefault(
             [&](const std::u32string& text, const StringFormatPtr format)
             {
                 return GetTextSizeMock(text, format);

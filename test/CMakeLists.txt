@@ -88,6 +88,15 @@ add_executable(${PROJECT_NAME}_tests
 	pdf.cpp
 )
 
+if (NOT WIN32)
+    if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+		add_compile_options(-Og -g -fsanitize=undefined -fsanitize=address -fno-omit-frame-pointer)
+        add_definitions(-D_LIBCPP_HARDENING_MODE=_LIBCPP_HARDENING_MODE_EXTENSIVE)
+        add_definitions(-D_LIBCPP_ENABLE_ASSERTIONS)
+		target_link_options(${PROJECT_NAME}_tests PRIVATE -fsanitize=undefined -fsanitize=address)
+    endif()
+endif()
+
 if(WIN32)
 	target_link_libraries(${PROJECT_NAME}_tests PUBLIC
 		${PROJECT_NAME}
