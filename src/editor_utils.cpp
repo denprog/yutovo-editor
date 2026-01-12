@@ -532,7 +532,8 @@ std::string base64_chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz
 std::string Base64Encode(const std::vector<unsigned char>& picture)
 {
     std::string res;
-    int val = 0, valb = -6;
+    uint32_t val = 0;
+    int valb = -6;
     for (uchar c : picture)
     {
         val = (val << 8) + c;

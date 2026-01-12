@@ -796,9 +796,9 @@ TEST_F(FormulaTest, graphs13)
     document.MoveCaretRight(false);
     document.InsertMinus(false);
     document.WaitTask(document.InsertString("2", true));
-    document.MoveCaretRight(false);
+    document.WaitTask(document.MoveCaretRight(false));
     document.WaitTask(document.InsertString("yy", true));
-    document.MoveCaretRight(false);
+    document.WaitTask(document.MoveCaretRight(false));
     document.WaitTask(document.InsertString("5", true));
     document.WaitSolver();
     std::this_thread::sleep_for(4s);

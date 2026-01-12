@@ -178,6 +178,15 @@ void Document::Start(const TextFormat _default_text_format)
     Start();
 }
 
+void Document::Stop()
+{
+    exit = true;
+    next_circle = true;
+    if (main_loop.joinable())
+        main_loop.join();
+    LOG_DEBUG("Document stop");
+}
+
 void Document::GetConfig(Config& _config)
 {
     std::unique_lock<std::recursive_mutex> lock(edit_mutex);

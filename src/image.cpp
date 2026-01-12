@@ -148,7 +148,8 @@ void Image::Base64Decode()
     for (int i = 0; i < 64; ++i)
         t[base64_chars[i]] = i;
 
-    int val = 0, valb = -8;
+    uint32_t val = 0;
+    int valb = -8;
     for (uchar c : image_base64)
     {
         if (t[c] == -1)
