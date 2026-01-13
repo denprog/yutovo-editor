@@ -26,9 +26,6 @@
 #include <boost/algorithm/string.hpp>
 #include <fstream>
 #include <iostream>
-#include <boost/iostreams/filtering_streambuf.hpp>
-#include <boost/iostreams/copy.hpp>
-#include <boost/iostreams/filter/gzip.hpp>
 #include <sstream>
 #include <vector>
 #include <filesystem>
@@ -39,6 +36,7 @@
 #include <boost/uuid/uuid.hpp>
 #include <boost/uuid/uuid_generators.hpp>
 #include <boost/uuid/uuid_io.hpp>
+#include <zlib.h>
 
 #ifdef _MSC_VER
 #undef GetObject
@@ -1582,21 +1580,10 @@ bool SaveTask::Execute()
         {
             if (gzip)
             {
-                try
-                {
-                    boost::iostreams::filtering_streambuf<boost::iostreams::input> in;
-                    in.push(boost::iostreams::gzip_compressor());
-                    std::stringstream data;
-                    data << str;
-                    in.push(data);
-                    std::stringstream s;
-                    boost::iostreams::copy(in, s);
-                    *json_str = s.str();
-                }
-                catch (const std::ios_base::failure& ex)
+                if (!CompressGzip(str, *json_str))
                 {
                     window->OnSaveResult(id, IOResult::InputStreamError, document_id);
-                    LOG_ERROR("Error saving file '{}': {}", filename, ex.what());
+                    LOG_ERROR("Error compressing json");
                     return false;
                 }
             }
@@ -1614,13 +1601,17 @@ bool SaveTask::Execute()
 #else
                 std::ofstream file(filename, std::ofstream::binary);
 #endif
-                boost::iostreams::filtering_streambuf<boost::iostreams::input> in;
-                in.push(boost::iostreams::gzip_compressor());
-                std::stringstream data;
-                data << str;
-                in.push(data);
-                file.exceptions(~std::ofstream::goodbit);
-                boost::iostreams::copy(in, file);
+                if (!file)
+                    return false;
+
+                std::string res;
+                if (!CompressGzip(str, res))
+                {
+                    window->OnSaveResult(id, IOResult::InputStreamError, document_id);
+                    LOG_ERROR("Error compressing file '{}'", filename);
+                    return false;
+                }
+                file.write(res.data(), res.size());
             }
             catch (const std::ios_base::failure& ex)
             {
@@ -1669,6 +1660,40 @@ bool SaveTask::Execute()
     return true;
 }
 
+bool SaveTask::CompressGzip(const std::string& input, std::string& output)
+{
+    output.clear();
+
+    z_stream zs{};
+    if (deflateInit2(&zs, Z_DEFAULT_COMPRESSION, Z_DEFLATED, 16 + MAX_WBITS, 8, Z_DEFAULT_STRATEGY) != Z_OK)
+        return false;
+
+    zs.next_in  = reinterpret_cast<Bytef*>(const_cast<char*>(input.data()));
+    zs.avail_in = static_cast<uInt>(input.size());
+
+    char outbuf[4096];
+    int ret;
+
+    do
+    {
+        zs.next_out  = reinterpret_cast<Bytef*>(outbuf);
+        zs.avail_out = sizeof(outbuf);
+
+        ret = deflate(&zs, Z_FINISH);
+        if (ret < 0)
+        {
+            deflateEnd(&zs);
+            return false;
+        }
+
+        output.append(outbuf, sizeof(outbuf) - zs.avail_out);
+    }
+    while (ret != Z_STREAM_END);
+
+    deflateEnd(&zs);
+    return true;
+}
+
 //LoadTask
 
 LoadTask::LoadTask(ElementPtr _text, const std::string& _filename, const bool _include) :
@@ -1691,33 +1716,25 @@ bool LoadTask::Execute()
     ElementPtr t;
     std::string str;
     rapidjson::Document doc;
-    std::stringstream json;
+    std::string json;
 
     if (!json_str.empty())
     {
-        if (doc.Parse<0>(json_str.c_str()).HasParseError() || !doc.IsObject() || !LoadJson(doc))
+        if (doc.Parse<0>(json_str.c_str()).HasParseError() || !doc.IsObject() || !LoadJson(doc)) //try to load as decompressed
         {
             //try to load as compressed
-            try
-            {
-                boost::iostreams::filtering_streambuf<boost::iostreams::input> in;
-                in.push(boost::iostreams::gzip_decompressor());
-                std::stringstream data;
-                data << json_str;
-                in.push(data);
-                boost::iostreams::copy(in, json);
-    
-                doc.Parse<0>(json.str().c_str());
-                if (doc.HasParseError() || !doc.IsObject() || !LoadJson(doc))
-                {
-                    window->OnLoadResult(id, IOResult::InputStreamError, document_id);
-                    LOG_ERROR("Error parsing json");
-                    return false;
-                }
-            }
-            catch (const std::ios_base::failure& ex)
+            std::istringstream in(json_str, std::ios::binary);
+            if (!DecompressGzip(in, json))
             {
                 window->OnLoadResult(id, IOResult::InputStreamError, document_id);
+                return false;
+            }
+
+            doc.Parse<0>(json.c_str());
+            if (doc.HasParseError() || !doc.IsObject() || !LoadJson(doc))
+            {
+                window->OnLoadResult(id, IOResult::InputStreamError, document_id);
+                LOG_ERROR("Error parsing json");
                 return false;
             }
         }
@@ -1732,8 +1749,14 @@ bool LoadTask::Execute()
 #ifdef _WIN32
         file = std::ifstream(yutovo_calculator::ToWString(filename), std::ios_base::binary);
 #else
-        file = std::ifstream(filename);
+        file = std::ifstream(filename, std::ios_base::binary);
 #endif
+        if (!file)
+        {
+            window->OnLoadResult(id, IOResult::InputStreamError, document_id);
+            LOG_ERROR("Error opening file '{}': File not open", filename);
+            return false;
+        }
 
         if (!file.is_open())
         {
@@ -1752,7 +1775,7 @@ bool LoadTask::Execute()
                     p = p.parent_path();
                     p /= filename; //try to open relatevely to the current document
                     auto _filename = std::filesystem::canonical(std::filesystem::absolute(p)).string();
-                    file = std::ifstream(_filename);
+                    file = std::ifstream(_filename, std::ios_base::binary);
                     if (!file.is_open())
                     {
                         window->OnLoadResult(0, IOResult::InputStreamError, -1);
@@ -1773,23 +1796,7 @@ bool LoadTask::Execute()
 
         document->path = filename;
 
-        try
-        {
-            //try to open as compressed file
-            boost::iostreams::filtering_streambuf<boost::iostreams::input> in;
-            in.push(boost::iostreams::gzip_decompressor());
-            in.push(file);
-            boost::iostreams::copy(in, json);
-
-            doc.Parse<0>(json.str().c_str());
-            if (doc.HasParseError() || !doc.IsObject() || !LoadJson(doc))
-            {
-                window->OnLoadResult(id, IOResult::InputStreamError, document_id);
-                LOG_ERROR("Error parsing file '{}'", filename);
-                return false;
-            }
-        }
-        catch (const std::ios_base::failure& ex)
+        if (!DecompressGzip(file, json)) //try to open as compressed file
         {
             //try to open as decompressed file
 #ifdef _WIN32
@@ -1805,6 +1812,14 @@ bool LoadTask::Execute()
                 LOG_ERROR("Error parsing file '{}'", filename);
                 return false;
             }
+        }
+
+        doc.Parse<0>(json.c_str());
+        if (doc.HasParseError() || !doc.IsObject() || !LoadJson(doc))
+        {
+            window->OnLoadResult(id, IOResult::InputStreamError, document_id);
+            LOG_ERROR("Error parsing file '{}'", filename);
+            return false;
         }
 
         //load text
@@ -2101,6 +2116,43 @@ bool LoadTask::CheckIncludeDocument(const std::string& guid)
         if (_guid == guid)
             return false;
     }
+    return true;
+}
+
+bool LoadTask::DecompressGzip(std::istream& in, std::string& out)
+{
+    z_stream zs{};
+    if (inflateInit2(&zs, 16 + MAX_WBITS) != Z_OK)
+        return false;
+
+    char inbuf[4096];
+    char outbuf[4096];
+    int ret;
+    do
+    {
+        in.read(inbuf, sizeof(inbuf));
+        zs.next_in = reinterpret_cast<Bytef*>(inbuf);
+        zs.avail_in = static_cast<uInt>(in.gcount());
+
+        do
+        {
+            zs.next_out = reinterpret_cast<Bytef*>(outbuf);
+            zs.avail_out = sizeof(outbuf);
+
+            ret = inflate(&zs, Z_NO_FLUSH);
+            if (ret < 0)
+            {
+                inflateEnd(&zs);
+                return false;
+            }
+
+            out.append(outbuf, sizeof(outbuf) - zs.avail_out);
+        }
+        while (zs.avail_out == 0);
+    }
+    while (ret != Z_STREAM_END);
+
+    inflateEnd(&zs);
     return true;
 }
 
