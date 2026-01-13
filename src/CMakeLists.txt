@@ -13,7 +13,6 @@ endif()
 if(WIN32)
     set(CMAKE_PREFIX_PATH "${INSTALL_PATH}")
     find_package(RapidJSON CONFIG REQUIRED PATHS ${INSTALL_PATH}/share/rapidjson)
-    find_package(Boost REQUIRED COMPONENTS iostreams)
     find_package(BZip2 REQUIRED)
 endif()
 
@@ -224,7 +223,6 @@ else()
             yutovo-solver
             yutovo-logger
         )
-        target_link_libraries(${PROJECT_NAME} PRIVATE Boost::iostreams)
         target_link_libraries(${PROJECT_NAME} PRIVATE BZip2::BZip2)
         target_link_libraries(${PROJECT_NAME} PRIVATE yutovo-calculator)
     else()

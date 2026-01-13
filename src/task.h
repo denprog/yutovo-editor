@@ -271,6 +271,8 @@ struct SaveTask : Task
 
     virtual bool Execute();
 
+    bool CompressGzip(const std::string& input, std::string& output);
+
     std::string filename;
     std::string* json_str = nullptr;
     const int document_id = 0;
@@ -286,6 +288,7 @@ struct LoadTask : Task
 
     bool LoadJson(rapidjson::Document& doc);
     bool CheckIncludeDocument(const std::string& guid);
+    bool DecompressGzip(std::istream& in, std::string& out);
 
     std::string filename;
     std::string json_str;
