@@ -923,37 +923,42 @@ void Element::UpdateFormat(StringFormatPtr& _format)
 
 void Element::UpdateDrawRect()
 {
-    if (!IsVisible() || elements->Count() == 0)
+    if (!IsVisible())
         return;
-    for (int i = 0; i < elements->Count(); ++i)
-        elements->Get(i)->UpdateDrawRect();
+
     draw_rect = GetAbsoluteRect();
 
-    int left = std::numeric_limits<int>::max();
-    int top = std::numeric_limits<int>::max();
-    int right = std::numeric_limits<int>::min();
-    int bottom = std::numeric_limits<int>::min();
-    for (uint i = 0; i < elements->Count(); ++i)
+    if (elements->Count() > 0)
     {
-        Rect& r = elements->Get(i)->draw_rect;
-        if (r.left < left)
-            left = r.left;
-        if (r.top < top)
-            top = r.top;
-        if (r.GetRight() > right)
-            right = r.GetRight();
-        if (r.GetBottom() > bottom)
-            bottom = r.GetBottom();
-    }
+        for (int i = 0; i < elements->Count(); ++i)
+            elements->Get(i)->UpdateDrawRect();
 
-    if (draw_rect.left > left)
-        draw_rect.left = left;
-    if (draw_rect.top > top)
-        draw_rect.top = top;
-    if (right - left > draw_rect.width)
-        draw_rect.width = right - left;
-    if (bottom - top > draw_rect.height)
-        draw_rect.height = bottom - top;
+        int left = std::numeric_limits<int>::max();
+        int top = std::numeric_limits<int>::max();
+        int right = std::numeric_limits<int>::min();
+        int bottom = std::numeric_limits<int>::min();
+        for (uint i = 0; i < elements->Count(); ++i)
+        {
+            Rect& r = elements->Get(i)->draw_rect;
+            if (r.left < left)
+                left = r.left;
+            if (r.top < top)
+                top = r.top;
+            if (r.GetRight() > right)
+                right = r.GetRight();
+            if (r.GetBottom() > bottom)
+                bottom = r.GetBottom();
+        }
+
+        if (draw_rect.left > left)
+            draw_rect.left = left;
+        if (draw_rect.top > top)
+            draw_rect.top = top;
+        if (right - left > draw_rect.width)
+            draw_rect.width = right - left;
+        if (bottom - top > draw_rect.height)
+            draw_rect.height = bottom - top;
+    }
     
     int start, size;
     if (has_caret_hilight || document->HasErrorMark(id, start, size))
