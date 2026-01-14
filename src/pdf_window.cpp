@@ -253,7 +253,7 @@ void PdfWindow::DrawImage(const int x1, const int y1, const int width, const int
 
     ClipDraw clip_draw(*this);
     HPDF_Image picture = HPDF_LoadPngImageFromMem(pdf, png.data(), png.size());
-    HPDF_Page_DrawImage(page, picture, x1, _y1, w, h);
+    HPDF_Page_DrawImage(page, picture, x1, _y1, width, height);
 }
 
 int PdfWindow::GetSymbolSize(const char32_t symbol, const int height, const std::string& family_name, Size& size, int& baseline)
@@ -325,6 +325,18 @@ Size PdfWindow::GetImageSize(const std::vector<unsigned char>& image)
     HPDF_Image picture = HPDF_LoadPngImageFromMem(pdf, image.data(), image.size());
     float w = HPDF_Image_GetWidth(picture);
     float h = HPDF_Image_GetHeight(picture);
+    if (w > view_port.width)
+    {
+        float scale = (float)view_port.width / w;
+        w *= scale;
+        h *= scale;
+    }
+    if (h > view_port.height)
+    {
+        float scale = (float)view_port.height / h;
+        w *= scale;
+        h *= scale;
+    }
     return Size{(int)w, (int)h};
 }
 

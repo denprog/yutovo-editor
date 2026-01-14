@@ -65,6 +65,19 @@ Element* Text::FromJson(Element* parent, Document* document, const rapidjson::Va
 
 void Text::Draw() const
 {
+    Block::Draw();
+
+    if (document->config.with_border)
+    {
+        Rect v = window->GetViewPort(0);
+        window->BeginDrawOutside();
+        window->DrawRect(Rect(v.left - 1, v.top - 1, v.width + 2, v.height + 2), Color::Blue());
+        window->EndDrawOutside();
+    }
+}
+
+bool Text::Remake(bool with_elements)
+{
     Rect v = window->GetRect();
     window->BeginDrawOutside();
     window->DrawFillRect(v, Color::White());
@@ -76,19 +89,6 @@ void Text::Draw() const
     v.height -= format->bottom_indent + format->top_indent;
     window->SetViewPort(v);
 
-    Block::Draw();
-
-    if (document->config.with_border)
-    {
-        window->BeginDrawOutside();
-        window->DrawRect(Rect(v.left - 1, v.top - 1, v.width + 2, v.height + 2), Color::Blue());
-        window->EndDrawOutside();
-    }
-}
-
-bool Text::Remake(bool with_elements)
-{
-    Rect v = window->GetRect();
     pixel_size.width = v.width - format->right_indent - format->left_indent;
 
     Block::Remake(with_elements);

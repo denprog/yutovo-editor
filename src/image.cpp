@@ -106,6 +106,8 @@ bool Image::Remake(bool with_elements)
 
 void Image::UpdateRect(bool with_elements)
 {
+    if (!caret->IsVisible()) //for pdf export
+        image_size = window->GetImageSize(picture);
     rect.SetSize(image_size.width + 2, image_size.height + 2);
     baseline = image_size.height;
 }
