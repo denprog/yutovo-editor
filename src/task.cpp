@@ -1043,6 +1043,12 @@ bool RedrawTask::Execute()
     Rect clear_rect = element->draw_rect.IsEmpty() ? element->GetAbsoluteRect() : element->draw_rect;
     window->ClearRect(clear_rect, element->GetBackgroundColor()); //clear last rect before drawing
     element->Draw(); //draw element and update its rect
+    auto el = document->GetElement(document->caret_hilight_id);
+    if (el)
+    {
+        Rect r = el->GetAbsoluteRect();
+        window->DrawRect(r.left, r.top, r.width, r.height, document->config.hilight_color);
+    }
     element->UpdateDrawRect();
 
     window->SetDocumentSize({text->rect.width, text->rect.height});
@@ -1594,15 +1600,15 @@ bool SaveTask::Execute()
         }
         else
         {
+            std::ofstream file;
+            file.exceptions(std::ofstream::failbit | std::ofstream::badbit);
             try
             {
 #ifdef _WIN32
-                std::ofstream file(yutovo_calculator::ToWString(filename), std::ios_base::binary);
+                file.open(yutovo_calculator::ToWString(filename), std::ios::binary);
 #else
-                std::ofstream file(filename, std::ofstream::binary);
-#endif
-                if (!file)
-                    return false;
+                file.open(filename, std::ios::binary);
+#endif          
 
                 std::string res;
                 if (!CompressGzip(str, res))
@@ -1727,6 +1733,7 @@ bool LoadTask::Execute()
             if (!DecompressGzip(in, json))
             {
                 window->OnLoadResult(id, IOResult::InputStreamError, document_id);
+                LOG_ERROR("Error decompressing json");
                 return false;
             }
 
@@ -1751,13 +1758,6 @@ bool LoadTask::Execute()
 #else
         file = std::ifstream(filename, std::ios_base::binary);
 #endif
-        if (!file)
-        {
-            window->OnLoadResult(id, IOResult::InputStreamError, document_id);
-            LOG_ERROR("Error opening file '{}': File not open", filename);
-            return false;
-        }
-
         if (!file.is_open())
         {
             if (!include)
@@ -1796,7 +1796,17 @@ bool LoadTask::Execute()
 
         document->path = filename;
 
-        if (!DecompressGzip(file, json)) //try to open as compressed file
+        if (DecompressGzip(file, json)) //try to open as compressed file
+        {
+            doc.Parse<0>(json.c_str());
+            if (doc.HasParseError() || !doc.IsObject() || !LoadJson(doc))
+            {
+                window->OnLoadResult(id, IOResult::InputStreamError, document_id);
+                LOG_ERROR("Error parsing file '{}'", filename);
+                return false;
+            }
+        }
+        else
         {
             //try to open as decompressed file
 #ifdef _WIN32
@@ -1812,14 +1822,6 @@ bool LoadTask::Execute()
                 LOG_ERROR("Error parsing file '{}'", filename);
                 return false;
             }
-        }
-
-        doc.Parse<0>(json.c_str());
-        if (doc.HasParseError() || !doc.IsObject() || !LoadJson(doc))
-        {
-            window->OnLoadResult(id, IOResult::InputStreamError, document_id);
-            LOG_ERROR("Error parsing file '{}'", filename);
-            return false;
         }
 
         //load text
