@@ -138,12 +138,6 @@ void Element::Draw() const
         }
         DrawErrorMark(start, size);
     }
-
-    if (document->caret_hilight_id == id)
-    {
-        Rect r = GetAbsoluteRect();
-        window->DrawRect(r.left, r.top, r.width, r.height, document->config.hilight_color);
-    }
 }
 
 void Element::DrawErrorMark(const int start, const int size) const
