@@ -75,6 +75,8 @@ make -sj && make install
 
 If you haven't yet, build [yutovo-logger](https://github.com/denprog/yutovo-logger), [yutovo-calculator](https://github.com/denprog/yutovo-calculator) and [yutovo-solver](https://github.com/denprog/yutovo-solver).
 
+Set the YUTOVO_DEPLOY variable to your yutovo/deploy path.
+In the yutovo/third-party download stb_image/stb_image.h and stb_image/stb_image_write.h source files.
 Set the VCPKG_ROOT variable to your vcpkg path. Clone the project in the yutovo dir (select another branch if you want):
 
 ```
