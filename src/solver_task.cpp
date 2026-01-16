@@ -10,6 +10,7 @@
 #include <yutovo-logger/logger.h>
 #include "editor_utils.h"
 #include "document.h"
+#include <regex>
 
 #ifdef _MSC_VER
 #undef GetObject
@@ -90,7 +91,8 @@ bool SolverTask::SendRequest(const rapidjson::Document& json, Result& result, We
 #ifdef EMSCRIPTEN
     if (log_action && str.length() > 2)
     {
-        str.insert(1, "\"solver_guid\":\"" + solver_guid + "\",");
+        if (str.find("solver_guid") == std::string::npos)
+            str.insert(1, "\"solver_guid\":\"" + solver_guid + "\",");
         document->window->OnSolverAction(str);
     }
 #endif
@@ -505,7 +507,8 @@ bool AutoSolverTask::Execute(WebSocketPtr socket, Result& result)
 #ifdef EMSCRIPTEN
     if (json.length() > 2)
     {
-        json.insert(1, "\"solver_guid\":\"" + solver_guid + "\",\"expression\":\"" + s + "\",\"id\":\"" + id_str + "\",");
+        json.insert(1, "\"solver_guid\":\"" + solver_guid + "\",\"expression\":\"" + std::regex_replace(s, std::regex(R"(")"), R"(\\\")") + 
+            "\",\"id\":\"" + id_str + "\",");
         document->window->OnSolverAction(json);
     }
 #endif
@@ -607,7 +610,8 @@ bool RealSolverTask::Execute(WebSocketPtr socket, Result& result)
 #ifdef EMSCRIPTEN
     if (json.length() > 2)
     {
-        json.insert(1, "\"solver_guid\":\"" + solver_guid + "\",\"expression\":\"" + s + "\",\"id\":\"" + id_str + "\",");
+        json.insert(1, "\"solver_guid\":\"" + solver_guid + "\",\"expression\":\"" + std::regex_replace(s, std::regex(R"(")"), R"(\\\")") + 
+            "\",\"id\":\"" + id_str + "\",");
         document->window->OnSolverAction(json);
     }
 #endif
@@ -692,7 +696,8 @@ bool IntegerSolverTask::Execute(WebSocketPtr socket, Result& result)
 #ifdef EMSCRIPTEN
     if (json.length() > 2)
     {
-        json.insert(1, "\"solver_guid\":\"" + solver_guid + "\",\"expression\":\"" + s + "\",\"id\":\"" + id_str + "\",");
+        json.insert(1, "\"solver_guid\":\"" + solver_guid + "\",\"expression\":\"" + std::regex_replace(s, std::regex(R"(")"), R"(\\\")") + 
+            "\",\"id\":\"" + id_str + "\",");
         document->window->OnSolverAction(json);
     }
 #endif
@@ -778,7 +783,8 @@ bool RationalSolverTask::Execute(WebSocketPtr socket, Result& result)
 #ifdef EMSCRIPTEN
     if (json.length() > 2)
     {
-        json.insert(1, "\"solver_guid\":\"" + solver_guid + "\",\"expression\":\"" + s + "\",\"id\":\"" + id_str + "\",");
+        json.insert(1, "\"solver_guid\":\"" + solver_guid + "\",\"expression\":\"" + std::regex_replace(s, std::regex(R"(")"), R"(\\\")") + 
+            "\",\"id\":\"" + id_str + "\",");
         document->window->OnSolverAction(json);
     }
 #endif
@@ -866,7 +872,8 @@ bool ComplexSolverTask::Execute(WebSocketPtr socket, Result& result)
 #ifdef EMSCRIPTEN
     if (json.length() > 2)
     {
-        json.insert(1, "\"solver_guid\":\"" + solver_guid + "\",\"expression\":\"" + s + "\",\"id\":\"" + id_str + "\",");
+        json.insert(1, "\"solver_guid\":\"" + solver_guid + "\",\"expression\":\"" + std::regex_replace(s, std::regex(R"(")"), R"(\\\")") + 
+            "\",\"id\":\"" + id_str + "\",");
         document->window->OnSolverAction(json);
     }
 #endif
@@ -956,12 +963,14 @@ bool ArrayRealSolverTask::Execute(WebSocketPtr socket, Result& result)
     {
         if (json.length() > 1024)
         {
-            std::string _json("{\"solver_guid\":\"" + solver_guid + "\",\"expression\":\"" + s + "\",\"id\":\"" + id_str + "\"}");
+            std::string _json("{\"solver_guid\":\"" + solver_guid + "\",\"expression\":\"" + std::regex_replace(s, std::regex(R"(")"), R"(\\\")") + 
+                "\",\"id\":\"" + id_str + "\"}");
             document->window->OnSolverAction(_json);
         }
         else
         {
-            json.insert(1, "\"solver_guid\":\"" + solver_guid + "\",\"expression\":\"" + s + "\",\"id\":\"" + id_str + "\",");
+            json.insert(1, "\"solver_guid\":\"" + solver_guid + "\",\"expression\":\"" + std::regex_replace(s, std::regex(R"(")"), R"(\\\")") + 
+                "\",\"id\":\"" + id_str + "\",");
             document->window->OnSolverAction(json);
         }
     }
