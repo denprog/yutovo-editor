@@ -2542,6 +2542,15 @@ bool Document::CanRedo()
     return false;
 }
 
+void Document::SetChanged(bool _changed)
+{
+    if (changed != _changed)
+    {
+        save_task_id = last_modify_task_id;
+        UpdateChanged();
+    }
+}
+
 bool Document::IsChanged()
 {
     return changed;
