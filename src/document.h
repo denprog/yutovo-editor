@@ -216,6 +216,7 @@ public:
     bool CanUndo();
     bool CanRedo();
 
+    void SetChanged(bool _changed);
     bool IsChanged();
 
     uint Resize(uint width, uint height);
