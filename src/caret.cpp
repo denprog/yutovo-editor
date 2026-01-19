@@ -76,7 +76,7 @@ void Caret::SetState(const CaretState& caret_state, bool update_x_pos)
 
 void Caret::SetState(const LogicalCaretState& caret_state, bool update_x_pos)
 {
-    if (block)
+    if (block || caret_state.id.empty())
         return;
     ElementId _id = document->GetElementId(caret_state.id, last_pos);
     if (!_id.empty())

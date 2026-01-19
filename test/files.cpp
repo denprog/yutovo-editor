@@ -2257,6 +2257,8 @@ TEST_F(IncludeDocumentsTest, include_files19)
     document.WaitLoad();
     document.WaitSolver();
     std::this_thread::sleep_for(4s);
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 3, 0, 0, 0, 0, 0, 0, 0, 9}, 
+        ElementSelectionState{ElementId{0, 3, 0, 0, 0, 0, 0}, 0, 1})) << document.GetEditorState().ToString();
 
     document.MoveCaretToDocumentBegin(false);
     document.WaitTask(document.DeleteElements(true, true));
@@ -2267,6 +2269,48 @@ TEST_F(IncludeDocumentsTest, include_files19)
         U"сопротивление=27.мОм"\
         ) << ToBasicString(document.ToText());
     ASSERT_TRUE(!document.CanUndo());
+}
+
+//Chain of two include files
+TEST_F(IncludeDocumentsTest, include_files20)
+{
+    Start(600);
+
+    EXPECT_CALL(window_mock, OnLoadInclude).WillRepeatedly([&](const std::string& file_name, const int document_id)
+        {
+            document.LoadInclude(file_name);
+            std::this_thread::sleep_for(400ms);
+        });
+
+    document.Load("../../test/tests/include_files20_3.yut");
+    document.WaitLoad();
+    document.WaitSolver();
+    std::this_thread::sleep_for(4s);
+    ASSERT_TRUE(document.ToText() == 
+        U"include files\n"\
+        U"v=24.\n"\
+        U"func(55)=110."
+        ) << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 6, 0, 0, 1, 0, 0, 0, 0, 4}, 
+        ElementSelectionState{ElementId{0, 6, 0, 0, 1, 0, 0, 0}, 0, 1})) << document.GetEditorState().ToString();
+
+    document.MoveCaretUp(false);
+    document.InsertParagraph(true);
+    document.WaitTask(document.MoveCaretUp(false));
+    document.InsertString("func", true);
+    document.InsertOpenRoundBracket(true);
+    document.InsertString("t", true);
+    document.InsertCloseRoundBracket(true);
+    document.InsertAssignment(true);
+    document.WaitTask(document.InsertString("t", true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(2s);
+    ASSERT_TRUE(document.ToText() == 
+        U"include files\n"\
+        U"func(t)=t\n"\
+        U"v=12.\n"\
+        U"func(55)=55."
+        ) << ToBasicString(document.ToText());
 }
 
 }

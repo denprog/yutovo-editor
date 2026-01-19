@@ -1796,7 +1796,8 @@ bool LoadTask::Execute()
             }
         }
 
-        document->path = filename;
+        if (!include)
+            document->path = filename;
 
         if (DecompressGzip(file, json)) //try to open as compressed file
         {
@@ -1942,60 +1943,72 @@ bool LoadTask::Execute()
                     {
                         if (s.FromJson(doc["selection"], doc.GetAllocator()))
                         {
-                            LogicalId _id = yutovo::GetParent(c.id);
-                            if (document->GetLogicalElement(_id) == nullptr) //check caret state
+                            if (!document->config.include_documents.documents.empty())
                             {
-                                ElementPtr p = nullptr;
-                                while (!p && !_id.empty())
-                                {
-                                    p = document->GetLogicalElement(_id);
-                                    if (p && !p->HasCaretState())
-                                        p.reset();
-                                    _id = yutovo::GetParent(_id);
-                                }
-                                if (p)
-                                    document->caret->SetState(p->id);
-                                else
-                                {
-                                    CaretState c;
-                                    document->text->GetFirstCaretState(c, nullptr);
-                                    document->caret->SetState(c);
-                                }
+                                //store the caret state for setting it after inlude documents
+                                document->include_editor_state.caret_state = c;
+                                document->include_editor_state.selection_state = s;
+                                CaretState f;
+                                document->text->GetFirstCaretState(f, nullptr);
+                                document->caret->SetState(f);
                             }
                             else
                             {
-                                bool r = true;
-                                if (s.state.size() > 0) //check selection state
+                                LogicalId _id = yutovo::GetParent(c.id);
+                                if (document->GetLogicalElement(_id) == nullptr) //check caret state
                                 {
-                                    for (auto& s : s.state)
+                                    ElementPtr p = nullptr;
+                                    while (!p && !_id.empty())
                                     {
-                                        std::vector<ElementPtr> elements;
-                                        document->GetElements(s.id, elements);
-                                        int c = 0;
-                                        for (auto& el : elements)
-                                            c += el->elements->Count();
-                                        if (elements.empty() || c < s.start || c < s.start + s.size)
-                                        {
-                                            r = false;
-                                            break;
-                                        }
+                                        p = document->GetLogicalElement(_id);
+                                        if (p && !p->HasCaretState())
+                                            p.reset();
+                                        _id = yutovo::GetParent(_id);
                                     }
-                                }
-                                if (r)
-                                {
-                                    LogicalEditorState editor_state{c, s};
-                                    document->SetEditorState(editor_state);
-                                }
-                                else
-                                {
-                                    auto el = document->GetLogicalElement(GetParent(c.id));
-                                    if (el)
-                                        document->caret->SetState(el->id);
+                                    if (p)
+                                        document->caret->SetState(p->id);
                                     else
                                     {
                                         CaretState c;
                                         document->text->GetFirstCaretState(c, nullptr);
                                         document->caret->SetState(c);
+                                    }
+                                }
+                                else
+                                {
+                                    bool r = true;
+                                    if (s.state.size() > 0) //check selection state
+                                    {
+                                        for (auto& s : s.state)
+                                        {
+                                            std::vector<ElementPtr> elements;
+                                            document->GetElements(s.id, elements);
+                                            int c = 0;
+                                            for (auto& el : elements)
+                                                c += el->elements->Count();
+                                            if (elements.empty() || c < s.start || c < s.start + s.size)
+                                            {
+                                                r = false;
+                                                break;
+                                            }
+                                        }
+                                    }
+                                    if (r)
+                                    {
+                                        LogicalEditorState editor_state{c, s};
+                                        document->SetEditorState(editor_state);
+                                    }
+                                    else
+                                    {
+                                        auto el = document->GetLogicalElement(GetParent(c.id));
+                                        if (el)
+                                            document->caret->SetState(el->id);
+                                        else
+                                        {
+                                            CaretState c;
+                                            document->text->GetFirstCaretState(c, nullptr);
+                                            document->caret->SetState(c);
+                                        }
                                     }
                                 }
                             }
