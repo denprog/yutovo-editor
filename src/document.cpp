@@ -2718,7 +2718,10 @@ void Document::AddInclude(const std::string& filename, const int document_id)
 void Document::LoadNextInclude()
 {
     if (include_documents.empty())
+    {
+        SetEditorState(include_editor_state);
         return;
+    }
     auto& p = include_documents.front();
     window->OnLoadInclude(p.second, p.first);
     include_documents.pop();

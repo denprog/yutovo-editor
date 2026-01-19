@@ -524,6 +524,8 @@ private:
 
     EditorState last_caret_state;
 
+    LogicalEditorState include_editor_state;
+
     ElementId caret_hilight_id;
 
     Point last_mouse_pos{0, 0};
