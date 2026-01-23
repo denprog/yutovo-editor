@@ -132,23 +132,23 @@ TEST_F(DocumentTest, strings2)
     document.Undo();
     document.WaitUndo();
     std::this_thread::sleep_for(100ms);
-    ASSERT_TRUE(document.ToText() == U"TextStrin") << ToBasicString(document.ToText());
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 9)) << document.GetEditorState().ToString();
-
-    document.Undo();
-    document.WaitUndo();
-    std::this_thread::sleep_for(100ms);
-    ASSERT_TRUE(document.ToText() == U"TextStri") << ToBasicString(document.ToText());
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 8)) << document.GetEditorState().ToString();
-
-    document.Undo();
-    document.WaitUndo();
-    std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToText() == U"TextStr") << ToBasicString(document.ToText());
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 7)) << document.GetEditorState().ToString();
 
     document.Undo();
     document.WaitUndo();
+    std::this_thread::sleep_for(100ms);
+    ASSERT_TRUE(document.ToText() == U"Text") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 4)) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    std::this_thread::sleep_for(100ms);
+    ASSERT_TRUE(document.ToText() == U"") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 0)) << document.GetEditorState().ToString();
+
+    document.Redo();
+    document.WaitRedo();
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToHtml() == "<body><p><span style=\"font-family:'Arial';font-size:22px;\">Text</span></p></body>") << document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 4)) << document.GetEditorState().ToString();
@@ -160,13 +160,13 @@ TEST_F(DocumentTest, strings2)
 
     document.Redo();
     document.WaitRedo();
-    ASSERT_TRUE(document.ToText() == U"TextStri") << ToBasicString(document.ToText());
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 8)) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.ToText() == U"TextString") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 10)) << document.GetEditorState().ToString();
 
     document.WaitTask(document.InsertString("Str", true));
     std::this_thread::sleep_for(100ms);
-    ASSERT_TRUE(document.ToText() == U"TextStriStr") << ToBasicString(document.ToText());
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 11)) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.ToText() == U"TextStringStr") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 13)) << document.GetEditorState().ToString();
 }
 
 TEST_F(DocumentTest, strings3)
@@ -176,14 +176,14 @@ TEST_F(DocumentTest, strings3)
     document.InsertString("Str", true);
     document.InsertString("i", true);
     document.InsertString("n", true);
-    document.InsertString("g", true);
-    document.WaitTask(document.DeleteElements(false, true));
-    document.WaitTask(document.DeleteElements(false, true));
+    document.WaitTask(document.InsertString("g", true));
+    document.WaitTask(document.DeleteElements(true, true));
+    document.WaitTask(document.DeleteElements(true, true));
 
     document.Undo();
     document.WaitUndo();
-    ASSERT_TRUE(document.ToText() == U"Strin") << ToBasicString(document.ToText());
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 5)) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.ToText() == U"String") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 6)) << document.GetEditorState().ToString();
 }
 
 //Insert tabulation
@@ -210,13 +210,16 @@ TEST_F(DocumentTest, strings4)
     ASSERT_TRUE(document.ToText() == U"tab") << ToBasicString(document.ToText());
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 3)) << document.GetEditorState().ToString();
 
-    document.InsertString("	", true);
+    document.InsertString(U"    ", true);
     document.WaitTask(document.InsertString("string", true));
-    ASSERT_TRUE(document.ToText() == U"tab	string") << ToBasicString(document.ToText());
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 10)) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.ToText() == U"tab    string") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 13)) << document.GetEditorState().ToString();
 
     document.Undo();
     document.WaitUndo();
+    ASSERT_TRUE(document.ToText() == U"tab    ") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 7)) << document.GetEditorState().ToString();
+
     document.Undo();
     document.WaitUndo();
     ASSERT_TRUE(document.ToText() == U"tab") << ToBasicString(document.ToText());
@@ -300,10 +303,10 @@ TEST_F(DocumentTest, strings7)
     ASSERT_TRUE(document.ToText() == U"123	") << ToBasicString(document.ToText());
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 0)) << document.GetEditorState().ToString();
 
-    document.Undo();
-    document.WaitUndo();
-    ASSERT_TRUE(document.ToText() == U"123") << ToBasicString(document.ToText());
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 3)) << document.GetEditorState().ToString();
+    document.Redo();
+    document.WaitRedo();
+    ASSERT_TRUE(document.ToText() == U"	123	") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 1)) << document.GetEditorState().ToString();
 }
 
 //Replace mode
@@ -356,6 +359,9 @@ TEST_F(DocumentTest, strings9)
 
     document.Undo();
     document.WaitUndo();
+    ASSERT_TRUE(document.ToText() == U"5344") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 1}));
+
     document.Undo();
     document.WaitUndo();
     ASSERT_TRUE(document.ToText() == U"12344") << ToBasicString(document.ToText());
@@ -366,6 +372,11 @@ TEST_F(DocumentTest, strings9)
     document.WaitRedo();
     ASSERT_TRUE(document.ToText() == U"5344") << ToBasicString(document.ToText());
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 1})) << document.GetEditorState().ToString();
+
+    document.Redo();
+    document.WaitRedo();
+    ASSERT_TRUE(document.ToText() == U"5844") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 2})) << document.GetEditorState().ToString();
 
     document.SetInsertMode(true);
     document.MoveCaretToDocumentBegin(false);
@@ -1156,7 +1167,7 @@ TEST_F(DocumentTest, inserts8)
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
-                "<span style=\"font-family:'Arial';font-size:14px;\">The_source_of_the_text_itself_isa </span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">The_source_of_the_text_itself_isa</span>"\
             "</p>"\
         "</body>") << 
         document.ToHtml();
@@ -1210,25 +1221,8 @@ TEST_F(DocumentTest, fonts1)
         document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 7)) << document.GetEditorState().ToString();
 
-    for (int i = 0; i < 5; ++i)
-    {
-        document.Undo();
-        document.WaitUndo();
-    }
-    ASSERT_TRUE(document.ToHtml() == 
-        "<body>"\
-            "<p>"\
-                "<span style=\"font-family:'Courier New';font-size:12px;\">Co</span>"\
-            "</p>"\
-        "</body>") << 
-        document.ToHtml();
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 2)) << document.GetEditorState().ToString();
-
-    for (int i = 0; i < 5; ++i)
-    {
-        document.Undo();
-        std::this_thread::sleep_for(10ms);
-    }
+    document.Undo();
+    document.WaitUndo();
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -3110,19 +3104,6 @@ TEST_F(DocumentTest, delete1)
 
     document.Undo();
     document.WaitUndo();
-    std::this_thread::sleep_for(200ms);
-    ASSERT_TRUE(document.ToHtml() == 
-        "<body>"\
-            "<p>"\
-                "<span style=\"font-family:'Arial';font-size:24px;\">Text</span>"\
-                "<span style=\"font-family:'Times New Roman';font-size:18px;\"><em>talic</em></span>"\
-            "</p>"\
-        "</body>") << 
-        document.ToHtml();
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 4)) << document.GetEditorState().ToString();
-
-    document.Undo();
-    document.WaitUndo();
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -3312,11 +3293,11 @@ TEST_F(DocumentTest, delete3)
             "<p>"\
                 "<span style=\"font-family:'Arial';font-size:24px;\">Text</span>"\
                 "<span style=\"font-family:'Times New Roman';font-size:18px;\"><em>Italic</em></span>"\
-                "<span style=\"font-family:'Arial';font-size:22px;\">N</span>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\">Normal</span>"\
             "</p>"\
         "</body>") << 
         document.ToHtml();
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 2, 1)) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 2, 6)) << document.GetEditorState().ToString();
 
     document.MoveCaretLeft(false);
     document.WaitTask(document.DeleteElements(false, true));
@@ -3325,10 +3306,11 @@ TEST_F(DocumentTest, delete3)
             "<p>"\
                 "<span style=\"font-family:'Arial';font-size:24px;\">Text</span>"\
                 "<span style=\"font-family:'Times New Roman';font-size:18px;\"><em>Italic</em></span>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\">Norma</span>"\
             "</p>"\
         "</body>") << 
         document.ToHtml();
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 1, 6)) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 2, 5)) << document.GetEditorState().ToString();
 
     document.Undo();
     document.WaitUndo();
@@ -3338,11 +3320,11 @@ TEST_F(DocumentTest, delete3)
             "<p>"\
                 "<span style=\"font-family:'Arial';font-size:24px;\">Text</span>"\
                 "<span style=\"font-family:'Times New Roman';font-size:18px;\"><em>Italic</em></span>"\
-                "<span style=\"font-family:'Arial';font-size:22px;\">N</span>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\">Normal</span>"\
             "</p>"\
         "</body>") << 
         document.ToHtml();
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 2, 0)) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 2, 5)) << document.GetEditorState().ToString();
 
     document.WaitTask(document.MoveCaretEnd(false));
     document.WaitTask(document.InsertString("orm", true));
@@ -3354,11 +3336,11 @@ TEST_F(DocumentTest, delete3)
             "<p>"\
                 "<span style=\"font-family:'Arial';font-size:24px;\">Text</span>"\
                 "<span style=\"font-family:'Times New Roman';font-size:18px;\"><em>Italic</em></span>"\
-                "<span style=\"font-family:'Arial';font-size:22px;\">N</span>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\">Normal</span>"\
             "</p>"\
         "</body>") << 
         document.ToHtml();
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 2, 1)) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 2, 6)) << document.GetEditorState().ToString();
 }
 
 //Delete of Utf-8 characters
@@ -3921,13 +3903,11 @@ TEST_F(DocumentTest, undo1)
     config.undo_size = 4;
     document.SetConfig(config, true);
 
-    document.InsertString("T", true);
-    document.InsertString("h", true);
-    document.InsertString("e", true);
-    document.InsertString(" ", true);
-    document.InsertString("s", true);
-    document.InsertString("o", true);
-    document.WaitTask(document.InsertString("u", true));
+    document.InsertString("Th", true);
+    document.InsertString("e ", true);
+    document.InsertString("so", true);
+    document.InsertString("ur", true);
+    document.WaitTask(document.InsertString("ce", true));
 
     for (int i = 0; i < 4; ++i)
     {
@@ -3943,7 +3923,7 @@ TEST_F(DocumentTest, undo1)
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
-                "<span style=\"font-family:'Arial';font-size:14px;\">The</span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">Th</span>"\
             "</p>"\
         "</body>") << 
         document.ToHtml();
@@ -3953,13 +3933,13 @@ TEST_F(DocumentTest, undo1)
     ASSERT_TRUE(document.ToText() == U"The ") << ToBasicString(document.ToText());
     document.Redo();
     document.WaitRedo();
-    ASSERT_TRUE(document.ToText() == U"The s") << ToBasicString(document.ToText());
-    document.Redo();
-    document.WaitRedo();
     ASSERT_TRUE(document.ToText() == U"The so") << ToBasicString(document.ToText());
     document.Redo();
     document.WaitRedo();
-    ASSERT_TRUE(document.ToText() == U"The sou") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.ToText() == U"The sour") << ToBasicString(document.ToText());
+    document.Redo();
+    document.WaitRedo();
+    ASSERT_TRUE(document.ToText() == U"The source") << ToBasicString(document.ToText());
     ASSERT_TRUE(!document.CanRedo());
     ASSERT_TRUE(document.GetUndoSize() == 4);
 }
@@ -4016,15 +3996,6 @@ TEST_F(DocumentTest, undo3)
 
     document.Undo();
     document.WaitUndo();
-    ASSERT_TRUE(document.ToText() == U"12345678901") << ToBasicString(document.ToText());
-    document.Undo();
-    document.WaitUndo();
-    ASSERT_TRUE(document.ToText() == U"1234567890") << ToBasicString(document.ToText());
-    document.Undo();
-    document.WaitUndo();
-    ASSERT_TRUE(document.ToText() == U"123456789") << ToBasicString(document.ToText());
-    document.Undo();
-    document.WaitUndo();
     ASSERT_TRUE(document.ToText() == U"12345678") << ToBasicString(document.ToText());
 
     ASSERT_TRUE(!document.CanUndo());
@@ -4036,15 +4007,6 @@ TEST_F(DocumentTest, undo3)
     ASSERT_TRUE(document.CanRedo());
     document.Redo();
     document.WaitRedo();
-    ASSERT_TRUE(document.ToText() == U"123456789") << ToBasicString(document.ToText());
-    document.Redo();
-    document.WaitRedo();
-    ASSERT_TRUE(document.ToText() == U"1234567890") << ToBasicString(document.ToText());
-    document.Redo();
-    document.WaitRedo();
-    ASSERT_TRUE(document.ToText() == U"12345678901") << ToBasicString(document.ToText());
-    document.Redo();
-    document.WaitRedo();
     ASSERT_TRUE(document.ToText() == U"123456789012") << ToBasicString(document.ToText());
 
     ASSERT_TRUE(document.IsChanged());
@@ -4052,6 +4014,213 @@ TEST_F(DocumentTest, undo3)
     document.Redo();
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.ToText() == U"123456789012") << ToBasicString(document.ToText());
+}
+
+//Undo by words
+TEST_F(DocumentTest, undo4)
+{
+    Start(600);
+
+    document.InsertString("1", true);
+    document.InsertString("2", true);
+    document.InsertString("3", true);
+    document.InsertString(" ", true);
+    document.InsertString("4", true);
+    document.WaitTask(document.InsertString("5", true));
+
+    document.Undo();
+    document.WaitUndo();
+    ASSERT_TRUE(document.ToText() == U"123") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 3})) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    ASSERT_TRUE(document.ToText() == U"") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0})) << document.GetEditorState().ToString();
+
+    document.Redo();
+    document.WaitRedo();
+    ASSERT_TRUE(document.ToText() == U"123") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 3})) << document.GetEditorState().ToString();
+
+    document.Redo();
+    document.WaitRedo();
+    ASSERT_TRUE(document.ToText() == U"123 45") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 6})) << document.GetEditorState().ToString();
+}
+
+//Undo by words
+TEST_F(DocumentTest, undo5)
+{
+    Start(600);
+
+    document.InsertString("1", true);
+    document.InsertString("2", true);
+    document.InsertString("3", true);
+    document.InsertString(" ", true);
+    document.InsertString("4", true);
+    document.WaitTask(document.InsertString("5", true));
+
+    document.InsertParagraph(true);
+    document.InsertString("6", true);
+    document.InsertString("7", true);
+    document.InsertString("8", true);
+    document.WaitTask(document.InsertString("9", true));
+
+    document.MoveCaretUp(false);
+    document.MoveCaretEnd(false);
+    document.InsertString("8", true);
+    document.InsertString("8", true);
+    document.WaitTask(document.InsertString("8", true));
+
+    document.Undo();
+    document.WaitUndo();
+    ASSERT_TRUE(document.ToText() == 
+        U"123 45\n"\
+        U"6789"
+        ) << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 6})) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    ASSERT_TRUE(document.ToText() == 
+        U"123 45\n"\
+        U""
+        ) << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 1, 0, 0, 0})) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    ASSERT_TRUE(document.ToText() == 
+        U"123 45"
+        ) << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 6})) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    ASSERT_TRUE(document.ToText() == 
+        U"123"
+        ) << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 3})) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    ASSERT_TRUE(document.ToText() == 
+        U""
+        ) << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0})) << document.GetEditorState().ToString();
+
+    document.Redo();
+    document.WaitRedo();
+    ASSERT_TRUE(document.ToText() == 
+        U"123"
+        ) << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 3})) << document.GetEditorState().ToString();
+
+    document.Redo();
+    document.WaitRedo();
+    ASSERT_TRUE(document.ToText() == 
+        U"123 45"
+        ) << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 6})) << document.GetEditorState().ToString();
+
+    document.Redo();
+    document.WaitRedo();
+    ASSERT_TRUE(document.ToText() == 
+        U"123 45\n"\
+        U""
+        ) << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 1, 0, 0, 0})) << document.GetEditorState().ToString();
+
+    document.Redo();
+    document.WaitRedo();
+    ASSERT_TRUE(document.ToText() == 
+        U"123 45\n"\
+        U"6789"
+        ) << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 1, 0, 0, 4})) << document.GetEditorState().ToString();
+
+    document.Redo();
+    document.WaitRedo();
+    ASSERT_TRUE(document.ToText() == 
+        U"123 45888\n"\
+        U"6789"
+        ) << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 9})) << document.GetEditorState().ToString();
+}
+
+//Undo by words
+TEST_F(DocumentTest, undo6)
+{
+    Start(600);
+
+    document.InsertString("1", true);
+    document.InsertString("2", true);
+    document.InsertString("3", true);
+    document.InsertString(" ", true);
+    document.InsertString(" ", true);
+    document.InsertString("4", true);
+    document.WaitTask(document.InsertString("5", true));
+
+    document.MoveCaretHome(false);
+    document.InsertString("8", true);
+    document.WaitTask(document.InsertString("8", true));
+
+    document.Undo();
+    document.WaitUndo();
+    ASSERT_TRUE(document.ToText() == 
+        U"123  45"
+        ) << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0})) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    ASSERT_TRUE(document.ToText() == 
+        U"123 "
+        ) << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 4})) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    ASSERT_TRUE(document.ToText() == 
+        U"123"
+        ) << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 3})) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    ASSERT_TRUE(document.ToText() == 
+        U""
+        ) << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0})) << document.GetEditorState().ToString();
+
+    document.Redo();
+    document.WaitRedo();
+    ASSERT_TRUE(document.ToText() == 
+        U"123"
+        ) << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 3})) << document.GetEditorState().ToString();
+
+    document.Redo();
+    document.WaitRedo();
+    ASSERT_TRUE(document.ToText() == 
+        U"123 "
+        ) << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 4})) << document.GetEditorState().ToString();
+
+    document.Redo();
+    document.WaitRedo();
+    ASSERT_TRUE(document.ToText() == 
+        U"123  45"
+        ) << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 7})) << document.GetEditorState().ToString();
+
+    document.Redo();
+    document.WaitRedo();
+    ASSERT_TRUE(document.ToText() == 
+        U"88123  45"
+        ) << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 2})) << document.GetEditorState().ToString();
 }
 
 }

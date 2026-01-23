@@ -400,7 +400,9 @@ private:
     std::deque<uint> last_tasks;
     const int last_tasks_count = 100;
 
+    int cur_modify_task_id = 0;
     int last_modify_task_id = 0;
+    LogicalCaretState last_insert_caret_state, last_delete_caret_state;
 
 private:
     friend class MoveCaretTask;
@@ -412,7 +414,9 @@ private:
     friend class SaveTask;
     friend class RedrawTask;
     friend class SetConfigTask;
+    friend class InsertElementsTask;
     friend class DeleteElementsTask;
+    friend class InsertFormulasTask;
     friend class Caret;
     friend class Element;
     friend class Elements;

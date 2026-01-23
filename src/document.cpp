@@ -254,13 +254,21 @@ void Document::MainLoop()
                         //collect tasks with one id
                         TaskPtr t = undo_tasks.back();
                         uint id = t->id;
-                        while (id == t->id)
+                        bool s = t->next_task;
+                        bool sp = false;
+                        while (id == t->id || (s && t->next_task))
                         {
                             temp_undo_tasks.push_back(t);
                             undo_tasks.pop_back();
                             if (undo_tasks.empty())
                                 break;
+                            sp = t->next_task;
                             t = undo_tasks.back();
+                        }
+                        if (!undo_tasks.empty() && sp)
+                        {
+                            temp_undo_tasks.push_back(t);
+                            undo_tasks.pop_back();
                         }
                     }
                     undos.clear();
@@ -284,6 +292,8 @@ void Document::MainLoop()
                         last_modify_task_id = 0;
                 }
                 selection.can_optimize = true;
+                last_insert_caret_state.id = LogicalId{};
+                last_delete_caret_state.id = LogicalId{};
 #ifdef DEBUG
                 last_undo_executed = true;
 #endif
@@ -311,7 +321,7 @@ void Document::MainLoop()
                     if (++i < redo_tasks.size())
                     {
                         uint redo_task_id = redo_tasks[i]->id;
-                        while (i < redo_tasks.size() && redo_tasks[i]->id == redo_task_id)
+                        while (i < redo_tasks.size() && (redo_tasks[i]->id == redo_task_id || redo_tasks[i]->next_task))
                         {
                             temp_redo_tasks.push_back(redo_tasks[i++]);
                         }
@@ -328,6 +338,7 @@ void Document::MainLoop()
                     resolve_elements.clear();
                     TaskPtr& t = temp_redo_tasks[i];
                     cur_task_id = t->id;
+                    cur_modify_task_id = t->id;
                     std::lock_guard<std::recursive_mutex> lock(edit_mutex);
                     if (!t->Execute())
                         break;
@@ -355,6 +366,8 @@ void Document::MainLoop()
             {
                 TaskPtr& t = temp_tasks[i];
                 cur_task_id = t->id;
+                if (t->with_undo)
+                    cur_modify_task_id = t->id;
                 uint last_undo_task_id = 0;
                 if (!undo_tasks.empty())
                     last_undo_task_id = undo_tasks.back()->id;
@@ -373,8 +386,11 @@ void Document::MainLoop()
                                 break;
                             redo_tasks.erase(redo_tasks.begin() + i);
                         }
+                        if (!undo_tasks.empty())
+                            t->next_task = undo_tasks.back()->next_task;
                         redo_tasks.push_back(t);
                         last_modify_task_id = t->id;
+                        //last_modify_caret_state = caret->GetCaretState();
                     }
                     last_editor_selection = selection.GetState();
                 }
@@ -2719,7 +2735,8 @@ void Document::LoadNextInclude()
 {
     if (include_documents.empty())
     {
-        SetEditorState(include_editor_state);
+        if (!include_editor_state.IsEmpty())
+            SetEditorState(include_editor_state);
         return;
     }
     auto& p = include_documents.front();

@@ -328,8 +328,8 @@ TEST_F(FormulaTest, square_root6)
     document.Undo();
     document.WaitUndo();
     std::this_thread::sleep_for(200ms);
-    ASSERT_TRUE(document.ToText() == U"sqrt(12)") << ToBasicString(document.ToText());
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0, 0, 0, 1, 0, 2})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.ToText() == U"sqrt()") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0, 0, 0, 1, 0, 0})) << document.GetEditorState().ToString();
 }
 
 TEST_F(FormulaTest, square_root7)
