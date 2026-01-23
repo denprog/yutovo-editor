@@ -571,7 +571,8 @@ TEST_F(DocumentTest, files12)
         });
 
     ASSERT_TRUE(document.IsChanged() == false);
-    document.WaitTask(document.InsertString("Text ", true));
+    document.WaitTask(document.InsertString("Text", true));
+    document.WaitTask(document.InsertString(" ", true));
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.IsChanged() == true);
     document.WaitTask(document.InsertString("s", true));
@@ -588,7 +589,7 @@ TEST_F(DocumentTest, files12)
 
     document.Undo();
     document.WaitUndo();
-    ASSERT_TRUE(document.ToText() == U"Text s") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.ToText() == U"Text") << ToBasicString(document.ToText());
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.IsChanged() == true);
 
@@ -604,13 +605,13 @@ TEST_F(DocumentTest, files12)
 
     document.Undo();
     document.WaitUndo();
-    ASSERT_TRUE(document.ToText() == U"Text s") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.ToText() == U"Text") << ToBasicString(document.ToText());
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.IsChanged() == false);
 
     document.Undo();
     document.WaitUndo();
-    ASSERT_TRUE(document.ToText() == U"Text ") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.ToText() == U"") << ToBasicString(document.ToText());
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.IsChanged() == true);
 }
@@ -848,24 +849,18 @@ TEST_F(DocumentTest, files20)
     std::this_thread::sleep_for(200ms);
     ASSERT_TRUE(document.IsChanged() == true);
 
-    for (int i = 0; i < 3; ++i)
-    {
-        document.Undo();
-        document.WaitUndo();
-        ASSERT_TRUE(document.IsChanged() == true);
-    }
-
     document.Undo();
     document.WaitUndo();
     ASSERT_TRUE(document.IsChanged() == false);
 
-    for (int i = 0; i < 4; ++i)
-    {
-        document.Redo();
-        document.WaitRedo();
-        std::this_thread::sleep_for(200ms);
-        ASSERT_TRUE(document.IsChanged() == true);
-    }
+    document.Undo();
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.IsChanged() == false);
+
+    document.Redo();
+    document.WaitRedo();
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.IsChanged() == true);
 
     document.WaitTask(document.Save("files_20.yut"));
     std::this_thread::sleep_for(200ms);
@@ -887,15 +882,11 @@ TEST_F(DocumentTest, files20)
     std::this_thread::sleep_for(200ms);
     ASSERT_TRUE(document.IsChanged() == true);
 
-    for (int i = 0; i < 2; ++i)
-    {
-        document.Undo();
-        document.WaitUndo();
-        ASSERT_TRUE(document.IsChanged() == true);
-    }
-
     document.Undo();
     document.WaitUndo();
+    ASSERT_TRUE(document.ToText() == 
+        U"Text"
+        ) << ToBasicString(document.ToText());
     ASSERT_TRUE(document.IsChanged() == false);
 
     document.Undo();
@@ -905,13 +896,6 @@ TEST_F(DocumentTest, files20)
     document.Redo();
     document.WaitRedo();
     ASSERT_TRUE(document.IsChanged() == false);
-
-    for (int i = 0; i < 2; ++i)
-    {
-        document.Redo();
-        document.WaitRedo();
-        ASSERT_TRUE(document.IsChanged() == true);
-    }
 }
 
 //Check is changed

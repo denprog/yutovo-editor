@@ -198,8 +198,25 @@ bool InsertElementsTask::Execute()
         }
     }
 
+    bool insert_char = false, insert_space = false;
+    if (selection_state.IsEmpty() && elements.size() == 1)
+    {
+        auto& t = elements[0];
+        if (t->type == ElementType::STRING || t->type == ElementType::CODE_STRING)
+        {
+            String* str = (String*)t.get();
+            if (str->elements->Count() == 1)
+            {
+                if (str->ToText() == U" ")
+                    insert_space = true;
+                else
+                    insert_char = true;
+            }
+        }
+    }
+
     std::vector<ElementPtr> _elements;
-    for (auto t : elements)
+    for (auto& t : elements)
     {
         auto code = document->FindParent(el->id, ElementType::CODE_BLOCK);
         if (t->type == ElementType::STRING && code)
@@ -268,6 +285,18 @@ bool InsertElementsTask::Execute()
             document->pasting = false;
             document->caret->notify = true;
             return false;
+        }
+
+        if (with_undo)
+        {
+            if (insert_char)
+            {
+                if (document->last_insert_caret_state == before_state.caret_state && document->last_modify_task_id != document->save_task_id)
+                    document->undo_tasks[document->undo_tasks.size() - 1]->next_task = true;
+                document->last_insert_caret_state = document->caret->GetLogicalCaretState();
+            }
+            else if (insert_space)
+                document->last_insert_caret_state = document->caret->GetLogicalCaretState();
         }
         
         if (document->caret->GetElement())
@@ -356,6 +385,12 @@ bool DeleteElementsTask::Execute()
             return false;
         if (delete_elements(el, left, changed_element, with_undo))
         {
+            if (with_undo && document->IsString(yutovo::GetParent(caret_state.id)))
+            {
+                if (document->last_delete_caret_state == before_state.caret_state)
+                    document->undo_tasks[document->undo_tasks.size() - 1]->next_task = true;
+                document->last_delete_caret_state = document->caret->GetLogicalCaretState();
+            }
             document->UpdateLastSelection();
             Remake(changed_element, true); //move into view
             return true;

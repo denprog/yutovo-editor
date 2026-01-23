@@ -71,6 +71,8 @@ struct LogicalCaretState
     LogicalCaretState() = default;
     LogicalCaretState(const LogicalId _id);
 
+    bool operator==(const LogicalCaretState& c) const;
+
     bool IsEmpty() const;
 
     void ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc);

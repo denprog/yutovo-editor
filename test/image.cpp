@@ -160,11 +160,10 @@ TEST_F(DocumentTest, images4)
         "<body>"\
             "<p>"\
                 "<img src=\"data:image/png;base64," + Base64Encode(data) + "\">"\
-                "<span style=\"font-family:'Arial';font-size:14px;\">1</span>"\
             "</p>"\
         "</body>") << 
         document.ToHtml();
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 1, 0, 1})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 1})) << document.GetEditorState().ToString();
 
     document.Redo();
     document.WaitRedo();

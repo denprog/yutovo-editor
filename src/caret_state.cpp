@@ -192,6 +192,11 @@ LogicalCaretState::LogicalCaretState(const LogicalId _id) :
 {
 }
 
+bool LogicalCaretState::operator==(const LogicalCaretState& c) const
+{
+    return id == c.id;
+}
+
 bool LogicalCaretState::IsEmpty() const
 {
     return id.empty();

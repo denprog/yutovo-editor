@@ -1210,14 +1210,6 @@ TEST_F(SolverAutoTest, solver25)
     document.WaitSolver();
     std::this_thread::sleep_for(1s);
     ASSERT_TRUE(document.ToText() == 
-        U"234+6=240."
-        ) << ToBasicString(document.ToText());
-
-    document.Undo();
-    document.WaitUndo();
-    document.WaitSolver();
-    std::this_thread::sleep_for(1s);
-    ASSERT_TRUE(document.ToText() == 
         U"234+=Syntax error"
         ) << ToBasicString(document.ToText());
 
@@ -1226,7 +1218,7 @@ TEST_F(SolverAutoTest, solver25)
     document.WaitSolver();
     std::this_thread::sleep_for(1s);
     ASSERT_TRUE(document.ToText() == 
-        U"234+6=240."
+        U"234+67=301."
         ) << ToBasicString(document.ToText());
 }
 

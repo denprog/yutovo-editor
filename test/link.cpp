@@ -257,12 +257,11 @@ TEST_F(DocumentTest, link5)
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
-                "<span style=\"font-family:'Arial';font-size:14px;\">123</span>"\
                 "<a href=\"www.link.ru\" style=\"font-family:'Arial';font-size:14px;text-decoration: underline;color:rgba(0,0,255,255);\">link</a>"\
             "</p>"\
         "</body>") << 
         document.ToHtml();
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 3})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0})) << document.GetEditorState().ToString();
 
     document.Undo();
     document.WaitUndo();
@@ -270,33 +269,7 @@ TEST_F(DocumentTest, link5)
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
-                "<span style=\"font-family:'Arial';font-size:14px;\">12</span>"\
-                "<a href=\"www.link.ru\" style=\"font-family:'Arial';font-size:14px;text-decoration: underline;color:rgba(0,0,255,255);\">link</a>"\
-            "</p>"\
-        "</body>") << 
-        document.ToHtml();
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 2})) << document.GetEditorState().ToString();
-
-    document.Undo();
-    document.WaitUndo();
-    std::this_thread::sleep_for(100ms);
-    ASSERT_TRUE(document.ToHtml() == 
-        "<body>"\
-            "<p>"\
-                "<span style=\"font-family:'Arial';font-size:14px;\">1</span>"\
-                "<a href=\"www.link.ru\" style=\"font-family:'Arial';font-size:14px;text-decoration: underline;color:rgba(0,0,255,255);\">link</a>"\
-            "</p>"\
-        "</body>") << 
-        document.ToHtml();
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 1})) << document.GetEditorState().ToString();
-
-    document.Undo();
-    document.WaitUndo();
-    std::this_thread::sleep_for(100ms);
-    ASSERT_TRUE(document.ToHtml() == 
-        "<body>"\
-            "<p>"\
-                "<a href=\"www.link.ru\" style=\"font-family:'Arial';font-size:14px;text-decoration: underline;color:rgba(0,0,255,255);\">link</a>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\"></span>"\
             "</p>"\
         "</body>") << 
         document.ToHtml();
@@ -308,12 +281,24 @@ TEST_F(DocumentTest, link5)
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
-                "<span style=\"font-family:'Arial';font-size:14px;\">1</span>"\
                 "<a href=\"www.link.ru\" style=\"font-family:'Arial';font-size:14px;text-decoration: underline;color:rgba(0,0,255,255);\">link</a>"\
             "</p>"\
         "</body>") << 
         document.ToHtml();
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 1})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 4})) << document.GetEditorState().ToString();
+
+    document.Redo();
+    document.WaitRedo();
+    std::this_thread::sleep_for(100ms);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">1234</span>"\
+                "<a href=\"www.link.ru\" style=\"font-family:'Arial';font-size:14px;text-decoration: underline;color:rgba(0,0,255,255);\">link</a>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 4})) << document.GetEditorState().ToString();
 
     StringFormat format;
     ASSERT_TRUE(document.GetStringFormat(ElementId{0, 0, 0, 1}, format));
@@ -393,19 +378,6 @@ TEST_F(DocumentTest, link7)
         "<body>"\
             "<p>"\
                 "<a href=\"www.link.ru\" style=\"font-family:'Arial';font-size:14px;text-decoration: underline;color:rgba(0,0,255,255);\">link</a>"\
-                "<span style=\"font-family:'Arial';font-size:14px;\">1</span>"\
-            "</p>"\
-        "</body>") << 
-        document.ToHtml();
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 1, 1})) << document.GetEditorState().ToString();
-
-    document.Undo();
-    document.WaitUndo();
-    std::this_thread::sleep_for(100ms);
-    ASSERT_TRUE(document.ToHtml() == 
-        "<body>"\
-            "<p>"\
-                "<a href=\"www.link.ru\" style=\"font-family:'Arial';font-size:14px;text-decoration: underline;color:rgba(0,0,255,255);\">link</a>"\
             "</p>"\
         "</body>") << 
         document.ToHtml();
@@ -418,11 +390,11 @@ TEST_F(DocumentTest, link7)
         "<body>"\
             "<p>"\
                 "<a href=\"www.link.ru\" style=\"font-family:'Arial';font-size:14px;text-decoration: underline;color:rgba(0,0,255,255);\">link</a>"\
-                "<span style=\"font-family:'Arial';font-size:14px;\">1</span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">12</span>"\
             "</p>"\
         "</body>") << 
         document.ToHtml();
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 1, 1})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 1, 2})) << document.GetEditorState().ToString();
 }
 
 //Insert a paragraph after a link
@@ -500,32 +472,6 @@ TEST_F(DocumentTest, link9)
         "<body>"\
             "<p>"\
                 "<a href=\"www.link.ru\" style=\"font-family:'Courier New';font-size:12px;text-decoration: underline;color:rgba(0,0,255,255);\">link</a>"\
-                "<span style=\"font-family:'Courier New';font-size:12px;\">12</span>"\
-            "</p>"\
-        "</body>") << 
-        document.ToHtml();
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 1, 2})) << document.GetEditorState().ToString();
-
-    document.Undo();
-    document.WaitUndo();
-    std::this_thread::sleep_for(100ms);
-    ASSERT_TRUE(document.ToHtml() == 
-        "<body>"\
-            "<p>"\
-                "<a href=\"www.link.ru\" style=\"font-family:'Courier New';font-size:12px;text-decoration: underline;color:rgba(0,0,255,255);\">link</a>"\
-                "<span style=\"font-family:'Courier New';font-size:12px;\">1</span>"\
-            "</p>"\
-        "</body>") << 
-        document.ToHtml();
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 1, 1})) << document.GetEditorState().ToString();
-
-    document.Undo();
-    document.WaitUndo();
-    std::this_thread::sleep_for(100ms);
-    ASSERT_TRUE(document.ToHtml() == 
-        "<body>"\
-            "<p>"\
-                "<a href=\"www.link.ru\" style=\"font-family:'Courier New';font-size:12px;text-decoration: underline;color:rgba(0,0,255,255);\">link</a>"\
             "</p>"\
         "</body>") << 
         document.ToHtml();
@@ -554,32 +500,6 @@ TEST_F(DocumentTest, link9)
         "</body>") << 
         document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 4})) << document.GetEditorState().ToString();
-
-    document.Redo();
-    document.WaitRedo();
-    std::this_thread::sleep_for(100ms);
-    ASSERT_TRUE(document.ToHtml() == 
-        "<body>"\
-            "<p>"\
-                "<a href=\"www.link.ru\" style=\"font-family:'Courier New';font-size:12px;text-decoration: underline;color:rgba(0,0,255,255);\">link</a>"\
-                "<span style=\"font-family:'Courier New';font-size:12px;\">1</span>"\
-            "</p>"\
-        "</body>") << 
-        document.ToHtml();
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 1, 1})) << document.GetEditorState().ToString();
-
-    document.Redo();
-    document.WaitRedo();
-    std::this_thread::sleep_for(100ms);
-    ASSERT_TRUE(document.ToHtml() == 
-        "<body>"\
-            "<p>"\
-                "<a href=\"www.link.ru\" style=\"font-family:'Courier New';font-size:12px;text-decoration: underline;color:rgba(0,0,255,255);\">link</a>"\
-                "<span style=\"font-family:'Courier New';font-size:12px;\">12</span>"\
-            "</p>"\
-        "</body>") << 
-        document.ToHtml();
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 1, 2})) << document.GetEditorState().ToString();
 
     document.Redo();
     document.WaitRedo();
