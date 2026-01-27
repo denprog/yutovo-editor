@@ -86,7 +86,9 @@ enum class IdentifierType
     NONE = 0,
     VARIABLE,
     FUNCTION,
-    UNIT
+    UNIT,
+    STRING,
+    OPERATION
 };
 
 enum class MouseHoldType
@@ -367,6 +369,15 @@ struct FormattingScope
     ~FormattingScope();
 
     Window* window;
+};
+
+struct Identifiers
+{
+    std::vector<std::string> variables;
+    std::vector<std::string> functions;
+    std::vector<std::string> units;
+    std::vector<std::string> operations;
+    std::vector<std::string> strings;
 };
 
 bool IsChild(const ElementId& parent_id, const ElementId& child_id);

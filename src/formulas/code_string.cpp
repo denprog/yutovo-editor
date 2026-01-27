@@ -234,7 +234,7 @@ void CodeString::Draw() const
             case IdentifierType::UNIT:
                 color1 = std::make_pair(str.length(), document->config.units_color);
                 break;
-            case IdentifierType::NONE:
+            default:
                 break;
             }
         }
@@ -253,8 +253,7 @@ void CodeString::Draw() const
             case IdentifierType::UNIT:
                 color2 = std::make_pair(part.length(), document->config.units_color);
                 break;
-            case IdentifierType::FUNCTION:
-            case IdentifierType::NONE:
+            default:
                 color2 = std::make_pair(part.length(), format->text_color);
                 break;
             }

@@ -478,6 +478,15 @@ uint Document::InsertString(const std::string& str, ElementId element_id, bool w
     return last_task_id;
 }
 
+uint Document::ReplaceString(const std::u32string& str, bool with_undo)
+{
+    LOG_TRACE("Insert string: {}", ToBasicString(str));
+    StringFormatPtr format;
+    if (GetCurrentStringFormat(format))
+        return InsertElement(new String(this, str, format), with_undo, false, true);
+    return 0;
+}
+
 uint Document::InsertLink(const std::string& str, const std::string& url, bool with_undo)
 {
     LOG_TRACE("Insert link: {} {}", str, url);
@@ -496,23 +505,31 @@ uint Document::InsertLink(const std::u32string& str, const std::u32string& url, 
     return 0;
 }
 
-uint Document::InsertElement(Element* element, bool with_undo, ElementId element_id, bool pasting)
+uint Document::InsertElement(Element* element, bool with_undo, bool pasting, bool replace)
 {
     LOG_TRACE("Insert element: {}", ToBasicString(element->ToText()));
     std::vector<ElementPtr> elements;
     elements.emplace_back(element);
-    return InsertElements(elements, with_undo, element_id, pasting);
+    return InsertElements(elements, with_undo, pasting, replace);
 }
 
-uint Document::InsertElements(std::vector<ElementPtr>& elements, bool with_undo, ElementId element_id, bool pasting)
+uint Document::InsertElements(std::vector<ElementPtr>& elements, bool with_undo, bool pasting, bool replace)
 {
     {
         std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
-        tasks.emplace_back(new InsertElementsTask(text, elements, with_undo, pasting));
+        tasks.emplace_back(new InsertElementsTask(text, elements, with_undo, pasting, replace));
         last_task_id = tasks.back()->id;
     }
     next_circle = true;
     return last_task_id;
+}
+
+uint Document::ReplaceElement(Element* element, bool with_undo)
+{
+    LOG_TRACE("Replace element: {}", ToBasicString(element->ToText()));
+    std::vector<ElementPtr> elements;
+    elements.emplace_back(element);
+    return InsertElements(elements, with_undo, false, true);
 }
 
 uint Document::DeleteElements(bool left, bool with_undo)
@@ -556,46 +573,46 @@ uint Document::InsertCodeString(const std::string& str, bool with_undo)
     return 0;
 }
 
-uint Document::InsertPlus(bool with_undo)
+uint Document::InsertPlus(bool with_undo, bool replace)
 {
     LOG_TRACE("Insert plus");
-    return InsertFormula(new Plus(this), with_undo);
+    return InsertFormula(new Plus(this), with_undo, false, replace);
 }
 
-uint Document::InsertMinus(bool with_undo)
+uint Document::InsertMinus(bool with_undo, bool replace)
 {
     LOG_TRACE("Insert minus");
-    return InsertFormula(new Minus(this), with_undo);
+    return InsertFormula(new Minus(this), with_undo, false, replace);
 }
 
-uint Document::InsertMultiply(bool with_undo)
+uint Document::InsertMultiply(bool with_undo, bool replace)
 {
     LOG_TRACE("Insert multiply");
-    return InsertFormula(new Multiply(this), with_undo);
+    return InsertFormula(new Multiply(this), with_undo, false, replace);
 }
 
-uint Document::InsertDivision(bool with_undo)
+uint Document::InsertDivision(bool with_undo, bool replace)
 {
     LOG_TRACE("Insert division");
-    return InsertFormula(new Division(this), with_undo);
+    return InsertFormula(new Division(this), with_undo, false, replace);
 }
 
-uint Document::InsertPower(bool with_undo)
+uint Document::InsertPower(bool with_undo, bool replace)
 {
     LOG_TRACE("Insert power");
-    return InsertFormula(new Power(this), with_undo);
+    return InsertFormula(new Power(this), with_undo, false, replace);
 }
 
-uint Document::InsertNthRoot(bool with_undo)
+uint Document::InsertNthRoot(bool with_undo, bool replace)
 {
     LOG_TRACE("Insert nth root");
-    return InsertFormula(new NthRoot(this), with_undo);
+    return InsertFormula(new NthRoot(this), with_undo, false, replace);
 }
 
-uint Document::InsertSquareRoot(bool with_undo)
+uint Document::InsertSquareRoot(bool with_undo, bool replace)
 {
     LOG_TRACE("Insert square root");
-    return InsertFormula(new SquareRoot(this), with_undo);
+    return InsertFormula(new SquareRoot(this), with_undo, false, replace);
 }
 
 uint Document::InsertEquation(yutovo_solver::ResultType result_type, bool with_undo)
@@ -640,10 +657,10 @@ uint Document::InsertUnit(bool with_undo)
     return InsertFormula(new Unit(this), with_undo);
 }
 
-uint Document::InsertSubscript(bool with_undo)
+uint Document::InsertSubscript(bool with_undo, bool replace)
 {
     LOG_TRACE("Insert subscript");
-    return InsertFormula(new Subscript(this), with_undo);
+    return InsertFormula(new Subscript(this), with_undo, false, replace);
 }
 
 uint Document::InsertExclamation(bool with_undo)
@@ -676,28 +693,28 @@ uint Document::InsertPercent(bool with_undo)
     return InsertFormula(new Percent(this), with_undo);
 }
 
-uint Document::InsertSum(bool with_undo)
+uint Document::InsertSum(bool with_undo, bool replace)
 {
     LOG_TRACE("Insert sum");
-    return InsertFormula(new Sum(this), with_undo);
+    return InsertFormula(new Sum(this), with_undo, false, replace);
 }
 
-uint Document::InsertProduct(bool with_undo)
+uint Document::InsertProduct(bool with_undo, bool replace)
 {
     LOG_TRACE("Insert product");
-    return InsertFormula(new Product(this), with_undo);
+    return InsertFormula(new Product(this), with_undo, false, replace);
 }
 
 uint Document::InsertImage(const std::string& image_base64, bool with_undo, bool pasting)
 {
     LOG_TRACE("Insert image");
-    return InsertElement(new Image(this, image_base64), with_undo, ElementId{}, pasting);
+    return InsertElement(new Image(this, image_base64), with_undo, pasting);
 }
 
 uint Document::InsertImage(const std::vector<unsigned char>& image, bool with_undo, bool pasting)
 {
     LOG_TRACE("Insert image");
-    return InsertElement(new Image(this, image), with_undo, ElementId{}, pasting);
+    return InsertElement(new Image(this, image), with_undo, pasting);
 }
 
 uint Document::InsertComma(bool with_undo)
@@ -712,7 +729,7 @@ uint Document::InsertRoundBrackets(bool with_undo)
     std::vector<ElementPtr> els;
     els.emplace_back(new OpenBracket(this, ElementType::OPEN_ROUND_BRACKET));
     els.emplace_back(new CloseBracket(this, ElementType::CLOSE_ROUND_BRACKET));
-    uint r = InsertFormulas(els, with_undo, false, false, 1);
+    uint r = InsertFormulas(els, with_undo, false, false, false, 1);
     if (r > 0)
         MoveCaretLeft(false, true);
     return r;
@@ -724,7 +741,7 @@ uint Document::InsertSquareBrackets(bool with_undo)
     std::vector<ElementPtr> els;
     els.emplace_back(new OpenBracket(this, ElementType::OPEN_SQUARE_BRACKET));
     els.emplace_back(new CloseBracket(this, ElementType::CLOSE_SQUARE_BRACKET));
-    uint r = InsertFormulas(els, with_undo, false, false, 1);
+    uint r = InsertFormulas(els, with_undo, false, false, false, 1);
     if (r > 0)
         MoveCaretLeft(false, true);
     return r;
@@ -740,7 +757,7 @@ uint Document::InsertFunction(const std::string& name, bool with_undo)
     els.emplace_back(new CodeString(this, name, format->string_format));
     els.emplace_back(new OpenBracket(this, ElementType::OPEN_ROUND_BRACKET));
     els.emplace_back(new CloseBracket(this, ElementType::CLOSE_ROUND_BRACKET));
-    uint r = InsertFormulas(els, with_undo, false, false, 2);
+    uint r = InsertFormulas(els, with_undo, false, false, false, 2);
     if (r > 0)
         MoveCaretLeft(false, true);
     return r;
@@ -759,17 +776,17 @@ uint Document::InsertGraph(bool with_undo)
     return InsertFormula(new GraphLine(this), with_undo, true);
 }
 
-uint Document::InsertFormula(Element* element, bool with_undo, bool with_last_task_id)
+uint Document::InsertFormula(Element* element, bool with_undo, bool with_last_task_id, bool replace)
 {
     LOG_TRACE("Insert formula: {}", ToBasicString(element->ToText()));
     std::vector<ElementPtr> elements;
     elements.emplace_back(element);
     if (current_formula_format)
         SetCurrentStringFormat(current_formula_format->string_format);
-    return InsertFormulas(elements, with_undo, with_last_task_id);
+    return InsertFormulas(elements, with_undo, with_last_task_id, false, replace, -1);
 }
 
-uint Document::InsertFormulas(std::vector<ElementPtr>& elements, bool with_undo, bool with_last_task_id, bool pasting, int select_pos)
+uint Document::InsertFormulas(std::vector<ElementPtr>& elements, bool with_undo, bool with_last_task_id, bool pasting, bool replace, int select_pos)
 {
     LOG_TRACE("Insert formulas");
     {
@@ -777,7 +794,7 @@ uint Document::InsertFormulas(std::vector<ElementPtr>& elements, bool with_undo,
         if (with_last_task_id)
             tasks.emplace_back(new InsertFormulasTask(text, last_task_id, elements, with_undo));
         else
-            tasks.emplace_back(new InsertFormulasTask(text, elements, with_undo, pasting, select_pos));
+            tasks.emplace_back(new InsertFormulasTask(text, elements, with_undo, pasting, replace, select_pos));
         last_task_id = tasks.back()->id;
     }
     next_circle = true;
@@ -1329,6 +1346,18 @@ bool Document::GetElementRect(const ElementId id, Rect& rect)
     if (!_el)
         return false;
     rect = _el->GetAbsoluteRect();
+    return true;
+}
+
+bool Document::GetCaretRect(Rect& rect)
+{
+    std::lock_guard<std::recursive_mutex> lock(edit_mutex);
+    if (!caret->GetElement())
+        return false;
+    auto _el = GetElement(caret->GetElement()->id);
+    if (!_el)
+        return false;
+    rect = _el->GetAbsoluteRect(_el->GetCaretRect(caret->GetPos()));
     return true;
 }
 
@@ -2814,7 +2843,7 @@ uint Document::Paste(std::u32string& in_json)
     }
 
     if (only_formulas)
-        InsertFormulas(elements, true, false, true);
+        InsertFormulas(elements, true, false, true, false, -1);
     else if (only_paragraphs)
     {
         //compound them in text to workout them in one iteration
@@ -2823,10 +2852,10 @@ uint Document::Paste(std::u32string& in_json)
             t->elements->Add(el);
         elements.clear();
         elements.push_back(t);
-        InsertElements(elements, true, ElementId{}, true);
+        InsertElements(elements, true, true);
     }
     else
-        InsertElements(elements, true, ElementId{}, true);
+        InsertElements(elements, true, true);
     
     window->OnPasteResult(PasteResult::Success);
     return last_task_id;
@@ -3612,11 +3641,11 @@ bool Document::HasErrorMarks(const ElementId& _id)
 }
 
 void Document::SetIdentifiers(const uint code_id, const std::vector<std::string>& variables, const std::vector<std::string>& functions, 
-    std::vector<std::string>& units)
+    const std::vector<std::string>& operations, const std::vector<std::string>& units, const std::vector<std::string>& strings)
 {
     {
         std::lock_guard<std::recursive_mutex> lock(identifiers_mutex);
-        identifiers[code_id] = Identifiers{variables, functions, units};
+        identifiers[code_id] = Identifiers{variables, functions, units, operations, strings};
     }
     
     std::vector<ElementId> code_blocks;
@@ -3645,6 +3674,92 @@ IdentifierType Document::FindIdentifier(const uint code_id, const std::string& s
     if (std::find(id.units.begin(), id.units.end(), str) != id.units.end())
         return IdentifierType::UNIT;
     return IdentifierType::NONE;
+}
+
+void Document::GetIdentifiers(const uint code_id, const std::string& left, std::vector<std::pair<IdentifierType, std::string>>& res)
+{
+    std::lock_guard<std::recursive_mutex> lock(identifiers_mutex);
+    auto it = identifiers.find(code_id);
+    if (it == identifiers.end())
+        return;
+
+    Identifiers& ids = it->second;
+    for (auto& var : ids.variables)
+    {
+        if (var.rfind(left, 0) == 0)
+            res.push_back(std::make_pair(IdentifierType::VARIABLE, var));
+    }
+    for (auto& func : ids.functions)
+    {
+        if (func.rfind(left, 0) == 0)
+            res.push_back(std::make_pair(IdentifierType::FUNCTION, func));
+    }
+    for (auto& op : ids.operations)
+    {
+        if (op.rfind(left, 0) == 0)
+            res.push_back(std::make_pair(IdentifierType::OPERATION, op));
+    }
+    for (auto& str : ids.strings)
+    {
+        if (str.rfind(left, 0) == 0)
+            res.push_back(std::make_pair(IdentifierType::STRING, str));
+    }
+    for (auto& unit : ids.units)
+    {
+        if (unit.rfind(left, 0) == 0)
+            res.push_back(std::make_pair(IdentifierType::UNIT, unit));
+    }
+}
+
+void Document::GetPrompt(std::vector<std::pair<IdentifierType, std::string>>& res)
+{
+    uint code_id = 0;
+    std::string left;
+    {
+        std::lock_guard<std::recursive_mutex> lock(edit_mutex);
+        auto el = caret->GetElement();
+        if (!el)
+            return;
+        code_id = FindCodeBlock(el->id);
+        if (code_id == 0)
+            return;
+        el = caret->GetElement();
+        if (!el || !IsString(el->id))
+            return;
+        left = ToBasicString(el->ToText().substr(0, caret->GetPos()));
+    }
+    
+    std::lock_guard<std::recursive_mutex> lock(identifiers_mutex);
+    auto it = identifiers.find(code_id);
+    if (it == identifiers.end())
+        return;
+
+    Identifiers& ids = it->second;
+    for (auto& op : ids.operations)
+    {
+        if (op.rfind(left, 0) == 0)
+            res.push_back(std::make_pair(IdentifierType::OPERATION, op));
+    }
+    for (auto& var : ids.variables)
+    {
+        if (var.rfind(left, 0) == 0)
+            res.push_back(std::make_pair(IdentifierType::VARIABLE, var));
+    }
+    for (auto& func : ids.functions)
+    {
+        if (func.rfind(left, 0) == 0)
+            res.push_back(std::make_pair(IdentifierType::FUNCTION, func));
+    }
+    for (auto& unit : ids.units)
+    {
+        if (unit.rfind(left, 0) == 0)
+            res.push_back(std::make_pair(IdentifierType::UNIT, unit));
+    }
+    for (auto& str : ids.strings)
+    {
+        if (str.rfind(left, 0) == 0)
+            res.push_back(std::make_pair(IdentifierType::STRING, str));
+    }
 }
 
 void Document::WaitTask(uint task_id, uint64_t timeout, uint64_t circle_delay)

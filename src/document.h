@@ -51,26 +51,28 @@ public:
     uint InsertString(const std::u32string& str, bool with_undo);
     uint InsertString(const std::string& str, const StringFormatPtr string_format, bool with_undo);
     uint InsertString(const std::string& str, ElementId element_id, bool with_undo);
+    uint ReplaceString(const std::u32string& str, bool with_undo);
 
     uint InsertLink(const std::string& str, const std::string& url, bool with_undo);
     uint InsertLink(const std::u32string& str, const std::u32string& url, bool with_undo);
 
-    uint InsertElement(Element* element, bool with_undo, ElementId element_id = ElementId{}, bool pasting = false);
-    uint InsertElements(std::vector<ElementPtr>& elements, bool with_undo, ElementId element_id = ElementId{}, 
-        bool pasting = false);
+    uint InsertElement(Element* element, bool with_undo, bool pasting = false, bool replace = false);
+    uint InsertElements(std::vector<ElementPtr>& elements, bool with_undo, bool pasting = false, bool replace = false);
+
+    uint ReplaceElement(Element* element, bool with_undo);
 
     uint DeleteElements(bool left, bool with_undo);
     uint ClearElements(ElementId element_id, bool with_undo);
 
     uint InsertCode(bool next_code_id, bool with_undo);
     uint InsertCodeString(const std::string& str, bool with_undo);
-    uint InsertPlus(bool with_undo);
-    uint InsertMinus(bool with_undo);
-    uint InsertMultiply(bool with_undo);
-    uint InsertDivision(bool with_undo);
-    uint InsertPower(bool with_undo);
-    uint InsertNthRoot(bool with_undo);
-    uint InsertSquareRoot(bool with_undo);
+    uint InsertPlus(bool with_undo, bool replace = false);
+    uint InsertMinus(bool with_undo, bool replace = false);
+    uint InsertMultiply(bool with_undo, bool replace = false);
+    uint InsertDivision(bool with_undo, bool replace = false);
+    uint InsertPower(bool with_undo, bool replace = false);
+    uint InsertNthRoot(bool with_undo, bool replace = false);
+    uint InsertSquareRoot(bool with_undo, bool replace = false);
     uint InsertEquation(yutovo_solver::ResultType result_type, bool with_undo);
     uint InsertOpenRoundBracket(bool with_undo);
     uint InsertCloseRoundBracket(bool with_undo);
@@ -78,14 +80,14 @@ public:
     uint InsertCloseSquareBracket(bool with_undo);
     uint InsertAssignment(bool with_undo);
     uint InsertUnit(bool with_undo);
-    uint InsertSubscript(bool with_undo);
+    uint InsertSubscript(bool with_undo, bool replace = false);
     uint InsertExclamation(bool with_undo);
     uint InsertAnd(bool with_undo);
     uint InsertOr(bool with_undo);
     uint InsertXor(bool with_undo);
     uint InsertPercent(bool with_undo);
-    uint InsertSum(bool with_undo);
-    uint InsertProduct(bool with_undo);
+    uint InsertSum(bool with_undo, bool replace = false);
+    uint InsertProduct(bool with_undo, bool replace = false);
     uint InsertImage(const std::string& image_base64, bool with_undo, bool pasting);
     uint InsertImage(const std::vector<unsigned char>& image, bool with_undo, bool pasting);
     uint InsertComma(bool with_undo);
@@ -98,8 +100,8 @@ public:
 
     uint InsertGraph(bool with_undo);
 
-    uint InsertFormula(Element* element, bool with_undo, bool with_last_task_id = false);
-    uint InsertFormulas(std::vector<ElementPtr>& elements, bool with_undo, bool with_last_task_id = false, bool pasting = false, int select_pos = -1);
+    uint InsertFormula(Element* element, bool with_undo, bool with_last_task_id = false, bool replace = false);
+    uint InsertFormulas(std::vector<ElementPtr>& elements, bool with_undo, bool with_last_task_id, bool pasting, bool replace, int select_pos);
 
     uint InsertUnit(const yutovo_calculator::Unit& unit, bool list_identifiers = true);
 
@@ -135,6 +137,7 @@ public:
     ElementPtr GetLogicalParent(const LogicalId& _id);
     bool GetElementAtCoords(const int x, const int y, const int margin, ElementId& id);
     bool GetElementRect(const ElementId id, Rect& rect);
+    bool GetCaretRect(Rect& rect);
 
     LogicalId GetLogicalId(const ElementId& _id);
     LogicalId GetLogicalId(const ElementId& _id, const int pos);
@@ -365,8 +368,10 @@ public:
     bool HasErrorMarks(const ElementId& _id);
 
     void SetIdentifiers(const uint code_id, const std::vector<std::string>& variables, const std::vector<std::string>& functions, 
-        std::vector<std::string>& units);
+        const std::vector<std::string>& operations, const std::vector<std::string>& units, const std::vector<std::string>& strings);
     IdentifierType FindIdentifier(const uint code_id, const std::string& str);
+    void GetIdentifiers(const uint code_id, const std::string& left, std::vector<std::pair<IdentifierType, std::string>>& res);
+    void GetPrompt(std::vector<std::pair<IdentifierType, std::string>>& res);
 
     void WaitTask(uint task_id, uint64_t timeout = 0, uint64_t circle_delay = 1);
 
@@ -494,13 +499,6 @@ private:
     std::deque<TaskPtr> redo_tasks;
     std::vector<bool> undos; //requieres for undo
     std::vector<bool> redos; //requieres for redo
-
-    struct Identifiers
-    {
-        std::vector<std::string> variables;
-        std::vector<std::string> functions;
-        std::vector<std::string> units;
-    };
 
     std::recursive_mutex identifiers_mutex;
     std::map<uint, Identifiers> identifiers; //by code_id
