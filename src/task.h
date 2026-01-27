@@ -52,8 +52,7 @@ typedef std::shared_ptr<Task> TaskPtr;
 
 struct InsertElementsTask : Task
 {
-    InsertElementsTask(ElementPtr _text, std::vector<ElementPtr>& _elements, bool _with_undo, bool _pasting = false);
-    InsertElementsTask(ElementPtr _text, std::vector<ElementPtr>& _elements, uint _id, ElementId _element_id);
+    InsertElementsTask(ElementPtr _text, std::vector<ElementPtr>& _elements, bool _with_undo, bool _pasting, bool _replace);
 
     virtual bool Execute();
 
@@ -62,6 +61,7 @@ struct InsertElementsTask : Task
     LogicalEditorState before_state;
     bool pasting = false; //this is pasting from clipboard
     bool insert_mode = true; //current insert mode
+    bool replace = false; //replace current element
 };
 
 struct DeleteElementsTask : Task
@@ -78,7 +78,7 @@ struct DeleteElementsTask : Task
 
 struct InsertFormulasTask : Task
 {
-    InsertFormulasTask(ElementPtr _text, std::vector<ElementPtr>& _elements, bool _with_undo, bool _pasting, int _select_pos = -1);
+    InsertFormulasTask(ElementPtr _text, std::vector<ElementPtr>& _elements, bool _with_undo, bool _pasting, bool _replace, int _select_pos = -1);
     InsertFormulasTask(ElementPtr _text, uint _id, std::vector<ElementPtr>& _elements, bool _with_undo);
 
     virtual bool Execute();
@@ -88,6 +88,7 @@ struct InsertFormulasTask : Task
     bool pasting = false; //this is pasting from clipboard
     int select_pos = -1; //insert selected elements at this position
     bool insert_mode = true; //current insert mode
+    bool replace = false; //replace current element
 };
 
 struct ChangeStringFormatTask : Task

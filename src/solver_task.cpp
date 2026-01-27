@@ -1314,9 +1314,7 @@ bool ListIdentifiersSolverTask::Execute(WebSocketPtr socket, Result& result)
         return false;
     }
 
-    std::vector<std::string> variables;
-    std::vector<std::string> functions;
-    std::vector<std::string> units;
+    std::vector<std::string> variables, functions, operations, units, strings;
 
     if (doc.HasMember("Functions") && doc["Functions"].IsArray())
     {
@@ -1344,6 +1342,36 @@ bool ListIdentifiersSolverTask::Execute(WebSocketPtr socket, Result& result)
                 std::u32string name;
                 if (obj.HasMember("name") && obj["name"].IsString())
                     variables.push_back(obj["name"].GetString());
+            }
+        }
+    }
+
+    if (doc.HasMember("Operations") && doc["Operations"].IsArray())
+    {
+        auto arr = doc["Operations"].GetArray();
+        for (rapidjson::SizeType i = 0; i < arr.Size(); ++i)
+        {
+            if (arr[i].IsObject())
+            {
+                auto obj = arr[i].GetObject();
+                std::u32string name;
+                if (obj.HasMember("name") && obj["name"].IsString())
+                    operations.push_back(obj["name"].GetString());
+            }
+        }
+    }
+
+    if (doc.HasMember("Strings") && doc["Strings"].IsArray())
+    {
+        auto arr = doc["Strings"].GetArray();
+        for (rapidjson::SizeType i = 0; i < arr.Size(); ++i)
+        {
+            if (arr[i].IsObject())
+            {
+                auto obj = arr[i].GetObject();
+                std::u32string name;
+                if (obj.HasMember("name") && obj["name"].IsString())
+                    strings.push_back(obj["name"].GetString());
             }
         }
     }
@@ -1384,8 +1412,7 @@ bool ListIdentifiersSolverTask::Execute(WebSocketPtr socket, Result& result)
         }
     }
 
-    document->SetIdentifiers(code_id, variables, functions, units);
-
+    document->SetIdentifiers(code_id, variables, functions, operations, units, strings);
     return true;
 }
 

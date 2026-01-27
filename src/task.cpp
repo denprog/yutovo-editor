@@ -118,19 +118,14 @@ void Task::Remake(ElementId _id, bool move_into_view)
 
 //InsertElementsTask
 
-InsertElementsTask::InsertElementsTask(ElementPtr _text, std::vector<ElementPtr>& _elements, bool _with_undo, bool _pasting) :
+InsertElementsTask::InsertElementsTask(ElementPtr _text, std::vector<ElementPtr>& _elements, bool _with_undo, bool _pasting, bool _replace) :
     Task(_text),
     elements(_elements),
     pasting(_pasting),
-    insert_mode(document->insert_mode)
+    insert_mode(document->insert_mode),
+    replace(_replace)
 {
     with_undo = _with_undo;
-}
-
-InsertElementsTask::InsertElementsTask(ElementPtr _text, std::vector<ElementPtr>& _elements, uint _id, ElementId _element_id) :
-    InsertElementsTask(_text, _elements, _id)
-{
-    element_id = _element_id;
 }
 
 bool InsertElementsTask::Execute()
@@ -170,7 +165,22 @@ bool InsertElementsTask::Execute()
         return false;
 
     CaretState c;
-    if (with_undo && !selection_state.IsEmpty())
+    if (replace)
+    {
+        ElementPtr el = document->GetElement(caret_state.id);
+        if (el)
+        {
+            if (document->IsString(el))
+            {
+                if (with_undo)
+                    document->StoreUndo(el->parent->id);
+                ((String*)el.get())->SetString(U"");
+                caret_state.SetPos(0);
+                document->caret->SetPos(0);
+            }
+        }
+    }
+    else if (!selection_state.IsEmpty())
     {
         //remove selection before insert
         auto delete_elements = [&](ElementPtr _el)
@@ -491,12 +501,13 @@ bool DeleteElementsTask::Execute()
 
 //InsertFormulasTask
 
-InsertFormulasTask::InsertFormulasTask(ElementPtr _text, std::vector<ElementPtr>& _elements, bool _with_undo, bool _pasting, int _select_pos) :
+InsertFormulasTask::InsertFormulasTask(ElementPtr _text, std::vector<ElementPtr>& _elements, bool _with_undo, bool _pasting, bool _replace, int _select_pos) :
     Task(_text),
     elements(_elements),
     pasting(_pasting), 
     select_pos(_select_pos),
-    insert_mode(document->insert_mode)
+    insert_mode(document->insert_mode),
+    replace(_replace)
 {
     with_undo = _with_undo;
 }
@@ -561,7 +572,22 @@ bool InsertFormulasTask::Execute()
     }
 
     CaretState c;
-    if (!selection_state.IsEmpty() && ((document->FindParent(caret_state.id, ElementType::CODE_BLOCK) == nullptr) || !elements[0]->UseSelection()))
+    if (replace)
+    {
+        ElementPtr el = document->GetElement(caret_state.id);
+        if (el)
+        {
+            if (document->IsString(el))
+            {
+                if (with_undo)
+                    document->StoreUndo(el->parent->id);
+                ((String*)el.get())->SetString(U"");
+                caret_state.SetPos(0);
+                document->caret->SetPos(0);
+            }
+        }
+    }
+    else if (!selection_state.IsEmpty() && ((document->FindParent(caret_state.id, ElementType::CODE_BLOCK) == nullptr) || !elements[0]->UseSelection()))
     {
         //remove selection before insert
         auto delete_elements = [&](ElementPtr _el)
