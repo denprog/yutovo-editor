@@ -1037,7 +1037,7 @@ void Element::GetElementsAbove(const ElementId from_id, ElementType _type, std::
 void Element::GetElementsBelow(const ElementId from_id, ElementType _type, std::vector<ElementId>& _elements)
 {
     int p = yutovo::GetChildPos(id, from_id);
-    for (int i = p; i < elements->Count(); ++i)
+    for (int i = p + 1; i < elements->Count(); ++i)
     {
         auto c = elements->Get(i);
         if (c->type == _type)
