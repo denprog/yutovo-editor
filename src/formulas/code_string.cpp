@@ -209,7 +209,7 @@ void CodeString::Draw() const
     std::u32string str = elements->ToText();
     Rect r = GetAbsoluteRect();
 
-    std::pair<int, Color> color1{-1, format->text_color}, color2{-1, Color::Black()};
+    std::pair<int, Color> color1{-1, draw_format->text_color}, color2{-1, Color::Black()};
     if (GetNotation() != Notation::None)
         color1 = std::make_pair(str.length(), document->config.numbers_color);
     else
@@ -254,7 +254,7 @@ void CodeString::Draw() const
                 color2 = std::make_pair(part.length(), document->config.units_color);
                 break;
             default:
-                color2 = std::make_pair(part.length(), format->text_color);
+                color2 = std::make_pair(part.length(), draw_format->text_color);
                 break;
             }
         }
@@ -265,18 +265,18 @@ void CodeString::Draw() const
     if (gap == 0 && tabs.empty())
     {
         if (color2.first != -1)
-            window->DrawText(ToBasicString(str), format, r, color2.second, document->config.formula_bg_color);
+            window->DrawText(ToBasicString(str), draw_format, r, color2.second, document->config.formula_bg_color);
         if (color1.first != -1)
-            window->DrawText(ToBasicString(str.substr(0, color1.first)), format, r, color1.second, document->config.formula_bg_color);
+            window->DrawText(ToBasicString(str.substr(0, color1.first)), draw_format, r, color1.second, document->config.formula_bg_color);
         else
-            window->DrawText(ToBasicString(str), format, r, format->text_color, document->config.formula_bg_color); //draw the string
+            window->DrawText(ToBasicString(str), draw_format, r, draw_format->text_color, document->config.formula_bg_color); //draw the string
         if (size != 0)
         {
             //draw text with selection
             Rect r = GetAbsoluteRect();
-            int p = window->GetCharPos(str, format, start);
+            int p = window->GetCharPos(str, draw_format, start);
             std::u32string u_part = str.substr(start, size);
-            window->DrawText(ToBasicString(u_part), format, Rect{r.left + p, r.top, r.width - p, r.height}, 
+            window->DrawText(ToBasicString(u_part), draw_format, Rect{r.left + p, r.top, r.width - p, r.height}, 
                 document->config.formula_bg_color, document->config.bg_selection_color);
         }
     }
@@ -298,12 +298,12 @@ void CodeString::Draw() const
                 std::u32string p = str.substr(i, 1);
                 if (i >= start && i < start + size)
                 {
-                    window->DrawText(ToBasicString(p), format, Rect{r.left + s.width, r.top, r.width - s.width, r.height}, 
+                    window->DrawText(ToBasicString(p), draw_format, Rect{r.left + s.width, r.top, r.width - s.width, r.height}, 
                         document->config.formula_bg_color, document->config.bg_selection_color);
                 }
                 else
                 {
-                    window->DrawText(ToBasicString(p), format, Rect{r.left + s.width, r.top, r.width - s.width, r.height}, 
+                    window->DrawText(ToBasicString(p), draw_format, Rect{r.left + s.width, r.top, r.width - s.width, r.height}, 
                         document->config.numbers_color, document->config.formula_bg_color);
                 }
             }
@@ -334,10 +334,10 @@ void CodeString::UpdateRect(bool with_elements)
 
     if (elements->Count() == 0)
         rect.SetSize(rect.width + empty_rect_width, rect.height);
-    if (format->subscript)
-        baseline = -window->GetFontAscent(format);
-    else if (format->superscript)
-        baseline = window->GetFontAscent(format);
+    if (draw_format->subscript)
+        baseline = -window->GetFontAscent(draw_format);
+    else if (draw_format->superscript)
+        baseline = window->GetFontAscent(draw_format);
     else
         baseline = rect.height / 2;
 }
@@ -375,17 +375,17 @@ Size CodeString::GetTextSize(const uint pos) const
                     break;
             }
             if (c > 0)
-                tabs_size = window->GetTextSize(std::u32string(document->config.tab_spaces * c, U' '), format);
+                tabs_size = window->GetTextSize(std::u32string(document->config.tab_spaces * c, U' '), draw_format);
         }
         if (gap == 0)
         {
-            Size s = window->GetTextSize(_str, format);
+            Size s = window->GetTextSize(_str, draw_format);
             s.width += tabs_size.width;
             size_cache[pos] = s;
             return s;
         }
 
-        Size s = window->GetTextSize(_str, format);
+        Size s = window->GetTextSize(_str, draw_format);
         int _gap = gap;
         auto point_pos = str.find(U".");
         if (point_pos != std::string::npos)
@@ -433,10 +433,10 @@ Size CodeString::GetTextSize(const uint pos) const
 void CodeString::GetMargin(int& left, int& top, int& right, int& bottom) const
 {
     const FormulaFormatPtr f = GetFormulaFormat();
-    left = f->left_margin;
-    top = f->top_margin;
-    right = f->right_margin;
-    bottom = f->bottom_margin;
+    left = std::round(f->left_margin * document->config.scale);
+    top = std::round(f->top_margin * document->config.scale);
+    right = std::round(f->right_margin * document->config.scale);
+    bottom = std::round(f->bottom_margin * document->config.scale);
 }
 
 bool CodeString::IsFormula()
@@ -530,7 +530,9 @@ void CodeString::UpdateGap()
 
     if (gap != _gap)
     {
-        Size s = window->GetTextSize(U" ", format);
+        if (!draw_format)
+            Rescale();
+        Size s = window->GetTextSize(U" ", draw_format);
         gap_width = s.width / 2;
         gap = _gap;
         size_cache.clear();

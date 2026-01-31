@@ -25,6 +25,9 @@ public:
     virtual bool ChangeStringFormat(const StringFormatPtr format, bool with_undo, ElementId& changed_element);
 
     virtual void Normalize();
+    virtual void Rescale() const;
+
+    virtual void UpdateRect(bool with_elements = false);
 
     virtual bool SplitAt(const uint pos);
     virtual bool Merge(const ElementPtr with_element);
@@ -42,6 +45,7 @@ public:
 
 public:
     FormulaFormatPtr formula_format;
+    mutable StringFormatPtr draw_string_format;
 };
 
 }

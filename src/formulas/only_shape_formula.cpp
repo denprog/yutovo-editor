@@ -53,12 +53,12 @@ void OnlyShapeFormula::Draw() const
         {
             if (document->selection.IsSelected(id))
             {
-                window->DrawText(ToBasicString(std::u32string(1, symbol)), GetStringFormat(), r, 
+                window->DrawText(ToBasicString(std::u32string(1, symbol)), draw_string_format, r, 
                     document->config.formula_bg_color, document->config.bg_selection_color);
             }
             else
             {
-                window->DrawText(ToBasicString(std::u32string(1, symbol)), GetStringFormat(), r, 
+                window->DrawText(ToBasicString(std::u32string(1, symbol)), draw_string_format, r, 
                     document->config.shapes_color, document->config.formula_bg_color);
             }
         };
@@ -102,7 +102,9 @@ bool OnlyShapeFormula::GetLastCaretState(CaretState& caret_state, Selection* sel
 
 void OnlyShapeFormula::UpdateRect(bool with_elements)
 {
-    Size s = window->GetTextSize(std::u32string(1, symbol), GetStringFormat());
+    if (!draw_string_format)
+        Rescale();
+    Size s = window->GetTextSize(std::u32string(1, symbol), draw_string_format);
     shape->rect.SetSize(s.width, s.height);
     baseline = shape->rect.height / 2;
 

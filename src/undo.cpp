@@ -117,7 +117,11 @@ bool UndoString::operator==(const String& el) const
 
 Element* UndoString::Restore(Document* document, Element* parent)
 {
-    Element* el = new String(parent, str, format);
+    Element* el;
+    if (parent)
+        el = new String(parent, str, format);
+    else
+        el = new String(document, str, format);
     el->can_merge = can_merge;
     return el;
 }

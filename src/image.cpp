@@ -25,7 +25,7 @@ Image::Image(Element* _parent, const std::string& _image_base64) :
 
     Base64Decode();
 
-    image_size = window->GetImageSize(picture);
+    image_size.Set(window->GetImageSize(picture), document->config.scale);
     if (image_size.width == 0 || image_size.height == 0)
         SetBrokenImage(); //replace with the broken image
 }
@@ -36,7 +36,7 @@ Image::Image(Element* _parent, const std::vector<unsigned char>& _picture) :
 {
     type = ElementType::IMAGE;
     editable = false;
-    image_size = window->GetImageSize(picture);
+    image_size.Set(window->GetImageSize(picture), document->config.scale);
     if (image_size.width == 0 || image_size.height == 0)
         SetBrokenImage(); //replace with the broken image
     Base64Encode();
@@ -51,7 +51,7 @@ Image::Image(Document* _document, const std::string& _image_base64) :
 
     Base64Decode();
 
-    image_size = window->GetImageSize(picture);
+    image_size.Set(window->GetImageSize(picture), document->config.scale);
     if (image_size.width == 0 || image_size.height == 0)
         SetBrokenImage(); //replace with the broken image
 }
@@ -62,7 +62,7 @@ Image::Image(Document* _document, const std::vector<unsigned char>& _picture) :
 {
     type = ElementType::IMAGE;
     editable = false;
-    image_size = window->GetImageSize(picture);
+    image_size.Set(window->GetImageSize(picture), document->config.scale);
     if (image_size.width == 0 || image_size.height == 0)
         SetBrokenImage(); //replace with the broken image
     Base64Encode();
@@ -102,6 +102,11 @@ bool Image::Remake(bool with_elements)
     bool changed = (rect != last_rect);
     last_rect = rect;
     return changed;
+}
+
+void Image::Rescale() const
+{
+    image_size.Set(window->GetImageSize(picture), document->config.scale);
 }
 
 void Image::UpdateRect(bool with_elements)
@@ -172,7 +177,7 @@ void Image::SetBrokenImage()
     image_base64 = broken_image;
     picture.clear();
     Base64Decode();
-    image_size = window->GetImageSize(picture);
+    image_size.Set(window->GetImageSize(picture), document->config.scale);
 }
 
 }

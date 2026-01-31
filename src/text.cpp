@@ -113,7 +113,7 @@ bool Text::Remake(bool with_elements)
             continue;
         p->GetMargin(left_m, top_m, right_m, bottom_m); //consider the margins
         p->rect.Move(format->left_indent, h + top_m);
-        h += p->rect.height + format->paragraph_spacing + bottom_m;
+        h += p->rect.height + std::round(format->paragraph_spacing * document->config.scale) + bottom_m;
     }
 
     UpdateRect();

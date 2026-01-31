@@ -44,6 +44,7 @@ struct Config
     uint tab_spaces = 4;
     bool draw_whole = false;
     bool auto_prompt = true; //show prompt window when typing
+    float scale = 1.0;
 
     //locale
     yutovo_calculator::Language language = yutovo_calculator::Language::English;

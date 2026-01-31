@@ -3917,7 +3917,7 @@ TEST_F(DocumentTest, replace1)
     ASSERT_TRUE(document.ToText() == 
         U"5678"
         ) << ToBasicString(document.ToText());
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0, 0, 0, 4})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 4})) << document.GetEditorState().ToString();
 }
 
 //Replace string

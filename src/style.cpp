@@ -203,6 +203,12 @@ StringFormatPtr StringFormats::GetFormat(const StringFormat& source)
     return f;
 }
 
+StringFormatPtr StringFormats::GetFormat(const StringFormatPtr& source, const float scale)
+{
+    return GetFormat(source->family, std::round(source->size * scale), source->bold, source->italic, source->underline, source->strikethrough, 
+        source->subscript, source->superscript, source->text_color, source->text_bg_color, source->text_bg_selection_color);
+}
+
 StringFormatPtr StringFormats::GetFormat(const boost::uuids::uuid& _id)
 {
     auto it = std::find_if(string_formats.begin(), string_formats.end(), 

@@ -4088,4 +4088,173 @@ TEST_F(ParagraphTest, delete27)
         document.ToHtml();
 }
 
+//Rescale
+TEST_F(ParagraphTest, scale1)
+{
+    Start(600);
+
+    document.Load("../../test/tests/арифметика_раздел_математики.yut");
+    document.WaitLoad();
+    document.WaitSolver();
+    std::this_thread::sleep_for(2s);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">Арифме́тика (др.-греч. ἀριθμητική, arithmētikḗ — от ἀριθμός, </span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">arithmós «число») — раздел математики, изучающий числа, </span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">их отношения и свойства.</span>"\
+            "</p>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">In literary theory, a text is any object that can be read, whether </span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">this object is a work of literature</span>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mrow>"\
+                            "<msub>"\
+                                "<mrow>"\
+                                    "<mi>5654775</mi>"\
+                                "</mrow>"\
+                                "<mrow>"\
+                                    "<mi>dec</mi>"\
+                                "</mrow>"\
+                            "</msub>"\
+                        "</mrow>"\
+                        "<mo>=</mo>"\
+                        "<mrow>"\
+                            "<mrow>"\
+                                "<mi>5648f7</mi>"\
+                                "<mi>(hex)</mi>"\
+                            "</mrow>"\
+                        "</mrow>"\
+                    "</mrow>"\
+                "</math>"
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+
+    Config config;
+    document.GetConfig(config);
+    config.scale *= 1.1;
+    document.SetConfig(config, true);
+    std::this_thread::sleep_for(1s);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">Арифме́тика (др.-греч. ἀριθμητική, arithmētikḗ — от </span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">ἀριθμός, arithmós «число») — раздел математики, </span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">изучающий числа, их отношения и свойства.</span>"\
+            "</p>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">In literary theory, a text is any object that can be read, </span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">whether this object is a work of literature</span>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mrow>"\
+                            "<msub>"\
+                                "<mrow>"\
+                                    "<mi>5654775</mi>"\
+                                "</mrow>"\
+                                "<mrow>"\
+                                    "<mi>dec</mi>"\
+                                "</mrow>"\
+                            "</msub>"\
+                        "</mrow>"\
+                        "<mo>=</mo>"\
+                        "<mrow>"\
+                            "<mrow>"\
+                                "<mi>5648f7</mi>"\
+                                "<mi>(hex)</mi>"\
+                            "</mrow>"\
+                        "</mrow>"\
+                    "</mrow>"\
+                "</math>"
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+
+    document.GetConfig(config);
+    config.scale *= 0.9;
+    document.SetConfig(config, true);
+    std::this_thread::sleep_for(1s);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">Арифме́тика (др.-греч. ἀριθμητική, arithmētikḗ — от ἀριθμός, </span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">arithmós «число») — раздел математики, изучающий числа, </span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">их отношения и свойства.</span>"\
+            "</p>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">In literary theory, a text is any object that can be read, whether </span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">this object is a work of literature</span>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mrow>"\
+                            "<msub>"\
+                                "<mrow>"\
+                                    "<mi>5654775</mi>"\
+                                "</mrow>"\
+                                "<mrow>"\
+                                    "<mi>dec</mi>"\
+                                "</mrow>"\
+                            "</msub>"\
+                        "</mrow>"\
+                        "<mo>=</mo>"\
+                        "<mrow>"\
+                            "<mrow>"\
+                                "<mi>5648f7</mi>"\
+                                "<mi>(hex)</mi>"\
+                            "</mrow>"\
+                        "</mrow>"\
+                    "</mrow>"\
+                "</math>"
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+}
+
+//Rescale with an include document
+TEST_F(ParagraphTest, scale2)
+{
+    Start(600);
+
+    EXPECT_CALL(window_mock, OnLoadInclude).WillRepeatedly([&](const std::string& file_name, const int document_id)
+        {
+            document.LoadInclude(file_name);
+            std::this_thread::sleep_for(400ms);
+        });
+
+    document.Load("../../test/tests/scale2_2.yut");
+    document.WaitLoad();
+    document.WaitSolver();
+    std::this_thread::sleep_for(2s);
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 1, 0, 0, 0, 0, 0, 0, 0, 7})) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.MoveCaretToDocumentEnd(false));
+    document.GetConfig(config);
+    config.scale *= 0.9;
+    document.SetConfig(config, true);
+    std::this_thread::sleep_for(2s);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mrow>"\
+                            "<mi>проводник</mi>"\
+                        "</mrow>"\
+                        "<mo>=</mo>"\
+                        "<mrow>"\
+                            "<mrow>"\
+                                "<mi>12.</mi>"\
+                                "<mi>Ом</mi>"\
+                            "</mrow>"\
+                        "</mrow>"\
+                    "</mrow>"\
+                "</math>"
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 1, 0, 1})) << document.GetEditorState().ToString();
+}
+
 }
