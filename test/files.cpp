@@ -2297,4 +2297,56 @@ TEST_F(IncludeDocumentsTest, include_files20)
         ) << ToBasicString(document.ToText());
 }
 
+//Check save state
+TEST_F(IncludeDocumentsTest, include_files21)
+{
+    Start(600);
+
+    EXPECT_CALL(window_mock2, OnLoadInclude).WillRepeatedly([&](const std::string& file_name, const int document_id)
+        {
+            document2.LoadInclude(file_name);
+            std::this_thread::sleep_for(400ms);
+        });
+
+    EXPECT_CALL(window_mock2, OnLoadResult).WillRepeatedly([&](const uint task_id, IOResult result, const int document_id)
+        {
+            ASSERT_TRUE(result == IOResult::Success);
+        });
+
+    EXPECT_CALL(window_mock2, Translate).WillRepeatedly([&](ElementId id, const std::u32string& str)
+        {
+            return str;
+        });
+
+    document.InsertCode(false, true);
+    document.InsertString("v", true);
+    document.InsertAssignment(true);
+    document.WaitTask(document.InsertString("5", true));
+    document.WaitSolver();
+    document.WaitTask(document.Save("include_files21_1.yut"));
+    std::this_thread::sleep_for(200ms);
+
+    document2.InsertCode(false, true);
+    document2.InsertString("v", true);
+    document2.WaitTask(document2.InsertEquation(ResultType::AUTO, true));
+    document2.WaitSolver();
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document2.IsChanged() == true);
+
+    yutovo::Config c;
+    document2.GetConfig(c);
+    c.include_documents.documents.emplace_back(yutovo::Config::IncludeDocument{std::string("./include_files21_1.yut")});
+    document2.WaitTask(document2.SetConfig(c, true));
+    std::this_thread::sleep_for(1s);
+    ASSERT_TRUE(document2.IsChanged() == true);
+
+    document2.WaitTask(document2.ReSolve(ElementId{}));
+    document2.WaitSolver();
+    std::this_thread::sleep_for(3s);
+    ASSERT_TRUE(document2.ToText() == 
+        U"v=5."
+        ) << ToBasicString(document2.ToText());
+    ASSERT_TRUE(document2.IsChanged() == true);
+}
+
 }
