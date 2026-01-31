@@ -1932,8 +1932,9 @@ bool LoadTask::Execute()
         window->OnLoadResult(id, IOResult::InputStreamError, document_id);
         return false;
     }
-    
-    document->ResetTasks();
+
+    if (!include)
+        document->ResetTasks();
     document->RemoveUserIdentifiers();
 
     if (include)
