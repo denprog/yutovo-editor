@@ -141,11 +141,13 @@ void Paragraph::Draw() const
     {
         ElementPtr el = elements->Get(0);
         Rect r = GetAbsoluteRect();
-        Size s = window->GetTextSize(marker, marker_format);
+        if (!marker_draw_format)
+            marker_draw_format = document->string_formats->GetFormat(marker_format, document->config.scale);
+        Size s = window->GetTextSize(marker, marker_draw_format);
         int h = std::max(el->rect.height, s.height);
-        window->DrawText(ToBasicString(marker), marker_format, 
+        window->DrawText(ToBasicString(marker), marker_draw_format, 
             Rect{r.left, r.top + (h - s.height) / 2, s.width, s.height}, 
-            marker_format->text_color, current_string_format->text_bg_color);
+            marker_draw_format->text_color, current_string_format->text_bg_color);
     }
 }
 
@@ -162,11 +164,15 @@ bool Paragraph::Remake(bool with_elements)
     Text* text = type == ElementType::PARAGRAPH ? (Text*)parent : nullptr;
     int left_m = 0, top_m = 0, right_m = 0, bottom_m = 0;
     int page_width = text ? text->pixel_size.width : 0;
+    int indent_before = std::round(format->indent_before * document->config.scale);
+    int indent_after = std::round(format->indent_after * document->config.scale);
     int m = 0;
 
     if (!marker.empty())
     {
-        Size s = window->GetTextSize(marker, marker_format);
+        if (!marker_draw_format)
+            marker_draw_format = document->string_formats->GetFormat(marker_format, document->config.scale);
+        Size s(window->GetTextSize(marker, marker_draw_format), document->config.scale);
         m = s.width;
         if (page_width > 0)
             page_width -= m;
@@ -183,14 +189,14 @@ bool Paragraph::Remake(bool with_elements)
 
             bool b = true;
             //move or split element if it's more then row width
-            while (row->rect.width + format->indent_before + format->indent_after > page_width)
+            while (row->rect.width + indent_before + indent_after > page_width)
             {
                 if (document->break_remake)
                     return false;
                 ElementPtr el = row->elements->Get(row->elements->Count() - 1);
                 if (!el)
                     break;
-                if (el->Split(page_width - format->indent_before - format->indent_after, true))
+                if (el->Split(page_width - indent_before - indent_after, true))
                     el = row->elements->Get(row->elements->Count() - 1);
 
                 if (row->elements->Count() == 1)
@@ -223,7 +229,7 @@ bool Paragraph::Remake(bool with_elements)
                     return false;
                 auto el = next_row->elements->Get(0);
                 el->GetMargin(left_m, top_m, right_m, bottom_m);
-                if (el->rect.width + left_m + right_m >= page_width - row->rect.width - format->indent_before - format->indent_after)
+                if (el->rect.width + left_m + right_m >= page_width - row->rect.width - indent_before - indent_after)
                     break;
                 
                 //move the element from the next row in the current one
@@ -249,7 +255,7 @@ bool Paragraph::Remake(bool with_elements)
             {
                 //try to split the first element and move it above
                 ElementPtr el = next_row->elements->Get(0);
-                while (el && el->Split(page_width - row->rect.width - format->indent_before - format->indent_after, false))
+                while (el && el->Split(page_width - row->rect.width - indent_before - indent_after, false))
                 {
                     row->elements->Move(next_row->elements->Get(0), row->elements->Count());
                     row->Remake(true);
@@ -285,6 +291,7 @@ bool Paragraph::Remake(bool with_elements)
         if (w < row->rect.width)
             w = row->rect.width;
     }
+    int line_spacing = std::round(format->line_spacing * document->config.scale);
     for (int i = 0; i < elements->Count(); ++i)
     {
         ElementPtr row = elements->Get(i);
@@ -294,19 +301,19 @@ bool Paragraph::Remake(bool with_elements)
         {
         case ParagraphFormat::Alignment::Left:
         case ParagraphFormat::Alignment::Justify:
-            row->rect.Move(m + format->indent_before + left_m, h + top_m);
+            row->rect.Move(m + indent_before + left_m, h + top_m);
             break;
         case ParagraphFormat::Alignment::Right:
             if (row->rect.width > page_width)
-                row->rect.Move(m + w - row->rect.width + format->indent_before + left_m, h + top_m);
+                row->rect.Move(m + w - row->rect.width + indent_before + left_m, h + top_m);
             else
-                row->rect.Move(m + w - row->rect.width + format->indent_before - format->indent_after + left_m, h + top_m);
+                row->rect.Move(m + w - row->rect.width + indent_before - indent_after + left_m, h + top_m);
             break;
         case ParagraphFormat::Alignment::Center:
-            row->rect.Move(m + format->indent_before + (w - row->rect.width) / 2 - format->indent_after, h + top_m);
+            row->rect.Move(m + indent_before + (w - row->rect.width) / 2 - indent_after, h + top_m);
             break;
         }
-        h += row->rect.height + format->line_spacing + top_m + bottom_m;
+        h += row->rect.height + line_spacing + top_m + bottom_m;
     }
 
     UpdateRect();
@@ -363,6 +370,12 @@ void Paragraph::Normalize()
             }
         }
     }
+}
+
+void Paragraph::Rescale() const
+{
+    Element::Rescale();
+    marker_draw_format.reset();
 }
 
 bool Paragraph::InsertElements(std::vector<ElementPtr>& _elements, bool insert_mode, bool with_undo, ElementId& changed_element)

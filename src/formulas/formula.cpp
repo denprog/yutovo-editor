@@ -73,6 +73,19 @@ void Formula::Normalize()
     }
 }
 
+void Formula::Rescale() const
+{
+    Element::Rescale();
+    draw_string_format = document->string_formats->GetFormat(formula_format->string_format, document->config.scale);
+}
+
+void Formula::UpdateRect(bool with_elements)
+{
+    Element::UpdateRect(with_elements);
+    if (!draw_string_format)
+        Rescale();
+}
+
 bool Formula::SplitAt(const uint pos)
 {
     return false;
@@ -85,10 +98,10 @@ bool Formula::Merge(const ElementPtr with_element)
 
 void Formula::GetMargin(int& left, int& top, int& right, int& bottom) const
 {
-    left = formula_format->left_margin;
-    top = formula_format->top_margin;
-    right = formula_format->right_margin;
-    bottom = formula_format->bottom_margin;
+    left = std::round(formula_format->left_margin * document->config.scale);
+    top = std::round(formula_format->top_margin * document->config.scale);
+    right = std::round(formula_format->right_margin * document->config.scale);
+    bottom = std::round(formula_format->bottom_margin * document->config.scale);
 }
 
 bool Formula::HasCaretState()

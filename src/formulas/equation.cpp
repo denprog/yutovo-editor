@@ -94,11 +94,10 @@ void Equation::Draw() const
     GetShape()->draw_func = 
         [&](const Rect& r)
         {
-            const auto f = GetStringFormat();
             if (document->selection.IsSelected(id))
-                window->DrawText("=", f, r, document->config.formula_bg_color, document->config.bg_selection_color);
+                window->DrawText("=", draw_string_format, r, document->config.formula_bg_color, document->config.bg_selection_color);
             else
-                window->DrawText("=", f, r, document->config.shapes_color, document->config.formula_bg_color);
+                window->DrawText("=", draw_string_format, r, document->config.shapes_color, document->config.formula_bg_color);
         };
 
     MiddleShapeFormula::Draw();
@@ -113,7 +112,9 @@ void Equation::Draw() const
 
 void Equation::UpdateRect(bool with_elements)
 {
-    Size s = parent->window->GetTextSize(std::u32string(1, '='), GetStringFormat());
+    if (!draw_string_format)
+        Rescale();
+    Size s = parent->window->GetTextSize(std::u32string(1, '='), draw_string_format);
     GetShape()->rect.SetSize(s.width, s.height * 3 / 4);
     GetShape()->baseline = GetShape()->rect.height / 3 * 2;
 

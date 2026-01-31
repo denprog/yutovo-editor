@@ -53,6 +53,7 @@ public:
     virtual void DrawErrorMark(const int start, const int size) const;
     virtual bool Remake(bool with_elements = false);
     virtual void Normalize();
+    virtual void Rescale() const;
 
     virtual void Resize(const int dx, const int dy);
     virtual void MovePicture(const int dx, const int dy);

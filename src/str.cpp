@@ -254,6 +254,13 @@ void String::Normalize()
 {
 }
 
+void String::Rescale() const
+{
+    size_cache.clear();
+    if (format)
+        draw_format = document->string_formats->GetFormat(format, document->config.scale);
+}
+
 void String::UpdateRect(bool with_elements)
 {
     if (last_stretch_width != stretch_width)
@@ -262,9 +269,11 @@ void String::UpdateRect(bool with_elements)
         size_cache.clear();
     }
 
+    if (!draw_format)
+        Rescale();
     Size s = GetTextSize(elements->Count());
     rect.SetSize(s.width, s.height);
-    baseline = window->GetFontAscent(format);
+    baseline = window->GetFontAscent(draw_format);
 }
 
 bool String::GetElementAtCoords(const int x, const int y, const int margin, ElementId& _id)
@@ -362,6 +371,7 @@ bool String::InsertElements(std::vector<ElementPtr>& _elements, bool insert_mode
                 document->StoreUndo(id);
             elements.reset(new StringElements(this, s->elements->ToText()));
             format = s->format;
+            Rescale();
             caret->SetState(elements->GetElementId(elements->Count()));
             parent->Normalize();
             auto p = document->FindParent(id, ElementType::PARAGRAPH);
@@ -530,6 +540,7 @@ bool String::ChangeStringFormat(const StringFormatPtr _format, bool with_undo, E
                 document->StoreUndo(parent->parent->id);
             //change format of the whole string
             format = _format;
+            Rescale();
             parent->Normalize();
             auto p = document->FindParent(id, ElementType::PARAGRAPH);
             p->elements->UpdateIds();
@@ -548,7 +559,7 @@ bool String::ChangeStringFormat(const StringFormatPtr _format, bool with_undo, E
             el = parent->elements->Get(parent->elements->GetElementPos(id) + 1);
         el->SplitAt(size);
         ((String*)el.get())->format = _format;
-        ((String*)el.get())->size_cache.clear();
+        el->Rescale();
         document->CaretMoved();
 
         auto p = document->FindParent(id, ElementType::PARAGRAPH);
@@ -784,11 +795,14 @@ void String::UpdateStringFormat(const StringFormatPtr base_format, const StringF
     if (base_format->text_bg_color == format->text_bg_color)
         f.text_bg_color = new_format->text_bg_color;
     format = document->GetStringFormat(f.family, f.size, f.bold, f.italic, f.underline, f.strikethrough, f.subscript, f.superscript, f.text_color, f.text_bg_color);
-    size_cache.clear();
+    Rescale();
 }
 
 Size String::GetTextSize(const uint pos) const
 {
+    if (!draw_format)
+        Rescale();
+
     auto it = size_cache.find(pos);
     if (it == size_cache.end())
     {
@@ -810,17 +824,17 @@ Size String::GetTextSize(const uint pos) const
                     break;
             }
             if (c > 0)
-                tabs_size = window->GetTextSize(std::u32string(document->config.tab_spaces * c, U' '), format);
+                tabs_size = window->GetTextSize(std::u32string(document->config.tab_spaces * c, U' '), draw_format);
         }
         if (stretch_width == 0)
         {
-            Size s = window->GetTextSize(_str, format);
+            Size s = window->GetTextSize(_str, draw_format);
             s.width += tabs_size.width;
             size_cache[pos] = s;
             return s;
         }
 
-        Size s = window->GetTextSize(_str, format);
+        Size s = window->GetTextSize(_str, draw_format);
         int spaces = std::count_if(str.begin(), str.end(),
             [](char32_t c)
             {
@@ -856,7 +870,6 @@ void String::UpdateLevel(uint8_t _level)
     level = _level;
     if (!parent || !parent->parent)
         return;
-    size_cache.clear();
     auto* p = parent;
     while (p && (p->level != 1 || p->type == ElementType::CODE_ROW))
         p = p->parent;
@@ -868,6 +881,7 @@ void String::UpdateLevel(uint8_t _level)
         s = 8;
     format = document->GetStringFormat(format->family, s, format->bold, format->italic, format->underline, 
         format->strikethrough, format->subscript, format->superscript, format->text_color, format->text_bg_color);
+    Rescale();
 }
 
 void String::SetEditable(bool _editable)
@@ -950,27 +964,26 @@ Elements* StringElements::Clone(Element* _parent)
 void StringElements::Draw() const
 {
     String* p = (String*)parent;
-    StringFormatPtr format = p->format;
     uint start = 0, size = 0;
     Rect r = p->GetAbsoluteRect();
     if (p->stretch_width == 0 && tabs.empty())
     {
-        p->window->DrawText(ToBasicString(str), format, r, format->text_color, format->text_bg_color); //draw the string
+        p->window->DrawText(ToBasicString(str), p->draw_format, r, p->draw_format->text_color, p->draw_format->text_bg_color); //draw the string
         if (p->document->selection.Has(p->id, start, size))
         {
             //draw text with selection
-            int pos = p->window->GetCharPos(str, format, start);
+            int pos = p->window->GetCharPos(str, p->draw_format, start);
             if (str.empty() && start == 0 && size == 0)
             {
-                yutovo::Size s = p->window->GetTextSize(U" ", format);
-                p->window->DrawText(" ", format, Rect{r.left + pos, r.top, s.width, r.height}, 
-                    format->text_bg_color, format->text_bg_selection_color);
+                yutovo::Size s = p->window->GetTextSize(U" ", p->draw_format);
+                p->window->DrawText(" ", p->draw_format, Rect{r.left + pos, r.top, s.width, r.height}, 
+                    p->draw_format->text_bg_color, p->draw_format->text_bg_selection_color);
             }
             else
             {
                 std::u32string u_part = str.substr(start, size);
-                p->window->DrawText(ToBasicString(u_part), format, Rect{r.left + pos, r.top, r.width - pos, r.height}, 
-                    format->text_bg_color, format->text_bg_selection_color);
+                p->window->DrawText(ToBasicString(u_part), p->draw_format, Rect{r.left + pos, r.top, r.width - pos, r.height}, 
+                    p->draw_format->text_bg_color, p->draw_format->text_bg_selection_color);
             }
         }
     }
@@ -979,25 +992,25 @@ void StringElements::Draw() const
         //draw the string by symbols
         if (parent->document->selection.Has(parent->id, start, size))
         {
-            yutovo::Size s1 = p->GetTextSize(start);
-            yutovo::Size s2 = p->GetTextSize(start + size);
-            parent->window->DrawFillRect(Rect{r.left + s1.width, r.top, s2.width - s1.width, r.height}, format->text_bg_selection_color);
+            yutovo::Size s1(p->GetTextSize(start), parent->document->config.scale);
+            yutovo::Size s2(p->GetTextSize(start + size), parent->document->config.scale);
+            parent->window->DrawFillRect(Rect{r.left + s1.width, r.top, s2.width - s1.width, r.height}, p->draw_format->text_bg_selection_color);
         }
         for (int i = 0; i < str.length(); ++i)
         {
             if (std::find(tabs.begin(), tabs.end(), i) == tabs.end())
             {
-                yutovo::Size s = p->GetTextSize(i);
+                yutovo::Size s(p->GetTextSize(i), parent->document->config.scale);
                 std::u32string sub = str.substr(i, 1);
                 if (i >= start && i < start + size)
                 {
-                    p->window->DrawText(ToBasicString(sub), format, Rect{r.left + s.width, r.top, r.width - s.width, r.height}, 
-                        format->text_bg_color, format->text_bg_selection_color);
+                    p->window->DrawText(ToBasicString(sub), p->draw_format, Rect{r.left + s.width, r.top, r.width - s.width, r.height}, 
+                        p->draw_format->text_bg_color, p->draw_format->text_bg_selection_color);
                 }
                 else
                 {
-                    p->window->DrawText(ToBasicString(sub), format, Rect{r.left + s.width, r.top, r.width - s.width, r.height}, 
-                        format->text_color, format->text_bg_color);
+                    p->window->DrawText(ToBasicString(sub), p->draw_format, Rect{r.left + s.width, r.top, r.width - s.width, r.height}, 
+                        p->draw_format->text_color, p->draw_format->text_bg_color);
                 }
             }
         }
@@ -1139,7 +1152,7 @@ Rect StringElements::GetCaretRect(const uint pos) const
     }
     if (pos == str.length())
         return Rect(s.width, 0, 1, s.height);
-    yutovo::Size s2 = parent->window->GetTextSize(std::u32string(1, str[pos]), ((String*)parent)->format);
+    yutovo::Size s2 = parent->window->GetTextSize(std::u32string(1, str[pos]), ((String*)parent)->draw_format);
     return Rect(s.width, 0, s2.width, s.height);
 }
 

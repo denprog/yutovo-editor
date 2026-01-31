@@ -42,6 +42,7 @@ public:
 
     virtual bool Remake(bool with_elements = false);
     virtual void Normalize();
+    virtual void Rescale() const;
 
     virtual void UpdateRect(bool with_elements = false);
 
@@ -91,6 +92,7 @@ public:
 
 public:
     StringFormatPtr format;
+    mutable StringFormatPtr draw_format;
     bool translate = false;
 
 protected:

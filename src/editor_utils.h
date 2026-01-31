@@ -11,6 +11,7 @@
 #include <stdint.h>
 #include <iostream>
 #include <iomanip>
+#include <cmath>
 #include <boost/locale.hpp>
 #include <yutovo-calculator/parser_exception.h>
 #include <yutovo-calculator/math_helper.h>
@@ -134,6 +135,20 @@ struct Point
 
 struct Size
 {
+    Size() = default;
+
+    Size(const int _width, const int _height) : 
+        width(_width),
+        height(_height)
+    {
+    }
+
+    Size(const Size& source, const float scale) : 
+        width(std::round(source.width * scale)),
+        height(std::round(source.height * scale))
+    {
+    }
+
     bool operator==(const Size& other) const
     {
         return width == other.width && height == other.height;
@@ -148,6 +163,12 @@ struct Size
     {
         width = _width;
         height = _height;
+    }
+
+    void Set(const Size& source, const float scale)
+    {
+        width = std::round(source.width * scale);
+        height = std::round(source.height * scale);
     }
 
     int width = 0;

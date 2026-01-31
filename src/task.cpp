@@ -2916,7 +2916,7 @@ bool SetConfigTask::Execute()
     bool remake = false;
     Config& c = document->config;
     if (config.use_numbers_gaps != c.use_numbers_gaps || config.binary_gap != c.binary_gap || config.octal_gap != c.octal_gap || 
-        config.decimal_gap != c.decimal_gap || config.hexadecimal_gap != c.hexadecimal_gap)
+        config.decimal_gap != c.decimal_gap || config.hexadecimal_gap != c.hexadecimal_gap || config.scale != c.scale)
     {
         remake = true;
     }
@@ -2941,8 +2941,8 @@ bool SetConfigTask::Execute()
         document->RemoveUserIdentifiers();
         document->ClearExport();
         int i = 0;
-        while (i < document->text->elements->Count() && !document->text->elements->Get(i)->visible)
-            document->text->elements->RemoveAt(0, 1);
+        while (i < text->elements->Count() && !text->elements->Get(i)->visible)
+            text->elements->RemoveAt(0, 1);
         document->ClearIncludes();
         for (Config::IncludeDocument& inc : config.include_documents.documents)
             document->AddInclude(inc.file_name, -1);
@@ -2950,13 +2950,20 @@ bool SetConfigTask::Execute()
             document->ReSolve(ElementId{0});
     }
 
+    bool rescale = false;
+    if (config.scale != c.scale)
+        rescale = true;
+
     document->config = config;
     document->current_code_format->border_color = config.code_block_border_color;
 
     document->logger->SetLevel(config.log_level);
 
+    if (rescale)
+        text->Rescale();
     if (remake)
         Remake(text->id, false);
+
     document->Redraw(text->id, false);
     document->LoadNextInclude();
 

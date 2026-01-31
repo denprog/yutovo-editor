@@ -48,13 +48,12 @@ void Shape::Draw() const
     {
         //draw the resize items
         auto r = GetAbsoluteRect();
-        const auto f = GetStringFormat();
-        window->DrawRect(r, f->text_color);
+        window->DrawRect(r, draw_string_format->text_color);
         int m = document->config.resize_margin_width;
-        window->DrawRect(Rect{r.left, r.top, m, m}, f->text_color);
-        window->DrawRect(Rect{r.GetRight() - m, r.top, m, m}, f->text_color);
-        window->DrawRect(Rect{r.GetRight() - m, r.GetBottom() - m, m, m}, f->text_color);
-        window->DrawRect(Rect{r.left, r.GetBottom() - m, m, m}, f->text_color);
+        window->DrawRect(Rect{r.left, r.top, m, m}, draw_string_format->text_color);
+        window->DrawRect(Rect{r.GetRight() - m, r.top, m, m}, draw_string_format->text_color);
+        window->DrawRect(Rect{r.GetRight() - m, r.GetBottom() - m, m, m}, draw_string_format->text_color);
+        window->DrawRect(Rect{r.left, r.GetBottom() - m, m, m}, draw_string_format->text_color);
     }
 }
 

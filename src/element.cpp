@@ -195,6 +195,12 @@ void Element::Normalize()
         elements->Get(i)->Normalize();
 }
 
+void Element::Rescale() const
+{
+    for (int i = 0; i < elements->Count(); ++i)
+        elements->Get(i)->Rescale();
+}
+
 void Element::Resize(const int dx, const int dy)
 {
     if (parent)

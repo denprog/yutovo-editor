@@ -32,6 +32,7 @@ public:
     static Element* FromJson(Element* parent, Document* document, const rapidjson::Value::ConstObject& value, rapidjson::Document::AllocatorType& alloc);
 
     virtual bool Remake(bool with_elements = false);
+    virtual void Rescale() const;
 
     virtual void UpdateRect(bool with_elements = false);
 
@@ -53,7 +54,7 @@ public:
     std::vector<unsigned char> picture; //only PNG format for a while
 
 private:
-    Size image_size;
+    mutable Size image_size;
     static const std::string broken_image;
 };
 

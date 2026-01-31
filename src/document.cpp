@@ -2765,7 +2765,10 @@ void Document::LoadNextInclude()
     if (include_documents.empty())
     {
         if (!include_editor_state.IsEmpty())
+        {
             SetEditorState(include_editor_state);
+            include_editor_state.caret_state.id = LogicalId{};
+        }
         return;
     }
     auto& p = include_documents.front();

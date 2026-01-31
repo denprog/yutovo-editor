@@ -26,6 +26,7 @@ void Config::ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType&
 
     value.AddMember("use_tabs", use_tabs, alloc);
     value.AddMember("tab_spaces", tab_spaces, alloc);
+    value.AddMember("scale", scale, alloc);
 
     rapidjson::Value real_result_config("real_result", alloc);
     real_result_config.SetObject();
@@ -81,6 +82,8 @@ void Config::FromJson(const rapidjson::Document& value, rapidjson::Document::All
         use_tabs = value["use_tabs"].GetBool();
     if (value.HasMember("tab_spaces") && value["tab_spaces"].IsInt())
         tab_spaces = value["tab_spaces"].GetInt();
+    if (value.HasMember("scale") && value["scale"].IsFloat())
+        scale = value["scale"].GetFloat();
     
     if (value.HasMember("real_result") && value["real_result"].IsObject())
     {

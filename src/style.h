@@ -61,7 +61,9 @@ public:
     StringFormatPtr GetFormat(const std::string _family, uint _size, bool _bold, bool _italic, bool _underline, bool _strikethrough, bool _subscript, 
         bool _superscript, Color _text_color, Color _text_bg_color, Color _text_bg_selection_color);
     StringFormatPtr GetFormat(const StringFormat& source);
+    StringFormatPtr GetFormat(const StringFormatPtr& source, const float scale);
     StringFormatPtr GetFormat(const boost::uuids::uuid& _id);
+
     void AddFormats(const StringFormats& source);
 
     void ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc);

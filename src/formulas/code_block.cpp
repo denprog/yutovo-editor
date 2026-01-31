@@ -214,10 +214,10 @@ bool CodeBlock::AfterInsert(bool with_undo)
 
 void CodeBlock::GetMargin(int& left, int& top, int& right, int& bottom) const
 {
-    left = code_format->left_margin;
-    top = code_format->top_margin;
-    right = code_format->right_margin;
-    bottom = code_format->bottom_margin;
+    left = std::round(code_format->left_margin * document->config.scale);
+    top = std::round(code_format->top_margin * document->config.scale);
+    right = std::round(code_format->right_margin * document->config.scale);
+    bottom = std::round(code_format->bottom_margin * document->config.scale);
 }
 
 bool CodeBlock::HasCaretState()
