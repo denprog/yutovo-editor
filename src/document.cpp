@@ -2766,7 +2766,10 @@ void Document::LoadNextInclude()
     {
         if (!include_editor_state.IsEmpty())
         {
-            SetEditorState(include_editor_state);
+            std::vector<ElementPtr> els;
+            GetElements(include_editor_state.caret_state.id, els);
+            if (!els.empty() && IsVisible(els[0]->id))
+                SetEditorState(include_editor_state);
             include_editor_state.caret_state.id = LogicalId{};
         }
         return;
