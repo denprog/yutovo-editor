@@ -2768,7 +2768,7 @@ void Document::LoadNextInclude()
         {
             std::vector<ElementPtr> els;
             GetElements(yutovo::GetParent(include_editor_state.caret_state.id), els);
-            if (!els.empty() && IsVisible(els[0]->id))
+            if (!els.empty() && els[0]->visible)
             {
                 SetEditorState(include_editor_state);
                 include_editor_state.caret_state.id = LogicalId{};
