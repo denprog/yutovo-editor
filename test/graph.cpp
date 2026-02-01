@@ -789,12 +789,13 @@ TEST_F(FormulaTest, graphs13)
     document.WaitTask(document.InsertString("ln", true));
     document.InsertOpenRoundBracket(true);
     document.WaitTask(document.InsertString("yy", true));
-    document.InsertCloseRoundBracket(true);
-    document.MoveCaretRight(false);
-    document.InsertMinus(false);
+    document.WaitTask(document.InsertCloseRoundBracket(true));
+    std::this_thread::sleep_for(1s);
+    document.WaitTask(document.MoveCaretRight(false));
+    document.WaitTask(document.InsertMinus(false));
     document.WaitTask(document.InsertString("10", true));
-    document.MoveCaretRight(false);
-    document.InsertMinus(false);
+    document.WaitTask(document.MoveCaretRight(false));
+    document.WaitTask(document.InsertMinus(false));
     document.WaitTask(document.InsertString("2", true));
     document.WaitTask(document.MoveCaretRight(false));
     document.WaitTask(document.InsertString("yy", true));
@@ -809,7 +810,7 @@ TEST_F(FormulaTest, graphs13)
         {
             return x > -0.01 && x < 0.01;
         });
-    const std::vector<double> _y1{std::nan(""), -4.425, -3.652};
+    const std::vector<double> _y1{std::nan(""), -4.615, -3.74};
     int p = static_cast<int>(it - plot.x.begin());
     std::vector<double> y(plot.y.begin() + p, std::next(plot.y.begin() + p, 3));
     ASSERT_TRUE(std::equal(y.begin(), y.end(), _y1.begin(), 

@@ -587,6 +587,7 @@ TEST_F(FormulaTest, power9)
 
     document.Undo();
     document.WaitUndo();
+    std::this_thread::sleep_for(200ms);
     ASSERT_TRUE(document.ToText() == U"123+45+7") << ToBasicString(document.ToText());
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 2, 0}, 
         ElementSelectionState{{0, 0, 0, 0, 0, 0}, 0, 2})) << document.GetEditorState().ToString();

@@ -2168,10 +2168,6 @@ bool LoadTask::LoadJson(rapidjson::Document& doc)
     {
         //load paragraph formats
         document->paragraph_formats->FromJson(document, ((const rapidjson::Value&)doc["paragraph_formats"]).GetArray(), alloc);
-        std::vector<ParagraphFormatPtr> formats;
-        document->paragraph_formats->GetFormats(formats);
-        if (!formats.empty())
-            document->SetCurrentParagraphFormat(formats[0]->name, false);
     }
 
     if (!doc.HasMember("text") || !doc["text"].IsObject())
@@ -2179,9 +2175,6 @@ bool LoadTask::LoadJson(rapidjson::Document& doc)
         LOG_ERROR("File '{}' does not contain text", filename);
         return false;
     }
-
-    document->SetCurrentParagraphFormat("Text body", false);
-    document->SetCurrentFormulaFormat("Code");
 
     return true;
 }

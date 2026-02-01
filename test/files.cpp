@@ -2349,4 +2349,31 @@ TEST_F(IncludeDocumentsTest, include_files21)
     ASSERT_TRUE(document2.IsChanged() == true);
 }
 
+//Check font after load
+TEST_F(IncludeDocumentsTest, include_files22)
+{
+    Start(600);
+
+    EXPECT_CALL(window_mock, OnLoadInclude).WillRepeatedly([&](const std::string& file_name, const int document_id)
+        {
+            document.LoadInclude(file_name);
+            std::this_thread::sleep_for(400ms);
+        });
+
+    document.Load("../../test/tests/include_files22_2.yut");
+    document.WaitLoad();
+    document.WaitSolver();
+    std::this_thread::sleep_for(4s);
+    ASSERT_TRUE(document.ToText() == 
+        U"var=12."
+        ) << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 1, 0, 0, 0,0, 0, 0, 0, 0}, 
+        ElementSelectionState{ElementId{0, 1, 0, 0, 0, 0, 0}, 0, 1})) << document.GetEditorState().ToString();
+    auto el = document.FindByString({0, 1, 0, 0}, U"var");
+    StringFormat format;
+    ASSERT_TRUE(document.GetStringFormat(el->id, format));
+    ASSERT_TRUE(format.family == "FreeMono") << format.family;
+    ASSERT_TRUE(format.size == 14);
+}
+
 }
