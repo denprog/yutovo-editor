@@ -105,7 +105,10 @@ Element* Paragraph::FromJson(Element* parent, Document* document, const rapidjso
         f = document->paragraph_formats->GetFormat(format_name, alignment, f->word_wrap, f->line_spacing, f->indent_before, f->indent_after, 
             f->indent_first_line, f->spacing_before, f->spacing_after, f->default_string_format);
         if (f)
+        {
             p->format = f;
+            p->current_string_format = f->default_string_format;
+        }
     }
 
     if (value.HasMember("marker") && value["marker"].IsString())
