@@ -46,11 +46,11 @@ public:
 
     virtual bool Depends(const std::string& identifier);
 
-    void SetResult(Config::AutoResultConfig config);
-    void SetResult(Config::RealResultConfig config);
-    void SetResult(Config::IntegerResultConfig config);
-    void SetResult(Config::RationalResultConfig config);
-    void SetResult(Config::ComplexResultConfig config);
+    void SetResult(const Config::AutoResultConfig& config);
+    void SetResult(const Config::RealResultConfig& config);
+    void SetResult(const Config::IntegerResultConfig& config);
+    void SetResult(const Config::RationalResultConfig& config);
+    void SetResult(const Config::ComplexResultConfig& config);
     bool SetResult(ResultType _result_type, bool with_undo);
     
     bool SetConfig(int precision, int exp, AngleMeasure default_angle_measure, AngleMeasure result_angle_measure, bool with_undo);

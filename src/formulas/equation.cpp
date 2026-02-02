@@ -224,35 +224,35 @@ bool Equation::Depends(const std::string& identifier)
     return false;
 }
 
-void Equation::SetResult(Config::AutoResultConfig config)
+void Equation::SetResult(const Config::AutoResultConfig& config)
 {
     result.reset(new AutoResult(GetLast(), config));
     GetLast()->elements->Clear();
     GetLast()->elements->Add(result);
 }
 
-void Equation::SetResult(Config::RealResultConfig config)
+void Equation::SetResult(const Config::RealResultConfig& config)
 {
     result.reset(new RealResult(GetLast(), config));
     GetLast()->elements->Clear();
     GetLast()->elements->Add(result);
 }
 
-void Equation::SetResult(Config::IntegerResultConfig config)
+void Equation::SetResult(const Config::IntegerResultConfig& config)
 {
     result.reset(new IntegerResult(GetLast(), config));
     GetLast()->elements->Clear();
     GetLast()->elements->Add(result);
 }
 
-void Equation::SetResult(Config::RationalResultConfig config)
+void Equation::SetResult(const Config::RationalResultConfig& config)
 {
     result.reset(new RationalResult(GetLast(), config));
     GetLast()->elements->Clear();
     GetLast()->elements->Add(result);
 }
 
-void Equation::SetResult(Config::ComplexResultConfig config)
+void Equation::SetResult(const Config::ComplexResultConfig& config)
 {
 }
 
