@@ -3073,6 +3073,144 @@ TEST_F(DocumentTest, fonts36)
         ElementSelectionState{ElementId{0}, 0, 1})) << document.GetEditorState().ToString();
 }
 
+//subscript for selection
+TEST_F(DocumentTest, fonts37)
+{
+    Start(600);
+
+    document.InsertString("Substring", document.GetStringFormat("Arial", 24, false, false, false, false), true);
+    document.WaitTask(document.MoveCaretHome(true));
+    document.WaitTask(document.SetSubscript(true));
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:24px;\"><sub>Substring</sub></span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0}, 
+        ElementSelectionState{ElementId{0}, 0, 1})) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:24px;\">Substring</span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0}, 
+        ElementSelectionState{ElementId{0}, 0, 1})) << document.GetEditorState().ToString();
+}
+
+//subscript for selection
+TEST_F(DocumentTest, fonts38)
+{
+    Start(600);
+
+    document.InsertString("Substring", document.GetStringFormat("Arial", 24, false, false, false, false), true);
+    document.MoveCaretLeft(false);
+    document.MoveCaretLeft(false);
+    document.MoveCaretLeft(false);
+    document.MoveCaretLeft(true);
+    document.MoveCaretLeft(true);
+    document.WaitTask(document.MoveCaretLeft(true));
+    document.WaitTask(document.SetSubscript(true));
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:24px;\">Sub</span>"\
+                "<span style=\"font-family:'Arial';font-size:24px;\"><sub>str</sub></span>"\
+                "<span style=\"font-family:'Arial';font-size:24px;\">ing</span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 1, 0}, 
+        ElementSelectionState{ElementId{0, 0, 0}, 1, 1})) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:24px;\">Substring</span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 3}, 
+        ElementSelectionState{ElementId{0, 0, 0, 0}, 3, 3})) << document.GetEditorState().ToString();
+}
+
+//superscript for selection
+TEST_F(DocumentTest, fonts39)
+{
+    Start(600);
+
+    document.InsertString("Superstring", document.GetStringFormat("Arial", 24, false, false, false, false), true);
+    document.WaitTask(document.MoveCaretHome(true));
+    document.WaitTask(document.SetSuperscript(true));
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:24px;\"><sup>Superstring</sup></span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0}, 
+        ElementSelectionState{ElementId{0}, 0, 1})) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:24px;\">Superstring</span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0}, 
+        ElementSelectionState{ElementId{0}, 0, 1})) << document.GetEditorState().ToString();
+}
+
+//superscript for selection
+TEST_F(DocumentTest, fonts40)
+{
+    Start(600);
+
+    document.InsertString("Superstring", document.GetStringFormat("Arial", 24, false, false, false, false), true);
+    document.MoveCaretLeft(false);
+    document.MoveCaretLeft(false);
+    document.MoveCaretLeft(false);
+    document.MoveCaretLeft(true);
+    document.MoveCaretLeft(true);
+    document.WaitTask(document.MoveCaretLeft(true));
+    document.WaitTask(document.SetSuperscript(true));
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:24px;\">Super</span>"\
+                "<span style=\"font-family:'Arial';font-size:24px;\"><sup>str</sup></span>"\
+                "<span style=\"font-family:'Arial';font-size:24px;\">ing</span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 1, 0}, 
+        ElementSelectionState{ElementId{0, 0, 0}, 1, 1})) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:24px;\">Superstring</span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 5}, 
+        ElementSelectionState{ElementId{0, 0, 0, 0}, 5, 3})) << document.GetEditorState().ToString();
+}
+
 TEST_F(DocumentTest, delete1)
 {
     Start(600);

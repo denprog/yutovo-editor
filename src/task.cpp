@@ -818,6 +818,10 @@ bool ChangeStringFormatTask::Execute()
                 f.text_color = format->text_color;
             if (set_text_bg_color && !c)
                 f.text_bg_color = format->text_bg_color;
+            if (set_subscript)
+                f.subscript = format->subscript;
+            if (set_superscript)
+                f.superscript = format->superscript;
             return document->GetStringFormat(f.family, f.size, f.bold, f.italic, f.underline, f.strikethrough, f.subscript, f.superscript, 
                 f.text_color, f.text_bg_color);
         };
