@@ -341,7 +341,7 @@ RealResult::RealResult(Element* parent) :
         config = parent->document->config.real_result;
 }
 
-RealResult::RealResult(Element* parent, Config::RealResultConfig _config) :
+RealResult::RealResult(Element* parent, const Config::RealResultConfig& _config) :
     ResultRow(parent), 
     config(_config)
 {
@@ -394,6 +394,7 @@ void RealResult::PutResult(Result& result)
     ResultRow::PutResult(result);
 
     solving_id.clear();
+    unit_error = false;
 
     ElementPtr el = document->FindParent(id, ElementType::EQUATION);
     Equation* eq = (Equation*)el.get();
@@ -407,6 +408,16 @@ void RealResult::PutResult(Result& result)
     if (result.error.error_code == yutovo_solver::ErrorCode::SOLVER_RESTARTED_ERROR)
     {
         eq->last_expression.Reset();
+        return;
+    }
+
+    if (result.error.parser_error_code == yutovo_calculator::ParserExceptionCode::CannotCastToUnit && !config.unit.IsEmpty())
+    {
+        //try to resolve without casting to a unit
+        config.unit = yutovo_calculator::Unit{};
+        eq->last_expression.Reset();
+        unit_error = true;
+        document->ReSolve(eq->id);
         return;
     }
 
@@ -491,7 +502,7 @@ IntegerResult::IntegerResult(Element* parent) :
         config = parent->document->config.integer_result;
 }
 
-IntegerResult::IntegerResult(Element* parent, Config::IntegerResultConfig _config) :
+IntegerResult::IntegerResult(Element* parent, const Config::IntegerResultConfig& _config) :
     ResultRow(parent)
 {
     type = ElementType::INTEGER_RESULT;
@@ -614,7 +625,7 @@ RationalResult::RationalResult(Element* parent) :
         config = parent->document->config.rational_result;
 }
 
-RationalResult::RationalResult(Element* parent, Config::RationalResultConfig _config) :
+RationalResult::RationalResult(Element* parent, const Config::RationalResultConfig& _config) :
     ResultRow(parent)
 {
     type = ElementType::RATIONAL_RESULT;
@@ -658,6 +669,7 @@ void RationalResult::PutResult(Result& result)
     ResultRow::PutResult(result);
 
     solving_id.clear();
+    unit_error = false;
 
     ElementPtr el = document->FindParent(id, ElementType::EQUATION);
     Equation* eq = (Equation*)el.get();
@@ -671,6 +683,16 @@ void RationalResult::PutResult(Result& result)
     if (result.error.error_code == yutovo_solver::ErrorCode::SOLVER_RESTARTED_ERROR)
     {
         eq->last_expression.Reset();
+        return;
+    }
+
+    if (result.error.parser_error_code == yutovo_calculator::ParserExceptionCode::CannotCastToUnit && !config.unit.IsEmpty())
+    {
+        //try to resolve without casting to a unit
+        config.unit = yutovo_calculator::Unit{};
+        eq->last_expression.Reset();
+        unit_error = true;
+        document->ReSolve(eq->id);
         return;
     }
 
@@ -771,7 +793,7 @@ ComplexResult::ComplexResult(Element* parent) :
         config = parent->document->config.complex_result;
 }
 
-ComplexResult::ComplexResult(Element* parent, Config::ComplexResultConfig _config) :
+ComplexResult::ComplexResult(Element* parent, const Config::ComplexResultConfig& _config) :
     ResultRow(parent)
 {
     type = ElementType::COMPLEX_RESULT;
@@ -1010,7 +1032,7 @@ ArrayRealResult::ArrayRealResult(Element* parent) :
         config = parent->document->config.array_real_result;
 }
 
-ArrayRealResult::ArrayRealResult(Element* parent, Config::ArrayRealResultConfig _config) :
+ArrayRealResult::ArrayRealResult(Element* parent, const Config::ArrayRealResultConfig& _config) :
     ResultRow(parent), 
     config(_config)
 {
@@ -1195,7 +1217,7 @@ AutoResult::AutoResult(Element* parent) :
         config = parent->document->config.auto_result;
 }
 
-AutoResult::AutoResult(Element* parent, Config::AutoResultConfig _config) :
+AutoResult::AutoResult(Element* parent, const Config::AutoResultConfig& _config) :
     ResultRow(parent),
     config(_config)
 {
@@ -1236,7 +1258,7 @@ void AutoResult::Solve(const ParserString& expression)
 
     solving_id = logical_id;
     document->Solve(logical_id, guid, GetCodeId(), config, !GetParent(1)->visible, last_expression.Text(), 
-        (delay && last_error_code != yutovo_solver::ErrorCode::SOLVER_RESTARTED_ERROR) ? document->config.solve_delay : 0);
+        (delay && last_error_code != yutovo_solver::ErrorCode::SOLVER_RESTARTED_ERROR && !unit_error) ? document->config.solve_delay : 0);
     delay = true;
 }
 
@@ -1245,6 +1267,7 @@ void AutoResult::PutResult(Result& result)
     ResultRow::PutResult(result);
 
     solving_id.clear();
+    unit_error = false;
 
     ElementPtr el = document->FindParent(id, ElementType::EQUATION);
     Equation* eq = (Equation*)el.get();
@@ -1254,6 +1277,18 @@ void AutoResult::PutResult(Result& result)
     if (result.error.error_code == yutovo_solver::ErrorCode::SOLVER_RESTARTED_ERROR)
     {
         eq->last_expression.Reset();
+        return;
+    }
+
+    if (result.error.parser_error_code == yutovo_calculator::ParserExceptionCode::CannotCastToUnit && 
+        !config.real_result.unit.IsEmpty() && !config.rational_result.unit.IsEmpty())
+    {
+        //try to resolve without casting to a unit
+        config.real_result.unit = yutovo_calculator::Unit{};
+        config.rational_result.unit = yutovo_calculator::Unit{};
+        eq->last_expression.Reset();
+        unit_error = true;
+        document->ReSolve(eq->id);
         return;
     }
 

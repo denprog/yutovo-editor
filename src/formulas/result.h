@@ -68,6 +68,7 @@ protected:
     bool next_result = false;
     bool solving = false;
     bool replacing = false;
+    bool unit_error = false;
 
     LogicalId solving_id;
     std::string guid;
@@ -80,7 +81,7 @@ class RealResult : public ResultRow
 public:
     RealResult(Document* _document);
     RealResult(Element* parent);
-    RealResult(Element* parent, Config::RealResultConfig _config);
+    RealResult(Element* parent, const Config::RealResultConfig& _config);
     RealResult(const RealResult& source) = default;
 
     virtual Element* Clone();
@@ -108,7 +109,7 @@ class IntegerResult : public ResultRow
 public:
     IntegerResult(Document* _document);
     IntegerResult(Element* parent);
-    IntegerResult(Element* parent, Config::IntegerResultConfig _config);
+    IntegerResult(Element* parent, const Config::IntegerResultConfig& _config);
     IntegerResult(const IntegerResult& source) = default;
 
     virtual Element* Clone();
@@ -132,7 +133,7 @@ class RationalResult : public ResultRow
 public:
     RationalResult(Document* _document);
     RationalResult(Element* parent);
-    RationalResult(Element* parent, Config::RationalResultConfig _config);
+    RationalResult(Element* parent, const Config::RationalResultConfig& _config);
     RationalResult(const RationalResult& source) = default;
 
     virtual Element* Clone();
@@ -157,7 +158,7 @@ class ComplexResult : public ResultRow
 public:
     ComplexResult(Document* _document);
     ComplexResult(Element* parent);
-    ComplexResult(Element* parent, Config::ComplexResultConfig _config);
+    ComplexResult(Element* parent, const Config::ComplexResultConfig& _config);
     ComplexResult(const ComplexResult& source) = default;
 
     virtual Element* Clone();
@@ -186,7 +187,7 @@ class ArrayRealResult : public ResultRow
 public:
     ArrayRealResult(Document* _document);
     ArrayRealResult(Element* parent);
-    ArrayRealResult(Element* parent, Config::ArrayRealResultConfig _config);
+    ArrayRealResult(Element* parent, const Config::ArrayRealResultConfig& _config);
     ArrayRealResult(const ArrayRealResult& source) = default;
 
     virtual Element* Clone();
@@ -222,7 +223,7 @@ class AutoResult : public ResultRow
 public:
     AutoResult(Document* _document);
     AutoResult(Element* parent);
-    AutoResult(Element* parent, Config::AutoResultConfig _config);
+    AutoResult(Element* parent, const Config::AutoResultConfig& _config);
     AutoResult(const AutoResult& source) = default;
 
     virtual Element* Clone();

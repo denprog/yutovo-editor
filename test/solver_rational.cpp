@@ -131,6 +131,7 @@ TEST_F(SolverRationalTest, rational2)
 
     document.WaitTask(document.SetResultType({0, 0, 0, 0, 0, 0, 0, 2, 0, 0}, ResultType::RATIONAL, true));
     document.WaitSolver();
+    std::this_thread::sleep_for(1s);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -655,6 +656,46 @@ TEST_F(SolverRationalTest, units4)
     document.WaitTask(document.SetUnit({0, 0, 0, 0, 0, 0, 0, 2, 0, 0}, unit, true));
     document.WaitSolver();
     ASSERT_TRUE(document.ToText() == U"(4Ом)/(7)=(4)/(7)(В)/(А)") << ToBasicString(document.ToText());
+}
+
+//Change result unit and then change the expression
+TEST_F(SolverRationalTest, units5)
+{
+    Start(600);
+    
+    document.WaitTask(document.SetLocale(yutovo_calculator::Language::Russian, true));
+    document.InsertCode(false, true);
+    document.InsertDivision(true);
+    document.WaitTask(document.InsertString("12", true));
+    document.MoveCaretDown(false);
+    document.MoveCaretDown(false);
+    document.InsertString("7", true);
+    document.MoveCaretRight(false);
+    document.InsertString("с", true);
+    document.WaitTask(document.InsertEquation(ResultType::RATIONAL, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(1s);
+    ASSERT_TRUE(document.ToText() == 
+        U"(12)/(7)с=1(5)/(7)с"
+        ) << ToBasicString(document.ToText());
+
+    yutovo_calculator::Unit unit;
+    unit.FromString(U"мс");
+    document.WaitTask(document.SetUnit({0, 0, 0, 0, 0, 0, 0, 2, 0, 0}, unit, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(1s);
+    ASSERT_TRUE(document.ToText() == 
+        U"(12)/(7)с=1714(2)/(7)мс"
+        ) << ToBasicString(document.ToText());
+    
+    document.WaitTask(document.MoveCaretLeft(false));
+    document.WaitTask(document.DeleteElements(true, true));
+    document.WaitTask(document.InsertString("м", true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(2s);
+    ASSERT_TRUE(document.ToText() == 
+        U"(12)/(7)м=1(5)/(7)м"
+        ) << ToBasicString(document.ToText());
 }
 
 }

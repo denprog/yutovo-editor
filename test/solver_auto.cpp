@@ -2515,11 +2515,6 @@ TEST_F(SolverAutoTest, units13)
 {
     Start(600);
 
-    EXPECT_CALL(window_mock, Translate).WillRepeatedly([&](ElementId id, const std::u32string& str)
-        {
-            return str;
-        });
-
     document.WaitTask(document.SetLocale(yutovo_calculator::Language::Russian, true));
     document.InsertCode(false, true);
     document.WaitTask(document.InsertString("1с", true));
@@ -2545,7 +2540,7 @@ TEST_F(SolverAutoTest, units13)
     document.WaitSolver();
     std::this_thread::sleep_for(2s);
     ASSERT_TRUE(document.ToText() == 
-        U"1м=Cannot cast to unit"
+        U"1м=1.м"
         ) << ToBasicString(document.ToText());
 }
 

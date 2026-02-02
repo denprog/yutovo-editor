@@ -437,4 +437,38 @@ TEST_F(SolverRealTest, units2)
     ASSERT_TRUE(document.ToText() == U"\n20ms=0.02s") << ToBasicString(document.ToText());
 }
 
+//Change result unit and then change the expression
+TEST_F(SolverRealTest, units3)
+{
+    Start(600);
+    
+    document.WaitTask(document.SetLocale(yutovo_calculator::Language::Russian, true));
+    document.InsertCode(false, true);
+    document.WaitTask(document.InsertString("123с", true));
+    document.WaitTask(document.InsertEquation(ResultType::REAL, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(1s);
+    ASSERT_TRUE(document.ToText() == 
+        U"123с=2.05мин"
+        ) << ToBasicString(document.ToText());
+
+    yutovo_calculator::Unit unit;
+    unit.FromString(U"мс");
+    document.WaitTask(document.SetUnit({0, 0, 0, 0, 0, 0, 0, 2, 0, 0}, unit, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(1s);
+    ASSERT_TRUE(document.ToText() == 
+        U"123с=123000.мс"
+        ) << ToBasicString(document.ToText());
+    
+    document.WaitTask(document.MoveCaretLeft(false));
+    document.WaitTask(document.DeleteElements(true, true));
+    document.WaitTask(document.InsertString("м", true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(2s);
+    ASSERT_TRUE(document.ToText() == 
+        U"123м=123.м"
+        ) << ToBasicString(document.ToText());
+}
+
 }
