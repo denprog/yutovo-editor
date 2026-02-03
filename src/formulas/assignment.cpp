@@ -75,11 +75,10 @@ void Assignment::Draw() const
     GetShape()->draw_func = 
         [&](const Rect& r)
         {
-            const auto f = GetStringFormat();
             if (document->selection.IsSelected(id))
-                window->DrawText(draw_sign, f, r, document->config.formula_bg_color, document->config.bg_selection_color);
+                window->DrawText(draw_sign, draw_string_format, r, document->config.formula_bg_color, document->config.bg_selection_color);
             else
-                window->DrawText(draw_sign, f, r, document->config.shapes_color, document->config.formula_bg_color);
+                window->DrawText(draw_sign, draw_string_format, r, document->config.shapes_color, document->config.formula_bg_color);
         };
 
     MiddleShapeFormula::Draw();
@@ -94,7 +93,9 @@ void Assignment::Draw() const
 
 void Assignment::UpdateRect(bool with_elements)
 {
-    Size s = parent->window->GetTextSize(ToUtfString(draw_sign), GetStringFormat());
+    if (!draw_string_format)
+        Rescale();
+    Size s = parent->window->GetTextSize(ToUtfString(draw_sign), draw_string_format);
     GetShape()->rect.SetSize(s.width, s.height);
     GetShape()->baseline = GetShape()->rect.height / 3 * 2;
 
