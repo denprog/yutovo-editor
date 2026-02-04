@@ -99,11 +99,6 @@ QString PdfTest::ResolveFontPath(const StringFormatPtr format)
     FcPatternDestroy(pat);
     return path;
 #else
-    WCHAR filePath[MAX_PATH];
-    DWORD size = MAX_PATH;
-    BOOL ok = GetFontResourceInfoW((LPCWSTR)family.toStdWString().c_str(), &size, filePath, GFRI_FONTFILENAME);
-    if (ok)
-        return QString::fromWCharArray(filePath);
     return {};
 #endif
 }
