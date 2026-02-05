@@ -641,10 +641,20 @@ bool Row::GetTopCaretState(const int x, const int y, CaretState& caret_state, Se
                 }
                 else
                 {
+                    CaretState c;
                     last = caret->GetCaretState();
                     while (next < last)
                     {
                         ElementPtr el = document->GetElement(next.id);
+                        if (document->IsString(el))
+                        {
+                            if (el->GetLastCaretState(c, nullptr) && c == next)
+                            {
+                                ElementPtr _el = document->GetElement(last.id);
+                                if (_el && _el->HasCaretState() && el->GetRightCaretState(c, nullptr) && c == last)
+                                    break;
+                            }
+                        }
                         if (!el || !el->GetRightCaretState(next, select))
                             break;
                     }

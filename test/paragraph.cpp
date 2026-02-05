@@ -2122,6 +2122,44 @@ TEST_F(ParagraphTest, paragraph23)
         ElementSelectionState{ElementId{0, 5, 0, 0}, 0, 5})) << document.GetEditorState().ToString();
 }
 
+//Selection paragraphs with code blocks
+TEST_F(ParagraphTest, paragraph24)
+{
+    Start(1000);
+
+    document.Load("../../test/tests/paragraph24.yut");
+    document.WaitLoad();
+    std::this_thread::sleep_for(2s);
+
+    document.WaitTask(document.MoveCaretUp(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 3, 0, 2}, 
+        ElementSelectionState{ElementId{0, 4, 0, 0}, 0, 23})) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.MoveCaretUp(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 2, 0, 1}, 
+        ElementSelectionState{ElementId{0}, 3, 1},
+        ElementSelectionState{ElementId{0, 2, 0}, 1, 1},
+        ElementSelectionState{ElementId{0, 4, 0, 0}, 0, 23})) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.MoveCaretUp(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 1, 0, 1}, 
+        ElementSelectionState{ElementId{0, 1, 0}, 1, 1},
+        ElementSelectionState{ElementId{0}, 2, 2},
+        ElementSelectionState{ElementId{0, 4, 0, 0}, 0, 23})) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.MoveCaretUp(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 22}, 
+        ElementSelectionState{ElementId{0, 0, 0, 0}, 22, 8},
+        ElementSelectionState{ElementId{0, 0, 0}, 1, 1},
+        ElementSelectionState{ElementId{0}, 1, 3},
+        ElementSelectionState{ElementId{0, 4, 0, 0}, 0, 23})) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.MoveCaretUp(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0}, 
+        ElementSelectionState{ElementId{0}, 0, 4},
+        ElementSelectionState{ElementId{0, 4, 0, 0}, 0, 23})) << document.GetEditorState().ToString();
+}
+
 //Check format
 TEST_F(ParagraphTest, format1)
 {
