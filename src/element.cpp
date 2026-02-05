@@ -1469,7 +1469,9 @@ void Elements::Replace(ElementPtr element, const uint pos)
 
 void Elements::Replace(const uint pos, const int size, std::vector<ElementPtr>& _elements)
 {
-    selection->Remove(parent->id, pos, size);
+    LogicalSelectionState s = selection->GetLogicalState();
+    selection->Clear();
+
     int cs_pos = -1;
     if (!parent->id.empty())
     {
@@ -1480,9 +1482,6 @@ void Elements::Replace(const uint pos, const int size, std::vector<ElementPtr>& 
         }
     }
 
-    for (int i = 0; i < size; ++i) //update selection positions before deleting elements
-        selection->RemoveElement(GetElementId(pos + i));
-    
     for (uint i = pos; i < pos + size; ++i)
         elements[i]->BeforeDelete();
 
@@ -1519,6 +1518,7 @@ void Elements::Replace(const uint pos, const int size, std::vector<ElementPtr>& 
             elements[pos + i]->elements->UpdateIds();
     }
 
+    selection->Set(s);
     selection->Optimize();
 
     for (int i = pos + 1; i < Count(); ++i) //elements after were replaced

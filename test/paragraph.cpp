@@ -4126,6 +4126,51 @@ TEST_F(ParagraphTest, delete27)
         document.ToHtml();
 }
 
+//Insert a char after selection
+TEST_F(ParagraphTest, delete28)
+{
+    Start(1000);
+
+    EXPECT_CALL(window_mock, Translate).WillRepeatedly([&](ElementId id, const std::u32string& str)
+        {
+            return str;
+        });
+
+    document.Load("../../test/tests/paragraph24.yut");
+    document.WaitLoad();
+    std::this_thread::sleep_for(2s);
+
+    document.MoveCaretUp(true);
+    document.WaitTask(document.MoveCaretUp(true));
+    document.WaitTask(document.InsertString("?", true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(2s);
+    ASSERT_TRUE(document.ToText() == 
+        U"Ускорение свободного падения: g_a=9.807(м)/(pow(с,2))\n"\
+        U"Высота и масса тела: m=1кг\n"\
+        U"h=1м\n"\
+        U"Потенциальная энергия: \n"\
+        U"?потенциальной энергии с противоположным знаком: A=-(E2-E1)\n"\
+        U"A=Unknown identifier"
+        ) << ToBasicString(document.ToText());
+
+    document.Undo();
+    document.WaitUndo();
+    document.WaitSolver();
+    std::this_thread::sleep_for(2s);
+    ASSERT_TRUE(document.ToText() == 
+        U"Ускорение свободного падения: g_a=9.807(м)/(pow(с,2))\n"\
+        U"Высота и масса тела: m=1кг\n"\
+        U"h=1м\n"\
+        U"Потенциальная энергия: E=m*g_a*h\n"\
+        U"E=9.807Дж\n"\
+        U"Пусть: E1=2Дж\n"\
+        U"E2=1Дж\n"\
+        U"Работа - это изменение потенциальной энергии с противоположным знаком: A=-(E2-E1)\n"\
+        U"A=1.Дж"
+        ) << ToBasicString(document.ToText());
+}
+
 //Rescale
 TEST_F(ParagraphTest, scale1)
 {
