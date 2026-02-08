@@ -616,6 +616,7 @@ bool String::Split(const uint width, bool split_more)
     int pos = parent->elements->GetElementPos(id);
     parent->elements->Insert(el, pos + 1);
     str = str.substr(0, i + 1);
+    ((StringElements*)elements.get())->UpdateTabs();
     UpdateRect();
 
     if (caret->IsInsideElement(id))
@@ -972,17 +973,17 @@ void StringElements::Draw() const
         if (p->document->selection.Has(p->id, start, size))
         {
             //draw text with selection
-            int pos = p->window->GetCharPos(str, p->draw_format, start);
+            int x_pos = p->window->GetCharPos(str, p->draw_format, start);
             if (str.empty() && start == 0 && size == 0)
             {
                 yutovo::Size s = p->window->GetTextSize(U" ", p->draw_format);
-                p->window->DrawText(" ", p->draw_format, Rect{r.left + pos, r.top, s.width, r.height}, 
+                p->window->DrawText(" ", p->draw_format, Rect{r.left + x_pos, r.top, s.width, r.height}, 
                     p->draw_format->text_bg_color, p->draw_format->text_bg_selection_color);
             }
             else
             {
                 std::u32string u_part = str.substr(start, size);
-                p->window->DrawText(ToBasicString(u_part), p->draw_format, Rect{r.left + pos, r.top, r.width - pos, r.height}, 
+                p->window->DrawText(ToBasicString(u_part), p->draw_format, Rect{r.left + x_pos, r.top, r.width - x_pos, r.height}, 
                     p->draw_format->text_bg_color, p->draw_format->text_bg_selection_color);
             }
         }
