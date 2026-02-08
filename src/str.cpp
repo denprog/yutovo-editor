@@ -967,52 +967,28 @@ void StringElements::Draw() const
     String* p = (String*)parent;
     uint start = 0, size = 0;
     Rect r = p->GetAbsoluteRect();
-    if (p->stretch_width == 0 && tabs.empty())
+    //draw the string by symbols
+    if (parent->document->selection.Has(parent->id, start, size))
     {
-        p->window->DrawText(ToBasicString(str), p->draw_format, r, p->draw_format->text_color, p->draw_format->text_bg_color); //draw the string
-        if (p->document->selection.Has(p->id, start, size))
+        yutovo::Size s1(p->GetTextSize(start), parent->document->config.scale);
+        yutovo::Size s2(p->GetTextSize(start + size), parent->document->config.scale);
+        parent->window->DrawFillRect(Rect{r.left + s1.width, r.top, s2.width - s1.width, r.height}, p->draw_format->text_bg_selection_color);
+    }
+    for (int i = 0; i < str.length(); ++i)
+    {
+        if (tabs.empty() || std::find(tabs.begin(), tabs.end(), i) == tabs.end())
         {
-            //draw text with selection
-            int x_pos = p->window->GetCharPos(str, p->draw_format, start);
-            if (str.empty() && start == 0 && size == 0)
+            yutovo::Size s(p->GetTextSize(i), parent->document->config.scale);
+            std::string sub = ToBasicString(str.substr(i, 1));
+            if (i >= start && i < start + size)
             {
-                yutovo::Size s = p->window->GetTextSize(U" ", p->draw_format);
-                p->window->DrawText(" ", p->draw_format, Rect{r.left + x_pos, r.top, s.width, r.height}, 
+                p->window->DrawText(sub, p->draw_format, Rect{r.left + s.width, r.top, r.width - s.width, r.height}, 
                     p->draw_format->text_bg_color, p->draw_format->text_bg_selection_color);
             }
             else
             {
-                std::u32string u_part = str.substr(start, size);
-                p->window->DrawText(ToBasicString(u_part), p->draw_format, Rect{r.left + x_pos, r.top, r.width - x_pos, r.height}, 
-                    p->draw_format->text_bg_color, p->draw_format->text_bg_selection_color);
-            }
-        }
-    }
-    else
-    {
-        //draw the string by symbols
-        if (parent->document->selection.Has(parent->id, start, size))
-        {
-            yutovo::Size s1(p->GetTextSize(start), parent->document->config.scale);
-            yutovo::Size s2(p->GetTextSize(start + size), parent->document->config.scale);
-            parent->window->DrawFillRect(Rect{r.left + s1.width, r.top, s2.width - s1.width, r.height}, p->draw_format->text_bg_selection_color);
-        }
-        for (int i = 0; i < str.length(); ++i)
-        {
-            if (std::find(tabs.begin(), tabs.end(), i) == tabs.end())
-            {
-                yutovo::Size s(p->GetTextSize(i), parent->document->config.scale);
-                std::u32string sub = str.substr(i, 1);
-                if (i >= start && i < start + size)
-                {
-                    p->window->DrawText(ToBasicString(sub), p->draw_format, Rect{r.left + s.width, r.top, r.width - s.width, r.height}, 
-                        p->draw_format->text_bg_color, p->draw_format->text_bg_selection_color);
-                }
-                else
-                {
-                    p->window->DrawText(ToBasicString(sub), p->draw_format, Rect{r.left + s.width, r.top, r.width - s.width, r.height}, 
-                        p->draw_format->text_color, p->draw_format->text_bg_color);
-                }
+                p->window->DrawText(sub, p->draw_format, Rect{r.left + s.width, r.top, r.width - s.width, r.height}, 
+                    p->draw_format->text_color, p->draw_format->text_bg_color);
             }
         }
     }
