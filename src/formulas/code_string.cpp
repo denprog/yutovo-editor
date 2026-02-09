@@ -223,6 +223,9 @@ void CodeString::Draw() const
         if (p == 0)
         {
             //may be it is an identifier
+            auto s = document->FindParent(id, ElementType::SUBSCRIPT);
+            if (s)
+                str += s->elements->Get(2)->ToText();
             switch (document->FindIdentifier(code_id, ToBasicString(str)))
             {
             case IdentifierType::VARIABLE:
