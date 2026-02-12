@@ -970,15 +970,15 @@ void StringElements::Draw() const
     //draw the string by symbols
     if (parent->document->selection.Has(parent->id, start, size))
     {
-        yutovo::Size s1(p->GetTextSize(start), parent->document->config.scale);
-        yutovo::Size s2(p->GetTextSize(start + size), parent->document->config.scale);
+        yutovo::Size s1(p->GetTextSize(start));
+        yutovo::Size s2(p->GetTextSize(start + size));
         parent->window->DrawFillRect(Rect{r.left + s1.width, r.top, s2.width - s1.width, r.height}, p->draw_format->text_bg_selection_color);
     }
     for (int i = 0; i < str.length(); ++i)
     {
         if (tabs.empty() || std::find(tabs.begin(), tabs.end(), i) == tabs.end())
         {
-            yutovo::Size s(p->GetTextSize(i), parent->document->config.scale);
+            yutovo::Size s(p->GetTextSize(i));
             std::string sub = ToBasicString(str.substr(i, 1));
             if (i >= start && i < start + size)
             {
