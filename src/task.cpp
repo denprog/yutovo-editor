@@ -2580,7 +2580,7 @@ bool ResolveDependeciesTask::Execute()
     boost::split(id_arr, identifier, boost::is_any_of("()"));
 
     auto resolve_equations = 
-        [&_after_id, &solvings, d = document, &id_arr](CodeBlock* c, bool below)
+        [this, &_after_id, &solvings, d = document, &id_arr](CodeBlock* c, bool below)
         {
             if (below)
                 c->GetElementsBelow(_after_id, ElementType::EQUATION, solvings); //get equations below in this code block
@@ -2598,6 +2598,7 @@ bool ResolveDependeciesTask::Execute()
                         eq->ReSolve(false, true);
                     }
                 }
+                Remake(eq->parent->id, false);
             }
         };
     

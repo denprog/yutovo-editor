@@ -69,6 +69,7 @@ Element::Element(const Element& source) :
     can_resize(source.can_resize),
     visible(source.visible),
     has_caret_hilight(source.has_caret_hilight),
+    has_frame_hilight(source.has_frame_hilight),
     logger(source.logger)
 {
     elements.reset(source.elements->Clone(this)); //deep copy
@@ -961,7 +962,7 @@ void Element::UpdateDrawRect()
     }
     
     int start, size;
-    if (has_caret_hilight || document->HasErrorMark(id, start, size))
+    if (has_caret_hilight || has_frame_hilight || document->HasErrorMark(id, start, size))
     {
         draw_rect.left -= 2;
         draw_rect.height += 2;

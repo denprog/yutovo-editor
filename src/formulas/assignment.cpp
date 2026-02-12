@@ -84,7 +84,7 @@ void Assignment::Draw() const
     MiddleShapeFormula::Draw();
 
     //if there are two or more formulas in a row, draw a frame for better view
-    if (parent->type == ElementType::CODE_ROW && parent->parent->type == ElementType::CODE_PARAGRAPH && parent->elements->Count() > 1)
+    if (has_frame_hilight)
     {
         Rect r = GetAbsoluteRect();
         window->DrawRect(r.left, r.top, r.width, r.height, document->config.formula_frame_color);
@@ -119,6 +119,8 @@ bool Assignment::Remake(bool with_elements)
     GetLast()->rect.Move(GetFirst()->rect.width + GetShape()->rect.width, baseline - GetLast()->baseline);
 
     UpdateRect();
+
+    has_frame_hilight = (parent->type == ElementType::CODE_ROW && parent->parent->type == ElementType::CODE_PARAGRAPH && parent->elements->Count() > 1);
 
     if (rect != last_rect)
     {

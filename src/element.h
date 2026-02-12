@@ -179,6 +179,7 @@ public:
     bool can_resize = false; //can be resized usually with mouse
     bool visible = true;
     bool has_caret_hilight = false; //this element is hilighted when the caret is inside
+    bool has_frame_hilight = false; //this element has a colored frame
 
 protected:
     friend class Elements;
