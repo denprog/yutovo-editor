@@ -2349,6 +2349,12 @@ void Document::CaretMoved()
             p = p->parent;
         if (p)
             Redraw(p->parent->id, false);
+
+        p = el->parent;
+        while (p && !p->has_frame_hilight)
+            p = p->parent;
+        if (p)
+            Redraw(p->parent->id, false);
     }
 
     last_caret_state = MakeEditorState();
@@ -2365,6 +2371,12 @@ void Document::CaretMoved()
             caret_hilight_id = p->id;
             Redraw(p->id, false);
         }
+
+        p = el->parent;
+        while (p && !p->has_frame_hilight)
+            p = p->parent;
+        if (p)
+            Redraw(p->parent->id, false);
     }
 
     window->OnCaretMoved(last_caret_state);
