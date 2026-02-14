@@ -19,7 +19,6 @@ if(NOT DEFINED REMOTE_SOLVER)
     find_package(yutovo-solver REQUIRED PATHS ${INSTALL_PATH}/lib/cmake)
     find_package(yutovo-calculator REQUIRED PATHS ${INSTALL_PATH}/lib/cmake)
     find_package(yutovo-logger REQUIRED PATHS ${INSTALL_PATH}/lib/cmake)
-    find_package(MathGL2 REQUIRED)
 endif()
 
 set(Boost_USE_STATIC_LIBS ON)
