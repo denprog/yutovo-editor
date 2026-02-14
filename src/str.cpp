@@ -808,34 +808,51 @@ Size String::GetTextSize(const uint pos) const
     if (it == size_cache.end())
     {
         auto& str = ((StringElements*)elements.get())->str;
-        auto& tabs = ((StringElements*)elements.get())->tabs;
         auto _str = str.substr(0, pos);
-        Size tabs_size;
+        auto& tabs = ((StringElements*)elements.get())->tabs;
+        Size s;
         if (!tabs.empty())
         {
-            uint c = 0;
-            for (size_t i = 0; i < tabs.size(); ++i)
+            int str_width = 0;
+            size_t spaces_width = ((StringElements*)elements.get())->spaces_width;
+            auto& tabs_cache = ((StringElements*)elements.get())->tabs_cache;
+            size_t tab_count = std::lower_bound(tabs.begin(), tabs.end(), pos) - tabs.begin();
+            size_t prev = 0;
+            s = window->GetTextSize(std::u32string(document->config.tab_spaces, U' '), draw_format);
+            spaces_width = s.width;
+            for (size_t i = 0; i < tab_count; ++i)
             {
-                if (tabs[i] < pos)
+                size_t tab_pos = tabs[i];
+                auto t_it = tabs_cache.find(tab_pos);
+                if (t_it == tabs_cache.end())
                 {
-                    _str.erase(tabs[i] - c, 1);
-                    ++c;
+                    s = window->GetTextSize(str.substr(prev, tab_pos - prev), draw_format);
+                    tabs_cache[tab_pos] = s.width;
+                    str_width += s.width;
                 }
                 else
-                    break;
+                    str_width += t_it->second;
+                str_width += spaces_width;
+                prev = tab_pos + 1;
             }
-            if (c > 0)
-                tabs_size = window->GetTextSize(std::u32string(document->config.tab_spaces * c, U' '), draw_format);
+
+            if (prev < pos)
+            {
+                s = window->GetTextSize(str.substr(prev, pos - prev), draw_format);
+                str_width += s.width;
+            }
+            s.width = str_width;
+            return s;
         }
+
         if (stretch_width == 0)
         {
             Size s = window->GetTextSize(_str, draw_format);
-            s.width += tabs_size.width;
             size_cache[pos] = s;
             return s;
         }
 
-        Size s = window->GetTextSize(_str, draw_format);
+        s = window->GetTextSize(_str, draw_format);
         int spaces = std::count_if(str.begin(), str.end(),
             [](char32_t c)
             {
@@ -848,7 +865,6 @@ Size String::GetTextSize(const uint pos) const
             if (StringElements::IsSpace(str[i]))
                 s.width += floor(stretch_width / spaces);
         }
-        s.width += tabs_size.width;
         return s;
     }
     return it->second;
@@ -976,7 +992,7 @@ void StringElements::Draw() const
     }
     for (int i = 0; i < str.length(); ++i)
     {
-        if (tabs.empty() || std::find(tabs.begin(), tabs.end(), i) == tabs.end())
+        if (tabs.empty() || !std::binary_search(tabs.begin(), tabs.end(), i))
         {
             yutovo::Size s(p->GetTextSize(i));
             std::string sub = ToBasicString(str.substr(i, 1));
@@ -1369,12 +1385,16 @@ bool StringElements::IsSpace(char32_t ch)
 void StringElements::UpdateTabs()
 {
     tabs.clear();
-    size_t p = 0;
-    while (p != std::string::npos)
+    tabs_cache.clear();
+    if (parent && parent->document && !parent->document->config.use_tabs)
+        return;
+    String* p = (String*)parent;
+    size_t pos = 0;
+    while (pos != std::string::npos)
     {
-        p = str.find(U'\t', p);
-        if (p != std::string::npos)
-            tabs.push_back(p++);
+        pos = str.find(U'\t', pos);
+        if (pos != std::string::npos)
+            tabs.push_back(pos++);
     }
 }
 
