@@ -1676,13 +1676,20 @@ bool SaveTask::Execute()
 #endif          
 
                 std::string res;
-                if (!CompressGzip(str, res))
+                if (document->compressed_file)
                 {
-                    window->OnSaveResult(id, IOResult::InputStreamError, document_id);
-                    LOG_ERROR("Error compressing file '{}'", filename);
-                    return false;
+                    if (!CompressGzip(str, res))
+                    {
+                        window->OnSaveResult(id, IOResult::InputStreamError, document_id);
+                        LOG_ERROR("Error compressing file '{}'", filename);
+                        return false;
+                    }
+                    file.write(res.data(), res.size());
                 }
-                file.write(res.data(), res.size());
+                else
+                {
+                    file << str;
+                }
             }
             catch (const std::ios_base::failure& ex)
             {
@@ -1713,7 +1720,6 @@ bool SaveTask::Execute()
 #endif
             file.exceptions(~std::ofstream::goodbit);
             file << str;
-            file.close();
         }
         catch (const std::ios_base::failure& ex)
         {
@@ -1791,6 +1797,8 @@ bool LoadTask::Execute()
     rapidjson::Document doc;
     std::string json;
 
+    document->compressed_file = false;
+
     if (!json_str.empty())
     {
         if (doc.Parse<0>(json_str.c_str()).HasParseError() || !doc.IsObject() || !LoadJson(doc)) //try to load as decompressed
@@ -1811,6 +1819,8 @@ bool LoadTask::Execute()
                 LOG_ERROR("Error parsing json");
                 return false;
             }
+
+            document->compressed_file = true;
         }
 
         //load text
@@ -1873,6 +1883,8 @@ bool LoadTask::Execute()
                 LOG_ERROR("Error parsing file '{}'", filename);
                 return false;
             }
+
+            document->compressed_file = true;
         }
         else
         {
