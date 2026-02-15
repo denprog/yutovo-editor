@@ -409,6 +409,8 @@ private:
     int last_modify_task_id = 0;
     LogicalCaretState last_insert_caret_state, last_delete_caret_state;
 
+    bool compressed_file = true;
+
 private:
     friend class MoveCaretTask;
     friend class SetEditorStateTask;
