@@ -360,6 +360,14 @@ void GraphLine::Init()
             graph.SetSize(r.width, r.height, false);
             graph.SubPlot(1, 1, 0, "#");
             graph.InPlot(0.05, 0.95, 0.05, 0.95);
+            if (r.width < 200 || r.height < 200)
+                graph.SetPenDelta(0.5);
+            else if (r.width < 300 || r.height < 300)
+                graph.SetPenDelta(0.6);
+            else if (r.width < 400 || r.height < 400)
+                graph.SetPenDelta(0.7);
+            else
+                graph.SetPenDelta(1.);
 
             if (solving && !moving)
             {
@@ -385,7 +393,7 @@ void GraphLine::Init()
                 if (format.grid_width > 0)
                     graph.Grid("xy", std::string("h" + std::to_string(format.grid_width) + f).c_str());
                 graph.SetQuality(MGL_DRAW_NORM);
-
+                //graph.SetPenDelta(0.5);
                 for (const Plot& p : plots)
                 {
                     auto& x = p.x;
