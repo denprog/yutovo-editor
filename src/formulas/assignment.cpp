@@ -76,9 +76,9 @@ void Assignment::Draw() const
         [&](const Rect& r)
         {
             if (document->selection.IsSelected(id))
-                window->DrawText(draw_sign, draw_string_format, r, document->config.formula_bg_color, document->config.bg_selection_color);
+                window->DrawText(draw_sign, draw_string_format, r, document->config.formula_bg_color, document->config.bg_selection_color, false);
             else
-                window->DrawText(draw_sign, draw_string_format, r, document->config.shapes_color, document->config.formula_bg_color);
+                window->DrawText(draw_sign, draw_string_format, r, document->config.shapes_color, document->config.formula_bg_color, false);
         };
 
     MiddleShapeFormula::Draw();

@@ -382,6 +382,8 @@ private:
 
     void UpdateChanged();
 
+    int GetCharWidth(const StringFormatPtr& format, const char32_t symbol);
+
 #ifdef TEST
 public:
     void WaitMainLoop();
@@ -429,6 +431,8 @@ private:
     friend class Elements;
     friend class Assignment;
     friend class String;
+    friend class StringElements;
+    friend class CodeString;
 
     void UpdateCaretView();
     void UpdateLastSelection();
@@ -461,6 +465,8 @@ private:
     ElementPtr text;
 
     int include_pos = -1;
+
+    std::map<StringFormatPtr, std::map<char32_t, int>> char_widths;
 
 public:
     CaretPtr caret;

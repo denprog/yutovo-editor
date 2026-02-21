@@ -43,6 +43,7 @@ TEST_F(PdfTest, pdf1)
     config.caret_visible = false;
     config.hilight_caret_element = false;
     config.draw_whole = true;
+    config.pdf = true;
 
     Document pdf_document(pdf_window_mock.get(), config, document);
     pdf_document.Start();
@@ -63,12 +64,14 @@ TEST_F(PdfTest, pdf1)
     b = boxes[0].text().to_utf8();
     std::string t(b.begin(), b.end());
     r = boxes[0].bbox();
-    ASSERT_TRUE(t == "The" && r.x() == 30 && std::fabs(r.y() - 19.33) < 0.1 && std::fabs(r.width() - 24.11) < 0.1 && std::fabs(r.height() - 15.6) < 0.1);
+    ASSERT_TRUE(t == "The" && r.x() == 30 && std::fabs(r.y() - 19.33) < 0.1 && std::fabs(r.width() - 24.11) < 0.1 && std::fabs(r.height() - 15.6) < 0.1)
+        << r.x() << " " << r.y() << " " << r.width() << " " << r.height();
     b = boxes[1].text().to_utf8();
     t = std::string(b.begin(), b.end());
     r = boxes[1].bbox();
     ASSERT_TRUE(t == "source" && std::fabs(r.x() - 57.98) < 0.1 && std::fabs(r.y() - 19.33) < 0.1 && 
-        std::fabs(r.width() - 42.014) < 0.1 && std::fabs(r.height() - 15.6) < 0.1);
+        std::fabs(r.width() - 42.014) < 0.1 && std::fabs(r.height() - 15.6) < 0.1) 
+        << r.x() << " " << r.y() << " " << r.width() << " " << r.height();;
 }
 
 //Pdf with solvings
@@ -98,6 +101,7 @@ TEST_F(PdfTest, pdf2)
     config.caret_visible = false;
     config.hilight_caret_element = false;
     config.draw_whole = true;
+    config.pdf = true;
 
     Document pdf_document(pdf_window_mock.get(), config, document);
     pdf_document.Start();
@@ -109,7 +113,7 @@ TEST_F(PdfTest, pdf2)
     std::unique_ptr<poppler::page> page(pdf->create_page(0));
     auto b = page->text().to_utf8();
     std::string text(b.begin(), b.end());
-    ASSERT_TRUE(text == "2 = 2. км\n2км\n\f") << text;
+    ASSERT_TRUE(text == "2км = 2. км\n\f") << text;
 }
 
 //Pdf with graph
@@ -162,6 +166,7 @@ TEST_F(PdfTest, pdf3)
     config.caret_visible = false;
     config.hilight_caret_element = false;
     config.draw_whole = true;
+    config.pdf = true;
 
     Document pdf_document(pdf_window_mock.get(), config, document);
     pdf_document.caret->SetVisible(false);
@@ -205,6 +210,7 @@ TEST_F(PdfTest, pdf4)
     config.caret_visible = false;
     config.hilight_caret_element = false;
     config.draw_whole = true;
+    config.pdf = true;
 
     Document pdf_document(pdf_window_mock.get(), config, document);
     pdf_document.Start();
@@ -222,7 +228,7 @@ TEST_F(PdfTest, pdf4)
 //Two pages pdf
 TEST_F(PdfTest, pdf5)
 {
-    Start(600, {200, 200}, false);
+    Start(600, {200, 220}, false);
 
     EXPECT_CALL(*pdf_window_mock, OnPdfExportResult).WillOnce([&](const std::vector<uint8_t>& pdf, const PdfResult result)
         {
@@ -241,6 +247,7 @@ TEST_F(PdfTest, pdf5)
     config.caret_visible = false;
     config.hilight_caret_element = false;
     config.draw_whole = true;
+    config.pdf = true;
 
     Document pdf_document(pdf_window_mock.get(), config, document);
     pdf_document.Start();
@@ -283,6 +290,7 @@ TEST_F(PdfTest, pdf6)
     config.caret_visible = false;
     config.hilight_caret_element = false;
     config.draw_whole = true;
+    config.pdf = true;
 
     Document pdf_document(pdf_window_mock.get(), config, document);
     pdf_document.Start();
@@ -340,6 +348,7 @@ TEST_F(PdfTest, pdf7)
     config.caret_visible = false;
     config.hilight_caret_element = false;
     config.draw_whole = true;
+    config.pdf = true;
 
     TextFormat f{TextFormat::Paging::WEB_VIEW, 10, 10, 10, 10, 10, {200, 200}};
 
@@ -384,6 +393,7 @@ TEST_F(PdfTest, pdf8)
     config.caret_visible = false;
     config.hilight_caret_element = false;
     config.draw_whole = true;
+    config.pdf = true;
 
     Document pdf_document(pdf_window_mock.get(), config, document);
     pdf_document.Start();
@@ -435,6 +445,7 @@ TEST_F(PdfTest, pdf9)
     config.caret_visible = false;
     config.hilight_caret_element = false;
     config.draw_whole = true;
+    config.pdf = true;
 
     Document pdf_document(pdf_window_mock.get(), config, document);
     pdf_document.Start();

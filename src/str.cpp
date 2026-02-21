@@ -990,21 +990,30 @@ void StringElements::Draw() const
         yutovo::Size s2(p->GetTextSize(start + size));
         parent->window->DrawFillRect(Rect{r.left + s1.width, r.top, s2.width - s1.width, r.height}, p->draw_format->text_bg_selection_color);
     }
-    for (int i = 0; i < str.length(); ++i)
+    if (p->document->config.pdf) //for pdf export
     {
-        if (tabs.empty() || !std::binary_search(tabs.begin(), tabs.end(), i))
+        p->window->DrawText(ToBasicString(str), p->draw_format, r, p->draw_format->text_color, p->draw_format->text_bg_color, true);
+    }
+    else
+    {
+        for (int i = 0; i < str.length(); ++i)
         {
-            yutovo::Size s(p->GetTextSize(i));
-            std::string sub = ToBasicString(str.substr(i, 1));
-            if (i >= start && i < start + size)
+            if (tabs.empty() || !std::binary_search(tabs.begin(), tabs.end(), i))
             {
-                p->window->DrawText(sub, p->draw_format, Rect{r.left + s.width, r.top, r.width - s.width, r.height}, 
-                    p->draw_format->text_bg_color, p->draw_format->text_bg_selection_color);
-            }
-            else
-            {
-                p->window->DrawText(sub, p->draw_format, Rect{r.left + s.width, r.top, r.width - s.width, r.height}, 
-                    p->draw_format->text_color, p->draw_format->text_bg_color);
+                yutovo::Size s(p->GetTextSize(i + 1));
+                auto ch = str.substr(i, 1);
+                int w = p->document->GetCharWidth(p->draw_format, ch[0]);
+                std::string sub = ToBasicString(ch);
+                if (i >= start && i < start + size)
+                {
+                    p->window->DrawText(sub, p->draw_format, Rect{r.left + s.width - w, r.top, w, r.height}, 
+                        p->draw_format->text_bg_color, p->draw_format->text_bg_selection_color, true);
+                }
+                else
+                {
+                    p->window->DrawText(sub, p->draw_format, Rect{r.left + s.width - w, r.top, w, r.height}, 
+                        p->draw_format->text_color, p->draw_format->text_bg_color, true);
+                }
             }
         }
     }

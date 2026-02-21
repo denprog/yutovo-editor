@@ -40,7 +40,7 @@ void PdfWindow::Init(Document* document)
 {
 }
 
-void PdfWindow::DrawText(const std::string& text, const StringFormatPtr format, const Rect& rect, const Color color, const Color bg_color)
+void PdfWindow::DrawText(const std::string& text, const StringFormatPtr format, const Rect& rect, const Color color, const Color bg_color, const bool transparent)
 {
     Rect r(rect);
     if (draw_doc)
@@ -306,7 +306,7 @@ Size PdfWindow::GetTextSize(const std::u32string& text, const StringFormatPtr fo
     double descent = HPDF_Font_GetDescent(font) / 1000.0 * format->size;
     HPDF_Page_EndText(page);
     double h = ascent - descent;
-    return Size{(int)w, (int)h};
+    return Size{(int)std::round(w), (int)std::round(h)};
 }
 
 int PdfWindow::GetCharPos(const std::u32string& text, const StringFormatPtr format, int pos)
@@ -317,7 +317,7 @@ int PdfWindow::GetCharPos(const std::u32string& text, const StringFormatPtr form
 int PdfWindow::GetFontAscent(const StringFormatPtr format)
 {
     HPDF_Font font = GetFont(format);
-    return (int)(HPDF_Font_GetAscent(font) / 1000.0 * format->size);
+    return (int)std::round(HPDF_Font_GetAscent(font) / 1000. * format->size);
 }
 
 Size PdfWindow::GetImageSize(const std::vector<unsigned char>& image)
@@ -337,7 +337,7 @@ Size PdfWindow::GetImageSize(const std::vector<unsigned char>& image)
         w *= scale;
         h *= scale;
     }
-    return Size{(int)w, (int)h};
+    return Size{(int)std::round(w), (int)std::round(h)};
 }
 
 void PdfWindow::SetViewPort(const Rect _view_port)
@@ -372,9 +372,9 @@ void PdfWindow::Update(const Rect& rect)
             Rect r2{view_port.left + s1.width, view_port.GetBottom() + 4, s2.width, s2.height};
             Rect r3{view_port.left + s1.width + s2.width, view_port.GetBottom() + 4, s3.width, s3.height};
             DrawLine(view_port.left, view_port.GetBottom() + 1, view_port.GetRight(), view_port.GetBottom(), Color::Black());
-            DrawText(ToBasicString(footer1), format, r1, Color::Black(), Color::White());
-            DrawText(ToBasicString(footer2), format_link, r2, Color::Blue(), Color::White());
-            DrawText(ToBasicString(footer3), format, r3, Color::Black(), Color::White());
+            DrawText(ToBasicString(footer1), format, r1, Color::Black(), Color::White(), false);
+            DrawText(ToBasicString(footer2), format_link, r2, Color::Blue(), Color::White(), false);
+            DrawText(ToBasicString(footer3), format, r3, Color::Black(), Color::White(), false);
             auto dest = HPDF_Page_CreateDestination(page);
             auto annot = HPDF_Page_CreateURILinkAnnot(page, {(HPDF_REAL)r2.left, (HPDF_REAL)(page_size.height - r2.GetBottom()), 
                 (HPDF_REAL)r2.GetRight(), (HPDF_REAL)(page_size.height - r2.top)}, url);

@@ -3846,6 +3846,18 @@ void Document::UpdateChanged()
     }
 }
 
+int Document::GetCharWidth(const StringFormatPtr& format, const char32_t symbol)
+{
+    auto& widths = char_widths[format];
+    auto w_it = widths.find(symbol);
+    if (w_it != widths.end())
+        return w_it->second;
+    std::u32string s(1, symbol);
+    int w = window->GetTextSize(s, format).width;
+    widths[symbol] = w;
+    return w;
+}
+
 #ifdef TEST
 void Document::WaitMainLoop()
 {

@@ -150,7 +150,7 @@ void Paragraph::Draw() const
         int h = std::max(el->rect.height, s.height);
         window->DrawText(ToBasicString(marker), marker_draw_format, 
             Rect{r.left, r.top + (h - s.height) / 2, s.width, s.height}, 
-            marker_draw_format->text_color, current_string_format->text_bg_color);
+            marker_draw_format->text_color, current_string_format->text_bg_color, false);
     }
 }
 
