@@ -28,7 +28,7 @@ public:
 
     virtual void Init(Document* document) = 0;
 
-    virtual void DrawText(const std::string& text, const StringFormatPtr format, const Rect& rect, const Color color, const Color bg_color) = 0;
+    virtual void DrawText(const std::string& text, const StringFormatPtr format, const Rect& rect, const Color color, const Color bg_color, bool transparent) = 0;
     virtual void DrawLine(const int x1, const int y1, const int x2, const int y2, const Color color) = 0;
     void DrawRect(const Rect& rect, const Color color);
     virtual void DrawRect(const int x1, const int y1, const int width, const int height, const Color color) = 0;

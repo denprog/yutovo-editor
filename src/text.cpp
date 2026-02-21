@@ -91,7 +91,7 @@ bool Text::Remake(bool with_elements)
     Rect v = window->GetRect();
     pixel_size.width = v.width - format->right_indent - format->left_indent;
 
-    if (!caret->IsVisible()) //for pdf export
+    if (document->config.pdf) //for pdf export
     {
         v.left += format->left_indent;
         v.top += format->top_indent;

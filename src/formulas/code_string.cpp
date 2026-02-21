@@ -205,7 +205,6 @@ bool CodeString::ChangeStringFormat(const StringFormatPtr format, bool with_undo
 
 void CodeString::Draw() const
 {
-    uint start = 0, size = 0;
     std::u32string str = elements->ToText();
     Rect r = GetAbsoluteRect();
 
@@ -222,24 +221,30 @@ void CodeString::Draw() const
         size_t p = str.find_first_not_of(U"0123456789.");
         if (p == 0)
         {
+            auto find_identifier = 
+                [&](const std::u32string& s)
+                {
+                    switch (document->FindIdentifier(code_id, ToBasicString(s)))
+                    {
+                    case IdentifierType::VARIABLE:
+                        color1 = std::make_pair(s.length(), document->config.variables_color);
+                        break;
+                    case IdentifierType::FUNCTION:
+                        color1 = std::make_pair(s.length(), document->config.functions_color);
+                        break;
+                    case IdentifierType::UNIT:
+                        color1 = std::make_pair(s.length(), document->config.units_color);
+                        break;
+                    default:
+                        return false;
+                    }
+                    return true;
+                };
+
             //may be it is an identifier
             auto s = document->FindParent(id, ElementType::SUBSCRIPT);
-            if (s)
-                str += s->elements->Get(2)->ToText();
-            switch (document->FindIdentifier(code_id, ToBasicString(str)))
-            {
-            case IdentifierType::VARIABLE:
-                color1 = std::make_pair(str.length(), document->config.variables_color);
-                break;
-            case IdentifierType::FUNCTION:
-                color1 = std::make_pair(str.length(), document->config.functions_color);
-                break;
-            case IdentifierType::UNIT:
-                color1 = std::make_pair(str.length(), document->config.units_color);
-                break;
-            default:
-                break;
-            }
+            if (!s || !find_identifier(str + s->elements->Get(2)->ToText()))
+                find_identifier(str);
         }
         else
         {
@@ -264,51 +269,58 @@ void CodeString::Draw() const
     }
 
     auto& tabs = ((StringElements*)elements.get())->tabs;
-    document->selection.Has(id, (uint&)start, (uint&)size);
-    if (gap == 0 && tabs.empty())
+    uint start = 0, size = 0;
+    if (selection->Has(id, start, size))
     {
-        if (color2.first != -1)
-            window->DrawText(ToBasicString(str), draw_format, r, color2.second, document->config.formula_bg_color);
-        if (color1.first != -1)
-            window->DrawText(ToBasicString(str.substr(0, color1.first)), draw_format, r, color1.second, document->config.formula_bg_color);
-        else
-            window->DrawText(ToBasicString(str), draw_format, r, draw_format->text_color, document->config.formula_bg_color); //draw the string
-        if (size != 0)
-        {
-            //draw text with selection
-            Rect r = GetAbsoluteRect();
-            int p = window->GetCharPos(str, draw_format, start);
-            std::u32string u_part = str.substr(start, size);
-            window->DrawText(ToBasicString(u_part), draw_format, Rect{r.left + p, r.top, r.width - p, r.height}, 
-                document->config.formula_bg_color, document->config.bg_selection_color);
-        }
+        Size s1 = GetTextSize(start);
+        Size s2 = GetTextSize(start + size);
+        window->DrawFillRect(Rect{r.left + s1.width, r.top, s2.width - s1.width, r.height}, document->config.bg_selection_color);
     }
-    else
-    {
-        Rect r = GetAbsoluteRect();
-        if (selection->Has(id, start, size))
-        {
-            Size s1 = GetTextSize(start);
-            Size s2 = GetTextSize(start + size);
-            window->DrawFillRect(Rect{r.left + s1.width, r.top, s2.width - s1.width, r.height}, document->config.bg_selection_color);
-        }
 
-        for (int i = 0; i < str.length(); ++i)
+    for (int i = 0; i < str.length(); ++i)
+    {
+        if (tabs.empty() || !std::binary_search(tabs.begin(), tabs.end(), i))
         {
-            if (std::find(tabs.begin(), tabs.end(), i) == tabs.end())
+            yutovo::Size s(GetTextSize(i + 1));
+            auto _ch = str.substr(i, 1);
+            int w = document->GetCharWidth(draw_format, _ch[0]);
+            auto ch = ToBasicString(str.substr(i, 1));
+
+            if (color1.first != -1 && i < color1.first)
             {
-                Size s = GetTextSize(i);
-                std::u32string p = str.substr(i, 1);
-                if (i >= start && i < start + size)
-                {
-                    window->DrawText(ToBasicString(p), draw_format, Rect{r.left + s.width, r.top, r.width - s.width, r.height}, 
-                        document->config.formula_bg_color, document->config.bg_selection_color);
-                }
+                if (size != 0 && i >= start && i < start + size)
+                    window->DrawText(ch, draw_format, Rect{r.left + s.width - w, r.top, w, r.height}, document->config.formula_bg_color, 
+                        document->config.bg_selection_color, true);
                 else
-                {
-                    window->DrawText(ToBasicString(p), draw_format, Rect{r.left + s.width, r.top, r.width - s.width, r.height}, 
-                        document->config.numbers_color, document->config.formula_bg_color);
-                }
+                    window->DrawText(ch, draw_format, Rect{r.left + s.width - w, r.top, w, r.height}, color1.second, 
+                        document->config.formula_bg_color, true);
+            }
+            else if (color1.first != -1 && color2.first != -1 && i >= color1.first && i < color1.first + color2.first)
+            {
+                if (size != 0 && i >= start && i < start + size)
+                    window->DrawText(ch, draw_format, Rect{r.left + s.width - w, r.top, w, r.height}, document->config.formula_bg_color, 
+                        document->config.bg_selection_color, true);
+                else
+                    window->DrawText(ch, draw_format, Rect{r.left + s.width - w, r.top, w, r.height}, color2.second, 
+                        document->config.formula_bg_color, true);
+            }
+            else if (gap == 0 && tabs.empty())
+            {
+                if (size != 0 && i >= start && i < start + size)
+                    window->DrawText(ch, draw_format, Rect{r.left + s.width - w, r.top, w, r.height}, document->config.formula_bg_color, 
+                        document->config.bg_selection_color, true);
+                else
+                    window->DrawText(ch, draw_format, Rect{r.left + s.width - w, r.top, w, r.height}, draw_format->text_color, 
+                        document->config.formula_bg_color, true);
+            }
+            else
+            {
+                if (size != 0 && i >= start && i < start + size)
+                    window->DrawText(ch, draw_format, Rect{r.left + s.width - w, r.top, w, r.height}, 
+                        document->config.numbers_color, document->config.formula_bg_color, true);
+                else
+                    window->DrawText(ch, draw_format, Rect{r.left + s.width - w, r.top, w, r.height}, document->config.numbers_color, 
+                        document->config.formula_bg_color, true);
             }
         }
     }

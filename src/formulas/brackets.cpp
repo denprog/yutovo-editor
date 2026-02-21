@@ -77,7 +77,7 @@ void OpenBracket::Draw() const
             {
                 window->DrawText(ToBasicString(ToText()), format, r, 
                     document->selection.IsSelected(id) ? document->config.formula_bg_color : document->config.shapes_color, 
-                    document->selection.IsSelected(id) ? document->config.bg_selection_color : document->config.formula_bg_color);
+                    document->selection.IsSelected(id) ? document->config.bg_selection_color : document->config.formula_bg_color, false);
             }
         };
 
@@ -249,7 +249,7 @@ void CloseBracket::Draw() const
             {
                 window->DrawText(ToBasicString(ToText()), format, r, 
                     document->selection.IsSelected(id) ? document->config.formula_bg_color : document->config.shapes_color, 
-                    document->selection.IsSelected(id) ? document->config.bg_selection_color : document->config.formula_bg_color);
+                    document->selection.IsSelected(id) ? document->config.bg_selection_color : document->config.formula_bg_color, false);
             }
         };
 
