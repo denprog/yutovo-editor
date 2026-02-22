@@ -277,6 +277,8 @@ void CodeString::Draw() const
         window->DrawFillRect(Rect{r.left + s1.width, r.top, s2.width - s1.width, r.height}, document->config.bg_selection_color);
     }
 
+    int p = 0;
+    int t = 0;
     for (int i = 0; i < str.length(); ++i)
     {
         if (tabs.empty() || !std::binary_search(tabs.begin(), tabs.end(), i))
@@ -284,6 +286,9 @@ void CodeString::Draw() const
             yutovo::Size s(GetTextSize(i + 1));
             auto _ch = str.substr(i, 1);
             int w = document->GetCharWidth(draw_format, _ch[0]);
+            if (s.width - p > w)
+                w = s.width - p;
+            w -= t * tab_size.width;
             auto ch = ToBasicString(str.substr(i, 1));
 
             if (color1.first != -1 && i < color1.first)
@@ -322,7 +327,12 @@ void CodeString::Draw() const
                     window->DrawText(ch, draw_format, Rect{r.left + s.width - w, r.top, w, r.height}, document->config.numbers_color, 
                         document->config.formula_bg_color, true);
             }
+
+            p = s.width;
+            t = 0;
         }
+        else
+            ++t;
     }
 
     if (elements->Count() == 0)
@@ -375,7 +385,7 @@ Size CodeString::GetTextSize(const uint pos) const
         auto& str = ((StringElements*)elements.get())->str;
         auto& tabs = ((StringElements*)elements.get())->tabs;
         auto _str = str.substr(0, pos);
-        Size tabs_size;
+        int tabs_width = 0;
         if (!tabs.empty())
         {
             uint c = 0;
@@ -389,13 +399,15 @@ Size CodeString::GetTextSize(const uint pos) const
                 else
                     break;
             }
+            if (tab_size.width == 0)
+                tab_size = window->GetTextSize(std::u32string(document->config.tab_spaces, U' '), draw_format);
             if (c > 0)
-                tabs_size = window->GetTextSize(std::u32string(document->config.tab_spaces * c, U' '), draw_format);
+                tabs_width = tab_size.width * c;
         }
         if (gap == 0)
         {
             Size s = window->GetTextSize(_str, draw_format);
-            s.width += tabs_size.width;
+            s.width += tabs_width;
             size_cache[pos] = s;
             return s;
         }
@@ -438,7 +450,7 @@ Size CodeString::GetTextSize(const uint pos) const
         }
 
         if (_gap == 0 && pos < str.length())
-            s.width += gap_width + tabs_size.width;
+            s.width += gap_width + tabs_width;
         size_cache[pos] = s;
         return s;
     }

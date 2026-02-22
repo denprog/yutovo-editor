@@ -170,7 +170,7 @@ bool String::Copy(std::vector<ElementPtr>& copy)
 void String::SetDocument(Document* _document)
 {
     Element::SetDocument(_document);
-    size_cache.clear();
+    ClearCache();
 }
 
 Element* String::Create(Element* parent)
@@ -256,7 +256,7 @@ void String::Normalize()
 
 void String::Rescale() const
 {
-    size_cache.clear();
+    ClearCache();
     if (format)
         draw_format = document->string_formats->GetFormat(format, document->config.scale);
 }
@@ -266,7 +266,7 @@ void String::UpdateRect(bool with_elements)
     if (last_stretch_width != stretch_width)
     {
         last_stretch_width = stretch_width;
-        size_cache.clear();
+        ClearCache();
     }
 
     if (!draw_format)
@@ -360,7 +360,7 @@ bool String::InsertElements(std::vector<ElementPtr>& _elements, bool insert_mode
     
     if (_elements.size() == 1 && _elements[0]->type == type)
     {
-        size_cache.clear();
+        ClearCache();
         String* s = dynamic_cast<String*>(_elements[0].get());
         if (elements->Count() == 0)
         {
@@ -410,7 +410,7 @@ bool String::DeleteElements(bool left, bool with_undo, ElementId& changed_elemen
     if (!editable)
         return false;
 
-    size_cache.clear();
+    ClearCache();
     uint caret_pos = caret->GetPos();
     if (caret->IsInsideElement(id) && selection->IsEmpty())
     {
@@ -528,7 +528,7 @@ bool String::DeleteElements(bool left, bool with_undo, ElementId& changed_elemen
 
 bool String::ChangeStringFormat(const StringFormatPtr _format, bool with_undo, ElementId& changed_element)
 {
-    size_cache.clear();
+    ClearCache();
     uint start, size;
     if (selection->Has(id, start, size))
     {
@@ -575,7 +575,7 @@ bool String::ChangeStringFormat(const StringFormatPtr _format, bool with_undo, E
 void String::SetString(const std::u32string& str)
 {
     elements.reset(new StringElements(this, str));
-    size_cache.clear();
+    ClearCache();
 }
 
 bool String::Split(const uint width, bool split_more)
@@ -583,7 +583,7 @@ bool String::Split(const uint width, bool split_more)
     if (!editable)
         return false;
 
-    size_cache.clear();
+    ClearCache();
 
     int i = 0;
     std::u32string& str = ((StringElements*)elements.get())->str;
@@ -658,7 +658,7 @@ bool String::SplitAt(const uint pos)
     if (pos == 0 || pos >= elements->Count())
         return false;
 
-    size_cache.clear();
+    ClearCache();
 
     int cs_pos = -1;
     if (caret->IsInsideElement(id))
@@ -709,7 +709,7 @@ bool String::Merge(const ElementPtr with_element)
     if (*el->format != *format)
         return false;
 
-    size_cache.clear();
+    ClearCache();
 
     if (caret->IsInsideElement(with_element->id))
         caret->SetState(id, caret->GetPos() + elements->Count()); //update caret state
@@ -818,8 +818,10 @@ Size String::GetTextSize(const uint pos) const
             auto& tabs_cache = ((StringElements*)elements.get())->tabs_cache;
             size_t tab_count = std::lower_bound(tabs.begin(), tabs.end(), pos) - tabs.begin();
             size_t prev = 0;
-            s = window->GetTextSize(std::u32string(document->config.tab_spaces, U' '), draw_format);
-            spaces_width = s.width;
+            if (tab_size.width == 0)
+                tab_size = window->GetTextSize(std::u32string(document->config.tab_spaces, U' '), draw_format);
+            s = tab_size;
+            spaces_width = tab_size.width;
             for (size_t i = 0; i < tab_count; ++i)
             {
                 size_t tab_pos = tabs[i];
@@ -827,8 +829,8 @@ Size String::GetTextSize(const uint pos) const
                 if (t_it == tabs_cache.end())
                 {
                     s = window->GetTextSize(str.substr(prev, tab_pos - prev), draw_format);
-                    tabs_cache[tab_pos] = s.width;
-                    str_width += s.width;
+                    tabs_cache[tab_pos] = tab_size.width;
+                    str_width += tab_size.width;
                 }
                 else
                     str_width += t_it->second;
@@ -933,11 +935,17 @@ void String::ReSolve(bool if_error, bool force)
 {
 }
 
+void String::ClearCache() const
+{
+    size_cache.clear();
+    tab_size.Set(0, 0);
+}
+
 void String::SetStretchWidth(float val)
 {
     stretch_width = val;
     last_stretch_width = val;
-    size_cache.clear();
+    ClearCache();
     UpdateRect();
 }
 
