@@ -88,6 +88,8 @@ public:
 
     virtual void ReSolve(bool if_error = false, bool force = false);
 
+    virtual void ClearCache() const;
+
     void SetStretchWidth(float val);
 
 public:
@@ -101,6 +103,7 @@ protected:
     mutable std::map<uint, Size> size_cache; //cache of string sizes
     float stretch_width = 0; //stretch spaces when align is justify
     float last_stretch_width = 0;
+    mutable Size tab_size;
 };
 
 class StringElements : public Elements
