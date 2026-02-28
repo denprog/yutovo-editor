@@ -91,11 +91,12 @@ bool Row::Remake(bool with_elements)
             el->GetMargin(left_m, top_m, right_m, bottom_m);
             if (el->type == ElementType::STRING) //only strings can be stretched
             {
+                ((String*)el.get())->SetStretchWidth(0);
                 std::u32string s = el->ToText();
                 int spaces = std::count_if(s.begin(), s.end(),
                     [](char32_t c)
                     {
-                        return std::isspace(c);
+                        return c == U' ';
                     });
                 all_spaces += spaces;
                 elements_spaces[i] = spaces;
@@ -107,7 +108,7 @@ bool Row::Remake(bool with_elements)
 
         if (!elements_spaces.empty() && all_spaces != 0)
         {
-            float k = (line_width - w) / all_spaces;
+            int k = floor((line_width - w) / all_spaces);
             if (k > 0)
             {
                 for (auto s : elements_spaces)
@@ -115,7 +116,6 @@ bool Row::Remake(bool with_elements)
                     auto el = elements->Get(s.first);
                     ((String*)el.get())->SetStretchWidth(k * s.second); //stretch the string proportionaly
                 }
-                UpdateRect(true);
             }
             for (int i = 0; i < elements->Count(); ++i)
             {

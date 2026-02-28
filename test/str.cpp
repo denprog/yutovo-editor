@@ -423,6 +423,67 @@ TEST_F(DocumentTest, strings10)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 4})) << document.GetEditorState().ToString();
 }
 
+//Check caret positions in a string with a tab
+TEST_F(DocumentTest, strings11)
+{
+    Start(600);
+
+    document.InsertString("\t", true);
+    document.WaitTask(document.InsertString("5", true));
+    Rect r1, r2, r3;
+    document.WaitTask(document.MoveCaretToDocumentBegin(false));
+    document.GetCaretRect(r1);
+    document.WaitTask(document.MoveCaretRight(false));
+    document.GetCaretRect(r2);
+    ASSERT_TRUE(r2.left > r1.left);
+    r3 = r2;
+
+    document.WaitTask(document.MoveCaretToDocumentBegin(false));
+    document.WaitTask(document.InsertString("1", true));
+    document.GetCaretRect(r2);
+    ASSERT_TRUE(r2.left > r1.left);
+
+    document.WaitTask(document.MoveCaretRight(false));
+    document.GetCaretRect(r2);
+    ASSERT_TRUE(r2 == r3);
+
+    document.WaitTask(document.MoveCaretLeft(false));
+    document.WaitTask(document.InsertString("2", true));
+    document.GetCaretRect(r2);
+    ASSERT_TRUE(r2.left > r1.left);
+
+    document.WaitTask(document.InsertString("34", true));
+    document.GetCaretRect(r2);
+    ASSERT_TRUE(r2.left > r3.left);
+
+    document.WaitTask(document.MoveCaretRight(false));
+    document.GetCaretRect(r2);
+    ASSERT_TRUE(r2.left > r3.left);
+}
+
+//Check caret positions in a string with some fonts and a tab
+TEST_F(DocumentTest, strings12)
+{
+    Start(600);
+
+    document.InsertString("123", true);
+    document.WaitTask(document.SetBold(true));
+    document.InsertString("45", true);
+    document.WaitTask(document.SetBold(false));
+    document.WaitTask(document.InsertString("678", true));
+    document.WaitTask(document.MoveCaretLeft(false));
+    document.WaitTask(document.InsertString("\t", true));
+    Rect r1, r2;
+    document.GetCaretRect(r1);
+
+    document.WaitTask(document.MoveCaretToDocumentBegin(false));
+    document.WaitTask(document.InsertString(".", true));
+    document.WaitTask(document.MoveCaretEnd(false));
+    document.WaitTask(document.MoveCaretLeft(false));
+    document.GetCaretRect(r2);
+    ASSERT_TRUE(r1 == r2);
+}
+
 TEST_F(DocumentTest, selections1)
 {
     Start(600);

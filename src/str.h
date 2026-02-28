@@ -154,12 +154,6 @@ protected:
     static bool IsCloseDelimiter(char32_t ch);
     static bool IsDelimiter(char32_t ch);
     static bool IsSpace(char32_t ch);
-    void UpdateTabs();
-
-protected:
-    std::vector<uint> tabs;
-    size_t spaces_width = 0;
-    std::map<size_t, uint> tabs_cache;
 
 private:
     friend class String;
