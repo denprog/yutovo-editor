@@ -268,7 +268,6 @@ void CodeString::Draw() const
         }
     }
 
-    auto& tabs = ((StringElements*)elements.get())->tabs;
     uint start = 0, size = 0;
     if (selection->Has(id, start, size))
     {
@@ -278,61 +277,55 @@ void CodeString::Draw() const
     }
 
     int p = 0;
-    int t = 0;
     for (int i = 0; i < str.length(); ++i)
     {
-        if (tabs.empty() || !std::binary_search(tabs.begin(), tabs.end(), i))
+        if (str[i] == U'\t')
+            continue;
+
+        yutovo::Size s(GetTextSize(i + 1));
+        auto _ch = str.substr(i, 1);
+        int w = document->GetCharWidth(draw_format, _ch[0]);
+        if (gap > 0 && s.width - p > w)
+            w = s.width - p;
+        auto ch = ToBasicString(_ch);
+        if (color1.first != -1 && i < color1.first)
         {
-            yutovo::Size s(GetTextSize(i + 1));
-            auto _ch = str.substr(i, 1);
-            int w = document->GetCharWidth(draw_format, _ch[0]);
-            if (s.width - p > w)
-                w = s.width - p;
-            w -= t * tab_size.width;
-            auto ch = ToBasicString(str.substr(i, 1));
-
-            if (color1.first != -1 && i < color1.first)
-            {
-                if (size != 0 && i >= start && i < start + size)
-                    window->DrawText(ch, draw_format, Rect{r.left + s.width - w, r.top, w, r.height}, document->config.formula_bg_color, 
-                        document->config.bg_selection_color, true);
-                else
-                    window->DrawText(ch, draw_format, Rect{r.left + s.width - w, r.top, w, r.height}, color1.second, 
-                        document->config.formula_bg_color, true);
-            }
-            else if (color1.first != -1 && color2.first != -1 && i >= color1.first && i < color1.first + color2.first)
-            {
-                if (size != 0 && i >= start && i < start + size)
-                    window->DrawText(ch, draw_format, Rect{r.left + s.width - w, r.top, w, r.height}, document->config.formula_bg_color, 
-                        document->config.bg_selection_color, true);
-                else
-                    window->DrawText(ch, draw_format, Rect{r.left + s.width - w, r.top, w, r.height}, color2.second, 
-                        document->config.formula_bg_color, true);
-            }
-            else if (gap == 0 && tabs.empty())
-            {
-                if (size != 0 && i >= start && i < start + size)
-                    window->DrawText(ch, draw_format, Rect{r.left + s.width - w, r.top, w, r.height}, document->config.formula_bg_color, 
-                        document->config.bg_selection_color, true);
-                else
-                    window->DrawText(ch, draw_format, Rect{r.left + s.width - w, r.top, w, r.height}, draw_format->text_color, 
-                        document->config.formula_bg_color, true);
-            }
+            if (size != 0 && i >= start && i < start + size)
+                window->DrawText(ch, draw_format, Rect{r.left + s.width - w, r.top, w, r.height}, document->config.formula_bg_color, 
+                    document->config.bg_selection_color, true);
             else
-            {
-                if (size != 0 && i >= start && i < start + size)
-                    window->DrawText(ch, draw_format, Rect{r.left + s.width - w, r.top, w, r.height}, 
-                        document->config.numbers_color, document->config.formula_bg_color, true);
-                else
-                    window->DrawText(ch, draw_format, Rect{r.left + s.width - w, r.top, w, r.height}, document->config.numbers_color, 
-                        document->config.formula_bg_color, true);
-            }
-
-            p = s.width;
-            t = 0;
+                window->DrawText(ch, draw_format, Rect{r.left + s.width - w, r.top, w, r.height}, color1.second, 
+                    document->config.formula_bg_color, true);
+        }
+        else if (color1.first != -1 && color2.first != -1 && i >= color1.first && i < color1.first + color2.first)
+        {
+            if (size != 0 && i >= start && i < start + size)
+                window->DrawText(ch, draw_format, Rect{r.left + s.width - w, r.top, w, r.height}, document->config.formula_bg_color, 
+                    document->config.bg_selection_color, true);
+            else
+                window->DrawText(ch, draw_format, Rect{r.left + s.width - w, r.top, w, r.height}, color2.second, 
+                    document->config.formula_bg_color, true);
+        }
+        else if (gap == 0)
+        {
+            if (size != 0 && i >= start && i < start + size)
+                window->DrawText(ch, draw_format, Rect{r.left + s.width - w, r.top, w, r.height}, document->config.formula_bg_color, 
+                    document->config.bg_selection_color, true);
+            else
+                window->DrawText(ch, draw_format, Rect{r.left + s.width - w, r.top, w, r.height}, draw_format->text_color, 
+                    document->config.formula_bg_color, true);
         }
         else
-            ++t;
+        {
+            if (size != 0 && i >= start && i < start + size)
+                window->DrawText(ch, draw_format, Rect{r.left + s.width - w, r.top, w, r.height}, 
+                    document->config.numbers_color, document->config.formula_bg_color, true);
+            else
+                window->DrawText(ch, draw_format, Rect{r.left + s.width - w, r.top, w, r.height}, document->config.numbers_color, 
+                    document->config.formula_bg_color, true);
+        }
+
+        p = s.width;
     }
 
     if (elements->Count() == 0)
@@ -383,35 +376,10 @@ Size CodeString::GetTextSize(const uint pos) const
     if (it == size_cache.end())
     {
         auto& str = ((StringElements*)elements.get())->str;
-        auto& tabs = ((StringElements*)elements.get())->tabs;
-        auto _str = str.substr(0, pos);
-        int tabs_width = 0;
-        if (!tabs.empty())
-        {
-            uint c = 0;
-            for (size_t i = 0; i < tabs.size(); ++i)
-            {
-                if (tabs[i] < pos)
-                {
-                    _str.erase(tabs[i] - c, 1);
-                    ++c;
-                }
-                else
-                    break;
-            }
-            if (tab_size.width == 0)
-                tab_size = window->GetTextSize(std::u32string(document->config.tab_spaces, U' '), draw_format);
-            if (c > 0)
-                tabs_width = tab_size.width * c;
-        }
-        if (gap == 0)
-        {
-            Size s = window->GetTextSize(_str, draw_format);
-            s.width += tabs_width;
-            size_cache[pos] = s;
-            return s;
-        }
+        if (gap == 0 || str.find(U'\t') != std::string::npos)
+            return String::GetTextSize(pos);
 
+        auto _str = str.substr(0, pos);
         Size s = window->GetTextSize(_str, draw_format);
         int _gap = gap;
         auto point_pos = str.find(U".");
@@ -450,7 +418,7 @@ Size CodeString::GetTextSize(const uint pos) const
         }
 
         if (_gap == 0 && pos < str.length())
-            s.width += gap_width + tabs_width;
+            s.width += gap_width;
         size_cache[pos] = s;
         return s;
     }

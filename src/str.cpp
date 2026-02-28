@@ -244,6 +244,18 @@ bool String::Remake(bool with_elements)
 
     stretch_width = 0;
     UpdateRect();
+    if (with_elements)
+    {
+        for (int j = yutovo::GetChildPos(id) + 1; j < parent->elements->Count(); ++j)
+        {
+            ElementPtr el = parent->elements->Get(j);
+            if (el->type == ElementType::STRING || el->type == ElementType::CODE_STRING)
+            {
+                ((String*)el.get())->ClearCache();
+                el->Remake(false);
+            }
+        }
+    }
 
     bool changed = (rect != last_rect);
     last_rect = rect;
@@ -616,7 +628,6 @@ bool String::Split(const uint width, bool split_more)
     int pos = parent->elements->GetElementPos(id);
     parent->elements->Insert(el, pos + 1);
     str = str.substr(0, i + 1);
-    ((StringElements*)elements.get())->UpdateTabs();
     UpdateRect();
 
     if (caret->IsInsideElement(id))
@@ -804,72 +815,70 @@ Size String::GetTextSize(const uint pos) const
     if (!draw_format)
         Rescale();
 
-    auto it = size_cache.find(pos);
-    if (it == size_cache.end())
+    if (size_cache.empty())
     {
         auto& str = ((StringElements*)elements.get())->str;
-        auto _str = str.substr(0, pos);
-        auto& tabs = ((StringElements*)elements.get())->tabs;
-        Size s;
-        if (!tabs.empty())
+        int add_space = 0, wide_space = 0;
+        
+        if (stretch_width != 0)
         {
-            int str_width = 0;
-            size_t spaces_width = ((StringElements*)elements.get())->spaces_width;
-            auto& tabs_cache = ((StringElements*)elements.get())->tabs_cache;
-            size_t tab_count = std::lower_bound(tabs.begin(), tabs.end(), pos) - tabs.begin();
-            size_t prev = 0;
-            if (tab_size.width == 0)
-                tab_size = window->GetTextSize(std::u32string(document->config.tab_spaces, U' '), draw_format);
-            s = tab_size;
-            spaces_width = tab_size.width;
-            for (size_t i = 0; i < tab_count; ++i)
-            {
-                size_t tab_pos = tabs[i];
-                auto t_it = tabs_cache.find(tab_pos);
-                if (t_it == tabs_cache.end())
+            int spaces = std::count_if(str.begin(), str.end(),
+                [](char32_t c)
                 {
-                    s = window->GetTextSize(str.substr(prev, tab_pos - prev), draw_format);
-                    tabs_cache[tab_pos] = tab_size.width;
-                    str_width += tab_size.width;
+                    return c == U' ';
+                });
+            if (spaces > 0)
+                add_space = floor(stretch_width / spaces);
+        }
+
+        int tab_pos = -1;
+        for (size_t i = 0; i <= str.length(); ++i)
+        {
+            if (i > 0 && str[i - 1] == U'\t')
+            {
+                if (tab_size.width == 0)
+                    tab_size = window->GetTextSize(std::u32string(document->config.tab_spaces, U' '), draw_format);
+                
+                if (i == 1)
+                {
+                    size_cache[i] = tab_size;
                 }
                 else
-                    str_width += t_it->second;
-                str_width += spaces_width;
-                prev = tab_pos + 1;
+                {
+                    Size s = size_cache[i - 1];
+                    uint w = 0;
+                    for (int j = 0; j < yutovo::GetChildPos(id); ++j)
+                        w += parent->elements->Get(j)->rect.width;
+                    uint p = w;
+                    w += s.width;
+                    w = (w / tab_size.width + 1) * tab_size.width;
+                    s.width = w - p;
+                    size_cache[i] = s;
+                }
+                wide_space = 0;
+                tab_pos = i;
+                continue;
             }
 
-            if (prev < pos)
+            if (tab_pos == -1)
             {
-                s = window->GetTextSize(str.substr(prev, pos - prev), draw_format);
-                str_width += s.width;
+                auto _str = str.substr(0, i);
+                size_cache[i] = window->GetTextSize(_str, draw_format);
             }
-            s.width = str_width;
-            return s;
-        }
-
-        if (stretch_width == 0)
-        {
-            Size s = window->GetTextSize(_str, draw_format);
-            size_cache[pos] = s;
-            return s;
-        }
-
-        s = window->GetTextSize(_str, draw_format);
-        int spaces = std::count_if(str.begin(), str.end(),
-            [](char32_t c)
+            else
             {
-                return StringElements::IsSpace(c);
-            });
-        if (spaces == 0)
-            return s;
-        for (int i = 0; i < pos; ++i)
-        {
-            if (StringElements::IsSpace(str[i]))
-                s.width += floor(stretch_width / spaces);
+                auto _str = str.substr(tab_pos, i - tab_pos);
+                Size s = window->GetTextSize(_str, draw_format);
+                s.width += size_cache[tab_pos].width;
+                size_cache[i] = s;
+            }
+
+            if (add_space > 0 && i > 0 && i < str.length() - 1 && str[i - 1] == U' ')
+                wide_space += add_space;
+            size_cache[i].width += wide_space;
         }
-        return s;
     }
-    return it->second;
+    return size_cache[pos];
 }
 
 bool String::CanContinueSelection()
@@ -954,7 +963,6 @@ void String::SetStretchWidth(float val)
 StringElements::StringElements(Element* parent) :
     Elements(parent)
 {
-    UpdateTabs();
 }
 
 StringElements::StringElements(Element* parent, const std::u32string& _str) :
@@ -963,7 +971,6 @@ StringElements::StringElements(Element* parent, const std::u32string& _str) :
 {
     if (parent && parent->document && !parent->document->config.use_tabs)
         boost::replace_all(str, std::u32string(U"\t"), std::u32string(parent->document->config.tab_spaces, U' '));
-    UpdateTabs();
 }
 
 void StringElements::ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc)
@@ -977,7 +984,6 @@ bool StringElements::FromJson(Document* document, const rapidjson::Value::ConstO
     if (!value.HasMember("elements") || !value["elements"].IsString())
         return false;
     str = ToUtfString(value["elements"].GetString());
-    UpdateTabs();
     return true;
 }
 
@@ -1006,22 +1012,21 @@ void StringElements::Draw() const
     {
         for (int i = 0; i < str.length(); ++i)
         {
-            if (tabs.empty() || !std::binary_search(tabs.begin(), tabs.end(), i))
+            if (str[i] == U'\t')
+                continue;
+            auto ch = str.substr(i, 1);
+            yutovo::Size s(p->GetTextSize(i + 1));
+            int w = p->document->GetCharWidth(p->draw_format, ch[0]);
+            std::string sub = ToBasicString(ch);
+            if (i >= start && i < start + size)
             {
-                yutovo::Size s(p->GetTextSize(i + 1));
-                auto ch = str.substr(i, 1);
-                int w = p->document->GetCharWidth(p->draw_format, ch[0]);
-                std::string sub = ToBasicString(ch);
-                if (i >= start && i < start + size)
-                {
-                    p->window->DrawText(sub, p->draw_format, Rect{r.left + s.width - w, r.top, w, r.height}, 
-                        p->draw_format->text_bg_color, p->draw_format->text_bg_selection_color, true);
-                }
-                else
-                {
-                    p->window->DrawText(sub, p->draw_format, Rect{r.left + s.width - w, r.top, w, r.height}, 
-                        p->draw_format->text_color, p->draw_format->text_bg_color, true);
-                }
+                p->window->DrawText(sub, p->draw_format, Rect{r.left + s.width - w, r.top, w, r.height}, 
+                    p->draw_format->text_bg_color, p->draw_format->text_bg_selection_color, true);
+            }
+            else
+            {
+                p->window->DrawText(sub, p->draw_format, Rect{r.left + s.width - w, r.top, w, r.height}, 
+                    p->draw_format->text_color, p->draw_format->text_bg_color, true);
             }
         }
     }
@@ -1068,8 +1073,6 @@ void StringElements::Insert(ElementPtr element, const uint pos)
         selection->Remove(element->id, start, size);
     }
 
-    UpdateTabs();
-
 #ifdef DEBUG
     parent->to_str = parent->ToText();
 #endif
@@ -1093,8 +1096,6 @@ void StringElements::RemoveAt(const uint pos, const int size)
 
     str.erase(str.begin() + pos, str.begin() + pos + size);
     selection->Remove(parent->id, pos, size);
-
-    UpdateTabs();
 
 #ifdef DEBUG
     parent->to_str = parent->ToText();
@@ -1122,8 +1123,6 @@ void StringElements::Replace(ElementPtr element, const uint pos)
         selection->Add(parent->id, Count(), size);
         selection->Remove(element->id, start, size);
     }
-
-    UpdateTabs();
 
 #ifdef DEBUG
     parent->to_str = parent->ToText();
@@ -1397,22 +1396,6 @@ bool StringElements::IsSpace(char32_t ch)
 #else
     return std::isspace(ch);
 #endif
-}
-
-void StringElements::UpdateTabs()
-{
-    tabs.clear();
-    tabs_cache.clear();
-    if (parent && parent->document && !parent->document->config.use_tabs)
-        return;
-    String* p = (String*)parent;
-    size_t pos = 0;
-    while (pos != std::string::npos)
-    {
-        pos = str.find(U'\t', pos);
-        if (pos != std::string::npos)
-            tabs.push_back(pos++);
-    }
 }
 
 }
