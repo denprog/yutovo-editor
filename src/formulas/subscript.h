@@ -18,6 +18,7 @@ class Subscript : public MiddleShapeFormula
 public:
     Subscript(Element* _parent, bool with_init = true);
     Subscript(Document* _document, bool with_init = true);
+    Subscript(Document* _document, const std::string& str, const std::string& sub_str);
     Subscript(const Subscript& source);
 
     virtual Element* Clone();
