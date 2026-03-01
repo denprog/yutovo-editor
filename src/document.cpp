@@ -44,6 +44,7 @@
 #include <boost/uuid/uuid_generators.hpp>
 #include <boost/uuid/uuid_io.hpp>
 #include <rapidjson/istreamwrapper.h>
+#include <regex>
 
 #ifdef _MSC_VER
 #undef GetObject
@@ -478,12 +479,45 @@ uint Document::InsertString(const std::string& str, ElementId element_id, bool w
     return last_task_id;
 }
 
+uint Document::InsertString(const std::string& str, bool parse, bool with_undo)
+{
+    if (parse)
+    {
+        //parse for str{sub} - it will be subscript
+        static const std::regex pattern(R"(^([^{]+?)(?:\{([^}]*)\})?$)");
+        std::smatch match;
+        if (std::regex_match(str, match, pattern))
+        {
+            std::string _str = match[1].str();
+            std::string sub  = match[2].matched ? match[2].str() : "";
+            if (!sub.empty())
+                return InsertElement(new Subscript(this, _str, sub), with_undo, false, false);
+            return InsertString(_str, with_undo, with_undo);
+        }
+    }
+    return InsertString(str, with_undo, with_undo);
+}
+
 uint Document::ReplaceString(const std::u32string& str, bool with_undo)
 {
     LOG_TRACE("Insert string: {}", ToBasicString(str));
     StringFormatPtr format;
     if (GetCurrentStringFormat(format))
+    {
+        //parse for str{sub} - it will be subscript
+        static const std::regex pattern(R"(^([^{]+?)(?:\{([^}]*)\})?$)");
+        std::smatch match;
+        auto s = ToBasicString(str);
+        if (std::regex_match(s, match, pattern))
+        {
+            std::string _str = match[1].str();
+            std::string sub  = match[2].matched ? match[2].str() : "";
+            if (!sub.empty())
+                return InsertElement(new Subscript(this, _str, sub), with_undo, false, true);
+            return InsertElement(new String(this, _str, format), with_undo, false, true);
+        }
         return InsertElement(new String(this, str, format), with_undo, false, true);
+    }
     return 0;
 }
 

@@ -51,6 +51,7 @@ public:
     uint InsertString(const std::u32string& str, bool with_undo);
     uint InsertString(const std::string& str, const StringFormatPtr string_format, bool with_undo);
     uint InsertString(const std::string& str, ElementId element_id, bool with_undo);
+    uint InsertString(const std::string& str, bool parse, bool with_undo);
     uint ReplaceString(const std::u32string& str, bool with_undo);
 
     uint InsertLink(const std::string& str, const std::string& url, bool with_undo);

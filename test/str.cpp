@@ -4147,6 +4147,35 @@ TEST_F(DocumentTest, replace2)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0, 0, 0, 4})) << document.GetEditorState().ToString();
 }
 
+//Replace string with a subscript
+TEST_F(DocumentTest, replace3)
+{
+    Start(600);
+
+    document.WaitTask(document.InsertCode(false, true));
+    document.WaitTask(document.InsertString("v", true));
+    document.WaitTask(document.ReplaceString(U"var{2}", true));
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<msub>"\
+                            "<mrow>"\
+                                "<mi>var</mi>"\
+                            "</mrow>"\
+                            "<mrow>"\
+                                "<mi>2</mi>"\
+                            "</mrow>"\
+                        "</msub>"\
+                    "</mrow>"\
+                "</math>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0, 0, 1})) << document.GetEditorState().ToString();
+}
+
 //Restrict Undo
 TEST_F(DocumentTest, undo1)
 {

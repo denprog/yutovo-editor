@@ -8,6 +8,7 @@
 #include "subscript.h"
 #include "code_row.h"
 #include "../str.h"
+#include "code_string.h"
 #include "../document.h"
 
 namespace yutovo
@@ -26,6 +27,17 @@ Subscript::Subscript(Document* _document, bool with_init) :
     MiddleShapeFormula(_document, with_init)
 {
     type = ElementType::SUBSCRIPT;
+    UpdateLevel(level);
+}
+
+Subscript::Subscript(Document* _document, const std::string& str, const std::string& sub_str) :
+    MiddleShapeFormula(_document, true)
+{
+    type = ElementType::SUBSCRIPT;
+    elements->Get(0)->elements->Clear();
+    elements->Get(0)->elements->Add(ElementPtr(new CodeString(this, str)));
+    elements->Get(2)->elements->Clear();
+    elements->Get(2)->elements->Add(ElementPtr(new CodeString(this, sub_str)));
     UpdateLevel(level);
 }
 
