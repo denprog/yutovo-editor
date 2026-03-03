@@ -5828,4 +5828,70 @@ TEST_F(DocumentTest, clipboard95)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 1})) << document.GetEditorState().ToString();
 }
 
+//Select out of a code block downward
+TEST_F(DocumentTest, clipboard96)
+{
+    Start(600);
+
+    document.Load("../../test/tests/clipboard96.yut");
+    document.WaitLoad();
+    std::this_thread::sleep_for(1s);
+
+    document.MoveCaretDown(true);
+    document.WaitTask(document.MoveCaretDown(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 1, 0, 0, 1}, 
+        ElementSelectionState{ElementId{0}, 0, 1}, 
+        ElementSelectionState{ElementId{0, 1, 0, 0}, 0, 1})) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.Copy(clipboard_json, clipboard_text));
+
+    document.MoveCaretToDocumentEnd(false);
+    document.WaitTask(document.Paste(clipboard_json));
+    ASSERT_TRUE(document.ToText() == 
+        U"12+34j\n"\
+        U"sqrt(j)\n"\
+        U"pow(j,2)\n"\
+        U"root(j+1,3)\n"\
+        U"Действительная, мнимая часть числа; модуль:\n"\
+        U"12+34j\n"\
+        U"sqrt(j)\n"\
+        U"pow(j,2)\n"\
+        U"root(j+1,3)\n"\
+        U"Д"
+        ) << ToBasicString(document.ToText());
+}
+
+//Select out of a code block upward
+TEST_F(DocumentTest, clipboard97)
+{
+    Start(600);
+
+    document.Load("../../test/tests/clipboard97.yut");
+    document.WaitLoad();
+    std::this_thread::sleep_for(1s);
+    document.MoveCaretUp(true);
+    document.WaitTask(document.MoveCaretUp(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 1}, 
+        ElementSelectionState{ElementId{0}, 1, 1}, 
+        ElementSelectionState{ElementId{0, 0, 0, 0}, 1, 5})) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.Copy(clipboard_json, clipboard_text));
+
+    document.MoveCaretToDocumentEnd(false);
+    document.WaitTask(document.Paste(clipboard_json));
+    ASSERT_TRUE(document.ToText() == 
+        U"String\n"\
+        U"12+34j\n"\
+        U"sqrt(j)\n"\
+        U"pow(j,2)\n"\
+        U"root(j+1,3)\n"\
+        U"Действительная, мнимая часть числа; модуль:\n"\
+        U"tring\n"\
+        U"12+34j\n"\
+        U"sqrt(j)\n"\
+        U"pow(j,2)\n"\
+        U"root(j+1,3)\n"\
+        ) << ToBasicString(document.ToText());
+}
+
 }

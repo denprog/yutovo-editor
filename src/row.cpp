@@ -750,6 +750,9 @@ bool Row::GetBottomCaretState(const int x, const int y, CaretState& caret_state,
                         if (!el || !el->GetRightCaretState(next, select))
                             break;
                     }
+                    if (parent && parent->parent && parent->type == ElementType::CODE_PARAGRAPH && parent->parent->elements->IsLast(parent->id) && 
+                        !select->IsSelected(parent->parent->id))
+                        select->Add(parent->parent->id);
                     caret_state = next;
                     caret->SetState(next, false);
                 }
