@@ -4176,6 +4176,61 @@ TEST_F(DocumentTest, replace3)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0, 0, 1})) << document.GetEditorState().ToString();
 }
 
+//Replace string inside quotes
+TEST_F(DocumentTest, replace4)
+{
+    Start(600);
+
+    document.WaitTask(document.InsertString("\"алю\"", true));
+    document.WaitTask(document.MoveCaretLeft(false));
+    document.WaitTask(document.ReplaceString(U"алюминий", true));
+    ASSERT_TRUE(document.ToText() == 
+        U"\"алюминий\""
+        ) << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 9})) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    ASSERT_TRUE(document.ToText() == 
+        U"\"алю\""
+        ) << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 4})) << document.GetEditorState().ToString();
+
+    document.Redo();
+    document.WaitRedo();
+    ASSERT_TRUE(document.ToText() == 
+        U"\"алюминий\""
+        ) << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 9})) << document.GetEditorState().ToString();
+}
+
+//Replace string staring with quote
+TEST_F(DocumentTest, replace5)
+{
+    Start(600);
+
+    document.WaitTask(document.InsertString("\"алю", true));
+    document.WaitTask(document.ReplaceString(U"алюминий", true));
+    ASSERT_TRUE(document.ToText() == 
+        U"\"алюминий"
+        ) << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 9})) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    ASSERT_TRUE(document.ToText() == 
+        U"\"алю"
+        ) << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 4})) << document.GetEditorState().ToString();
+
+    document.Redo();
+    document.WaitRedo();
+    ASSERT_TRUE(document.ToText() == 
+        U"\"алюминий"
+        ) << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 9})) << document.GetEditorState().ToString();
+}
+
 //Restrict Undo
 TEST_F(DocumentTest, undo1)
 {
