@@ -692,7 +692,7 @@ TEST_F(VariablesTest, variables9)
     document.InsertString("12", true);
     document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
     document.WaitSolver();
-    std::this_thread::sleep_for(600ms);
+    std::this_thread::sleep_for(1s);
     ASSERT_TRUE(document.ToText() == 
         U"a=12=12."
         ) << ToBasicString(document.ToText());
@@ -702,7 +702,7 @@ TEST_F(VariablesTest, variables9)
     document.InsertString("a", true);
     document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
     document.WaitSolver();
-    std::this_thread::sleep_for(600ms);
+    std::this_thread::sleep_for(1s);
     ASSERT_TRUE(document.ToText() == 
         U"a=12=12.\n" \
         U"a=12."
