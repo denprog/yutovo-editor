@@ -14,6 +14,7 @@
 #include <stack>
 #include <memory>
 #include <map>
+#include <regex>
 #include "window.h"
 #include "caret.h"
 #include "selection.h"
@@ -557,6 +558,8 @@ private:
     ResizeDir resize_dir = ResizeDir::None;
 
     bool moving_element = false;
+
+    static const std::regex subscript_pattern;
 
     Logger* logger;
 };

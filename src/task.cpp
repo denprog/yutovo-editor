@@ -174,9 +174,25 @@ bool InsertElementsTask::Execute()
             {
                 if (with_undo)
                     document->StoreUndo(el->parent->id);
-                ((String*)el.get())->SetString(U"");
-                caret_state.SetPos(0);
-                document->caret->SetPos(0);
+                auto s = el->ToText();
+                if (s.length() > 1 && s[0] == U'\"' && s[s.length() - 1] == U'\"' && caret_state.GetPos() > 0 && caret_state.GetPos() < s.length())
+                {
+                    ((String*)el.get())->SetString(U"\"\"");
+                    caret_state.SetPos(1);
+                    document->caret->SetPos(1);
+                }
+                else if (s.length() > 0 && s[0] == U'\"' && caret_state.GetPos() > 0)
+                {
+                    ((String*)el.get())->SetString(U"\"");
+                    caret_state.SetPos(1);
+                    document->caret->SetPos(1);
+                }
+                else
+                {
+                    ((String*)el.get())->SetString(U"");
+                    caret_state.SetPos(0);
+                    document->caret->SetPos(0);
+                }
             }
         }
     }

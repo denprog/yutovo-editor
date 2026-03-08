@@ -44,7 +44,6 @@
 #include <boost/uuid/uuid_generators.hpp>
 #include <boost/uuid/uuid_io.hpp>
 #include <rapidjson/istreamwrapper.h>
-#include <regex>
 
 #ifdef _MSC_VER
 #undef GetObject
@@ -57,6 +56,8 @@ using namespace std::chrono_literals;
 using namespace std::chrono;
 
 //Document
+
+const std::regex Document::subscript_pattern(R"(^([^{]+?)(?:\{([^}]*)\})?$)");
 
 Document::Document(Window* _window, Config& _config, const std::string _document_guid) :
     window(_window),
@@ -484,12 +485,11 @@ uint Document::InsertString(const std::string& str, bool parse, bool with_undo)
     if (parse)
     {
         //parse for str{sub} - it will be subscript
-        static const std::regex pattern(R"(^([^{]+?)(?:\{([^}]*)\})?$)");
         std::smatch match;
-        if (std::regex_match(str, match, pattern))
+        if (std::regex_match(str, match, subscript_pattern))
         {
             std::string _str = match[1].str();
-            std::string sub  = match[2].matched ? match[2].str() : "";
+            std::string sub = match[2].matched ? match[2].str() : "";
             if (!sub.empty())
                 return InsertElement(new Subscript(this, _str, sub), with_undo, false, false);
             return InsertString(_str, with_undo, with_undo);
@@ -505,13 +505,12 @@ uint Document::ReplaceString(const std::u32string& str, bool with_undo)
     if (GetCurrentStringFormat(format))
     {
         //parse for str{sub} - it will be subscript
-        static const std::regex pattern(R"(^([^{]+?)(?:\{([^}]*)\})?$)");
         std::smatch match;
         auto s = ToBasicString(str);
-        if (std::regex_match(s, match, pattern))
+        if (std::regex_match(s, match, subscript_pattern))
         {
             std::string _str = match[1].str();
-            std::string sub  = match[2].matched ? match[2].str() : "";
+            std::string sub = match[2].matched ? match[2].str() : "";
             if (!sub.empty())
                 return InsertElement(new Subscript(this, _str, sub), with_undo, false, true);
             return InsertElement(new String(this, _str, format), with_undo, false, true);
@@ -3782,12 +3781,19 @@ void Document::GetPrompt(std::vector<std::pair<IdentifierType, std::string>>& re
             return;
         left = ToBasicString(el->ToText().substr(0, caret->GetPos()));
     }
+
+    if (left.empty())
+        return;
     
     std::lock_guard<std::recursive_mutex> lock(identifiers_mutex);
     auto it = identifiers.find(code_id);
     if (it == identifiers.end())
         return;
 
+    if (left[0] == '\"')
+        left = left.substr(1);
+
+    std::smatch match;
     Identifiers& ids = it->second;
     for (auto& op : ids.operations)
     {
@@ -3798,6 +3804,15 @@ void Document::GetPrompt(std::vector<std::pair<IdentifierType, std::string>>& re
     {
         if (var.rfind(left, 0) == 0)
             res.push_back(std::make_pair(IdentifierType::VARIABLE, var));
+        if (std::regex_match(var, match, subscript_pattern))
+        {
+            std::string subscript = match[2].matched ? match[2].str() : "";
+            if (!subscript.empty())
+            {
+                if (subscript.find(left, 0) == 0 && std::find(res.begin(), res.end(), std::make_pair(IdentifierType::VARIABLE, subscript)) == res.end())
+                    res.push_back(std::make_pair(IdentifierType::VARIABLE, subscript));
+            }
+        }
     }
     for (auto& func : ids.functions)
     {
@@ -3808,10 +3823,19 @@ void Document::GetPrompt(std::vector<std::pair<IdentifierType, std::string>>& re
     {
         if (unit.rfind(left, 0) == 0)
             res.push_back(std::make_pair(IdentifierType::UNIT, unit));
+        if (std::regex_match(unit, match, subscript_pattern))
+        {
+            std::string subscript = match[2].matched ? match[2].str() : "";
+            if (!subscript.empty())
+            {
+                if (subscript.find(left, 0) == 0 && std::find(res.begin(), res.end(), std::make_pair(IdentifierType::UNIT, subscript)) == res.end())
+                    res.push_back(std::make_pair(IdentifierType::UNIT, subscript));
+            }
+        }
     }
     for (auto& str : ids.strings)
     {
-        if (str.rfind(left, 0) == 0)
+        if (str.rfind(left, 0) == 0 && std::find(res.begin(), res.end(), std::make_pair(IdentifierType::VARIABLE, str)) == res.end())
             res.push_back(std::make_pair(IdentifierType::STRING, str));
     }
 }
