@@ -210,13 +210,18 @@ TEST_F(FormulaTest, sum3)
         ElementSelectionState{ElementId{0, 0, 0, 0, 0, 0, 0}, 3, 1})) << document.GetEditorState().ToString();
     
     document.WaitTask(document.MoveCaretLeft(false));
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 0})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 3, 0, 0})) << document.GetEditorState().ToString();
+    document.WaitTask(document.MoveCaretLeft(false));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 2, 0, 2})) << document.GetEditorState().ToString();
+    document.MoveCaretLeft(false);
+    document.MoveCaretLeft(false);
+    document.WaitTask(document.MoveCaretLeft(false));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 1})) << document.GetEditorState().ToString();
 
-    document.MoveCaretUp(false);
-    document.MoveCaretUp(false);
-    document.MoveCaretRight(false);
-    document.MoveCaretRight(true);
+    document.WaitTask(document.MoveCaretUp(false));
     document.WaitTask(document.MoveCaretRight(true));
+    document.WaitTask(document.MoveCaretRight(true));
+    std::this_thread::sleep_for(200ms);
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 2, 0, 2}, 
         ElementSelectionState{ElementId{0, 0, 0, 0, 0, 0, 0, 2, 0}, 1, 1})) << document.GetEditorState().ToString();
 
