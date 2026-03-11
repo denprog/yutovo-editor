@@ -2412,6 +2412,19 @@ TEST_F(FormulaTest, select19)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0, 0, 0, 0, 0, 3})) << document.GetEditorState().ToString();
 }
 
+//Check caret after moving after selection
+TEST_F(FormulaTest, select20)
+{
+    Start(600);
+
+    document.Load("../../test/tests/select20.yut");
+    document.WaitLoad();
+    std::this_thread::sleep_for(2s);
+
+    document.WaitTask(document.MoveCaretLeft(false));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 2, 0, 0})) << document.GetEditorState().ToString();
+}
+
 TEST_F(FormulaTest, fonts1)
 {
     Start(600);

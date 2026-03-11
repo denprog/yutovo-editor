@@ -869,6 +869,8 @@ CaretState Selection::GetFirstCaretState() const
         if (_el->GetFirstCaretState(c, nullptr))
             return c;
     }
+    if (el->elements->Get(el_s.start)->GetFirstCaretState(c, nullptr))
+        return c;
     if (el->GetFirstCaretState(c, nullptr))
         return c;
     return CaretState(el_s.id, el_s.start);
