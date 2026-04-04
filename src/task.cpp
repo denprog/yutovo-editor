@@ -235,6 +235,11 @@ bool InsertElementsTask::Execute()
             {
                 if (str->ToText() == U" ")
                     insert_space = true;
+                else if (str->ToText() == U"\t" && !document->config.use_tabs)
+                {
+                    uint spaces = document->config.tab_spaces - (caret_state.GetPos() % document->config.tab_spaces);
+                    str->SetString(std::u32string(spaces, U' '));
+                }
                 else
                     insert_char = true;
             }

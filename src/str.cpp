@@ -969,8 +969,6 @@ StringElements::StringElements(Element* parent, const std::u32string& _str) :
     Elements(parent),
     str(_str)
 {
-    if (parent && parent->document && !parent->document->config.use_tabs)
-        boost::replace_all(str, std::u32string(U"\t"), std::u32string(parent->document->config.tab_spaces, U' '));
 }
 
 void StringElements::ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc)
