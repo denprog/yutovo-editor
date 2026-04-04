@@ -191,8 +191,8 @@ TEST_F(DocumentTest, strings4)
 {
     Start(600);
 
-    document.WaitTask(document.InsertString("	", true));
-    ASSERT_TRUE(document.ToText() == U"	") << ToBasicString(document.ToText());
+    document.WaitTask(document.InsertString("\t", true));
+    ASSERT_TRUE(document.ToText() == U"\t") << ToBasicString(document.ToText());
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 1)) << document.GetEditorState().ToString();
 
     document.Undo();
@@ -201,8 +201,8 @@ TEST_F(DocumentTest, strings4)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 0)) << document.GetEditorState().ToString();
 
     document.WaitTask(document.InsertString("tab", true));
-    document.WaitTask(document.InsertString("	", true));
-    ASSERT_TRUE(document.ToText() == U"tab	") << ToBasicString(document.ToText());
+    document.WaitTask(document.InsertString("\t", true));
+    ASSERT_TRUE(document.ToText() == U"tab\t") << ToBasicString(document.ToText());
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 4)) << document.GetEditorState().ToString();
 
     document.Undo();
@@ -236,7 +236,7 @@ TEST_F(DocumentTest, strings5)
     config.use_tabs = false;
     document.SetConfig(config, true);
 
-    document.WaitTask(document.InsertString("	", true));
+    document.WaitTask(document.InsertString("\t", true));
     ASSERT_TRUE(document.ToText() == U"    ") << ToBasicString(document.ToText());
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 4)) << document.GetEditorState().ToString();
 
@@ -246,19 +246,19 @@ TEST_F(DocumentTest, strings5)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 0)) << document.GetEditorState().ToString();
 
     document.WaitTask(document.InsertString("tab", true));
-    document.WaitTask(document.InsertString("	", true));
-    ASSERT_TRUE(document.ToText() == U"tab    ") << ToBasicString(document.ToText());
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 7)) << document.GetEditorState().ToString();
+    document.WaitTask(document.InsertString("\t", true));
+    ASSERT_TRUE(document.ToText() == U"tab ") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 4)) << document.GetEditorState().ToString();
 
     document.Undo();
     document.WaitUndo();
     ASSERT_TRUE(document.ToText() == U"tab") << ToBasicString(document.ToText());
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 3)) << document.GetEditorState().ToString();
 
-    document.InsertString("	", true);
+    document.InsertString("\t", true);
     document.WaitTask(document.InsertString("string", true));
-    ASSERT_TRUE(document.ToText() == U"tab    string") << ToBasicString(document.ToText());
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 13)) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.ToText() == U"tab string") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 10)) << document.GetEditorState().ToString();
 
     document.Undo();
     document.WaitUndo();
@@ -276,8 +276,8 @@ TEST_F(DocumentTest, strings6)
 
     document.InsertString("123", true);
     document.WaitTask(document.MoveCaretToDocumentBegin(false));
-    document.WaitTask(document.InsertString("	", true));
-    ASSERT_TRUE(document.ToText() == U"	123") << ToBasicString(document.ToText());
+    document.WaitTask(document.InsertString("\t", true));
+    ASSERT_TRUE(document.ToText() == U"\t123") << ToBasicString(document.ToText());
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 1)) << document.GetEditorState().ToString();
 
     document.Undo();
@@ -292,20 +292,20 @@ TEST_F(DocumentTest, strings7)
     Start(600);
 
     document.InsertString("123", true);
-    document.InsertString("	", true);
+    document.InsertString("\t", true);
     document.WaitTask(document.MoveCaretToDocumentBegin(false));
-    document.WaitTask(document.InsertString("	", true));
-    ASSERT_TRUE(document.ToText() == U"	123	") << ToBasicString(document.ToText());
+    document.WaitTask(document.InsertString("\t", true));
+    ASSERT_TRUE(document.ToText() == U"\t123\t") << ToBasicString(document.ToText());
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 1)) << document.GetEditorState().ToString();
 
     document.Undo();
     document.WaitUndo();
-    ASSERT_TRUE(document.ToText() == U"123	") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.ToText() == U"123\t") << ToBasicString(document.ToText());
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 0)) << document.GetEditorState().ToString();
 
     document.Redo();
     document.WaitRedo();
-    ASSERT_TRUE(document.ToText() == U"	123	") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.ToText() == U"\t123\t") << ToBasicString(document.ToText());
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 1)) << document.GetEditorState().ToString();
 }
 
@@ -461,7 +461,7 @@ TEST_F(DocumentTest, strings11)
     ASSERT_TRUE(r2.left > r3.left);
 }
 
-//Check caret positions in a string with some fonts and a tab
+//Check caret positions in a string with tab as spaces
 TEST_F(DocumentTest, strings12)
 {
     Start(600);
@@ -482,6 +482,26 @@ TEST_F(DocumentTest, strings12)
     document.WaitTask(document.MoveCaretLeft(false));
     document.GetCaretRect(r2);
     ASSERT_TRUE(r1 == r2);
+}
+
+//Check spaces count in a tab
+TEST_F(DocumentTest, strings13)
+{
+    Start(600);
+
+    Config config;
+    document.GetConfig(config);
+    config.use_tabs = false;
+    config.tab_spaces = 4;
+    document.SetConfig(config, true);
+
+    document.WaitTask(document.InsertString("5", true));
+    document.WaitTask(document.InsertString("\t", true));
+    ASSERT_TRUE(document.ToText() == U"5   ") << ToBasicString(document.ToText());
+    document.WaitTask(document.InsertString("\t", true));
+    ASSERT_TRUE(document.ToText() == U"5       ") << ToBasicString(document.ToText());
+    document.WaitTask(document.InsertString("7", true));
+    ASSERT_TRUE(document.ToText() == U"5       7") << ToBasicString(document.ToText());
 }
 
 TEST_F(DocumentTest, selections1)
