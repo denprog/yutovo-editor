@@ -492,10 +492,10 @@ uint Document::InsertString(const std::string& str, bool parse, bool with_undo)
             std::string sub = match[2].matched ? match[2].str() : "";
             if (!sub.empty())
                 return InsertElement(new Subscript(this, _str, sub), with_undo, false, false);
-            return InsertString(_str, with_undo, with_undo);
+            return InsertString(_str, with_undo);
         }
     }
-    return InsertString(str, with_undo, with_undo);
+    return InsertString(str, with_undo);
 }
 
 uint Document::ReplaceString(const std::u32string& str, bool with_undo)
