@@ -1640,9 +1640,13 @@ bool SaveTask::Execute()
 
         document->saving = true;
         rapidjson::Value t(rapidjson::kObjectType);
+        EditorState c_s = document->GetEditorState();
+        text->MakePlain();
         text->ToJson(t, alloc);
         json.AddMember("text", t, alloc);
         document->saving = false;
+        text->Remake(true);
+        document->SetEditorState(c_s);
 
         //add caret and selection
         rapidjson::Value caret_state(rapidjson::kObjectType);

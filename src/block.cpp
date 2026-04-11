@@ -152,7 +152,7 @@ bool Block::InsertElements(std::vector<ElementPtr>& _elements, bool insert_mode,
                 if (!document->IsParagraph(_els[i]))
                     return false;
                 els.clear();
-                ((Paragraph*)_els[i].get())->MakePlain();
+                _els[i]->MakePlain();
                 els.push_back(_els[i]);
                 if (!InsertElements(els, insert_mode, with_undo, changed_element))
                     return false;

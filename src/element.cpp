@@ -202,6 +202,12 @@ void Element::Rescale() const
         elements->Get(i)->Rescale();
 }
 
+void Element::MakePlain()
+{
+    for (int i = 0; i < elements->Count(); ++i)
+        elements->Get(i)->MakePlain();
+}
+
 void Element::Resize(const int dx, const int dy)
 {
     if (parent)

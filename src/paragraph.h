@@ -35,6 +35,7 @@ public:
     virtual bool Remake(bool with_elements = false);
     virtual void Normalize();
     virtual void Rescale() const;
+    virtual void MakePlain();
 
     virtual bool InsertElements(std::vector<ElementPtr>& _elements, bool insert_mode, bool with_undo, ElementId& changed_element);
     virtual bool DeleteElements(bool left, bool with_undo, ElementId& changed_element);
@@ -63,7 +64,6 @@ public:
     virtual std::string ToHtml() const;
 
     virtual ElementPtr GetPlainRow();
-    virtual void MakePlain();
 
     virtual void SetMarker(const std::u32string& _marker, const StringFormatPtr& _marker_format);
 
