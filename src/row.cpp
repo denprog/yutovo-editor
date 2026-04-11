@@ -227,6 +227,20 @@ void Row::Normalize()
     }
 }
 
+void Row::MakePlain()
+{
+    for (size_t i = 0; i < elements->Count();)
+    {
+        auto el = (*elements)[i];
+        if (document->IsString(el) && el->can_merge)
+        {
+            if (i < elements->Count() - 1 && el->Merge(elements->Get(i + 1)))
+                continue;
+        }
+        ++i;
+    }
+}
+
 bool Row::InsertElements(std::vector<ElementPtr>& _elements, bool insert_mode, bool with_undo, ElementId& changed_element)
 {
     CaretState caret_state = caret->GetCaretState();

@@ -395,7 +395,11 @@ public:
     void WaitSolver();
 #endif
 
+#ifdef TEST
+public:
+#else
 private:
+#endif
     int last_task_id = -1;
     int last_load_task_id = -1;
     bool last_task_executed = false;

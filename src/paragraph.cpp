@@ -381,6 +381,26 @@ void Paragraph::Rescale() const
     marker_draw_format.reset();
 }
 
+void Paragraph::MakePlain()
+{
+    ElementPtr row(new Row(parent, false));
+    row->id = id;
+    row->logical_id = logical_id;
+    for (int i = 0; i < elements->Count(); ++i)
+    {
+        auto r = elements->Get(i);
+        for (int j = 0; j < r->elements->Count(); ++j)
+        {
+            auto _el = r->elements->Get(j);
+            row->elements->Add(_el);
+        }
+    }
+    ((Row*)row.get())->format = format;
+    row->MakePlain();
+    elements->Clear();
+    elements->Add(row);
+}
+
 bool Paragraph::InsertElements(std::vector<ElementPtr>& _elements, bool insert_mode, bool with_undo, ElementId& changed_element)
 {
     if (_elements.size() == 1 && document->IsRow(_elements[0]))
@@ -690,16 +710,6 @@ ElementPtr Paragraph::GetPlainRow()
     }
     ((Row*)row.get())->format = format;
     return row;
-}
-
-void Paragraph::MakePlain()
-{
-    //remake to only one row
-    if (elements->Count() <= 1)
-        return;
-    auto r = GetPlainRow();
-    elements->Clear();
-    elements->Add(r);
 }
 
 void Paragraph::SetMarker(const std::u32string& _marker, const StringFormatPtr& _marker_format)

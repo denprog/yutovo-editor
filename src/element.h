@@ -54,6 +54,7 @@ public:
     virtual bool Remake(bool with_elements = false);
     virtual void Normalize();
     virtual void Rescale() const;
+    virtual void MakePlain();
 
     virtual void Resize(const int dx, const int dy);
     virtual void MovePicture(const int dx, const int dy);

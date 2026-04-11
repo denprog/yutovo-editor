@@ -7,6 +7,7 @@
 
 #include <gtest/gtest.h>
 #include <filesystem>
+#include <fstream>
 #include "mock.h"
 #include "style.h"
 
@@ -1084,6 +1085,66 @@ TEST_F(DocumentTest, files25)
     el = document.FindByString({0}, U"6");
     ASSERT_TRUE(document.GetStringFormat(el->id, format));
     ASSERT_TRUE(format.size == 10) << format.size;
+}
+
+//Check of concatenating strings when saving file
+TEST_F(DocumentTest, files26)
+{
+    Start(400);
+
+    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
+        {
+            return GetTextSizeMock(text, format);
+        });
+
+    EXPECT_CALL(window_mock, OnSaveResult).WillOnce([&](const uint task_id, IOResult result, const int document_id)
+        {
+            ASSERT_TRUE(result == IOResult::Success);
+        });
+
+    document.compressed_file = false;
+    document.WaitTask(document.InsertString("Автоматический пересчет выражений помогает пользователям наблюдать за результатами вычислений "\
+        "при редактировании формул.", true));
+    std::this_thread::sleep_for(200ms);
+    document.WaitTask(document.Save("files26.yut"));
+    std::this_thread::sleep_for(200ms);
+
+    std::ifstream file("files26.yut");
+    std::string content((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
+    file.close();
+    ASSERT_TRUE(content.find("Автоматический пересчет выражений помогает пользователям наблюдать за результатами вычислений "\
+        "при редактировании формул.") != std::string::npos) << content;
+}
+
+//Check of concatenating strings when saving file
+TEST_F(DocumentTest, files27)
+{
+    Start(400);
+
+    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
+        {
+            return GetTextSizeMock(text, format);
+        });
+
+    EXPECT_CALL(window_mock, OnSaveResult).WillOnce([&](const uint task_id, IOResult result, const int document_id)
+        {
+            ASSERT_TRUE(result == IOResult::Success);
+        });
+
+    document.compressed_file = false;
+    document.InsertCode(false, true);
+    document.WaitTask(document.MoveCaretToDocumentEnd(false));
+    document.WaitTask(document.InsertString("Автоматический пересчет выражений помогает пользователям наблюдать за результатами вычислений "\
+        "при редактировании формул.", true));
+    std::this_thread::sleep_for(200ms);
+    document.WaitTask(document.Save("files27.yut"));
+    std::this_thread::sleep_for(200ms);
+
+    std::ifstream file("files27.yut");
+    std::string content((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
+    file.close();
+    ASSERT_TRUE(content.find("Автоматический пересчет выражений помогает пользователям наблюдать за результатами вычислений "\
+        "при редактировании формул.") != std::string::npos) << content;
 }
 
 //Check include file
