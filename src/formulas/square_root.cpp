@@ -80,7 +80,6 @@ void SquareRoot::Draw() const
         [&](const Rect& r)
         {
             std::list<Point> path;
-            path.push_back(Point{r.GetRight(), (int)lround(r.top + (float)r.height * 0.01)});
             path.push_back(Point{(int)lround(r.left + r.width * 0.722), r.GetBottom()});
             path.push_back(Point{(int)lround(r.left + r.width * 0.281), (int)lround(r.top + r.height * 0.495)});
             path.push_back(Point{(int)lround(r.left + r.width * 0.061), (int)lround(r.top + r.height * 0.544)});
@@ -88,7 +87,7 @@ void SquareRoot::Draw() const
             path.push_back(Point{(int)lround(r.left + r.width * 0.343), (int)lround(r.top + r.height * 0.429)});
             path.push_back(Point{(int)lround(r.left + r.width * 0.703), (int)lround(r.top + r.height * 0.869)});
             path.push_back(Point{(int)lround(r.left + r.width * 0.934), r.top});
-            path.push_back(Point{r.GetRight() + GetLast()->rect.width, r.top});
+            path.push_back(Point{r.GetRight() + GetLast()->rect.width, r.top + 1});
             path.push_back(Point{r.GetRight() + GetLast()->rect.width, (int)lround(r.top + r.height * 0.01 + 1)});
             path.push_back(Point{r.GetRight(), (int)lround(r.top + r.height * 0.01 + 1)});
             window->DrawFillPath(path, document->selection.IsSelected(id) ? document->config.formula_bg_color : document->config.shapes_color);
@@ -108,7 +107,7 @@ bool SquareRoot::Remake(bool with_elements)
     bool changed = Formula::Remake(with_elements);
 
     //recalc shape rect
-    shape->rect.SetRect(0, 0, round(last->rect.height * 5 / 11), last->rect.height + ROOT_Y_OFFSET * 2);
+    shape->rect.SetRect(0, 4, round(last->rect.height * 5 / 11), last->rect.height + ROOT_Y_OFFSET * 2 + 4);
 
     //recalc item's rect
     int x_offset = ROOT_X_LEFT_OFFSET + shape->rect.width;
@@ -117,7 +116,7 @@ bool SquareRoot::Remake(bool with_elements)
         y_offset = ROOT_Y_OFFSET + round((shape->rect.height - last->rect.height) / 2);
     else
         y_offset = ROOT_Y_OFFSET + round(shape->rect.height * 0.01);
-    last->rect.Move(x_offset, y_offset);
+    last->rect.Move(x_offset, y_offset + 4);
     baseline = last->rect.top + last->baseline;
 
     UpdateRect();
