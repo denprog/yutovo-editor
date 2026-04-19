@@ -104,7 +104,7 @@ public:
 
     virtual void GetMargin(int& left, int& top, int& right, int& bottom) const;
 
-    virtual Color GetBackgroundColor();
+    virtual Color GetBackgroundColor() const;
 
     virtual bool MouseLButtonHold(const int x, const int y, MouseHoldType& hold_type, ElementId& hold_id);
     virtual bool MouseRButtonHold(const int x, const int y, MouseHoldType& hold_type, ElementId& hold_id);

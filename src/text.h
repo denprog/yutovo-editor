@@ -32,7 +32,7 @@ public:
 
     virtual bool Remake(bool with_elements = false);
 
-    virtual Color GetBackgroundColor();
+    virtual Color GetBackgroundColor() const;
 
     virtual void UpdateRect(bool with_elements = false);
     virtual void UpdateDrawRect();

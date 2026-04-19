@@ -67,7 +67,7 @@ void Text::Draw() const
 {
     Rect v = window->GetRect();
     window->BeginDrawOutside();
-    window->DrawFillRect(v, Color::White());
+    window->DrawFillRect(v, GetBackgroundColor());
     window->EndDrawOutside();
 
     v.left += format->left_indent;
@@ -81,7 +81,7 @@ void Text::Draw() const
     if (document->config.with_border)
     {
         window->BeginDrawOutside();
-        window->DrawRect(Rect(v.left - 1, v.top - 1, v.width + 2, v.height + 2), Color::Blue());
+        window->DrawRect(Rect(v.left - 1, v.top - 1, v.width + 2, v.height + 2), document->config.page_border_color);
         window->EndDrawOutside();
     }
 }
@@ -121,7 +121,7 @@ bool Text::Remake(bool with_elements)
     return false;
 }
 
-Color Text::GetBackgroundColor()
+Color Text::GetBackgroundColor() const
 {
     return document->config.page_color;
 }
