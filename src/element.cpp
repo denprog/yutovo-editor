@@ -638,11 +638,11 @@ void Element::GetMargin(int& left, int& top, int& right, int& bottom) const
     left = top = right = bottom = 0;
 }
 
-Color Element::GetBackgroundColor()
+Color Element::GetBackgroundColor() const
 {
     if (parent)
         return parent->GetBackgroundColor();
-    return Color::White();
+    return document->config.page_color;
 }
 
 bool Element::MouseLButtonHold(const int x, const int y, MouseHoldType& hold_type, ElementId& hold_id)

@@ -166,7 +166,7 @@ void CodeBlock::UpdateDrawRect()
     draw_rect.height += 2;
 }
 
-Color CodeBlock::GetBackgroundColor()
+Color CodeBlock::GetBackgroundColor() const
 {
     return document->config.formula_bg_color;
 }
