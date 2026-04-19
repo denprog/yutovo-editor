@@ -57,7 +57,6 @@ void NthRoot::Draw() const
         [&](const Rect& r)
         {
             std::list<Point> path;
-            path.push_back(Point{r.GetRight(), (int)lround(r.top + (float)r.height * 0.01)});
             path.push_back(Point{(int)lround(r.left + r.width * 0.722), r.GetBottom()});
             path.push_back(Point{(int)lround(r.left + r.width * 0.281), (int)lround(r.top + r.height * 0.495)});
             path.push_back(Point{(int)lround(r.left + r.width * 0.061), (int)lround(r.top + r.height * 0.544)});
@@ -65,9 +64,9 @@ void NthRoot::Draw() const
             path.push_back(Point{(int)lround(r.left + r.width * 0.343), (int)lround(r.top + r.height * 0.429)});
             path.push_back(Point{(int)lround(r.left + r.width * 0.703), (int)lround(r.top + r.height * 0.869)});
             path.push_back(Point{(int)lround(r.left + r.width * 0.934), r.top});
-            path.push_back(Point{r.GetRight() + GetLast()->rect.width, r.top});
-            path.push_back(Point{r.GetRight() + GetLast()->rect.width, (int)lround(r.top + r.height * 0.001)});
-            path.push_back(Point{r.GetRight(), (int)lround(r.top + r.height * 0.001)});
+            path.push_back(Point{r.GetRight() + GetLast()->rect.width, r.top + 1});
+            path.push_back(Point{r.GetRight() + GetLast()->rect.width, (int)lround(r.top + r.height * 0.001 + 1)});
+            path.push_back(Point{r.GetRight(), (int)lround(r.top + r.height * 0.001 + 1)});
             window->DrawFillPath(path, document->selection.IsSelected(id) ? document->config.formula_bg_color : document->config.shapes_color);
         };
     
@@ -98,16 +97,16 @@ bool NthRoot::Remake(bool with_elements)
 
     //recalc items' rects
     int x_offset = ROOT_X_LEFT_OFFSET;
-    GetFirst()->rect.Move(x_offset, (GetShape()->rect.height - GetFirst()->rect.height) / 2);
+    GetFirst()->rect.Move(x_offset, (GetShape()->rect.height - GetFirst()->rect.height) / 2 + 4);
     x_offset += GetFirst()->rect.width;
-    GetShape()->rect.Move(x_offset, 0);
+    GetShape()->rect.Move(x_offset, 4);
     x_offset += GetShape()->rect.width + ROOT_X_RIGHT_OFFSET;
     int y_offset = 0;
     if (GetShape()->rect.height > GetLast()->rect.height)
         y_offset = ROOT_Y_OFFSET + round((GetShape()->rect.height - GetLast()->rect.height) / 2);
     else
         y_offset = ROOT_Y_OFFSET + GetShape()->rect.height * 0.01;
-    GetLast()->rect.Move(x_offset, y_offset);
+    GetLast()->rect.Move(x_offset, y_offset + 4);
     baseline = GetLast()->rect.top + GetLast()->baseline;
 
     UpdateRect();
