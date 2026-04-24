@@ -22,7 +22,14 @@ Paragraph::Paragraph(Element* parent, bool with_row) :
 {
     type = ElementType::PARAGRAPH;
 
-    current_string_format = format->default_string_format;
+    if (!format && parent->document)
+        document->GetCurrentParagraphFormat(format);
+    if (format)
+        current_string_format = format->default_string_format;
+    else
+        current_string_format = parent->GetStringFormat();
+    if (!current_string_format)
+        document->GetCurrentStringFormat(current_string_format);
 
     if (with_row)
         AddEmptyElement(); //paragraph has to have at least one row
