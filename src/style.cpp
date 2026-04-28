@@ -411,27 +411,27 @@ ParagraphFormats::ParagraphFormats(StringFormatsPtr _string_formats, const yutov
     string_formats(_string_formats)
 {
     //there are predefined paragraph styles
-    GetFormat(TranslateName("Text body", language), ParagraphFormat::Alignment::Left, ParagraphFormat::WordWrap::Normal, 5, 10, 10, 0, 10, 10, 
-        string_formats->GetFormat("Arial", 14, false, false, false, false, false, false, Color::Black(), Color::White(), Color::Blue()));
-    GetFormat(TranslateName("Header 1", language), ParagraphFormat::Alignment::Left, ParagraphFormat::WordWrap::Normal, 5, 10, 10, 0, 10, 10, 
-        string_formats->GetFormat("Arial", 30, true, false, false, false, false, false, Color::Black(), Color::White(), Color::Blue()));
-    GetFormat(TranslateName("Header 2", language), ParagraphFormat::Alignment::Left, ParagraphFormat::WordWrap::Normal, 5, 10, 10, 0, 10, 10, 
-        string_formats->GetFormat("Arial", 26, true, false, false, false, false, false, Color::Black(), Color::White(), Color::Blue()));
-    GetFormat(TranslateName("Header 3", language), ParagraphFormat::Alignment::Left, ParagraphFormat::WordWrap::Normal, 5, 10, 10, 0, 10, 10,
-        string_formats->GetFormat("Arial", 22, true, false, false, false, false, false, Color::Black(), Color::White(), Color::Blue()));
-    GetFormat(TranslateName("Header 4", language), ParagraphFormat::Alignment::Left, ParagraphFormat::WordWrap::Normal, 5, 10, 10, 0, 10, 10,
-        string_formats->GetFormat("Arial", 16, true, false, false, false, false, false, Color::Black(), Color::White(), Color::Blue()));
-    GetFormat(TranslateName("Example", language), ParagraphFormat::Alignment::Left, ParagraphFormat::WordWrap::Normal, 5, 10, 10, 0, 10, 10,
-        string_formats->GetFormat("Arial", 14, false, true, false, false, false, false, Color::Black(), Color::White(), Color::Blue()));
-    GetFormat(TranslateName("Monospace", language), ParagraphFormat::Alignment::Left, ParagraphFormat::WordWrap::Normal, 5, 10, 10, 0, 10, 10, 
-        string_formats->GetFormat("Courier New", 12, false, false, false, false, false, false, Color::Black(), Color::White(), Color::Blue()));
-    GetFormat(TranslateName("Code", language), ParagraphFormat::Alignment::Left, ParagraphFormat::WordWrap::None, 2, 2, 2, 0, 2, 2, 
-        string_formats->GetFormat("FreeMono", 14, false, false, false, false, false, false, Color::Black(), Color::White(), Color::Blue()));
+    GetFormat("Text body", ParagraphFormat::Alignment::Left, ParagraphFormat::WordWrap::Normal, 5, 10, 10, 0, 10, 10, 
+        string_formats->GetFormat("Arial", 14, false, false, false, false, false, false, Color::Black(), Color::White(), Color::Blue()), language);
+    GetFormat("Header 1", ParagraphFormat::Alignment::Left, ParagraphFormat::WordWrap::Normal, 5, 10, 10, 0, 10, 10, 
+        string_formats->GetFormat("Arial", 30, true, false, false, false, false, false, Color::Black(), Color::White(), Color::Blue()), language);
+    GetFormat("Header 2", ParagraphFormat::Alignment::Left, ParagraphFormat::WordWrap::Normal, 5, 10, 10, 0, 10, 10, 
+        string_formats->GetFormat("Arial", 26, true, false, false, false, false, false, Color::Black(), Color::White(), Color::Blue()), language);
+    GetFormat("Header 3", ParagraphFormat::Alignment::Left, ParagraphFormat::WordWrap::Normal, 5, 10, 10, 0, 10, 10,
+        string_formats->GetFormat("Arial", 22, true, false, false, false, false, false, Color::Black(), Color::White(), Color::Blue()), language);
+    GetFormat("Header 4", ParagraphFormat::Alignment::Left, ParagraphFormat::WordWrap::Normal, 5, 10, 10, 0, 10, 10,
+        string_formats->GetFormat("Arial", 16, true, false, false, false, false, false, Color::Black(), Color::White(), Color::Blue()), language);
+    GetFormat("Example", ParagraphFormat::Alignment::Left, ParagraphFormat::WordWrap::Normal, 5, 10, 10, 0, 10, 10,
+        string_formats->GetFormat("Arial", 14, false, true, false, false, false, false, Color::Black(), Color::White(), Color::Blue()), language);
+    GetFormat("Monospace", ParagraphFormat::Alignment::Left, ParagraphFormat::WordWrap::Normal, 5, 10, 10, 0, 10, 10, 
+        string_formats->GetFormat("Courier New", 12, false, false, false, false, false, false, Color::Black(), Color::White(), Color::Blue()), language);
+    GetFormat("Code", ParagraphFormat::Alignment::Left, ParagraphFormat::WordWrap::None, 2, 2, 2, 0, 2, 2, 
+        string_formats->GetFormat("FreeMono", 14, false, false, false, false, false, false, Color::Black(), Color::White(), Color::Blue()), language);
 }
 
 ParagraphFormatPtr ParagraphFormats::GetFormat(std::string _name, ParagraphFormat::Alignment _alignment, ParagraphFormat::WordWrap _word_wrap, 
     uint _line_spacing, uint _indent_before, uint _indent_after, uint _indent_first_line, uint _spacing_before, uint _spacing_after, 
-    StringFormatPtr _string_format)
+    StringFormatPtr _string_format, const yutovo_calculator::Language language)
 {
     //return the present format
     for (auto& p : paragraph_formats)
@@ -443,8 +443,8 @@ ParagraphFormatPtr ParagraphFormats::GetFormat(std::string _name, ParagraphForma
     }
 
     //or create a new one
-    ParagraphFormatPtr p(new ParagraphFormat(_name, _alignment, _word_wrap, _line_spacing, _indent_before, _indent_after, _indent_first_line, 
-        _spacing_before, _spacing_after, _string_format));
+    ParagraphFormatPtr p(new ParagraphFormat(TranslateName(_name, language), _alignment, _word_wrap, _line_spacing, _indent_before, 
+        _indent_after, _indent_first_line, _spacing_before, _spacing_after, _string_format));
     paragraph_formats.push_back(p);
     return p;
 }
