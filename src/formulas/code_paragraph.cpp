@@ -29,7 +29,7 @@ CodeParagraph::CodeParagraph(Document* _document, bool with_row) :
     Paragraph(_document, false)
 {
     type = ElementType::CODE_PARAGRAPH;
-    format = document->paragraph_formats->GetFormat("Code");
+    format = document->paragraph_formats->GetFormat("Code", document->config.language);
     if (with_row)
         AddEmptyElement();
 }
@@ -38,7 +38,7 @@ CodeParagraph::CodeParagraph(const Paragraph* source) :
     Paragraph(source->document, false)
 {
     type = ElementType::CODE_PARAGRAPH;
-    format = document->paragraph_formats->GetFormat("Code");
+    format = document->paragraph_formats->GetFormat("Code", document->config.language);
     for (int i = 0; i < source->elements->Count(); ++i)
     {
         ElementPtr row(new CodeRow(this, false));
@@ -79,7 +79,7 @@ Element* CodeParagraph::FromJson(Element* parent, Document* document, const rapi
     if (value.HasMember("format_name") && value["format_name"].IsString())
     {
         auto format_name = value["format_name"].GetString();
-        auto f = document->paragraph_formats->GetFormat(format_name);
+        auto f = document->paragraph_formats->GetFormat(format_name, document->config.language);
         if (f)
             p->format = f;
     }

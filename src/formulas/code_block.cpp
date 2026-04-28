@@ -20,7 +20,7 @@ CodeBlock::CodeBlock(Document* _document, uint _code_id, bool add_empty, bool li
 {
     type = ElementType::CODE_BLOCK;
     code_format = document->code_formats->GetFormat("Calculator");
-    paragraph_format = document->paragraph_formats->GetFormat("Code");
+    paragraph_format = document->paragraph_formats->GetFormat("Code", document->config.language);
     formula_format = document->formula_formats->GetFormat("Formula");
     if (add_empty)
         AddEmptyElement(); //code block has to have at least one code paragraph
@@ -36,7 +36,7 @@ CodeBlock::CodeBlock(Element* parent, uint _code_id, bool add_empty, bool list_i
 {
     type = ElementType::CODE_BLOCK;
     code_format = document->code_formats->GetFormat("Calculator");
-    paragraph_format = document->paragraph_formats->GetFormat("Code");
+    paragraph_format = document->paragraph_formats->GetFormat("Code", document->config.language);
     formula_format = document->formula_formats->GetFormat("Formula");
     if (add_empty)
         AddEmptyElement(); //code block has to have at least one code paragraph
@@ -56,7 +56,7 @@ CodeBlock::CodeBlock(Document* _document, Element* parent, uint _code_id, bool a
     caret = document->caret;
     selection = &document->selection;
     code_format = document->code_formats->GetFormat("Calculator");
-    paragraph_format = document->paragraph_formats->GetFormat("Code");
+    paragraph_format = document->paragraph_formats->GetFormat("Code", document->config.language);
     formula_format = document->formula_formats->GetFormat("Formula");
     if (add_empty)
         AddEmptyElement(); //code block has to have at least one code paragraph

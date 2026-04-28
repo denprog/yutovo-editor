@@ -2160,6 +2160,19 @@ TEST_F(ParagraphTest, paragraph24)
         ElementSelectionState{ElementId{0, 4, 0, 0}, 0, 23})) << document.GetEditorState().ToString();
 }
 
+//Loading Brazilian Portuguese document with translated paragraph names
+TEST_F(ParagraphTest, paragraph25)
+{
+    Start(1000);
+
+    document.Load("../../test/tests/paragraph25.yut");
+    document.WaitLoad();
+    std::this_thread::sleep_for(2s);
+
+    document.WaitTask(document.InsertParagraph(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 1, 1, 0, 0, 0})) << document.GetEditorState().ToString();
+}
+
 //Check format
 TEST_F(ParagraphTest, format1)
 {

@@ -1583,7 +1583,8 @@ bool NewTask::Execute()
     document->ResetTasks();
     document->RemoveUserIdentifiers();
     document->ClearExport();
-    document->current_paragraph_format = document->paragraph_formats->GetFormat("Text body");
+    document->paragraph_formats.reset(new ParagraphFormats(document->string_formats, document->config.language));
+    document->current_paragraph_format = document->paragraph_formats->GetFormat("Text body", document->config.language);
     document->current_code_format = document->code_formats->GetFormat("Calculator");
     document->current_formula_format = document->formula_formats->GetFormat("Code");
     document->text.reset(new Text(text->document, text->document->current_text_format));
@@ -2194,6 +2195,7 @@ bool LoadTask::LoadJson(rapidjson::Document& doc)
             }
             
             document->solver.SetLocale(document->config.language);
+            document->paragraph_formats.reset(new ParagraphFormats(document->string_formats, document->config.language));
             document->SetLocale(document->config.language, false);
         }
     }
@@ -2958,6 +2960,7 @@ bool SetConfigTask::Execute()
     }
     if (config.language != c.language)
     {
+        document->paragraph_formats.reset(new ParagraphFormats(document->string_formats, config.language));
         document->solver.SetLocale(config.language);
 
         //update identifiers for all code blocks

@@ -106,7 +106,7 @@ Element* Paragraph::FromJson(Element* parent, Document* document, const rapidjso
     if (value.HasMember("format_alignment") && value["format_alignment"].IsInt())
         alignment = (ParagraphFormat::Alignment)value["format_alignment"].GetInt();
 
-    auto f = document->paragraph_formats->GetFormat(format_name);
+    auto f = document->paragraph_formats->GetFormat(format_name, document->config.language);
     if (f)
     {
         f = document->paragraph_formats->GetFormat(format_name, alignment, f->word_wrap, f->line_spacing, f->indent_before, f->indent_after, 
