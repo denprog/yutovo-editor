@@ -77,13 +77,13 @@ Document::Document(Window* _window, Config& _config, const std::string _document
         document_guid = boost::uuids::to_string(boost::uuids::random_generator()());
 
     string_formats.reset(new StringFormats());
-    paragraph_formats.reset(new ParagraphFormats(string_formats));
+    paragraph_formats.reset(new ParagraphFormats(string_formats, config.language));
     code_formats.reset(new CodeFormats());
     formula_formats.reset(new FormulaFormats(string_formats));
 
     current_code_format = code_formats->GetFormat("Calculator", 5, 5, 5, 5, 2, 2, 2, 2, 2, Color::Blue());
 
-    current_paragraph_format = paragraph_formats->GetFormat("Text body");
+    current_paragraph_format = paragraph_formats->GetFormat("Text body", config.language);
     current_formula_format = formula_formats->GetFormat("Code");
     current_text_format = TextFormats::GetFormat(TextFormat::Paging::WEB_VIEW, 20, 20, 20, 20, 10, Size{0, 0});
     default_text_format = *current_text_format;
@@ -111,13 +111,13 @@ Document::Document(Window* _window, Config& _config, const Document& source) :
     LOG_DEBUG("Document start");
 
     string_formats.reset(new StringFormats());
-    paragraph_formats.reset(new ParagraphFormats(string_formats));
+    paragraph_formats.reset(new ParagraphFormats(string_formats, config.language));
     code_formats.reset(new CodeFormats());
     formula_formats.reset(new FormulaFormats(string_formats));
 
     current_code_format = code_formats->GetFormat("Calculator", 5, 5, 5, 5, 2, 2, 2, 2, 2, Color::Blue());
 
-    current_paragraph_format = paragraph_formats->GetFormat("Text body");
+    current_paragraph_format = paragraph_formats->GetFormat("Text body", config.language);
     current_formula_format = formula_formats->GetFormat("Code");
     current_text_format = TextFormats::GetFormat(TextFormat::Paging::WEB_VIEW, 20, 20, 20, 20, 10, Size{0, 0});
     default_text_format = *current_text_format;
@@ -961,7 +961,7 @@ uint Document::ChangeParagraphFormat(const std::string name, bool with_undo)
     LOG_TRACE("Change paragraph format: name={}", name);
     {
         std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
-        auto format = paragraph_formats->GetFormat(name);
+        auto format = paragraph_formats->GetFormat(name, config.language);
         if (!format)
             return 0;
         CaretState c = caret->GetCaretState();
@@ -1691,7 +1691,7 @@ uint Document::SetCurrentParagraphFormat(const std::string& name, bool with_undo
 {
     LOG_TRACE("Set current paragraph format: {}", name);
     std::lock_guard<std::recursive_mutex> lock(edit_mutex);
-    current_paragraph_format = paragraph_formats->GetFormat(name);
+    current_paragraph_format = paragraph_formats->GetFormat(name, config.language);
     if (current_paragraph_format)
         return ChangeParagraphFormat(current_paragraph_format, with_undo);
     return 0;
@@ -1830,7 +1830,7 @@ void Document::UpdateFormats()
     }
     ParagraphFormat p;
     if (GetParagraphFormat(c.id, p))
-        current_paragraph_format = paragraph_formats->GetFormat(p.name);
+        current_paragraph_format = paragraph_formats->GetFormat(p.name, config.language);
 }
 
 uint Document::SetFontFamily(const std::string& family)

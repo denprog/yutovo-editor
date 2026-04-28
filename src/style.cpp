@@ -407,25 +407,25 @@ std::string ParagraphFormat::ToString()
 
 //ParagraphFormats
 
-ParagraphFormats::ParagraphFormats(StringFormatsPtr _string_formats) :
+ParagraphFormats::ParagraphFormats(StringFormatsPtr _string_formats, const yutovo_calculator::Language language) :
     string_formats(_string_formats)
 {
     //there are predefined paragraph styles
-    GetFormat("Text body", ParagraphFormat::Alignment::Left, ParagraphFormat::WordWrap::Normal, 5, 10, 10, 0, 10, 10, 
+    GetFormat(TranslateName("Text body", language), ParagraphFormat::Alignment::Left, ParagraphFormat::WordWrap::Normal, 5, 10, 10, 0, 10, 10, 
         string_formats->GetFormat("Arial", 14, false, false, false, false, false, false, Color::Black(), Color::White(), Color::Blue()));
-    GetFormat("Header 1", ParagraphFormat::Alignment::Left, ParagraphFormat::WordWrap::Normal, 5, 10, 10, 0, 10, 10, 
+    GetFormat(TranslateName("Header 1", language), ParagraphFormat::Alignment::Left, ParagraphFormat::WordWrap::Normal, 5, 10, 10, 0, 10, 10, 
         string_formats->GetFormat("Arial", 30, true, false, false, false, false, false, Color::Black(), Color::White(), Color::Blue()));
-    GetFormat("Header 2", ParagraphFormat::Alignment::Left, ParagraphFormat::WordWrap::Normal, 5, 10, 10, 0, 10, 10, 
+    GetFormat(TranslateName("Header 2", language), ParagraphFormat::Alignment::Left, ParagraphFormat::WordWrap::Normal, 5, 10, 10, 0, 10, 10, 
         string_formats->GetFormat("Arial", 26, true, false, false, false, false, false, Color::Black(), Color::White(), Color::Blue()));
-    GetFormat("Header 3", ParagraphFormat::Alignment::Left, ParagraphFormat::WordWrap::Normal, 5, 10, 10, 0, 10, 10,
+    GetFormat(TranslateName("Header 3", language), ParagraphFormat::Alignment::Left, ParagraphFormat::WordWrap::Normal, 5, 10, 10, 0, 10, 10,
         string_formats->GetFormat("Arial", 22, true, false, false, false, false, false, Color::Black(), Color::White(), Color::Blue()));
-    GetFormat("Header 4", ParagraphFormat::Alignment::Left, ParagraphFormat::WordWrap::Normal, 5, 10, 10, 0, 10, 10,
+    GetFormat(TranslateName("Header 4", language), ParagraphFormat::Alignment::Left, ParagraphFormat::WordWrap::Normal, 5, 10, 10, 0, 10, 10,
         string_formats->GetFormat("Arial", 16, true, false, false, false, false, false, Color::Black(), Color::White(), Color::Blue()));
-    GetFormat("Example", ParagraphFormat::Alignment::Left, ParagraphFormat::WordWrap::Normal, 5, 10, 10, 0, 10, 10,
+    GetFormat(TranslateName("Example", language), ParagraphFormat::Alignment::Left, ParagraphFormat::WordWrap::Normal, 5, 10, 10, 0, 10, 10,
         string_formats->GetFormat("Arial", 14, false, true, false, false, false, false, Color::Black(), Color::White(), Color::Blue()));
-    GetFormat("Monospace", ParagraphFormat::Alignment::Left, ParagraphFormat::WordWrap::Normal, 5, 10, 10, 0, 10, 10, 
+    GetFormat(TranslateName("Monospace", language), ParagraphFormat::Alignment::Left, ParagraphFormat::WordWrap::Normal, 5, 10, 10, 0, 10, 10, 
         string_formats->GetFormat("Courier New", 12, false, false, false, false, false, false, Color::Black(), Color::White(), Color::Blue()));
-    GetFormat("Code", ParagraphFormat::Alignment::Left, ParagraphFormat::WordWrap::None, 2, 2, 2, 0, 2, 2, 
+    GetFormat(TranslateName("Code", language), ParagraphFormat::Alignment::Left, ParagraphFormat::WordWrap::None, 2, 2, 2, 0, 2, 2, 
         string_formats->GetFormat("FreeMono", 14, false, false, false, false, false, false, Color::Black(), Color::White(), Color::Blue()));
 }
 
@@ -449,12 +449,13 @@ ParagraphFormatPtr ParagraphFormats::GetFormat(std::string _name, ParagraphForma
     return p;
 }
 
-ParagraphFormatPtr ParagraphFormats::GetFormat(const std::string& name)
+ParagraphFormatPtr ParagraphFormats::GetFormat(const std::string& name, const yutovo_calculator::Language language)
 {
+    const auto tr_name = TranslateName(name, language);
     auto it = std::find_if(paragraph_formats.begin(), paragraph_formats.end(), 
-        [name](auto& p)
+        [&tr_name](auto& p)
         {
-            return p->name == name;
+            return p->name == tr_name;
         });
     if (it == paragraph_formats.end())
         return nullptr;
@@ -491,7 +492,74 @@ bool ParagraphFormats::FromJson(Document* document, const rapidjson::Value::Cons
             _paragraph_formats.push_back(p);
     }
     paragraph_formats = _paragraph_formats;
+    for (auto& p : paragraph_formats)
+        p->name = TranslateName(p->name, document->config.language);
     return true;
+}
+
+std::string ParagraphFormats::TranslateName(const std::string& name, const yutovo_calculator::Language language)
+{
+    static std::map<std::string, std::string> ru_tr = 
+        {
+            {"Text body", "Основной текст"},
+            {"Header 1", "Заголовок 1"},
+            {"Header 2", "Заголовок 2"},
+            {"Header 3", "Заголовок 3"},
+            {"Header 4", "Заголовок 4"},
+            {"Example", "Пример"},
+            {"Monospace", "Моноширинный"},
+            {"Code", "Код"}
+        };
+    static std::map<std::string, std::string> es_tr = 
+        {
+            {"Text body", "Cuerpo de texto"},
+            {"Header 1", "Encabezado 1"},
+            {"Header 2", "Encabezado 2"},
+            {"Header 3", "Encabezado 3"},
+            {"Header 4", "Encabezado 4"},
+            {"Example", "Ejemplo"},
+            {"Monospace", "Monoespaciado"},
+            {"Code", "Código"}
+        };
+    static std::map<std::string, std::string> pt_br_tr = 
+        {
+            {"Text body", "Corpo do texto"},
+            {"Header 1", "Cabeçalho 1"},
+            {"Header 2", "Cabeçalho 2"},
+            {"Header 3", "Cabeçalho 3"},
+            {"Header 4", "Cabeçalho 4"},
+            {"Example", "Exemplo"},
+            {"Monospace", "Monoespaçado"},
+            {"Code", "Código"}
+        };
+
+    switch (language)
+    {
+    case yutovo_calculator::Language::English:
+        return name;
+    case yutovo_calculator::Language::Russian:
+        {
+            auto it = ru_tr.find(name);
+            if (it != ru_tr.end())
+                return it->second;
+        }
+        break;
+    case yutovo_calculator::Language::Spanish:
+        {
+            auto it = es_tr.find(name);
+            if (it != es_tr.end())
+                return it->second;
+        }
+        break;
+    case yutovo_calculator::Language::BrazilianPortuguese:
+        {
+            auto it = pt_br_tr.find(name);
+            if (it != pt_br_tr.end())
+                return it->second;
+        }
+        break;
+    }
+    return name;
 }
 
 //FormulaFormat

@@ -19,7 +19,7 @@ CodeParagraphsBlock::CodeParagraphsBlock(Document* _document, bool add_empty) :
     Block(_document)
 {
     type = ElementType::CODE_PARAGRAPHS_BLOCK;
-    paragraph_format = document->paragraph_formats->GetFormat("Code");
+    paragraph_format = document->paragraph_formats->GetFormat("Code", document->config.language);
     formula_format = document->formula_formats->GetFormat("Formula");
     if (add_empty)
         AddEmptyElement();
@@ -29,7 +29,7 @@ CodeParagraphsBlock::CodeParagraphsBlock(Element* parent, bool add_empty) :
     Block(parent)
 {
     type = ElementType::CODE_PARAGRAPHS_BLOCK;
-    paragraph_format = document->paragraph_formats->GetFormat("Code");
+    paragraph_format = document->paragraph_formats->GetFormat("Code", document->config.language);
     formula_format = document->formula_formats->GetFormat("Formula");
     if (add_empty)
         AddEmptyElement();

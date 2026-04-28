@@ -61,7 +61,7 @@ Element* Row::FromJson(Element* parent, Document* document, const rapidjson::Val
 {
     ParagraphFormatPtr f;
     if (value.HasMember("format_name") && value["format_name"].IsString())
-        f = document->paragraph_formats->GetFormat(value["format_name"].GetString());
+        f = document->paragraph_formats->GetFormat(value["format_name"].GetString(), document->config.language);
 
     Row* row = parent ? new Row(parent, false) : new Row(document);
     row->format = f;

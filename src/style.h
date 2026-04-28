@@ -127,16 +127,19 @@ typedef std::shared_ptr<ParagraphFormat> ParagraphFormatPtr;
 class ParagraphFormats
 {
 public:
-    ParagraphFormats(StringFormatsPtr _string_formats);
+    ParagraphFormats(StringFormatsPtr _string_formats, const yutovo_calculator::Language language);
 
     ParagraphFormatPtr GetFormat(std::string _name, ParagraphFormat::Alignment _alignment, ParagraphFormat::WordWrap _word_wrap, uint _line_spacing, 
         uint _indent_before, uint _indent_after, uint _indent_first_line, uint _spacing_before, uint _spacing_after, StringFormatPtr _string_format);
-    ParagraphFormatPtr GetFormat(const std::string& name);
+    ParagraphFormatPtr GetFormat(const std::string& name, const yutovo_calculator::Language language);
     void GetFormats(std::vector<ParagraphFormatPtr>& formats);
 
     void ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc);
     bool FromJson(Document* document, const rapidjson::Value::ConstArray& arr, rapidjson::Document::AllocatorType& alloc);
-    
+
+private:
+    static std::string TranslateName(const std::string& name, const yutovo_calculator::Language language);
+
 private:
     StringFormatsPtr string_formats;
     std::vector<ParagraphFormatPtr> paragraph_formats;
