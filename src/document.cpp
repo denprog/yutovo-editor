@@ -983,7 +983,8 @@ uint Document::ChangeParagraphFormat(const ParagraphFormat::Alignment alignment,
             return 0;
         ParagraphFormatPtr format = ((Paragraph*)el.get())->format;
         format = paragraph_formats->GetFormat(format->name, alignment, format->word_wrap, format->line_spacing, format->indent_before, 
-            format->indent_after, format->indent_first_line, format->spacing_before, format->spacing_after, format->default_string_format);
+            format->indent_after, format->indent_first_line, format->spacing_before, format->spacing_after, format->default_string_format, 
+            config.language);
         tasks.emplace_back(new ChangeParagraphFormatTask(text, c.id, format, with_undo));
         last_task_id = tasks.back()->id;
     }

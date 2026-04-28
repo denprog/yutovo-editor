@@ -130,7 +130,8 @@ public:
     ParagraphFormats(StringFormatsPtr _string_formats, const yutovo_calculator::Language language);
 
     ParagraphFormatPtr GetFormat(std::string _name, ParagraphFormat::Alignment _alignment, ParagraphFormat::WordWrap _word_wrap, uint _line_spacing, 
-        uint _indent_before, uint _indent_after, uint _indent_first_line, uint _spacing_before, uint _spacing_after, StringFormatPtr _string_format);
+        uint _indent_before, uint _indent_after, uint _indent_first_line, uint _spacing_before, uint _spacing_after, StringFormatPtr _string_format, 
+        const yutovo_calculator::Language language);
     ParagraphFormatPtr GetFormat(const std::string& name, const yutovo_calculator::Language language);
     void GetFormats(std::vector<ParagraphFormatPtr>& formats);
 

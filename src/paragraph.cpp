@@ -110,7 +110,7 @@ Element* Paragraph::FromJson(Element* parent, Document* document, const rapidjso
     if (f)
     {
         f = document->paragraph_formats->GetFormat(format_name, alignment, f->word_wrap, f->line_spacing, f->indent_before, f->indent_after, 
-            f->indent_first_line, f->spacing_before, f->spacing_after, f->default_string_format);
+            f->indent_first_line, f->spacing_before, f->spacing_after, f->default_string_format, document->config.language);
         if (f)
         {
             p->format = f;
