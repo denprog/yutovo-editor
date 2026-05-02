@@ -23,10 +23,11 @@ endif()
 if(WIN32)
 	set(INSTALL_PATH "$ENV{VCPKG_ROOT}/installed/x64-windows")
     set(PKG_CONFIG_PATH "$ENV{VCPKG_ROOT}/installed/x64-windows/lib/pkgconfig")
+else()
+    set(INSTALL_PATH "$ENV{YUTOVO_DEPLOY}")
 endif()
 
-set(INSTALL_PATH "$ENV{YUTOVO_DEPLOY}")
-set(THIRD_PARTY_PATH "$ENV{YUTOVO_DEPLOY}/../third-party/")
+set(THIRD_PARTY_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../third-party/")
 
 # set(REMOTE_SOLVER true)
 # add_compile_definitions(REMOTE_SOLVER)
