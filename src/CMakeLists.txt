@@ -29,7 +29,7 @@ if(EMSCRIPTEN)
 endif()
 
 if(WIN32)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /utf-8 /bigobj")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /utf-8 /bigobj /MP")
     pkg_check_modules(mpfr REQUIRED IMPORTED_TARGET GLOBAL mpfr)
 else()
     set(Boost_INCLUDE_DIR "${INSTALL_PATH}/deploy/include")
@@ -183,7 +183,7 @@ add_library(${PROJECT_NAME}
 )
 
 if (WIN32)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /utf-8 /bigobj /EHsc")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /utf-8 /bigobj /EHsc /MP")
 else()
     target_compile_options(${PROJECT_NAME} PUBLIC -Wno-deprecated-declarations)
     target_compile_options(${PROJECT_NAME} PUBLIC -Wno-unused-command-line-argument)
