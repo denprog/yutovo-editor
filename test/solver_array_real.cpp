@@ -401,7 +401,7 @@ TEST_F(SolverArrayRealTest, errors1)
     document.InsertString("n", true);
     document.MoveCaretRight(false);
     document.WaitTask(document.MoveCaretRight(false));
-    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitTask(document.InsertEquation(ResultType::ARRAY_REAL, true));
     document.WaitSolver();
     std::this_thread::sleep_for(3s);
     ASSERT_TRUE(document.ToText() == 

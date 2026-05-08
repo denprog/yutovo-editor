@@ -74,6 +74,7 @@ add_executable(${PROJECT_NAME}_tests
 	solver_rational.cpp
 	solver_complex.cpp
 	solver_array_real.cpp
+	solver_symbolic.cpp
 	assignment.cpp
 	unit.cpp
 	functions.cpp

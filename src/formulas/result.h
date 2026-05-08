@@ -210,6 +210,34 @@ public:
     bool with_angle_measure = false;
 };
 
+class SymbolicResult : public ResultRow
+{
+public:
+    SymbolicResult(Document* _document);
+    SymbolicResult(Element* parent);
+    SymbolicResult(Element* parent, const Config::SymbolicResultConfig& _config);
+    SymbolicResult(const SymbolicResult& source) = default;
+
+    virtual Element* Clone();
+
+    virtual Element* Create(Element* _parent);
+
+    virtual void ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc);
+    static Element* FromJson(Element* parent, Document* document, const rapidjson::Value::ConstObject& value, rapidjson::Document::AllocatorType& alloc);
+
+    virtual void Solve(const ParserString& expression);
+
+    virtual void PutResult(Result& result);
+
+    bool SetConfig(const int precision);
+
+    void AddSymbolicElements(const std::string& expr);
+    void AddSymbolicElements(Element* parent, const std::string& expr);
+
+public:
+    Config::SymbolicResultConfig config;
+};
+
 class ErrorResult : public ResultRow
 {
 public:

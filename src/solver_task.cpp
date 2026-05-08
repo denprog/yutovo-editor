@@ -402,6 +402,21 @@ bool SolverTask::FillComplexResult(rapidjson::Document& doc, Result& result)
     return true;
 }
 
+bool SolverTask::FillSymbolicResult(rapidjson::Document& doc, Result& result)
+{
+    if (!doc.HasMember("value") || !doc["value"].IsString())
+    {
+        LOG_ERROR("value error");
+        result.error.error_code = ErrorCode::JSON_ERROR;
+        return false;
+    }
+
+    Value value;
+    value.value["value"] = doc["value"].GetString();
+    result.values.push_back(value);
+    return true;
+}
+
 bool SolverTask::FillArrayRealResult(rapidjson::Document& doc, Result& result)
 {
     if (!doc.HasMember("results") || !doc["results"].IsArray())
@@ -493,6 +508,9 @@ bool AutoSolverTask::Execute(WebSocketPtr socket, Result& result)
     doc.AddMember("complex_form", (int)config.complex_result.form, alloc);
     doc.AddMember("complex_max_count", config.complex_result.max_count, alloc);
 
+    //symbolic config
+    doc.AddMember("symbolic_precision", config.symbolic_result.precision, alloc);
+
     AddUnit(doc, config.real_result.unit);
 
     LOG_DEBUG("Solve expression:\"{}\", id:{}, config:{}", s, id_str, config.ToString());
@@ -551,6 +569,10 @@ bool AutoSolverTask::Execute(WebSocketPtr socket, Result& result)
         break;
     case ResultType::ARRAY_REAL:
         if (!FillArrayRealResult(doc, result))
+            return false;
+        break;
+    case ResultType::SYMBOLIC:
+        if (!FillSymbolicResult(doc, result))
             return false;
         break;
     default:
@@ -1007,6 +1029,90 @@ bool ArrayRealSolverTask::Execute(WebSocketPtr socket, Result& result)
     }
 
     if (!FillArrayRealResult(doc, result))
+        return false;
+    LOG_DEBUG("Result:{}", "{" + result.ToString() + "}");
+    return true;
+}
+
+//SymbolicSolverTask
+
+SymbolicSolverTask::SymbolicSolverTask(const LogicalId& _id, Document* _document, const std::string& _solver_guid, const std::string& _task_guid,
+    uint _code_id, ExpressionType _expression_type, Config::SymbolicResultConfig _config, bool _include_document, const std::u32string& _expression,
+    const uint _delay, Logger* _logger) :
+    SolverTask(_id, _document, _solver_guid, _task_guid, _code_id, _expression_type, _include_document, _expression, _delay, _logger),
+    config(_config)
+{
+}
+
+bool SymbolicSolverTask::Execute(WebSocketPtr socket, Result& result)
+{
+    //request
+    rapidjson::Document doc;
+    auto& alloc = doc.GetAllocator();
+    doc.SetObject();
+    doc.AddMember("command", "SOLVE_CODE", alloc);
+    doc.AddMember("document_guid", rapidjson::StringRef(document->document_guid.c_str()), alloc);
+    doc.AddMember("solver_guid", rapidjson::StringRef(solver_guid.c_str()), alloc);
+    FillId(doc);
+    doc.AddMember("timestamp", cur_time, alloc);
+    doc.AddMember("code_id", code_id, alloc);
+    doc.AddMember("solver_type", (int)SolverType::CALCULATOR, alloc);
+    doc.AddMember("result_type", (int)ResultType::SYMBOLIC, alloc);
+    doc.AddMember("expression_type", (int)expression_type, alloc);
+    std::string s = ToBasicString(expression);
+    doc.AddMember("expression", rapidjson::StringRef(s.c_str()), alloc);
+    doc.AddMember("symbolic_precision", config.precision, alloc);
+    doc.AddMember("include_document", include_document, alloc);
+
+    LOG_DEBUG("Solve expression:\"{}\", id:{}, config:{}", s, id_str, config.ToString());
+
+    if (!SendRequest(doc, result, socket, true))
+        return false;
+
+    std::string json;
+    if (!socket->Receive(json, result))
+        return false;
+
+#ifdef EMSCRIPTEN
+    if (json.length() > 2)
+    {
+        json.insert(1, "\"solver_guid\":\"" + solver_guid + "\",\"expression\":\"" + std::regex_replace(s, std::regex(R"(")"), R"(\\\")") +
+            "\",\"id\":\"" + id_str + "\",");
+        document->window->OnSolverAction(json);
+    }
+#endif
+
+    doc.Parse<0>(json.c_str());
+    if (doc.HasParseError())
+    {
+        LOG_ERROR("Json error");
+        result.error.error_code = ErrorCode::JSON_ERROR;
+        return false;
+    }
+
+    GetDependencies(doc, result);
+
+    if (doc.HasMember("error"))
+    {
+        FillError(doc, result);
+        LOG_DEBUG("Result:{}", "{" + result.ToString() + "}");
+        return false;
+    }
+
+    GetResultType(doc, result);
+    if (result.type == ResultType::NONE)
+    {
+        result.error.error_code = ErrorCode::NO_RESULT;
+        LOG_DEBUG("Result: No result");
+        return true;
+    }
+    if (result.type != ResultType::SYMBOLIC)
+    {
+        LOG_ERROR("Error: result type not Symbolic");
+        return false;
+    }
+
+    if (!FillSymbolicResult(doc, result))
         return false;
     LOG_DEBUG("Result:{}", "{" + result.ToString() + "}");
     return true;

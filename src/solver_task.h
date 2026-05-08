@@ -52,6 +52,7 @@ struct SolverTask
     bool FillRationalResult(rapidjson::Document& doc, Result& result);
     bool FillComplexResult(rapidjson::Document& doc, Result& result);
     bool FillArrayRealResult(rapidjson::Document& doc, Result& result);
+    bool FillSymbolicResult(rapidjson::Document& doc, Result& result);
 
     Document* document;
     LogicalId id;
@@ -124,13 +125,24 @@ struct ComplexSolverTask : SolverTask
 
 struct ArrayRealSolverTask : SolverTask
 {
-    ArrayRealSolverTask(const LogicalId& _id, Document* _document, const std::string& _solver_guid, const std::string& _task_guid, uint _code_id, 
-        ExpressionType _expression_type, Config::ArrayRealResultConfig _config, bool _include_document, const std::u32string& _expression, 
+    ArrayRealSolverTask(const LogicalId& _id, Document* _document, const std::string& _solver_guid, const std::string& _task_guid,
+        uint _code_id, ExpressionType _expression_type, Config::ArrayRealResultConfig _config, bool _include_document, const std::u32string& _expression,
         const uint _delay, Logger* _logger);
 
     virtual bool Execute(WebSocketPtr socket, Result& result);
 
     Config::ArrayRealResultConfig config;
+};
+
+struct SymbolicSolverTask : SolverTask
+{
+    SymbolicSolverTask(const LogicalId& _id, Document* _document, const std::string& _solver_guid, const std::string& _task_guid,
+        uint _code_id, ExpressionType _expression_type, Config::SymbolicResultConfig _config, bool _include_document, const std::u32string& _expression,
+        const uint _delay, Logger* _logger);
+
+    virtual bool Execute(WebSocketPtr socket, Result& result);
+
+    Config::SymbolicResultConfig config;
 };
 
 struct BreakSolverTask : SolverTask

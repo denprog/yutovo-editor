@@ -225,7 +225,7 @@ TEST_F(VariablesTest, variables3)
     document.InsertString("d", true);
     document.InsertPlus(true);
     document.InsertString("5", true);
-    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitTask(document.InsertEquation(ResultType::REAL, true));
     document.WaitSolver();
     std::this_thread::sleep_for(1s);
     document.WaitTask(document.MoveCaretUp(false));
@@ -382,7 +382,7 @@ TEST_F(VariablesTest, variables5)
     document.MoveCaretEnd(false);
     document.InsertParagraph(true);
     document.InsertString("d", true);
-    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitTask(document.InsertEquation(ResultType::REAL, true));
     document.WaitSolver();
     std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToText() == 
@@ -530,7 +530,7 @@ TEST_F(VariablesTest, errors3)
     document.InsertString("d", true);
     document.InsertPlus(true);
     document.WaitTask(document.InsertString("5", true));
-    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitTask(document.InsertEquation(ResultType::REAL, true));
     document.WaitSolver();
     std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToText() == 
@@ -561,7 +561,7 @@ TEST_F(VariablesTest, errors4)
     document.InsertString("d", true);
     document.InsertPlus(true);
     document.WaitTask(document.InsertString("5", true));
-    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitTask(document.InsertEquation(ResultType::REAL, true));
     document.WaitSolver();
     std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToText() == 
@@ -588,7 +588,7 @@ TEST_F(VariablesTest, errors5)
     document.MoveCaretRight(false);
     document.WaitTask(document.InsertParagraph(true));
     document.InsertString("R", true);
-    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitTask(document.InsertEquation(ResultType::REAL, true));
     document.WaitSolver();
     std::this_thread::sleep_for(2s);
     ASSERT_TRUE(document.ToText() == 
@@ -609,7 +609,7 @@ TEST_F(VariablesTest, errors6)
     document.InsertString("d", true);
     document.InsertPlus(true);
     document.InsertString("5", true);
-    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitTask(document.InsertEquation(ResultType::REAL, true));
     document.WaitSolver();
     std::this_thread::sleep_for(2s);
     ASSERT_TRUE(document.ToText() == 
@@ -835,7 +835,7 @@ TEST_F(VariablesTest, variables13)
 
     document.InsertParagraph(true);
     document.InsertString("c", true);
-    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitTask(document.InsertEquation(ResultType::REAL, true));
     document.WaitSolver();
     std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToText() == 
@@ -902,7 +902,7 @@ TEST_F(VariablesTest, variables14)
 
     document.InsertParagraph(true);
     document.InsertString("c", true);
-    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitTask(document.InsertEquation(ResultType::REAL, true));
     document.WaitSolver();
     std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToText() == 
@@ -969,7 +969,7 @@ TEST_F(VariablesTest, variables15)
     document.InsertParagraph(true);
     document.MoveCaretUp(false);
     document.InsertString("b", true);
-    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitTask(document.InsertEquation(ResultType::REAL, true));
     document.WaitSolver();
     std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToText() == 
@@ -999,7 +999,7 @@ TEST_F(VariablesTest, variables16)
 
     document.InsertParagraph(true);
     document.InsertString("F", true);
-    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitTask(document.InsertEquation(ResultType::REAL, true));
     document.WaitSolver();
     std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToText() == 
@@ -1052,7 +1052,7 @@ TEST_F(VariablesTest, variables17)
 
     document.InsertParagraph(true);
     document.InsertString("E", true);
-    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitTask(document.InsertEquation(ResultType::REAL, true));
     document.WaitSolver();
     std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToText() == 
@@ -1352,7 +1352,7 @@ TEST_F(VariablesTest, variables22)
     document.InsertString("2", true);
     document.InsertParagraph(true);
     document.InsertString("123a", true);
-    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitTask(document.InsertEquation(ResultType::REAL, true));
     document.WaitSolver();
     std::this_thread::sleep_for(2s);
     ASSERT_TRUE(document.ToText() == 
@@ -1545,7 +1545,7 @@ TEST_F(VariablesTest, variables25)
     document.WaitTask(document.InsertParagraph(true));
 
     document.InsertString(U"p", true);
-    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitTask(document.InsertEquation(ResultType::REAL, true));
     document.WaitSolver();
     std::this_thread::sleep_for(2s);
     ASSERT_TRUE(document.ToText() == 
@@ -1556,7 +1556,7 @@ TEST_F(VariablesTest, variables25)
     document.MoveCaretEnd(false);
     document.WaitTask(document.InsertParagraph(true));
     document.InsertString(U"t", true);
-    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitTask(document.InsertEquation(ResultType::REAL, true));
     document.WaitSolver();
     std::this_thread::sleep_for(2s);
     ASSERT_TRUE(document.ToText() == 
@@ -1754,7 +1754,7 @@ TEST_F(VariablesTest, variables30)
     document.InsertSubscript(true);
     document.InsertString("e", true);
     document.MoveCaretRight(false);
-    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitTask(document.InsertEquation(ResultType::REAL, true));
     document.WaitSolver();
     std::this_thread::sleep_for(2s);
     ASSERT_TRUE(document.ToText() == 
@@ -1788,7 +1788,7 @@ TEST_F(VariablesTest, variables31)
 
     document.WaitTask(document.InsertParagraph(true));
     document.InsertString("d", true);
-    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitTask(document.InsertEquation(ResultType::REAL, true));
     document.WaitSolver();
     std::this_thread::sleep_for(2s);
     ASSERT_TRUE(document.ToText() == 

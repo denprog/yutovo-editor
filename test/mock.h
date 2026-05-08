@@ -389,6 +389,10 @@ struct SolverArrayRealTest : SolverTest
 {
 };
 
+struct SolverSymbolicTest : SolverTest
+{
+};
+
 struct AssignmentTest : SolverTest
 {
 };

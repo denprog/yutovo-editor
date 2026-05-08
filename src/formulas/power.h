@@ -43,6 +43,9 @@ public:
 
     void AddBase(ElementPtr base);
     void AddExponent(ElementPtr exponent);
+
+    CodeRow* GetBaseRow() const;
+    CodeRow* GetExponentRow() const;
 };
 
 typedef std::shared_ptr<Power> PowerPtr;

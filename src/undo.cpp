@@ -560,6 +560,9 @@ UndoEquation::UndoEquation(Equation* equation) :
 	case ResultType::AUTO:
         config = ((AutoResult*)result)->config;
         return;
+    case ResultType::SYMBOLIC:
+        config = ((SymbolicResult*)result)->config;
+        return;
     default:
         assert(false);
     }
@@ -588,6 +591,8 @@ bool UndoEquation::operator==(const UndoEquation& el) const
         return std::any_cast<Config::ComplexResultConfig>(config) == std::any_cast<Config::ComplexResultConfig>(el.config);
     case ResultType::ARRAY_REAL:
         return std::any_cast<Config::ArrayRealResultConfig>(config) == std::any_cast<Config::ArrayRealResultConfig>(el.config);
+    case ResultType::SYMBOLIC:
+        return std::any_cast<Config::SymbolicResultConfig>(config) == std::any_cast<Config::SymbolicResultConfig>(el.config);
     default:
         assert(false);
     }
@@ -624,6 +629,9 @@ Element* UndoEquation::Restore(Document* document, Element* parent)
         break;
     case ResultType::ARRAY_REAL:
         el->SetResult(std::any_cast<Config::ArrayRealResultConfig>(config));
+        break;
+    case ResultType::SYMBOLIC:
+        el->SetResult(std::any_cast<Config::SymbolicResultConfig>(config));
         break;
     default:
         assert(false);

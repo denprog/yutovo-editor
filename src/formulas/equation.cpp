@@ -258,6 +258,10 @@ void Equation::SetResult(const Config::ComplexResultConfig& config)
 {
 }
 
+void Equation::SetResult(const Config::SymbolicResultConfig& config)
+{
+}
+
 bool Equation::SetResult(ResultType _result_type, bool with_undo)
 {
     if (result_type == _result_type)
@@ -510,6 +514,9 @@ void Equation::UpdateResult(ParserString& str)
                 break;
             case ResultType::AUTO:
                 result.reset(new AutoResult(GetLast()));
+                break;
+            case ResultType::SYMBOLIC:
+                result.reset(new SymbolicResult(GetLast()));
                 break;
             default:
                 return;
