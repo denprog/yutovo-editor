@@ -3107,7 +3107,14 @@ void Document::Solve(const LogicalId& _id, const std::string& guid, uint code_id
     solver.Solve(_id, guid, code_id, config, include_document, expression + U";", delay);
 }
 
-void Document::Solve(const LogicalId& _id, const std::string& guid, uint code_id, Config::ArrayRealResultConfig& config, bool include_document, 
+void Document::Solve(const LogicalId& _id, const std::string& guid, uint code_id, Config::ArrayRealResultConfig& config, bool include_document,
+    const std::u32string& expression, const uint delay)
+{
+    solve_ids[guid] = _id;
+    solver.Solve(_id, guid, code_id, config, include_document, expression + U";", delay);
+}
+
+void Document::Solve(const LogicalId& _id, const std::string& guid, uint code_id, Config::SymbolicResultConfig& config, bool include_document,
     const std::u32string& expression, const uint delay)
 {
     solve_ids[guid] = _id;

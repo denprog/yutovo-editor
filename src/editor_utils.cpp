@@ -337,7 +337,8 @@ Element* CreateFromJson(Element* parent, Document* document, const rapidjson::Va
             {ElementType::COMMA, &Comma::FromJson},
             {ElementType::LINK, &Link::FromJson},
             {ElementType::GRAPH_LINE, &GraphLine::FromJson},
-            {ElementType::CODE_PARAGRAPHS_BLOCK, &CodeParagraphsBlock::FromJson}
+            {ElementType::CODE_PARAGRAPHS_BLOCK, &CodeParagraphsBlock::FromJson},
+            {ElementType::SYMBOLIC_RESULT, &SymbolicResult::FromJson}
         };
 
     if (!value.HasMember("type") || !value["type"].IsInt())

@@ -79,7 +79,8 @@ enum class ElementType
     CLOSE_SQUARE_BRACKET,
     ARRAY_REAL_RESULT,
     GRAPH_LINE,
-    CODE_PARAGRAPHS_BLOCK
+    CODE_PARAGRAPHS_BLOCK,
+    SYMBOLIC_RESULT
 };
 
 enum class IdentifierType

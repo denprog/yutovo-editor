@@ -1,0 +1,656 @@
+/*
+ * Yutovo Editor
+ * Copyright (C) 2022-2026 Yutovo developers. All rights reserved.
+ * This file is a part of the Yutovo project
+ * SPDX-License-Identifier: GPL-3.0-only
+ */
+
+#include <gtest/gtest.h>
+#include "mock.h"
+#include "style.h"
+
+namespace yutovo_test
+{
+
+using namespace yutovo;
+using namespace yutovo_solver;
+using namespace std::chrono_literals;
+
+TEST_F(SolverSymbolicTest, solver1)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.InsertString("x", true);
+    document.InsertPlus(true);
+    document.InsertString("1", true);
+    document.WaitTask(document.InsertEquation(ResultType::SYMBOLIC, true));
+    document.WaitSolver();
+    ASSERT_TRUE(document.ToHtml() ==
+        "<body>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mrow>"\
+                            "<mi>x</mi>"\
+                            "<mo>+</mo>"\
+                            "<mi>1</mi>"\
+                        "</mrow>"\
+                        "<mo>=</mo>"\
+                        "<mrow>"\
+                            "<mrow>"\
+                                "<mi>1</mi>"\
+                                "<mo>+</mo>"\
+                                "<mi>x</mi>"\
+                            "</mrow>"\
+                        "</mrow>"\
+                    "</mrow>"\
+                "</math>"\
+            "</p>"\
+        "</body>") <<
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 1})) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.ToHtml() ==
+        "<body>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mi>x</mi>"\
+                        "<mo>+</mo>"\
+                        "<mi>1</mi>"\
+                    "</mrow>"\
+                "</math>"\
+            "</p>"\
+        "</body>") <<
+        document.ToHtml();
+}
+
+TEST_F(SolverSymbolicTest, solver2)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.InsertString("sin", true);
+    document.InsertOpenRoundBracket(true);
+    document.InsertString("x", true);
+    document.InsertCloseRoundBracket(true);
+    document.WaitTask(document.InsertEquation(ResultType::SYMBOLIC, true));
+    document.WaitSolver();
+    ASSERT_TRUE(document.ToHtml() ==
+        "<body>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mrow>"\
+                            "<mi>sin</mi>"\
+                            "<mo>(</mo>"\
+                            "<mi>x</mi>"\
+                            "<mo>)</mo>"\
+                        "</mrow>"\
+                        "<mo>=</mo>"\
+                        "<mrow>"\
+                            "<mrow>"\
+                                "<mi>sin</mi>"\
+                                "<mo>(</mo>"\
+                                "<mi>x</mi>"\
+                                "<mo>)</mo>"\
+                            "</mrow>"\
+                        "</mrow>"\
+                    "</mrow>"\
+                "</math>"\
+            "</p>"\
+        "</body>") <<
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 1})) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.ToHtml() ==
+        "<body>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mi>sin</mi>"\
+                        "<mo>(</mo>"\
+                        "<mi>x</mi>"\
+                        "<mo>)</mo>"\
+                    "</mrow>"\
+                "</math>"\
+            "</p>"\
+        "</body>") <<
+        document.ToHtml();
+}
+
+TEST_F(SolverSymbolicTest, solver3)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.InsertString("diff", true);
+    document.InsertOpenRoundBracket(true);
+    document.InsertString("x", true);
+    document.InsertPower(true);
+    document.InsertString("2", true);
+    document.WaitTask(document.MoveCaretRight(false));
+    document.InsertComma(true);
+    document.InsertString("x", true);
+    document.InsertCloseRoundBracket(true);
+    document.WaitTask(document.InsertEquation(ResultType::SYMBOLIC, true));
+    document.WaitSolver();
+    ASSERT_TRUE(document.ToHtml() ==
+        "<body>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mrow>"\
+                            "<mi>diff</mi>"\
+                            "<mo>(</mo>"\
+                            "<msup>"\
+                                "<mrow>"\
+                                    "<mi>x</mi>"\
+                                "</mrow>"\
+                                "<mrow>"\
+                                    "<mi>2</mi>"\
+                                "</mrow>"\
+                            "</msup>"\
+                            "<mo>,</mo>"\
+                            "<mi>x</mi>"\
+                            "<mo>)</mo>"\
+                        "</mrow>"\
+                        "<mo>=</mo>"\
+                        "<mrow>"\
+                            "<mrow>"\
+                                "<mi>2</mi>"\
+                                "<mo>×</mo>"\
+                                "<mi>x</mi>"\
+                            "</mrow>"\
+                        "</mrow>"\
+                    "</mrow>"\
+                "</math>"\
+            "</p>"\
+        "</body>") <<
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 1})) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.ToHtml() ==
+        "<body>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mi>diff</mi>"\
+                        "<mo>(</mo>"\
+                        "<msup>"\
+                            "<mrow>"\
+                                "<mi>x</mi>"\
+                            "</mrow>"\
+                            "<mrow>"\
+                                "<mi>2</mi>"\
+                            "</mrow>"\
+                        "</msup>"\
+                        "<mo>,</mo>"\
+                        "<mi>x</mi>"\
+                        "<mo>)</mo>"\
+                    "</mrow>"\
+                "</math>"\
+            "</p>"\
+        "</body>") <<
+        document.ToHtml();
+}
+
+TEST_F(SolverSymbolicTest, solver4)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.InsertString("expand", true);
+    document.InsertOpenRoundBracket(true);
+    document.InsertString("pow", true);
+    document.InsertOpenRoundBracket(true);
+    document.InsertOpenRoundBracket(true);
+    document.InsertString("x", true);
+    document.InsertPlus(true);
+    document.InsertString("1", true);
+    document.InsertCloseRoundBracket(true);
+    document.InsertComma(true);
+    document.InsertString("2", true);
+    document.InsertCloseRoundBracket(true);
+    document.InsertCloseRoundBracket(true);
+    document.WaitTask(document.InsertEquation(ResultType::SYMBOLIC, true));
+    document.WaitSolver();
+    std::cout << "solver4 HTML: " << document.ToHtml() << std::endl;
+    ASSERT_TRUE(document.ToHtml() ==
+        "<body>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mrow>"\
+                            "<mi>expand</mi>"\
+                            "<mo>(</mo>"\
+                            "<mi>pow</mi>"\
+                            "<mo>(</mo>"\
+                            "<mo>(</mo>"\
+                            "<mi>x</mi>"\
+                            "<mo>+</mo>"\
+                            "<mi>1</mi>"\
+                            "<mo>)</mo>"\
+                            "<mo>,</mo>"\
+                            "<mi>2</mi>"\
+                            "<mo>)</mo>"\
+                            "<mo>)</mo>"\
+                        "</mrow>"\
+                        "<mo>=</mo>"\
+                        "<mrow>"\
+                            "<mrow>"\
+                                "<mi>1</mi>"\
+                                "<mo>+</mo>"\
+                                "<mi>2</mi>"\
+                                "<mo>×</mo>"\
+                                "<mi>x</mi>"\
+                                "<mo>+</mo>"\
+                                "<msup>"\
+                                    "<mrow>"\
+                                        "<mi>x</mi>"\
+                                    "</mrow>"\
+                                    "<mrow>"\
+                                        "<mi>2</mi>"\
+                                    "</mrow>"\
+                                "</msup>"\
+                            "</mrow>"\
+                        "</mrow>"\
+                    "</mrow>"\
+                "</math>"\
+            "</p>"\
+        "</body>") <<
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 1})) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.ToHtml() ==
+        "<body>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mi>expand</mi>"\
+                        "<mo>(</mo>"\
+                        "<mi>pow</mi>"\
+                        "<mo>(</mo>"\
+                        "<mo>(</mo>"\
+                        "<mi>x</mi>"\
+                        "<mo>+</mo>"\
+                        "<mi>1</mi>"\
+                        "<mo>)</mo>"\
+                        "<mo>,</mo>"\
+                        "<mi>2</mi>"\
+                        "<mo>)</mo>"\
+                        "<mo>)</mo>"\
+                    "</mrow>"\
+                "</math>"\
+            "</p>"\
+        "</body>") <<
+        document.ToHtml();
+}
+
+TEST_F(SolverSymbolicTest, solver5)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.InsertString("subs", true);
+    document.InsertOpenRoundBracket(true);
+    document.InsertString("x", true);
+    document.InsertPower(true);
+    document.InsertString("2", true);
+    document.WaitTask(document.MoveCaretRight(false));
+    document.InsertComma(true);
+    document.InsertString("x", true);
+    document.InsertComma(true);
+    document.InsertString("5", true);
+    document.InsertCloseRoundBracket(true);
+    document.WaitTask(document.InsertEquation(ResultType::SYMBOLIC, true));
+    document.WaitSolver();
+    ASSERT_TRUE(document.ToHtml() ==
+        "<body>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mrow>"\
+                            "<mi>subs</mi>"\
+                            "<mo>(</mo>"\
+                            "<msup>"\
+                                "<mrow>"\
+                                    "<mi>x</mi>"\
+                                "</mrow>"\
+                                "<mrow>"\
+                                    "<mi>2</mi>"\
+                                "</mrow>"\
+                            "</msup>"\
+                            "<mo>,</mo>"\
+                            "<mi>x</mi>"\
+                            "<mo>,</mo>"\
+                            "<mi>5</mi>"\
+                            "<mo>)</mo>"\
+                        "</mrow>"\
+                        "<mo>=</mo>"\
+                        "<mrow>"\
+                            "<mrow>"\
+                                "<mi>25</mi>"\
+                            "</mrow>"\
+                        "</mrow>"\
+                    "</mrow>"\
+                "</math>"\
+            "</p>"\
+        "</body>") <<
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 1})) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.ToHtml() ==
+        "<body>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mi>subs</mi>"\
+                        "<mo>(</mo>"\
+                        "<msup>"\
+                            "<mrow>"\
+                                "<mi>x</mi>"\
+                            "</mrow>"\
+                            "<mrow>"\
+                                "<mi>2</mi>"\
+                            "</mrow>"\
+                        "</msup>"\
+                        "<mo>,</mo>"\
+                        "<mi>x</mi>"\
+                        "<mo>,</mo>"\
+                        "<mi>5</mi>"\
+                        "<mo>)</mo>"\
+                    "</mrow>"\
+                "</math>"\
+            "</p>"\
+        "</body>") <<
+        document.ToHtml();
+}
+
+TEST_F(SolverSymbolicTest, solver6)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.InsertString("x", true);
+    document.InsertPlus(true);
+    document.InsertString("1", true);
+    document.InsertDivision(true);
+    document.InsertString("2", true);
+    document.WaitTask(document.MoveCaretRight(false));
+    document.WaitTask(document.InsertEquation(ResultType::SYMBOLIC, true));
+    document.WaitSolver();
+    ASSERT_TRUE(document.ToHtml() ==
+        "<body>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mrow>"\
+                            "<mi>x</mi>"\
+                            "<mo>+</mo>"\
+                            "<mfrac>"\
+                                "<mrow>"\
+                                    "<mi>1</mi>"\
+                                "</mrow>"\
+                                "<mrow>"\
+                                    "<mi>2</mi>"\
+                                "</mrow>"\
+                            "</mfrac>"\
+                        "</mrow>"\
+                        "<mo>=</mo>"\
+                        "<mrow>"\
+                            "<mrow>"\
+                                "<mi>1</mi>"\
+                                "<mi>/</mi>"\
+                                "<mi>2</mi>"\
+                                "<mo>+</mo>"\
+                                "<mi>x</mi>"\
+                            "</mrow>"\
+                        "</mrow>"\
+                    "</mrow>"\
+                "</math>"\
+            "</p>"\
+        "</body>") <<
+        document.ToHtml();
+
+    document.Undo();
+    document.WaitUndo();
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.ToHtml() ==
+        "<body>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mi>x</mi>"\
+                        "<mo>+</mo>"\
+                        "<mfrac>"\
+                            "<mrow>"\
+                                "<mi>1</mi>"\
+                            "</mrow>"\
+                            "<mrow>"\
+                                "<mi>2</mi>"\
+                            "</mrow>"\
+                        "</mfrac>"\
+                    "</mrow>"\
+                "</math>"\
+            "</p>"\
+        "</body>") <<
+        document.ToHtml();
+}
+
+TEST_F(SolverSymbolicTest, solver7)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.InsertString("x", true);
+    document.InsertPlus(true);
+    document.InsertString("1", true);
+    document.InsertPlus(true);
+    document.InsertString("i", true);
+    document.WaitTask(document.InsertEquation(ResultType::SYMBOLIC, true));
+    document.WaitSolver();
+    ASSERT_TRUE(document.ToHtml() ==
+        "<body>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mrow>"\
+                            "<mi>x</mi>"\
+                            "<mo>+</mo>"\
+                            "<mi>1</mi>"\
+                            "<mo>+</mo>"\
+                            "<mi>i</mi>"\
+                        "</mrow>"\
+                        "<mo>=</mo>"\
+                        "<mrow>"\
+                            "<mrow>"\
+                                "<mi>1</mi>"\
+                                "<mo>+</mo>"\
+                                "<mi>i</mi>"\
+                                "<mo>+</mo>"\
+                                "<mi>x</mi>"\
+                            "</mrow>"\
+                        "</mrow>"\
+                    "</mrow>"\
+                "</math>"\
+            "</p>"\
+        "</body>") <<
+        document.ToHtml();
+
+    document.Undo();
+    document.WaitUndo();
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.ToHtml() ==
+        "<body>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mi>x</mi>"\
+                        "<mo>+</mo>"\
+                        "<mi>1</mi>"\
+                        "<mo>+</mo>"\
+                        "<mi>i</mi>"\
+                    "</mrow>"\
+                "</math>"\
+            "</p>"\
+        "</body>") <<
+        document.ToHtml();
+}
+
+TEST_F(SolverSymbolicTest, solver8)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.InsertString("1", true);
+    document.InsertDivision(true);
+    document.InsertString("x", true);
+    document.WaitTask(document.MoveCaretRight(false));
+    document.WaitTask(document.InsertEquation(ResultType::SYMBOLIC, true));
+    document.WaitSolver();
+    std::cout << "solver8 HTML: " << document.ToHtml() << std::endl;
+    ASSERT_TRUE(document.ToHtml() ==
+        "<body>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mrow>"\
+                            "<mfrac>"\
+                                "<mrow>"\
+                                    "<mi>1</mi>"\
+                                "</mrow>"\
+                                "<mrow>"\
+                                    "<mi>x</mi>"\
+                                "</mrow>"\
+                            "</mfrac>"\
+                        "</mrow>"\
+                        "<mo>=</mo>"\
+                        "<mrow>"\
+                            "<mrow>"\
+                                "<msup>"\
+                                    "<mrow>"\
+                                        "<mi>x</mi>"\
+                                    "</mrow>"\
+                                    "<mrow>"\
+                                        "<mo>-</mo>"\
+                                        "<mi>1</mi>"\
+                                    "</mrow>"\
+                                "</msup>"\
+                            "</mrow>"\
+                        "</mrow>"\
+                    "</mrow>"\
+                "</math>"\
+            "</p>"\
+        "</body>") <<
+        document.ToHtml();
+
+    document.Undo();
+    document.WaitUndo();
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.ToHtml() ==
+        "<body>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mfrac>"\
+                            "<mrow>"\
+                                "<mi>1</mi>"\
+                            "</mrow>"\
+                            "<mrow>"\
+                                "<mi>x</mi>"\
+                            "</mrow>"\
+                        "</mfrac>"\
+                    "</mrow>"\
+                "</math>"\
+            "</p>"\
+        "</body>") <<
+        document.ToHtml();
+}
+
+TEST_F(SolverSymbolicTest, solver9)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.InsertString("x", true);
+    document.InsertPower(true);
+    document.InsertString("-1", true);
+    document.WaitTask(document.MoveCaretRight(false));
+    document.WaitTask(document.InsertEquation(ResultType::SYMBOLIC, true));
+    document.WaitSolver();
+    ASSERT_TRUE(document.ToHtml() ==
+        "<body>"
+            "<p>"
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"
+                    "<mrow>"
+                        "<mrow>"
+                            "<msup>"
+                                "<mrow>"
+                                    "<mi>x</mi>"
+                                "</mrow>"
+                                "<mrow>"
+                                    "<mi>-1</mi>"
+                                "</mrow>"
+                            "</msup>"
+                        "</mrow>"
+                        "<mo>=</mo>"
+                        "<mrow>"
+                            "<mrow>"
+                                "<msup>"
+                                    "<mrow>"
+                                        "<mi>x</mi>"
+                                    "</mrow>"
+                                    "<mrow>"
+                                        "<mo>-</mo>"
+                                        "<mi>1</mi>"
+                                    "</mrow>"
+                                "</msup>"
+                            "</mrow>"
+                        "</mrow>"
+                    "</mrow>"
+                "</math>"
+            "</p>"
+        "</body>") <<
+        document.ToHtml();
+
+    document.Undo();
+    document.WaitUndo();
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.ToHtml() ==
+        "<body>"
+            "<p>"
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"
+                    "<mrow>"
+                        "<msup>"
+                            "<mrow>"
+                                "<mi>x</mi>"
+                            "</mrow>"
+                            "<mrow>"
+                                "<mi>-1</mi>"
+                            "</mrow>"
+                        "</msup>"
+                    "</mrow>"
+                "</math>"
+            "</p>"
+        "</body>") <<
+        document.ToHtml();
+}
+
+}

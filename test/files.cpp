@@ -1310,7 +1310,7 @@ TEST_F(IncludeDocumentsTest, include_files3)
     std::this_thread::sleep_for(2s);
     document.InsertCode(false, true);
     document.InsertString("var1", true);
-    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitTask(document.InsertEquation(ResultType::REAL, true));
     document.WaitSolver();
     std::this_thread::sleep_for(2s);
     ASSERT_TRUE(document.ToText() == 
@@ -1321,11 +1321,11 @@ TEST_F(IncludeDocumentsTest, include_files3)
     std::this_thread::sleep_for(2s);
     document.WaitTask(document.InsertCode(false, true));
     document.InsertString("var1", true);
-    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitTask(document.InsertEquation(ResultType::REAL, true));
     document.WaitTask(document.MoveCaretEnd(false));
     document.WaitTask(document.InsertParagraph(true));
     document.InsertString("var2", true);
-    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitTask(document.InsertEquation(ResultType::REAL, true));
     document.WaitSolver();
     std::this_thread::sleep_for(2s);
     ASSERT_TRUE(document.ToText() == 
@@ -1381,7 +1381,7 @@ TEST_F(IncludeDocumentsTest, include_files4)
     std::this_thread::sleep_for(4s);
     document.InsertCode(false, true);
     document.InsertString("var1", true);
-    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitTask(document.InsertEquation(ResultType::REAL, true));
     document.WaitSolver();
     std::this_thread::sleep_for(2s);
     ASSERT_TRUE(document.ToText() == 
@@ -2000,7 +2000,7 @@ TEST_F(IncludeDocumentsTest, include_files13)
     std::this_thread::sleep_for(2s);
     document2.InsertCode(false, true);
     document2.InsertString("v", true);
-    document2.WaitTask(document2.InsertEquation(ResultType::AUTO, true));
+    document2.WaitTask(document2.InsertEquation(ResultType::REAL, true));
     document2.WaitSolver();
     std::this_thread::sleep_for(2s);
     ASSERT_TRUE(document2.ToText() == 
@@ -2052,7 +2052,7 @@ TEST_F(IncludeDocumentsTest, include_files14)
     std::this_thread::sleep_for(2s);
     document2.InsertCode(false, true);
     document2.InsertString("v", true);
-    document2.WaitTask(document2.InsertEquation(ResultType::AUTO, true));
+    document2.WaitTask(document2.InsertEquation(ResultType::REAL, true));
     document2.WaitSolver();
     std::this_thread::sleep_for(2s);
     ASSERT_TRUE(document2.ToText() == 

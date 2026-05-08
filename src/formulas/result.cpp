@@ -1176,6 +1176,211 @@ bool ArrayRealResult::SetConfig(const yutovo_calculator::Unit& unit)
     return true;
 }
 
+//SymbolicResult
+
+SymbolicResult::SymbolicResult(Document* _document) :
+    ResultRow(_document),
+    config(_document->config.symbolic_result)
+{
+    type = ElementType::SYMBOLIC_RESULT;
+}
+
+SymbolicResult::SymbolicResult(Element* parent) :
+    ResultRow(parent)
+{
+    type = ElementType::SYMBOLIC_RESULT;
+
+    if (parent)
+        config = parent->document->config.symbolic_result;
+}
+
+SymbolicResult::SymbolicResult(Element* parent, const Config::SymbolicResultConfig& _config) :
+    ResultRow(parent),
+    config(_config)
+{
+    type = ElementType::SYMBOLIC_RESULT;
+}
+
+Element* SymbolicResult::Clone()
+{
+    return new SymbolicResult(*this);
+}
+
+Element* SymbolicResult::Create(Element* _parent)
+{
+    return new SymbolicResult(_parent);
+}
+
+void SymbolicResult::ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc)
+{
+    ResultRow::ToJson(value, alloc);
+    config.ToJson(value, alloc);
+}
+
+Element* SymbolicResult::FromJson(Element* parent, Document* document, const rapidjson::Value::ConstObject& value, rapidjson::Document::AllocatorType& alloc)
+{
+    Config::SymbolicResultConfig config;
+    config.FromJson(value, alloc);
+    return new SymbolicResult(parent, config);
+}
+
+void SymbolicResult::Solve(const ParserString& expression)
+{
+    if (last_expression == expression && last_expression.Text() != U"")
+        return;
+    last_expression = expression;
+
+    PutWaitingSymbol();
+
+    solving_id = logical_id;
+    document->Solve(logical_id, guid, GetCodeId(), config, !GetParent(1)->visible, last_expression.Text(),
+        (delay && last_error_code != yutovo_solver::ErrorCode::SOLVER_RESTARTED_ERROR) ? document->config.solve_delay : 0);
+    delay = true;
+}
+
+void SymbolicResult::PutResult(Result& result)
+{
+    ResultRow::PutResult(result);
+
+    solving_id.clear();
+
+    ElementPtr el = document->FindParent(id, ElementType::EQUATION);
+    Equation* eq = (Equation*)el.get();
+    eq->dependencies = result.dependencies;
+
+    last_error_code = result.error.error_code;
+    if (result.error.error_code == yutovo_solver::ErrorCode::SOLVER_RESTARTED_ERROR)
+    {
+        eq->last_expression.Reset();
+        return;
+    }
+
+    elements->Clear();
+    if (result.error.error_code != yutovo_solver::ErrorCode::OK)
+    {
+        PutError(result.error); //put error message
+    }
+    else
+    {
+        document->RemoveErrorMarks(parent->parent->id, &eq->dependencies);
+
+        if (result.values.empty())
+            return;
+
+        Value& value = result.values[0];
+        std::string val = value.value["value"];
+        AddSymbolicElements(val);
+    }
+
+    if (elements->Count() > 0)
+        elements->Get(0)->SetEditable(false);
+    Remake(true);
+    parent->Remake(true);
+}
+
+bool SymbolicResult::SetConfig(const int precision)
+{
+    if (precision != -1 && config.precision != precision)
+        config.precision = precision;
+
+    ParserString expr = last_expression;
+    last_expression.Reset();
+    Solve(expr);
+    return true;
+}
+
+void SymbolicResult::AddSymbolicElements(const std::string& expr)
+{
+    AddSymbolicElements(this, expr);
+}
+
+void SymbolicResult::AddSymbolicElements(Element* parent, const std::string& expr)
+{
+    for (size_t i = 0; i < expr.size();)
+    {
+        char c = expr[i];
+        if (isspace(static_cast<unsigned char>(c)))
+        {
+            ++i;
+            continue;
+        }
+        if (i + 4 <= expr.size() && expr.substr(i, 4) == "pow(")
+        {
+            size_t start = i + 4;
+            int depth = 1;
+            size_t comma_pos = std::string::npos;
+            size_t j = start;
+            while (j < expr.size() && depth > 0)
+            {
+                if (expr[j] == '(')
+                    ++depth;
+                else if (expr[j] == ')')
+                    --depth;
+                if (depth == 1 && expr[j] == ',' && comma_pos == std::string::npos)
+                    comma_pos = j;
+                if (depth > 0)
+                    ++j;
+            }
+            if (comma_pos != std::string::npos && j > start)
+            {
+                PowerPtr power(new Power(parent));
+                AddSymbolicElements(power->GetBaseRow(), expr.substr(start, comma_pos - start));
+                AddSymbolicElements(power->GetExponentRow(), expr.substr(comma_pos + 1, j - comma_pos - 1));
+                parent->AddElement(power);
+                i = j + 1;
+                continue;
+            }
+        }
+        if (isalpha(static_cast<unsigned char>(c)) || c == '_')
+        {
+            size_t j = i;
+            while (j < expr.size() && (isalnum(static_cast<unsigned char>(expr[j])) || expr[j] == '_'))
+                ++j;
+            parent->AddElement(ElementPtr(new CodeString(parent, expr.substr(i, j - i))));
+            i = j;
+        }
+        else if (isdigit(static_cast<unsigned char>(c)))
+        {
+            size_t j = i;
+            while (j < expr.size() && (isdigit(static_cast<unsigned char>(expr[j])) || expr[j] == '.'))
+                ++j;
+            parent->AddElement(ElementPtr(new CodeString(parent, expr.substr(i, j - i))));
+            i = j;
+        }
+        else
+        {
+            switch (c)
+            {
+            case '+':
+                parent->AddElement(ElementPtr(new Plus(parent)));
+                break;
+            case '-':
+                parent->AddElement(ElementPtr(new Minus(parent)));
+                break;
+            case '*':
+                parent->AddElement(ElementPtr(new Multiply(parent)));
+                break;
+            case '/':
+                parent->AddElement(ElementPtr(new CodeString(parent, std::string(1, c))));
+                break;
+            case '(':
+                parent->AddElement(ElementPtr(new OpenBracket(parent, ElementType::OPEN_ROUND_BRACKET)));
+                break;
+            case ')':
+                parent->AddElement(ElementPtr(new CloseBracket(parent, ElementType::CLOSE_ROUND_BRACKET)));
+                break;
+            case ',':
+                parent->AddElement(ElementPtr(new Comma(parent)));
+                break;
+            default:
+                parent->AddElement(ElementPtr(new CodeString(parent, std::string(1, c))));
+                break;
+            }
+            ++i;
+        }
+    }
+}
+
 //ErrorResult
 
 ErrorResult::ErrorResult(Document* _document) :
@@ -1314,8 +1519,11 @@ void AutoResult::PutResult(Result& result)
         case ResultType::COMPLEX:
             result_row.reset(new ComplexResult(this, config.complex_result));
             break;
-    	case ResultType::ARRAY_REAL:
+        case ResultType::ARRAY_REAL:
             result_row.reset(new ArrayRealResult(this));
+            break;
+        case ResultType::SYMBOLIC:
+            result_row.reset(new SymbolicResult(this));
             break;
         default:
             return;
@@ -1481,6 +1689,8 @@ ResultType AutoResult::GetResultType()
         return ResultType::COMPLEX;
     case ElementType::ARRAY_REAL_RESULT:
         return ResultType::ARRAY_REAL;
+    case ElementType::SYMBOLIC_RESULT:
+        return ResultType::SYMBOLIC;
     case ElementType::ERROR_RESULT:
         return ResultType::AUTO;
     default:

@@ -36,7 +36,9 @@ public:
         const std::u32string& expression, const uint delay);
     void Solve(const LogicalId& id, const std::string& task_guid, const uint code_id, Config::ComplexResultConfig& config, bool include_document, 
         const std::u32string& expression, const uint delay);
-    void Solve(const LogicalId& id, const std::string& task_guid, const uint code_id, Config::ArrayRealResultConfig& config, bool include_document, 
+    void Solve(const LogicalId& id, const std::string& task_guid, const uint code_id, Config::ArrayRealResultConfig& config, bool include_document,
+        const std::u32string& expression, const uint delay);
+    void Solve(const LogicalId& id, const std::string& task_guid, const uint code_id, Config::SymbolicResultConfig& config, bool include_document,
         const std::u32string& expression, const uint delay);
 
     void BreakSolving(const LogicalId& id, const uint code_id, bool wait);

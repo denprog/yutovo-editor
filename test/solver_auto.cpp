@@ -2637,4 +2637,161 @@ TEST_F(SolverAutoTest, lists1)
         ) << ToBasicString(document.ToText());
 }
 
+//AUTO mode should fallback to SYMBOLIC for expressions with undefined variables
+TEST_F(SolverAutoTest, symbolic1)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.InsertString("x", true);
+    document.InsertPlus(true);
+    document.InsertString("1", true);
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+    ASSERT_TRUE(document.ToText() == U"x+1=1+x") << ToBasicString(document.ToText());
+
+    document.Undo();
+    document.WaitUndo();
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.ToText() == U"x+1") << ToBasicString(document.ToText());
+}
+
+TEST_F(SolverAutoTest, symbolic2)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.InsertString("sin", true);
+    document.InsertOpenRoundBracket(true);
+    document.InsertString("x", true);
+    document.InsertCloseRoundBracket(true);
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+    ASSERT_TRUE(document.ToText() == U"sin(x)=sin(x)") << ToBasicString(document.ToText());
+
+    document.Undo();
+    document.WaitUndo();
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.ToText() == U"sin(x)") << ToBasicString(document.ToText());
+}
+
+TEST_F(SolverAutoTest, symbolic3)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.InsertString("diff", true);
+    document.InsertOpenRoundBracket(true);
+    document.InsertString("x", true);
+    document.InsertPower(true);
+    document.InsertString("2", true);
+    document.WaitTask(document.MoveCaretRight(false));
+    document.InsertComma(true);
+    document.InsertString("x", true);
+    document.InsertCloseRoundBracket(true);
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+    ASSERT_TRUE(document.ToText() == U"diff(pow(x,2),x)=2*x") << ToBasicString(document.ToText());
+
+    document.Undo();
+    document.WaitUndo();
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.ToText() == U"diff(pow(x,2),x)") << ToBasicString(document.ToText());
+}
+
+TEST_F(SolverAutoTest, symbolic4)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.InsertString("expand", true);
+    document.InsertOpenRoundBracket(true);
+    document.InsertString("pow", true);
+    document.InsertOpenRoundBracket(true);
+    document.InsertOpenRoundBracket(true);
+    document.InsertString("x", true);
+    document.InsertPlus(true);
+    document.InsertString("1", true);
+    document.InsertCloseRoundBracket(true);
+    document.InsertComma(true);
+    document.InsertString("2", true);
+    document.InsertCloseRoundBracket(true);
+    document.InsertCloseRoundBracket(true);
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+    ASSERT_TRUE(document.ToText() == U"expand(pow((x+1),2))=1+2*x+pow(x,2)") << ToBasicString(document.ToText());
+
+    document.Undo();
+    document.WaitUndo();
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.ToText() == U"expand(pow((x+1),2))") << ToBasicString(document.ToText());
+}
+
+TEST_F(SolverAutoTest, symbolic5)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.InsertString("subs", true);
+    document.InsertOpenRoundBracket(true);
+    document.InsertString("x", true);
+    document.InsertPower(true);
+    document.InsertString("2", true);
+    document.WaitTask(document.MoveCaretRight(false));
+    document.InsertComma(true);
+    document.InsertString("x", true);
+    document.InsertComma(true);
+    document.InsertString("5", true);
+    document.InsertCloseRoundBracket(true);
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+    ASSERT_TRUE(document.ToText() == U"subs(pow(x,2),x,5)=25") << ToBasicString(document.ToText());
+
+    document.Undo();
+    document.WaitUndo();
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.ToText() == U"subs(pow(x,2),x,5)") << ToBasicString(document.ToText());
+}
+
+TEST_F(SolverAutoTest, symbolic6)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.InsertString("x", true);
+    document.InsertPlus(true);
+    document.InsertString("1", true);
+    document.InsertDivision(true);
+    document.InsertString("2", true);
+    document.WaitTask(document.MoveCaretRight(false));
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+    ASSERT_TRUE(document.ToText() == U"x+(1)/(2)=1/2+x") << ToBasicString(document.ToText());
+
+    document.Undo();
+    document.WaitUndo();
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.ToText() == U"x+(1)/(2)") << ToBasicString(document.ToText());
+}
+
+TEST_F(SolverAutoTest, symbolic7)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.InsertString("x", true);
+    document.InsertPlus(true);
+    document.InsertString("1", true);
+    document.InsertPlus(true);
+    document.InsertString("i", true);
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+    ASSERT_TRUE(document.ToText() == U"x+1+i=1+i+x") << ToBasicString(document.ToText());
+
+    document.Undo();
+    document.WaitUndo();
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.ToText() == U"x+1+i") << ToBasicString(document.ToText());
+}
+
 }
