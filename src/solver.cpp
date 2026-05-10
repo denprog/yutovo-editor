@@ -43,7 +43,7 @@ Solver::Solver(Document* _document) :
     break_loop(std::thread(&Solver::MessageLoop, this, std::ref(break_socket), std::ref(break_tasks), std::ref(break_next_circle), std::ref(session)))
 #endif
 {
-    result_types_seq = {ResultType::REAL, ResultType::INTEGER, ResultType::RATIONAL, ResultType::COMPLEX, ResultType::ARRAY_REAL, ResultType::SYMBOLIC};
+    result_types_seq = {ResultType::REAL, ResultType::INTEGER, ResultType::RATIONAL, ResultType::COMPLEX, ResultType::ARRAY_REAL, ResultType::SYMBOLIC_REAL, ResultType::SYMBOLIC_RATIONAL, ResultType::SYMBOLIC_COMPLEX};
     language = document->config.language;
 }
 
@@ -151,13 +151,37 @@ void Solver::Solve(const LogicalId& id, const std::string& task_guid, const uint
     next_circle = true;
 }
 
-void Solver::Solve(const LogicalId& id, const std::string& task_guid, const uint code_id, Config::SymbolicResultConfig& config, bool include_document,
+void Solver::SolveSymbolicReal(const LogicalId& id, const std::string& task_guid, const uint code_id, Config::RealResultConfig& config, bool include_document,
     const std::u32string& expression, const uint delay)
 {
     EraseSolveTasks(id);
 
     std::unique_lock<std::mutex> lock(tasks_mutex);
-    tasks.emplace_back(new SymbolicSolverTask(id, document, solver_guid, task_guid, code_id, ExpressionType::SOLVE, config, include_document,
+    tasks.emplace_back(new SymbolicRealSolverTask(id, document, solver_guid, task_guid, code_id, ExpressionType::SOLVE, config, include_document,
+        expression, delay, logger));
+    tasks.emplace_back(nullptr);
+    next_circle = true;
+}
+
+void Solver::SolveSymbolicRational(const LogicalId& id, const std::string& task_guid, const uint code_id, Config::RationalResultConfig& config, bool include_document,
+    const std::u32string& expression, const uint delay)
+{
+    EraseSolveTasks(id);
+
+    std::unique_lock<std::mutex> lock(tasks_mutex);
+    tasks.emplace_back(new SymbolicRationalSolverTask(id, document, solver_guid, task_guid, code_id, ExpressionType::SOLVE, config, include_document,
+        expression, delay, logger));
+    tasks.emplace_back(nullptr);
+    next_circle = true;
+}
+
+void Solver::SolveSymbolicComplex(const LogicalId& id, const std::string& task_guid, const uint code_id, Config::ComplexResultConfig& config, bool include_document,
+    const std::u32string& expression, const uint delay)
+{
+    EraseSolveTasks(id);
+
+    std::unique_lock<std::mutex> lock(tasks_mutex);
+    tasks.emplace_back(new SymbolicComplexSolverTask(id, document, solver_guid, task_guid, code_id, ExpressionType::SOLVE, config, include_document,
         expression, delay, logger));
     tasks.emplace_back(nullptr);
     next_circle = true;
@@ -508,7 +532,8 @@ void Solver::EraseSolveTasks(const LogicalId id)
             return task && task->id == id && task->expression_type == ExpressionType::SOLVE && 
                 (dynamic_cast<RealSolverTask*>(task.get()) || dynamic_cast<IntegerSolverTask*>(task.get()) || 
                 dynamic_cast<RationalSolverTask*>(task.get()) || dynamic_cast<AutoSolverTask*>(task.get()) || 
-                dynamic_cast<ArrayRealSolverTask*>(task.get()));
+                dynamic_cast<ArrayRealSolverTask*>(task.get()) || dynamic_cast<SymbolicRealSolverTask*>(task.get()) || 
+                dynamic_cast<SymbolicRationalSolverTask*>(task.get()) || dynamic_cast<SymbolicComplexSolverTask*>(task.get()));
         }
         ), tasks.end());
 }

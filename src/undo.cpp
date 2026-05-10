@@ -557,11 +557,17 @@ UndoEquation::UndoEquation(Equation* equation) :
     case ResultType::ARRAY_REAL:
         config = ((ArrayRealResult*)result)->config;
         return;
-	case ResultType::AUTO:
+    case ResultType::AUTO:
         config = ((AutoResult*)result)->config;
         return;
-    case ResultType::SYMBOLIC:
-        config = ((SymbolicResult*)result)->config;
+    case ResultType::SYMBOLIC_REAL:
+        config = ((SymbolicRealResult*)result)->config;
+        return;
+    case ResultType::SYMBOLIC_RATIONAL:
+        config = ((SymbolicRationalResult*)result)->config;
+        return;
+    case ResultType::SYMBOLIC_COMPLEX:
+        config = ((SymbolicComplexResult*)result)->config;
         return;
     default:
         assert(false);
@@ -591,8 +597,12 @@ bool UndoEquation::operator==(const UndoEquation& el) const
         return std::any_cast<Config::ComplexResultConfig>(config) == std::any_cast<Config::ComplexResultConfig>(el.config);
     case ResultType::ARRAY_REAL:
         return std::any_cast<Config::ArrayRealResultConfig>(config) == std::any_cast<Config::ArrayRealResultConfig>(el.config);
-    case ResultType::SYMBOLIC:
-        return std::any_cast<Config::SymbolicResultConfig>(config) == std::any_cast<Config::SymbolicResultConfig>(el.config);
+    case ResultType::SYMBOLIC_REAL:
+        return std::any_cast<Config::RealResultConfig>(config) == std::any_cast<Config::RealResultConfig>(el.config);
+    case ResultType::SYMBOLIC_RATIONAL:
+        return std::any_cast<Config::RationalResultConfig>(config) == std::any_cast<Config::RationalResultConfig>(el.config);
+    case ResultType::SYMBOLIC_COMPLEX:
+        return std::any_cast<Config::ComplexResultConfig>(config) == std::any_cast<Config::ComplexResultConfig>(el.config);
     default:
         assert(false);
     }
@@ -630,8 +640,14 @@ Element* UndoEquation::Restore(Document* document, Element* parent)
     case ResultType::ARRAY_REAL:
         el->SetResult(std::any_cast<Config::ArrayRealResultConfig>(config));
         break;
-    case ResultType::SYMBOLIC:
-        el->SetResult(std::any_cast<Config::SymbolicResultConfig>(config));
+    case ResultType::SYMBOLIC_REAL:
+        el->SetSymbolicRealResult(std::any_cast<Config::RealResultConfig>(config));
+        break;
+    case ResultType::SYMBOLIC_RATIONAL:
+        el->SetSymbolicRationalResult(std::any_cast<Config::RationalResultConfig>(config));
+        break;
+    case ResultType::SYMBOLIC_COMPLEX:
+        el->SetSymbolicComplexResult(std::any_cast<Config::ComplexResultConfig>(config));
         break;
     default:
         assert(false);

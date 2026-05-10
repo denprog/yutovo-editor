@@ -338,7 +338,9 @@ Element* CreateFromJson(Element* parent, Document* document, const rapidjson::Va
             {ElementType::LINK, &Link::FromJson},
             {ElementType::GRAPH_LINE, &GraphLine::FromJson},
             {ElementType::CODE_PARAGRAPHS_BLOCK, &CodeParagraphsBlock::FromJson},
-            {ElementType::SYMBOLIC_RESULT, &SymbolicResult::FromJson}
+            {ElementType::SYMBOLIC_REAL_RESULT, &SymbolicRealResult::FromJson},
+            {ElementType::SYMBOLIC_RATIONAL_RESULT, &SymbolicRationalResult::FromJson},
+            {ElementType::SYMBOLIC_COMPLEX_RESULT, &SymbolicComplexResult::FromJson}
         };
 
     if (!value.HasMember("type") || !value["type"].IsInt())
@@ -458,6 +460,12 @@ std::string ResultTypeToString(const yutovo_solver::ResultType result_type)
         return "ArrayReal";
 	case yutovo_solver::ResultType::AUTO:
         return "Auto";
+	case yutovo_solver::ResultType::SYMBOLIC_REAL:
+        return "SymbolicReal";
+	case yutovo_solver::ResultType::SYMBOLIC_RATIONAL:
+        return "SymbolicRational";
+	case yutovo_solver::ResultType::SYMBOLIC_COMPLEX:
+        return "SymbolicComplex";
     }
     return "";
 }

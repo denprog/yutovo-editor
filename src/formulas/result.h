@@ -54,6 +54,11 @@ public:
 
     void AddResult();
 
+    void AddSymbolicElements(const std::string& expr);
+    void AddSymbolicElements(Element* parent, const std::string& expr);
+
+    void RemoveExtraBrackets(Element* parent);
+
 protected:
     ElementPtr GetCurRow();
     int GetCodeId();
@@ -210,16 +215,15 @@ public:
     bool with_angle_measure = false;
 };
 
-class SymbolicResult : public ResultRow
+class SymbolicRealResult : public RealResult
 {
 public:
-    SymbolicResult(Document* _document);
-    SymbolicResult(Element* parent);
-    SymbolicResult(Element* parent, const Config::SymbolicResultConfig& _config);
-    SymbolicResult(const SymbolicResult& source) = default;
+    SymbolicRealResult(Document* _document);
+    SymbolicRealResult(Element* parent);
+    SymbolicRealResult(Element* parent, const Config::RealResultConfig& _config);
+    SymbolicRealResult(const SymbolicRealResult& source) = default;
 
     virtual Element* Clone();
-
     virtual Element* Create(Element* _parent);
 
     virtual void ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc);
@@ -228,14 +232,42 @@ public:
     virtual void Solve(const ParserString& expression);
 
     virtual void PutResult(Result& result);
+};
 
-    bool SetConfig(const int precision);
-
-    void AddSymbolicElements(const std::string& expr);
-    void AddSymbolicElements(Element* parent, const std::string& expr);
-
+class SymbolicRationalResult : public RationalResult
+{
 public:
-    Config::SymbolicResultConfig config;
+    SymbolicRationalResult(Document* _document);
+    SymbolicRationalResult(Element* parent);
+    SymbolicRationalResult(Element* parent, const Config::RationalResultConfig& _config);
+    SymbolicRationalResult(const SymbolicRationalResult& source) = default;
+
+    virtual Element* Clone();
+
+    virtual void ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc);
+    static Element* FromJson(Element* parent, Document* document, const rapidjson::Value::ConstObject& value, rapidjson::Document::AllocatorType& alloc);
+
+    virtual void Solve(const ParserString& expression);
+
+    virtual void PutResult(Result& result);
+};
+
+class SymbolicComplexResult : public ComplexResult
+{
+public:
+    SymbolicComplexResult(Document* _document);
+    SymbolicComplexResult(Element* parent);
+    SymbolicComplexResult(Element* parent, const Config::ComplexResultConfig& _config);
+    SymbolicComplexResult(const SymbolicComplexResult& source) = default;
+
+    virtual Element* Clone();
+
+    virtual void ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc);
+    static Element* FromJson(Element* parent, Document* document, const rapidjson::Value::ConstObject& value, rapidjson::Document::AllocatorType& alloc);
+
+    virtual void Solve(const ParserString& expression);
+
+    virtual void PutResult(Result& result);
 };
 
 class ErrorResult : public ResultRow

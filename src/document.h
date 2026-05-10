@@ -310,7 +310,11 @@ public:
         const std::u32string& expression, const uint delay);
     void Solve(const LogicalId& _id, const std::string& guid, uint code_id, Config::ArrayRealResultConfig& config, bool include_document,
         const std::u32string& expression, const uint delay);
-    void Solve(const LogicalId& _id, const std::string& guid, uint code_id, Config::SymbolicResultConfig& config, bool include_document,
+    void SolveSymbolicReal(const LogicalId& _id, const std::string& guid, uint code_id, Config::RealResultConfig& config, bool include_document,
+        const std::u32string& expression, const uint delay);
+    void SolveSymbolicRational(const LogicalId& _id, const std::string& guid, uint code_id, Config::RationalResultConfig& config, bool include_document,
+        const std::u32string& expression, const uint delay);
+    void SolveSymbolicComplex(const LogicalId& _id, const std::string& guid, uint code_id, Config::ComplexResultConfig& config, bool include_document,
         const std::u32string& expression, const uint delay);
     void BreakSolving(const LogicalId& _id, const std::string& guid, uint code_id, bool wait = true);
 

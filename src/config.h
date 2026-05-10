@@ -190,23 +190,6 @@ struct Config
 
     ArrayRealResultConfig array_real_result;
 
-    struct SymbolicResultConfig
-    {
-        bool operator==(const SymbolicResultConfig& other) const
-        {
-            return precision == other.precision;
-        }
-
-        void ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc);
-        void FromJson(const rapidjson::Value::ConstObject& value, rapidjson::Document::AllocatorType& alloc);
-
-        std::string ToString();
-
-        uint precision = 10;
-    };
-
-    SymbolicResultConfig symbolic_result;
-
     struct AutoResultConfig
     {
         bool operator==(const AutoResultConfig& other) const
@@ -215,7 +198,9 @@ struct Config
                 std::equal(std::begin(results_order), std::end(results_order), std::begin(other.results_order)) &&
                 real_result == other.real_result && integer_result == other.integer_result &&
                 rational_result == other.rational_result && complex_result == other.complex_result &&
-                array_real_result == other.array_real_result && symbolic_result == other.symbolic_result;
+                array_real_result == other.array_real_result &&
+                symbolic_real_result == other.symbolic_real_result && symbolic_rational_result == other.symbolic_rational_result &&
+                symbolic_complex_result == other.symbolic_complex_result;
         }
 
         void ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc);
@@ -224,15 +209,17 @@ struct Config
         std::string ToString();
 
         bool result_auto_advance = true;
-        yutovo_solver::ResultType results_order[6] = {ResultType::REAL, ResultType::INTEGER, ResultType::RATIONAL, ResultType::COMPLEX,
-            ResultType::ARRAY_REAL, ResultType::SYMBOLIC};
+        yutovo_solver::ResultType results_order[8] = {ResultType::REAL, ResultType::INTEGER, ResultType::RATIONAL, ResultType::COMPLEX,
+            ResultType::ARRAY_REAL, ResultType::SYMBOLIC_REAL, ResultType::SYMBOLIC_RATIONAL, ResultType::SYMBOLIC_COMPLEX};
 
         RealResultConfig real_result;
         IntegerResultConfig integer_result;
         RationalResultConfig rational_result;
         ComplexResultConfig complex_result;
         ArrayRealResultConfig array_real_result;
-        SymbolicResultConfig symbolic_result;
+        RealResultConfig symbolic_real_result;
+        RationalResultConfig symbolic_rational_result;
+        ComplexResultConfig symbolic_complex_result;
     };
 
     AutoResultConfig auto_result;

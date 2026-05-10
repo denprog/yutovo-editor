@@ -3114,11 +3114,25 @@ void Document::Solve(const LogicalId& _id, const std::string& guid, uint code_id
     solver.Solve(_id, guid, code_id, config, include_document, expression + U";", delay);
 }
 
-void Document::Solve(const LogicalId& _id, const std::string& guid, uint code_id, Config::SymbolicResultConfig& config, bool include_document,
+void Document::SolveSymbolicReal(const LogicalId& _id, const std::string& guid, uint code_id, Config::RealResultConfig& config, bool include_document,
     const std::u32string& expression, const uint delay)
 {
     solve_ids[guid] = _id;
-    solver.Solve(_id, guid, code_id, config, include_document, expression + U";", delay);
+    solver.SolveSymbolicReal(_id, guid, code_id, config, include_document, expression + U";", delay);
+}
+
+void Document::SolveSymbolicRational(const LogicalId& _id, const std::string& guid, uint code_id, Config::RationalResultConfig& config, bool include_document,
+    const std::u32string& expression, const uint delay)
+{
+    solve_ids[guid] = _id;
+    solver.SolveSymbolicRational(_id, guid, code_id, config, include_document, expression + U";", delay);
+}
+
+void Document::SolveSymbolicComplex(const LogicalId& _id, const std::string& guid, uint code_id, Config::ComplexResultConfig& config, bool include_document,
+    const std::u32string& expression, const uint delay)
+{
+    solve_ids[guid] = _id;
+    solver.SolveSymbolicComplex(_id, guid, code_id, config, include_document, expression + U";", delay);
 }
 
 void Document::BreakSolving(const LogicalId& _id, const std::string& guid, uint code_id, bool wait)
@@ -3189,6 +3203,12 @@ int Document::GetPrecision(ElementId _id)
     AutoResult* a_r = dynamic_cast<AutoResult*>(el.get());
     if (a_r)
         return a_r->config.real_result.precision;
+    SymbolicRealResult* s_r = dynamic_cast<SymbolicRealResult*>(el.get());
+    if (s_r)
+        return s_r->config.precision;
+    SymbolicComplexResult* sc_r = dynamic_cast<SymbolicComplexResult*>(el.get());
+    if (sc_r)
+        return sc_r->config.precision;
     return -1;
 }
 
