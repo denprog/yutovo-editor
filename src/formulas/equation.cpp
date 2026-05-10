@@ -258,8 +258,25 @@ void Equation::SetResult(const Config::ComplexResultConfig& config)
 {
 }
 
-void Equation::SetResult(const Config::SymbolicResultConfig& config)
+void Equation::SetSymbolicRealResult(const Config::RealResultConfig& config)
 {
+    result.reset(new SymbolicRealResult(GetLast(), config));
+    GetLast()->elements->Clear();
+    GetLast()->elements->Add(result);
+}
+
+void Equation::SetSymbolicRationalResult(const Config::RationalResultConfig& config)
+{
+    result.reset(new SymbolicRationalResult(GetLast(), config));
+    GetLast()->elements->Clear();
+    GetLast()->elements->Add(result);
+}
+
+void Equation::SetSymbolicComplexResult(const Config::ComplexResultConfig& config)
+{
+    result.reset(new SymbolicComplexResult(GetLast(), config));
+    GetLast()->elements->Clear();
+    GetLast()->elements->Add(result);
 }
 
 bool Equation::SetResult(ResultType _result_type, bool with_undo)
@@ -316,6 +333,22 @@ bool Equation::SetConfig(int precision, int exp, AngleMeasure default_angle_meas
         if (with_undo)
             document->StoreUndo(id);
         ArrayRealResult* r = (ArrayRealResult*)result.get();
+        return r->SetConfig(precision, exp, default_angle_measure, result_angle_measure);
+    }
+    case ElementType::SYMBOLIC_REAL_RESULT:
+    {
+        caret->SetState(id, 1, true);
+        if (with_undo)
+            document->StoreUndo(id);
+        SymbolicRealResult* r = (SymbolicRealResult*)result.get();
+        return r->SetConfig(precision, exp, default_angle_measure, result_angle_measure);
+    }
+    case ElementType::SYMBOLIC_COMPLEX_RESULT:
+    {
+        caret->SetState(id, 1, true);
+        if (with_undo)
+            document->StoreUndo(id);
+        SymbolicComplexResult* r = (SymbolicComplexResult*)result.get();
         return r->SetConfig(precision, exp, default_angle_measure, result_angle_measure);
     }
     default:
@@ -515,8 +548,14 @@ void Equation::UpdateResult(ParserString& str)
             case ResultType::AUTO:
                 result.reset(new AutoResult(GetLast()));
                 break;
-            case ResultType::SYMBOLIC:
-                result.reset(new SymbolicResult(GetLast()));
+            case ResultType::SYMBOLIC_REAL:
+                result.reset(new SymbolicRealResult(GetLast()));
+                break;
+            case ResultType::SYMBOLIC_RATIONAL:
+                result.reset(new SymbolicRationalResult(GetLast()));
+                break;
+            case ResultType::SYMBOLIC_COMPLEX:
+                result.reset(new SymbolicComplexResult(GetLast()));
                 break;
             default:
                 return;

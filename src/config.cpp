@@ -48,11 +48,6 @@ void Config::ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType&
     complex_result.ToJson(complex_result_config, alloc);
     value.AddMember("complex_result", complex_result_config, alloc);
 
-    rapidjson::Value symbolic_result_config("symbolic_result", alloc);
-    symbolic_result_config.SetObject();
-    symbolic_result.ToJson(symbolic_result_config, alloc);
-    value.AddMember("symbolic_result", symbolic_result_config, alloc);
-
     rapidjson::Value auto_result_config("auto_result", alloc);
     auto_result_config.SetObject();
     auto_result.ToJson(auto_result_config, alloc);
@@ -114,12 +109,6 @@ void Config::FromJson(const rapidjson::Document& value, rapidjson::Document::All
         complex_result.FromJson(r, alloc);
     }
 
-    if (value.HasMember("symbolic_result") && value["symbolic_result"].IsObject())
-    {
-        auto r = value["symbolic_result"].GetObject();
-        symbolic_result.FromJson(r, alloc);
-    }
-
     if (value.HasMember("auto_result") && value["auto_result"].IsObject())
     {
         auto r = value["auto_result"].GetObject();
@@ -131,7 +120,9 @@ void Config::FromJson(const rapidjson::Document& value, rapidjson::Document::All
         auto_result.integer_result = integer_result;
         auto_result.rational_result = rational_result;
         auto_result.complex_result = complex_result;
-        auto_result.symbolic_result = symbolic_result;
+        auto_result.symbolic_real_result = real_result;
+        auto_result.symbolic_rational_result = rational_result;
+        auto_result.symbolic_complex_result = complex_result;
     }
 
     if (value.HasMember("include_documents") && value["include_documents"].IsArray())
@@ -329,33 +320,6 @@ std::string Config::ComplexResultConfig::ToString()
     return buffer.GetString();
 }
 
-//Config::SymbolicResultConfig
-
-void Config::SymbolicResultConfig::ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc)
-{
-    value.AddMember("precision", precision, alloc);
-}
-
-void Config::SymbolicResultConfig::FromJson(const rapidjson::Value::ConstObject& value, rapidjson::Document::AllocatorType& alloc)
-{
-    if (value.HasMember("precision") && value["precision"].IsInt())
-        precision = value["precision"].GetInt();
-}
-
-std::string Config::SymbolicResultConfig::ToString()
-{
-    rapidjson::Document json;
-    json.SetObject();
-    rapidjson::Value c(rapidjson::kObjectType);
-    auto& alloc = json.GetAllocator();
-    ToJson(c, alloc);
-    json.AddMember("SymbolicResultConfig", c, alloc);
-    rapidjson::StringBuffer buffer;
-    rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
-    json.Accept(writer);
-    return buffer.GetString();
-}
-
 //Config::AutoResultConfig
 
 void Config::AutoResultConfig::ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc)
@@ -387,9 +351,17 @@ void Config::AutoResultConfig::ToJson(rapidjson::Value& value, rapidjson::Docume
     array_real_result.ToJson(array_real_config, alloc);
     value.AddMember("array_real_config", array_real_config, alloc);
 
-    rapidjson::Value symbolic_config(rapidjson::kObjectType);
-    symbolic_result.ToJson(symbolic_config, alloc);
-    value.AddMember("symbolic_config", symbolic_config, alloc);
+    rapidjson::Value symbolic_real_config(rapidjson::kObjectType);
+    symbolic_real_result.ToJson(symbolic_real_config, alloc);
+    value.AddMember("symbolic_real_config", symbolic_real_config, alloc);
+
+    rapidjson::Value symbolic_rational_config(rapidjson::kObjectType);
+    symbolic_rational_result.ToJson(symbolic_rational_config, alloc);
+    value.AddMember("symbolic_rational_config", symbolic_rational_config, alloc);
+
+    rapidjson::Value symbolic_complex_config(rapidjson::kObjectType);
+    symbolic_complex_result.ToJson(symbolic_complex_config, alloc);
+    value.AddMember("symbolic_complex_config", symbolic_complex_config, alloc);
 }
 
 void Config::AutoResultConfig::FromJson(const rapidjson::Value::ConstObject& value, rapidjson::Document::AllocatorType& alloc)
@@ -421,8 +393,12 @@ void Config::AutoResultConfig::FromJson(const rapidjson::Value::ConstObject& val
                 results_order[i] = ResultType::COMPLEX;
             if (std::find(std::begin(results_order), std::end(results_order), ResultType::ARRAY_REAL) == std::end(results_order))
                 results_order[i] = ResultType::ARRAY_REAL;
-            if (std::find(std::begin(results_order), std::end(results_order), ResultType::SYMBOLIC) == std::end(results_order))
-                results_order[i] = ResultType::SYMBOLIC;
+            if (std::find(std::begin(results_order), std::end(results_order), ResultType::SYMBOLIC_REAL) == std::end(results_order))
+                results_order[i] = ResultType::SYMBOLIC_REAL;
+            if (std::find(std::begin(results_order), std::end(results_order), ResultType::SYMBOLIC_RATIONAL) == std::end(results_order))
+                results_order[i] = ResultType::SYMBOLIC_RATIONAL;
+            if (std::find(std::begin(results_order), std::end(results_order), ResultType::SYMBOLIC_COMPLEX) == std::end(results_order))
+                results_order[i] = ResultType::SYMBOLIC_COMPLEX;
         }
     }
 
@@ -451,10 +427,25 @@ void Config::AutoResultConfig::FromJson(const rapidjson::Value::ConstObject& val
         auto obj = value["array_real_config"].GetObject();
         array_real_result.FromJson(obj, alloc);
     }
+    if (value.HasMember("symbolic_real_config") && value["symbolic_real_config"].IsObject())
+    {
+        auto obj = value["symbolic_real_config"].GetObject();
+        symbolic_real_result.FromJson(obj, alloc);
+    }
+    if (value.HasMember("symbolic_rational_config") && value["symbolic_rational_config"].IsObject())
+    {
+        auto obj = value["symbolic_rational_config"].GetObject();
+        symbolic_rational_result.FromJson(obj, alloc);
+    }
+    if (value.HasMember("symbolic_complex_config") && value["symbolic_complex_config"].IsObject())
+    {
+        auto obj = value["symbolic_complex_config"].GetObject();
+        symbolic_complex_result.FromJson(obj, alloc);
+    }
     if (value.HasMember("symbolic_config") && value["symbolic_config"].IsObject())
     {
         auto obj = value["symbolic_config"].GetObject();
-        symbolic_result.FromJson(obj, alloc);
+        symbolic_real_result.FromJson(obj, alloc);
     }
 }
 

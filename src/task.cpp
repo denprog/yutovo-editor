@@ -2429,6 +2429,7 @@ bool ResultTask::Execute()
     ElementPtr el = document->GetLogicalElement(id);
     if (!el)
         return false;
+
     switch (el->type)
     {
     case ElementType::AUTO_RESULT:
@@ -2437,7 +2438,9 @@ bool ResultTask::Execute()
     case ElementType::RATIONAL_RESULT:
     case ElementType::COMPLEX_RESULT:
     case ElementType::ARRAY_REAL_RESULT:
-    case ElementType::SYMBOLIC_RESULT:
+    case ElementType::SYMBOLIC_REAL_RESULT:
+    case ElementType::SYMBOLIC_RATIONAL_RESULT:
+    case ElementType::SYMBOLIC_COMPLEX_RESULT:
         {
             ResultRow* r = dynamic_cast<ResultRow*>(el.get());
             if (!r)

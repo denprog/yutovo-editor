@@ -307,6 +307,149 @@ void ResultRow::AddResult()
     next_result = true; //adding next elements will be proceed on the next row
 }
 
+void ResultRow::AddSymbolicElements(const std::string& expr)
+{
+    AddSymbolicElements(this, expr);
+}
+
+void ResultRow::AddSymbolicElements(Element* parent, const std::string& expr)
+{
+    for (size_t i = 0; i < expr.size();)
+    {
+        char c = expr[i];
+        if (isspace(static_cast<unsigned char>(c)))
+        {
+            ++i;
+            continue;
+        }
+        if (i + 4 <= expr.size() && expr.substr(i, 4) == "pow(")
+        {
+            size_t start = i + 4;
+            int depth = 1;
+            size_t comma_pos = std::string::npos;
+            size_t j = start;
+            while (j < expr.size() && depth > 0)
+            {
+                if (expr[j] == '(')
+                    ++depth;
+                else if (expr[j] == ')')
+                    --depth;
+                if (depth == 1 && expr[j] == ',' && comma_pos == std::string::npos)
+                    comma_pos = j;
+                if (depth > 0)
+                    ++j;
+            }
+            if (comma_pos != std::string::npos && j > start)
+            {
+                PowerPtr power(new Power(parent));
+                AddSymbolicElements(power->GetBaseRow(), expr.substr(start, comma_pos - start));
+                AddSymbolicElements(power->GetExponentRow(), expr.substr(comma_pos + 1, j - comma_pos - 1));
+                parent->AddElement(power);
+                i = j + 1;
+                continue;
+            }
+        }
+        if (isalpha(static_cast<unsigned char>(c)) || c == '_')
+        {
+            size_t j = i;
+            while (j < expr.size() && (isalnum(static_cast<unsigned char>(expr[j])) || expr[j] == '_'))
+                ++j;
+            parent->AddElement(ElementPtr(new CodeString(parent, expr.substr(i, j - i))));
+            i = j;
+        }
+        else if (isdigit(static_cast<unsigned char>(c)) || c == '.')
+        {
+            size_t j = i;
+            while (j < expr.size() && (isdigit(static_cast<unsigned char>(expr[j])) || expr[j] == '.'))
+                ++j;
+            parent->AddElement(ElementPtr(new CodeString(parent, expr.substr(i, j - i))));
+            i = j;
+        }
+        else
+        {
+            switch (c)
+            {
+            case '+':
+                parent->AddElement(ElementPtr(new Plus(parent)));
+                break;
+            case '-':
+                parent->AddElement(ElementPtr(new Minus(parent)));
+                break;
+            case '*':
+                parent->AddElement(ElementPtr(new Multiply(parent)));
+                break;
+            case '/':
+                parent->AddElement(ElementPtr(new CodeString(parent, std::string(1, c))));
+                break;
+            case '(':
+                parent->AddElement(ElementPtr(new OpenBracket(parent, ElementType::OPEN_ROUND_BRACKET)));
+                break;
+            case ')':
+                parent->AddElement(ElementPtr(new CloseBracket(parent, ElementType::CLOSE_ROUND_BRACKET)));
+                break;
+            case ',':
+                parent->AddElement(ElementPtr(new Comma(parent)));
+                break;
+            default:
+                parent->AddElement(ElementPtr(new CodeString(parent, std::string(1, c))));
+                break;
+            }
+            ++i;
+        }
+    }
+}
+
+void ResultRow::RemoveExtraBrackets(Element* parent)
+{
+    if (!parent || !parent->elements)
+        return;
+    auto& elems = *parent->elements;
+    for (int i = 0; i < (int)elems.Count(); ++i)
+    {
+        if (elems.Get(i)->type == yutovo::ElementType::MULTIPLY && i > 0)
+        {
+            int close_idx = i - 1;
+            if (elems.Get(close_idx)->type != yutovo::ElementType::CLOSE_ROUND_BRACKET)
+                continue;
+            int depth = 1;
+            int open_idx = -1;
+            for (int j = close_idx - 1; j >= 0; --j)
+            {
+                auto t = elems.Get(j)->type;
+                if (t == yutovo::ElementType::CLOSE_ROUND_BRACKET)
+                    ++depth;
+                else if (t == yutovo::ElementType::OPEN_ROUND_BRACKET)
+                {
+                    --depth;
+                    if (depth == 0)
+                    {
+                        open_idx = j;
+                        break;
+                    }
+                }
+            }
+            if (open_idx < 0)
+                continue;
+            bool has_operator = false;
+            for (int j = open_idx + 1; j < close_idx; ++j)
+            {
+                auto t = elems.Get(j)->type;
+                if (t == yutovo::ElementType::PLUS || t == yutovo::ElementType::MINUS || t == yutovo::ElementType::MULTIPLY)
+                {
+                    has_operator = true;
+                    break;
+                }
+            }
+            if (!has_operator)
+            {
+                elems.RemoveAt(close_idx, 1);
+                elems.RemoveAt(open_idx, 1);
+                i -= 2;
+            }
+        }
+    }
+}
+
 ElementPtr ResultRow::GetCurRow()
 {
     if (elements->Count() == 0 || next_result)
@@ -434,6 +577,8 @@ void RealResult::PutResult(Result& result)
             return;
         Value& value = result.values[0];
         std::string mantissa = value.value["mantissa"];
+        if (mantissa.empty())
+            mantissa = value.value["value"];
         std::string exponent = value.value["exponent"];
 
         AddNumber(mantissa);
@@ -1176,55 +1321,52 @@ bool ArrayRealResult::SetConfig(const yutovo_calculator::Unit& unit)
     return true;
 }
 
-//SymbolicResult
+//SymbolicRealResult
 
-SymbolicResult::SymbolicResult(Document* _document) :
-    ResultRow(_document),
-    config(_document->config.symbolic_result)
+SymbolicRealResult::SymbolicRealResult(Document* _document) :
+    RealResult(_document)
 {
-    type = ElementType::SYMBOLIC_RESULT;
+    type = ElementType::SYMBOLIC_REAL_RESULT;
 }
 
-SymbolicResult::SymbolicResult(Element* parent) :
-    ResultRow(parent)
+SymbolicRealResult::SymbolicRealResult(Element* parent) :
+    RealResult(parent)
 {
-    type = ElementType::SYMBOLIC_RESULT;
-
-    if (parent)
-        config = parent->document->config.symbolic_result;
+    type = ElementType::SYMBOLIC_REAL_RESULT;
 }
 
-SymbolicResult::SymbolicResult(Element* parent, const Config::SymbolicResultConfig& _config) :
-    ResultRow(parent),
-    config(_config)
+SymbolicRealResult::SymbolicRealResult(Element* parent, const Config::RealResultConfig& _config) :
+    RealResult(parent, _config)
 {
-    type = ElementType::SYMBOLIC_RESULT;
+    type = ElementType::SYMBOLIC_REAL_RESULT;
 }
 
-Element* SymbolicResult::Clone()
+Element* SymbolicRealResult::Clone()
 {
-    return new SymbolicResult(*this);
+    return new SymbolicRealResult(*this);
 }
 
-Element* SymbolicResult::Create(Element* _parent)
+Element* SymbolicRealResult::Create(Element* _parent)
 {
-    return new SymbolicResult(_parent);
+    return new SymbolicRealResult(_parent);
 }
 
-void SymbolicResult::ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc)
+void SymbolicRealResult::ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc)
 {
-    ResultRow::ToJson(value, alloc);
-    config.ToJson(value, alloc);
+    RealResult::ToJson(value, alloc);
 }
 
-Element* SymbolicResult::FromJson(Element* parent, Document* document, const rapidjson::Value::ConstObject& value, rapidjson::Document::AllocatorType& alloc)
+Element* SymbolicRealResult::FromJson(Element* parent, Document* document, const rapidjson::Value::ConstObject& value, rapidjson::Document::AllocatorType& alloc)
 {
-    Config::SymbolicResultConfig config;
+    Config::RealResultConfig config;
     config.FromJson(value, alloc);
-    return new SymbolicResult(parent, config);
+    auto* p = new SymbolicRealResult(parent, config);
+    if (value.HasMember("with_angle_measure") && value["with_angle_measure"].IsBool())
+        p->with_angle_measure = value["with_angle_measure"].GetBool();
+    return p;
 }
 
-void SymbolicResult::Solve(const ParserString& expression)
+void SymbolicRealResult::Solve(const ParserString& expression)
 {
     if (last_expression == expression && last_expression.Text() != U"")
         return;
@@ -1233,152 +1375,282 @@ void SymbolicResult::Solve(const ParserString& expression)
     PutWaitingSymbol();
 
     solving_id = logical_id;
-    document->Solve(logical_id, guid, GetCodeId(), config, !GetParent(1)->visible, last_expression.Text(),
+    document->SolveSymbolicReal(logical_id, guid, GetCodeId(), config, !GetParent(1)->visible, last_expression.Text(),
         (delay && last_error_code != yutovo_solver::ErrorCode::SOLVER_RESTARTED_ERROR) ? document->config.solve_delay : 0);
     delay = true;
 }
 
-void SymbolicResult::PutResult(Result& result)
+//SymbolicRationalResult
+
+SymbolicRationalResult::SymbolicRationalResult(Document* _document) :
+    RationalResult(_document)
 {
-    ResultRow::PutResult(result);
+    type = ElementType::SYMBOLIC_RATIONAL_RESULT;
+}
 
-    solving_id.clear();
+SymbolicRationalResult::SymbolicRationalResult(Element* parent) :
+    RationalResult(parent)
+{
+    type = ElementType::SYMBOLIC_RATIONAL_RESULT;
+}
 
-    ElementPtr el = document->FindParent(id, ElementType::EQUATION);
-    Equation* eq = (Equation*)el.get();
-    eq->dependencies = result.dependencies;
+SymbolicRationalResult::SymbolicRationalResult(Element* parent, const Config::RationalResultConfig& _config) :
+    RationalResult(parent, _config)
+{
+    type = ElementType::SYMBOLIC_RATIONAL_RESULT;
+}
 
-    last_error_code = result.error.error_code;
-    if (result.error.error_code == yutovo_solver::ErrorCode::SOLVER_RESTARTED_ERROR)
-    {
-        eq->last_expression.Reset();
+Element* SymbolicRationalResult::Clone()
+{
+    return new SymbolicRationalResult(*this);
+}
+
+void SymbolicRationalResult::ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc)
+{
+    RationalResult::ToJson(value, alloc);
+}
+
+Element* SymbolicRationalResult::FromJson(Element* parent, Document* document, const rapidjson::Value::ConstObject& value, rapidjson::Document::AllocatorType& alloc)
+{
+    Config::RationalResultConfig config;
+    config.FromJson(value, alloc);
+    return new SymbolicRationalResult(parent, config);
+}
+
+void SymbolicRationalResult::Solve(const ParserString& expression)
+{
+    if (last_expression == expression && last_expression.Text() != U"")
         return;
-    }
+    last_expression = expression;
 
-    elements->Clear();
-    if (result.error.error_code != yutovo_solver::ErrorCode::OK)
-    {
-        PutError(result.error); //put error message
-    }
-    else
-    {
-        document->RemoveErrorMarks(parent->parent->id, &eq->dependencies);
+    PutWaitingSymbol();
 
-        if (result.values.empty())
+    solving_id = logical_id;
+    document->SolveSymbolicRational(logical_id, guid, GetCodeId(), config, !GetParent(1)->visible, last_expression.Text(),
+        (delay && last_error_code != yutovo_solver::ErrorCode::SOLVER_RESTARTED_ERROR) ? document->config.solve_delay : 0);
+    delay = true;
+}
+
+//SymbolicComplexResult
+
+SymbolicComplexResult::SymbolicComplexResult(Document* _document) :
+    ComplexResult(_document)
+{
+    type = ElementType::SYMBOLIC_COMPLEX_RESULT;
+}
+
+SymbolicComplexResult::SymbolicComplexResult(Element* parent) :
+    ComplexResult(parent)
+{
+    type = ElementType::SYMBOLIC_COMPLEX_RESULT;
+}
+
+SymbolicComplexResult::SymbolicComplexResult(Element* parent, const Config::ComplexResultConfig& _config) :
+    ComplexResult(parent, _config)
+{
+    type = ElementType::SYMBOLIC_COMPLEX_RESULT;
+}
+
+Element* SymbolicComplexResult::Clone()
+{
+    return new SymbolicComplexResult(*this);
+}
+
+void SymbolicComplexResult::ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc)
+{
+    ComplexResult::ToJson(value, alloc);
+}
+
+Element* SymbolicComplexResult::FromJson(Element* parent, Document* document, const rapidjson::Value::ConstObject& value, rapidjson::Document::AllocatorType& alloc)
+{
+    Config::ComplexResultConfig config;
+    config.FromJson(value, alloc);
+    auto* p = new SymbolicComplexResult(parent, config);
+    if (value.HasMember("with_angle_measure") && value["with_angle_measure"].IsBool())
+        p->with_angle_measure = value["with_angle_measure"].GetBool();
+    return p;
+}
+
+void SymbolicComplexResult::Solve(const ParserString& expression)
+{
+    if (last_expression == expression && last_expression.Text() != U"")
+        return;
+    last_expression = expression;
+
+    PutWaitingSymbol();
+
+    solving_id = logical_id;
+    document->SolveSymbolicComplex(logical_id, guid, GetCodeId(), config, !GetParent(1)->visible, last_expression.Text(),
+        (delay && last_error_code != yutovo_solver::ErrorCode::SOLVER_RESTARTED_ERROR) ? document->config.solve_delay : 0);
+    delay = true;
+}
+
+void SymbolicComplexResult::PutResult(Result& result)
+{
+    if (result.error.error_code == yutovo_solver::ErrorCode::OK && !result.values.empty())
+    {
+        std::string re_mantissa = result.values[0].value["re_mantissa"];
+        bool is_symbolic = false;
+        for (char c : re_mantissa)
+        {
+            if (isalpha(static_cast<unsigned char>(c)))
+            {
+                is_symbolic = true;
+                break;
+            }
+        }
+        if (is_symbolic)
+        {
+            ResultRow::PutResult(result);
+            solving_id.clear();
+            ElementPtr el = document->FindParent(id, ElementType::EQUATION);
+            Equation* eq = (Equation*)el.get();
+            eq->dependencies = result.dependencies;
+            last_error_code = result.error.error_code;
+            if (result.error.error_code == yutovo_solver::ErrorCode::SOLVER_RESTARTED_ERROR)
+            {
+                eq->last_expression.Reset();
+                return;
+            }
+            elements->Clear();
+            document->RemoveErrorMarks(parent->parent->id, &eq->dependencies);
+            AddSymbolicElements(re_mantissa);
+            if (elements->Count() > 0)
+                RemoveExtraBrackets(elements->Get(elements->Count() - 1).get());
+            if (elements->Count() > 0)
+                elements->Get(0)->SetEditable(false);
+            Remake(true);
+            parent->Remake(true);
             return;
-
-        Value& value = result.values[0];
-        std::string val = value.value["value"];
-        AddSymbolicElements(val);
+        }
     }
-
-    if (elements->Count() > 0)
-        elements->Get(0)->SetEditable(false);
-    Remake(true);
-    parent->Remake(true);
+    ComplexResult::PutResult(result);
 }
 
-bool SymbolicResult::SetConfig(const int precision)
+static bool IsNumericString(const std::string& s)
 {
-    if (precision != -1 && config.precision != precision)
-        config.precision = precision;
-
-    ParserString expr = last_expression;
-    last_expression.Reset();
-    Solve(expr);
-    return true;
+    for (char c : s)
+        if (!isdigit(static_cast<unsigned char>(c)) && c != '.')
+            return false;
+    return !s.empty();
 }
 
-void SymbolicResult::AddSymbolicElements(const std::string& expr)
+void SymbolicRationalResult::PutResult(Result& result)
 {
-    AddSymbolicElements(this, expr);
-}
-
-void SymbolicResult::AddSymbolicElements(Element* parent, const std::string& expr)
-{
-    for (size_t i = 0; i < expr.size();)
+    if (result.error.error_code == yutovo_solver::ErrorCode::OK && !result.values.empty())
     {
-        char c = expr[i];
-        if (isspace(static_cast<unsigned char>(c)))
+        std::string numerator = result.values[0].value["numerator"];
+        bool is_symbolic = false;
+        for (char c : numerator)
         {
-            ++i;
-            continue;
-        }
-        if (i + 4 <= expr.size() && expr.substr(i, 4) == "pow(")
-        {
-            size_t start = i + 4;
-            int depth = 1;
-            size_t comma_pos = std::string::npos;
-            size_t j = start;
-            while (j < expr.size() && depth > 0)
+            if (isalpha(static_cast<unsigned char>(c)))
             {
-                if (expr[j] == '(')
-                    ++depth;
-                else if (expr[j] == ')')
-                    --depth;
-                if (depth == 1 && expr[j] == ',' && comma_pos == std::string::npos)
-                    comma_pos = j;
-                if (depth > 0)
-                    ++j;
-            }
-            if (comma_pos != std::string::npos && j > start)
-            {
-                PowerPtr power(new Power(parent));
-                AddSymbolicElements(power->GetBaseRow(), expr.substr(start, comma_pos - start));
-                AddSymbolicElements(power->GetExponentRow(), expr.substr(comma_pos + 1, j - comma_pos - 1));
-                parent->AddElement(power);
-                i = j + 1;
-                continue;
+                is_symbolic = true;
+                break;
             }
         }
-        if (isalpha(static_cast<unsigned char>(c)) || c == '_')
+        if (is_symbolic)
         {
-            size_t j = i;
-            while (j < expr.size() && (isalnum(static_cast<unsigned char>(expr[j])) || expr[j] == '_'))
-                ++j;
-            parent->AddElement(ElementPtr(new CodeString(parent, expr.substr(i, j - i))));
-            i = j;
-        }
-        else if (isdigit(static_cast<unsigned char>(c)))
-        {
-            size_t j = i;
-            while (j < expr.size() && (isdigit(static_cast<unsigned char>(expr[j])) || expr[j] == '.'))
-                ++j;
-            parent->AddElement(ElementPtr(new CodeString(parent, expr.substr(i, j - i))));
-            i = j;
-        }
-        else
-        {
-            switch (c)
+            ResultRow::PutResult(result);
+            solving_id.clear();
+            unit_error = false;
+            ElementPtr el = document->FindParent(id, ElementType::EQUATION);
+            Equation* eq = (Equation*)el.get();
+            eq->dependencies = result.dependencies;
+            last_error_code = result.error.error_code;
+            if (result.error.error_code == yutovo_solver::ErrorCode::SOLVER_RESTARTED_ERROR)
             {
-            case '+':
-                parent->AddElement(ElementPtr(new Plus(parent)));
-                break;
-            case '-':
-                parent->AddElement(ElementPtr(new Minus(parent)));
-                break;
-            case '*':
-                parent->AddElement(ElementPtr(new Multiply(parent)));
-                break;
-            case '/':
-                parent->AddElement(ElementPtr(new CodeString(parent, std::string(1, c))));
-                break;
-            case '(':
-                parent->AddElement(ElementPtr(new OpenBracket(parent, ElementType::OPEN_ROUND_BRACKET)));
-                break;
-            case ')':
-                parent->AddElement(ElementPtr(new CloseBracket(parent, ElementType::CLOSE_ROUND_BRACKET)));
-                break;
-            case ',':
-                parent->AddElement(ElementPtr(new Comma(parent)));
-                break;
-            default:
-                parent->AddElement(ElementPtr(new CodeString(parent, std::string(1, c))));
-                break;
+                eq->last_expression.Reset();
+                return;
             }
-            ++i;
+            elements->Clear();
+            document->RemoveErrorMarks(parent->parent->id, &eq->dependencies);
+            AddSymbolicElements(numerator);
+
+            if (elements->Count() > 0)
+            {
+                auto& row_elements = *elements->Get(elements->Count() - 1)->elements;
+                for (size_t i = 0; i + 2 < row_elements.Count();)
+                {
+                    auto el1 = row_elements.Get(i);
+                    auto el2 = row_elements.Get(i + 1);
+                    auto el3 = row_elements.Get(i + 2);
+                    if (el1->type == ElementType::CODE_STRING &&
+                        el2->type == ElementType::CODE_STRING &&
+                        el3->type == ElementType::CODE_STRING)
+                    {
+                        std::string s1 = ToBasicString(((CodeString*)el1.get())->ToText());
+                        std::string s2 = ToBasicString(((CodeString*)el2.get())->ToText());
+                        std::string s3 = ToBasicString(((CodeString*)el3.get())->ToText());
+                        if (s2 == "/" && IsNumericString(s1) && IsNumericString(s3))
+                        {
+                            Division* d = new Division(this);
+                            d->AddNumerator(ElementPtr(new CodeString(d, s1)));
+                            d->AddDenomerator(ElementPtr(new CodeString(d, s3)));
+                            row_elements.Remove(el1);
+                            row_elements.Remove(el2);
+                            row_elements.Remove(el3);
+                            row_elements.Insert(ElementPtr(d), i);
+                            continue;
+                        }
+                    }
+                    ++i;
+                }
+            }
+
+            if (elements->Count() > 0)
+                RemoveExtraBrackets(elements->Get(elements->Count() - 1).get());
+            if (elements->Count() > 0)
+                elements->Get(0)->SetEditable(false);
+            Remake(true);
+            parent->Remake(true);
+            return;
         }
     }
+    RationalResult::PutResult(result);
+}
+
+void SymbolicRealResult::PutResult(Result& result)
+{
+    if (result.error.error_code == yutovo_solver::ErrorCode::OK && !result.values.empty())
+    {
+        std::string value = result.values[0].value["value"];
+        bool is_symbolic = false;
+        for (char c : value)
+        {
+            if (isalpha(static_cast<unsigned char>(c)))
+            {
+                is_symbolic = true;
+                break;
+            }
+        }
+        if (is_symbolic)
+        {
+            ResultRow::PutResult(result);
+            solving_id.clear();
+            unit_error = false;
+            ElementPtr el = document->FindParent(id, ElementType::EQUATION);
+            Equation* eq = (Equation*)el.get();
+            eq->dependencies = result.dependencies;
+            last_error_code = result.error.error_code;
+            if (result.error.error_code == yutovo_solver::ErrorCode::SOLVER_RESTARTED_ERROR)
+            {
+                eq->last_expression.Reset();
+                return;
+            }
+            elements->Clear();
+            document->RemoveErrorMarks(parent->parent->id, &eq->dependencies);
+            AddSymbolicElements(value);
+            if (elements->Count() > 0)
+                RemoveExtraBrackets(elements->Get(elements->Count() - 1).get());
+            if (elements->Count() > 0)
+                elements->Get(0)->SetEditable(false);
+            Remake(true);
+            parent->Remake(true);
+            return;
+        }
+    }
+    RealResult::PutResult(result);
 }
 
 //ErrorResult
@@ -1522,8 +1794,14 @@ void AutoResult::PutResult(Result& result)
         case ResultType::ARRAY_REAL:
             result_row.reset(new ArrayRealResult(this));
             break;
-        case ResultType::SYMBOLIC:
-            result_row.reset(new SymbolicResult(this));
+        case ResultType::SYMBOLIC_REAL:
+            result_row.reset(new SymbolicRealResult(this));
+            break;
+        case ResultType::SYMBOLIC_RATIONAL:
+            result_row.reset(new SymbolicRationalResult(this));
+            break;
+        case ResultType::SYMBOLIC_COMPLEX:
+            result_row.reset(new SymbolicComplexResult(this, config.complex_result));
             break;
         default:
             return;
@@ -1689,8 +1967,12 @@ ResultType AutoResult::GetResultType()
         return ResultType::COMPLEX;
     case ElementType::ARRAY_REAL_RESULT:
         return ResultType::ARRAY_REAL;
-    case ElementType::SYMBOLIC_RESULT:
-        return ResultType::SYMBOLIC;
+    case ElementType::SYMBOLIC_REAL_RESULT:
+        return ResultType::SYMBOLIC_REAL;
+    case ElementType::SYMBOLIC_RATIONAL_RESULT:
+        return ResultType::SYMBOLIC_RATIONAL;
+    case ElementType::SYMBOLIC_COMPLEX_RESULT:
+        return ResultType::SYMBOLIC_COMPLEX;
     case ElementType::ERROR_RESULT:
         return ResultType::AUTO;
     default:

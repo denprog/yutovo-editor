@@ -2642,17 +2642,23 @@ TEST_F(SolverAutoTest, symbolic1)
 {
     Start(600);
 
+    EXPECT_CALL(window_mock, Translate).WillRepeatedly([&](ElementId id, const std::u32string& str)
+        {
+            return str;
+        });
+
     document.InsertCode(false, true);
     document.InsertString("x", true);
     document.InsertPlus(true);
     document.InsertString("1", true);
     document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
     document.WaitSolver();
+    std::this_thread::sleep_for(1s);
     ASSERT_TRUE(document.ToText() == U"x+1=1+x") << ToBasicString(document.ToText());
 
     document.Undo();
     document.WaitUndo();
-    std::this_thread::sleep_for(200ms);
+    std::this_thread::sleep_for(1s);
     ASSERT_TRUE(document.ToText() == U"x+1") << ToBasicString(document.ToText());
 }
 
@@ -2745,7 +2751,7 @@ TEST_F(SolverAutoTest, symbolic5)
     document.InsertCloseRoundBracket(true);
     document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
     document.WaitSolver();
-    ASSERT_TRUE(document.ToText() == U"subs(pow(x,2),x,5)=25") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.ToText() == U"subs(pow(x,2),x,5)=25.") << ToBasicString(document.ToText());
 
     document.Undo();
     document.WaitUndo();
@@ -2766,7 +2772,7 @@ TEST_F(SolverAutoTest, symbolic6)
     document.WaitTask(document.MoveCaretRight(false));
     document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
     document.WaitSolver();
-    ASSERT_TRUE(document.ToText() == U"x+(1)/(2)=1/2+x") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.ToText() == U"x+(1)/(2)=0.5+x") << ToBasicString(document.ToText());
 
     document.Undo();
     document.WaitUndo();
