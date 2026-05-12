@@ -57,6 +57,8 @@ public:
     void AddSymbolicElements(const std::string& expr);
     void AddSymbolicElements(Element* parent, const std::string& expr);
 
+    bool AddJsonElements(const std::string& json_str);
+
     void RemoveExtraBrackets(Element* parent);
 
 protected:

@@ -39,7 +39,7 @@ TEST_F(SolverSymbolicTest, solver1)
                         "<mo>=</mo>"
                         "<mrow>"
                             "<mrow>"
-                                "<mi>1</mi>"
+                                "<mi>1.</mi>"
                                 "<mo>+</mo>"
                                 "<mi>x</mi>"
                             "</mrow>"
@@ -165,7 +165,7 @@ TEST_F(SolverSymbolicTest, solver3)
                         "<mo>=</mo>"
                         "<mrow>"
                             "<mrow>"
-                                "<mi>2</mi>"
+                                "<mi>2.</mi>"
                                 "<mo>×</mo>"
                                 "<mi>x</mi>"
                             "</mrow>"
@@ -248,9 +248,9 @@ TEST_F(SolverSymbolicTest, solver4)
                         "<mo>=</mo>"
                         "<mrow>"
                             "<mrow>"
-                                "<mi>1</mi>"
+                                "<mi>1.</mi>"
                                 "<mo>+</mo>"
-                                "<mi>2</mi>"
+                                "<mi>2.</mi>"
                                 "<mo>×</mo>"
                                 "<mi>x</mi>"
                                 "<mo>+</mo>"
@@ -259,7 +259,7 @@ TEST_F(SolverSymbolicTest, solver4)
                                         "<mi>x</mi>"
                                     "</mrow>"
                                     "<mrow>"
-                                        "<mi>2</mi>"
+                                        "<mi>2.</mi>"
                                     "</mrow>"
                                 "</msup>"
                             "</mrow>"
@@ -478,7 +478,7 @@ TEST_F(SolverSymbolicTest, solver7)
                         "<mo>=</mo>"
                         "<mrow>"
                             "<mrow>"
-                                "<mi>1</mi>"
+                                "<mi>1.</mi>"
                                 "<mo>+</mo>"
                                 "<mi>i</mi>"
                                 "<mo>+</mo>"
@@ -539,17 +539,15 @@ TEST_F(SolverSymbolicTest, solver8)
                         "</mrow>"
                         "<mo>=</mo>"
                         "<mrow>"
-                            "<mrow>"
-                                "<msup>"
-                                    "<mrow>"
-                                        "<mi>x</mi>"
-                                    "</mrow>"
-                                    "<mrow>"
-                                        "<mo>-</mo>"
-                                        "<mi>1</mi>"
-                                    "</mrow>"
-                                "</msup>"
-                            "</mrow>"
+                            "<msup>"
+                                "<mrow>"
+                                    "<mi>x</mi>"
+                                "</mrow>"
+                                "<mrow>"
+                                    "<mo>-</mo>"
+                                    "<mi>1.</mi>"
+                                "</mrow>"
+                            "</msup>"
                         "</mrow>"
                     "</mrow>"
                 "</math>"
@@ -608,17 +606,15 @@ TEST_F(SolverSymbolicTest, solver9)
                         "</mrow>"
                         "<mo>=</mo>"
                         "<mrow>"
-                            "<mrow>"
-                                "<msup>"
-                                    "<mrow>"
-                                        "<mi>x</mi>"
-                                    "</mrow>"
-                                    "<mrow>"
-                                        "<mo>-</mo>"
-                                        "<mi>1</mi>"
-                                    "</mrow>"
-                                "</msup>"
-                            "</mrow>"
+                            "<msup>"
+                                "<mrow>"
+                                    "<mi>x</mi>"
+                                "</mrow>"
+                                "<mrow>"
+                                    "<mo>-</mo>"
+                                    "<mi>1.</mi>"
+                                "</mrow>"
+                            "</msup>"
                         "</mrow>"
                     "</mrow>"
                 "</math>"
@@ -649,141 +645,141 @@ TEST_F(SolverSymbolicTest, solver9)
         document.ToHtml();
 }
 
-// TEST_F(SolverSymbolicTest, solver10)
-// {
-//     Start(600);
+TEST_F(SolverSymbolicTest, solver10)
+{
+    Start(600);
 
-//     document.InsertCode(false, true);
-//     document.InsertString("x", true);
-//     document.InsertPlus(true);
-//     document.InsertString("1", true);
-//     document.InsertDivision(true);
-//     document.InsertString("2", true);
-//     document.WaitTask(document.MoveCaretRight(false));
-//     document.WaitTask(document.InsertEquation(ResultType::SYMBOLIC_RATIONAL, true));
-//     document.WaitSolver();
-//     ASSERT_TRUE(document.ToHtml() ==
-//         "<body>"
-//             "<p>"
-//                 "<math xmlns='http://www.w3.org/1998/Math/MathML'>"
-//                     "<mrow>"
-//                         "<mrow>"
-//                             "<mi>x</mi>"
-//                             "<mo>+</mo>"
-//                             "<mfrac>"
-//                                 "<mrow>"
-//                                     "<mi>1</mi>"
-//                                 "</mrow>"
-//                                 "<mrow>"
-//                                     "<mi>2</mi>"
-//                                 "</mrow>"
-//                             "</mfrac>"
-//                         "</mrow>"
-//                         "<mo>=</mo>"
-//                         "<mrow>"
-//                             "<mrow>"
-//                                 "<mfrac>"
-//                                     "<mrow>"
-//                                         "<mi>1</mi>"
-//                                     "</mrow>"
-//                                     "<mrow>"
-//                                         "<mi>2</mi>"
-//                                     "</mrow>"
-//                                 "</mfrac>"
-//                                 "<mo>+</mo>"
-//                                 "<mi>x</mi>"
-//                             "</mrow>"
-//                         "</mrow>"
-//                     "</mrow>"
-//                 "</math>"
-//             "</p>"
-//         "</body>") <<
-//         document.ToHtml();
+    document.InsertCode(false, true);
+    document.InsertString("x", true);
+    document.InsertPlus(true);
+    document.InsertString("1", true);
+    document.InsertDivision(true);
+    document.InsertString("2", true);
+    document.WaitTask(document.MoveCaretRight(false));
+    document.WaitTask(document.InsertEquation(ResultType::SYMBOLIC_RATIONAL, true));
+    document.WaitSolver();
+    ASSERT_TRUE(document.ToHtml() ==
+        "<body>"
+            "<p>"
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"
+                    "<mrow>"
+                        "<mrow>"
+                            "<mi>x</mi>"
+                            "<mo>+</mo>"
+                            "<mfrac>"
+                                "<mrow>"
+                                    "<mi>1</mi>"
+                                "</mrow>"
+                                "<mrow>"
+                                    "<mi>2</mi>"
+                                "</mrow>"
+                            "</mfrac>"
+                        "</mrow>"
+                        "<mo>=</mo>"
+                        "<mrow>"
+                            "<mrow>"
+                                "<mfrac>"
+                                    "<mrow>"
+                                        "<mi>1</mi>"
+                                    "</mrow>"
+                                    "<mrow>"
+                                        "<mi>2</mi>"
+                                    "</mrow>"
+                                "</mfrac>"
+                                "<mo>+</mo>"
+                                "<mi>x</mi>"
+                            "</mrow>"
+                        "</mrow>"
+                    "</mrow>"
+                "</math>"
+            "</p>"
+        "</body>") <<
+        document.ToHtml();
 
-//     document.Undo();
-//     document.WaitUndo();
-//     std::this_thread::sleep_for(200ms);
-//     ASSERT_TRUE(document.ToHtml() ==
-//         "<body>"
-//             "<p>"
-//                 "<math xmlns='http://www.w3.org/1998/Math/MathML'>"
-//                     "<mrow>"
-//                         "<mi>x</mi>"
-//                         "<mo>+</mo>"
-//                         "<mfrac>"
-//                             "<mrow>"
-//                                 "<mi>1</mi>"
-//                             "</mrow>"
-//                             "<mrow>"
-//                                 "<mi>2</mi>"
-//                             "</mrow>"
-//                         "</mfrac>"
-//                     "</mrow>"
-//                 "</math>"
-//             "</p>"
-//         "</body>") <<
-//         document.ToHtml();
-// }
+    document.Undo();
+    document.WaitUndo();
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.ToHtml() ==
+        "<body>"
+            "<p>"
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"
+                    "<mrow>"
+                        "<mi>x</mi>"
+                        "<mo>+</mo>"
+                        "<mfrac>"
+                            "<mrow>"
+                                "<mi>1</mi>"
+                            "</mrow>"
+                            "<mrow>"
+                                "<mi>2</mi>"
+                            "</mrow>"
+                        "</mfrac>"
+                    "</mrow>"
+                "</math>"
+            "</p>"
+        "</body>") <<
+        document.ToHtml();
+}
 
-// TEST_F(SolverSymbolicTest, solver11)
-// {
-//     Start(600);
+TEST_F(SolverSymbolicTest, solver11)
+{
+    Start(600);
 
-//     document.InsertCode(false, true);
-//     document.InsertString("x", true);
-//     document.InsertPlus(true);
-//     document.InsertString("1", true);
-//     document.InsertPlus(true);
-//     document.InsertString("i", true);
-//     document.WaitTask(document.InsertEquation(ResultType::SYMBOLIC_COMPLEX, true));
-//     document.WaitSolver();
-//     ASSERT_TRUE(document.ToHtml() ==
-//         "<body>"
-//             "<p>"
-//                 "<math xmlns='http://www.w3.org/1998/Math/MathML'>"
-//                     "<mrow>"
-//                         "<mrow>"
-//                             "<mi>x</mi>"
-//                             "<mo>+</mo>"
-//                             "<mi>1</mi>"
-//                             "<mo>+</mo>"
-//                             "<mi>i</mi>"
-//                         "</mrow>"
-//                         "<mo>=</mo>"
-//                         "<mrow>"
-//                             "<mrow>"
-//                                 "<mi>1</mi>"
-//                                 "<mo>+</mo>"
-//                                 "<mi>i</mi>"
-//                                 "<mo>+</mo>"
-//                                 "<mi>x</mi>"
-//                             "</mrow>"
-//                         "</mrow>"
-//                     "</mrow>"
-//                 "</math>"
-//             "</p>"
-//         "</body>") <<
-//         document.ToHtml();
+    document.InsertCode(false, true);
+    document.InsertString("x", true);
+    document.InsertPlus(true);
+    document.InsertString("1", true);
+    document.InsertPlus(true);
+    document.InsertString("i", true);
+    document.WaitTask(document.InsertEquation(ResultType::SYMBOLIC_COMPLEX, true));
+    document.WaitSolver();
+    ASSERT_TRUE(document.ToHtml() ==
+        "<body>"
+            "<p>"
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"
+                    "<mrow>"
+                        "<mrow>"
+                            "<mi>x</mi>"
+                            "<mo>+</mo>"
+                            "<mi>1</mi>"
+                            "<mo>+</mo>"
+                            "<mi>i</mi>"
+                        "</mrow>"
+                        "<mo>=</mo>"
+                        "<mrow>"
+                            "<mrow>"
+                                "<mi>1.</mi>"
+                                "<mo>+</mo>"
+                                "<mi>i</mi>"
+                                "<mo>+</mo>"
+                                "<mi>x</mi>"
+                            "</mrow>"
+                        "</mrow>"
+                    "</mrow>"
+                "</math>"
+            "</p>"
+        "</body>") <<
+        document.ToHtml();
 
-//     document.Undo();
-//     document.WaitUndo();
-//     std::this_thread::sleep_for(200ms);
-//     ASSERT_TRUE(document.ToHtml() ==
-//         "<body>"
-//             "<p>"
-//                 "<math xmlns='http://www.w3.org/1998/Math/MathML'>"
-//                     "<mrow>"
-//                         "<mi>x</mi>"
-//                         "<mo>+</mo>"
-//                         "<mi>1</mi>"
-//                         "<mo>+</mo>"
-//                         "<mi>i</mi>"
-//                     "</mrow>"
-//                 "</math>"
-//             "</p>"
-//         "</body>") <<
-//         document.ToHtml();
-// }
+    document.Undo();
+    document.WaitUndo();
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.ToHtml() ==
+        "<body>"
+            "<p>"
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"
+                    "<mrow>"
+                        "<mi>x</mi>"
+                        "<mo>+</mo>"
+                        "<mi>1</mi>"
+                        "<mo>+</mo>"
+                        "<mi>i</mi>"
+                    "</mrow>"
+                "</math>"
+            "</p>"
+        "</body>") <<
+        document.ToHtml();
+}
 
 TEST_F(SolverSymbolicTest, solver12)
 {
@@ -877,6 +873,131 @@ TEST_F(SolverSymbolicTest, solver15)
     document.WaitTask(document.InsertEquation(ResultType::SYMBOLIC_REAL, true));
     document.WaitSolver();
     ASSERT_TRUE(document.ToText() == U"subs(pow(yy,3),yy,5)=125.") << ToBasicString(document.ToText());
+}
+
+TEST_F(SolverSymbolicTest, solver16)
+{
+    Start(600);
+
+    document.WaitTask(document.SetLocale(yutovo_calculator::Language::Russian, true));
+    document.InsertCode(false, true);
+    document.InsertString("123.", true);
+    document.InsertString(" ", true);
+    document.InsertString("ее", true);
+    document.WaitTask(document.InsertEquation(ResultType::SYMBOLIC_REAL, true));
+    document.WaitSolver();
+    ASSERT_TRUE(document.ToText() == U"123.ее=123*ее") << ToBasicString(document.ToText());
+}
+
+TEST_F(SolverSymbolicTest, solver17)
+{
+    Start(600);
+
+    document.WaitTask(document.SetLocale(yutovo_calculator::Language::Russian, true));
+    document.InsertCode(false, true);
+    document.InsertString("123.", true);
+    document.InsertString(" ", true);
+    document.InsertString("ее", true);
+    document.InsertDivision(true);
+    document.InsertString("п", true);
+    document.WaitTask(document.MoveCaretRight(false));
+    document.WaitTask(document.InsertEquation(ResultType::SYMBOLIC_REAL, true));
+    document.WaitSolver();
+    ASSERT_TRUE(document.ToHtml() ==
+        "<body>"
+            "<p>"
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"
+                    "<mrow>"
+                        "<mrow>"
+                            "<mi>123.</mi>"
+                            "<mfrac>"
+                                "<mrow>"
+                                    "<mi>ее</mi>"
+                                "</mrow>"
+                                "<mrow>"
+                                    "<mi>п</mi>"
+                                "</mrow>"
+                            "</mfrac>"
+                        "</mrow>"
+                        "<mo>=</mo>"
+                        "<mrow>"
+                            "<mfrac>"
+                                "<mrow>"
+                                    "<mi>123</mi>"
+                                    "<mo>×</mo>"
+                                    "<mi>ее</mi>"
+                                "</mrow>"
+                                "<mrow>"
+                                    "<mi>п</mi>"
+                                "</mrow>"
+                            "</mfrac>"
+                        "</mrow>"
+                    "</mrow>"
+                "</math>"
+            "</p>"
+        "</body>") <<
+        document.ToHtml();
+}
+
+TEST_F(SolverSymbolicTest, solver18)
+{
+    Start(600);
+
+    document.WaitTask(document.SetLocale(yutovo_calculator::Language::Russian, true));
+    document.InsertCode(false, true);
+    document.InsertString("4", true);
+    document.InsertString(" ", true);
+    document.InsertString("м", true);
+    document.InsertDivision(true);
+    document.InsertString("с", true);
+    document.WaitTask(document.MoveCaretRight(false));
+    document.WaitTask(document.InsertEquation(ResultType::SYMBOLIC_REAL, true));
+    document.WaitSolver();
+    ASSERT_TRUE(document.ToHtml() ==
+        "<body>"
+            "<p>"
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"
+                    "<mrow>"
+                        "<mrow>"
+                            "<mi>4</mi>"
+                            "<mfrac>"
+                                "<mrow>"
+                                    "<mi>м</mi>"
+                                "</mrow>"
+                                "<mrow>"
+                                    "<mi>с</mi>"
+                                "</mrow>"
+                            "</mfrac>"
+                        "</mrow>"
+                        "<mo>=</mo>"
+                        "<mrow>"
+                            "<mfrac>"
+                                "<mrow>"
+                                    "<mi>4.</mi>"
+                                    "<mo>×</mo>"
+                                    "<mi>м</mi>"
+                                "</mrow>"
+                                "<mrow>"
+                                    "<mi>с</mi>"
+                                "</mrow>"
+                            "</mfrac>"
+                        "</mrow>"
+                    "</mrow>"
+                "</math>"
+            "</p>"
+        "</body>") <<
+        document.ToHtml();
+}
+
+TEST_F(SolverSymbolicTest, solver19)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.InsertString("1.23456789", true);
+    document.WaitTask(document.InsertEquation(ResultType::SYMBOLIC_REAL, true));
+    document.WaitSolver();
+    ASSERT_TRUE(document.ToText() == U"1.23456789=1.235") << ToBasicString(document.ToText());
 }
 
 }

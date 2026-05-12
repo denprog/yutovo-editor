@@ -2540,7 +2540,7 @@ TEST_F(SolverAutoTest, units13)
     document.WaitSolver();
     std::this_thread::sleep_for(2s);
     ASSERT_TRUE(document.ToText() == 
-        U"1м=1.м"
+        U"1м=м"
         ) << ToBasicString(document.ToText());
 }
 
@@ -2654,7 +2654,7 @@ TEST_F(SolverAutoTest, symbolic1)
     document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
     document.WaitSolver();
     std::this_thread::sleep_for(1s);
-    ASSERT_TRUE(document.ToText() == U"x+1=1+x") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.ToText() == U"x+1=1.+x") << ToBasicString(document.ToText());
 
     document.Undo();
     document.WaitUndo();
@@ -2697,7 +2697,7 @@ TEST_F(SolverAutoTest, symbolic3)
     document.InsertCloseRoundBracket(true);
     document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
     document.WaitSolver();
-    ASSERT_TRUE(document.ToText() == U"diff(pow(x,2),x)=2*x") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.ToText() == U"diff(pow(x,2),x)=2.*x") << ToBasicString(document.ToText());
 
     document.Undo();
     document.WaitUndo();
@@ -2725,7 +2725,7 @@ TEST_F(SolverAutoTest, symbolic4)
     document.InsertCloseRoundBracket(true);
     document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
     document.WaitSolver();
-    ASSERT_TRUE(document.ToText() == U"expand(pow((x+1),2))=1+2*x+pow(x,2)") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.ToText() == U"expand(pow((x+1),2))=1.+2.*x+pow(x,2.)") << ToBasicString(document.ToText());
 
     document.Undo();
     document.WaitUndo();
@@ -2792,7 +2792,7 @@ TEST_F(SolverAutoTest, symbolic7)
     document.InsertString("i", true);
     document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
     document.WaitSolver();
-    ASSERT_TRUE(document.ToText() == U"x+1+i=1+i+x") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.ToText() == U"x+1+i=1.+i+x") << ToBasicString(document.ToText());
 
     document.Undo();
     document.WaitUndo();

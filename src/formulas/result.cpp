@@ -307,6 +307,30 @@ void ResultRow::AddResult()
     next_result = true; //adding next elements will be proceed on the next row
 }
 
+bool ResultRow::AddJsonElements(const std::string& json_str)
+{
+    rapidjson::Document doc;
+    doc.Parse(json_str.c_str());
+    if (doc.HasParseError() || !doc.IsObject())
+        return false;
+    if (!doc.HasMember("elements") || !doc["elements"].IsArray())
+        return false;
+
+    elements->Clear();
+    const rapidjson::Value& elements_json = doc["elements"];
+    rapidjson::Value::ConstArray arr = elements_json.GetArray();
+    for (rapidjson::SizeType i = 0; i < arr.Size(); ++i)
+    {
+        if (!arr[i].IsObject())
+            return false;
+        Element* el = CreateFromJson(this, document, arr[i].GetObject(), doc.GetAllocator());
+        if (!el)
+            return false;
+        elements->Add(ElementPtr(el));
+    }
+    return true;
+}
+
 void ResultRow::AddSymbolicElements(const std::string& expr)
 {
     AddSymbolicElements(this, expr);
@@ -314,10 +338,26 @@ void ResultRow::AddSymbolicElements(const std::string& expr)
 
 void ResultRow::AddSymbolicElements(Element* parent, const std::string& expr)
 {
+    auto is_utf8_continuation = 
+        [](unsigned char c)
+        {
+            return (c & 0xC0) == 0x80;
+        };
+    auto is_ident_start = 
+        [&is_utf8_continuation](unsigned char c) -> bool
+        {
+            return c == '_' || (!is_utf8_continuation(c) && (std::isalpha(c) || c >= 0x80));
+        };
+    auto is_ident_continuation = 
+        [&is_utf8_continuation](unsigned char c) -> bool
+        {
+            return c == '_' || (!is_utf8_continuation(c) && (std::isalnum(c) || c >= 0x80));
+        };
+
     for (size_t i = 0; i < expr.size();)
     {
-        char c = expr[i];
-        if (isspace(static_cast<unsigned char>(c)))
+        unsigned char c = static_cast<unsigned char>(expr[i]);
+        if (isspace(c))
         {
             ++i;
             continue;
@@ -349,18 +389,24 @@ void ResultRow::AddSymbolicElements(Element* parent, const std::string& expr)
                 continue;
             }
         }
-        if (isalpha(static_cast<unsigned char>(c)) || c == '_')
+        if (is_ident_start(c))
         {
-            size_t j = i;
-            while (j < expr.size() && (isalnum(static_cast<unsigned char>(expr[j])) || expr[j] == '_'))
+            size_t j = i + 1;
+            while (j < expr.size() && is_utf8_continuation(static_cast<unsigned char>(expr[j])))
                 ++j;
+            while (j < expr.size() && is_ident_continuation(static_cast<unsigned char>(expr[j])))
+            {
+                ++j;
+                while (j < expr.size() && is_utf8_continuation(static_cast<unsigned char>(expr[j])))
+                    ++j;
+            }
             parent->AddElement(ElementPtr(new CodeString(parent, expr.substr(i, j - i))));
             i = j;
         }
-        else if (isdigit(static_cast<unsigned char>(c)) || c == '.')
+        else if (std::isdigit(c) || c == '.')
         {
-            size_t j = i;
-            while (j < expr.size() && (isdigit(static_cast<unsigned char>(expr[j])) || expr[j] == '.'))
+            size_t j = i + 1;
+            while (j < expr.size() && (std::isdigit(static_cast<unsigned char>(expr[j])) || expr[j] == '.'))
                 ++j;
             parent->AddElement(ElementPtr(new CodeString(parent, expr.substr(i, j - i))));
             i = j;
@@ -371,30 +417,112 @@ void ResultRow::AddSymbolicElements(Element* parent, const std::string& expr)
             {
             case '+':
                 parent->AddElement(ElementPtr(new Plus(parent)));
+                ++i;
                 break;
             case '-':
                 parent->AddElement(ElementPtr(new Minus(parent)));
+                ++i;
                 break;
             case '*':
                 parent->AddElement(ElementPtr(new Multiply(parent)));
+                ++i;
                 break;
             case '/':
-                parent->AddElement(ElementPtr(new CodeString(parent, std::string(1, c))));
+            {
+                Element* target = parent;
+                ResultRow* result_row = dynamic_cast<ResultRow*>(parent);
+                if (result_row)
+                    target = result_row->GetCurRow().get();
+                if (target->elements->Count() > 0)
+                {
+                    ElementPtr numerator = target->elements->Get(target->elements->Count() - 1);
+                    target->elements->RemoveAt(target->elements->Count() - 1, 1);
+
+                    size_t j = i + 1;
+                    while (j < expr.size() && isspace(static_cast<unsigned char>(expr[j])))
+                        ++j;
+
+                    if (j < expr.size())
+                    {
+                        size_t end = j;
+                        unsigned char nc = static_cast<unsigned char>(expr[j]);
+                        if (is_ident_start(nc))
+                        {
+                            end = j + 1;
+                            while (end < expr.size() && is_utf8_continuation(static_cast<unsigned char>(expr[end])))
+                                ++end;
+                            while (end < expr.size() && is_ident_continuation(static_cast<unsigned char>(expr[end])))
+                            {
+                                ++end;
+                                while (end < expr.size() && is_utf8_continuation(static_cast<unsigned char>(expr[end])))
+                                    ++end;
+                            }
+                        }
+                        else if (std::isdigit(nc) || nc == '.')
+                        {
+                            end = j + 1;
+                            while (end < expr.size() && (std::isdigit(static_cast<unsigned char>(expr[end])) || expr[end] == '.'))
+                                ++end;
+                        }
+                        else if (j + 4 <= expr.size() && expr.substr(j, 4) == "pow(")
+                        {
+                            size_t pow_start = j + 4;
+                            int depth = 1;
+                            size_t k = pow_start;
+                            while (k < expr.size() && depth > 0)
+                            {
+                                if (expr[k] == '(')
+                                    ++depth;
+                                else if (expr[k] == ')')
+                                    --depth;
+                                if (depth > 0)
+                                    ++k;
+                            }
+                            end = k + 1;
+                        }
+                        else
+                        {
+                            end = j + 1;
+                        }
+
+                        Division* d = new Division(parent);
+                        d->AddNumerator(numerator);
+                        d->AddDenomerator(ElementPtr(new CodeString(d, expr.substr(j, end - j))));
+                        parent->AddElement(ElementPtr(d));
+                        i = end;
+                        continue;
+                    }
+                    else
+                    {
+                        parent->AddElement(numerator);
+                        parent->AddElement(ElementPtr(new CodeString(parent, "/")));
+                        ++i;
+                    }
+                }
+                else
+                {
+                    parent->AddElement(ElementPtr(new CodeString(parent, "/")));
+                    ++i;
+                }
                 break;
+            }
             case '(':
                 parent->AddElement(ElementPtr(new OpenBracket(parent, ElementType::OPEN_ROUND_BRACKET)));
+                ++i;
                 break;
             case ')':
                 parent->AddElement(ElementPtr(new CloseBracket(parent, ElementType::CLOSE_ROUND_BRACKET)));
+                ++i;
                 break;
             case ',':
                 parent->AddElement(ElementPtr(new Comma(parent)));
+                ++i;
                 break;
             default:
-                parent->AddElement(ElementPtr(new CodeString(parent, std::string(1, c))));
+                parent->AddElement(ElementPtr(new CodeString(parent, std::string(1, expr[i]))));
+                ++i;
                 break;
             }
-            ++i;
         }
     }
 }
@@ -1489,17 +1617,32 @@ void SymbolicComplexResult::PutResult(Result& result)
 {
     if (result.error.error_code == yutovo_solver::ErrorCode::OK && !result.values.empty())
     {
-        std::string re_mantissa = result.values[0].value["re_mantissa"];
-        bool is_symbolic = false;
-        for (char c : re_mantissa)
+        std::string json = result.values[0].value["json"];
+        if (!json.empty() && AddJsonElements(json))
         {
-            if (isalpha(static_cast<unsigned char>(c)))
+            ResultRow::PutResult(result);
+            solving_id.clear();
+            ElementPtr el = document->FindParent(id, ElementType::EQUATION);
+            Equation* eq = (Equation*)el.get();
+            eq->dependencies = result.dependencies;
+            last_error_code = result.error.error_code;
+            if (last_error_code == yutovo_solver::ErrorCode::SOLVER_RESTARTED_ERROR)
             {
-                is_symbolic = true;
-                break;
+                eq->last_expression.Reset();
+                return;
             }
+            document->RemoveErrorMarks(parent->parent->id, &eq->dependencies);
+            if (elements->Count() > 0)
+                RemoveExtraBrackets(elements->Get(elements->Count() - 1).get());
+            if (elements->Count() > 0)
+                elements->Get(0)->SetEditable(false);
+            Remake(true);
+            parent->Remake(true);
+            return;
         }
-        if (is_symbolic)
+
+        std::string value = result.values[0].value["value"];
+        if (!value.empty())
         {
             ResultRow::PutResult(result);
             solving_id.clear();
@@ -1514,7 +1657,7 @@ void SymbolicComplexResult::PutResult(Result& result)
             }
             elements->Clear();
             document->RemoveErrorMarks(parent->parent->id, &eq->dependencies);
-            AddSymbolicElements(re_mantissa);
+            AddSymbolicElements(value);
             if (elements->Count() > 0)
                 RemoveExtraBrackets(elements->Get(elements->Count() - 1).get());
             if (elements->Count() > 0)
@@ -1539,17 +1682,33 @@ void SymbolicRationalResult::PutResult(Result& result)
 {
     if (result.error.error_code == yutovo_solver::ErrorCode::OK && !result.values.empty())
     {
-        std::string numerator = result.values[0].value["numerator"];
-        bool is_symbolic = false;
-        for (char c : numerator)
+        std::string json = result.values[0].value["json"];
+        if (!json.empty() && AddJsonElements(json))
         {
-            if (isalpha(static_cast<unsigned char>(c)))
+            ResultRow::PutResult(result);
+            solving_id.clear();
+            unit_error = false;
+            ElementPtr el = document->FindParent(id, ElementType::EQUATION);
+            Equation* eq = (Equation*)el.get();
+            eq->dependencies = result.dependencies;
+            last_error_code = result.error.error_code;
+            if (last_error_code == yutovo_solver::ErrorCode::SOLVER_RESTARTED_ERROR)
             {
-                is_symbolic = true;
-                break;
+                eq->last_expression.Reset();
+                return;
             }
+            document->RemoveErrorMarks(parent->parent->id, &eq->dependencies);
+            if (elements->Count() > 0)
+                RemoveExtraBrackets(elements->Get(elements->Count() - 1).get());
+            if (elements->Count() > 0)
+                elements->Get(0)->SetEditable(false);
+            Remake(true);
+            parent->Remake(true);
+            return;
         }
-        if (is_symbolic)
+
+        std::string value = result.values[0].value["value"];
+        if (!value.empty())
         {
             ResultRow::PutResult(result);
             solving_id.clear();
@@ -1565,7 +1724,7 @@ void SymbolicRationalResult::PutResult(Result& result)
             }
             elements->Clear();
             document->RemoveErrorMarks(parent->parent->id, &eq->dependencies);
-            AddSymbolicElements(numerator);
+            AddSymbolicElements(value);
 
             if (elements->Count() > 0)
             {
@@ -1614,11 +1773,36 @@ void SymbolicRealResult::PutResult(Result& result)
 {
     if (result.error.error_code == yutovo_solver::ErrorCode::OK && !result.values.empty())
     {
+        std::string json = result.values[0].value["json"];
+        if (!json.empty() && AddJsonElements(json))
+        {
+            ResultRow::PutResult(result);
+            solving_id.clear();
+            unit_error = false;
+            ElementPtr el = document->FindParent(id, ElementType::EQUATION);
+            Equation* eq = (Equation*)el.get();
+            eq->dependencies = result.dependencies;
+            last_error_code = result.error.error_code;
+            if (last_error_code == yutovo_solver::ErrorCode::SOLVER_RESTARTED_ERROR)
+            {
+                eq->last_expression.Reset();
+                return;
+            }
+            document->RemoveErrorMarks(parent->parent->id, &eq->dependencies);
+            if (elements->Count() > 0)
+                RemoveExtraBrackets(elements->Get(elements->Count() - 1).get());
+            if (elements->Count() > 0)
+                elements->Get(0)->SetEditable(false);
+            Remake(true);
+            parent->Remake(true);
+            return;
+        }
+
         std::string value = result.values[0].value["value"];
         bool is_symbolic = false;
-        for (char c : value)
+        for (unsigned char c : value)
         {
-            if (isalpha(static_cast<unsigned char>(c)))
+            if (c >= 0x80 || std::isalpha(c))
             {
                 is_symbolic = true;
                 break;
