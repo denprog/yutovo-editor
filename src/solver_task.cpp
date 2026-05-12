@@ -413,6 +413,8 @@ bool SolverTask::FillSymbolicResult(rapidjson::Document& doc, Result& result)
 
     Value value;
     value.value["value"] = doc["value"].GetString();
+    if (doc.HasMember("json") && doc["json"].IsString())
+        value.value["json"] = doc["json"].GetString();
     result.values.push_back(value);
     return true;
 }
@@ -573,11 +575,11 @@ bool AutoSolverTask::Execute(WebSocketPtr socket, Result& result)
             return false;
         break;
     case ResultType::SYMBOLIC_RATIONAL:
-        if (!FillRationalResult(doc, result))
+        if (!FillSymbolicResult(doc, result))
             return false;
         break;
     case ResultType::SYMBOLIC_COMPLEX:
-        if (!FillComplexResult(doc, result))
+        if (!FillSymbolicResult(doc, result))
             return false;
         break;
     default:
