@@ -3174,10 +3174,31 @@ ResultType Document::GetResultType(ElementId _id)
 {
     std::lock_guard<std::recursive_mutex> lock(edit_mutex);
     auto el = GetElement(_id);
-    AutoResult* r = (AutoResult*)el.get();
-    if (!r)
+    if (el->elements->Count() == 0)
         return ResultType::NONE;
-    return r->GetResultType();
+    switch (el->elements->Get(0)->type)
+    {
+    case ElementType::AUTO_RESULT:
+    case ElementType::ERROR_RESULT:
+        return ResultType::AUTO;
+    case ElementType::REAL_RESULT:
+        return ResultType::REAL;
+    case ElementType::INTEGER_RESULT:
+        return ResultType::INTEGER;
+    case ElementType::RATIONAL_RESULT:
+        return ResultType::RATIONAL;
+    case ElementType::COMPLEX_RESULT:
+        return ResultType::COMPLEX;
+    case ElementType::ARRAY_REAL_RESULT:
+        return ResultType::ARRAY_REAL;
+    case ElementType::SYMBOLIC_REAL_RESULT:
+        return ResultType::SYMBOLIC_REAL;
+    case ElementType::SYMBOLIC_RATIONAL_RESULT:
+        return ResultType::SYMBOLIC_RATIONAL;
+    case ElementType::SYMBOLIC_COMPLEX_RESULT:
+        return ResultType::SYMBOLIC_COMPLEX;
+    }
+    return ResultType::NONE;
 }
 
 uint Document::SetResultType(ElementId _id, ResultType result_type, bool with_undo)
