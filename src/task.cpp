@@ -1647,6 +1647,7 @@ bool SaveTask::Execute()
         json.AddMember("text", t, alloc);
         document->saving = false;
         text->Remake(true);
+        document->Redraw();
         document->SetEditorState(c_s);
 
         //add caret and selection
