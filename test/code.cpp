@@ -1895,4 +1895,23 @@ TEST_F(CodeTest, code33)
         ElementSelectionState{ElementId{0, 1, 0}, 1, 2})) << document.GetEditorState().ToString();
 }
 
+//Select a multi-paragraph code block to the left
+TEST_F(CodeTest, code34)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.WaitTask(document.InsertString("aaa", true));
+    document.InsertParagraph(true);
+    document.WaitTask(document.InsertString("bbb", true));
+    document.InsertParagraph(true);
+    document.WaitTask(document.InsertString("ccc", true));
+    
+    for (int i = 0; i < 12; ++i)
+        document.WaitTask(document.MoveCaretLeft(true));
+    
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0}, 
+        ElementSelectionState{ElementId{0}, 0, 1})) << document.GetEditorState().ToString();
+}
+
 }

@@ -1230,7 +1230,7 @@ TEST_F(VariablesTest, variables20)
     document.WaitTask(document.MoveCaretEnd(false));
     document.InsertParagraph(true);
     document.InsertString("v", true);
-    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitTask(document.InsertEquation(ResultType::REAL, true));
     document.WaitSolver();
     std::this_thread::sleep_for(2s);
 
@@ -1321,14 +1321,20 @@ TEST_F(VariablesTest, variables21)
     document.InsertString(" ", true);
     document.InsertString("км", true);
     document.WaitSolver();
-
     document.WaitTask(document.DeleteElements(true, true));
     document.WaitSolver();
+
+    document.InsertParagraph(true);
+    document.InsertString("Р_З", true);
+    document.WaitTask(document.InsertEquation(ResultType::REAL, true));
+    document.WaitSolver();
+
     std::this_thread::sleep_for(2s);
     ASSERT_TRUE(document.ToText() == 
         U"Example 1\n" \
         U"Вычисление\n" \
-        U"Р_З=6370к" \
+        U"Р_З=6370к\n" \
+        U"Р_З=Unknown identifier" \
         ) << ToBasicString(document.ToText());
     int start, size;
     ASSERT_TRUE(document.HasErrorMark(ElementId{0, 2, 0, 0, 0, 0, 0}, start, size)) << ErrorMarks();

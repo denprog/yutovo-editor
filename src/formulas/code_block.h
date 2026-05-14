@@ -40,6 +40,8 @@ public:
     virtual Color GetBackgroundColor() const;
 
     virtual bool GetTopCaretState(const int x, const int y, CaretState& caret_state, Selection* select);
+    virtual bool GetLeftCaretState(CaretState& caret_state, Selection* select);
+    virtual bool GetRightCaretState(CaretState& caret_state, Selection* select);
     virtual bool GetWordLeftCaretState(CaretState& caret_state, Selection* select);
 
     virtual bool AfterInsert(bool with_undo);

@@ -1588,7 +1588,7 @@ TEST_F(DocumentTest, clipboard26)
     document.WaitTask(document.MoveCaretRight(false));
     document.WaitTask(document.Paste(clipboard_json));
     ASSERT_TRUE(document.ToText() == 
-        U"String()/()ring()/()"
+        U"String()/()ing()/()"
         ) << ToBasicString(document.ToText());
 
     document.Undo();
