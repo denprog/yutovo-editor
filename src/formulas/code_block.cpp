@@ -178,6 +178,50 @@ bool CodeBlock::GetTopCaretState(const int x, const int y, CaretState& caret_sta
     return Block::GetTopCaretState(x, y, caret_state, select);
 }
 
+bool CodeBlock::GetLeftCaretState(CaretState& caret_state, Selection* select)
+{
+    if (!IsVisible())
+        return false;
+    if (caret_state.IsInsideElement(id))
+    {
+        if (elements->GetLeftCaretState(caret_state, select))
+            return true;
+        if (select)
+        {
+            ElementSelection s;
+            if (!selection->Has(id, s) || s.size != elements->Count())
+                select->Add(id);
+            caret_state.SetState(parent->id, parent->elements->GetElementPos(id));
+            return true;
+        }
+    }
+    if (parent)
+        return parent->GetLeftCaretState(caret_state, select);
+    return false;
+}
+
+bool CodeBlock::GetRightCaretState(CaretState& caret_state, Selection* select)
+{
+    if (!IsVisible())
+        return false;
+    if (caret_state.IsInsideElement(id))
+    {
+        if (elements->GetRightCaretState(caret_state, select))
+            return true;
+        if (select)
+        {
+            ElementSelection s;
+            if (!selection->Has(id, s) || s.size != elements->Count())
+                select->Add(id);
+            caret_state.SetState(parent->id, parent->elements->GetElementPos(id) + 1, true);
+            return true;
+        }
+    }
+    if (parent)
+        return parent->GetRightCaretState(caret_state, select);
+    return false;
+}
+
 bool CodeBlock::GetWordLeftCaretState(CaretState& caret_state, Selection* select)
 {
     if (caret_state.IsInsideElement(id))
