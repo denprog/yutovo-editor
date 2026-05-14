@@ -1008,6 +1008,14 @@ void StringElements::Draw() const
     }
     else
     {
+        StringFormatPtr fmt = p->draw_format;
+        bool has_underline = fmt->underline;
+        if (has_underline)
+        {
+            StringFormat f = *fmt;
+            f.underline = false;
+            fmt = p->document->string_formats->GetFormat(f);
+        }
         for (int i = 0; i < str.length(); ++i)
         {
             if (str[i] == U'\t')
@@ -1018,13 +1026,23 @@ void StringElements::Draw() const
             std::string sub = ToBasicString(ch);
             if (i >= start && i < start + size)
             {
-                p->window->DrawText(sub, p->draw_format, Rect{r.left + s.width - w, r.top, w, r.height}, 
+                p->window->DrawText(sub, fmt, Rect{r.left + s.width - w, r.top, w, r.height}, 
                     p->draw_format->text_bg_color, p->draw_format->text_bg_selection_color, true);
             }
             else
             {
-                p->window->DrawText(sub, p->draw_format, Rect{r.left + s.width - w, r.top, w, r.height}, 
+                p->window->DrawText(sub, fmt, Rect{r.left + s.width - w, r.top, w, r.height}, 
                     p->draw_format->text_color, p->draw_format->text_bg_color, true);
+            }
+        }
+
+        if (has_underline)
+        {
+            yutovo::Size text_size = p->GetTextSize(str.length());
+            if (text_size.width > 0)
+            {
+                int ascent = p->window->GetFontAscent(p->draw_format);
+                p->window->DrawLine(r.left, r.top + ascent + 1, r.left + text_size.width, r.top + ascent + 1, p->draw_format->text_color);
             }
         }
     }

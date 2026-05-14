@@ -276,6 +276,14 @@ void CodeString::Draw() const
         window->DrawFillRect(Rect{r.left + s1.width, r.top, s2.width - s1.width, r.height}, document->config.bg_selection_color);
     }
 
+    StringFormatPtr fmt = draw_format;
+    bool has_underline = fmt->underline;
+    if (has_underline)
+    {
+        StringFormat f = *fmt;
+        f.underline = false;
+        fmt = document->string_formats->GetFormat(f);
+    }
     int p = 0;
     for (int i = 0; i < str.length(); ++i)
     {
@@ -291,41 +299,51 @@ void CodeString::Draw() const
         if (color1.first != -1 && i < color1.first)
         {
             if (size != 0 && i >= start && i < start + size)
-                window->DrawText(ch, draw_format, Rect{r.left + s.width - w, r.top, w, r.height}, document->config.formula_bg_color, 
+                window->DrawText(ch, fmt, Rect{r.left + s.width - w, r.top, w, r.height}, document->config.formula_bg_color, 
                     document->config.bg_selection_color, true);
             else
-                window->DrawText(ch, draw_format, Rect{r.left + s.width - w, r.top, w, r.height}, color1.second, 
+                window->DrawText(ch, fmt, Rect{r.left + s.width - w, r.top, w, r.height}, color1.second, 
                     document->config.formula_bg_color, true);
         }
         else if (color1.first != -1 && color2.first != -1 && i >= color1.first && i < color1.first + color2.first)
         {
             if (size != 0 && i >= start && i < start + size)
-                window->DrawText(ch, draw_format, Rect{r.left + s.width - w, r.top, w, r.height}, document->config.formula_bg_color, 
+                window->DrawText(ch, fmt, Rect{r.left + s.width - w, r.top, w, r.height}, document->config.formula_bg_color, 
                     document->config.bg_selection_color, true);
             else
-                window->DrawText(ch, draw_format, Rect{r.left + s.width - w, r.top, w, r.height}, color2.second, 
+                window->DrawText(ch, fmt, Rect{r.left + s.width - w, r.top, w, r.height}, color2.second, 
                     document->config.formula_bg_color, true);
         }
         else if (gap == 0)
         {
             if (size != 0 && i >= start && i < start + size)
-                window->DrawText(ch, draw_format, Rect{r.left + s.width - w, r.top, w, r.height}, document->config.formula_bg_color, 
+                window->DrawText(ch, fmt, Rect{r.left + s.width - w, r.top, w, r.height}, document->config.formula_bg_color, 
                     document->config.bg_selection_color, true);
             else
-                window->DrawText(ch, draw_format, Rect{r.left + s.width - w, r.top, w, r.height}, draw_format->text_color, 
+                window->DrawText(ch, fmt, Rect{r.left + s.width - w, r.top, w, r.height}, draw_format->text_color, 
                     document->config.formula_bg_color, true);
         }
         else
         {
             if (size != 0 && i >= start && i < start + size)
-                window->DrawText(ch, draw_format, Rect{r.left + s.width - w, r.top, w, r.height}, 
+                window->DrawText(ch, fmt, Rect{r.left + s.width - w, r.top, w, r.height}, 
                     document->config.numbers_color, document->config.formula_bg_color, true);
             else
-                window->DrawText(ch, draw_format, Rect{r.left + s.width - w, r.top, w, r.height}, document->config.numbers_color, 
+                window->DrawText(ch, fmt, Rect{r.left + s.width - w, r.top, w, r.height}, document->config.numbers_color, 
                     document->config.formula_bg_color, true);
         }
 
         p = s.width;
+    }
+
+    if (has_underline)
+    {
+        yutovo::Size text_size = GetTextSize(str.length());
+        if (text_size.width > 0)
+        {
+            int ascent = window->GetFontAscent(draw_format);
+            window->DrawLine(r.left, r.top + ascent + 1, r.left + text_size.width, r.top + ascent + 1, draw_format->text_color);
+        }
     }
 
     if (elements->Count() == 0)
