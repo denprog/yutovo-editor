@@ -1000,4 +1000,133 @@ TEST_F(SolverSymbolicTest, solver19)
     ASSERT_TRUE(document.ToText() == U"1.23456789=1.235") << ToBasicString(document.ToText());
 }
 
+TEST_F(SolverSymbolicTest, solver20)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.InsertString("12345", true);
+    document.WaitTask(document.InsertEquation(ResultType::SYMBOLIC_REAL, true));
+    document.WaitSolver();
+    document.WaitTask(document.SetExp({0, 0, 0, 0, 0, 0, 0, 2, 0, 0}, 2, true));
+    document.WaitSolver();
+    ASSERT_TRUE(document.ToHtml() ==
+        "<body>"
+            "<p>"
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"
+                    "<mrow>"
+                        "<mrow>"
+                            "<mi>12345</mi>"
+                        "</mrow>"
+                        "<mo>=</mo>"
+                        "<mrow>"
+                            "<mrow>"
+                                "<mi>1.234</mi>"
+                                "<mo>×</mo>"
+                                "<msup>"
+                                    "<mrow>"
+                                        "<mi>10</mi>"
+                                    "</mrow>"
+                                    "<mrow>"
+                                        "<mi>4</mi>"
+                                    "</mrow>"
+                                "</msup>"
+                            "</mrow>"
+                        "</mrow>"
+                    "</mrow>"
+                "</math>"
+            "</p>"
+        "</body>") <<
+        document.ToHtml();
+}
+
+TEST_F(SolverSymbolicTest, solver21)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.InsertString("12345", true);
+    document.WaitTask(document.InsertEquation(ResultType::SYMBOLIC_REAL, true));
+    document.WaitSolver();
+    document.WaitTask(document.SetExp({0, 0, 0, 0, 0, 0, 0, 2, 0, 0}, 10, true));
+    document.WaitSolver();
+    ASSERT_TRUE(document.ToHtml() ==
+        "<body>"
+            "<p>"
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"
+                    "<mrow>"
+                        "<mrow>"
+                            "<mi>12345</mi>"
+                        "</mrow>"
+                        "<mo>=</mo>"
+                        "<mrow>"
+                            "<mrow>"
+                                "<mi>12345.</mi>"
+                            "</mrow>"
+                        "</mrow>"
+                    "</mrow>"
+                "</math>"
+            "</p>"
+        "</body>") <<
+        document.ToHtml();
+}
+
+TEST_F(SolverSymbolicTest, solver22)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.InsertString("12345", true);
+    document.InsertPlus(true);
+    document.InsertString("67890", true);
+    document.InsertString("i", true);
+    document.WaitTask(document.InsertEquation(ResultType::SYMBOLIC_COMPLEX, true));
+    document.WaitSolver();
+    document.WaitTask(document.SetExp({0, 0, 0, 0, 0, 0, 0, 2, 0, 0}, 2, true));
+    document.WaitSolver();
+    ASSERT_TRUE(document.ToHtml() ==
+        "<body>"
+            "<p>"
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"
+                    "<mrow>"
+                        "<mrow>"
+                            "<mi>12345</mi>"
+                            "<mo>+</mo>"
+                            "<mi>67890i</mi>"
+                        "</mrow>"
+                        "<mo>=</mo>"
+                        "<mrow>"
+                            "<mrow>"
+                                "<mi>1.234</mi>"
+                                "<mo>×</mo>"
+                                "<msup>"
+                                    "<mrow>"
+                                        "<mi>10</mi>"
+                                    "</mrow>"
+                                    "<mrow>"
+                                        "<mi>4</mi>"
+                                    "</mrow>"
+                                "</msup>"
+                                "<mo>+</mo>"
+                                "<mi>6.789</mi>"
+                                "<mo>×</mo>"
+                                "<msup>"
+                                    "<mrow>"
+                                        "<mi>10</mi>"
+                                    "</mrow>"
+                                    "<mrow>"
+                                        "<mi>4</mi>"
+                                    "</mrow>"
+                                "</msup>"
+                                "<mo>×</mo>"
+                                "<mi>i</mi>"
+                            "</mrow>"
+                        "</mrow>"
+                    "</mrow>"
+                "</math>"
+            "</p>"
+        "</body>") <<
+        document.ToHtml();
+}
+
 }
