@@ -5,8 +5,8 @@
  * SPDX-License-Identifier: GPL-3.0-only
  */
 
-#ifndef __EDITOR_H__
-#define __EDITOR_H__
+#ifndef __EDITOR_STATE_H__
+#define __EDITOR_STATE_H__
 
 #include "caret_state.h"
 #include "selection.h"

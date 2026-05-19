@@ -19,8 +19,6 @@
 namespace yutovo
 {
 
-using namespace yutovo_solver;
-
 class Logger;
 
 struct SolverTask

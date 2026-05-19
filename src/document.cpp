@@ -314,7 +314,7 @@ void Document::MainLoop()
                         last_undo_task_id = undo_tasks.back()->id;
                     
                     int i = 0;
-                    for (i = redo_tasks.size() - 1; i >=0; --i)
+                    for (i = (int)redo_tasks.size() - 1; i >= 0; --i)
                     {
                         if (redo_tasks[i]->id == last_undo_task_id)
                             break;
@@ -686,7 +686,7 @@ uint Document::InsertAssignment(bool with_undo)
 
 uint Document::InsertUnit(bool with_undo)
 {
-    LOG_TRACE("Insert assignment");
+    LOG_TRACE("Insert unit");
     return InsertFormula(new Unit(this), with_undo);
 }
 
@@ -2546,16 +2546,18 @@ bool Document::MouseMove(const int x, const int y)
 
 bool Document::MouseWheel(const int x, const int y, const Point pixel_delta, const Point angle_delta)
 {
-    std::lock_guard<std::recursive_mutex> lock(edit_mutex);
     ElementId id;
-    ElementPtr el = GetElement(mouse_capture_id);
-    if (el)
-        return false;
-    if (!GetElementAtCoords(x, y, 0, id))
-        return false;
-    el = GetElement(id);
-    if (!el || !el->can_move_picture)
-        return false;
+    {
+        std::lock_guard<std::recursive_mutex> lock(edit_mutex);
+        ElementPtr el = GetElement(mouse_capture_id);
+        if (el)
+            return false;
+        if (!GetElementAtCoords(x, y, 0, id))
+            return false;
+        el = GetElement(id);
+        if (!el || !el->can_move_picture)
+            return false;
+    }
     
     if (!pixel_delta.IsNull())
     {
@@ -2618,7 +2620,7 @@ bool Document::CanRedo()
         last_undo_task_id = undo_tasks.back()->id;
     
     int i = 0;
-    for (i = redo_tasks.size() - 1; i >= 0; --i)
+    for (i = (int)redo_tasks.size() - 1; i >= 0; --i)
     {
         if (redo_tasks[i]->id == last_undo_task_id)
             break;
