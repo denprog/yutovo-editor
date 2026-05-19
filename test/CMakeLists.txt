@@ -12,7 +12,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 if(WIN32)
 	set(CMAKE_PREFIX_PATH "${INSTALL_PATH}")
 else()
-	set(GTest_DIR "/usr/lib/x86_64-linux-gnu/cmake/GTest")
+	find_package(GTest)
 endif()
 
 enable_testing()

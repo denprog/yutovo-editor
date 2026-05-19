@@ -17,10 +17,7 @@
 namespace yutovo
 {
 
-typedef unsigned int uint;
-
 using namespace yutovo_solver;
-using namespace yutovo_calculator;
 
 struct Config
 {
