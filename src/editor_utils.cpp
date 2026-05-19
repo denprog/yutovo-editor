@@ -396,6 +396,8 @@ std::string ErrorCodeToString(const yutovo_calculator::ParserExceptionCode parse
             {ParserExceptionCode::DivisionByZero, "Division by zero"},
             {ParserExceptionCode::Overflow, "Overflow"},
             {ParserExceptionCode::ArgumentIsOver, "Argument is over"},
+            {ParserExceptionCode::NotImplemented, "Function is not implemented"},
+            {ParserExceptionCode::SerializationError, "Data conversion error"},
             {ParserExceptionCode::ConversionDoesNotFit, "Conversion does not fit"},
             {ParserExceptionCode::IncorrectComparison, "Incorrect comparasion"},
             {ParserExceptionCode::IncorrectOperation, "Incorrect operation"},
