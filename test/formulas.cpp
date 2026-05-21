@@ -2992,7 +2992,7 @@ TEST_F(FormulaTest, fonts11)
     el = document.FindByString({0}, U"123");
     ASSERT_TRUE(document.GetStringFormat(el->id, format));
     ASSERT_TRUE(format.size == 14);
-        
+
     el = document.FindByString({0}, U"123.");
     ASSERT_TRUE(document.GetStringFormat(el->id, format));
     ASSERT_TRUE(format.size == 14);

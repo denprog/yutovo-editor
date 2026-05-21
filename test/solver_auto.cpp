@@ -2017,7 +2017,7 @@ TEST_F(SolverAutoTest, errors3)
     document.InsertCode(false, true);
     document.InsertSquareRoot(true);
     document.MoveCaretRight(false);
-    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitTask(document.InsertEquation(ResultType::REAL, true));
     document.WaitSolver();
     std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToText() == U"sqrt()=Wrong arguments count") << ToBasicString(document.ToText());

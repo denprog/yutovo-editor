@@ -2658,6 +2658,7 @@ TEST_F(ParagraphTest, format10)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 0, 25})) << document.GetEditorState().ToString();
 
     width = 800;
+    std::this_thread::sleep_for(200ms);
     document.WaitTask(document.Resize(width, 400));
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
@@ -4351,6 +4352,399 @@ TEST_F(ParagraphTest, scale2)
         "</body>") << 
         document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 1, 0, 1})) << document.GetEditorState().ToString();
+}
+
+//Scale change with center-aligned text
+TEST_F(ParagraphTest, paragraph26)
+{
+    Start(600);
+
+    document.InsertString("Centered text", true);
+    document.WaitTask(document.ChangeParagraphFormat(ParagraphFormat::Alignment::Center, true));
+    Config config;
+    document.GetConfig(config);
+    config.scale *= 1.2;
+    document.SetConfig(config, true);
+    std::this_thread::sleep_for(200ms);
+    ParagraphFormat format;
+    ASSERT_TRUE(document.GetParagraphFormat(ElementId{0, 0, 0, 0, 0}, format));
+    ASSERT_TRUE(format.alignment == ParagraphFormat::Alignment::Center);
+}
+
+//Scale change with right-aligned text
+TEST_F(ParagraphTest, paragraph27)
+{
+    Start(600);
+
+    document.InsertString("Right text", true);
+    document.WaitTask(document.ChangeParagraphFormat(ParagraphFormat::Alignment::Right, true));
+    Config config;
+    document.GetConfig(config);
+    config.scale *= 0.9;
+    document.SetConfig(config, true);
+    std::this_thread::sleep_for(200ms);
+    ParagraphFormat format;
+    ASSERT_TRUE(document.GetParagraphFormat(ElementId{0, 0, 0, 0, 0}, format));
+    ASSERT_TRUE(format.alignment == ParagraphFormat::Alignment::Right);
+}
+
+//Undo after scale change
+TEST_F(ParagraphTest, paragraph28)
+{
+    Start(600);
+
+    document.InsertString("Text", true);
+    Config config;
+    document.GetConfig(config);
+    config.scale *= 1.2;
+    document.SetConfig(config, true);
+    std::this_thread::sleep_for(200ms);
+    document.WaitTask(document.InsertString(" after scale", true));
+    ASSERT_TRUE(document.ToText() == U"Text after scale");
+    document.Undo();
+    document.WaitUndo();
+    ASSERT_TRUE(document.ToText() == U"Text");
+}
+
+//Format empty paragraph with center alignment, then type
+TEST_F(ParagraphTest, paragraph29)
+{
+    Start(600);
+
+    document.WaitTask(document.InsertParagraph(true));
+    document.WaitTask(document.ChangeParagraphFormat(ParagraphFormat::Alignment::Center, true));
+    document.WaitTask(document.InsertString("Centered", true));
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"
+            "<p>"
+                "<span style=\"font-family:'Arial';font-size:14px;\"></span>"
+            "</p>"
+            "<p align=\"center\">"
+                "<span style=\"font-family:'Arial';font-size:14px;\">Centered</span>"
+            "</p>"
+        "</body>") << document.ToHtml();
+}
+
+//New paragraph inherits center alignment from previous
+TEST_F(ParagraphTest, paragraph30)
+{
+    Start(600);
+
+    document.InsertString("Center", true);
+    document.WaitTask(document.ChangeParagraphFormat(ParagraphFormat::Alignment::Center, true));
+    document.WaitTask(document.InsertParagraph(true));
+    document.WaitTask(document.InsertString("Also centered", true));
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"
+            "<p align=\"center\">"
+                "<span style=\"font-family:'Arial';font-size:14px;\">Center</span>"
+            "</p>"
+            "<p align=\"center\">"
+                "<span style=\"font-family:'Arial';font-size:14px;\">Also centered</span>"
+            "</p>"
+        "</body>") << document.ToHtml();
+}
+
+//Resize with center-aligned wrapping text
+TEST_F(ParagraphTest, paragraph31)
+{
+    Start(600);
+
+    int width = 600;
+    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
+        {
+            return Rect{0, 0, width, 400};
+        });
+    document.InsertString("Long centered text that will wrap when resized", true);
+    document.WaitTask(document.ChangeParagraphFormat(ParagraphFormat::Alignment::Center, true));
+    width = 300;
+    document.WaitTask(document.Resize(width, 400));
+    std::this_thread::sleep_for(100ms);
+    ParagraphFormat format;
+    ASSERT_TRUE(document.GetParagraphFormat(ElementId{0, 0, 0, 0, 0}, format));
+    ASSERT_TRUE(format.alignment == ParagraphFormat::Alignment::Center);
+}
+
+//Insert paragraph inside code block splits text
+TEST_F(ParagraphTest, paragraph32)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.InsertString("123", true);
+    document.MoveCaretLeft(false);
+    document.MoveCaretLeft(false);
+    document.WaitTask(document.InsertParagraph(true));
+    ASSERT_TRUE(document.ToText() == U"1\n23");
+}
+
+//Insert paragraph between code blocks after deleting middle paragraph
+TEST_F(ParagraphTest, paragraph33)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.InsertString("1+1", true);
+    document.MoveCaretEnd(false);
+    document.WaitTask(document.InsertParagraph(true));
+    document.InsertCode(false, true);
+    document.InsertString("2+2", true);
+    document.MoveCaretHome(false);
+    document.MoveCaretHome(false);
+    document.WaitTask(document.DeleteElements(true, true));
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.ToText() == U"1+12+2");
+    document.WaitTask(document.InsertParagraph(true));
+    ASSERT_TRUE(document.ToText() == U"1+1\n2+2");
+}
+
+//Change alignment of multiple selected paragraphs
+TEST_F(ParagraphTest, paragraph34)
+{
+    Start(600);
+
+    document.InsertString("Paragraph 1", true);
+    document.InsertParagraph(true);
+    document.InsertString("Paragraph 2", true);
+    document.InsertParagraph(true);
+    document.InsertString("Paragraph 3", true);
+    document.WaitTask(document.SelectAll());
+    document.WaitTask(document.ChangeParagraphFormat(ParagraphFormat::Alignment::Right, true));
+    ParagraphFormat format;
+    ASSERT_TRUE(document.GetParagraphFormat(ElementId{0, 0, 0, 0, 0}, format));
+    ASSERT_TRUE(format.alignment == ParagraphFormat::Alignment::Right);
+    ASSERT_TRUE(document.GetParagraphFormat(ElementId{0, 1, 0, 0, 0}, format));
+    ASSERT_TRUE(format.alignment == ParagraphFormat::Alignment::Right);
+    ASSERT_TRUE(document.GetParagraphFormat(ElementId{0, 2, 0, 0, 0}, format));
+    ASSERT_TRUE(format.alignment == ParagraphFormat::Alignment::Right);
+}
+
+//Backspace merges paragraphs with different alignments
+TEST_F(ParagraphTest, paragraph35)
+{
+    Start(600);
+
+    document.InsertString("Left", true);
+    document.InsertParagraph(true);
+    document.WaitTask(document.ChangeParagraphFormat(ParagraphFormat::Alignment::Right, true));
+    document.InsertString("Right", true);
+    document.MoveCaretHome(false);
+    document.WaitTask(document.DeleteElements(true, true));
+    ASSERT_TRUE(document.ToText() == U"LeftRight");
+    ParagraphFormat format;
+    ASSERT_TRUE(document.GetParagraphFormat(ElementId{0, 0, 0, 0, 0}, format));
+    ASSERT_TRUE(format.alignment == ParagraphFormat::Alignment::Right);
+}
+
+//Empty paragraph with Header 1 format
+TEST_F(ParagraphTest, paragraph36)
+{
+    Start(600);
+
+    document.WaitTask(document.InsertParagraph(true));
+    document.WaitTask(document.SetCurrentParagraphFormat("Header 1"));
+    document.WaitTask(document.InsertString("Header", true));
+    ParagraphFormat format;
+    ASSERT_TRUE(document.GetParagraphFormat(ElementId{0, 1, 0, 0, 0}, format));
+    ASSERT_TRUE(format.name == "Header 1");
+    StringFormat str_format;
+    ASSERT_TRUE(document.GetStringFormat(ElementId{0, 1, 0, 0, 0}, str_format));
+    ASSERT_TRUE(str_format.family == "Arial");
+    ASSERT_TRUE(str_format.bold == true);
+}
+
+//Delete selection spanning across subscript and base text
+TEST_F(ParagraphTest, paragraph37)
+{
+    Start(600);
+
+    document.InsertString("base", true);
+    document.WaitTask(document.InsertSubscript(true));
+    document.InsertString("sub", true);
+    document.MoveCaretToDocumentBegin(false);
+    document.WaitTask(document.MoveCaretEnd(true));
+    document.WaitTask(document.DeleteElements(false, true));
+    std::this_thread::sleep_for(100ms);
+    ASSERT_TRUE(document.ToText() == U"");
+}
+
+//Resize with justify-aligned wrapping text
+TEST_F(ParagraphTest, paragraph38)
+{
+    Start(600);
+
+    int width = 600;
+    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
+        {
+            return Rect{0, 0, width, 400};
+        });
+    document.InsertString("Long text that should wrap when resized to smaller width", true);
+    document.WaitTask(document.ChangeParagraphFormat(ParagraphFormat::Alignment::Justify, true));
+    width = 300;
+    document.WaitTask(document.Resize(width, 400));
+    std::this_thread::sleep_for(100ms);
+    ParagraphFormat format;
+    ASSERT_TRUE(document.GetParagraphFormat(ElementId{0, 0, 0, 0, 0}, format));
+    ASSERT_TRUE(format.alignment == ParagraphFormat::Alignment::Justify);
+}
+
+//Forward delete at end of paragraph merges with next
+TEST_F(ParagraphTest, paragraph39)
+{
+    Start(600);
+
+    document.InsertString("First", true);
+    document.InsertParagraph(true);
+    document.InsertString("Second", true);
+    document.MoveCaretUp(false);
+    document.MoveCaretEnd(false);
+    document.WaitTask(document.DeleteElements(false, true));
+    ASSERT_TRUE(document.ToText() == U"FirstSecond");
+}
+
+//Undo/redo after inserting paragraph inside code block
+TEST_F(ParagraphTest, paragraph40)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.InsertString("abc", true);
+    document.MoveCaretLeft(false);
+    document.WaitTask(document.InsertParagraph(true));
+    ASSERT_TRUE(document.ToText() == U"ab\nc");
+    document.Undo();
+    document.WaitUndo();
+    ASSERT_TRUE(document.ToText() == U"abc");
+    document.Redo();
+    document.WaitRedo();
+    ASSERT_TRUE(document.ToText() == U"ab\nc");
+}
+
+//Scale change with justify alignment
+TEST_F(ParagraphTest, paragraph41)
+{
+    Start(600);
+
+    document.InsertString("Justified text", true);
+    document.WaitTask(document.ChangeParagraphFormat(ParagraphFormat::Alignment::Justify, true));
+    Config config;
+    document.GetConfig(config);
+    config.scale *= 1.1;
+    document.SetConfig(config, true);
+    std::this_thread::sleep_for(200ms);
+    ParagraphFormat format;
+    ASSERT_TRUE(document.GetParagraphFormat(ElementId{0, 0, 0, 0, 0}, format));
+    ASSERT_TRUE(format.alignment == ParagraphFormat::Alignment::Justify);
+}
+
+//Insert text after exiting code block
+TEST_F(ParagraphTest, paragraph42)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.MoveCaretRight(false);
+    document.InsertString("1+1", true);
+    document.MoveCaretEnd(false);
+    document.WaitTask(document.InsertString(" text", true));
+    ASSERT_TRUE(document.ToText() == U"1+1 text") << ToBasicString(document.ToText());
+}
+
+//Change font size of selected text
+TEST_F(ParagraphTest, paragraph43)
+{
+    Start(600);
+
+    document.InsertString("Big text", true);
+    document.MoveCaretHome(false);
+    document.WaitTask(document.MoveCaretEnd(true));
+    document.WaitTask(document.ChangeStringFormat("Arial", 22, false, false, false, false, false, false, Color::Black(), Color::White(), true));
+    StringFormat format;
+    ASSERT_TRUE(document.GetStringFormat(ElementId{0, 0, 0, 0, 0}, format));
+    ASSERT_TRUE(format.size == 22);
+}
+
+//Delete empty paragraph between two text paragraphs
+TEST_F(ParagraphTest, paragraph44)
+{
+    Start(600);
+
+    document.InsertString("First", true);
+    document.InsertParagraph(true);
+    document.InsertParagraph(true);
+    document.InsertString("Second", true);
+    document.MoveCaretUp(false);
+    document.WaitTask(document.DeleteElements(true, true));
+    ASSERT_TRUE(document.ToText() == U"First\nSecond");
+}
+
+//Insert paragraph at document beginning before text
+TEST_F(ParagraphTest, paragraph45)
+{
+    Start(600);
+
+    document.InsertString("Text", true);
+    document.MoveCaretToDocumentBegin(false);
+    document.WaitTask(document.InsertParagraph(true));
+    ASSERT_TRUE(document.ToText() == U"\nText");
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 1, 0, 0, 0})) << document.GetEditorState().ToString();
+}
+
+//Undo/redo single paragraph insertion
+TEST_F(ParagraphTest, paragraph46)
+{
+    Start(600);
+
+    document.InsertString("A", true);
+    document.InsertParagraph(true);
+    document.WaitTask(document.InsertString("B", true));
+    document.Undo();
+    document.WaitUndo();
+    ASSERT_TRUE(document.ToText() == U"A\n") << ToBasicString(document.ToText());
+    document.Redo();
+    document.WaitRedo();
+    ASSERT_TRUE(document.ToText() == U"A\nB") << ToBasicString(document.ToText());
+}
+
+//Move caret word-left within paragraph
+TEST_F(ParagraphTest, paragraph47)
+{
+    Start(600);
+
+    document.InsertString("First word", true);
+    document.MoveCaretEnd(false);
+    document.WaitTask(document.MoveCaretWordLeft(false));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 6})) << document.GetEditorState().ToString();
+}
+
+//Insert paragraph after power formula
+TEST_F(ParagraphTest, paragraph48)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.InsertString("x", true);
+    document.InsertPower(true);
+    document.InsertString("2", true);
+    document.MoveCaretEnd(false);
+    document.MoveCaretRight(false);
+    document.WaitTask(document.InsertParagraph(true));
+    document.WaitTask(document.InsertString("y", true));
+    ASSERT_TRUE(document.ToText() == U"pow(x,2)\ny") << ToBasicString(document.ToText());
+}
+
+//Bold formatting of selected text
+TEST_F(ParagraphTest, paragraph49)
+{
+    Start(600);
+
+    document.InsertString("Bold text", true);
+    document.MoveCaretHome(false);
+    document.WaitTask(document.MoveCaretEnd(true));
+    document.WaitTask(document.SetBold(true));
+    StringFormat format;
+    ASSERT_TRUE(document.GetStringFormat(ElementId{0, 0, 0, 0, 0}, format));
+    ASSERT_TRUE(format.bold == true);
 }
 
 }
