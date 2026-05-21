@@ -353,6 +353,8 @@ Element* CreateFromJson(Element* parent, Document* document, const rapidjson::Va
     Element* el = f(parent, document, value, alloc);
     if (!el)
         return nullptr;
+    if (value.HasMember("level") && value["level"].IsInt())
+        el->level = (uint8_t)value["level"].GetInt();
     if (value.HasMember("elements"))
     {
         if (!el->elements->FromJson(document, value, alloc) || !el->AfterFromJson())

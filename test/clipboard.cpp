@@ -5894,4 +5894,44 @@ TEST_F(DocumentTest, clipboard97)
         ) << ToBasicString(document.ToText());
 }
 
+//Paste from an exponent
+TEST_F(DocumentTest, clipboard98)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.InsertString("sin", true);
+    document.InsertOpenRoundBracket(true);
+    document.InsertString("x", true);
+    document.InsertPower(true);
+    document.InsertString("2", true);
+    document.InsertDivision(true);
+    document.InsertString("3", true);
+    document.MoveCaretRight(false);
+    document.MoveCaretRight(false);
+    document.InsertCloseRoundBracket(true);
+
+    document.MoveCaretLeft(false);
+    document.WaitTask(document.MoveCaretLeft(false));
+    document.WaitTask(document.MoveCaretLeft(true));
+
+    document.WaitTask(document.Copy(clipboard_json, clipboard_text));
+
+    document.MoveCaretEnd(false);
+    document.WaitTask(document.MoveCaretEnd(false));
+
+    document.WaitTask(document.InsertParagraph(true));
+    document.WaitTask(document.Paste(clipboard_json));
+
+    ASSERT_TRUE(document.ToText() == 
+        U"sin(pow(x,(2)/(3)))\n"\
+        U"(2)/(3)"
+        ) << ToBasicString(document.ToText());
+
+    auto el = document.FindByString({0, 0, 0, 0, 1}, U"2");
+    StringFormat format;
+    ASSERT_TRUE(document.GetStringFormat(el->id, format));
+    ASSERT_TRUE(format.size == 14) << format.size;
+}
+
 }
