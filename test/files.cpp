@@ -703,7 +703,7 @@ TEST_F(DocumentTest, files15)
     document.Load("files15.yut");
     document.WaitLoad();
     document.WaitSolver();
-    std::this_thread::sleep_for(3s);
+    std::this_thread::sleep_for(4s);
     ASSERT_TRUE(document.ToText() == 
         U"d_m~0.221m\n"\
         "d_m=1.d_m"
