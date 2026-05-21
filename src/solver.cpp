@@ -532,6 +532,8 @@ void Solver::EraseSolveTasks(const LogicalId id)
             return task && task->id == id && task->expression_type == ExpressionType::SOLVE && 
                 (dynamic_cast<RealSolverTask*>(task.get()) || dynamic_cast<IntegerSolverTask*>(task.get()) || 
                 dynamic_cast<RationalSolverTask*>(task.get()) || dynamic_cast<AutoSolverTask*>(task.get()) || 
+                dynamic_cast<ComplexSolverTask*>(task.get()) || dynamic_cast<SymbolicRealSolverTask*>(task.get()) || 
+                dynamic_cast<SymbolicRationalSolverTask*>(task.get()) || dynamic_cast<SymbolicComplexSolverTask*>(task.get()) || 
                 dynamic_cast<ArrayRealSolverTask*>(task.get()) || dynamic_cast<SymbolicRealSolverTask*>(task.get()) || 
                 dynamic_cast<SymbolicRationalSolverTask*>(task.get()) || dynamic_cast<SymbolicComplexSolverTask*>(task.get()));
         }
