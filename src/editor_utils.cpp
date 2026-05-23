@@ -395,6 +395,7 @@ std::string ErrorCodeToString(const yutovo_calculator::ParserExceptionCode parse
             {ParserExceptionCode::WrongArgumentsCount, "Wrong arguments count"},
             {ParserExceptionCode::UnknownIdentifier, "Unknown identifier"},
             {ParserExceptionCode::ExpressionExpected, "Expression expected"},
+            {ParserExceptionCode::IncorrectIdentifier, "Incorrect identifier"},
             {ParserExceptionCode::DivisionByZero, "Division by zero"},
             {ParserExceptionCode::Overflow, "Overflow"},
             {ParserExceptionCode::ArgumentIsOver, "Argument is over"},
