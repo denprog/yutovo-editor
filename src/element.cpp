@@ -1161,10 +1161,10 @@ ElementPtr Elements::operator[](const int pos)
 
 Elements* Elements::Clone(Element* _parent)
 {
-    Elements* res = new Elements(_parent);
+    std::unique_ptr<Elements> res(new Elements(_parent));    
     for (auto el : elements)
         res->Add(ElementPtr(el->Clone()));
-    return res;
+    return res.release();
 }
 
 void Elements::Clone(std::vector<ElementPtr>& _elements, const uint start, const uint size)
