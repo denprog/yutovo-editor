@@ -19,8 +19,6 @@ namespace yutovo
 class Element;
 class Caret;
 
-typedef unsigned int uint;
-
 typedef std::shared_ptr<Element> ElementPtr;
 typedef std::shared_ptr<Caret> CaretPtr;
 
