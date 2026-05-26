@@ -189,7 +189,7 @@ void Caret::SetPos(const uint pos, bool update_x_pos)
 Element* Caret::GetElement() const
 {
     if (block)
-        nullptr;
+        return nullptr;
     if (str_pos >= 0)
         return element.get();
     if (!element)
@@ -713,7 +713,7 @@ void Caret::SelectOut(Selection* selection)
 bool Caret::IsInsideElement(const ElementId& id)
 {
     if (block)
-        false;
+        return false;
     auto el = GetElement();
     if (!el)
         return false;
