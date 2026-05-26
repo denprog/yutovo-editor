@@ -2602,16 +2602,16 @@ bool ResolveTask::Execute()
     return true;
 }
 
-//ResolveDependeciesTask
+//ResolveDependenciesTask
 
-ResolveDependeciesTask::ResolveDependeciesTask(ElementPtr _text, LogicalId _after_id, const std::string& _identifier) :
+ResolveDependenciesTask::ResolveDependenciesTask(ElementPtr _text, LogicalId _after_id, const std::string& _identifier) :
     Task(_text),
     after_id(_after_id),
     identifier(_identifier)
 {
 }
 
-bool ResolveDependeciesTask::Execute()
+bool ResolveDependenciesTask::Execute()
 {
     auto _el = document->GetLogicalElement(after_id);
     if (!_el)

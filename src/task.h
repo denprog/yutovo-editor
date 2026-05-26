@@ -328,9 +328,9 @@ struct ResolveTask : Task
     ElementId id;
 };
 
-struct ResolveDependeciesTask : Task
+struct ResolveDependenciesTask : Task
 {
-    ResolveDependeciesTask(ElementPtr _text, LogicalId _after_id, const std::string& _identifier);
+    ResolveDependenciesTask(ElementPtr _text, LogicalId _after_id, const std::string& _identifier);
 
     virtual bool Execute();
 
