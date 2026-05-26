@@ -1238,6 +1238,8 @@ bool UndoTask::Execute()
     std::vector<ElementPtr> undo_elements;
     if (!document->RestoreUndo(undo_id, undo_elements))
         return false;
+    if (undo_elements.empty())
+        return true;
 
     document->caret->block = true;
 
