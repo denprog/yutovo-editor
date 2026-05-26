@@ -1324,7 +1324,7 @@ bool StringElements::GetSelectOutCaretState(CaretState& caret_state, Selection* 
     if (!select || !caret_state.IsInsideElement(parent->id))
         return false;
     
-    static std::u32string delims = U" \n\t\v\f\r!\"#$%&\'()*+,-./[\\]^`{|}~";
+    static constexpr char32_t delims[] = U" \n\t\v\f\r!\"#$%&\'()*+,-./[\\]^`{|}~";
     auto is_delim = 
         [](char32_t ch)
         {
@@ -1371,7 +1371,7 @@ std::u32string StringElements::ToText() const
 
 bool StringElements::IsOpenDelimiter(char32_t ch)
 {
-    static std::u32string delims = U"«([{";
+    static constexpr char32_t delims[] = U"«([{";
     for (char32_t d : delims)
     {
         if (ch == d)
@@ -1382,7 +1382,7 @@ bool StringElements::IsOpenDelimiter(char32_t ch)
 
 bool StringElements::IsCloseDelimiter(char32_t ch)
 {
-    static std::u32string delims = U"»)]}";
+    static constexpr char32_t delims[] = U"»)]}";
     for (char32_t d : delims)
     {
         if (ch == d)
@@ -1393,7 +1393,7 @@ bool StringElements::IsCloseDelimiter(char32_t ch)
 
 bool StringElements::IsDelimiter(char32_t ch)
 {
-    static std::u32string delims = U" \n\t\v\f\r!\"#$%&\'*+,-./\\^`|~";
+    static constexpr char32_t delims[] = U" \n\t\v\f\r!\"#$%&\'*+,-./\\^`|~";
     for (char32_t d : delims)
     {
         if (ch == d)
