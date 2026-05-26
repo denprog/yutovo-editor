@@ -3482,7 +3482,7 @@ void Document::ReSolve(const LogicalId& _id)
 uint Document::ReSolveDependencies(const LogicalId& after_id, const std::u32string& identifier)
 {
     std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
-    tasks.emplace_back(new ResolveDependeciesTask(text, after_id, ToBasicString(identifier)));
+    tasks.emplace_back(new ResolveDependenciesTask(text, after_id, ToBasicString(identifier)));
     last_task_id = tasks.back()->id;
     return last_task_id;
 }
