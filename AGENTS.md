@@ -96,5 +96,5 @@ ASSERT_TRUE(document.ToHtml() == "<body>...</body>") << document.ToHtml();
 ## Build
 Projects are built in their `build/debug/` directories. Use `-j16` maximum for building to avoid OOM kills:
 ```bash
-cd build/debug && make -j16 yutovo-editor_tests
+cd build/debug && cmake ../.. && make -j16 yutovo-editor_tests
 ```
