@@ -1760,7 +1760,14 @@ bool SaveTask::Execute()
 
     if (!filename.empty())
     {
-        document->path = std::filesystem::canonical(std::filesystem::absolute(filename)).string();
+        try
+        {
+            document->path = std::filesystem::canonical(std::filesystem::absolute(filename)).string();
+        }
+        catch (const std::filesystem::filesystem_error&)
+        {
+            document->path = std::filesystem::absolute(filename).string();
+        }
         document->save_task_id = document->last_modify_task_id;
     }
 
