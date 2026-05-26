@@ -82,9 +82,8 @@ Solver::~Solver()
 void Solver::Solve(const LogicalId& id, const std::string& task_guid, const uint code_id, Config::AutoResultConfig& config, bool include_document, 
     const std::u32string& expression, const uint delay)
 {
-    EraseSolveTasks(id);
-
     std::unique_lock<std::mutex> lock(tasks_mutex);
+    EraseSolveTasks(id);
     tasks.emplace_back(new AutoSolverTask(id, document, solver_guid, task_guid, code_id, ExpressionType::SOLVE, config, include_document, 
         expression, delay, logger));
     tasks.emplace_back(nullptr);
@@ -94,9 +93,8 @@ void Solver::Solve(const LogicalId& id, const std::string& task_guid, const uint
 void Solver::Solve(const LogicalId& id, const std::string& task_guid, const uint code_id, Config::RealResultConfig& config, bool include_document, 
     const std::u32string& expression, const uint delay)
 {
-    EraseSolveTasks(id);
-
     std::unique_lock<std::mutex> lock(tasks_mutex);
+    EraseSolveTasks(id);
     tasks.emplace_back(new RealSolverTask(id, document, solver_guid, task_guid, code_id, ExpressionType::SOLVE, config, include_document, 
         expression, delay, logger));
     tasks.emplace_back(nullptr);
@@ -106,9 +104,8 @@ void Solver::Solve(const LogicalId& id, const std::string& task_guid, const uint
 void Solver::Solve(const LogicalId& id, const std::string& task_guid, const uint code_id, Config::IntegerResultConfig& config, bool include_document, 
     const std::u32string& expression, const uint delay)
 {
-    EraseSolveTasks(id);
-
     std::unique_lock<std::mutex> lock(tasks_mutex);
+    EraseSolveTasks(id);
     tasks.emplace_back(new IntegerSolverTask(id, document, solver_guid, task_guid, code_id, ExpressionType::SOLVE, config, include_document, 
         expression, delay, logger));
     tasks.emplace_back(nullptr);
@@ -118,9 +115,8 @@ void Solver::Solve(const LogicalId& id, const std::string& task_guid, const uint
 void Solver::Solve(const LogicalId& id, const std::string& task_guid, const uint code_id, Config::RationalResultConfig& config, bool include_document, 
     const std::u32string& expression, const uint delay)
 {
-    EraseSolveTasks(id);
-
     std::unique_lock<std::mutex> lock(tasks_mutex);
+    EraseSolveTasks(id);
     tasks.emplace_back(new RationalSolverTask(id, document, solver_guid, task_guid, code_id, ExpressionType::SOLVE, config, include_document, 
         expression, delay, logger));
     tasks.emplace_back(nullptr);
@@ -130,9 +126,8 @@ void Solver::Solve(const LogicalId& id, const std::string& task_guid, const uint
 void Solver::Solve(const LogicalId& id, const std::string& task_guid, const uint code_id, Config::ComplexResultConfig& config, bool include_document, 
     const std::u32string& expression, const uint delay)
 {
-    EraseSolveTasks(id);
-
     std::unique_lock<std::mutex> lock(tasks_mutex);
+    EraseSolveTasks(id);
     tasks.emplace_back(new ComplexSolverTask(id, document, solver_guid, task_guid, code_id, ExpressionType::SOLVE, config, include_document, 
         expression, delay, logger));
     tasks.emplace_back(nullptr);
@@ -142,9 +137,8 @@ void Solver::Solve(const LogicalId& id, const std::string& task_guid, const uint
 void Solver::Solve(const LogicalId& id, const std::string& task_guid, const uint code_id, Config::ArrayRealResultConfig& config, bool include_document,
     const std::u32string& expression, const uint delay)
 {
-    EraseSolveTasks(id);
-
     std::unique_lock<std::mutex> lock(tasks_mutex);
+    EraseSolveTasks(id);
     tasks.emplace_back(new ArrayRealSolverTask(id, document, solver_guid, task_guid, code_id, ExpressionType::SOLVE, config, include_document,
         expression, delay, logger));
     tasks.emplace_back(nullptr);
@@ -154,9 +148,8 @@ void Solver::Solve(const LogicalId& id, const std::string& task_guid, const uint
 void Solver::SolveSymbolicReal(const LogicalId& id, const std::string& task_guid, const uint code_id, Config::RealResultConfig& config, bool include_document,
     const std::u32string& expression, const uint delay)
 {
-    EraseSolveTasks(id);
-
     std::unique_lock<std::mutex> lock(tasks_mutex);
+    EraseSolveTasks(id);
     tasks.emplace_back(new SymbolicRealSolverTask(id, document, solver_guid, task_guid, code_id, ExpressionType::SOLVE, config, include_document,
         expression, delay, logger));
     tasks.emplace_back(nullptr);
@@ -166,9 +159,8 @@ void Solver::SolveSymbolicReal(const LogicalId& id, const std::string& task_guid
 void Solver::SolveSymbolicRational(const LogicalId& id, const std::string& task_guid, const uint code_id, Config::RationalResultConfig& config, bool include_document,
     const std::u32string& expression, const uint delay)
 {
-    EraseSolveTasks(id);
-
     std::unique_lock<std::mutex> lock(tasks_mutex);
+    EraseSolveTasks(id);
     tasks.emplace_back(new SymbolicRationalSolverTask(id, document, solver_guid, task_guid, code_id, ExpressionType::SOLVE, config, include_document,
         expression, delay, logger));
     tasks.emplace_back(nullptr);
@@ -178,9 +170,8 @@ void Solver::SolveSymbolicRational(const LogicalId& id, const std::string& task_
 void Solver::SolveSymbolicComplex(const LogicalId& id, const std::string& task_guid, const uint code_id, Config::ComplexResultConfig& config, bool include_document,
     const std::u32string& expression, const uint delay)
 {
-    EraseSolveTasks(id);
-
     std::unique_lock<std::mutex> lock(tasks_mutex);
+    EraseSolveTasks(id);
     tasks.emplace_back(new SymbolicComplexSolverTask(id, document, solver_guid, task_guid, code_id, ExpressionType::SOLVE, config, include_document,
         expression, delay, logger));
     tasks.emplace_back(nullptr);
@@ -525,7 +516,6 @@ void Solver::MessageLoop(WebSocketPtr socket_, std::deque<SolverTaskPtr>& tasks_
 
 void Solver::EraseSolveTasks(const LogicalId id)
 {
-    std::unique_lock<std::mutex> lock(tasks_mutex);
     tasks.erase(std::remove_if(tasks.begin(), tasks.end(), 
         [id](SolverTaskPtr& task)
         {
