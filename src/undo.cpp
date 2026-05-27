@@ -437,6 +437,7 @@ Element* UndoCodeParagraph::Restore(Document* document, Element* parent)
 {
     CodeParagraph* p = parent ? new CodeParagraph(parent) : new CodeParagraph(document);
     p->format = format;
+    p->current_string_format = current_string_format;
     p->marker = marker;
     p->marker_format = marker_format;
     p->elements->Clear();

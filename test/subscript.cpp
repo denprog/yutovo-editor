@@ -200,4 +200,63 @@ TEST_F(FormulaTest, subscript3)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 2})) << document.GetEditorState().ToString();
 }
 
+//Check fonts after undo
+TEST_F(FormulaTest, subscript4)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.InsertString("log", true);
+    document.InsertSubscript(true);
+    document.InsertString("2", true);
+    document.MoveCaretRight(false);
+    document.WaitTask(document.InsertString("8", true));
+    std::this_thread::sleep_for(100ms);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<msub>"\
+                            "<mrow>"\
+                                "<mi>log</mi>"\
+                            "</mrow>"\
+                            "<mrow>"\
+                                "<mi>2</mi>"\
+                            "</mrow>"\
+                        "</msub>"\
+                        "<mi>8</mi>"\
+                    "</mrow>"\
+                "</math>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+
+    for (int i = 0; i < 3; ++i)
+    {
+        document.Undo();
+        document.WaitUndo();
+    }
+
+    std::this_thread::sleep_for(100ms);
+    document.InsertSubscript(true);
+    document.WaitTask(document.InsertString("2", true));
+    document.MoveCaretRight(false);
+    std::this_thread::sleep_for(100ms);
+    StringFormatPtr cur_fmt;
+    document.GetCurrentStringFormat(cur_fmt);
+    document.WaitTask(document.InsertString("8", true));
+
+    StringFormat format;
+    auto el = document.FindByString({0}, U"log");
+    ASSERT_TRUE(document.GetStringFormat(el->id, format));
+    ASSERT_TRUE(format.size == 14);
+    el = document.FindByString({0}, U"2");
+    ASSERT_TRUE(document.GetStringFormat(el->id, format));
+    ASSERT_TRUE(format.size == 12) << format.size;
+    el = document.FindByString({0}, U"8");
+    ASSERT_TRUE(document.GetStringFormat(el->id, format));
+    ASSERT_TRUE(format.size == 14) << format.size;
+}
+
 }
