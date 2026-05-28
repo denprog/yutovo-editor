@@ -50,6 +50,7 @@ public:
     uint InsertParagraph(bool with_undo);
     uint InsertString(const std::string& str, bool with_undo);
     uint InsertString(const std::u32string& str, bool with_undo);
+    uint InsertString(const std::u32string& str, bool paste, bool with_undo);
     uint InsertString(const std::string& str, const StringFormatPtr string_format, bool with_undo);
     uint InsertString(const std::string& str, ElementId element_id, bool with_undo);
     uint InsertString(const std::string& str, bool parse, bool with_undo);

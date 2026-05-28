@@ -450,10 +450,15 @@ uint Document::InsertString(const std::string& str, bool with_undo)
 
 uint Document::InsertString(const std::u32string& str, bool with_undo)
 {
+    return InsertString(str, false, with_undo);
+}
+
+uint Document::InsertString(const std::u32string& str, bool paste, bool with_undo)
+{
     LOG_TRACE("Insert string: {}", ToBasicString(str));
     StringFormatPtr format;
     if (GetCurrentStringFormat(format))
-        return InsertElement(new String(this, str, format), with_undo);
+        return InsertElement(new String(this, str, format), with_undo, paste);
     return 0;
 }
 
@@ -2926,7 +2931,7 @@ uint Document::PasteText(std::u32string&& str)
         return 0;
     }
 
-    InsertString(str, true);
+    InsertString(str, true, true);
     window->OnPasteResult(PasteResult::Success);
     return last_task_id;
 }

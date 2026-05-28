@@ -5934,4 +5934,33 @@ TEST_F(DocumentTest, clipboard98)
     ASSERT_TRUE(format.size == 14) << format.size;
 }
 
+//Paste a text after selection
+TEST_F(DocumentTest, clipboard99)
+{
+    Start(2000);
+
+    EXPECT_CALL(window_mock, OnLoadResult).WillOnce([&](const uint task_id, IOResult result, const int document_id)
+        {
+            ASSERT_TRUE(result == IOResult::Success);
+        });
+
+    document.Load("../../test/tests/Conta de usuário.yut");
+    document.WaitLoad();
+    std::this_thread::sleep_for(2s);
+
+    document.WaitTask(document.PasteText(U"Após o login bem-sucedido, o usuário tem acesso às seguintes opções, que estão localizadas "\
+        "na caixa de diálogo que se abre ao clicar em \"Entrar\""));
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.ToText() == 
+        U"Após o login bem-sucedido, o usuário tem acesso às seguintes opções, que estão localizadas "\
+        U"na caixa de diálogo que se abre ao clicar em \"Entrar\":\n"\
+        U"• sair da conta;\n"\
+        U"• alterando o nome que foi inserido durante o registro (não o login - ele não pode ser alterado);\n"\
+        U"• alterando o email;\n"\
+        U"• alterando a senha.\n"\
+        U"\n"\
+        U"<- Documentos de usuário"
+        ) << ToBasicString(document.ToText());
+}
+
 }
