@@ -205,7 +205,8 @@ bool InsertElementsTask::Execute()
             ElementId changed_element;
             if (_el->DeleteElements(true, with_undo, changed_element))
             {
-                Remake(changed_element, false);
+                if (!pasting)
+                    Remake(changed_element, false);
                 el = document->GetElement(document->caret->GetElement()->id);
                 return true;
             }
