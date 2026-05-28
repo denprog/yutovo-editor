@@ -404,17 +404,15 @@ bool SolverTask::FillComplexResult(rapidjson::Document& doc, Result& result)
 
 bool SolverTask::FillSymbolicResult(rapidjson::Document& doc, Result& result)
 {
-    if (!doc.HasMember("value") || !doc["value"].IsString())
+    if (!doc.HasMember("json") || !doc["json"].IsString())
     {
-        LOG_ERROR("value error");
+        LOG_ERROR("json error");
         result.error.error_code = ErrorCode::JSON_ERROR;
         return false;
     }
 
     Value value;
-    value.value["value"] = doc["value"].GetString();
-    if (doc.HasMember("json") && doc["json"].IsString())
-        value.value["json"] = doc["json"].GetString();
+    value.value["json"] = doc["json"].GetString();
     result.values.push_back(value);
     return true;
 }
