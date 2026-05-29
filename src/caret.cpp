@@ -188,13 +188,18 @@ void Caret::SetPos(const uint pos, bool update_x_pos)
 
 Element* Caret::GetElement() const
 {
-    if (block)
-        return nullptr;
-    if (str_pos >= 0)
-        return element.get();
-    if (!element)
+    if (block || !element)
         return nullptr;
     if (element->id == document->text->id)
+        return element.get();
+
+    //element may have been orphaned from the tree, its parent row was deleted while caret still holds a shared_ptr to it, 
+    //verify it is still the live node in the document tree
+    auto el = document->GetElement(element->id);
+    if (!el || el.get() != element.get())
+        return nullptr;
+
+    if (str_pos >= 0)
         return element.get();
     return document->GetElement(yutovo::GetParent(element->id)).get();
 }

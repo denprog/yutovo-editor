@@ -1449,14 +1449,15 @@ void Elements::Move(const ElementPtr element, const uint pos)
     parent->document->moving_element = true;
     element->BeforeReplace();
     Insert(ElementPtr(element->Clone()), pos);
-    element->parent->elements->Remove(element);
+    Element* old_parent = element->parent;
+    old_parent->elements->Remove(element);
     elements[pos]->AfterReplace();
     UpdateIds();
     parent->document->moving_element = false;
 
 #ifdef DEBUG
     parent->to_str = parent->ToText();
-    element->parent->to_str = element->parent->ToText();
+    old_parent->to_str = old_parent->ToText();
 #endif
 }
 
