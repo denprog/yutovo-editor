@@ -1645,11 +1645,12 @@ bool SaveTask::Execute()
         document->saving = true;
         rapidjson::Value t(rapidjson::kObjectType);
         EditorState c_s = document->GetEditorState();
-        text->MakePlain();
-        text->ToJson(t, alloc);
+
+        auto _text = text->Clone();
+        _text->MakePlain();
+        _text->ToJson(t, alloc);
         json.AddMember("text", t, alloc);
         document->saving = false;
-        text->Remake(true);
         document->Redraw();
         document->SetEditorState(c_s);
 

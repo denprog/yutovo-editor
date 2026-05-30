@@ -1781,6 +1781,22 @@ TEST_F(SolverAutoTest, solver41)
     ASSERT_TRUE(!format.underline);
 }
 
+//Don't recalculate on save
+TEST_F(SolverAutoTest, solver42)
+{
+    Start(600);
+    
+    document.Load("../../test/tests/solver42.yut");
+    document.WaitLoad();
+    document.WaitSolver();
+    std::this_thread::sleep_for(2s);
+
+    document.Save("solver42.yut");
+    std::this_thread::sleep_for(100ms);
+    auto el = document.FindByString({0}, U"~");
+    ASSERT_TRUE(!el);
+}
+
 //Solve with errors
 TEST_F(SolverAutoTest, errors1)
 {
