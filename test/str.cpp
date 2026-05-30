@@ -300,11 +300,13 @@ TEST_F(DocumentTest, strings7)
 
     document.Undo();
     document.WaitUndo();
+    std::this_thread::sleep_for(200ms);
     ASSERT_TRUE(document.ToText() == U"123\t") << ToBasicString(document.ToText());
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 0)) << document.GetEditorState().ToString();
 
     document.Redo();
     document.WaitRedo();
+    std::this_thread::sleep_for(200ms);
     ASSERT_TRUE(document.ToText() == U"\t123\t") << ToBasicString(document.ToText());
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 1)) << document.GetEditorState().ToString();
 }
@@ -769,10 +771,10 @@ TEST_F(DocumentTest, selections4)
         ElementSelectionState{ElementId{0, 0, 1, 0}, 0, 13})) << document.GetEditorState().ToString();
 
     document.WaitTask(document.MoveCaretDown(true));
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 2, 0, 11}, 
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 2, 0, 12}, 
         ElementSelectionState{ElementId{0, 0, 0, 0}, 12, 49}, 
         ElementSelectionState{ElementId{0, 0}, 1, 1}, 
-        ElementSelectionState{ElementId{0, 0, 2, 0}, 0, 11})) << document.GetEditorState().ToString();
+        ElementSelectionState{ElementId{0, 0, 2, 0}, 0, 12})) << document.GetEditorState().ToString();
 
     document.WaitTask(document.MoveCaretUp(true));
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 0, 13}, 

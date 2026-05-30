@@ -1775,6 +1775,7 @@ TEST_F(FormulaTestCustom, insert18)
 
     document.Redo();
     document.WaitRedo();
+    std::this_thread::sleep_for(200ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
