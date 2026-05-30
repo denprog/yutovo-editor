@@ -482,7 +482,7 @@ void Caret::MoveUp(Selection* selection)
         return;
 #endif
     Rect r = el->GetAbsoluteRect(el->GetCaretRect(GetPos()));
-    if (last_x_element)
+    if (last_x_element && (!selection || selection->IsEmpty()))
     {
         //fix x position
         Rect x_rect = last_x_element->GetAbsoluteRect(last_x_element->GetCaretRect(last_x_pos));
@@ -507,7 +507,7 @@ void Caret::MoveDown(Selection* selection)
         return;
 #endif
     Rect r = el->GetAbsoluteRect(el->GetCaretRect(GetPos()));
-    if (last_x_element)
+    if (last_x_element && (!selection || selection->IsEmpty()))
     {
         //fix x position
         Rect x_rect = last_x_element->GetAbsoluteRect(last_x_element->GetCaretRect(last_x_pos));
@@ -745,9 +745,7 @@ bool Caret::IsOnElement(const ElementId& id)
 
 void Caret::UpdateXPos()
 {
-    if (block)
-        return;
-    if (!element)
+    if (block || !element)
         return;
     if (document->IsString(element->id))
     {

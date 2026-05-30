@@ -2934,11 +2934,11 @@ TEST_F(DocumentTest, clipboard55)
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
-                "<span style=\"font-family:'Arial';font-size:14px;\">In xt</span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">Inxt</span>"\
             "</p>"\
         "</body>") << 
         document.ToHtml();
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 3})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 2})) << document.GetEditorState().ToString();
 }
 
 //Paste a formula above a formula
@@ -3673,7 +3673,7 @@ TEST_F(DocumentTest, clipboard65)
     document.MoveCaretUp(false);
     document.MoveCaretDown(true);
     document.WaitTask(document.MoveCaretDown(true));
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 2, 0, 0, 5}, 
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 2, 0, 0, 0}, 
         ElementSelectionState{ElementId{0, 0, 1, 0}, 7, 8},
         ElementSelectionState{ElementId{0}, 1, 2})) << document.GetEditorState().ToString();
 

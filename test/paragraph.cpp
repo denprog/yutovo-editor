@@ -2148,8 +2148,8 @@ TEST_F(ParagraphTest, paragraph24)
         ElementSelectionState{ElementId{0, 4, 0, 0}, 0, 23})) << document.GetEditorState().ToString();
 
     document.WaitTask(document.MoveCaretUp(true));
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 22}, 
-        ElementSelectionState{ElementId{0, 0, 0, 0}, 22, 8},
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 20}, 
+        ElementSelectionState{ElementId{0, 0, 0, 0}, 20, 10},
         ElementSelectionState{ElementId{0, 0, 0}, 1, 1},
         ElementSelectionState{ElementId{0}, 1, 3},
         ElementSelectionState{ElementId{0, 4, 0, 0}, 0, 23})) << document.GetEditorState().ToString();

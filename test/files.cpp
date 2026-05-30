@@ -1783,6 +1783,7 @@ TEST_F(IncludeDocumentsTest, include_files10)
     document.InsertString("var1", true);
     document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
     document.WaitSolver();
+    std::this_thread::sleep_for(2s);
     document.WaitTask(document.Save("include_files10.yut"));
     std::this_thread::sleep_for(2s);
     ASSERT_TRUE(document.ToText() == 
