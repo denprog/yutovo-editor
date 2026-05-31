@@ -297,10 +297,8 @@ void Caret::MoveToDocumentBegin(Selection* selection)
     }
 
     auto el = GetElement();
-#ifndef DEBUG
     if (!el)
         return;
-#endif
 
     auto paragraph = document->FindParent(el->id, ElementType::PARAGRAPH);
     auto row = document->FindElementOrParent(el->id, ElementType::ROW);
@@ -358,10 +356,8 @@ void Caret::MoveToDocumentEnd(Selection* selection)
     }
 
     auto el = GetElement();
-#ifndef DEBUG
     if (!el)
         return;
-#endif
 
     auto paragraph = document->FindParent(el->id, ElementType::PARAGRAPH);
     auto row = document->FindElementOrParent(el->id, ElementType::ROW);
@@ -406,10 +402,8 @@ void Caret::MoveHome(Selection* selection)
     left_up_direction = true;
     CaretState c = GetCaretState();
     auto el = GetElement();
-#ifndef DEBUG
     if (!el)
         return;
-#endif
     if (el->GetBeginCaretState(c, selection))
     {
         SetState(c);
@@ -424,10 +418,8 @@ void Caret::MoveEnd(Selection* selection)
     left_up_direction = false;
     CaretState c = GetCaretState();
     auto el = GetElement();
-#ifndef DEBUG
     if (!el)
         return;
-#endif
     if (el->GetEndCaretState(c, selection))
     {
         SetState(c);
@@ -442,10 +434,8 @@ void Caret::MoveLeft(Selection* selection)
     left_up_direction = true;
     CaretState c = GetCaretState();
     auto el = GetElement();
-#ifndef DEBUG
     if (!el)
         return;
-#endif
     if (el->GetLeftCaretState(c, selection))
     {
         SetState(c);
@@ -460,10 +450,8 @@ void Caret::MoveRight(Selection* selection)
     left_up_direction = false;
     CaretState c = GetCaretState();
     auto el = GetElement();
-#ifndef DEBUG
     if (!el)
         return;
-#endif
     if (el->GetRightCaretState(c, selection))
     {
         SetState(c);
@@ -477,10 +465,8 @@ void Caret::MoveUp(Selection* selection)
         return;
     left_up_direction = true;
     auto el = GetElement();
-#ifndef DEBUG
     if (!el)
         return;
-#endif
     Rect r = el->GetAbsoluteRect(el->GetCaretRect(GetPos()));
     if (last_x_element && (!selection || selection->IsEmpty()))
     {
@@ -502,10 +488,8 @@ void Caret::MoveDown(Selection* selection)
         return;
     left_up_direction = false;
     auto el = GetElement();
-#ifndef DEBUG
     if (!el)
         return;
-#endif
     Rect r = el->GetAbsoluteRect(el->GetCaretRect(GetPos()));
     if (last_x_element && (!selection || selection->IsEmpty()))
     {
@@ -528,10 +512,8 @@ void Caret::MoveWordLeft(Selection* selection)
     left_up_direction = true;
     CaretState c = GetCaretState();
     auto el = GetElement();
-#ifndef DEBUG
     if (!el)
         return;
-#endif
     if (el->GetWordLeftCaretState(c, selection))
     {
         SetState(c);
@@ -546,10 +528,8 @@ void Caret::MoveWordRight(Selection* selection)
     left_up_direction = false;
     CaretState c = GetCaretState();
     auto el = GetElement();
-#ifndef DEBUG
     if (!el)
         return;
-#endif
     if (el->GetWordRightCaretState(c, selection))
     {
         SetState(c);
@@ -563,10 +543,8 @@ void Caret::MovePageUp(Selection* selection)
         return;
     left_up_direction = true;
     auto el = GetElement();
-#ifndef DEBUG
     if (!el)
         return;
-#endif
     auto paragraph = document->FindParent(el->id, ElementType::PARAGRAPH);
     auto row = document->FindElementOrParent(el->id, ElementType::ROW);
     Rect view_port = window->GetViewPort(0);
@@ -633,10 +611,8 @@ void Caret::MovePageDown(Selection* selection)
         return;
     left_up_direction = false;
     auto el = GetElement();
-#ifndef DEBUG
     if (!el)
         return;
-#endif
     auto paragraph = document->FindParent(el->id, ElementType::PARAGRAPH);
     auto row = document->FindElementOrParent(el->id, ElementType::ROW);
     Rect view_port = window->GetViewPort(0);
