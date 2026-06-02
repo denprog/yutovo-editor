@@ -7,6 +7,8 @@
 
 #include "result.h"
 #include "multiply.h"
+
+#undef GetObject
 #include "plus.h"
 #include "minus.h"
 #include "power.h"
