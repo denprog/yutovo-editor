@@ -3673,7 +3673,8 @@ TEST_F(DocumentTest, clipboard65)
     document.MoveCaretUp(false);
     document.MoveCaretDown(true);
     document.WaitTask(document.MoveCaretDown(true));
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 2, 0, 0, 0}, 
+    document.WaitTask(document.MoveCaretEnd(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 2, 0, 0, 5}, 
         ElementSelectionState{ElementId{0, 0, 1, 0}, 7, 8},
         ElementSelectionState{ElementId{0}, 1, 2})) << document.GetEditorState().ToString();
 
