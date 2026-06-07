@@ -141,7 +141,7 @@ bool SquareRoot::AfterInsert(bool with_undo)
     if (!selection->IsEmpty())
     {
         ElementSelection& select = selection->selection[0];
-        if (select.start > 0)
+        if (select.start > 0 && document->IsString(select.element))
             select.element->SplitAt(select.start);
 
         //move the selected elements in the GetLast() element

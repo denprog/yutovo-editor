@@ -160,7 +160,7 @@ bool MiddleShapeFormula::AfterInsert(bool with_undo)
         {
             ElementSelection& select = selection->selection[0];
             uint s = select.start;
-            if (s > 0)
+            if (s > 0 && document->IsString(select.element))
             {
                 select.element->can_merge = true;
                 select.element->SplitAt(s);
