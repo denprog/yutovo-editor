@@ -93,8 +93,11 @@ std::this_thread::sleep_for(200ms);
 ASSERT_TRUE(document.ToHtml() == "<body>...</body>") << document.ToHtml();
 ```
 
+## File formats
+- `.yut` files are ZIP archives (not plain text). Use `unzip -l file.yut` to list contents, `unzip -p file.yut` to extract.
+
 ## Build
-Projects are built in their `build/debug/` directories. Use `-j16` maximum for building to avoid OOM kills:
+Projects are built and tested in `build/debug/`:
 ```bash
-cd build/debug && cmake ../.. && make -j16 yutovo-editor_tests
+cd build/debug && cmake ../.. && make -j16 yutovo-editor_tests && ./test/yutovo-editor_tests --gtest_filter="FormulaTest.power23"
 ```

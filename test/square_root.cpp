@@ -408,4 +408,39 @@ TEST_F(FormulaTest, square_root10)
     ASSERT_TRUE(format.bold);
 }
 
+//Insert power after selection
+TEST_F(FormulaTest, square_root11)
+{
+    Start(600);
+
+    document.Load("../../test/tests/power23.yut");
+    document.WaitLoad();
+    std::this_thread::sleep_for(1s);
+
+    document.WaitTask(document.InsertSquareRoot(true));
+    ASSERT_TRUE(document.ToText() == U"expand(sqrt(pow(x,3)+(x)/(2)))") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 2, 1, 0})) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.ToText() == U"expand(pow(x,3)+(x)/(2))") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 5}, 
+        ElementSelectionState{{0, 0, 0, 0, 0, 0}, 2, 3})) << document.GetEditorState().ToString();
+
+    document.MoveCaretRight(false);
+    for (int i = 0; i < 3; ++i)
+        document.WaitTask(document.MoveCaretLeft(true));
+    document.WaitTask(document.InsertSquareRoot(true));
+    ASSERT_TRUE(document.ToText() == U"expand(sqrt(pow(x,3)+(x)/(2)))") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 2, 1, 0})) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.ToText() == U"expand(pow(x,3)+(x)/(2))") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 2}, 
+        ElementSelectionState{{0, 0, 0, 0, 0, 0}, 2, 3})) << document.GetEditorState().ToString();
+}
+
 }

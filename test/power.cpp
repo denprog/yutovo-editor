@@ -1141,4 +1141,45 @@ TEST_F(FormulaTest, power22)
     ASSERT_TRUE(format.size == 22);
 }
 
+//Insert power after selection
+TEST_F(FormulaTest, power23)
+{
+    Start(600);
+
+    document.Load("../../test/tests/power23.yut");
+    document.WaitLoad();
+    std::this_thread::sleep_for(1s);
+
+    document.WaitTask(document.InsertPower(true));
+    document.WaitTask(document.InsertString("2", true));
+    ASSERT_TRUE(document.ToText() == U"expand(pow((pow(x,3)+(x)/(2)),2))") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 2, 2, 0, 1})) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    document.Undo();
+    document.WaitUndo();
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.ToText() == U"expand(pow(x,3)+(x)/(2))") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 5}, 
+        ElementSelectionState{{0, 0, 0, 0, 0, 0}, 2, 3})) << document.GetEditorState().ToString();
+
+    document.MoveCaretRight(false);
+    for (int i = 0; i < 3; ++i)
+        document.WaitTask(document.MoveCaretLeft(true));
+    document.WaitTask(document.InsertPower(true));
+    document.WaitTask(document.InsertString("2", true));
+    ASSERT_TRUE(document.ToText() == U"expand(pow((pow(x,3)+(x)/(2)),2))") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 2, 2, 0, 1})) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    document.Undo();
+    document.WaitUndo();
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.ToText() == U"expand(pow(x,3)+(x)/(2))") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 2}, 
+        ElementSelectionState{{0, 0, 0, 0, 0, 0}, 2, 3})) << document.GetEditorState().ToString();
+}
+
 }
