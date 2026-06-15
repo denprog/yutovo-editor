@@ -30,6 +30,7 @@ struct SolverTask
     SolverTask(Document* _document, const std::string& _solver_guid, Logger* _logger);
     SolverTask(Document* _document, Logger* _logger);
     SolverTask(const LogicalId& _id, Document* _document, const std::string& _solver_guid, uint _code_id, Logger* _logger);
+    virtual ~SolverTask() = default;
 
     virtual bool Execute(WebSocketPtr socket, Result& result) = 0;
 

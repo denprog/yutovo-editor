@@ -30,6 +30,7 @@ struct Task
 {
     Task(ElementPtr _text);
     Task(ElementPtr _text, const uint _id);
+    virtual ~Task() = default;
 
     virtual bool Execute() = 0;
 
