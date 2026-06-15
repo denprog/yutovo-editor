@@ -256,7 +256,7 @@ void ResultRow::PutUnit(const Value& value)
 
 void ResultRow::AddExponent(Element* parent, const std::string& exponent)
 {
-    if (exponent.empty() | exponent == "0")
+    if (exponent.empty() || exponent == "0")
         return;
     
     //make mantissa*10^exponent
