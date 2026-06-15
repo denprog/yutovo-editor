@@ -256,6 +256,9 @@ void Equation::SetResult(const Config::RationalResultConfig& config)
 
 void Equation::SetResult(const Config::ComplexResultConfig& config)
 {
+    result.reset(new ComplexResult(GetLast(), config));
+    GetLast()->elements->Clear();
+    GetLast()->elements->Add(result);
 }
 
 void Equation::SetSymbolicRealResult(const Config::RealResultConfig& config)
