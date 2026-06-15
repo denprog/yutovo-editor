@@ -71,8 +71,8 @@ enum class WarningCode
 
 struct Warning
 {
-    WarningCode code;
-    int pos;
+    WarningCode code = WarningCode::NONE;
+    int pos = -1;
 };
 
 typedef std::vector<std::string> Dependencies;
