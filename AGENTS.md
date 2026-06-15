@@ -93,6 +93,12 @@ std::this_thread::sleep_for(200ms);
 ASSERT_TRUE(document.ToHtml() == "<body>...</body>") << document.ToHtml();
 ```
 
+### Async operations and timeouts
+Editor and caret methods return a task id and run asynchronously. Always wait for them with `document.WaitTask(id, timeout)` and assert the returned value; do not rely only on `std::this_thread::sleep_for`.
+
+### Changing config
+Do not mutate `document.config` directly and then call `document.SetConfig(document.config, false)` — `SetConfigTask` compares the passed config with the current `document.config`, so a direct mutation makes the comparison see no change. Instead, copy `document.config` into a local `Config`, modify the copy, and pass it to `SetConfig`.
+
 ## File formats
 - `.yut` files are ZIP archives (not plain text). Use `unzip -l file.yut` to list contents, `unzip -p file.yut` to extract.
 
@@ -101,3 +107,8 @@ Projects are built and tested in `build/debug/`:
 ```bash
 cd build/debug && cmake ../.. && make -j16 yutovo-editor_tests && ./test/yutovo-editor_tests --gtest_filter="FormulaTest.power23"
 ```
+
+## Network Errors
+If an operation fails with a "Network connection failed" error:
+1. Wait **2 seconds** and retry automatically on your own.
+2. If the retry still fails, continue retrying with a **10-second** interval.

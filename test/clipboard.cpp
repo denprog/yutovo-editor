@@ -5964,4 +5964,51 @@ TEST_F(DocumentTest, clipboard99)
         ) << ToBasicString(document.ToText());
 }
 
+//Paste a long string
+TEST_F(DocumentTest, clipboard100)
+{
+    Start(2000);
+
+    EXPECT_CALL(window_mock, OnLoadResult).WillOnce([&](const uint task_id, IOResult result, const int document_id)
+        {
+            ASSERT_TRUE(result == IOResult::Success);
+        });
+
+    document.WaitTask(document.Load("../../test/tests/clipboard100.txt"));
+    document.WaitTask(document.SetConfig(document.config, false));
+
+    const std::u32string sentence = U"Após o login bem-sucedido, o usuário tem acesso às seguintes opções, que estão localizadas na caixa "\
+        "de diálogo que se abre ao clicar em \"Entrar\"";
+    const int repeat_count = 40;
+
+    std::u32string expected_text;
+    std::u32string code_sentence;
+    for (char32_t c : sentence)
+    {
+        if (c != U' ')
+            code_sentence.push_back(c);
+    }
+    for (int i = 0; i < repeat_count; ++i)
+    {
+        expected_text += sentence;
+        if (i + 1 != repeat_count)
+            expected_text += U' ';
+    }
+    ASSERT_TRUE(document.ToText() == expected_text) << ToBasicString(document.ToText());
+
+    document.WaitTask(document.SelectAll());
+    document.WaitTask(document.Cut(clipboard_json, clipboard_text));
+    document.WaitTask(document.SetConfig(document.config, false));
+
+    document.WaitTask(document.InsertCode(false, true));
+    if (!document.WaitTask(document.Paste(clipboard_json), 10000))
+        ASSERT_TRUE(false);
+    document.WaitTask(document.SetConfig(document.config, false));
+
+    std::u32string expected_code;
+    for (int i = 0; i < repeat_count; ++i)
+        expected_code += code_sentence;
+    ASSERT_TRUE(document.ToText() == expected_code) << ToBasicString(document.ToText());
+}
+
 }

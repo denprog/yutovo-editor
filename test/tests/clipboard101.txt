@@ -1,0 +1,154 @@
+
+
+    test/documents.spec.js:33:5 › Documents › write text, login, save the document, check the cookie
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+    44 | expect(c).not.toBeNull();
+    45 | await page.waitForTimeout(1000);
+
+        46 | expect(await utils.fileContains(conn, c.value, '12345')).toBe(true);
+        | ^
+        47 | expect(page.url()).toBe(address + '/document/' + c.value);
+        48 | await page.waitForTimeout(1000);
+        49 | });
+        at /home/denis/programs/Math/yutovo/yutovo-web/src/site/test/documents.spec.js:46:66
+
+    Error Context: test-results/documents-Documents-write--91550-e-document-check-the-cookie/error-context.md
+
+    test/documents.spec.js:240:5 › Documents › save a document with another name ──────────────────
+
+Error: expect(received).not.toBe(expected) // Object.is equality
+
+Expected: not "4430"
+
+  250 |         await page.waitForTimeout(2000);
+  251 |         const c2 = await utils.getCookie(context, 'document_id');
+> 252 |         expect(c1.value).not.toBe(c2.value);
+      |                              ^
+  253 |         expect(page.url()).toBe(address + '/document/' + c2.value);
+  254 |         expect(await utils.documentContains(page, '12345')).toBe(true);
+  255 |     });
+    at /home/denis/programs/Math/yutovo/yutovo-web/src/site/test/documents.spec.js:252:30
+
+Error Context: test-results/documents-Documents-save-a-document-with-another-name/error-context.md
+
+    test/documents.spec.js:257:5 › Documents › save a changed document with another name ──────────
+
+Error: expect(received).not.toBe(expected) // Object.is equality
+
+Expected: not "4431"
+
+  268 |         await page.waitForTimeout(1000);
+  269 |         const c2 = await utils.getCookie(context, 'document_id');
+> 270 |         expect(c1.value).not.toBe(c2.value);
+      |                              ^
+  271 |         await utils.clickDocument(page, 'new_name');
+  272 |         await page.waitForTimeout(100);
+  273 |         expect(page.url()).toBe(address + '/document/' + c2.value)
+    at /home/denis/programs/Math/yutovo/yutovo-web/src/site/test/documents.spec.js:270:30
+
+Error Context: test-results/documents-Documents-save-a-23230--document-with-another-name/error-context.md
+
+    test/documents.spec.js:381:5 › Documents › add documents and remove them one by one ───────────
+
+Error: expect(received).toBe(expected) // Object.is equality
+
+Expected: true
+Received: false
+
+  406 |         await utils.deleteDoc(page);
+  407 |         await page.waitForTimeout(1000);
+> 408 |         expect(await utils.documentContains(page, 'document_test_2')).toBe(true);
+      |                                                                       ^
+  409 |         await utils.deleteDoc(page);
+  410 |         await page.waitForTimeout(1000);
+  411 |         expect(await utils.documentContains(page, 'document_test_1')).toBe(true);
+    at /home/denis/programs/Math/yutovo/yutovo-web/src/site/test/documents.spec.js:408:71
+
+Error Context: test-results/documents-Documents-add-documents-and-remove-them-one-by-one/error-context.md
+
+    test/documents.spec.js:498:5 › Documents › open a document by url at start, save it and check it
+
+Error: expect(received).toBe(expected) // Object.is equality
+
+Expected: true
+Received: false
+
+  519 |         await p1.reload();
+  520 |         await p1.waitForTimeout(4000);
+> 521 |         expect(await utils.documentContains(p1, '12345')).toBe(true);
+      |                                                           ^
+  522 |
+  523 |         await utils.writeText(p1, '555');
+  524 |         await utils.save(p1);
+    at /home/denis/programs/Math/yutovo/yutovo-web/src/site/test/documents.spec.js:521:59
+
+Error Context: test-results/documents-Documents-open-a-c825b--start-save-it-and-check-it/error-context.md
+
+    test/documents.spec.js:562:5 › Documents › check the save dialog ──────────────────────────────
+
+Error: expect(received).toBe(expected) // Object.is equality
+
+Expected: true
+Received: false
+
+  590 |         await page.goto(address + '/document/' + c2.value);
+  591 |         await page.waitForTimeout(2000);
+> 592 |         expect(await utils.fileNotContains(conn, c2.value, 'document_test_2')).toBe(true);
+      |                                                                                ^
+  593 |     });
+  594 |
+  595 |     test('change document after changing its content', async ({ page, context }) =>
+    at /home/denis/programs/Math/yutovo/yutovo-web/src/site/test/documents.spec.js:592:80
+
+Error Context: test-results/documents-Documents-check-the-save-dialog/error-context.md
+
+    test/documents.spec.js:595:5 › Documents › change document after changing its content ─────────
+
+Test timeout of 120000ms exceeded.
+
+Error: locator.click: Test timeout of 120000ms exceeded.
+Call log:
+  - waiting for locator('//span[contains(@class, \'documents-item\') and contains(., \'document_1\')]').first()
+    - locator resolved to <span class="documents-item">document_1</span>
+  - attempting click action
+    2 × waiting for element to be visible, enabled and stable
+      - element is visible, enabled and stable
+      - scrolling into view if needed
+      - done scrolling
+      - <div tabindex="-1" aria-hidden="true" class="q-dialog__backdrop fixed-full"></div> from <div data-v-app="" id="q-portal--dialog--3">…</div> subtree intercepts pointer events
+    - retrying click action
+    - waiting 20ms
+    2 × waiting for element to be visible, enabled and stable
+      - element is visible, enabled and stable
+      - scrolling into view if needed
+      - done scrolling
+      - <div tabindex="-1" aria-hidden="true" class="q-dialog__backdrop fixed-full"></div> from <div data-v-app="" id="q-portal--dialog--3">…</div> subtree intercepts pointer events
+    - retrying click action
+      - waiting 100ms
+    2 × waiting for element to be visible, enabled and stable
+      - element is visible, enabled and stable
+      - scrolling into view if needed
+      - done scrolling
+      - <div tabindex="-1" aria-hidden="true" class="q-dialog__backdrop fixed-full"></div> from <div data-v-app="" id="q-portal--dialog--3">…</div> subtree intercepts pointer events
+    - retrying click action
+      - waiting 500ms
+
+
+   at utils.js:121
+
+  119 | async function clickDocument(page, text)
+  120 | {
+> 121 |     await page.locator(`xpath=//span[contains(@class, 'documents-item') and contains(., '${text}')]`).first().click();
+      |                                                                                                               ^
+  122 | }
+  123 |
+  124 | async function loginCaption(page)
+    at Object.clickDocument (/home/denis/programs/Math/yutovo/yutovo-web/src/site/test/utils.js:121:111)
+    at /home/denis/programs/Math/yutovo/yutovo-web/src/site/test/documents.spec.js:611:21
+
+Error Context: test-results/documents-Documents-change-df11b--after-changing-its-content/error-context.md

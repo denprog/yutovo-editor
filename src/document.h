@@ -382,7 +382,7 @@ public:
     void GetIdentifiers(const uint code_id, const std::string& left, std::vector<std::pair<IdentifierType, std::string>>& res);
     void GetPrompt(std::vector<std::pair<IdentifierType, std::string>>& res);
 
-    void WaitTask(uint task_id, uint64_t timeout = 0, uint64_t circle_delay = 1);
+    bool WaitTask(uint task_id, uint64_t timeout = 0, uint64_t circle_delay = 1);
 
 private:
     void MainLoop();

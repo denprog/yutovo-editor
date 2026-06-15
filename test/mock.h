@@ -12,6 +12,10 @@
 #include <QApplication>
 #include <QFontDatabase>
 #include <gmock/gmock.h>
+#include <chrono>
+#include <string>
+#include <stdexcept>
+#include <type_traits>
 #include "document.h"
 #include "editor_utils.h"
 #include "window.h"
