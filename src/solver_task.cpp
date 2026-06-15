@@ -174,7 +174,7 @@ void SolverTask::FillUnit(const rapidjson::Value& doc, Result& result, Value& va
         auto u = arr[i].GetObject();
         std::u32string name;
         int power = 1;
-        if (!u.HasMember("name") && !u["name"].IsString())
+        if (!u.HasMember("name") || !u["name"].IsString())
             return;
         name = ToUtfString(u["name"].GetString());
         if (u.HasMember("power") && u["power"].IsInt())
