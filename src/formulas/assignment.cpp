@@ -136,6 +136,8 @@ bool Assignment::DeleteElements(bool left, bool with_undo, ElementId& changed_el
     if (auto_solve && caret->GetPos() == 1 && last_identifier != U"")
     {
         auto code = document->FindParent(id, ElementType::CODE_BLOCK);
+        if (!code)
+            return false;
         document->RemoveIdentifier(logical_id, ((CodeBlock*)code.get())->code_id, last_identifier, document->config.solve_delay);
     }
 
@@ -226,6 +228,8 @@ void Assignment::ReSolve(bool if_error, bool force)
     if (last_expression != expr)
     {
         auto code = document->FindParent(id, ElementType::CODE_BLOCK);
+        if (!code)
+            return;
         if (last_identifier != U"")
             document->RemoveIdentifier(logical_id, ((CodeBlock*)code.get())->code_id, last_identifier, document->config.solve_delay);
         document->SetIdentifier(logical_id, guid, ((CodeBlock*)code.get())->code_id, document->config.auto_result, !GetParent(1)->visible, 

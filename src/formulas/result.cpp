@@ -154,6 +154,8 @@ void ResultRow::BeforeDelete()
     if (solving && !replacing)
     {
         auto code = document->FindParent(id, ElementType::CODE_BLOCK);
+        if (!code)
+            return;
         document->BreakSolving(solving_id, guid, ((CodeBlock*)code.get())->code_id);
         solving = false;
     }
