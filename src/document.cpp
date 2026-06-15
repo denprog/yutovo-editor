@@ -3896,10 +3896,10 @@ void Document::GetPrompt(std::vector<std::pair<IdentifierType, std::string>>& re
     }
 }
 
-void Document::WaitTask(uint task_id, uint64_t timeout, uint64_t circle_delay)
+bool Document::WaitTask(uint task_id, uint64_t timeout, uint64_t circle_delay)
 {
     if (task_id == 0)
-        return;
+        return true;
     auto now = duration_cast<milliseconds>(system_clock::now().time_since_epoch());
     auto cur_time = now;
     while (cur_time - now <= timeout * 1ms)
@@ -3907,7 +3907,7 @@ void Document::WaitTask(uint task_id, uint64_t timeout, uint64_t circle_delay)
         {
             std::lock_guard<std::recursive_mutex> lock(last_tasks_mutex);
             if (std::find(last_tasks.begin(), last_tasks.end(), task_id) != last_tasks.end())
-                return;
+                return true;
         }
 
         std::this_thread::sleep_for(circle_delay * 1ms);
@@ -3915,6 +3915,7 @@ void Document::WaitTask(uint task_id, uint64_t timeout, uint64_t circle_delay)
         if (timeout > 0)
             cur_time = duration_cast<milliseconds>(system_clock::now().time_since_epoch());
     }
+    return false;
 }
 
 void Document::RestrictUndo()

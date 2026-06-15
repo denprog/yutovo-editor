@@ -17,6 +17,132 @@ using namespace std::chrono_literals;
 
 struct CodeTest : DocumentTest
 {
+    struct NumberGapData
+    {
+        std::vector<int> xs_no_gap;
+        std::vector<int> xs_gap;
+        int width_no_gap = 0;
+        int width_gap = 0;
+    };
+
+    CodeTest::NumberGapData CollectNumberGapData(const std::string& digits, int gap)
+    {
+        NumberGapData data;
+        int len = (int)digits.size();
+
+        auto move_to_number = 
+            [&](const ElementId& number_id) -> bool
+            {
+                document.WaitTask(document.MoveCaretToDocumentBegin(false));
+                for (int i = 0; i < 10; ++i)
+                {
+                    if (document.GetEditorState().caret_state.id == number_id)
+                        return true;
+                    if (!document.WaitTask(document.MoveCaretRight(false), 1000))
+                    {
+                        ADD_FAILURE() << "MoveCaretRight timed out";
+                        return false;
+                    }
+                }
+                ADD_FAILURE() << "Could not move caret to number element";
+                return false;
+            };
+
+        document.WaitTask(document.MoveCaretToDocumentBegin(false));
+
+        ElementId number_id;
+        for (int i = 0; i < 10; ++i)
+        {
+            auto el = document.GetElement(document.GetEditorState().caret_state.id);
+            if (el && el->type == ElementType::CODE_STRING)
+            {
+                number_id = document.GetEditorState().caret_state.id;
+                break;
+            }
+            if (!document.WaitTask(document.MoveCaretRight(false), 1000))
+            {
+                ADD_FAILURE() << "MoveCaretRight timed out while locating number";
+                return data;
+            }
+        }
+        if (number_id.empty())
+        {
+            ADD_FAILURE() << "Could not locate number CodeString";
+            return data;
+        }
+
+        //without gaps
+        {
+            Config cfg = document.config;
+            cfg.use_numbers_gaps = false;
+            document.WaitTask(document.SetConfig(cfg, false));
+        }
+
+        if (!move_to_number(number_id))
+            return data;
+
+        Rect el;
+        EXPECT_TRUE(document.GetElementRect(number_id, el)) << "element rect without gaps";
+        data.width_no_gap = el.width;
+
+        for (int i = 0; i <= len; ++i)
+        {
+            Rect r;
+            EXPECT_TRUE(document.GetCaretRect(r)) << "caret rect without gaps at " << i;
+            data.xs_no_gap.push_back(r.left);
+            if (i < len)
+            {
+                if (!document.WaitTask(document.MoveCaretRight(false), 1000))
+                {
+                    ADD_FAILURE() << "MoveCaretRight timed out at " << i;
+                    return data;
+                }
+            }
+        }
+
+        //with gaps
+        {
+            Config cfg = document.config;
+            cfg.use_numbers_gaps = true;
+            document.WaitTask(document.SetConfig(cfg, false), 5000);
+        }
+
+        if (!move_to_number(number_id))
+            return data;
+
+        EXPECT_TRUE(document.GetElementRect(number_id, el)) << "element rect with gaps";
+        data.width_gap = el.width;
+
+        for (int i = 0; i <= len; ++i)
+        {
+            Rect r;
+            EXPECT_TRUE(document.GetCaretRect(r)) << "caret rect with gaps at " << i;
+            data.xs_gap.push_back(r.left);
+            if (i < len)
+                document.WaitTask(document.MoveCaretRight(false), 1000);
+        }
+
+        return data;
+    }
+
+    void CheckNumberGaps(const NumberGapData& data, int len, int gap)
+    {
+        ASSERT_EQ(data.xs_no_gap.size(), len + 1);
+        ASSERT_EQ(data.xs_gap.size(), len + 1);
+        ASSERT_GT(data.width_gap, data.width_no_gap);
+
+        int gap_width = (data.xs_gap[gap] - data.xs_no_gap[gap]) - (data.xs_gap[gap - 1] - data.xs_no_gap[gap - 1]);
+        ASSERT_GT(gap_width, 0);
+
+        int num_gaps = (len - 1) / gap;
+        ASSERT_EQ(data.width_gap, data.width_no_gap + num_gaps * gap_width);
+
+        for (int i = 0; i <= len; ++i)
+        {
+            int expected_extra = (std::min(i, len - 1) / gap) * gap_width;
+            ASSERT_EQ(data.xs_gap[i], data.xs_no_gap[i] + expected_extra) << "caret position " << i;
+        }
+    }
 };
 
 TEST_F(CodeTest, code1)
@@ -1945,6 +2071,70 @@ TEST_F(CodeTest, code35)
     document.WaitTask(document.MoveCaretUp(true));
     std::this_thread::sleep_for(100ms);
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0})) << document.GetEditorState().ToString();
+}
+
+TEST_F(CodeTest, number_gaps_binary)
+{
+    Start(600);
+    document.config.binary_gap = 4;
+    document.config.use_numbers_gaps = false;
+
+    document.WaitTask(document.InsertCode(false, true));
+    document.InsertString("10101010", true);
+    document.InsertSubscript(true);
+    document.WaitTask(document.InsertString("bin", true));
+    std::this_thread::sleep_for(100ms);
+
+    auto data = CollectNumberGapData("10101010", 4);
+    CheckNumberGaps(data, 8, 4);
+}
+
+TEST_F(CodeTest, number_gaps_octal)
+{
+    Start(600);
+    document.config.octal_gap = 3;
+    document.config.use_numbers_gaps = false;
+
+    document.WaitTask(document.InsertCode(false, true));
+    document.InsertString("123456701", true);
+    document.InsertSubscript(true);
+    document.WaitTask(document.InsertString("oct", true));
+    std::this_thread::sleep_for(100ms);
+
+    auto data = CollectNumberGapData("123456701", 3);
+    CheckNumberGaps(data, 9, 3);
+}
+
+TEST_F(CodeTest, number_gaps_decimal)
+{
+    Start(600);
+    document.config.decimal_gap = 3;
+    document.config.use_numbers_gaps = false;
+
+    document.WaitTask(document.InsertCode(false, true));
+    document.InsertString("123456789", true);
+    document.InsertSubscript(true);
+    document.WaitTask(document.InsertString("dec", true));
+    std::this_thread::sleep_for(100ms);
+
+    auto data = CollectNumberGapData("123456789", 3);
+    CheckNumberGaps(data, 9, 3);
+}
+
+TEST_F(CodeTest, number_gaps_hexadecimal)
+{
+    Start(600);
+    document.config.hexadecimal_gap = 4;
+    document.config.use_numbers_gaps = false;
+
+    document.WaitTask(document.InsertCode(false, true));
+    document.InsertString("1a2b3c4d", true);
+    document.InsertSubscript(true);
+    document.WaitTask(document.InsertString("hex", true));
+    std::this_thread::sleep_for(100ms);
+
+    auto data = CollectNumberGapData("1a2b3c4d", 4);
+    CheckNumberGaps(data, 8, 4);
 }
 
 }

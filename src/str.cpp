@@ -283,7 +283,13 @@ void String::UpdateRect(bool with_elements)
 
     if (!draw_format)
         Rescale();
-    Size s = GetTextSize(elements->Count());
+
+    Size s;
+    auto& str = ((StringElements*)elements.get())->str;
+    if (type != ElementType::CODE_STRING && stretch_width == 0 && str.find(U'\t') == std::u32string::npos)
+        s = window->GetTextSize(str, draw_format);
+    else
+        s = GetTextSize(elements->Count());
     rect.SetSize(s.width, s.height);
     baseline = window->GetFontAscent(draw_format);
 }
@@ -597,20 +603,67 @@ bool String::Split(const uint width, bool split_more)
 
     ClearCache();
 
+    if (!draw_format)
+        Rescale();
+
     int i = 0;
     std::u32string& str = ((StringElements*)elements.get())->str;
-    for (int j = 1; j < (int)str.size() - 1; ++j) //at least one character in the splitted string
+    int len = (int)str.size();
+
+    //fast path for long plain strings: binary search using direct text measurements
+    //CodeString overrides GetTextSize to add visual gaps between digits, so it must use the original path
+    if (type != ElementType::CODE_STRING && len > 1000 && stretch_width == 0 && str.find(U'\t') == std::u32string::npos)
     {
-        if (str[j] == ' ')
+        //find the largest position p such that the width of the prefix [0, p) fits
+        int low = 0, high = len;
+        while (low < high)
         {
-            Size s = GetTextSize(j + 1);
-            if (s.width <= width)
-                i = j;
+            int mid = low + (high - low + 1) / 2;
+            Size s = window->GetTextSize(str.substr(0, mid), draw_format);
+            if (s.width <= (int)width)
+                low = mid;
+            else
+                high = mid - 1;
+        }
+        int p = low;
+
+        if (split_more)
+        {
+            //if the next word does not fit, the line is allowed to overflow slightly rather than leaving a very short first line
+            size_t pos = str.find(U' ', p);
+            if (pos != std::u32string::npos && pos < (size_t)len - 1)
+                i = (int)pos;
             else
             {
-                if (split_more)
+                //use the last possible space (e.g. a single long word)
+                pos = str.rfind(U' ', (size_t)len - 2);
+                if (pos != std::u32string::npos && pos > 0)
+                    i = (int)pos;
+            }
+        }
+        else
+        {
+            //find the last space before p (split after it)
+            size_t pos = str.rfind(U' ', (size_t)p - 1);
+            if (pos != std::u32string::npos && pos > 0)
+                i = (int)pos;
+        }
+    }
+    else
+    {
+        for (int j = 1; j < len - 1; ++j) //at least one character in the splitted string
+        {
+            if (str[j] == ' ')
+            {
+                Size s = GetTextSize(j + 1);
+                if (s.width <= width)
                     i = j;
-                break;
+                else
+                {
+                    if (split_more)
+                        i = j;
+                    break;
+                }
             }
         }
     }
