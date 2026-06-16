@@ -45,7 +45,7 @@ CodeParagraph::CodeParagraph(const Paragraph* source) :
         ElementPtr el = source->elements->Get(i);
         for (int j = 0; j < el->elements->Count(); ++j)
         {
-            auto r = el->elements->Get(i);
+            auto r = el->elements->Get(j);
             if (r->type == ElementType::STRING)
             {
                 //change type of string
