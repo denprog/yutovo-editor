@@ -246,8 +246,6 @@ struct Config
         void ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc);
         bool FromJson(const rapidjson::Value::ConstArray& arr, rapidjson::Document::AllocatorType& alloc);
 
-        std::string ToString();
-
         std::vector<IncludeDocument> documents;
     };
 

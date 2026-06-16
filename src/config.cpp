@@ -521,14 +521,4 @@ bool Config::IncludeDocuments::FromJson(const rapidjson::Value::ConstArray& arr,
     return true;
 }
 
-std::string Config::IncludeDocuments::ToString()
-{
-    rapidjson::Document json;
-    json.SetObject();
-    rapidjson::StringBuffer buffer;
-    rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
-    json.Accept(writer);
-    return buffer.GetString();
-}
-
 }
