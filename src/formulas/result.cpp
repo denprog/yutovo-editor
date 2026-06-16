@@ -1323,7 +1323,7 @@ Element* ArrayRealResult::Clone()
 
 Element* ArrayRealResult::Create(Element* _parent)
 {
-    return new RealResult(_parent);
+    return new ArrayRealResult(_parent);
 }
 
 void ArrayRealResult::ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc)
