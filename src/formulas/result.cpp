@@ -791,6 +791,11 @@ Element* IntegerResult::Clone()
     return new IntegerResult(*this);
 }
 
+Element* IntegerResult::Create(Element* _parent)
+{
+    return new IntegerResult(_parent);
+}
+
 void IntegerResult::ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc)
 {
     ResultRow::ToJson(value, alloc);
@@ -912,6 +917,11 @@ RationalResult::RationalResult(Element* parent, const Config::RationalResultConf
 Element* RationalResult::Clone()
 {
     return new RationalResult(*this);
+}
+
+Element* RationalResult::Create(Element* _parent)
+{
+    return new RationalResult(_parent);
 }
 
 void RationalResult::ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc)
@@ -1080,6 +1090,11 @@ ComplexResult::ComplexResult(Element* parent, const Config::ComplexResultConfig&
 Element* ComplexResult::Clone()
 {
     return new ComplexResult(*this);
+}
+
+Element* ComplexResult::Create(Element* _parent)
+{
+    return new ComplexResult(_parent);
 }
 
 void ComplexResult::ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc)
@@ -1537,6 +1552,11 @@ Element* SymbolicRationalResult::Clone()
     return new SymbolicRationalResult(*this);
 }
 
+Element* SymbolicRationalResult::Create(Element* _parent)
+{
+    return new SymbolicRationalResult(_parent);
+}
+
 void SymbolicRationalResult::ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc)
 {
     RationalResult::ToJson(value, alloc);
@@ -1586,6 +1606,11 @@ SymbolicComplexResult::SymbolicComplexResult(Element* parent, const Config::Comp
 Element* SymbolicComplexResult::Clone()
 {
     return new SymbolicComplexResult(*this);
+}
+
+Element* SymbolicComplexResult::Create(Element* _parent)
+{
+    return new SymbolicComplexResult(_parent);
 }
 
 void SymbolicComplexResult::ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc)

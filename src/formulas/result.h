@@ -121,6 +121,8 @@ public:
 
     virtual Element* Clone();
 
+    virtual Element* Create(Element* _parent);
+
     virtual void ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc);
     static Element* FromJson(Element* parent, Document* document, const rapidjson::Value::ConstObject& value, rapidjson::Document::AllocatorType& alloc);
 
@@ -144,6 +146,8 @@ public:
     RationalResult(const RationalResult& source) = default;
 
     virtual Element* Clone();
+
+    virtual Element* Create(Element* _parent);
 
     virtual void ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc);
     static Element* FromJson(Element* parent, Document* document, const rapidjson::Value::ConstObject& value, rapidjson::Document::AllocatorType& alloc);
@@ -169,6 +173,8 @@ public:
     ComplexResult(const ComplexResult& source) = default;
 
     virtual Element* Clone();
+
+    virtual Element* Create(Element* _parent);
 
     virtual void ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc);
     static Element* FromJson(Element* parent, Document* document, const rapidjson::Value::ConstObject& value, rapidjson::Document::AllocatorType& alloc);
@@ -246,6 +252,8 @@ public:
 
     virtual Element* Clone();
 
+    virtual Element* Create(Element* _parent);
+
     virtual void ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc);
     static Element* FromJson(Element* parent, Document* document, const rapidjson::Value::ConstObject& value, rapidjson::Document::AllocatorType& alloc);
 
@@ -263,6 +271,8 @@ public:
     SymbolicComplexResult(const SymbolicComplexResult& source) = default;
 
     virtual Element* Clone();
+
+    virtual Element* Create(Element* _parent);
 
     virtual void ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc);
     static Element* FromJson(Element* parent, Document* document, const rapidjson::Value::ConstObject& value, rapidjson::Document::AllocatorType& alloc);
