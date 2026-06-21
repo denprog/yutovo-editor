@@ -12,7 +12,7 @@ If you haven't yet, build [yutovo-logger](https://github.com/denprog/yutovo-logg
 Install the dependencies:
 
 ```
-sudo update && sudo apt install -y qtbase5-dev qtchooser qt5-qmake libgtest-dev libgmock-dev libqt5widgets5 libmpfr-dev
+sudo apt update && sudo apt install -y qtbase5-dev qtchooser qt5-qmake libgtest-dev libgmock-dev libqt5widgets5 libmpfr-dev
 ```
 This variable should be set to the yutovo directory:
 
