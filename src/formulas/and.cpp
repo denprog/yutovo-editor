@@ -14,13 +14,13 @@ namespace yutovo
 //And
 
 And::And(Element* _parent) :
-    OnlyShapeFormula(_parent, '&')
+    OnlyShapeFormula(_parent, U'∧')
 {
     type = ElementType::AND;
 }
 
 And::And(Document* _document) :
-    OnlyShapeFormula(_document, '&')
+    OnlyShapeFormula(_document, U'∧')
 {
     type = ElementType::AND;
 }
@@ -57,7 +57,7 @@ Element* And::FromJson(Element* parent, Document* document, const rapidjson::Val
 
 std::string And::ToHtml() const
 {
-    return "<mo>&</mo>";
+    return "<mo>∧</mo>";
 }
 
 }

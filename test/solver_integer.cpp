@@ -599,12 +599,12 @@ TEST_F(SolverIntegerTest, logical1)
     Start(600);
 
     document.InsertCode(false, true);
-    document.InsertExclamation(true);
+    document.InsertNot(true);
     document.InsertString("4", true);
     document.WaitTask(document.InsertEquation(ResultType::INTEGER, true));
     document.WaitSolver();
     ASSERT_TRUE(document.ToText() == 
-        U"!4=3(dec)"
+        U"¬4=3(dec)"
         ) << ToBasicString(document.ToText());
 }
 
@@ -620,7 +620,7 @@ TEST_F(SolverIntegerTest, logical2)
     document.WaitTask(document.InsertEquation(ResultType::INTEGER, true));
     document.WaitSolver();
     ASSERT_TRUE(document.ToText() == 
-        U"115&234=98(dec)"
+        U"115∧234=98(dec)"
         ) << ToBasicString(document.ToText());
 }
 
@@ -636,7 +636,7 @@ TEST_F(SolverIntegerTest, logical3)
     document.WaitTask(document.InsertEquation(ResultType::INTEGER, true));
     document.WaitSolver();
     ASSERT_TRUE(document.ToText() == 
-        U"115|234=251(dec)"
+        U"115∨234=251(dec)"
         ) << ToBasicString(document.ToText());
 }
 
@@ -652,7 +652,7 @@ TEST_F(SolverIntegerTest, logical4)
     document.WaitTask(document.InsertEquation(ResultType::INTEGER, true));
     document.WaitSolver();
     ASSERT_TRUE(document.ToText() == 
-        U"115^234=153(dec)"
+        U"115⊕234=153(dec)"
         ) << ToBasicString(document.ToText());
 }
 

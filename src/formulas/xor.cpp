@@ -14,13 +14,13 @@ namespace yutovo
 //Xor
 
 Xor::Xor(Element* _parent) :
-    OnlyShapeFormula(_parent, '^')
+    OnlyShapeFormula(_parent, U'⊕')
 {
     type = ElementType::XOR;
 }
 
 Xor::Xor(Document* _document) :
-    OnlyShapeFormula(_document, '^')
+    OnlyShapeFormula(_document, U'⊕')
 {
     type = ElementType::XOR;
 }
@@ -57,7 +57,7 @@ Element* Xor::FromJson(Element* parent, Document* document, const rapidjson::Val
 
 std::string Xor::ToHtml() const
 {
-    return "<mo>^</mo>";
+    return "<mo>⊕</mo>";
 }
 
 }

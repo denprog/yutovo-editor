@@ -119,6 +119,7 @@ add_library(${PROJECT_NAME}
     formulas/and.cpp
     formulas/or.cpp
     formulas/xor.cpp
+    formulas/not.cpp
     formulas/percent.cpp
     formulas/code_column.cpp
     formulas/iteration.cpp
@@ -178,6 +179,7 @@ add_library(${PROJECT_NAME}
     formulas/and.h
     formulas/or.h
     formulas/xor.h
+    formulas/not.h
     formulas/percent.h
     formulas/code_column.h
     formulas/iteration.h

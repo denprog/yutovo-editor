@@ -35,6 +35,7 @@
 #include "formulas/and.h"
 #include "formulas/or.h"
 #include "formulas/xor.h"
+#include "formulas/not.h"
 #include "formulas/percent.h"
 #include "formulas/sum.h"
 #include "formulas/product.h"
@@ -329,6 +330,7 @@ Element* CreateFromJson(Element* parent, Document* document, const rapidjson::Va
             {ElementType::AND, &And::FromJson},
             {ElementType::OR, &Or::FromJson},
             {ElementType::XOR, &Xor::FromJson},
+            {ElementType::NOT, &Not::FromJson},
             {ElementType::PERCENT, &Percent::FromJson},
             {ElementType::IMAGE, &Image::FromJson},
             {ElementType::SUM, &Sum::FromJson},

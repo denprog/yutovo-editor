@@ -14,13 +14,13 @@ namespace yutovo
 //Or
 
 Or::Or(Element* _parent) :
-    OnlyShapeFormula(_parent, '|')
+    OnlyShapeFormula(_parent, U'∨')
 {
     type = ElementType::OR;
 }
 
 Or::Or(Document* _document) :
-    OnlyShapeFormula(_document, '|')
+    OnlyShapeFormula(_document, U'∨')
 {
     type = ElementType::OR;
 }
@@ -57,7 +57,7 @@ Element* Or::FromJson(Element* parent, Document* document, const rapidjson::Valu
 
 std::string Or::ToHtml() const
 {
-    return "<mo>&</mo>";
+    return "<mo>∨</mo>";
 }
 
 }

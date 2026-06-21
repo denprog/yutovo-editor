@@ -30,6 +30,7 @@
 #include "formulas/and.h"
 #include "formulas/or.h"
 #include "formulas/xor.h"
+#include "formulas/not.h"
 #include "formulas/percent.h"
 #include "formulas/sum.h"
 #include "formulas/product.h"
@@ -723,6 +724,12 @@ uint Document::InsertXor(bool with_undo)
 {
     LOG_TRACE("Insert xor");
     return InsertFormula(new Xor(this), with_undo);
+}
+
+uint Document::InsertNot(bool with_undo)
+{
+    LOG_TRACE("Insert not");
+    return InsertFormula(new Not(this), with_undo);
 }
 
 uint Document::InsertPercent(bool with_undo)

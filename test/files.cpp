@@ -2331,7 +2331,7 @@ TEST_F(IncludeDocumentsTest, include_files20)
     document.Load("../../test/tests/include_files20_3.yut");
     document.WaitLoad();
     document.WaitSolver();
-    std::this_thread::sleep_for(4s);
+    std::this_thread::sleep_for(5s);
     ASSERT_TRUE(document.ToText() == 
         U"include files\n"\
         U"v=24.\n"\

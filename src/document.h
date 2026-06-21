@@ -88,6 +88,7 @@ public:
     uint InsertAnd(bool with_undo);
     uint InsertOr(bool with_undo);
     uint InsertXor(bool with_undo);
+    uint InsertNot(bool with_undo);
     uint InsertPercent(bool with_undo);
     uint InsertSum(bool with_undo, bool replace = false);
     uint InsertProduct(bool with_undo, bool replace = false);
