@@ -27,10 +27,6 @@ endif()
 set(Boost_USE_STATIC_LIBS ON)
 set(Boost_USE_MULTITHREADED ON)
 
-if(EMSCRIPTEN)
-    set(CMAKE_FIND_ROOT_PATH ${INSTALL_PATH}/wasm/cmake/)
-endif()
-
 if(WIN32)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /utf-8 /bigobj /MP")
     pkg_check_modules(mpfr REQUIRED IMPORTED_TARGET GLOBAL mpfr)

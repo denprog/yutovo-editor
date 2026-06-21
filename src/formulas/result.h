@@ -193,8 +193,6 @@ public:
     bool with_angle_measure = false;
 };
 
-typedef std::shared_ptr<ResultRow> ResultPtr;
-
 class ArrayRealResult : public ResultRow
 {
 public:
