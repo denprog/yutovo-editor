@@ -34,6 +34,7 @@
 #include "formulas/and.h"
 #include "formulas/or.h"
 #include "formulas/xor.h"
+#include "formulas/not.h"
 #include "formulas/percent.h"
 #include "formulas/sum.h"
 #include "formulas/product.h"
@@ -349,6 +350,9 @@ Element* UndoFormula::Restore(Document* document, Element* parent)
         break;
     case ElementType::XOR:
         el = parent ? new Xor(parent) : new Xor(document);
+        break;
+    case ElementType::NOT:
+        el = parent ? new Not(parent) : new Not(document);
         break;
     case ElementType::PERCENT:
         el = parent ? new Percent(parent) : new Percent(document);
@@ -1038,6 +1042,7 @@ UndoElementPtr UndoBase::StoreElement(const LogicalId id, ElementPtr el)
     case ElementType::AND:
     case ElementType::OR:
     case ElementType::XOR:
+    case ElementType::NOT:
     case ElementType::PERCENT:
     case ElementType::OPEN_ROUND_BRACKET:
     case ElementType::CLOSE_ROUND_BRACKET:

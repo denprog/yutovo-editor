@@ -82,7 +82,8 @@ enum class ElementType
     CODE_PARAGRAPHS_BLOCK,
     SYMBOLIC_REAL_RESULT,
     SYMBOLIC_RATIONAL_RESULT,
-    SYMBOLIC_COMPLEX_RESULT
+    SYMBOLIC_COMPLEX_RESULT,
+    NOT
 };
 
 enum class IdentifierType
