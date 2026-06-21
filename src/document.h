@@ -498,6 +498,7 @@ public:
     std::vector<LogicalId> resolve_elements;
 
     std::map<std::string, LogicalId> solve_ids;
+    std::recursive_mutex solve_ids_mutex;
 
     std::atomic_bool break_remake = false;
 

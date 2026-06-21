@@ -593,6 +593,55 @@ TEST_F(SolverIntegerTest, solver12)
         ) << ToBasicString(document.ToText());
 }
 
+
+//Breaking solving doesn't cause crash
+TEST_F(SolverIntegerTest, solving13)
+{
+    Start(600);
+
+    Config config;
+    document.GetConfig(config);
+    config.integer_result.show_notation = false;
+    document.WaitTask(document.SetConfig(config, true));
+
+    document.InsertCode(false, true);
+    document.InsertString("2+2", true);
+    document.WaitTask(document.InsertEquation(ResultType::INTEGER, true));
+    document.WaitSolver();
+
+    LogicalId id = document.GetLogicalId(document.GetEditorState().caret_state.id);
+
+    EXPECT_NO_THROW(document.BreakSolving(id, "", 0));
+    EXPECT_NO_THROW(document.BreakSolving(LogicalId(), "", 0));
+}
+
+//Solve ids concurrent stress
+TEST_F(SolverIntegerTest, solve14)
+{
+    Start(600);
+
+    Config config;
+    document.GetConfig(config);
+    config.integer_result.show_notation = false;
+    document.WaitTask(document.SetConfig(config, true));
+
+    for (int i = 0; i < 20; ++i)
+    {
+        document.InsertCode(false, true);
+        document.InsertString("123+456", true);
+        document.WaitTask(document.InsertEquation(ResultType::INTEGER, true));
+
+        LogicalId id = document.GetLogicalId(document.GetEditorState().caret_state.id);
+        EXPECT_NO_THROW(document.BreakSolving(id, "", 0));
+
+        document.WaitSolver();
+        std::this_thread::sleep_for(50ms);
+
+        document.Undo();
+        document.WaitUndo();
+    }
+}
+
 //Logical not
 TEST_F(SolverIntegerTest, logical1)
 {
