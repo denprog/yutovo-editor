@@ -3089,78 +3089,111 @@ void Document::SetEditorState(LogicalEditorState& state)
 void Document::Solve(const LogicalId& _id, const std::string& guid, uint code_id, Config::AutoResultConfig& config, bool include_document, 
     std::u32string& expression, const uint delay)
 {
-    solve_ids[guid] = _id;
+    {
+        std::lock_guard<std::recursive_mutex> lock(solve_ids_mutex);
+        solve_ids[guid] = _id;
+    }
     solver.Solve(_id, guid, code_id, config, include_document, expression + U";", delay);
 }
 
 void Document::Solve(const LogicalId& _id, const std::string& guid, uint code_id, Config::RealResultConfig& config, bool include_document, 
     const std::u32string& expression, const uint delay)
 {
-    solve_ids[guid] = _id;
+    {
+        std::lock_guard<std::recursive_mutex> lock(solve_ids_mutex);
+        solve_ids[guid] = _id;
+    }
     solver.Solve(_id, guid, code_id, config, include_document, expression + U";", delay);
 }
 
 void Document::Solve(const LogicalId& _id, const std::string& guid, uint code_id, Config::IntegerResultConfig& config, bool include_document, 
     const std::u32string& expression, const uint delay)
 {
-    solve_ids[guid] = _id;
+    {
+        std::lock_guard<std::recursive_mutex> lock(solve_ids_mutex);
+        solve_ids[guid] = _id;
+    }
     solver.Solve(_id, guid, code_id, config, include_document, expression + U";", delay);
 }
 
 void Document::Solve(const LogicalId& _id, const std::string& guid, uint code_id, Config::RationalResultConfig& config, bool include_document, 
     const std::u32string& expression, const uint delay)
 {
-    solve_ids[guid] = _id;
+    {
+        std::lock_guard<std::recursive_mutex> lock(solve_ids_mutex);
+        solve_ids[guid] = _id;
+    }
     solver.Solve(_id, guid, code_id, config, include_document, expression + U";", delay);
 }
 
 void Document::Solve(const LogicalId& _id, const std::string& guid, uint code_id, Config::ComplexResultConfig& config, bool include_document, 
     const std::u32string& expression, const uint delay)
 {
-    solve_ids[guid] = _id;
+    {
+        std::lock_guard<std::recursive_mutex> lock(solve_ids_mutex);
+        solve_ids[guid] = _id;
+    }
     solver.Solve(_id, guid, code_id, config, include_document, expression + U";", delay);
 }
 
 void Document::Solve(const LogicalId& _id, const std::string& guid, uint code_id, Config::ArrayRealResultConfig& config, bool include_document,
     const std::u32string& expression, const uint delay)
 {
-    solve_ids[guid] = _id;
+    {
+        std::lock_guard<std::recursive_mutex> lock(solve_ids_mutex);
+        solve_ids[guid] = _id;
+    }
     solver.Solve(_id, guid, code_id, config, include_document, expression + U";", delay);
 }
 
 void Document::SolveSymbolicReal(const LogicalId& _id, const std::string& guid, uint code_id, Config::RealResultConfig& config, bool include_document,
     const std::u32string& expression, const uint delay)
 {
-    solve_ids[guid] = _id;
+    {
+        std::lock_guard<std::recursive_mutex> lock(solve_ids_mutex);
+        solve_ids[guid] = _id;
+    }
     solver.SolveSymbolicReal(_id, guid, code_id, config, include_document, expression + U";", delay);
 }
 
 void Document::SolveSymbolicRational(const LogicalId& _id, const std::string& guid, uint code_id, Config::RationalResultConfig& config, bool include_document,
     const std::u32string& expression, const uint delay)
 {
-    solve_ids[guid] = _id;
+    {
+        std::lock_guard<std::recursive_mutex> lock(solve_ids_mutex);
+        solve_ids[guid] = _id;
+    }
     solver.SolveSymbolicRational(_id, guid, code_id, config, include_document, expression + U";", delay);
 }
 
 void Document::SolveSymbolicComplex(const LogicalId& _id, const std::string& guid, uint code_id, Config::ComplexResultConfig& config, bool include_document,
     const std::u32string& expression, const uint delay)
 {
-    solve_ids[guid] = _id;
+    {
+        std::lock_guard<std::recursive_mutex> lock(solve_ids_mutex);
+        solve_ids[guid] = _id;
+    }
     solver.SolveSymbolicComplex(_id, guid, code_id, config, include_document, expression + U";", delay);
 }
 
 void Document::BreakSolving(const LogicalId& _id, const std::string& guid, uint code_id, bool wait)
 {
-    auto it = solve_ids.find(guid);
-    if (it != solve_ids.end())
-        solve_ids.erase(it);
+    {
+        std::lock_guard<std::recursive_mutex> lock(solve_ids_mutex);
+        auto it = solve_ids.find(guid);
+        if (it != solve_ids.end())
+            solve_ids.erase(it);
+    }
     solver.BreakSolving(_id, code_id, wait);
 }
 
 void Document::SetIdentifier(const LogicalId& _id, const std::string& guid, uint code_id, Config::AutoResultConfig& config, bool include_document, 
     const std::u32string& identifier, const std::u32string& expression, const uint delay)
 {
-    solve_ids[guid] = _id;
+    {
+        std::lock_guard<std::recursive_mutex> lock(solve_ids_mutex);
+        solve_ids[guid] = _id;
+    }
     solver.SetIdentifier(_id, guid, code_id, config, include_document, identifier, expression + U";", delay);
 }
 
@@ -3510,12 +3543,18 @@ uint Document::ReSolveErrors()
 uint Document::PutResult(const Result& result)
 {
     std::lock_guard<std::recursive_mutex> lock1(edit_mutex);
-    auto it = solve_ids.find(result.guid);
-    if (it == solve_ids.end())
-        return 0;
-    
+
+    LogicalId solve_id;
+    {
+        std::lock_guard<std::recursive_mutex> lock(solve_ids_mutex);
+        auto it = solve_ids.find(result.guid);
+        if (it == solve_ids.end())
+            return 0;
+        solve_id = it->second;
+    }
+
     std::lock_guard<std::recursive_mutex> lock2(tasks_mutex);
-    tasks.emplace_back(new ResultTask(text, it->second, result));
+    tasks.emplace_back(new ResultTask(text, solve_id, result));
 
 #ifdef DEBUG
     if (result.error.error_code != yutovo_solver::ErrorCode::SOLVER_RESTARTED_ERROR || result.error.error_code == yutovo_solver::ErrorCode::PARSER_ERROR)
@@ -3556,6 +3595,7 @@ void Document::ListIdentifiers(const uint code_id)
 
 void Document::UpdateSolveId(const std::string& guid, const LogicalId& new_id)
 {
+    std::lock_guard<std::recursive_mutex> lock(solve_ids_mutex);
     auto it = solve_ids.find(guid);
     if (it != solve_ids.end())
         it->second = new_id;
