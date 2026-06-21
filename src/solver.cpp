@@ -180,13 +180,11 @@ void Solver::SolveSymbolicComplex(const LogicalId& id, const std::string& task_g
 
 void Solver::BreakSolving(const LogicalId& id, const uint code_id, bool wait)
 {
-    {
-        std::unique_lock<std::mutex> lock(current_solving_mutex);
-        if (id != current_solving_id)
-            return;
-    }
+    std::unique_lock<std::mutex> current_lock(current_solving_mutex);
+    if (id != current_solving_id)
+        return;
 
-    std::unique_lock<std::mutex> lock(tasks_mutex);
+    std::unique_lock<std::mutex> task_lock(tasks_mutex);
     break_tasks.emplace_front(nullptr);
     break_tasks.emplace_front(new BreakSolverTask(id, document, solver_guid, code_id, wait, logger)); //first of all break this solving
     break_next_circle = true;
