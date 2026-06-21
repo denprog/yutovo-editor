@@ -544,6 +544,8 @@ private:
 
     SelectionState last_editor_selection;
 
+    bool last_changed = false;
+
     ElementId mouse_capture_id;
 
     EditorState last_caret_state;

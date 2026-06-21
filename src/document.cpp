@@ -3956,7 +3956,6 @@ void Document::RestrictUndo()
 
 void Document::UpdateChanged()
 {
-    static bool last_changed = false;
     if (save_task_id == 0 && undo_tasks.empty())
         changed = false;
     else
