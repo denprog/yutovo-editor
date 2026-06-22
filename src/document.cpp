@@ -3244,8 +3244,9 @@ ResultType Document::GetResultType(ElementId _id)
         return ResultType::SYMBOLIC_RATIONAL;
     case ElementType::SYMBOLIC_COMPLEX_RESULT:
         return ResultType::SYMBOLIC_COMPLEX;
+    default:
+        return ResultType::NONE;
     }
-    return ResultType::NONE;
 }
 
 uint Document::SetResultType(ElementId _id, ResultType result_type, bool with_undo)
