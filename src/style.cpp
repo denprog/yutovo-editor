@@ -535,8 +535,6 @@ std::string ParagraphFormats::TranslateName(const std::string& name, const yutov
 
     switch (language)
     {
-    case yutovo_calculator::Language::English:
-        return name;
     case yutovo_calculator::Language::Russian:
         {
             auto it = ru_tr.find(name);
@@ -558,6 +556,8 @@ std::string ParagraphFormats::TranslateName(const std::string& name, const yutov
                 return it->second;
         }
         break;
+    default:
+        return name;
     }
     return name;
 }
