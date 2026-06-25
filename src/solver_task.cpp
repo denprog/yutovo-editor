@@ -583,7 +583,7 @@ bool AutoSolverTask::Execute(WebSocketPtr socket, Result& result)
     default:
         result.error.error_code = ErrorCode::NO_RESULT;
         LOG_DEBUG("Result: No result");
-        return false;
+        return true;
     }
 
     LOG_DEBUG("Result:{}", "{" + result.ToString() + "}");
@@ -665,7 +665,7 @@ bool RealSolverTask::Execute(WebSocketPtr socket, Result& result)
     {
         result.error.error_code = ErrorCode::NO_RESULT;
         LOG_DEBUG("Result: No result");
-        return false;
+        return true;
     }
     if (result.type != ResultType::REAL)
     {
@@ -751,7 +751,7 @@ bool IntegerSolverTask::Execute(WebSocketPtr socket, Result& result)
     {
         result.error.error_code = ErrorCode::NO_RESULT;
         LOG_DEBUG("Result: No result");
-        return false;
+        return true;
     }
     else if (result.type != ResultType::INTEGER)
     {
@@ -838,7 +838,7 @@ bool RationalSolverTask::Execute(WebSocketPtr socket, Result& result)
     {
         result.error.error_code = ErrorCode::NO_RESULT;
         LOG_DEBUG("Result: No result");
-        return false;
+        return true;
     }
     else if (result.type != ResultType::RATIONAL)
     {
@@ -927,7 +927,7 @@ bool ComplexSolverTask::Execute(WebSocketPtr socket, Result& result)
     {
         result.error.error_code = ErrorCode::NO_RESULT;
         LOG_DEBUG("Result: No result");
-        return false;
+        return true;
     }
     else if (result.type != ResultType::COMPLEX)
     {
@@ -1025,7 +1025,7 @@ bool ArrayRealSolverTask::Execute(WebSocketPtr socket, Result& result)
     {
         result.error.error_code = ErrorCode::NO_RESULT;
         LOG_DEBUG("Result: No result");
-        return false;
+        return true;
     }
     if (result.type != ResultType::ARRAY_REAL)
     {
@@ -1113,7 +1113,7 @@ bool SymbolicRealSolverTask::Execute(WebSocketPtr socket, Result& result)
     {
         result.error.error_code = ErrorCode::NO_RESULT;
         LOG_DEBUG("Result: No result");
-        return false;
+        return true;
     }
     if (result.type != ResultType::SYMBOLIC_REAL)
     {
@@ -1198,7 +1198,7 @@ bool SymbolicRationalSolverTask::Execute(WebSocketPtr socket, Result& result)
     {
         result.error.error_code = ErrorCode::NO_RESULT;
         LOG_DEBUG("Result: No result");
-        return false;
+        return true;
     }
     if (result.type != ResultType::SYMBOLIC_RATIONAL)
     {
@@ -1286,7 +1286,7 @@ bool SymbolicComplexSolverTask::Execute(WebSocketPtr socket, Result& result)
     {
         result.error.error_code = ErrorCode::NO_RESULT;
         LOG_DEBUG("Result: No result");
-        return false;
+        return true;
     }
     if (result.type != ResultType::SYMBOLIC_COMPLEX)
     {
