@@ -9,6 +9,8 @@
 #include "mock.h"
 #include "style.h"
 #include "formulas/graph.h"
+#include <atomic>
+#include <thread>
 
 namespace yutovo_test
 {
@@ -1025,6 +1027,52 @@ TEST_F(FormulaTest, graphs19)
     std::this_thread::sleep_for(200ms);
     ((GraphLine*)el.get())->GetImage(image_base64_2);
     ASSERT_TRUE(image_base64_1 == image_base64_2);
+}
+
+//Insert two independent graphs into the same document, concurrently render both graphs from different mglGraph instances
+TEST_F(FormulaTest, graphs20)
+{
+    Start(600);
+
+    document.config.solve_delay = 1000000;
+    
+    document.WaitTask(document.InsertGraph(true));
+    document.MoveCaretRight(false);
+    document.WaitTask(document.InsertGraph(true));
+    std::this_thread::sleep_for(200ms);
+
+    auto elements = FindAllByType(document.GetElement({0}), ElementType::GRAPH_LINE);
+    ASSERT_EQ(elements.size(), 2u);
+    GraphLine* graph1 = (GraphLine*)elements[0].get();
+    GraphLine* graph2 = (GraphLine*)elements[1].get();
+
+    //MathGL uses global shared state, so this would crash without the mutex
+    std::atomic<bool> stop{false};
+    std::atomic<int> counter{0};
+    auto render = 
+        [&](GraphLine* g)
+        {
+            while (!stop)
+            {
+                std::string image_base64;
+                g->GetImage(image_base64);
+                ++counter;
+            }
+        };
+
+    std::thread t1(render, graph1);
+    std::thread t2(render, graph2);
+    std::thread t3(render, graph1);
+    std::thread t4(render, graph2);
+
+    std::this_thread::sleep_for(2s);
+    stop = true;
+    t1.join();
+    t2.join();
+    t3.join();
+    t4.join();
+
+    EXPECT_GT(counter, 0);
 }
 
 }

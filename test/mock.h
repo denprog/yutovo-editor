@@ -340,6 +340,21 @@ struct DocumentTest : public testing::Test
 
     void GetImageData(QImage& image, std::vector<unsigned char>& data);
 
+    std::vector<ElementPtr> FindAllByType(ElementPtr root, ElementType type)
+    {
+        std::vector<ElementPtr> result;
+        if (!root)
+            return result;
+        if (root->type == type)
+            result.push_back(root);
+        for (int i = 0; i < root->elements->Count(); ++i)
+        {
+            auto children = FindAllByType(root->elements->Get(i), type);
+            result.insert(result.end(), children.begin(), children.end());
+        }
+        return result;
+    }
+
     QApplication app;
     MainWindow main_window;
     ::testing::NiceMock<WindowMock> window_mock;
