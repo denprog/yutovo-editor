@@ -10,6 +10,7 @@
 
 #include "middle_shape_formula.h"
 #include "config.h"
+#include <mutex>
 #ifdef _MSC_VER
 using std::abs;
 #define MGL_NO_CMATH_OVERLOADS
@@ -75,6 +76,7 @@ protected:
     Shape* GetShape() const;
 
     mutable mglGraph graph;
+    static std::recursive_mutex mathgl_mutex;  //protects MathGL global state
 
     Config::ArrayRealResultConfig config;
 
