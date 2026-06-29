@@ -29,6 +29,8 @@ namespace yutovo
 
 typedef unsigned char uchar;
 
+std::recursive_mutex Graph::mathgl_mutex;
+
 //Graph
 
 Graph::Graph(Element* _parent, bool with_init) :
@@ -204,6 +206,8 @@ bool Graph::Depends(const std::string& identifier)
 
 void Graph::GetImage(std::string& image_base64) const
 {
+    std::lock_guard<std::recursive_mutex> lock(mathgl_mutex);
+
     Draw();
 
     const unsigned char* picture = graph.GetRGBA();
@@ -354,6 +358,8 @@ void GraphLine::Init()
     GetShape()->draw_func = 
         [&](const Rect& r)
         {
+            std::lock_guard<std::recursive_mutex> lock(mathgl_mutex);
+
             graph.NewFrame();
             graph.SetFlagAdv(1, MGL_NO_SCALE_REL);
             graph.SetScaleText(false);
