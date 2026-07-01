@@ -1,9 +1,6 @@
 cmake_minimum_required(VERSION 3.17)
 
-project(yutovo-editor
-    VERSION 0.1.0 
-    LANGUAGES CXX
-)
+project(yutovo-editor LANGUAGES CXX C)
 
 set(PROJECT_LICENSE "GPL-3.0-only")
 
