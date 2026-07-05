@@ -459,6 +459,7 @@ bool PngToRgba(const std::vector<unsigned char>& png, std::vector<unsigned char>
 extern std::string base64_chars;
 
 std::string Base64Encode(const std::vector<unsigned char>& picture);
+std::vector<unsigned char> Base64Decode(const std::string& base64);
 
 #define LOG_TRACE(...) \
     if (logger->GetLevel() <= LogLevel::LEVEL_TRACE) \

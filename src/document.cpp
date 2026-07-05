@@ -1745,6 +1745,18 @@ bool Document::GetGraphFormat(const ElementId& id, GraphFormat& format)
     return true;
 }
 
+bool Document::GetGraphImage(const ElementId& id, std::vector<unsigned char>& png)
+{
+    std::lock_guard<std::recursive_mutex> lock(edit_mutex);
+    ElementPtr el = GetElement(id);
+    if (!el || el->type != ElementType::GRAPH_LINE)
+        return false;
+    std::string image_base64;
+    ((GraphLine*)el.get())->GetImage(image_base64);
+    png = Base64Decode(image_base64);
+    return !png.empty();
+}
+
 uint Document::SetGraphFormat(const ElementId& id, const GraphFormat& format, bool with_undo)
 {
     std::lock_guard<std::recursive_mutex> lock(tasks_mutex);

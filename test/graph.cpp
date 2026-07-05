@@ -1075,4 +1075,60 @@ TEST_F(FormulaTest, graphs20)
     EXPECT_GT(counter, 0);
 }
 
+//Copy a graph from a code block as a PNG image and paste it into normal text
+TEST_F(FormulaTest, graphs21)
+{
+    Start(600);
+
+    EXPECT_CALL(window_mock, GetImageSize).WillRepeatedly(
+        [&](const std::vector<unsigned char>& image)
+        {
+            return GetImageSizeMock(image);
+        });
+
+    document.InsertCode(false, false);
+    document.WaitTask(document.InsertGraph(true));
+    std::this_thread::sleep_for(100ms);
+
+    document.WaitTask(document.InsertString("1", true));
+    document.MoveCaretRight(false);
+    document.WaitTask(document.InsertString("x", true));
+    document.MoveCaretRight(false);
+    document.InsertMinus(false);
+    document.WaitTask(document.InsertString("1", true));
+    document.MoveCaretRight(false);
+    document.InsertMinus(false);
+    document.WaitTask(document.InsertString("1", true));
+    document.MoveCaretRight(false);
+    document.WaitTask(document.InsertString("x", true));
+    document.MoveCaretRight(false);
+    document.WaitTask(document.InsertString("1", true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(2s);
+
+    //get the graph element and extract its PNG image
+    auto el = document.FindByType(ElementId{0}, ElementType::GRAPH_LINE);
+    ASSERT_TRUE(el != nullptr);
+    std::vector<unsigned char> png;
+    ASSERT_TRUE(document.GetGraphImage(el->id, png));
+    ASSERT_FALSE(png.empty());
+    ASSERT_TRUE(png.size() > 8);
+    ASSERT_TRUE(png[0] == 0x89 && png[1] == 'P' && png[2] == 'N' && png[3] == 'G');
+
+    //move caret out of the graph fields and create a new normal paragraph after the code block
+    document.WaitTask(document.MoveCaretToDocumentEnd(false));
+    document.WaitTask(document.InsertParagraph(true));
+    std::this_thread::sleep_for(200ms);
+
+    //paste the PNG image into the normal text paragraph
+    document.WaitTask(document.PasteImage(png));
+    std::this_thread::sleep_for(500ms);
+    ASSERT_TRUE(document.ToHtml().find("<img src=\"data:image/png;base64,") != std::string::npos) << document.ToHtml();
+
+    auto el2 = document.FindByType(ElementId{0}, ElementType::GRAPH_LINE);
+    ASSERT_TRUE(el2 != nullptr);
+    auto img = document.FindByType(ElementId{0}, ElementType::IMAGE);
+    ASSERT_TRUE(img != nullptr);
+}
+
 }
