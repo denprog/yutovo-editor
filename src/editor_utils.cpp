@@ -567,4 +567,28 @@ std::string Base64Encode(const std::vector<unsigned char>& picture)
     return res;
 }
 
+std::vector<unsigned char> Base64Decode(const std::string& base64)
+{
+    std::vector<int> t(256, -1);
+    for (int i = 0; i < 64; ++i)
+        t[base64_chars[i]] = i;
+
+    std::vector<unsigned char> res;
+    uint32_t val = 0;
+    int valb = -8;
+    for (uchar c : base64)
+    {
+        if (t[c] == -1)
+            break;
+        val = (val << 6) + t[c];
+        valb += 6;
+        if (valb >= 0)
+        {
+            res.push_back(char((val >> valb) & 0xFF));
+            valb -= 8;
+        }
+    }
+    return res;
+}
+
 }

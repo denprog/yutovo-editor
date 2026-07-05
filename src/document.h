@@ -270,6 +270,7 @@ public:
 
     bool GetGraphFormat(const ElementId& id, GraphFormat& format);
     uint SetGraphFormat(const ElementId& id, const GraphFormat& format, bool with_undo);
+    bool GetGraphImage(const ElementId& id, std::vector<unsigned char>& png);
     bool GetPlotFormat(const ElementId& id, PlotFormat& format);
     uint SetPlotFormat(const ElementId& id, const PlotFormat& format, bool with_undo);
     bool GetTextFormat(TextFormat& format);
