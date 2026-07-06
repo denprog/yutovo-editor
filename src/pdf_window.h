@@ -13,6 +13,9 @@ public:
     PdfWindow(const Size& _page_size, bool _draw_footer);
     virtual ~PdfWindow();
 
+    void SetPageRange(int _first_page, int _last_page);
+    int GetPageCount() const;
+
     virtual void Init(Document* document);
 
     virtual void DrawText(const std::string& text, const StringFormatPtr format, const Rect& rect, const Color color, const Color bg_color, const bool transparent);
@@ -63,6 +66,8 @@ public:
 
 private:
     void AddPage();
+    void CreatePage();
+    bool IsCurrentPageInRange() const;
     HPDF_Font GetFont(const StringFormatPtr format);
 
 private:
@@ -95,13 +100,15 @@ private:
     HPDF_Page page = nullptr;
     Rect view_port;
     Size page_size;
-    uint pages = 0;
+    uint pages = 1;
     int y_top = 0;
     int y_diff = 0;
     int y_filled = 0, top_y_filled = 0, last_y_filled = 0;
     std::map<boost::uuids::uuid, std::string> fonts_map;
     std::vector<uint8_t> result;
     bool draw_footer;
+    int first_page = 1;
+    int last_page = 0;
 };
     
 }

@@ -28,7 +28,6 @@ PdfWindow::PdfWindow(const Size& _page_size, bool _draw_footer) :
 
     HPDF_UseUTFEncodings(pdf);
     HPDF_SetCurrentEncoder(pdf, "UTF-8");
-    AddPage();
 }
 
 PdfWindow::~PdfWindow()
@@ -38,6 +37,34 @@ PdfWindow::~PdfWindow()
 
 void PdfWindow::Init(Document* document)
 {
+}
+
+void PdfWindow::SetPageRange(int _first_page, int _last_page)
+{
+    first_page = _first_page;
+    last_page = _last_page;
+}
+
+int PdfWindow::GetPageCount() const
+{
+    return pages;
+}
+
+void PdfWindow::CreatePage()
+{
+    page = HPDF_AddPage(pdf);
+    HPDF_Page_SetWidth(page, page_size.width);
+    HPDF_Page_SetHeight(page, page_size.height);
+    HPDF_Page_Concat(page, 1, 0, 0, -1, 0, HPDF_Page_GetHeight(page));
+}
+
+bool PdfWindow::IsCurrentPageInRange() const
+{
+    if (first_page > 0 && pages < first_page)
+        return false;
+    if (last_page > 0 && pages > last_page)
+        return false;
+    return true;
 }
 
 void PdfWindow::DrawText(const std::string& text, const StringFormatPtr format, const Rect& rect, const Color color, const Color bg_color, const bool transparent)
@@ -57,6 +84,11 @@ void PdfWindow::DrawText(const std::string& text, const StringFormatPtr format, 
         if (top_y_filled == 0)
             top_y_filled = rect.top;
         last_y_filled = rect.GetBottom() - top_y_filled;
+
+        if (!IsCurrentPageInRange())
+            return;
+        if (!page)
+            CreatePage();
     }
 
     HPDF_Font font = GetFont(format);
@@ -112,6 +144,11 @@ void PdfWindow::DrawLine(const int x1, const int y1, const int x2, const int y2,
         }
         _y1 += y_diff - (pages - 1) * page_size.height;
         _y2 += y_diff - (pages - 1) * page_size.height;
+        
+        if (!IsCurrentPageInRange())
+            return;
+        if (!page)
+            CreatePage();
     }
 
     ClipDraw clip_draw(*this);
@@ -141,6 +178,14 @@ void PdfWindow::DrawRect(const int x1, const int y1, const int width, const int 
         top_y_filled = y1;
     last_y_filled = y1 + height - top_y_filled;
 
+    if (draw_doc)
+    {
+        if (!IsCurrentPageInRange())
+            return;
+        if (!page)
+            CreatePage();
+    }
+
     ClipDraw clip_draw(*this);
     HPDF_Page_SetRGBStroke(page, color.r / 255, color.g / 255, color.b / 255);
     HPDF_Page_SetLineWidth(page, 1);
@@ -161,7 +206,6 @@ void PdfWindow::DrawFillPath(const std::list<Point>& path, const Color color)
     if (path.empty())
         return;
 
-    HPDF_Page_SetRGBFill(page, color.r / 255, color.g / 255, color.b / 255);
     auto p = path;
     auto it = p.begin();
     int b = pages * view_port.height;
@@ -173,8 +217,14 @@ void PdfWindow::DrawFillPath(const std::list<Point>& path, const Color color)
             y_diff = y_top - it->y;
         }
         it->y += y_diff - (pages - 1) * page_size.height;
+
+        if (!IsCurrentPageInRange())
+            return;
+        if (!page)
+            CreatePage();
     }
 
+    HPDF_Page_SetRGBFill(page, color.r / 255, color.g / 255, color.b / 255);
     ClipDraw clip_draw(*this);
     HPDF_Page_MoveTo(page, it->x, it->y);
     ++it;
@@ -194,6 +244,14 @@ void PdfWindow::DrawWavyLine(const int x1, const int y1, const int width, const 
 {
     if (width <= 0 || radius <= 0)
         return;
+
+    if (draw_doc)
+    {
+        if (!IsCurrentPageInRange())
+            return;
+        if (!page)
+            CreatePage();
+    }
 
     HPDF_Page_SetRGBStroke(page, color.r / 255.0, color.g / 255.0, color.b / 255.0f);
     HPDF_Page_SetLineWidth(page, 1.0f);
@@ -232,6 +290,14 @@ void PdfWindow::DrawImage(const int x1, const int y1, const int width, const int
     if (top_y_filled == 0)
         top_y_filled = y1;
     last_y_filled = y1 + height - top_y_filled;
+
+    if (draw_doc)
+    {
+        if (!IsCurrentPageInRange())
+            return;
+        if (!page)
+            CreatePage();
+    }
 
     std::vector<unsigned char> rgba;
     int w, h;
@@ -298,13 +364,11 @@ void PdfWindow::RestoreRect()
 Size PdfWindow::GetTextSize(const std::u32string& text, const StringFormatPtr format)
 {
     HPDF_Font font = GetFont(format);
-    HPDF_Page_BeginText(page);
-    HPDF_Page_SetTextMatrix(page, 1, 0, 0, -1, 0, HPDF_Page_GetHeight(page));
-    HPDF_Page_SetFontAndSize(page, font, format->size);
-    double w = HPDF_Page_TextWidth(page, yutovo::ToBasicString(text).c_str());
+    std::string str = yutovo::ToBasicString(text);
+    HPDF_TextWidth tw = HPDF_Font_TextWidth(font, (const HPDF_BYTE*)str.c_str(), str.length());
+    double w = tw.width * format->size / 1000.0;
     double ascent = HPDF_Font_GetAscent(font) / 1000.0 * format->size;
     double descent = HPDF_Font_GetDescent(font) / 1000.0 * format->size;
-    HPDF_Page_EndText(page);
     double h = ascent - descent;
     return Size{(int)std::round(w), (int)std::round(h)};
 }
@@ -358,6 +422,12 @@ Rect PdfWindow::GetViewPort(const int pos)
 void PdfWindow::Update(const Rect& rect)
 {
     //redraw has finished - pdf is ready
+    if (!page)
+    {
+        OnPdfExportResult({}, PdfResult::Error);
+        return;
+    }
+
     if (draw_footer)
     {
         draw_doc = false;
@@ -422,13 +492,11 @@ void PdfWindow::OnLoadInclude(const std::string& file_name, const int document_i
 
 void PdfWindow::AddPage()
 {
-    page = HPDF_AddPage(pdf);
-    HPDF_Page_SetWidth(page, page_size.width);
-    HPDF_Page_SetHeight(page, page_size.height);
-    HPDF_Page_Concat(page, 1, 0, 0, -1, 0, HPDF_Page_GetHeight(page));
     ++pages;
     y_top = (pages - 1) * page_size.height + view_port.top;
     top_y_filled = 0;
+    if (IsCurrentPageInRange())
+        CreatePage();
 }
 
 HPDF_Font PdfWindow::GetFont(const StringFormatPtr format)
