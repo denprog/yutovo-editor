@@ -20,7 +20,17 @@ if(NOT DEFINED REMOTE_SOLVER)
     find_package(yutovo-calculator REQUIRED PATHS ${INSTALL_PATH}/lib/cmake)
     find_package(yutovo-logger REQUIRED PATHS ${INSTALL_PATH}/lib/cmake)
 if(NOT DEFINED EMSCRIPTEN)
-    find_package(SymEngine 0.14.0 PATHS ${INSTALL_PATH}/lib/cmake/)
+    find_library(GIAC_LIBRARY NAMES giac PATHS ${INSTALL_PATH}/lib NO_DEFAULT_PATH)
+    find_path(GIAC_INCLUDE_DIR NAMES giac/giac.h PATHS ${INSTALL_PATH}/include NO_DEFAULT_PATH)
+    if (NOT GIAC_LIBRARY OR NOT GIAC_INCLUDE_DIR)
+        message(FATAL_ERROR "giac library not found in ${INSTALL_PATH}. Run ./build_giac.sh first.")
+    endif()
+    message(STATUS "Found giac: ${GIAC_LIBRARY}")
+    add_library(giac_imported STATIC IMPORTED)
+    set_target_properties(giac_imported PROPERTIES
+        IMPORTED_LOCATION ${GIAC_LIBRARY}
+        INTERFACE_INCLUDE_DIRECTORIES ${GIAC_INCLUDE_DIR}
+    )
 endif()
 endif()
 
