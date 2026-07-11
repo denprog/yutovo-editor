@@ -393,7 +393,6 @@ void Document::MainLoop()
                             t->next_task = undo_tasks.back()->next_task;
                         redo_tasks.push_back(t);
                         last_modify_task_id = t->id;
-                        //last_modify_caret_state = caret->GetCaretState();
                     }
                     last_editor_selection = selection.GetState();
                 }
@@ -1149,7 +1148,7 @@ uint Document::SetIncludeDocuments(const std::vector<std::string>& files)
     c.include_documents.documents.clear();
     for (auto& f : files)
         c.include_documents.documents.push_back(Config::IncludeDocument{f});
-    return SetConfig(c, false);
+    return SetConfig(c, true);
 }
 
 ElementPtr Document::GetElement(const ElementId& _id)
