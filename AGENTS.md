@@ -108,6 +108,9 @@ Projects are built and tested in `build/debug/`:
 cd build/debug && cmake ../.. && make -j16 yutovo-editor_tests && ./test/yutovo-editor_tests --gtest_filter="FormulaTest.power23"
 ```
 
+### Debug giac linkage
+`yutovo-editor` creates its own imported `giac_imported` target in `src/CMakeLists.txt`. Debug builds must use `${INSTALL_PATH}/lib/libgiacd.a` and release builds `${INSTALL_PATH}/lib/libgiac.a`; linking a debug `yutovo-calculator`/`yutovo-solver` against the release giac library causes an ABI mismatch and memory corruption inside giac (e.g., `CodeTest.code35` crashing in `giac::expand`).
+
 ## Network Errors
 If an operation fails with a "Network connection failed" error:
 1. Wait **2 seconds** and retry automatically on your own.
