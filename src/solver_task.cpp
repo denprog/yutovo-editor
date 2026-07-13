@@ -529,7 +529,7 @@ bool AutoSolverTask::Execute(WebSocketPtr socket, Result& result)
 #endif
 
     doc.Parse<0>(json.c_str());
-    if (doc.HasParseError())
+    if (doc.HasParseError() || !doc.IsObject())
     {
         LOG_ERROR("Json error");
         result.error.error_code = ErrorCode::JSON_ERROR;
@@ -644,7 +644,7 @@ bool RealSolverTask::Execute(WebSocketPtr socket, Result& result)
 #endif
 
     doc.Parse<0>(json.c_str());
-    if (doc.HasParseError())
+    if (doc.HasParseError() || !doc.IsObject())
     {
         LOG_ERROR("Json error");
         result.error.error_code = ErrorCode::JSON_ERROR;
@@ -730,7 +730,7 @@ bool IntegerSolverTask::Execute(WebSocketPtr socket, Result& result)
 #endif
 
     doc.Parse<0>(json.c_str());
-    if (doc.HasParseError())
+    if (doc.HasParseError() || !doc.IsObject())
     {
         LOG_ERROR("Json error");
         result.error.error_code = ErrorCode::JSON_ERROR;
@@ -817,7 +817,7 @@ bool RationalSolverTask::Execute(WebSocketPtr socket, Result& result)
 #endif
 
     doc.Parse<0>(json.c_str());
-    if (doc.HasParseError())
+    if (doc.HasParseError() || !doc.IsObject())
     {
         LOG_ERROR("Json error");
         result.error.error_code = ErrorCode::JSON_ERROR;
@@ -906,7 +906,7 @@ bool ComplexSolverTask::Execute(WebSocketPtr socket, Result& result)
 #endif
 
     doc.Parse<0>(json.c_str());
-    if (doc.HasParseError())
+    if (doc.HasParseError() || !doc.IsObject())
     {
         LOG_ERROR("Json error");
         result.error.error_code = ErrorCode::JSON_ERROR;
@@ -1004,7 +1004,7 @@ bool ArrayRealSolverTask::Execute(WebSocketPtr socket, Result& result)
 #endif
 
     doc.Parse<0>(json.c_str());
-    if (doc.HasParseError())
+    if (doc.HasParseError() || !doc.IsObject())
     {
         LOG_ERROR("Json error");
         result.error.error_code = ErrorCode::JSON_ERROR;
@@ -1092,7 +1092,7 @@ bool SymbolicRealSolverTask::Execute(WebSocketPtr socket, Result& result)
 #endif
 
     doc.Parse<0>(json.c_str());
-    if (doc.HasParseError())
+    if (doc.HasParseError() || !doc.IsObject())
     {
         LOG_ERROR("Json error");
         result.error.error_code = ErrorCode::JSON_ERROR;
@@ -1177,7 +1177,7 @@ bool SymbolicRationalSolverTask::Execute(WebSocketPtr socket, Result& result)
 #endif
 
     doc.Parse<0>(json.c_str());
-    if (doc.HasParseError())
+    if (doc.HasParseError() || !doc.IsObject())
     {
         LOG_ERROR("Json error");
         result.error.error_code = ErrorCode::JSON_ERROR;
@@ -1265,7 +1265,7 @@ bool SymbolicComplexSolverTask::Execute(WebSocketPtr socket, Result& result)
 #endif
 
     doc.Parse<0>(json.c_str());
-    if (doc.HasParseError())
+    if (doc.HasParseError() || !doc.IsObject())
     {
         LOG_ERROR("Json error");
         result.error.error_code = ErrorCode::JSON_ERROR;
@@ -1332,7 +1332,7 @@ bool BreakSolverTask::Execute(WebSocketPtr socket, Result& result)
         return false;
 
     doc.Parse<0>(json.c_str());
-    if (doc.HasParseError())
+    if (doc.HasParseError() || !doc.IsObject())
     {
         LOG_ERROR("Json error");
         result.error.error_code = ErrorCode::JSON_ERROR;
@@ -1401,7 +1401,7 @@ bool RemoveIdentifierSolverTask::Execute(WebSocketPtr socket, Result& result)
         return false;
     
     doc.Parse<0>(json.c_str());
-    if (doc.HasParseError())
+    if (doc.HasParseError() || !doc.IsObject())
     {
         LOG_ERROR("Json error");
         result.error.error_code = ErrorCode::JSON_ERROR;
@@ -1448,7 +1448,7 @@ bool RemoveUserIdentifiersSolverTask::Execute(WebSocketPtr socket, Result& resul
         return false;
     
     doc.Parse<0>(json.c_str());
-    if (doc.HasParseError())
+    if (doc.HasParseError() || !doc.IsObject())
     {
         LOG_ERROR("Json error");
         result.error.error_code = ErrorCode::JSON_ERROR;
@@ -1493,7 +1493,7 @@ bool ClearExportSolverTask::Execute(WebSocketPtr socket, Result& result)
         return false;
     
     doc.Parse<0>(json.c_str());
-    if (doc.HasParseError())
+    if (doc.HasParseError() || !doc.IsObject())
     {
         LOG_ERROR("Json error");
         result.error.error_code = ErrorCode::JSON_ERROR;
@@ -1539,7 +1539,7 @@ bool SetLocaleSolverTask::Execute(WebSocketPtr socket, Result& result)
         return false;
     
     doc.Parse<0>(json.c_str());
-    if (doc.HasParseError())
+    if (doc.HasParseError() || !doc.IsObject())
     {
         LOG_ERROR("Json error");
         result.error.error_code = ErrorCode::JSON_ERROR;
@@ -1589,7 +1589,7 @@ bool ListIdentifiersSolverTask::Execute(WebSocketPtr socket, Result& result)
 #endif
 
     doc.Parse<0>(json.c_str());
-    if (doc.HasParseError())
+    if (doc.HasParseError() || !doc.IsObject())
     {
         LOG_ERROR("Json error");
         result.error.error_code = ErrorCode::JSON_ERROR;
@@ -1730,7 +1730,7 @@ bool RemoveSolverTask::Execute(WebSocketPtr socket, Result& result)
         return false;
 
     doc.Parse<0>(json.c_str());
-    if (doc.HasParseError())
+    if (doc.HasParseError() || !doc.IsObject())
     {
         LOG_ERROR("Json error");
         result.error.error_code = ErrorCode::JSON_ERROR;
