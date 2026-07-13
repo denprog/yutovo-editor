@@ -2038,8 +2038,8 @@ TEST_F(SolverAutoTest, errors3)
     std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToText() == U"sqrt()=Wrong arguments count") << ToBasicString(document.ToText());
     int start, size;
-    ASSERT_TRUE(document.HasErrorMark(ElementId{0, 0, 0, 0, 0, 0, 0, 0, 0}, start, size)) << ErrorMarks();
-    ASSERT_TRUE(start == 0 && size == 2);
+    ASSERT_TRUE(document.HasErrorMark(ElementId{0, 0, 0, 0, 0, 0, 0, 0}, start, size)) << ErrorMarks();
+    ASSERT_TRUE(start == 0 && size == 1);
 }
 
 //Delete the equation sign
