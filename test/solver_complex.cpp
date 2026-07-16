@@ -644,4 +644,73 @@ TEST_F(SolverComplexTest, solver22)
         ) << ToBasicString(document.ToText());
 }
 
+//Recalculate dependent expressions after fixing an unknown identifier
+TEST_F(SolverComplexTest, solver23)
+{
+    Start(600);
+
+    EXPECT_CALL(window_mock, Translate).WillRepeatedly([&](ElementId id, const std::u32string& str)
+        {
+            return str;
+        });
+    
+    document.InsertCode(false, true);
+    document.InsertString("z", true);
+    document.InsertAssignment(true);
+    document.InsertString("2.3", true);
+    document.InsertPlus(true);
+    document.WaitTask(document.InsertString("4.5j", true));
+    document.WaitSolver();
+
+    document.InsertParagraph(true);
+    document.InsertString("re", true);
+    document.InsertOpenRoundBracket(true);
+    document.InsertString("z", true);
+    document.InsertCloseRoundBracket(true);
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+
+    document.MoveCaretEnd(false);
+    document.InsertParagraph(true);
+    document.InsertString("im", true);
+    document.InsertOpenRoundBracket(true);
+    document.InsertString("z", true);
+    document.InsertCloseRoundBracket(true);
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+
+    document.MoveCaretEnd(false);
+    document.InsertParagraph(true);
+    document.InsertString("abs", true);
+    document.InsertOpenRoundBracket(true);
+    document.InsertString("z", true);
+    document.InsertCloseRoundBracket(true);
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(1s);
+    ASSERT_TRUE(document.ToText() == 
+        U"z=2.3+4.5j\n"
+        U"re(z)=Unknown identifier\n"
+        U"im(z)=Unknown identifier\n"
+        U"abs(z)=Unknown identifier"
+        ) << ToBasicString(document.ToText());
+
+    //replace "j" with "i"
+    document.MoveCaretUp(false);
+    document.MoveCaretUp(false);
+    document.WaitTask(document.MoveCaretUp(false));
+    document.MoveCaretEnd(false);
+    document.WaitTask(document.DeleteElements(true, true));
+    document.WaitTask(document.InsertString("i", true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(2s);
+    ASSERT_TRUE(document.ToText() == 
+        U"z=2.3+4.5i\n"
+        U"re(z)=2.3\n"
+        U"im(z)=4.5\n"
+        U"abs(z)=5.054"
+        ) << ToBasicString(document.ToText());
+    ASSERT_TRUE(!document.HasErrorMarks({0})) << ErrorMarks();
+}
+
 }
