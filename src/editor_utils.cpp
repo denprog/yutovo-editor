@@ -39,6 +39,7 @@
 #include "formulas/percent.h"
 #include "formulas/sum.h"
 #include "formulas/product.h"
+#include "formulas/definite_integral.h"
 #include "formulas/unit.h"
 #include "formulas/comma.h"
 #include "formulas/graph.h"
@@ -335,6 +336,7 @@ Element* CreateFromJson(Element* parent, Document* document, const rapidjson::Va
             {ElementType::IMAGE, &Image::FromJson},
             {ElementType::SUM, &Sum::FromJson},
             {ElementType::PRODUCT, &Product::FromJson},
+            {ElementType::DEFINITE_INTEGRAL, &DefiniteIntegral::FromJson},
             {ElementType::UNIT, &Unit::FromJson},
             {ElementType::COMMA, &Comma::FromJson},
             {ElementType::LINK, &Link::FromJson},

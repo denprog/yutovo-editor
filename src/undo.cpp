@@ -38,6 +38,7 @@
 #include "formulas/percent.h"
 #include "formulas/sum.h"
 #include "formulas/product.h"
+#include "formulas/definite_integral.h"
 #include "formulas/comma.h"
 #include "formulas/graph.h"
 
@@ -377,6 +378,20 @@ Element* UndoFormula::Restore(Document* document, Element* parent)
             el->elements->Get(0)->elements->ReplaceAll(*lower->elements);
             el->elements->Get(2)->elements->ReplaceAll(*upper->elements);
             el->elements->Get(3)->elements->ReplaceAll(*right->elements);
+        }
+        break;
+    case ElementType::DEFINITE_INTEGRAL:
+        {
+            el = parent ? new DefiniteIntegral(parent) : new DefiniteIntegral(document);
+            assert(elements.size() == 4);
+            ElementPtr lower(elements[0]->Restore(document, el));
+            ElementPtr upper(elements[1]->Restore(document, el));
+            ElementPtr expression(elements[2]->Restore(document, el));
+            ElementPtr var(elements[3]->Restore(document, el));
+            el->elements->Get(0)->elements->ReplaceAll(*lower->elements);
+            el->elements->Get(2)->elements->ReplaceAll(*upper->elements);
+            el->elements->Get(3)->elements->ReplaceAll(*expression->elements);
+            el->elements->Get(5)->elements->ReplaceAll(*var->elements);
         }
         break;
     default:
@@ -1092,6 +1107,17 @@ UndoElementPtr UndoBase::StoreElement(const LogicalId id, ElementPtr el)
         if (!store_element(el->elements->Get(2), undo_element))
             return nullptr;
         if (!store_element(el->elements->Get(3), undo_element))
+            return nullptr;
+        break;
+    case ElementType::DEFINITE_INTEGRAL:
+        undo_element.reset(new UndoFormula(el->type, ((Formula*)el.get())->formula_format));
+        if (!store_element(el->elements->Get(0), undo_element))
+            return nullptr;
+        if (!store_element(el->elements->Get(2), undo_element))
+            return nullptr;
+        if (!store_element(el->elements->Get(3), undo_element))
+            return nullptr;
+        if (!store_element(el->elements->Get(5), undo_element))
             return nullptr;
         break;
     case ElementType::REAL_RESULT:

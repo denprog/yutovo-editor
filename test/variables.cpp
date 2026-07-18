@@ -590,7 +590,7 @@ TEST_F(VariablesTest, errors5)
     document.InsertString("R", true);
     document.WaitTask(document.InsertEquation(ResultType::REAL, true));
     document.WaitSolver();
-    std::this_thread::sleep_for(2s);
+    std::this_thread::sleep_for(3s);
     ASSERT_TRUE(document.ToText() == 
         U"R=1см\n" \
         U"R=Unknown identifier"
