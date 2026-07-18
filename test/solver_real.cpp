@@ -471,4 +471,82 @@ TEST_F(SolverRealTest, units3)
         ) << ToBasicString(document.ToText());
 }
 
+TEST_F(SolverRealTest, definite_integral1)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.WaitTask(document.InsertDefiniteIntegral(true));
+    document.InsertString("0", true);
+    document.MoveCaretRight(false);
+    document.MoveCaretRight(false);
+    document.InsertString("1", true);
+    document.MoveCaretRight(false);
+    document.InsertString("x", true);
+    document.MoveCaretRight(false);
+    document.WaitTask(document.InsertString("x", true));
+    document.WaitTask(document.MoveCaretRight(false));
+    document.WaitTask(document.InsertEquation(ResultType::REAL, true));
+    document.WaitSolver();
+    ASSERT_TRUE(document.ToText() == U"definite_integral(0,1,x,x)=0.5") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.ToHtml() ==
+        "<body>"
+            "<p>"
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"
+                    "<mrow>"
+                        "<mrow>"
+                            "<munderover>"
+                                "<mo>∫</mo>"
+                                "<mrow>"
+                                    "<mrow>"
+                                        "<mi>0</mi>"
+                                    "</mrow>"
+                                "</mrow>"
+                                "<mrow>"
+                                    "<mrow>"
+                                        "<mi>1</mi>"
+                                    "</mrow>"
+                                "</mrow>"
+                            "</munderover>"
+                            "<mrow>"
+                                "<mi>x</mi>"
+                            "</mrow>"
+                            "<mi>d</mi>"
+                            "<mrow>"
+                                "<mi>x</mi>"
+                            "</mrow>"
+                        "</mrow>"
+                        "<mo>=</mo>"
+                        "<mrow>"
+                            "<mrow>"
+                                "<mi>0.5</mi>"
+                            "</mrow>"
+                        "</mrow>"
+                    "</mrow>"
+                "</math>"
+            "</p>"
+        "</body>") <<
+        document.ToHtml();
+}
+
+TEST_F(SolverRealTest, definite_integral2)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.WaitTask(document.InsertDefiniteIntegral(true));
+    document.InsertString("0", true);
+    document.MoveCaretRight(false);
+    document.MoveCaretRight(false);
+    document.InsertString("2", true);
+    document.MoveCaretRight(false);
+    document.InsertString("x", true);
+    document.MoveCaretRight(false);
+    document.WaitTask(document.InsertString("x", true));
+    document.WaitTask(document.MoveCaretRight(false));
+    document.WaitTask(document.InsertEquation(ResultType::REAL, true));
+    document.WaitSolver();
+    ASSERT_TRUE(document.ToText() == U"definite_integral(0,2,x,x)=2.") << ToBasicString(document.ToText());
+}
+
 }

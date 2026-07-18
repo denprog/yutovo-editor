@@ -1129,4 +1129,26 @@ TEST_F(SolverSymbolicTest, solver22)
         document.ToHtml();
 }
 
+TEST_F(SolverSymbolicTest, definite_integral1)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.WaitTask(document.InsertDefiniteIntegral(true));
+    document.InsertString("0", true);
+    document.MoveCaretRight(false);
+    document.MoveCaretRight(false);
+    document.InsertString("1", true);
+    document.MoveCaretRight(false);
+    document.InsertString("x", true);
+    document.InsertMultiply(true);
+    document.InsertString("y", true);
+    document.MoveCaretRight(false);
+    document.WaitTask(document.InsertString("y", true));
+    document.WaitTask(document.MoveCaretRight(false));
+    document.WaitTask(document.InsertEquation(ResultType::SYMBOLIC_REAL, true));
+    document.WaitSolver();
+    ASSERT_TRUE(document.ToText() == U"definite_integral(0,1,x*y,y)=0.5*x") << ToBasicString(document.ToText());
+}
+
 }

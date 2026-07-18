@@ -86,6 +86,7 @@ add_executable(${PROJECT_NAME}_tests
 	image.cpp
 	sum.cpp
 	product.cpp
+	definite_integral.cpp
 	graph.cpp
 	arrays.cpp
 	pdf.cpp

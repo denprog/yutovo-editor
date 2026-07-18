@@ -34,6 +34,7 @@
 #include "formulas/percent.h"
 #include "formulas/sum.h"
 #include "formulas/product.h"
+#include "formulas/definite_integral.h"
 #include "formulas/comma.h"
 #include "formulas/graph.h"
 #include "editor_utils.h"
@@ -747,6 +748,12 @@ uint Document::InsertProduct(bool with_undo, bool replace)
 {
     LOG_TRACE("Insert product");
     return InsertFormula(new Product(this), with_undo, false, replace);
+}
+
+uint Document::InsertDefiniteIntegral(bool with_undo, bool replace)
+{
+    LOG_TRACE("Insert definite integral");
+    return InsertFormula(new DefiniteIntegral(this), with_undo, false, replace);
 }
 
 uint Document::InsertImage(const std::string& image_base64, bool with_undo, bool pasting)

@@ -146,6 +146,7 @@ add_library(${PROJECT_NAME}
     formulas/iteration.cpp
     formulas/sum.cpp
     formulas/product.cpp
+    formulas/definite_integral.cpp
     formulas/comma.cpp
     formulas/graph.cpp
     formulas/code_paragraphs_block.cpp
@@ -206,6 +207,7 @@ add_library(${PROJECT_NAME}
     formulas/iteration.h
     formulas/sum.h
     formulas/product.h
+    formulas/definite_integral.h
     formulas/comma.h
 )
 
@@ -216,6 +218,8 @@ else()
     target_compile_options(${PROJECT_NAME} PUBLIC -Wno-unused-command-line-argument)
     target_compile_options(${PROJECT_NAME} PUBLIC -Wno-ambiguous-reversed-operator)
 endif()
+
+target_compile_definitions(${PROJECT_NAME} PUBLIC HAVE_LIBMPFR)
 
 set_target_properties(${PROJECT_NAME} PROPERTIES
 	CXX_STANDARD_REQUIRED ON
