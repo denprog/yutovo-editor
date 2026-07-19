@@ -147,6 +147,7 @@ add_library(${PROJECT_NAME}
     formulas/sum.cpp
     formulas/product.cpp
     formulas/definite_integral.cpp
+    formulas/indefinite_integral.cpp
     formulas/comma.cpp
     formulas/graph.cpp
     formulas/code_paragraphs_block.cpp
@@ -208,6 +209,7 @@ add_library(${PROJECT_NAME}
     formulas/sum.h
     formulas/product.h
     formulas/definite_integral.h
+    formulas/indefinite_integral.h
     formulas/comma.h
 )
 

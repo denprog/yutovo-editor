@@ -25,6 +25,13 @@ Document editor with MathML rendering and solver integration.
 - Insert via `document.InsertDefiniteIntegral(with_undo)`; undo stores/restores children 0, 2, 3, 5 (see undo.cpp); registered in editor_utils.cpp `create_elements`.
 - Tests: `test/definite_integral.cpp` (`FormulaTest.definite_integral1..definite_integral9`).
 
+## Indefinite Integral Element
+- `ElementType::INDEFINITE_INTEGRAL`, class `IndefiniteIntegral : public Formula` in `src/formulas/indefinite_integral.h/.cpp` (indefinite integral, symbol `∫`).
+- Children: `Shape` integral symbol (0), `CodeRow` integrand (1), non-editable `CodeString` "d" (2, `editable = false`), `CodeRow` integration variable (3).
+- `ToText()` and `ToParserString()` produce `indefinite_integral(integrand,var)` — the 2 editable rows are passed to the calculator through `indefinite_integral()`.
+- Insert via `document.InsertIndefiniteIntegral(with_undo)`; undo stores/restores children 1, 3 (see undo.cpp); registered in editor_utils.cpp `create_elements`.
+- Tests: `test/indefinite_integral.cpp` (`FormulaTest.indefinite_integral1..indefinite_integral9`).
+
 ## Code Style
 
 ### Parenthesized expressions
@@ -60,6 +67,20 @@ try {
 } catch (...) {
     // ...
 }
+```
+
+### Spaces around brackets
+Do not put spaces before or after square brackets `[]` and round brackets `()`:
+```cpp
+// CORRECT
+int arr[10];
+void foo(int a);
+arr[0] = foo(1);
+
+// WRONG
+int arr [10];
+void foo (int a);
+arr [0] = foo (1);
 ```
 
 ## Editor Test Patterns
