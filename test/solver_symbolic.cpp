@@ -1129,6 +1129,21 @@ TEST_F(SolverSymbolicTest, solver22)
         document.ToHtml();
 }
 
+TEST_F(SolverSymbolicTest, indefinite_integral1)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.WaitTask(document.InsertIndefiniteIntegral(true));
+    document.InsertString("x", true);
+    document.WaitTask(document.MoveCaretRight(false));
+    document.WaitTask(document.InsertString("x", true));
+    document.WaitTask(document.MoveCaretRight(false));
+    document.WaitTask(document.InsertEquation(ResultType::SYMBOLIC_REAL, true));
+    document.WaitSolver();
+    ASSERT_TRUE(document.ToText() == U"indefinite_integral(x,x)=0.5*pow(x,2)") << ToBasicString(document.ToText());
+}
+
 TEST_F(SolverSymbolicTest, definite_integral1)
 {
     Start(600);

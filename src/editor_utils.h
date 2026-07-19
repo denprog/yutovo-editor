@@ -84,7 +84,8 @@ enum class ElementType
     SYMBOLIC_RATIONAL_RESULT,
     SYMBOLIC_COMPLEX_RESULT,
     NOT,
-    DEFINITE_INTEGRAL
+    DEFINITE_INTEGRAL,
+    INDEFINITE_INTEGRAL
 };
 
 enum class IdentifierType
