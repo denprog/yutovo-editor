@@ -136,7 +136,10 @@ void Element::Draw() const
         {
             int p = yutovo::GetChildPos(id);
             if (p >= p_start && p <= p_start + p_size)
-                return; //the error mark will draw in the parent
+            {
+                parent->DrawErrorMark(p_start, p_size);
+                return;
+            }
         }
         DrawErrorMark(start, size);
     }

@@ -1129,13 +1129,16 @@ bool RedrawTask::Execute()
     
     Rect clear_rect = element->draw_rect.IsEmpty() ? element->GetAbsoluteRect() : element->draw_rect;
     window->ClearRect(clear_rect, element->GetBackgroundColor()); //clear last rect before drawing
-    element->Draw(); //draw element and update its rect
+
     auto el = document->GetElement(document->caret_hilight_id);
     if (el)
     {
         Rect r = el->GetAbsoluteRect();
         window->DrawRect(r.left, r.top, r.width, r.height, document->config.hilight_color);
     }
+
+    element->Draw(); //draw element and update its rect
+
     element->UpdateDrawRect();
 
     window->SetDocumentSize({text->rect.width, text->rect.height});
