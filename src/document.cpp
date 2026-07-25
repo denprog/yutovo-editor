@@ -1868,7 +1868,11 @@ void Document::UpdateFormats()
     }
     ParagraphFormat p;
     if (GetParagraphFormat(c.id, p))
-        current_paragraph_format = paragraph_formats->GetFormat(p.name, config.language);
+    {
+        auto f = paragraph_formats->GetFormat(p.name, config.language);
+        if (f)
+            current_paragraph_format = f;
+    }
 }
 
 uint Document::SetFontFamily(const std::string& family)
