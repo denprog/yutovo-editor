@@ -128,6 +128,12 @@ void Element::Draw() const
         return;
     elements->Draw();
 
+    if (document->caret_hilight_id == id)
+    {
+        Rect r = GetAbsoluteRect();
+        window->DrawRect(r.left, r.top, r.width, r.height, document->config.hilight_color);
+    }
+    
     int start, size;
     if (document->HasErrorMark(id, start, size))
     {

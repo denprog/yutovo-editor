@@ -83,6 +83,33 @@ void foo (int a);
 arr [0] = foo (1);
 ```
 
+### Lambdas
+Place the capture clause on a new line, indented by 4 spaces. Parameters, the `->` return type, and the opening brace follow the normal rules: parameters and return type stay on the same line as the capture clause, and the opening brace goes on its own line.
+```cpp
+// CORRECT
+auto callback =
+    [](int value) -> bool
+    {
+        return value > 0;
+    };
+
+auto reference =
+    [&]() -> void
+    {
+        DoWork();
+    };
+
+// WRONG
+auto callback = [](int value) -> bool {
+    return value > 0;
+};
+
+auto callback =
+    [](int value) -> bool {
+    return value > 0;
+};
+```
+
 ## Editor Test Patterns
 
 ### Entering expressions in code blocks
