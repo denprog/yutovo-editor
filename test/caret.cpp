@@ -2889,4 +2889,38 @@ TEST_F(DocumentTest, caret91)
         ElementSelectionState{ElementId{0}, 2, 29})) << document.GetEditorState().ToString();
 }
 
+//Move caret on the "~" symbol while solving
+TEST_F(DocumentTest, caret92)
+{
+    Start(600);
+
+    document.Load("../../test/tests/caret92.yut");
+    document.WaitLoad();
+    document.WaitSolver();
+    std::this_thread::sleep_for(2s);
+
+    document.WaitTask(document.MoveCaretHome(true));
+    document.WaitTask(document.Copy(clipboard_json, clipboard_text));
+    document.WaitTask(document.MoveCaretEnd(false));
+    document.WaitTask(document.InsertParagraph(true));
+    document.WaitTask(document.Paste(clipboard_json));
+
+    document.MoveCaretLeft(false);
+    document.WaitTask(document.MoveCaretLeft(false));
+    document.WaitSolver();
+    std::this_thread::sleep_for(2s);
+
+    document.WaitTask(document.MoveCaretHome(false));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 2, 0, 0})) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    document.WaitSolver();
+    std::this_thread::sleep_for(3s);
+    ASSERT_TRUE(document.ToText() == 
+        U"f(yy)=pow(yy,2)\n"\
+        U"definite_integral(0,4,f(y),y)=21.333\n"
+        ) << ToBasicString(document.ToText());
+}
+
 }

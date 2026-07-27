@@ -1583,7 +1583,25 @@ void Elements::ReplaceAll(const Elements& _elements)
 
 void Elements::Clear()
 {
+    CaretState c;
+    if (parent->caret->IsInsideElement(parent->id))
+        c = caret->GetCaretState();
+
     elements.clear();
+
+    if (!c.IsEmpty())
+    {
+        //move caret on the nearest parent
+        CaretState p_c;
+        auto p = parent->parent;
+        while (p)
+        {
+            if (p->GetFirstCaretState(p_c, nullptr) && p_c.id != c.id)
+                break;
+            p = p->parent;
+        }
+        caret->SetState(p_c);
+    }
 
 #ifdef DEBUG
     parent->to_str = parent->ToText();
