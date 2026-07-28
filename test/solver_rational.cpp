@@ -510,9 +510,11 @@ TEST_F(SolverRationalTest, rational12)
     
     document.Load("../../test/tests/rational12.yut");
     document.WaitLoad();
+    document.WaitSolver();
     std::this_thread::sleep_for(4s);
 
     auto el = document.FindByString({0}, U"0.471");
+    ASSERT_TRUE(el);
     document.WaitTask(document.SetResultType(el->id, ResultType::RATIONAL, true));
     std::this_thread::sleep_for(2s);
     ASSERT_TRUE(document.ToText() == 
