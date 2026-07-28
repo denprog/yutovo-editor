@@ -2915,7 +2915,6 @@ TEST_F(DocumentTest, caret92)
 
     document.Undo();
     document.WaitUndo();
-    document.WaitSolver();
     std::this_thread::sleep_for(3s);
     ASSERT_TRUE(document.ToText() == 
         U"f(yy)=pow(yy,2)\n"\

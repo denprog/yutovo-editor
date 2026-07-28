@@ -572,7 +572,7 @@ TEST_F(FormulaTest, graphs9)
 
     document.WaitTask(document.InsertGraph(true));
     document.WaitSolver();
-    std::this_thread::sleep_for(2s);
+    std::this_thread::sleep_for(3s);
     auto el = document.FindByType(ElementId{0}, ElementType::GRAPH_LINE);
     int start, size;
     ASSERT_TRUE(document.HasErrorMark(el->elements->Get(1)->id, start, size)) << ErrorMarks();
