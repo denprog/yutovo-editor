@@ -121,7 +121,7 @@ TEST_F(FormulaTest, derivative1)
     Start(600);
 
     document.WaitTask(document.InsertDerivative(U"d", 1, true));
-    ASSERT_TRUE(document.ToText() == U"diff(,)") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.ToText() == U"derivative(,)") << ToBasicString(document.ToText());
     ASSERT_TRUE(document.ToHtml() ==
         "<body>"
             "<p>"
@@ -148,7 +148,7 @@ TEST_F(FormulaTest, derivative1)
 
     document.Redo();
     document.WaitRedo();
-    ASSERT_TRUE(document.ToText() == U"diff(,)") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.ToText() == U"derivative(,)") << ToBasicString(document.ToText());
 }
 
 //Fill function and variable
@@ -158,7 +158,7 @@ TEST_F(FormulaTest, derivative2)
 
     document.WaitTask(document.InsertDerivative(U"d", 1, true));
     FillFunctionAndVariable(document);
-    ASSERT_TRUE(document.ToText() == U"diff(f,x)") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.ToText() == U"derivative(f,x)") << ToBasicString(document.ToText());
     ASSERT_TRUE(document.ToHtml() ==
         "<body>"
             "<p>"
@@ -182,22 +182,22 @@ TEST_F(FormulaTest, derivative2)
     document.Undo();
     document.WaitUndo();
     std::this_thread::sleep_for(200ms);
-    ASSERT_TRUE(document.ToText() == U"diff(f,)") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.ToText() == U"derivative(f,)") << ToBasicString(document.ToText());
 
     document.Undo();
     document.WaitUndo();
     std::this_thread::sleep_for(200ms);
-    ASSERT_TRUE(document.ToText() == U"diff(,)") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.ToText() == U"derivative(,)") << ToBasicString(document.ToText());
 
     document.Redo();
     document.WaitRedo();
     std::this_thread::sleep_for(200ms);
-    ASSERT_TRUE(document.ToText() == U"diff(f,)") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.ToText() == U"derivative(f,)") << ToBasicString(document.ToText());
 
     document.Redo();
     document.WaitRedo();
     std::this_thread::sleep_for(200ms);
-    ASSERT_TRUE(document.ToText() == U"diff(f,x)") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.ToText() == U"derivative(f,x)") << ToBasicString(document.ToText());
 }
 
 //Insert a division inside the numerator
@@ -211,18 +211,18 @@ TEST_F(FormulaTest, derivative3)
     document.WaitTask(document.MoveCaretRight(false));
     document.WaitTask(document.MoveCaretRight(false));
     document.WaitTask(document.InsertString("1", true));
-    ASSERT_TRUE(document.ToText() == U"diff((2pi)/(1),)") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.ToText() == U"derivative((2pi)/(1),)") << ToBasicString(document.ToText());
     ASSERT_TRUE(document.ToHtml().find("<mfrac>") != std::string::npos) << document.ToHtml();
 
     document.Undo();
     document.WaitUndo();
     std::this_thread::sleep_for(200ms);
-    ASSERT_TRUE(document.ToText() == U"diff((2pi)/(),)") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.ToText() == U"derivative((2pi)/(),)") << ToBasicString(document.ToText());
 
     document.Undo();
     document.WaitUndo();
     std::this_thread::sleep_for(200ms);
-    ASSERT_TRUE(document.ToText() == U"diff((/),)") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.ToText() == U"derivative((/),)") << ToBasicString(document.ToText());
 }
 
 //Select and copy-paste
@@ -234,19 +234,19 @@ TEST_F(FormulaTest, derivative4)
     document.WaitTask(document.SelectAll());
     document.WaitTask(document.Copy(clipboard_json, clipboard_text));
     document.WaitTask(document.MoveCaretRight(false));
-    ASSERT_TRUE(document.ToText() == U"diff(,)") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.ToText() == U"derivative(,)") << ToBasicString(document.ToText());
     document.WaitTask(document.Paste(clipboard_json));
-    ASSERT_TRUE(document.ToText() == U"diff(,)diff(,)") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.ToText() == U"derivative(,)derivative(,)") << ToBasicString(document.ToText());
 
     document.Undo();
     document.WaitUndo();
     std::this_thread::sleep_for(200ms);
-    ASSERT_TRUE(document.ToText() == U"diff(,)") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.ToText() == U"derivative(,)") << ToBasicString(document.ToText());
 
     document.Redo();
     document.WaitRedo();
     std::this_thread::sleep_for(200ms);
-    ASSERT_TRUE(document.ToText() == U"diff(,)diff(,)") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.ToText() == U"derivative(,)derivative(,)") << ToBasicString(document.ToText());
 }
 
 //Replace variable and function by deleting and retyping
@@ -256,39 +256,39 @@ TEST_F(FormulaTest, derivative5)
 
     document.WaitTask(document.InsertDerivative(U"d", 1, true));
     FillFunctionAndVariable(document);
-    ASSERT_TRUE(document.ToText() == U"diff(f,x)") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.ToText() == U"derivative(f,x)") << ToBasicString(document.ToText());
 
     //replace the variable
     document.WaitTask(document.DeleteElements(true, true));
     document.WaitTask(document.InsertString("y", true));
-    ASSERT_TRUE(document.ToText() == U"diff(f,y)") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.ToText() == U"derivative(f,y)") << ToBasicString(document.ToText());
 
     //replace the function
     document.WaitTask(document.MoveCaretUp(false));
     document.WaitTask(document.MoveCaretLeft(false));
     document.WaitTask(document.DeleteElements(true, true));
     document.WaitTask(document.InsertString("g", true));
-    ASSERT_TRUE(document.ToText() == U"diff(g,y)") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.ToText() == U"derivative(g,y)") << ToBasicString(document.ToText());
 
     document.Undo();
     document.WaitUndo();
     std::this_thread::sleep_for(200ms);
-    ASSERT_TRUE(document.ToText() == U"diff(,y)") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.ToText() == U"derivative(,y)") << ToBasicString(document.ToText());
 
     document.Undo();
     document.WaitUndo();
     std::this_thread::sleep_for(200ms);
-    ASSERT_TRUE(document.ToText() == U"diff(f,y)") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.ToText() == U"derivative(f,y)") << ToBasicString(document.ToText());
 
     document.Undo();
     document.WaitUndo();
     std::this_thread::sleep_for(200ms);
-    ASSERT_TRUE(document.ToText() == U"diff(f,)") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.ToText() == U"derivative(f,)") << ToBasicString(document.ToText());
 
     document.Undo();
     document.WaitUndo();
     std::this_thread::sleep_for(200ms);
-    ASSERT_TRUE(document.ToText() == U"diff(f,x)") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.ToText() == U"derivative(f,x)") << ToBasicString(document.ToText());
 }
 
 //Delete around the formula
@@ -298,7 +298,7 @@ TEST_F(FormulaTest, derivative6)
 
     document.WaitTask(document.InsertDerivative(U"d", 1, true));
     FillFunctionAndVariable(document);
-    ASSERT_TRUE(document.ToText() == U"diff(f,x)") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.ToText() == U"derivative(f,x)") << ToBasicString(document.ToText());
 
     //Backspace after the formula deletes it
     document.WaitTask(document.MoveCaretEnd(false));
@@ -308,7 +308,7 @@ TEST_F(FormulaTest, derivative6)
     document.Undo();
     document.WaitUndo();
     std::this_thread::sleep_for(200ms);
-    ASSERT_TRUE(document.ToText() == U"diff(f,x)") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.ToText() == U"derivative(f,x)") << ToBasicString(document.ToText());
 
     //Delete before the formula deletes it
     document.WaitTask(document.MoveCaretToDocumentBegin(false));
@@ -319,7 +319,7 @@ TEST_F(FormulaTest, derivative6)
     document.Undo();
     document.WaitUndo();
     std::this_thread::sleep_for(200ms);
-    ASSERT_TRUE(document.ToText() == U"diff(f,x)") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.ToText() == U"derivative(f,x)") << ToBasicString(document.ToText());
 }
 
 //Clear the variable and undo
@@ -329,15 +329,15 @@ TEST_F(FormulaTest, derivative7)
 
     document.WaitTask(document.InsertDerivative(U"d", 1, true));
     FillFunctionAndVariable(document);
-    ASSERT_TRUE(document.ToText() == U"diff(f,x)") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.ToText() == U"derivative(f,x)") << ToBasicString(document.ToText());
 
     document.WaitTask(document.DeleteElements(true, true));
-    ASSERT_TRUE(document.ToText() == U"diff(f,)") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.ToText() == U"derivative(f,)") << ToBasicString(document.ToText());
 
     document.Undo();
     document.WaitUndo();
     std::this_thread::sleep_for(200ms);
-    ASSERT_TRUE(document.ToText() == U"diff(f,x)") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.ToText() == U"derivative(f,x)") << ToBasicString(document.ToText());
 }
 
 //Save and load
@@ -352,7 +352,7 @@ TEST_F(FormulaTest, derivative8)
 
     document.WaitTask(document.InsertDerivative(U"d", 1, true));
     FillFunctionAndVariable(document);
-    ASSERT_TRUE(document.ToText() == U"diff(f,x)") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.ToText() == U"derivative(f,x)") << ToBasicString(document.ToText());
 
     document.WaitTask(document.Save("derivative1.yut"));
     document.WaitTask(document.New());
@@ -361,7 +361,7 @@ TEST_F(FormulaTest, derivative8)
     document.Load("derivative1.yut");
     document.WaitLoad();
     std::this_thread::sleep_for(400ms);
-    ASSERT_TRUE(document.ToText() == U"diff(f,x)") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.ToText() == U"derivative(f,x)") << ToBasicString(document.ToText());
 }
 
 //Partial derivative symbol
@@ -371,7 +371,7 @@ TEST_F(FormulaTest, derivative9)
 
     document.WaitTask(document.InsertDerivative(U"∂", 1, true));
     FillFunctionAndVariable(document);
-    ASSERT_TRUE(document.ToText() == U"diff(f,x)") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.ToText() == U"derivative(f,x)") << ToBasicString(document.ToText());
     ASSERT_TRUE(document.ToHtml().find("<mi>\u2202</mi>") != std::string::npos) << document.ToHtml();
 }
 
@@ -382,7 +382,7 @@ TEST_F(FormulaTest, derivative10)
 
     document.WaitTask(document.InsertDerivative(U"d", 2, true));
     FillFunctionAndVariable(document);
-    ASSERT_TRUE(document.ToText() == U"diff(diff(f,x),x)") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.ToText() == U"derivative(derivative(f,x),x)") << ToBasicString(document.ToText());
     ASSERT_TRUE(document.ToHtml().find("<msup>") != std::string::npos) << document.ToHtml();
 }
 
@@ -393,7 +393,7 @@ TEST_F(FormulaTest, derivative11)
 
     document.WaitTask(document.InsertDerivative(U"∂", 2, true));
     FillFunctionAndVariable(document);
-    ASSERT_TRUE(document.ToText() == U"diff(diff(f,x),x)") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.ToText() == U"derivative(derivative(f,x),x)") << ToBasicString(document.ToText());
     ASSERT_TRUE(document.ToHtml().find("<mi>\u2202</mi>") != std::string::npos) << document.ToHtml();
     ASSERT_TRUE(document.ToHtml().find("<msup>") != std::string::npos) << document.ToHtml();
 }
@@ -405,7 +405,7 @@ TEST_F(FormulaTest, derivative12)
 
     document.WaitTask(document.InsertDerivative(U"d", 1, true));
     FillFunctionAndVariable(document);
-    ASSERT_TRUE(document.ToText() == U"diff(f,x)") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.ToText() == U"derivative(f,x)") << ToBasicString(document.ToText());
 
     //move the caret to the numerator's "d" and replace it with "a"
     for (int i = 0; i < 8; ++i)
@@ -435,7 +435,7 @@ TEST_F(FormulaTest, derivative14)
 
     Division* div = CreateMixedDerivativeDivision(&document, U"f", {U"x", U"y"});
     document.WaitTask(document.InsertFormula(div, true));
-    ASSERT_TRUE(document.ToText() == U"diff(diff(f,y),x)") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.ToText() == U"derivative(derivative(f,y),x)") << ToBasicString(document.ToText());
     ASSERT_TRUE(document.ToHtml() ==
         "<body>"
             "<p>"
@@ -472,7 +472,7 @@ TEST_F(FormulaTest, derivative14)
     document.Redo();
     document.WaitRedo();
     std::this_thread::sleep_for(200ms);
-    ASSERT_TRUE(document.ToText() == U"diff(diff(f,y),x)") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.ToText() == U"derivative(derivative(f,y),x)") << ToBasicString(document.ToText());
 }
 
 //Mixed partial derivative with three variables in the denominator
@@ -482,7 +482,7 @@ TEST_F(FormulaTest, derivative15)
 
     Division* div = CreateMixedDerivativeDivision(&document, U"f(x,y,z)", {U"x", U"y", U"z"});
     document.WaitTask(document.InsertFormula(div, true));
-    ASSERT_TRUE(document.ToText() == U"diff(diff(diff(f(x,y,z),z),y),x)") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.ToText() == U"derivative(derivative(derivative(f(x,y,z),z),y),x)") << ToBasicString(document.ToText());
     ASSERT_TRUE(document.ToHtml() ==
         "<body>"
             "<p>"
@@ -528,7 +528,7 @@ TEST_F(FormulaTest, derivative15)
     document.Redo();
     document.WaitRedo();
     std::this_thread::sleep_for(200ms);
-    ASSERT_TRUE(document.ToText() == U"diff(diff(diff(f(x,y,z),z),y),x)") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.ToText() == U"derivative(derivative(derivative(f(x,y,z),z),y),x)") << ToBasicString(document.ToText());
 }
 
 //Numerator order does not match the number of differentiation operators in the denominator
@@ -579,7 +579,7 @@ TEST_F(FormulaTest, derivative17)
     div->AddDenomerator(den_str);
 
     document.WaitTask(document.InsertFormula(div, true));
-    ASSERT_TRUE(document.ToText() == U"diff(diff(g(x,y),y),x)") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.ToText() == U"derivative(derivative(g(x,y),y),x)") << ToBasicString(document.ToText());
 }
 
 }

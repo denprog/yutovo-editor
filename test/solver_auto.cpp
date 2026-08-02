@@ -2702,7 +2702,7 @@ TEST_F(SolverAutoTest, symbolic3)
     Start(600);
 
     document.InsertCode(false, true);
-    document.InsertString("diff", true);
+    document.InsertString("derivative", true);
     document.InsertOpenRoundBracket(true);
     document.InsertString("x", true);
     document.InsertPower(true);
@@ -2713,12 +2713,12 @@ TEST_F(SolverAutoTest, symbolic3)
     document.InsertCloseRoundBracket(true);
     document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
     document.WaitSolver();
-    ASSERT_TRUE(document.ToText() == U"diff(pow(x,2),x)=2*x") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.ToText() == U"derivative(pow(x,2),x)=2*x") << ToBasicString(document.ToText());
 
     document.Undo();
     document.WaitUndo();
     std::this_thread::sleep_for(200ms);
-    ASSERT_TRUE(document.ToText() == U"diff(pow(x,2),x)") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.ToText() == U"derivative(pow(x,2),x)") << ToBasicString(document.ToText());
 }
 
 TEST_F(SolverAutoTest, symbolic4)
