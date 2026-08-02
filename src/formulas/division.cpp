@@ -464,7 +464,7 @@ bool Division::BuildDerivativeParserString(ParserString& str)
     for (auto it = vars.rbegin(); it != vars.rend(); ++it)
     {
         for (int o = 0; o < it->second; ++o)
-            result = U"diff(" + result + U"," + it->first + U")";
+            result = U"derivative(" + result + U"," + it->first + U")";
     }
 
     str.Add(id, result);
