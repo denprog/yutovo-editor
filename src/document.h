@@ -94,6 +94,8 @@ public:
     uint InsertProduct(bool with_undo, bool replace = false);
     uint InsertDefiniteIntegral(bool with_undo, bool replace = false);
     uint InsertIndefiniteIntegral(bool with_undo, bool replace = false);
+    uint InsertDerivative(bool with_undo, bool replace = false);
+    uint InsertDerivative(const std::u32string& symbol, const int order, bool with_undo, bool replace = false);
     uint InsertImage(const std::string& image_base64, bool with_undo, bool pasting);
     uint InsertImage(const std::vector<unsigned char>& image, bool with_undo, bool pasting);
     uint InsertComma(bool with_undo);

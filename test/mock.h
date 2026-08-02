@@ -18,6 +18,7 @@
 #include <type_traits>
 #include "document.h"
 #include "editor_utils.h"
+#include "formulas/division.h"
 #include "window.h"
 #include "pdf_window.h"
 
@@ -382,6 +383,132 @@ struct FormulaTestCustom : DocumentTest
 
 struct SolverTest : DocumentTest
 {
+    void InsertExpression(const std::u32string& expr)
+    {
+        std::u32string token;
+        int paren_depth = 0;
+        std::vector<int> formula_stack;
+
+        auto flush_token = 
+            [&]()
+            {
+                if (!token.empty())
+                {
+                    document.InsertString(token, true);
+                    token.clear();
+                }
+            };
+
+        auto exit_top_power = 
+            [&]()
+            {
+                if (!formula_stack.empty() && formula_stack.back() == 0 && paren_depth == 0)
+                {
+                    document.WaitTask(document.MoveCaretRight(false));
+                    formula_stack.pop_back();
+                }
+            };
+
+        for (char32_t c : expr)
+        {
+            if ((c >= U'0' && c <= U'9') || (c >= U'a' && c <= U'z') || (c >= U'A' && c <= U'Z') || c == U'_')
+            {
+                token += c;
+                continue;
+            }
+
+            flush_token();
+
+            if ((c == U'+' || c == U'-' || c == U'*' || c == U'/' || c == U',') && paren_depth == 0)
+                exit_top_power();
+
+            switch (c)
+            {
+            case U'+':
+                document.InsertPlus(true);
+                break;
+            case U'-':
+                document.InsertMinus(true);
+                break;
+            case U'*':
+                document.InsertMultiply(true);
+                break;
+            case U'/':
+                document.InsertDivision(true);
+                break;
+            case U'^':
+                document.InsertPower(true);
+                formula_stack.push_back(0);
+                break;
+            case U'(':
+                document.InsertOpenRoundBracket(true);
+                ++paren_depth;
+                break;
+            case U')':
+                document.InsertCloseRoundBracket(true);
+                if (paren_depth > 0)
+                    --paren_depth;
+                exit_top_power();
+                break;
+            case U',':
+                document.InsertComma(true);
+                break;
+            default:
+                break;
+            }
+        }
+        flush_token();
+        while (!formula_stack.empty())
+            exit_top_power();
+    }
+
+    Division* CreateDerivativeDivision(int order, const std::u32string& func, const std::vector<std::u32string>& vars)
+    {
+        document.WaitTask(document.InsertDerivative(true));
+
+        if (order > 1)
+        {
+            std::u32string str;
+            for (int i = order; i > 0; i /= 10)
+                str = char32_t(U'0' + i % 10) + str;
+
+            document.WaitTask(document.MoveCaretLeft(false));
+            document.WaitTask(document.InsertPower(true));
+            document.WaitTask(document.InsertString(str, true));
+            document.WaitTask(document.MoveCaretRight(false));
+        }
+
+        InsertExpression(func);
+
+        document.WaitTask(document.MoveCaretDown(false));
+        document.WaitTask(document.MoveCaretDown(false));
+        InsertExpression(vars[0]);
+
+        for (size_t i = 1; i < vars.size(); ++i)
+        {
+            document.InsertString(U"d", true);
+            InsertExpression(vars[i]);
+        }
+
+        int extra_markers = order - static_cast<int>(vars.size());
+        for (int i = 0; i < extra_markers; ++i)
+        {
+            document.InsertString(U"d", true);
+            InsertExpression(vars.back());
+        }
+
+        document.WaitTask(document.MoveCaretRight(false));
+        if (order > static_cast<int>(vars.size()))
+            document.WaitTask(document.MoveCaretRight(false));
+
+        auto el = document.FindParent(document.caret->GetCaretState().id, ElementType::DIVISION);
+        return el ? dynamic_cast<Division*>(el.get()) : nullptr;
+    }
+
+    Division* CreateDerivativeDivision(int order, const std::u32string& func, const std::u32string& var)
+    {
+        return CreateDerivativeDivision(order, func, std::vector<std::u32string>{var});
+    }
 };
 
 struct SolverAutoTest : SolverTest

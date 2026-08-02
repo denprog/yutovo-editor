@@ -7,6 +7,7 @@
 
 #include "equation.h"
 #include "result.h"
+#include "division.h"
 #include "../document.h"
 
 namespace yutovo
@@ -529,6 +530,28 @@ void Equation::UpdateResult(ParserString& str)
         return;
     if (GetLast())
     {
+        // ResultType effective_type = result_type;
+        // if (effective_type != ResultType::AUTO &&
+        //     effective_type != ResultType::SYMBOLIC_REAL &&
+        //     effective_type != ResultType::SYMBOLIC_RATIONAL &&
+        //     effective_type != ResultType::SYMBOLIC_COMPLEX)
+        // {
+        //     if (elements->Count() > 0 && ContainsDerivative(elements->Get(0).get()))
+        //         effective_type = ResultType::SYMBOLIC_REAL;
+        // }
+
+        // if (!result || result->type != ResultTypeToElementType(effective_type))
+        // {
+        //     if (result)
+        //     {
+        //         bool c = caret->IsInsideElement(result->id);
+        //         result.reset();
+        //         GetLast()->elements->Clear();
+        //         if (c)
+        //             caret->SetState(GetShape()->id);
+        //     }
+
+        //     switch (effective_type)
         if (!result)
         {
             switch (result_type)
