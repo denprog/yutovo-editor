@@ -37,12 +37,12 @@ Document editor with MathML rendering and solver integration.
 Derivatives are represented by a regular editable `Division` fraction so that the `d`/`∂` prefixes, the function, and the variables are all editable.
 
 - A derivative fraction has the form `d f / d x` (or `∂ f / ∂ x` for partial derivatives). For order `n > 1` the numerator starts with `pow(d, n)` / `pow(∂, n)`.
-- `Division::BuildDerivativeParserString()` detects the derivative pattern in `ToText()`/`ToParserString()` and emits nested `diff(...)` calls. The total differentiation order in the numerator must equal the sum of differentiation operators in the denominator; otherwise the fraction falls back to plain `(num)/(den)`.
-  - `d f / d x` → `diff(f,x)`
-  - `pow(d,2) f / pow(d x, 2)` → `diff(diff(f,x),x)` (single-variable higher-order)
-  - `pow(d,2) f / d x d y` → `diff(diff(f,y),x)` (rightmost denominator variable is the innermost derivative)
-  - `pow(d,3) f(x,y,z) / d x d y d z` → `diff(diff(diff(f(x,y,z),z),y),x)`
-  - `∂ f / ∂ x` → `diff(f,x)` (partial)
+- `Division::BuildDerivativeParserString()` detects the derivative pattern in `ToText()`/`ToParserString()` and emits nested `derivative(...)` calls. The total differentiation order in the numerator must equal the sum of differentiation operators in the denominator; otherwise the fraction falls back to plain `(num)/(den)`.
+  - `d f / d x` → `derivative(f,x)`
+  - `pow(d,2) f / pow(d x, 2)` → `derivative(derivative(f,x),x)` (single-variable higher-order)
+  - `pow(d,2) f / d x d y` → `derivative(derivative(f,y),x)` (rightmost denominator variable is the innermost derivative)
+  - `pow(d,3) f(x,y,z) / d x d y d z` → `derivative(derivative(derivative(f(x,y,z),z),y),x)`
+  - `∂ f / ∂ x` → `derivative(f,x)` (partial)
 - The total differentiation order is the sum of operators in the denominator (`d`/`∂` = 1, `pow(d,n)`/`pow(∂,n)` = `n`). If it does not equal the numerator order, the fraction falls back to ordinary `(num)/(den)` output.
 - The parser recognizes the derivative marker even when it is merged with the function or variable in a single `CodeString` (e.g. `dg(x,y)`/`dxdy`), because `BuildDerivativeParserString()` scans the text character-by-character.
 - The `d`/`∂` prefix strings and the empty function/variable placeholders are created with `can_merge = false` so they remain distinct editable elements (see `String::Merge`).

@@ -131,7 +131,7 @@ TEST_F(SolverSymbolicTest, solver3)
     Start(600);
 
     document.InsertCode(false, true);
-    document.InsertString("diff", true);
+    document.InsertString("derivative", true);
     document.InsertOpenRoundBracket(true);
     document.InsertString("x", true);
     document.InsertPower(true);
@@ -148,7 +148,7 @@ TEST_F(SolverSymbolicTest, solver3)
                 "<math xmlns='http://www.w3.org/1998/Math/MathML'>"
                     "<mrow>"
                         "<mrow>"
-                            "<mi>diff</mi>"
+                            "<mi>derivative</mi>"
                             "<mo>(</mo>"
                             "<msup>"
                                 "<mrow>"
@@ -185,7 +185,7 @@ TEST_F(SolverSymbolicTest, solver3)
             "<p>"
                 "<math xmlns='http://www.w3.org/1998/Math/MathML'>"
                     "<mrow>"
-                        "<mi>diff</mi>"
+                        "<mi>derivative</mi>"
                         "<mo>(</mo>"
                         "<msup>"
                             "<mrow>"
@@ -1180,7 +1180,7 @@ TEST_F(SolverSymbolicTest, derivative1)
     document.WaitTask(document.MoveCaretRight(false));
     document.WaitTask(document.InsertEquation(ResultType::SYMBOLIC_REAL, true));
     document.WaitSolver();
-    ASSERT_TRUE(document.ToText() == U"diff(pow(x,2),x)=2*x") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.ToText() == U"derivative(pow(x,2),x)=2*x") << ToBasicString(document.ToText());
     ASSERT_TRUE(document.ToHtml() ==
         "<body>"
             "<p>"
@@ -1253,7 +1253,7 @@ TEST_F(SolverSymbolicTest, derivative_mixed_func)
     document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
     document.WaitSolver();
     std::this_thread::sleep_for(600ms);
-    ASSERT_TRUE(document.ToText() == U"g(x,y)=pow(x,2)*sin(y)\ndiff(diff(g(x,y),y),x)=2*x*cos(y)") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.ToText() == U"g(x,y)=pow(x,2)*sin(y)\nderivative(derivative(g(x,y),y),x)=2*x*cos(y)") << ToBasicString(document.ToText());
 }
 
 TEST_F(SolverSymbolicTest, derivative_mixed_func_real)
@@ -1289,7 +1289,7 @@ TEST_F(SolverSymbolicTest, derivative_mixed_func_real)
     document.WaitTask(document.InsertEquation(ResultType::SYMBOLIC_REAL, true));
     document.WaitSolver();
     std::this_thread::sleep_for(600ms);
-    ASSERT_TRUE(document.ToText() == U"g(x,y)=pow(x,2)*sin(y)\ndiff(diff(g(x,y),y),x)=2*x*cos(y)") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.ToText() == U"g(x,y)=pow(x,2)*sin(y)\nderivative(derivative(g(x,y),y),x)=2*x*cos(y)") << ToBasicString(document.ToText());
 }
 
 }
