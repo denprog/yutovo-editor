@@ -763,6 +763,102 @@ uint Document::InsertIndefiniteIntegral(bool with_undo, bool replace)
     return InsertFormula(new IndefiniteIntegral(this), with_undo, false, replace);
 }
 
+uint Document::InsertDerivative(bool with_undo, bool replace)
+{
+    return InsertDerivative(U"d", 1, with_undo, replace);
+}
+
+uint Document::InsertDerivative(const std::u32string& symbol, const int order, bool with_undo, bool replace)
+{
+    LOG_TRACE("Insert derivative");
+
+    auto int_to_str = 
+        [](int value) -> std::u32string
+        {
+            if (value == 0)
+                return U"0";
+            bool negative = value < 0;
+            int n = negative ? -value : value;
+            std::u32string result;
+            while (n > 0)
+            {
+                result = std::u32string(1, char32_t(U'0' + n % 10)) + result;
+                n /= 10;
+            }
+            return negative ? (U"-" + result) : result;
+        };
+
+    Division* div = new Division(this);
+    CodeRow* num = div->GetNumeratorRow();
+    CodeRow* den = div->GetDenominatorRow();
+
+    if (order == 1)
+    {
+        ElementPtr d(new CodeString(num, symbol));
+        d->can_merge = false;
+        div->AddNumerator(d);
+    }
+    else
+    {
+        Power* p = new Power(num);
+        CodeRow* base_row = p->GetBaseRow();
+        CodeRow* exp_row = p->GetExponentRow();
+        base_row->elements->Clear();
+        exp_row->elements->Clear();
+
+        ElementPtr d(new CodeString(base_row, symbol));
+        d->can_merge = false;
+        base_row->elements->Add(d);
+
+        ElementPtr n(new CodeString(exp_row, int_to_str(order)));
+        n->can_merge = false;
+        exp_row->elements->Add(n);
+
+        ElementPtr pp(p);
+        div->AddNumerator(pp);
+    }
+
+    ElementPtr func(new CodeString(num, U""));
+    func->can_merge = false;
+    div->AddNumerator(func);
+
+    if (order == 1)
+    {
+        ElementPtr dd(new CodeString(den, symbol));
+        dd->can_merge = false;
+        div->AddDenomerator(dd);
+
+        ElementPtr var(new CodeString(den, U""));
+        var->can_merge = false;
+        div->AddDenomerator(var);
+    }
+    else
+    {
+        Power* p = new Power(den);
+        CodeRow* base_row = p->GetBaseRow();
+        CodeRow* exp_row = p->GetExponentRow();
+        base_row->elements->Clear();
+        exp_row->elements->Clear();
+
+        ElementPtr dd(new CodeString(base_row, symbol));
+        dd->can_merge = false;
+        base_row->elements->Add(dd);
+
+        ElementPtr var(new CodeString(base_row, U""));
+        var->can_merge = false;
+        base_row->elements->Add(var);
+
+        ElementPtr n(new CodeString(exp_row, int_to_str(order)));
+        n->can_merge = false;
+        exp_row->elements->Add(n);
+
+        ElementPtr pp(p);
+        div->AddDenomerator(pp);
+    }
+
+    return InsertFormula(div, with_undo, false, replace);
+}
+
 uint Document::InsertImage(const std::string& image_base64, bool with_undo, bool pasting)
 {
     LOG_TRACE("Insert image");

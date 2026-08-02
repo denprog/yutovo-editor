@@ -1166,4 +1166,130 @@ TEST_F(SolverSymbolicTest, definite_integral1)
     ASSERT_TRUE(document.ToText() == U"definite_integral(0,1,x*y,y)=0.5*x") << ToBasicString(document.ToText());
 }
 
+TEST_F(SolverSymbolicTest, derivative1)
+{
+    Start(600);
+
+    document.WaitTask(document.InsertDerivative(U"d", 1, true));
+    document.InsertString("x", true);
+    document.InsertPower(true);
+    document.InsertString("2", true);
+    document.WaitTask(document.MoveCaretDown(false));
+    document.WaitTask(document.MoveCaretDown(false));
+    document.InsertString("x", true);
+    document.WaitTask(document.MoveCaretRight(false));
+    document.WaitTask(document.InsertEquation(ResultType::SYMBOLIC_REAL, true));
+    document.WaitSolver();
+    ASSERT_TRUE(document.ToText() == U"diff(pow(x,2),x)=2*x") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.ToHtml() ==
+        "<body>"
+            "<p>"
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"
+                    "<mrow>"
+                        "<mrow>"
+                            "<mfrac>"
+                                "<mrow>"
+                                    "<mi>d</mi>"
+                                    "<msup>"
+                                        "<mrow>"
+                                            "<mi>x</mi>"
+                                        "</mrow>"
+                                        "<mrow>"
+                                            "<mi>2</mi>"
+                                        "</mrow>"
+                                    "</msup>"
+                                "</mrow>"
+                                "<mrow>"
+                                    "<mi>d</mi>"
+                                    "<mi>x</mi>"
+                                "</mrow>"
+                            "</mfrac>"
+                        "</mrow>"
+                        "<mo>=</mo>"
+                        "<mrow>"
+                            "<mrow>"
+                                "<mi>2</mi>"
+                                "<mo>×</mo>"
+                                "<mi>x</mi>"
+                            "</mrow>"
+                        "</mrow>"
+                    "</mrow>"
+                "</math>"
+            "</p>"
+        "</body>") << document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 1})) << document.GetEditorState().ToString();
+}
+
+TEST_F(SolverSymbolicTest, derivative_mixed_func)
+{
+    Start(600);
+
+    //g(x,y) := x^2*sin(y)
+    document.InsertCode(false, true);
+    document.InsertString("g", true);
+    document.InsertOpenRoundBracket(true);
+    document.InsertString("x", true);
+    document.InsertComma(true);
+    document.InsertString("y", true);
+    document.InsertCloseRoundBracket(true);
+    document.InsertAssignment(true);
+    document.InsertString("x", true);
+    document.InsertPower(true);
+    document.InsertString("2", true);
+    document.WaitTask(document.MoveCaretRight(false));
+    document.InsertMultiply(true);
+    document.InsertString("sin", true);
+    document.InsertOpenRoundBracket(true);
+    document.InsertString("y", true);
+    document.WaitTask(document.InsertCloseRoundBracket(true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+
+    document.WaitTask(document.MoveCaretRight(false));
+    document.InsertParagraph(true);
+
+    //d^2 g(x,y) / d x d y, result type is explicitly REAL
+    CreateDerivativeDivision(2, U"g(x,y)", std::vector<std::u32string>{U"x", U"y"});
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == U"g(x,y)=pow(x,2)*sin(y)\ndiff(diff(g(x,y),y),x)=2*x*cos(y)") << ToBasicString(document.ToText());
+}
+
+TEST_F(SolverSymbolicTest, derivative_mixed_func_real)
+{
+    Start(600);
+
+    //g(x,y) = pow(x,2)*sin(y)
+    document.InsertCode(false, true);
+    document.InsertString("g", true);
+    document.InsertOpenRoundBracket(true);
+    document.InsertString("x", true);
+    document.InsertComma(true);
+    document.InsertString("y", true);
+    document.InsertCloseRoundBracket(true);
+    document.InsertAssignment(true);
+    document.InsertString("x", true);
+    document.InsertPower(true);
+    document.InsertString("2", true);
+    document.WaitTask(document.MoveCaretRight(false));
+    document.InsertMultiply(true);
+    document.InsertString("sin", true);
+    document.InsertOpenRoundBracket(true);
+    document.InsertString("y", true);
+    document.WaitTask(document.InsertCloseRoundBracket(true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+
+    document.WaitTask(document.MoveCaretRight(false));
+    document.InsertParagraph(true);
+
+    //d^2 g(x,y) / d x d y with explicit REAL result type
+    CreateDerivativeDivision(2, U"g(x,y)", std::vector<std::u32string>{U"x", U"y"});
+    document.WaitTask(document.InsertEquation(ResultType::SYMBOLIC_REAL, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == U"g(x,y)=pow(x,2)*sin(y)\ndiff(diff(g(x,y),y),x)=2*x*cos(y)") << ToBasicString(document.ToText());
+}
+
 }

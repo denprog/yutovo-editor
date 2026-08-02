@@ -31,6 +31,8 @@ public:
     virtual void Draw() const;
     virtual bool Remake(bool with_elements = false);
 
+    virtual bool AfterInsert(bool with_undo);
+
     virtual bool GetTopCaretState(const int x, const int y, CaretState& caret_state, Selection* select);
     virtual bool GetBottomCaretState(const int x, const int y, CaretState& caret_state, Selection* select);
 
@@ -42,6 +44,23 @@ public:
 
     void AddNumerator(ElementPtr numerator);
     void AddDenomerator(ElementPtr denomerator);
+
+    CodeRow* GetNumeratorRow() const;
+    CodeRow* GetDenominatorRow() const;
+
+    bool IsDerivative() const;
+
+protected:
+    struct DiffMarker
+    {
+        int order = 0;
+        std::u32string remaining;
+    };
+
+    bool IsDerivativeSymbol(const std::u32string& s) const;
+    bool GetDerivativeOrderAt(CodeRow* row, uint pos, int& order, uint& content_start);
+    bool ParseDerivativeMarker(Element* el, DiffMarker& marker) const;
+    bool BuildDerivativeParserString(ParserString& str);
 };
 
 }

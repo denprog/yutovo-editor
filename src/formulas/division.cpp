@@ -7,7 +7,11 @@
 
 #include "division.h"
 #include "code_row.h"
+#include <algorithm>
+#include "code_string.h"
+#include "power.h"
 #include "shape.h"
+#include "parser_string.h"
 
 namespace yutovo
 {
@@ -93,6 +97,35 @@ bool Division::Remake(bool with_elements)
     return changed;
 }
 
+bool Division::AfterInsert(bool with_undo)
+{
+    if (MiddleShapeFormula::AfterInsert(with_undo))
+        return true;
+
+    //if the division looks like a derivative, place the caret in the function placeholder
+    int order = 0;
+    uint func_start = 0;
+    if (!GetDerivativeOrderAt(GetFirst(), 0, order, func_start))
+        return false;
+
+    int den_order = 0;
+    uint var_start = 0;
+    if (!GetDerivativeOrderAt(GetLast(), 0, den_order, var_start))
+        return false;
+
+    if (func_start < GetFirst()->elements->Count())
+    {
+        CaretState c;
+        if (GetFirst()->elements->Get(func_start)->GetFirstCaretState(c, nullptr))
+        {
+            caret->SetState(c);
+            return true;
+        }
+    }
+
+    return false;
+}
+
 bool Division::GetTopCaretState(const int x, const int y, CaretState& caret_state, Selection* select)
 {
     if (select)
@@ -137,11 +170,19 @@ std::u32string Division::ToText() const
 {
     if (!GetFirst() || !GetLast())
         return U"";
+
+    ParserString ps;
+    if (const_cast<Division*>(this)->BuildDerivativeParserString(ps))
+        return ps.Text();
+
     return U"(" + GetFirst()->ToText() + U")/(" + GetLast()->ToText() + U")";
 }
 
 void Division::ToParserString(ParserString& str)
 {
+    if (BuildDerivativeParserString(str))
+        return;
+
     str.Add(id, U"(");
     GetFirst()->ToParserString(str);
     if (GetFirst()->elements->Count() == 1 && document->IsString(GetFirst()->elements->Get(0)->id) && 
@@ -159,6 +200,283 @@ void Division::ToParserString(ParserString& str)
     str.Add(id, U")");
 }
 
+bool Division::IsDerivativeSymbol(const std::u32string& s) const
+{
+    return s == U"d" || s == U"∂";
+}
+
+bool Division::GetDerivativeOrderAt(CodeRow* row, uint pos, int& order, uint& content_start)
+{
+    if (!row || pos >= row->elements->Count())
+        return false;
+
+    Element* el = row->elements->Get(pos).get();
+
+    String* str = dynamic_cast<String*>(el);
+    if (str)
+    {
+        if (IsDerivativeSymbol(str->ToText()))
+        {
+            order = 1;
+            content_start = pos + 1;
+            return true;
+        }
+        return false;
+    }
+
+    Power* p = dynamic_cast<Power*>(el);
+    if (p)
+    {
+        CodeRow* base = p->GetBaseRow();
+        CodeRow* exp = p->GetExponentRow();
+        if (!base || !exp || base->elements->Count() == 0 || exp->elements->Count() == 0)
+            return false;
+
+        String* base_str = dynamic_cast<String*>(base->elements->Get(0).get());
+        if (!base_str)
+            return false;
+
+        std::u32string base_text = base_str->ToText();
+        if (base_text.empty() || !IsDerivativeSymbol(base_text.substr(0, 1)))
+            return false;
+
+        String* exp_str = dynamic_cast<String*>(exp->elements->Get(0).get());
+        if (!exp_str)
+            return false;
+
+        std::u32string exp_text = exp_str->ToText();
+        if (exp_text.find_first_not_of(U"0123456789") != std::string::npos)
+            return false;
+
+        try
+        {
+            order = std::stoi(ToBasicString(exp_text));
+        }
+        catch (...)
+        {
+            return false;
+        }
+
+        if (order <= 0)
+            return false;
+
+        content_start = pos + 1;
+        return true;
+    }
+
+    return false;
+}
+
+bool Division::ParseDerivativeMarker(Element* el, DiffMarker& marker) const
+{
+    String* str = dynamic_cast<String*>(el);
+    if (str)
+    {
+        std::u32string text = str->ToText();
+        if (!text.empty() && IsDerivativeSymbol(text.substr(0, 1)))
+        {
+            marker.order = 1;
+            marker.remaining = text.substr(1);
+            return true;
+        }
+        return false;
+    }
+
+    Power* p = dynamic_cast<Power*>(el);
+    if (!p)
+        return false;
+
+    CodeRow* base = p->GetBaseRow();
+    CodeRow* exp = p->GetExponentRow();
+    if (!base || !exp || base->elements->Count() == 0 || exp->elements->Count() == 0)
+        return false;
+
+    String* base_str = dynamic_cast<String*>(base->elements->Get(0).get());
+    if (!base_str)
+        return false;
+
+    std::u32string base_text = base_str->ToText();
+    if (base_text.empty() || !IsDerivativeSymbol(base_text.substr(0, 1)))
+        return false;
+
+    String* exp_str = dynamic_cast<String*>(exp->elements->Get(0).get());
+    if (!exp_str)
+        return false;
+
+    std::u32string exp_text = exp_str->ToText();
+    if (exp_text.find_first_not_of(U"0123456789") != std::string::npos)
+        return false;
+
+    try
+    {
+        marker.order = std::stoi(ToBasicString(exp_text));
+    }
+    catch (...)
+    {
+        return false;
+    }
+
+    if (marker.order <= 0)
+        return false;
+
+    marker.remaining = base_text.substr(1);
+    return true;
+}
+
+bool Division::BuildDerivativeParserString(ParserString& str)
+{
+    CodeRow* num = GetFirst();
+    CodeRow* den = GetLast();
+    if (!num || !den)
+        return false;
+
+    //parse the numerator: leading d/∂ marker followed by the function expression
+    int num_order = 0;
+    std::u32string function_text;
+    bool num_marker_found = false;
+    for (uint i = 0; i < num->elements->Count(); ++i)
+    {
+        Element* el = num->elements->Get(i).get();
+        DiffMarker marker;
+        if (!num_marker_found && ParseDerivativeMarker(el, marker))
+        {
+            num_order = marker.order;
+            num_marker_found = true;
+            function_text += marker.remaining;
+        }
+        else if (num_marker_found)
+        {
+            ParserString ps;
+            el->ToParserString(ps);
+            function_text += ps.Text();
+        }
+        else
+        {
+            //content before the derivative marker means this is an ordinary fraction
+            return false;
+        }
+    }
+
+    if (!num_marker_found)
+        return false;
+
+    //parse the denominator: a sequence of d/∂ markers each followed by a variable
+    std::vector<std::pair<std::u32string, int>> vars;
+    std::u32string cur_var;
+    int cur_order = 0;
+    bool den_marker_found = false;
+
+    auto process_string =
+        [&](const std::u32string& text) -> bool
+        {
+            for (size_t k = 0; k < text.size();)
+            {
+                std::u32string ch = text.substr(k, 1);
+                if (IsDerivativeSymbol(ch))
+                {
+                    if (cur_order > 0)
+                        vars.emplace_back(cur_var, cur_order);
+
+                    cur_order = 1;
+                    cur_var.clear();
+                    den_marker_found = true;
+                    ++k;
+                }
+                else if (den_marker_found)
+                {
+                    cur_var += ch;
+                    ++k;
+                }
+                else
+                {
+                    //content before the first derivative marker
+                    return false;
+                }
+            }
+            return true;
+        };
+
+    for (uint i = 0; i < den->elements->Count(); ++i)
+    {
+        Element* el = den->elements->Get(i).get();
+        String* s = dynamic_cast<String*>(el);
+        if (s)
+        {
+            if (!process_string(s->ToText()))
+                return false;
+            continue;
+        }
+
+        DiffMarker marker;
+        if (ParseDerivativeMarker(el, marker))
+        {
+            if (cur_order > 0)
+                vars.emplace_back(cur_var, cur_order);
+
+            cur_order = marker.order;
+            cur_var = marker.remaining;
+            den_marker_found = true;
+
+            //a denominator power such as pow(dx,2) or pow(d,2)x keeps the
+            //variable part inside the power base row
+            Power* p = dynamic_cast<Power*>(el);
+            if (p)
+            {
+                CodeRow* base = p->GetBaseRow();
+                for (uint bi = 1; base && bi < base->elements->Count(); ++bi)
+                {
+                    ParserString ps;
+                    base->elements->Get(bi).get()->ToParserString(ps);
+                    cur_var += ps.Text();
+                }
+            }
+        }
+        else if (den_marker_found)
+        {
+            ParserString ps;
+            el->ToParserString(ps);
+            cur_var += ps.Text();
+        }
+        else
+        {
+            //denominator does not start with a derivative marker
+            return false;
+        }
+    }
+
+    if (cur_order > 0)
+        vars.emplace_back(cur_var, cur_order);
+
+    if (vars.empty())
+        return false;
+
+    //Leibniz rule: numerator order must equal the total number of
+    //differentiation operators in the denominator
+    int total_den_order = 0;
+    for (const auto& v : vars)
+        total_den_order += v.second;
+
+    if (num_order != total_den_order)
+        return false;
+
+    std::u32string result = function_text;
+    //differentiation order is read right-to-left in the denominator
+    for (auto it = vars.rbegin(); it != vars.rend(); ++it)
+    {
+        for (int o = 0; o < it->second; ++o)
+            result = U"diff(" + result + U"," + it->first + U")";
+    }
+
+    str.Add(id, result);
+    return true;
+}
+
+bool Division::IsDerivative() const
+{
+    ParserString ps;
+    return const_cast<Division*>(this)->BuildDerivativeParserString(ps);
+}
+
 void Division::AddNumerator(ElementPtr numerator)
 {
     if (GetFirst()->IsEmpty())
@@ -171,6 +489,16 @@ void Division::AddDenomerator(ElementPtr denomerator)
     if (GetLast()->IsEmpty())
         GetLast()->elements->Clear();
     GetLast()->elements->Add(denomerator);
+}
+
+CodeRow* Division::GetNumeratorRow() const
+{
+    return GetFirst();
+}
+
+CodeRow* Division::GetDenominatorRow() const
+{
+    return GetLast();
 }
 
 }

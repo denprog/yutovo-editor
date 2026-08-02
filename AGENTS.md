@@ -32,6 +32,28 @@ Document editor with MathML rendering and solver integration.
 - Insert via `document.InsertIndefiniteIntegral(with_undo)`; undo stores/restores children 1, 3 (see undo.cpp); registered in editor_utils.cpp `create_elements`.
 - Tests: `test/indefinite_integral.cpp` (`FormulaTest.indefinite_integral1..indefinite_integral9`).
 
+## Derivative Element
+
+Derivatives are represented by a regular editable `Division` fraction so that the `d`/`∂` prefixes, the function, and the variables are all editable.
+
+- A derivative fraction has the form `d f / d x` (or `∂ f / ∂ x` for partial derivatives). For order `n > 1` the numerator starts with `pow(d, n)` / `pow(∂, n)`.
+- `Division::BuildDerivativeParserString()` detects the derivative pattern in `ToText()`/`ToParserString()` and emits nested `diff(...)` calls. The total differentiation order in the numerator must equal the sum of differentiation operators in the denominator; otherwise the fraction falls back to plain `(num)/(den)`.
+  - `d f / d x` → `diff(f,x)`
+  - `pow(d,2) f / pow(d x, 2)` → `diff(diff(f,x),x)` (single-variable higher-order)
+  - `pow(d,2) f / d x d y` → `diff(diff(f,y),x)` (rightmost denominator variable is the innermost derivative)
+  - `pow(d,3) f(x,y,z) / d x d y d z` → `diff(diff(diff(f(x,y,z),z),y),x)`
+  - `∂ f / ∂ x` → `diff(f,x)` (partial)
+- The total differentiation order is the sum of operators in the denominator (`d`/`∂` = 1, `pow(d,n)`/`pow(∂,n)` = `n`). If it does not equal the numerator order, the fraction falls back to ordinary `(num)/(den)` output.
+- The parser recognizes the derivative marker even when it is merged with the function or variable in a single `CodeString` (e.g. `dg(x,y)`/`dxdy`), because `BuildDerivativeParserString()` scans the text character-by-character.
+- The `d`/`∂` prefix strings and the empty function/variable placeholders are created with `can_merge = false` so they remain distinct editable elements (see `String::Merge`).
+- Insert via `document.InsertDerivative`, `InsertSecondDerivative`, `InsertPartialDerivative`, `InsertPartialSecondDerivative` (all implemented with `CreateDerivativeDivision()` in `document.cpp`).
+- Undo/redo stores/restores the editable `CodeString` children inside the `Division` (see `undo.cpp`).
+- Tests: `test/derivative.cpp` (`FormulaTest.derivative1..derivative17`) and `test/solver_derivative.cpp` (`SolverAutoTest.derivative1/derivative2/derivative_second1/derivative_third1/derivative_mixed_func/derivative_mixed_func_g/derivative_tan`, `SolverSymbolicTest.derivative1`). Derivative tests that target an explicit numeric result type (e.g. `ResultType::REAL`) belong in the matching `test/solver_<type>.cpp` file (e.g. `SolverRealTest.derivative_mixed_func_g` and `SolverRealTest.derivative_mixed_func_g_real` in `test/solver_real.cpp`).
+- Test helpers for building derivative `Division` instances live as methods of `SolverTest` (`test/mock.h`), not as file-scope `static` functions. The helper **must emulate user input** (`InsertDerivative`, `InsertString`, `InsertPower`, `MoveCaretDown`, etc.) instead of constructing `Division`/`CodeString`/`Power` objects by hand, because the desktop insertion/remake path differs from direct element construction.
+- Trigonometric/hyperbolic aliases (`tg`/`tan`, `ctg`/`cot`, `cosec`/`csc`, `sh`/`sinh`, `ch`/`cosh`, `th`/`tanh`, `cth`/`coth`, `sch`/`sech`, `cosech`/`csch`) and inverse trig aliases (`arctg`/`arctan`, `arcctg`/`arccot`, `arccosec`/`arccsc`) are registered in all three symbolic parsers. Canonical symbolic function names are `tg`, `arctg`, `arcctg` (renamed from `tan`/`arctan`/`arccot`).
+- TermDegree `known_funcs` in `yutovo-calculator/src/symbolic.h` and `FunctionSortRank` in `yutovo-calculator/src/giac_utils.cpp` include all aliases and canonical output names (`tan`, `asin`, `acos`, `atan`, etc.).
+- `CalcTestSymbolicReal.all_symbolic_functions` covers every symbolic trig/hyperbolic/inverse function with four variants: numeric evaluation, symbolic form, derivative, and alias equivalence.
+
 ## Code Style
 
 ### Parenthesized expressions
@@ -192,11 +214,65 @@ std::this_thread::sleep_for(200ms);
 ASSERT_TRUE(document.ToHtml() == "<body>...</body>") << document.ToHtml();
 ```
 
+### Undo/Redo in editing tests
+Any test that edits an element (typing, inserting subformulas, clearing contents, etc.) must verify both `Undo()` and `Redo()`. Wait for each operation and assert the document state:
+```cpp
+document.Undo();
+document.WaitUndo();
+std::this_thread::sleep_for(200ms);
+ASSERT_TRUE(document.ToText() == U"...") << ToBasicString(document.ToText());
+
+document.Redo();
+document.WaitRedo();
+std::this_thread::sleep_for(200ms);
+ASSERT_TRUE(document.ToText() == U"...") << ToBasicString(document.ToText());
+```
+
 ### Async operations and timeouts
 Editor and caret methods return a task id and run asynchronously. Always wait for them with `document.WaitTask(id, timeout)` and assert the returned value; do not rely only on `std::this_thread::sleep_for`.
 
 ### Changing config
 Do not mutate `document.config` directly and then call `document.SetConfig(document.config, false)` — `SetConfigTask` compares the passed config with the current `document.config`, so a direct mutation makes the comparison see no change. Instead, copy `document.config` into a local `Config`, modify the copy, and pass it to `SetConfig`.
+
+### Emulate user input when building formulas in tests
+Editor/solver tests should construct expressions the same way a user would — by calling the document's `Insert*` APIs — not by allocating `Division`/`Power`/`CodeString` objects directly and attaching them with `InsertFormula`. The desktop code path performs caret placement, merging, remake and other logic that direct construction skips, so tests built from raw elements can pass in the test binary but fail on desktop.
+
+```cpp
+// WRONG
+Division* div = new Division(&document);
+// ... manually populate numerator/denominator ...
+document.WaitTask(document.InsertFormula(div, true));
+
+// CORRECT
+document.WaitTask(document.InsertDivision(true));
+document.InsertString("d", true);
+document.InsertPower(true);
+document.InsertString("2", true);
+document.InsertString("g", true);
+document.InsertOpenRoundBracket(true);
+document.InsertString("x", true);
+document.InsertComma(true);
+document.InsertString("y", true);
+document.InsertCloseRoundBracket(true);
+document.WaitTask(document.MoveCaretDown(false));
+document.InsertString("d", true);
+document.InsertString("x", true);
+document.InsertString("d", true);
+document.InsertString("y", true);
+```
+
+Shared test helpers (e.g. `SolverAutoTest::CreateDerivativeDivision` in `test/mock.h`) must also emulate input rather than construct elements by hand.
+
+### Result-type-specific tests belong in the matching solver file
+Tests that explicitly set a non-AUTO result type should be placed in the corresponding test file:
+- `ResultType::REAL` → `test/solver_real.cpp` (`SolverRealTest`)
+- `ResultType::INTEGER` → `test/solver_integer.cpp` (`SolverIntegerTest`)
+- `ResultType::RATIONAL` → `test/solver_rational.cpp` (`SolverRationalTest`)
+- `ResultType::COMPLEX` → `test/solver_complex.cpp` (`SolverComplexTest`)
+- `ResultType::ARRAY_REAL` → `test/solver_array_real.cpp` (`SolverArrayRealTest`)
+- `ResultType::SYMBOLIC_REAL`/`SYMBOLIC_RATIONAL`/`SYMBOLIC_COMPLEX` → `test/solver_derivative.cpp` / `test/solver_symbolic.cpp` / etc., depending on the feature.
+
+AUTO-mode tests and generic derivative tests live in `test/solver_derivative.cpp` (`SolverAutoTest`/`SolverSymbolicTest`).
 
 ## File formats
 - `.yut` files are ZIP archives (not plain text). Use `unzip -l file.yut` to list contents, `unzip -p file.yut` to extract.
