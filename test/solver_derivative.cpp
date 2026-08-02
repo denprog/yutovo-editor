@@ -230,4 +230,166 @@ TEST_F(SolverAutoTest, derivative_tan)
     ASSERT_TRUE(document.ToText() == U"diff(pow(x,2)*tan(x),x)=2*x*tan(x)+pow(x,2)*(1+pow(tan(x),2))") << ToBasicString(document.ToText());
 }
 
+TEST_F(SolverAutoTest, derivative_cos)
+{
+    Start(600);
+    CreateDerivativeDivision(1, U"cos(x)", U"x");
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+    ASSERT_TRUE(document.ToText() == U"diff(cos(x),x)=-sin(x)") << ToBasicString(document.ToText());
+}
+
+TEST_F(SolverAutoTest, derivative_exp)
+{
+    Start(600);
+    CreateDerivativeDivision(1, U"exp(x)", U"x");
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+    ASSERT_TRUE(document.ToText() == U"diff(exp(x),x)=pow(e,x)") << ToBasicString(document.ToText());
+}
+
+TEST_F(SolverAutoTest, derivative_x_sin)
+{
+    Start(600);
+    CreateDerivativeDivision(1, U"x*sin(x)", U"x");
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+    ASSERT_TRUE(document.ToText() == U"diff(x*sin(x),x)=sin(x)+x*cos(x)") << ToBasicString(document.ToText());
+}
+
+TEST_F(SolverAutoTest, derivative_tan_simple)
+{
+    Start(600);
+    CreateDerivativeDivision(1, U"tan(x)", U"x");
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+    ASSERT_TRUE(document.ToText() == U"diff(tan(x),x)=1+pow(tan(x),2)") << ToBasicString(document.ToText());
+}
+
+TEST_F(SolverAutoTest, derivative_x4)
+{
+    Start(600);
+    document.WaitTask(document.InsertDerivative(U"d", 1, true));
+    document.InsertString("x", true);
+    document.InsertPower(true);
+    document.InsertString("4", true);
+    document.WaitTask(document.MoveCaretDown(false));
+    document.WaitTask(document.MoveCaretDown(false));
+    document.InsertString("x", true);
+    document.WaitTask(document.MoveCaretRight(false));
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+    ASSERT_TRUE(document.ToText() == U"diff(pow(x,4),x)=4*pow(x,3)") << ToBasicString(document.ToText());
+}
+
+TEST_F(SolverAutoTest, derivative_second_sin)
+{
+    Start(600);
+    document.WaitTask(document.InsertDerivative(U"d", 2, true));
+    document.InsertString("sin", true);
+    document.InsertOpenRoundBracket(true);
+    document.InsertString("x", true);
+    document.InsertCloseRoundBracket(true);
+    document.WaitTask(document.MoveCaretDown(false));
+    document.WaitTask(document.MoveCaretDown(false));
+    document.InsertString("x", true);
+    document.WaitTask(document.MoveCaretRight(false));
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+    ASSERT_TRUE(document.ToText() == U"diff(diff(sin(x),x),x)=-sin(x)") << ToBasicString(document.ToText());
+}
+
+TEST_F(SolverAutoTest, partial_dx_x2_plus_y2)
+{
+    Start(600);
+    CreateDerivativeDivision(1, U"x^2+y^2", U"x");
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+    ASSERT_TRUE(document.ToText() == U"diff(pow(x,2)+pow(y,2),x)=2*x") << ToBasicString(document.ToText());
+}
+
+TEST_F(SolverAutoTest, partial_mixed_x2_y3)
+{
+    Start(600);
+    CreateDerivativeDivision(2, U"x^2*y^3", std::vector<std::u32string>{U"x", U"y"});
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+    ASSERT_TRUE(document.ToText() == U"diff(diff(pow(x,2)*pow(y,3),y),x)=2*3*x*pow(y,2)") << ToBasicString(document.ToText());
+}
+
+TEST_F(SolverAutoTest, partial_mixed_sin_cos)
+{
+    Start(600);
+    CreateDerivativeDivision(2, U"sin(x)*cos(y)", std::vector<std::u32string>{U"x", U"y"});
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+    ASSERT_TRUE(document.ToText() == U"diff(diff(sin(x)*cos(y),y),x)=-cos(x)*sin(y)") << ToBasicString(document.ToText());
+}
+
+TEST_F(SolverAutoTest, partial_dy_x2_y)
+{
+    Start(600);
+    CreateDerivativeDivision(1, U"x^2*y", U"y");
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+    ASSERT_TRUE(document.ToText() == U"diff(pow(x,2)*y,y)=pow(x,2)") << ToBasicString(document.ToText());
+}
+
+TEST_F(SolverAutoTest, derivative_edit_function_power)
+{
+    Start(600);
+
+    //d(x^2)/dx = 2*x
+    document.WaitTask(document.InsertDerivative(U"d", 1, true));
+    document.WaitTask(document.InsertString(U"x", true));
+    document.WaitTask(document.InsertPower(true));
+    document.WaitTask(document.InsertString(U"2", true));
+    document.WaitTask(document.MoveCaretDown(false));
+    document.WaitTask(document.MoveCaretDown(false));
+    document.WaitTask(document.InsertString(U"x", true));
+    document.WaitTask(document.MoveCaretRight(false));
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+    ASSERT_TRUE(document.ToText() == U"diff(pow(x,2),x)=2*x") << ToBasicString(document.ToText());
+
+    document.MoveCaretLeft(false);
+    document.MoveCaretLeft(false);
+    document.MoveCaretUp(false);
+    document.MoveCaretUp(false);
+    for (int i = 0; i < 4; ++i)
+        document.MoveCaretRight(false);
+    document.DeleteElements(false, true);
+    document.WaitTask(document.InsertString(U"3", true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(2s);
+    ASSERT_TRUE(document.ToText() == U"diff(pow(x,3),x)=3*pow(x,2)") << ToBasicString(document.ToText());
+}
+
+TEST_F(SolverAutoTest, derivative_edit_variable)
+{
+    Start(600);
+
+    // d(x^2)/dx = 2*x
+    document.WaitTask(document.InsertDerivative(U"d", 1, true));
+    document.WaitTask(document.InsertString(U"x", true));
+    document.WaitTask(document.InsertPower(true));
+    document.WaitTask(document.InsertString(U"2", true));
+    document.WaitTask(document.MoveCaretDown(false));
+    document.WaitTask(document.MoveCaretDown(false));
+    document.WaitTask(document.InsertString(U"x", true));
+    document.WaitTask(document.MoveCaretRight(false));
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+    ASSERT_TRUE(document.ToText() == U"diff(pow(x,2),x)=2*x") << ToBasicString(document.ToText());
+
+    // Undo the equation and edit the variable: replace x with y
+    document.MoveCaretLeft(false);
+    document.MoveCaretLeft(false);
+    document.DeleteElements(true, true);
+    document.WaitTask(document.InsertString(U"y", true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(2s);
+    ASSERT_TRUE(document.ToText() == U"diff(pow(x,2),y)=0") << ToBasicString(document.ToText());
+}
+
 }
