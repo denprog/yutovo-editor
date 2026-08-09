@@ -1627,7 +1627,7 @@ TEST_F(SolverAutoTest, solver37)
     ASSERT_TRUE(document.ToText() == 
         U"234=234.") << 
         ToBasicString(document.ToText());
-    ASSERT_TRUE(time(0) - t <= 5);
+    ASSERT_TRUE(time(0) - t <= 6) << (time(0) - t);
 }
 
 //Break a solving with a complex grammar

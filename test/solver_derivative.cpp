@@ -314,7 +314,7 @@ TEST_F(SolverAutoTest, partial_mixed_x2_y3)
     CreateDerivativeDivision(2, U"x^2*y^3", std::vector<std::u32string>{U"x", U"y"});
     document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
     document.WaitSolver();
-    ASSERT_TRUE(document.ToText() == U"derivative(derivative(pow(x,2)*pow(y,3),y),x)=2*3*x*pow(y,2)") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.ToText() == U"derivative(derivative(pow(x,2)*pow(y,3),y),x)=6*x*pow(y,2)") << ToBasicString(document.ToText());
 }
 
 TEST_F(SolverAutoTest, partial_mixed_sin_cos)
