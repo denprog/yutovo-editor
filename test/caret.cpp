@@ -2794,11 +2794,6 @@ TEST_F(DocumentTest, caret90)
             std::this_thread::sleep_for(400ms);
         });
 
-    EXPECT_CALL(window_mock, Translate).WillRepeatedly([&](ElementId id, const std::u32string& str)
-        {
-            return str;
-        });
-
     EXPECT_CALL(window_mock, GetViewPort).WillRepeatedly([&](const int)
         {
             return Rect{0, 0, 630, 255};

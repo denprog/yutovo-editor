@@ -36,6 +36,7 @@
 #include "formulas/product.h"
 #include "formulas/definite_integral.h"
 #include "formulas/indefinite_integral.h"
+#include "formulas/evalution_bar.h"
 #include "formulas/comma.h"
 #include "formulas/graph.h"
 #include "editor_utils.h"
@@ -789,8 +790,8 @@ uint Document::InsertDerivative(const std::u32string& symbol, const int order, b
         };
 
     Division* div = new Division(this);
-    CodeRow* num = div->GetNumeratorRow();
-    CodeRow* den = div->GetDenominatorRow();
+    CodeRow<>* num = div->GetNumeratorRow();
+    CodeRow<>* den = div->GetDenominatorRow();
 
     if (order == 1)
     {
@@ -801,8 +802,8 @@ uint Document::InsertDerivative(const std::u32string& symbol, const int order, b
     else
     {
         Power* p = new Power(num);
-        CodeRow* base_row = p->GetBaseRow();
-        CodeRow* exp_row = p->GetExponentRow();
+        CodeRow<>* base_row = p->GetBaseRow();
+        CodeRow<>* exp_row = p->GetExponentRow();
         base_row->elements->Clear();
         exp_row->elements->Clear();
 
@@ -835,8 +836,8 @@ uint Document::InsertDerivative(const std::u32string& symbol, const int order, b
     else
     {
         Power* p = new Power(den);
-        CodeRow* base_row = p->GetBaseRow();
-        CodeRow* exp_row = p->GetExponentRow();
+        CodeRow<>* base_row = p->GetBaseRow();
+        CodeRow<>* exp_row = p->GetExponentRow();
         base_row->elements->Clear();
         exp_row->elements->Clear();
 
@@ -857,6 +858,30 @@ uint Document::InsertDerivative(const std::u32string& symbol, const int order, b
     }
 
     return InsertFormula(div, with_undo, false, replace);
+}
+
+uint Document::InsertEvalutionBarSubscript(bool with_undo, bool replace)
+{
+    LOG_TRACE("Insert evalution bar");
+    return InsertFormula(new EvalutionBarSubscript(this), with_undo, false, replace);
+}
+
+uint Document::InsertDerivativeAtPoint(bool with_undo, bool replace)
+{
+    LOG_TRACE("Insert derivative at point");
+
+    uint task_id = InsertDerivative(U"d", 1, with_undo, replace);
+    WaitTask(task_id);
+
+    ElementPtr div_el = FindParent(caret->GetCaretState().id, ElementType::DIVISION);
+    if (!div_el)
+        return task_id;
+    ElementPtr row_el = FindParent(div_el->id, ElementType::CODE_ROW);
+    if (!row_el)
+        return task_id;
+
+    caret->SetState(row_el->id, row_el->elements->GetElementPos(div_el->id) + 1, true);
+    return InsertEvalutionBarSubscript(with_undo);
 }
 
 uint Document::InsertImage(const std::string& image_base64, bool with_undo, bool pasting)
@@ -961,7 +986,7 @@ uint Document::InsertUnit(const yutovo_calculator::Unit& unit, bool list_identif
     FormulaFormatPtr f = formula_formats->GetFormat("Code");
     StringFormatPtr string_format = f->string_format;
 
-    ElementPtr numerator(new CodeRow(this));
+    ElementPtr numerator(new CodeRow<>(this));
     numerator->elements->Clear();
     ElementPtr denomerator;
     for (auto& u : unit.unit)
@@ -985,7 +1010,7 @@ uint Document::InsertUnit(const yutovo_calculator::Unit& unit, bool list_identif
         {
             if (!denomerator)
             {
-                denomerator.reset(new CodeRow(this));
+                denomerator.reset(new CodeRow<>(this));
                 denomerator->elements->Clear();
             }
             if (denomerator->elements->Count() > 0)
@@ -1002,7 +1027,7 @@ uint Document::InsertUnit(const yutovo_calculator::Unit& unit, bool list_identif
         }
     }
 
-    auto* row = new CodeRow(this);
+    auto* row = new CodeRow<>(this);
 
     if (denomerator)
     {
@@ -1680,10 +1705,10 @@ ElementPtr Document::FindParentParagraph(const ElementId& id)
 {
     std::lock_guard<std::recursive_mutex> lock(edit_mutex);
     ElementPtr el = GetElement(id);
-    if (el && (el->type == ElementType::PARAGRAPH || el->type == ElementType::CODE_PARAGRAPH))
+    if (el && (el->type == ElementType::PARAGRAPH || el->type == ElementType::CODE_PARAGRAPH || el->type == ElementType::CODE_PARAGRAPH_ASSIGNMENT))
         return el;
     el = GetParent(id);
-    while (el && el->type != ElementType::PARAGRAPH && el->type != ElementType::CODE_PARAGRAPH)
+    while (el && el->type != ElementType::PARAGRAPH && el->type != ElementType::CODE_PARAGRAPH && el->type != ElementType::CODE_PARAGRAPH_ASSIGNMENT)
         el = GetParent(el->id);
     return el;
 }
@@ -1691,10 +1716,10 @@ ElementPtr Document::FindParentParagraph(const ElementId& id)
 ElementPtr Document::FindParentRow(const ElementId& id)
 {
     ElementPtr el = GetElement(id);
-    if (el && (el->type == ElementType::ROW || el->type == ElementType::CODE_ROW))
+    if (el && (el->type == ElementType::ROW || el->type == ElementType::CODE_ROW || el->type == ElementType::CODE_ROW_ASSIGNMENT))
         return el;
     el = GetParent(id);
-    while (el && el->type != ElementType::ROW && el->type != ElementType::CODE_ROW)
+    while (el && el->type != ElementType::ROW && el->type != ElementType::CODE_ROW && el->type != ElementType::CODE_ROW_ASSIGNMENT)
         el = GetParent(el->id);
     return el;
 }
@@ -2175,7 +2200,7 @@ bool Document::GetInsertMode()
 ElementPtr Document::CreateParagraph(const ElementId& id)
 {
     if (FindElementOrParent(id, ElementType::CODE_BLOCK))
-        return ElementPtr(new CodeParagraph(this, true));
+        return ElementPtr(new CodeParagraph<>(this, true));
     return ElementPtr(new Paragraph(this, true));
 }
 
@@ -2241,7 +2266,7 @@ bool Document::IsString(ElementId id)
 
 bool Document::IsRow(ElementPtr el)
 {
-    return el && (el->type == ElementType::ROW || el->type == ElementType::CODE_ROW);
+    return el && (el->type == ElementType::ROW || el->type == ElementType::CODE_ROW || el->type == ElementType::CODE_ROW_ASSIGNMENT);
 }
 
 bool Document::IsRow(ElementId id)
@@ -2251,7 +2276,7 @@ bool Document::IsRow(ElementId id)
 
 bool Document::IsParagraph(ElementPtr el)
 {
-    return el && (el->type == ElementType::PARAGRAPH || el->type == ElementType::CODE_PARAGRAPH);
+    return el && (el->type == ElementType::PARAGRAPH || el->type == ElementType::CODE_PARAGRAPH || el->type == ElementType::CODE_PARAGRAPH_ASSIGNMENT);
 }
 
 bool Document::IsParagraph(ElementId id)

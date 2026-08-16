@@ -1123,7 +1123,7 @@ void Row::AddEmptyElement()
     AddElement(ElementPtr(new String(this)));
 }
 
-bool Row::IsEmpty()
+bool Row::IsEmpty() const
 {
     if (elements->Count() != 1)
         return false;

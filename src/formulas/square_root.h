@@ -10,11 +10,10 @@
 
 #include "formula.h"
 #include "shape.h"
+#include "code_row.h"
 
 namespace yutovo
 {
-
-class CodeRow;
 
 class SquareRoot : public Formula
 {
@@ -51,7 +50,7 @@ public:
     virtual void ToParserString(ParserString& str);
 
 protected:
-    CodeRow* GetLast() const;
+    CodeRow<>* GetLast() const;
 
 protected:
     Element *last = nullptr;

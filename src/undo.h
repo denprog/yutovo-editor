@@ -25,13 +25,14 @@ class Link;
 class Paragraph;
 class Image;
 class Text;
-class CodeRow;
-class CodeParagraph;
-class CodeParagraphsBlock;
+template<typename T> class CodeRow;
+template<typename T> class CodeParagraph;
+template<typename T> class CodeParagraphsBlock;
 class Formula;
 class CodeBlock;
 class Equation;
 class GraphLine;
+class Assignment;
 
 typedef std::shared_ptr<UndoElement> UndoElementPtr;
 
@@ -120,22 +121,43 @@ struct UndoFormula : UndoElement
     FormulaFormatPtr formula_format;
 };
 
+template<typename T = void>
 struct UndoCodeRow : UndoElement
 {
     UndoCodeRow();
 
-    virtual bool operator==(const UndoCodeRow& el) const;
-    virtual bool operator==(const CodeRow& el) const;
+    virtual bool operator==(const UndoCodeRow<T>& el) const
+    {
+        return UndoElement::operator==(el);
+    }
+
+    virtual bool operator==(const CodeRow<T>& el) const
+    {
+        return UndoElement::operator==(el);
+    }
 
     virtual Element* Restore(Document* document, Element* parent);
 };
 
+template<typename T = void>
 struct UndoCodeParagraph : UndoParagraph
 {
-    UndoCodeParagraph(ParagraphFormatPtr _format, StringFormatPtr _current_string_format, const std::u32string& _marker, const StringFormatPtr& _marker_format);
+    UndoCodeParagraph(ParagraphFormatPtr _format, StringFormatPtr _current_string_format, const std::u32string& _marker,
+        const StringFormatPtr& _marker_format);
 
-    virtual bool operator==(const UndoCodeParagraph& el) const;
-    virtual bool operator==(const CodeParagraph& el) const;
+    virtual bool operator==(const UndoCodeParagraph<T>& el) const
+    {
+        if (!UndoElement::operator==(el))
+            return false;
+        return *format == *el.format && marker == el.marker && *marker_format == *el.marker_format;
+    }
+
+    virtual bool operator==(const CodeParagraph<T>& el) const
+    {
+        if (!UndoElement::operator==(el))
+            return false;
+        return *format == *el.format && marker == el.marker && *marker_format == *el.marker_format;
+    }
 
     virtual Element* Restore(Document* document, Element* parent);
 };
@@ -155,12 +177,24 @@ struct UndoCodeBlock : UndoElement
     FormulaFormatPtr formula_format;
 };
 
+template<typename T = void>
 struct UndoCodeParagraphsBlock : UndoElement
 {
     UndoCodeParagraphsBlock(ParagraphFormatPtr _paragraph_format, FormulaFormatPtr _formula_format);
 
-    virtual bool operator==(const UndoCodeParagraphsBlock& el) const;
-    virtual bool operator==(const CodeParagraphsBlock& el) const;
+    virtual bool operator==(const UndoCodeParagraphsBlock<T>& el) const
+    {
+        if (!UndoElement::operator==(el))
+            return false;
+        return *paragraph_format == *el.paragraph_format && *formula_format == *el.formula_format;
+    }
+
+    virtual bool operator==(const CodeParagraphsBlock<T>& el) const
+    {
+        if (!UndoElement::operator==(el))
+            return false;
+        return *paragraph_format == *el.paragraph_format && *formula_format == *el.formula_format;
+    }
 
     virtual Element* Restore(Document* document, Element* parent);
 

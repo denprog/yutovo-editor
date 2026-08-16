@@ -18,103 +18,6 @@ namespace yutovo_test
 using namespace yutovo;
 using namespace std::chrono_literals;
 
-static void MoveToDenominatorVariable(Document& document)
-{
-    for (int i = 0; i < 4; ++i)
-        document.WaitTask(document.MoveCaretRight(false));
-}
-
-static void FillFunctionAndVariable(Document& document)
-{
-    document.WaitTask(document.InsertString("f", true));
-    MoveToDenominatorVariable(document);
-    document.WaitTask(document.InsertString("x", true));
-}
-
-static Division* CreateMixedDerivativeDivision(Document* document, int order, const std::u32string& func, const std::vector<std::u32string>& vars)
-{
-    Division* div = new Division(document);
-    CodeRow* num = div->GetNumeratorRow();
-    CodeRow* den = div->GetDenominatorRow();
-
-    if (order == 1)
-    {
-        ElementPtr d(new CodeString(num, U"d"));
-        d->can_merge = false;
-        div->AddNumerator(d);
-    }
-    else
-    {
-        Power* p = new Power(num);
-        CodeRow* base = p->GetBaseRow();
-        CodeRow* exp = p->GetExponentRow();
-        base->elements->Clear();
-        exp->elements->Clear();
-
-        ElementPtr d(new CodeString(base, U"d"));
-        d->can_merge = false;
-        base->elements->Add(d);
-
-        std::u32string str;
-        do
-        {
-            str = char32_t(U'0' + order % 10) + str;
-            order /= 10;
-        }
-        while (order > 0);
-
-        ElementPtr n(new CodeString(exp, str));
-        n->can_merge = false;
-        exp->elements->Add(n);
-
-        div->AddNumerator(ElementPtr(p));
-    }
-
-    for (char32_t c : func)
-    {
-        ElementPtr s(new CodeString(num, std::u32string(1, c)));
-        s->can_merge = false;
-        div->AddNumerator(s);
-    }
-
-    for (const auto& var : vars)
-    {
-        ElementPtr d(new CodeString(den, U"d"));
-        d->can_merge = false;
-        den->elements->Add(d);
-        for (char32_t c : var)
-        {
-            ElementPtr s(new CodeString(den, std::u32string(1, c)));
-            s->can_merge = false;
-            den->elements->Add(s);
-        }
-    }
-
-    return div;
-}
-
-static Division* CreateMixedDerivativeDivision(Document* document, const std::u32string& func, const std::vector<std::u32string>& vars)
-{
-    return CreateMixedDerivativeDivision(document, (int)vars.size(), func, vars);
-}
-
-static Division* CreateStringDerivativeDivision(Document* document, const std::u32string& numerator, const std::u32string& denominator)
-{
-    Division* div = new Division(document);
-    CodeRow* num = div->GetNumeratorRow();
-    CodeRow* den = div->GetDenominatorRow();
-
-    ElementPtr n(new CodeString(num, numerator));
-    n->can_merge = false;
-    div->AddNumerator(n);
-
-    ElementPtr d(new CodeString(den, denominator));
-    d->can_merge = false;
-    div->AddDenomerator(d);
-
-    return div;
-}
-
 //Insert an empty derivative and check its initial state
 TEST_F(FormulaTest, derivative1)
 {
@@ -157,7 +60,7 @@ TEST_F(FormulaTest, derivative2)
     Start(600);
 
     document.WaitTask(document.InsertDerivative(U"d", 1, true));
-    FillFunctionAndVariable(document);
+    FillFunctionAndVariable();
     ASSERT_TRUE(document.ToText() == U"derivative(f,x)") << ToBasicString(document.ToText());
     ASSERT_TRUE(document.ToHtml() ==
         "<body>"
@@ -255,7 +158,7 @@ TEST_F(FormulaTest, derivative5)
     Start(600);
 
     document.WaitTask(document.InsertDerivative(U"d", 1, true));
-    FillFunctionAndVariable(document);
+    FillFunctionAndVariable();
     ASSERT_TRUE(document.ToText() == U"derivative(f,x)") << ToBasicString(document.ToText());
 
     //replace the variable
@@ -297,7 +200,7 @@ TEST_F(FormulaTest, derivative6)
     Start(600);
 
     document.WaitTask(document.InsertDerivative(U"d", 1, true));
-    FillFunctionAndVariable(document);
+    FillFunctionAndVariable();
     ASSERT_TRUE(document.ToText() == U"derivative(f,x)") << ToBasicString(document.ToText());
 
     //Backspace after the formula deletes it
@@ -328,7 +231,7 @@ TEST_F(FormulaTest, derivative7)
     Start(600);
 
     document.WaitTask(document.InsertDerivative(U"d", 1, true));
-    FillFunctionAndVariable(document);
+    FillFunctionAndVariable();
     ASSERT_TRUE(document.ToText() == U"derivative(f,x)") << ToBasicString(document.ToText());
 
     document.WaitTask(document.DeleteElements(true, true));
@@ -351,7 +254,7 @@ TEST_F(FormulaTest, derivative8)
         });
 
     document.WaitTask(document.InsertDerivative(U"d", 1, true));
-    FillFunctionAndVariable(document);
+    FillFunctionAndVariable();
     ASSERT_TRUE(document.ToText() == U"derivative(f,x)") << ToBasicString(document.ToText());
 
     document.WaitTask(document.Save("derivative1.yut"));
@@ -370,7 +273,7 @@ TEST_F(FormulaTest, derivative9)
     Start(600);
 
     document.WaitTask(document.InsertDerivative(U"∂", 1, true));
-    FillFunctionAndVariable(document);
+    FillFunctionAndVariable();
     ASSERT_TRUE(document.ToText() == U"derivative(f,x)") << ToBasicString(document.ToText());
     ASSERT_TRUE(document.ToHtml().find("<mi>\u2202</mi>") != std::string::npos) << document.ToHtml();
 }
@@ -381,7 +284,7 @@ TEST_F(FormulaTest, derivative10)
     Start(600);
 
     document.WaitTask(document.InsertDerivative(U"d", 2, true));
-    FillFunctionAndVariable(document);
+    FillFunctionAndVariable();
     ASSERT_TRUE(document.ToText() == U"derivative(derivative(f,x),x)") << ToBasicString(document.ToText());
     ASSERT_TRUE(document.ToHtml().find("<msup>") != std::string::npos) << document.ToHtml();
 }
@@ -392,7 +295,7 @@ TEST_F(FormulaTest, derivative11)
     Start(600);
 
     document.WaitTask(document.InsertDerivative(U"∂", 2, true));
-    FillFunctionAndVariable(document);
+    FillFunctionAndVariable();
     ASSERT_TRUE(document.ToText() == U"derivative(derivative(f,x),x)") << ToBasicString(document.ToText());
     ASSERT_TRUE(document.ToHtml().find("<mi>\u2202</mi>") != std::string::npos) << document.ToHtml();
     ASSERT_TRUE(document.ToHtml().find("<msup>") != std::string::npos) << document.ToHtml();
@@ -404,7 +307,7 @@ TEST_F(FormulaTest, derivative12)
     Start(600);
 
     document.WaitTask(document.InsertDerivative(U"d", 1, true));
-    FillFunctionAndVariable(document);
+    FillFunctionAndVariable();
     ASSERT_TRUE(document.ToText() == U"derivative(f,x)") << ToBasicString(document.ToText());
 
     //move the caret to the numerator's "d" and replace it with "a"
@@ -433,7 +336,7 @@ TEST_F(FormulaTest, derivative14)
 {
     Start(600);
 
-    Division* div = CreateMixedDerivativeDivision(&document, U"f", {U"x", U"y"});
+    Division* div = CreateMixedDerivativeDivision(U"f", {U"x", U"y"});
     document.WaitTask(document.InsertFormula(div, true));
     ASSERT_TRUE(document.ToText() == U"derivative(derivative(f,y),x)") << ToBasicString(document.ToText());
     ASSERT_TRUE(document.ToHtml() ==
@@ -480,7 +383,7 @@ TEST_F(FormulaTest, derivative15)
 {
     Start(600);
 
-    Division* div = CreateMixedDerivativeDivision(&document, U"f(x,y,z)", {U"x", U"y", U"z"});
+    Division* div = CreateMixedDerivativeDivision(U"f(x,y,z)", {U"x", U"y", U"z"});
     document.WaitTask(document.InsertFormula(div, true));
     ASSERT_TRUE(document.ToText() == U"derivative(derivative(derivative(f(x,y,z),z),y),x)") << ToBasicString(document.ToText());
     ASSERT_TRUE(document.ToHtml() ==
@@ -536,7 +439,7 @@ TEST_F(FormulaTest, derivative16)
 {
     Start(600);
 
-    Division* div = CreateMixedDerivativeDivision(&document, 1, U"f", {U"x", U"y"});
+    Division* div = CreateMixedDerivativeDivision(1, U"f", {U"x", U"y"});
     document.WaitTask(document.InsertFormula(div, true));
     ASSERT_TRUE(document.ToText() == U"(df)/(dxdy)") << ToBasicString(document.ToText());
 
@@ -551,12 +454,12 @@ TEST_F(FormulaTest, derivative17)
     Start(600);
 
     Division* div = new Division(&document);
-    CodeRow* num = div->GetNumeratorRow();
-    CodeRow* den = div->GetDenominatorRow();
+    CodeRow<>* num = div->GetNumeratorRow();
+    CodeRow<>* den = div->GetDenominatorRow();
 
     Power* p = new Power(num);
-    CodeRow* base = p->GetBaseRow();
-    CodeRow* exp = p->GetExponentRow();
+    CodeRow<>* base = p->GetBaseRow();
+    CodeRow<>* exp = p->GetExponentRow();
     base->elements->Clear();
     exp->elements->Clear();
 

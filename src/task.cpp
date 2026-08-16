@@ -199,19 +199,20 @@ bool InsertElementsTask::Execute()
     else if (!selection_state.IsEmpty())
     {
         //remove selection before insert
-        auto delete_elements = [&](ElementPtr _el)
-        {
-            assert(_el != nullptr);
-            ElementId changed_element;
-            if (_el->DeleteElements(true, with_undo, changed_element))
+        auto delete_elements = 
+            [&](ElementPtr _el)
             {
-                if (!pasting)
-                    Remake(changed_element, false);
-                el = document->GetElement(document->caret->GetElement()->id);
-                return true;
-            }
-            return false;
-        };
+                assert(_el != nullptr);
+                ElementId changed_element;
+                if (_el->DeleteElements(true, with_undo, changed_element))
+                {
+                    if (!pasting)
+                        Remake(changed_element, false);
+                    el = document->GetElement(document->caret->GetElement()->id);
+                    return true;
+                }
+                return false;
+            };
 
         for (int i = selection_state.state.size() - 1; i >= 0; --i)
         {
@@ -251,7 +252,8 @@ bool InsertElementsTask::Execute()
     for (auto& t : elements)
     {
         auto code = document->FindParent(el->id, ElementType::CODE_BLOCK);
-        if (t->type == ElementType::STRING && code)
+        bool in_code_row = el->type == ElementType::CODE_ROW || el->type == ElementType::CODE_ROW_ASSIGNMENT;
+        if (t->type == ElementType::STRING && (code || in_code_row))
         {
             //change type of string
             String* str = (String*)t.get();
@@ -261,7 +263,7 @@ bool InsertElementsTask::Execute()
         if (t->type == ElementType::PARAGRAPH && code)
         {
             //change type of paragraph
-            _elements.emplace_back(new CodeParagraph((Paragraph*)t.get()));
+            _elements.emplace_back(new CodeParagraph<>((Paragraph*)t.get()));
             continue;
         }
         if (t->type == ElementType::STRING)
@@ -402,12 +404,13 @@ bool DeleteElementsTask::Execute()
         document->SetEditorState(s);
     }
 
-    auto delete_elements = [&](ElementPtr el, bool _left, ElementId& changed_element, bool _with_undo)
-    {
-        assert(el != nullptr);
-        document->editing = true;
-        return el->DeleteElements(_left, _with_undo, changed_element);
-    };
+    auto delete_elements = 
+        [&](ElementPtr el, bool _left, ElementId& changed_element, bool _with_undo)
+        {
+            assert(el != nullptr);
+            document->editing = true;
+            return el->DeleteElements(_left, _with_undo, changed_element);
+        };
 
     ElementId changed_element;
     if (selection_state.IsEmpty())
@@ -612,18 +615,19 @@ bool InsertFormulasTask::Execute()
     else if (!selection_state.IsEmpty() && ((document->FindParent(caret_state.id, ElementType::CODE_BLOCK) == nullptr) || !elements[0]->UseSelection()))
     {
         //remove selection before insert
-        auto delete_elements = [&](ElementPtr _el)
-        {
-            assert(_el != nullptr);
-            ElementId changed_element;
-            if (_el->DeleteElements(true, with_undo, changed_element))
+        auto delete_elements = 
+            [&](ElementPtr _el)
             {
-                Remake(changed_element, false);
-                el = document->GetElement(document->caret->GetElement()->id);
-                return true;
-            }
-            return false;
-        };
+                assert(_el != nullptr);
+                ElementId changed_element;
+                if (_el->DeleteElements(true, with_undo, changed_element))
+                {
+                    Remake(changed_element, false);
+                    el = document->GetElement(document->caret->GetElement()->id);
+                    return true;
+                }
+                return false;
+            };
 
         for (int i = selection_state.state.size() - 1; i >= 0; --i)
         {
@@ -1248,8 +1252,9 @@ bool UndoTask::Execute()
     ElementPtr p = document->GetLogicalElement(id);
     if (!p)
         return true; //in case of solving element, it may be asbcent now
-    if (id.size() > 2 && (p->type != ElementType::CODE_ROW && p->type != ElementType::CODE_BLOCK && p->type != ElementType::CODE_PARAGRAPHS_BLOCK && 
-        !(undo_elements[0]->type == ElementType::CODE_ROW && p->parent->type != ElementType::CODE_PARAGRAPH)) || 
+    if (id.size() > 2 && (p->type != ElementType::CODE_ROW && p->type != ElementType::CODE_BLOCK && p->type != ElementType::CODE_PARAGRAPHS_BLOCK &&
+        p->type != ElementType::CODE_PARAGRAPHS_BLOCK_ASSIGNMENT &&
+        !(undo_elements[0]->type == ElementType::CODE_ROW && p->parent->type != ElementType::CODE_PARAGRAPH)) ||
         (p->type == ElementType::CODE_BLOCK && undo_operation == UndoOperation::CHANGE))
     {
         p = document->GetLogicalParent(id);
@@ -1306,7 +1311,8 @@ bool UndoTask::Execute()
                 p->elements->Insert(undo_elements[i], pos + i);
             remake_id = p->parent->id;
         }
-        else if (document->IsFormula(p) && undo_elements.size() == 1)
+        else if (document->IsFormula(p) && p->type != ElementType::CODE_PARAGRAPHS_BLOCK &&
+            p->type != ElementType::CODE_PARAGRAPHS_BLOCK_ASSIGNMENT && undo_elements.size() == 1)
         {
             auto ch = p->elements->Get(pos);
             ch->elements->ReplaceAll(*undo_elements[0]->elements);

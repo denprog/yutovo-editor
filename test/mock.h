@@ -16,6 +16,7 @@
 #include <string>
 #include <stdexcept>
 #include <type_traits>
+#include <vector>
 #include "document.h"
 #include "editor_utils.h"
 #include "formulas/division.h"
@@ -139,6 +140,12 @@ struct DocumentTest : public testing::Test
                 return GetTextSizeMock(text, format);
             });
         
+        EXPECT_CALL(window_mock, Translate).WillRepeatedly(
+            [&](ElementId id, const std::u32string& str)
+            {
+                return str;
+            });
+
         document.config.solve_delay = 0;
         document.config.pretty_json = true;
         document.Start();
@@ -158,6 +165,12 @@ struct DocumentTest : public testing::Test
                 return GetTextSizeMock(text, format);
             });
         
+        EXPECT_CALL(window_mock, Translate).WillRepeatedly(
+            [&](ElementId id, const std::u32string& str)
+            {
+                return str;
+            });
+
         document.config.solve_delay = 0;
         document.config.pretty_json = true;
         document.Start();
@@ -375,6 +388,13 @@ struct FormulaTest : DocumentTest
                 return Rect{0, 0, 600, 400};
             });
     }
+
+    void MoveToDenominatorVariable();
+    void FillFunctionAndVariable();
+
+    Division* CreateMixedDerivativeDivision(int order, const std::u32string& func, const std::vector<std::u32string>& vars);
+    Division* CreateMixedDerivativeDivision(const std::u32string& func, const std::vector<std::u32string>& vars);
+    Division* CreateStringDerivativeDivision(const std::u32string& numerator, const std::u32string& denominator);
 };
 
 struct FormulaTestCustom : DocumentTest

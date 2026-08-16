@@ -13,7 +13,7 @@
 namespace yutovo
 {
 
-class CodeColumn : public CodeRow
+class CodeColumn : public CodeRow<>
 {
 public:
     CodeColumn(Document* _document);

@@ -16,7 +16,6 @@
 #include "formulas/code_paragraph.h"
 #include "formulas/code_block.h"
 #include "formulas/code_string.h"
-#include "formulas/code_paragraphs_block.h"
 #include "formulas/plus.h"
 #include "formulas/minus.h"
 #include "formulas/multiply.h"
@@ -40,6 +39,7 @@
 #include "formulas/product.h"
 #include "formulas/definite_integral.h"
 #include "formulas/indefinite_integral.h"
+#include "formulas/evalution_bar.h"
 #include "formulas/comma.h"
 #include "formulas/graph.h"
 
@@ -405,6 +405,16 @@ Element* UndoFormula::Restore(Document* document, Element* parent)
             el->elements->Get(3)->elements->ReplaceAll(*var->elements);
         }
         break;
+    case ElementType::EVALUTION_BAR_SUBSCRIPT:
+        {
+            el = parent ? new EvalutionBarSubscript(parent) : new EvalutionBarSubscript(document);
+            assert(elements.size() == 2);
+            ElementPtr shape_el(elements[0]->Restore(document, el));
+            ElementPtr block(elements[1]->Restore(document, el));
+            el->elements->Get(0)->elements->ReplaceAll(*shape_el->elements);
+            el->elements->Get(1)->elements->ReplaceAll(*block->elements);
+        }
+        break;
     default:
         assert(false);
     }
@@ -416,56 +426,42 @@ Element* UndoFormula::Restore(Document* document, Element* parent)
 
 //UndoCodeRow
 
-UndoCodeRow::UndoCodeRow() :
+template<typename T>
+UndoCodeRow<T>::UndoCodeRow() :
     UndoElement(ElementType::CODE_ROW)
 {
 }
 
-bool UndoCodeRow::operator==(const UndoCodeRow& el) const
+template<typename T>
+Element* UndoCodeRow<T>::Restore(Document* document, Element* parent)
 {
-    return UndoElement::operator==(el);
-}
-
-bool UndoCodeRow::operator==(const CodeRow& el) const
-{
-    return UndoElement::operator==(el);
-}
-
-Element* UndoCodeRow::Restore(Document* document, Element* parent)
-{
-    CodeRow* r = (parent && parent->parent) ? new CodeRow(parent) : new CodeRow(document);
+    CodeRow<T>* r = (parent && parent->parent) ? new CodeRow<T>(parent, true) : new CodeRow<T>(document);
     r->elements->Clear();
     for (size_t i = 0; i < elements.size(); ++i)
         r->elements->Add(ElementPtr(elements[i]->Restore(document, r)));
     return r;
 }
 
+template<>
+UndoCodeRow<Assignment>::UndoCodeRow() :
+    UndoElement(ElementType::CODE_ROW_ASSIGNMENT)
+{
+}
+
 //UndoCodeParagraph
 
-UndoCodeParagraph::UndoCodeParagraph(ParagraphFormatPtr _format, StringFormatPtr _current_string_format, const std::u32string& _marker, 
-    const StringFormatPtr& marker_format) :
-    UndoParagraph(_format, _current_string_format, _marker, marker_format)
+template<typename T>
+UndoCodeParagraph<T>::UndoCodeParagraph(ParagraphFormatPtr _format, StringFormatPtr _current_string_format, const std::u32string& _marker,
+    const StringFormatPtr& _marker_format) :
+    UndoParagraph(_format, _current_string_format, _marker, _marker_format)
 {
     type = ElementType::CODE_PARAGRAPH;
 }
 
-bool UndoCodeParagraph::operator==(const UndoCodeParagraph& el) const
+template<typename T>
+Element* UndoCodeParagraph<T>::Restore(Document* document, Element* parent)
 {
-    if (!UndoElement::operator==(el))
-        return false;
-    return *format == *el.format && marker == el.marker && *marker_format == *el.marker_format;
-}
-
-bool UndoCodeParagraph::operator==(const CodeParagraph& el) const
-{
-    if (!UndoElement::operator==(el))
-        return false;
-    return *format == *el.format && marker == el.marker && *marker_format == *el.marker_format;
-}
-
-Element* UndoCodeParagraph::Restore(Document* document, Element* parent)
-{
-    CodeParagraph* p = parent ? new CodeParagraph(parent) : new CodeParagraph(document);
+    CodeParagraph<T>* p = parent ? new CodeParagraph<T>(parent, true) : new CodeParagraph<T>(document, true);
     p->format = format;
     p->current_string_format = current_string_format;
     p->marker = marker;
@@ -474,6 +470,14 @@ Element* UndoCodeParagraph::Restore(Document* document, Element* parent)
     for (size_t i = 0; i < elements.size(); ++i)
         p->elements->Add(ElementPtr(elements[i]->Restore(document, p)));
     return p;
+}
+
+template<>
+UndoCodeParagraph<Assignment>::UndoCodeParagraph(ParagraphFormatPtr _format, StringFormatPtr _current_string_format, const std::u32string& _marker,
+    const StringFormatPtr& _marker_format) :
+    UndoParagraph(_format, _current_string_format, _marker, _marker_format)
+{
+    type = ElementType::CODE_PARAGRAPH_ASSIGNMENT;
 }
 
 //UndoCodeBlock
@@ -515,30 +519,18 @@ Element* UndoCodeBlock::Restore(Document* document, Element* parent)
 
 //UndoCodeParagraphsBlock
 
-UndoCodeParagraphsBlock::UndoCodeParagraphsBlock(ParagraphFormatPtr _paragraph_format, FormulaFormatPtr _formula_format) :
+template<typename T>
+UndoCodeParagraphsBlock<T>::UndoCodeParagraphsBlock(ParagraphFormatPtr _paragraph_format, FormulaFormatPtr _formula_format) :
     UndoElement(ElementType::CODE_PARAGRAPHS_BLOCK),
     paragraph_format(_paragraph_format),
     formula_format(_formula_format)
 {
 }
 
-bool UndoCodeParagraphsBlock::operator==(const UndoCodeParagraphsBlock& el) const
+template<typename T>
+Element* UndoCodeParagraphsBlock<T>::Restore(Document* document, Element* parent)
 {
-    if (!UndoElement::operator==(el))
-        return false;
-    return *paragraph_format == *el.paragraph_format && *formula_format == *el.formula_format;
-}
-
-bool UndoCodeParagraphsBlock::operator==(const CodeParagraphsBlock& el) const
-{
-    if (!UndoElement::operator==(el))
-        return false;
-    return *paragraph_format == *el.paragraph_format && *formula_format == *el.formula_format;
-}
-
-Element* UndoCodeParagraphsBlock::Restore(Document* document, Element* parent)
-{
-    CodeParagraphsBlock* c = parent ? new CodeParagraphsBlock(parent, false) : new CodeParagraphsBlock(document, false);
+    CodeParagraphsBlock<T>* c = parent ? new CodeParagraphsBlock<T>(parent, false) : new CodeParagraphsBlock<T>(document, false);
     c->paragraph_format = paragraph_format;
     c->formula_format = formula_format;
     c->elements->Clear();
@@ -546,6 +538,22 @@ Element* UndoCodeParagraphsBlock::Restore(Document* document, Element* parent)
         c->elements->Add(ElementPtr(elements[i]->Restore(document, c)));
     return c;
 }
+
+template<>
+UndoCodeParagraphsBlock<Assignment>::UndoCodeParagraphsBlock(ParagraphFormatPtr _paragraph_format, FormulaFormatPtr _formula_format) :
+    UndoElement(ElementType::CODE_PARAGRAPHS_BLOCK_ASSIGNMENT),
+    paragraph_format(_paragraph_format),
+    formula_format(_formula_format)
+{
+}
+
+//Explicit instantiations for undo templates
+template struct UndoCodeRow<void>;
+template struct UndoCodeRow<Assignment>;
+template struct UndoCodeParagraph<void>;
+template struct UndoCodeParagraph<Assignment>;
+template struct UndoCodeParagraphsBlock<void>;
+template struct UndoCodeParagraphsBlock<Assignment>;
 
 //UndoCodeString
 
@@ -1019,20 +1027,51 @@ UndoElementPtr UndoBase::StoreElement(const LogicalId id, ElementPtr el)
         }
         break;
     case ElementType::CODE_ROW:
-        undo_element.reset(new UndoCodeRow());
-        for (int i = 0; i < el->elements->Count(); ++i)
         {
-            ElementPtr ch = el->elements->Get(i);
-            UndoElementPtr undo_ch = StoreElement(ch->logical_id, ch);
-            if (!undo_ch)
-                return nullptr;
-            undo_element->elements.push_back(undo_ch);
+            CodeRow<>* r = (CodeRow<>*)el.get();
+            undo_element.reset(new UndoCodeRow<>());
+            for (int i = 0; i < el->elements->Count(); ++i)
+            {
+                ElementPtr ch = el->elements->Get(i);
+                UndoElementPtr undo_ch = StoreElement(ch->logical_id, ch);
+                if (!undo_ch)
+                    return nullptr;
+                undo_element->elements.push_back(undo_ch);
+            }
+        }
+        break;
+    case ElementType::CODE_ROW_ASSIGNMENT:
+        {
+            CodeRow<Assignment>* r = (CodeRow<Assignment>*)el.get();
+            undo_element.reset(new UndoCodeRow<Assignment>());
+            for (int i = 0; i < el->elements->Count(); ++i)
+            {
+                ElementPtr ch = el->elements->Get(i);
+                UndoElementPtr undo_ch = StoreElement(ch->logical_id, ch);
+                if (!undo_ch)
+                    return nullptr;
+                undo_element->elements.push_back(undo_ch);
+            }
         }
         break;
     case ElementType::CODE_PARAGRAPH:
         {
-            CodeParagraph* p = (CodeParagraph*)el.get();
-            undo_element.reset(new UndoCodeParagraph(p->format, p->current_string_format, p->marker, p->marker_format));
+            CodeParagraph<>* p = (CodeParagraph<>*)el.get();
+            undo_element.reset(new UndoCodeParagraph<>(p->format, p->current_string_format, p->marker, p->marker_format));
+            for (int i = 0; i < el->elements->Count(); ++i)
+            {
+                ElementPtr row = el->elements->Get(i);
+                UndoElementPtr undo_ch = StoreElement(row->logical_id, row);
+                if (!undo_ch)
+                    return nullptr;
+                undo_element->elements.push_back(undo_ch);
+            }
+        }
+        break;
+    case ElementType::CODE_PARAGRAPH_ASSIGNMENT:
+        {
+            CodeParagraph<Assignment>* p = (CodeParagraph<Assignment>*)el.get();
+            undo_element.reset(new UndoCodeParagraph<Assignment>(p->format, p->current_string_format, p->marker, p->marker_format));
             for (int i = 0; i < el->elements->Count(); ++i)
             {
                 ElementPtr row = el->elements->Get(i);
@@ -1045,8 +1084,22 @@ UndoElementPtr UndoBase::StoreElement(const LogicalId id, ElementPtr el)
         break;
     case ElementType::CODE_PARAGRAPHS_BLOCK:
         {
-            CodeParagraphsBlock* c = (CodeParagraphsBlock*)el.get();
-            undo_element.reset(new UndoCodeParagraphsBlock(c->paragraph_format, c->formula_format));
+            CodeParagraphsBlock<>* c = (CodeParagraphsBlock<>*)el.get();
+            undo_element.reset(new UndoCodeParagraphsBlock<>(c->paragraph_format, c->formula_format));
+            for (int i = 0; i < el->elements->Count(); ++i)
+            {
+                ElementPtr ch = el->elements->Get(i);
+                UndoElementPtr undo_ch = StoreElement(ch->logical_id, ch);
+                if (!undo_ch)
+                    return nullptr;
+                undo_element->elements.push_back(undo_ch);
+            }
+        }
+        break;
+    case ElementType::CODE_PARAGRAPHS_BLOCK_ASSIGNMENT:
+        {
+            CodeParagraphsBlock<Assignment>* c = (CodeParagraphsBlock<Assignment>*)el.get();
+            undo_element.reset(new UndoCodeParagraphsBlock<Assignment>(c->paragraph_format, c->formula_format));
             for (int i = 0; i < el->elements->Count(); ++i)
             {
                 ElementPtr ch = el->elements->Get(i);
@@ -1138,6 +1191,13 @@ UndoElementPtr UndoBase::StoreElement(const LogicalId id, ElementPtr el)
         if (!store_element(el->elements->Get(3), undo_element))
             return nullptr;
         break;
+    case ElementType::EVALUTION_BAR_SUBSCRIPT:
+        undo_element.reset(new UndoFormula(el->type, ((Formula*)el.get())->formula_format));
+        if (!store_element(el->elements->Get(0), undo_element))
+            return nullptr;
+        if (!store_element(el->elements->Get(1), undo_element))
+            return nullptr;
+        break;
     case ElementType::REAL_RESULT:
     case ElementType::INTEGER_RESULT:
     case ElementType::RATIONAL_RESULT:
@@ -1150,7 +1210,7 @@ UndoElementPtr UndoBase::StoreElement(const LogicalId id, ElementPtr el)
             return nullptr;
         break;
     default:
-        assert(false);
+        return nullptr;
     }
 
     if (!undo_element)

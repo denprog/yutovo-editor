@@ -666,7 +666,7 @@ void Paragraph::AddEmptyElement()
     AddElement(ElementPtr(new Row(this)));
 }
 
-bool Paragraph::IsEmpty()
+bool Paragraph::IsEmpty() const
 {
     if (elements->Count() != 1)
         return false;

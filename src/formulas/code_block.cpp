@@ -315,7 +315,7 @@ std::string CodeBlock::ToHtml() const
 
 void CodeBlock::AddEmptyElement()
 {
-    AddElement(ElementPtr(new CodeParagraph(this)));
+    AddElement(ElementPtr(new CodeParagraph<>(this, true)));
 }
 
 bool CodeBlock::IsFormula()

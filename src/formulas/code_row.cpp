@@ -7,46 +7,59 @@
 
 #include "code_row.h"
 #include "code_string.h"
+#include "assignment.h"
 
 namespace yutovo
 {
 
 //CodeRow
 
-CodeRow::CodeRow(Document* _document) :
+template<typename T>
+CodeRow<T>::CodeRow(Document* _document) :
     Row(_document)
 {
     type = ElementType::CODE_ROW;
     can_merge = true;
 }
 
-CodeRow::CodeRow(Element* parent, bool with_string) :
+template<typename T>
+CodeRow<T>::CodeRow(Element* parent, bool with_string) :
     Row(parent, false)
 {
     type = ElementType::CODE_ROW;
+    can_merge = true;
     if (with_string)
         AddEmptyElement();
-    can_merge = true;
 }
 
-Element* CodeRow::Clone()
+template<typename T>
+Element* CodeRow<T>::Clone()
 {
-    return new CodeRow(*this);
+    return new CodeRow<T>(*this);
 }
 
-Element* CodeRow::Create(Element* parent)
+template<typename T>
+Element* CodeRow<T>::Create(Element* parent)
 {
-    return new CodeRow(parent);
+    return new CodeRow<T>(parent, true);
 }
 
-Element* CodeRow::FromJson(Element* parent, Document* document, const rapidjson::Value::ConstObject& value, rapidjson::Document::AllocatorType& alloc)
+template<typename T>
+void CodeRow<T>::ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc)
+{
+    Row::ToJson(value, alloc);
+}
+
+template<typename T>
+Element* CodeRow<T>::FromJson(Element* parent, Document* document, const rapidjson::Value::ConstObject& value, rapidjson::Document::AllocatorType& alloc)
 {
     if (parent)
-        return new CodeRow(parent, false);
-    return new CodeRow(document);
+        return new CodeRow<T>(parent, false);
+    return new CodeRow<T>(document);
 }
 
-void CodeRow::Normalize()
+template<typename T>
+void CodeRow<T>::Normalize()
 {
     Row::Normalize();
 
@@ -104,7 +117,8 @@ void CodeRow::Normalize()
     }
 }
 
-bool CodeRow::Merge(const ElementPtr with_element)
+template<typename T>
+bool CodeRow<T>::Merge(const ElementPtr with_element)
 {
     if (!can_merge || !with_element->can_merge || with_element->type != ElementType::CODE_ROW)
         return false;
@@ -115,7 +129,8 @@ bool CodeRow::Merge(const ElementPtr with_element)
     return true;
 }
 
-bool CodeRow::InsertElements(std::vector<ElementPtr>& _elements, bool insert_mode, bool with_undo, ElementId& changed_element)
+template<typename T>
+bool CodeRow<T>::InsertElements(std::vector<ElementPtr>& _elements, bool insert_mode, bool with_undo, ElementId& changed_element)
 {
     for (auto el : _elements)
     {
@@ -124,7 +139,7 @@ bool CodeRow::InsertElements(std::vector<ElementPtr>& _elements, bool insert_mod
             std::vector<ElementPtr> ch;
             if (el->elements->Count() == 1)
             {
-                if (el->elements->Get(0)->elements->Count() > 0 && ((CodeRow*)el->elements->Get(0)->elements->Get(0).get())->IsEmpty())
+                if (el->elements->Get(0)->elements->Count() > 0 && ((CodeRow<>*)el->elements->Get(0)->elements->Get(0).get())->IsEmpty())
                     return false;
                 for (int i = 0; i < el->elements->Get(0)->elements->Count(); ++i)
                     ch.push_back(el->elements->Get(0)->elements->Get(i));
@@ -139,7 +154,7 @@ bool CodeRow::InsertElements(std::vector<ElementPtr>& _elements, bool insert_mod
                 return false;
             return true;
         }
-        if (el->type == ElementType::CODE_PARAGRAPH && 
+        if (el->type == ElementType::CODE_PARAGRAPH &&
             (parent->type != ElementType::CODE_PARAGRAPH && parent->type != ElementType::ASSIGNMENT && parent->type != ElementType::EQUATION))
         {
             return false;
@@ -148,7 +163,14 @@ bool CodeRow::InsertElements(std::vector<ElementPtr>& _elements, bool insert_mod
     return Row::InsertElements(_elements, insert_mode, with_undo, changed_element);
 }
 
-bool CodeRow::GetBeginCaretState(CaretState& caret_state, Selection* select)
+template<typename T>
+bool CodeRow<T>::DeleteElements(bool left, bool with_undo, ElementId& changed_element)
+{
+    return Row::DeleteElements(left, with_undo, changed_element);
+}
+
+template<typename T>
+bool CodeRow<T>::GetBeginCaretState(CaretState& caret_state, Selection* select)
 {
     CaretState c;
     if (Row::GetBeginCaretState(c, select))
@@ -161,7 +183,8 @@ bool CodeRow::GetBeginCaretState(CaretState& caret_state, Selection* select)
     return false;
 }
 
-bool CodeRow::GetEndCaretState(CaretState& caret_state, Selection* select)
+template<typename T>
+bool CodeRow<T>::GetEndCaretState(CaretState& caret_state, Selection* select)
 {
     CaretState c;
     if (Row::GetEndCaretState(c, select))
@@ -174,22 +197,119 @@ bool CodeRow::GetEndCaretState(CaretState& caret_state, Selection* select)
     return false;
 }
 
-void CodeRow::AddEmptyElement()
+template<typename T>
+void CodeRow<T>::AddEmptyElement()
 {
     AddElement(ElementPtr(new CodeString(this)));
 }
 
-bool CodeRow::IsFormula()
+template<typename T>
+bool CodeRow<T>::IsFormula()
 {
     return true;
 }
 
-std::string CodeRow::ToHtml() const
+template<typename T>
+bool CodeRow<T>::IsEmpty() const
+{
+    return Row::IsEmpty();
+}
+
+template<typename T>
+std::string CodeRow<T>::ToHtml() const
 {
     std::string s = "<mrow>";
     s += elements->ToHtml();
     s += "</mrow>";
     return s;
 }
+
+//Explicit specializations for Assignment
+
+template<>
+void CodeRow<Assignment>::AddEmptyElement();
+
+template<>
+CodeRow<Assignment>::CodeRow(Document* _document) :
+    Row(_document)
+{
+    type = ElementType::CODE_ROW_ASSIGNMENT;
+    can_merge = true;
+}
+
+template<>
+CodeRow<Assignment>::CodeRow(Element* parent, bool with_string) :
+    Row(parent, false)
+{
+    type = ElementType::CODE_ROW_ASSIGNMENT;
+    can_merge = true;
+    if (with_string)
+        AddEmptyElement();
+}
+
+template<>
+void CodeRow<Assignment>::Normalize()
+{
+    if (elements->Count() == 0)
+    {
+        AddEmptyElement();
+        return;
+    }
+    Row::Normalize();
+    if (elements->Count() == 0)
+    {
+        AddEmptyElement();
+        return;
+    }
+    //keep the invariant: exactly one Assignment
+    if (elements->Count() != 1 || elements->Get(0)->type != ElementType::ASSIGNMENT)
+    {
+        elements->Clear();
+        AddEmptyElement();
+    }
+}
+
+template<>
+bool CodeRow<Assignment>::Merge(const ElementPtr with_element)
+{
+    return false;
+}
+
+template<>
+bool CodeRow<Assignment>::InsertElements(std::vector<ElementPtr>& _elements, bool insert_mode, bool with_undo, ElementId& changed_element)
+{
+    if (_elements.size() == 1 && document->IsParagraph(_elements[0]))
+        return parent->InsertElements(_elements, insert_mode, with_undo, changed_element);
+    return false;
+}
+
+template<>
+bool CodeRow<Assignment>::DeleteElements(bool left, bool with_undo, ElementId& changed_element)
+{
+    uint start, size;
+    if (selection->Has(id, start, size) && start == 0 && size == elements->Count())
+    {
+        if (with_undo)
+            document->StoreUndo(parent->id);
+        return parent->DeleteElements(left, with_undo, changed_element);
+    }
+    return parent->DeleteElements(left, with_undo, changed_element);
+}
+
+template<>
+void CodeRow<Assignment>::AddEmptyElement()
+{
+    elements->Clear();
+    AddElement(ElementPtr(new Assignment(this)));
+}
+
+template<>
+bool CodeRow<Assignment>::IsEmpty() const
+{
+    return elements->Get(0)->elements->Get(0)->IsEmpty() && elements->Get(0)->elements->Get(2)->IsEmpty();
+}
+
+template class CodeRow<void>;
+template class CodeRow<Assignment>;
 
 }

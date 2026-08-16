@@ -34,7 +34,7 @@ MiddleShapeFormula::MiddleShapeFormula(const MiddleShapeFormula& source) :
     Formula(source)
 {
     if (elements->Count() < 3)
-        elements->Add(ElementPtr(new CodeRow(this)));
+        elements->Add(ElementPtr(new CodeRow<>(this, true)));
 }
 
 bool MiddleShapeFormula::AfterFromJson()
@@ -46,9 +46,9 @@ bool MiddleShapeFormula::AfterFromJson()
 
 void MiddleShapeFormula::Init()
 {
-    elements->Add(ElementPtr(new CodeRow(this)));
+    elements->Add(ElementPtr(new CodeRow<>(this, true)));
     elements->Add(ElementPtr(new Shape(this)));
-    elements->Add(ElementPtr(new CodeRow(this)));
+    elements->Add(ElementPtr(new CodeRow<>(this, true)));
 }
 
 bool MiddleShapeFormula::InsertElements(std::vector<ElementPtr>& _elements, bool insert_mode, bool with_undo, ElementId& changed_element)
@@ -372,9 +372,9 @@ bool MiddleShapeFormula::GetEndCaretState(CaretState& caret_state, Selection* se
     return Formula::GetEndCaretState(caret_state, select);
 }
 
-CodeRow* MiddleShapeFormula::GetFirst() const
+CodeRow<>* MiddleShapeFormula::GetFirst() const
 {
-    return (CodeRow*)elements->Get(0).get();
+    return (CodeRow<>*)elements->Get(0).get();
 }
 
 Shape* MiddleShapeFormula::GetShape() const
@@ -382,9 +382,9 @@ Shape* MiddleShapeFormula::GetShape() const
     return (Shape*)elements->Get(1).get();
 }
 
-CodeRow* MiddleShapeFormula::GetLast() const
+CodeRow<>* MiddleShapeFormula::GetLast() const
 {
-    return (CodeRow*)elements->Get(2).get();
+    return (CodeRow<>*)elements->Get(2).get();
 }
 
 }

@@ -10,12 +10,10 @@
 
 #include "formula.h"
 #include "shape.h"
+#include "code_row.h"
 
 namespace yutovo
 {
-
-class CodeRow;
-class Assignment;
 
 class Iteration : public Formula
 {
@@ -50,8 +48,8 @@ public:
 
 protected:
     Assignment* GetLower() const;
-    CodeRow* GetUpper() const;
-    CodeRow* GetRight() const;
+    CodeRow<>* GetUpper() const;
+    CodeRow<>* GetRight() const;
     Shape* GetShape() const;
 
 protected:

@@ -52,7 +52,7 @@ public:
 
     virtual void AddEmptyElement();
 
-    virtual bool IsEmpty();
+    virtual bool IsEmpty() const;
 
 public:
     ParagraphFormatPtr format; //for copy-paste

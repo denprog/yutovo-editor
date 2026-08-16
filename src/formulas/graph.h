@@ -10,6 +10,7 @@
 
 #include "middle_shape_formula.h"
 #include "config.h"
+#include "code_paragraphs_block.h"
 #include <mutex>
 #ifdef _MSC_VER
 using std::abs;
@@ -19,8 +20,6 @@ using std::abs;
 
 namespace yutovo
 {
-
-class CodeParagraphsBlock;
 
 class Graph : public Formula
 {
@@ -51,7 +50,7 @@ public:
     virtual void GetImage(std::string& image_base64) const;
 
 protected:
-    void SetNumber(const double num, CodeRow* el);
+    void SetNumber(const double num, CodeRow<>* el);
 
 public:
     Dependencies dependencies;
@@ -67,12 +66,12 @@ protected:
 #endif
     double x_left = -1, x_right = 1, y_bottom = -1, y_top = 1;
 
-    CodeRow* GetYTop() const;
-    CodeRow* GetYBottom() const;
-    CodeParagraphsBlock* GetExpression() const;
-    CodeRow* GetXLeft() const;
-    CodeRow* GetVariable() const;
-    CodeRow* GetXRight() const;
+    CodeRow<>* GetYTop() const;
+    CodeRow<>* GetYBottom() const;
+    CodeParagraphsBlock<>* GetExpression() const;
+    CodeRow<>* GetXLeft() const;
+    CodeRow<>* GetVariable() const;
+    CodeRow<>* GetXRight() const;
     Shape* GetShape() const;
 
     mutable mglGraph graph;
