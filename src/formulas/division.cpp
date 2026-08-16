@@ -205,7 +205,7 @@ bool Division::IsDerivativeSymbol(const std::u32string& s) const
     return s == U"d" || s == U"∂";
 }
 
-bool Division::GetDerivativeOrderAt(CodeRow* row, uint pos, int& order, uint& content_start)
+bool Division::GetDerivativeOrderAt(CodeRow<>* row, uint pos, int& order, uint& content_start)
 {
     if (!row || pos >= row->elements->Count())
         return false;
@@ -227,8 +227,8 @@ bool Division::GetDerivativeOrderAt(CodeRow* row, uint pos, int& order, uint& co
     Power* p = dynamic_cast<Power*>(el);
     if (p)
     {
-        CodeRow* base = p->GetBaseRow();
-        CodeRow* exp = p->GetExponentRow();
+        CodeRow<>* base = p->GetBaseRow();
+        CodeRow<>* exp = p->GetExponentRow();
         if (!base || !exp || base->elements->Count() == 0 || exp->elements->Count() == 0)
             return false;
 
@@ -286,8 +286,8 @@ bool Division::ParseDerivativeMarker(Element* el, DiffMarker& marker) const
     if (!p)
         return false;
 
-    CodeRow* base = p->GetBaseRow();
-    CodeRow* exp = p->GetExponentRow();
+    CodeRow<>* base = p->GetBaseRow();
+    CodeRow<>* exp = p->GetExponentRow();
     if (!base || !exp || base->elements->Count() == 0 || exp->elements->Count() == 0)
         return false;
 
@@ -325,8 +325,8 @@ bool Division::ParseDerivativeMarker(Element* el, DiffMarker& marker) const
 
 bool Division::BuildDerivativeParserString(ParserString& str)
 {
-    CodeRow* num = GetFirst();
-    CodeRow* den = GetLast();
+    CodeRow<>* num = GetFirst();
+    CodeRow<>* den = GetLast();
     if (!num || !den)
         return false;
 
@@ -422,7 +422,7 @@ bool Division::BuildDerivativeParserString(ParserString& str)
             Power* p = dynamic_cast<Power*>(el);
             if (p)
             {
-                CodeRow* base = p->GetBaseRow();
+                CodeRow<>* base = p->GetBaseRow();
                 for (uint bi = 1; base && bi < base->elements->Count(); ++bi)
                 {
                     ParserString ps;
@@ -491,12 +491,12 @@ void Division::AddDenomerator(ElementPtr denomerator)
     GetLast()->elements->Add(denomerator);
 }
 
-CodeRow* Division::GetNumeratorRow() const
+CodeRow<>* Division::GetNumeratorRow() const
 {
     return GetFirst();
 }
 
-CodeRow* Division::GetDenominatorRow() const
+CodeRow<>* Division::GetDenominatorRow() const
 {
     return GetLast();
 }

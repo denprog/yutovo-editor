@@ -60,12 +60,12 @@ void Graph::Init()
 {
     if (elements->Count() == 0)
     {
-        elements->Add(ElementPtr(new CodeRow(this))); //y up
-        elements->Add(ElementPtr(new CodeParagraphsBlock(this, true))); //expression
-        elements->Add(ElementPtr(new CodeRow(this))); //y down
-        elements->Add(ElementPtr(new CodeRow(this))); //x left
-        elements->Add(ElementPtr(new CodeRow(this))); //variable
-        elements->Add(ElementPtr(new CodeRow(this))); //x right
+        elements->Add(ElementPtr(new CodeRow<>(this))); //y up
+        elements->Add(ElementPtr(new CodeParagraphsBlock<>(this, true))); //expression
+        elements->Add(ElementPtr(new CodeRow<>(this))); //y down
+        elements->Add(ElementPtr(new CodeRow<>(this))); //x left
+        elements->Add(ElementPtr(new CodeRow<>(this))); //variable
+        elements->Add(ElementPtr(new CodeRow<>(this))); //x right
         elements->Add(ElementPtr(new Shape(this))); //graph
     }
     GetShape()->can_resize = true;
@@ -218,7 +218,7 @@ void Graph::GetImage(std::string& image_base64) const
     image_base64 = yutovo::Base64Encode(png);
 }
 
-void Graph::SetNumber(const double num, CodeRow* el)
+void Graph::SetNumber(const double num, CodeRow<>* el)
 {
     bool b = document->caret->IsInsideElement(el->id);
     el->elements->Clear();
@@ -289,34 +289,34 @@ void Graph::SetNumber(const double num, CodeRow* el)
     }
 }
 
-CodeRow* Graph::GetYTop() const
+CodeRow<>* Graph::GetYTop() const
 {
-    return (CodeRow*)elements->Get(0).get();
+    return (CodeRow<>*)elements->Get(0).get();
 }
 
-CodeParagraphsBlock* Graph::GetExpression() const
+CodeParagraphsBlock<>* Graph::GetExpression() const
 {
-    return (CodeParagraphsBlock*)elements->Get(1).get();
+    return (CodeParagraphsBlock<>*)elements->Get(1).get();
 }
 
-CodeRow* Graph::GetYBottom() const
+CodeRow<>* Graph::GetYBottom() const
 {
-    return (CodeRow*)elements->Get(2).get();
+    return (CodeRow<>*)elements->Get(2).get();
 }
 
-CodeRow* Graph::GetXLeft() const
+CodeRow<>* Graph::GetXLeft() const
 {
-    return (CodeRow*)elements->Get(3).get();
+    return (CodeRow<>*)elements->Get(3).get();
 }
 
-CodeRow* Graph::GetVariable() const
+CodeRow<>* Graph::GetVariable() const
 {
-    return (CodeRow*)elements->Get(4).get();
+    return (CodeRow<>*)elements->Get(4).get();
 }
 
-CodeRow* Graph::GetXRight() const
+CodeRow<>* Graph::GetXRight() const
 {
-    return (CodeRow*)elements->Get(5).get();
+    return (CodeRow<>*)elements->Get(5).get();
 }
 
 Shape* Graph::GetShape() const
@@ -482,11 +482,11 @@ bool GraphLine::AfterFromJson()
         //this is old type of graph, transform it
         ElementPtr el = elements->Get(1);
         elements->RemoveAt(1, 1);
-        ElementPtr b(new CodeParagraphsBlock(this, false));
+        ElementPtr b(new CodeParagraphsBlock<>(this, false));
         elements->Insert(b, 1);
         b->elements->Clear();
 
-        CodeParagraph* p = new CodeParagraph(b.get());
+        CodeParagraph<>* p = new CodeParagraph<>(b.get(), true);
         p->elements->Add(el);
         StringFormatPtr f = GetStringFormat();
         Color color;
@@ -503,7 +503,7 @@ bool GraphLine::AfterFromJson()
         uint width = 1;
         for (int i = 0; i < elements->Get(1)->elements->Count(); ++i)
         {
-            CodeParagraph* p = (CodeParagraph*)elements->Get(1)->elements->Get(i).get();
+            CodeParagraph<>* p = (CodeParagraph<>*)elements->Get(1)->elements->Get(i).get();
             GetPlotFormat(i, color, width);
             p->SetMarker(U"█", document->GetStringFormat(f->family, f->size, f->bold, f->italic, f->underline, f->strikethrough, 
                 f->subscript, f->superscript, color, f->text_bg_color, f->text_bg_selection_color));
@@ -820,7 +820,7 @@ void GraphLine::SetPlotFormat(const PlotFormat& format)
     if (!p)
         return;
     StringFormatPtr f = GetStringFormat();
-    ((CodeParagraph*)p.get())->SetMarker(U"█", document->GetStringFormat(f->family, f->size, f->bold, f->italic, f->underline, f->strikethrough, 
+    ((CodeParagraph<>*)p.get())->SetMarker(U"█", document->GetStringFormat(f->family, f->size, f->bold, f->italic, f->underline, f->strikethrough, 
         f->subscript, f->superscript, format.color, f->text_bg_color, f->text_bg_selection_color));
 }
 

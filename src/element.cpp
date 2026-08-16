@@ -1083,7 +1083,7 @@ bool Element::IsFormula()
     return false;
 }
 
-bool Element::IsEmpty()
+bool Element::IsEmpty() const
 {
     return elements->Count() == 0;
 }

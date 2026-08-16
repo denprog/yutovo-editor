@@ -89,6 +89,7 @@ add_executable(${PROJECT_NAME}_tests
 	definite_integral.cpp
 	indefinite_integral.cpp
 	derivative.cpp
+	evalution_bar.cpp
 	solver_derivative.cpp
 	graph.cpp
 	arrays.cpp

@@ -10,11 +10,11 @@
 
 #include "formula.h"
 #include "shape.h"
+#include "code_row.h"
 
 namespace yutovo
 {
 
-class CodeRow;
 class CodeString;
 
 class DefiniteIntegral : public Formula
@@ -58,12 +58,12 @@ public:
     virtual void ToParserString(ParserString& str);
 
 protected:
-    CodeRow* GetLower() const; //lower limit of integration
+    CodeRow<>* GetLower() const; //lower limit of integration
     Shape* GetShape() const;
-    CodeRow* GetUpper() const; //upper limit of integration
-    CodeRow* GetExpression() const; //integrand
+    CodeRow<>* GetUpper() const; //upper limit of integration
+    CodeRow<>* GetExpression() const; //integrand
     CodeString* GetD() const; //non-editable "d" string
-    CodeRow* GetVariable() const; //integration variable
+    CodeRow<>* GetVariable() const; //integration variable
 
     bool IsOnD(const CaretState& caret_state) const;
     bool IsInsideD(const CaretState& caret_state) const;

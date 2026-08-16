@@ -43,7 +43,7 @@ void SquareRoot::Init()
 {
     type = ElementType::SQUARE_ROOT;
     shape = new Shape(this);
-    last = new CodeRow(this);
+    last = new CodeRow<>(this, true);
     elements->Add(ElementPtr(shape));
     elements->Add(ElementPtr(last));
 }
@@ -70,7 +70,7 @@ bool SquareRoot::AfterFromJson()
     if (elements->Count() != 2)
         return false;
     shape = (Shape*)elements->Get(0).get();
-    last = (CodeRow*)elements->Get(1).get();
+    last = (CodeRow<>*)elements->Get(1).get();
     return true;
 }
 
@@ -251,9 +251,9 @@ void SquareRoot::ToParserString(ParserString& str)
     str.Add(id, U")");
 }
 
-CodeRow* SquareRoot::GetLast() const
+CodeRow<>* SquareRoot::GetLast() const
 {
-    return (CodeRow*)elements->Get(1).get();
+    return (CodeRow<>*)elements->Get(1).get();
 }
 
 }

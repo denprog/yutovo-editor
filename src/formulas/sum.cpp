@@ -52,8 +52,8 @@ Element* Sum::FromJson(Element* parent, Document* document, const rapidjson::Val
 std::u32string Sum::ToText() const
 {
     Assignment* lower = GetLower();
-    CodeRow* upper = GetUpper();
-    CodeRow* right = GetRight();
+    CodeRow<>* upper = GetUpper();
+    CodeRow<>* right = GetRight();
     if (!lower || !upper || !right)
         return U"";
     return U"sum(" + lower->ToText() + U"," + upper->ToText() + U"," + right->ToText() + U")";
@@ -62,8 +62,8 @@ std::u32string Sum::ToText() const
 void Sum::ToParserString(ParserString& str)
 {
     Assignment* lower = GetLower();
-    CodeRow* upper = GetUpper();
-    CodeRow* right = GetRight();
+    CodeRow<>* upper = GetUpper();
+    CodeRow<>* right = GetRight();
     
     str.Add(id, U"loop(");
     lower->ToParserString(str); //loop variable

@@ -197,12 +197,12 @@ void Power::AddExponent(ElementPtr exponent)
     UpdateLevel(level);
 }
 
-CodeRow* Power::GetBaseRow() const
+CodeRow<>* Power::GetBaseRow() const
 {
     return GetFirst();
 }
 
-CodeRow* Power::GetExponentRow() const
+CodeRow<>* Power::GetExponentRow() const
 {
     return GetLast();
 }

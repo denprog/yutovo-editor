@@ -45,7 +45,7 @@ public:
 
     virtual ParagraphFormatPtr GetParagraphFormat();
 
-    virtual bool IsEmpty();
+    virtual bool IsEmpty() const;
 
     virtual std::string ToHtml() const;
 

@@ -13,13 +13,13 @@ namespace yutovo
 //CodeColumn
 
 CodeColumn::CodeColumn(Document* _document) :
-    CodeRow(_document)
+    CodeRow<>(_document)
 {
     type = ElementType::CODE_COLUMN;
 }
 
 CodeColumn::CodeColumn(Element* parent) : 
-    CodeRow(parent, false)
+    CodeRow<>(parent, false)
 {
     type = ElementType::CODE_COLUMN;
 }
@@ -135,7 +135,7 @@ bool CodeColumn::GetBottomCaretState(const int x, const int y, CaretState& caret
 
 void CodeColumn::AddEmptyElement()
 {
-    elements->Add(ElementPtr(new CodeRow(this)));
+    elements->Add(ElementPtr(new CodeRow<>(this)));
 }
 
 std::string CodeColumn::ToHtml() const

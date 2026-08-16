@@ -109,7 +109,7 @@ bool Block::InsertElements(std::vector<ElementPtr>& _elements, bool insert_mode,
                     {
                         ElementPtr paragraph = document->FindParentParagraph(cur->id);
                         int k = elements->GetElementPos(paragraph->id);
-                        elements->Insert(ElementPtr(new CodeParagraph(this, true)), k + 1);
+                        elements->Insert(ElementPtr(new CodeParagraph<>(this, true)), k + 1);
                         CaretState c;
                         elements->Get(k + 1)->GetFirstCaretState(c, nullptr);
                         caret->SetState(c);

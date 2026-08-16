@@ -37,7 +37,7 @@ TEST_F(ArrayTest, fonts1)
     document.InsertString("d", true);
     document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
     document.WaitSolver();
-    std::this_thread::sleep_for(2s);
+    std::this_thread::sleep_for(3s);
     ASSERT_TRUE(document.ToText() == 
         U"d=[123]\n"\
         U"d=123."

@@ -179,7 +179,7 @@ void ResultRow::PutUnit(const Value& value)
     
     const yutovo_calculator::Unit& unit = value.unit;
 
-    ElementPtr numerator(new CodeRow(this));
+    ElementPtr numerator(new CodeRow<>(this));
     numerator->elements->Clear();
     ElementPtr denomerator;
     for (auto& u : unit.unit)
@@ -203,7 +203,7 @@ void ResultRow::PutUnit(const Value& value)
         {
             if (!denomerator)
             {
-                denomerator.reset(new CodeRow(this));
+                denomerator.reset(new CodeRow<>(this));
                 denomerator->elements->Clear();
             }
             if (denomerator->elements->Count() > 0)

@@ -61,11 +61,11 @@ void IndefiniteIntegral::Init()
 {
     symbol_str = ToBasicString(std::u32string(1, symbol));
     elements->Add(ElementPtr(new Shape(this))); //integral symbol
-    elements->Add(ElementPtr(new CodeRow(this))); //integrand
+    elements->Add(ElementPtr(new CodeRow<>(this))); //integrand
     ElementPtr d(new CodeString(this, U"d")); //differential sign
     d->editable = false;
     elements->Add(d);
-    elements->Add(ElementPtr(new CodeRow(this))); //integration variable
+    elements->Add(ElementPtr(new CodeRow<>(this))); //integration variable
 
     UpdateLevel(level);
 }
@@ -106,9 +106,9 @@ bool IndefiniteIntegral::Remake(bool with_elements)
 
     bool changed = Formula::Remake(with_elements);
     Shape* shape = GetShape();
-    CodeRow* expression = GetExpression();
+    CodeRow<>* expression = GetExpression();
     CodeString* d = GetD();
-    CodeRow* var = GetVariable();
+    CodeRow<>* var = GetVariable();
 
     Size s;
     int h = std::max(expression->rect.height, std::max(expression->baseline, expression->rect.height - expression->baseline));
@@ -269,7 +269,7 @@ bool IndefiniteIntegral::DeleteElements(bool left, bool with_undo, ElementId& ch
     uint start, size;
     if (selection->Has(id, start, size))
     {
-        CodeRow* row = nullptr;
+        CodeRow<>* row = nullptr;
         if (start == 1 && size == 1)
             row = GetExpression();
         else if (start == 3 && size == 1)
@@ -294,7 +294,7 @@ bool IndefiniteIntegral::DeleteElements(bool left, bool with_undo, ElementId& ch
         document->StoreUndo(parent->id);
 
     //remove this element by deleting its shape
-    CodeRow* expression = GetExpression();
+    CodeRow<>* expression = GetExpression();
     int p = parent->elements->GetElementPos(id);
     uint c1 = 0;
     caret->SetState(id);
@@ -316,7 +316,7 @@ bool IndefiniteIntegral::DeleteElements(bool left, bool with_undo, ElementId& ch
 
 bool IndefiniteIntegral::AfterInsert(bool with_undo)
 {
-    CodeRow* expression = GetExpression();
+    CodeRow<>* expression = GetExpression();
     if (!caret)
         return false;
     CaretState c;
@@ -340,8 +340,8 @@ std::string IndefiniteIntegral::ToHtml() const
 
 std::u32string IndefiniteIntegral::ToText() const
 {
-    CodeRow* expression = GetExpression();
-    CodeRow* var = GetVariable();
+    CodeRow<>* expression = GetExpression();
+    CodeRow<>* var = GetVariable();
     if (!expression || !var)
         return U"";
     return U"indefinite_integral(" + expression->ToText() + U"," + var->ToText() + U")";
@@ -349,8 +349,8 @@ std::u32string IndefiniteIntegral::ToText() const
 
 void IndefiniteIntegral::ToParserString(ParserString& str)
 {
-    CodeRow* expression = GetExpression();
-    CodeRow* var = GetVariable();
+    CodeRow<>* expression = GetExpression();
+    CodeRow<>* var = GetVariable();
 
     str.Add(id, U"indefinite_integral(");
     expression->ToParserString(str); //integrand
@@ -364,9 +364,9 @@ Shape* IndefiniteIntegral::GetShape() const
     return (Shape*)elements->Get(0).get();
 }
 
-CodeRow* IndefiniteIntegral::GetExpression() const
+CodeRow<>* IndefiniteIntegral::GetExpression() const
 {
-    return (CodeRow*)elements->Get(1).get();
+    return (CodeRow<>*)elements->Get(1).get();
 }
 
 CodeString* IndefiniteIntegral::GetD() const
@@ -374,9 +374,9 @@ CodeString* IndefiniteIntegral::GetD() const
     return (CodeString*)elements->Get(2).get();
 }
 
-CodeRow* IndefiniteIntegral::GetVariable() const
+CodeRow<>* IndefiniteIntegral::GetVariable() const
 {
-    return (CodeRow*)elements->Get(3).get();
+    return (CodeRow<>*)elements->Get(3).get();
 }
 
 }

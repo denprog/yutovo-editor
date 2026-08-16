@@ -151,7 +151,7 @@ public:
 
     virtual bool IsFormula();
 
-    virtual bool IsEmpty();
+    virtual bool IsEmpty() const;
 
     virtual void Solve();
     virtual void ReSolve(bool if_error = false, bool force = false);

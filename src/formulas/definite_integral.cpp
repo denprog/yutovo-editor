@@ -59,14 +59,14 @@ Element* DefiniteIntegral::FromJson(Element* parent, Document* document, const r
 void DefiniteIntegral::Init()
 {
     symbol_str = ToBasicString(std::u32string(1, symbol));
-    elements->Add(ElementPtr(new CodeRow(this))); //lower limit of integration
+    elements->Add(ElementPtr(new CodeRow<>(this))); //lower limit of integration
     elements->Add(ElementPtr(new Shape(this))); //integral symbol
-    elements->Add(ElementPtr(new CodeRow(this))); //upper limit of integration
-    elements->Add(ElementPtr(new CodeRow(this))); //integrand
+    elements->Add(ElementPtr(new CodeRow<>(this))); //upper limit of integration
+    elements->Add(ElementPtr(new CodeRow<>(this))); //integrand
     ElementPtr d(new CodeString(this, U"d")); //differential sign
     d->editable = false;
     elements->Add(d);
-    elements->Add(ElementPtr(new CodeRow(this))); //integration variable
+    elements->Add(ElementPtr(new CodeRow<>(this, true))); //integration variable
 
     UpdateLevel(level);
 }
@@ -105,12 +105,12 @@ bool DefiniteIntegral::Remake(bool with_elements)
     UpdateLevel(level);
 
     bool changed = Formula::Remake(with_elements);
-    CodeRow* lower = GetLower();
+    CodeRow<>* lower = GetLower();
     Shape* shape = GetShape();
-    CodeRow* upper = GetUpper();
-    CodeRow* expression = GetExpression();
+    CodeRow<>* upper = GetUpper();
+    CodeRow<>* expression = GetExpression();
     CodeString* d = GetD();
-    CodeRow* var = GetVariable();
+    CodeRow<>* var = GetVariable();
 
     Size s;
     int h = std::max(expression->rect.height, std::max(expression->baseline, expression->rect.height - expression->baseline));
@@ -289,9 +289,9 @@ bool DefiniteIntegral::GetTopCaretState(const int x, const int y, CaretState& ca
         return true;
     }
 
-    CodeRow* lower = GetLower();
+    CodeRow<>* lower = GetLower();
     Shape* shape = GetShape();
-    CodeRow* upper = GetUpper();
+    CodeRow<>* upper = GetUpper();
     if (lower->GetAbsoluteRect().GetBottom() <= y && !caret->IsOnElement(lower->id))
         return lower->GetTopCaretState(x, y, caret_state, select);
     if (shape->GetAbsoluteRect().GetBottom() <= y && !caret->IsOnElement(shape->id))
@@ -310,9 +310,9 @@ bool DefiniteIntegral::GetBottomCaretState(const int x, const int y, CaretState&
         return true;
     }
 
-    CodeRow* lower = GetLower();
+    CodeRow<>* lower = GetLower();
     Shape* shape = GetShape();
-    CodeRow* upper = GetUpper();
+    CodeRow<>* upper = GetUpper();
     if (upper->GetAbsoluteRect().top >= y)
         return upper->GetBottomCaretState(x, y, caret_state, select);
     if (shape->GetAbsoluteRect().top >= y)
@@ -331,7 +331,7 @@ bool DefiniteIntegral::DeleteElements(bool left, bool with_undo, ElementId& chan
     uint start, size;
     if (selection->Has(id, start, size))
     {
-        CodeRow* row = nullptr;
+        CodeRow<>* row = nullptr;
         if (start == 0 && size == 1)
             row = GetLower();
         else if (start == 2 && size == 1)
@@ -360,8 +360,8 @@ bool DefiniteIntegral::DeleteElements(bool left, bool with_undo, ElementId& chan
         document->StoreUndo(parent->id);
 
     //remove this element by deleting its shape
-    CodeRow* lower = GetLower();
-    CodeRow* expression = GetExpression();
+    CodeRow<>* lower = GetLower();
+    CodeRow<>* expression = GetExpression();
     lower->UpdateLevel(level);
     int p = parent->elements->GetElementPos(id);
     uint c1 = 0;
@@ -387,8 +387,8 @@ void DefiniteIntegral::UpdateLevel(uint8_t _level)
     Formula::UpdateLevel(_level);
     if (_level >= MAX_LEVEL)
         return;
-    CodeRow* lower = GetLower();
-    CodeRow* upper = GetUpper();
+    CodeRow<>* lower = GetLower();
+    CodeRow<>* upper = GetUpper();
     if (lower)
         lower->UpdateLevel(_level + 1);
     if (upper)
@@ -397,7 +397,7 @@ void DefiniteIntegral::UpdateLevel(uint8_t _level)
 
 bool DefiniteIntegral::AfterInsert(bool with_undo)
 {
-    CodeRow* lower = GetLower();
+    CodeRow<>* lower = GetLower();
     if (!caret)
         return false;
     CaretState c;
@@ -425,10 +425,10 @@ std::string DefiniteIntegral::ToHtml() const
 
 std::u32string DefiniteIntegral::ToText() const
 {
-    CodeRow* lower = GetLower();
-    CodeRow* upper = GetUpper();
-    CodeRow* expression = GetExpression();
-    CodeRow* var = GetVariable();
+    CodeRow<>* lower = GetLower();
+    CodeRow<>* upper = GetUpper();
+    CodeRow<>* expression = GetExpression();
+    CodeRow<>* var = GetVariable();
     if (!lower || !upper || !expression || !var)
         return U"";
     return U"definite_integral(" + lower->ToText() + U"," + upper->ToText() + U"," + expression->ToText() + U"," + var->ToText() + U")";
@@ -436,10 +436,10 @@ std::u32string DefiniteIntegral::ToText() const
 
 void DefiniteIntegral::ToParserString(ParserString& str)
 {
-    CodeRow* lower = GetLower();
-    CodeRow* upper = GetUpper();
-    CodeRow* expression = GetExpression();
-    CodeRow* var = GetVariable();
+    CodeRow<>* lower = GetLower();
+    CodeRow<>* upper = GetUpper();
+    CodeRow<>* expression = GetExpression();
+    CodeRow<>* var = GetVariable();
 
     str.Add(id, U"definite_integral(");
     lower->ToParserString(str); //lower limit
@@ -452,9 +452,9 @@ void DefiniteIntegral::ToParserString(ParserString& str)
     str.Add(id, U")");
 }
 
-CodeRow* DefiniteIntegral::GetLower() const
+CodeRow<>* DefiniteIntegral::GetLower() const
 {
-    return (CodeRow*)elements->Get(0).get();
+    return (CodeRow<>*)elements->Get(0).get();
 }
 
 Shape* DefiniteIntegral::GetShape() const
@@ -462,14 +462,14 @@ Shape* DefiniteIntegral::GetShape() const
     return (Shape*)elements->Get(1).get();
 }
 
-CodeRow* DefiniteIntegral::GetUpper() const
+CodeRow<>* DefiniteIntegral::GetUpper() const
 {
-    return (CodeRow*)elements->Get(2).get();
+    return (CodeRow<>*)elements->Get(2).get();
 }
 
-CodeRow* DefiniteIntegral::GetExpression() const
+CodeRow<>* DefiniteIntegral::GetExpression() const
 {
-    return (CodeRow*)elements->Get(3).get();
+    return (CodeRow<>*)elements->Get(3).get();
 }
 
 CodeString* DefiniteIntegral::GetD() const
@@ -477,9 +477,9 @@ CodeString* DefiniteIntegral::GetD() const
     return (CodeString*)elements->Get(4).get();
 }
 
-CodeRow* DefiniteIntegral::GetVariable() const
+CodeRow<>* DefiniteIntegral::GetVariable() const
 {
-    return (CodeRow*)elements->Get(5).get();
+    return (CodeRow<>*)elements->Get(5).get();
 }
 
 }

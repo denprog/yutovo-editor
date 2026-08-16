@@ -5,6 +5,7 @@ Document editor with MathML rendering and solver integration.
 
 ## Agent Rules
 
+- **Use `repowise` for codebase navigation and search.** Prefer `mcp__repowise__get_answer`, `mcp__repowise__get_context`, `mcp__repowise__search_codebase`, and related tools over manual `Read`/`Grep` when exploring unfamiliar code, locating symbols, or analyzing architecture.
 - **Never delete files without explicit user permission.** Do not remove source files, test files, core dumps, logs, build artifacts, or any other files unless the user explicitly asks for it. When in doubt, leave the file in place and ask.
 - **Never create separate namespaces (such as `namespace detail` or anonymous namespaces) without explicit user permission.** Helper functions should be placed in the common `yutovo_calculator` namespace, for example in `utils.h/utils.cpp` or `giac_utils.h/giac_utils.cpp`, or as `static` methods of the appropriate class.
 - **Never commit without explicit user permission.** Do not run `git commit`, `git push`, `git reset`, `git rebase`, or any other git mutations unless explicitly asked to do so. Ask for confirmation each time when git mutations are needed.
@@ -295,3 +296,6 @@ Before running the full `yutovo-editor_tests` suite, ask the user at the beginni
 If an operation fails with a "Network connection failed" error:
 1. Wait **2 seconds** and retry automatically on your own.
 2. If the retry still fails, continue retrying with a **10-second** interval.
+
+## Repowise
+Use `repowise` tools (e.g. `mcp__repowise__get_overview`, `mcp__repowise__get_context`, `mcp__repowise__get_risk`, `mcp__repowise__get_answer`) for codebase exploration, risk analysis, and architecture understanding.

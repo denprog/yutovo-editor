@@ -10,11 +10,10 @@
 
 #include "formula.h"
 #include "shape.h"
+#include "code_row.h"
 
 namespace yutovo
 {
-
-class CodeRow;
 
 class MiddleShapeFormula : public Formula
 {
@@ -43,9 +42,9 @@ public:
     virtual bool GetEndCaretState(CaretState& caret_state, Selection* select);
 
 protected:
-    CodeRow* GetFirst() const;
+    CodeRow<>* GetFirst() const;
     Shape* GetShape() const;
-    CodeRow* GetLast() const;
+    CodeRow<>* GetLast() const;
 };
 
 }

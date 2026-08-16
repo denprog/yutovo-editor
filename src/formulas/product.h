@@ -13,9 +13,6 @@
 namespace yutovo
 {
 
-class CodeRow;
-class Assignment;
-
 class Product : public Iteration
 {
 public:

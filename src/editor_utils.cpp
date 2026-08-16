@@ -44,6 +44,7 @@
 #include "formulas/unit.h"
 #include "formulas/comma.h"
 #include "formulas/graph.h"
+#include "formulas/evalution_bar.h"
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include <stb_image/stb_image_write.h>
 #define STB_IMAGE_IMPLEMENTATION
@@ -303,8 +304,8 @@ Element* CreateFromJson(Element* parent, Document* document, const rapidjson::Va
             {ElementType::STRING, &String::FromJson},
             {ElementType::IMAGE, &Image::FromJson},
             {ElementType::CODE_BLOCK, &CodeBlock::FromJson},
-            {ElementType::CODE_PARAGRAPH, &CodeParagraph::FromJson},
-            {ElementType::CODE_ROW, &CodeRow::FromJson},
+            {ElementType::CODE_PARAGRAPH, &CodeParagraph<>::FromJson},
+            {ElementType::CODE_ROW, &CodeRow<>::FromJson},
             {ElementType::CODE_STRING, &CodeString::FromJson},
             {ElementType::SHAPE, &Shape::FromJson},
             {ElementType::PLUS, &Plus::FromJson},
@@ -343,10 +344,14 @@ Element* CreateFromJson(Element* parent, Document* document, const rapidjson::Va
             {ElementType::COMMA, &Comma::FromJson},
             {ElementType::LINK, &Link::FromJson},
             {ElementType::GRAPH_LINE, &GraphLine::FromJson},
-            {ElementType::CODE_PARAGRAPHS_BLOCK, &CodeParagraphsBlock::FromJson},
+            {ElementType::CODE_PARAGRAPHS_BLOCK, &CodeParagraphsBlock<>::FromJson},
+            {ElementType::CODE_ROW_ASSIGNMENT, &CodeRow<Assignment>::FromJson},
+            {ElementType::CODE_PARAGRAPH_ASSIGNMENT, &CodeParagraph<Assignment>::FromJson},
+            {ElementType::CODE_PARAGRAPHS_BLOCK_ASSIGNMENT, &CodeParagraphsBlock<Assignment>::FromJson},
             {ElementType::SYMBOLIC_REAL_RESULT, &SymbolicRealResult::FromJson},
             {ElementType::SYMBOLIC_RATIONAL_RESULT, &SymbolicRationalResult::FromJson},
-            {ElementType::SYMBOLIC_COMPLEX_RESULT, &SymbolicComplexResult::FromJson}
+            {ElementType::SYMBOLIC_COMPLEX_RESULT, &SymbolicComplexResult::FromJson},
+            {ElementType::EVALUTION_BAR_SUBSCRIPT, &EvalutionBarSubscript::FromJson}
         };
 
     if (!value.HasMember("type") || !value["type"].IsInt())

@@ -45,8 +45,8 @@ public:
     void AddNumerator(ElementPtr numerator);
     void AddDenomerator(ElementPtr denomerator);
 
-    CodeRow* GetNumeratorRow() const;
-    CodeRow* GetDenominatorRow() const;
+    CodeRow<>* GetNumeratorRow() const;
+    CodeRow<>* GetDenominatorRow() const;
 
     bool IsDerivative() const;
 
@@ -58,7 +58,7 @@ protected:
     };
 
     bool IsDerivativeSymbol(const std::u32string& s) const;
-    bool GetDerivativeOrderAt(CodeRow* row, uint pos, int& order, uint& content_start);
+    bool GetDerivativeOrderAt(CodeRow<>* row, uint pos, int& order, uint& content_start);
     bool ParseDerivativeMarker(Element* el, DiffMarker& marker) const;
     bool BuildDerivativeParserString(ParserString& str);
 };

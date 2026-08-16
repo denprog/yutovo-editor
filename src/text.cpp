@@ -214,7 +214,7 @@ ParagraphFormatPtr Text::GetParagraphFormat()
     return nullptr;
 }
 
-bool Text::IsEmpty()
+bool Text::IsEmpty() const
 {
     if (elements->Count() != 1)
         return false;

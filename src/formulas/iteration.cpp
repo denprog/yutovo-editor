@@ -46,8 +46,8 @@ void Iteration::Init()
     elements->Add(ElementPtr(new Assignment(this, true, false)));
     elements->Get(0)->editable = false;
     elements->Add(ElementPtr(new Shape(this)));
-    elements->Add(ElementPtr(new CodeRow(this)));
-    elements->Add(ElementPtr(new CodeRow(this)));
+    elements->Add(ElementPtr(new CodeRow<>(this)));
+    elements->Add(ElementPtr(new CodeRow<>(this)));
 
     UpdateLevel(level);
 }
@@ -88,8 +88,8 @@ bool Iteration::Remake(bool with_elements)
     bool changed = Formula::Remake(with_elements);
     Assignment* lower = GetLower();
     Shape* shape = GetShape();
-    CodeRow* upper = GetUpper();
-    CodeRow* right = GetRight();
+    CodeRow<>* upper = GetUpper();
+    CodeRow<>* right = GetRight();
 
     Size s;
     int h = std::max(right->rect.height, std::max(right->baseline, right->rect.height - right->baseline));
@@ -204,7 +204,7 @@ bool Iteration::GetTopCaretState(const int x, const int y, CaretState& caret_sta
 
     Assignment* lower = GetLower();
     Shape* shape = GetShape();
-    CodeRow* upper = GetUpper();
+    CodeRow<>* upper = GetUpper();
     if (lower->GetAbsoluteRect().GetBottom() <= y && !caret->IsOnElement(lower->id))
         return lower->GetTopCaretState(x, y, caret_state, select);
     if (shape->GetAbsoluteRect().GetBottom() <= y && !caret->IsOnElement(shape->id))
@@ -225,7 +225,7 @@ bool Iteration::GetBottomCaretState(const int x, const int y, CaretState& caret_
     
     Assignment* lower = GetLower();
     Shape* shape = GetShape();
-    CodeRow* upper = GetUpper();
+    CodeRow<>* upper = GetUpper();
     if (upper->GetAbsoluteRect().top >= y)
         return upper->GetBottomCaretState(x, y, caret_state, select);
     if (shape->GetAbsoluteRect().top >= y)
@@ -274,7 +274,7 @@ bool Iteration::DeleteElements(bool left, bool with_undo, ElementId& changed_ele
 
     //remove this element by deleting its shape
     Assignment* lower = GetLower();
-    CodeRow* right = GetRight();
+    CodeRow<>* right = GetRight();
     lower->UpdateLevel(level);
     int p = parent->elements->GetElementPos(id);
     uint c1 = 0;
@@ -301,7 +301,7 @@ void Iteration::UpdateLevel(uint8_t _level)
     if (_level >= MAX_LEVEL)
         return;
     Assignment* lower = GetLower();
-    CodeRow* upper = GetUpper();
+    CodeRow<>* upper = GetUpper();
     if (lower)
         lower->UpdateLevel(_level + 1);
     if (upper)
@@ -339,14 +339,14 @@ Assignment* Iteration::GetLower() const
     return (Assignment*)elements->Get(0).get();
 }
 
-CodeRow* Iteration::GetUpper() const
+CodeRow<>* Iteration::GetUpper() const
 {
-    return (CodeRow*)elements->Get(2).get();
+    return (CodeRow<>*)elements->Get(2).get();
 }
 
-CodeRow* Iteration::GetRight() const
+CodeRow<>* Iteration::GetRight() const
 {
-    return (CodeRow*)elements->Get(3).get();
+    return (CodeRow<>*)elements->Get(3).get();
 }
 
 Shape* Iteration::GetShape() const

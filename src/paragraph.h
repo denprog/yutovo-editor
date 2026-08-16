@@ -56,7 +56,7 @@ public:
 
     virtual void AddEmptyElement();
 
-    virtual bool IsEmpty();
+    virtual bool IsEmpty() const;
 
     virtual ParagraphFormatPtr GetParagraphFormat();
     virtual StringFormatPtr GetStringFormat() const;

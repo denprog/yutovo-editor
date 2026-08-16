@@ -133,6 +133,9 @@ bool Assignment::Remake(bool with_elements)
 
 bool Assignment::DeleteElements(bool left, bool with_undo, ElementId& changed_element)
 {
+    if (parent && parent->type == ElementType::CODE_ROW_ASSIGNMENT)
+        return false;
+
     if (auto_solve && caret->GetPos() == 1 && last_identifier != U"")
     {
         auto code = document->FindParent(id, ElementType::CODE_BLOCK);
