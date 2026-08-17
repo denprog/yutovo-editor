@@ -227,12 +227,44 @@ std::string EvalutionBarSubscript::ToHtml() const
 
 std::u32string EvalutionBarSubscript::ToText() const
 {
-    return U"";
+    std::vector<std::u32string> assignments = GetAssignments();
+    if (assignments.empty())
+        return U"";
+
+    std::u32string result = U"[";
+    for (size_t i = 0; i < assignments.size(); ++i)
+    {
+        if (i > 0)
+            result += U",";
+        result += assignments[i];
+    }
+    result += U"]";
+    return result;
 }
 
 void EvalutionBarSubscript::ToParserString(ParserString& str)
 {
     //the parser output is handled by the preceding expression (e.g. a derivative fraction)
+}
+
+std::vector<std::u32string> EvalutionBarSubscript::GetAssignments() const
+{
+    std::vector<std::u32string> result;
+    CodeParagraphsBlock<Assignment>* block = GetBlock();
+    if (!block)
+        return result;
+
+    for (int i = 0; i < block->elements->Count(); ++i)
+    {
+        CodeRow<Assignment>* row = GetParagraphRow(i);
+        if (!row)
+            continue;
+        std::u32string text = row->ToText();
+        if (!text.empty() && text != U"=")
+            result.push_back(text);
+    }
+
+    return result;
 }
 
 Shape* EvalutionBarSubscript::GetShape() const

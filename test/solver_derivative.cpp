@@ -392,4 +392,79 @@ TEST_F(SolverAutoTest, derivative_edit_variable)
     ASSERT_TRUE(document.ToText() == U"derivative(pow(x,2),y)=0") << ToBasicString(document.ToText());
 }
 
+//Derivative at a point: d(x^2)/dx |_{x=2} = 4
+TEST_F(SolverAutoTest, derivative_at_point1)
+{
+    Start(600);
+
+    document.WaitTask(document.InsertDerivative(U"d", 1, true));
+    document.WaitTask(document.InsertString("x", true));
+    document.WaitTask(document.InsertPower(true));
+    document.WaitTask(document.InsertString("2", true));
+    document.WaitTask(document.MoveCaretDown(false));
+    document.WaitTask(document.MoveCaretDown(false));
+    document.WaitTask(document.InsertString("x", true));
+    document.WaitTask(document.MoveCaretRight(false));
+
+    document.WaitTask(document.InsertEvalutionBarSubscript(true));
+    document.WaitTask(document.MoveCaretRight(false));
+    document.WaitTask(document.InsertString("x", true));
+    document.WaitTask(document.MoveCaretRight(false));
+    document.WaitTask(document.MoveCaretRight(false));
+    document.WaitTask(document.InsertString("2", true));
+    document.WaitTask(document.MoveCaretRight(false));
+    document.WaitTask(document.MoveCaretRight(false));
+
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(2s);
+    ASSERT_TRUE(document.ToText() == U"derivative(pow(x,2))[x=2]=4.") << ToBasicString(document.ToText());
+}
+
+//Derivative at a point: d(sin(x))/dx |_{x=0} = 1
+TEST_F(SolverAutoTest, derivative_at_point2)
+{
+    Start(600);
+
+    document.InsertDerivative(U"d", 1, true);
+    document.InsertString("sin", true);
+    document.WaitTask(document.InsertOpenRoundBracket(true));
+    document.WaitTask(document.InsertString("x", true));
+    document.WaitTask(document.InsertCloseRoundBracket(true));
+    document.WaitTask(document.MoveCaretDown(false));
+    document.WaitTask(document.MoveCaretDown(false));
+    document.WaitTask(document.InsertString("x", true));
+    document.WaitTask(document.MoveCaretRight(false));
+
+    document.WaitTask(document.InsertEvalutionBarSubscript(true));
+    document.WaitTask(document.MoveCaretRight(false));
+    document.WaitTask(document.InsertString("x", true));
+    document.WaitTask(document.MoveCaretRight(false));
+    document.WaitTask(document.MoveCaretRight(false));
+    document.WaitTask(document.InsertString("0", true));
+    document.WaitTask(document.MoveCaretRight(false));
+    document.WaitTask(document.MoveCaretRight(false));
+
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(2s);
+    ASSERT_TRUE(document.ToText() == U"derivative(sin(x))[x=0]=1.") << ToBasicString(document.ToText());
+}
+
+TEST_F(SolverAutoTest, derivative_at_point3)
+{
+    Start(600);
+
+    document.Load("../../test/tests/derivative_at_point3.yut");
+    document.WaitLoad();
+    std::this_thread::sleep_for(2s);
+
+    document.WaitSolver();
+    std::this_thread::sleep_for(3s);
+    ASSERT_TRUE(document.ToText() == 
+        U"f(x,y)=pow(x,2)*y+sin(y)\n"
+        U"derivative(f(x,y))[x=1,y=3]=6."
+        ) << ToBasicString(document.ToText());
+}
+
 }

@@ -208,6 +208,12 @@ CodeParagraphsBlock<Assignment>::CodeParagraphsBlock(Element* parent, bool add_e
 }
 
 template<>
+void CodeParagraphsBlock<Assignment>::Draw() const
+{
+    Element::Draw();
+}
+
+template<>
 bool CodeParagraphsBlock<Assignment>::InsertElements(std::vector<ElementPtr>& _elements, bool insert_mode, bool with_undo, ElementId& changed_element)
 {
     if (_elements.size() != 1 || !document->IsParagraph(_elements[0]))

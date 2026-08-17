@@ -12,6 +12,7 @@
 #include "power.h"
 #include "shape.h"
 #include "parser_string.h"
+#include "evalution_bar.h"
 
 namespace yutovo
 {
@@ -172,6 +173,8 @@ std::u32string Division::ToText() const
         return U"";
 
     ParserString ps;
+    if (const_cast<Division*>(this)->BuildDerivativeAtPointParserString(ps, false))
+        return ps.Text();
     if (const_cast<Division*>(this)->BuildDerivativeParserString(ps))
         return ps.Text();
 
@@ -180,6 +183,8 @@ std::u32string Division::ToText() const
 
 void Division::ToParserString(ParserString& str)
 {
+    if (BuildDerivativeAtPointParserString(str))
+        return;
     if (BuildDerivativeParserString(str))
         return;
 
@@ -323,7 +328,7 @@ bool Division::ParseDerivativeMarker(Element* el, DiffMarker& marker) const
     return true;
 }
 
-bool Division::BuildDerivativeParserString(ParserString& str)
+bool Division::ParseDerivativeFraction(std::u32string& function_text, std::vector<std::pair<std::u32string, int>>& vars, int& num_order)
 {
     CodeRow<>* num = GetFirst();
     CodeRow<>* den = GetLast();
@@ -331,8 +336,9 @@ bool Division::BuildDerivativeParserString(ParserString& str)
         return false;
 
     //parse the numerator: leading d/∂ marker followed by the function expression
-    int num_order = 0;
-    std::u32string function_text;
+    num_order = 0;
+    function_text.clear();
+    vars.clear();
     bool num_marker_found = false;
     for (uint i = 0; i < num->elements->Count(); ++i)
     {
@@ -361,7 +367,6 @@ bool Division::BuildDerivativeParserString(ParserString& str)
         return false;
 
     //parse the denominator: a sequence of d/∂ markers each followed by a variable
-    std::vector<std::pair<std::u32string, int>> vars;
     std::u32string cur_var;
     int cur_order = 0;
     bool den_marker_found = false;
@@ -459,6 +464,17 @@ bool Division::BuildDerivativeParserString(ParserString& str)
     if (num_order != total_den_order)
         return false;
 
+    return true;
+}
+
+bool Division::BuildDerivativeParserString(ParserString& str)
+{
+    std::u32string function_text;
+    std::vector<std::pair<std::u32string, int>> vars;
+    int num_order = 0;
+    if (!ParseDerivativeFraction(function_text, vars, num_order))
+        return false;
+
     std::u32string result = function_text;
     //differentiation order is read right-to-left in the denominator
     for (auto it = vars.rbegin(); it != vars.rend(); ++it)
@@ -466,6 +482,42 @@ bool Division::BuildDerivativeParserString(ParserString& str)
         for (int o = 0; o < it->second; ++o)
             result = U"derivative(" + result + U"," + it->first + U")";
     }
+
+    str.Add(id, result);
+    return true;
+}
+
+bool Division::BuildDerivativeAtPointParserString(ParserString& str, bool include_assignments)
+{
+    if (!parent)
+        return false;
+
+    int pos = parent->elements->GetElementPos(id);
+    if (pos < 0 || pos + 1 >= parent->elements->Count())
+        return false;
+
+    ElementPtr next = parent->elements->Get(pos + 1);
+    if (!next || next->type != ElementType::EVALUTION_BAR_SUBSCRIPT)
+        return false;
+
+    EvalutionBarSubscript* bar = dynamic_cast<EvalutionBarSubscript*>(next.get());
+    if (!bar)
+        return false;
+
+    std::u32string assignments_text = include_assignments ? bar->ToText() : U"";
+    if (include_assignments && assignments_text.empty())
+        return false;
+
+    std::u32string function_text;
+    std::vector<std::pair<std::u32string, int>> vars;
+    int num_order = 0;
+    if (!ParseDerivativeFraction(function_text, vars, num_order))
+        return false;
+
+    std::u32string result = U"derivative(" + function_text;
+    if (include_assignments)
+        result += U"," + assignments_text;
+    result += U")";
 
     str.Add(id, result);
     return true;

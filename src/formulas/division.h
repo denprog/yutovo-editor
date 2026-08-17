@@ -60,7 +60,9 @@ protected:
     bool IsDerivativeSymbol(const std::u32string& s) const;
     bool GetDerivativeOrderAt(CodeRow<>* row, uint pos, int& order, uint& content_start);
     bool ParseDerivativeMarker(Element* el, DiffMarker& marker) const;
+    bool ParseDerivativeFraction(std::u32string& function_text, std::vector<std::pair<std::u32string, int>>& vars, int& num_order);
     bool BuildDerivativeParserString(ParserString& str);
+    bool BuildDerivativeAtPointParserString(ParserString& str, bool include_assignments = true);
 };
 
 }

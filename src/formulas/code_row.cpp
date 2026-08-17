@@ -300,7 +300,7 @@ template<>
 void CodeRow<Assignment>::AddEmptyElement()
 {
     elements->Clear();
-    AddElement(ElementPtr(new Assignment(this)));
+    AddElement(ElementPtr(new Assignment(this, true, false)));
 }
 
 template<>
