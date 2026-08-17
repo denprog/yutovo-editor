@@ -359,7 +359,7 @@ void CodeString::Draw() const
         {
             auto row = document->FindParentRow(id);
             if (row->parent->type != ElementType::CODE_PARAGRAPH || parent->elements->Count() > 1)
-                window->DrawRect(GetAbsoluteRect(), document->config.bg_selection_color);
+                window->DrawRect(GetAbsoluteRect(), document->config.numbers_color);
         }
     }
 }

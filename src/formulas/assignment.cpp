@@ -201,7 +201,7 @@ void Assignment::BeforeDelete()
 
 void Assignment::Solve()
 {
-    if (!auto_solve)
+    if (!auto_solve || (parent && parent->type == ElementType::CODE_ROW_ASSIGNMENT))
         return;
     
     MiddleShapeFormula::Solve();
@@ -216,7 +216,7 @@ void Assignment::Solve()
 
 void Assignment::ReSolve(bool if_error, bool force)
 {
-    if (!auto_solve)
+    if (!auto_solve || (parent && parent->type == ElementType::CODE_ROW_ASSIGNMENT))
         return;
     
     document->RemoveErrorMarks(id);

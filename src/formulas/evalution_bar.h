@@ -52,6 +52,8 @@ public:
     virtual std::u32string ToText() const;
     virtual void ToParserString(ParserString& str);
 
+    std::vector<std::u32string> GetAssignments() const;
+
 protected:
     Shape* GetShape() const; //the "|" shape
     CodeParagraphsBlock<Assignment>* GetBlock() const; //the block of variables

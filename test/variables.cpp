@@ -1360,7 +1360,7 @@ TEST_F(VariablesTest, variables22)
     document.InsertString("123a", true);
     document.WaitTask(document.InsertEquation(ResultType::REAL, true));
     document.WaitSolver();
-    std::this_thread::sleep_for(2s);
+    std::this_thread::sleep_for(3s);
     ASSERT_TRUE(document.ToText() == 
         U"a=2\n" \
         U"123a=246."

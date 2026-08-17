@@ -869,19 +869,9 @@ uint Document::InsertEvalutionBarSubscript(bool with_undo, bool replace)
 uint Document::InsertDerivativeAtPoint(bool with_undo, bool replace)
 {
     LOG_TRACE("Insert derivative at point");
-
-    uint task_id = InsertDerivative(U"d", 1, with_undo, replace);
-    WaitTask(task_id);
-
-    ElementPtr div_el = FindParent(caret->GetCaretState().id, ElementType::DIVISION);
-    if (!div_el)
-        return task_id;
-    ElementPtr row_el = FindParent(div_el->id, ElementType::CODE_ROW);
-    if (!row_el)
-        return task_id;
-
-    caret->SetState(row_el->id, row_el->elements->GetElementPos(div_el->id) + 1, true);
-    return InsertEvalutionBarSubscript(with_undo);
+    InsertEvalutionBarSubscript(with_undo);
+    MoveCaretHome(false);
+    return InsertDerivative(U"d", 1, with_undo, replace);
 }
 
 uint Document::InsertImage(const std::string& image_base64, bool with_undo, bool pasting)

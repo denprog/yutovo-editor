@@ -485,4 +485,24 @@ TEST_F(FormulaTest, derivative17)
     ASSERT_TRUE(document.ToText() == U"derivative(derivative(g(x,y),y),x)") << ToBasicString(document.ToText());
 }
 
+//Derivative at a point with an evalution bar subscript
+TEST_F(FormulaTest, derivative_at_point1)
+{
+    Start(600);
+
+    document.WaitTask(document.InsertDerivative(U"d", 1, true));
+    FillFunctionAndVariable();
+
+    document.WaitTask(document.MoveCaretEnd(false));
+    document.WaitTask(document.InsertEvalutionBarSubscript(true));
+
+    document.WaitTask(document.MoveCaretRight(false));
+    document.WaitTask(document.InsertString("x", true));
+    document.WaitTask(document.MoveCaretRight(false));
+    document.WaitTask(document.MoveCaretRight(false));
+    document.WaitTask(document.InsertString("2", true));
+
+    ASSERT_TRUE(document.ToText() == U"derivative(f)[x=2]") << ToBasicString(document.ToText());
+}
+
 }
