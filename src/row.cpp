@@ -334,7 +334,7 @@ bool Row::InsertElements(std::vector<ElementPtr>& _elements, bool insert_mode, b
             ElementPtr ins(_elements[i]);
             bool b = false;
             uint p = caret_state.GetElementPos(el->id);
-            if (el->GetLastCaretState(c, nullptr) && c == caret_state)
+            if (el->GetLastCaretState(c, nullptr) && c == caret_state && !el->IsEmpty())
             {
                 elements->Insert(ins, p + i + 1);
                 if (i == 0 && !document->pasting)
@@ -363,7 +363,16 @@ bool Row::InsertElements(std::vector<ElementPtr>& _elements, bool insert_mode, b
             else if (el->GetFirstCaretState(c, nullptr) && c == caret_state)
             {
                 if (insert_mode)
+                {
                     elements->Insert(ins, p + i);
+                    if (elements->Get(p + i + 1)->IsEmpty())
+                    {
+                        if (document->IsString(elements->Get(p + i)) && document->IsString(elements->Get(p + i + 1)))
+                            elements->Get(p + i)->can_merge = elements->Get(p + i + 1)->can_merge;
+                        elements->RemoveAt(p + i + 1, 1);
+                        b = true;
+                    }
+                }
                 else
                 {
                     el->SplitAt(caret_state.GetPos() + 1);

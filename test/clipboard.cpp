@@ -6011,4 +6011,85 @@ TEST_F(DocumentTest, clipboard100)
     ASSERT_TRUE(document.ToText() == expected_code) << ToBasicString(document.ToText());
 }
 
+//Paste into an empty symbol
+TEST_F(DocumentTest, clipboard101)
+{
+    Start(600);
+
+    EXPECT_CALL(window_mock, OnCopyResult).WillRepeatedly([&](CopyResult result)
+        {
+            ASSERT_TRUE(result == CopyResult::Success);
+        });
+
+    EXPECT_CALL(window_mock, OnPasteResult).WillRepeatedly([&](PasteResult result)
+        {
+            ASSERT_TRUE(result == PasteResult::Success);
+        });
+
+    document.InsertCode(false, true);
+    document.InsertString(U"123", true);
+    document.WaitTask(document.MoveCaretHome(true));
+    document.WaitTask(document.Copy(clipboard_json, clipboard_text));
+    document.WaitTask(document.MoveCaretToDocumentEnd(false));
+
+    document.WaitTask(document.InsertDerivative(true));
+    document.WaitTask(document.Paste(clipboard_json));
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mi>123</mi>"\
+                    "</mrow>"\
+                "</math>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"
+                    "<mrow>"
+                        "<mfrac>"
+                            "<mrow>"
+                                "<mi>d</mi>"
+                                "<mi>123</mi>"
+                            "</mrow>"
+                            "<mrow>"
+                                "<mi>d</mi>"
+                                "<mi></mi>"
+                            "</mrow>"
+                        "</mfrac>"
+                    "</mrow>"
+                "</math>"
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 1, 0, 0, 0, 0, 1, 3})) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    std::this_thread::sleep_for(100ms);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mi>123</mi>"\
+                    "</mrow>"\
+                "</math>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"
+                    "<mrow>"
+                        "<mfrac>"
+                            "<mrow>"
+                                "<mi>d</mi>"
+                                "<mi></mi>"
+                            "</mrow>"
+                            "<mrow>"
+                                "<mi>d</mi>"
+                                "<mi></mi>"
+                            "</mrow>"
+                        "</mfrac>"
+                    "</mrow>"
+                "</math>"
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 1, 0, 0, 0, 0, 1, 0})) << document.GetEditorState().ToString();
+}
+
 }
