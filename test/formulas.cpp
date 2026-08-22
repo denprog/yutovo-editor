@@ -895,6 +895,222 @@ TEST_F(FormulaTest, delete13)
     ASSERT_TRUE(document.ToText() == U"123") << ToBasicString(document.ToText());
 }
 
+//Delete an empty symbol
+TEST_F(FormulaTest, delete14)
+{
+    Start(600);
+
+    document.Load("../../test/tests/delete14.yut");
+    document.WaitLoad();
+
+    document.WaitTask(document.DeleteElements(false, true));
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mfrac>"\
+                            "<mrow>"\
+                                "<mi></mi>"\
+                            "</mrow>"\
+                            "<mrow>"\
+                                "<mi></mi>"\
+                            "</mrow>"\
+                        "</mfrac>"\
+                        "<mi></mi>"\
+                        "<mi>f</mi>"\
+                    "</mrow>"\
+                "</math>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0})) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mi></mi>"\
+                        "<mfrac>"\
+                            "<mrow>"\
+                                "<mi></mi>"\
+                            "</mrow>"\
+                            "<mrow>"\
+                                "<mi></mi>"\
+                            "</mrow>"\
+                        "</mfrac>"\
+                        "<mi></mi>"\
+                        "<mi>f</mi>"\
+                    "</mrow>"\
+                "</math>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 0})) << document.GetEditorState().ToString();
+
+    document.MoveCaretWordRight(false);
+    document.WaitTask(document.MoveCaretWordRight(false));
+    document.WaitTask(document.DeleteElements(false, true));
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mi></mi>"\
+                        "<mfrac>"\
+                            "<mrow>"\
+                                "<mi></mi>"\
+                            "</mrow>"\
+                            "<mrow>"\
+                                "<mi></mi>"\
+                            "</mrow>"\
+                        "</mfrac>"\
+                        "<mi>f</mi>"\
+                    "</mrow>"\
+                "</math>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 2, 0})) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mi></mi>"\
+                        "<mfrac>"\
+                            "<mrow>"\
+                                "<mi></mi>"\
+                            "</mrow>"\
+                            "<mrow>"\
+                                "<mi></mi>"\
+                            "</mrow>"\
+                        "</mfrac>"\
+                        "<mi></mi>"\
+                        "<mi>f</mi>"\
+                    "</mrow>"\
+                "</math>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 2, 0})) << document.GetEditorState().ToString();
+}
+
+//Delete an empty symbol
+TEST_F(FormulaTest, delete15)
+{
+    Start(600);
+
+    document.Load("../../test/tests/delete15.yut");
+    document.WaitLoad();
+
+    document.WaitTask(document.DeleteElements(false, true));
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mi>x</mi>"\
+                        "<mfrac>"\
+                            "<mrow>"\
+                                "<mi></mi>"\
+                            "</mrow>"\
+                            "<mrow>"\
+                                "<mi></mi>"\
+                            "</mrow>"\
+                        "</mfrac>"\
+                        "<mi></mi>"\
+                        "<mi>f</mi>"\
+                    "</mrow>"\
+                "</math>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 1})) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mi>x</mi>"\
+                        "<mi></mi>"\
+                        "<mfrac>"\
+                            "<mrow>"\
+                                "<mi></mi>"\
+                            "</mrow>"\
+                            "<mrow>"\
+                                "<mi></mi>"\
+                            "</mrow>"\
+                        "</mfrac>"\
+                        "<mi></mi>"\
+                        "<mi>f</mi>"\
+                    "</mrow>"\
+                "</math>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 1, 0})) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.DeleteElements(true, true));
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mi>x</mi>"\
+                        "<mfrac>"\
+                            "<mrow>"\
+                                "<mi></mi>"\
+                            "</mrow>"\
+                            "<mrow>"\
+                                "<mi></mi>"\
+                            "</mrow>"\
+                        "</mfrac>"\
+                        "<mi></mi>"\
+                        "<mi>f</mi>"\
+                    "</mrow>"\
+                "</math>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 1})) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mi>x</mi>"\
+                        "<mi></mi>"\
+                        "<mfrac>"\
+                            "<mrow>"\
+                                "<mi></mi>"\
+                            "</mrow>"\
+                            "<mrow>"\
+                                "<mi></mi>"\
+                            "</mrow>"\
+                        "</mfrac>"\
+                        "<mi></mi>"\
+                        "<mi>f</mi>"\
+                    "</mrow>"\
+                "</math>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 1, 0})) << document.GetEditorState().ToString();
+}
+
 TEST_F(FormulaTestCustom, insert1)
 {
     Start(460);

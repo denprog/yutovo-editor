@@ -109,10 +109,8 @@ TEST_F(FormulaTest, derivative3)
     Start(600);
 
     document.WaitTask(document.InsertDerivative(U"d", 1, true));
-    document.WaitTask(document.InsertDivision(true));
     document.WaitTask(document.InsertString("2pi", true));
-    document.WaitTask(document.MoveCaretRight(false));
-    document.WaitTask(document.MoveCaretRight(false));
+    document.WaitTask(document.InsertDivision(true));
     document.WaitTask(document.InsertString("1", true));
     ASSERT_TRUE(document.ToText() == U"derivative((2pi)/(1),)") << ToBasicString(document.ToText());
     ASSERT_TRUE(document.ToHtml().find("<mfrac>") != std::string::npos) << document.ToHtml();
@@ -125,7 +123,7 @@ TEST_F(FormulaTest, derivative3)
     document.Undo();
     document.WaitUndo();
     std::this_thread::sleep_for(200ms);
-    ASSERT_TRUE(document.ToText() == U"derivative((/),)") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.ToText() == U"derivative(2pi,)") << ToBasicString(document.ToText());
 }
 
 //Select and copy-paste

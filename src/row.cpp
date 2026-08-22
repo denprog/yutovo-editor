@@ -362,6 +362,7 @@ bool Row::InsertElements(std::vector<ElementPtr>& _elements, bool insert_mode, b
             }
             else if (el->GetFirstCaretState(c, nullptr) && c == caret_state)
             {
+                bool empty = false;
                 if (insert_mode)
                 {
                     elements->Insert(ins, p + i);
@@ -369,8 +370,8 @@ bool Row::InsertElements(std::vector<ElementPtr>& _elements, bool insert_mode, b
                     {
                         if (document->IsString(elements->Get(p + i)) && document->IsString(elements->Get(p + i + 1)))
                             elements->Get(p + i)->can_merge = elements->Get(p + i + 1)->can_merge;
-                        elements->RemoveAt(p + i + 1, 1);
                         b = true;
+                        empty = true;
                     }
                 }
                 else
@@ -387,6 +388,8 @@ bool Row::InsertElements(std::vector<ElementPtr>& _elements, bool insert_mode, b
                     else if (document->pasting && ins->GetLastCaretState(c, nullptr))
                         caret->SetState(c);
                 }
+                if (empty && elements->Count() > p + i + 1)
+                    elements->RemoveAt(p + i + 1, 1);
             }
             else
             {
@@ -512,28 +515,40 @@ bool Row::DeleteElements(bool left, bool with_undo, ElementId& changed_element)
                 p = elements->GetElementPos(document->GetParent(before_state.id)->id);
             if (p < elements->Count())
             {
-                if (before_state.GetParent() != id)
-                    ++p;
                 auto el = elements->Get(p);
-                if (el && el->CanContinueSelection())
-                {
-                    CaretState c;
-                    if (el->GetFirstCaretState(c, nullptr))
-                    {
-                        caret->SetState(c);
-                        el->DeleteElements(left, with_undo, changed_element);
-                        changed_element = id;
-#ifdef DEBUG
-                        to_str = ToText();
-#endif
-                        return true;
-                    }
-                }
-                else if (p < elements->Count())
+                if (el && document->IsString(el) && el->IsEmpty())
                 {
                     if (with_undo)
                         document->StoreUndo(id);
                     elements->RemoveAt(p, 1);
+                }
+                else
+                {
+                    if (before_state.GetParent() != id)
+                    {
+                        ++p;
+                        el = elements->Get(p);
+                    }
+                    if (el && el->CanContinueSelection())
+                    {
+                        CaretState c;
+                        if (el->GetFirstCaretState(c, nullptr))
+                        {
+                            caret->SetState(c);
+                            el->DeleteElements(left, with_undo, changed_element);
+                            changed_element = id;
+#ifdef DEBUG
+                            to_str = ToText();
+#endif
+                            return true;
+                        }
+                    }
+                    else if (p < elements->Count())
+                    {
+                        if (with_undo)
+                            document->StoreUndo(id);
+                        elements->RemoveAt(p, 1);
+                    }
                 }
             }
             else if (p >= 0)
