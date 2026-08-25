@@ -6,6 +6,7 @@
  */
 
 #include <gtest/gtest.h>
+#include <filesystem>
 #include "mock.h"
 #include "style.h"
 
@@ -2814,6 +2815,102 @@ TEST_F(SolverAutoTest, symbolic7)
     document.WaitUndo();
     std::this_thread::sleep_for(200ms);
     ASSERT_TRUE(document.ToText() == U"x+1+i") << ToBasicString(document.ToText());
+}
+
+//Interrupt a long solving
+TEST_F(FormulaTest, long_solving)
+{
+    document.config.service_timeout = 3000;
+    Start(600);
+
+    EXPECT_CALL(window_mock, Translate).WillRepeatedly([&](ElementId id, const std::u32string& str)
+        {
+            return str;
+        });
+
+    document.InsertDefiniteIntegral(true);
+    document.InsertString(U"0", true);
+    document.MoveCaretRight(false);
+    document.MoveCaretRight(false);
+    document.InsertString(U"1", true);
+    document.MoveCaretRight(false);
+    document.InsertString(U"1", true);
+    document.InsertDivision(true);
+    document.InsertString(U"x", true);
+    document.InsertPlus(true);
+    document.InsertString(U"j", true);
+    document.MoveCaretRight(false);
+    document.MoveCaretRight(false);
+    document.InsertString(U"x", true);
+    document.WaitTask(document.MoveCaretRight(false));
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(3s);
+    ASSERT_TRUE(document.ToText() == U"definite_integral(0,1,(1)/(x+j),x)=Solving time exceeded") << ToBasicString(document.ToText());
+}
+
+TEST_F(MultiDocumentSolverAutoTest, load_recent_files_simultaneously)
+{
+    const std::filesystem::path tests_dir = std::filesystem::path(__FILE__).parent_path() / "tests";
+    const char* filenames[doc_count] = 
+        {
+            "solve Diferenciação.yut",
+            "solve Substituição.yut",
+            "solve Integração.yut",
+            "solve Derivada em um ponto.yut",
+            "solve Integral definida.yut",
+            "solve Derivada de uma função.yut",
+            "solve Integral indefinida.yut",
+            "solve Derivada segunda.yut",
+            "solve Matrizes.yut",
+            "solve Registro de usuário.yut"
+        };
+
+    //issue all loads first so calculations start simultaneously
+    uint load_ids[doc_count];
+    load_ids[0] = document.Load((tests_dir / filenames[0]).string());
+    for (size_t i = 0; i < docs.size(); ++i)
+        load_ids[i + 1] = docs[i]->document.Load((tests_dir / filenames[i + 1]).string());
+
+    //wait for every load to finish
+    document.WaitTask(load_ids[0]);
+    for (size_t i = 0; i < docs.size(); ++i)
+        docs[i]->document.WaitTask(load_ids[i + 1]);
+
+    //wait for all solvers to finish (some files may have no equations)
+    auto deadline = std::chrono::steady_clock::now() + 120s;
+    bool all_solved = false;
+    while (!all_solved)
+    {
+        all_solved = true;
+        for (size_t i = 0; i < doc_count; ++i)
+        {
+            Document& doc = (i == 0) ? document : docs[i - 1]->document;
+            if (doc.ToText().find(U"~") != std::u32string::npos)
+            {
+                all_solved = false;
+                break;
+            }
+        }
+        if (!all_solved)
+        {
+            if (std::chrono::steady_clock::now() >= deadline)
+            {
+                std::string pending;
+                for (size_t i = 0; i < doc_count; ++i)
+                {
+                    Document& doc = (i == 0) ? document : docs[i - 1]->document;
+                    std::u32string text = doc.ToText();
+                    if (text.find(U"~") != std::u32string::npos)
+                    {
+                        pending += "document " + std::to_string(i) + " still pending: " + ToBasicString(text) + "\n";
+                    }
+                }
+                ASSERT_TRUE(false) << "timeout waiting for calculations\n" << pending;
+            }
+            std::this_thread::sleep_for(100ms);
+        }
+    }
 }
 
 }

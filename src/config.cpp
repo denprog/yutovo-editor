@@ -76,7 +76,12 @@ void Config::FromJson(const rapidjson::Document& value, rapidjson::Document::All
 {
     //not all the parameters are here for a while
     if (value.HasMember("language") && value["language"].IsInt())
-        language = (yutovo_calculator::Language)value["language"].GetInt();
+    {
+        int val = value["language"].GetInt();
+        //a stored value outside the known languages must not reach the parsers, they throw on an unknown language
+        if (val >= (int)yutovo_calculator::Language::English && val <= (int)yutovo_calculator::Language::BrazilianPortuguese)
+            language = (yutovo_calculator::Language)val;
+    }
     
     if (value.HasMember("use_tabs") && value["use_tabs"].IsBool())
         use_tabs = value["use_tabs"].GetBool();

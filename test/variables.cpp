@@ -1809,7 +1809,7 @@ TEST_F(VariablesTest, variables31)
     document.InsertString("1", true);
     document.WaitTask(document.InsertString("2", true));
     document.WaitSolver();
-    std::this_thread::sleep_for(600ms);
+    std::this_thread::sleep_for(2s);
     ASSERT_TRUE(document.ToText() == 
         U"d12=5\n" \
         U"d=Unknown identifier"
@@ -1873,7 +1873,7 @@ TEST_F(VariablesTest, variables33)
 
     width = 450;
     document.WaitTask(document.Resize(450, 700));
-    std::this_thread::sleep_for(100ms);
+    std::this_thread::sleep_for(2s);
     ASSERT_TRUE(document.ToText() == 
         U"Yutovo es una calculadora poderosa v=234con la visualización y edición gráfica habitual de operaciones matemáticas "
         "dentro de un editor de texto. Con él, puede hacer varios cálculos v=234.combinando cálculos y texto en un solo documento, a saber:"

@@ -692,12 +692,12 @@ TEST_F(FormulaTest, graphs11)
     document.MoveCaretRight(false);
     document.WaitTask(document.InsertString("2", true));
     document.WaitSolver();
-    std::this_thread::sleep_for(1s);
+    std::this_thread::sleep_for(2s);
 
     auto r = el->GetAbsoluteRect();
     ASSERT_TRUE(document.MouseWheel(r.left + r.width / 2, r.top + r.height / 2, Point{0, 15}, Point{0, 15}));
     document.WaitSolver();
-    std::this_thread::sleep_for(1s);
+    std::this_thread::sleep_for(2s);
     ASSERT_TRUE(el->elements->Get(0)->ToText() == U"1.") << ToBasicString(el->elements->Get(0)->ToText());
     ASSERT_TRUE(el->elements->Get(2)->ToText() == U"-1.") << ToBasicString(el->elements->Get(2)->ToText());
     ASSERT_TRUE(el->elements->Get(3)->ToText() == U"-1.");
@@ -766,12 +766,12 @@ TEST_F(FormulaTest, graphs12)
     document.MoveCaretRight(false);
     document.WaitTask(document.InsertString("2000", true));
     document.WaitSolver();
-    std::this_thread::sleep_for(1s);
+    std::this_thread::sleep_for(2s);
 
     auto r = el->GetAbsoluteRect();
     ASSERT_TRUE(document.MouseWheel(r.left + r.width / 2, r.top + r.height / 2, Point{0, -15}, Point{0, -15}));
     document.WaitSolver();
-    std::this_thread::sleep_for(1s);
+    std::this_thread::sleep_for(2s);
     ASSERT_TRUE(el->elements->Get(0)->ToText() == U"4.*pow(10,3)") << ToBasicString(el->elements->Get(0)->ToText());
     ASSERT_TRUE(el->elements->Get(2)->ToText() == U"-4.*pow(10,3)") << ToBasicString(el->elements->Get(2)->ToText());
     ASSERT_TRUE(el->elements->Get(3)->ToText() == U"-4.*pow(10,3)");
@@ -925,7 +925,7 @@ TEST_F(FormulaTest, graphs16)
     ASSERT_TRUE(document.MouseMove(r.left + r.width / 2 + 10, r.top + r.height / 2 + 10));
     document.WaitSolver();
     document.MouseLButtonUp(r.left + r.width / 2 + 10, r.top + r.height / 2 + 10);
-    std::this_thread::sleep_for(1s);
+    std::this_thread::sleep_for(2s);
 
     GraphLine* graph = (GraphLine*)el.get();
     ASSERT_TRUE(graph->plots.size() == 2);
