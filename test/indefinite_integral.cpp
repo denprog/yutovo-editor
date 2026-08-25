@@ -157,6 +157,16 @@ TEST_F(FormulaTest, indefinite_integral3)
     document.WaitTask(document.MoveCaretHome(true));
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 1, 0, 0},
         ElementSelectionState{ElementId{0, 0, 0, 0, 0, 0, 0}, 1, 1})) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.MoveCaretLeft(false));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 1, 0, 0})) << document.GetEditorState().ToString();
+    document.WaitTask(document.MoveCaretLeft(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 1, 0, 0})) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.MoveCaretRight(false));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 1, 0, 1})) << document.GetEditorState().ToString();
+    document.WaitTask(document.MoveCaretRight(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 1, 0, 1})) << document.GetEditorState().ToString();
 }
 
 //Copy-paste
@@ -374,6 +384,24 @@ TEST_F(FormulaTest, indefinite_integral9)
             "</p>"\
         "</body>") <<
         document.ToHtml();
+}
+
+//Check selection between elements
+TEST_F(FormulaTest, indefinite_integral10)
+{
+    Start(600);
+
+    document.InsertIndefiniteIntegral(true);
+    document.InsertString("x", true);
+    document.InsertDivision(true);
+    document.InsertString("y", true);
+    document.MoveCaretRight(false);
+    document.WaitTask(document.MoveCaretRight(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 1, 1})) << document.GetEditorState().ToString();
+
+    document.MoveCaretHome(false);
+    document.WaitTask(document.MoveCaretLeft(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 1, 0})) << document.GetEditorState().ToString();
 }
 
 }

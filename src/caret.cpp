@@ -700,6 +700,10 @@ bool Caret::IsInsideElement(const ElementId& id)
         return false;
     if (document->IsString(el->id))
         return id == el->id || IsChild(id, el->id);
+    else if (document->IsRow(el->id) && id == el->id)
+        return true;
+    else if (last_pos && id == el->id)
+        return true;
     return IsChild(id, el->id);
 }
 
