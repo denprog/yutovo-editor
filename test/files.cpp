@@ -22,12 +22,14 @@ TEST_F(DocumentTest, files1)
 {
     Start(600);
 
-    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
+    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly(
+        [&](const std::u32string& text, const StringFormatPtr format)
         {
             return GetTextSizeMock(text, format);
         });
 
-    EXPECT_CALL(window_mock, OnSaveResult).WillOnce([&](const uint task_id, IOResult result, const int document_id)
+    EXPECT_CALL(window_mock, OnSaveResult).WillOnce(
+        [&](const uint task_id, IOResult result, const int document_id)
         {
             ASSERT_TRUE(result == IOResult::Success);
         });
@@ -78,12 +80,14 @@ TEST_F(DocumentTest, files2)
 {
     Start(600);
 
-    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
+    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly(
+        [&](const std::u32string& text, const StringFormatPtr format)
         {
             return GetTextSizeMock(text, format);
         });
 
-    EXPECT_CALL(window_mock, OnSaveResult).WillOnce([&](const uint task_id, IOResult result, const int document_id)
+    EXPECT_CALL(window_mock, OnSaveResult).WillOnce(
+        [&](const uint task_id, IOResult result, const int document_id)
         {
             ASSERT_TRUE(result == IOResult::Success);
         });
@@ -151,7 +155,8 @@ TEST_F(DocumentTest, files3)
 {
     Start(642);
 
-    EXPECT_CALL(window_mock, OnSaveResult).WillRepeatedly([&](const uint task_id, IOResult result, const int document_id)
+    EXPECT_CALL(window_mock, OnSaveResult).WillRepeatedly(
+        [&](const uint task_id, IOResult result, const int document_id)
         {
             ASSERT_TRUE(result == IOResult::Success);
         });
@@ -291,12 +296,14 @@ TEST_F(DocumentTest, files4)
         "</body>") 
         << document.ToHtml();
 
-    EXPECT_CALL(window_mock, OnSaveResult).WillOnce([&](const uint task_id, IOResult result, const int document_id)
+    EXPECT_CALL(window_mock, OnSaveResult).WillOnce(
+        [&](const uint task_id, IOResult result, const int document_id)
         {
             ASSERT_TRUE(result == IOResult::Success);
         });
 
-    EXPECT_CALL(window_mock, OnLoadResult).WillOnce([&](const uint task_id, IOResult result, const int document_id)
+    EXPECT_CALL(window_mock, OnLoadResult).WillOnce(
+        [&](const uint task_id, IOResult result, const int document_id)
         {
             ASSERT_TRUE(result == IOResult::Success);
         });
@@ -339,12 +346,14 @@ TEST_F(DocumentTest, files5)
 {
     Start(600);
 
-    EXPECT_CALL(window_mock, OnLoadResult).WillRepeatedly([&](const uint task_id, IOResult result, const int document_id)
+    EXPECT_CALL(window_mock, OnLoadResult).WillRepeatedly(
+        [&](const uint task_id, IOResult result, const int document_id)
         {
             ASSERT_TRUE(result == IOResult::Success);
         });
 
-    EXPECT_CALL(window_mock, OnSaveResult).WillOnce([&](const uint task_id, IOResult result, const int document_id)
+    EXPECT_CALL(window_mock, OnSaveResult).WillOnce(
+        [&](const uint task_id, IOResult result, const int document_id)
         {
             ASSERT_TRUE(result == IOResult::Success);
         });
@@ -377,7 +386,8 @@ TEST_F(DocumentTest, files6)
 {
     Start(600);
 
-    EXPECT_CALL(window_mock, OnLoadResult).WillOnce([&](const uint task_id, IOResult result, const int document_id)
+    EXPECT_CALL(window_mock, OnLoadResult).WillOnce(
+        [&](const uint task_id, IOResult result, const int document_id)
         {
             ASSERT_TRUE(result == IOResult::InputStreamError);
         });
@@ -392,7 +402,8 @@ TEST_F(DocumentTest, files7)
 {
     Start(600);
 
-    EXPECT_CALL(window_mock, OnLoadResult).WillOnce([&](const uint task_id, IOResult result, const int document_id)
+    EXPECT_CALL(window_mock, OnLoadResult).WillOnce(
+        [&](const uint task_id, IOResult result, const int document_id)
         {
             ASSERT_TRUE(result == IOResult::InputStreamError);
         });
@@ -486,7 +497,8 @@ TEST_F(DocumentTest, files10)
 {
     Start(600);
 
-    EXPECT_CALL(window_mock, OnSaveResult).WillOnce([&](const uint task_id, IOResult result, const int document_id)
+    EXPECT_CALL(window_mock, OnSaveResult).WillOnce(
+        [&](const uint task_id, IOResult result, const int document_id)
         {
             ASSERT_TRUE(result == IOResult::Success);
         });
@@ -527,7 +539,8 @@ TEST_F(DocumentTest, files11)
 {
     Start(600);
 
-    EXPECT_CALL(window_mock, OnSaveResult).WillOnce([&](const uint task_id, IOResult result, const int document_id)
+    EXPECT_CALL(window_mock, OnSaveResult).WillOnce(
+        [&](const uint task_id, IOResult result, const int document_id)
         {
             ASSERT_TRUE(result == IOResult::Success);
         });
@@ -566,7 +579,8 @@ TEST_F(DocumentTest, files12)
 {
     Start(600);
 
-    EXPECT_CALL(window_mock, OnSaveResult).WillOnce([&](const uint task_id, IOResult result, const int document_id)
+    EXPECT_CALL(window_mock, OnSaveResult).WillOnce(
+        [&](const uint task_id, IOResult result, const int document_id)
         {
             ASSERT_TRUE(result == IOResult::Success);
         });
@@ -622,7 +636,8 @@ TEST_F(DocumentTest, files13)
 {
     Start(600);
 
-    EXPECT_CALL(window_mock, OnSaveResult).WillOnce([&](const uint task_id, IOResult result, const int document_id)
+    EXPECT_CALL(window_mock, OnSaveResult).WillOnce(
+        [&](const uint task_id, IOResult result, const int document_id)
         {
             ASSERT_TRUE(result == IOResult::Success);
         });
@@ -655,7 +670,8 @@ TEST_F(DocumentTest, files14)
 {
     Start(600);
 
-    EXPECT_CALL(window_mock, OnSaveResult).WillOnce([&](const uint task_id, IOResult result, const int document_id)
+    EXPECT_CALL(window_mock, OnSaveResult).WillOnce(
+        [&](const uint task_id, IOResult result, const int document_id)
         {
             ASSERT_TRUE(result == IOResult::Success);
         });
@@ -681,7 +697,8 @@ TEST_F(DocumentTest, files15)
 {
     Start(600);
 
-    EXPECT_CALL(window_mock, OnSaveResult).WillOnce([&](const uint task_id, IOResult result, const int document_id)
+    EXPECT_CALL(window_mock, OnSaveResult).WillOnce(
+        [&](const uint task_id, IOResult result, const int document_id)
         {
             ASSERT_TRUE(result == IOResult::Success);
         });
@@ -715,7 +732,8 @@ TEST_F(DocumentTest, files16)
 {
     Start(510);
 
-    EXPECT_CALL(window_mock, OnSaveResult).WillOnce([&](const uint task_id, IOResult result, const int document_id)
+    EXPECT_CALL(window_mock, OnSaveResult).WillOnce(
+        [&](const uint task_id, IOResult result, const int document_id)
         {
             ASSERT_TRUE(result == IOResult::Success);
         });
@@ -743,7 +761,8 @@ TEST_F(DocumentTest, files17)
 {
     Start(600);
 
-    EXPECT_CALL(window_mock, OnSaveResult).WillOnce([&](const uint task_id, IOResult result, const int document_id)
+    EXPECT_CALL(window_mock, OnSaveResult).WillOnce(
+        [&](const uint task_id, IOResult result, const int document_id)
         {
             ASSERT_TRUE(result == IOResult::Success);
         });
@@ -768,7 +787,8 @@ TEST_F(DocumentTest, files18)
 {
     Start(600);
 
-    EXPECT_CALL(window_mock, OnSaveResult).WillOnce([&](const uint task_id, IOResult result, const int document_id)
+    EXPECT_CALL(window_mock, OnSaveResult).WillOnce(
+        [&](const uint task_id, IOResult result, const int document_id)
         {
             ASSERT_TRUE(result == IOResult::Success);
         });
@@ -800,7 +820,8 @@ TEST_F(DocumentTest, files19)
 {
     Start(600);
 
-    EXPECT_CALL(window_mock, OnSaveResult).WillOnce([&](const uint task_id, IOResult result, const int document_id)
+    EXPECT_CALL(window_mock, OnSaveResult).WillOnce(
+        [&](const uint task_id, IOResult result, const int document_id)
         {
             ASSERT_TRUE(result == IOResult::Success);
         });
@@ -832,12 +853,14 @@ TEST_F(DocumentTest, files20)
 {
     Start(600);
 
-    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
+    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly(
+        [&](const std::u32string& text, const StringFormatPtr format)
         {
             return GetTextSizeMock(text, format);
         });
 
-    EXPECT_CALL(window_mock, OnSaveResult).WillOnce([&](const uint task_id, IOResult result, const int document_id)
+    EXPECT_CALL(window_mock, OnSaveResult).WillOnce(
+        [&](const uint task_id, IOResult result, const int document_id)
         {
             ASSERT_TRUE(result == IOResult::Success);
         });
@@ -904,12 +927,14 @@ TEST_F(DocumentTest, files21)
 {
     Start(600);
 
-    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
+    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly(
+        [&](const std::u32string& text, const StringFormatPtr format)
         {
             return GetTextSizeMock(text, format);
         });
 
-    EXPECT_CALL(window_mock, OnSaveResult).WillOnce([&](const uint task_id, IOResult result, const int document_id)
+    EXPECT_CALL(window_mock, OnSaveResult).WillOnce(
+        [&](const uint task_id, IOResult result, const int document_id)
         {
             ASSERT_TRUE(result == IOResult::Success);
         });
@@ -932,12 +957,14 @@ TEST_F(DocumentTest, files22)
 {
     Start(600);
 
-    EXPECT_CALL(window_mock, OnSaveResult).WillOnce([&](const uint task_id, IOResult result, const int document_id)
+    EXPECT_CALL(window_mock, OnSaveResult).WillOnce(
+        [&](const uint task_id, IOResult result, const int document_id)
         {
             ASSERT_TRUE(result == IOResult::Success);
         });
 
-    EXPECT_CALL(window_mock, OnLoadResult).WillOnce([&](const uint task_id, IOResult result, const int document_id)
+    EXPECT_CALL(window_mock, OnLoadResult).WillOnce(
+        [&](const uint task_id, IOResult result, const int document_id)
         {
             ASSERT_TRUE(result == IOResult::Success);
         });
@@ -971,12 +998,14 @@ TEST_F(TwoDocumentsTest, files23)
 {
     Start(600);
 
-    EXPECT_CALL(window_mock, OnSaveResult).WillOnce([&](const uint task_id, IOResult result, const int document_id)
+    EXPECT_CALL(window_mock, OnSaveResult).WillOnce(
+        [&](const uint task_id, IOResult result, const int document_id)
         {
             ASSERT_TRUE(result == IOResult::Success);
         });
 
-    EXPECT_CALL(window_mock2, OnLoadResult).WillOnce([&](const uint task_id, IOResult result, const int document_id)
+    EXPECT_CALL(window_mock2, OnLoadResult).WillOnce(
+        [&](const uint task_id, IOResult result, const int document_id)
         {
             ASSERT_TRUE(result == IOResult::Success);
         });
@@ -1005,12 +1034,14 @@ TEST_F(DocumentTest, files24)
 {
     Start(600);
 
-    EXPECT_CALL(window_mock, OnSaveResult).WillOnce([&](const uint task_id, IOResult result, const int document_id)
+    EXPECT_CALL(window_mock, OnSaveResult).WillOnce(
+        [&](const uint task_id, IOResult result, const int document_id)
         {
             ASSERT_TRUE(result == IOResult::Success);
         });
 
-    EXPECT_CALL(window_mock, Translate).WillRepeatedly([&](ElementId id, const std::u32string& str)
+    EXPECT_CALL(window_mock, Translate).WillRepeatedly(
+        [&](ElementId id, const std::u32string& str)
         {
             return str;
         });
@@ -1046,7 +1077,8 @@ TEST_F(DocumentTest, files25)
 {
     Start(600);
 
-    EXPECT_CALL(window_mock, OnSaveResult).WillOnce([&](const uint task_id, IOResult result, const int document_id)
+    EXPECT_CALL(window_mock, OnSaveResult).WillOnce(
+        [&](const uint task_id, IOResult result, const int document_id)
         {
             ASSERT_TRUE(result == IOResult::Success);
         });
@@ -1092,12 +1124,14 @@ TEST_F(DocumentTest, files26)
 {
     Start(400);
 
-    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
+    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly(
+        [&](const std::u32string& text, const StringFormatPtr format)
         {
             return GetTextSizeMock(text, format);
         });
 
-    EXPECT_CALL(window_mock, OnSaveResult).WillOnce([&](const uint task_id, IOResult result, const int document_id)
+    EXPECT_CALL(window_mock, OnSaveResult).WillOnce(
+        [&](const uint task_id, IOResult result, const int document_id)
         {
             ASSERT_TRUE(result == IOResult::Success);
         });
@@ -1121,12 +1155,14 @@ TEST_F(DocumentTest, files27)
 {
     Start(400);
 
-    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly([&](const std::u32string& text, const StringFormatPtr format)
+    EXPECT_CALL(window_mock, GetTextSize).WillRepeatedly(
+        [&](const std::u32string& text, const StringFormatPtr format)
         {
             return GetTextSizeMock(text, format);
         });
 
-    EXPECT_CALL(window_mock, OnSaveResult).WillOnce([&](const uint task_id, IOResult result, const int document_id)
+    EXPECT_CALL(window_mock, OnSaveResult).WillOnce(
+        [&](const uint task_id, IOResult result, const int document_id)
         {
             ASSERT_TRUE(result == IOResult::Success);
         });
@@ -1152,18 +1188,21 @@ TEST_F(IncludeDocumentsTest, include_files1)
 {
     Start(600);
 
-    EXPECT_CALL(window_mock, OnSaveResult).WillOnce([&](const uint task_id, IOResult result, const int document_id)
+    EXPECT_CALL(window_mock, OnSaveResult).WillOnce(
+        [&](const uint task_id, IOResult result, const int document_id)
         {
             ASSERT_TRUE(result == IOResult::Success);
         });
 
-    EXPECT_CALL(window_mock, OnLoadInclude).WillOnce([&](const std::string& file_name, const int document_id)
+    EXPECT_CALL(window_mock, OnLoadInclude).WillOnce(
+        [&](const std::string& file_name, const int document_id)
         {
             document.LoadInclude(file_name);
             std::this_thread::sleep_for(400ms);
         });
 
-    EXPECT_CALL(window_mock, Translate).WillRepeatedly([&](ElementId id, const std::u32string& str)
+    EXPECT_CALL(window_mock, Translate).WillRepeatedly(
+        [&](ElementId id, const std::u32string& str)
         {
             return str;
         });
@@ -1197,18 +1236,21 @@ TEST_F(IncludeDocumentsTest, include_files2)
 {
     Start(600);
 
-    EXPECT_CALL(window_mock, OnSaveResult).WillRepeatedly([&](const uint task_id, IOResult result, const int document_id)
+    EXPECT_CALL(window_mock, OnSaveResult).WillRepeatedly(
+        [&](const uint task_id, IOResult result, const int document_id)
         {
             ASSERT_TRUE(result == IOResult::Success);
         });
 
-    EXPECT_CALL(window_mock, OnLoadInclude).WillRepeatedly([&](const std::string& file_name, const int document_id)
+    EXPECT_CALL(window_mock, OnLoadInclude).WillRepeatedly(
+        [&](const std::string& file_name, const int document_id)
         {
             document.LoadInclude(file_name);
             std::this_thread::sleep_for(400ms);
         });
 
-    EXPECT_CALL(window_mock, Translate).WillRepeatedly([&](ElementId id, const std::u32string& str)
+    EXPECT_CALL(window_mock, Translate).WillRepeatedly(
+        [&](ElementId id, const std::u32string& str)
         {
             return str;
         });
@@ -1271,18 +1313,21 @@ TEST_F(IncludeDocumentsTest, include_files3)
 {
     Start(600);
 
-    EXPECT_CALL(window_mock, OnSaveResult).WillRepeatedly([&](const uint task_id, IOResult result, const int document_id)
+    EXPECT_CALL(window_mock, OnSaveResult).WillRepeatedly(
+        [&](const uint task_id, IOResult result, const int document_id)
         {
             ASSERT_TRUE(result == IOResult::Success);
         });
 
-    EXPECT_CALL(window_mock, OnLoadInclude).WillRepeatedly([&](const std::string& file_name, const int document_id)
+    EXPECT_CALL(window_mock, OnLoadInclude).WillRepeatedly(
+        [&](const std::string& file_name, const int document_id)
         {
             document.LoadInclude(file_name);
             std::this_thread::sleep_for(400ms);
         });
 
-    EXPECT_CALL(window_mock, Translate).WillRepeatedly([&](ElementId id, const std::u32string& str)
+    EXPECT_CALL(window_mock, Translate).WillRepeatedly(
+        [&](ElementId id, const std::u32string& str)
         {
             return str;
         });
@@ -1344,18 +1389,21 @@ TEST_F(IncludeDocumentsTest, include_files4)
 {
     Start(600);
 
-    EXPECT_CALL(window_mock, OnSaveResult).WillRepeatedly([&](const uint task_id, IOResult result, const int document_id)
+    EXPECT_CALL(window_mock, OnSaveResult).WillRepeatedly(
+        [&](const uint task_id, IOResult result, const int document_id)
         {
             ASSERT_TRUE(result == IOResult::Success);
         });
 
-    EXPECT_CALL(window_mock, OnLoadInclude).WillRepeatedly([&](const std::string& file_name, const int document_id)
+    EXPECT_CALL(window_mock, OnLoadInclude).WillRepeatedly(
+        [&](const std::string& file_name, const int document_id)
         {
             document.LoadInclude(file_name);
             std::this_thread::sleep_for(400ms);
         });
 
-    EXPECT_CALL(window_mock, Translate).WillRepeatedly([&](ElementId id, const std::u32string& str)
+    EXPECT_CALL(window_mock, Translate).WillRepeatedly(
+        [&](ElementId id, const std::u32string& str)
         {
             return str;
         });
@@ -1395,12 +1443,14 @@ TEST_F(IncludeDocumentsTest, include_files4)
         ) << ToBasicString(document.ToText());
     document.WaitTask(document.Save("include4_2.yut"));
 
-    EXPECT_CALL(window_mock2, Translate).WillRepeatedly([&](ElementId id, const std::u32string& str)
+    EXPECT_CALL(window_mock2, Translate).WillRepeatedly(
+        [&](ElementId id, const std::u32string& str)
         {
             return str;
         });
 
-    EXPECT_CALL(window_mock2, OnLoadInclude).WillRepeatedly([&](const std::string& file_name, const int document_id)
+    EXPECT_CALL(window_mock2, OnLoadInclude).WillRepeatedly(
+        [&](const std::string& file_name, const int document_id)
         {
             document2.LoadInclude(file_name);
             std::this_thread::sleep_for(400ms);
@@ -1420,18 +1470,21 @@ TEST_F(IncludeDocumentsTest, include_files5)
 {
     Start(600);
 
-    EXPECT_CALL(window_mock, OnSaveResult).WillOnce([&](const uint task_id, IOResult result, const int document_id)
+    EXPECT_CALL(window_mock, OnSaveResult).WillOnce(
+        [&](const uint task_id, IOResult result, const int document_id)
         {
             ASSERT_TRUE(result == IOResult::Success);
         });
 
-    EXPECT_CALL(window_mock, OnLoadInclude).WillOnce([&](const std::string& file_name, const int document_id)
+    EXPECT_CALL(window_mock, OnLoadInclude).WillOnce(
+        [&](const std::string& file_name, const int document_id)
         {
             document.LoadInclude(file_name);
             std::this_thread::sleep_for(400ms);
         });
 
-    EXPECT_CALL(window_mock, Translate).WillRepeatedly([&](ElementId id, const std::u32string& str)
+    EXPECT_CALL(window_mock, Translate).WillRepeatedly(
+        [&](ElementId id, const std::u32string& str)
         {
             return str;
         });
@@ -1470,18 +1523,21 @@ TEST_F(IncludeDocumentsTest, include_files6)
 {
     Start(600);
 
-    EXPECT_CALL(window_mock, OnSaveResult).WillOnce([&](const uint task_id, IOResult result, const int document_id)
+    EXPECT_CALL(window_mock, OnSaveResult).WillOnce(
+        [&](const uint task_id, IOResult result, const int document_id)
         {
             ASSERT_TRUE(result == IOResult::Success);
         });
 
-    EXPECT_CALL(window_mock, OnLoadInclude).WillOnce([&](const std::string& file_name, const int document_id)
+    EXPECT_CALL(window_mock, OnLoadInclude).WillOnce(
+        [&](const std::string& file_name, const int document_id)
         {
             document.LoadInclude(file_name);
             std::this_thread::sleep_for(400ms);
         });
 
-    EXPECT_CALL(window_mock, Translate).WillRepeatedly([&](ElementId id, const std::u32string& str)
+    EXPECT_CALL(window_mock, Translate).WillRepeatedly(
+        [&](ElementId id, const std::u32string& str)
         {
             return str;
         });
@@ -1514,18 +1570,21 @@ TEST_F(IncludeDocumentsTest, include_files7)
 {
     Start(600);
 
-    EXPECT_CALL(window_mock, OnSaveResult).WillRepeatedly([&](const uint task_id, IOResult result, const int document_id)
+    EXPECT_CALL(window_mock, OnSaveResult).WillRepeatedly(
+        [&](const uint task_id, IOResult result, const int document_id)
         {
             ASSERT_TRUE(result == IOResult::Success);
         });
 
-    EXPECT_CALL(window_mock, OnLoadInclude).WillRepeatedly([&](const std::string& file_name, const int document_id)
+    EXPECT_CALL(window_mock, OnLoadInclude).WillRepeatedly(
+        [&](const std::string& file_name, const int document_id)
         {
             document.LoadInclude(file_name);
             std::this_thread::sleep_for(400ms);
         });
 
-    EXPECT_CALL(window_mock, Translate).WillRepeatedly([&](ElementId id, const std::u32string& str)
+    EXPECT_CALL(window_mock, Translate).WillRepeatedly(
+        [&](ElementId id, const std::u32string& str)
         {
             return str;
         });
@@ -1573,13 +1632,15 @@ TEST_F(IncludeDocumentsTest, include_files7)
     document.WaitTask(document.Save("include3.yut"));
     std::this_thread::sleep_for(200ms);
 
-    EXPECT_CALL(window_mock2, OnLoadInclude).WillRepeatedly([&](const std::string& file_name, const int document_id)
+    EXPECT_CALL(window_mock2, OnLoadInclude).WillRepeatedly(
+        [&](const std::string& file_name, const int document_id)
         {
             document2.LoadInclude(file_name);
             std::this_thread::sleep_for(400ms);
         });
 
-    EXPECT_CALL(window_mock2, Translate).WillRepeatedly([&](ElementId id, const std::u32string& str)
+    EXPECT_CALL(window_mock2, Translate).WillRepeatedly(
+        [&](ElementId id, const std::u32string& str)
         {
             return str;
         });
@@ -1621,18 +1682,21 @@ TEST_F(IncludeDocumentsTest, include_files8)
 {
     Start(600);
 
-    EXPECT_CALL(window_mock, OnSaveResult).WillRepeatedly([&](const uint task_id, IOResult result, const int document_id)
+    EXPECT_CALL(window_mock, OnSaveResult).WillRepeatedly(
+        [&](const uint task_id, IOResult result, const int document_id)
         {
             ASSERT_TRUE(result == IOResult::Success);
         });
 
-    EXPECT_CALL(window_mock, OnLoadInclude).WillRepeatedly([&](const std::string& file_name, const int document_id)
+    EXPECT_CALL(window_mock, OnLoadInclude).WillRepeatedly(
+        [&](const std::string& file_name, const int document_id)
         {
             document.LoadInclude(file_name);
             std::this_thread::sleep_for(400ms);
         });
 
-    EXPECT_CALL(window_mock, Translate).WillRepeatedly([&](ElementId id, const std::u32string& str)
+    EXPECT_CALL(window_mock, Translate).WillRepeatedly(
+        [&](ElementId id, const std::u32string& str)
         {
             return str;
         });
@@ -1666,13 +1730,15 @@ TEST_F(IncludeDocumentsTest, include_files8)
     document.WaitTask(document.Save("include3.yut"));
     std::this_thread::sleep_for(200ms);
 
-    EXPECT_CALL(window_mock2, OnLoadInclude).WillRepeatedly([&](const std::string& file_name, const int document_id)
+    EXPECT_CALL(window_mock2, OnLoadInclude).WillRepeatedly(
+        [&](const std::string& file_name, const int document_id)
         {
             document2.LoadInclude(file_name);
             std::this_thread::sleep_for(400ms);
         });
 
-    EXPECT_CALL(window_mock2, Translate).WillRepeatedly([&](ElementId id, const std::u32string& str)
+    EXPECT_CALL(window_mock2, Translate).WillRepeatedly(
+        [&](ElementId id, const std::u32string& str)
         {
             return str;
         });
@@ -1694,18 +1760,21 @@ TEST_F(IncludeDocumentsTest, include_files9)
 {
     Start(600);
 
-    EXPECT_CALL(window_mock, OnSaveResult).WillRepeatedly([&](const uint task_id, IOResult result, const int document_id)
+    EXPECT_CALL(window_mock, OnSaveResult).WillRepeatedly(
+        [&](const uint task_id, IOResult result, const int document_id)
         {
             ASSERT_TRUE(result == IOResult::Success);
         });
 
-    EXPECT_CALL(window_mock, OnLoadInclude).WillRepeatedly([&](const std::string& file_name, const int document_id)
+    EXPECT_CALL(window_mock, OnLoadInclude).WillRepeatedly(
+        [&](const std::string& file_name, const int document_id)
         {
             document.LoadInclude(file_name);
             std::this_thread::sleep_for(400ms);
         });
 
-    EXPECT_CALL(window_mock, Translate).WillRepeatedly([&](ElementId id, const std::u32string& str)
+    EXPECT_CALL(window_mock, Translate).WillRepeatedly(
+        [&](ElementId id, const std::u32string& str)
         {
             return str;
         });
@@ -1723,13 +1792,15 @@ TEST_F(IncludeDocumentsTest, include_files9)
     ASSERT_TRUE(document.IsChanged() == false);
     std::this_thread::sleep_for(200ms);
 
-    EXPECT_CALL(window_mock2, OnLoadInclude).WillRepeatedly([&](const std::string& file_name, const int document_id)
+    EXPECT_CALL(window_mock2, OnLoadInclude).WillRepeatedly(
+        [&](const std::string& file_name, const int document_id)
         {
             document2.LoadInclude(file_name);
             std::this_thread::sleep_for(400ms);
         });
 
-    EXPECT_CALL(window_mock2, Translate).WillRepeatedly([&](ElementId id, const std::u32string& str)
+    EXPECT_CALL(window_mock2, Translate).WillRepeatedly(
+        [&](ElementId id, const std::u32string& str)
         {
             return str;
         });
@@ -1752,18 +1823,21 @@ TEST_F(IncludeDocumentsTest, include_files10)
 {
     Start(600);
 
-    EXPECT_CALL(window_mock, OnSaveResult).WillRepeatedly([&](const uint task_id, IOResult result, const int document_id)
+    EXPECT_CALL(window_mock, OnSaveResult).WillRepeatedly(
+        [&](const uint task_id, IOResult result, const int document_id)
         {
             ASSERT_TRUE(result == IOResult::Success);
         });
 
-    EXPECT_CALL(window_mock, OnLoadInclude).WillRepeatedly([&](const std::string& file_name, const int document_id)
+    EXPECT_CALL(window_mock, OnLoadInclude).WillRepeatedly(
+        [&](const std::string& file_name, const int document_id)
         {
             document.LoadInclude(file_name);
             std::this_thread::sleep_for(400ms);
         });
 
-    EXPECT_CALL(window_mock, Translate).WillRepeatedly([&](ElementId id, const std::u32string& str)
+    EXPECT_CALL(window_mock, Translate).WillRepeatedly(
+        [&](ElementId id, const std::u32string& str)
         {
             return str;
         });
@@ -1796,12 +1870,14 @@ TEST_F(IncludeDocumentsTest, include_files10)
         U"var1=5."
         ) << ToBasicString(document.ToText());
 
-    EXPECT_CALL(window_mock2, Translate).WillRepeatedly([&](ElementId id, const std::u32string& str)
+    EXPECT_CALL(window_mock2, Translate).WillRepeatedly(
+        [&](ElementId id, const std::u32string& str)
         {
             return str;
         });
 
-    EXPECT_CALL(window_mock2, OnLoadInclude).WillRepeatedly([&](const std::string& file_name, const int document_id)
+    EXPECT_CALL(window_mock2, OnLoadInclude).WillRepeatedly(
+        [&](const std::string& file_name, const int document_id)
         {
             document2.LoadInclude(file_name);
             std::this_thread::sleep_for(400ms);
@@ -1821,18 +1897,21 @@ TEST_F(IncludeDocumentsTest, include_files11)
 {
     Start(600);
 
-    EXPECT_CALL(window_mock, OnSaveResult).WillRepeatedly([&](const uint task_id, IOResult result, const int document_id)
+    EXPECT_CALL(window_mock, OnSaveResult).WillRepeatedly(
+        [&](const uint task_id, IOResult result, const int document_id)
         {
             ASSERT_TRUE(result == IOResult::Success);
         });
 
-    EXPECT_CALL(window_mock2, OnLoadInclude).WillRepeatedly([&](const std::string& file_name, const int document_id)
+    EXPECT_CALL(window_mock2, OnLoadInclude).WillRepeatedly(
+        [&](const std::string& file_name, const int document_id)
         {
             document2.LoadInclude(file_name);
             std::this_thread::sleep_for(400ms);
         });
 
-    EXPECT_CALL(window_mock, Translate).WillRepeatedly([&](ElementId id, const std::u32string& str)
+    EXPECT_CALL(window_mock, Translate).WillRepeatedly(
+        [&](ElementId id, const std::u32string& str)
         {
             return str;
         });
@@ -1891,18 +1970,21 @@ TEST_F(IncludeDocumentsTest, include_files12)
 {
     Start(600);
 
-    EXPECT_CALL(window_mock, OnSaveResult).WillRepeatedly([&](const uint task_id, IOResult result, const int document_id)
+    EXPECT_CALL(window_mock, OnSaveResult).WillRepeatedly(
+        [&](const uint task_id, IOResult result, const int document_id)
         {
             ASSERT_TRUE(result == IOResult::Success);
         });
 
-    EXPECT_CALL(window_mock2, OnLoadInclude).WillRepeatedly([&](const std::string& file_name, const int document_id)
+    EXPECT_CALL(window_mock2, OnLoadInclude).WillRepeatedly(
+        [&](const std::string& file_name, const int document_id)
         {
             document2.LoadInclude(file_name);
             std::this_thread::sleep_for(400ms);
         });
 
-    EXPECT_CALL(window_mock, Translate).WillRepeatedly([&](ElementId id, const std::u32string& str)
+    EXPECT_CALL(window_mock, Translate).WillRepeatedly(
+        [&](ElementId id, const std::u32string& str)
         {
             return str;
         });
@@ -1975,18 +2057,21 @@ TEST_F(IncludeDocumentsTest, include_files13)
 {
     Start(600);
 
-    EXPECT_CALL(window_mock, OnSaveResult).WillRepeatedly([&](const uint task_id, IOResult result, const int document_id)
+    EXPECT_CALL(window_mock, OnSaveResult).WillRepeatedly(
+        [&](const uint task_id, IOResult result, const int document_id)
         {
             ASSERT_TRUE(result == IOResult::Success);
         });
 
-    EXPECT_CALL(window_mock2, OnLoadInclude).WillRepeatedly([&](const std::string& file_name, const int document_id)
+    EXPECT_CALL(window_mock2, OnLoadInclude).WillRepeatedly(
+        [&](const std::string& file_name, const int document_id)
         {
             document2.LoadInclude(file_name);
             std::this_thread::sleep_for(400ms);
         });
 
-    EXPECT_CALL(window_mock2, Translate).WillRepeatedly([&](ElementId id, const std::u32string& str)
+    EXPECT_CALL(window_mock2, Translate).WillRepeatedly(
+        [&](ElementId id, const std::u32string& str)
         {
             return str;
         });
@@ -2027,18 +2112,21 @@ TEST_F(IncludeDocumentsTest, include_files14)
 {
     Start(600);
 
-    EXPECT_CALL(window_mock, OnSaveResult).WillRepeatedly([&](const uint task_id, IOResult result, const int document_id)
+    EXPECT_CALL(window_mock, OnSaveResult).WillRepeatedly(
+        [&](const uint task_id, IOResult result, const int document_id)
         {
             ASSERT_TRUE(result == IOResult::Success);
         });
 
-    EXPECT_CALL(window_mock2, OnLoadInclude).WillRepeatedly([&](const std::string& file_name, const int document_id)
+    EXPECT_CALL(window_mock2, OnLoadInclude).WillRepeatedly(
+        [&](const std::string& file_name, const int document_id)
         {
             document2.LoadInclude(file_name);
             std::this_thread::sleep_for(400ms);
         });
 
-    EXPECT_CALL(window_mock2, Translate).WillRepeatedly([&](ElementId id, const std::u32string& str)
+    EXPECT_CALL(window_mock2, Translate).WillRepeatedly(
+        [&](ElementId id, const std::u32string& str)
         {
             return str;
         });
@@ -2079,12 +2167,14 @@ TEST_F(IncludeDocumentsTest, include_files15)
 {
     Start(600);
 
-    EXPECT_CALL(window_mock, OnSaveResult).WillRepeatedly([&](const uint task_id, IOResult result, const int document_id)
+    EXPECT_CALL(window_mock, OnSaveResult).WillRepeatedly(
+        [&](const uint task_id, IOResult result, const int document_id)
         {
             ASSERT_TRUE(result == IOResult::Success);
         });
 
-    EXPECT_CALL(window_mock, OnLoadInclude).WillRepeatedly([&](const std::string& file_name, const int document_id)
+    EXPECT_CALL(window_mock, OnLoadInclude).WillRepeatedly(
+        [&](const std::string& file_name, const int document_id)
         {
             ASSERT_TRUE(file_name == "include1.yut");
             std::string json = "{\"file_guid\":\"6dfd2a78-44f9-4dfa-af67-620f0e36f8d9\",\"config\":{\"language\":1,\"use_tabs\":true,\"tab_spaces\":4,\
@@ -2145,7 +2235,8 @@ TEST_F(IncludeDocumentsTest, include_files15)
             std::this_thread::sleep_for(400ms);
         });
 
-    EXPECT_CALL(window_mock, Translate).WillRepeatedly([&](ElementId id, const std::u32string& str)
+    EXPECT_CALL(window_mock, Translate).WillRepeatedly(
+        [&](ElementId id, const std::u32string& str)
         {
             return str;
         });
@@ -2166,20 +2257,22 @@ TEST_F(IncludeDocumentsTest, include_files16)
 {
     Start(600);
 
-    EXPECT_CALL(window_mock, OnLoadInclude).WillOnce([&](const std::string& file_name, const int document_id)
+    EXPECT_CALL(window_mock, OnLoadInclude).WillOnce(
+        [&](const std::string& file_name, const int document_id)
         {
             document.LoadInclude(file_name);
             std::this_thread::sleep_for(400ms);
         });
 
-    EXPECT_CALL(window_mock, Translate).WillRepeatedly([&](ElementId id, const std::u32string& str)
+    EXPECT_CALL(window_mock, Translate).WillRepeatedly(
+        [&](ElementId id, const std::u32string& str)
         {
             return str;
         });
 
     document.Load("../../test/tests/include_files16_2.yut");
     document.WaitLoad();
-    std::this_thread::sleep_for(4s);
+    std::this_thread::sleep_for(6s);
     ASSERT_TRUE(document.ToText() == 
         U"t=234\n"\
         U"d=234."
@@ -2199,20 +2292,22 @@ TEST_F(IncludeDocumentsTest, include_files17)
 {
     Start(600);
 
-    EXPECT_CALL(window_mock, OnLoadInclude).WillOnce([&](const std::string& file_name, const int document_id)
+    EXPECT_CALL(window_mock, OnLoadInclude).WillOnce(
+        [&](const std::string& file_name, const int document_id)
         {
             document.LoadInclude(file_name);
             std::this_thread::sleep_for(400ms);
         });
         
-    EXPECT_CALL(window_mock, Translate).WillRepeatedly([&](ElementId id, const std::u32string& str)
+    EXPECT_CALL(window_mock, Translate).WillRepeatedly(
+        [&](ElementId id, const std::u32string& str)
         {
             return str;
         });
 
     document.Load("../../test/tests/include_files17_2.yut");
     document.WaitLoad();
-    std::this_thread::sleep_for(4s);
+    std::this_thread::sleep_for(6s);
     ASSERT_TRUE(document.ToText() == 
         U"t=1234\n"\
         U"d=2468."
@@ -2244,13 +2339,15 @@ TEST_F(IncludeDocumentsTest, include_files18)
 {
     Start(600);
 
-    EXPECT_CALL(window_mock, OnLoadInclude).WillOnce([&](const std::string& file_name, const int document_id)
+    EXPECT_CALL(window_mock, OnLoadInclude).WillOnce(
+        [&](const std::string& file_name, const int document_id)
         {
             document.LoadInclude(file_name);
             std::this_thread::sleep_for(400ms);
         });
         
-    EXPECT_CALL(window_mock, Translate).WillRepeatedly([&](ElementId id, const std::u32string& str)
+    EXPECT_CALL(window_mock, Translate).WillRepeatedly(
+        [&](ElementId id, const std::u32string& str)
         {
             return str;
         });
@@ -2258,7 +2355,7 @@ TEST_F(IncludeDocumentsTest, include_files18)
     document.Load("../../test/tests/include_files18_2.yut");
     document.WaitLoad();
     document.WaitSolver();
-    std::this_thread::sleep_for(4s);
+    std::this_thread::sleep_for(6s);
     ASSERT_TRUE(document.ToText() == 
         U"проводник=\"алюминий\"\n"\
         U"длина=1м\n"\
@@ -2299,7 +2396,8 @@ TEST_F(IncludeDocumentsTest, include_files19)
 {
     Start(600);
 
-    EXPECT_CALL(window_mock, OnLoadInclude).WillOnce([&](const std::string& file_name, const int document_id)
+    EXPECT_CALL(window_mock, OnLoadInclude).WillOnce(
+        [&](const std::string& file_name, const int document_id)
         {
             document.LoadInclude(file_name);
             std::this_thread::sleep_for(400ms);
@@ -2308,7 +2406,7 @@ TEST_F(IncludeDocumentsTest, include_files19)
     document.Load("../../test/tests/include_files18_2.yut");
     document.WaitLoad();
     document.WaitSolver();
-    std::this_thread::sleep_for(4s);
+    std::this_thread::sleep_for(6s);
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 3, 0, 0, 0, 0, 0, 0, 0, 9}, 
         ElementSelectionState{ElementId{0, 3, 0, 0, 0, 0, 0}, 0, 1})) << document.GetEditorState().ToString();
 
@@ -2328,16 +2426,16 @@ TEST_F(IncludeDocumentsTest, include_files20)
 {
     Start(600);
 
-    EXPECT_CALL(window_mock, OnLoadInclude).WillRepeatedly([&](const std::string& file_name, const int document_id)
+    EXPECT_CALL(window_mock, OnLoadInclude).WillRepeatedly(
+        [&](const std::string& file_name, const int document_id)
         {
             document.LoadInclude(file_name);
-            std::this_thread::sleep_for(400ms);
         });
 
     document.Load("../../test/tests/include_files20_3.yut");
     document.WaitLoad();
     document.WaitSolver();
-    std::this_thread::sleep_for(5s);
+    std::this_thread::sleep_for(8s);
     ASSERT_TRUE(document.ToText() == 
         U"include files\n"\
         U"v=24.\n"\
@@ -2370,18 +2468,21 @@ TEST_F(IncludeDocumentsTest, include_files21)
 {
     Start(600);
 
-    EXPECT_CALL(window_mock2, OnLoadInclude).WillRepeatedly([&](const std::string& file_name, const int document_id)
+    EXPECT_CALL(window_mock2, OnLoadInclude).WillRepeatedly(
+        [&](const std::string& file_name, const int document_id)
         {
             document2.LoadInclude(file_name);
             std::this_thread::sleep_for(400ms);
         });
 
-    EXPECT_CALL(window_mock2, OnLoadResult).WillRepeatedly([&](const uint task_id, IOResult result, const int document_id)
+    EXPECT_CALL(window_mock2, OnLoadResult).WillRepeatedly(
+        [&](const uint task_id, IOResult result, const int document_id)
         {
             ASSERT_TRUE(result == IOResult::Success);
         });
 
-    EXPECT_CALL(window_mock2, Translate).WillRepeatedly([&](ElementId id, const std::u32string& str)
+    EXPECT_CALL(window_mock2, Translate).WillRepeatedly(
+        [&](ElementId id, const std::u32string& str)
         {
             return str;
         });
@@ -2422,7 +2523,8 @@ TEST_F(IncludeDocumentsTest, include_files22)
 {
     Start(600);
 
-    EXPECT_CALL(window_mock, OnLoadInclude).WillRepeatedly([&](const std::string& file_name, const int document_id)
+    EXPECT_CALL(window_mock, OnLoadInclude).WillRepeatedly(
+        [&](const std::string& file_name, const int document_id)
         {
             document.LoadInclude(file_name);
             std::this_thread::sleep_for(400ms);

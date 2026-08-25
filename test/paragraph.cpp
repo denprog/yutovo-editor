@@ -2149,8 +2149,8 @@ TEST_F(ParagraphTest, paragraph24)
 
     document.WaitTask(document.MoveCaretUp(true));
     std::this_thread::sleep_for(3s);
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 20}, 
-        ElementSelectionState{ElementId{0, 0, 0, 0}, 20, 10},
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 19}, 
+        ElementSelectionState{ElementId{0, 0, 0, 0}, 19, 11},
         ElementSelectionState{ElementId{0, 0, 0}, 1, 1},
         ElementSelectionState{ElementId{0}, 1, 3},
         ElementSelectionState{ElementId{0, 4, 0, 0}, 0, 23})) << document.GetEditorState().ToString();

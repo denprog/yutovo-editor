@@ -142,8 +142,27 @@ else()
 endif()
 
 if(NOT WIN32)
-	include(GoogleTest)
-	gtest_discover_tests(${PROJECT_NAME}_tests)
+    include(GoogleTest)
+    gtest_discover_tests(${PROJECT_NAME}_tests)
+endif()
+
+#the calculator worker executable must always sit next to the main executable, the solver looks it up there first
+if(NOT REMOTE_SOLVER)
+    if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+        set(YUTOVO_SOLVER_WORKER_BIN "${INSTALL_PATH}/bin/yutovo-solver-calculator-workerd")
+    else()
+        set(YUTOVO_SOLVER_WORKER_BIN "${INSTALL_PATH}/bin/yutovo-solver-calculator-worker")
+    endif()
+    if(WIN32)
+        set(YUTOVO_SOLVER_WORKER_BIN "${YUTOVO_SOLVER_WORKER_BIN}.exe")
+    endif()
+    if(EXISTS "${YUTOVO_SOLVER_WORKER_BIN}")
+        add_custom_command(TARGET ${PROJECT_NAME}_tests POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different "${YUTOVO_SOLVER_WORKER_BIN}" "$<TARGET_FILE_DIR:${PROJECT_NAME}_tests>"
+        )
+    else()
+        message(WARNING "yutovo-solver-calculator-worker not found in ${INSTALL_PATH}/bin, run make install in yutovo-solver first")
+    endif()
 endif()
 
 install(

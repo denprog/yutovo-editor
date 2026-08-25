@@ -285,6 +285,9 @@ Projects are built and tested in `build/debug/`:
 cd build/debug && cmake ../.. && make -j16 yutovo-editor_tests && ./test/yutovo-editor_tests --gtest_filter="FormulaTest.power23"
 ```
 
+### Run tests from `build/debug`, not from `build/debug/test`
+Tests that load documents use paths relative to the current working directory, e.g. `../../test/tests/solver42.yut`. Run the binary as `./test/yutovo-editor_tests ...` with the working directory `build/debug` — from `build/debug/test` those paths resolve to a nonexistent `build/test/tests/` and the test fails with `File not open` and then hangs forever in `WaitLoad`/`WaitSolver` (observed with `solver42` and `lists1`); it looks like a product hang but is a runner error.
+
 ## Testing
 
 ### Full test suite

@@ -383,7 +383,8 @@ struct FormulaTest : DocumentTest
 {
     FormulaTest()
     {
-        EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
+        EXPECT_CALL(window_mock, GetRect).WillRepeatedly(
+            [&]()
             {
                 return Rect{0, 0, 600, 400};
             });
@@ -557,6 +558,64 @@ struct SolverArrayRealTest : SolverTest
 
 struct SolverSymbolicTest : SolverTest
 {
+};
+
+struct MultiDocumentSolverAutoTest : SolverAutoTest
+{
+    struct Doc
+    {
+        ::testing::NiceMock<WindowMock> window_mock;
+        yutovo::Config config;
+        Document document;
+
+        Doc() : document(&window_mock, config)
+        {
+        }
+    };
+
+    void SetUp() override
+    {
+        SolverAutoTest::SetUp();
+        document.config.language = yutovo_calculator::Language::BrazilianPortuguese;
+        document.config.service_timeout = 60000;
+        Start(600);
+
+        for (size_t i = 1; i < doc_count; ++i)
+        {
+            auto d = std::make_unique<Doc>();
+            ON_CALL(d->window_mock, GetRect).WillByDefault(
+                []
+                {
+                    return Rect{0, 0, 600, 400};
+                });
+            ON_CALL(d->window_mock, GetTextSize).WillByDefault(
+                [this](const std::u32string& text, const StringFormatPtr format)
+                {
+                    return GetTextSizeMock(text, format);
+                });
+            EXPECT_CALL(d->window_mock, Translate).WillRepeatedly(
+                [](ElementId id, const std::u32string& str)
+                {
+                    return str;
+                });
+            d->config.language = yutovo_calculator::Language::BrazilianPortuguese;
+            d->config.solve_delay = 0;
+            d->config.service_timeout = 60000;
+            d->config.pretty_json = true;
+            d->document.Start();
+            docs.push_back(std::move(d));
+        }
+    }
+
+    void TearDown() override
+    {
+        for (auto& d : docs)
+            d->document.Stop();
+        SolverAutoTest::TearDown();
+    }
+
+    static constexpr size_t doc_count = 10;
+    std::vector<std::unique_ptr<Doc>> docs;
 };
 
 struct AssignmentTest : SolverTest

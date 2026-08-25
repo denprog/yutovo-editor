@@ -178,8 +178,20 @@ void Solver::SolveSymbolicComplex(const LogicalId& id, const std::string& task_g
     next_circle = true;
 }
 
-void Solver::BreakSolving(const LogicalId& id, const uint code_id, bool wait)
+void Solver::BreakSolving(const LogicalId& id, const std::string& task_guid, const uint code_id, bool wait)
 {
+    {
+        std::unique_lock<std::mutex> task_lock(tasks_mutex);
+        //the result row is being deleted, its queued solves are not needed anymore; 
+        //the logical id is reused by remakes, so the tasks are matched by the solve guid
+        tasks.erase(std::remove_if(tasks.begin(), tasks.end(),
+            [&task_guid](SolverTaskPtr& task)
+            {
+                return task && task->task_guid == task_guid;
+            }
+            ), tasks.end());
+    }
+
     std::unique_lock<std::mutex> current_lock(current_solving_mutex);
     if (id != current_solving_id)
         return;

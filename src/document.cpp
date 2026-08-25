@@ -3324,7 +3324,7 @@ void Document::BreakSolving(const LogicalId& _id, const std::string& guid, uint 
         if (it != solve_ids.end())
             solve_ids.erase(it);
     }
-    solver.BreakSolving(_id, code_id, wait);
+    solver.BreakSolving(_id, guid, code_id, wait);
 }
 
 void Document::SetIdentifier(const LogicalId& _id, const std::string& guid, uint code_id, Config::AutoResultConfig& config, bool include_document, 
