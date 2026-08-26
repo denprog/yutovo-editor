@@ -36,7 +36,7 @@
 #include "formulas/product.h"
 #include "formulas/definite_integral.h"
 #include "formulas/indefinite_integral.h"
-#include "formulas/evalution_bar.h"
+#include "formulas/evaluation_bar.h"
 #include "formulas/comma.h"
 #include "formulas/graph.h"
 #include "editor_utils.h"
@@ -860,16 +860,16 @@ uint Document::InsertDerivative(const std::u32string& symbol, const int order, b
     return InsertFormula(div, with_undo, false, replace);
 }
 
-uint Document::InsertEvalutionBarSubscript(bool with_undo, bool replace)
+uint Document::InsertEvaluationBarSubscript(bool with_undo, bool replace)
 {
-    LOG_TRACE("Insert evalution bar");
-    return InsertFormula(new EvalutionBarSubscript(this), with_undo, false, replace);
+    LOG_TRACE("Insert evaluation bar");
+    return InsertFormula(new EvaluationBarSubscript(this), with_undo, false, replace);
 }
 
 uint Document::InsertDerivativeAtPoint(bool with_undo, bool replace)
 {
     LOG_TRACE("Insert derivative at point");
-    InsertEvalutionBarSubscript(with_undo);
+    InsertEvaluationBarSubscript(with_undo);
     MoveCaretHome(false);
     return InsertDerivative(U"d", 1, with_undo, replace);
 }

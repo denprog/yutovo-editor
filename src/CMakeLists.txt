@@ -151,7 +151,7 @@ add_library(${PROJECT_NAME}
     formulas/comma.cpp
     formulas/graph.cpp
     formulas/code_paragraphs_block.cpp
-    formulas/evalution_bar.cpp
+    formulas/evaluation_bar.cpp
 
     caret.h
     caret_state.h

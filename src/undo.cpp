@@ -39,7 +39,7 @@
 #include "formulas/product.h"
 #include "formulas/definite_integral.h"
 #include "formulas/indefinite_integral.h"
-#include "formulas/evalution_bar.h"
+#include "formulas/evaluation_bar.h"
 #include "formulas/comma.h"
 #include "formulas/graph.h"
 
@@ -405,9 +405,9 @@ Element* UndoFormula::Restore(Document* document, Element* parent)
             el->elements->Get(3)->elements->ReplaceAll(*var->elements);
         }
         break;
-    case ElementType::EVALUTION_BAR_SUBSCRIPT:
+    case ElementType::EVALUATION_BAR_SUBSCRIPT:
         {
-            el = parent ? new EvalutionBarSubscript(parent) : new EvalutionBarSubscript(document);
+            el = parent ? new EvaluationBarSubscript(parent) : new EvaluationBarSubscript(document);
             assert(elements.size() == 2);
             ElementPtr shape_el(elements[0]->Restore(document, el));
             ElementPtr block(elements[1]->Restore(document, el));
@@ -1191,7 +1191,7 @@ UndoElementPtr UndoBase::StoreElement(const LogicalId id, ElementPtr el)
         if (!store_element(el->elements->Get(3), undo_element))
             return nullptr;
         break;
-    case ElementType::EVALUTION_BAR_SUBSCRIPT:
+    case ElementType::EVALUATION_BAR_SUBSCRIPT:
         undo_element.reset(new UndoFormula(el->type, ((Formula*)el.get())->formula_format));
         if (!store_element(el->elements->Get(0), undo_element))
             return nullptr;

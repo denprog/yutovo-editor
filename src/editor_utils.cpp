@@ -44,7 +44,7 @@
 #include "formulas/unit.h"
 #include "formulas/comma.h"
 #include "formulas/graph.h"
-#include "formulas/evalution_bar.h"
+#include "formulas/evaluation_bar.h"
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include <stb_image/stb_image_write.h>
 #define STB_IMAGE_IMPLEMENTATION
@@ -351,7 +351,7 @@ Element* CreateFromJson(Element* parent, Document* document, const rapidjson::Va
             {ElementType::SYMBOLIC_REAL_RESULT, &SymbolicRealResult::FromJson},
             {ElementType::SYMBOLIC_RATIONAL_RESULT, &SymbolicRationalResult::FromJson},
             {ElementType::SYMBOLIC_COMPLEX_RESULT, &SymbolicComplexResult::FromJson},
-            {ElementType::EVALUTION_BAR_SUBSCRIPT, &EvalutionBarSubscript::FromJson}
+            {ElementType::EVALUATION_BAR_SUBSCRIPT, &EvaluationBarSubscript::FromJson}
         };
 
     if (!value.HasMember("type") || !value["type"].IsInt())
