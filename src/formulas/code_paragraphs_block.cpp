@@ -9,7 +9,7 @@
 #include "code_paragraph.h"
 #include "formula.h"
 #include "graph.h"
-#include "evalution_bar.h"
+#include "evaluation_bar.h"
 #include "assignment.h"
 
 namespace yutovo

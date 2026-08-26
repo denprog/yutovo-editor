@@ -406,7 +406,7 @@ TEST_F(SolverAutoTest, derivative_at_point1)
     document.WaitTask(document.InsertString("x", true));
     document.WaitTask(document.MoveCaretRight(false));
 
-    document.WaitTask(document.InsertEvalutionBarSubscript(true));
+    document.WaitTask(document.InsertEvaluationBarSubscript(true));
     document.WaitTask(document.MoveCaretRight(false));
     document.WaitTask(document.InsertString("x", true));
     document.WaitTask(document.MoveCaretRight(false));
@@ -436,7 +436,7 @@ TEST_F(SolverAutoTest, derivative_at_point2)
     document.WaitTask(document.InsertString("x", true));
     document.WaitTask(document.MoveCaretRight(false));
 
-    document.WaitTask(document.InsertEvalutionBarSubscript(true));
+    document.WaitTask(document.InsertEvaluationBarSubscript(true));
     document.WaitTask(document.MoveCaretRight(false));
     document.WaitTask(document.InsertString("x", true));
     document.WaitTask(document.MoveCaretRight(false));
