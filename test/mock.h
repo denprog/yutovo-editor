@@ -728,6 +728,9 @@ struct PdfTest : DocumentTest
 
     QString ResolveFontPath(const StringFormatPtr format);
 
+    //newer poppler versions join the extracted lines with \r\n, strip the carriage returns so the expectations stay version-independent
+    static std::string PdfText(std::string text);
+
     std::unique_ptr<::testing::NiceMock<PdfWindowMock>> pdf_window_mock;
     QFontDatabase database;
 };

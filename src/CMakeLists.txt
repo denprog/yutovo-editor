@@ -9,10 +9,14 @@ if(EMSCRIPTEN)
 endif()
 
 if(WIN32)
-	cmake_policy(SET CMP0144 NEW)
-	set(CMAKE_FIND_PACKAGE_PREFER_CONFIG ON)
+    cmake_policy(SET CMP0144 NEW)
+    set(CMAKE_FIND_PACKAGE_PREFER_CONFIG ON)
     find_package(RapidJSON REQUIRED)
     find_package(BZip2 REQUIRED)
+    find_package(ZLIB REQUIRED)
+    find_package(unofficial-libharu CONFIG REQUIRED)
+    find_package(MathGL2 CONFIG REQUIRED)
+    find_package(Boost REQUIRED COMPONENTS iostreams filesystem)
 endif()
 
 if(NOT DEFINED REMOTE_SOLVER)
@@ -32,7 +36,7 @@ if(NOT DEFINED EMSCRIPTEN)
     endif()
     message(STATUS "giac release: ${GIAC_LIBRARY_RELEASE}")
     message(STATUS "giac debug:   ${GIAC_LIBRARY_DEBUG}")
-    add_library(giac_imported STATIC IMPORTED)
+    add_library(giac_imported STATIC IMPORTED GLOBAL)
     set_target_properties(giac_imported PROPERTIES
         IMPORTED_CONFIGURATIONS "DEBUG;RELEASE"
         INTERFACE_INCLUDE_DIRECTORIES ${GIAC_INCLUDE_DIR}
@@ -49,7 +53,7 @@ set(Boost_USE_STATIC_LIBS ON)
 set(Boost_USE_MULTITHREADED ON)
 
 if(WIN32)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /utf-8 /bigobj /MP")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /utf-8 /bigobj /MP /FIwin32_prelude.h")
     pkg_check_modules(mpfr REQUIRED IMPORTED_TARGET GLOBAL mpfr)
 else()
     if(NOT EMSCRIPTEN)
@@ -258,6 +262,7 @@ else()
         )
         target_link_libraries(${PROJECT_NAME} PRIVATE BZip2::BZip2)
         target_link_libraries(${PROJECT_NAME} PRIVATE yutovo-calculator)
+        target_link_libraries(${PROJECT_NAME} PRIVATE unofficial::libharu::haru mgl ZLIB::ZLIB)
     else()
         target_link_libraries(${PROJECT_NAME} PRIVATE 
             stdc++
