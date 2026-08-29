@@ -13,7 +13,7 @@ else()
     add_compile_definitions(RELEASE)
 endif()
 
-if ((NOT DEFINED EMSCRIPTEN) AND (CMAKE_BUILD_TYPE STREQUAL "Debug"))
+if ((NOT DEFINED EMSCRIPTEN) AND (CMAKE_BUILD_TYPE STREQUAL "Debug") AND (NOT WIN32))
     add_compile_definitions(TEST)
 endif()
 
@@ -30,6 +30,12 @@ set(THIRD_PARTY_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../third-party/")
 # add_compile_definitions(REMOTE_SOLVER)
 
 option(BUILD_TESTS "Build unit tests" ON)
+
+if (WIN32 AND BUILD_TESTS)
+    #multi-config generators have an empty CMAKE_BUILD_TYPE, so Debug-only TEST would never be defined;
+    #the test-support methods (Document::WaitSolver, EditorState::ToString, etc.) are required whenever tests are built
+    add_compile_definitions(TEST)
+endif()
 
 add_subdirectory(src)
 if((NOT DEFINED EMSCRIPTEN) AND BUILD_TESTS)

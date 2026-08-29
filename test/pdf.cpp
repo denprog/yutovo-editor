@@ -58,7 +58,7 @@ TEST_F(PdfTest, pdf1)
     ASSERT_TRUE(r.width() == 200 && r.height() == 200);
     auto b = page->text().to_utf8();
     std::string text(b.begin(), b.end());
-    ASSERT_TRUE(text == "The source of the text\nitself is a little strange.\nСтрока\n\f") << text;
+    ASSERT_TRUE(PdfText(text) == "The source of the text\nitself is a little strange.\nСтрока\n\f") << text;
 
     std::vector<poppler::text_box> boxes = page->text_list();
     b = boxes[0].text().to_utf8();
@@ -113,7 +113,7 @@ TEST_F(PdfTest, pdf2)
     std::unique_ptr<poppler::page> page(pdf->create_page(0));
     auto b = page->text().to_utf8();
     std::string text(b.begin(), b.end());
-    ASSERT_TRUE(text == "2км = 2. км\n\f") << text;
+    ASSERT_TRUE(PdfText(text) == "2км = 2. км\n\f") << text;
 }
 
 //Pdf with graph
@@ -179,7 +179,7 @@ TEST_F(PdfTest, pdf3)
     std::unique_ptr<poppler::page> page(pdf->create_page(0));
     auto b = page->text().to_utf8();
     std::string text(b.begin(), b.end());
-    ASSERT_TRUE(text == "          2\n\n\n\n\n                           String\n█ sin ( x )\n\n\n\n\n        -2\n              -4   x   4\n\f") << text;
+    ASSERT_TRUE(PdfText(text) == "          2\n\n\n\n\n                           String\n█ sin ( x )\n\n\n\n\n        -2\n              -4   x   4\n\f") << text;
 }
 
 //Pdf with formulas
@@ -222,7 +222,7 @@ TEST_F(PdfTest, pdf4)
     std::unique_ptr<poppler::page> page(pdf->create_page(0));
     auto b = page->text().to_utf8();
     std::string text(b.begin(), b.end());
-    ASSERT_TRUE(text == "   123\n              · 567 890.88\n55 + 45.789\n\f") << text;
+    ASSERT_TRUE(PdfText(text) == "   123\n              · 567 890.88\n55 + 45.789\n\f") << text;
 }
 
 //Two pages pdf
@@ -264,7 +264,7 @@ TEST_F(PdfTest, pdf5)
     page = std::unique_ptr<poppler::page>(pdf->create_page(1));
     b = page->text().to_utf8();
     text = std::string(b.begin(), b.end());
-    ASSERT_TRUE(text == "практическая\nпотребность в счёте\nи вычислениях,\nсвязанных с\nзадачами учёта при\nцентрализации\nсельского хозяйства.\n\f") << text;
+    ASSERT_TRUE(PdfText(text) == "практическая\nпотребность в счёте\nи вычислениях,\nсвязанных с\nзадачами учёта при\nцентрализации\nсельского хозяйства.\n\f") << text;
 }
 
 //Different fonts
@@ -302,7 +302,7 @@ TEST_F(PdfTest, pdf6)
     std::unique_ptr<poppler::page> page(pdf->create_page(0));
     auto b = page->text().to_utf8();
     std::string text(b.begin(), b.end());
-    ASSERT_TRUE(text == "TextItalicUnderlineStrikethroughBold\n\f") << text;
+    ASSERT_TRUE(PdfText(text) == "TextItalicUnderlineStrikethroughBold\n\f") << text;
 
     std::vector<poppler::text_box> text_list = page->text_list(1);
     ASSERT_TRUE(text_list.size() == 5);
@@ -362,13 +362,13 @@ TEST_F(PdfTest, pdf7)
     std::unique_ptr<poppler::page> page(pdf->create_page(0));
     auto b = page->text().to_utf8();
     std::string text(b.begin(), b.end());
-    ASSERT_TRUE(text == "Tradicionalmente, el\nmedio de un documento\nera el papel y la\ninformación\nПричиной\nвозникновения\nарифметики стала\n"
+    ASSERT_TRUE(PdfText(text) == "Tradicionalmente, el\nmedio de un documento\nera el papel y la\ninformación\nПричиной\nвозникновения\nарифметики стала\n"
         "практическая\n\f") << text;
 
     page = std::unique_ptr<poppler::page>(pdf->create_page(1));
     b = page->text().to_utf8();
     text = std::string(b.begin(), b.end());
-    ASSERT_TRUE(text == "потребность в счёте и\nвычислениях,\nсвязанных с задачами\nучёта при\nцентрализации\nсельского хозяйства.\n\f") << text;
+    ASSERT_TRUE(PdfText(text) == "потребность в счёте и\nвычислениях,\nсвязанных с задачами\nучёта при\nцентрализации\nсельского хозяйства.\n\f") << text;
 }
 
 //Check footer
@@ -405,7 +405,7 @@ TEST_F(PdfTest, pdf8)
     std::unique_ptr<poppler::page> page(pdf->create_page(0));
     auto b = page->text().to_utf8();
     std::string text(b.begin(), b.end());
-    ASSERT_TRUE(text == "  Tradicionalmente, el medio de un documento era el papel y la información\n"
+    ASSERT_TRUE(PdfText(text) == "  Tradicionalmente, el medio de un documento era el papel y la información\n"
         "  Причиной возникновения арифметики стала практическая потребность в счёте и\n"
         "  вычислениях, связанных с задачами учёта при централизации сельского\n"
         "  хозяйства.\n"
@@ -457,7 +457,7 @@ TEST_F(PdfTest, pdf9)
     std::unique_ptr<poppler::page> page(pdf->create_page(0));
     auto b = page->text().to_utf8();
     std::string text(b.begin(), b.end());
-    ASSERT_TRUE(text == "sin ( 2 ) + cos ( 5 )\n\f") << text;
+    ASSERT_TRUE(PdfText(text) == "sin ( 2 ) + cos ( 5 )\n\f") << text;
 }
 
 }

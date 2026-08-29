@@ -300,7 +300,7 @@ void Document::MainLoop()
                 selection.can_optimize = true;
                 last_insert_caret_state.id = LogicalId{};
                 last_delete_caret_state.id = LogicalId{};
-#ifdef DEBUG
+#ifdef TEST
                 last_undo_executed = true;
 #endif
             }
@@ -351,7 +351,7 @@ void Document::MainLoop()
                     last_modify_task_id = t->id;
                 }
                 caret->Show();
-#ifdef DEBUG
+#ifdef TEST
                 last_redo_executed = true;
 #endif
             }
@@ -405,7 +405,7 @@ void Document::MainLoop()
                     last_editor_state = EditorState{caret->GetCaretState(), last_editor_selection};
                 }
 
-#ifdef DEBUG
+#ifdef TEST
                 if (last_task_id > 0)
                 {
                     if (last_task_id == t->id)
@@ -3697,7 +3697,7 @@ uint Document::PutResult(const Result& result)
     std::lock_guard<std::recursive_mutex> lock2(tasks_mutex);
     tasks.emplace_back(new ResultTask(text, solve_id, result));
 
-#ifdef DEBUG
+#ifdef TEST
     if (result.error.error_code != yutovo_solver::ErrorCode::SOLVER_RESTARTED_ERROR || result.error.error_code == yutovo_solver::ErrorCode::PARSER_ERROR)
         last_solver_task_id = tasks.back()->id;
 #endif
