@@ -5,8 +5,8 @@
  * SPDX-License-Identifier: GPL-3.0-only
  */
 
-#ifndef __EVALUTION_BAR_H__
-#define __EVALUTION_BAR_H__
+#ifndef __EVALUATION_BAR_H__
+#define __EVALUATION_BAR_H__
 
 #include "only_shape_formula.h"
 #include <utility>
@@ -20,13 +20,13 @@ template<typename T> class CodeParagraphsBlock;
 template<typename T> class CodeParagraph;
 template<typename T> class CodeRow;
 
-//Evalution bar with variables in subscript
-class EvalutionBarSubscript : public Formula
+//Evaluation bar with variables in subscript
+class EvaluationBarSubscript : public Formula
 {
 public:
-    EvalutionBarSubscript(Element* _parent, bool with_init = true);
-    EvalutionBarSubscript(Document* _document, bool with_init = true);
-    EvalutionBarSubscript(const EvalutionBarSubscript& source);
+    EvaluationBarSubscript(Element* _parent, bool with_init = true);
+    EvaluationBarSubscript(Document* _document, bool with_init = true);
+    EvaluationBarSubscript(const EvaluationBarSubscript& source);
 
     virtual Element* Clone();
 

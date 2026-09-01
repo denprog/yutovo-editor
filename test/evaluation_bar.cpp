@@ -16,11 +16,11 @@ using namespace yutovo;
 using namespace std::chrono_literals;
 
 //Insert two variables with values
-TEST_F(FormulaTest, evalution_bar_subscript1)
+TEST_F(FormulaTest, evaluation_bar_subscript1)
 {
     Start(600);
 
-    document.WaitTask(document.InsertEvalutionBarSubscript(true));
+    document.WaitTask(document.InsertEvaluationBarSubscript(true));
     document.MoveCaretRight(false);
     document.WaitTask(document.InsertString("x", true));
     document.WaitTask(document.MoveCaretRight(false));
@@ -95,11 +95,11 @@ TEST_F(FormulaTest, evalution_bar_subscript1)
 }
 
 //Save/Load
-TEST_F(FormulaTest, evalution_bar_subscript2)
+TEST_F(FormulaTest, evaluation_bar_subscript2)
 {
     Start(600);
 
-    document.WaitTask(document.InsertEvalutionBarSubscript(true));
+    document.WaitTask(document.InsertEvaluationBarSubscript(true));
     document.MoveCaretRight(false);
     document.WaitTask(document.InsertString("x", true));
     document.WaitTask(document.MoveCaretRight(false));
@@ -118,7 +118,7 @@ TEST_F(FormulaTest, evalution_bar_subscript2)
     document.WaitTask(document.MoveCaretRight(false));
     document.WaitTask(document.MoveCaretRight(false));
     document.WaitTask(document.InsertString("3", true));
-    document.Save("evalution_bar2.yut");
+    document.Save("evaluation_bar2.yut");
 
     document.WaitTask(document.New());
     std::this_thread::sleep_for(200ms);
@@ -132,7 +132,7 @@ TEST_F(FormulaTest, evalution_bar_subscript2)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 0)) << document.GetEditorState().ToString();
 
     std::this_thread::sleep_for(200ms);
-    document.Load("evalution_bar2.yut");
+    document.Load("evaluation_bar2.yut");
     document.WaitLoad();
     std::this_thread::sleep_for(200ms);
 
@@ -184,11 +184,11 @@ TEST_F(FormulaTest, evalution_bar_subscript2)
 }
 
 //Don't insert other elements in the rows
-TEST_F(FormulaTest, evalution_bar_subscript3)
+TEST_F(FormulaTest, evaluation_bar_subscript3)
 {
     Start(600);
     
-    document.WaitTask(document.InsertEvalutionBarSubscript(true));
+    document.WaitTask(document.InsertEvaluationBarSubscript(true));
     document.MoveCaretRight(false);
     document.WaitTask(document.InsertString("x", true));
     document.WaitTask(document.MoveCaretRight(false));
@@ -278,11 +278,11 @@ TEST_F(FormulaTest, evalution_bar_subscript3)
 }
 
 //Delete elements
-TEST_F(FormulaTest, evalution_bar_subscript4)
+TEST_F(FormulaTest, evaluation_bar_subscript4)
 {
     Start(600);
 
-    document.Load("../../test/tests/evalution_bar_subscript_1.yut");
+    document.Load("../../test/tests/evaluation_bar_subscript_1.yut");
     document.WaitLoad();
     std::this_thread::sleep_for(2s);
 
@@ -461,11 +461,11 @@ TEST_F(FormulaTest, evalution_bar_subscript4)
 }
 
 //Selection
-TEST_F(FormulaTest, evalution_bar_subscript5)
+TEST_F(FormulaTest, evaluation_bar_subscript5)
 {
     Start(600);
 
-    document.Load("../../test/tests/evalution_bar_subscript_1.yut");
+    document.Load("../../test/tests/evaluation_bar_subscript_1.yut");
     document.WaitLoad();
     std::this_thread::sleep_for(2s);
 
@@ -481,11 +481,11 @@ TEST_F(FormulaTest, evalution_bar_subscript5)
 }
 
 //Insert elements
-TEST_F(FormulaTest, evalution_bar_subscript6)
+TEST_F(FormulaTest, evaluation_bar_subscript6)
 {
     Start(600);
 
-    document.Load("../../test/tests/evalution_bar_subscript_1.yut");
+    document.Load("../../test/tests/evaluation_bar_subscript_1.yut");
     document.WaitLoad();
     std::this_thread::sleep_for(2s);
 
@@ -598,11 +598,11 @@ TEST_F(FormulaTest, evalution_bar_subscript6)
 }
 
 //Delete elements
-TEST_F(FormulaTest, evalution_bar_subscript7)
+TEST_F(FormulaTest, evaluation_bar_subscript7)
 {
     Start(600);
 
-    document.Load("../../test/tests/evalution_bar_subscript_1.yut");
+    document.Load("../../test/tests/evaluation_bar_subscript_1.yut");
     document.WaitLoad();
     std::this_thread::sleep_for(2s);
 
@@ -648,11 +648,11 @@ TEST_F(FormulaTest, evalution_bar_subscript7)
 }
 
 //Delete an empty element
-TEST_F(FormulaTest, evalution_bar_subscript8)
+TEST_F(FormulaTest, evaluation_bar_subscript8)
 {
     Start(600);
 
-    document.WaitTask(document.InsertEvalutionBarSubscript(true));
+    document.WaitTask(document.InsertEvaluationBarSubscript(true));
     document.MoveCaretRight(false);
     document.WaitTask(document.InsertString("x", true));
     document.WaitTask(document.MoveCaretRight(false));

@@ -12,7 +12,7 @@
 #include "power.h"
 #include "shape.h"
 #include "parser_string.h"
-#include "evalution_bar.h"
+#include "evaluation_bar.h"
 
 namespace yutovo
 {
@@ -497,10 +497,10 @@ bool Division::BuildDerivativeAtPointParserString(ParserString& str, bool includ
         return false;
 
     ElementPtr next = parent->elements->Get(pos + 1);
-    if (!next || next->type != ElementType::EVALUTION_BAR_SUBSCRIPT)
+    if (!next || next->type != ElementType::EVALUATION_BAR_SUBSCRIPT)
         return false;
 
-    EvalutionBarSubscript* bar = dynamic_cast<EvalutionBarSubscript*>(next.get());
+    EvaluationBarSubscript* bar = dynamic_cast<EvaluationBarSubscript*>(next.get());
     if (!bar)
         return false;
 
