@@ -22,13 +22,14 @@ enable_testing()
 find_package(GTest REQUIRED PATHS ${INSTALL_PATH}/share/gtest)
 
 if(WIN32)
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /utf-8 /bigobj")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /utf-8 /bigobj /FIwin32_prelude.h")
 	find_package(PkgConfig)
 	find_package(ZLIB REQUIRED)
+	find_package(unofficial-poppler CONFIG REQUIRED)
 	find_package(yutovo-calculator REQUIRED PATHS ${INSTALL_PATH}/lib/cmake/)
 	find_package(Boost 1.81.0 REQUIRED PATHS ${INSTALL_PATH}/lib/cmake/)
 	find_package(RapidJSON CONFIG REQUIRED)
-	find_package(Boost REQUIRED COMPONENTS iostreams)
+	find_package(Boost REQUIRED COMPONENTS iostreams filesystem)
 endif()
 
 if(EMSCRIPTEN)
@@ -89,7 +90,7 @@ add_executable(${PROJECT_NAME}_tests
 	definite_integral.cpp
 	indefinite_integral.cpp
 	derivative.cpp
-	evalution_bar.cpp
+	evaluation_bar.cpp
 	solver_derivative.cpp
 	graph.cpp
 	arrays.cpp
@@ -113,6 +114,7 @@ if(WIN32)
 	    yutovo-logger
 	)
 	target_link_libraries(${PROJECT_NAME}_tests PRIVATE yutovo-calculator)
+	target_link_libraries(${PROJECT_NAME}_tests PRIVATE unofficial::poppler::poppler-cpp)
 	target_link_libraries(${PROJECT_NAME} PRIVATE Boost::iostreams)
 	target_link_libraries(${PROJECT_NAME}_tests PRIVATE GTest::gtest GTest::gtest_main GTest::gmock GTest::gmock_main)
     target_include_directories(${PROJECT_NAME}_tests PRIVATE

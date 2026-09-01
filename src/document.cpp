@@ -36,7 +36,7 @@
 #include "formulas/product.h"
 #include "formulas/definite_integral.h"
 #include "formulas/indefinite_integral.h"
-#include "formulas/evalution_bar.h"
+#include "formulas/evaluation_bar.h"
 #include "formulas/comma.h"
 #include "formulas/graph.h"
 #include "editor_utils.h"
@@ -300,7 +300,7 @@ void Document::MainLoop()
                 selection.can_optimize = true;
                 last_insert_caret_state.id = LogicalId{};
                 last_delete_caret_state.id = LogicalId{};
-#ifdef DEBUG
+#ifdef TEST
                 last_undo_executed = true;
 #endif
             }
@@ -351,7 +351,7 @@ void Document::MainLoop()
                     last_modify_task_id = t->id;
                 }
                 caret->Show();
-#ifdef DEBUG
+#ifdef TEST
                 last_redo_executed = true;
 #endif
             }
@@ -405,7 +405,7 @@ void Document::MainLoop()
                     last_editor_state = EditorState{caret->GetCaretState(), last_editor_selection};
                 }
 
-#ifdef DEBUG
+#ifdef TEST
                 if (last_task_id > 0)
                 {
                     if (last_task_id == t->id)
@@ -860,16 +860,16 @@ uint Document::InsertDerivative(const std::u32string& symbol, const int order, b
     return InsertFormula(div, with_undo, false, replace);
 }
 
-uint Document::InsertEvalutionBarSubscript(bool with_undo, bool replace)
+uint Document::InsertEvaluationBarSubscript(bool with_undo, bool replace)
 {
-    LOG_TRACE("Insert evalution bar");
-    return InsertFormula(new EvalutionBarSubscript(this), with_undo, false, replace);
+    LOG_TRACE("Insert evaluation bar");
+    return InsertFormula(new EvaluationBarSubscript(this), with_undo, false, replace);
 }
 
 uint Document::InsertDerivativeAtPoint(bool with_undo, bool replace)
 {
     LOG_TRACE("Insert derivative at point");
-    InsertEvalutionBarSubscript(with_undo);
+    InsertEvaluationBarSubscript(with_undo);
     MoveCaretHome(false);
     return InsertDerivative(U"d", 1, with_undo, replace);
 }
@@ -3697,7 +3697,7 @@ uint Document::PutResult(const Result& result)
     std::lock_guard<std::recursive_mutex> lock2(tasks_mutex);
     tasks.emplace_back(new ResultTask(text, solve_id, result));
 
-#ifdef DEBUG
+#ifdef TEST
     if (result.error.error_code != yutovo_solver::ErrorCode::SOLVER_RESTARTED_ERROR || result.error.error_code == yutovo_solver::ErrorCode::PARSER_ERROR)
         last_solver_task_id = tasks.back()->id;
 #endif

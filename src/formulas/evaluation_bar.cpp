@@ -5,7 +5,7 @@
  * SPDX-License-Identifier: GPL-3.0-only
  */
 
-#include "evalution_bar.h"
+#include "evaluation_bar.h"
 #include "code_paragraphs_block.h"
 #include "code_paragraph.h"
 #include "code_row.h"
@@ -15,31 +15,31 @@
 namespace yutovo
 {
 
-//EvalutionBarSubscript
+//EvaluationBarSubscript
 
-const std::string EvalutionBarSubscript::family_name = "DejaVu Serif";
+const std::string EvaluationBarSubscript::family_name = "DejaVu Serif";
 
-EvalutionBarSubscript::EvalutionBarSubscript(Element* _parent, bool with_init) :
+EvaluationBarSubscript::EvaluationBarSubscript(Element* _parent, bool with_init) :
     Formula(_parent)
 {
-    type = ElementType::EVALUTION_BAR_SUBSCRIPT;
+    type = ElementType::EVALUATION_BAR_SUBSCRIPT;
     editable = false;
     remake_always = true;
     if (with_init)
         Init();
 }
 
-EvalutionBarSubscript::EvalutionBarSubscript(Document* _document, bool with_init) :
+EvaluationBarSubscript::EvaluationBarSubscript(Document* _document, bool with_init) :
     Formula(_document)
 {
-    type = ElementType::EVALUTION_BAR_SUBSCRIPT;
+    type = ElementType::EVALUATION_BAR_SUBSCRIPT;
     editable = false;
     remake_always = true;
     if (with_init)
         Init();
 }
 
-EvalutionBarSubscript::EvalutionBarSubscript(const EvalutionBarSubscript& source) :
+EvaluationBarSubscript::EvaluationBarSubscript(const EvaluationBarSubscript& source) :
     Formula(source),
     symbol_str(source.symbol_str)
 {
@@ -47,33 +47,33 @@ EvalutionBarSubscript::EvalutionBarSubscript(const EvalutionBarSubscript& source
     remake_always = true;
 }
 
-Element* EvalutionBarSubscript::Clone()
+Element* EvaluationBarSubscript::Clone()
 {
-    return new EvalutionBarSubscript(*this);
+    return new EvaluationBarSubscript(*this);
 }
 
-Element* EvalutionBarSubscript::Create(Element* _parent)
+Element* EvaluationBarSubscript::Create(Element* _parent)
 {
-    return new EvalutionBarSubscript(_parent);
+    return new EvaluationBarSubscript(_parent);
 }
 
-Element* EvalutionBarSubscript::FromJson(Element* parent, Document* document, const rapidjson::Value::ConstObject& value, 
+Element* EvaluationBarSubscript::FromJson(Element* parent, Document* document, const rapidjson::Value::ConstObject& value, 
     rapidjson::Document::AllocatorType& alloc)
 {
-    EvalutionBarSubscript* p = nullptr;
+    EvaluationBarSubscript* p = nullptr;
     if (parent)
-        p = new EvalutionBarSubscript(parent, false);
+        p = new EvaluationBarSubscript(parent, false);
     else
-        p = new EvalutionBarSubscript(document, false);
+        p = new EvaluationBarSubscript(document, false);
     p->editable = false;
     p->remake_always = true;
     return p;
 }
 
-void EvalutionBarSubscript::Init()
+void EvaluationBarSubscript::Init()
 {
     symbol_str = ToBasicString(std::u32string(1, symbol));
-    elements->Add(ElementPtr(new Shape(this))); //evalution bar symbol
+    elements->Add(ElementPtr(new Shape(this))); //evaluation bar symbol
     elements->Get(0)->editable = false;
     elements->Add(ElementPtr(new CodeParagraphsBlock<Assignment>(this, true))); //block of variables
     elements->Get(1)->editable = false;
@@ -81,7 +81,7 @@ void EvalutionBarSubscript::Init()
     UpdateLevel(level);
 }
 
-bool EvalutionBarSubscript::AfterFromJson()
+bool EvaluationBarSubscript::AfterFromJson()
 {
     if (elements->Count() != 2)
         return false;
@@ -90,7 +90,7 @@ bool EvalutionBarSubscript::AfterFromJson()
     return true;
 }
 
-void EvalutionBarSubscript::Draw() const
+void EvaluationBarSubscript::Draw() const
 {
     GetShape()->draw_func =
         [&](const Rect& r)
@@ -108,7 +108,7 @@ void EvalutionBarSubscript::Draw() const
     GetBlock()->Element::Draw();
 }
 
-bool EvalutionBarSubscript::Remake(bool with_elements)
+bool EvaluationBarSubscript::Remake(bool with_elements)
 {
     UpdateLevel(level);
 
@@ -156,7 +156,7 @@ bool EvalutionBarSubscript::Remake(bool with_elements)
     return changed;
 }
 
-void EvalutionBarSubscript::UpdateLevel(uint8_t _level)
+void EvaluationBarSubscript::UpdateLevel(uint8_t _level)
 {
     Formula::UpdateLevel(_level);
     if (_level >= MAX_LEVEL)
@@ -165,7 +165,7 @@ void EvalutionBarSubscript::UpdateLevel(uint8_t _level)
         GetBlock()->UpdateLevel(_level + 1);
 }
 
-bool EvalutionBarSubscript::AfterInsert(bool with_undo)
+bool EvaluationBarSubscript::AfterInsert(bool with_undo)
 {
     CodeParagraphsBlock<Assignment>* block = GetBlock();
     if (!block)
@@ -180,7 +180,7 @@ bool EvalutionBarSubscript::AfterInsert(bool with_undo)
     return false;
 }
 
-bool EvalutionBarSubscript::GetFirstCaretState(CaretState& caret_state, Selection* select)
+bool EvaluationBarSubscript::GetFirstCaretState(CaretState& caret_state, Selection* select)
 {
     CodeParagraphsBlock<Assignment>* block = GetBlock();
     if (!block)
@@ -188,7 +188,7 @@ bool EvalutionBarSubscript::GetFirstCaretState(CaretState& caret_state, Selectio
     return block->GetFirstCaretState(caret_state, select);
 }
 
-bool EvalutionBarSubscript::GetLastCaretState(CaretState& caret_state, Selection* select)
+bool EvaluationBarSubscript::GetLastCaretState(CaretState& caret_state, Selection* select)
 {
     CodeParagraphsBlock<Assignment>* block = GetBlock();
     if (!block)
@@ -196,7 +196,7 @@ bool EvalutionBarSubscript::GetLastCaretState(CaretState& caret_state, Selection
     return block->GetLastCaretState(caret_state, select);
 }
 
-std::string EvalutionBarSubscript::ToHtml() const
+std::string EvaluationBarSubscript::ToHtml() const
 {
     CodeParagraphsBlock<Assignment>* block = GetBlock();
     std::string sub;
@@ -225,7 +225,7 @@ std::string EvalutionBarSubscript::ToHtml() const
     return s;
 }
 
-std::u32string EvalutionBarSubscript::ToText() const
+std::u32string EvaluationBarSubscript::ToText() const
 {
     std::vector<std::u32string> assignments = GetAssignments();
     if (assignments.empty())
@@ -242,12 +242,12 @@ std::u32string EvalutionBarSubscript::ToText() const
     return result;
 }
 
-void EvalutionBarSubscript::ToParserString(ParserString& str)
+void EvaluationBarSubscript::ToParserString(ParserString& str)
 {
     //the parser output is handled by the preceding expression (e.g. a derivative fraction)
 }
 
-std::vector<std::u32string> EvalutionBarSubscript::GetAssignments() const
+std::vector<std::u32string> EvaluationBarSubscript::GetAssignments() const
 {
     std::vector<std::u32string> result;
     CodeParagraphsBlock<Assignment>* block = GetBlock();
@@ -267,17 +267,17 @@ std::vector<std::u32string> EvalutionBarSubscript::GetAssignments() const
     return result;
 }
 
-Shape* EvalutionBarSubscript::GetShape() const
+Shape* EvaluationBarSubscript::GetShape() const
 {
     return (Shape*)elements->Get(0).get();
 }
 
-CodeParagraphsBlock<Assignment>* EvalutionBarSubscript::GetBlock() const
+CodeParagraphsBlock<Assignment>* EvaluationBarSubscript::GetBlock() const
 {
     return (CodeParagraphsBlock<Assignment>*)(elements->Get(1).get());
 }
 
-CodeParagraph<Assignment>* EvalutionBarSubscript::GetParagraph(uint index) const
+CodeParagraph<Assignment>* EvaluationBarSubscript::GetParagraph(uint index) const
 {
     CodeParagraphsBlock<Assignment>* block = GetBlock();
     if (!block || index >= block->elements->Count())
@@ -285,7 +285,7 @@ CodeParagraph<Assignment>* EvalutionBarSubscript::GetParagraph(uint index) const
     return dynamic_cast<CodeParagraph<Assignment>*>(block->elements->Get(index).get());
 }
 
-CodeRow<Assignment>* EvalutionBarSubscript::GetParagraphRow(uint index) const
+CodeRow<Assignment>* EvaluationBarSubscript::GetParagraphRow(uint index) const
 {
     CodeParagraph<Assignment>* p = GetParagraph(index);
     if (!p || p->elements->Count() == 0)

@@ -7,6 +7,11 @@
 
 #include "mock.h"
 #include <QBuffer>
+#include <QSettings>
+#include <QRegularExpression>
+#include <QFileInfo>
+#include <QDir>
+#include <algorithm>
 #ifdef Q_OS_LINUX
 #include <fontconfig/fontconfig.h>
 #else
@@ -204,8 +209,78 @@ QString PdfTest::ResolveFontPath(const StringFormatPtr format)
     FcPatternDestroy(pat);
     return path;
 #else
-    return {};
+    //Windows: look the font up in the fonts registry, the value data is a file name in the Windows fonts directory
+    QSettings settings(R"(HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Fonts)", QSettings::NativeFormat);
+
+    QString family = QString::fromStdString(format->family).toLower();
+
+    //generic families and common Linux fonts fall back to their metric-compatible Windows counterparts
+    if (family == "sans-serif" || family == "sans serif" || family == "helvetica" || family == "dejavu sans" || family == "liberation sans")
+        family = "arial";
+    else if (family == "serif" || family == "times" || family == "dejavu serif" || family == "liberation serif")
+        family = "times new roman";
+    else if (family == "monospace" || family == "mono" || family == "dejavu sans mono" || family == "liberation mono")
+        family = "courier new";
+
+    QString fallback;
+    const QStringList keys = settings.childKeys();
+    for (const QString& key : keys)
+    {
+        QString name = key.toLower();
+        name.remove(QRegularExpression(R"(\s*\([^)]*\)\s*$)")); //drop the "(TrueType)" style suffix
+
+        bool bold = false;
+        bool italic = false;
+        if (name.endsWith("bold italic"))
+        {
+            bold = true;
+            italic = true;
+            name.chop(sizeof("bold italic") - 1);
+        }
+        else if (name.endsWith("italic"))
+        {
+            italic = true;
+            name.chop(sizeof("italic") - 1);
+        }
+        else if (name.endsWith("bold"))
+        {
+            bold = true;
+            name.chop(sizeof("bold") - 1);
+        }
+        name = name.trimmed();
+        if (name != family && name != "arial")
+            continue;
+
+        QString file = settings.value(key).toString();
+        if (file.isEmpty())
+            continue;
+        if (file.contains(';'))
+            file = file.section(';', 0, 0);
+        if (!QFileInfo(file).isAbsolute())
+        {
+            QString windir = qEnvironmentVariable("WINDIR", "C:\\Windows");
+            file.replace("%SystemRoot%", windir, Qt::CaseInsensitive);
+            if (!QFileInfo(file).isAbsolute())
+                file = QDir(windir + "/Fonts").absoluteFilePath(file);
+        }
+
+        if (name == "arial" && family != "arial")
+            fallback = file; //metric-compatible substitute is not registered, use Arial itself
+        if (name != family)
+            continue;
+        if (bold == format->bold && italic == format->italic)
+            return file;
+        if (fallback.isEmpty())
+            fallback = file; //no style match, use the regular file and let the renderer synthesize the style
+    }
+    return fallback;
 #endif
+}
+
+std::string PdfTest::PdfText(std::string text)
+{
+    text.erase(std::remove(text.begin(), text.end(), '\r'), text.end());
+    return text;
 }
 
 }
