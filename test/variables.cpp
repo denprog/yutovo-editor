@@ -1199,7 +1199,8 @@ TEST_F(VariablesTest, variables20)
 {
     Start(600);
 
-    EXPECT_CALL(window_mock, Translate).WillRepeatedly([&](ElementId id, const std::u32string& str)
+    EXPECT_CALL(window_mock, Translate).WillRepeatedly(
+        [&](ElementId id, const std::u32string& str)
         {
             return str;
         });
@@ -1304,7 +1305,8 @@ TEST_F(VariablesTest, variables21)
 {
     Start(600);
 
-    EXPECT_CALL(window_mock, Translate).WillRepeatedly([&](ElementId id, const std::u32string& str)
+    EXPECT_CALL(window_mock, Translate).WillRepeatedly(
+        [&](ElementId id, const std::u32string& str)
         {
             return str;
         });
@@ -1346,7 +1348,8 @@ TEST_F(VariablesTest, variables22)
 {
     Start(500);
 
-    EXPECT_CALL(window_mock, Translate).WillRepeatedly([&](ElementId id, const std::u32string& str)
+    EXPECT_CALL(window_mock, Translate).WillRepeatedly(
+        [&](ElementId id, const std::u32string& str)
         {
             return str;
         });
@@ -1399,7 +1402,8 @@ TEST_F(VariablesTest, variables23)
 {
     Start(500);
 
-    EXPECT_CALL(window_mock, Translate).WillRepeatedly([&](ElementId id, const std::u32string& str)
+    EXPECT_CALL(window_mock, Translate).WillRepeatedly(
+        [&](ElementId id, const std::u32string& str)
         {
             return str;
         });
@@ -1449,7 +1453,8 @@ TEST_F(VariablesTest, variables24)
 {
     Start(500);
 
-    EXPECT_CALL(window_mock, Translate).WillRepeatedly([&](ElementId id, const std::u32string& str)
+    EXPECT_CALL(window_mock, Translate).WillRepeatedly(
+        [&](ElementId id, const std::u32string& str)
         {
             return str;
         });
@@ -1505,7 +1510,8 @@ TEST_F(VariablesTest, variables25)
 {
     Start(600);
 
-    EXPECT_CALL(window_mock, Translate).WillRepeatedly([&](ElementId id, const std::u32string& str)
+    EXPECT_CALL(window_mock, Translate).WillRepeatedly(
+        [&](ElementId id, const std::u32string& str)
         {
             return str;
         });
@@ -1619,7 +1625,8 @@ TEST_F(VariablesTest, variables27)
 {
     Start(600);
 
-    EXPECT_CALL(window_mock, Translate).WillRepeatedly([&](ElementId id, const std::u32string& str)
+    EXPECT_CALL(window_mock, Translate).WillRepeatedly(
+        [&](ElementId id, const std::u32string& str)
         {
             return str;
         });
@@ -1862,7 +1869,8 @@ TEST_F(VariablesTest, variables33)
     Start(500);
 
     int width = 500;
-    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
+    EXPECT_CALL(window_mock, GetRect).WillRepeatedly(
+        [&]()
         {
             return Rect{0, 0, width, 400};
         });
@@ -1877,6 +1885,26 @@ TEST_F(VariablesTest, variables33)
     ASSERT_TRUE(document.ToText() == 
         U"Yutovo es una calculadora poderosa v=234con la visualización y edición gráfica habitual de operaciones matemáticas "
         "dentro de un editor de texto. Con él, puede hacer varios cálculos v=234.combinando cálculos y texto en un solo documento, a saber:"
+        ) << ToBasicString(document.ToText());
+}
+
+TEST_F(VariablesTest, variables34)
+{
+    Start(500);
+
+    int width = 500;
+    EXPECT_CALL(window_mock, GetRect).WillRepeatedly(
+        [&]()
+        {
+            return Rect{0, 0, width, 400};
+        });
+
+    document.Load("../../test/tests/variables34.yut");
+    document.WaitLoad();
+    std::this_thread::sleep_for(4s);
+
+    ASSERT_TRUE(document.ToText() == 
+        U"a=4=4."
         ) << ToBasicString(document.ToText());
 }
 

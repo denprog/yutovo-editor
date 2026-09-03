@@ -240,6 +240,7 @@ void Assignment::ReSolve(bool if_error, bool force)
         last_identifier = GetFirst()->ToText();
         last_expression = expr;
     }
+    Element::ReSolve(if_error, force);
 }
 
 void Assignment::PutResult(Result& result)
