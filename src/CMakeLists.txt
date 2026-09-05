@@ -121,6 +121,9 @@ add_library(${PROJECT_NAME}
     config.cpp
     formulas/formula.cpp
     formulas/code_block.cpp
+    formulas/text_block.cpp
+    formulas/text_equation.cpp
+    formulas/text_assignment.cpp
     formulas/code_paragraph.cpp
     formulas/code_string.cpp
     formulas/code_row.cpp

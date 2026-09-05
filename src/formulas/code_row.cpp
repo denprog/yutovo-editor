@@ -8,6 +8,7 @@
 #include "code_row.h"
 #include "code_string.h"
 #include "assignment.h"
+#include "text_block.h"
 
 namespace yutovo
 {
@@ -134,13 +135,15 @@ bool CodeRow<T>::InsertElements(std::vector<ElementPtr>& _elements, bool insert_
 {
     for (auto el : _elements)
     {
+        if (el->type == ElementType::TEXT_BLOCK && document->FindParent(id, ElementType::TEXT_BLOCK))
+            return false; //a text block cannot be inserted inside a text block
         if (el->type == ElementType::CODE_BLOCK)
         {
             std::vector<ElementPtr> ch;
             if (el->elements->Count() == 1)
             {
                 if (el->elements->Get(0)->elements->Count() > 0 && ((CodeRow<>*)el->elements->Get(0)->elements->Get(0).get())->IsEmpty())
-                    return false;
+                    return false; //an empty code block is not inserted
                 for (int i = 0; i < el->elements->Get(0)->elements->Count(); ++i)
                     ch.push_back(el->elements->Get(0)->elements->Get(i));
             }
@@ -150,12 +153,15 @@ bool CodeRow<T>::InsertElements(std::vector<ElementPtr>& _elements, bool insert_
                     ch.push_back(el->elements->Get(i));
             }
 
+            if (document->FindParent(id, ElementType::TEXT_BLOCK))
+                TextBlock::ConvertToText(ch); //pasted code block content does not solve inside a text block
             if (!Row::InsertElements(ch, insert_mode, with_undo, changed_element))
                 return false;
             return true;
         }
         if (el->type == ElementType::CODE_PARAGRAPH &&
-            (parent->type != ElementType::CODE_PARAGRAPH && parent->type != ElementType::ASSIGNMENT && parent->type != ElementType::EQUATION))
+            (parent->type != ElementType::CODE_PARAGRAPH && parent->type != ElementType::ASSIGNMENT && parent->type != ElementType::EQUATION &&
+            parent->type != ElementType::TEXT_ASSIGNMENT && parent->type != ElementType::TEXT_EQUATION))
         {
             return false;
         }

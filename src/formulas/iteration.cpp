@@ -67,8 +67,8 @@ void Iteration::Draw() const
         {
             if (format)
             {
-                window->DrawText(symbol_str, format, r, document->selection.IsSelected(id) ? document->config.formula_bg_color : document->config.shapes_color, 
-                    document->selection.IsSelected(id) ? document->config.bg_selection_color : document->config.formula_bg_color, false);
+                window->DrawText(symbol_str, format, r, document->selection.IsSelected(id) ? GetBackgroundColor() : document->config.shapes_color, 
+                    document->selection.IsSelected(id) ? document->config.bg_selection_color : GetBackgroundColor(), false);
             }
         };
 

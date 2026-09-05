@@ -13,6 +13,7 @@
 #include "link.h"
 #include "formulas/code_block.h"
 #include "formulas/code_paragraph.h"
+#include "formulas/text_block.h"
 #include "formulas/code_string.h"
 #include "formulas/result.h"
 #include "formulas/equation.h"
@@ -252,15 +253,16 @@ bool InsertElementsTask::Execute()
     for (auto& t : elements)
     {
         auto code = document->FindParent(el->id, ElementType::CODE_BLOCK);
+        auto text_block = document->FindParent(el->id, ElementType::TEXT_BLOCK);
         bool in_code_row = el->type == ElementType::CODE_ROW || el->type == ElementType::CODE_ROW_ASSIGNMENT;
-        if (t->type == ElementType::STRING && (code || in_code_row))
+        if (t->type == ElementType::STRING && (code || text_block || in_code_row))
         {
             //change type of string
             String* str = (String*)t.get();
             _elements.emplace_back(new CodeString(*str));
             continue;
         }
-        if (t->type == ElementType::PARAGRAPH && code)
+        if (t->type == ElementType::PARAGRAPH && (code || text_block))
         {
             //change type of paragraph
             _elements.emplace_back(new CodeParagraph<>((Paragraph*)t.get()));
@@ -564,7 +566,8 @@ bool InsertFormulasTask::Execute()
         return false;
 
     std::vector<ElementPtr> select_elements;
-    if (select_pos != -1 && document->FindParent(caret_state.id, ElementType::CODE_BLOCK) != nullptr)
+    if (select_pos != -1 && (document->FindParent(caret_state.id, ElementType::CODE_BLOCK) != nullptr ||
+        document->FindParent(caret_state.id, ElementType::TEXT_BLOCK) != nullptr))
     {
         if (with_undo)
             document->StoreUndo(el->id);
@@ -612,7 +615,8 @@ bool InsertFormulasTask::Execute()
             }
         }
     }
-    else if (!selection_state.IsEmpty() && ((document->FindParent(caret_state.id, ElementType::CODE_BLOCK) == nullptr) || !elements[0]->UseSelection()))
+    else if (!selection_state.IsEmpty() && ((document->FindParent(caret_state.id, ElementType::CODE_BLOCK) == nullptr &&
+        document->FindParent(caret_state.id, ElementType::TEXT_BLOCK) == nullptr) || !elements[0]->UseSelection()))
     {
         //remove selection before insert
         auto delete_elements = 
@@ -646,9 +650,10 @@ bool InsertFormulasTask::Execute()
     if (!selection_state.IsEmpty())
         insert_mode = true; //it was a deletion before, replace mode is not enabled
     ElementId changed_element;
-    if (elements[0]->type != ElementType::CODE_BLOCK)
+    if (elements[0]->type != ElementType::CODE_BLOCK && elements[0]->type != ElementType::TEXT_BLOCK)
     {
-        if (document->FindParent(caret_state.id, ElementType::CODE_BLOCK) == nullptr)
+        if (document->FindParent(caret_state.id, ElementType::CODE_BLOCK) == nullptr &&
+            document->FindParent(caret_state.id, ElementType::TEXT_BLOCK) == nullptr)
         {
             //there is no code element - insert one in the current row
             auto row = document->FindParentRow(caret_state.id);
@@ -679,6 +684,9 @@ bool InsertFormulasTask::Execute()
         c->UpdateLevel(el->level);
         _elements.push_back(c);
     }
+
+    if (document->FindParent(caret_state.id, ElementType::TEXT_BLOCK) != nullptr)
+        TextBlock::ConvertToText(_elements); //equations and assignments do not solve inside a text block
 
     if (pasting)
     {
@@ -1253,9 +1261,9 @@ bool UndoTask::Execute()
     if (!p)
         return true; //in case of solving element, it may be asbcent now
     if (id.size() > 2 && (p->type != ElementType::CODE_ROW && p->type != ElementType::CODE_BLOCK && p->type != ElementType::CODE_PARAGRAPHS_BLOCK &&
-        p->type != ElementType::CODE_PARAGRAPHS_BLOCK_ASSIGNMENT &&
+        p->type != ElementType::CODE_PARAGRAPHS_BLOCK_ASSIGNMENT && p->type != ElementType::TEXT_BLOCK &&
         !(undo_elements[0]->type == ElementType::CODE_ROW && p->parent->type != ElementType::CODE_PARAGRAPH)) ||
-        (p->type == ElementType::CODE_BLOCK && undo_operation == UndoOperation::CHANGE))
+        ((p->type == ElementType::CODE_BLOCK || p->type == ElementType::TEXT_BLOCK) && undo_operation == UndoOperation::CHANGE))
     {
         p = document->GetLogicalParent(id);
         if (!p)
@@ -2371,7 +2379,7 @@ bool CopyTask::Execute()
                 {
                     ElementId c_id = GetCommonParent(_el->id, el->id);
                     ElementPtr c_el = document->GetElement(c_id);
-                    if (c_el && (c_el->type == ElementType::TEXT || c_el->type == ElementType::CODE_BLOCK))
+                    if (c_el && (c_el->type == ElementType::TEXT || c_el->type == ElementType::CODE_BLOCK || c_el->type == ElementType::TEXT_BLOCK))
                         _copy.push_back(document->CreateParagraph(el->id));
                 }
             }

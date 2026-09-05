@@ -95,7 +95,7 @@ void EvaluationBarSubscript::Draw() const
     GetShape()->draw_func =
         [&](const Rect& r)
         {
-            window->DrawFillRect(r, document->selection.IsSelected(id) ? document->config.formula_bg_color : document->config.shapes_color);
+            window->DrawFillRect(r, document->selection.IsSelected(id) ? GetBackgroundColor() : document->config.shapes_color);
         };
 
     if (document->selection.IsSelected(id))

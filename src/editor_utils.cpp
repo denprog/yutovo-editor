@@ -15,6 +15,9 @@
 #include "link.h"
 #include "element.h"
 #include "formulas/code_block.h"
+#include "formulas/text_block.h"
+#include "formulas/text_equation.h"
+#include "formulas/text_assignment.h"
 #include "formulas/code_paragraph.h"
 #include "formulas/code_paragraphs_block.h"
 #include "formulas/code_row.h"
@@ -351,7 +354,10 @@ Element* CreateFromJson(Element* parent, Document* document, const rapidjson::Va
             {ElementType::SYMBOLIC_REAL_RESULT, &SymbolicRealResult::FromJson},
             {ElementType::SYMBOLIC_RATIONAL_RESULT, &SymbolicRationalResult::FromJson},
             {ElementType::SYMBOLIC_COMPLEX_RESULT, &SymbolicComplexResult::FromJson},
-            {ElementType::EVALUATION_BAR_SUBSCRIPT, &EvaluationBarSubscript::FromJson}
+            {ElementType::EVALUATION_BAR_SUBSCRIPT, &EvaluationBarSubscript::FromJson},
+            {ElementType::TEXT_BLOCK, &TextBlock::FromJson},
+            {ElementType::TEXT_EQUATION, &TextEquation::FromJson},
+            {ElementType::TEXT_ASSIGNMENT, &TextAssignment::FromJson}
         };
 
     if (!value.HasMember("type") || !value["type"].IsInt())

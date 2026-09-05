@@ -63,6 +63,7 @@ add_executable(${PROJECT_NAME}_tests
 	files.cpp
 	clipboard.cpp
 	code.cpp
+	text_block.cpp
 	plus.cpp
 	minus.cpp
 	multiply.cpp

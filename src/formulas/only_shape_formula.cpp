@@ -54,12 +54,12 @@ void OnlyShapeFormula::Draw() const
             if (document->selection.IsSelected(id))
             {
                 window->DrawText(ToBasicString(std::u32string(1, symbol)), draw_string_format, r, 
-                    document->config.formula_bg_color, document->config.bg_selection_color, false);
+                    GetBackgroundColor(), document->config.bg_selection_color, false);
             }
             else
             {
                 window->DrawText(ToBasicString(std::u32string(1, symbol)), draw_string_format, r, 
-                    document->config.shapes_color, document->config.formula_bg_color, false);
+                    document->config.shapes_color, GetBackgroundColor(), false);
             }
         };
 

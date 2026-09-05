@@ -15,6 +15,9 @@
 #include "formulas/code_row.h"
 #include "formulas/code_paragraph.h"
 #include "formulas/code_block.h"
+#include "formulas/text_block.h"
+#include "formulas/text_equation.h"
+#include "formulas/text_assignment.h"
 #include "formulas/code_string.h"
 #include "formulas/plus.h"
 #include "formulas/minus.h"
@@ -291,6 +294,8 @@ Element* UndoFormula::Restore(Document* document, Element* parent)
     case ElementType::SUBSCRIPT:
     case ElementType::ASSIGNMENT:
     case ElementType::UNIT:
+    case ElementType::TEXT_EQUATION:
+    case ElementType::TEXT_ASSIGNMENT:
         {
             assert(elements.size() == 2);
             switch (type)
@@ -312,6 +317,12 @@ Element* UndoFormula::Restore(Document* document, Element* parent)
                 break;
             case ElementType::UNIT:
                 el = parent ? new Unit(parent) : new Unit(document);
+                break;
+            case ElementType::TEXT_EQUATION:
+                el = parent ? new TextEquation(parent) : new TextEquation(document);
+                break;
+            case ElementType::TEXT_ASSIGNMENT:
+                el = parent ? new TextAssignment(parent) : new TextAssignment(document);
                 break;
             default:
                 assert(false);
@@ -508,6 +519,42 @@ bool UndoCodeBlock::operator==(const CodeBlock& el) const
 Element* UndoCodeBlock::Restore(Document* document, Element* parent)
 {
     CodeBlock* c = parent ? new CodeBlock(parent, code_id, true, false) : new CodeBlock(document, code_id, true, false);
+    c->code_format = code_format;
+    c->paragraph_format = paragraph_format;
+    c->formula_format = formula_format;
+    c->elements->Clear();
+    for (size_t i = 0; i < elements.size(); ++i)
+        c->elements->Add(ElementPtr(elements[i]->Restore(document, c)));
+    return c;
+}
+
+//UndoTextBlock
+
+UndoTextBlock::UndoTextBlock(CodeFormatPtr _code_format, ParagraphFormatPtr _paragraph_format, FormulaFormatPtr _formula_format) :
+    UndoElement(ElementType::TEXT_BLOCK),
+    code_format(_code_format),
+    paragraph_format(_paragraph_format),
+    formula_format(_formula_format)
+{
+}
+
+bool UndoTextBlock::operator==(const UndoTextBlock& el) const
+{
+    if (!UndoElement::operator==(el))
+        return false;
+    return *code_format == *el.code_format && *paragraph_format == *el.paragraph_format && *formula_format == *el.formula_format;
+}
+
+bool UndoTextBlock::operator==(const TextBlock& el) const
+{
+    if (!UndoElement::operator==(el))
+        return false;
+    return *code_format == *el.code_format && *paragraph_format == *el.paragraph_format && *formula_format == *el.formula_format;
+}
+
+Element* UndoTextBlock::Restore(Document* document, Element* parent)
+{
+    TextBlock* c = parent ? new TextBlock(parent) : new TextBlock(document);
     c->code_format = code_format;
     c->paragraph_format = paragraph_format;
     c->formula_format = formula_format;
@@ -1026,6 +1073,20 @@ UndoElementPtr UndoBase::StoreElement(const LogicalId id, ElementPtr el)
             }
         }
         break;
+    case ElementType::TEXT_BLOCK:
+        {
+            TextBlock* c = (TextBlock*)el.get();
+            undo_element.reset(new UndoTextBlock(c->code_format, c->paragraph_format, c->formula_format));
+            for (int i = 0; i < c->elements->Count(); ++i)
+            {
+                ElementPtr ch = c->elements->Get(i);
+                UndoElementPtr undo_ch = StoreElement(ch->logical_id, ch);
+                if (!undo_ch)
+                    return nullptr;
+                undo_element->elements.push_back(undo_ch);
+            }
+        }
+        break;
     case ElementType::CODE_ROW:
         {
             CodeRow<>* r = (CodeRow<>*)el.get();
@@ -1141,6 +1202,8 @@ UndoElementPtr UndoBase::StoreElement(const LogicalId id, ElementPtr el)
     case ElementType::SUBSCRIPT:
     case ElementType::ASSIGNMENT:
     case ElementType::UNIT:
+    case ElementType::TEXT_EQUATION:
+    case ElementType::TEXT_ASSIGNMENT:
         undo_element.reset(new UndoFormula(el->type, ((Formula*)el.get())->formula_format));
         if (!store_element(el->elements->Get(0), undo_element))
             return nullptr;

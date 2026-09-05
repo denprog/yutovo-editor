@@ -763,13 +763,15 @@ bool Row::GetBottomCaretState(const int x, const int y, CaretState& caret_state,
             {
                 if (GetFirstCaretState(next, nullptr) && last == next)
                 {
-                    if (parent->parent->elements->IsLast(parent->id) && parent->parent->type != ElementType::CODE_BLOCK)
+                    if (parent->parent->elements->IsLast(parent->id) && parent->parent->type != ElementType::CODE_BLOCK &&
+                        parent->parent->type != ElementType::TEXT_BLOCK)
                         return parent->GetBottomCaretState(x, y, caret_state, nullptr);
                     ElementPtr el = document->GetElement(next.id);
                     if (el)
                     {
                         CaretState c = caret->GetCaretState();
-                        if (parent->parent->elements->IsLast(parent->id) && parent->parent->type == ElementType::CODE_BLOCK)
+                        if (parent->parent->elements->IsLast(parent->id) &&
+                            (parent->parent->type == ElementType::CODE_BLOCK || parent->parent->type == ElementType::TEXT_BLOCK))
                             select->Add(parent->parent->id);
                         else if (parent->parent->elements->IsFirst(parent->id) || c.IsInsideElement(id))
                             select->Add(parent->id);
@@ -1017,7 +1019,7 @@ bool Row::GetNearestCaretState(const int x, const int y, CaretState& caret_state
     for (int i = 0; i < elements->Count(); ++i)
     {
         auto _el = elements->Get(i);
-        if (_el->type == ElementType::CODE_BLOCK)
+        if (_el->type == ElementType::CODE_BLOCK || _el->type == ElementType::TEXT_BLOCK)
         {
             Rect r = _el->GetAbsoluteRect();
             if (r.IsPointInside(x, y))
@@ -1116,7 +1118,8 @@ bool Row::GetNearestCaretState(const int x, const int y, CaretState& caret_state
 
 Rect Row::GetCaretRect(const uint pos) const
 {
-    if (pos > 0 && pos == elements->Count() && elements->Get(pos - 1)->type == ElementType::CODE_BLOCK)
+    if (pos > 0 && pos == elements->Count() &&
+        (elements->Get(pos - 1)->type == ElementType::CODE_BLOCK || elements->Get(pos - 1)->type == ElementType::TEXT_BLOCK))
     {
         Rect& rect = elements->Get(pos - 1)->rect;
         return Rect{rect.GetRight() + 1, rect.top - 1, 2, rect.height + 2};
@@ -1126,9 +1129,8 @@ Rect Row::GetCaretRect(const uint pos) const
 
 void Row::DrawCaret(const uint pos) const
 {
-    // if (parent->document->config.hilight_caret_element)
-    //     parent->DrawHilightRect();
-    if (pos > 0 && pos == elements->Count() && elements->Get(pos - 1)->type == ElementType::CODE_BLOCK)
+    if (pos > 0 && pos == elements->Count() &&
+        (elements->Get(pos - 1)->type == ElementType::CODE_BLOCK || elements->Get(pos - 1)->type == ElementType::TEXT_BLOCK))
     {
         Rect r = GetAbsoluteRect(GetCaretRect(pos));
         window->DrawLine(r.GetRight() - 1, r.top + 1, r.GetRight() - 1, r.GetBottom() - 2, Color::Black());

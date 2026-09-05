@@ -630,6 +630,10 @@ struct ArrayTest : SolverTest
 {
 };
 
+struct TextBlockTest : DocumentTest
+{
+};
+
 struct VariablesTest : SolverTest
 {
     void Start(int width)

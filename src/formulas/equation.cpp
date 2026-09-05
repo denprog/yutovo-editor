@@ -96,9 +96,9 @@ void Equation::Draw() const
         [&](const Rect& r)
         {
             if (document->selection.IsSelected(id))
-                window->DrawText("=", draw_string_format, r, document->config.formula_bg_color, document->config.bg_selection_color, false);
+                window->DrawText("=", draw_string_format, r, GetBackgroundColor(), document->config.bg_selection_color, false);
             else
-                window->DrawText("=", draw_string_format, r, document->config.shapes_color, document->config.formula_bg_color, false);
+                window->DrawText("=", draw_string_format, r, document->config.shapes_color, GetBackgroundColor(), false);
         };
 
     MiddleShapeFormula::Draw();
@@ -177,7 +177,8 @@ bool Equation::AfterInsert(bool with_undo)
     for (int i = pos - 1; i >= 0; --i)
     {
         auto el = parent->elements->Get(i);
-        if (el->type == ElementType::ASSIGNMENT || el->type == ElementType::EQUATION)
+        if (el->type == ElementType::ASSIGNMENT || el->type == ElementType::EQUATION ||
+            el->type == ElementType::TEXT_ASSIGNMENT || el->type == ElementType::TEXT_EQUATION)
             break;
         GetFirst()->elements->Move(el, 0);
     }
