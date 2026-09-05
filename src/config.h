@@ -227,6 +227,19 @@ struct Config
         void FromJson(const rapidjson::Value::ConstObject& value, rapidjson::Document::AllocatorType& alloc);
     };
 
+    struct TextBlockConfig
+    {
+        bool operator==(const TextBlockConfig& other) const
+        {
+            return background_color == other.background_color && frame_color == other.frame_color;
+        }
+
+        Color background_color = Color::FromHex("#f0f0c2");
+        Color frame_color = Color::White();
+    };
+
+    TextBlockConfig text_block;
+
     //include documents
     struct IncludeDocument
     {

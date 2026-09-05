@@ -56,6 +56,17 @@ Derivatives are represented by a regular editable `Division` fraction so that th
 - TermDegree `known_funcs` in `yutovo-calculator/src/symbolic.h` and `FunctionSortRank` in `yutovo-calculator/src/giac_utils.cpp` include all aliases and canonical output names (`tan`, `asin`, `acos`, `atan`, etc.).
 - `CalcTestSymbolicReal.all_symbolic_functions` covers every symbolic trig/hyperbolic/inverse function with four variants: numeric evaluation, symbolic form, derivative, and alias equivalence.
 
+## Text Block
+- `ElementType::TEXT_BLOCK`, `TEXT_EQUATION`, `TEXT_ASSIGNMENT` (appended at the end of the enum). Classes `TextBlock : public Block` (`src/formulas/text_block.h/.cpp`), `TextEquation : public Equation` (`src/formulas/text_equation.h/.cpp`), `TextAssignment : public Assignment` (`src/formulas/text_assignment.h/.cpp`).
+- TextBlock is a block for entering formulas **without solving**: editing works exactly like in CodeBlock (CodeParagraph/CodeRow/CodeString children, same "Calculator"/"Code"/"Formula" formats), but nothing is computed. It can be inserted into document text via `document.InsertTextBlock(with_undo)` and inside a CodeBlock (stays a nested block). Neither a CodeBlock nor another TextBlock can be inserted inside a TextBlock — `CodeRow::InsertElements` rejects both.
+- `TextBlock::AfterFromJson` converts plain `STRING` elements saved by older versions into `CODE_STRING` (`TextBlock::ConvertStringsToCode`, which must not descend into `STRING`/`CODE_STRING`/`LINK` - their element lists return the element itself).
+- `TextEquation`/`TextAssignment` never solve: `TextEquation` overrides `Solve`/`ReSolve` with empty bodies, `TextAssignment` sets `auto_solve = false`. The right part stays a plain editable CodeRow, and `TextEquation::AfterInsert` puts the caret into the right row (typing on the `=` shape is rejected by `MiddleShapeFormula::InsertElements`). `TextAssignment` uses the plain `:` sign (`solve_sign`/`draw_sign`, ToText `x:5`), unlike the `:=` of a computing Assignment.
+- Typing `=`/`:` inside a TextBlock: `InsertFormulasTask::Execute` converts the cloned `EQUATION`/`ASSIGNMENT` elements into their text counterparts via `TextBlock::ConvertToText`, so front-ends calling `InsertEquation`/`InsertAssignment` work unchanged. Pasting a whole CodeBlock into a TextBlock flattens its paragraphs and converts them the same way (`CodeRow::InsertElements` calls `TextBlock::ConvertToText` on the collected rows when `TextBlock::BlocksSolving(this)`); a solved result row is flattened into a plain editable row by `TextBlock::CollectRowElements`, which recurses through nested rows **and results** (an `AutoResult` holds a `RealResult` child after solving - without the recursion the result element would be pasted as-is and lost on save). An empty code block is still rejected.
+- `Config::TextBlockConfig text_block` contains `background_color` (default `#cfcab0`, yellowish) and `frame_color` (default White). Like the other colors these are **application settings** - they are not serialized into the document config (`Config::ToJson`/`FromJson` must not write them, otherwise a saved document would override the application colors on load). The frame is gated by the shared `code_block_border` flag; other visual parameters come from the CodeBlock formats. yutovo-desktop persists both colors in QSettings as `text_block_background_color`/`text_block_frame_color`.
+- Undo/redo: `TEXT_EQUATION`/`TEXT_ASSIGNMENT` are stored like `ASSIGNMENT` (children 0 and 2 in `UndoFormula`), `TEXT_BLOCK` has `UndoTextBlock` (formats + children, see `undo.cpp`).
+- Tests: `test/text_block.cpp` (`TextBlockTest.text_block1..15`, `text_block15` copies a code block with an assignment and a solved equation and pastes it into a text block, `text_block12`/`text_block13` check that `InsertCode`/`InsertTextBlock` inside a text block are rejected, `text_block14` loads a handwritten json with a legacy plain `STRING` in the right part and checks it becomes a code string); `text_block10` checks that a text block inserted into document text accepts formulas after `=` (exact `ToHtml()` MathML with an `mfrac`), `text_block11` saves to a `.yut` file and checks the stored json (a gzip stream unpacked via `Boost::iostreams`, which the test target already links). Do **not** use `FindAllByType` from `mock.h` on documents containing strings — `StringElements::Get(pos)` returns the string itself, causing infinite recursion; count elements with a helper that skips `STRING`/`CODE_STRING`.
+- Front-ends: formula commands ("=", ":", "+", ...) must be allowed inside a text block placed in the document **text** too — `CommandContext::Formula` in both `command_map.cpp` files (desktop and web) accepts `TEXT_BLOCK` as well as `CODE_BLOCK` ancestors, otherwise "=" is typed as a plain string. yutovo-desktop has a toolbar button next to "Insert calculator" (`text_block_action`, `MainWindow::OnInsertTextBlock` in `mainwindow.cpp`, icon `images/format/text_block.png`); yutovo-web has `#insert-text-block-button` (`YutovoWeb.vue` → wasm export `OnInsertTextBlock` in `src/main.cpp`). Both link the prebuilt editor from `$YUTOVO_DEPLOY` — reinstall yutovo-editor (native and wasm builds) into deploy before rebuilding them. Button tests: desktop `TestToolbar::testTextBlock`, `TestToolbar::testTextBlockInText` (keyboard input into a block placed in the document text, clicks via `QTest::mouseClick`), (`test/toolbar.cpp`, the action is found by objectName `text_block_action`; run the whole `yutovo-desktop_test` with a real display — `TestFiles::testCopyPasteGraph` aborts offscreen), web `test/text_block.spec.js` (`utils.insertTextBlock`; click the button only after the page settled — a click right after `setLanguage` misses while the language list is closing).
+
 ## Code Style
 
 ### Parenthesized expressions
@@ -107,6 +118,9 @@ void foo (int a);
 arr [0] = foo (1);
 ```
 
+### Comments
+Comments that precede a function, method, or class (header/descriptive comments above the definition) start with a capital letter, e.g. `//Group of code paragraphs`, `//TextEquation`, `//Insert a text block into the document text`.
+
 ### Lambdas
 Place the capture clause on a new line, indented by 4 spaces. Parameters, the `->` return type, and the opening brace follow the normal rules: parameters and return type stay on the same line as the capture clause, and the opening brace goes on its own line.
 ```cpp
@@ -135,6 +149,12 @@ auto callback =
 ```
 
 ## Editor Test Patterns
+
+### Test fixture declarations
+Declare new test fixtures (`struct XTest : DocumentTest`, `SolverTest`, ...) in `test/mock.h` next to the other corresponding fixture declarations — do **not** declare them in the individual `test/*.cpp` file (e.g. `TextBlockTest` lives in `mock.h` next to `ArrayTest`/`VariablesTest`, not in `text_block.cpp`). Shared helpers of a fixture are methods of that fixture in `mock.h`.
+
+### Checking the caret state
+Editor tests must also verify the caret position - add `ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, ...})) << document.GetEditorState().ToString();` **after** each full `ToHtml()` check (see `TextBlockTest.text_block16`). The braced list is the `ElementId` path of the caret; collect actual values from `GetEditorState().ToString()` (positions before ` [`).
 
 ### Entering expressions in code blocks
 Do **not** put operators inside `InsertString`:
@@ -172,7 +192,7 @@ ASSERT_TRUE(document.ToText() == U"x+1=1+x") << ToBasicString(document.ToText())
 ```
 
 ### Checking results with ToHtml()
-Check full `ToHtml()` exactly like `SolverSymbolicTest::solver1`:
+In editor tests verify the document by comparing the **full** `ToHtml()` instead of spot checks (`ToText()`, substring searches, element counting) - the complete MathML distinguishes solved results (`ResultRow` wrapping), waiting symbols, formulas vs plain strings, and nested blocks. Check full `ToHtml()` exactly like `SolverSymbolicTest::solver1`:
 ```cpp
 ASSERT_TRUE(document.ToHtml() ==
     "<body>"
@@ -231,7 +251,7 @@ ASSERT_TRUE(document.ToText() == U"...") << ToBasicString(document.ToText());
 ```
 
 ### Async operations and timeouts
-Editor and caret methods return a task id and run asynchronously. Always wait for them with `document.WaitTask(id, timeout)` and assert the returned value; do not rely only on `std::this_thread::sleep_for`.
+Editor and caret methods return a task id, but the editor runs a single thread and executes the commands sequentially - waiting after every command is unnecessary. Call `document.WaitTask(id)` only **before an assertion** (wrap the last command of a sequence) and when the next step consumes the result of the task: `Copy` before using the returned clipboard json, `Save` before reading the file or `Load`ing it, `LoadJson` before checks. Do not rely only on `std::this_thread::sleep_for`.
 
 ### Changing config
 Do not mutate `document.config` directly and then call `document.SetConfig(document.config, false)` — `SetConfigTask` compares the passed config with the current `document.config`, so a direct mutation makes the comparison see no change. Instead, copy `document.config` into a local `Config`, modify the copy, and pass it to `SetConfig`.

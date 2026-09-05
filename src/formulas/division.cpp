@@ -58,7 +58,7 @@ void Division::Draw() const
     GetShape()->draw_func = 
         [&](const Rect& r)
         {
-            Color c = document->selection.IsSelected(id) ? document->config.formula_bg_color : document->config.shapes_color;
+            Color c = document->selection.IsSelected(id) ? GetBackgroundColor() : document->config.shapes_color;
             if (r.height == 0)
                 window->DrawLine(r.left, r.top, r.left + r.width, r.top, c);
             else

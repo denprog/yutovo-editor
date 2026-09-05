@@ -105,7 +105,7 @@ bool Block::InsertElements(std::vector<ElementPtr>& _elements, bool insert_mode,
                 if (document->IsParagraph(_els[i]))
                 {
                     cur = document->GetElement(caret->GetElement()->id);
-                    if (document->FindParent(cur->id, ElementType::CODE_BLOCK))
+                    if (document->FindParent(cur->id, ElementType::CODE_BLOCK) || document->FindParent(cur->id, ElementType::TEXT_BLOCK))
                     {
                         ElementPtr paragraph = document->FindParentParagraph(cur->id);
                         int k = elements->GetElementPos(paragraph->id);

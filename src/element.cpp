@@ -369,7 +369,7 @@ void Element::UpdateStringFormat(const StringFormatPtr base_format, const String
     for (int i = 0; i < elements->Count(); ++i)
     {
         auto el = elements->Get(i);
-        if (el->type != ElementType::CODE_BLOCK)
+        if (el->type != ElementType::CODE_BLOCK && el->type != ElementType::TEXT_BLOCK)
             el->UpdateStringFormat(base_format, new_format);
     }
 }
@@ -1880,7 +1880,7 @@ bool Elements::GetWordLeftCaretState(CaretState& caret_state, Selection* select)
         return false;
     while (p-- > 0)
     {
-        if (elements[p]->type == ElementType::CODE_BLOCK)
+        if (elements[p]->type == ElementType::CODE_BLOCK || elements[p]->type == ElementType::TEXT_BLOCK)
         {
             caret_state.SetState(Get(p));
             if (select)

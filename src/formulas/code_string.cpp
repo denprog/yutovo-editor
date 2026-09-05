@@ -213,10 +213,15 @@ void CodeString::Draw() const
         color1 = std::make_pair(str.length(), document->config.numbers_color);
     else
     {
-        auto el = document->FindParent(id, ElementType::CODE_BLOCK);
-        assert(el);
-        CodeBlock* c = dynamic_cast<CodeBlock*>(el.get());
-        uint code_id = c->code_id;
+        uint code_id = 0;
+        if (document->FindParent(id, ElementType::TEXT_BLOCK) == nullptr)
+        {
+            //the nearest block is a code block - its identifiers color the string, numbers are colored in any block
+            auto el = document->FindParent(id, ElementType::CODE_BLOCK);
+            assert(el);
+            CodeBlock* c = dynamic_cast<CodeBlock*>(el.get());
+            code_id = c->code_id;
+        }
 
         size_t p = str.find_first_not_of(U"0123456789.");
         if (p == 0)
@@ -299,38 +304,34 @@ void CodeString::Draw() const
         if (color1.first != -1 && i < color1.first)
         {
             if (size != 0 && i >= start && i < start + size)
-                window->DrawText(ch, fmt, Rect{r.left + s.width - w, r.top, w, r.height}, document->config.formula_bg_color, 
+                window->DrawText(ch, fmt, Rect{r.left + s.width - w, r.top, w, r.height}, GetBackgroundColor(), 
                     document->config.bg_selection_color, true);
             else
-                window->DrawText(ch, fmt, Rect{r.left + s.width - w, r.top, w, r.height}, color1.second, 
-                    document->config.formula_bg_color, true);
+                window->DrawText(ch, fmt, Rect{r.left + s.width - w, r.top, w, r.height}, color1.second, GetBackgroundColor(), true);
         }
         else if (color1.first != -1 && color2.first != -1 && i >= color1.first && i < color1.first + color2.first)
         {
             if (size != 0 && i >= start && i < start + size)
-                window->DrawText(ch, fmt, Rect{r.left + s.width - w, r.top, w, r.height}, document->config.formula_bg_color, 
+                window->DrawText(ch, fmt, Rect{r.left + s.width - w, r.top, w, r.height}, GetBackgroundColor(), 
                     document->config.bg_selection_color, true);
             else
-                window->DrawText(ch, fmt, Rect{r.left + s.width - w, r.top, w, r.height}, color2.second, 
-                    document->config.formula_bg_color, true);
+                window->DrawText(ch, fmt, Rect{r.left + s.width - w, r.top, w, r.height}, color2.second, GetBackgroundColor(), true);
         }
         else if (gap == 0)
         {
             if (size != 0 && i >= start && i < start + size)
-                window->DrawText(ch, fmt, Rect{r.left + s.width - w, r.top, w, r.height}, document->config.formula_bg_color, 
+                window->DrawText(ch, fmt, Rect{r.left + s.width - w, r.top, w, r.height}, GetBackgroundColor(), 
                     document->config.bg_selection_color, true);
             else
-                window->DrawText(ch, fmt, Rect{r.left + s.width - w, r.top, w, r.height}, draw_format->text_color, 
-                    document->config.formula_bg_color, true);
+                window->DrawText(ch, fmt, Rect{r.left + s.width - w, r.top, w, r.height}, draw_format->text_color, GetBackgroundColor(), true);
         }
         else
         {
             if (size != 0 && i >= start && i < start + size)
                 window->DrawText(ch, fmt, Rect{r.left + s.width - w, r.top, w, r.height}, 
-                    document->config.numbers_color, document->config.formula_bg_color, true);
+                    document->config.numbers_color, GetBackgroundColor(), true);
             else
-                window->DrawText(ch, fmt, Rect{r.left + s.width - w, r.top, w, r.height}, document->config.numbers_color, 
-                    document->config.formula_bg_color, true);
+                window->DrawText(ch, fmt, Rect{r.left + s.width - w, r.top, w, r.height}, document->config.numbers_color, GetBackgroundColor(), true);
         }
 
         p = s.width;

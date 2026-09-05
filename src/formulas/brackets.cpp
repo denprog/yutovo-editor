@@ -76,8 +76,8 @@ void OpenBracket::Draw() const
             if (format)
             {
                 window->DrawText(ToBasicString(ToText()), format, r, 
-                    document->selection.IsSelected(id) ? document->config.formula_bg_color : document->config.shapes_color, 
-                    document->selection.IsSelected(id) ? document->config.bg_selection_color : document->config.formula_bg_color, false);
+                    document->selection.IsSelected(id) ? GetBackgroundColor() : document->config.shapes_color, 
+                    document->selection.IsSelected(id) ? document->config.bg_selection_color : GetBackgroundColor(), false);
             }
         };
 
@@ -248,8 +248,8 @@ void CloseBracket::Draw() const
             if (format)
             {
                 window->DrawText(ToBasicString(ToText()), format, r, 
-                    document->selection.IsSelected(id) ? document->config.formula_bg_color : document->config.shapes_color, 
-                    document->selection.IsSelected(id) ? document->config.bg_selection_color : document->config.formula_bg_color, false);
+                    document->selection.IsSelected(id) ? GetBackgroundColor() : document->config.shapes_color, 
+                    document->selection.IsSelected(id) ? document->config.bg_selection_color : GetBackgroundColor(), false);
             }
         };
 

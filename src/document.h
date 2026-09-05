@@ -68,6 +68,7 @@ public:
     uint ClearElements(ElementId element_id, bool with_undo);
 
     uint InsertCode(bool next_code_id, bool with_undo);
+    uint InsertTextBlock(bool with_undo);
     uint InsertCodeString(const std::string& str, bool with_undo);
     uint InsertPlus(bool with_undo, bool replace = false);
     uint InsertMinus(bool with_undo, bool replace = false);

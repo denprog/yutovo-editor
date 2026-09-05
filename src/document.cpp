@@ -12,6 +12,7 @@
 #include "row.h"
 #include "image.h"
 #include "formulas/code_block.h"
+#include "formulas/text_block.h"
 #include "formulas/code_string.h"
 #include "formulas/code_paragraph.h"
 #include "formulas/plus.h"
@@ -605,6 +606,12 @@ uint Document::InsertCode(bool next_code_id, bool with_undo)
     return InsertFormula(new CodeBlock(this, cur_code_id, true, true), with_undo);
 }
 
+uint Document::InsertTextBlock(bool with_undo)
+{
+    LOG_TRACE("Insert text block");
+    return InsertFormula(new TextBlock(this), with_undo);
+}
+
 uint Document::InsertCodeString(const std::string& str, bool with_undo)
 {
     LOG_TRACE("Insert code string: {}", str);
@@ -1169,7 +1176,8 @@ bool Document::StoreUndo(const ElementId& parent_id, const int pos, const int si
 {
     int undo_id;
     auto p = GetParent(parent_id);
-    if (p && (p->type == ElementType::EQUATION || p->type == ElementType::ASSIGNMENT))
+    if (p && (p->type == ElementType::EQUATION || p->type == ElementType::ASSIGNMENT ||
+        p->type == ElementType::TEXT_EQUATION || p->type == ElementType::TEXT_ASSIGNMENT))
     {
         int _pos = yutovo::GetChildPos(p->id);
         undo_id = undo_base.Store(p->parent->id, _pos, 1);
@@ -2189,7 +2197,7 @@ bool Document::GetInsertMode()
 
 ElementPtr Document::CreateParagraph(const ElementId& id)
 {
-    if (FindElementOrParent(id, ElementType::CODE_BLOCK))
+    if (FindElementOrParent(id, ElementType::CODE_BLOCK) || FindElementOrParent(id, ElementType::TEXT_BLOCK))
         return ElementPtr(new CodeParagraph<>(this, true));
     return ElementPtr(new Paragraph(this, true));
 }
@@ -3959,6 +3967,8 @@ void Document::SetIdentifiers(const uint code_id, const std::vector<std::string>
 
 IdentifierType Document::FindIdentifier(const uint code_id, const std::string& str)
 {
+    if (code_id == 0)
+        return IdentifierType::NONE;
     std::lock_guard<std::recursive_mutex> lock(identifiers_mutex);
     auto it = identifiers.find(code_id);
     if (it == identifiers.end())

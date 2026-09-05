@@ -30,6 +30,7 @@ template<typename T> class CodeParagraph;
 template<typename T> class CodeParagraphsBlock;
 class Formula;
 class CodeBlock;
+class TextBlock;
 class Equation;
 class GraphLine;
 class Assignment;
@@ -172,6 +173,20 @@ struct UndoCodeBlock : UndoElement
     virtual Element* Restore(Document* document, Element* parent);
 
     uint code_id;
+    CodeFormatPtr code_format;
+    ParagraphFormatPtr paragraph_format;
+    FormulaFormatPtr formula_format;
+};
+
+struct UndoTextBlock : UndoElement
+{
+    UndoTextBlock(CodeFormatPtr _code_format, ParagraphFormatPtr _paragraph_format, FormulaFormatPtr _formula_format);
+
+    virtual bool operator==(const UndoTextBlock& el) const;
+    virtual bool operator==(const TextBlock& el) const;
+
+    virtual Element* Restore(Document* document, Element* parent);
+
     CodeFormatPtr code_format;
     ParagraphFormatPtr paragraph_format;
     FormulaFormatPtr formula_format;
