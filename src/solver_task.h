@@ -64,6 +64,7 @@ struct SolverTask
     bool include_document = false;
     int delay = 0; //in milliseconds
     uint64_t cur_time = 0;
+    const uint64_t start_time; //creation time does not change while the task waits for its delay
     Logger* logger;
 };
 

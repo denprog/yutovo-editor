@@ -494,6 +494,7 @@ void Solver::MessageLoop(WebSocketPtr socket_, std::deque<SolverTaskPtr>& tasks_
                 result.error.error_code != yutovo_solver::ErrorCode::OK)
             {
                 result.guid = t->task_guid;
+                result.solve_time = t->start_time;
                 document->PutResult(result);
             }
             

@@ -374,6 +374,7 @@ public:
     uint SetLocale(const yutovo_calculator::Language language, bool with_undo);
     void ListIdentifiers(const uint code_id);
 
+    void RegisterSolveId(const std::string& guid, const LogicalId& _id);
     void UpdateSolveId(const std::string& guid, const LogicalId& new_id);
 
     bool IsVisible(ElementId _id);

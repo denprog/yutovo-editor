@@ -2467,6 +2467,9 @@ bool ResultTask::Execute()
             ResultRow* r = dynamic_cast<ResultRow*>(el.get());
             if (!r)
                 return false;
+            //ignore results of the solves superseded by a newer dispatch
+            if (result.solve_time < r->last_solve_time)
+                return true;
             document->RemoveErrorMarks(r->id);
             r->PutResult(result);
             break;
@@ -2644,7 +2647,7 @@ bool ResolveDependenciesTask::Execute()
     std::vector<std::string> id_arr;
     boost::split(id_arr, identifier, boost::is_any_of("()"));
 
-    auto resolve_equations = 
+    auto resolve_equations =
         [this, &_after_id, &solvings, d = document, &id_arr](CodeBlock* c, bool below)
         {
             if (below)
@@ -2666,8 +2669,8 @@ bool ResolveDependenciesTask::Execute()
                 Remake(eq->parent->id, false);
             }
         };
-    
-    auto resolve_assignments = 
+
+    auto resolve_assignments =
         [&_after_id, &solvings, d = document, &id_arr](CodeBlock* c, bool below)
         {
             if (below)
@@ -2681,7 +2684,11 @@ bool ResolveDependenciesTask::Execute()
                 for (auto& _d : id_arr)
                 {
                     if (s->Depends(_d))
+                    {
                         d->RemoveErrorMarks(s->id);
+                        //re-solve the failed declaration, its expression may have become valid
+                        s->ReSolve(true, true);
+                    }
                 }
             }
         };

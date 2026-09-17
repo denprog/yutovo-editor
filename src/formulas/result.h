@@ -67,6 +67,7 @@ protected:
 
 public:
     yutovo_solver::ErrorCode last_error_code = yutovo_solver::ErrorCode::OK;
+    uint64_t last_solve_time = 0; //the dispatch time of the latest solve, results of older solves are ignored
 
 protected:
     ParserString last_expression;
