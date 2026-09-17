@@ -356,10 +356,10 @@ TEST_F(FormulaTest, user_functions2)
 
     document.WaitTask(document.InsertParagraph(true));
     document.InsertString("E", true);
-    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitTask(document.InsertEquation(ResultType::REAL, true));
     document.WaitSolver();
     std::this_thread::sleep_for(1s);
-    ASSERT_TRUE(document.ToText() == 
+    ASSERT_TRUE(document.ToText() ==
         U"h=5\n" \
         U"E=h*m(5)\n" \
         U"E=Unknown identifier"
@@ -379,13 +379,85 @@ TEST_F(FormulaTest, user_functions2)
     document.WaitTask(document.InsertString("x", true));
     document.WaitSolver();
     std::this_thread::sleep_for(2s);
-    ASSERT_TRUE(document.ToText() == 
+    ASSERT_TRUE(document.ToText() ==
         U"m(x)=x\n" \
         U"h=5\n" \
         U"E=h*m(5)\n" \
         U"E=25."
         ) << ToBasicString(document.ToText());
     ASSERT_TRUE(!document.HasErrorMarks({0})) << ErrorMarks();
+}
+
+//A failed declaration invalidates the identifier, the dependent equations are re-solved
+TEST_F(FormulaTest, user_functions3)
+{
+    Start(600);
+
+    EXPECT_CALL(window_mock, Translate).WillRepeatedly([&](ElementId id, const std::u32string& str)
+        {
+            return str;
+        });
+
+    document.InsertCode(false, true);
+    document.InsertString("a", true);
+    document.InsertAssignment(true);
+    document.WaitTask(document.InsertString("123", true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+
+    document.WaitTask(document.InsertParagraph(true));
+    document.InsertString("b", true);
+    document.InsertAssignment(true);
+    document.InsertString("234", true);
+    document.InsertPlus(true);
+    document.WaitTask(document.InsertString("a", true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+
+    document.MoveCaretRight(false);
+    document.InsertParagraph(true);
+    document.InsertString("b", true);
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+
+    document.WaitTask(document.MoveCaretEnd(false));
+    document.WaitTask(document.InsertParagraph(true));
+    document.InsertString("b", true);
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() ==
+        U"a=123\n" \
+        U"b=234+a\n" \
+        U"b=357.\n" \
+        U"b=357."
+        ) << ToBasicString(document.ToText());
+
+    //enter the failed declaration of the function b above the last equation
+    document.WaitTask(document.MoveCaretHome(false));
+    document.WaitTask(document.InsertParagraph(true));
+    document.WaitTask(document.MoveCaretUp(false));
+    document.InsertString("b", true);
+    document.InsertAssignment(true);
+    document.InsertString("b", true);
+    document.InsertOpenRoundBracket(true);
+    document.InsertString("k", true);
+    document.InsertCloseRoundBracket(true);
+    document.WaitTask(document.InsertAssignment(true));
+    document.InsertString("k", true);
+    document.WaitTask(document.InsertExclamation(true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(2s);
+    //the failed declaration invalidates the name b; all numeric parsers report an unknown
+    //identifier, in AUTO mode the equation falls back to the symbolic result - the symbol b
+    ASSERT_TRUE(document.ToText() ==
+        U"a=123\n" \
+        U"b=234+a\n" \
+        U"b=357.\n" \
+        U"b=b(k)=k!\n" \
+        U"b=b"
+        ) << ToBasicString(document.ToText());
 }
 
 }

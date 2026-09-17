@@ -2838,7 +2838,7 @@ TEST_F(FormulaTest, long_solving)
     document.InsertDivision(true);
     document.InsertString(U"x", true);
     document.InsertPlus(true);
-    document.InsertString(U"j", true);
+    document.InsertString(U"g", true);
     document.MoveCaretRight(false);
     document.MoveCaretRight(false);
     document.InsertString(U"x", true);
@@ -2846,7 +2846,7 @@ TEST_F(FormulaTest, long_solving)
     document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
     document.WaitSolver();
     std::this_thread::sleep_for(3s);
-    ASSERT_TRUE(document.ToText() == U"definite_integral(0,1,(1)/(x+j),x)=Solving time exceeded") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.ToText() == U"definite_integral(0,1,(1)/(x+g),x)=Solving time exceeded") << ToBasicString(document.ToText());
 }
 
 TEST_F(MultiDocumentSolverAutoTest, load_recent_files_simultaneously)

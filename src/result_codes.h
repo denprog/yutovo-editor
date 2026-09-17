@@ -91,6 +91,7 @@ struct Result
     std::string ToString();
 
     std::string guid;
+    uint64_t solve_time = 0; //the dispatch time of the solve task that produced this result
     yutovo_solver::ResultType type = yutovo_solver::ResultType::NONE;
     std::vector<Value> values;
     Dependencies dependencies;

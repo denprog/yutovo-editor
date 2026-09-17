@@ -35,9 +35,10 @@ SolverTask::SolverTask(const LogicalId& _id, Document* _document, const std::str
     include_document(_include_document),
     expression(_expression),
     delay(_delay),
+    cur_time(duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count()),
+    start_time(cur_time),
     logger(_logger)
 {
-    cur_time = duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
     id_str = LogicalIdToString(id);
 }
 
@@ -51,18 +52,20 @@ SolverTask::SolverTask(const LogicalId& _id, Document* _document, const std::str
     include_document(_include_document),
     expression(_expression),
     delay(_delay),
+    cur_time(duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count()),
+    start_time(cur_time),
     logger(_logger)
 {
-    cur_time = duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
     id_str = LogicalIdToString(id);
 }
 
 SolverTask::SolverTask(Document* _document, const std::string& _solver_guid, Logger* _logger) :
     document(_document), 
     solver_guid(_solver_guid),
+    cur_time(duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count()),
+    start_time(cur_time),
     logger(_logger)
 {
-    cur_time = duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
 }
 
 SolverTask::SolverTask(Document* _document, Logger* _logger) : 
@@ -75,9 +78,10 @@ SolverTask::SolverTask(const LogicalId& _id, Document* _document, const std::str
     document(_document), 
     solver_guid(_solver_guid),
     code_id(_code_id),
+    cur_time(duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count()),
+    start_time(cur_time),
     logger(_logger)
 {
-    cur_time = duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
 }
 
 bool SolverTask::SendRequest(const rapidjson::Document& json, Result& result, WebSocketPtr& socket, bool log_action)
@@ -1361,10 +1365,11 @@ SetIdentifierSolverTask::SetIdentifierSolverTask(const LogicalId& _id, Document*
 
 bool SetIdentifierSolverTask::Execute(WebSocketPtr socket, Result& result)
 {
-    if (!AutoSolverTask::Execute(socket, result))
-        return false;
-    document->ReSolveDependencies(id, identifier);
-    return true;
+    bool res = AutoSolverTask::Execute(socket, result);
+    //a failed declaration invalidates the identifier on the solver side, so the dependent equations must be re-solved even after the error
+    if (res || result.error.error_code == ErrorCode::PARSER_ERROR)
+        document->ReSolveDependencies(id, identifier);
+    return res;
 }
 
 //RemoveIdentifierSolverTask

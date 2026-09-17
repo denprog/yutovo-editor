@@ -6,6 +6,7 @@
  */
 
 #include "result.h"
+#include <chrono>
 #include "multiply.h"
 
 #undef GetObject
@@ -659,6 +660,10 @@ void RealResult::Solve(const ParserString& expression)
     PutWaitingSymbol();
 
     solving_id = logical_id;
+    //a fresh guid for every dispatched solve so that responses of the superseded solves of this element are ignored
+    guid = boost::uuids::to_string(boost::uuids::random_generator()());
+    last_solve_time = std::chrono::duration_cast<std::chrono::milliseconds>(
+        std::chrono::system_clock::now().time_since_epoch()).count();
     document->Solve(logical_id, guid, GetCodeId(), config, !GetParent(1)->visible, last_expression.Text(), 
         (delay && last_error_code != yutovo_solver::ErrorCode::SOLVER_RESTARTED_ERROR) ? document->config.solve_delay : 0);
     delay = true;
@@ -822,6 +827,10 @@ void IntegerResult::Solve(const ParserString& expression)
     PutWaitingSymbol();
 
     solving_id = logical_id;
+    //a fresh guid for every dispatched solve so that responses of the superseded solves of this element are ignored
+    guid = boost::uuids::to_string(boost::uuids::random_generator()());
+    last_solve_time = std::chrono::duration_cast<std::chrono::milliseconds>(
+        std::chrono::system_clock::now().time_since_epoch()).count();
     document->Solve(logical_id, guid, GetCodeId(), config, !GetParent(1)->visible, last_expression.Text(), 
         (delay && last_error_code != yutovo_solver::ErrorCode::SOLVER_RESTARTED_ERROR) ? document->config.solve_delay : 0);
     delay = true;
@@ -946,6 +955,10 @@ void RationalResult::Solve(const ParserString& expression)
     PutWaitingSymbol();
 
     solving_id = logical_id;
+    //a fresh guid for every dispatched solve so that responses of the superseded solves of this element are ignored
+    guid = boost::uuids::to_string(boost::uuids::random_generator()());
+    last_solve_time = std::chrono::duration_cast<std::chrono::milliseconds>(
+        std::chrono::system_clock::now().time_since_epoch()).count();
     document->Solve(logical_id, guid, GetCodeId(), config, !GetParent(1)->visible, last_expression.Text(), 
         (delay && last_error_code != yutovo_solver::ErrorCode::SOLVER_RESTARTED_ERROR) ? document->config.solve_delay : 0);
     delay = true;
@@ -1123,6 +1136,10 @@ void ComplexResult::Solve(const ParserString& expression)
     PutWaitingSymbol();
 
     solving_id = logical_id;
+    //a fresh guid for every dispatched solve so that responses of the superseded solves of this element are ignored
+    guid = boost::uuids::to_string(boost::uuids::random_generator()());
+    last_solve_time = std::chrono::duration_cast<std::chrono::milliseconds>(
+        std::chrono::system_clock::now().time_since_epoch()).count();
     document->Solve(logical_id, guid, GetCodeId(), config, !GetParent(1)->visible, last_expression.Text(), 
         (delay && last_error_code != yutovo_solver::ErrorCode::SOLVER_RESTARTED_ERROR) ? document->config.solve_delay : 0);
     delay = true;
@@ -1367,6 +1384,10 @@ void ArrayRealResult::Solve(const ParserString& expression)
     PutWaitingSymbol();
 
     solving_id = logical_id;
+    //a fresh guid for every dispatched solve so that responses of the superseded solves of this element are ignored
+    guid = boost::uuids::to_string(boost::uuids::random_generator()());
+    last_solve_time = std::chrono::duration_cast<std::chrono::milliseconds>(
+        std::chrono::system_clock::now().time_since_epoch()).count();
     document->Solve(logical_id, guid, GetCodeId(), config, !GetParent(1)->visible, last_expression.Text(), 
         (delay && last_error_code != yutovo_solver::ErrorCode::SOLVER_RESTARTED_ERROR) ? document->config.solve_delay : 0);
     delay = true;
@@ -1522,6 +1543,10 @@ void SymbolicRealResult::Solve(const ParserString& expression)
     PutWaitingSymbol();
 
     solving_id = logical_id;
+    //a fresh guid for every dispatched solve so that responses of the superseded solves of this element are ignored
+    guid = boost::uuids::to_string(boost::uuids::random_generator()());
+    last_solve_time = std::chrono::duration_cast<std::chrono::milliseconds>(
+        std::chrono::system_clock::now().time_since_epoch()).count();
     document->SolveSymbolicReal(logical_id, guid, GetCodeId(), config, !GetParent(1)->visible, last_expression.Text(),
         (delay && last_error_code != yutovo_solver::ErrorCode::SOLVER_RESTARTED_ERROR) ? document->config.solve_delay : 0);
     delay = true;
@@ -1578,6 +1603,10 @@ void SymbolicRationalResult::Solve(const ParserString& expression)
     PutWaitingSymbol();
 
     solving_id = logical_id;
+    //a fresh guid for every dispatched solve so that responses of the superseded solves of this element are ignored
+    guid = boost::uuids::to_string(boost::uuids::random_generator()());
+    last_solve_time = std::chrono::duration_cast<std::chrono::milliseconds>(
+        std::chrono::system_clock::now().time_since_epoch()).count();
     document->SolveSymbolicRational(logical_id, guid, GetCodeId(), config, !GetParent(1)->visible, last_expression.Text(),
         (delay && last_error_code != yutovo_solver::ErrorCode::SOLVER_RESTARTED_ERROR) ? document->config.solve_delay : 0);
     delay = true;
@@ -1637,6 +1666,10 @@ void SymbolicComplexResult::Solve(const ParserString& expression)
     PutWaitingSymbol();
 
     solving_id = logical_id;
+    //a fresh guid for every dispatched solve so that responses of the superseded solves of this element are ignored
+    guid = boost::uuids::to_string(boost::uuids::random_generator()());
+    last_solve_time = std::chrono::duration_cast<std::chrono::milliseconds>(
+        std::chrono::system_clock::now().time_since_epoch()).count();
     document->SolveSymbolicComplex(logical_id, guid, GetCodeId(), config, !GetParent(1)->visible, last_expression.Text(),
         (delay && last_error_code != yutovo_solver::ErrorCode::SOLVER_RESTARTED_ERROR) ? document->config.solve_delay : 0);
     delay = true;
@@ -1947,6 +1980,10 @@ void AutoResult::Solve(const ParserString& expression)
     PutWaitingSymbol();
 
     solving_id = logical_id;
+    //a fresh guid for every dispatched solve so that responses of the superseded solves of this element are ignored
+    guid = boost::uuids::to_string(boost::uuids::random_generator()());
+    last_solve_time = std::chrono::duration_cast<std::chrono::milliseconds>(
+        std::chrono::system_clock::now().time_since_epoch()).count();
     document->Solve(logical_id, guid, GetCodeId(), config, !GetParent(1)->visible, last_expression.Text(), 
         (delay && last_error_code != yutovo_solver::ErrorCode::SOLVER_RESTARTED_ERROR && !unit_error) ? document->config.solve_delay : 0);
     delay = true;

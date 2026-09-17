@@ -688,11 +688,11 @@ TEST_F(SolverComplexTest, solver23)
     document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
     document.WaitSolver();
     std::this_thread::sleep_for(1s);
-    ASSERT_TRUE(document.ToText() == 
+    ASSERT_TRUE(document.ToText() ==
         U"z=2.3+4.5j\n"
         U"re(z)=Unknown identifier\n"
         U"im(z)=Unknown identifier\n"
-        U"abs(z)=Unknown identifier"
+        U"abs(z)=abs(2.3+4.5*j)"
         ) << ToBasicString(document.ToText());
 
     //replace "j" with "i"

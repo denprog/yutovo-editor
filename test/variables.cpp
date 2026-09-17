@@ -849,14 +849,14 @@ TEST_F(VariablesTest, variables13)
     document.WaitTask(document.MoveCaretUp(false));
     document.WaitTask(document.DeleteElements(false, true));
     document.WaitSolver();
-    std::this_thread::sleep_for(600ms);
+    std::this_thread::sleep_for(2s);
     ASSERT_TRUE(document.ToText() == 
         U"\n" \
         U"c=b\n" \
         U"c=Unknown identifier"
         ) << ToBasicString(document.ToText());
     int start, size;
-    ASSERT_TRUE(document.HasErrorMark(ElementId{0, 0, 0, 0, 1, 0, 0, 2, 0}, start, size)) << ErrorMarks();;
+    ASSERT_TRUE(document.HasErrorMark(ElementId{0, 0, 0, 0, 1, 0, 0, 2, 0}, start, size)) << ErrorMarks();
     ASSERT_TRUE(start == 0 && size == 1);
     
     document.Undo();
@@ -917,7 +917,7 @@ TEST_F(VariablesTest, variables14)
     document.WaitTask(document.MoveCaretHome(false));
     document.WaitTask(document.DeleteElements(false, true));
     document.WaitSolver();
-    std::this_thread::sleep_for(600ms);
+    std::this_thread::sleep_for(2s);
     ASSERT_TRUE(document.ToText() == 
         U"a=1\n" \
         U"\n" \
@@ -986,26 +986,26 @@ TEST_F(VariablesTest, variables16)
     document.InsertCode(false, true);
     document.InsertString("a", true);
     document.InsertAssignment(true);
-    document.InsertString("1", true);
+    document.WaitTask(document.InsertString("1", true));
     document.WaitSolver();
 
     document.InsertParagraph(true);
-    document.InsertString("F", true);
+    document.InsertString("r", true);
     document.InsertAssignment(true);
     document.InsertString("a", true);
     document.InsertMultiply(true);
-    document.InsertString("b", true);
+    document.WaitTask(document.InsertString("b", true));
     document.WaitSolver();
 
     document.InsertParagraph(true);
-    document.InsertString("F", true);
+    document.InsertString("r", true);
     document.WaitTask(document.InsertEquation(ResultType::REAL, true));
     document.WaitSolver();
-    std::this_thread::sleep_for(600ms);
+    std::this_thread::sleep_for(2s);
     ASSERT_TRUE(document.ToText() == 
         U"a=1\n" \
-        U"F=a*b\n" \
-        U"F=Unknown identifier"
+        U"r=a*b\n" \
+        U"r=Unknown identifier"
         ) << ToBasicString(document.ToText());
     int start, size;
     ASSERT_TRUE(document.HasErrorMark(ElementId{0, 0, 0, 0, 1, 0, 0, 2, 2}, start, size)) << ErrorMarks();
@@ -1022,8 +1022,8 @@ TEST_F(VariablesTest, variables16)
     ASSERT_TRUE(document.ToText() == 
         U"a=1\n" \
         U"b=5\n" \
-        U"F=a*b\n" \
-        U"F=5."
+        U"r=a*b\n" \
+        U"r=5."
         ) << ToBasicString(document.ToText());
     ASSERT_TRUE(!document.HasErrorMarks({0})) << ErrorMarks();
 }
