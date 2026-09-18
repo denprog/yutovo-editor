@@ -1183,6 +1183,55 @@ TEST_F(DocumentTest, files27)
         "при редактировании формул.") != std::string::npos) << content;
 }
 
+//Save after load does not produce additional elements in OnlyShapeFormula element
+TEST_F(DocumentTest, files28)
+{
+    Start(400);
+
+    document.compressed_file = false;
+    document.InsertCode(false, true);
+    document.InsertNot(true);
+    document.InsertOpenRoundBracket(true);
+    document.InsertString("123", true);
+    document.InsertPlus(true);
+    document.InsertString("55", true);
+    document.InsertPercent(true);
+    document.InsertCloseRoundBracket(true);
+    document.InsertMultiply(true);
+    document.InsertOpenSquareBracket(true);
+    document.InsertString("7", true);
+    document.InsertMinus(true);
+    document.InsertString("2", true);
+    document.InsertComma(true);
+    document.InsertString("4", true);
+    document.InsertCloseSquareBracket(true);
+    document.InsertExclamation(true);
+    document.InsertAnd(true);
+    document.InsertString("115", true);
+    document.InsertOr(true);
+    document.InsertString("234", true);
+    document.InsertXor(true);
+    document.InsertString("89", true);
+    document.WaitTask(document.Save("files28.yut"));
+    std::this_thread::sleep_for(200ms);
+
+    //the saved file contains all 14 inserted OnlyShapeFormula elements, each with exactly one child element
+    CheckOnlyShapeFile("files28.yut", 14);
+
+    document.WaitTask(document.New());
+    ASSERT_TRUE(document.IsChanged() == false);
+
+    document.Load("files28.yut");
+    document.WaitLoad();
+    std::this_thread::sleep_for(200ms);
+
+    document.WaitTask(document.Save("files28.yut"));
+    std::this_thread::sleep_for(200ms);
+
+    //saving after load keeps every OnlyShapeFormula element with exactly one child element
+    CheckOnlyShapeFile("files28.yut", 14);
+}
+
 //Check include file
 TEST_F(IncludeDocumentsTest, include_files1)
 {

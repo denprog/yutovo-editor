@@ -46,6 +46,13 @@ void OnlyShapeFormula::ToJson(rapidjson::Value& value, rapidjson::Document::Allo
     value.AddMember("symbol", _str, alloc);
 }
 
+bool OnlyShapeFormula::AfterFromJson()
+{
+    if (elements->Count() > 1)
+        elements->RemoveAt(1, elements->Count() - 1);
+    return true;
+}
+
 void OnlyShapeFormula::Draw() const
 {
     shape->draw_func = 

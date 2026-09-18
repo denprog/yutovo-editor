@@ -23,6 +23,8 @@ public:
 
     virtual void ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc);
 
+    virtual bool AfterFromJson();
+
     virtual void Draw() const;
     
     virtual bool AfterInsert(bool with_undo);
