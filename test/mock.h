@@ -12,7 +12,11 @@
 #include <QApplication>
 #include <QFontDatabase>
 #include <gmock/gmock.h>
+#include <rapidjson/document.h>
 #include <chrono>
+#include <fstream>
+#include <iterator>
+#include <set>
 #include <string>
 #include <stdexcept>
 #include <type_traits>
@@ -367,6 +371,45 @@ struct DocumentTest : public testing::Test
             result.insert(result.end(), children.begin(), children.end());
         }
         return result;
+    }
+
+    //Count the OnlyShapeFormula elements in the saved element json tree and check that each one has exactly one shape child
+    static void CheckOnlyShapeFormulas(const rapidjson::Value& value, uint& count)
+    {
+        static const std::set<ElementType> only_shape_types = {ElementType::PLUS, ElementType::MINUS, ElementType::MULTIPLY,
+            ElementType::COMMA, ElementType::EXCLAMATION, ElementType::PERCENT, ElementType::AND, ElementType::OR, ElementType::XOR,
+            ElementType::NOT, ElementType::OPEN_ROUND_BRACKET, ElementType::CLOSE_ROUND_BRACKET, ElementType::OPEN_SQUARE_BRACKET,
+            ElementType::CLOSE_SQUARE_BRACKET};
+
+        if (!value.IsObject())
+            return;
+        if (value.HasMember("type") && value["type"].IsInt() && only_shape_types.contains((ElementType)value["type"].GetInt()))
+        {
+            ++count;
+            ASSERT_TRUE(value.HasMember("elements") && value["elements"].IsArray() && value["elements"].Size() == 1 &&
+                value["elements"][0].IsObject() && value["elements"][0].HasMember("type") &&
+                value["elements"][0]["type"] == (int)ElementType::SHAPE) << "OnlyShapeFormula element must contain exactly one child element";
+        }
+        if (value.HasMember("elements") && value["elements"].IsArray())
+        {
+            for (const auto& element : value["elements"].GetArray())
+                CheckOnlyShapeFormulas(element, count);
+        }
+    }
+
+    //Check the saved uncompressed document file: every OnlyShapeFormula element has exactly one child element
+    static void CheckOnlyShapeFile(const std::string& filename, uint expected_count)
+    {
+        std::ifstream file(filename);
+        std::string content((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
+        file.close();
+        rapidjson::Document json;
+        json.Parse(content.c_str());
+        ASSERT_FALSE(json.HasParseError()) << content;
+        ASSERT_TRUE(json.IsObject() && json.HasMember("text")) << content;
+        uint count = 0;
+        CheckOnlyShapeFormulas(json["text"], count);
+        ASSERT_TRUE(count == expected_count) << "expected " << expected_count << " OnlyShapeFormula elements, found " << count << "\n" << content;
     }
 
     QApplication app;
