@@ -154,6 +154,17 @@ bool Equation::Remake(bool with_elements)
     return changed;
 }
 
+bool Equation::InsertElements(std::vector<ElementPtr>& _elements, bool insert_mode, bool with_undo, ElementId& changed_element)
+{
+    for (auto el : _elements)
+    {
+        if (el->type == ElementType::CODE_PARAGRAPH && type != ElementType::ASSIGNMENT && type != ElementType::EQUATION &&
+            type != ElementType::TEXT_ASSIGNMENT && type != ElementType::TEXT_EQUATION)
+            return false;
+    }
+    return Formula::InsertElements(_elements, insert_mode, with_undo, changed_element);
+}
+
 bool Equation::DeleteElements(bool left, bool with_undo, ElementId& changed_element)
 {
     if (caret->IsOnElement(GetShape()->id) && !left)
