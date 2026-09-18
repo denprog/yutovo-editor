@@ -96,6 +96,7 @@ add_executable(${PROJECT_NAME}_tests
 	graph.cpp
 	arrays.cpp
 	pdf.cpp
+	equation.cpp
 )
 
 if (NOT WIN32)
