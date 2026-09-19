@@ -881,6 +881,26 @@ uint Document::InsertDerivativeAtPoint(bool with_undo, bool replace)
     return InsertDerivative(U"d", 1, with_undo, replace);
 }
 
+uint Document::InsertFunctionAtPoint(bool with_undo, bool replace)
+{
+    LOG_TRACE("Insert function at point");
+    InsertEvaluationBarSubscript(with_undo);
+    MoveCaretHome(false);
+    FormulaFormatPtr format;
+    if (!GetCurrentFormulaFormat(format))
+        return 0;
+    std::vector<ElementPtr> els;
+    els.emplace_back(new OpenBracket(this, ElementType::OPEN_ROUND_BRACKET));
+    els.emplace_back(new CloseBracket(this, ElementType::CLOSE_ROUND_BRACKET));
+    uint r = InsertFormulas(els, with_undo, false, false, false, 2);
+    if (r > 0)
+    {
+        MoveCaretLeft(false, true);
+        MoveCaretLeft(false, true);
+    }
+    return r;
+}
+
 uint Document::InsertImage(const std::string& image_base64, bool with_undo, bool pasting)
 {
     LOG_TRACE("Insert image");
