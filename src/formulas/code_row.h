@@ -44,6 +44,7 @@ public:
     virtual bool IsEmpty() const;
 
     virtual std::string ToHtml() const;
+    virtual void ToParserString(ParserString& str);
 };
 
 }

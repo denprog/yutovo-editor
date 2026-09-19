@@ -745,4 +745,100 @@ TEST_F(FormulaTest, evaluation_bar_subscript8)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0})) << document.GetEditorState().ToString();
 }
 
+//Evaluate a function at a point: pow(x,2) |_{x=3}
+TEST_F(FormulaTest, evaluate1)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.InsertString("x", true);
+    document.InsertPower(true);
+    document.InsertString("2", true);
+    document.MoveCaretRight(false); //move out of the exponent
+
+    document.InsertEvaluationBarSubscript(true);
+    document.MoveCaretRight(false);
+    document.InsertString("x", true);
+    document.MoveCaretRight(false);
+    document.MoveCaretRight(false);
+    document.WaitTask(document.InsertString("3", true));
+    ASSERT_TRUE(document.ToText() == U"pow(x,2)[x=3]") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.ToHtml() ==
+        "<body>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<msup><mrow><mi>x</mi></mrow><mrow><mi>2</mi></mrow></msup>"\
+                        "<msub>"\
+                            "<mo fence=\"false\" stretchy=\"true\">|</mo>"\
+                            "<mrow>"\
+                                "<mrow>"\
+                                    "<mrow><mi>x</mi></mrow>"\
+                                    "<mo>=</mo>"\
+                                    "<mrow><mi>3</mi></mrow>"\
+                                "</mrow>"\
+                            "</mrow>"\
+                        "</msub>"\
+                    "</mrow>"\
+                "</math>"\
+            "</p>"\
+        "</body>") <<
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 2, 0, 1})) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.ToText() == U"pow(x,2)[x=]") << ToBasicString(document.ToText());
+
+    document.Undo();
+    document.WaitUndo();
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.ToText() == U"pow(x,2)") << ToBasicString(document.ToText());
+
+    document.Redo();
+    document.WaitRedo();
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.ToText() == U"pow(x,2)[x=]") << ToBasicString(document.ToText());
+
+    document.Redo();
+    document.WaitRedo();
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.ToText() == U"pow(x,2)[x=3]") << ToBasicString(document.ToText());
+}
+
+//Insert a function at point template: brackets for the function followed by an evaluation bar
+TEST_F(FormulaTest, function_at_point1)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.InsertString("f", true);
+    document.InsertOpenRoundBracket(true);
+    document.InsertString("x", true);
+    document.InsertCloseRoundBracket(true);
+    document.InsertAssignment(true);
+    document.InsertString("x", true);
+    document.InsertMultiply(true);
+    document.WaitTask(document.InsertString("x", true));
+    document.WaitSolver();
+
+    document.WaitTask(document.InsertParagraph(true));
+    document.WaitTask(document.InsertFunctionAtPoint(true));
+    document.InsertString("f", true);
+    document.MoveCaretRight(false);
+    document.MoveCaretRight(false);
+    document.WaitTask(document.InsertString("x", true));
+    for (int i = 0; i < 4; ++i)
+        document.MoveCaretRight(false);
+    document.WaitTask(document.InsertString("x", true));
+    document.MoveCaretRight(false);
+    document.MoveCaretRight(false);
+    document.WaitTask(document.InsertString("3", true));
+    ASSERT_TRUE(document.ToText() == 
+        U"f(x)=x*x\n"
+        U"f(x)[x=3]"
+        ) << ToBasicString(document.ToText());
+}
+
 }

@@ -93,6 +93,7 @@ add_executable(${PROJECT_NAME}_tests
 	derivative.cpp
 	evaluation_bar.cpp
 	solver_derivative.cpp
+	solver_evaluate.cpp
 	graph.cpp
 	arrays.cpp
 	pdf.cpp

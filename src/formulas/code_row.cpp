@@ -8,6 +8,7 @@
 #include "code_row.h"
 #include "code_string.h"
 #include "assignment.h"
+#include "division.h"
 #include "text_block.h"
 
 namespace yutovo
@@ -228,6 +229,48 @@ std::string CodeRow<T>::ToHtml() const
     s += elements->ToHtml();
     s += "</mrow>";
     return s;
+}
+
+template<typename T>
+void CodeRow<T>::ToParserString(ParserString& str)
+{
+    //an evaluation bar that does not follow a derivative fraction evaluates the preceding expression at a point
+    int start = str.Length();
+    int pos = 0; //the first element of the remaining part of the row
+    while (pos < elements->Count())
+    {
+        //find the next evaluation bar with assignments that is not consumed by a derivative fraction
+        int bar_pos = -1;
+        for (int i = pos; i < elements->Count(); ++i)
+        {
+            ElementPtr el = elements->Get(i);
+            if (el->type != ElementType::EVALUATION_BAR_SUBSCRIPT)
+                continue;
+            //the bar after a derivative fraction is consumed by the fraction itself
+            Division* division = i > 0 ? dynamic_cast<Division*>(elements->Get(i - 1).get()) : nullptr;
+            if (division && division->IsDerivative())
+                continue;
+            if (el->ToText().empty())
+                continue; //no assignments yet
+            bar_pos = i;
+            break;
+        }
+
+        if (bar_pos < 0 || bar_pos == pos) //no bar or no expression before the bar: plain output
+        {
+            for (int i = pos; i < elements->Count(); ++i)
+                elements->Get(i)->ToParserString(str);
+            break;
+        }
+
+        str.Add(id, U"evaluate(");
+        for (int i = pos; i < bar_pos; ++i)
+            elements->Get(i)->ToParserString(str);
+        ElementPtr bar = elements->Get(bar_pos);
+        str.Add(bar->id, U"," + bar->ToText() + U")");
+        pos = bar_pos + 1;
+    }
+    str.Annotate(id, start, str.Length());
 }
 
 //Explicit specializations for Assignment
