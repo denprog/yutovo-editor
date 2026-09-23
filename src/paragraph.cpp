@@ -723,6 +723,7 @@ void Paragraph::SetMarker(const std::u32string& _marker, const StringFormatPtr& 
 {
     marker = _marker;
     marker_format = _marker_format;
+    marker_draw_format.reset();
 }
 
 }

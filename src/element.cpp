@@ -224,10 +224,10 @@ void Element::Resize(const int dx, const int dy)
         parent->Resize(dx, dy);
 }
 
-void Element::MovePicture(const int dx, const int dy)
+void Element::MovePicture(const int dx, const int dy, bool shift)
 {
     if (parent)
-        parent->MovePicture(dx, dy);
+        parent->MovePicture(dx, dy, shift);
 }
 
 void Element::ZoomPicture(const int pixels)

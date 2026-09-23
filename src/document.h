@@ -110,7 +110,9 @@ public:
     uint InsertFunction(const std::string& name, bool with_undo);
     uint InsertSubscriptFunction(const std::string& name, bool with_undo);
 
-    uint InsertGraph(bool with_undo);
+    uint InsertGraphLine(bool with_undo);
+
+    uint InsertGraphSurface(bool with_undo);
 
     uint InsertFormula(Element* element, bool with_undo, bool with_last_task_id = false, bool replace = false);
     uint InsertFormulas(std::vector<ElementPtr>& elements, bool with_undo, bool with_last_task_id, bool pasting, bool replace, int select_pos);
@@ -222,7 +224,7 @@ public:
 
     bool MouseLButtonDown(const int x, const int y, MouseHoldType& hold_type, ElementId& hold_id);
     bool MouseLButtonUp(const int x, const int y);
-    bool MouseMove(const int x, const int y);
+    bool MouseMove(const int x, const int y, const bool shift = false);
     bool MouseWheel(const int x, const int y, const Point pixel_delta, const Point angle_delta);
 
     void Undo();
@@ -233,6 +235,7 @@ public:
 
     void SetChanged(bool _changed);
     bool IsChanged();
+    void SetLastModifyTaskId(const uint task_id);
 
     uint Resize(uint width, uint height);
 

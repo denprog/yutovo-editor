@@ -1065,50 +1065,53 @@ bool ChangeParagraphFormatTask::Execute()
 
 //MovePictureTask
 
-MovePictureTask::MovePictureTask(ElementPtr _text, ElementId _id, const int _dx, const int _dy) : 
+MovePictureTask::MovePictureTask(ElementPtr _text, ElementId _element_id, const int _dx, const int _dy, const bool _shift) :
     Task(_text),
-    id(_id),
+    element_id(_element_id),
     dx(_dx),
-    dy(_dy)
+    dy(_dy),
+    shift(_shift)
 {
 }
 
 bool MovePictureTask::Execute()
 {
-    ElementPtr element = document->GetElement(id);
+    ElementPtr element = document->GetElement(element_id);
     if (!element)
         return false;
     document->editing = false;
-    element->MovePicture(dx, dy);
-    Remake(GetParent(id), false);
+    element->MovePicture(dx, dy, shift);
+    Remake(GetParent(element_id), false);
+    document->SetLastModifyTaskId(id);
     return true;
 }
 
 //ZoomPictureTask
 
-ZoomPictureTask::ZoomPictureTask(ElementPtr _text, ElementId _id, const int _pixels) :
+ZoomPictureTask::ZoomPictureTask(ElementPtr _text, ElementId _element_id, const int _pixels) :
     Task(_text),
-    id(_id),
+    element_id(_element_id),
     pixels(_pixels)
 {
 }
 
 bool ZoomPictureTask::Execute()
 {
-    ElementPtr element = document->GetElement(id);
+    ElementPtr element = document->GetElement(element_id);
     if (!element)
         return false;
     document->editing = false;
     element->ZoomPicture(pixels);
-    Remake(GetParent(id), false);
+    Remake(GetParent(element_id), false);
+    document->SetLastModifyTaskId(id);
     return true;
 }
 
 //ResizeElementTask
 
-ResizeElementTask::ResizeElementTask(ElementPtr _text, ElementId _id, const int _dx, const int _dy) :
+ResizeElementTask::ResizeElementTask(ElementPtr _text, ElementId _element_id, const int _dx, const int _dy) :
     Task(_text),
-    id(_id),
+    element_id(_element_id),
     dx(_dx),
     dy(_dy)
 {
@@ -1116,11 +1119,12 @@ ResizeElementTask::ResizeElementTask(ElementPtr _text, ElementId _id, const int 
 
 bool ResizeElementTask::Execute()
 {
-    ElementPtr element = document->GetElement(id);
+    ElementPtr element = document->GetElement(element_id);
     if (!element)
         return false;
     element->Resize(dx, dy);
-    Remake(GetParent(id), false);
+    Remake(GetParent(element_id), false);
+    document->SetLastModifyTaskId(id);
     return true;
 }
 
@@ -1868,7 +1872,9 @@ bool LoadTask::Execute()
                 return false;
             }
 
+#ifndef DEBUG
             document->compressed_file = true;
+#endif
         }
 
         //load text
@@ -1877,11 +1883,12 @@ bool LoadTask::Execute()
     }
     else if (filename.substr(filename.find_last_of(".") + 1) == "yut")
     {
+        std::string open_filename = filename; //for includes it can be resolved relative to the current document
         std::ifstream file;
 #ifdef _WIN32
-        file = std::ifstream(yutovo_calculator::ToWString(filename), std::ios_base::binary);
+        file = std::ifstream(yutovo_calculator::ToWString(open_filename), std::ios_base::binary);
 #else
-        file = std::ifstream(filename, std::ios_base::binary);
+        file = std::ifstream(open_filename, std::ios_base::binary);
 #endif
         if (!file.is_open())
         {
@@ -1899,8 +1906,8 @@ bool LoadTask::Execute()
                     std::filesystem::path p = document->path;
                     p = p.parent_path();
                     p /= filename; //try to open relatevely to the current document
-                    auto _filename = std::filesystem::canonical(std::filesystem::absolute(p)).string();
-                    file = std::ifstream(_filename, std::ios_base::binary);
+                    open_filename = std::filesystem::canonical(std::filesystem::absolute(p)).string();
+                    file = std::ifstream(open_filename, std::ios_base::binary);
                     if (!file.is_open())
                     {
                         window->OnLoadResult(0, IOResult::InputStreamError, -1);
@@ -1932,15 +1939,17 @@ bool LoadTask::Execute()
                 return false;
             }
 
+#ifndef DEBUG
             document->compressed_file = true;
+#endif
         }
         else
         {
             //try to open as decompressed file
 #ifdef _WIN32
-            std::ifstream file(yutovo_calculator::ToWString(filename));
+            std::ifstream file(yutovo_calculator::ToWString(open_filename));
 #else
-            std::ifstream file(filename);
+            std::ifstream file(open_filename);
 #endif
             rapidjson::IStreamWrapper isw{file};
             doc.ParseStream(isw);
@@ -2485,10 +2494,13 @@ bool ResultTask::Execute()
         }
     default:
         {
-            el = document->FindElementOrParent(el->id, ElementType::GRAPH_LINE);
+            ElementId r_id = el->id;
+            el = document->FindElementOrParent(r_id, ElementType::GRAPH_LINE);
+            if (!el)
+                el = document->FindElementOrParent(r_id, ElementType::GRAPH_SURFACE);
             if (!el)
                 return false;
-            GraphLine* r = dynamic_cast<GraphLine*>(el.get());
+            Graph* r = dynamic_cast<Graph*>(el.get());
             if (!r)
                 return false;
             document->RemoveErrorMarks(r->id);
@@ -2693,24 +2705,33 @@ bool ResolveDependenciesTask::Execute()
             }
         };
 
-    auto resolve_graphs = 
+    auto resolve_graphs =
         [&_after_id, &solvings, d = document, &id_arr](CodeBlock* c, bool below)
         {
             if (below)
+            {
                 c->GetElementsBelow(_after_id, ElementType::GRAPH_LINE, solvings); //get graphs below in this code block
+                c->GetElementsBelow(_after_id, ElementType::GRAPH_SURFACE, solvings);
+            }
             else
+            {
                 c->GetElements(ElementType::GRAPH_LINE, solvings);
+                c->GetElements(ElementType::GRAPH_SURFACE, solvings);
+            }
             for (ElementId _id : solvings)
             {
                 auto _el = d->GetElement(_id);
-                GraphLine* g = dynamic_cast<GraphLine*>(_el.get());
-                for (auto& _d : id_arr)
+                Graph* g = dynamic_cast<Graph*>(_el.get());
+                if (g)
                 {
-                    if (g->Depends(_d))
+                    for (auto& _d : id_arr)
                     {
-                        g->last_expressions.clear();
-                        g->Solve();
-                        g->ReSolve(false, true);
+                        if (g->Depends(_d))
+                        {
+                            g->last_expressions.clear();
+                            g->Solve();
+                            g->ReSolve(false, true);
+                        }
                     }
                 }
             }

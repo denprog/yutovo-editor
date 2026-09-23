@@ -98,6 +98,8 @@ Document::Document(Window* _window, Config& _config, const std::string _document
 
 #ifndef DEBUG
     config.pretty_json = false;
+#else
+    compressed_file = false; //debug saves stay uncompressed and inspectable
 #endif
 }
 
@@ -137,6 +139,9 @@ Document::Document(Window* _window, Config& _config, const Document& source) :
 
 #ifndef DEBUG
     config.pretty_json = false;
+#endif
+#ifdef DEBUG
+    compressed_file = false; //debug saves stay uncompressed and inspectable
 #endif
 }
 
@@ -966,10 +971,24 @@ uint Document::InsertSubscriptFunction(const std::string& name, bool with_undo)
     return InsertFormula(new Subscript(this), with_undo, true);
 }
 
-uint Document::InsertGraph(bool with_undo)
+uint Document::InsertGraphLine(bool with_undo)
 {
     LOG_TRACE("Insert graph");
     return InsertFormula(new GraphLine(this), with_undo, true);
+}
+
+uint Document::InsertGraphSurface(bool with_undo)
+{
+    LOG_TRACE("Insert graph surface");
+    GraphSurface* graph = new GraphSurface(this);
+    //prefill the variable rows so the template fields label themselves: "y" right of the expressions block, "x" in the bottom row center
+    Element* x_var = graph->elements->Get(5).get();
+    ElementPtr x(new CodeString(x_var, U"x"));
+    x_var->elements->Add(x);
+    Element* y_var = graph->elements->Get(2).get();
+    ElementPtr y(new CodeString(y_var, U"y"));
+    y_var->elements->Add(y);
+    return InsertFormula(graph, with_undo, true);
 }
 
 uint Document::InsertFormula(Element* element, bool with_undo, bool with_last_task_id, bool replace)
@@ -1292,6 +1311,9 @@ void Document::ResetTasks()
     tasks.clear();
     undo_tasks.clear();
     redo_tasks.clear();
+    //a new or freshly loaded document is not modified - reset the change tracking too, otherwise UpdateChanged would still see a stale last_modify_task_id
+    last_modify_task_id = 0;
+    save_task_id = 0;
     changed = false;
 }
 
@@ -1891,9 +1913,9 @@ bool Document::GetGraphFormat(const ElementId& id, GraphFormat& format)
 {
     std::lock_guard<std::recursive_mutex> lock(edit_mutex);
     ElementPtr el = GetElement(id);
-    if (!el || el->type != ElementType::GRAPH_LINE)
+    if (!el || (el->type != ElementType::GRAPH_LINE && el->type != ElementType::GRAPH_SURFACE))
         return false;
-    format = ((GraphLine*)el.get())->format;
+    format = ((Graph*)el.get())->format;
     return true;
 }
 
@@ -1901,10 +1923,10 @@ bool Document::GetGraphImage(const ElementId& id, std::vector<unsigned char>& pn
 {
     std::lock_guard<std::recursive_mutex> lock(edit_mutex);
     ElementPtr el = GetElement(id);
-    if (!el || el->type != ElementType::GRAPH_LINE)
+    if (!el || (el->type != ElementType::GRAPH_LINE && el->type != ElementType::GRAPH_SURFACE))
         return false;
     std::string image_base64;
-    ((GraphLine*)el.get())->GetImage(image_base64);
+    ((Graph*)el.get())->GetImage(image_base64);
     png = Base64Decode(image_base64);
     return !png.empty();
 }
@@ -1912,15 +1934,15 @@ bool Document::GetGraphImage(const ElementId& id, std::vector<unsigned char>& pn
 uint Document::SetGraphFormat(const ElementId& id, const GraphFormat& format, bool with_undo)
 {
     std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
-    std::function<bool()> func = 
+    std::function<bool()> func =
         [id, format, with_undo, this]()
         {
             ElementPtr el = GetElement(id);
-            if (!el || el->type != ElementType::GRAPH_LINE)
+            if (!el || (el->type != ElementType::GRAPH_LINE && el->type != ElementType::GRAPH_SURFACE))
                 return false;
             if (with_undo)
                 StoreUndo(el->id);
-            ((GraphLine*)el.get())->format = format;
+            ((Graph*)el.get())->format = format;
             return true;
         };
     tasks.emplace_back(new SetFormatTask(text, id, func, with_undo));
@@ -1933,24 +1955,24 @@ bool Document::GetPlotFormat(const ElementId& id, PlotFormat& format)
 {
     std::lock_guard<std::recursive_mutex> lock(edit_mutex);
     ElementPtr el = GetElement(id);
-    if (!el || el->type != ElementType::GRAPH_LINE)
+    if (!el || (el->type != ElementType::GRAPH_LINE && el->type != ElementType::GRAPH_SURFACE))
         return false;
-    ((GraphLine*)el.get())->GetPlotFormat(format);
+    ((Graph*)el.get())->GetPlotFormat(format);
     return true;
 }
 
 uint Document::SetPlotFormat(const ElementId& id, const PlotFormat& format, bool with_undo)
 {
     std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
-    std::function<bool()> func = 
+    std::function<bool()> func =
         [id, format, with_undo, this]()
         {
             ElementPtr el = GetElement(id);
-            if (!el || el->type != ElementType::GRAPH_LINE)
+            if (!el || (el->type != ElementType::GRAPH_LINE && el->type != ElementType::GRAPH_SURFACE))
                 return false;
             if (with_undo)
                 StoreUndo(el->id);
-            ((GraphLine*)el.get())->SetPlotFormat(format);
+            ((Graph*)el.get())->SetPlotFormat(format);
             return true;
         };
     tasks.emplace_back(new SetFormatTask(text, id, func, with_undo));
@@ -2663,7 +2685,7 @@ bool Document::MouseLButtonUp(const int x, const int y)
     return false;
 }
 
-bool Document::MouseMove(const int x, const int y)
+bool Document::MouseMove(const int x, const int y, const bool shift)
 {
     std::lock_guard<std::recursive_mutex> lock(edit_mutex);
     ElementPtr el = GetElement(mouse_capture_id);
@@ -2712,9 +2734,9 @@ bool Document::MouseMove(const int x, const int y)
     {
         if (abs(x - last_mouse_pos.x) < 10 && abs(y - last_mouse_pos.y) < 10)
             return true;
-        
+
         std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
-        tasks.emplace_back(new MovePictureTask(text, mouse_capture_id, x - last_mouse_pos.x, y - last_mouse_pos.y));
+        tasks.emplace_back(new MovePictureTask(text, mouse_capture_id, x - last_mouse_pos.x, y - last_mouse_pos.y, shift));
         last_mouse_pos.Set(x, y);
         last_task_id = tasks.back()->id;
         next_circle = true;
@@ -2827,6 +2849,12 @@ void Document::SetChanged(bool _changed)
 bool Document::IsChanged()
 {
     return changed;
+}
+
+void Document::SetLastModifyTaskId(const uint task_id)
+{
+    //mouse tasks (graph drag/zoom/resize) modify the document without undo - they must still mark it changed
+    last_modify_task_id = task_id;
 }
 
 uint Document::Resize(uint width, uint height)
@@ -4181,10 +4209,7 @@ void Document::RestrictUndo()
 
 void Document::UpdateChanged()
 {
-    if (save_task_id == 0 && undo_tasks.empty())
-        changed = false;
-    else
-        changed = (last_modify_task_id != save_task_id);
+    changed = (last_modify_task_id != save_task_id);
     if (last_changed != changed)
     {
         window->OnDocumentChanged(changed);

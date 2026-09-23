@@ -92,7 +92,8 @@ enum class ElementType
     EVALUATION_BAR_SUBSCRIPT,
     TEXT_BLOCK,
     TEXT_EQUATION,
-    TEXT_ASSIGNMENT
+    TEXT_ASSIGNMENT,
+    GRAPH_SURFACE
 };
 
 enum class IdentifierType
