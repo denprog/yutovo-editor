@@ -155,13 +155,14 @@ bool CodeParagraph<T>::AfterInsert(bool with_undo)
 {
     StringFormatPtr f = GetStringFormat();
     ElementPtr graph = document->FindParent(id, ElementType::GRAPH_LINE);
+    if (!graph)
+        graph = document->FindParent(id, ElementType::GRAPH_SURFACE);
     if (graph)
     {
-        Color color;
-        uint width = 1;
-        ((GraphLine*)graph.get())->GetPlotFormat(yutovo::GetChildPos(id), color, width);
+        PlotFormat plot_format;
+        ((Graph*)graph.get())->GetPlotFormat(yutovo::GetChildPos(id), plot_format);
         SetMarker(U"█", document->GetStringFormat(f->family, f->size, f->bold, f->italic, f->underline, f->strikethrough,
-            f->subscript, f->superscript, color, f->text_bg_color, f->text_bg_selection_color));
+            f->subscript, f->superscript, plot_format.color, f->text_bg_color, f->text_bg_selection_color));
     }
     return true;
 }

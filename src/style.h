@@ -199,13 +199,23 @@ struct GraphFormat
     uint grid_width = 1;
 };
 
+enum class SurfaceStyle
+{
+    HEIGHT = 0,
+    UNIFORM,
+    HEIGHT_MESH,
+    WIREFRAME,
+    POINTS
+};
+
 struct PlotFormat
 {
     void ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc);
     bool FromJson(const rapidjson::Value::ConstObject& value, rapidjson::Document::AllocatorType& alloc);
-    
+
     Color color = Color::Red();
     uint width = 1;
+    SurfaceStyle style = SurfaceStyle::HEIGHT;
 };
 
 typedef std::unique_ptr<GraphFormat> GraphFormatPtr;

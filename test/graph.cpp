@@ -23,7 +23,7 @@ TEST_F(FormulaTest, graphs1)
 {
     Start(600);
 
-    document.WaitTask(document.InsertGraph(true));
+    document.WaitTask(document.InsertGraphLine(true));
     std::this_thread::sleep_for(100ms);
     std::string image_base64;
     auto el = document.FindByType(ElementId{0}, ElementType::GRAPH_LINE);
@@ -192,7 +192,7 @@ TEST_F(FormulaTest, graphs2)
 {
     Start(600);
 
-    document.WaitTask(document.InsertGraph(true));
+    document.WaitTask(document.InsertGraphLine(true));
     document.WaitTask(document.InsertString("2", true));
     document.MoveCaretRight(false);
 
@@ -323,7 +323,7 @@ TEST_F(FormulaTest, graphs3)
 {
     Start(600);
 
-    document.WaitTask(document.InsertGraph(true));
+    document.WaitTask(document.InsertGraphLine(true));
     std::this_thread::sleep_for(100ms);
     
     document.WaitTask(document.InsertString("2", true));
@@ -369,7 +369,7 @@ TEST_F(FormulaTest, graphs4)
 {
     Start(600);
 
-    document.WaitTask(document.InsertGraph(true));
+    document.WaitTask(document.InsertGraphLine(true));
     document.MoveCaretRight(false);
     document.InsertString("x", true);
     document.InsertDivision(true);
@@ -398,7 +398,7 @@ TEST_F(FormulaTest, graphs5)
 {
     Start(600);
 
-    document.WaitTask(document.InsertGraph(true));
+    document.WaitTask(document.InsertGraphLine(true));
     std::this_thread::sleep_for(100ms);
     
     document.MoveCaretRight(false);
@@ -423,7 +423,7 @@ TEST_F(FormulaTest, graphs6)
 {
     Start(600);
 
-    document.WaitTask(document.InsertGraph(true));
+    document.WaitTask(document.InsertGraphLine(true));
     std::this_thread::sleep_for(200ms);
     auto el = document.FindByType(ElementId{0}, ElementType::GRAPH_LINE);
     GraphFormat format;
@@ -468,7 +468,7 @@ TEST_F(FormulaTest, graphs7)
 
     document.MoveCaretRight(false);
     document.WaitTask(document.InsertParagraph(true));
-    document.WaitTask(document.InsertGraph(true));
+    document.WaitTask(document.InsertGraphLine(true));
     document.InsertString("1", true);
     document.MoveCaretRight(false);
     document.InsertString("f", true);
@@ -520,7 +520,7 @@ TEST_F(FormulaTest, graphs8)
 {
     Start(600);
 
-    document.WaitTask(document.InsertGraph(true));
+    document.WaitTask(document.InsertGraphLine(true));
     document.InsertString("1", true);
     document.MoveCaretRight(false);
     document.InsertString("x", true);
@@ -570,7 +570,7 @@ TEST_F(FormulaTest, graphs9)
 {
     Start(600);
 
-    document.WaitTask(document.InsertGraph(true));
+    document.WaitTask(document.InsertGraphLine(true));
     document.WaitSolver();
     std::this_thread::sleep_for(3s);
     auto el = document.FindByType(ElementId{0}, ElementType::GRAPH_LINE);
@@ -619,7 +619,7 @@ TEST_F(FormulaTest, graphs10)
     document.InsertString("Graph:", true);
     document.WaitTask(document.InsertParagraph(true));
 
-    document.WaitTask(document.InsertGraph(true));
+    document.WaitTask(document.InsertGraphLine(true));
     document.WaitSolver();
     std::this_thread::sleep_for(1s);
     document.InsertString("1", true);
@@ -667,7 +667,7 @@ TEST_F(FormulaTest, graphs11)
 {
     Start(600);
 
-    document.WaitTask(document.InsertGraph(true));
+    document.WaitTask(document.InsertGraphLine(true));
     document.WaitSolver();
     std::this_thread::sleep_for(200ms);
     auto el = document.FindByType(ElementId{0}, ElementType::GRAPH_LINE);
@@ -741,7 +741,7 @@ TEST_F(FormulaTest, graphs12)
 {
     Start(600);
 
-    document.WaitTask(document.InsertGraph(true));
+    document.WaitTask(document.InsertGraphLine(true));
     document.WaitSolver();
     std::this_thread::sleep_for(200ms);
     auto el = document.FindByType(ElementId{0}, ElementType::GRAPH_LINE);
@@ -783,7 +783,7 @@ TEST_F(FormulaTest, graphs13)
 {
     Start(600);
 
-    document.WaitTask(document.InsertGraph(true));
+    document.WaitTask(document.InsertGraphLine(true));
     auto el = document.FindByType({0}, ElementType::GRAPH_LINE);
     GraphLine* graph = (GraphLine*)el.get();
     document.WaitTask(document.InsertString("10", true));
@@ -827,7 +827,7 @@ TEST_F(FormulaTest, graphs14)
 {
     Start(600);
 
-    document.WaitTask(document.InsertGraph(true));
+    document.WaitTask(document.InsertGraphLine(true));
 
     auto el = document.FindByType(ElementId{0}, ElementType::GRAPH_LINE);
     GraphFormat format;
@@ -1036,9 +1036,9 @@ TEST_F(FormulaTest, graphs20)
 
     document.config.solve_delay = 1000000;
     
-    document.WaitTask(document.InsertGraph(true));
+    document.WaitTask(document.InsertGraphLine(true));
     document.MoveCaretRight(false);
-    document.WaitTask(document.InsertGraph(true));
+    document.WaitTask(document.InsertGraphLine(true));
     std::this_thread::sleep_for(200ms);
 
     auto elements = FindAllByType(document.GetElement({0}), ElementType::GRAPH_LINE);
@@ -1087,7 +1087,7 @@ TEST_F(FormulaTest, graphs21)
         });
 
     document.InsertCode(false, false);
-    document.WaitTask(document.InsertGraph(true));
+    document.WaitTask(document.InsertGraphLine(true));
     std::this_thread::sleep_for(100ms);
 
     document.WaitTask(document.InsertString("1", true));

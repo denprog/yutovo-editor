@@ -57,7 +57,7 @@ public:
     virtual void MakePlain();
 
     virtual void Resize(const int dx, const int dy);
-    virtual void MovePicture(const int dx, const int dy);
+    virtual void MovePicture(const int dx, const int dy, bool shift = false);
     virtual void ZoomPicture(const int pixels);
 
     virtual bool InsertElements(std::vector<ElementPtr>& _elements, bool insert_mode, bool with_undo, ElementId& changed_element);

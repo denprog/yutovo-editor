@@ -357,7 +357,8 @@ Element* CreateFromJson(Element* parent, Document* document, const rapidjson::Va
             {ElementType::EVALUATION_BAR_SUBSCRIPT, &EvaluationBarSubscript::FromJson},
             {ElementType::TEXT_BLOCK, &TextBlock::FromJson},
             {ElementType::TEXT_EQUATION, &TextEquation::FromJson},
-            {ElementType::TEXT_ASSIGNMENT, &TextAssignment::FromJson}
+            {ElementType::TEXT_ASSIGNMENT, &TextAssignment::FromJson},
+            {ElementType::GRAPH_SURFACE, &GraphSurface::FromJson}
         };
 
     if (!value.HasMember("type") || !value["type"].IsInt())

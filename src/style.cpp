@@ -669,6 +669,7 @@ void PlotFormat::ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorT
     rapidjson::Value obj(rapidjson::kObjectType);
     obj.AddMember("width", (int)width, alloc);
     obj.AddMember("color", color.ToInt(), alloc);
+    obj.AddMember("style", (int)style, alloc);
     value.AddMember("plot_format", obj, alloc);
 }
 
@@ -685,6 +686,10 @@ bool PlotFormat::FromJson(const rapidjson::Value::ConstObject& value, rapidjson:
             color = Color::Black();
         else
             color = Color::FromInt(r["color"].GetUint());
+        if (!r.HasMember("style") || !r["style"].IsInt() || (int)r["style"].GetInt() < 0 || (int)r["style"].GetInt() > 4)
+            style = SurfaceStyle::HEIGHT;
+        else
+            style = (SurfaceStyle)r["style"].GetInt();
     }
     return true;
 }

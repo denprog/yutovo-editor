@@ -128,7 +128,7 @@ TEST_F(PdfTest, pdf3)
             file.write(reinterpret_cast<const char*>(pdf.data()), pdf.size());
         });
 
-    document.WaitTask(document.InsertGraph(true));
+    document.WaitTask(document.InsertGraphLine(true));
     auto el = document.FindByType(ElementId{0}, ElementType::GRAPH_LINE);
     GraphLine* graph = (GraphLine*)el.get();
     graph->Resize(-200, -200);

@@ -131,32 +131,33 @@ struct ChangeParagraphFormatTask : Task
 
 struct MovePictureTask : Task
 {
-    MovePictureTask(ElementPtr _text, ElementId _id, const int _dx, const int _dy);
+    MovePictureTask(ElementPtr _text, ElementId _element_id, const int _dx, const int _dy, const bool _shift);
 
     virtual bool Execute();
 
-    ElementId id;
+    ElementId element_id;
     const int dx;
     const int dy;
+    const bool shift;
 };
 
 struct ZoomPictureTask : Task
 {
-    ZoomPictureTask(ElementPtr _text, ElementId _id, const int _pixels);
+    ZoomPictureTask(ElementPtr _text, ElementId _element_id, const int _pixels);
 
     virtual bool Execute();
 
-    ElementId id;
+    ElementId element_id;
     const int pixels;
 };
 
 struct ResizeElementTask : Task
 {
-    ResizeElementTask(ElementPtr _text, ElementId _id, const int _dx, const int _dy);
+    ResizeElementTask(ElementPtr _text, ElementId _element_id, const int _dx, const int _dy);
 
     virtual bool Execute();
 
-    ElementId id;
+    ElementId element_id;
     const int dx;
     const int dy;
 };

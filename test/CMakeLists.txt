@@ -95,6 +95,7 @@ add_executable(${PROJECT_NAME}_tests
 	solver_derivative.cpp
 	solver_evaluate.cpp
 	graph.cpp
+	graph_surface.cpp
 	arrays.cpp
 	pdf.cpp
 	equation.cpp

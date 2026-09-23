@@ -924,19 +924,25 @@ TEST_F(TextBlockTest, text_block11)
     document.WaitTask(document.Save("text_block11.yut"));
     std::this_thread::sleep_for(200ms);
 
-    //the file exists and is a gzip archive with the document json
+    //the file exists and contains the document json:
+    //a gzip archive in release builds, a plain pretty json in debug builds
     std::ifstream file("text_block11.yut", std::ios_base::in | std::ios_base::binary);
     ASSERT_TRUE(file.good());
     char magic[2] = {0, 0};
     file.read(magic, 2);
-    ASSERT_TRUE(magic[0] == '\x1f' && magic[1] == '\x8b'); //gzip
     file.seekg(0);
-
+    std::string json;
+#ifdef DEBUG
+    ASSERT_TRUE(magic[0] == '{') << "debug saves must be uncompressed json";
+    json = std::string((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
+#else
+    ASSERT_TRUE(magic[0] == '\x1f' && magic[1] == '\x8b'); //gzip
     boost::iostreams::filtering_streambuf<boost::iostreams::input> in;
     in.push(boost::iostreams::gzip_decompressor());
     in.push(file);
     std::istream stream(&in);
-    std::string json((std::istreambuf_iterator<char>(stream)), std::istreambuf_iterator<char>());
+    json = std::string((std::istreambuf_iterator<char>(stream)), std::istreambuf_iterator<char>());
+#endif
     ASSERT_TRUE(json.size() > 0);
 
     //the saved document keeps the text block with a text equation and its code strings

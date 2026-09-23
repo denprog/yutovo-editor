@@ -2129,6 +2129,7 @@ TEST_F(ParagraphTest, paragraph24)
 
     document.Load("../../test/tests/paragraph24.yut");
     document.WaitLoad();
+    document.WaitSolver();
     std::this_thread::sleep_for(2s);
 
     document.WaitTask(document.MoveCaretUp(true));
@@ -2136,9 +2137,10 @@ TEST_F(ParagraphTest, paragraph24)
         ElementSelectionState{ElementId{0, 4, 0, 0}, 0, 23})) << document.GetEditorState().ToString();
 
     document.WaitTask(document.MoveCaretUp(true));
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 2, 0, 1}, 
-        ElementSelectionState{ElementId{0}, 3, 1},
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 2, 0, 0, 17}, 
+        ElementSelectionState{ElementId{0, 2, 0, 0}, 17, 6},
         ElementSelectionState{ElementId{0, 2, 0}, 1, 1},
+        ElementSelectionState{ElementId{0}, 3, 1},
         ElementSelectionState{ElementId{0, 4, 0, 0}, 0, 23})) << document.GetEditorState().ToString();
 
     document.WaitTask(document.MoveCaretUp(true));
@@ -4155,7 +4157,7 @@ TEST_F(ParagraphTest, delete28)
     document.WaitLoad();
     std::this_thread::sleep_for(2s);
 
-    document.MoveCaretUp(true);
+    document.WaitTask(document.MoveCaretUp(true));
     document.WaitTask(document.MoveCaretUp(true));
     document.WaitTask(document.InsertString("?", true));
     document.WaitSolver();
@@ -4164,7 +4166,7 @@ TEST_F(ParagraphTest, delete28)
         U"Ускорение свободного падения: g_a=9.807(м)/(pow(с,2))\n"\
         U"Высота и масса тела: m=1кг\n"\
         U"h=1м\n"\
-        U"Потенциальная энергия: \n"\
+        U"Потенциальная эне\n"\
         U"?потенциальной энергии с противоположным знаком: A=-(E2-E1)\n"\
         U"A=Unknown identifier"
         ) << ToBasicString(document.ToText());
