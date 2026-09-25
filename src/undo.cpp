@@ -836,6 +836,32 @@ Element* UndoGraphSurface::Restore(Document* document, Element* parent)
     return el;
 }
 
+//UndoGraphHistogram
+
+UndoGraphHistogram::UndoGraphHistogram(GraphHistogram* graph) :
+    UndoFormula(ElementType::GRAPH_HISTOGRAM, graph->formula_format),
+    format(graph->format)
+{
+}
+
+bool UndoGraphHistogram::operator==(const UndoGraphHistogram& el) const
+{
+    return UndoFormula::operator==(el);
+}
+
+Element* UndoGraphHistogram::Restore(Document* document, Element* parent)
+{
+    GraphHistogram* el = parent ? new GraphHistogram(parent) : new GraphHistogram(document);
+    el->format = format;
+    el->formula_format = formula_format;
+    for (int i = 0; i < elements.size(); ++i)
+    {
+        ElementPtr ch(elements[i]->Restore(document, el));
+        el->elements->Get(i)->elements->ReplaceAll(*ch->elements);
+    }
+    return el;
+}
+
 //ConfigElement
 
 ConfigElement::ConfigElement(const Config& _config) : 
@@ -1246,6 +1272,14 @@ UndoElementPtr UndoBase::StoreElement(const LogicalId id, ElementPtr el)
         break;
     case ElementType::GRAPH_SURFACE:
         undo_element.reset(new UndoGraphSurface(((GraphSurface*)el.get())));
+        for (int i = 0; i < el->elements->Count(); ++i)
+        {
+            if (!store_element(el->elements->Get(i), undo_element))
+                return nullptr;
+        }
+        break;
+    case ElementType::GRAPH_HISTOGRAM:
+        undo_element.reset(new UndoGraphHistogram(((GraphHistogram*)el.get())));
         for (int i = 0; i < el->elements->Count(); ++i)
         {
             if (!store_element(el->elements->Get(i), undo_element))

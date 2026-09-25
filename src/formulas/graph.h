@@ -107,6 +107,9 @@ public:
 
     virtual bool AfterFromJson();
 
+    virtual void MovePicture(const int dx, const int dy, bool shift = false);
+    virtual void ZoomPicture(const int pixels);
+
     virtual void Solve();
 
     virtual void ReSolve(bool if_error = false, bool force = false);
@@ -209,6 +212,63 @@ protected:
     CodeRow<>* GetXLeft() const;
     CodeRow<>* GetVariable() const;
     CodeRow<>* GetXRight() const;
+    Shape* GetShape() const;
+};
+
+class GraphHistogram : public Graph
+{
+public:
+    GraphHistogram(Element* _parent, bool with_init = true);
+    GraphHistogram(Document* _document, bool with_init = true);
+    GraphHistogram(const GraphHistogram& source);
+
+    void Init();
+
+    virtual Element* Clone();
+
+    virtual Element* Create(Element* _parent);
+
+    void ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc);
+    static Element* FromJson(Element* parent, Document* document, const rapidjson::Value::ConstObject& value, rapidjson::Document::AllocatorType& alloc);
+    virtual bool AfterFromJson();
+
+    virtual void Solve();
+
+    virtual void ReSolve(bool if_error = false, bool force = false);
+
+    virtual void PutResult(Result& result);
+
+    virtual bool MouseLButtonHold(const int x, const int y, MouseHoldType& hold_type, ElementId& hold_id);
+
+    virtual std::string ToHtml() const;
+    virtual std::u32string ToText() const;
+    virtual void ToParserString(ParserString& str);
+
+    virtual bool Remake(bool with_elements = false);
+
+    virtual void UpdateLevel(uint8_t _level);
+
+    void GetPlotFormat(const int pos, Color& color, uint& width);
+    virtual void GetPlotFormat(const int pos, PlotFormat& format);
+    virtual void GetPlotFormat(PlotFormat& format);
+    virtual void SetPlotFormat(const PlotFormat& format);
+
+public:
+    struct Plot
+    {
+        std::string guid;
+        PlotFormat format;
+        std::vector<double> y;
+    };
+
+    std::vector<Plot> plots;
+
+protected:
+    static const std::vector<Color> default_colors;
+
+    int mouse_l_button_pos = 0;
+
+    CodeParagraphsBlock<>* GetExpression() const;
     Shape* GetShape() const;
 };
 

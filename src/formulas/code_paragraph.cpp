@@ -157,6 +157,8 @@ bool CodeParagraph<T>::AfterInsert(bool with_undo)
     ElementPtr graph = document->FindParent(id, ElementType::GRAPH_LINE);
     if (!graph)
         graph = document->FindParent(id, ElementType::GRAPH_SURFACE);
+    if (!graph)
+        graph = document->FindParent(id, ElementType::GRAPH_HISTOGRAM);
     if (graph)
     {
         PlotFormat plot_format;

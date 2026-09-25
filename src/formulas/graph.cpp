@@ -135,31 +135,10 @@ void Graph::Resize(const int dx, const int dy)
 
 void Graph::MovePicture(const int dx, const int dy, bool shift)
 {
-    moving = true;
-    double tx = (x_right - x_left) / (GetShape()->rect.width - 40);
-    double ty = (y_bottom - y_top) / (GetShape()->rect.height - 40);
-    double _dx = tx * dx;
-    double _dy = ty * dy;
-    SetNumber(x_left - _dx, GetXLeft());
-    SetNumber(x_right - _dx, GetXRight());
-    SetNumber(y_bottom - _dy, GetYBottom());
-    SetNumber(y_top - _dy, GetYTop());
-    document->AddResolveElement(logical_id);
 }
 
 void Graph::ZoomPicture(const int pixels)
 {
-    moving = true;
-    double k = pixels > 0 ? (1 + double(pixels) / 15) : (-(1 / (double(pixels) / 15 - 1)));
-    double w = (x_right - x_left) / k;
-    double c = (x_right + x_left) / 2;
-    SetNumber(c - w / 2, GetXLeft());
-    SetNumber(c + w / 2, GetXRight());
-    w = (y_top - y_bottom) / k;
-    c = (y_top + y_bottom) / 2;
-    SetNumber(c - w / 2, GetYBottom());
-    SetNumber(c + w / 2, GetYTop());
-    document->AddResolveElement(logical_id);
 }
 
 bool Graph::DeleteElements(bool left, bool with_undo, ElementId& changed_element)
@@ -514,6 +493,35 @@ bool GraphLine::AfterFromJson()
     Init();
     last_expressions.clear();
     return true;
+}
+
+void GraphLine::MovePicture(const int dx, const int dy, bool shift)
+{
+    moving = true;
+    double tx = (x_right - x_left) / (GetShape()->rect.width - 40);
+    double ty = (y_bottom - y_top) / (GetShape()->rect.height - 40);
+    double _dx = tx * dx;
+    double _dy = ty * dy;
+    SetNumber(x_left - _dx, GetXLeft());
+    SetNumber(x_right - _dx, GetXRight());
+    SetNumber(y_bottom - _dy, GetYBottom());
+    SetNumber(y_top - _dy, GetYTop());
+    document->AddResolveElement(logical_id);
+}
+
+void GraphLine::ZoomPicture(const int pixels)
+{
+    moving = true;
+    double k = pixels > 0 ? (1 + double(pixels) / 15) : (-(1 / (double(pixels) / 15 - 1)));
+    double w = (x_right - x_left) / k;
+    double c = (x_right + x_left) / 2;
+    SetNumber(c - w / 2, GetXLeft());
+    SetNumber(c + w / 2, GetXRight());
+    w = (y_top - y_bottom) / k;
+    c = (y_top + y_bottom) / 2;
+    SetNumber(c - w / 2, GetYBottom());
+    SetNumber(c + w / 2, GetYTop());
+    document->AddResolveElement(logical_id);
 }
 
 void GraphLine::Solve()
@@ -1622,6 +1630,568 @@ CodeRow<>* GraphSurface::GetXRight() const
 Shape* GraphSurface::GetShape() const
 {
     return (Shape*)elements->Get(7).get();
+}
+
+//GraphHistogram
+
+const std::vector<Color> GraphHistogram::default_colors = {Color::Red(), Color::Blue(), Color::Green(), Color::Magenta(), Color::Cian(), Color::Black()};
+
+GraphHistogram::GraphHistogram(Element* _parent, bool with_init) :
+    Graph(_parent, with_init)
+{
+    type = ElementType::GRAPH_HISTOGRAM;
+    if (with_init)
+        Init();
+}
+
+GraphHistogram::GraphHistogram(Document* _document, bool with_init) :
+    Graph(_document, with_init)
+{
+    type = ElementType::GRAPH_HISTOGRAM;
+    if (with_init)
+        Init();
+}
+
+GraphHistogram::GraphHistogram(const GraphHistogram& source) :
+    Graph(source),
+    plots(source.plots)
+{
+    Init();
+}
+
+void GraphHistogram::Init()
+{
+    if (elements->Count() == 0)
+    {
+        elements->Add(ElementPtr(new CodeParagraphsBlock<>(this, true))); //expressions, one paragraph is one array of bars
+        elements->Add(ElementPtr(new Shape(this))); //graph
+    }
+    GetShape()->can_resize = true;
+    //the bars are placed by their indices - dragging the picture does not pan the data
+    GetShape()->can_move_picture = false;
+    for (int i = 0; i < elements->Count(); ++i)
+        elements->Get(i)->can_merge = false;
+    UpdateLevel(level);
+    GetShape()->editable = false;
+    editable = false;
+
+    GetShape()->draw_func =
+        [&](const Rect& r)
+        {
+            std::lock_guard<std::recursive_mutex> lock(mathgl_mutex);
+
+            graph.NewFrame();
+            graph.SetFlagAdv(1, MGL_NO_SCALE_REL);
+            graph.SetScaleText(false);
+            graph.SetSize(r.width, r.height, false);
+            graph.SubPlot(1, 1, 0, "#");
+            graph.InPlot(0.05, 0.95, 0.05, 0.95);
+            if (r.width < 200 || r.height < 200)
+                graph.SetPenDelta(0.5);
+            else if (r.width < 300 || r.height < 300)
+                graph.SetPenDelta(0.6);
+            else if (r.width < 400 || r.height < 400)
+                graph.SetPenDelta(0.7);
+            else
+                graph.SetPenDelta(1.);
+
+            if (solving && !moving)
+            {
+                graph.SetRanges(-1, 1, -1, 1);
+                graph.SetFontSize(level + 1);
+                graph.Puts(mglPoint(0, 0), "~");
+            }
+            else if (last_error_code != yutovo_solver::ErrorCode::SOLVER_RESTARTED_ERROR && last_error_code != yutovo_solver::ErrorCode::OK && !moving)
+            {
+                graph.SetRanges(-1, 1, -1, 1);
+                graph.SetFontSize(level + 1);
+                if (last_parser_error_code != yutovo_calculator::ParserExceptionCode::None)
+                    graph.Puts(mglPoint(0, 0), ErrorCodeToString(last_parser_error_code).c_str());
+                else
+                    graph.Puts(mglPoint(0, 0), ErrorCodeToString(last_error_code).c_str());
+            }
+            else
+            {
+                graph.SetRanges(x_left, x_right, y_bottom, y_top);
+                //the y axis sits at the left edge and the x axis at the zero line; the bars, stems and areas
+                //grow from the zero line in both directions - the default origin is the bottom of the range
+                graph.SetOrigin(x_left, 0);
+                graph.SetFontSize(level);
+                std::string f = "{" + format.color.ToRGB() + "}";
+                graph.Axis("xy", std::string(f + "-1").c_str(), "h-1");
+                if (format.grid_width > 0)
+                    graph.Grid("xy", std::string("h" + std::to_string(format.grid_width) + f).c_str());
+                graph.SetQuality(MGL_DRAW_NORM);
+                for (const Plot& p : plots)
+                {
+                    auto& y = p.y;
+                    if (y.empty())
+                        continue;
+                    //the drawn x positions must sit exactly on the integer ticks - the automatic x of MathGL spreads the points over the whole range
+                    std::vector<double> x(y.size());
+                    for (size_t i = 0; i < x.size(); ++i)
+                        x[i] = (double)(i + 1);
+                    mglData x_data(x.size());
+                    x_data.Set(x);
+                    mglData y_data(y.size());
+                    y_data.Set(y);
+                    std::string fill = "{" + p.format.color.ToRGB() + "}";
+                    std::string line = fill + "-" + std::to_string(p.format.width);
+                    switch (p.format.histogram_style)
+                    {
+                    case HistogramStyle::BARS_LINE:
+                        //the line connects the bar tops
+                        graph.Bars(x_data, y_data, fill.c_str());
+                        graph.Plot(x_data, y_data, line.c_str());
+                        break;
+                    case HistogramStyle::BARS_SOLID:
+                        //full bar width leaves no gaps between the bars
+                        graph.SetBarWidth(1.);
+                        graph.Bars(x_data, y_data, fill.c_str());
+                        graph.SetBarWidth(0.7);
+                        break;
+                    case HistogramStyle::STEM:
+                        graph.Stem(x_data, y_data, line.c_str());
+                        break;
+                    case HistogramStyle::AREA:
+                        graph.Area(x_data, y_data, fill.c_str());
+                        break;
+                    case HistogramStyle::STEP:
+                        graph.Step(x_data, y_data, line.c_str());
+                        break;
+                    case HistogramStyle::MARKS:
+                        //the point size comes from the pen width digit in the scheme, no "-" so no line is drawn
+                        graph.Plot(x_data, y_data, std::string(fill + "." + std::to_string(std::min(9u, std::max(1u, p.format.width)))).c_str());
+                        break;
+                    default:
+                        graph.Bars(x_data, y_data, fill.c_str());
+                        break;
+                    }
+                }
+            }
+
+            const unsigned char* picture = graph.GetRGBA();
+            std::vector<unsigned char> arr(picture, picture + 4 * (graph.GetWidth() * graph.GetHeight()));
+            window->DrawImage(r.left + 1, r.top + 1, r.width, r.height, arr);
+        };
+}
+
+Element* GraphHistogram::Clone()
+{
+    return new GraphHistogram(*this);
+}
+
+Element* GraphHistogram::Create(Element* _parent)
+{
+    return new GraphHistogram(_parent);
+}
+
+void GraphHistogram::ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc)
+{
+    Formula::ToJson(value, alloc);
+    format.ToJson(value, alloc);
+    rapidjson::Value arr(rapidjson::kArrayType);
+    for (auto& p : plots)
+    {
+        rapidjson::Value v;
+        v.SetObject();
+        p.format.ToJson(v, alloc);
+        arr.PushBack(v, alloc);
+    }
+    value.AddMember("plots", arr, alloc);
+}
+
+Element* GraphHistogram::FromJson(Element* parent, Document* document, const rapidjson::Value::ConstObject& value, rapidjson::Document::AllocatorType& alloc)
+{
+    GraphFormat f;
+    f.FromJson(value, alloc);
+    GraphHistogram* el = parent ? new GraphHistogram(parent, false) : new GraphHistogram(document, false);
+    el->format = f;
+
+    if (value.HasMember("plots") && value["plots"].IsArray())
+    {
+        rapidjson::Value::ConstArray arr = value["plots"].GetArray();
+        for (rapidjson::SizeType i = 0; i < arr.Size(); ++i)
+        {
+            std::string guid = boost::uuids::to_string(boost::uuids::random_generator()());
+            Plot p{guid};
+            if (arr[i].IsObject())
+            {
+                rapidjson::Value::ConstObject v = arr[i].GetObject();
+                p.format.FromJson(v, alloc);
+            }
+            el->plots.push_back(p);
+        }
+    }
+
+    return el;
+}
+
+bool GraphHistogram::AfterFromJson()
+{
+    bool valid = elements->Count() == 2 && elements->Get(0)->type == ElementType::CODE_PARAGRAPHS_BLOCK && elements->Get(1)->type == ElementType::SHAPE;
+    for (int i = 0; valid && i < elements->Get(0)->elements->Count(); ++i)
+        valid = elements->Get(0)->elements->Get(i)->type == ElementType::CODE_PARAGRAPH;
+    if (!valid)
+        return false;
+
+    StringFormatPtr f = GetStringFormat();
+    Color color;
+    uint width = 1;
+    for (int i = 0; i < elements->Get(0)->elements->Count(); ++i)
+    {
+        CodeParagraph<>* p = (CodeParagraph<>*)elements->Get(0)->elements->Get(i).get();
+        GetPlotFormat(i, color, width);
+        p->SetMarker(U"█", document->GetStringFormat(f->family, f->size, f->bold, f->italic, f->underline, f->strikethrough,
+            f->subscript, f->superscript, color, f->text_bg_color, f->text_bg_selection_color));
+    }
+
+    Init();
+    last_expressions.clear();
+    return true;
+}
+
+void GraphHistogram::Solve()
+{
+    if (rect.width == 0)
+        return;
+
+    //while some paragraph is still empty the parser string is incomplete - show the empty frame instead of a parser error
+    bool ready = GetExpression()->elements->Count() > 0;
+    for (int i = 0; ready && i < GetExpression()->elements->Count(); ++i)
+        ready = !GetExpression()->elements->Get(i)->ToText().empty();
+    if (!ready)
+    {
+        if (!last_expressions.empty() || last_error_code != yutovo_solver::ErrorCode::OK)
+        {
+            last_expressions.clear();
+            for (Plot& p : plots)
+                p.y.clear();
+            last_error_code = yutovo_solver::ErrorCode::OK;
+            last_parser_error_code = yutovo_calculator::ParserExceptionCode::None;
+            solving = false;
+            document->RemoveErrorMarks(id);
+            document->AddChangedElement(id);
+        }
+        return;
+    }
+
+    std::vector<ParserString> expressions;
+    for (int i = 0; i < GetExpression()->elements->Count(); ++i)
+    {
+        ParserString str;
+        ElementPtr el = GetExpression()->elements->Get(i);
+        ElementId& _id = el->id;
+        str.Add(_id, U"graph_bar(");
+        el->ToParserString(str);
+        str.Add(_id, U")");
+        expressions.push_back(str);
+    }
+
+    if (last_expressions != expressions)
+    {
+        last_expressions = expressions;
+        document->AddResolveElement(logical_id);
+    }
+}
+
+void GraphHistogram::ReSolve(bool if_error, bool force)
+{
+    if (if_error)
+        return;
+
+    document->RemoveErrorMarks(id);
+    auto code = document->FindParent(id, ElementType::CODE_BLOCK);
+    assert(code);
+
+    //plots count must be count of the expressions
+    while (plots.size() < GetExpression()->elements->Count())
+    {
+        std::string guid = boost::uuids::to_string(boost::uuids::random_generator()());
+        plots.push_back(Plot{guid, default_colors[plots.size() % default_colors.size()]});
+    }
+    if (plots.size() > GetExpression()->elements->Count())
+        plots.resize(GetExpression()->elements->Count());
+
+    if (solving)
+    {
+        for (size_t i = 0; i < plots.size(); ++i)
+            document->BreakSolving(GetExpression()->elements->Get(i)->logical_id, plots[i].guid, ((CodeBlock*)code.get())->code_id, false);
+    }
+
+    //the template is not fully filled yet - nothing to send, the empty frame is drawn instead of the waiting symbol
+    if (last_expressions.empty())
+    {
+        document->AddChangedElement(id);
+        return;
+    }
+
+    solving = true;
+    for (size_t i = 0; i < plots.size() && i < last_expressions.size(); ++i)
+    {
+        document->Solve(GetExpression()->elements->Get(i)->logical_id, plots[i].guid, ((CodeBlock*)code.get())->code_id, config,
+            !GetParent(1)->visible, last_expressions[i].Text(),
+            (!moving && last_error_code != yutovo_solver::ErrorCode::SOLVER_RESTARTED_ERROR) ? document->config.solve_delay : 0);
+    }
+    document->AddChangedElement(id);
+}
+
+void GraphHistogram::PutResult(Result& result)
+{
+    solving = false;
+
+    last_error_code = result.error.error_code;
+    dependencies = result.dependencies;
+    if (result.error.error_code == yutovo_solver::ErrorCode::SOLVER_RESTARTED_ERROR)
+    {
+        last_expressions.clear();
+        return;
+    }
+
+    auto it = std::find_if(plots.begin(), plots.end(),
+        [result](const Plot& p)
+        {
+            return p.guid == result.guid;
+        });
+    if (it == plots.end())
+        return;
+
+    Plot& plot = *it;
+
+    if (result.error.error_code != yutovo_solver::ErrorCode::OK)
+    {
+        //put error message
+        size_t i = std::distance(plots.begin(), it);
+        last_parser_error_code = result.error.parser_error_code;
+        if (i < last_expressions.size())
+        {
+            ElementId err_id = last_expressions[i].GetElement(result.error.pos, result.error.size);
+            if (!err_id.empty())
+            {
+                auto el = document->GetElement(err_id);
+                if (el)
+                {
+                    document->RemoveErrorMarks(parent->parent->id);
+                    document->AddErrorMark(err_id, 0, el->elements->Count());
+                    document->Redraw(err_id, false);
+                }
+            }
+        }
+    }
+    else
+        document->RemoveErrorMarks(id);
+
+    std::locale::global(std::locale::classic());
+
+    auto to_double =
+        [](Value& v)
+        {
+            double r;
+            try
+            {
+                r = std::stod(v.value["mantissa"] + "E" + v.value["exponent"]);
+            }
+            catch (const std::exception& ex)
+            {
+                r = std::numeric_limits<double>::quiet_NaN();
+            }
+            return r;
+        };
+
+    plot.y.clear();
+
+    if (result.values.size() < 5)
+    {
+        document->Redraw(id, false);
+        return;
+    }
+
+    //the values after the bounds header are the bar heights, a NaN value leaves a hole in the bars
+    for (size_t i = 5; i < result.values.size(); ++i)
+        plot.y.push_back(to_double(result.values[i]));
+
+    //all series of the graph share one scale - recompute the bounds as the union of the series
+    //(the per-result header bounds of the last arriving result would clip the others)
+    y_bottom = 0;
+    y_top = 0;
+    bool found = false;
+    size_t max_n = 0;
+    for (const Plot& p : plots)
+    {
+        max_n = std::max(max_n, p.y.size());
+        for (double v : p.y)
+        {
+            if (std::isnan(v))
+                continue;
+            found = true;
+            y_bottom = std::min(y_bottom, v);
+            y_top = std::max(y_top, v);
+        }
+    }
+    if (!found || y_bottom == y_top)
+        y_top = y_bottom + 1;
+    x_left = 0.5;
+    x_right = (double)max_n + 0.5;
+
+    document->Redraw(id, false);
+}
+
+bool GraphHistogram::MouseLButtonHold(const int x, const int y, MouseHoldType& hold_type, ElementId& hold_id)
+{
+    for (int i = 0; i < GetExpression()->elements->Count(); ++i)
+    {
+        ElementPtr el = GetExpression()->elements->Get(i);
+        if (el->elements->Count() == 0)
+            return false;
+        Rect r1 = el->GetAbsoluteRect();
+        Rect r2 = el->elements->Get(0)->GetAbsoluteRect();
+        Rect r{r1.left, r1.top, r2.left - r1.left, r2.GetBottom() - r1.top};
+        if (r.IsPointInside(x, y))
+        {
+            mouse_l_button_pos = i;
+            hold_type = MouseHoldType::PLOT_FORMAT_DIALOG;
+            hold_id = id;
+            return true;
+        }
+    }
+    return false;
+}
+
+std::string GraphHistogram::ToHtml() const
+{
+    std::string expr;
+    for (int i = 0; i < GetExpression()->elements->Count(); ++i)
+    {
+        const auto& el = GetExpression()->elements->Get(i);
+        if (!el->IsVisible())
+            continue;
+        //the template is not solved yet - plots may be empty or shorter than the paragraph list
+        std::string color = i < (int)plots.size() ? plots[i].format.color.ToHex() : default_colors[i % default_colors.size()].ToHex();
+        expr += "<p><span style=\"color: " + color + ";\">█&nbsp;</span>" + el->ToHtml() + "</p>";
+    }
+
+    std::string image_base64;
+    GetImage(image_base64);
+    std::string s =
+        "<table>"
+            "<tr>"
+                "<td style=\"height:100%; vertical-align:middle;\">" + expr + "</td>"
+                "<td>"
+                    "<img src=\"data:image/png;base64," + image_base64 + "\">"
+                "</td>"
+            "</tr>"
+       "</table>";
+    return s;
+}
+
+std::u32string GraphHistogram::ToText() const
+{
+    std::u32string s = U"graph_bar(";
+    if (elements->Count() >= 2)
+        s += elements->Get(0)->ToText();
+    else
+    {
+        //the element is still being built
+        for (int i = 0; i < elements->Count(); ++i)
+            s += elements->Get(i)->ToText();
+    }
+    s += U")";
+    return s;
+}
+
+void GraphHistogram::ToParserString(ParserString& str)
+{
+    str.Add(id, U"graph_bar(");
+    if (elements->Count() > 0)
+        elements->Get(0)->ToParserString(str);
+    str.Add(id, U")");
+
+    if (elements->Count() > 0)
+    {
+        int start = str.Length();
+        elements->Get(0)->ToParserString(str);
+        str.Annotate(id, start, str.Length());
+    }
+}
+
+bool GraphHistogram::Remake(bool with_elements)
+{
+    if (document->editing)
+        moving = false;
+
+    UpdateLevel(level);
+
+    bool changed = Formula::Remake(with_elements);
+
+    int left = GetExpression()->rect.width;
+    GetShape()->rect.SetRect(0, 0, format.size.width, format.size.height);
+    GetExpression()->rect.Move(left - GetExpression()->rect.width, GetShape()->rect.height / 2 - GetExpression()->rect.height / 2);
+    GetShape()->rect.Move(left + 2, 0);
+    baseline = GetShape()->rect.GetBottom() - GetShape()->rect.height / 2;
+
+    UpdateRect();
+
+    if (rect != last_rect)
+    {
+        last_rect = rect;
+        return true;
+    }
+    return changed;
+}
+
+void GraphHistogram::UpdateLevel(uint8_t _level)
+{
+    Formula::UpdateLevel(_level);
+}
+
+void GraphHistogram::GetPlotFormat(const int pos, Color& color, uint& width)
+{
+    while (plots.size() < pos + 1)
+    {
+        std::string guid = boost::uuids::to_string(boost::uuids::random_generator()());
+        plots.push_back(Plot{guid, default_colors[plots.size() % default_colors.size()]});
+    }
+    color = plots[pos].format.color;
+    width = plots[pos].format.width;
+}
+
+void GraphHistogram::GetPlotFormat(const int pos, PlotFormat& format)
+{
+    while (plots.size() < pos + 1)
+    {
+        std::string guid = boost::uuids::to_string(boost::uuids::random_generator()());
+        plots.push_back(Plot{guid, default_colors[plots.size() % default_colors.size()]});
+    }
+    format = plots[pos].format;
+}
+
+void GraphHistogram::GetPlotFormat(PlotFormat& format)
+{
+    GetPlotFormat(mouse_l_button_pos, format);
+}
+
+void GraphHistogram::SetPlotFormat(const PlotFormat& format)
+{
+    if (mouse_l_button_pos >= plots.size())
+        return;
+    plots[mouse_l_button_pos].format = format;
+
+    ElementPtr p = GetExpression()->elements->Get(mouse_l_button_pos);
+    if (!p)
+        return;
+    StringFormatPtr f = GetStringFormat();
+    ((CodeParagraph<>*)p.get())->SetMarker(U"█", document->GetStringFormat(f->family, f->size, f->bold, f->italic, f->underline, f->strikethrough,
+        f->subscript, f->superscript, format.color, f->text_bg_color, f->text_bg_selection_color));
+}
+
+CodeParagraphsBlock<>* GraphHistogram::GetExpression() const
+{
+    return (CodeParagraphsBlock<>*)elements->Get(0).get();
+}
+
+Shape* GraphHistogram::GetShape() const
+{
+    return (Shape*)elements->Get(1).get();
 }
 
 }

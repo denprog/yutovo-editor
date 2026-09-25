@@ -93,7 +93,8 @@ enum class ElementType
     TEXT_BLOCK,
     TEXT_EQUATION,
     TEXT_ASSIGNMENT,
-    GRAPH_SURFACE
+    GRAPH_SURFACE,
+    GRAPH_HISTOGRAM
 };
 
 enum class IdentifierType
