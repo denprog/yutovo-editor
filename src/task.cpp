@@ -2499,6 +2499,8 @@ bool ResultTask::Execute()
             if (!el)
                 el = document->FindElementOrParent(r_id, ElementType::GRAPH_SURFACE);
             if (!el)
+                el = document->FindElementOrParent(r_id, ElementType::GRAPH_HISTOGRAM);
+            if (!el)
                 return false;
             Graph* r = dynamic_cast<Graph*>(el.get());
             if (!r)
@@ -2712,11 +2714,13 @@ bool ResolveDependenciesTask::Execute()
             {
                 c->GetElementsBelow(_after_id, ElementType::GRAPH_LINE, solvings); //get graphs below in this code block
                 c->GetElementsBelow(_after_id, ElementType::GRAPH_SURFACE, solvings);
+                c->GetElementsBelow(_after_id, ElementType::GRAPH_HISTOGRAM, solvings);
             }
             else
             {
                 c->GetElements(ElementType::GRAPH_LINE, solvings);
                 c->GetElements(ElementType::GRAPH_SURFACE, solvings);
+                c->GetElements(ElementType::GRAPH_HISTOGRAM, solvings);
             }
             for (ElementId _id : solvings)
             {

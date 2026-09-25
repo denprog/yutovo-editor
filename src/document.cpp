@@ -991,6 +991,12 @@ uint Document::InsertGraphSurface(bool with_undo)
     return InsertFormula(graph, with_undo, true);
 }
 
+uint Document::InsertGraphHistogram(bool with_undo)
+{
+    LOG_TRACE("Insert graph histogram");
+    return InsertFormula(new GraphHistogram(this), with_undo, true);
+}
+
 uint Document::InsertFormula(Element* element, bool with_undo, bool with_last_task_id, bool replace)
 {
     LOG_TRACE("Insert formula: {}", ToBasicString(element->ToText()));
@@ -1913,7 +1919,7 @@ bool Document::GetGraphFormat(const ElementId& id, GraphFormat& format)
 {
     std::lock_guard<std::recursive_mutex> lock(edit_mutex);
     ElementPtr el = GetElement(id);
-    if (!el || (el->type != ElementType::GRAPH_LINE && el->type != ElementType::GRAPH_SURFACE))
+    if (!IsGraph(el))
         return false;
     format = ((Graph*)el.get())->format;
     return true;
@@ -1923,7 +1929,7 @@ bool Document::GetGraphImage(const ElementId& id, std::vector<unsigned char>& pn
 {
     std::lock_guard<std::recursive_mutex> lock(edit_mutex);
     ElementPtr el = GetElement(id);
-    if (!el || (el->type != ElementType::GRAPH_LINE && el->type != ElementType::GRAPH_SURFACE))
+    if (!IsGraph(el))
         return false;
     std::string image_base64;
     ((Graph*)el.get())->GetImage(image_base64);
@@ -1938,7 +1944,7 @@ uint Document::SetGraphFormat(const ElementId& id, const GraphFormat& format, bo
         [id, format, with_undo, this]()
         {
             ElementPtr el = GetElement(id);
-            if (!el || (el->type != ElementType::GRAPH_LINE && el->type != ElementType::GRAPH_SURFACE))
+            if (!IsGraph(el))
                 return false;
             if (with_undo)
                 StoreUndo(el->id);
@@ -1955,7 +1961,7 @@ bool Document::GetPlotFormat(const ElementId& id, PlotFormat& format)
 {
     std::lock_guard<std::recursive_mutex> lock(edit_mutex);
     ElementPtr el = GetElement(id);
-    if (!el || (el->type != ElementType::GRAPH_LINE && el->type != ElementType::GRAPH_SURFACE))
+    if (!el || (el->type != ElementType::GRAPH_LINE && el->type != ElementType::GRAPH_SURFACE && el->type != ElementType::GRAPH_HISTOGRAM))
         return false;
     ((Graph*)el.get())->GetPlotFormat(format);
     return true;
@@ -1968,7 +1974,7 @@ uint Document::SetPlotFormat(const ElementId& id, const PlotFormat& format, bool
         [id, format, with_undo, this]()
         {
             ElementPtr el = GetElement(id);
-            if (!el || (el->type != ElementType::GRAPH_LINE && el->type != ElementType::GRAPH_SURFACE))
+            if (!el || (el->type != ElementType::GRAPH_LINE && el->type != ElementType::GRAPH_SURFACE && el->type != ElementType::GRAPH_HISTOGRAM))
                 return false;
             if (with_undo)
                 StoreUndo(el->id);
@@ -2327,6 +2333,16 @@ bool Document::IsParagraph(ElementId id)
 bool Document::IsFormula(ElementPtr el)
 {
     return dynamic_cast<Formula*>(el.get());
+}
+
+bool Document::IsGraph(ElementPtr el)
+{
+    return el && (el->type == ElementType::GRAPH_LINE || el->type == ElementType::GRAPH_SURFACE || el->type == ElementType::GRAPH_HISTOGRAM);
+}
+
+bool Document::IsGraph(ElementId id)
+{
+    return IsGraph(GetElement(id));
 }
 
 bool Document::GetStringFormat(const ElementId id, StringFormat& format)

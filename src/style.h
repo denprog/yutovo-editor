@@ -208,6 +208,17 @@ enum class SurfaceStyle
     POINTS
 };
 
+enum class HistogramStyle
+{
+    BARS = 0,
+    BARS_LINE,
+    BARS_SOLID,
+    STEM,
+    AREA,
+    STEP,
+    MARKS
+};
+
 struct PlotFormat
 {
     void ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc);
@@ -216,6 +227,7 @@ struct PlotFormat
     Color color = Color::Red();
     uint width = 1;
     SurfaceStyle style = SurfaceStyle::HEIGHT;
+    HistogramStyle histogram_style = HistogramStyle::BARS;
 };
 
 typedef std::unique_ptr<GraphFormat> GraphFormatPtr;

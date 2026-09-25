@@ -114,6 +114,8 @@ public:
 
     uint InsertGraphSurface(bool with_undo);
 
+    uint InsertGraphHistogram(bool with_undo);
+
     uint InsertFormula(Element* element, bool with_undo, bool with_last_task_id = false, bool replace = false);
     uint InsertFormulas(std::vector<ElementPtr>& elements, bool with_undo, bool with_last_task_id, bool pasting, bool replace, int select_pos);
 
@@ -195,6 +197,8 @@ public:
     bool IsParagraph(ElementPtr el);
     bool IsParagraph(ElementId id);
     bool IsFormula(ElementPtr el);
+    bool IsGraph(ElementPtr el);
+    bool IsGraph(ElementId id);
 
     bool GetStringFormat(const ElementId id, StringFormat& format);
     bool GetParagraphFormat(const ElementId id, ParagraphFormat& format);

@@ -670,6 +670,7 @@ void PlotFormat::ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorT
     obj.AddMember("width", (int)width, alloc);
     obj.AddMember("color", color.ToInt(), alloc);
     obj.AddMember("style", (int)style, alloc);
+    obj.AddMember("histogram_style", (int)histogram_style, alloc);
     value.AddMember("plot_format", obj, alloc);
 }
 
@@ -686,10 +687,23 @@ bool PlotFormat::FromJson(const rapidjson::Value::ConstObject& value, rapidjson:
             color = Color::Black();
         else
             color = Color::FromInt(r["color"].GetUint());
-        if (!r.HasMember("style") || !r["style"].IsInt() || (int)r["style"].GetInt() < 0 || (int)r["style"].GetInt() > 4)
+        if (!r.HasMember("style") || !r["style"].IsInt() || (int)r["style"].GetInt() < 0 || (int)r["style"].GetInt() > (int)SurfaceStyle::POINTS)
             style = SurfaceStyle::HEIGHT;
         else
             style = (SurfaceStyle)r["style"].GetInt();
+        //interim builds serialized the histogram styles inside "style" starting at 8 - move them to histogram_style
+        if (r.HasMember("style") && r["style"].IsInt())
+        {
+            int v = r["style"].GetInt();
+            if (v >= 8 && v <= 8 + (int)HistogramStyle::MARKS)
+                histogram_style = (HistogramStyle)(v - 8);
+        }
+        if (r.HasMember("histogram_style") && r["histogram_style"].IsInt())
+        {
+            int v = r["histogram_style"].GetInt();
+            if (v >= 0 && v <= (int)HistogramStyle::MARKS)
+                histogram_style = (HistogramStyle)v;
+        }
     }
     return true;
 }

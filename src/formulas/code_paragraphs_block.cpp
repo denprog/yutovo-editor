@@ -141,15 +141,15 @@ void CodeParagraphsBlock<T>::AddEmptyElement()
 {
     auto* p = new CodeParagraph<>(this, true);
 
-    GraphLine* graph = dynamic_cast<GraphLine*>(parent);
+    Graph* graph = parent && (parent->type == ElementType::GRAPH_LINE || parent->type == ElementType::GRAPH_SURFACE ||
+        parent->type == ElementType::GRAPH_HISTOGRAM) ? (Graph*)parent : nullptr;
     if (graph)
     {
         StringFormatPtr f = GetStringFormat();
-        Color color;
-        uint width = 1;
-        graph->GetPlotFormat(elements->Count(), color, width);
+        PlotFormat plot_format;
+        graph->GetPlotFormat(elements->Count(), plot_format);
         p->SetMarker(U"█", document->GetStringFormat(f->family, f->size, f->bold, f->italic, f->underline, f->strikethrough,
-            f->subscript, f->superscript, color, f->text_bg_color, f->text_bg_selection_color));
+            f->subscript, f->superscript, plot_format.color, f->text_bg_color, f->text_bg_selection_color));
     }
     AddElement(ElementPtr(p));
 }
