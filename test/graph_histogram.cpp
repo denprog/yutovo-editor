@@ -794,4 +794,35 @@ TEST_F(FormulaTest, histogram19)
     ASSERT_TRUE(format.histogram_style == HistogramStyle::STEM) << (int)format.histogram_style;
 }
 
+//A click on the histogram image places the caret on the shape - the graph must still be found for the context menu
+TEST_F(FormulaTest, histogram20)
+{
+    Start(600);
+
+    document.WaitTask(document.InsertGraphHistogram(true));
+    document.InsertOpenSquareBracket(true);
+    document.InsertString("1", true);
+    document.InsertComma(true);
+    document.WaitTask(document.InsertString("2", true));
+    document.WaitTask(document.InsertCloseSquareBracket(true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(2s);
+
+    auto el = document.FindByType(ElementId{0}, ElementType::GRAPH_HISTOGRAM);
+    Rect r = el->elements->Get(1)->GetAbsoluteRect();
+
+    //a right click moves the caret to the click point like the web OnMouseDown does;
+    //the caret stands on the non-editable shape, so Caret::GetElement returns the graph itself and
+    //FindCurrentParentByType would skip it - FindCurrentGraph must still resolve the graph
+    document.WaitTask(document.MoveCaret(r.left + r.width / 2, r.top + r.height / 2, false));
+    std::this_thread::sleep_for(200ms);
+    ElementId gid = document.FindCurrentGraph();
+    ASSERT_TRUE(!gid.empty()) << document.GetEditorState().ToString();
+    ASSERT_TRUE(gid == el->id) << document.GetEditorState().ToString();
+
+    GraphFormat format;
+    ASSERT_TRUE(document.GetGraphFormat(gid, format));
+    ASSERT_TRUE(format.size.width == 400);
+}
+
 }
