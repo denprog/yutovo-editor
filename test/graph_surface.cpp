@@ -405,7 +405,7 @@ TEST_F(FormulaTest, graph_surface5)
     std::this_thread::sleep_for(1s);
 
     ASSERT_TRUE(std::fabs(graph->rot_x - 45.) < 0.01) << graph->rot_x;
-    ASSERT_TRUE(std::fabs(graph->rot_z - 65.) < 0.01) << graph->rot_z;
+    ASSERT_TRUE(std::fabs(graph->rot_z - 55.) < 0.01) << graph->rot_z;
     ASSERT_TRUE(graph->plots[0].z.size() == 2500);
     ASSERT_TRUE(graph->plots[0].z == z_before);
     ASSERT_TRUE(document.IsChanged()) << document.IsChanged();

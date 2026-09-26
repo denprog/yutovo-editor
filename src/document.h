@@ -164,6 +164,7 @@ public:
     ElementPtr FindElementOrParent(const ElementId& id, const ElementType type);
     ElementPtr FindParent(const ElementId& id, const ElementType type);
     ElementId FindCurrentParentByType(const ElementType type);
+    ElementId FindCurrentGraph();
     ElementPtr FindParentParagraph(const ElementId& id);
     ElementPtr FindParentRow(const ElementId& id);
     uint FindCodeBlock(const ElementId& id);

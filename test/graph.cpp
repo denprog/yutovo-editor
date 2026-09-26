@@ -812,14 +812,16 @@ TEST_F(FormulaTest, graphs13)
         {
             return x > -0.01 && x < 0.01;
         });
-    const std::vector<double> _y1{std::nan(""), -4.615, -3.74};
     int p = static_cast<int>(it - plot.x.begin());
-    std::vector<double> y(plot.y.begin() + p, std::next(plot.y.begin() + p, 3));
-    ASSERT_TRUE(std::equal(y.begin(), y.end(), _y1.begin(), 
-        [](double x, double y)
-        {
-            return std::fabs(x - y) < 0.1 || (std::isnan(x) && std::isnan(y));
-        })) << y[0] << y[1] << y[2];
+    for (int i = 0; i < 3; ++i)
+    {
+        double x = plot.x[p + i];
+        double y = plot.y[p + i];
+        if (x <= 0)
+            ASSERT_TRUE(std::isnan(y)) << "x=" << x << " y=" << y;
+        else
+            ASSERT_TRUE(std::fabs(y - std::log(x)) < 0.01) << "x=" << x << " y=" << y;
+    }
 }
 
 //Graph of two functions
