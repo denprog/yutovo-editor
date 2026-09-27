@@ -247,7 +247,10 @@ void Document::MainLoop()
                 }
                 if (!next_circle)
                 {
-                    caret->Blink();
+                    {
+                        std::lock_guard<std::recursive_mutex> lock(edit_mutex);
+                        caret->Blink();
+                    }
                     continue;
                 }
                 next_circle = false;
@@ -288,7 +291,10 @@ void Document::MainLoop()
             }
             if (!temp_undo_tasks.empty())
             {
-                caret->Hide(); //caret will be shown on Redraw or caret moving
+                {
+                    std::lock_guard<std::recursive_mutex> lock(edit_mutex);
+                    caret->Hide(); //caret will be shown on Redraw or caret moving
+                }
                 selection.can_optimize = false;
                 for (size_t i = 0; i < temp_undo_tasks.size(); ++i)
                 {
@@ -343,7 +349,10 @@ void Document::MainLoop()
             }
             if (!temp_redo_tasks.empty())
             {
-                caret->Hide();
+                {
+                    std::lock_guard<std::recursive_mutex> lock(edit_mutex);
+                    caret->Hide();
+                }
                 for (size_t i = 0; i < temp_redo_tasks.size(); ++i)
                 {
                     changed_elements.clear();
@@ -356,7 +365,10 @@ void Document::MainLoop()
                         break;
                     last_modify_task_id = t->id;
                 }
-                caret->Show();
+                {
+                    std::lock_guard<std::recursive_mutex> lock(edit_mutex);
+                    caret->Show();
+                }
 #ifdef TEST
                 last_redo_executed = true;
 #endif
@@ -372,7 +384,10 @@ void Document::MainLoop()
 
         if (!temp_tasks.empty())
         {
-            caret->Hide();
+            {
+                std::lock_guard<std::recursive_mutex> lock(edit_mutex);
+                caret->Hide();
+            }
             //execute all the tasks
             for (size_t i = 0; i < temp_tasks.size(); ++i)
             {
@@ -1334,6 +1349,7 @@ uint Document::SetIncludeDocuments(const std::vector<std::string>& files)
 
 ElementPtr Document::GetElement(const ElementId& _id)
 {
+    std::lock_guard<std::recursive_mutex> lock(edit_mutex);
     if (_id.empty())
         return nullptr;
     if (_id.size() == 1)
@@ -1356,6 +1372,7 @@ ElementPtr Document::GetElement(const ElementId& _id)
 
 ElementPtr Document::GetLogicalElement(const LogicalId& _id)
 {
+    std::lock_guard<std::recursive_mutex> lock(edit_mutex);
     std::vector<ElementPtr> elements;
     GetElements(_id, elements);
     if (elements.empty())
@@ -1365,6 +1382,7 @@ ElementPtr Document::GetLogicalElement(const LogicalId& _id)
 
 void Document::GetElements(const LogicalId& _id, std::vector<ElementPtr>& elements)
 {
+    std::lock_guard<std::recursive_mutex> lock(edit_mutex);
     if (_id.empty())
         return;
     if (_id.size() == 1)
@@ -1531,6 +1549,7 @@ void Document::GetElements(const LogicalId& _id, std::vector<ElementPtr>& elemen
 
 ElementPtr Document::GetParent(const ElementId& _id)
 {
+    std::lock_guard<std::recursive_mutex> lock(edit_mutex);
     if (_id.size() == 1 || _id.empty())
         return nullptr;
     if (_id.size() == 2)
@@ -1547,6 +1566,7 @@ ElementPtr Document::GetParent(const ElementId& _id)
 
 ElementPtr Document::GetLogicalParent(const LogicalId& _id)
 {
+    std::lock_guard<std::recursive_mutex> lock(edit_mutex);
     std::vector<ElementPtr> elements;
     GetElements(_id, elements);
     if (elements.empty())
@@ -1723,6 +1743,7 @@ ElementId Document::GetParentId(const ElementId& id, const ElementType type)
 
 ElementPtr Document::FindElementOrParent(const ElementId& id, const ElementType type)
 {
+    std::lock_guard<std::recursive_mutex> lock(edit_mutex);
     ElementPtr el = GetElement(id);
     if (el && el->type == type)
         return el;
@@ -1731,6 +1752,7 @@ ElementPtr Document::FindElementOrParent(const ElementId& id, const ElementType 
 
 ElementPtr Document::FindParent(const ElementId& id, const ElementType type)
 {
+    std::lock_guard<std::recursive_mutex> lock(edit_mutex);
     ElementPtr el = GetParent(id);
     while (el && el->type != type)
         el = GetParent(el->id);
@@ -1775,6 +1797,7 @@ ElementPtr Document::FindParentParagraph(const ElementId& id)
 
 ElementPtr Document::FindParentRow(const ElementId& id)
 {
+    std::lock_guard<std::recursive_mutex> lock(edit_mutex);
     ElementPtr el = GetElement(id);
     if (el && (el->type == ElementType::ROW || el->type == ElementType::CODE_ROW || el->type == ElementType::CODE_ROW_ASSIGNMENT))
         return el;
@@ -1786,6 +1809,7 @@ ElementPtr Document::FindParentRow(const ElementId& id)
 
 uint Document::FindCodeBlock(const ElementId& id)
 {
+    std::lock_guard<std::recursive_mutex> lock(edit_mutex);
     auto el = FindParent(id, ElementType::CODE_BLOCK);
     if (!el)
         return 0;
@@ -1862,6 +1886,7 @@ bool Document::GetLink(const ElementId& id, std::u32string& str, std::u32string&
 
 Rect Document::GetCaretRect(const CaretState& caret_state)
 {
+    std::lock_guard<std::recursive_mutex> lock(edit_mutex);
     ElementPtr el = GetParent(caret_state.id);
     return el->GetAbsoluteRect(el->GetCaretRect(caret_state.GetPos()));
 }
@@ -2321,6 +2346,7 @@ bool Document::IsString(ElementPtr el)
 
 bool Document::IsString(ElementId id)
 {
+    std::lock_guard<std::recursive_mutex> lock(edit_mutex);
     return IsString(GetElement(id));
 }
 
@@ -2331,6 +2357,7 @@ bool Document::IsRow(ElementPtr el)
 
 bool Document::IsRow(ElementId id)
 {
+    std::lock_guard<std::recursive_mutex> lock(edit_mutex);
     return IsRow(GetElement(id));
 }
 
@@ -2341,6 +2368,7 @@ bool Document::IsParagraph(ElementPtr el)
 
 bool Document::IsParagraph(ElementId id)
 {
+    std::lock_guard<std::recursive_mutex> lock(edit_mutex);
     return IsParagraph(GetElement(id));
 }
 
@@ -2356,6 +2384,7 @@ bool Document::IsGraph(ElementPtr el)
 
 bool Document::IsGraph(ElementId id)
 {
+    std::lock_guard<std::recursive_mutex> lock(edit_mutex);
     return IsGraph(GetElement(id));
 }
 
@@ -3302,12 +3331,14 @@ LogicalEditorState Document::GetLogicalEditorState()
 
 void Document::SetEditorState(EditorState& state)
 {
+    std::lock_guard<std::recursive_mutex> lock(edit_mutex);
     selection.Set(state.selection_state);
     caret->SetState(state.caret_state);
 }
 
 void Document::SetEditorState(LogicalEditorState& state)
 {
+    std::lock_guard<std::recursive_mutex> lock(edit_mutex);
     selection.Set(state.selection_state);
     caret->SetState(state.caret_state);
 }
@@ -3745,6 +3776,7 @@ uint Document::ReSolve(const ElementId& _id)
 
 void Document::ReSolve(const LogicalId& _id)
 {
+    std::lock_guard<std::recursive_mutex> lock(edit_mutex);
     std::vector<ElementPtr> elements;
     GetElements(_id, elements);
     for (auto el : elements)
@@ -3844,6 +3876,7 @@ void Document::UpdateSolveId(const std::string& guid, const LogicalId& new_id)
 
 bool Document::IsVisible(ElementId _id)
 {
+    std::lock_guard<std::recursive_mutex> lock(edit_mutex);
     auto el = GetElement(_id);
     if (!el)
         return false;
@@ -3861,6 +3894,7 @@ bool Document::IsVisible(ElementId _id)
 
 ElementId Document::GetFirstVisibleParagraph()
 {
+    std::lock_guard<std::recursive_mutex> lock(edit_mutex);
     ElementId res;
     if (!cur_visible_row.empty())
     {
@@ -3915,6 +3949,7 @@ ElementId Document::GetFirstVisibleParagraph()
 
 ElementId Document::GetFirstVisibleRow(ElementId paragraph_id)
 {
+    std::lock_guard<std::recursive_mutex> lock(edit_mutex);
     ElementId res;
     auto el = GetElement(paragraph_id);
     cur_visible_row = el->elements->FindUpper(window->document_point.y);
@@ -3923,6 +3958,7 @@ ElementId Document::GetFirstVisibleRow(ElementId paragraph_id)
 
 void Document::AddErrorMark(const ElementId& _id, int start, int size)
 {
+    std::lock_guard<std::recursive_mutex> lock(edit_mutex);
     auto el = GetElement(_id);
     if (!el)
         return;
@@ -3943,6 +3979,7 @@ void Document::AddErrorMark(const ElementId& _id, int start, int size)
 
 void Document::RemoveErrorMarks(const ElementId& parent_id, Dependencies* dependencies)
 {
+    std::lock_guard<std::recursive_mutex> lock(edit_mutex);
     auto el = GetElement(parent_id);
     if (!el)
         return;
@@ -3994,6 +4031,7 @@ void Document::RemoveErrorMarks(const ElementId& parent_id, Dependencies* depend
 
 bool Document::HasErrorMark(const ElementId& _id, int& start, int& size)
 {
+    std::lock_guard<std::recursive_mutex> lock(edit_mutex);
     auto el = GetElement(_id);
     if (!el)
         return false;
@@ -4023,6 +4061,7 @@ bool Document::HasErrorMark(const ElementId& _id, int& start, int& size)
 
 bool Document::HasErrorMarks(const ElementId& _id)
 {
+    std::lock_guard<std::recursive_mutex> lock(edit_mutex);
     int start, size;
     if (HasErrorMark(_id, start, size))
         return true;
