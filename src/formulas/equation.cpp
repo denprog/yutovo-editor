@@ -234,9 +234,7 @@ void Equation::ReSolve(bool if_error, bool force)
 
 bool Equation::Depends(const std::string& identifier)
 {
-    if (std::find(dependencies.begin(), dependencies.end(), identifier) != dependencies.end())
-        return true;
-    return false;
+    return Formula::MatchDependency(dependencies, identifier);
 }
 
 void Equation::SetResult(const Config::AutoResultConfig& config)

@@ -688,6 +688,42 @@ struct VariablesTest : SolverTest
                 return str;
             });
     }
+
+    //Create "d:=[1,2,3]" and the solved equation "sum(n=0,2,d{n})=6." (the equation references d only through the subscript)
+    void CreateArrayAndSum()
+    {
+        document.InsertCode(false, true);
+        document.InsertString("d", true);
+        document.InsertAssignment(true);
+        document.InsertOpenSquareBracket(true);
+        document.InsertString("1", true);
+        document.InsertComma(true);
+        document.InsertString("2", true);
+        document.InsertComma(true);
+        document.WaitTask(document.InsertString("3", true));
+        document.WaitTask(document.InsertCloseSquareBracket(true));
+        document.WaitSolver();
+
+        document.MoveCaretRight(false);
+        document.InsertParagraph(true);
+        document.InsertSum(true);
+        document.InsertString(U"n", true);
+        document.MoveCaretRight(false);
+        document.MoveCaretRight(false);
+        document.InsertString(U"0", true);
+        document.MoveCaretRight(false);
+        document.MoveCaretRight(false);
+        document.InsertString(U"2", true);
+        document.MoveCaretRight(false);
+        document.InsertString(U"d", true);
+        document.InsertSubscript(true);
+        document.InsertString(U"n", true);
+        document.MoveCaretRight(false);
+        document.WaitTask(document.MoveCaretRight(false));
+        document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+        document.WaitSolver();
+        std::this_thread::sleep_for(std::chrono::seconds(2));
+    }
 };
 
 struct TwoDocumentsTest : DocumentTest

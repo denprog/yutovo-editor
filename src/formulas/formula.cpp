@@ -142,4 +142,23 @@ bool Formula::IsFormula()
     return true;
 }
 
+bool Formula::MatchDependency(const std::vector<std::string>& dependencies, const std::string& identifier)
+{
+    if (identifier.empty())
+        return false;
+    auto base =
+        [](const std::string& name) -> std::string
+        {
+            auto pos = name.find('{');
+            return pos == std::string::npos ? name : name.substr(0, pos);
+        };
+    std::string identifier_base = base(identifier);
+    for (auto& d : dependencies)
+    {
+        if (base(d) == identifier_base)
+            return true;
+    }
+    return false;
+}
+
 }
