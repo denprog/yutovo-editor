@@ -1798,6 +1798,67 @@ TEST_F(SolverAutoTest, solver42)
     ASSERT_TRUE(!el);
 }
 
+//Disabled result types are skipped, the order and the enabled flags are saved and loaded
+TEST_F(SolverAutoTest, solver43)
+{
+    Start(600);
+
+    document.InsertDivision(true);
+    document.InsertString("1", true);
+    document.MoveCaretDown(false);
+    document.MoveCaretDown(false);
+    document.InsertString("2", true);
+    document.MoveCaretRight(false);
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() ==
+        U"(1)/(2)=0.5"
+        ) << ToBasicString(document.ToText());
+
+    document.GetConfig(config);
+    config.auto_result.results_enabled[0] = false;
+    config.auto_result.results_enabled[1] = false;
+    document.WaitTask(document.SetConfig(config, true));
+
+    document.MoveCaretEnd(false);
+    document.InsertParagraph(true);
+    document.InsertDivision(true);
+    document.InsertString("1", true);
+    document.MoveCaretDown(false);
+    document.MoveCaretDown(false);
+    document.InsertString("2", true);
+    document.MoveCaretRight(false);
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() ==
+        U"(1)/(2)=0.5\n"
+        U"(1)/(2)=(1)/(2)"
+        ) << ToBasicString(document.ToText());
+
+    std::string json;
+    document.WaitTask(document.SaveJson(json, 0, true));
+    document.WaitTask(document.New());
+    document.WaitTask(document.LoadJson(json, 0));
+    document.WaitLoad();
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() ==
+        U"(1)/(2)=0.5\n"
+        U"(1)/(2)=(1)/(2)"
+        ) << ToBasicString(document.ToText());
+
+    Config c;
+    document.GetConfig(c);
+    ASSERT_TRUE(c.auto_result.results_order[0] == ResultType::REAL) << "order[0]";
+    ASSERT_TRUE(c.auto_result.results_order[1] == ResultType::INTEGER) << "order[1]";
+    ASSERT_TRUE(c.auto_result.results_enabled[0] == false) << "enabled[0]";
+    ASSERT_TRUE(c.auto_result.results_enabled[1] == false) << "enabled[1]";
+    for (size_t i = 2; i < std::size(c.auto_result.results_enabled); ++i)
+        ASSERT_TRUE(c.auto_result.results_enabled[i]) << "enabled[" << i << "]";
+}
+
 //Solve with errors
 TEST_F(SolverAutoTest, errors1)
 {

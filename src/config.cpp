@@ -336,6 +336,11 @@ void Config::AutoResultConfig::ToJson(rapidjson::Value& value, rapidjson::Docume
         arr.PushBack((int)results_order[i], alloc);
     value.AddMember("results_order", arr, alloc);
 
+    rapidjson::Value enabled(rapidjson::kArrayType);
+    for (size_t i = 0; i < std::size(results_enabled); ++i)
+        enabled.PushBack(results_enabled[i], alloc);
+    value.AddMember("results_enabled", enabled, alloc);
+
     rapidjson::Value real_config(rapidjson::kObjectType);
     real_result.ToJson(real_config, alloc);
     value.AddMember("real_config", real_config, alloc);
@@ -376,35 +381,41 @@ void Config::AutoResultConfig::FromJson(const rapidjson::Value::ConstObject& val
     if (value.HasMember("results_order") && value["results_order"].IsArray())
     {
         const auto& arr = value["results_order"].GetArray();
-        //fill unique result types
-        rapidjson::SizeType i = 0;
-        for (; i < arr.Size() && i < std::size(results_order); ++i)
+        //fill unique known result types in the saved order, the remaining slots with the missing types in the default order
+        const ResultType default_order[8] = {ResultType::REAL, ResultType::INTEGER, ResultType::RATIONAL, ResultType::COMPLEX,
+            ResultType::ARRAY_REAL, ResultType::SYMBOLIC_REAL, ResultType::SYMBOLIC_RATIONAL, ResultType::SYMBOLIC_COMPLEX};
+        size_t filled = 0;
+        for (rapidjson::SizeType i = 0; i < arr.Size() && filled < std::size(results_order); ++i)
         {
             if (!arr[i].IsInt())
-                return;
+                break;
             yutovo_solver::ResultType r = (yutovo_solver::ResultType)arr[i].GetInt();
-            if (std::find(std::begin(results_order), std::end(results_order), r) == std::end(results_order))
-                results_order[i] = (yutovo_solver::ResultType)arr[i].GetInt();
+            bool known = r == ResultType::REAL || r == ResultType::INTEGER || r == ResultType::RATIONAL || r == ResultType::COMPLEX ||
+                r == ResultType::ARRAY_REAL || r == ResultType::SYMBOLIC_REAL || r == ResultType::SYMBOLIC_RATIONAL ||
+                r == ResultType::SYMBOLIC_COMPLEX;
+            if (known && std::find(results_order, results_order + filled, r) == results_order + filled)
+                results_order[filled++] = r;
         }
-        for (; i < std::size(results_order); ++i)
+        for (size_t j = 0; filled < std::size(results_order) && j < std::size(default_order); ++j)
         {
-            if (std::find(std::begin(results_order), std::end(results_order), ResultType::REAL) == std::end(results_order))
-                results_order[i] = ResultType::REAL;
-            if (std::find(std::begin(results_order), std::end(results_order), ResultType::INTEGER) == std::end(results_order))
-                results_order[i] = ResultType::INTEGER;
-            if (std::find(std::begin(results_order), std::end(results_order), ResultType::RATIONAL) == std::end(results_order))
-                results_order[i] = ResultType::RATIONAL;
-            if (std::find(std::begin(results_order), std::end(results_order), ResultType::COMPLEX) == std::end(results_order))
-                results_order[i] = ResultType::COMPLEX;
-            if (std::find(std::begin(results_order), std::end(results_order), ResultType::ARRAY_REAL) == std::end(results_order))
-                results_order[i] = ResultType::ARRAY_REAL;
-            if (std::find(std::begin(results_order), std::end(results_order), ResultType::SYMBOLIC_REAL) == std::end(results_order))
-                results_order[i] = ResultType::SYMBOLIC_REAL;
-            if (std::find(std::begin(results_order), std::end(results_order), ResultType::SYMBOLIC_RATIONAL) == std::end(results_order))
-                results_order[i] = ResultType::SYMBOLIC_RATIONAL;
-            if (std::find(std::begin(results_order), std::end(results_order), ResultType::SYMBOLIC_COMPLEX) == std::end(results_order))
-                results_order[i] = ResultType::SYMBOLIC_COMPLEX;
+            if (std::find(results_order, results_order + filled, default_order[j]) == results_order + filled)
+                results_order[filled++] = default_order[j];
         }
+    }
+    if (value.HasMember("results_enabled") && value["results_enabled"].IsArray())
+    {
+        const auto& arr = value["results_enabled"].GetArray();
+        for (rapidjson::SizeType i = 0; i < arr.Size() && i < std::size(results_enabled); ++i)
+        {
+            if (arr[i].IsBool())
+                results_enabled[i] = arr[i].GetBool();
+        }
+    }
+    //at least one result type must stay enabled
+    if (std::find(std::begin(results_enabled), std::end(results_enabled), true) == std::end(results_enabled))
+    {
+        for (size_t i = 0; i < std::size(results_enabled); ++i)
+            results_enabled[i] = true;
     }
 
     if (value.HasMember("real_config") && value["real_config"].IsObject())

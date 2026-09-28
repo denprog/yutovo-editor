@@ -193,6 +193,7 @@ struct Config
         {
             return result_auto_advance == other.result_auto_advance &&
                 std::equal(std::begin(results_order), std::end(results_order), std::begin(other.results_order)) &&
+                std::equal(std::begin(results_enabled), std::end(results_enabled), std::begin(other.results_enabled)) &&
                 real_result == other.real_result && integer_result == other.integer_result &&
                 rational_result == other.rational_result && complex_result == other.complex_result &&
                 array_real_result == other.array_real_result &&
@@ -208,6 +209,7 @@ struct Config
         bool result_auto_advance = true;
         yutovo_solver::ResultType results_order[8] = {ResultType::REAL, ResultType::INTEGER, ResultType::RATIONAL, ResultType::COMPLEX,
             ResultType::ARRAY_REAL, ResultType::SYMBOLIC_REAL, ResultType::SYMBOLIC_RATIONAL, ResultType::SYMBOLIC_COMPLEX};
+        bool results_enabled[8] = {true, true, true, true, true, true, true, true};
 
         RealResultConfig real_result;
         IntegerResultConfig integer_result;
