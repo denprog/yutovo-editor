@@ -43,6 +43,8 @@ public:
 
     virtual bool IsFormula();
 
+    static bool MatchDependency(const std::vector<std::string>& dependencies, const std::string& identifier);
+
 public:
     FormulaFormatPtr formula_format;
     mutable StringFormatPtr draw_string_format;

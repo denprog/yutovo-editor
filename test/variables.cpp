@@ -1547,7 +1547,7 @@ TEST_F(VariablesTest, variables25)
     document.WaitTask(document.DeleteElements(false, true));
     document.InsertString(U"t", true);
     document.WaitSolver();
-    std::this_thread::sleep_for(1s);
+    std::this_thread::sleep_for(2s);
     ASSERT_TRUE(document.ToText() == 
         U"sum(t=0,10,t)=55."
         ) << ToBasicString(document.ToText());
@@ -1905,6 +1905,84 @@ TEST_F(VariablesTest, variables34)
 
     ASSERT_TRUE(document.ToText() == 
         U"a=4=4."
+        ) << ToBasicString(document.ToText());
+}
+
+//Recalculate after changing an array variable referenced only through a subscript
+TEST_F(VariablesTest, variables35)
+{
+    Start(600);
+
+    CreateArrayAndSum();
+
+    ASSERT_TRUE(document.ToText() == 
+        U"d=[1,2,3]\n" \
+        U"sum(n=0,2,d{n})=6."
+        ) << ToBasicString(document.ToText());
+
+    document.MoveCaretHome(false);
+    document.MoveCaretUp(false);
+    document.MoveCaretEnd(false);
+    //a close square bracket does not merge with the strings, so two moves left stop before it
+    document.MoveCaretLeft(false);
+    document.MoveCaretLeft(false);
+    document.WaitTask(document.DeleteElements(true, true));
+    document.WaitTask(document.InsertString(U"4", true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(2s);
+    ASSERT_TRUE(document.ToText() == 
+        U"d=[1,2,4]\n" \
+        U"sum(n=0,2,d{n})=7."
+        ) << ToBasicString(document.ToText());
+}
+
+//Remove an array variable referenced only through a subscript and update the equation below
+TEST_F(VariablesTest, variables36)
+{
+    Start(600);
+
+    CreateArrayAndSum();
+
+    ASSERT_TRUE(document.ToText() == 
+        U"d=[1,2,3]\n" \
+        U"sum(n=0,2,d{n})=6."
+        ) << ToBasicString(document.ToText());
+
+    document.MoveCaretToDocumentBegin(false);
+    document.MoveCaretRight(false);
+    document.WaitTask(document.DeleteElements(false, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(4s);
+    ASSERT_TRUE(document.ToText() == 
+        U"\n" \
+        U"sum(n=0,2,d{n})=Unknown identifier"
+        ) << ToBasicString(document.ToText());
+}
+
+//Restore a removed array variable by undo and re-solve the equation below
+TEST_F(VariablesTest, variables37)
+{
+    Start(600);
+
+    CreateArrayAndSum();
+
+    document.MoveCaretToDocumentBegin(false);
+    document.MoveCaretRight(false);
+    document.WaitTask(document.DeleteElements(false, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(4s);
+    ASSERT_TRUE(document.ToText() == 
+        U"\n" \
+        U"sum(n=0,2,d{n})=Unknown identifier"
+        ) << ToBasicString(document.ToText());
+
+    document.Undo();
+    document.WaitUndo();
+    document.WaitSolver();
+    std::this_thread::sleep_for(3s);
+    ASSERT_TRUE(document.ToText() == 
+        U"d=[1,2,3]\n" \
+        U"sum(n=0,2,d{n})=6."
         ) << ToBasicString(document.ToText());
 }
 

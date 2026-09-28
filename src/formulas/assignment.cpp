@@ -253,9 +253,7 @@ void Assignment::PutResult(Result& result)
 
 bool Assignment::Depends(const std::string& identifier)
 {
-    if (std::find(dependencies.begin(), dependencies.end(), identifier) != dependencies.end())
-        return true;
-    return false;
+    return Formula::MatchDependency(dependencies, identifier);
 }
 
 std::string Assignment::ToHtml() const

@@ -34,6 +34,12 @@ Document editor with MathML rendering and solver integration.
 - Insert via `document.InsertIndefiniteIntegral(with_undo)`; undo stores/restores children 1, 3 (see undo.cpp); registered in editor_utils.cpp `create_elements`.
 - Tests: `test/indefinite_integral.cpp` (`FormulaTest.indefinite_integral1..indefinite_integral9`).
 
+## Dependency Re-solve and Subscripted Identifiers
+- The calculator reports the identifiers used by a solve in `Result::dependencies` (filled by `AddDependency` in yutovo-calculator `src/solver.h`): a subscripted reference is reported as `Name{subscript}` (e.g. `Ставки{i}` inside a sum), a plain reference as `Name`. Error replies carry the dependencies collected before the failure, and every `PutResult` sets them on the element unconditionally.
+- `Equation`/`Assignment`/`Graph` cache `dependencies`; `ResolveDependenciesTask` re-solves the elements below a re-registered declaration when `Depends(identifier)` matches. The matching is `Formula::MatchDependency` (src/formulas/formula.h/.cpp): it compares the base name before the first `{`, so re-registering a plain array declaration `Ставки` re-solves formulas referencing only `Ставки{i}` (and vice versa). An exact-string match here leaves such dependents stuck with a stale value/error after deleting, editing, or undoing the declaration (fixed after `variables35..37`).
+- Deleting an assignment element keeps its now-empty line, and the dead logical id resolves fuzzily to that line's `CodeRow`, so `ResolveDependenciesTask` still scans the formulas below. Deleting the whole line works through a different path: `Elements::UpdateIds` → `Assignment::LogicalIdChanged` → `SetIdentifier` per shifted declaration.
+- Tests: `test/variables.cpp` (`VariablesTest.variables35` value edit, `variables36` delete → `Unknown identifier`, `variables37` undo → re-solve; the shared builder is `VariablesTest::CreateArrayAndSum` in mock.h).
+
 ## Derivative Element
 
 Derivatives are represented by a regular editable `Division` fraction so that the `d`/`∂` prefixes, the function, and the variables are all editable.

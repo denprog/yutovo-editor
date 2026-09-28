@@ -179,9 +179,7 @@ void Graph::LogicalIdChanged(const LogicalId& last_id)
 
 bool Graph::Depends(const std::string& identifier)
 {
-    if (std::find(dependencies.begin(), dependencies.end(), identifier) != dependencies.end())
-        return true;
-    return false;
+    return Formula::MatchDependency(dependencies, identifier);
 }
 
 void Graph::GetImage(std::string& image_base64) const
