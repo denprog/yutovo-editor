@@ -487,8 +487,17 @@ bool AutoSolverTask::Execute(WebSocketPtr socket, Result& result)
 
     //auto config
     rapidjson::Value d(rapidjson::kArrayType);
-    for (auto t : config.results_order)
-        d.PushBack((int)t, alloc);
+    for (size_t i = 0; i < std::size(config.results_order); ++i)
+    {
+        if (config.results_enabled[i])
+            d.PushBack((int)config.results_order[i], alloc);
+    }
+    //at least one result type must be sent
+    if (d.Empty())
+    {
+        for (size_t i = 0; i < std::size(config.results_order); ++i)
+            d.PushBack((int)config.results_order[i], alloc);
+    }
     doc.AddMember("results_order", d, alloc);
 
     //real config
