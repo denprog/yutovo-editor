@@ -58,6 +58,8 @@ public:
 protected:
     void SetNumber(const double num, CodeRow<>* el);
 
+    void DrawAxes(const char* dirs, bool box, double z_min, double z_max);
+
 public:
     Dependencies dependencies;
     yutovo_solver::ErrorCode last_error_code = yutovo_solver::ErrorCode::OK;

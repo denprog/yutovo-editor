@@ -1133,4 +1133,155 @@ TEST_F(FormulaTest, graphs21)
     ASSERT_TRUE(img != nullptr);
 }
 
+//Axis format of the graph: roundtrip, undo/redo, save/load and defaults of old documents
+TEST_F(FormulaTest, graphs22)
+{
+    Start(600);
+
+    document.WaitTask(document.InsertGraphLine(true));
+    std::this_thread::sleep_for(100ms);
+
+    document.WaitTask(document.InsertString("2", true));
+    document.MoveCaretRight(false);
+    document.WaitTask(document.InsertString("x", true));
+    document.MoveCaretRight(false);
+    document.InsertMinus(true);
+    document.WaitTask(document.InsertString("2", true));
+    document.MoveCaretRight(false);
+    document.InsertMinus(true);
+    document.WaitTask(document.InsertString("1", true));
+    document.MoveCaretRight(false);
+    document.WaitTask(document.InsertString("x", true));
+    document.MoveCaretRight(false);
+    document.WaitTask(document.InsertString("1", true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(2s);
+
+    auto el = document.FindByType(ElementId{0}, ElementType::GRAPH_LINE);
+    GraphFormat format;
+    ASSERT_TRUE(document.GetGraphFormat(el->id, format));
+    //defaults: black axes, width 1, with tick marks
+    ASSERT_TRUE(format.axis.color == Color::Black() && format.axis.width == 1 && format.axis.ticks);
+
+    format.axis.color = Color::Blue();
+    format.axis.width = 3;
+    format.axis.ticks = false;
+    document.WaitTask(document.SetGraphFormat(el->id, format, true));
+    std::this_thread::sleep_for(500ms);
+    ASSERT_TRUE(document.GetGraphFormat(el->id, format));
+    ASSERT_TRUE(format.axis.color == Color::Blue() && format.axis.width == 3 && !format.axis.ticks);
+
+    document.Undo();
+    document.WaitUndo();
+    std::this_thread::sleep_for(200ms);
+    //undo of a format change replaces the element - find it again
+    el = document.FindByType(ElementId{0}, ElementType::GRAPH_LINE);
+    ASSERT_TRUE(document.GetGraphFormat(el->id, format));
+    ASSERT_TRUE(format.axis.color == Color::Black() && format.axis.width == 1 && format.axis.ticks);
+
+    document.Redo();
+    document.WaitRedo();
+    std::this_thread::sleep_for(200ms);
+    el = document.FindByType(ElementId{0}, ElementType::GRAPH_LINE);
+    ASSERT_TRUE(document.GetGraphFormat(el->id, format));
+    ASSERT_TRUE(format.axis.color == Color::Blue() && format.axis.width == 3 && !format.axis.ticks);
+
+    //save and load keep the axis format
+    document.WaitTask(document.Save("graphs22.yut"));
+    std::this_thread::sleep_for(500ms);
+    document.Load("graphs22.yut");
+    document.WaitLoad();
+    std::this_thread::sleep_for(2s);
+    el = document.FindByType(ElementId{0}, ElementType::GRAPH_LINE);
+    ASSERT_TRUE(document.GetGraphFormat(el->id, format));
+    ASSERT_TRUE(format.axis.color == Color::Blue() && format.axis.width == 3 && !format.axis.ticks);
+
+    //a document saved before the axis settings existed loads with the defaults
+    document.Load("../../test/tests/old_graph1.yut");
+    document.WaitLoad();
+    std::this_thread::sleep_for(2s);
+    el = document.FindByType(ElementId{0}, ElementType::GRAPH_LINE);
+    ASSERT_TRUE(document.GetGraphFormat(el->id, format));
+    ASSERT_TRUE(format.axis.color == Color::Black() && format.axis.width == 1 && format.axis.ticks);
+}
+
+//Axis drawing: hidden tick marks, zero axis width
+TEST_F(FormulaTest, graphs23)
+{
+    Start(600);
+
+    document.WaitTask(document.InsertGraphLine(true));
+    std::this_thread::sleep_for(100ms);
+
+    document.WaitTask(document.InsertString("100", true));
+    document.MoveCaretRight(false);
+    document.WaitTask(document.InsertString("x", true));
+    document.InsertMultiply(true);
+    document.WaitTask(document.InsertString("x", true));
+    document.MoveCaretRight(false);
+    document.WaitTask(document.InsertString("1", true));
+    document.MoveCaretRight(false);
+    document.WaitTask(document.InsertString("1", true));
+    document.MoveCaretRight(false);
+    document.WaitTask(document.InsertString("x", true));
+    document.MoveCaretRight(false);
+    document.WaitTask(document.InsertString("10", true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(2s);
+    ASSERT_TRUE(document.ToText() == U"graph_line(100,x*x,1,1,x,10)") << ToBasicString(document.ToText());
+
+    auto el = document.FindByType(ElementId{0}, ElementType::GRAPH_LINE);
+    GraphLine* graph = (GraphLine*)el.get();
+    //the pixel checks below are meaningless without sampled plot data
+    ASSERT_TRUE(graph->plots.size() == 1 && !graph->plots[0].x.empty() && !graph->plots[0].y.empty()) << ToBasicString(document.ToText());
+
+    auto black_count =
+        [&]()
+        {
+            std::string image_base64;
+            graph->GetImage(image_base64);
+            const int w = graph->graph.GetWidth();
+            const int h = graph->graph.GetHeight();
+            const unsigned char* pic = graph->graph.GetRGBA();
+            //inside the plot area InPlot(0.05, 0.95, 0.05, 0.95): the axis lines and the tick
+            //marks are black (the ticks grow inwards), the tick labels sit in the outer margin, the curve is red
+            int count = 0;
+            for (int y = (int)(0.05 * h); y < (int)(0.95 * h); ++y)
+            {
+                for (int x = (int)(0.05 * w); x < (int)(0.95 * w); ++x)
+                {
+                    const unsigned char* p = pic + 4 * (y * w + x);
+                    if (p[0] < 60 && p[1] < 60 && p[2] < 60)
+                        ++count;
+                }
+            }
+            return count;
+        };
+
+    //hide the grid so that only the axes are black
+    GraphFormat format;
+    ASSERT_TRUE(document.GetGraphFormat(el->id, format));
+    format.grid_width = 0;
+    document.WaitTask(document.SetGraphFormat(el->id, format, true));
+    std::this_thread::sleep_for(500ms);
+
+    const int black_axes = black_count();
+    ASSERT_TRUE(black_axes > 100) << black_axes;
+
+    //hidden tick marks leave only the axis lines
+    format.axis.ticks = false;
+    document.WaitTask(document.SetGraphFormat(el->id, format, true));
+    std::this_thread::sleep_for(500ms);
+    const int black_no_ticks = black_count();
+    ASSERT_TRUE(black_no_ticks > 50) << black_no_ticks;
+    ASSERT_TRUE(black_no_ticks < black_axes) << black_no_ticks << " " << black_axes;
+
+    //zero axis width hides the axis lines
+    format.axis.ticks = true;
+    format.axis.width = 0;
+    document.WaitTask(document.SetGraphFormat(el->id, format, true));
+    std::this_thread::sleep_for(500ms);
+    ASSERT_TRUE(black_count() == 0) << black_count();
+}
+
 }

@@ -627,6 +627,38 @@ FormulaFormatPtr FormulaFormats::GetFormat(const std::string& name, StringFormat
     return format;
 }
 
+//AxisFormat
+
+void AxisFormat::ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc)
+{
+    rapidjson::Value obj(rapidjson::kObjectType);
+    obj.AddMember("color", color.ToInt(), alloc);
+    obj.AddMember("width", (int)width, alloc);
+    obj.AddMember("ticks", ticks, alloc);
+    value.AddMember("axis", obj, alloc);
+}
+
+bool AxisFormat::FromJson(const rapidjson::Value::ConstObject& value, rapidjson::Document::AllocatorType& alloc)
+{
+    if (value.HasMember("axis") && value["axis"].IsObject())
+    {
+        auto r = value["axis"].GetObject();
+        if (!r.HasMember("color") || !r["color"].IsUint())
+            color = Color::Black();
+        else
+            color = Color::FromInt(r["color"].GetUint());
+        if (!r.HasMember("width") || !r["width"].IsInt() || (int)r["width"].GetInt() > 10)
+            width = 1;
+        else
+            width = (int)r["width"].GetInt();
+        if (!r.HasMember("ticks") || !r["ticks"].IsBool())
+            ticks = true;
+        else
+            ticks = r["ticks"].GetBool();
+    }
+    return true;
+}
+
 //GraphFormat
 
 void GraphFormat::ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc)
@@ -636,6 +668,7 @@ void GraphFormat::ToJson(rapidjson::Value& value, rapidjson::Document::Allocator
     obj.AddMember("height", (int)size.height, alloc);
     obj.AddMember("color", color.ToInt(), alloc);
     obj.AddMember("grid_width", (int)grid_width, alloc);
+    axis.ToJson(obj, alloc);
     value.AddMember("graph_format", obj, alloc);
 }
 
@@ -660,6 +693,7 @@ bool GraphFormat::FromJson(const rapidjson::Value::ConstObject& value, rapidjson
             grid_width = 1;
         else
             grid_width = (int)r["grid_width"].GetInt();
+        axis.FromJson(r, alloc);
     }
     return true;
 }

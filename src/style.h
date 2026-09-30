@@ -189,6 +189,16 @@ private:
 
 typedef std::unique_ptr<FormulaFormats> FormulaFormatsPtr;
 
+struct AxisFormat
+{
+    void ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc);
+    bool FromJson(const rapidjson::Value::ConstObject& value, rapidjson::Document::AllocatorType& alloc);
+
+    Color color = Color::Black();
+    uint width = 1;
+    bool ticks = true;
+};
+
 struct GraphFormat
 {
     void ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc);
@@ -197,6 +207,7 @@ struct GraphFormat
     Size size{400, 400};
     Color color = Color::Black();
     uint grid_width = 1;
+    AxisFormat axis;
 };
 
 enum class SurfaceStyle
