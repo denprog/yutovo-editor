@@ -825,4 +825,64 @@ TEST_F(FormulaTest, histogram20)
     ASSERT_TRUE(format.size.width == 400);
 }
 
+//Axis format of the histogram: roundtrip, undo, save/load
+TEST_F(FormulaTest, histogram21)
+{
+    Start(600);
+
+    document.WaitTask(document.InsertGraphHistogram(true));
+    document.InsertOpenSquareBracket(true);
+    document.InsertString("1", true);
+    document.InsertComma(true);
+    document.WaitTask(document.InsertString("2", true));
+    document.WaitTask(document.InsertCloseSquareBracket(true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(2s);
+
+    auto el = document.FindByType(ElementId{0}, ElementType::GRAPH_HISTOGRAM);
+    GraphHistogram* graph = (GraphHistogram*)el.get();
+
+    std::string linear;
+    graph->GetImage(linear);
+
+    GraphFormat format;
+    ASSERT_TRUE(document.GetGraphFormat(el->id, format));
+    //defaults: black axes, width 1, with tick marks
+    ASSERT_TRUE(format.axis.color == Color::Black() && format.axis.width == 1 && format.axis.ticks);
+    format.axis.color = Color::Green();
+    format.axis.width = 3;
+    format.axis.ticks = false;
+    document.WaitTask(document.SetGraphFormat(el->id, format, true));
+    std::this_thread::sleep_for(500ms);
+    ASSERT_TRUE(document.GetGraphFormat(el->id, format));
+    ASSERT_TRUE(format.axis.color == Color::Green() && format.axis.width == 3 && !format.axis.ticks);
+
+    //the format change redraws the image
+    std::string redrawn;
+    graph->GetImage(redrawn);
+    ASSERT_TRUE(redrawn != linear);
+
+    document.Undo();
+    document.WaitUndo();
+    std::this_thread::sleep_for(200ms);
+    //undo of a format change replaces the element - find it again
+    el = document.FindByType(ElementId{0}, ElementType::GRAPH_HISTOGRAM);
+    ASSERT_TRUE(document.GetGraphFormat(el->id, format));
+    ASSERT_TRUE(format.axis.color == Color::Black() && format.axis.width == 1 && format.axis.ticks);
+
+    //save and load keep the axis format: set it again after the undo
+    format.axis.ticks = false;
+    document.WaitTask(document.SetGraphFormat(el->id, format, true));
+    std::this_thread::sleep_for(500ms);
+    document.WaitTask(document.Save("graph_histogram21.yut"));
+    std::this_thread::sleep_for(500ms);
+    document.Load("graph_histogram21.yut");
+    document.WaitLoad();
+    std::this_thread::sleep_for(3s);
+    el = document.FindByType(ElementId{0}, ElementType::GRAPH_HISTOGRAM);
+    ASSERT_TRUE(document.GetGraphFormat(el->id, format));
+    ASSERT_TRUE(!format.axis.ticks);
+    ASSERT_TRUE(document.ToText() == U"graph_bar([1,2])") << ToBasicString(document.ToText());
+}
+
 }

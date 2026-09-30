@@ -1103,4 +1103,109 @@ TEST_F(FormulaTest, graph_surface18)
     ASSERT_TRUE(document.IsChanged()) << document.IsChanged();
 }
 
+//Axis drawing of the surface: hidden tick marks, zero axis width, save/load
+TEST_F(FormulaTest, graph_surface19)
+{
+    Start(600);
+
+    document.WaitTask(document.InsertGraphSurface(true));
+    document.WaitTask(document.InsertString("9", true));
+    document.MoveCaretRight(false);
+
+    document.InsertString("x", true);
+    document.InsertPlus(true);
+    document.WaitTask(document.InsertString("y", true));
+    document.MoveCaretRight(false);
+    document.MoveCaretRight(false);
+    document.MoveCaretRight(false);
+
+    document.WaitTask(document.InsertString("1", true));
+    document.MoveCaretRight(false);
+    document.WaitTask(document.InsertString("1", true));
+    document.MoveCaretRight(false);
+    document.MoveCaretRight(false);
+    document.MoveCaretRight(false);
+    document.WaitTask(document.InsertString("9", true));
+    document.WaitTask(document.MoveCaretRight(false));
+    document.WaitSolver();
+    std::this_thread::sleep_for(3s);
+    ASSERT_TRUE(document.ToText() == U"graph_surface(9,x+y,1,1,x,9,y)") << ToBasicString(document.ToText());
+
+    auto el = document.FindByType(ElementId{0}, ElementType::GRAPH_SURFACE);
+    GraphSurface* graph = (GraphSurface*)el.get();
+
+    auto image =
+        [&]()
+        {
+            std::string image_base64;
+            graph->GetImage(image_base64);
+            return image_base64;
+        };
+    auto black_count =
+        [&]()
+        {
+            std::string image_base64;
+            graph->GetImage(image_base64);
+            const int w = graph->graph.GetWidth();
+            const int h = graph->graph.GetHeight();
+            const unsigned char* pic = graph->graph.GetRGBA();
+            //the box and the axes are black, the surface itself is drawn with the color gradient
+            int count = 0;
+            for (int y = 0; y < h; ++y)
+            {
+                for (int x = 0; x < w; ++x)
+                {
+                    const unsigned char* p = pic + 4 * (y * w + x);
+                    if (p[0] < 60 && p[1] < 60 && p[2] < 60)
+                        ++count;
+                }
+            }
+            return count;
+        };
+
+    //hide the grid so that only the box and the axes are black
+    GraphFormat format;
+    ASSERT_TRUE(document.GetGraphFormat(el->id, format));
+    format.grid_width = 0;
+    document.WaitTask(document.SetGraphFormat(el->id, format, true));
+    std::this_thread::sleep_for(500ms);
+
+    const std::string linear = image();
+    const int black_axes = black_count();
+    ASSERT_TRUE(black_axes > 100) << black_axes;
+
+    //hidden tick marks leave only the box and the axis lines
+    format.axis.ticks = false;
+    document.WaitTask(document.SetGraphFormat(el->id, format, true));
+    std::this_thread::sleep_for(500ms);
+    const int black_no_ticks = black_count();
+    ASSERT_TRUE(black_no_ticks > 50) << black_no_ticks;
+    ASSERT_TRUE(black_no_ticks < black_axes) << black_no_ticks << " " << black_axes;
+
+    //zero axis width hides the axes and the box
+    format.axis.ticks = true;
+    format.axis.width = 0;
+    document.WaitTask(document.SetGraphFormat(el->id, format, true));
+    std::this_thread::sleep_for(500ms);
+    const int black_hidden = black_count();
+    ASSERT_TRUE(black_hidden < 20) << black_hidden;
+
+    //the axis color and width are applied and saved
+    format.axis.color = Color::Green();
+    format.axis.width = 3;
+    document.WaitTask(document.SetGraphFormat(el->id, format, true));
+    std::this_thread::sleep_for(500ms);
+    ASSERT_TRUE(image() != linear);
+
+    //save and load keep the axis format
+    document.WaitTask(document.Save("graph_surface19.yut"));
+    std::this_thread::sleep_for(500ms);
+    document.Load("graph_surface19.yut");
+    document.WaitLoad();
+    std::this_thread::sleep_for(3s);
+    el = document.FindByType(ElementId{0}, ElementType::GRAPH_SURFACE);
+    ASSERT_TRUE(document.GetGraphFormat(el->id, format));
+    ASSERT_TRUE(format.axis.color == Color::Green() && format.axis.width == 3 && format.axis.ticks);
+}
+
 }

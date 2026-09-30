@@ -78,6 +78,21 @@ void Graph::Init()
     editable = false;
 }
 
+void Graph::DrawAxes(const char* dirs, bool box, double z_min, double z_max)
+{
+    //0 is not a valid tick length (MathGL substitutes the default 0.02), a subpixel length hides the ticks
+    graph.SetTickLen(format.axis.ticks ? 0.02 : 1e-4, 1);
+
+    //zero axis width hides the axis lines - only the grid and the plots remain
+    if (format.axis.width == 0)
+        return;
+
+    std::string f = "{" + format.axis.color.ToRGB() + "}";
+    if (box)
+        graph.Box(std::string(f + "-2").c_str(), format.axis.ticks);
+    graph.Axis(dirs, std::string(f + "-" + std::to_string(format.axis.width)).c_str(), "h-1");
+}
+
 void Graph::Draw() const
 {
     if (document->selection.IsSelected(id))
@@ -372,8 +387,8 @@ void GraphLine::Init()
             {
                 graph.SetRanges(x_left, x_right, y_bottom, y_top);
                 graph.SetFontSize(level);
+                DrawAxes("xy", false, mglNaN, mglNaN);
                 std::string f = "{" + format.color.ToRGB() + "}";
-                graph.Axis("xy", std::string(f + "-1").c_str(), "h-1");
                 if (format.grid_width > 0)
                     graph.Grid("xy", std::string("h" + std::to_string(format.grid_width) + f).c_str());
                 graph.SetQuality(MGL_DRAW_NORM);
@@ -958,9 +973,8 @@ void GraphSurface::Init()
 
                 graph.SetRanges(x_left, x_right, y_bottom, y_top, z_min, z_max);
                 graph.SetFontSize(level);
+                DrawAxes("xyz", true, z_min, z_max);
                 std::string f = "{" + format.color.ToRGB() + "}";
-                graph.Box(std::string(f + "-2").c_str());
-                graph.Axis("xyz", std::string(f + "-1").c_str(), "h-1");
                 if (format.grid_width > 0)
                     graph.Grid("xyz", std::string("h" + std::to_string(format.grid_width) + f).c_str());
                 graph.SetQuality(MGL_DRAW_NORM);
@@ -1715,8 +1729,8 @@ void GraphHistogram::Init()
                 //grow from the zero line in both directions - the default origin is the bottom of the range
                 graph.SetOrigin(x_left, 0);
                 graph.SetFontSize(level);
+                DrawAxes("xy", false, mglNaN, mglNaN);
                 std::string f = "{" + format.color.ToRGB() + "}";
-                graph.Axis("xy", std::string(f + "-1").c_str(), "h-1");
                 if (format.grid_width > 0)
                     graph.Grid("xy", std::string("h" + std::to_string(format.grid_width) + f).c_str());
                 graph.SetQuality(MGL_DRAW_NORM);
