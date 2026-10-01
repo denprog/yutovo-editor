@@ -420,6 +420,7 @@ struct DocumentTest : public testing::Test
 
     std::u32string clipboard_json;
     std::u32string clipboard_text;
+    std::vector<unsigned char> clipboard_png;
 };
 
 struct FormulaTest : DocumentTest

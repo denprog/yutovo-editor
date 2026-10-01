@@ -11,6 +11,7 @@
 #include "paragraph.h"
 #include "row.h"
 #include "link.h"
+#include "image.h"
 #include "formulas/code_block.h"
 #include "formulas/code_paragraph.h"
 #include "formulas/text_block.h"
@@ -2304,10 +2305,12 @@ bool LoadTask::DecompressGzip(std::istream& in, std::string& out)
 
 //CopyTask
 
-CopyTask::CopyTask(ElementPtr _text, std::u32string& _out_json, std::u32string& _out_text, bool _cut) :
+CopyTask::CopyTask(ElementPtr _text, std::u32string& _out_json, std::u32string& _out_text, bool _cut,
+    std::vector<unsigned char>* _out_image) :
     Task(_text),
     out_json(_out_json),
     out_text(_out_text),
+    out_image(_out_image),
     cut(_cut)
 {
 }
@@ -2399,6 +2402,16 @@ bool CopyTask::Execute()
     document->selection.Set(last_selection_state);
 
     copy = _copy;
+
+    if (out_image != nullptr)
+    {
+        out_image->clear();
+        ElementPtr image = copy.size() == 1 ? copy[0] : nullptr;
+        while (image != nullptr && document->IsRow(image) && image->elements->Count() == 1)
+            image = image->elements->Get(0);
+        if (image != nullptr && image->type == ElementType::IMAGE)
+            *out_image = ((Image*)image.get())->picture;
+    }
 
     for (auto& el : copy)
     {
