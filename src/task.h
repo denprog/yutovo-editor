@@ -302,12 +302,14 @@ struct LoadTask : Task
 
 struct CopyTask : Task
 {
-    CopyTask(ElementPtr _text, std::u32string& _out_json, std::u32string& _out_text, bool _cut);
+    CopyTask(ElementPtr _text, std::u32string& _out_json, std::u32string& _out_text, bool _cut,
+        std::vector<unsigned char>* _out_image = nullptr);
 
     virtual bool Execute();
 
     std::u32string& out_json;
     std::u32string& out_text;
+    std::vector<unsigned char>* out_image;
     bool cut;
 };
 

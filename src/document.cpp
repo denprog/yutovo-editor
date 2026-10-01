@@ -3110,6 +3110,21 @@ uint Document::Copy(std::u32string& out_json, std::u32string& out_text)
     return last_task_id;
 }
 
+uint Document::Copy(std::u32string& out_json, std::u32string& out_text, std::vector<unsigned char>& out_image)
+{
+    LOG_TRACE("Copy: out_json={}, out_text={}", ToBasicString(out_json), ToBasicString(out_text));
+    {
+        out_json = U"";
+        out_text = U"";
+        out_image.clear();
+        std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
+        tasks.emplace_back(new CopyTask(text, out_json, out_text, false, &out_image));
+        last_task_id = tasks.back()->id;
+    }
+    next_circle = true;
+    return last_task_id;
+}
+
 uint Document::Paste(std::u32string& in_json)
 {
     LOG_TRACE("Paste: in_json={}", ToBasicString(in_json));
@@ -3232,6 +3247,19 @@ uint Document::Cut(std::u32string& out_json, std::u32string& out_text)
     {
         std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
         tasks.emplace_back(new CopyTask(text, out_json, out_text, true));
+        last_task_id = tasks.back()->id;
+    }
+    next_circle = true;
+    return last_task_id;
+}
+
+uint Document::Cut(std::u32string& out_json, std::u32string& out_text, std::vector<unsigned char>& out_image)
+{
+    LOG_TRACE("Cut: out_json={}, out_text={}", ToBasicString(out_json), ToBasicString(out_text));
+    {
+        out_image.clear();
+        std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
+        tasks.emplace_back(new CopyTask(text, out_json, out_text, true, &out_image));
         last_task_id = tasks.back()->id;
     }
     next_circle = true;

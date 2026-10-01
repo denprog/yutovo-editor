@@ -6092,4 +6092,145 @@ TEST_F(DocumentTest, clipboard101)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 1, 0, 0, 0, 0, 1, 0})) << document.GetEditorState().ToString();
 }
 
+//Copy an image into the system image clipboard
+TEST_F(DocumentTest, clipboard102)
+{
+    Start(600);
+
+    EXPECT_CALL(window_mock, OnCopyResult).WillRepeatedly([&](CopyResult result)
+        {
+            ASSERT_TRUE(result == CopyResult::Success);
+        });
+
+    EXPECT_CALL(window_mock, OnPasteResult).WillRepeatedly([&](PasteResult result)
+        {
+            ASSERT_TRUE(result == PasteResult::Success);
+        });
+
+    EXPECT_CALL(window_mock, GetImageSize).WillRepeatedly([&](const std::vector<unsigned char>& image)
+        {
+            return GetImageSizeMock(image);
+        });
+
+    QImage test_image("../../test/tests/Qt_small.png");
+    std::vector<unsigned char> data;
+    GetImageData(test_image, data);
+
+    document.InsertImage(data, true, true);
+    document.MoveCaretLeft(true);
+    document.WaitTask(document.Copy(clipboard_json, clipboard_text, clipboard_png));
+    ASSERT_TRUE(clipboard_png == data);
+    ASSERT_TRUE(clipboard_text.empty()) << ToBasicString(clipboard_text);
+    ASSERT_TRUE(document.ToHtml() ==
+        "<body>"
+            "<p>"
+                "<img src=\"data:image/png;base64," + Base64Encode(data) + "\">"
+            "</p>"
+        "</body>") << document.ToHtml();
+
+    document.WaitTask(document.DeleteElements(false, true));
+    document.WaitTask(document.Paste(clipboard_json));
+    ASSERT_TRUE(document.ToHtml() ==
+        "<body>"
+            "<p>"
+                "<img src=\"data:image/png;base64," + Base64Encode(data) + "\">"
+            "</p>"
+        "</body>") << document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 1})) << document.GetEditorState().ToString();
+}
+
+//Copy a single image selected inside a row into the system image clipboard
+TEST_F(DocumentTest, clipboard103)
+{
+    Start(600);
+
+    EXPECT_CALL(window_mock, OnCopyResult).WillRepeatedly([&](CopyResult result)
+        {
+            ASSERT_TRUE(result == CopyResult::Success);
+        });
+
+    EXPECT_CALL(window_mock, GetImageSize).WillRepeatedly([&](const std::vector<unsigned char>& image)
+        {
+            return GetImageSizeMock(image);
+        });
+
+    QImage test_image("../../test/tests/Qt_small.png");
+    std::vector<unsigned char> data;
+    GetImageData(test_image, data);
+
+    document.InsertString("A", true);
+    document.InsertImage(data, true, true);
+    document.MoveCaretLeft(true);
+    document.WaitTask(document.Copy(clipboard_json, clipboard_text, clipboard_png));
+    ASSERT_TRUE(clipboard_png == data);
+    ASSERT_TRUE(document.ToHtml() ==
+        "<body>"
+            "<p>"
+                "<span style=\"font-family:'Arial';font-size:14px;\">A</span>"
+                "<img src=\"data:image/png;base64," + Base64Encode(data) + "\">"
+            "</p>"
+        "</body>") << document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 1},
+        ElementSelectionState{ElementId{0, 0, 0}, 1, 1})) << document.GetEditorState().ToString();
+}
+
+//A mixed selection does not go to the system image clipboard, a cut image does
+TEST_F(DocumentTest, clipboard104)
+{
+    Start(600);
+
+    EXPECT_CALL(window_mock, OnCopyResult).WillRepeatedly([&](CopyResult result)
+        {
+            ASSERT_TRUE(result == CopyResult::Success);
+        });
+
+    EXPECT_CALL(window_mock, GetImageSize).WillRepeatedly([&](const std::vector<unsigned char>& image)
+        {
+            return GetImageSizeMock(image);
+        });
+
+    QImage test_image("../../test/tests/Qt_small.png");
+    std::vector<unsigned char> data;
+    GetImageData(test_image, data);
+
+    document.InsertString("A", true);
+    document.InsertImage(data, true, true);
+    document.WaitTask(document.SelectAll());
+    document.WaitTask(document.Copy(clipboard_json, clipboard_text, clipboard_png));
+    ASSERT_TRUE(clipboard_png.empty());
+    ASSERT_TRUE(clipboard_text == U"A") << ToBasicString(clipboard_text);
+
+    document.WaitTask(document.MoveCaretEnd(false));
+    document.MoveCaretLeft(true);
+    document.WaitTask(document.Cut(clipboard_json, clipboard_text, clipboard_png));
+    ASSERT_TRUE(clipboard_png == data);
+    ASSERT_TRUE(document.ToHtml() ==
+        "<body>"
+            "<p>"
+                "<span style=\"font-family:'Arial';font-size:14px;\">A</span>"
+            "</p>"
+        "</body>") << document.ToHtml();
+
+    document.Undo();
+    document.WaitUndo();
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.ToHtml() ==
+        "<body>"
+            "<p>"
+                "<span style=\"font-family:'Arial';font-size:14px;\">A</span>"
+                "<img src=\"data:image/png;base64," + Base64Encode(data) + "\">"
+            "</p>"
+        "</body>") << document.ToHtml();
+
+    document.Redo();
+    document.WaitRedo();
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.ToHtml() ==
+        "<body>"
+            "<p>"
+                "<span style=\"font-family:'Arial';font-size:14px;\">A</span>"
+            "</p>"
+        "</body>") << document.ToHtml();
+}
+
 }

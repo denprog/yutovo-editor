@@ -262,11 +262,13 @@ public:
     void LoadNextInclude();
 
     uint Copy(std::u32string& out_json, std::u32string& out_text);
+    uint Copy(std::u32string& out_json, std::u32string& out_text, std::vector<unsigned char>& out_image);
     uint Paste(std::u32string& in_json);
     uint PasteText(std::u32string&& str);
     uint PasteImage(const std::vector<unsigned char>& image);
     uint PasteImage(const std::string& image_base64);
     uint Cut(std::u32string& out_json, std::u32string& out_text);
+    uint Cut(std::u32string& out_json, std::u32string& out_text, std::vector<unsigned char>& out_image);
 
     std::string ToHtml();
     std::u32string ToText();
