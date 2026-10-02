@@ -2825,7 +2825,7 @@ bool Document::MouseWheel(const int x, const int y, const Point pixel_delta, con
         if (pixel_delta.x != 0 || pixel_delta.y != 0)
         {
             std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
-            tasks.emplace_back(new ZoomPictureTask(text, id, abs(pixel_delta.x) > abs(pixel_delta.y) ? pixel_delta.x : pixel_delta.y));
+            tasks.emplace_back(new ZoomPictureTask(text, id, abs(pixel_delta.x) > abs(pixel_delta.y) ? pixel_delta.x : pixel_delta.y, Point{x, y}));
             last_task_id = tasks.back()->id;
             next_circle = true;
             return true;
@@ -2836,7 +2836,7 @@ bool Document::MouseWheel(const int x, const int y, const Point pixel_delta, con
         if (angle_delta.x != 0 || angle_delta.y != 0)
         {
             std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
-            tasks.emplace_back(new ZoomPictureTask(text, id, abs(angle_delta.x) > abs(angle_delta.y) ? angle_delta.x : angle_delta.y));
+            tasks.emplace_back(new ZoomPictureTask(text, id, abs(angle_delta.x) > abs(angle_delta.y) ? angle_delta.x : angle_delta.y, Point{x, y}));
             last_task_id = tasks.back()->id;
             next_circle = true;
             return true;

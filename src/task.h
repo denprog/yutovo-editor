@@ -143,12 +143,13 @@ struct MovePictureTask : Task
 
 struct ZoomPictureTask : Task
 {
-    ZoomPictureTask(ElementPtr _text, ElementId _element_id, const int _pixels);
+    ZoomPictureTask(ElementPtr _text, ElementId _element_id, const int _pixels, const Point& _pos);
 
     virtual bool Execute();
 
     ElementId element_id;
     const int pixels;
+    const Point pos;
 };
 
 struct ResizeElementTask : Task
