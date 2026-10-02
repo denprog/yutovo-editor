@@ -230,10 +230,10 @@ void Element::MovePicture(const int dx, const int dy, bool shift)
         parent->MovePicture(dx, dy, shift);
 }
 
-void Element::ZoomPicture(const int pixels)
+void Element::ZoomPicture(const int pixels, const Point& pos)
 {
     if (parent)
-        parent->ZoomPicture(pixels);
+        parent->ZoomPicture(pixels, pos);
 }
 
 bool Element::InsertElements(std::vector<ElementPtr>& _elements, bool insert_mode, bool with_undo, ElementId& changed_element)

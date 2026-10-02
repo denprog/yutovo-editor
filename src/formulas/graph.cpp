@@ -152,7 +152,7 @@ void Graph::MovePicture(const int dx, const int dy, bool shift)
 {
 }
 
-void Graph::ZoomPicture(const int pixels)
+void Graph::ZoomPicture(const int pixels, const Point& pos)
 {
 }
 
@@ -522,18 +522,31 @@ void GraphLine::MovePicture(const int dx, const int dy, bool shift)
     document->AddResolveElement(logical_id);
 }
 
-void GraphLine::ZoomPicture(const int pixels)
+void GraphLine::ZoomPicture(const int pixels, const Point& pos)
 {
     moving = true;
     double k = pixels > 0 ? (1 + double(pixels) / 15) : (-(1 / (double(pixels) / 15 - 1)));
+
+    //zoom anchored at the cursor
+    Rect r = GetShape()->GetAbsoluteRect();
+    double fx = 0.5;
+    double fy = 0.5;
+    if (r.width > 0 && r.height > 0)
+    {
+        fx = (double(pos.x) - r.left - 0.05 * r.width) / (0.9 * r.width);
+        fy = 1. - (double(pos.y) - r.top - 0.05 * r.height) / (0.9 * r.height); //the y axis grows upwards on the screen
+        fx = std::min(1., std::max(0., fx));
+        fy = std::min(1., std::max(0., fy));
+    }
+
+    double a = x_left + fx * (x_right - x_left);
     double w = (x_right - x_left) / k;
-    double c = (x_right + x_left) / 2;
-    SetNumber(c - w / 2, GetXLeft());
-    SetNumber(c + w / 2, GetXRight());
+    SetNumber(a - fx * w, GetXLeft());
+    SetNumber(a + (1. - fx) * w, GetXRight());
+    a = y_bottom + fy * (y_top - y_bottom);
     w = (y_top - y_bottom) / k;
-    c = (y_top + y_bottom) / 2;
-    SetNumber(c - w / 2, GetYBottom());
-    SetNumber(c + w / 2, GetYTop());
+    SetNumber(a - fy * w, GetYBottom());
+    SetNumber(a + (1. - fy) * w, GetYTop());
     document->AddResolveElement(logical_id);
 }
 
@@ -1127,18 +1140,31 @@ void GraphSurface::MovePicture(const int dx, const int dy, bool shift)
     document->AddResolveElement(logical_id);
 }
 
-void GraphSurface::ZoomPicture(const int pixels)
+void GraphSurface::ZoomPicture(const int pixels, const Point& pos)
 {
     moving = true;
     double k = pixels > 0 ? (1 + double(pixels) / 15) : (-(1 / (double(pixels) / 15 - 1)));
+
+    //zoom anchored at the cursor
+    Rect r = GetShape()->GetAbsoluteRect();
+    double fx = 0.5;
+    double fy = 0.5;
+    if (r.width > 0 && r.height > 0)
+    {
+        fx = (double(pos.x) - r.left - 0.02 * r.width) / (0.96 * r.width);
+        fy = 1. - (double(pos.y) - r.top - 0.02 * r.height) / (0.96 * r.height); //the y axis grows upwards on the screen
+        fx = std::min(1., std::max(0., fx));
+        fy = std::min(1., std::max(0., fy));
+    }
+
+    double a = x_left + fx * (x_right - x_left);
     double w = (x_right - x_left) / k;
-    double c = (x_right + x_left) / 2;
-    SetNumber(c - w / 2, GetXLeft());
-    SetNumber(c + w / 2, GetXRight());
+    SetNumber(a - fx * w, GetXLeft());
+    SetNumber(a + (1. - fx) * w, GetXRight());
+    a = y_bottom + fy * (y_top - y_bottom);
     w = (y_top - y_bottom) / k;
-    c = (y_top + y_bottom) / 2;
-    SetNumber(c - w / 2, GetYBottom());
-    SetNumber(c + w / 2, GetYTop());
+    SetNumber(a - fy * w, GetYBottom());
+    SetNumber(a + (1. - fy) * w, GetYTop());
     document->AddResolveElement(logical_id);
 }
 

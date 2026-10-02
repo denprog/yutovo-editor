@@ -35,7 +35,7 @@ public:
     virtual void Resize(const int dx, const int dy);
 
     virtual void MovePicture(const int dx, const int dy, bool shift = false);
-    virtual void ZoomPicture(const int pixels);
+    virtual void ZoomPicture(const int pixels, const Point& pos);
 
     virtual bool DeleteElements(bool left, bool with_undo, ElementId& changed_element);
 
@@ -110,7 +110,7 @@ public:
     virtual bool AfterFromJson();
 
     virtual void MovePicture(const int dx, const int dy, bool shift = false);
-    virtual void ZoomPicture(const int pixels);
+    virtual void ZoomPicture(const int pixels, const Point& pos);
 
     virtual void Solve();
 
@@ -177,7 +177,7 @@ public:
 
     virtual void MovePicture(const int dx, const int dy, bool shift = false);
 
-    virtual void ZoomPicture(const int pixels);
+    virtual void ZoomPicture(const int pixels, const Point& pos);
 
     virtual void UpdateLevel(uint8_t _level);
 

@@ -23,7 +23,7 @@ using namespace yutovo;
 using namespace std::chrono_literals;
 
 //Histogram graph over an array
-TEST_F(FormulaTest, histogram1)
+TEST_F(FormulaTest, graph_histogram1)
 {
     Start(600);
 
@@ -102,7 +102,7 @@ TEST_F(FormulaTest, histogram1)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0})) << document.GetEditorState().ToString();
 }
 
-TEST_F(FormulaTest, histogram2)
+TEST_F(FormulaTest, graph_histogram2)
 {
     Start(600);
 
@@ -134,7 +134,7 @@ TEST_F(FormulaTest, histogram2)
     ASSERT_TRUE(std::fabs(graph->y_top - 5.) < 0.01) << graph->y_top;
 }
 
-TEST_F(FormulaTest, histogram3)
+TEST_F(FormulaTest, graph_histogram3)
 {
     Start(600);
 
@@ -160,7 +160,7 @@ TEST_F(FormulaTest, histogram3)
 }
 
 //Two bar series in one graph
-TEST_F(FormulaTest, histogram4)
+TEST_F(FormulaTest, graph_histogram4)
 {
     Start(600);
 
@@ -191,7 +191,7 @@ TEST_F(FormulaTest, histogram4)
 }
 
 //A NaN element leaves a hole in the bars
-TEST_F(FormulaTest, histogram5)
+TEST_F(FormulaTest, graph_histogram5)
 {
     Start(600);
 
@@ -219,7 +219,7 @@ TEST_F(FormulaTest, histogram5)
 }
 
 //An unknown identifier shows the error instead of the bars
-TEST_F(FormulaTest, histogram6)
+TEST_F(FormulaTest, graph_histogram6)
 {
     Start(600);
 
@@ -237,7 +237,7 @@ TEST_F(FormulaTest, histogram6)
 }
 
 //Editing the array assignment re-solves the graph
-TEST_F(FormulaTest, histogram7)
+TEST_F(FormulaTest, graph_histogram7)
 {
     Start(600);
 
@@ -282,7 +282,7 @@ TEST_F(FormulaTest, histogram7)
 }
 
 //The marker opens the plot format dialog
-TEST_F(FormulaTest, histogram8)
+TEST_F(FormulaTest, graph_histogram8)
 {
     Start(600);
 
@@ -322,7 +322,7 @@ TEST_F(FormulaTest, histogram8)
 }
 
 //Graph format and the image export
-TEST_F(FormulaTest, histogram9)
+TEST_F(FormulaTest, graph_histogram9)
 {
     Start(600);
 
@@ -358,7 +358,7 @@ TEST_F(FormulaTest, histogram9)
 }
 
 //Save and load
-TEST_F(FormulaTest, histogram10)
+TEST_F(FormulaTest, graph_histogram10)
 {
     Start(600);
 
@@ -396,7 +396,7 @@ TEST_F(FormulaTest, histogram10)
 }
 
 //The empty template does not solve and shows no error
-TEST_F(FormulaTest, histogram11)
+TEST_F(FormulaTest, graph_histogram11)
 {
     Start(600);
 
@@ -413,7 +413,7 @@ TEST_F(FormulaTest, histogram11)
 }
 
 //Dragging or zooming the discrete bars does nothing
-TEST_F(FormulaTest, histogram12)
+TEST_F(FormulaTest, graph_histogram12)
 {
     Start(600);
 
@@ -448,7 +448,7 @@ TEST_F(FormulaTest, histogram12)
 }
 
 //Negative values draw bars below the zero line
-TEST_F(FormulaTest, histogram13)
+TEST_F(FormulaTest, graph_histogram13)
 {
     Start(600);
 
@@ -511,7 +511,7 @@ TEST_F(FormulaTest, histogram13)
 }
 
 //An all-negative array draws bars from the values up to the zero line at the top of the range
-TEST_F(FormulaTest, histogram14)
+TEST_F(FormulaTest, graph_histogram14)
 {
     Start(600);
 
@@ -554,7 +554,7 @@ TEST_F(FormulaTest, histogram14)
 }
 
 //The plot styles are applied and restored on load
-TEST_F(FormulaTest, histogram15)
+TEST_F(FormulaTest, graph_histogram15)
 {
     Start(600);
 
@@ -602,7 +602,7 @@ TEST_F(FormulaTest, histogram15)
 }
 
 //The graph format color paints only the grid and the axes - the bar series keep their own colors
-TEST_F(FormulaTest, histogram16)
+TEST_F(FormulaTest, graph_histogram16)
 {
     Start(600);
 
@@ -643,7 +643,7 @@ TEST_F(FormulaTest, histogram16)
 }
 
 //All series of one graph share a single scale - the union of their bounds
-TEST_F(FormulaTest, histogram17)
+TEST_F(FormulaTest, graph_histogram17)
 {
     Start(600);
 
@@ -671,7 +671,7 @@ TEST_F(FormulaTest, histogram17)
 }
 
 //The stems sit exactly on the integer ticks and the y axis stays at the left edge
-TEST_F(FormulaTest, histogram18)
+TEST_F(FormulaTest, graph_histogram18)
 {
     Start(600);
 
@@ -748,7 +748,7 @@ TEST_F(FormulaTest, histogram18)
 }
 
 //The interim "style" values 8..14 of the interim builds migrate into histogram_style on load
-TEST_F(FormulaTest, histogram19)
+TEST_F(FormulaTest, graph_histogram19)
 {
     Start(600);
 
@@ -795,7 +795,7 @@ TEST_F(FormulaTest, histogram19)
 }
 
 //A click on the histogram image places the caret on the shape - the graph must still be found for the context menu
-TEST_F(FormulaTest, histogram20)
+TEST_F(FormulaTest, graph_histogram20)
 {
     Start(600);
 
@@ -826,7 +826,7 @@ TEST_F(FormulaTest, histogram20)
 }
 
 //Axis format of the histogram: roundtrip, undo, save/load
-TEST_F(FormulaTest, histogram21)
+TEST_F(FormulaTest, graph_histogram21)
 {
     Start(600);
 

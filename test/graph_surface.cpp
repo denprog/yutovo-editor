@@ -507,8 +507,13 @@ TEST_F(FormulaTest, graph_surface7)
     std::this_thread::sleep_for(500ms);
     ASSERT_TRUE(!document.IsChanged()) << document.IsChanged();
 
-    auto r = el->GetAbsoluteRect();
-    ASSERT_TRUE(document.MouseWheel(r.left + r.width / 2, r.top + r.height / 2, Point{0, 15}, Point{0, 15}));
+    auto wheel_at_shape_center =
+        [&](const int pixels)
+        {
+            Rect r = el->elements->Get(7)->GetAbsoluteRect();
+            return document.MouseWheel(r.left + r.width / 2, r.top + r.height / 2, Point{0, pixels}, Point{0, pixels});
+        };
+    ASSERT_TRUE(wheel_at_shape_center(15));
     document.WaitSolver();
     std::this_thread::sleep_for(2s);
     ASSERT_TRUE(el->elements->Get(0)->ToText() == U"1.") << ToBasicString(el->elements->Get(0)->ToText());
@@ -516,7 +521,7 @@ TEST_F(FormulaTest, graph_surface7)
     ASSERT_TRUE(el->elements->Get(4)->ToText() == U"-2.") << ToBasicString(el->elements->Get(4)->ToText());
     ASSERT_TRUE(el->elements->Get(6)->ToText() == U"2.") << ToBasicString(el->elements->Get(6)->ToText());
 
-    ASSERT_TRUE(document.MouseWheel(r.left + r.width / 2, r.top + r.height / 2, Point{0, 15}, Point{0, 15}));
+    ASSERT_TRUE(wheel_at_shape_center(15));
     document.WaitSolver();
     std::this_thread::sleep_for(1s);
     ASSERT_TRUE(el->elements->Get(0)->ToText() == U"0.5");
@@ -1206,6 +1211,89 @@ TEST_F(FormulaTest, graph_surface19)
     el = document.FindByType(ElementId{0}, ElementType::GRAPH_SURFACE);
     ASSERT_TRUE(document.GetGraphFormat(el->id, format));
     ASSERT_TRUE(format.axis.color == Color::Green() && format.axis.width == 3 && format.axis.ticks);
+}
+
+//Zooming a surface graph at the cursor position: the sampled domain point under the mouse stays approximately in place
+TEST_F(FormulaTest, graph_surface20)
+{
+    Start(600);
+
+    document.WaitTask(document.InsertGraphSurface(true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(200ms);
+    auto el = document.FindByType(ElementId{0}, ElementType::GRAPH_SURFACE);
+    GraphSurface* graph = (GraphSurface*)el.get();
+
+    document.InsertString("2", true);
+    document.MoveCaretRight(false);
+
+    document.InsertString("x", true);
+    document.InsertPlus(true);
+    document.WaitTask(document.InsertString("y", true));
+    document.MoveCaretRight(false);
+    document.MoveCaretRight(false);
+    document.MoveCaretRight(false);
+
+    document.InsertMinus(true);
+    document.WaitTask(document.InsertString("2", true));
+    document.MoveCaretRight(false);
+
+    document.InsertMinus(true);
+    document.WaitTask(document.InsertString("4", true));
+    document.MoveCaretRight(false);
+    document.MoveCaretRight(false);
+    document.MoveCaretRight(false);
+
+    document.WaitTask(document.InsertString("4", true));
+    document.WaitTask(document.MoveCaretRight(false));
+    document.WaitSolver();
+    std::this_thread::sleep_for(3s);
+
+    const double x_left = graph->x_left, x_right = graph->x_right, y_bottom = graph->y_bottom, y_top = graph->y_top;
+
+    //wheel at the fractions fx = 0.75, fy = 0.25 of the plot area (InPlot(0.02, 0.98, 0.02, 0.98) of the shape);
+    //the shape moves when the rewritten bound rows change the left column width, so capture it right before the wheel
+    Rect r = el->elements->Get(7)->GetAbsoluteRect();
+    const int mx = r.left + r.width * 29 / 40;
+    const int my = r.top + r.height * 29 / 40;
+    const double fx = (double(mx - r.left) - 0.02 * r.width) / (0.96 * r.width);
+    const double fy = 1. - (double(my - r.top) - 0.02 * r.height) / (0.96 * r.height);
+    //k = 2 for pixels = 15: the ranges halve around the anchor point
+    const double ax = x_left + fx * (x_right - x_left);
+    const double ay = y_bottom + fy * (y_top - y_bottom);
+    const double nx_left = ax - fx * (x_right - x_left) / 2;
+    const double nx_right = ax + (1. - fx) * (x_right - x_left) / 2;
+    const double ny_bottom = ay - fy * (y_top - y_bottom) / 2;
+    const double ny_top = ay + (1. - fy) * (y_top - y_bottom) / 2;
+
+    auto row_value =
+        [&](const int pos)
+        {
+            return std::stod(ToBasicString(el->elements->Get(pos)->ToText()));
+        };
+    auto near =
+        [](double a, double b)
+        {
+            return std::fabs(a - b) < 0.01;
+        };
+
+    ASSERT_TRUE(document.MouseWheel(mx, my, Point{0, 15}, Point{0, 15}));
+    document.WaitSolver();
+    std::this_thread::sleep_for(2s);
+    ASSERT_TRUE(near(row_value(0), ny_top)) << ToBasicString(el->elements->Get(0)->ToText());
+    ASSERT_TRUE(near(row_value(3), ny_bottom)) << ToBasicString(el->elements->Get(3)->ToText());
+    ASSERT_TRUE(near(row_value(4), nx_left)) << ToBasicString(el->elements->Get(4)->ToText());
+    ASSERT_TRUE(near(row_value(6), nx_right)) << ToBasicString(el->elements->Get(6)->ToText());
+
+    //zooming out at the same point restores the original bounds
+    r = el->elements->Get(7)->GetAbsoluteRect();
+    ASSERT_TRUE(document.MouseWheel(r.left + r.width * 29 / 40, r.top + r.height * 29 / 40, Point{0, -15}, Point{0, -15}));
+    document.WaitSolver();
+    std::this_thread::sleep_for(2s);
+    ASSERT_TRUE(near(row_value(0), y_top)) << ToBasicString(el->elements->Get(0)->ToText());
+    ASSERT_TRUE(near(row_value(3), y_bottom)) << ToBasicString(el->elements->Get(3)->ToText());
+    ASSERT_TRUE(near(row_value(4), x_left)) << ToBasicString(el->elements->Get(4)->ToText());
+    ASSERT_TRUE(near(row_value(6), x_right)) << ToBasicString(el->elements->Get(6)->ToText());
 }
 
 }

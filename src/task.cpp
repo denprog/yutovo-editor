@@ -1089,10 +1089,11 @@ bool MovePictureTask::Execute()
 
 //ZoomPictureTask
 
-ZoomPictureTask::ZoomPictureTask(ElementPtr _text, ElementId _element_id, const int _pixels) :
+ZoomPictureTask::ZoomPictureTask(ElementPtr _text, ElementId _element_id, const int _pixels, const Point& _pos) :
     Task(_text),
     element_id(_element_id),
-    pixels(_pixels)
+    pixels(_pixels),
+    pos(_pos)
 {
 }
 
@@ -1102,7 +1103,7 @@ bool ZoomPictureTask::Execute()
     if (!element)
         return false;
     document->editing = false;
-    element->ZoomPicture(pixels);
+    element->ZoomPicture(pixels, pos);
     Remake(GetParent(element_id), false);
     document->SetLastModifyTaskId(id);
     return true;
