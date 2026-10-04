@@ -108,6 +108,7 @@ public:
     uint InsertSquareBrackets(bool with_undo);
     
     uint InsertFunction(const std::string& name, bool with_undo);
+    uint InsertFunctionDefinition(const std::string& name, const std::vector<std::string>& args, bool with_undo);
     uint InsertSubscriptFunction(const std::string& name, bool with_undo);
 
     uint InsertGraphLine(bool with_undo);
