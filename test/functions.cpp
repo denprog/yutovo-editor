@@ -460,4 +460,61 @@ TEST_F(FormulaTest, user_functions3)
         ) << ToBasicString(document.ToText());
 }
 
+//The function definition template is inserted as one task
+TEST_F(FormulaTest, function_definition1)
+{
+    Start(600);
+
+    //the caret is in a plain text paragraph: the whole template must land in one code block
+    document.WaitTask(document.InsertFunctionDefinition("f", {"x"}, true));
+    std::this_thread::sleep_for(100ms);
+    ASSERT_TRUE(document.ToText() == U"f(x)=") << ToBasicString(document.ToText());
+
+    //one undo removes the whole template
+    document.Undo();
+    document.WaitUndo();
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.ToText().empty()) << ToBasicString(document.ToText());
+
+    //redo restores it with the caret after the assignment
+    document.Redo();
+    document.WaitRedo();
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.ToText() == U"f(x)=") << ToBasicString(document.ToText());
+
+    //typing continues with the function body
+    document.InsertString("x", true);
+    document.InsertMultiply(true);
+    document.WaitTask(document.InsertString("2", true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == U"f(x)=x*2") << ToBasicString(document.ToText());
+}
+
+//A two-argument function definition solves and the function is usable below
+TEST_F(FormulaTest, function_definition2)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.WaitTask(document.InsertFunctionDefinition("f", {"x", "y"}, true));
+    document.InsertString("x", true);
+    document.InsertMultiply(true);
+    document.WaitTask(document.InsertString("y", true));
+    document.MoveCaretRight(false);
+    document.WaitTask(document.InsertParagraph(true));
+    document.InsertString("f", true);
+    document.InsertOpenRoundBracket(true);
+    document.InsertString("3", true);
+    document.InsertComma(true);
+    document.WaitTask(document.InsertString("4", true));
+    document.InsertCloseRoundBracket(true);
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() ==
+        U"f(x,y)=x*y\n" \
+        U"f(3,4)=12.") << ToBasicString(document.ToText());
+}
+
 }

@@ -988,6 +988,26 @@ uint Document::InsertSubscriptFunction(const std::string& name, bool with_undo)
     return InsertFormula(new Subscript(this), with_undo, true);
 }
 
+uint Document::InsertFunctionDefinition(const std::string& name, const std::vector<std::string>& args, bool with_undo)
+{
+    LOG_TRACE("Insert function definition: {}", name);
+    FormulaFormatPtr format;
+    if (!GetCurrentFormulaFormat(format))
+        return 0;
+    std::vector<ElementPtr> els;
+    els.emplace_back(new CodeString(this, name, format->string_format));
+    els.emplace_back(new OpenBracket(this, ElementType::OPEN_ROUND_BRACKET));
+    for (size_t i = 0; i < args.size(); ++i)
+    {
+        if (i > 0)
+            els.emplace_back(new Comma(this));
+        els.emplace_back(new CodeString(this, args[i], format->string_format));
+    }
+    els.emplace_back(new CloseBracket(this, ElementType::CLOSE_ROUND_BRACKET));
+    els.emplace_back(new Assignment(this));
+    return InsertFormulas(els, with_undo, false, false, false, -1);
+}
+
 uint Document::InsertGraphLine(bool with_undo)
 {
     LOG_TRACE("Insert graph");
