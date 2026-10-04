@@ -243,7 +243,7 @@ void StringFormats::ToJson(rapidjson::Value& value, rapidjson::Document::Allocat
 
 void StringFormats::ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc, const std::vector<ElementPtr>& elements)
 {
-    std::function<void(const std::vector<ElementPtr>&)> add_format = 
+    std::function<void(const std::vector<ElementPtr>&)> add_format =
         [&](const std::vector<ElementPtr>& elements)
         {
             for (auto& el : elements)
@@ -256,6 +256,15 @@ void StringFormats::ToJson(rapidjson::Value& value, rapidjson::Document::Allocat
         };
 
     add_format(elements);
+}
+
+void StringFormats::ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc, const std::set<StringFormatPtr>& used)
+{
+    for (auto& f : string_formats)
+    {
+        if (used.find(f) != used.end())
+            f->ToJson(value, alloc);
+    }
 }
 
 bool StringFormats::FromJson(const rapidjson::Value::ConstArray& arr, rapidjson::Document::AllocatorType& alloc)
