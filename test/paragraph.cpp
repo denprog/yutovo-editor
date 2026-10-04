@@ -4750,4 +4750,87 @@ TEST_F(ParagraphTest, paragraph49)
     ASSERT_TRUE(format.bold == true);
 }
 
+//An empty paragraph and its row report the format of the style, not an empty format
+TEST_F(ParagraphTest, string_format1)
+{
+    Start(600);
+
+    document.InsertString("Text", true);
+    document.WaitTask(document.InsertParagraph(true));
+
+    StringFormat format;
+    ASSERT_TRUE(document.GetStringFormat(document.GetEditorState().caret_state.id, format));
+    ASSERT_TRUE(format.family == "Arial" && format.size == 14) << format.family << " " << format.size;
+    ASSERT_TRUE(document.GetStringFormat(ElementId{0, 1}, format));
+    ASSERT_TRUE(format.family == "Arial" && format.size == 14) << format.family << " " << format.size;
+    ASSERT_TRUE(document.GetStringFormat(ElementId{0, 1, 0}, format));
+    ASSERT_TRUE(format.family == "Arial" && format.size == 14) << format.family << " " << format.size;
+}
+
+//A degenerate family or a zero size must not become the format of the typed text
+TEST_F(ParagraphTest, string_format2)
+{
+    Start(600);
+
+    document.WaitTask(document.InsertString("Text", true));
+    document.SetFontFamily("");
+    document.SetFontSize(0);
+    document.WaitTask(document.InsertString("More", true));
+
+    StringFormat format;
+    ASSERT_TRUE(document.GetStringFormat(document.GetEditorState().caret_state.id, format));
+    ASSERT_TRUE(format.family == "Arial" && format.size == 14) << format.family << " " << format.size;
+    ASSERT_TRUE(document.ToHtml() ==
+        "<body>"
+            "<p>"
+                "<span style=\"font-family:'Arial';font-size:14px;\">TextMore</span>"
+            "</p>"
+        "</body>"
+        ) << document.ToHtml();
+}
+
+//Any caret position inside a formula reports the formula font, never an empty format
+TEST_F(ParagraphTest, string_format3)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.InsertString("x", true);
+    document.InsertPlus(true);
+    document.InsertString("1", true);
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(200ms);
+    document.MoveCaretLeft(false);
+    document.WaitTask(document.MoveCaretLeft(false));
+
+    StringFormat format;
+    ASSERT_TRUE(document.GetStringFormat(document.GetEditorState().caret_state.id, format));
+    ASSERT_TRUE(format.family == "FreeMono" && format.size == 14) << format.family << " " << format.size;
+}
+
+//Only the formats used by the elements and the paragraph styles are saved
+TEST_F(ParagraphTest, string_format4)
+{
+    Start(600);
+
+    document.WaitTask(document.InsertString("Text", true));
+    document.SetFontSize(20); //the current format is not used by any element yet
+
+    std::string json;
+    document.WaitTask(document.SaveJson(json, 1, false));
+    ASSERT_TRUE(json.find("\"family\": \"\"") == std::string::npos) << json;
+    ASSERT_TRUE(json.find("\"size\": 0") == std::string::npos) << json;
+    ASSERT_TRUE(json.find("\"size\": 20") == std::string::npos) << json;
+    ASSERT_TRUE(json.find("\"family\": \"Arial\"") != std::string::npos) << json;
+    ASSERT_TRUE(json.find("\"family\": \"Courier New\"") != std::string::npos) << json; //the Monospace style default
+
+    document.SetFontSize(20); //the current format again - saving has refreshed it from the caret position
+    document.WaitTask(document.InsertString("!", true)); //now the size 20 format is used by the string
+
+    std::string json2;
+    document.WaitTask(document.SaveJson(json2, 1, false));
+    ASSERT_TRUE(json2.find("\"size\": 20") != std::string::npos) << json2;
+}
+
 }

@@ -45,6 +45,8 @@
 #include <chrono>
 #include <sstream>
 #include <filesystem>
+#include <functional>
+#include <set>
 #include <boost/uuid/uuid.hpp>
 #include <boost/uuid/uuid_generators.hpp>
 #include <boost/uuid/uuid_io.hpp>
@@ -2065,7 +2067,7 @@ void Document::UpdateFormats()
         return;
     }
     StringFormat f;
-    if (GetStringFormat(c.id, f))
+    if (GetStringFormat(c.id, f) && !f.family.empty() && f.size > 0)
     {
         current_string_format = string_formats->GetFormat(f);
         window->OnFormatChanged(MakeEditorState());
@@ -2084,6 +2086,8 @@ void Document::UpdateFormats()
 uint Document::SetFontFamily(const std::string& family)
 {
     LOG_TRACE("Set font family: {}", family);
+    if (family.empty())
+        return 0;
     std::lock_guard<std::recursive_mutex> lock(edit_mutex);
     if (current_string_format)
     {
@@ -2108,6 +2112,8 @@ uint Document::SetFontFamily(const std::string& family)
 uint Document::SetFontSize(const uint size)
 {
     LOG_TRACE("Set font size: {}", size);
+    if (size == 0)
+        return 0;
     std::lock_guard<std::recursive_mutex> lock(edit_mutex);
     if (current_string_format)
     {
@@ -2408,6 +2414,7 @@ bool Document::GetStringFormat(const ElementId id, StringFormat& format)
     else if (IsParagraph(el))
     {
         //check if the paragraph has strings with only one format
+        bool found = false;
         for (int i = 0; i < el->elements->Count(); ++i)
         {
             auto row = el->elements->Get(i);
@@ -2417,19 +2424,26 @@ bool Document::GetStringFormat(const ElementId id, StringFormat& format)
                 if (!IsString(ch))
                     return false;
                 auto f = ch->GetStringFormat();
-                if (i != 0 && j != 0)
-                {
-                    if (*f != format)
-                        return false;
-                }
+                if (found && *f != format)
+                    return false;
+                found = true;
                 format = *f;
             }
+        }
+        //a paragraph without strings uses the format of its style
+        if (!found)
+        {
+            auto f = el->GetStringFormat();
+            if (!f)
+                return false;
+            format = *f;
         }
         return true;
     }
     else if (IsRow(el))
     {
         //check if the row has strings with only one format
+        bool found = false;
         for (int i = 0; i < el->elements->Count(); ++i)
         {
             auto ch = el->elements->Get(i);
@@ -2439,14 +2453,21 @@ bool Document::GetStringFormat(const ElementId id, StringFormat& format)
                 if (!f)
                     return false;
                 format = *f;
+                found = true;
                 break;
             }
             auto f = ch->GetStringFormat();
-            if (i != 0)
-            {
-                if (*f != format)
-                    return false;
-            }
+            if (found && *f != format)
+                return false;
+            found = true;
+            format = *f;
+        }
+        //a row without strings uses the parent format
+        if (!found)
+        {
+            auto f = el->GetStringFormat();
+            if (!f)
+                return false;
             format = *f;
         }
         return true;
@@ -2486,6 +2507,8 @@ bool Document::GetStringFormat(const ElementId id, StringFormat& format)
         }
 
         auto f = el->GetStringFormat();
+        if (!f)
+            return false;
         format = *f;
         return true;
     }
@@ -3324,7 +3347,33 @@ StringFormatPtr Document::GetStringFormat(const boost::uuids::uuid& id)
 void Document::SaveStringFormats(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc)
 {
     std::lock_guard<std::recursive_mutex> lock(edit_mutex);
-    string_formats->ToJson(value, alloc);
+    //save only the formats used by the elements and the paragraph styles, not the transient ones collected in the editor
+    std::set<StringFormatPtr> used;
+    std::function<void(const ElementPtr&)> collect =
+        [&](const ElementPtr& el)
+        {
+            if (el->type == ElementType::STRING || el->type == ElementType::CODE_STRING || el->type == ElementType::LINK)
+            {
+                auto f = el->GetStringFormat();
+                if (f)
+                    used.insert(f);
+            }
+            else
+            {
+                for (int i = 0; i < el->elements->Count(); ++i)
+                    collect(el->elements->Get(i));
+            }
+        };
+    if (text)
+        collect(text);
+    std::vector<ParagraphFormatPtr> formats;
+    paragraph_formats->GetFormats(formats);
+    for (auto& f : formats)
+    {
+        if (f->default_string_format)
+            used.insert(f->default_string_format);
+    }
+    string_formats->ToJson(value, alloc, used);
 }
 
 void Document::SaveStringFormats(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc, const std::vector<ElementPtr>& elements)

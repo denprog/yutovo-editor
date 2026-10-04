@@ -11,6 +11,7 @@
 #include <string>
 #include <memory>
 #include <vector>
+#include <set>
 #include <boost/uuid/uuid.hpp>
 #include "editor_utils.h"
 
@@ -68,6 +69,7 @@ public:
 
     void ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc);
     void ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc, const std::vector<ElementPtr>& elements);
+    void ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc, const std::set<StringFormatPtr>& used);
     bool FromJson(const rapidjson::Value::ConstArray& value, rapidjson::Document::AllocatorType& alloc);
 
     void Clear()
