@@ -448,7 +448,23 @@ void Solver::MessageLoop(WebSocketPtr socket_, std::deque<SolverTaskPtr>& tasks_
                 current_solving_id = t->id;
                 current_code_id = t->code_id;
             }
-            bool r = t->Execute(socket_, result);
+            bool r = true;
+            try
+            {
+                r = t->Execute(socket_, result);
+            }
+            catch (const std::exception& ex)
+            {
+                LOG_ERROR("Solver task failed: {}", ex.what());
+                result.error.error_code = yutovo_solver::ErrorCode::INTERNAL_ERROR;
+                r = false;
+            }
+            catch (...)
+            {
+                LOG_ERROR("Solver task failed: unknown exception");
+                result.error.error_code = yutovo_solver::ErrorCode::INTERNAL_ERROR;
+                r = false;
+            }
             {
                 std::unique_lock<std::mutex> lock(current_solving_mutex);
                 current_solving_id.clear();

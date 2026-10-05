@@ -409,6 +409,8 @@ public:
 private:
     void MainLoop();
 
+    bool ExecuteTask(const TaskPtr& task);
+
     void RestrictUndo();
 
     void UpdateChanged();

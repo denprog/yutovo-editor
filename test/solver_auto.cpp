@@ -782,7 +782,7 @@ TEST_F(SolverAutoTest, solver11)
     document.WaitTask(document.SetConfig(config, true));
 
     document.MoveCaretEnd(false);
-    document.InsertParagraph(true);
+    document.WaitTask(document.InsertParagraph(true));
     document.InsertDivision(true);
     document.InsertString("3", true);
     document.MoveCaretDown(false);
@@ -791,7 +791,7 @@ TEST_F(SolverAutoTest, solver11)
     document.MoveCaretRight(false);
     document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
     document.WaitSolver();
-    std::this_thread::sleep_for(600ms);
+    std::this_thread::sleep_for(1s);
     ASSERT_TRUE(document.ToText() == 
         U"(1)/(2)=0.5\n"
         U"(1)/(2)=(1)/(2)\n"

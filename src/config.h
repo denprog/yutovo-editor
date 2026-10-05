@@ -19,6 +19,9 @@ namespace yutovo
 
 using namespace yutovo_solver;
 
+//Maximum size of a json document/clipboard payload accepted on load/paste, larger input is rejected as an error
+constexpr size_t max_json_size = 256 * 1024 * 1024;
+
 struct Config
 {
     void ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc);
