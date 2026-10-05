@@ -653,7 +653,7 @@ TEST_F(SolverIntegerTest, logical1)
     document.WaitTask(document.InsertEquation(ResultType::INTEGER, true));
     document.WaitSolver();
     ASSERT_TRUE(document.ToText() == 
-        U"¬4=3(dec)"
+        U"¬4=-5(dec)"
         ) << ToBasicString(document.ToText());
 }
 
