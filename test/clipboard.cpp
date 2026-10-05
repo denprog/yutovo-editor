@@ -212,15 +212,15 @@ TEST_F(DocumentTest, clipboard5)
     document.SetFontSize(22);
     document.WaitTask(document.PasteText(std::u32string(U"The <mrow> MathML element is used to group sub-expressions")));
     std::this_thread::sleep_for(200ms);
-    ASSERT_TRUE(document.ToHtml() == 
+    ASSERT_TRUE(document.ToHtml() ==
         "<body>"\
             "<p>"\
-                "<span style=\"font-family:'Arial';font-size:22px;\">The <mrow> </span>"\
+                "<span style=\"font-family:'Arial';font-size:22px;\">The &lt;mrow&gt; </span>"\
                 "<span style=\"font-family:'Arial';font-size:22px;\">MathML element is </span>"\
                 "<span style=\"font-family:'Arial';font-size:22px;\">used to group </span>"\
                 "<span style=\"font-family:'Arial';font-size:22px;\">sub-expressions</span>"\
             "</p>"\
-        "</body>") << 
+        "</body>") <<
         document.ToHtml();
 
     std::this_thread::sleep_for(200ms);
@@ -6231,6 +6231,28 @@ TEST_F(DocumentTest, clipboard104)
                 "<span style=\"font-family:'Arial';font-size:14px;\">A</span>"
             "</p>"
         "</body>") << document.ToHtml();
+}
+
+//Html special characters in the pasted text are escaped in ToHtml
+TEST_F(DocumentTest, clipboard105)
+{
+    Start(600);
+
+    EXPECT_CALL(window_mock, OnPasteResult).WillRepeatedly([&](PasteResult result)
+        {
+            ASSERT_TRUE(result == PasteResult::Success);
+        });
+
+    document.WaitTask(document.PasteText(std::u32string(U"<img src=x onerror=alert(1)> & \"quoted\"")));
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.ToHtml() ==
+        "<body>"
+            "<p>"
+                "<span style=\"font-family:'Arial';font-size:14px;\">&lt;img src=x onerror=alert(1)&gt; &amp; &quot;quoted&quot;</span>"
+            "</p>"
+        "</body>") << document.ToHtml();
+    ASSERT_TRUE(document.ToText() == U"<img src=x onerror=alert(1)> & \"quoted\"") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 39})) << document.GetEditorState().ToString();
 }
 
 }

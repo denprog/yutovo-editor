@@ -715,4 +715,83 @@ TEST_F(DocumentTest, link15)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 3})) << document.GetEditorState().ToString();
 }
 
+//The link url is escaped for the href attribute and only http, https, mailto and relative urls are kept in the export
+TEST_F(DocumentTest, link16)
+{
+    Start(600);
+
+    document.WaitTask(document.InsertLink(U"<b>link</b>", U"\"><img src=x onerror=alert(1)>", true));
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<a href=\"&quot;&gt;&lt;img src=x onerror=alert(1)&gt;\" "\
+                    "style=\"font-family:'Arial';font-size:14px;text-decoration: underline;color:rgba(0,0,255,255);\">&lt;b&gt;link&lt;/b&gt;</a>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 11})) << document.GetEditorState().ToString();
+
+    auto blocked =
+        [&](const std::u32string& url) -> void
+        {
+            document.WaitTask(document.InsertLink(U"link", url, true));
+            ASSERT_TRUE(document.ToHtml() == 
+                "<body>"\
+                    "<p>"\
+                        "<a href=\"#\" style=\"font-family:'Arial';font-size:14px;text-decoration: underline;color:rgba(0,0,255,255);\">link</a>"\
+                    "</p>"\
+                "</body>") << 
+                document.ToHtml();
+            ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 4})) << document.GetEditorState().ToString();
+        };
+    blocked(U"javascript:alert(1)");
+    blocked(U"JaVaScRiPt:alert(1)");
+    blocked(U"jav\tascript:alert(1)");
+    blocked(U" javascript:alert(1)");
+    blocked(U"data:text/html,<b>x</b>");
+    blocked(U"vbscript:msgbox(1)");
+
+    document.WaitTask(document.InsertLink(U"link", U"https://yutovo.com/?a=1&b=2", true));
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<a href=\"https://yutovo.com/?a=1&amp;b=2\" "\
+                    "style=\"font-family:'Arial';font-size:14px;text-decoration: underline;color:rgba(0,0,255,255);\">link</a>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 4})) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.InsertLink(U"link", U"HTTP://YUTOVO.COM", true));
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<a href=\"HTTP://YUTOVO.COM\" style=\"font-family:'Arial';font-size:14px;text-decoration: underline;color:rgba(0,0,255,255);\">link</a>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 4})) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.InsertLink(U"link", U"mailto:info@yutovo.com", true));
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<a href=\"mailto:info@yutovo.com\" "\
+                    "style=\"font-family:'Arial';font-size:14px;text-decoration: underline;color:rgba(0,0,255,255);\">link</a>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 4})) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.InsertLink(U"link", U"www.link.ru", true));
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<a href=\"www.link.ru\" style=\"font-family:'Arial';font-size:14px;text-decoration: underline;color:rgba(0,0,255,255);\">link</a>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 4})) << document.GetEditorState().ToString();
+}
+
 }

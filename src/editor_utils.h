@@ -451,6 +451,15 @@ std::string AngleMeasureToString(const AngleMeasure angle_measure);
 std::string NotationToString(const Notation notation);
 std::string ResultTypeToString(const yutovo_solver::ResultType result_type);
 
+//Escapes text for insertion into HTML text content and double-quoted attribute values
+std::string EscapeHtml(const std::string& str);
+
+//Prepares a font family for the font-family:'...' CSS string inside a double-quoted style attribute: drops quotes, backslashes and control characters first (HTML entity decoding happens before CSS parsing, so HTML escaping alone cannot protect the CSS string), then escapes the rest for HTML
+std::string FontFamilyToHtml(const std::string& family);
+
+//Prepares a link url for the href attribute: trims leading/trailing spaces and control characters, removes embedded tabs and newlines (browsers strip them before parsing the scheme), keeps only http, https, mailto and relative urls - every other scheme becomes "#"; the kept url is escaped for HTML
+std::string LinkUrlToHtml(const std::u32string& url);
+
 struct ErrorMark
 {
     LogicalId id;

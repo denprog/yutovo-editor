@@ -180,7 +180,7 @@ bool OpenBracket::Remake(bool with_elements)
 
 std::string OpenBracket::ToHtml() const
 {
-    return "<mo>" + ToBasicString(ToText()) + "</mo>";
+    return "<mo>" + EscapeHtml(ToBasicString(ToText())) + "</mo>";
 }
 
 //CloseBracket
@@ -346,7 +346,7 @@ bool CloseBracket::Remake(bool with_elements)
 
 std::string CloseBracket::ToHtml() const
 {
-    return "<mo>" + ToBasicString(ToText()) + "</mo>";
+    return "<mo>" + EscapeHtml(ToBasicString(ToText())) + "</mo>";
 }
 
 }

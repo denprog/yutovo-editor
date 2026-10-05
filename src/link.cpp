@@ -212,9 +212,9 @@ StringFormatPtr Link::GetStringFormat() const
 
 std::string Link::ToHtml() const
 {
-    std::string s = "<a href=\"" + ToBasicString(url) + "\" ";
+    std::string s = "<a href=\"" + LinkUrlToHtml(url) + "\" ";
     s += "style=\"font-family:'";
-    s += format->family;
+    s += FontFamilyToHtml(format->family);
     s += "';";
     s += "font-size:";
     s += std::to_string(format->size);

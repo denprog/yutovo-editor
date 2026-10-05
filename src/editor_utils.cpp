@@ -489,9 +489,112 @@ std::string ResultTypeToString(const yutovo_solver::ResultType result_type)
 	case yutovo_solver::ResultType::SYMBOLIC_RATIONAL:
         return "SymbolicRational";
 	case yutovo_solver::ResultType::SYMBOLIC_COMPLEX:
-        return "SymbolicComplex";
+		return "SymbolicComplex";
+	}
+	return "";
+}
+
+std::string EscapeHtml(const std::string& str)
+{
+    std::string s;
+    s.reserve(str.size());
+    for (char c : str)
+    {
+        switch (c)
+        {
+        case '&':
+            s += "&amp;";
+            break;
+        case '<':
+            s += "&lt;";
+            break;
+        case '>':
+            s += "&gt;";
+            break;
+        case '\"':
+            s += "&quot;";
+            break;
+        default:
+            s += c;
+        }
     }
-    return "";
+    return s;
+}
+
+std::string FontFamilyToHtml(const std::string& family)
+{
+    std::string s;
+    s.reserve(family.size());
+    for (char c : family)
+    {
+        unsigned char u = static_cast<unsigned char>(c);
+        if (c == '\'' || c == '\\' || u < ' ' || u == 0x7f)
+            continue;
+        s += c;
+    }
+    return EscapeHtml(s);
+}
+
+std::string LinkUrlToHtml(const std::u32string& url)
+{
+    auto is_space_or_control =
+        [](char32_t c) -> bool
+        {
+            return c == U' ' || c < U' ' || c == 0x7f;
+        };
+    auto is_alpha =
+        [](char32_t c) -> bool
+        {
+            return (c >= U'a' && c <= U'z') || (c >= U'A' && c <= U'Z');
+        };
+
+    size_t begin = 0;
+    size_t end = url.size();
+    while (begin < end && is_space_or_control(url[begin]))
+        ++begin;
+    while (end > begin && is_space_or_control(url[end - 1]))
+        --end;
+
+    std::u32string normalized;
+    normalized.reserve(end - begin);
+    for (size_t i = begin; i < end; ++i)
+    {
+        if (url[i] == U'\t' || url[i] == U'\n' || url[i] == U'\r')
+            continue;
+        normalized += url[i];
+    }
+
+    std::u32string scheme;
+    bool has_scheme = false;
+    for (char32_t c : normalized)
+    {
+        if (c == U':')
+        {
+            has_scheme = true;
+            break;
+        }
+        if (c == U'/' || c == U'?' || c == U'#')
+            break;
+        scheme += c;
+    }
+    if (has_scheme)
+    {
+        bool valid = !scheme.empty() && is_alpha(scheme[0]);
+        for (size_t i = 1; valid && i < scheme.size(); ++i)
+        {
+            char32_t c = scheme[i];
+            if (!is_alpha(c) && !(c >= U'0' && c <= U'9') && c != U'+' && c != U'-' && c != U'.')
+                valid = false;
+        }
+        if (!valid)
+            return "#";
+        std::string lower;
+        for (char32_t c : scheme)
+            lower += static_cast<char>(c >= U'A' && c <= U'Z' ? c + (U'a' - U'A') : c);
+        if (lower != "http" && lower != "https" && lower != "mailto")
+            return "#";
+    }
+    return EscapeHtml(ToBasicString(normalized));
 }
 
 bool IsLess(const ElementId& id1, const ElementId& id2)

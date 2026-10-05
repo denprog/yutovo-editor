@@ -537,4 +537,48 @@ TEST_F(DocumentTest, images11)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 1, 0, 3})) << document.GetEditorState().ToString();
 }
 
+//Html escaping of the image base64 loaded from json
+TEST_F(DocumentTest, images12)
+{
+    Start(600);
+
+    EXPECT_CALL(window_mock, GetImageSize).WillRepeatedly([&](const std::vector<unsigned char>& image)
+        {
+            return GetImageSizeMock(image);
+        });
+
+    QImage test_image("../../test/tests/Qt_small.png");
+    std::vector<unsigned char> data;
+    GetImageData(test_image, data);
+
+    //a valid png base64 prefix with an attribute breakout appended - the decoder keeps it because the prefix decodes into a valid image
+    std::string payload = Base64Encode(data) + "\"><img src=x onerror=alert(1)>";
+    std::string payload_json = payload;
+    for (size_t pos = 0; pos < payload_json.size(); ++pos)
+    {
+        if (payload_json[pos] == '"')
+        {
+            payload_json.insert(pos, "\\");
+            ++pos;
+        }
+    }
+
+    auto json = "{\"string_formats\":[{\"id\":\"e9fe76c1-fdcb-41b4-a64c-b5d5e84eff91\",\"family\":\"Arial\",\"size\":14,\"bold\":false,"
+        "\"italic\":false,\"underline\":false,\"color\":4278190080,\"selection_color\":4294967295}],\"paragraph_formats\":"
+        "[{\"name\":\"Text body\",\"alignment\":0,\"word_wrap\":1,\"line_spacing\":5,\"indent_before\":10,\"indent_after\":10,\"indent_first_line\":0,"
+        "\"spacing_before\":10,\"spacing_after\":10,\"default_string_format\":\"e9fe76c1-fdcb-41b4-a64c-b5d5e84eff91\"}],\"text\":{\"id\":\"0\",\"type\":1,"
+        "\"elements\":[{\"id\":\"0,0\",\"type\":2,\"elements\":[{\"id\":\"0,0,0\",\"type\":3,\"elements\":[{\"id\":\"0,0,0,0\",\"type\":34,"
+        "\"image_base64\":\"" + payload_json + "\"}]}],\"format_name\":\"Text body\"}]}}";
+
+    document.WaitTask(document.LoadJson(json, 0));
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<img src=\"data:image/png;base64," + EscapeHtml(payload) + "\">"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0})) << document.GetEditorState().ToString();
+}
+
 }
