@@ -1855,7 +1855,14 @@ bool LoadTask::Execute()
 
     if (!json_str.empty())
     {
-        if (doc.Parse<0>(json_str.c_str()).HasParseError() || !doc.IsObject() || !LoadJson(doc)) //try to load as decompressed
+        if (json_str.size() > max_json_size)
+        {
+            window->OnLoadResult(id, IOResult::InputStreamError, document_id);
+            LOG_ERROR("Json is too large");
+            return false;
+        }
+
+        if (doc.Parse<rapidjson::kParseIterativeFlag>(json_str.c_str()).HasParseError() || !doc.IsObject() || !LoadJson(doc)) //try to load as decompressed
         {
             //try to load as compressed
             std::istringstream in(json_str, std::ios::binary);
@@ -1866,7 +1873,7 @@ bool LoadTask::Execute()
                 return false;
             }
 
-            doc.Parse<0>(json.c_str());
+            doc.Parse<rapidjson::kParseIterativeFlag>(json.c_str());
             if (doc.HasParseError() || !doc.IsObject() || !LoadJson(doc))
             {
                 window->OnLoadResult(id, IOResult::InputStreamError, document_id);
@@ -1933,7 +1940,7 @@ bool LoadTask::Execute()
 
         if (DecompressGzip(file, json)) //try to open as compressed file
         {
-            doc.Parse<0>(json.c_str());
+            doc.Parse<rapidjson::kParseIterativeFlag>(json.c_str());
             if (doc.HasParseError() || !doc.IsObject() || !LoadJson(doc))
             {
                 window->OnLoadResult(id, IOResult::InputStreamError, document_id);
@@ -1953,8 +1960,16 @@ bool LoadTask::Execute()
 #else
             std::ifstream file(open_filename);
 #endif
+            file.seekg(0, std::ios::end);
+            if (static_cast<size_t>(file.tellg()) > max_json_size)
+            {
+                window->OnLoadResult(id, IOResult::InputStreamError, document_id);
+                LOG_ERROR("File '{}' is too large", filename);
+                return false;
+            }
+            file.seekg(0);
             rapidjson::IStreamWrapper isw{file};
-            doc.ParseStream(isw);
+            doc.ParseStream<rapidjson::kParseIterativeFlag>(isw);
             if (doc.HasParseError() || !doc.IsObject() || !LoadJson(doc))
             {
                 window->OnLoadResult(id, IOResult::InputStreamError, document_id);
@@ -2295,6 +2310,12 @@ bool LoadTask::DecompressGzip(std::istream& in, std::string& out)
             }
 
             out.append(outbuf, sizeof(outbuf) - zs.avail_out);
+            if (out.size() > max_json_size) //guard against zip bombs
+            {
+                inflateEnd(&zs);
+                LOG_ERROR("Decompressed json exceeds the size limit");
+                return false;
+            }
         }
         while (zs.avail_out == 0);
     }

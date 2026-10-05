@@ -8,6 +8,7 @@
 #include <gtest/gtest.h>
 #include <filesystem>
 #include <fstream>
+#include <zlib.h>
 #include "mock.h"
 #include "style.h"
 
@@ -1253,6 +1254,48 @@ TEST_F(DocumentTest, files29)
         "</body>") << 
         document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 0)) << document.GetEditorState().ToString();
+}
+
+//Load a gzip bomb file and string: the decompressed size is limited, the load fails instead of exhausting memory
+TEST_F(DocumentTest, files30)
+{
+    Start(600);
+
+    //compress a payload larger than the json size limit
+    std::string payload(max_json_size + 1, 'x');
+    z_stream zs{};
+    ASSERT_TRUE(deflateInit2(&zs, Z_DEFAULT_COMPRESSION, Z_DEFLATED, 16 + MAX_WBITS, 8, Z_DEFAULT_STRATEGY) == Z_OK);
+    std::string bomb(deflateBound(&zs, static_cast<uLong>(payload.size())), '\0');
+    zs.next_in = reinterpret_cast<Bytef*>(payload.data());
+    zs.avail_in = static_cast<uInt>(payload.size());
+    zs.next_out = reinterpret_cast<Bytef*>(bomb.data());
+    zs.avail_out = static_cast<uInt>(bomb.size());
+    ASSERT_TRUE(deflate(&zs, Z_FINISH) == Z_STREAM_END);
+    bomb.resize(bomb.size() - zs.avail_out);
+    deflateEnd(&zs);
+    payload.clear();
+    payload.shrink_to_fit();
+
+    //write the bomb into a file
+    std::ofstream file("gzip_bomb.yut", std::ios::binary);
+    file.write(bomb.data(), bomb.size());
+    file.close();
+
+    EXPECT_CALL(window_mock, OnLoadResult).Times(2).WillRepeatedly(
+        [&](const uint task_id, IOResult result, const int document_id)
+        {
+            ASSERT_TRUE(result == IOResult::InputStreamError);
+        });
+
+    document.Load("gzip_bomb.yut");
+    document.WaitLoad();
+    std::this_thread::sleep_for(200ms);
+
+    document.LoadJson(bomb, 0);
+    document.WaitLoad();
+    std::this_thread::sleep_for(200ms);
+
+    std::filesystem::remove("gzip_bomb.yut");
 }
 
 //Check include file

@@ -226,6 +226,24 @@ uint Document::SetConfig(const std::string& _config, bool with_undo)
     return last_task_id;
 }
 
+//Execute a task guarding the loop against exceptions
+bool Document::ExecuteTask(const TaskPtr& task)
+{
+    try
+    {
+        return task->Execute();
+    }
+    catch (const std::exception& ex)
+    {
+        LOG_ERROR("Task {} failed: {}", task->id, ex.what());
+    }
+    catch (...)
+    {
+        LOG_ERROR("Task {} failed: unknown exception", task->id);
+    }
+    return false;
+}
+
 void Document::MainLoop()
 {
     std::vector<TaskPtr> temp_tasks;
@@ -304,7 +322,7 @@ void Document::MainLoop()
                     resolve_elements.clear();
                     TaskPtr& t = temp_undo_tasks[i];
                     std::lock_guard<std::recursive_mutex> lock(edit_mutex);
-                    if (!t->Execute())
+                    if (!ExecuteTask(t))
                         break;
                     if (!undo_tasks.empty())
                         last_modify_task_id = undo_tasks.back()->id;
@@ -363,7 +381,7 @@ void Document::MainLoop()
                     cur_task_id = t->id;
                     cur_modify_task_id = t->id;
                     std::lock_guard<std::recursive_mutex> lock(edit_mutex);
-                    if (!t->Execute())
+                    if (!ExecuteTask(t))
                         break;
                     last_modify_task_id = t->id;
                 }
@@ -406,7 +424,7 @@ void Document::MainLoop()
 
                 {
                     std::lock_guard<std::recursive_mutex> lock(edit_mutex);
-                    if (t->Execute() && t->with_undo)
+                    if (ExecuteTask(t) && t->with_undo)
                     {
                         //shrink the redo vector to the size of the undo stack
                         for (int i = redo_tasks.size() - 1; i >= 0; --i)
@@ -3173,38 +3191,66 @@ uint Document::Paste(std::u32string& in_json)
     LOG_TRACE("Paste: in_json={}", ToBasicString(in_json));
     StringFormatsPtr _string_formats;
     rapidjson::Document doc;
+    if (in_json.size() * sizeof(char32_t) > max_json_size)
+    {
+        LOG_ERROR("Pasted json is too large");
+        window->OnPasteResult(PasteResult::PasteError);
+        return 0;
+    }
     auto str = ToBasicString(in_json);
-    if (doc.Parse<0>(str.c_str()).HasParseError())
-    {
-        window->OnPasteResult(PasteResult::PasteError);
-        return 0;
-    }
-
-    if (doc.HasMember("string_formats") && doc["string_formats"].IsArray())
-    {
-        //load string formats
-        std::lock_guard<std::recursive_mutex> lock(edit_mutex);
-        string_formats->FromJson(((const rapidjson::Value&)doc["string_formats"]).GetArray(), doc.GetAllocator());
-    }
-
-    if (!doc.HasMember("copy") || !doc["copy"].IsArray())
-    {
-        window->OnPasteResult(PasteResult::PasteError);
-        return 0;
-    }
 
     //load elements
     std::vector<ElementPtr> elements;
-    rapidjson::Value::Array arr = doc["copy"].GetArray();
-    for (rapidjson::SizeType i = 0; i < arr.Size(); ++i)
+    try
     {
-        if (!arr[i].IsObject())
+        if (doc.Parse<rapidjson::kParseIterativeFlag>(str.c_str()).HasParseError() || !doc.IsObject())
+        {
+            window->OnPasteResult(PasteResult::PasteError);
             return 0;
-        rapidjson::Value::Object value = arr[i].GetObject();
-        ElementPtr el(CreateFromJson(nullptr, this, (rapidjson::Value::ConstObject&)value, doc.GetAllocator()));
-        if (!el)
+        }
+
+        if (doc.HasMember("string_formats") && doc["string_formats"].IsArray())
+        {
+            //load string formats
+            std::lock_guard<std::recursive_mutex> lock(edit_mutex);
+            string_formats->FromJson(((const rapidjson::Value&)doc["string_formats"]).GetArray(), doc.GetAllocator());
+        }
+
+        if (!doc.HasMember("copy") || !doc["copy"].IsArray())
+        {
+            window->OnPasteResult(PasteResult::PasteError);
             return 0;
-        elements.push_back(el);
+        }
+
+        rapidjson::Value::Array arr = doc["copy"].GetArray();
+        for (rapidjson::SizeType i = 0; i < arr.Size(); ++i)
+        {
+            if (!arr[i].IsObject())
+            {
+                window->OnPasteResult(PasteResult::PasteError);
+                return 0;
+            }
+            rapidjson::Value::Object value = arr[i].GetObject();
+            ElementPtr el(CreateFromJson(nullptr, this, (rapidjson::Value::ConstObject&)value, doc.GetAllocator()));
+            if (!el)
+            {
+                window->OnPasteResult(PasteResult::PasteError);
+                return 0;
+            }
+            elements.push_back(el);
+        }
+    }
+    catch (const std::exception& ex)
+    {
+        LOG_ERROR("Paste failed: {}", ex.what());
+        window->OnPasteResult(PasteResult::PasteError);
+        return 0;
+    }
+    catch (...)
+    {
+        LOG_ERROR("Paste failed: unknown exception");
+        window->OnPasteResult(PasteResult::PasteError);
+        return 0;
     }
 
     if (elements.empty())

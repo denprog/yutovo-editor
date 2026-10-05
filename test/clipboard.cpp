@@ -6255,4 +6255,35 @@ TEST_F(DocumentTest, clipboard105)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 39})) << document.GetEditorState().ToString();
 }
 
+//Paste a too large payload and a deeply nested json: both are rejected without crashes
+TEST_F(DocumentTest, clipboard106)
+{
+    Start(600);
+
+    EXPECT_CALL(window_mock, OnPasteResult).WillRepeatedly([&](PasteResult result)
+        {
+            ASSERT_TRUE(result == PasteResult::PasteError);
+        });
+
+    //the payload exceeds the json size limit
+    std::u32string big(max_json_size / sizeof(char32_t) + 1, U'x');
+    document.WaitTask(document.Paste(big));
+    std::this_thread::sleep_for(200ms);
+
+    //a deeply nested json overflows a recursive parser
+    std::string deep(100000, '[');
+    deep.append(100000, ']');
+    auto deep_json = ToUtfString(deep);
+    document.WaitTask(document.Paste(deep_json));
+    std::this_thread::sleep_for(200ms);
+
+    ASSERT_TRUE(document.ToHtml() ==
+        "<body>"
+            "<p>"
+                "<span style=\"font-family:'Arial';font-size:14px;\"></span>"
+            "</p>"
+        "</body>"
+        ) << document.ToHtml();
+}
+
 }
