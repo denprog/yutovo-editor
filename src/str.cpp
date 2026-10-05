@@ -328,7 +328,7 @@ std::string String::ToHtml() const
 {
     std::string s = "<span ";
     s += "style=\"font-family:'";
-    s += format->family;
+    s += FontFamilyToHtml(format->family);
     s += "';";
     s += "font-size:";
     s += std::to_string(format->size);
@@ -1414,7 +1414,7 @@ bool StringElements::GetSelectOutCaretState(CaretState& caret_state, Selection* 
 
 std::string StringElements::ToHtml() const
 {
-    return ToBasicString(str);
+    return EscapeHtml(ToBasicString(str));
 }
 
 std::u32string StringElements::ToText() const

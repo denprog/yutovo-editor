@@ -1232,6 +1232,29 @@ TEST_F(DocumentTest, files28)
     CheckOnlyShapeFile("files28.yut", 14);
 }
 
+//A font family loaded from json is escaped in the style attribute of ToHtml
+TEST_F(DocumentTest, files29)
+{
+    Start(600);
+
+    auto json = "{\"string_formats\":[{\"id\":\"e9fe76c1-fdcb-41b4-a64c-b5d5e84eff91\",\"family\":\"a'bc\\\"d<e&f\",\"size\":14,\"bold\":false,"
+        "\"italic\":false,\"underline\":false,\"color\":4278190080,\"selection_color\":4294967295}],\"paragraph_formats\":"
+        "[{\"name\":\"Text body\",\"alignment\":0,\"word_wrap\":1,\"line_spacing\":5,\"indent_before\":10,\"indent_after\":10,\"indent_first_line\":0,"
+        "\"spacing_before\":10,\"spacing_after\":10,\"default_string_format\":\"e9fe76c1-fdcb-41b4-a64c-b5d5e84eff91\"}],\"text\":{\"id\":\"0\",\"type\":1,"
+        "\"elements\":[{\"id\":\"0,0\",\"type\":2,\"elements\":[{\"id\":\"0,0,0\",\"type\":3,\"elements\":[{\"id\":\"0,0,0,0\",\"type\":4,\"elements\":"
+        "\"Hello\",\"format_id\":\"e9fe76c1-fdcb-41b4-a64c-b5d5e84eff91\"}]}],\"format_name\":\"Text body\"}]}}";
+
+    document.WaitTask(document.LoadJson(json, 0));
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'abc&quot;d&lt;e&amp;f';font-size:14px;\">Hello</span>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 0)) << document.GetEditorState().ToString();
+}
+
 //Check include file
 TEST_F(IncludeDocumentsTest, include_files1)
 {
