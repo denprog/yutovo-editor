@@ -1919,18 +1919,18 @@ bool LoadTask::Execute()
                     file = std::ifstream(open_filename, std::ios_base::binary);
                     if (!file.is_open())
                     {
-                        window->OnLoadResult(0, IOResult::InputStreamError, -1);
+                        window->OnLoadResult(id, IOResult::InputStreamError, document_id);
                         document->text->ReSolve();
                         LOG_ERROR("Error loading include file '{}': File not open", filename);
-                        return 0;
+                        return false;
                     }
                 }
                 catch (const std::filesystem::filesystem_error& ex)
                 {
-                    window->OnLoadResult(0, IOResult::InputStreamError, -1);
+                    window->OnLoadResult(id, IOResult::InputStreamError, document_id);
                     document->text->ReSolve();
                     LOG_ERROR("Error loading include file '{}': File not open", filename);
-                    return 0;
+                    return false;
                 }
             }
         }

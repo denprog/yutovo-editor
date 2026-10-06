@@ -2790,8 +2790,9 @@ TEST_F(DocumentTest, caret90)
 
     EXPECT_CALL(window_mock, OnLoadInclude).WillOnce([&](const std::string& file_name, const int document_id)
         {
-            document.LoadInclude(file_name);
+            uint task_id = document.LoadInclude(file_name);
             std::this_thread::sleep_for(400ms);
+            return task_id;
         });
 
     EXPECT_CALL(window_mock, GetViewPort).WillRepeatedly([&](const int)

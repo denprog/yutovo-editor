@@ -4319,8 +4319,9 @@ TEST_F(ParagraphTest, scale2)
 
     EXPECT_CALL(window_mock, OnLoadInclude).WillRepeatedly([&](const std::string& file_name, const int document_id)
         {
-            document.LoadInclude(file_name);
+            uint task_id = document.LoadInclude(file_name);
             std::this_thread::sleep_for(400ms);
+            return task_id;
         });
 
     document.Load("../../test/tests/scale2_2.yut");

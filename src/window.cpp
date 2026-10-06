@@ -100,8 +100,9 @@ void Window::OnLoadResult(const uint task_id, IOResult result, const int documen
 {
 }
 
-void Window::OnLoadInclude(const std::string& file_name, const int document_id)
+uint Window::OnLoadInclude(const std::string& file_name, const int document_id)
 {
+    return 0;
 }
 
 void Window::OnCopyResult(CopyResult result)

@@ -1312,8 +1312,9 @@ TEST_F(IncludeDocumentsTest, include_files1)
     EXPECT_CALL(window_mock, OnLoadInclude).WillOnce(
         [&](const std::string& file_name, const int document_id)
         {
-            document.LoadInclude(file_name);
+            uint task_id = document.LoadInclude(file_name);
             std::this_thread::sleep_for(400ms);
+            return task_id;
         });
 
     EXPECT_CALL(window_mock, Translate).WillRepeatedly(
@@ -1360,8 +1361,9 @@ TEST_F(IncludeDocumentsTest, include_files2)
     EXPECT_CALL(window_mock, OnLoadInclude).WillRepeatedly(
         [&](const std::string& file_name, const int document_id)
         {
-            document.LoadInclude(file_name);
+            uint task_id = document.LoadInclude(file_name);
             std::this_thread::sleep_for(400ms);
+            return task_id;
         });
 
     EXPECT_CALL(window_mock, Translate).WillRepeatedly(
@@ -1437,8 +1439,9 @@ TEST_F(IncludeDocumentsTest, include_files3)
     EXPECT_CALL(window_mock, OnLoadInclude).WillRepeatedly(
         [&](const std::string& file_name, const int document_id)
         {
-            document.LoadInclude(file_name);
+            uint task_id = document.LoadInclude(file_name);
             std::this_thread::sleep_for(400ms);
+            return task_id;
         });
 
     EXPECT_CALL(window_mock, Translate).WillRepeatedly(
@@ -1513,8 +1516,9 @@ TEST_F(IncludeDocumentsTest, include_files4)
     EXPECT_CALL(window_mock, OnLoadInclude).WillRepeatedly(
         [&](const std::string& file_name, const int document_id)
         {
-            document.LoadInclude(file_name);
+            uint task_id = document.LoadInclude(file_name);
             std::this_thread::sleep_for(400ms);
+            return task_id;
         });
 
     EXPECT_CALL(window_mock, Translate).WillRepeatedly(
@@ -1567,8 +1571,9 @@ TEST_F(IncludeDocumentsTest, include_files4)
     EXPECT_CALL(window_mock2, OnLoadInclude).WillRepeatedly(
         [&](const std::string& file_name, const int document_id)
         {
-            document2.LoadInclude(file_name);
+            uint task_id = document2.LoadInclude(file_name);
             std::this_thread::sleep_for(400ms);
+            return task_id;
         });
 
     document2.Load("include4_2.yut");
@@ -1594,8 +1599,9 @@ TEST_F(IncludeDocumentsTest, include_files5)
     EXPECT_CALL(window_mock, OnLoadInclude).WillOnce(
         [&](const std::string& file_name, const int document_id)
         {
-            document.LoadInclude(file_name);
+            uint task_id = document.LoadInclude(file_name);
             std::this_thread::sleep_for(400ms);
+            return task_id;
         });
 
     EXPECT_CALL(window_mock, Translate).WillRepeatedly(
@@ -1647,8 +1653,9 @@ TEST_F(IncludeDocumentsTest, include_files6)
     EXPECT_CALL(window_mock, OnLoadInclude).WillOnce(
         [&](const std::string& file_name, const int document_id)
         {
-            document.LoadInclude(file_name);
+            uint task_id = document.LoadInclude(file_name);
             std::this_thread::sleep_for(400ms);
+            return task_id;
         });
 
     EXPECT_CALL(window_mock, Translate).WillRepeatedly(
@@ -1694,8 +1701,9 @@ TEST_F(IncludeDocumentsTest, include_files7)
     EXPECT_CALL(window_mock, OnLoadInclude).WillRepeatedly(
         [&](const std::string& file_name, const int document_id)
         {
-            document.LoadInclude(file_name);
+            uint task_id = document.LoadInclude(file_name);
             std::this_thread::sleep_for(400ms);
+            return task_id;
         });
 
     EXPECT_CALL(window_mock, Translate).WillRepeatedly(
@@ -1750,8 +1758,9 @@ TEST_F(IncludeDocumentsTest, include_files7)
     EXPECT_CALL(window_mock2, OnLoadInclude).WillRepeatedly(
         [&](const std::string& file_name, const int document_id)
         {
-            document2.LoadInclude(file_name);
+            uint task_id = document2.LoadInclude(file_name);
             std::this_thread::sleep_for(400ms);
+            return task_id;
         });
 
     EXPECT_CALL(window_mock2, Translate).WillRepeatedly(
@@ -1806,8 +1815,9 @@ TEST_F(IncludeDocumentsTest, include_files8)
     EXPECT_CALL(window_mock, OnLoadInclude).WillRepeatedly(
         [&](const std::string& file_name, const int document_id)
         {
-            document.LoadInclude(file_name);
+            uint task_id = document.LoadInclude(file_name);
             std::this_thread::sleep_for(400ms);
+            return task_id;
         });
 
     EXPECT_CALL(window_mock, Translate).WillRepeatedly(
@@ -1848,8 +1858,9 @@ TEST_F(IncludeDocumentsTest, include_files8)
     EXPECT_CALL(window_mock2, OnLoadInclude).WillRepeatedly(
         [&](const std::string& file_name, const int document_id)
         {
-            document2.LoadInclude(file_name);
+            uint task_id = document2.LoadInclude(file_name);
             std::this_thread::sleep_for(400ms);
+            return task_id;
         });
 
     EXPECT_CALL(window_mock2, Translate).WillRepeatedly(
@@ -1884,8 +1895,9 @@ TEST_F(IncludeDocumentsTest, include_files9)
     EXPECT_CALL(window_mock, OnLoadInclude).WillRepeatedly(
         [&](const std::string& file_name, const int document_id)
         {
-            document.LoadInclude(file_name);
+            uint task_id = document.LoadInclude(file_name);
             std::this_thread::sleep_for(400ms);
+            return task_id;
         });
 
     EXPECT_CALL(window_mock, Translate).WillRepeatedly(
@@ -1910,8 +1922,9 @@ TEST_F(IncludeDocumentsTest, include_files9)
     EXPECT_CALL(window_mock2, OnLoadInclude).WillRepeatedly(
         [&](const std::string& file_name, const int document_id)
         {
-            document2.LoadInclude(file_name);
+            uint task_id = document2.LoadInclude(file_name);
             std::this_thread::sleep_for(400ms);
+            return task_id;
         });
 
     EXPECT_CALL(window_mock2, Translate).WillRepeatedly(
@@ -1947,8 +1960,9 @@ TEST_F(IncludeDocumentsTest, include_files10)
     EXPECT_CALL(window_mock, OnLoadInclude).WillRepeatedly(
         [&](const std::string& file_name, const int document_id)
         {
-            document.LoadInclude(file_name);
+            uint task_id = document.LoadInclude(file_name);
             std::this_thread::sleep_for(400ms);
+            return task_id;
         });
 
     EXPECT_CALL(window_mock, Translate).WillRepeatedly(
@@ -1994,8 +2008,9 @@ TEST_F(IncludeDocumentsTest, include_files10)
     EXPECT_CALL(window_mock2, OnLoadInclude).WillRepeatedly(
         [&](const std::string& file_name, const int document_id)
         {
-            document2.LoadInclude(file_name);
+            uint task_id = document2.LoadInclude(file_name);
             std::this_thread::sleep_for(400ms);
+            return task_id;
         });
 
     document2.Load("include_files10.yut");
@@ -2021,8 +2036,9 @@ TEST_F(IncludeDocumentsTest, include_files11)
     EXPECT_CALL(window_mock2, OnLoadInclude).WillRepeatedly(
         [&](const std::string& file_name, const int document_id)
         {
-            document2.LoadInclude(file_name);
+            uint task_id = document2.LoadInclude(file_name);
             std::this_thread::sleep_for(400ms);
+            return task_id;
         });
 
     EXPECT_CALL(window_mock, Translate).WillRepeatedly(
@@ -2094,8 +2110,9 @@ TEST_F(IncludeDocumentsTest, include_files12)
     EXPECT_CALL(window_mock2, OnLoadInclude).WillRepeatedly(
         [&](const std::string& file_name, const int document_id)
         {
-            document2.LoadInclude(file_name);
+            uint task_id = document2.LoadInclude(file_name);
             std::this_thread::sleep_for(400ms);
+            return task_id;
         });
 
     EXPECT_CALL(window_mock, Translate).WillRepeatedly(
@@ -2181,8 +2198,9 @@ TEST_F(IncludeDocumentsTest, include_files13)
     EXPECT_CALL(window_mock2, OnLoadInclude).WillRepeatedly(
         [&](const std::string& file_name, const int document_id)
         {
-            document2.LoadInclude(file_name);
+            uint task_id = document2.LoadInclude(file_name);
             std::this_thread::sleep_for(400ms);
+            return task_id;
         });
 
     EXPECT_CALL(window_mock2, Translate).WillRepeatedly(
@@ -2236,8 +2254,9 @@ TEST_F(IncludeDocumentsTest, include_files14)
     EXPECT_CALL(window_mock2, OnLoadInclude).WillRepeatedly(
         [&](const std::string& file_name, const int document_id)
         {
-            document2.LoadInclude(file_name);
+            uint task_id = document2.LoadInclude(file_name);
             std::this_thread::sleep_for(400ms);
+            return task_id;
         });
 
     EXPECT_CALL(window_mock2, Translate).WillRepeatedly(
@@ -2291,7 +2310,11 @@ TEST_F(IncludeDocumentsTest, include_files15)
     EXPECT_CALL(window_mock, OnLoadInclude).WillRepeatedly(
         [&](const std::string& file_name, const int document_id)
         {
-            ASSERT_TRUE(file_name == "include1.yut");
+            if (file_name != "include1.yut")
+            {
+                ADD_FAILURE() << "file_name != include1.yut";
+                return 0;
+            }
             std::string json = "{\"file_guid\":\"6dfd2a78-44f9-4dfa-af67-620f0e36f8d9\",\"config\":{\"language\":1,\"use_tabs\":true,\"tab_spaces\":4,\
             \"code_block_border_color\":-16776961,\"numbers_color\":-16776961,\"variables_color\":-16770754,\"functions_color\":-43776,\"units_color\"\
             :-16755456,\"shapes_color\":-16777216,\"error_marks_color\":-65536,\"formula_bg_color\":-1,\"bg_selection_color\":-16776961,\"real_result\"\
@@ -2348,6 +2371,7 @@ TEST_F(IncludeDocumentsTest, include_files15)
             
             document.LoadJsonInclude(json, document_id);
             std::this_thread::sleep_for(400ms);
+            return 0;
         });
 
     EXPECT_CALL(window_mock, Translate).WillRepeatedly(
@@ -2375,8 +2399,9 @@ TEST_F(IncludeDocumentsTest, include_files16)
     EXPECT_CALL(window_mock, OnLoadInclude).WillOnce(
         [&](const std::string& file_name, const int document_id)
         {
-            document.LoadInclude(file_name);
+            uint task_id = document.LoadInclude(file_name);
             std::this_thread::sleep_for(400ms);
+            return task_id;
         });
 
     EXPECT_CALL(window_mock, Translate).WillRepeatedly(
@@ -2410,8 +2435,9 @@ TEST_F(IncludeDocumentsTest, include_files17)
     EXPECT_CALL(window_mock, OnLoadInclude).WillOnce(
         [&](const std::string& file_name, const int document_id)
         {
-            document.LoadInclude(file_name);
+            uint task_id = document.LoadInclude(file_name);
             std::this_thread::sleep_for(400ms);
+            return task_id;
         });
         
     EXPECT_CALL(window_mock, Translate).WillRepeatedly(
@@ -2457,8 +2483,9 @@ TEST_F(IncludeDocumentsTest, include_files18)
     EXPECT_CALL(window_mock, OnLoadInclude).WillOnce(
         [&](const std::string& file_name, const int document_id)
         {
-            document.LoadInclude(file_name);
+            uint task_id = document.LoadInclude(file_name);
             std::this_thread::sleep_for(400ms);
+            return task_id;
         });
         
     EXPECT_CALL(window_mock, Translate).WillRepeatedly(
@@ -2514,8 +2541,9 @@ TEST_F(IncludeDocumentsTest, include_files19)
     EXPECT_CALL(window_mock, OnLoadInclude).WillOnce(
         [&](const std::string& file_name, const int document_id)
         {
-            document.LoadInclude(file_name);
+            uint task_id = document.LoadInclude(file_name);
             std::this_thread::sleep_for(400ms);
+            return task_id;
         });
         
     document.Load("../../test/tests/include_files18_2.yut");
@@ -2544,7 +2572,7 @@ TEST_F(IncludeDocumentsTest, include_files20)
     EXPECT_CALL(window_mock, OnLoadInclude).WillRepeatedly(
         [&](const std::string& file_name, const int document_id)
         {
-            document.LoadInclude(file_name);
+            return document.LoadInclude(file_name);
         });
 
     document.Load("../../test/tests/include_files20_3.yut");
@@ -2586,8 +2614,9 @@ TEST_F(IncludeDocumentsTest, include_files21)
     EXPECT_CALL(window_mock2, OnLoadInclude).WillRepeatedly(
         [&](const std::string& file_name, const int document_id)
         {
-            document2.LoadInclude(file_name);
+            uint task_id = document2.LoadInclude(file_name);
             std::this_thread::sleep_for(400ms);
+            return task_id;
         });
 
     EXPECT_CALL(window_mock2, OnLoadResult).WillRepeatedly(
@@ -2641,8 +2670,9 @@ TEST_F(IncludeDocumentsTest, include_files22)
     EXPECT_CALL(window_mock, OnLoadInclude).WillRepeatedly(
         [&](const std::string& file_name, const int document_id)
         {
-            document.LoadInclude(file_name);
+            uint task_id = document.LoadInclude(file_name);
             std::this_thread::sleep_for(400ms);
+            return task_id;
         });
 
     document.Load("../../test/tests/include_files22_2.yut");
