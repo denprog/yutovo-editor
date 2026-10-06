@@ -58,7 +58,7 @@ public:
 
     virtual void OnSaveResult(const uint task_id, IOResult result, const int document_id);
     virtual void OnLoadResult(const uint task_id, IOResult result, const int document_id);
-    virtual void OnLoadInclude(const std::string& file_name, const int document_id);
+    virtual uint OnLoadInclude(const std::string& file_name, const int document_id);
 
     virtual void OnPdfExportResult(const std::vector<uint8_t>& pdf, const PdfResult result) = 0;
 

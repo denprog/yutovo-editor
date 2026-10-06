@@ -96,7 +96,7 @@ public:
 
     MOCK_METHOD(void, OnSaveResult, (const uint task_id, IOResult result, const int document_id), (override));
     MOCK_METHOD(void, OnLoadResult, (const uint task_id, IOResult result, const int document_id), (override));
-    MOCK_METHOD(void, OnLoadInclude, (const std::string& file_name, const int document_id), (override));
+    MOCK_METHOD(uint, OnLoadInclude, (const std::string& file_name, const int document_id), (override));
 
     MOCK_METHOD(void, OnCopyResult, (CopyResult result), (override));
     MOCK_METHOD(void, OnPasteResult, (PasteResult result), (override));
