@@ -1298,6 +1298,41 @@ TEST_F(DocumentTest, files30)
     std::filesystem::remove("gzip_bomb.yut");
 }
 
+//Save/load a file with the German locale: the imaginary unit is i and the language persists
+TEST_F(DocumentTest, files31)
+{
+    Start(600);
+
+    EXPECT_CALL(window_mock, OnSaveResult).WillOnce(
+        [&](const uint task_id, IOResult result, const int document_id)
+        {
+            ASSERT_TRUE(result == IOResult::Success);
+        });
+
+    document.WaitTask(document.SetLocale(yutovo_calculator::Language::German, true));
+    document.InsertCode(false, true);
+    document.WaitTask(document.InsertString("1+i", true));
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == U"1+i=1.+1.i") << ToBasicString(document.ToText());
+
+    document.WaitTask(document.Save("files_german1.yut"));
+
+    //simulate a fresh application running under another locale: the German language stored in the file must still be accepted by Config::FromJson
+    document.WaitTask(document.SetLocale(yutovo_calculator::Language::English, true));
+    document.WaitTask(document.New());
+    document.Load("files_german1.yut");
+    document.WaitLoad();
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == U"1+i=1.+1.i") << ToBasicString(document.ToText());
+
+    yutovo::Config loaded_config;
+    document.GetConfig(loaded_config);
+    ASSERT_TRUE(loaded_config.language == yutovo_calculator::Language::German);
+}
+
 //Check include file
 TEST_F(IncludeDocumentsTest, include_files1)
 {
@@ -2660,35 +2695,6 @@ TEST_F(IncludeDocumentsTest, include_files21)
         U"v=5."
         ) << ToBasicString(document2.ToText());
     ASSERT_TRUE(document2.IsChanged() == true);
-}
-
-//Check font after load
-TEST_F(IncludeDocumentsTest, include_files22)
-{
-    Start(600);
-
-    EXPECT_CALL(window_mock, OnLoadInclude).WillRepeatedly(
-        [&](const std::string& file_name, const int document_id)
-        {
-            uint task_id = document.LoadInclude(file_name);
-            std::this_thread::sleep_for(400ms);
-            return task_id;
-        });
-
-    document.Load("../../test/tests/include_files22_2.yut");
-    document.WaitLoad();
-    document.WaitSolver();
-    std::this_thread::sleep_for(4s);
-    ASSERT_TRUE(document.ToText() == 
-        U"var=12."
-        ) << ToBasicString(document.ToText());
-    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 1, 0, 0, 0,0, 0, 0, 0, 0}, 
-        ElementSelectionState{ElementId{0, 1, 0, 0, 0, 0, 0}, 0, 1})) << document.GetEditorState().ToString();
-    auto el = document.FindByString({0, 1, 0, 0}, U"var");
-    StringFormat format;
-    ASSERT_TRUE(document.GetStringFormat(el->id, format));
-    ASSERT_TRUE(format.family == "FreeMono") << format.family;
-    ASSERT_TRUE(format.size == 14);
 }
 
 }

@@ -541,6 +541,17 @@ std::string ParagraphFormats::TranslateName(const std::string& name, const yutov
             {"Monospace", "Monoespaçado"},
             {"Code", "Código"}
         };
+    static std::map<std::string, std::string> de_tr =
+        {
+            {"Text body", "Standardtext"},
+            {"Header 1", "Überschrift 1"},
+            {"Header 2", "Überschrift 2"},
+            {"Header 3", "Überschrift 3"},
+            {"Header 4", "Überschrift 4"},
+            {"Example", "Beispiel"},
+            {"Monospace", "Monospace"},
+            {"Code", "Code"}
+        };
 
     switch (language)
     {
@@ -562,6 +573,13 @@ std::string ParagraphFormats::TranslateName(const std::string& name, const yutov
         {
             auto it = pt_br_tr.find(name);
             if (it != pt_br_tr.end())
+                return it->second;
+        }
+        break;
+    case yutovo_calculator::Language::German:
+        {
+            auto it = de_tr.find(name);
+            if (it != de_tr.end())
                 return it->second;
         }
         break;
