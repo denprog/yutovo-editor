@@ -148,4 +148,33 @@ TEST_F(UnitTest, unit3)
         ) << ToBasicString(document.ToText());
 }
 
+//Built-in units must be registered under the German locale (international identifiers)
+TEST_F(UnitTest, unit4)
+{
+    Start(600);
+
+    document.WaitTask(document.SetLocale(yutovo_calculator::Language::German, true));
+
+    document.InsertCode(false, true);
+    document.WaitTask(document.InsertString("10m", true));
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() ==
+        U"10m=10.m"
+        ) << ToBasicString(document.ToText());
+
+    //a Russian identifier is unknown under the German locale (real result type)
+    document.InsertParagraph(true);
+    document.InsertCode(false, true);
+    document.WaitTask(document.InsertString("10м", true));
+    document.WaitTask(document.InsertEquation(ResultType::REAL, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() ==
+        U"10m=10.m\n"\
+        U"10м=Unknown identifier"
+        ) << ToBasicString(document.ToText());
+}
+
 }

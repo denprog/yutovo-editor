@@ -642,6 +642,27 @@ TEST_F(SolverIntegerTest, solve14)
     }
 }
 
+//Integer result under the German locale
+TEST_F(SolverIntegerTest, solver15)
+{
+    Start(600);
+
+    Config config;
+    document.GetConfig(config);
+    config.integer_result.show_notation = false;
+    document.WaitTask(document.SetConfig(config, true));
+
+    document.WaitTask(document.SetLocale(yutovo_calculator::Language::German, true));
+    document.InsertCode(false, true);
+    document.InsertString("2345", true);
+    document.InsertPlus(true);
+    document.InsertString("35", true);
+    document.WaitTask(document.InsertEquation(ResultType::INTEGER, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == U"2345+35=2380") << ToBasicString(document.ToText());
+}
+
 //Logical not
 TEST_F(SolverIntegerTest, logical1)
 {

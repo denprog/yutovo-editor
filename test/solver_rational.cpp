@@ -573,6 +573,25 @@ TEST_F(SolverRationalTest, rational13)
     ASSERT_TRUE(!document.HasErrorMark({0, 0, 0, 0, 0, 0, 0, 2}, start, size)) << ErrorMarks();
 }
 
+//Rational result under the German locale
+TEST_F(SolverRationalTest, rational14)
+{
+    Start(600);
+
+    document.WaitTask(document.SetLocale(yutovo_calculator::Language::German, true));
+    document.InsertCode(false, true);
+    document.InsertDivision(true);
+    document.InsertString("9", true);
+    document.MoveCaretDown(false);
+    document.WaitTask(document.MoveCaretDown(false));
+    document.InsertString("7", true);
+    document.MoveCaretRight(false);
+    document.WaitTask(document.InsertEquation(ResultType::RATIONAL, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == U"(9)/(7)=1(2)/(7)") << ToBasicString(document.ToText());
+}
+
 TEST_F(SolverRationalTest, units1)
 {
     Start(600);
