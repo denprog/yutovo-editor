@@ -452,4 +452,46 @@ TEST_F(SolverArrayRealTest, solver_german1)
 
     ASSERT_TRUE(document.ToText() == U"sum(n=1,5,[1,2,3,4,5])=[5.,10.,15.,20.,25.]") << ToBasicString(document.ToText());
 }
+
+//Sum of an array under the French locale
+TEST_F(SolverArrayRealTest, solver_french1)
+{
+    Start(600);
+
+    EXPECT_CALL(window_mock, Translate).WillRepeatedly([&](ElementId id, const std::u32string& str)
+        {
+            return str;
+        });
+
+    document.WaitTask(document.SetLocale(yutovo_calculator::Language::French, true));
+
+    document.InsertSum(true);
+    document.InsertString(U"n", true);
+    document.MoveCaretRight(false);
+    document.MoveCaretRight(false);
+    document.InsertString(U"1", true);
+    document.MoveCaretRight(false);
+    document.MoveCaretRight(false);
+    document.InsertString(U"5", true);
+    document.MoveCaretRight(false);
+
+    document.InsertOpenSquareBracket(true);
+    document.InsertString("1", true);
+    document.InsertComma(true);
+    document.InsertString("2", true);
+    document.InsertComma(true);
+    document.InsertString("3", true);
+    document.InsertComma(true);
+    document.InsertString("4", true);
+    document.InsertComma(true);
+    document.InsertString("5", true);
+    document.InsertCloseSquareBracket(true);
+    document.WaitTask(document.MoveCaretRight(false));
+
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(2s);
+
+    ASSERT_TRUE(document.ToText() == U"sum(n=1,5,[1,2,3,4,5])=[5.,10.,15.,20.,25.]") << ToBasicString(document.ToText());
+}
 }
