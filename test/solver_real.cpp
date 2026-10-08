@@ -401,6 +401,20 @@ TEST_F(SolverRealTest, solver14)
     ASSERT_TRUE(document.ToText() == U"10m=10.m") << ToBasicString(document.ToText());
 }
 
+//Real result with a unit under the French locale
+TEST_F(SolverRealTest, solver15)
+{
+    Start(600);
+
+    document.WaitTask(document.SetLocale(yutovo_calculator::Language::French, true));
+    document.InsertCode(false, true);
+    document.WaitTask(document.InsertString("10m", true));
+    document.WaitTask(document.InsertEquation(ResultType::REAL, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == U"10m=10.m") << ToBasicString(document.ToText());
+}
+
 //Changing unit of result
 TEST_F(SolverRealTest, units1)
 {

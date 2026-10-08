@@ -1147,6 +1147,26 @@ TEST_F(SolverSymbolicTest, solver23)
     ASSERT_TRUE(document.ToText() == U"derivative(pow(x,2),x)=2*x") << ToBasicString(document.ToText());
 }
 
+//Symbolic real result under the French locale
+TEST_F(SolverSymbolicTest, solver24)
+{
+    Start(600);
+
+    document.WaitTask(document.SetLocale(yutovo_calculator::Language::French, true));
+    document.WaitTask(document.InsertDerivative(U"d", 1, true));
+    document.InsertString("x", true);
+    document.InsertPower(true);
+    document.InsertString("2", true);
+    document.WaitTask(document.MoveCaretDown(false));
+    document.WaitTask(document.MoveCaretDown(false));
+    document.InsertString("x", true);
+    document.WaitTask(document.MoveCaretRight(false));
+    document.WaitTask(document.InsertEquation(ResultType::SYMBOLIC_REAL, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == U"derivative(pow(x,2),x)=2*x") << ToBasicString(document.ToText());
+}
+
 TEST_F(SolverSymbolicTest, indefinite_integral1)
 {
     Start(600);

@@ -2905,6 +2905,68 @@ TEST_F(ParagraphTest, format15)
         document.ToHtml();
 }
 
+TEST_F(ParagraphTest, format16)
+{
+    auto string_formats = std::make_shared<StringFormats>();
+    ParagraphFormats formats(string_formats, yutovo_calculator::Language::German);
+
+    std::vector<ParagraphFormatPtr> all;
+    formats.GetFormats(all);
+    ASSERT_TRUE(all.size() == 8) << all.size();
+
+    std::map<std::string, std::string> expected =
+        {
+            {"Text body", "Standardtext"},
+            {"Header 1", "Überschrift 1"},
+            {"Header 2", "Überschrift 2"},
+            {"Header 3", "Überschrift 3"},
+            {"Header 4", "Überschrift 4"},
+            {"Example", "Beispiel"},
+            {"Monospace", "Monospace"},
+            {"Code", "Code"}
+        };
+    for (const auto& [name, tr_name] : expected)
+    {
+        auto format = formats.GetFormat(name, yutovo_calculator::Language::German);
+        ASSERT_TRUE(format != nullptr) << name;
+        ASSERT_TRUE(format->name == tr_name) << name << " -> " << format->name;
+    }
+
+    //an unknown name is not translated, so it is not found among the predefined German formats
+    ASSERT_TRUE(formats.GetFormat("Custom", yutovo_calculator::Language::German) == nullptr);
+}
+
+TEST_F(ParagraphTest, format17)
+{
+    auto string_formats = std::make_shared<StringFormats>();
+    ParagraphFormats formats(string_formats, yutovo_calculator::Language::French);
+
+    std::vector<ParagraphFormatPtr> all;
+    formats.GetFormats(all);
+    ASSERT_TRUE(all.size() == 8) << all.size();
+
+    std::map<std::string, std::string> expected =
+        {
+            {"Text body", "Corps de texte"},
+            {"Header 1", "Titre 1"},
+            {"Header 2", "Titre 2"},
+            {"Header 3", "Titre 3"},
+            {"Header 4", "Titre 4"},
+            {"Example", "Exemple"},
+            {"Monospace", "Monospace"},
+            {"Code", "Code"}
+        };
+    for (const auto& [name, tr_name] : expected)
+    {
+        auto format = formats.GetFormat(name, yutovo_calculator::Language::French);
+        ASSERT_TRUE(format != nullptr) << name;
+        ASSERT_TRUE(format->name == tr_name) << name << " -> " << format->name;
+    }
+
+    //an unknown name is not translated, so it is not found among the predefined French formats
+    ASSERT_TRUE(formats.GetFormat("Custom", yutovo_calculator::Language::French) == nullptr);
+}
+
 //Delete a paragraph
 TEST_F(ParagraphTest, delete1)
 {
@@ -4832,37 +4894,6 @@ TEST_F(ParagraphTest, string_format4)
     std::string json2;
     document.WaitTask(document.SaveJson(json2, 1, false));
     ASSERT_TRUE(json2.find("\"size\": 20") != std::string::npos) << json2;
-}
-
-TEST_F(ParagraphTest, paragraphFormatsGerman)
-{
-    auto string_formats = std::make_shared<StringFormats>();
-    ParagraphFormats formats(string_formats, yutovo_calculator::Language::German);
-
-    std::vector<ParagraphFormatPtr> all;
-    formats.GetFormats(all);
-    ASSERT_TRUE(all.size() == 8) << all.size();
-
-    std::map<std::string, std::string> expected =
-        {
-            {"Text body", "Standardtext"},
-            {"Header 1", "Überschrift 1"},
-            {"Header 2", "Überschrift 2"},
-            {"Header 3", "Überschrift 3"},
-            {"Header 4", "Überschrift 4"},
-            {"Example", "Beispiel"},
-            {"Monospace", "Monospace"},
-            {"Code", "Code"}
-        };
-    for (const auto& [name, tr_name] : expected)
-    {
-        auto format = formats.GetFormat(name, yutovo_calculator::Language::German);
-        ASSERT_TRUE(format != nullptr) << name;
-        ASSERT_TRUE(format->name == tr_name) << name << " -> " << format->name;
-    }
-
-    //an unknown name is not translated, so it is not found among the predefined German formats
-    ASSERT_TRUE(formats.GetFormat("Custom", yutovo_calculator::Language::German) == nullptr);
 }
 
 }
