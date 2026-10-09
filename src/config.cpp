@@ -79,7 +79,7 @@ void Config::FromJson(const rapidjson::Document& value, rapidjson::Document::All
     {
         int val = value["language"].GetInt();
         //a stored value outside the known languages must not reach the parsers, they throw on an unknown language
-        if (val >= (int)yutovo_calculator::Language::English && val <= (int)yutovo_calculator::Language::French)
+        if (val >= (int)yutovo_calculator::Language::English && val <= (int)yutovo_calculator::Language::Italian)
             language = (yutovo_calculator::Language)val;
     }
     

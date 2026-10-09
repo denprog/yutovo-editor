@@ -779,6 +779,39 @@ TEST_F(SolverComplexTest, solver27)
     ASSERT_TRUE(document.ToText() == U"3.4i=3.4i") << ToBasicString(document.ToText());
 }
 
+//The Russian imaginary unit j is not an identifier under the Italian locale
+TEST_F(SolverComplexTest, solver28)
+{
+    Start(600);
+
+    EXPECT_CALL(window_mock, Translate).WillRepeatedly([&](ElementId id, const std::u32string& str)
+        {
+            return str;
+        });
+
+    document.WaitTask(document.SetLocale(yutovo_calculator::Language::Italian, true));
+    document.InsertCode(false, true);
+    document.WaitTask(document.InsertString("1+j", true));
+    document.WaitTask(document.InsertEquation(ResultType::REAL, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == U"1+j=Unknown identifier") << ToBasicString(document.ToText());
+}
+
+//Complex result under the Italian locale: the imaginary unit is i
+TEST_F(SolverComplexTest, solver29)
+{
+    Start(600);
+
+    document.WaitTask(document.SetLocale(yutovo_calculator::Language::Italian, true));
+    document.InsertCode(false, true);
+    document.WaitTask(document.InsertString("3.4i", true));
+    document.WaitTask(document.InsertEquation(ResultType::COMPLEX, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == U"3.4i=3.4i") << ToBasicString(document.ToText());
+}
+
 TEST_F(SolverComplexTest, definite_integral1)
 {
     Start(600);
