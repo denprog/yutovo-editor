@@ -678,6 +678,10 @@ struct TextBlockTest : DocumentTest
 {
 };
 
+struct UnorderedListTest : DocumentTest
+{
+};
+
 struct VariablesTest : SolverTest
 {
     void Start(int width)

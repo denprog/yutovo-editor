@@ -65,7 +65,8 @@ public:
 
     virtual ElementPtr GetPlainRow();
 
-    virtual void SetMarker(const std::u32string& _marker, const StringFormatPtr& _marker_format);
+    void SetMarker(const std::u32string& _marker, const StringFormatPtr& _marker_format);
+    void ApplyFormatMarker();
 
 public:
     ParagraphFormatPtr format;

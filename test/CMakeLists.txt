@@ -64,6 +64,7 @@ add_executable(${PROJECT_NAME}_tests
 	clipboard.cpp
 	code.cpp
 	text_block.cpp
+	unordered_list.cpp
 	plus.cpp
 	minus.cpp
 	multiply.cpp
