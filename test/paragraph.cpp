@@ -4896,4 +4896,35 @@ TEST_F(ParagraphTest, string_format4)
     ASSERT_TRUE(json2.find("\"size\": 20") != std::string::npos) << json2;
 }
 
+TEST_F(ParagraphTest, format18)
+{
+    auto string_formats = std::make_shared<StringFormats>();
+    ParagraphFormats formats(string_formats, yutovo_calculator::Language::Italian);
+
+    std::vector<ParagraphFormatPtr> all;
+    formats.GetFormats(all);
+    ASSERT_TRUE(all.size() == 8) << all.size();
+
+    std::map<std::string, std::string> expected =
+        {
+            {"Text body", "Corpo del testo"},
+            {"Header 1", "Titolo 1"},
+            {"Header 2", "Titolo 2"},
+            {"Header 3", "Titolo 3"},
+            {"Header 4", "Titolo 4"},
+            {"Example", "Esempio"},
+            {"Monospace", "Monospace"},
+            {"Code", "Codice"}
+        };
+    for (const auto& [name, tr_name] : expected)
+    {
+        auto format = formats.GetFormat(name, yutovo_calculator::Language::Italian);
+        ASSERT_TRUE(format != nullptr) << name;
+        ASSERT_TRUE(format->name == tr_name) << name << " -> " << format->name;
+    }
+
+    //an unknown name is not translated, so it is not found among the predefined Italian formats
+    ASSERT_TRUE(formats.GetFormat("Custom", yutovo_calculator::Language::Italian) == nullptr);
+}
+
 }

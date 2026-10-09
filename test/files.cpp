@@ -1368,6 +1368,41 @@ TEST_F(DocumentTest, files32)
     ASSERT_TRUE(loaded_config.language == yutovo_calculator::Language::French);
 }
 
+//Save/load a file with the Italian locale: the imaginary unit is i and the language persists
+TEST_F(DocumentTest, files33)
+{
+    Start(600);
+
+    EXPECT_CALL(window_mock, OnSaveResult).WillOnce(
+        [&](const uint task_id, IOResult result, const int document_id)
+        {
+            ASSERT_TRUE(result == IOResult::Success);
+        });
+
+    document.WaitTask(document.SetLocale(yutovo_calculator::Language::Italian, true));
+    document.InsertCode(false, true);
+    document.WaitTask(document.InsertString("1+i", true));
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == U"1+i=1.+1.i") << ToBasicString(document.ToText());
+
+    document.WaitTask(document.Save("files_italian1.yut"));
+
+    //simulate a fresh application running under another locale: the Italian language stored in the file must still be accepted by Config::FromJson
+    document.WaitTask(document.SetLocale(yutovo_calculator::Language::English, true));
+    document.WaitTask(document.New());
+    document.Load("files_italian1.yut");
+    document.WaitLoad();
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == U"1+i=1.+1.i") << ToBasicString(document.ToText());
+
+    yutovo::Config loaded_config;
+    document.GetConfig(loaded_config);
+    ASSERT_TRUE(loaded_config.language == yutovo_calculator::Language::Italian);
+}
+
 //Check include file
 TEST_F(IncludeDocumentsTest, include_files1)
 {
