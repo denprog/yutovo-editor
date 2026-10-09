@@ -181,6 +181,7 @@ public:
 
     bool GetCurrentParagraphFormat(ParagraphFormatPtr& format);
     uint SetCurrentParagraphFormat(const std::string& name, bool with_undo = true);
+    uint SetCurrentParagraphMarker(const std::u32string& marker, bool with_undo = true);
 
     bool GetCurrentFormulaFormat(FormulaFormatPtr& format);
     void SetCurrentFormulaFormat(const std::string& name);

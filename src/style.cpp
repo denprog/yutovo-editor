@@ -301,26 +301,27 @@ bool StringFormats::FromJson(const rapidjson::Value::ConstArray& arr, rapidjson:
 
 //ParagraphFormat
 
-ParagraphFormat::ParagraphFormat(std::string _name, Alignment _alignment, WordWrap _word_wrap, uint _line_spacing, uint _indent_before, uint _indent_after, 
-    uint _indent_first_line, uint _spacing_before, uint _spacing_after, StringFormatPtr _string_format) :
+ParagraphFormat::ParagraphFormat(std::string _name, Alignment _alignment, WordWrap _word_wrap, uint _line_spacing, uint _indent_before, uint _indent_after,
+    uint _indent_first_line, uint _spacing_before, uint _spacing_after, StringFormatPtr _string_format, const std::u32string& _marker) :
     name(_name),
     alignment(_alignment),
     word_wrap(_word_wrap),
     line_spacing(_line_spacing),
     indent_before(_indent_before),
     indent_after(_indent_after),
-    indent_first_line(_indent_first_line), 
+    indent_first_line(_indent_first_line),
     spacing_before(_spacing_before),
     spacing_after(_spacing_after),
-    default_string_format(_string_format)
+    default_string_format(_string_format),
+    marker(_marker)
 {
 }
 
 bool ParagraphFormat::operator==(const ParagraphFormat& f) const
 {
-    return name == f.name && alignment == f.alignment && word_wrap == f.word_wrap && line_spacing == f.line_spacing && indent_before == f.indent_before && 
-        indent_after == f.indent_after && indent_first_line == f.indent_first_line && spacing_before == f.spacing_before && spacing_after == f.spacing_after && 
-        *default_string_format == *f.default_string_format;
+    return name == f.name && alignment == f.alignment && word_wrap == f.word_wrap && line_spacing == f.line_spacing && indent_before == f.indent_before &&
+        indent_after == f.indent_after && indent_first_line == f.indent_first_line && spacing_before == f.spacing_before && spacing_after == f.spacing_after &&
+        *default_string_format == *f.default_string_format && marker == f.marker;
 }
 
 void ParagraphFormat::ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc)
@@ -338,6 +339,11 @@ void ParagraphFormat::ToJson(rapidjson::Value& value, rapidjson::Document::Alloc
     obj.AddMember("spacing_after", spacing_after, alloc);
     rapidjson::Value _uuid(boost::uuids::to_string(default_string_format->id).c_str(), alloc);
     obj.AddMember("default_string_format", _uuid, alloc);
+    if (!marker.empty())
+    {
+        rapidjson::Value _marker(ToBasicString(marker).c_str(), alloc);
+        obj.AddMember("marker", _marker, alloc);
+    }
     value.PushBack(obj, alloc);
 }
 
@@ -397,7 +403,15 @@ bool ParagraphFormat::FromJson(Document* document, const rapidjson::Value::Const
         return false;
     spacing_after = value["spacing_after"].GetInt();
 
+    if (value.HasMember("marker") && value["marker"].IsString())
+        marker = ToUtfString(value["marker"].GetString());
+
     return true;
+}
+
+bool ParagraphFormat::IsListMarker(const std::u32string& marker)
+{
+    return marker == small_circle_marker || marker == large_circle_marker || marker == diamond_marker || marker == square_marker;
 }
 
 std::string ParagraphFormat::ToString()
@@ -421,39 +435,40 @@ ParagraphFormats::ParagraphFormats(StringFormatsPtr _string_formats, const yutov
 {
     //there are predefined paragraph styles
     GetFormat("Text body", ParagraphFormat::Alignment::Left, ParagraphFormat::WordWrap::Normal, 5, 10, 10, 0, 10, 10, 
-        string_formats->GetFormat("Arial", 14, false, false, false, false, false, false, Color::Black(), Color::White(), Color::Blue()), language);
+        string_formats->GetFormat("Arial", 14, false, false, false, false, false, false, Color::Black(), Color::White(), Color::Blue()), U"", language);
     GetFormat("Header 1", ParagraphFormat::Alignment::Left, ParagraphFormat::WordWrap::Normal, 5, 10, 10, 0, 10, 10, 
-        string_formats->GetFormat("Arial", 30, true, false, false, false, false, false, Color::Black(), Color::White(), Color::Blue()), language);
+        string_formats->GetFormat("Arial", 30, true, false, false, false, false, false, Color::Black(), Color::White(), Color::Blue()), U"", language);
     GetFormat("Header 2", ParagraphFormat::Alignment::Left, ParagraphFormat::WordWrap::Normal, 5, 10, 10, 0, 10, 10, 
-        string_formats->GetFormat("Arial", 26, true, false, false, false, false, false, Color::Black(), Color::White(), Color::Blue()), language);
+        string_formats->GetFormat("Arial", 26, true, false, false, false, false, false, Color::Black(), Color::White(), Color::Blue()), U"", language);
     GetFormat("Header 3", ParagraphFormat::Alignment::Left, ParagraphFormat::WordWrap::Normal, 5, 10, 10, 0, 10, 10,
-        string_formats->GetFormat("Arial", 22, true, false, false, false, false, false, Color::Black(), Color::White(), Color::Blue()), language);
+        string_formats->GetFormat("Arial", 22, true, false, false, false, false, false, Color::Black(), Color::White(), Color::Blue()), U"", language);
     GetFormat("Header 4", ParagraphFormat::Alignment::Left, ParagraphFormat::WordWrap::Normal, 5, 10, 10, 0, 10, 10,
-        string_formats->GetFormat("Arial", 16, true, false, false, false, false, false, Color::Black(), Color::White(), Color::Blue()), language);
+        string_formats->GetFormat("Arial", 16, true, false, false, false, false, false, Color::Black(), Color::White(), Color::Blue()), U"", language);
     GetFormat("Example", ParagraphFormat::Alignment::Left, ParagraphFormat::WordWrap::Normal, 5, 10, 10, 0, 10, 10,
-        string_formats->GetFormat("Arial", 14, false, true, false, false, false, false, Color::Black(), Color::White(), Color::Blue()), language);
+        string_formats->GetFormat("Arial", 14, false, true, false, false, false, false, Color::Black(), Color::White(), Color::Blue()), U"", language);
     GetFormat("Monospace", ParagraphFormat::Alignment::Left, ParagraphFormat::WordWrap::Normal, 5, 10, 10, 0, 10, 10, 
-        string_formats->GetFormat("Courier New", 12, false, false, false, false, false, false, Color::Black(), Color::White(), Color::Blue()), language);
+        string_formats->GetFormat("Courier New", 12, false, false, false, false, false, false, Color::Black(), Color::White(), Color::Blue()), U"", language);
     GetFormat("Code", ParagraphFormat::Alignment::Left, ParagraphFormat::WordWrap::None, 2, 2, 2, 0, 2, 2, 
-        string_formats->GetFormat("FreeMono", 14, false, false, false, false, false, false, Color::Black(), Color::White(), Color::Blue()), language);
+        string_formats->GetFormat("FreeMono", 14, false, false, false, false, false, false, Color::Black(), Color::White(), Color::Blue()), U"", language);
 }
 
-ParagraphFormatPtr ParagraphFormats::GetFormat(std::string _name, ParagraphFormat::Alignment _alignment, ParagraphFormat::WordWrap _word_wrap, 
-    uint _line_spacing, uint _indent_before, uint _indent_after, uint _indent_first_line, uint _spacing_before, uint _spacing_after, 
-    StringFormatPtr _string_format, const yutovo_calculator::Language language)
+ParagraphFormatPtr ParagraphFormats::GetFormat(std::string _name, ParagraphFormat::Alignment _alignment, ParagraphFormat::WordWrap _word_wrap,
+    uint _line_spacing, uint _indent_before, uint _indent_after, uint _indent_first_line, uint _spacing_before, uint _spacing_after,
+    StringFormatPtr _string_format, const std::u32string& _marker, const yutovo_calculator::Language language)
 {
     //return the present format
     for (auto& p : paragraph_formats)
     {
-        if (p->name == _name && p->alignment == _alignment && p->word_wrap == _word_wrap && p->line_spacing == _line_spacing && 
-            p->indent_before == _indent_before && p->indent_after == _indent_after && p->indent_first_line == _indent_first_line && 
-            p->spacing_before == _spacing_before && p->spacing_after == _spacing_after && *p->default_string_format == *_string_format)
+        if (p->name == _name && p->alignment == _alignment && p->word_wrap == _word_wrap && p->line_spacing == _line_spacing &&
+            p->indent_before == _indent_before && p->indent_after == _indent_after && p->indent_first_line == _indent_first_line &&
+            p->spacing_before == _spacing_before && p->spacing_after == _spacing_after && *p->default_string_format == *_string_format &&
+            p->marker == _marker)
             return p;
     }
 
     //or create a new one
-    ParagraphFormatPtr p(new ParagraphFormat(TranslateName(_name, language), _alignment, _word_wrap, _line_spacing, _indent_before, 
-        _indent_after, _indent_first_line, _spacing_before, _spacing_after, _string_format));
+    ParagraphFormatPtr p(new ParagraphFormat(TranslateName(_name, language), _alignment, _word_wrap, _line_spacing, _indent_before,
+        _indent_after, _indent_first_line, _spacing_before, _spacing_after, _string_format, _marker));
     paragraph_formats.push_back(p);
     return p;
 }

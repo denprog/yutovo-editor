@@ -106,11 +106,16 @@ Element* Paragraph::FromJson(Element* parent, Document* document, const rapidjso
     if (value.HasMember("format_alignment") && value["format_alignment"].IsInt())
         alignment = (ParagraphFormat::Alignment)value["format_alignment"].GetInt();
 
+    std::u32string _marker;
+    if (value.HasMember("marker") && value["marker"].IsString())
+        _marker = ToUtfString(value["marker"].GetString());
+
     auto f = document->paragraph_formats->GetFormat(format_name, document->config.language);
     if (f)
     {
-        f = document->paragraph_formats->GetFormat(format_name, alignment, f->word_wrap, f->line_spacing, f->indent_before, f->indent_after, 
-            f->indent_first_line, f->spacing_before, f->spacing_after, f->default_string_format, document->config.language);
+        //the list marker is a part of the paragraph format - the loaded format has to carry it
+        f = document->paragraph_formats->GetFormat(format_name, alignment, f->word_wrap, f->line_spacing, f->indent_before, f->indent_after,
+            f->indent_first_line, f->spacing_before, f->spacing_after, f->default_string_format, _marker, document->config.language);
         if (f)
         {
             p->format = f;
@@ -118,8 +123,8 @@ Element* Paragraph::FromJson(Element* parent, Document* document, const rapidjso
         }
     }
 
-    if (value.HasMember("marker") && value["marker"].IsString())
-        p->marker = ToUtfString(value["marker"].GetString());
+    if (!_marker.empty())
+        p->marker = _marker;
     if (value.HasMember("marker_format_id") && value["marker_format_id"].IsString())
     {
         auto format_id_str = value["marker_format_id"].GetString();
@@ -133,6 +138,13 @@ Element* Paragraph::FromJson(Element* parent, Document* document, const rapidjso
             return nullptr;
         }
         p->marker_format = document->GetStringFormat(format_id);
+    }
+    if (!p->marker.empty() && !p->marker_format)
+    {
+        //the marker format is missing in the saved string formats - use the paragraph default string format with the default colors
+        auto f = p->format->default_string_format;
+        if (f)
+            p->marker_format = document->GetStringFormat(f->family, f->size, f->bold, f->italic, f->underline, f->strikethrough, f->subscript, f->superscript);
     }
     return p;
 }
@@ -155,8 +167,16 @@ void Paragraph::Draw() const
             marker_draw_format = document->string_formats->GetFormat(marker_format, document->config.scale);
         Size s = window->GetTextSize(marker, marker_draw_format);
         int h = std::max(el->rect.height, s.height);
-        window->DrawText(ToBasicString(marker), marker_draw_format, 
-            Rect{r.left, r.top + (h - s.height) / 2, s.width, s.height}, 
+        int left = r.left;
+        if (ParagraphFormat::IsListMarker(marker))
+        {
+            //the list marker sits at the text indent of a plain paragraph - the text follows the marker
+            int left_m = 0, top_m = 0, right_m = 0, bottom_m = 0;
+            el->GetMargin(left_m, top_m, right_m, bottom_m);
+            left = r.left + std::round(format->indent_before * document->config.scale) + left_m;
+        }
+        window->DrawText(ToBasicString(marker), marker_draw_format,
+            Rect{left, r.top + (h - s.height) / 2, s.width, s.height},
             marker_draw_format->text_color, current_string_format->text_bg_color, false);
     }
 }
@@ -184,6 +204,8 @@ bool Paragraph::Remake(bool with_elements)
             marker_draw_format = document->string_formats->GetFormat(marker_format, document->config.scale);
         Size s(window->GetTextSize(marker, marker_draw_format), document->config.scale);
         m = s.width;
+        if (ParagraphFormat::IsListMarker(marker))
+            m += Size(window->GetTextSize(U" ", marker_draw_format), document->config.scale).width / 2; //a gap between the list marker and the text
         if (page_width > 0)
             page_width -= m;
     }
@@ -466,9 +488,19 @@ bool Paragraph::DeleteElements(bool left, bool with_undo, ElementId& changed_ele
                 }
             }
         }
-        else if (left && row->GetFirstCaretState(first_state, nullptr))
+        else if (left)
         {
-            if (c == first_state)
+            if (ParagraphFormat::IsListMarker(marker) && GetFirstCaretState(first_state, nullptr) && c == first_state)
+            {
+                //backspace at the beginning of a list paragraph removes the list marker first - the marker is a part of the paragraph format
+                ParagraphFormatPtr f = document->paragraph_formats->GetFormat(format->name, format->alignment, format->word_wrap, format->line_spacing,
+                    format->indent_before, format->indent_after, format->indent_first_line, format->spacing_before, format->spacing_after,
+                    format->default_string_format, std::u32string(), document->config.language);
+                if (f)
+                    ChangeParagraphFormat(f, with_undo, changed_element);
+                return true;
+            }
+            if (row->GetFirstCaretState(first_state, nullptr) && c == first_state)
             {
                 int p = elements->GetElementPos(row->id);
                 if (p > 0)
@@ -492,15 +524,18 @@ bool Paragraph::ChangeParagraphFormat(const ParagraphFormatPtr _format, bool wit
 {
     if (*format == *_format)
         return false;
-    
+
     if (with_undo)
         document->StoreUndo(id);
-    
+
     for (int i = 0; i < elements->Count(); ++i)
         elements->Get(i)->UpdateStringFormat(format->default_string_format, _format->default_string_format);
 
+    bool marker_changed = _format->marker != format->marker;
     format = _format;
     current_string_format = format->default_string_format;
+    if (marker_changed)
+        ApplyFormatMarker();
     changed_element = id;
     document->CaretMoved();
     return true;
@@ -700,7 +735,15 @@ std::string Paragraph::ToHtml() const
         r += " align=\"justify\"";
         break;
     }
-    return r + ">" + Element::ToHtml() + "</p>";
+    r += ">";
+    if (ParagraphFormat::IsListMarker(marker))
+    {
+        if (marker_format)
+            r += "<span style=\"color: " + marker_format->text_color.ToHex() + ";\">" + ToBasicString(marker) + "&nbsp;</span>";
+        else
+            r += ToBasicString(marker) + "&nbsp;";
+    }
+    return r + Element::ToHtml() + "</p>";
 }
 
 ElementPtr Paragraph::GetPlainRow()
@@ -724,6 +767,17 @@ void Paragraph::SetMarker(const std::u32string& _marker, const StringFormatPtr& 
     marker = _marker;
     marker_format = _marker_format;
     marker_draw_format.reset();
+}
+
+void Paragraph::ApplyFormatMarker()
+{
+    if (format->marker.empty())
+        SetMarker(U"", nullptr);
+    else
+    {
+        auto f = format->default_string_format;
+        SetMarker(format->marker, document->GetStringFormat(f->family, f->size, f->bold, f->italic, f->underline, f->strikethrough, f->subscript, f->superscript));
+    }
 }
 
 }

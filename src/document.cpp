@@ -480,6 +480,17 @@ uint Document::InsertParagraph(bool with_undo)
     if (!el)
         return 0;
     ParagraphFormatPtr format = ((Paragraph*)el.get())->format;
+    Paragraph* source = el->type == ElementType::PARAGRAPH ? (Paragraph*)el.get() : nullptr;
+    if (source && ParagraphFormat::IsListMarker(source->marker))
+    {
+        if (source->IsEmpty())
+            //an empty list item - pressing Enter exits the list instead of adding a new paragraph
+            return SetCurrentParagraphMarker(std::u32string(), with_undo);
+        //the new paragraph continues the list
+        Paragraph* paragraph = new Paragraph(this, format);
+        paragraph->ApplyFormatMarker();
+        return InsertElement(paragraph, with_undo);
+    }
     return InsertElement(new Paragraph(this, format), with_undo);
 }
 
@@ -1225,14 +1236,34 @@ uint Document::ChangeParagraphFormat(const ParagraphFormat::Alignment alignment,
         if (!el)
             return 0;
         ParagraphFormatPtr format = ((Paragraph*)el.get())->format;
-        format = paragraph_formats->GetFormat(format->name, alignment, format->word_wrap, format->line_spacing, format->indent_before, 
-            format->indent_after, format->indent_first_line, format->spacing_before, format->spacing_after, format->default_string_format, 
-            config.language);
+        format = paragraph_formats->GetFormat(format->name, alignment, format->word_wrap, format->line_spacing, format->indent_before,
+            format->indent_after, format->indent_first_line, format->spacing_before, format->spacing_after, format->default_string_format,
+            format->marker, config.language);
         tasks.emplace_back(new ChangeParagraphFormatTask(text, c.id, format, with_undo));
         last_task_id = tasks.back()->id;
     }
     next_circle = true;
     return last_task_id;
+}
+
+uint Document::SetCurrentParagraphMarker(const std::u32string& marker, bool with_undo)
+{
+    LOG_TRACE("Set current paragraph marker: {}", ToBasicString(marker));
+    {
+        std::lock_guard<std::recursive_mutex> lock(edit_mutex);
+        CaretState c = caret->GetCaretState();
+        auto el = FindParentParagraph(c.id);
+        if (!el || el->type != ElementType::PARAGRAPH) //list markers live on plain text paragraphs only
+            return 0;
+
+        //applying the same marker again toggles it off - for the caret paragraph and the whole selection with it
+        ParagraphFormatPtr format = ((Paragraph*)el.get())->format;
+        std::u32string target = ((Paragraph*)el.get())->marker == marker ? std::u32string() : marker;
+        format = paragraph_formats->GetFormat(format->name, format->alignment, format->word_wrap, format->line_spacing, format->indent_before,
+            format->indent_after, format->indent_first_line, format->spacing_before, format->spacing_after, format->default_string_format, target,
+            config.language);
+        return ChangeParagraphFormat(format, with_undo);
+    }
 }
 
 bool Document::StoreUndo(const ElementId& _id)
@@ -3426,6 +3457,8 @@ void Document::SaveStringFormats(rapidjson::Value& value, rapidjson::Document::A
             }
             else
             {
+                if (el->type == ElementType::PARAGRAPH && !((Paragraph*)el.get())->marker.empty() && ((Paragraph*)el.get())->marker_format)
+                    used.insert(((Paragraph*)el.get())->marker_format);
                 for (int i = 0; i < el->elements->Count(); ++i)
                     collect(el->elements->Get(i));
             }

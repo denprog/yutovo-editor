@@ -99,14 +99,23 @@ struct ParagraphFormat
         Normal
     };
 
+    //Unordered list paragraph markers - a paragraph format carrying one of these markers renders a list item
+    inline static const std::u32string small_circle_marker = U"•";
+    inline static const std::u32string large_circle_marker = U"●";
+    inline static const std::u32string diamond_marker = U"♦";
+    inline static const std::u32string square_marker = U"■";
+
     ParagraphFormat() = default;
-    ParagraphFormat(std::string _name, Alignment _alignment, WordWrap _word_wrap, uint _line_spacing, uint _indent_before, uint _indent_after, 
-        uint _indent_first_line, uint _spacing_before, uint _spacing_after, StringFormatPtr _string_format);
-    
+    ParagraphFormat(std::string _name, Alignment _alignment, WordWrap _word_wrap, uint _line_spacing, uint _indent_before, uint _indent_after,
+        uint _indent_first_line, uint _spacing_before, uint _spacing_after, StringFormatPtr _string_format,
+        const std::u32string& _marker = std::u32string());
+
     bool operator==(const ParagraphFormat& f) const;
 
     void ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc);
     bool FromJson(Document* document, const rapidjson::Value::ConstObject& arr, rapidjson::Document::AllocatorType& alloc);
+
+    static bool IsListMarker(const std::u32string& marker);
 
     std::string ToString();
 
@@ -121,6 +130,8 @@ struct ParagraphFormat
     uint spacing_after = 0;
 
     StringFormatPtr default_string_format;
+
+    std::u32string marker;
 };
 
 typedef std::shared_ptr<ParagraphFormat> ParagraphFormatPtr;
@@ -131,9 +142,9 @@ class ParagraphFormats
 public:
     ParagraphFormats(StringFormatsPtr _string_formats, const yutovo_calculator::Language language);
 
-    ParagraphFormatPtr GetFormat(std::string _name, ParagraphFormat::Alignment _alignment, ParagraphFormat::WordWrap _word_wrap, uint _line_spacing, 
-        uint _indent_before, uint _indent_after, uint _indent_first_line, uint _spacing_before, uint _spacing_after, StringFormatPtr _string_format, 
-        const yutovo_calculator::Language language);
+    ParagraphFormatPtr GetFormat(std::string _name, ParagraphFormat::Alignment _alignment, ParagraphFormat::WordWrap _word_wrap, uint _line_spacing,
+        uint _indent_before, uint _indent_after, uint _indent_first_line, uint _spacing_before, uint _spacing_after, StringFormatPtr _string_format,
+        const std::u32string& _marker, const yutovo_calculator::Language language);
     ParagraphFormatPtr GetFormat(const std::string& name, const yutovo_calculator::Language language);
     void GetFormats(std::vector<ParagraphFormatPtr>& formats);
 
