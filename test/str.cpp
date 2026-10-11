@@ -506,6 +506,46 @@ TEST_F(DocumentTest, strings13)
     ASSERT_TRUE(document.ToText() == U"5       7") << ToBasicString(document.ToText());
 }
 
+//A zero/negative tab_spaces from a loaded document config is rejected, the current value stays and the tab expansion does not crash
+TEST_F(DocumentTest, strings14)
+{
+    Start(600);
+
+    auto json = "{\"config\":{\"use_tabs\":false,\"tab_spaces\":0},\"string_formats\":[{\"id\":\"e9fe76c1-fdcb-41b4-a64c-b5d5e84eff91\",\"family\":\"a'bc\\\"d<e&f\",\"size\":14,\"bold\":false,"
+        "\"italic\":false,\"underline\":false,\"color\":4278190080,\"selection_color\":4294967295}],\"paragraph_formats\":"
+        "[{\"name\":\"Text body\",\"alignment\":0,\"word_wrap\":1,\"line_spacing\":5,\"indent_before\":10,\"indent_after\":10,\"indent_first_line\":0,"
+        "\"spacing_before\":10,\"spacing_after\":10,\"default_string_format\":\"e9fe76c1-fdcb-41b4-a64c-b5d5e84eff91\"}],\"text\":{\"id\":\"0\",\"type\":1,"
+        "\"elements\":[{\"id\":\"0,0\",\"type\":2,\"elements\":[{\"id\":\"0,0,0\",\"type\":3,\"elements\":[{\"id\":\"0,0,0,0\",\"type\":4,\"elements\":"
+        "\"Hello\",\"format_id\":\"e9fe76c1-fdcb-41b4-a64c-b5d5e84eff91\"}]}],\"format_name\":\"Text body\"}]}}";
+
+    document.WaitTask(document.LoadJson(json, 0));
+    Config config;
+    document.GetConfig(config);
+    ASSERT_TRUE(config.use_tabs == false);
+    ASSERT_TRUE(config.tab_spaces == 4) << config.tab_spaces;
+
+    //the caret stays at the document begin before "Hello", the tab is expanded with the kept tab_spaces
+    document.WaitTask(document.InsertString("5", true));
+    document.WaitTask(document.InsertString("\t", true));
+    ASSERT_TRUE(document.ToText() == U"5   Hello") << ToBasicString(document.ToText());
+
+    //a negative tab_spaces wraps to a huge uint, drawing a kept tab character would measure a giant string
+    auto json2 = "{\"config\":{\"use_tabs\":true,\"tab_spaces\":-1},\"string_formats\":[{\"id\":\"e9fe76c1-fdcb-41b4-a64c-b5d5e84eff91\",\"family\":\"a'bc\\\"d<e&f\",\"size\":14,\"bold\":false,"
+        "\"italic\":false,\"underline\":false,\"color\":4278190080,\"selection_color\":4294967295}],\"paragraph_formats\":"
+        "[{\"name\":\"Text body\",\"alignment\":0,\"word_wrap\":1,\"line_spacing\":5,\"indent_before\":10,\"indent_after\":10,\"indent_first_line\":0,"
+        "\"spacing_before\":10,\"spacing_after\":10,\"default_string_format\":\"e9fe76c1-fdcb-41b4-a64c-b5d5e84eff91\"}],\"text\":{\"id\":\"0\",\"type\":1,"
+        "\"elements\":[{\"id\":\"0,0\",\"type\":2,\"elements\":[{\"id\":\"0,0,0\",\"type\":3,\"elements\":[{\"id\":\"0,0,0,0\",\"type\":4,\"elements\":"
+        "\"Hello\",\"format_id\":\"e9fe76c1-fdcb-41b4-a64c-b5d5e84eff91\"}]}],\"format_name\":\"Text body\"}]}}";
+
+    document.WaitTask(document.LoadJson(json2, 0));
+    document.GetConfig(config);
+    ASSERT_TRUE(config.use_tabs == true);
+    ASSERT_TRUE(config.tab_spaces == 4) << config.tab_spaces;
+
+    document.WaitTask(document.InsertString("\t", true));
+    ASSERT_TRUE(document.ToText() == U"\tHello") << ToBasicString(document.ToText());
+}
+
 TEST_F(DocumentTest, selections1)
 {
     Start(600);

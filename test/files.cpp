@@ -1403,6 +1403,76 @@ TEST_F(DocumentTest, files33)
     ASSERT_TRUE(loaded_config.language == yutovo_calculator::Language::Italian);
 }
 
+//Check of an wrong loaded document
+TEST_F(DocumentTest, files34)
+{
+    Start(600);
+
+    Config c;
+    ASSERT_TRUE(c.FromJson("{\"tab_spaces\":0,\"scale\":0.0,\"real_result\":{\"precision\":-1,\"exp\":-5,\"default_angle_measure\":7,\"result_angle_measure\":-2},"
+        "\"integer_result\":{\"result_notation\":4,\"default_notation\":-1},\"rational_result\":{\"fraction_form\":2},"
+        "\"complex_result\":{\"precision\":100000,\"exp\":100000,\"form\":9,\"max_count\":-1,\"default_angle_measure\":3}}"));
+    ASSERT_TRUE(c.tab_spaces == 4) << c.tab_spaces;
+    ASSERT_TRUE(c.scale == 1.0f) << c.scale;
+    ASSERT_TRUE(c.real_result.precision == 3) << c.real_result.precision;
+    ASSERT_TRUE(c.real_result.exp == 10) << c.real_result.exp;
+    ASSERT_TRUE(c.real_result.default_angle_measure == AngleMeasure::Radian);
+    ASSERT_TRUE(c.real_result.result_angle_measure == AngleMeasure::Radian);
+    ASSERT_TRUE(c.integer_result.result_notation == Notation::Decimal);
+    ASSERT_TRUE(c.integer_result.default_notation == Notation::Decimal);
+    ASSERT_TRUE(c.rational_result.fraction_form == FractionForm::Proper);
+    ASSERT_TRUE(c.complex_result.precision == 3) << c.complex_result.precision;
+    ASSERT_TRUE(c.complex_result.exp == 10) << c.complex_result.exp;
+    ASSERT_TRUE(c.complex_result.form == ComplexForm::Arithmetic);
+    ASSERT_TRUE(c.complex_result.max_count == 10) << c.complex_result.max_count;
+    ASSERT_TRUE(c.complex_result.default_angle_measure == AngleMeasure::Radian);
+
+    ASSERT_TRUE(c.FromJson("{\"tab_spaces\":-1,\"scale\":-1.5}"));
+    ASSERT_TRUE(c.tab_spaces == 4) << c.tab_spaces;
+    ASSERT_TRUE(c.scale == 1.0f) << c.scale;
+
+    ASSERT_TRUE(c.FromJson("{\"tab_spaces\":100000,\"scale\":1e10}"));
+    ASSERT_TRUE(c.tab_spaces == 4) << c.tab_spaces;
+    ASSERT_TRUE(c.scale == 1.0f) << c.scale;
+
+    //valid values must still load
+    Config valid;
+    ASSERT_TRUE(valid.FromJson("{\"tab_spaces\":6,\"scale\":1.5,\"real_result\":{\"precision\":5,\"exp\":15,\"default_angle_measure\":1},"
+        "\"integer_result\":{\"result_notation\":3},\"rational_result\":{\"fraction_form\":1},"
+        "\"complex_result\":{\"precision\":6,\"exp\":12,\"form\":2,\"max_count\":12}}"));
+    ASSERT_TRUE(valid.tab_spaces == 6) << valid.tab_spaces;
+    ASSERT_TRUE(valid.scale == 1.5f) << valid.scale;
+    ASSERT_TRUE(valid.real_result.precision == 5) << valid.real_result.precision;
+    ASSERT_TRUE(valid.real_result.exp == 15) << valid.real_result.exp;
+    ASSERT_TRUE(valid.real_result.default_angle_measure == AngleMeasure::Degree);
+    ASSERT_TRUE(valid.integer_result.result_notation == Notation::Hexadecimal);
+    ASSERT_TRUE(valid.rational_result.fraction_form == FractionForm::Improper);
+    ASSERT_TRUE(valid.complex_result.precision == 6) << valid.complex_result.precision;
+    ASSERT_TRUE(valid.complex_result.exp == 12) << valid.complex_result.exp;
+    ASSERT_TRUE(valid.complex_result.form == ComplexForm::Exponential);
+    ASSERT_TRUE(valid.complex_result.max_count == 12) << valid.complex_result.max_count;
+
+    //the same through a loaded document: the document keeps its current config values
+    auto json = "{\"config\":{\"tab_spaces\":0,\"scale\":0.0,\"real_result\":{\"precision\":-1,\"exp\":-5,\"default_angle_measure\":7},"
+        "\"complex_result\":{\"max_count\":-1,\"form\":9}},\"string_formats\":[{\"id\":\"e9fe76c1-fdcb-41b4-a64c-b5d5e84eff91\",\"family\":\"a'bc\\\"d<e&f\",\"size\":14,\"bold\":false,"
+        "\"italic\":false,\"underline\":false,\"color\":4278190080,\"selection_color\":4294967295}],\"paragraph_formats\":"
+        "[{\"name\":\"Text body\",\"alignment\":0,\"word_wrap\":1,\"line_spacing\":5,\"indent_before\":10,\"indent_after\":10,\"indent_first_line\":0,"
+        "\"spacing_before\":10,\"spacing_after\":10,\"default_string_format\":\"e9fe76c1-fdcb-41b4-a64c-b5d5e84eff91\"}],\"text\":{\"id\":\"0\",\"type\":1,"
+        "\"elements\":[{\"id\":\"0,0\",\"type\":2,\"elements\":[{\"id\":\"0,0,0\",\"type\":3,\"elements\":[{\"id\":\"0,0,0,0\",\"type\":4,\"elements\":"
+        "\"Hello\",\"format_id\":\"e9fe76c1-fdcb-41b4-a64c-b5d5e84eff91\"}]}],\"format_name\":\"Text body\"}]}}";
+
+    document.WaitTask(document.LoadJson(json, 0));
+    yutovo::Config loaded;
+    document.GetConfig(loaded);
+    ASSERT_TRUE(loaded.tab_spaces == 4) << loaded.tab_spaces;
+    ASSERT_TRUE(loaded.scale == 1.0f) << loaded.scale;
+    ASSERT_TRUE(loaded.real_result.precision == 3) << loaded.real_result.precision;
+    ASSERT_TRUE(loaded.real_result.exp == 10) << loaded.real_result.exp;
+    ASSERT_TRUE(loaded.real_result.default_angle_measure == AngleMeasure::Radian);
+    ASSERT_TRUE(loaded.complex_result.max_count == 10) << loaded.complex_result.max_count;
+    ASSERT_TRUE(loaded.complex_result.form == ComplexForm::Arithmetic);
+}
+
 //Check include file
 TEST_F(IncludeDocumentsTest, include_files1)
 {

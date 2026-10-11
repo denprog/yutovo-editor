@@ -86,9 +86,17 @@ void Config::FromJson(const rapidjson::Document& value, rapidjson::Document::All
     if (value.HasMember("use_tabs") && value["use_tabs"].IsBool())
         use_tabs = value["use_tabs"].GetBool();
     if (value.HasMember("tab_spaces") && value["tab_spaces"].IsInt())
-        tab_spaces = value["tab_spaces"].GetInt();
+    {
+        int val = value["tab_spaces"].GetInt();
+        if (val >= 1 && val <= 100)
+            tab_spaces = val;
+    }
     if (value.HasMember("scale") && value["scale"].IsFloat())
-        scale = value["scale"].GetFloat();
+    {
+        float val = value["scale"].GetFloat();
+        if (std::isfinite(val) && val >= 0.1f && val <= 10.0f)
+            scale = val;
+    }
     
     if (value.HasMember("real_result") && value["real_result"].IsObject())
     {
@@ -185,13 +193,29 @@ void Config::RealResultConfig::ToJson(rapidjson::Value& value, rapidjson::Docume
 void Config::RealResultConfig::FromJson(const rapidjson::Value::ConstObject& value, rapidjson::Document::AllocatorType& alloc)
 {
     if (value.HasMember("precision") && value["precision"].IsInt())
-        precision = value["precision"].GetInt();
+    {
+        int val = value["precision"].GetInt();
+        if (val >= 0 && val <= 100)
+            precision = val;
+    }
     if (value.HasMember("exp") && value["exp"].IsInt())
-        exp = value["exp"].GetInt();
+    {
+        int val = value["exp"].GetInt();
+        if (val >= 0 && val <= 100)
+            exp = val;
+    }
     if (value.HasMember("default_angle_measure") && value["default_angle_measure"].IsInt())
-        default_angle_measure = (AngleMeasure)value["default_angle_measure"].GetInt();
+    {
+        int val = value["default_angle_measure"].GetInt();
+        if (val >= (int)AngleMeasure::Radian && val <= (int)AngleMeasure::Grad)
+            default_angle_measure = (AngleMeasure)val;
+    }
     if (value.HasMember("result_angle_measure") && value["result_angle_measure"].IsInt())
-        result_angle_measure = (AngleMeasure)value["result_angle_measure"].GetInt();
+    {
+        int val = value["result_angle_measure"].GetInt();
+        if (val >= (int)AngleMeasure::Radian && val <= (int)AngleMeasure::Grad)
+            result_angle_measure = (AngleMeasure)val;
+    }
     if (value.HasMember("show_angle_measure") && value["show_angle_measure"].IsBool())
         show_angle_measure = value["show_angle_measure"].GetBool();
     if (value.HasMember("unit") && value["unit"].IsString())
@@ -224,9 +248,17 @@ void Config::IntegerResultConfig::ToJson(rapidjson::Value& value, rapidjson::Doc
 void Config::IntegerResultConfig::FromJson(const rapidjson::Value::ConstObject& value, rapidjson::Document::AllocatorType& alloc)
 {
     if (value.HasMember("result_notation") && value["result_notation"].IsInt())
-        result_notation = (Notation)value["result_notation"].GetInt();
+    {
+        int val = value["result_notation"].GetInt();
+        if (val >= (int)Notation::Binary && val <= (int)Notation::Hexadecimal)
+            result_notation = (Notation)val;
+    }
     if (value.HasMember("default_notation") && value["default_notation"].IsInt())
-        default_notation = (Notation)value["default_notation"].GetInt();
+    {
+        int val = value["default_notation"].GetInt();
+        if (val >= (int)Notation::Binary && val <= (int)Notation::Hexadecimal)
+            default_notation = (Notation)val;
+    }
     if (value.HasMember("show_notation") && value["show_notation"].IsBool())
         show_notation = value["show_notation"].GetBool();
 }
@@ -261,7 +293,11 @@ void Config::RationalResultConfig::ToJson(rapidjson::Value& value, rapidjson::Do
 void Config::RationalResultConfig::FromJson(const rapidjson::Value::ConstObject& value, rapidjson::Document::AllocatorType& alloc)
 {
     if (value.HasMember("fraction_form") && value["fraction_form"].IsInt())
-        fraction_form = (FractionForm)value["fraction_form"].GetInt();
+    {
+        int val = value["fraction_form"].GetInt();
+        if (val >= (int)FractionForm::Proper && val <= (int)FractionForm::Improper)
+            fraction_form = (FractionForm)val;
+    }
     if (value.HasMember("unit") && value["unit"].IsString())
         unit.FromString(ToUtfString(value["unit"].GetString()));
 }
@@ -296,19 +332,43 @@ void Config::ComplexResultConfig::ToJson(rapidjson::Value& value, rapidjson::Doc
 void Config::ComplexResultConfig::FromJson(const rapidjson::Value::ConstObject& value, rapidjson::Document::AllocatorType& alloc)
 {
     if (value.HasMember("precision") && value["precision"].IsInt())
-        precision = value["precision"].GetInt();
+    {
+        int val = value["precision"].GetInt();
+        if (val >= 0 && val <= 100)
+            precision = val;
+    }
     if (value.HasMember("exp") && value["exp"].IsInt())
-        exp = value["exp"].GetInt();
+    {
+        int val = value["exp"].GetInt();
+        if (val >= 0 && val <= 100)
+            exp = val;
+    }
     if (value.HasMember("default_angle_measure") && value["default_angle_measure"].IsInt())
-        default_angle_measure = (AngleMeasure)value["default_angle_measure"].GetInt();
+    {
+        int val = value["default_angle_measure"].GetInt();
+        if (val >= (int)AngleMeasure::Radian && val <= (int)AngleMeasure::Grad)
+            default_angle_measure = (AngleMeasure)val;
+    }
     if (value.HasMember("result_angle_measure") && value["result_angle_measure"].IsInt())
-        result_angle_measure = (AngleMeasure)value["result_angle_measure"].GetInt();
+    {
+        int val = value["result_angle_measure"].GetInt();
+        if (val >= (int)AngleMeasure::Radian && val <= (int)AngleMeasure::Grad)
+            result_angle_measure = (AngleMeasure)val;
+    }
     if (value.HasMember("show_angle_measure") && value["show_angle_measure"].IsBool())
         show_angle_measure = value["show_angle_measure"].GetBool();
     if (value.HasMember("form") && value["form"].IsInt())
-        form = (ComplexForm)value["form"].GetInt();
+    {
+        int val = value["form"].GetInt();
+        if (val >= (int)ComplexForm::Arithmetic && val <= (int)ComplexForm::Exponential)
+            form = (ComplexForm)val;
+    }
     if (value.HasMember("max_count") && value["max_count"].IsInt())
-        max_count = value["max_count"].GetInt();
+    {
+        int val = value["max_count"].GetInt();
+        if (val >= 1 && val <= 100)
+            max_count = val;
+    }
 }
 
 std::string Config::ComplexResultConfig::ToString()
