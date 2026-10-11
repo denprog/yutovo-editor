@@ -315,7 +315,7 @@ void ResultRow::AddResult()
 bool ResultRow::AddJsonElements(const std::string& json_str)
 {
     rapidjson::Document doc;
-    doc.Parse(json_str.c_str());
+    doc.Parse<rapidjson::kParseIterativeFlag>(json_str.c_str());
     if (doc.HasParseError() || !doc.IsObject())
         return false;
     if (!doc.HasMember("elements") || !doc["elements"].IsArray())
@@ -341,7 +341,7 @@ void ResultRow::AddSymbolicElements(const std::string& expr)
     AddSymbolicElements(this, expr);
 }
 
-void ResultRow::AddSymbolicElements(Element* parent, const std::string& expr)
+void ResultRow::AddSymbolicElements(Element* parent, const std::string& expr, int depth)
 {
     auto is_utf8_continuation = 
         [](unsigned char c)
@@ -367,28 +367,28 @@ void ResultRow::AddSymbolicElements(Element* parent, const std::string& expr)
             ++i;
             continue;
         }
-        if (i + 4 <= expr.size() && expr.substr(i, 4) == "pow(")
+        if (depth < max_symbolic_depth && i + 4 <= expr.size() && expr.substr(i, 4) == "pow(")
         {
             size_t start = i + 4;
-            int depth = 1;
+            int brackets = 1;
             size_t comma_pos = std::string::npos;
             size_t j = start;
-            while (j < expr.size() && depth > 0)
+            while (j < expr.size() && brackets > 0)
             {
                 if (expr[j] == '(')
-                    ++depth;
+                    ++brackets;
                 else if (expr[j] == ')')
-                    --depth;
-                if (depth == 1 && expr[j] == ',' && comma_pos == std::string::npos)
+                    --brackets;
+                if (brackets == 1 && expr[j] == ',' && comma_pos == std::string::npos)
                     comma_pos = j;
-                if (depth > 0)
+                if (brackets > 0)
                     ++j;
             }
             if (comma_pos != std::string::npos && j > start)
             {
                 PowerPtr power(new Power(parent));
-                AddSymbolicElements(power->GetBaseRow(), expr.substr(start, comma_pos - start));
-                AddSymbolicElements(power->GetExponentRow(), expr.substr(comma_pos + 1, j - comma_pos - 1));
+                AddSymbolicElements(power->GetBaseRow(), expr.substr(start, comma_pos - start), depth + 1);
+                AddSymbolicElements(power->GetExponentRow(), expr.substr(comma_pos + 1, j - comma_pos - 1), depth + 1);
                 parent->AddElement(power);
                 i = j + 1;
                 continue;
@@ -472,15 +472,15 @@ void ResultRow::AddSymbolicElements(Element* parent, const std::string& expr)
                         else if (j + 4 <= expr.size() && expr.substr(j, 4) == "pow(")
                         {
                             size_t pow_start = j + 4;
-                            int depth = 1;
+                            int brackets = 1;
                             size_t k = pow_start;
-                            while (k < expr.size() && depth > 0)
+                            while (k < expr.size() && brackets > 0)
                             {
                                 if (expr[k] == '(')
-                                    ++depth;
+                                    ++brackets;
                                 else if (expr[k] == ')')
-                                    --depth;
-                                if (depth > 0)
+                                    --brackets;
+                                if (brackets > 0)
                                     ++k;
                             }
                             end = k + 1;

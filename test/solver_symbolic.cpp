@@ -8,6 +8,7 @@
 #include <gtest/gtest.h>
 #include "mock.h"
 #include "style.h"
+#include "formulas/result.h"
 
 namespace yutovo_test
 {
@@ -1348,6 +1349,107 @@ TEST_F(SolverSymbolicTest, derivative_mixed_func_real)
     document.WaitSolver();
     std::this_thread::sleep_for(600ms);
     ASSERT_TRUE(document.ToText() == U"g(x,y)=pow(x,2)*sin(y)\nderivative(derivative(g(x,y),y),x)=2*x*cos(y)") << ToBasicString(document.ToText());
+}
+
+//A symbolic result below the nesting cap is fully structured into Power elements
+TEST_F(SolverSymbolicTest, parse1)
+{
+    Start(600);
+
+    document.WaitTask(document.InsertCode(false, true));
+    auto parent = document.FindParent(document.caret->GetCaretState().id, ElementType::CODE_ROW);
+    ASSERT_TRUE(parent != nullptr);
+
+    SymbolicRealResult row(parent.get());
+    row.AddSymbolicElements("pow(pow(pow(x,2),2),2)");
+    ASSERT_TRUE(ToBasicString(row.ToText()) == "pow(pow(pow(x,2),2),2)") << ToBasicString(row.ToText());
+    ASSERT_TRUE(CountElements(&row, ElementType::POWER) == 3) << CountElements(&row, ElementType::POWER);
+    ASSERT_TRUE(CountElements(&row, ElementType::CODE_STRING, U"pow") == 0) << CountElements(&row, ElementType::CODE_STRING, U"pow");
+}
+
+//pow(...) nesting beyond the cap degrades to flat text instead of unbounded recursion
+TEST_F(SolverSymbolicTest, parse2)
+{
+    Start(600);
+
+    document.WaitTask(document.InsertCode(false, true));
+    auto parent = document.FindParent(document.caret->GetCaretState().id, ElementType::CODE_ROW);
+    ASSERT_TRUE(parent != nullptr);
+
+    std::string expr;
+    for (int i = 0; i < ResultRow::max_symbolic_depth + 5; ++i)
+        expr += "pow(";
+    expr += "x";
+    for (int i = 0; i < ResultRow::max_symbolic_depth + 5; ++i)
+        expr += ",2)";
+
+    SymbolicRealResult row(parent.get());
+    row.AddSymbolicElements(expr);
+    ASSERT_TRUE(ToBasicString(row.ToText()) == expr) << ToBasicString(row.ToText());
+    ASSERT_TRUE(CountElements(&row, ElementType::POWER) == ResultRow::max_symbolic_depth) << CountElements(&row, ElementType::POWER);
+    ASSERT_TRUE(CountElements(&row, ElementType::CODE_STRING, U"pow") == 5) << CountElements(&row, ElementType::CODE_STRING, U"pow");
+}
+
+//an extremely deep symbolic result parses without a stack overflow
+TEST_F(SolverSymbolicTest, parse3)
+{
+    Start(600);
+
+    document.WaitTask(document.InsertCode(false, true));
+    auto parent = document.FindParent(document.caret->GetCaretState().id, ElementType::CODE_ROW);
+    ASSERT_TRUE(parent != nullptr);
+
+    //10x the cap; the depth of the created element tree stays at the cap regardless of the input nesting
+    std::string expr;
+    for (int i = 0; i < 10 * ResultRow::max_symbolic_depth; ++i)
+        expr += "pow(";
+    expr += "x";
+    for (int i = 0; i < 10 * ResultRow::max_symbolic_depth; ++i)
+        expr += ",2)";
+
+    SymbolicRealResult row(parent.get());
+    row.AddSymbolicElements(expr);
+    ASSERT_TRUE(ToBasicString(row.ToText()) == expr) << ToBasicString(row.ToText()).substr(0, 100);
+    ASSERT_TRUE(CountElements(&row, ElementType::POWER) == ResultRow::max_symbolic_depth) << CountElements(&row, ElementType::POWER);
+}
+
+//A deeply nested result json is rejected by the depth guard instead of recursing to a stack overflow
+TEST_F(SolverSymbolicTest, parse_json1)
+{
+    Start(600);
+
+    document.WaitTask(document.InsertCode(false, true));
+    auto parent = document.FindParent(document.caret->GetCaretState().id, ElementType::CODE_ROW);
+    ASSERT_TRUE(parent != nullptr);
+
+    std::string type = std::to_string((int)ElementType::CODE_ROW);
+    std::string json = "{\"elements\":[";
+    for (int i = 0; i < Document::max_from_json_depth + 50; ++i)
+        json += "{\"type\":" + type + ",\"elements\":[";
+    json += "{\"type\":" + type + "}";
+    for (int i = 0; i < Document::max_from_json_depth + 50; ++i)
+        json += "]}";
+    json += "]}";
+
+    SymbolicRealResult row(parent.get());
+    ASSERT_FALSE(row.AddJsonElements(json));
+}
+
+//A shallow result json of the same shape still parses
+TEST_F(SolverSymbolicTest, parse_json2)
+{
+    Start(600);
+
+    document.WaitTask(document.InsertCode(false, true));
+    auto parent = document.FindParent(document.caret->GetCaretState().id, ElementType::CODE_ROW);
+    ASSERT_TRUE(parent != nullptr);
+
+    std::string type = std::to_string((int)ElementType::CODE_ROW);
+    std::string json = "{\"elements\":[{\"type\":" + type + ",\"elements\":[{\"type\":" + type + ",\"elements\":[{\"type\":" + type + "}]}]}]}";
+
+    SymbolicRealResult row(parent.get());
+    ASSERT_TRUE(row.AddJsonElements(json));
+    ASSERT_TRUE(CountElements(&row, ElementType::CODE_ROW) == 3) << CountElements(&row, ElementType::CODE_ROW);
 }
 
 }

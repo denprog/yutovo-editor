@@ -48,6 +48,7 @@
 #include "formulas/comma.h"
 #include "formulas/graph.h"
 #include "formulas/evaluation_bar.h"
+#include "document.h"
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include <stb_image/stb_image_write.h>
 #define STB_IMAGE_IMPLEMENTATION
@@ -296,8 +297,27 @@ ElementId GetCommonParent(const std::vector<ElementId>& ids)
     return ElementId(ids[0], pos);
 }
 
+struct FromJsonDepthGuard
+{
+    Document* document;
+
+    FromJsonDepthGuard(Document* _document) :
+        document(_document)
+    {
+        ++document->from_json_depth;
+    }
+
+    ~FromJsonDepthGuard()
+    {
+        --document->from_json_depth;
+    }
+};
+
 Element* CreateFromJson(Element* parent, Document* document, const rapidjson::Value::ConstObject& value, rapidjson::Document::AllocatorType& alloc)
 {
+    if (document->from_json_depth >= Document::max_from_json_depth)
+        return nullptr;
+    FromJsonDepthGuard depth_guard(document);
     using CreateFunc = Element*(*)(Element*, Document*, const rapidjson::Value::ConstObject&, rapidjson::Document::AllocatorType&);
     static std::map<ElementType, CreateFunc> create_elements = 
         {

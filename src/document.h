@@ -485,6 +485,9 @@ private:
 public:
     Window* window;
 
+    static constexpr int max_from_json_depth = 200;
+    int from_json_depth = 0;
+
     ParagraphFormatsPtr paragraph_formats;
     CodeFormatsPtr code_formats;
     FormulaFormatsPtr formula_formats;

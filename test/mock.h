@@ -602,6 +602,25 @@ struct SolverArrayRealTest : SolverTest
 
 struct SolverSymbolicTest : SolverTest
 {
+    //Counts the elements of the given type in the element tree; STRING/CODE_STRING element lists return the element itself, so they are not descended into
+    size_t CountElements(Element* root, ElementType type, const std::u32string& text = U"")
+    {
+        size_t count = 0;
+        std::vector<Element*> stack{root};
+        while (!stack.empty())
+        {
+            Element* el = stack.back();
+            stack.pop_back();
+            if (el->type == type && (text.empty() || el->ToText() == text))
+                ++count;
+            if (el->type == ElementType::STRING || el->type == ElementType::CODE_STRING)
+                continue;
+            if (el->elements)
+                for (int i = 0; i < el->elements->Count(); ++i)
+                    stack.push_back(el->elements->Get(i).get());
+        }
+        return count;
+    }
 };
 
 struct MultiDocumentSolverAutoTest : SolverAutoTest

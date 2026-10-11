@@ -55,7 +55,9 @@ public:
     void AddResult();
 
     void AddSymbolicElements(const std::string& expr);
-    void AddSymbolicElements(Element* parent, const std::string& expr);
+    void AddSymbolicElements(Element* parent, const std::string& expr, int depth = 0);
+
+    static constexpr int max_symbolic_depth = 100;
 
     bool AddJsonElements(const std::string& json_str);
 

@@ -2831,10 +2831,44 @@ TEST_F(IncludeDocumentsTest, include_files21)
     document2.WaitTask(document2.ReSolve(ElementId{}));
     document2.WaitSolver();
     std::this_thread::sleep_for(3s);
-    ASSERT_TRUE(document2.ToText() == 
+    ASSERT_TRUE(document2.ToText() ==
         U"v=5."
         ) << ToBasicString(document2.ToText());
     ASSERT_TRUE(document2.IsChanged() == true);
+}
+
+//Load a document with excessively deep element nesting: it must fail cleanly instead of crashing on recursive json parsing
+TEST_F(DocumentTest, files35)
+{
+    Start(600);
+
+    EXPECT_CALL(window_mock, OnLoadResult).WillOnce(
+        [&](const uint task_id, IOResult result, const int document_id)
+        {
+            ASSERT_TRUE(result == IOResult::InputStreamError);
+        });
+
+    std::string json =        "{\"string_formats\":[{\"id\":\"e9fe76c1-fdcb-41b4-a64c-b5d5e84eff91\",\"family\":\"Arial\",\"size\":14,\"bold\":false,\"itali" \
+        "c\":false,\"underline\":false,\"color\":4278190080,\"selection_color\":4294967295},{\"id\":\"89c69148-d1bc-4384-b009-7b7" \
+        "52eab898c\",\"family\":\"Courier New\",\"size\":14,\"bold\":false,\"italic\":false,\"underline\":false,\"color\":4278190080,\"" \
+        "selection_color\":4294967295}],\"paragraph_formats\":[{\"name\":\"Text body\",\"alignment\":0,\"word_wrap\":1,\"line_spaci" \
+        "ng\":5,\"indent_before\":10,\"indent_after\":10,\"indent_first_line\":0,\"spacing_before\":10,\"spacing_after\":10,\"defau" \
+        "lt_string_format\":\"e9fe76c1-fdcb-41b4-a64c-b5d5e84eff91\"},{\"name\":\"Code\",\"alignment\":0,\"word_wrap\":0,\"line_spaci" \
+        "ng\":2,\"indent_before\":2,\"indent_after\":2,\"indent_first_line\":0,\"spacing_before\":2,\"spacing_after\":2,\"default" \
+        "_string_format\":\"89c69148-d1bc-4384-b009-7b752eab898c\"}],\"text\":{\"id\":\"0\",\"type\":1,\"elements\":[{\"id\":\"0,0\",\"ty" \
+        "pe\":2,\"level\":1,\"format_name\":\"Text body\",\"elements\":[{\"id\":\"0,0,0\",\"type\":3,\"level\":1,\"elements\":[{\"id\":\"0,0,0,0\"," \
+        "\"type\":5,\"level\":1,\"code_id\":1,\"elements\":[{\"id\":\"0,0,0,0,0\",\"type\":6,\"level\":1,\"format_name\":\"Code\",\"elements\":[";
+
+    std::string row = std::to_string((int)ElementType::CODE_ROW);
+    for (int i = 0; i < Document::max_from_json_depth + 50; ++i)
+        json += "{\"type\":" + row + ",\"elements\":[";
+    json += "{\"type\":" + row + "}";
+    for (int i = 0; i < Document::max_from_json_depth + 50; ++i)
+        json += "]}";
+    json += "]}]}]}]}]}}";
+
+    document.WaitTask(document.LoadJson(json, 0));
+    std::this_thread::sleep_for(2000ms);
 }
 
 }
