@@ -915,6 +915,8 @@ int UndoBase::Store(const ElementId& id)
 {
     std::vector<LogicalId> ids;
     auto el = document->GetElement(id);
+    if (!el)
+        return -1;
     if (el->type == ElementType::ROW)
     {
         el = document->GetParent(el->id);
@@ -934,6 +936,8 @@ int UndoBase::Store(const ElementId& parent_id, const int pos, const int size)
     for (int i = pos; i < pos + size; ++i)
     {
         auto el = document->GetElement(GetChild(parent_id, i));
+        if (!el)
+            continue;
         if (ids.empty() || ids[i - pos - 1] != el->logical_id)
         {
             if (el->logical_id.empty())

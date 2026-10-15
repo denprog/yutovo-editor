@@ -1025,7 +1025,11 @@ bool ChangeParagraphFormatTask::Execute()
                     if (std::find(ids.begin(), ids.end(), _id) == ids.end())
                     {
                         auto _el = document->GetLogicalElement(_id);
+                        if (!_el)
+                            continue;
                         el = document->FindParentParagraph(_el->id);
+                        if (!el)
+                            continue;
                         if (!el->ChangeParagraphFormat(format, with_undo, ch))
                         {
                             if (with_undo && last_undo_size < document->GetUndoSize())
@@ -1227,6 +1231,8 @@ bool UndoTask::Execute()
     if (undo_operation == UndoOperation::DELETE)
     {
         auto p = document->GetLogicalElement(id);
+        if (!p)
+            return true; //the element may be absent now
         p->elements->RemoveAt(pos, size);
         Remake(p->id, true);
         return true;
@@ -2351,7 +2357,9 @@ bool CopyTask::Execute()
     for (int i = 0; i < selection_state.state.size(); ++i)
     {
         ElementId _id = selection_state.state[i].id;
-        document->GetElement(_id)->Copy(copy);
+        auto el = document->GetElement(_id);
+        if (el)
+            el->Copy(copy);
     }
 
     if (copy.size() == 1 && copy[0]->type == ElementType::TEXT)
@@ -2616,12 +2624,15 @@ bool ResolveTask::Execute()
         {
             auto el = document->GetLogicalElement(_id);
             CodeBlock* c = dynamic_cast<CodeBlock*>(el.get());
-            c->ReSolve(false, true);
-            if (!document->changed_elements.empty())
+            if (c)
             {
-                for (auto ch : document->changed_elements)
-                    Remake(ch, false);
-                document->changed_elements.clear();
+                c->ReSolve(false, true);
+                if (!document->changed_elements.empty())
+                {
+                    for (auto ch : document->changed_elements)
+                        Remake(ch, false);
+                    document->changed_elements.clear();
+                }
             }
         }
         return true;
@@ -2689,8 +2700,6 @@ bool ResolveDependenciesTask::Execute()
         return false;
     ElementId _after_id = _el->id;
     auto el = document->FindParent(_after_id, ElementType::CODE_BLOCK);
-    if (!_el)
-        return false;
     std::vector<ElementId> code_blocks;
     std::vector<ElementId> solvings;
     std::vector<std::string> id_arr;
@@ -2707,6 +2716,8 @@ bool ResolveDependenciesTask::Execute()
             {
                 auto _el = d->GetElement(_id);
                 Equation* eq = dynamic_cast<Equation*>(_el.get());
+                if (!eq)
+                    continue;
                 for (auto& s : id_arr)
                 {
                     if (eq->Depends(s))
@@ -2730,6 +2741,8 @@ bool ResolveDependenciesTask::Execute()
             {
                 auto _el = d->GetElement(_id);
                 Assignment* s = dynamic_cast<Assignment*>(_el.get());
+                if (!s)
+                    continue;
                 for (auto& _d : id_arr)
                 {
                     if (s->Depends(_d))
@@ -3063,7 +3076,8 @@ bool SetConfigTask::Execute()
         {
             auto el = document->GetElement(c);
             CodeBlock* _el = dynamic_cast<CodeBlock*>(el.get());
-            document->ListIdentifiers(_el->code_id);
+            if (_el)
+                document->ListIdentifiers(_el->code_id);
         }
         remake = true;
     }

@@ -3654,6 +3654,8 @@ ResultType Document::GetResultType(ElementId _id)
 {
     std::lock_guard<std::recursive_mutex> lock(edit_mutex);
     auto el = GetElement(_id);
+    if (!el)
+        return ResultType::NONE;
     if (el->elements->Count() == 0)
         return ResultType::NONE;
     switch (el->elements->Get(0)->type)
@@ -4165,34 +4167,43 @@ void Document::RemoveErrorMarks(const ElementId& parent_id, Dependencies* depend
     {
         std::vector<ElementId> elements;
         auto c = FindElementOrParent(parent_id, ElementType::CODE_BLOCK);
-        c->GetElementsAbove(parent_id, ElementType::ASSIGNMENT, elements);
-        for (auto& _id : elements)
+        if (c)
         {
-            auto _el = GetElement(_id);
-            Assignment* s = dynamic_cast<Assignment*>(_el.get());
-            for (auto& _d : *dependencies)
-            {
-                if (s->Depends(_d))
-                    RemoveErrorMarks(s->id);
-            }
-        }
-
-        std::vector<ElementId> code_blocks;
-        text->GetElementsAbove(c->id, ElementType::CODE_BLOCK, code_blocks); //find all code blocks above
-        for (ElementId code_id : code_blocks)
-        {
-            auto _el = GetElement(code_id);
-            auto* code = dynamic_cast<CodeBlock*>(_el.get());
-            elements.clear();
-            code->GetElements(ElementType::ASSIGNMENT, elements);
+            c->GetElementsAbove(parent_id, ElementType::ASSIGNMENT, elements);
             for (auto& _id : elements)
             {
                 auto _el = GetElement(_id);
                 Assignment* s = dynamic_cast<Assignment*>(_el.get());
+                if (!s)
+                    continue;
                 for (auto& _d : *dependencies)
                 {
                     if (s->Depends(_d))
                         RemoveErrorMarks(s->id);
+                }
+            }
+
+            std::vector<ElementId> code_blocks;
+            text->GetElementsAbove(c->id, ElementType::CODE_BLOCK, code_blocks); //find all code blocks above
+            for (ElementId code_id : code_blocks)
+            {
+                auto _el = GetElement(code_id);
+                auto* code = dynamic_cast<CodeBlock*>(_el.get());
+                if (!code)
+                    continue;
+                elements.clear();
+                code->GetElements(ElementType::ASSIGNMENT, elements);
+                for (auto& _id : elements)
+                {
+                    auto _el = GetElement(_id);
+                    Assignment* s = dynamic_cast<Assignment*>(_el.get());
+                    if (!s)
+                        continue;
+                    for (auto& _d : *dependencies)
+                    {
+                        if (s->Depends(_d))
+                            RemoveErrorMarks(s->id);
+                    }
                 }
             }
         }
