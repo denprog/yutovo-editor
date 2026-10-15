@@ -57,6 +57,7 @@ add_executable(${PROJECT_NAME}_tests
 	main.cpp
 	mock.cpp
 	str.cpp
+	elements.cpp
 	link.cpp
 	paragraph.cpp
 	caret.cpp
@@ -140,7 +141,7 @@ else()
 		${PROJECT_NAME}
 	    Qt5::Widgets
 	    yutovo-logger
-		libboost_iostreams.a
+		${INSTALL_PATH}/lib/libboost_iostreams.a
 		poppler-cpp
 		fontconfig
 	)

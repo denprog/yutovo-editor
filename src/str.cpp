@@ -1110,7 +1110,8 @@ ElementPtr StringElements::Get(uint pos)
 
 ElementId StringElements::GetElementId(uint pos)
 {
-    assert(pos < str.length() + 1); //empty string has one caret pos
+    if (pos > str.length())
+        pos = uint(str.length());
     ElementId id = parent->id;
     id.push_back(pos);
     return id;
@@ -1122,19 +1123,21 @@ void StringElements::Add(ElementPtr element)
 
 void StringElements::Insert(ElementPtr element, const uint pos)
 {
-    assert(parent->document->IsString(element));
-    assert(str.length() >= pos);
-    std::u32string s = dynamic_cast<String*>(element.get())->ToText();
+    String* str_element = element ? dynamic_cast<String*>(element.get()) : nullptr;
+    if (!str_element)
+        return;
+    const uint insert_pos = pos > str.length() ? uint(str.length()) : pos;
+    std::u32string s = str_element->ToText();
 
     uint start, size;
     if (selection->Has(parent->id, start, size))
     {
         selection->Remove(parent->id, start, size);
-        str.insert(pos, s);
+        str.insert(insert_pos, s);
         selection->Add(parent->id, start, size);
     }
     else
-        str.insert(pos, s);
+        str.insert(insert_pos, s);
 
     if (selection->Has(element, start, size))
     {
@@ -1154,17 +1157,19 @@ void StringElements::Remove(const ElementPtr element)
 
 void StringElements::RemoveAt(const uint pos, const int size)
 {
-    assert(str.length() >= pos + size);
+    if (size <= 0 || pos >= str.length())
+        return;
+    const int count = std::min(size, int(str.length()) - int(pos));
     int p = -1;
     if (caret->IsInsideElement(parent->id))
     {
         p = caret->GetPos();
-        if (p >= pos + size)
-            caret->SetPos(p - size);
+        if (p >= pos + count)
+            caret->SetPos(p - count);
     }
 
-    str.erase(str.begin() + pos, str.begin() + pos + size);
-    selection->Remove(parent->id, pos, size);
+    str.erase(str.begin() + pos, str.begin() + pos + count);
+    selection->Remove(parent->id, pos, count);
 
 #ifdef DEBUG
     parent->to_str = parent->ToText();
@@ -1173,19 +1178,20 @@ void StringElements::RemoveAt(const uint pos, const int size)
 
 void StringElements::Replace(ElementPtr element, const uint pos)
 {
-    assert(parent->document->IsString(element));
-    assert(str.length() >= pos);
+    if (!element)
+        return;
+    const uint replace_pos = pos > str.length() ? uint(str.length()) : pos;
     std::u32string s = element->ToText();
 
     uint start, size;
     if (selection->Has(parent->id, start, size))
     {
         selection->Remove(parent->id, start, size);
-        str.insert(pos, s);
+        str.insert(replace_pos, s);
         selection->Add(parent->id, start, size);
     }
     else
-        str.replace(pos, 1, s);
+        str.replace(replace_pos, 1, s);
 
     if (selection->Has(element, start, size))
     {
