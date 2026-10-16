@@ -49,7 +49,7 @@ namespace yutovo
 
 //Task
 
-uint Task::next_id = 1;
+std::atomic<uint> Task::next_id = 1;
 
 Task::Task(ElementPtr _text) : 
     text(_text),

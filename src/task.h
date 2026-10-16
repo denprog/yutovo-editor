@@ -8,6 +8,7 @@
 #ifndef __TASK_H__
 #define __TASK_H__
 
+#include <atomic>
 #include <vector>
 #include <memory>
 #include <sstream>
@@ -45,7 +46,7 @@ struct Task
 
     Logger* logger;
 
-    static uint next_id;
+    static std::atomic<uint> next_id;
     uint id; //for syncing with undo/redo
 };
 
