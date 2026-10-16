@@ -1320,7 +1320,7 @@ bool StringElements::GetWordLeftCaretState(CaretState& caret_state, Selection* s
     {
         if (IsSpace(str[i]))
         {
-            while (IsSpace(str[i]))
+            while (i > 0 && IsSpace(str[i]))
                 --i;
             ++i;
         }
@@ -1356,7 +1356,7 @@ bool StringElements::GetWordRightCaretState(CaretState& caret_state, Selection* 
     }
     for (int i = pos + 1; i < str.length(); ++i)
     {
-        while (IsSpace(str[i]))
+        while (i < static_cast<int>(str.length()) && IsSpace(str[i]))
             ++i;
         if ((IsCloseDelimiter(str[i]) || IsCloseDelimiter(str[i - 1])) ||
             (IsOpenDelimiter(str[i - 1]) || IsDelimiter(str[i - 1]) || str[i] == U'.' || str[i] == U',') && 
@@ -1463,14 +1463,10 @@ bool StringElements::IsDelimiter(char32_t ch)
 
 bool StringElements::IsSpace(char32_t ch)
 {
-#ifdef _WIN32
-    std::u32string s(1, ch);
-    std::wstring w = boost::locale::conv::utf_to_utf<wchar_t>(s);
-    WORD type;
-    return GetStringTypeW(CT_CTYPE1, &w[0], 1, &type) && (type & C1_SPACE);
-#else
-    return std::isspace(ch);
-#endif
+    if (ch <= 0x7F)
+        return ch == U' ' || (ch >= U'\t' && ch <= U'\r');
+    return (ch >= 0x2000 && ch <= 0x200A) || ch == 0x85 || ch == 0xA0 || ch == 0x1680 || ch == 0x2028 ||
+        ch == 0x2029 || ch == 0x202F || ch == 0x205F || ch == 0x3000;
 }
 
 }
