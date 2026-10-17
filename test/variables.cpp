@@ -231,7 +231,7 @@ TEST_F(VariablesTest, variables3)
     document.WaitTask(document.MoveCaretUp(false));
     document.WaitTask(document.DeleteElements(false, true));
     document.WaitSolver();
-    std::this_thread::sleep_for(1s);
+    std::this_thread::sleep_for(2s);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\

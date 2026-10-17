@@ -329,6 +329,8 @@ void Document::MainLoop()
                     else
                         last_modify_task_id = 0;
                 }
+                for (size_t i = 0; i < temp_undo_tasks.size(); ++i) //the tasks die here - release their snapshots
+                    ReleaseUndoSnapshots(temp_undo_tasks[i]);
                 selection.can_optimize = true;
                 last_insert_caret_state.id = LogicalId{};
                 last_delete_caret_state.id = LogicalId{};
@@ -1376,6 +1378,14 @@ bool Document::RestoreUndo(const int undo_id, TextFormat& format)
     return undo_base.Restore(undo_id, format);
 }
 
+void Document::ReleaseUndoSnapshots(const TaskPtr& task)
+{
+    UndoTask* undo_task = dynamic_cast<UndoTask*>(task.get());
+    if (!undo_task)
+        return;
+    undo_base.Release(undo_task->undo_id);
+}
+
 void Document::RollbackUndo()
 {
     //remove last undo tasks with one id
@@ -1385,6 +1395,7 @@ void Document::RollbackUndo()
     uint id = t->id;
     while (id == t->id)
     {
+        ReleaseUndoSnapshots(t);
         undo_tasks.pop_back();
         if (undo_tasks.empty())
             break;
@@ -1403,6 +1414,7 @@ void Document::ResetTasks()
     tasks.clear();
     undo_tasks.clear();
     redo_tasks.clear();
+    undo_base.Clear();
     //a new or freshly loaded document is not modified - reset the change tracking too, otherwise UpdateChanged would still see a stale last_modify_task_id
     last_modify_task_id = 0;
     save_task_id = 0;
@@ -4457,6 +4469,8 @@ void Document::RestrictUndo()
     
     //restrict the queues
     auto d = std::distance(undo_tasks.begin(), it);
+    for (auto _it = undo_tasks.begin(); _it != it; ++_it) //release the snapshots of the evicted tasks
+        ReleaseUndoSnapshots(*_it);
     undo_tasks.erase(undo_tasks.begin(), it);
     if (redo_tasks.size() > d)
         redo_tasks.erase(redo_tasks.begin(), redo_tasks.begin() + d);
@@ -4515,6 +4529,16 @@ void Document::WaitRedo()
     }
 
     last_redo_executed = false;
+}
+
+size_t Document::GetUndoItemsCount() const
+{
+    return undo_base.GetUndoItemsCount();
+}
+
+size_t Document::GetUndoStoreCount() const
+{
+    return undo_base.GetUndoStoreCount();
 }
 
 void Document::WaitLoad()

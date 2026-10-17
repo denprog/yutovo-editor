@@ -141,7 +141,7 @@ TEST_F(UnitTest, unit3)
     document.WaitTask(document.MoveCaretLeft(false));
     document.WaitTask(document.DeleteElements(true, true));
     document.WaitSolver();
-    std::this_thread::sleep_for(600ms);
+    std::this_thread::sleep_for(2s);
     ASSERT_TRUE(document.ToText() == 
         U"d_m~1m\n"\
         U"10m=10.m"

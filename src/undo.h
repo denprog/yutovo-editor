@@ -344,6 +344,13 @@ public:
     bool Restore(int undo_id, std::vector<ElementPtr>& elements);
     bool Restore(int undo_id, Config& config);
     bool Restore(int undo_id, TextFormat& format);
+    void Release(const int undo_id);
+    void Clear();
+
+#ifdef TEST
+    size_t GetUndoItemsCount() const;
+    size_t GetUndoStoreCount() const;
+#endif
 
 private:
     int Store(const int undo_id, const LogicalId& id);
@@ -357,11 +364,10 @@ private:
     struct UndoItem
     {
         LogicalId id;
-        int refs = 0;
-        std::vector<UndoElementPtr> undo_elements; //all saved variants of this element
+        std::vector<std::weak_ptr<UndoElement>> undo_elements; //all saved variants of this element
     };
 
-    std::vector<UndoItem> undo_store; //cached elements are stored here
+    std::vector<UndoItem> undo_store; //cache of the stored elements, does not own them
     std::map<int, std::vector<UndoElementPtr>> undo_items; //undo items by undo_id
 };
 
