@@ -92,6 +92,8 @@ void PdfWindow::DrawText(const std::string& text, const StringFormatPtr format, 
     }
 
     HPDF_Font font = GetFont(format);
+    if (!font)
+        return;
     ClipDraw clip_draw(*this);
     HPDF_Page_BeginText(page);
     HPDF_Page_SetTextMatrix(page, 1, 0, 0, -1, 0, page_size.height);
@@ -308,6 +310,8 @@ void PdfWindow::DrawImage(const int x1, const int y1, const int width, const int
     }
     else
     {
+        if (width <= 0 || height <= 0 || image.size() < (size_t)width * height * 4)
+            return;
         rgba = image;
         w = width;
         h = height;
@@ -319,6 +323,11 @@ void PdfWindow::DrawImage(const int x1, const int y1, const int width, const int
 
     ClipDraw clip_draw(*this);
     HPDF_Image picture = HPDF_LoadPngImageFromMem(pdf, png.data(), png.size());
+    if (!picture)
+    {
+        HPDF_ResetError(pdf);
+        return;
+    }
     HPDF_Page_DrawImage(page, picture, x1, _y1, width, height);
 }
 
@@ -333,6 +342,8 @@ int PdfWindow::GetSymbolSize(const char32_t symbol, const int height, const std:
     while (s.height < height)
     {
         HPDF_Font font = GetFont(format);
+        if (!font)
+            break;
         s = GetTextSize(_symbol, format);
         baseline = GetFontAscent(format);
         format->size = ++font_size;
@@ -364,6 +375,8 @@ void PdfWindow::RestoreRect()
 Size PdfWindow::GetTextSize(const std::u32string& text, const StringFormatPtr format)
 {
     HPDF_Font font = GetFont(format);
+    if (!font)
+        return Size{};
     std::string str = yutovo::ToBasicString(text);
     HPDF_TextWidth tw = HPDF_Font_TextWidth(font, (const HPDF_BYTE*)str.c_str(), str.length());
     double w = tw.width * format->size / 1000.0;
@@ -381,12 +394,21 @@ int PdfWindow::GetCharPos(const std::u32string& text, const StringFormatPtr form
 int PdfWindow::GetFontAscent(const StringFormatPtr format)
 {
     HPDF_Font font = GetFont(format);
+    if (!font)
+        return 0;
     return (int)std::round(HPDF_Font_GetAscent(font) / 1000. * format->size);
 }
 
 Size PdfWindow::GetImageSize(const std::vector<unsigned char>& image)
 {
+    if (image.empty())
+        return Size{};
     HPDF_Image picture = HPDF_LoadPngImageFromMem(pdf, image.data(), image.size());
+    if (!picture)
+    {
+        HPDF_ResetError(pdf);
+        return Size{};
+    }
     float w = HPDF_Image_GetWidth(picture);
     float h = HPDF_Image_GetHeight(picture);
     if (w > view_port.width)
@@ -507,10 +529,17 @@ HPDF_Font PdfWindow::GetFont(const StringFormatPtr format)
         return HPDF_GetFont(pdf, it->second.c_str(), "UTF-8");
     std::string path;
     if (!GetFontPath(format, path))
+    {
+        printf("ERROR: font not found: %s\n", format->family.c_str());
         return nullptr;
+    }
     auto font = HPDF_LoadTTFontFromFile(pdf, path.c_str(), HPDF_TRUE);
     if (!font)
+    {
+        printf("ERROR: font not loaded: %s\n", path.c_str());
+        HPDF_ResetError(pdf);
         return nullptr;
+    }
     fonts_map[format->id] = font;
     return HPDF_GetFont(pdf, font, "UTF-8");
 }

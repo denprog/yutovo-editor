@@ -460,4 +460,51 @@ TEST_F(PdfTest, pdf9)
     ASSERT_TRUE(PdfText(text) == "sin ( 2 ) + cos ( 5 )\n\f") << text;
 }
 
+//GetImageSize with broken image data
+TEST_F(PdfTest, pdf10)
+{
+    Start(600, {200, 200}, false);
+    pdf_window_mock->SetViewPort(Rect{0, 0, 100, 100});
+
+    //empty and non-png data must return an empty size instead of calling libharu with a null image
+    ASSERT_TRUE(pdf_window_mock->GetImageSize({}) == Size(0, 0));
+    ASSERT_TRUE(pdf_window_mock->GetImageSize(std::vector<unsigned char>{'n', 'o', 't', ' ', 'a', ' ', 'p', 'n', 'g'}) == Size(0, 0));
+
+    std::vector<unsigned char> rgba(2 * 2 * 4, 0xff);
+    std::vector<unsigned char> png;
+    RgbaToPng(rgba, 2, 2, png);
+    ASSERT_TRUE(pdf_window_mock->GetImageSize(png) == Size(2, 2));
+}
+
+//Missing font must not crash the text drawing
+TEST_F(PdfTest, pdf11)
+{
+    Start(600, {200, 200}, false);
+    EXPECT_CALL(*pdf_window_mock, GetFontPath).WillRepeatedly(::testing::Return(false));
+
+    StringFormatPtr format{new StringFormat("Arial", 10, false, false, false, false, false, false, Color::Black(), Color::Black(), Color::Black())};
+    ASSERT_TRUE(pdf_window_mock->GetTextSize(U"x", format) == Size(0, 0));
+    ASSERT_TRUE(pdf_window_mock->GetFontAscent(format) == 0);
+
+    Size s;
+    int baseline = 0;
+    int font_size = pdf_window_mock->GetSymbolSize(U'\u2211', 100, "Arial", s, baseline); //must not hang when no glyph ever fits
+    ASSERT_TRUE(font_size == 0);
+    ASSERT_TRUE(s == Size(0, 0));
+
+    pdf_window_mock->DrawText("x", format, Rect{0, 0, 10, 10}, Color::Black(), Color::White(), true);
+}
+
+//DrawImage with a raw buffer that does not match the destination rectangle
+TEST_F(PdfTest, pdf12)
+{
+    Start(600, {200, 200}, false);
+
+    //the buffer cannot hold a 100x100 rgba image - must return without flipping out of the buffer bounds
+    pdf_window_mock->DrawImage(0, 0, 100, 100, std::vector<unsigned char>(16, 0xff));
+
+    //zero destination size with an empty buffer
+    pdf_window_mock->DrawImage(0, 0, 0, 0, {});
+}
+
 }
