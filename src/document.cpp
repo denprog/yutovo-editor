@@ -1498,7 +1498,8 @@ void Document::GetElements(const LogicalId& _id, std::vector<ElementPtr>& elemen
                     res = row->elements->Get(0);
                     break;
                 }
-                if (row->elements->Get(row->elements->Count() - 1)->logical_id[2] >= part_id[2])
+                auto last = row->elements->Get(row->elements->Count() - 1);
+                if (last->logical_id.size() > 2 && last->logical_id[2] >= part_id[2])
                 {
                     for (size_t j = 1; j < row->elements->Count(); ++j)
                     {

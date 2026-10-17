@@ -4927,4 +4927,52 @@ TEST_F(ParagraphTest, format18)
     ASSERT_TRUE(formats.GetFormat("Custom", yutovo_calculator::Language::Italian) == nullptr);
 }
 
+//find_in_paragraph must skip rows whose last child has an empty or short logical id - a row after an empty row never gets a position (see Elements::UpdateIds)
+TEST_F(ParagraphTest, logical_id1)
+{
+    Start(530);
+
+    //word_wrap None keeps the loaded rows as is - the empty middle row survives and "def" keeps the 2-component logical id of the paragraph
+    auto json =         "{\"string_formats\":[{\"id\":\"e9fe76c1-fdcb-41b4-a64c-b5d5e84eff91\",\"family\":\"Arial\",\"size\":14,\"bold\":false,\"italic\":false,"
+        "\"underline\":false,\"color\":4278190080,\"selection_color\":4294967295},{\"id\":\"d7dbac2d-be4a-4895-b0a2-57ec557622a9\",\"family\":\"Arial\",\"size\":14,"
+        "\"bold\":true,\"italic\":false,\"underline\":false,\"color\":4278190080,\"selection_color\":4294967295}],\"paragraph_formats\":[{\"name\":\"Text body\","
+        "\"alignment\":0,\"word_wrap\":0,\"line_spacing\":5,\"indent_before\":10,\"indent_after\":10,\"indent_first_line\":0,\"spacing_before\":10,"
+        "\"spacing_after\":10,\"default_string_format\":\"e9fe76c1-fdcb-41b4-a64c-b5d5e84eff91\"}],\"text\":{\"id\":\"0\",\"type\":1,\"elements\":[{\"id\":\"0,0\","
+        "\"type\":2,\"elements\":[{\"id\":\"0,0,0\",\"type\":3,\"elements\":[{\"id\":\"0,0,0,0\",\"type\":4,\"elements\":\"abc\","
+        "\"format_id\":\"e9fe76c1-fdcb-41b4-a64c-b5d5e84eff91\"}]},{\"id\":\"0,0,1\",\"type\":3,\"elements\":[]},{\"id\":\"0,0,2\",\"type\":3,\"elements\":"
+        "[{\"id\":\"0,0,2,0\",\"type\":4,\"elements\":\"def\",\"format_id\":\"e9fe76c1-fdcb-41b4-a64c-b5d5e84eff91\"}]},{\"id\":\"0,0,3\",\"type\":3,\"elements\":"
+        "[{\"id\":\"0,0,3,0\",\"type\":4,\"elements\":\"ghi\",\"format_id\":\"d7dbac2d-be4a-4895-b0a2-57ec557622a9\"}]}],\"format_name\":\"Text body\"}]}}";
+
+    document.WaitTask(document.LoadJson(json, 0));
+    std::this_thread::sleep_for(200ms);
+
+    ASSERT_TRUE(document.ToText() == U"abcdefghi") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.ToHtml() ==
+        "<body>"\
+            "<p>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">abc</span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\">def</span>"\
+                "<span style=\"font-family:'Arial';font-size:14px;\"><strong>ghi</strong></span>"\
+            "</p>"\
+        "</body>") << document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 0)) << document.GetEditorState().ToString();
+
+    //the empty row leaves "def" without a logical position - it keeps the 2-component id of the paragraph, "ghi" gets position 1
+    auto def = document.GetElement(ElementId{0, 0, 2, 0});
+    ASSERT_TRUE(def != nullptr);
+    ASSERT_TRUE(def->logical_id.size() == 2) << def->logical_id.size();
+    auto ghi = document.GetElement(ElementId{0, 0, 3, 0});
+    ASSERT_TRUE(ghi != nullptr);
+    ASSERT_TRUE((ghi->logical_id == LogicalId{0, 0, 1}));
+
+    //the search must skip the corrupted row and still find the elements below it
+    auto found = document.GetLogicalElement(LogicalId{0, 0, 1});
+    ASSERT_TRUE(found != nullptr);
+    ASSERT_TRUE(found->ToText() == U"ghi");
+    auto abc = document.GetLogicalElement(LogicalId{0, 0, 0});
+    ASSERT_TRUE(abc != nullptr);
+    ASSERT_TRUE(abc->ToText() == U"abc");
+    ASSERT_TRUE(document.GetLogicalElement(LogicalId{0, 0, 2}) == nullptr);
+}
+
 }
