@@ -593,7 +593,8 @@ void GraphLine::ReSolve(bool if_error, bool force)
 
     document->RemoveErrorMarks(id);
     auto code = document->FindParent(id, ElementType::CODE_BLOCK);
-    assert(code);
+    if (!code)
+        return;
 
     //plots count must be count of the expressions
     while (plots.size() < GetExpression()->elements->Count())
@@ -658,7 +659,8 @@ void GraphLine::PutResult(Result& result)
                 auto el = document->GetElement(err_id);
                 if (el)
                 {
-                    document->RemoveErrorMarks(parent->parent->id);
+                    if (parent && parent->parent)
+                        document->RemoveErrorMarks(parent->parent->id);
                     document->AddErrorMark(err_id, 0, el->elements->Count());
                     document->Redraw(err_id, false);
                 }
@@ -1335,7 +1337,8 @@ void GraphSurface::ReSolve(bool if_error, bool force)
 
     document->RemoveErrorMarks(id);
     auto code = document->FindParent(id, ElementType::CODE_BLOCK);
-    assert(code);
+    if (!code)
+        return;
 
     //plots count must be count of the expressions
     while (plots.size() < GetExpression()->elements->Count())
@@ -1404,7 +1407,8 @@ void GraphSurface::PutResult(Result& result)
                 auto el = document->GetElement(err_id);
                 if (el)
                 {
-                    document->RemoveErrorMarks(parent->parent->id);
+                    if (parent && parent->parent)
+                        document->RemoveErrorMarks(parent->parent->id);
                     document->AddErrorMark(err_id, 0, el->elements->Count());
                     document->Redraw(err_id, false);
                 }
@@ -1940,7 +1944,8 @@ void GraphHistogram::ReSolve(bool if_error, bool force)
 
     document->RemoveErrorMarks(id);
     auto code = document->FindParent(id, ElementType::CODE_BLOCK);
-    assert(code);
+    if (!code)
+        return;
 
     //plots count must be count of the expressions
     while (plots.size() < GetExpression()->elements->Count())
@@ -2009,7 +2014,8 @@ void GraphHistogram::PutResult(Result& result)
                 auto el = document->GetElement(err_id);
                 if (el)
                 {
-                    document->RemoveErrorMarks(parent->parent->id);
+                    if (parent && parent->parent)
+                        document->RemoveErrorMarks(parent->parent->id);
                     document->AddErrorMark(err_id, 0, el->elements->Count());
                     document->Redraw(err_id, false);
                 }
