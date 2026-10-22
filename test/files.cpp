@@ -6,6 +6,7 @@
  */
 
 #include <gtest/gtest.h>
+#include <atomic>
 #include <filesystem>
 #include <fstream>
 #include <zlib.h>
@@ -2835,6 +2836,57 @@ TEST_F(IncludeDocumentsTest, include_files21)
         U"v=5."
         ) << ToBasicString(document2.ToText());
     ASSERT_TRUE(document2.IsChanged() == true);
+}
+
+//Load an include document that cannot be opened: the task id must stay valid and the load error must be reported
+TEST_F(IncludeDocumentsTest, include_files22)
+{
+    Start(600);
+
+    uint include_task_id = 0;
+    EXPECT_CALL(window_mock, OnLoadInclude).WillOnce(
+        [&](const std::string& file_name, const int document_id)
+        {
+            include_task_id = document.LoadInclude(file_name);
+            std::this_thread::sleep_for(400ms);
+            return include_task_id;
+        });
+
+    std::atomic<int> error_results = 0;
+    EXPECT_CALL(window_mock, OnLoadResult).WillRepeatedly(
+        [&](const uint task_id, IOResult result, const int document_id)
+        {
+            if (result == IOResult::InputStreamError)
+            {
+                ++error_results;
+                //the error reply must reference the include task, not a zero id
+                ASSERT_TRUE(task_id == include_task_id);
+                ASSERT_TRUE(include_task_id != 0);
+            }
+        });
+
+    EXPECT_CALL(window_mock, Translate).WillRepeatedly(
+        [&](ElementId id, const std::u32string& str)
+        {
+            return str;
+        });
+
+    document.InsertCode(false, true);
+    document.InsertString("v", true);
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+
+    yutovo::Config c;
+    document.GetConfig(c);
+    c.include_documents.documents.emplace_back(yutovo::Config::IncludeDocument{std::string("./missing_include_file.yut")});
+    document.WaitTask(document.SetConfig(c, true));
+    std::this_thread::sleep_for(2s);
+
+    ASSERT_TRUE(error_results >= 1);
+    //the unsolved identifier echoes itself, the failed include must not corrupt the document
+    ASSERT_TRUE(document.ToText() ==
+        U"v=v"
+        ) << ToBasicString(document.ToText());
 }
 
 //Load a document with excessively deep element nesting: it must fail cleanly instead of crashing on recursive json parsing
