@@ -4537,6 +4537,7 @@ void Document::WaitRedo()
     last_redo_executed = false;
 }
 
+#ifdef TEST
 size_t Document::GetUndoItemsCount() const
 {
     return undo_base.GetUndoItemsCount();
@@ -4546,6 +4547,7 @@ size_t Document::GetUndoStoreCount() const
 {
     return undo_base.GetUndoStoreCount();
 }
+#endif
 
 void Document::WaitLoad()
 {
