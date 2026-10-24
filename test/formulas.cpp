@@ -1117,13 +1117,21 @@ TEST_F(FormulaTestCustom, insert1)
 
     document.SetFontSize(22);
     document.WaitTask(document.InsertString("Tradicionalmente, el medio de un documento era el papel y la información", true));
+#ifdef _WIN32
+    std::this_thread::sleep_for(2s);
+#else
     std::this_thread::sleep_for(400ms);
+#endif
     document.MoveCaretToDocumentBegin(false);
     document.MoveCaretDown(false);
     document.MoveCaretRight(false);
     document.WaitTask(document.MoveCaretRight(false));
     document.WaitTask(document.InsertCode(false, true));
+#ifdef _WIN32
+    std::this_thread::sleep_for(3s);
+#else
     std::this_thread::sleep_for(1s);
+#endif
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -2148,22 +2156,38 @@ TEST_F(FormulaTestCustom, select3)
     document.WaitTask(document.InsertString("The source of the text itself is a little strange", true));
     document.MoveCaretUp(false);
     document.WaitTask(document.MoveCaretEnd(false));
+#ifdef _WIN32
+    std::this_thread::sleep_for(2s);
+#else
     std::this_thread::sleep_for(200ms);
+#endif
     document.WaitTask(document.InsertDivision(true));
+#ifdef _WIN32
+    std::this_thread::sleep_for(2s);
+#else
     std::this_thread::sleep_for(200ms);
+#endif
     document.MoveCaretLeft(false);
     document.MoveCaretLeft(false);
     document.MoveCaretRight(true);
     document.WaitTask(document.MoveCaretRight(true));
     document.WaitTask(document.MoveCaretRight(true));
+#ifdef _WIN32
+    std::this_thread::sleep_for(3s);
+#else
     std::this_thread::sleep_for(1s);
+#endif
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 0, 2}, 
         ElementSelectionState{ElementId{0, 0, 0}, 1, 1},
         ElementSelectionState{ElementId{0, 0, 1, 0}, 0, 2})) << document.GetEditorState().ToString();
 
     width = 400;
     document.WaitTask(document.Resize(width, 400));
+#ifdef _WIN32
+    std::this_thread::sleep_for(2s);
+#else
     std::this_thread::sleep_for(200ms);
+#endif
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 1, 1, 2}, 
         ElementSelectionState{ElementId{0, 0, 1}, 0, 1},
         ElementSelectionState{ElementId{0, 0, 1, 1}, 0, 2})) << document.GetEditorState().ToString();
