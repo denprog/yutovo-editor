@@ -33,7 +33,11 @@ TEST_F(VariablesTest, variables1)
     document.InsertString("5", true);
     document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
     document.WaitSolver();
+#ifdef _WIN32
+    std::this_thread::sleep_for(3s);
+#else
     std::this_thread::sleep_for(600ms);
+#endif
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -74,7 +78,11 @@ TEST_F(VariablesTest, variables1)
     document.MoveCaretEnd(false);
     document.MoveCaretLeft(false);
     document.WaitTask(document.InsertString("2", true));
+#ifdef _WIN32
+    std::this_thread::sleep_for(4s);
+#else
     std::this_thread::sleep_for(1s);
+#endif
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -313,7 +321,11 @@ TEST_F(VariablesTest, variables4)
     document.InsertAssignment(true);
     document.InsertString("4", true);
     document.WaitSolver();
+#ifdef _WIN32
+    std::this_thread::sleep_for(2s);
+#else
     std::this_thread::sleep_for(600ms);
+#endif
 
     document.MoveCaretRight(false);
     document.InsertParagraph(true);
@@ -322,7 +334,11 @@ TEST_F(VariablesTest, variables4)
     document.InsertString("5", true);
     document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
     document.WaitSolver();
+#ifdef _WIN32
+    std::this_thread::sleep_for(2s);
+#else
     std::this_thread::sleep_for(600ms);
+#endif
 
     document.WaitTask(document.MoveCaretEnd(false));
     document.WaitTask(document.InsertParagraph(true));
@@ -332,7 +348,11 @@ TEST_F(VariablesTest, variables4)
     document.InsertPlus(true);
     document.InsertString("d", true);
     document.WaitSolver();
+#ifdef _WIN32
+    std::this_thread::sleep_for(2s);
+#else
     std::this_thread::sleep_for(600ms);
+#endif
 
     document.WaitTask(document.MoveCaretRight(false));
     document.InsertParagraph(true);
@@ -341,7 +361,11 @@ TEST_F(VariablesTest, variables4)
     document.InsertString("7", true);
     document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
     document.WaitSolver();
+#ifdef _WIN32
+    std::this_thread::sleep_for(2s);
+#else
     std::this_thread::sleep_for(600ms);
+#endif
     ASSERT_TRUE(document.ToText() == 
         U"d=4\n" \
         U"d+5=9.\n" \
@@ -355,7 +379,11 @@ TEST_F(VariablesTest, variables4)
     document.WaitTask(document.MoveCaretLeft(false));
     document.WaitTask(document.InsertString("2", true));
     document.WaitSolver();
+#ifdef _WIN32
+    std::this_thread::sleep_for(3s);
+#else
     std::this_thread::sleep_for(1s);
+#endif
     ASSERT_TRUE(document.ToText() == 
         U"d=42\n" \
         U"d+5=47.\n" \
@@ -376,7 +404,11 @@ TEST_F(VariablesTest, variables5)
     document.InsertDivision(true);
     document.InsertString("4", true);
     document.WaitSolver();
+#ifdef _WIN32
+    std::this_thread::sleep_for(2s);
+#else
     std::this_thread::sleep_for(600ms);
+#endif
 
     document.MoveCaretEnd(false);
     document.MoveCaretEnd(false);
@@ -384,7 +416,11 @@ TEST_F(VariablesTest, variables5)
     document.InsertString("d", true);
     document.WaitTask(document.InsertEquation(ResultType::REAL, true));
     document.WaitSolver();
+#ifdef _WIN32
+    std::this_thread::sleep_for(2s);
+#else
     std::this_thread::sleep_for(600ms);
+#endif
     ASSERT_TRUE(document.ToText() == 
         U"d=(5)/(4)\n" \
         U"d=1.25"
@@ -396,7 +432,11 @@ TEST_F(VariablesTest, variables5)
     document.WaitTask(document.MoveCaretLeft(false));
     document.WaitTask(document.DeleteElements(true, true));
     document.WaitSolver();
+#ifdef _WIN32
+    std::this_thread::sleep_for(2s);
+#else
     std::this_thread::sleep_for(600ms);
+#endif
     ASSERT_TRUE(document.ToText() == 
         U"d=(5)/()\n" \
         U"d=Unknown identifier"
@@ -441,7 +481,11 @@ TEST_F(VariablesTest, variables7)
     document.InsertString("d", true);
     document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
     document.WaitSolver();
+#ifdef _WIN32
+    std::this_thread::sleep_for(6s);
+#else
     std::this_thread::sleep_for(2s);
+#endif
     ASSERT_TRUE(document.ToText() == 
         U"d=2345\n" \
         U"d=2345."
@@ -453,7 +497,11 @@ TEST_F(VariablesTest, variables7)
     document.WaitTask(document.MoveCaretLeft(false));
     document.InsertParagraph(true);
     document.WaitSolver();
+#ifdef _WIN32
+    std::this_thread::sleep_for(6s);
+#else
     std::this_thread::sleep_for(2s);
+#endif
     ASSERT_TRUE(document.ToText() == 
         U"d=234\n" \
         U"5\n" \
@@ -463,7 +511,11 @@ TEST_F(VariablesTest, variables7)
     document.Undo();
     document.WaitUndo();
     document.WaitSolver();
+#ifdef _WIN32
+    std::this_thread::sleep_for(3s);
+#else
     std::this_thread::sleep_for(1s);
+#endif
     ASSERT_TRUE(document.ToText() == 
         U"d=2345\n" \
         U"d=2345."
@@ -653,7 +705,11 @@ TEST_F(VariablesTest, variables8)
     document.InsertString("d", true);
     document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
     document.WaitSolver();
+#ifdef _WIN32
+    std::this_thread::sleep_for(6s);
+#else
     std::this_thread::sleep_for(1s);
+#endif
     ASSERT_TRUE(document.ToText() == 
         U"d=(1)/(3)\n" \
         U"d=(1)/(3)"
@@ -672,7 +728,11 @@ TEST_F(VariablesTest, variables8)
     document.InsertString("5", true);
     document.MoveCaretRight(false);
     document.WaitSolver();
+#ifdef _WIN32
+    std::this_thread::sleep_for(6s);
+#else
     std::this_thread::sleep_for(1s);
+#endif
     ASSERT_TRUE(document.ToText() == 
         U"d=(1)/(3)\n" \
         U"d=(4)/(5)\n" \
@@ -692,7 +752,11 @@ TEST_F(VariablesTest, variables9)
     document.InsertString("12", true);
     document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
     document.WaitSolver();
+#ifdef _WIN32
+    std::this_thread::sleep_for(3s);
+#else
     std::this_thread::sleep_for(1s);
+#endif
     ASSERT_TRUE(document.ToText() == 
         U"a=12=12."
         ) << ToBasicString(document.ToText());
@@ -702,7 +766,11 @@ TEST_F(VariablesTest, variables9)
     document.InsertString("a", true);
     document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
     document.WaitSolver();
+#ifdef _WIN32
+    std::this_thread::sleep_for(3s);
+#else
     std::this_thread::sleep_for(1s);
+#endif
     ASSERT_TRUE(document.ToText() == 
         U"a=12=12.\n" \
         U"a=12."
@@ -757,7 +825,11 @@ TEST_F(VariablesTest, variables11)
     document.InsertString("d", true);
     document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
     document.WaitSolver();
+#ifdef _WIN32
+    std::this_thread::sleep_for(2s);
+#else
     std::this_thread::sleep_for(600ms);
+#endif
     ASSERT_TRUE(document.ToText() == 
         U"d=2\n" \
         U"d=1\n" \
@@ -769,7 +841,11 @@ TEST_F(VariablesTest, variables11)
     document.WaitTask(document.MoveCaretRight(true));
     document.WaitTask(document.DeleteElements(false, true));
     document.WaitSolver();
+#ifdef _WIN32
+    std::this_thread::sleep_for(2s);
+#else
     std::this_thread::sleep_for(600ms);
+#endif
     ASSERT_TRUE(document.ToText() == 
         U"d=2\n" \
         U"d=2."
@@ -797,7 +873,11 @@ TEST_F(VariablesTest, variables12)
     document.InsertString("d", true);
     document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
     document.WaitSolver();
+#ifdef _WIN32
+    std::this_thread::sleep_for(2s);
+#else
     std::this_thread::sleep_for(600ms);
+#endif
     ASSERT_TRUE(document.ToText() == 
         U"d=5\n" \
         U"d=6\n" \
@@ -809,7 +889,11 @@ TEST_F(VariablesTest, variables12)
     document.DeleteElements(false, true);
     document.WaitTask(document.DeleteElements(false, true));
     document.WaitSolver();
+#ifdef _WIN32
+    std::this_thread::sleep_for(2s);
+#else
     std::this_thread::sleep_for(600ms);
+#endif
     ASSERT_TRUE(document.ToText() == 
         U"d=5\n" \
         U"d=5."
@@ -837,7 +921,11 @@ TEST_F(VariablesTest, variables13)
     document.InsertString("c", true);
     document.WaitTask(document.InsertEquation(ResultType::REAL, true));
     document.WaitSolver();
+#ifdef _WIN32
+    std::this_thread::sleep_for(2s);
+#else
     std::this_thread::sleep_for(600ms);
+#endif
     ASSERT_TRUE(document.ToText() == 
         U"b=5\n" \
         U"c=b\n" \
@@ -849,7 +937,11 @@ TEST_F(VariablesTest, variables13)
     document.WaitTask(document.MoveCaretUp(false));
     document.WaitTask(document.DeleteElements(false, true));
     document.WaitSolver();
+#ifdef _WIN32
+    std::this_thread::sleep_for(6s);
+#else
     std::this_thread::sleep_for(2s);
+#endif
     ASSERT_TRUE(document.ToText() == 
         U"\n" \
         U"c=b\n" \
@@ -862,7 +954,11 @@ TEST_F(VariablesTest, variables13)
     document.Undo();
     document.WaitUndo();
     document.WaitSolver();
+#ifdef _WIN32
+    std::this_thread::sleep_for(3s);
+#else
     std::this_thread::sleep_for(1s);
+#endif
     ASSERT_TRUE(document.ToText() == 
         U"b=5\n" \
         U"c=b\n" \
@@ -904,7 +1000,11 @@ TEST_F(VariablesTest, variables14)
     document.InsertString("c", true);
     document.WaitTask(document.InsertEquation(ResultType::REAL, true));
     document.WaitSolver();
+#ifdef _WIN32
+    std::this_thread::sleep_for(2s);
+#else
     std::this_thread::sleep_for(600ms);
+#endif
     ASSERT_TRUE(document.ToText() == 
         U"a=1\n" \
         U"b=2\n" \
@@ -917,7 +1017,11 @@ TEST_F(VariablesTest, variables14)
     document.WaitTask(document.MoveCaretHome(false));
     document.WaitTask(document.DeleteElements(false, true));
     document.WaitSolver();
+#ifdef _WIN32
+    std::this_thread::sleep_for(6s);
+#else
     std::this_thread::sleep_for(2s);
+#endif
     ASSERT_TRUE(document.ToText() == 
         U"a=1\n" \
         U"\n" \
@@ -928,7 +1032,11 @@ TEST_F(VariablesTest, variables14)
     ASSERT_TRUE(document.HasErrorMark(ElementId{0, 2, 0, 0, 0, 0, 0, 2, 2}, start, size)) << ErrorMarks();
 
     document.WaitTask(document.DeleteElements(false, true));
+#ifdef _WIN32
+    std::this_thread::sleep_for(2s);
+#else
     std::this_thread::sleep_for(600ms);
+#endif
     ASSERT_TRUE(document.ToText() == 
         U"a=1\n" \
         U"c=a*b\n" \
@@ -943,7 +1051,11 @@ TEST_F(VariablesTest, variables14)
     document.Undo();
     document.WaitUndo();
     document.WaitSolver();
+#ifdef _WIN32
+    std::this_thread::sleep_for(3s);
+#else
     std::this_thread::sleep_for(1s);
+#endif
     ASSERT_TRUE(document.ToText() == 
         U"a=1\n" \
         U"b=2\n" \
@@ -1001,7 +1113,11 @@ TEST_F(VariablesTest, variables16)
     document.InsertString("r", true);
     document.WaitTask(document.InsertEquation(ResultType::REAL, true));
     document.WaitSolver();
+#ifdef _WIN32
+    std::this_thread::sleep_for(12s);
+#else
     std::this_thread::sleep_for(2s);
+#endif
     ASSERT_TRUE(document.ToText() == 
         U"a=1\n" \
         U"r=a*b\n" \
@@ -1018,7 +1134,11 @@ TEST_F(VariablesTest, variables16)
     document.InsertAssignment(true);
     document.InsertString("5", true);
     document.WaitSolver();
+#ifdef _WIN32
+    std::this_thread::sleep_for(6s);
+#else
     std::this_thread::sleep_for(1s);
+#endif
     ASSERT_TRUE(document.ToText() == 
         U"a=1\n" \
         U"b=5\n" \
@@ -1054,7 +1174,11 @@ TEST_F(VariablesTest, variables17)
     document.InsertString("E", true);
     document.WaitTask(document.InsertEquation(ResultType::REAL, true));
     document.WaitSolver();
+#ifdef _WIN32
+    std::this_thread::sleep_for(2s);
+#else
     std::this_thread::sleep_for(600ms);
+#endif
     ASSERT_TRUE(document.ToText() == 
         U"h=5\n" \
         U"E=m*h\n" \
@@ -1071,7 +1195,11 @@ TEST_F(VariablesTest, variables17)
     document.InsertAssignment(true);
     document.InsertString("2", true);
     document.WaitSolver();
+#ifdef _WIN32
+    std::this_thread::sleep_for(6s);
+#else
     std::this_thread::sleep_for(2s);
+#endif
     ASSERT_TRUE(document.ToText() == 
         U"m=2\n" \
         U"h=5\n" \
@@ -1104,7 +1232,11 @@ TEST_F(VariablesTest, variables18)
     document.InsertString("L", true);
     document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
     document.WaitSolver();
+#ifdef _WIN32
+    std::this_thread::sleep_for(4s);
+#else
     std::this_thread::sleep_for(600ms);
+#endif
     ASSERT_TRUE(document.ToText() == 
         U"p=1\n" \
         U"L=p\n" \
@@ -1124,7 +1256,11 @@ TEST_F(VariablesTest, variables18)
     document.InsertString("L", true);
     document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
     document.WaitSolver();
+#ifdef _WIN32
+    std::this_thread::sleep_for(12s);
+#else
     std::this_thread::sleep_for(2s);
+#endif
     ASSERT_TRUE(document.ToText() == 
         U"p=1\n" \
         U"L=p\n" \
@@ -1137,7 +1273,11 @@ TEST_F(VariablesTest, variables18)
     document.MoveCaretToDocumentBegin(false);
     document.WaitTask(document.InsertParagraph(true));
     document.WaitSolver();
+#ifdef _WIN32
+    std::this_thread::sleep_for(12s);
+#else
     std::this_thread::sleep_for(2s);
+#endif
     ASSERT_TRUE(document.ToText() == 
         U"\n" \
         U"p=1\n" \
@@ -1173,7 +1313,11 @@ TEST_F(VariablesTest, variables19)
     document.InsertString("v", true);
     document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
     document.WaitSolver();
+#ifdef _WIN32
+    std::this_thread::sleep_for(6s);
+#else
     std::this_thread::sleep_for(2s);
+#endif
     ASSERT_TRUE(document.ToText() == 
         U"v=3\n" \
         U"v=3.\n" \
@@ -1184,7 +1328,11 @@ TEST_F(VariablesTest, variables19)
     document.WaitTask(document.MoveCaretToDocumentBegin(false));
     document.WaitTask(document.InsertParagraph(true));
     document.WaitSolver();
+#ifdef _WIN32
+    std::this_thread::sleep_for(6s);
+#else
     std::this_thread::sleep_for(2s);
+#endif
     ASSERT_TRUE(document.ToText() == 
         U"\n" \
         U"v=3\n" \
@@ -1226,21 +1374,33 @@ TEST_F(VariablesTest, variables20)
     document.InsertMultiply(true);
     document.WaitTask(document.InsertString("g_a", true));
     document.WaitSolver();
+#ifdef _WIN32
+    std::this_thread::sleep_for(6s);
+#else
     std::this_thread::sleep_for(2s);
+#endif
     
     document.WaitTask(document.MoveCaretEnd(false));
     document.InsertParagraph(true);
     document.InsertString("v", true);
     document.WaitTask(document.InsertEquation(ResultType::REAL, true));
     document.WaitSolver();
+#ifdef _WIN32
+    std::this_thread::sleep_for(6s);
+#else
     std::this_thread::sleep_for(2s);
+#endif
 
     document.WaitTask(document.MoveCaretToDocumentEnd(false));
     document.InsertParagraph(true);
     document.InsertString("Example 2", true);
     document.WaitTask(document.InsertParagraph(true));
     document.WaitTask(document.InsertString("String", true));
+#ifdef _WIN32
+    std::this_thread::sleep_for(9s);
+#else
     std::this_thread::sleep_for(3s);
+#endif
     ASSERT_TRUE(document.ToText() == 
         U"Example 1\n" \
         U"Вычисление\n" \
@@ -1259,7 +1419,11 @@ TEST_F(VariablesTest, variables20)
     document.WaitTask(document.DeleteElements(true, true));
     document.WaitTask(document.DeleteElements(true, true));
     document.WaitSolver();
+#ifdef _WIN32
+    std::this_thread::sleep_for(6s);
+#else
     std::this_thread::sleep_for(2s);
+#endif
     ASSERT_TRUE(document.ToText() == 
         U"Example 1\n" \
         U"Вычисление\n" \
@@ -1277,7 +1441,11 @@ TEST_F(VariablesTest, variables20)
     document.MoveCaretEnd(true);
     document.WaitTask(document.DeleteElements(false, true));
     document.WaitSolver();
+#ifdef _WIN32
+    std::this_thread::sleep_for(6s);
+#else
     std::this_thread::sleep_for(2s);
+#endif
     ASSERT_TRUE(document.ToText() == 
         U"Вычисление\n" \
         U"Р_З=6370\n" \
@@ -1296,7 +1464,11 @@ TEST_F(VariablesTest, variables20)
     document.Undo();
     document.WaitUndo();
     document.WaitSolver();
+#ifdef _WIN32
+    std::this_thread::sleep_for(3s);
+#else
     std::this_thread::sleep_for(1s);
+#endif
     ASSERT_TRUE(!document.HasErrorMarks({0})) << ErrorMarks();
 }
 

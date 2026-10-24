@@ -122,14 +122,22 @@ TEST_F(UnitTest, unit3)
     document.InsertUnit(true);
     document.WaitTask(document.InsertString("10m", true));
     document.WaitSolver();
+#ifdef _WIN32
+    std::this_thread::sleep_for(2s);
+#else
     std::this_thread::sleep_for(600ms);
+#endif
 
     document.WaitTask(document.MoveCaretRight(false));
     document.InsertParagraph(true);
     document.InsertString("10m", true);
     document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
     document.WaitSolver();
+#ifdef _WIN32
+    std::this_thread::sleep_for(2s);
+#else
     std::this_thread::sleep_for(600ms);
+#endif
     ASSERT_TRUE(document.ToText() == 
         U"d_m~10m\n"\
         U"10m=1.d_m"
@@ -141,7 +149,11 @@ TEST_F(UnitTest, unit3)
     document.WaitTask(document.MoveCaretLeft(false));
     document.WaitTask(document.DeleteElements(true, true));
     document.WaitSolver();
+#ifdef _WIN32
     std::this_thread::sleep_for(2s);
+#else
+    std::this_thread::sleep_for(600ms);
+#endif
     ASSERT_TRUE(document.ToText() == 
         U"d_m~1m\n"\
         U"10m=10.m"

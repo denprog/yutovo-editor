@@ -1271,7 +1271,7 @@ TEST_F(FormulaTest, graph_surface20)
         {
             return std::stod(ToBasicString(el->elements->Get(pos)->ToText()));
         };
-    auto near =
+    auto near_value =
         [](double a, double b)
         {
             return std::fabs(a - b) < 0.01;
@@ -1280,20 +1280,20 @@ TEST_F(FormulaTest, graph_surface20)
     ASSERT_TRUE(document.MouseWheel(mx, my, Point{0, 15}, Point{0, 15}));
     document.WaitSolver();
     std::this_thread::sleep_for(2s);
-    ASSERT_TRUE(near(row_value(0), ny_top)) << ToBasicString(el->elements->Get(0)->ToText());
-    ASSERT_TRUE(near(row_value(3), ny_bottom)) << ToBasicString(el->elements->Get(3)->ToText());
-    ASSERT_TRUE(near(row_value(4), nx_left)) << ToBasicString(el->elements->Get(4)->ToText());
-    ASSERT_TRUE(near(row_value(6), nx_right)) << ToBasicString(el->elements->Get(6)->ToText());
+    ASSERT_TRUE(near_value(row_value(0), ny_top)) << ToBasicString(el->elements->Get(0)->ToText());
+    ASSERT_TRUE(near_value(row_value(3), ny_bottom)) << ToBasicString(el->elements->Get(3)->ToText());
+    ASSERT_TRUE(near_value(row_value(4), nx_left)) << ToBasicString(el->elements->Get(4)->ToText());
+    ASSERT_TRUE(near_value(row_value(6), nx_right)) << ToBasicString(el->elements->Get(6)->ToText());
 
     //zooming out at the same point restores the original bounds
     r = el->elements->Get(7)->GetAbsoluteRect();
     ASSERT_TRUE(document.MouseWheel(r.left + r.width * 29 / 40, r.top + r.height * 29 / 40, Point{0, -15}, Point{0, -15}));
     document.WaitSolver();
     std::this_thread::sleep_for(2s);
-    ASSERT_TRUE(near(row_value(0), y_top)) << ToBasicString(el->elements->Get(0)->ToText());
-    ASSERT_TRUE(near(row_value(3), y_bottom)) << ToBasicString(el->elements->Get(3)->ToText());
-    ASSERT_TRUE(near(row_value(4), x_left)) << ToBasicString(el->elements->Get(4)->ToText());
-    ASSERT_TRUE(near(row_value(6), x_right)) << ToBasicString(el->elements->Get(6)->ToText());
+    ASSERT_TRUE(near_value(row_value(0), y_top)) << ToBasicString(el->elements->Get(0)->ToText());
+    ASSERT_TRUE(near_value(row_value(3), y_bottom)) << ToBasicString(el->elements->Get(3)->ToText());
+    ASSERT_TRUE(near_value(row_value(4), x_left)) << ToBasicString(el->elements->Get(4)->ToText());
+    ASSERT_TRUE(near_value(row_value(6), x_right)) << ToBasicString(el->elements->Get(6)->ToText());
 }
 
 }

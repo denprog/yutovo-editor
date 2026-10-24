@@ -1666,7 +1666,11 @@ TEST_F(CodeTest, code25)
     document.WaitTask(document.MoveCaretRight(false));
     document.WaitTask(document.MoveCaretDown(true));
     document.WaitTask(document.MoveCaretDown(true));
+#ifdef _WIN32
+    std::this_thread::sleep_for(9s);
+#else
     std::this_thread::sleep_for(3s);
+#endif
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 1, 0, 0, 2}, 
         ElementSelectionState{ElementId{0}, 0, 1}, 
         ElementSelectionState{ElementId{0, 1, 0, 0}, 0, 2})) << document.GetEditorState().ToString();

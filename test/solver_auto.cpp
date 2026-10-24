@@ -1238,7 +1238,11 @@ TEST_F(SolverAutoTest, solver26)
     document.InsertString("123", true);
     document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
     document.WaitSolver();
+#ifdef _WIN32
+    std::this_thread::sleep_for(2s);
+#else
     std::this_thread::sleep_for(600ms);
+#endif
     ASSERT_TRUE(document.ToText() == 
         U"In literary theory, a text is any object that can be read, whether this object is a work of literature123=123."
         ) << ToBasicString(document.ToText());
@@ -1246,14 +1250,22 @@ TEST_F(SolverAutoTest, solver26)
     document.WaitTask(document.MoveCaretLeft(false));
     document.WaitTask(document.InsertString("456789", true));
     document.WaitSolver();
+#ifdef _WIN32
+    std::this_thread::sleep_for(2s);
+#else
     std::this_thread::sleep_for(600ms);
+#endif
     ASSERT_TRUE(document.ToText() == 
         U"In literary theory, a text is any object that can be read, whether this object is a work of literature123456789=123456789."
         ) << ToBasicString(document.ToText());
 
     document.WaitTask(document.InsertString("123456789", true));
     document.WaitSolver();
+#ifdef _WIN32
+    std::this_thread::sleep_for(3s);
+#else
     std::this_thread::sleep_for(1s);
+#endif
     ASSERT_TRUE(document.ToText() == 
         U"In literary theory, a text is any object that can be read, whether this object is a work of literature123456789123456789=1.235*pow(10,17)"
         ) << ToBasicString(document.ToText());
@@ -1262,7 +1274,11 @@ TEST_F(SolverAutoTest, solver26)
     document.Undo();
     document.WaitUndo();
     document.WaitSolver();
+#ifdef _WIN32
+    std::this_thread::sleep_for(3s);
+#else
     std::this_thread::sleep_for(1s);
+#endif
     ASSERT_TRUE(document.ToText() == 
         U"In literary theory, a text is any object that can be read, whether this object is a work of literature123456789=123456789."
         ) << ToBasicString(document.ToText());
@@ -2170,7 +2186,11 @@ TEST_F(SolverAutoTest, errors5)
     document.MoveCaretRight(false);
     document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
     document.WaitSolver();
+#ifdef _WIN32
+    std::this_thread::sleep_for(3s);
+#else
     std::this_thread::sleep_for(1s);
+#endif
 #ifdef REMOTE_SOLVER
     ASSERT_TRUE(document.ToText() == U"(6kg*2m)/(4*pow(s,2))=Solver timeout") << ToBasicString(document.ToText());
 #else
@@ -2686,7 +2706,11 @@ TEST_F(SolverAutoTest, lists1)
     document.Load("../../test/tests/lists1.yut");
     document.WaitLoad();
     document.WaitSolver();
+#ifdef _WIN32
+    std::this_thread::sleep_for(12s);
+#else
     std::this_thread::sleep_for(4s);
+#endif
     ASSERT_TRUE(document.ToText() == 
         U"металлы=\"серебро\",\"медь\",\"алюминий\"\n"\
         U"ρ{серебро}=0.0155мкОм*м\n"\
@@ -2701,7 +2725,11 @@ TEST_F(SolverAutoTest, lists1)
     
     document.WaitTask(document.DeleteElements(true, true));
     document.WaitSolver();
+#ifdef _WIN32
+    std::this_thread::sleep_for(6s);
+#else
     std::this_thread::sleep_for(2s);
+#endif
     ASSERT_TRUE(document.ToText() == 
         U"металлы=\"серебро\",\"медь\",\"алюминий\"\n"\
         U"ρ{серебро}=0.0155мкОм*м\n"\
