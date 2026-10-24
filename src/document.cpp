@@ -4447,6 +4447,11 @@ bool Document::WaitTask(uint task_id, uint64_t timeout, uint64_t circle_delay)
     return false;
 }
 
+void Document::StopSolver()
+{
+    solver.Stop();
+}
+
 void Document::RestrictUndo()
 {
     if (undo_tasks.empty())

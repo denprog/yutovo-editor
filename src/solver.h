@@ -47,6 +47,8 @@ public:
 
     void BreakSolving(const LogicalId& id, const std::string& task_guid, const uint code_id, bool wait);
 
+    void Stop();
+
     void SetIdentifier(const LogicalId& id, const std::string& task_guid, uint code_id, Config::AutoResultConfig& config, bool include_document, 
         const std::u32string& identifier, const std::u32string& expression, const uint delay);
     void RemoveIdentifier(const LogicalId& id, uint code_id, const std::u32string& identifier, const uint delay);

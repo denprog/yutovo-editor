@@ -49,6 +49,11 @@ Solver::Solver(Document* _document) :
 
 Solver::~Solver()
 {
+    Stop();
+}
+
+void Solver::Stop()
+{
     {
         std::unique_lock<std::mutex> lock(current_solving_mutex);
         if (!current_solving_id.empty())

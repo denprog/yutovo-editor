@@ -407,13 +407,14 @@ public:
 
     bool WaitTask(uint task_id, uint64_t timeout = 0, uint64_t circle_delay = 1);
 
+    void StopSolver();
+
 private:
     void MainLoop();
 
     bool ExecuteTask(const TaskPtr& task);
 
     void RestrictUndo();
-    void ReleaseUndoSnapshots(const TaskPtr& task);
 
     void UpdateChanged();
 
@@ -426,8 +427,6 @@ public:
     void WaitRedo();
     void WaitLoad();
     void WaitSolver();
-    size_t GetUndoItemsCount() const;
-    size_t GetUndoStoreCount() const;
 #endif
 
 #ifdef TEST
