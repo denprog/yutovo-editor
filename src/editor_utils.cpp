@@ -631,6 +631,8 @@ bool IsLess(const ElementId& id1, const ElementId& id2)
 
 void FlipImageVertically(std::vector<unsigned char>& rgba, const int width, const int height)
 {
+    if (width <= 0 || height <= 0 || rgba.size() < (size_t)width * height * 4)
+        return;
     unsigned r = width * 4;
     for (unsigned y = 0; y < height / 2; ++y)
     {

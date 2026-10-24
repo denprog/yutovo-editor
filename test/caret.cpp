@@ -2912,10 +2912,90 @@ TEST_F(DocumentTest, caret92)
     document.Undo();
     document.WaitUndo();
     std::this_thread::sleep_for(3s);
-    ASSERT_TRUE(document.ToText() == 
+    ASSERT_TRUE(document.ToText() ==
         U"f(yy)=pow(yy,2)\n"\
         U"definite_integral(0,4,f(y),y)=21.333\n"
         ) << ToBasicString(document.ToText());
+}
+
+//Word navigation over non-ASCII text: Cyrillic letters must not be classified as whitespace
+TEST_F(DocumentTest, caret93)
+{
+    Start(600);
+
+    document.WaitTask(document.InsertString(U"привет мир тест", true));
+    ASSERT_TRUE(document.ToText() == U"привет мир тест") << ToBasicString(document.ToText());
+
+    document.WaitTask(document.MoveCaretWordLeft(false));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 11})) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.MoveCaretWordLeft(false));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 7})) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.MoveCaretWordLeft(false));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0})) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.MoveCaretWordRight(false));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 7})) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.MoveCaretWordRight(false));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 11})) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.MoveCaretWordRight(false));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 15})) << document.GetEditorState().ToString();
+
+    ASSERT_TRUE(document.ToText() == U"привет мир тест") << ToBasicString(document.ToText());
+}
+
+//Word-left from inside leading spaces: the whitespace-skip loop must stay inside the string
+TEST_F(DocumentTest, caret94)
+{
+    Start(600);
+
+    document.WaitTask(document.InsertString(U"  слово", true));
+    ASSERT_TRUE(document.ToText() == U"  слово") << ToBasicString(document.ToText());
+
+    for (int i = 0; i < 5; ++i)
+        document.WaitTask(document.MoveCaretLeft(false));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 2})) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.MoveCaretWordLeft(false));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 1})) << document.GetEditorState().ToString();
+}
+
+//Word navigation in a string of only spaces: the whitespace-skip loops must stay inside the string
+TEST_F(DocumentTest, caret95)
+{
+    Start(600);
+
+    //a long all-spaces string (more than the small-string buffer) keeps the characters on the heap,
+    //so an out-of-bounds index would read outside the allocated block
+    const std::u32string spaces(30, U' ');
+    document.WaitTask(document.InsertString(spaces, true));
+    ASSERT_TRUE(document.ToText() == spaces) << ToBasicString(document.ToText());
+
+    document.WaitTask(document.MoveCaretWordLeft(false));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 1})) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.MoveCaretWordLeft(false));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0})) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.MoveCaretWordRight(false));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 30})) << document.GetEditorState().ToString();
+}
+
+//Word-right from inside trailing spaces: the skip loop must stop at the string end
+TEST_F(DocumentTest, caret96)
+{
+    Start(600);
+
+    document.WaitTask(document.InsertString(U"слово  ", true));
+    document.WaitTask(document.MoveCaretLeft(false));
+    document.WaitTask(document.MoveCaretLeft(false));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 5})) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.MoveCaretWordRight(false));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 7})) << document.GetEditorState().ToString();
 }
 
 }

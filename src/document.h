@@ -413,6 +413,7 @@ private:
     bool ExecuteTask(const TaskPtr& task);
 
     void RestrictUndo();
+    void ReleaseUndoSnapshots(const TaskPtr& task);
 
     void UpdateChanged();
 
@@ -425,6 +426,8 @@ public:
     void WaitRedo();
     void WaitLoad();
     void WaitSolver();
+    size_t GetUndoItemsCount() const;
+    size_t GetUndoStoreCount() const;
 #endif
 
 #ifdef TEST

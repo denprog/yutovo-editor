@@ -3533,10 +3533,31 @@ TEST_F(FormulaTest, replace1)
 
     document.Redo();
     document.WaitRedo();
-    ASSERT_TRUE(document.ToText() == 
+    ASSERT_TRUE(document.ToText() ==
         U"+"
         ) << ToBasicString(document.ToText());
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0, 0, 1})) << document.GetEditorState().ToString();
+}
+
+TEST_F(FormulaTest, stale_id1)
+{
+    Start(600);
+
+    document.WaitTask(document.InsertString("text", true));
+    std::string html = document.ToHtml();
+
+    //a stale element id must not crash the getters
+    ASSERT_TRUE(document.GetResultType(ElementId{0, 9999}) == ResultType::NONE);
+
+    //a stale id and a valid element without a code block above it must not crash RemoveErrorMarks
+    yutovo::Dependencies dependencies;
+    dependencies.push_back("x");
+    document.RemoveErrorMarks(ElementId{0, 9999}, &dependencies);
+    document.RemoveErrorMarks(ElementId{0, 0, 0, 0}, &dependencies);
+    document.RemoveErrorMarks(ElementId{0, 9999});
+
+    ASSERT_TRUE(document.ToHtml() == html) << document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 4)) << document.GetEditorState().ToString();
 }
 
 }

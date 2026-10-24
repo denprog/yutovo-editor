@@ -8,6 +8,7 @@
 #ifndef __TASK_H__
 #define __TASK_H__
 
+#include <atomic>
 #include <vector>
 #include <memory>
 #include <sstream>
@@ -39,13 +40,12 @@ struct Task
     ElementPtr text;
     Document* document;
     Window* window;
-    bool undo = false; //this is an undo task
     bool with_undo = false; //this task has (will have) undo
     bool next_task = false; //execute next task for undo/redo
 
     Logger* logger;
 
-    static uint next_id;
+    static std::atomic<uint> next_id;
     uint id; //for syncing with undo/redo
 };
 

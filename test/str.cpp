@@ -4625,4 +4625,58 @@ TEST_F(DocumentTest, undo6)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 2})) << document.GetEditorState().ToString();
 }
 
+//The undo snapshot storage is bounded by the undo size and is released on undo, redo and load
+TEST_F(DocumentTest, undo7)
+{
+    Start(600);
+
+    Config config;
+    document.GetConfig(config);
+    config.undo_size = 4;
+    document.SetConfig(config, true);
+
+    for (int i = 0; i < 9; ++i)
+        document.InsertString("a", true);
+    document.WaitTask(document.InsertString("a", true));
+
+    ASSERT_TRUE(document.ToText() == U"aaaaaaaaaa") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetUndoSize() == 4) << document.GetUndoSize();
+    //the snapshots are bounded by the live undo groups, not by the whole edit history
+    ASSERT_TRUE(document.GetUndoItemsCount() == 4) << document.GetUndoItemsCount();
+    ASSERT_TRUE(document.GetUndoStoreCount() == 4) << document.GetUndoStoreCount();
+
+    while (document.CanUndo())
+    {
+        document.Undo();
+        document.WaitUndo();
+    }
+    ASSERT_TRUE(!document.CanUndo());
+    //the undo depth is bounded by the undo size - only the last 4 groups can be undone
+    ASSERT_TRUE(document.ToText() == U"aaaaaa") << ToBasicString(document.ToText());
+    //every executed group released its snapshots
+    ASSERT_TRUE(document.GetUndoItemsCount() == 0) << document.GetUndoItemsCount();
+    ASSERT_TRUE(document.GetUndoStoreCount() == 0) << document.GetUndoStoreCount();
+
+    while (document.CanRedo())
+    {
+        document.Redo();
+        document.WaitRedo();
+    }
+    ASSERT_TRUE(!document.CanRedo());
+    ASSERT_TRUE(document.ToText() == U"aaaaaaaaaa") << ToBasicString(document.ToText());
+    //the redo re-execution stores bounded snapshots again
+    ASSERT_TRUE(document.GetUndoSize() == 4) << document.GetUndoSize();
+    ASSERT_TRUE(document.GetUndoItemsCount() == 4) << document.GetUndoItemsCount();
+    ASSERT_TRUE(document.GetUndoStoreCount() == 4) << document.GetUndoStoreCount();
+
+    document.WaitTask(document.Save("undo7.yut"));
+    document.Load("undo7.yut");
+    document.WaitLoad();
+    ASSERT_TRUE(document.ToText() == U"aaaaaaaaaa") << ToBasicString(document.ToText());
+    //loading clears the whole undo storage
+    ASSERT_TRUE(!document.CanUndo());
+    ASSERT_TRUE(document.GetUndoItemsCount() == 0) << document.GetUndoItemsCount();
+    ASSERT_TRUE(document.GetUndoStoreCount() == 0) << document.GetUndoStoreCount();
+}
+
 }

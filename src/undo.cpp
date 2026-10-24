@@ -915,6 +915,8 @@ int UndoBase::Store(const ElementId& id)
 {
     std::vector<LogicalId> ids;
     auto el = document->GetElement(id);
+    if (!el)
+        return -1;
     if (el->type == ElementType::ROW)
     {
         el = document->GetParent(el->id);
@@ -934,6 +936,8 @@ int UndoBase::Store(const ElementId& parent_id, const int pos, const int size)
     for (int i = pos; i < pos + size; ++i)
     {
         auto el = document->GetElement(GetChild(parent_id, i));
+        if (!el)
+            continue;
         if (ids.empty() || ids[i - pos - 1] != el->logical_id)
         {
             if (el->logical_id.empty())
@@ -960,7 +964,6 @@ int UndoBase::Store(const ElementId& parent_id, const int pos, const int size)
 int UndoBase::Store(const Config& config)
 {
     UndoElementPtr undo_element(new UndoConfig(config));
-    UndoItem item{LogicalId{}, 1, std::vector{undo_element}};
     undo_items[next_undo_id].push_back(undo_element);
     return next_undo_id++;
 }
@@ -968,10 +971,41 @@ int UndoBase::Store(const Config& config)
 int UndoBase::Store(const TextFormat& format)
 {
     UndoElementPtr undo_element(new UndoFormat(format));
-    UndoItem item{LogicalId{}, 1, std::vector{undo_element}};
     undo_items[next_undo_id].push_back(undo_element);
     return next_undo_id++;
 }
+
+void UndoBase::Release(const int undo_id)
+{
+    undo_items.erase(undo_id);
+}
+
+void UndoBase::Clear()
+{
+    undo_items.clear();
+    undo_store.clear();
+}
+
+#ifdef TEST
+size_t UndoBase::GetUndoItemsCount() const
+{
+    return undo_items.size();
+}
+
+size_t UndoBase::GetUndoStoreCount() const
+{
+    size_t count = 0;
+    for (const UndoItem& item : undo_store)
+    {
+        for (const auto& el : item.undo_elements)
+        {
+            if (!el.expired())
+                ++count;
+        }
+    }
+    return count;
+}
+#endif
 
 bool UndoBase::Restore(int undo_id, std::vector<ElementPtr>& elements)
 {
@@ -1047,6 +1081,8 @@ int UndoBase::Store(const int undo_id, const LogicalId& id)
 
 UndoElementPtr UndoBase::StoreElement(const LogicalId id, ElementPtr el)
 {
+    bool has_store_item = false; //the store already has an item with this id
+    size_t store_pos = 0;
     auto undo_store_it = std::find_if(undo_store.begin(), undo_store.end(), 
         [id](UndoItem& item)
         {
@@ -1054,16 +1090,20 @@ UndoElementPtr UndoBase::StoreElement(const LogicalId id, ElementPtr el)
         });
     if (undo_store_it != undo_store.end())
     {
+        has_store_item = true;
+        store_pos = undo_store_it - undo_store.begin(); //the index survives the reallocations below
         UndoItem& item = *undo_store_it;
-        auto _it = std::find_if(item.undo_elements.begin(), item.undo_elements.end(), 
-            [el](UndoElementPtr& undo_element)
-            {
-                return *undo_element == *el;
-            });
-        if (_it != item.undo_elements.end())
+        for (auto _it = item.undo_elements.begin(); _it != item.undo_elements.end();)
         {
-            item.refs++;
-            return *_it; //this element is already saved
+            UndoElementPtr saved = _it->lock();
+            if (!saved) //this snapshot is not used by any undo id anymore
+            {
+                _it = item.undo_elements.erase(_it);
+                continue;
+            }
+            if (*saved == *el)
+                return saved; //this element is already saved
+            ++_it;
         }
     }
 
@@ -1347,8 +1387,10 @@ UndoElementPtr UndoBase::StoreElement(const LogicalId id, ElementPtr el)
     if (!undo_element)
         return nullptr;
     
-    UndoItem item{id, 1, std::vector{undo_element}};
-    undo_store.emplace_back(item);
+    if (has_store_item)
+        undo_store[store_pos].undo_elements.push_back(undo_element);
+    else
+        undo_store.push_back(UndoItem{id, std::vector<std::weak_ptr<UndoElement>>{undo_element}});
     return undo_element;
 }
 

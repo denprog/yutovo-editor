@@ -1212,7 +1212,8 @@ ElementPtr Elements::Get(ElementId id)
 
 ElementId Elements::GetElementId(uint pos)
 {
-    assert(elements.size() > pos);
+    if (pos >= elements.size())
+        return ElementId();
     return elements[pos]->id;
 }
 
@@ -1223,7 +1224,7 @@ int Elements::GetElementPos(ElementId id)
         if (GetElementId(i) == id)
             return i;
     }
-    if (Count() > 0 && elements[elements.size() - 1]->HasLastCaretState())
+    if (elements.size() > 0 && elements[elements.size() - 1]->HasLastCaretState())
     {
         if (GetElementId(Count() - 1) == GetPrevPos(id))
             return Count() - 1;
@@ -1290,12 +1291,15 @@ void Elements::Add(ElementPtr element)
 
 void Elements::Insert(ElementPtr element, const uint pos)
 {
+    if (!element)
+        return;
+    const uint insert_pos = pos > elements.size() ? uint(elements.size()) : pos;
     CaretState c, last;
     if (caret->IsInsideElement(element->id))
         c = caret->GetCaretState();
     else if (caret->IsOnElement(element->id))
         c = caret->GetCaretState();
-    else if (pos == parent->elements->Count() && pos > 0 && parent->elements->Get(pos - 1)->HasCaretState())
+    else if (insert_pos == parent->elements->Count() && insert_pos > 0 && parent->elements->Get(insert_pos - 1)->HasCaretState())
         parent->GetLastCaretState(last, nullptr);
     
     bool p = selection->IsSelected(parent->id);
@@ -1310,10 +1314,10 @@ void Elements::Insert(ElementPtr element, const uint pos)
     if (selection->HasChild(element->id, p_s))
         selection->Remove(p_s.element->id, p_s.start, p_s.size);
     
-    for (int i = pos; i < Count(); ++i) //elements after pos will be replaced
+    for (int i = insert_pos; i < Count(); ++i) //elements after pos will be replaced
         elements[i]->BeforeReplace();
-    
-    elements.insert(elements.begin() + pos, element);
+
+    elements.insert(elements.begin() + insert_pos, element);
 
     element->parent = parent;
     element->document = parent->document;
@@ -1321,7 +1325,7 @@ void Elements::Insert(ElementPtr element, const uint pos)
 
     UpdateIds(); //set id
 
-    for (int i = pos + 1; i < Count(); ++i) //elements after pos were replaced
+    for (int i = insert_pos + 1; i < Count(); ++i) //elements after pos were replaced
         elements[i]->AfterReplace();
 
     selection->InsertElement(element->id); //update selection positions after inserting new element
@@ -1360,7 +1364,7 @@ void Elements::Insert(ElementPtr element, const uint pos)
     }
     
     if (p)
-        selection->Remove(parent->id, pos, 1);
+        selection->Remove(parent->id, insert_pos, 1);
 
     if (s)
     {
@@ -1392,27 +1396,30 @@ void Elements::Remove(const ElementId id)
 
 void Elements::RemoveAt(const uint pos, const int size)
 {
-    selection->Remove(parent->id, pos, size);
+    if (size <= 0 || pos >= elements.size())
+        return;
+    const int count = std::min(size, int(elements.size()) - int(pos)); //clamp the size to the existing elements
+    selection->Remove(parent->id, pos, count);
     int cs_pos = -1;
     if (!parent->id.empty())
     {
-        for (int i = pos; i < pos + size; ++i)
+        for (int i = pos; i < pos + count; ++i)
         {
             if (caret->IsInsideElement(elements[i]->id) || caret->IsOnElement(elements[i]->id))
                 cs_pos = i;
         }
     }
 
-    for (int i = 0; i < size; ++i) //update selection positions before deleting elements
+    for (int i = 0; i < count; ++i) //update selection positions before deleting elements
         selection->RemoveElement(GetElementId(pos + i));
-    
-    for (uint i = pos; i < pos + size; ++i)
+
+    for (uint i = pos; i < pos + count; ++i)
         elements[i]->BeforeDelete();
 
-    for (int i = pos + size + 1; i < Count(); ++i) //elements after will be replaced
+    for (int i = pos + count + 1; i < Count(); ++i) //elements after will be replaced
         elements[i]->BeforeReplace();
 
-    elements.erase(elements.begin() + pos, elements.begin() + pos + size);
+    elements.erase(elements.begin() + pos, elements.begin() + pos + count);
 
     UpdateIds();
 
@@ -1478,6 +1485,8 @@ void Elements::Move(const Elements& _elements, const uint pos)
 
 void Elements::Replace(ElementPtr element, const uint pos)
 {
+    if (pos >= elements.size())
+        return;
     bool s = parent->document->selection.IsSelected(elements[pos]->id);
     RemoveAt(pos, 1);
     Insert(element, pos);
@@ -1487,26 +1496,30 @@ void Elements::Replace(ElementPtr element, const uint pos)
 
 void Elements::Replace(const uint pos, const int size, std::vector<ElementPtr>& _elements)
 {
+    const uint replace_pos = pos > elements.size() ? uint(elements.size()) : pos; //the position may be out of range
+    int remove_size = size < 0 ? 0 : size;
+    remove_size = std::min(remove_size, int(elements.size()) - int(replace_pos));
+
     LogicalSelectionState s = selection->GetLogicalState();
     selection->Clear();
 
     int cs_pos = -1;
     if (!parent->id.empty())
     {
-        for (int i = pos; i < pos + size; ++i)
+        for (int i = replace_pos; i < replace_pos + remove_size; ++i)
         {
             if (caret->IsInsideElement(elements[i]->id) || caret->IsOnElement(elements[i]->id))
                 cs_pos = i;
         }
     }
 
-    for (uint i = pos; i < pos + size; ++i)
+    for (uint i = replace_pos; i < replace_pos + remove_size; ++i)
         elements[i]->BeforeDelete();
 
-    for (int i = pos + size + 1; i < Count(); ++i) //elements after will be replaced
+    for (int i = replace_pos + remove_size + 1; i < Count(); ++i) //elements after will be replaced
         elements[i]->BeforeReplace();
 
-    elements.erase(elements.begin() + pos, elements.begin() + pos + size);
+    elements.erase(elements.begin() + replace_pos, elements.begin() + replace_pos + remove_size);
 
     for (size_t i = 0; i < _elements.size(); ++i)
     {
@@ -1514,43 +1527,43 @@ void Elements::Replace(const uint pos, const int size, std::vector<ElementPtr>& 
         el->parent = parent;
         el->document = parent->document;
         el->window = parent->window;
-        elements.insert(elements.begin() + pos + i, el);
+        elements.insert(elements.begin() + replace_pos + i, el);
     }
 
     size_t i = 0;
     for (; i < _elements.size(); ++i)
     {
-        auto& el = elements[pos + i];
+        auto& el = elements[replace_pos + i];
         el->id = parent->id;
-        el->id.push_back(i + pos);
+        el->id.push_back(i + replace_pos);
         if (el->type != ElementType::ROW)
         {
             el->logical_id = parent->logical_id;
-            el->logical_id.push_back(i + pos);
+            el->logical_id.push_back(i + replace_pos);
         }
         el->elements->UpdateIds();
     }
-    if (size != _elements.size())
+    if (remove_size != _elements.size())
     {
-        for (; i < elements.size(); ++i)
-            elements[pos + i]->elements->UpdateIds();
+        for (; replace_pos + i < elements.size(); ++i)
+            elements[replace_pos + i]->elements->UpdateIds();
     }
 
     selection->Set(s);
     selection->Optimize();
 
-    for (int i = pos + 1; i < Count(); ++i) //elements after were replaced
+    for (int i = replace_pos + 1; i < Count(); ++i) //elements after were replaced
         elements[i]->AfterReplace();
 
     if (cs_pos != -1 && Count() > 0)
     {
-        if (pos == Count() && elements[pos - 1]->HasLastCaretState())
+        if (replace_pos == Count() && elements[replace_pos - 1]->HasLastCaretState())
         {
-            caret->SetState(parent->id, pos);
+            caret->SetState(parent->id, replace_pos);
         }
         else
         {
-            ElementPtr el = Get(pos < Count() ? pos : pos - 1);
+            ElementPtr el = Get(replace_pos < Count() ? replace_pos : replace_pos - 1);
             if (el->HasCaretState())
             {
                 caret->SetState(el->id);
@@ -1558,7 +1571,7 @@ void Elements::Replace(const uint pos, const int size, std::vector<ElementPtr>& 
             else
             {
                 CaretState s;
-                if (pos < Count())
+                if (replace_pos < Count())
                     el->GetFirstCaretState(s, nullptr);
                 else
                     el->GetLastCaretState(s, nullptr);

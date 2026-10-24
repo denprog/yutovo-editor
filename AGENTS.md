@@ -6,6 +6,7 @@ Document editor with MathML rendering and solver integration.
 ## Agent Rules
 
 - **Use `repowise` for codebase navigation and search.** Prefer `mcp__repowise__get_answer`, `mcp__repowise__get_context`, `mcp__repowise__search_codebase`, and related tools over manual `Read`/`Grep` when exploring unfamiliar code, locating symbols, or analyzing architecture.
+- **`REMOTE_SOLVER` is currently not relevant.** All builds link the builtin solver as a static library. Skip everything related to `REMOTE_SOLVER`: the SSL client code in `src/web_socket.cpp` (`WebSocket::SslContext`, certificate/key loading, the TLS audit items), the remote-solver build branches in `CMakeLists.txt`, and all `#ifdef REMOTE_SOLVER` code paths — do not fix, refactor, or test them.
 - **Never delete files without explicit user permission.** Do not remove source files, test files, core dumps, logs, build artifacts, or any other files unless the user explicitly asks for it. When in doubt, leave the file in place and ask.
 - **Never create separate namespaces (such as `namespace detail` or anonymous namespaces) without explicit user permission.** Helper functions should be placed in the common `yutovo_calculator` namespace, for example in `utils.h/utils.cpp` or `giac_utils.h/giac_utils.cpp`, or as `static` methods of the appropriate class.
 - **Never commit without explicit user permission.** Do not run `git commit`, `git push`, `git reset`, `git rebase`, or any other git mutations unless explicitly asked to do so. Ask for confirmation each time when git mutations are needed.

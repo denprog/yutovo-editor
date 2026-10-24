@@ -329,6 +329,8 @@ void Document::MainLoop()
                     else
                         last_modify_task_id = 0;
                 }
+                for (size_t i = 0; i < temp_undo_tasks.size(); ++i) //the tasks die here - release their snapshots
+                    ReleaseUndoSnapshots(temp_undo_tasks[i]);
                 selection.can_optimize = true;
                 last_insert_caret_state.id = LogicalId{};
                 last_delete_caret_state.id = LogicalId{};
@@ -1376,6 +1378,14 @@ bool Document::RestoreUndo(const int undo_id, TextFormat& format)
     return undo_base.Restore(undo_id, format);
 }
 
+void Document::ReleaseUndoSnapshots(const TaskPtr& task)
+{
+    UndoTask* undo_task = dynamic_cast<UndoTask*>(task.get());
+    if (!undo_task)
+        return;
+    undo_base.Release(undo_task->undo_id);
+}
+
 void Document::RollbackUndo()
 {
     //remove last undo tasks with one id
@@ -1385,6 +1395,7 @@ void Document::RollbackUndo()
     uint id = t->id;
     while (id == t->id)
     {
+        ReleaseUndoSnapshots(t);
         undo_tasks.pop_back();
         if (undo_tasks.empty())
             break;
@@ -1403,6 +1414,7 @@ void Document::ResetTasks()
     tasks.clear();
     undo_tasks.clear();
     redo_tasks.clear();
+    undo_base.Clear();
     //a new or freshly loaded document is not modified - reset the change tracking too, otherwise UpdateChanged would still see a stale last_modify_task_id
     last_modify_task_id = 0;
     save_task_id = 0;
@@ -1486,7 +1498,8 @@ void Document::GetElements(const LogicalId& _id, std::vector<ElementPtr>& elemen
                     res = row->elements->Get(0);
                     break;
                 }
-                if (row->elements->Get(row->elements->Count() - 1)->logical_id[2] >= part_id[2])
+                auto last = row->elements->Get(row->elements->Count() - 1);
+                if (last->logical_id.size() > 2 && last->logical_id[2] >= part_id[2])
                 {
                     for (size_t j = 1; j < row->elements->Count(); ++j)
                     {
@@ -3654,6 +3667,8 @@ ResultType Document::GetResultType(ElementId _id)
 {
     std::lock_guard<std::recursive_mutex> lock(edit_mutex);
     auto el = GetElement(_id);
+    if (!el)
+        return ResultType::NONE;
     if (el->elements->Count() == 0)
         return ResultType::NONE;
     switch (el->elements->Get(0)->type)
@@ -4165,34 +4180,43 @@ void Document::RemoveErrorMarks(const ElementId& parent_id, Dependencies* depend
     {
         std::vector<ElementId> elements;
         auto c = FindElementOrParent(parent_id, ElementType::CODE_BLOCK);
-        c->GetElementsAbove(parent_id, ElementType::ASSIGNMENT, elements);
-        for (auto& _id : elements)
+        if (c)
         {
-            auto _el = GetElement(_id);
-            Assignment* s = dynamic_cast<Assignment*>(_el.get());
-            for (auto& _d : *dependencies)
-            {
-                if (s->Depends(_d))
-                    RemoveErrorMarks(s->id);
-            }
-        }
-
-        std::vector<ElementId> code_blocks;
-        text->GetElementsAbove(c->id, ElementType::CODE_BLOCK, code_blocks); //find all code blocks above
-        for (ElementId code_id : code_blocks)
-        {
-            auto _el = GetElement(code_id);
-            auto* code = dynamic_cast<CodeBlock*>(_el.get());
-            elements.clear();
-            code->GetElements(ElementType::ASSIGNMENT, elements);
+            c->GetElementsAbove(parent_id, ElementType::ASSIGNMENT, elements);
             for (auto& _id : elements)
             {
                 auto _el = GetElement(_id);
                 Assignment* s = dynamic_cast<Assignment*>(_el.get());
+                if (!s)
+                    continue;
                 for (auto& _d : *dependencies)
                 {
                     if (s->Depends(_d))
                         RemoveErrorMarks(s->id);
+                }
+            }
+
+            std::vector<ElementId> code_blocks;
+            text->GetElementsAbove(c->id, ElementType::CODE_BLOCK, code_blocks); //find all code blocks above
+            for (ElementId code_id : code_blocks)
+            {
+                auto _el = GetElement(code_id);
+                auto* code = dynamic_cast<CodeBlock*>(_el.get());
+                if (!code)
+                    continue;
+                elements.clear();
+                code->GetElements(ElementType::ASSIGNMENT, elements);
+                for (auto& _id : elements)
+                {
+                    auto _el = GetElement(_id);
+                    Assignment* s = dynamic_cast<Assignment*>(_el.get());
+                    if (!s)
+                        continue;
+                    for (auto& _d : *dependencies)
+                    {
+                        if (s->Depends(_d))
+                            RemoveErrorMarks(s->id);
+                    }
                 }
             }
         }
@@ -4446,6 +4470,8 @@ void Document::RestrictUndo()
     
     //restrict the queues
     auto d = std::distance(undo_tasks.begin(), it);
+    for (auto _it = undo_tasks.begin(); _it != it; ++_it) //release the snapshots of the evicted tasks
+        ReleaseUndoSnapshots(*_it);
     undo_tasks.erase(undo_tasks.begin(), it);
     if (redo_tasks.size() > d)
         redo_tasks.erase(redo_tasks.begin(), redo_tasks.begin() + d);
@@ -4504,6 +4530,16 @@ void Document::WaitRedo()
     }
 
     last_redo_executed = false;
+}
+
+size_t Document::GetUndoItemsCount() const
+{
+    return undo_base.GetUndoItemsCount();
+}
+
+size_t Document::GetUndoStoreCount() const
+{
+    return undo_base.GetUndoStoreCount();
 }
 
 void Document::WaitLoad()
