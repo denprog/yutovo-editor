@@ -49,6 +49,11 @@ Solver::Solver(Document* _document) :
 
 Solver::~Solver()
 {
+    Stop();
+}
+
+void Solver::Stop()
+{
     {
         std::unique_lock<std::mutex> lock(current_solving_mutex);
         if (!current_solving_id.empty())
@@ -69,8 +74,10 @@ Solver::~Solver()
     exit = true;
     next_circle = true;
     break_next_circle = true;
-    message_loop.join();
-    break_loop.join();
+    if (message_loop.joinable())
+        message_loop.join();
+    if (break_loop.joinable())
+        break_loop.join();
 
     {
         std::unique_lock<std::mutex> lock(socket_mutex);
@@ -79,7 +86,7 @@ Solver::~Solver()
     }
 }
 
-void Solver::Solve(const LogicalId& id, const std::string& task_guid, const uint code_id, Config::AutoResultConfig& config, bool include_document, 
+void Solver::Solve(const LogicalId& id, const std::string& task_guid, const uint code_id, Config::AutoResultConfig& config, bool include_document,
     const std::u32string& expression, const uint delay)
 {
     std::unique_lock<std::mutex> lock(tasks_mutex);

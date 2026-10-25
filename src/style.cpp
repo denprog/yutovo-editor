@@ -371,35 +371,35 @@ bool ParagraphFormat::FromJson(Document* document, const rapidjson::Value::Const
         return false;
     name = value["name"].GetString();
 
-    if (!value.HasMember("alignment") || !value["alignment"].IsInt())
+    if (!value.HasMember("alignment") || !value["alignment"].IsInt() || value["alignment"].GetInt() < 0 || value["alignment"].GetInt() > (int)Alignment::Justify)
         return false;
     alignment = (Alignment)value["alignment"].GetInt();
 
-    if (!value.HasMember("word_wrap") || !value["word_wrap"].IsInt())
+    if (!value.HasMember("word_wrap") || !value["word_wrap"].IsInt() || value["word_wrap"].GetInt() < 0 || value["word_wrap"].GetInt() > (int)WordWrap::Normal)
         return false;
     word_wrap = (WordWrap)value["word_wrap"].GetInt();
 
-    if (!value.HasMember("line_spacing") || !value["line_spacing"].IsInt())
+    if (!value.HasMember("line_spacing") || !value["line_spacing"].IsInt() || value["line_spacing"].GetInt() < 0 || value["line_spacing"].GetInt() > 1000)
         return false;
     line_spacing = value["line_spacing"].GetInt();
 
-    if (!value.HasMember("indent_before") || !value["indent_before"].IsInt())
+    if (!value.HasMember("indent_before") || !value["indent_before"].IsInt() || value["indent_before"].GetInt() < 0 || value["indent_before"].GetInt() > 10000)
         return false;
     indent_before = value["indent_before"].GetInt();
 
-    if (!value.HasMember("indent_after") || !value["indent_after"].IsInt())
+    if (!value.HasMember("indent_after") || !value["indent_after"].IsInt() || value["indent_after"].GetInt() < 0 || value["indent_after"].GetInt() > 10000)
         return false;
     indent_after = value["indent_after"].GetInt();
 
-    if (!value.HasMember("indent_first_line") || !value["indent_first_line"].IsInt())
+    if (!value.HasMember("indent_first_line") || !value["indent_first_line"].IsInt() || value["indent_first_line"].GetInt() < 0 || value["indent_first_line"].GetInt() > 10000)
         return false;
     indent_first_line = value["indent_first_line"].GetInt();
 
-    if (!value.HasMember("spacing_before") || !value["spacing_before"].IsInt())
+    if (!value.HasMember("spacing_before") || !value["spacing_before"].IsInt() || value["spacing_before"].GetInt() < 0 || value["spacing_before"].GetInt() > 10000)
         return false;
     spacing_before = value["spacing_before"].GetInt();
 
-    if (!value.HasMember("spacing_after") || !value["spacing_after"].IsInt())
+    if (!value.HasMember("spacing_after") || !value["spacing_after"].IsInt() || value["spacing_after"].GetInt() < 0 || value["spacing_after"].GetInt() > 10000)
         return false;
     spacing_after = value["spacing_after"].GetInt();
 
@@ -725,7 +725,7 @@ bool AxisFormat::FromJson(const rapidjson::Value::ConstObject& value, rapidjson:
             color = Color::Black();
         else
             color = Color::FromInt(r["color"].GetUint());
-        if (!r.HasMember("width") || !r["width"].IsInt() || (int)r["width"].GetInt() > 10)
+        if (!r.HasMember("width") || !r["width"].IsInt() || (int)r["width"].GetInt() < 1 || (int)r["width"].GetInt() > 10)
             width = 1;
         else
             width = (int)r["width"].GetInt();
@@ -791,7 +791,7 @@ bool PlotFormat::FromJson(const rapidjson::Value::ConstObject& value, rapidjson:
     if (value.HasMember("plot_format") && value["plot_format"].IsObject())
     {
         auto r = value["plot_format"].GetObject();
-        if (!r.HasMember("width") || !r["width"].IsInt() || (int)r["width"].GetInt() > 10)
+        if (!r.HasMember("width") || !r["width"].IsInt() || (int)r["width"].GetInt() < 1 || (int)r["width"].GetInt() > 10)
             width = 1;
         else
             width = (int)r["width"].GetInt();

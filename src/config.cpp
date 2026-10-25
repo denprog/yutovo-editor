@@ -145,7 +145,7 @@ void Config::FromJson(const rapidjson::Document& value, rapidjson::Document::All
 bool Config::FromJson(const std::string& json)
 {
     rapidjson::Document doc;
-    doc.Parse<0>(json.c_str());
+    doc.Parse<rapidjson::kParseIterativeFlag>(json.c_str());
     if (doc.HasParseError() || !doc.IsObject() || doc.ObjectEmpty())
         return false;
 

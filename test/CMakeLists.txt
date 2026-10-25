@@ -155,6 +155,14 @@ if(NOT WIN32)
     gtest_discover_tests(${PROJECT_NAME}_tests)
 endif()
 
+if(WIN32)
+    add_custom_command(TARGET ${PROJECT_NAME}_tests POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            "${INSTALL_PATH}/debug/bin/zlibd1.dll"
+            "$<TARGET_FILE_DIR:${PROJECT_NAME}_tests>"
+    )
+endif()
+
 #the calculator worker executable must always sit next to the main executable, the solver looks it up there first
 if(NOT REMOTE_SOLVER)
     if(CMAKE_BUILD_TYPE STREQUAL "Debug")
@@ -172,6 +180,10 @@ if(NOT REMOTE_SOLVER)
     else()
         message(WARNING "yutovo-solver-calculator-worker not found in ${INSTALL_PATH}/bin, run make install in yutovo-solver first")
     endif()
+endif()
+
+if(WIN32)
+    target_link_options(${PROJECT_NAME}_tests PRIVATE "LINKER:/STACK:16777216")
 endif()
 
 install(

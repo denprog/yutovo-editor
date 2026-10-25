@@ -639,7 +639,11 @@ TEST_F(AssignmentTest, delete4)
     document.InsertPlus(true);
     document.InsertString("34", true);
     document.WaitSolver();
+#ifdef _WIN32
+    std::this_thread::sleep_for(2s);
+#else
     std::this_thread::sleep_for(600ms);
+#endif
     ASSERT_TRUE(document.ToText() == 
         U"x=2+34"
         ) << ToBasicString(document.ToText());
@@ -648,7 +652,11 @@ TEST_F(AssignmentTest, delete4)
     document.MoveCaretLeft(true);
     document.WaitTask(document.DeleteElements(false, true));
     document.WaitSolver();
+#ifdef _WIN32
+    std::this_thread::sleep_for(2s);
+#else
     std::this_thread::sleep_for(600ms);
+#endif
     ASSERT_TRUE(document.ToText() == 
         U"x=2+"
         ) << ToBasicString(document.ToText());
@@ -656,7 +664,11 @@ TEST_F(AssignmentTest, delete4)
     document.Undo();
     document.WaitUndo();
     document.WaitSolver();
+#ifdef _WIN32
+    std::this_thread::sleep_for(2s);
+#else
     std::this_thread::sleep_for(600ms);
+#endif
     ASSERT_TRUE(document.ToText() == 
         U"x=2+34"
         ) << ToBasicString(document.ToText());
@@ -667,7 +679,11 @@ TEST_F(AssignmentTest, delete4)
     document.Redo();
     document.WaitRedo();
     document.WaitSolver();
+#ifdef _WIN32
+    std::this_thread::sleep_for(2s);
+#else
     std::this_thread::sleep_for(600ms);
+#endif
     ASSERT_TRUE(document.ToText() == 
         U"x=2+"
         ) << ToBasicString(document.ToText());

@@ -6,6 +6,7 @@
  */
 
 #include <gtest/gtest.h>
+#include <atomic>
 #include <filesystem>
 #include <fstream>
 #include <zlib.h>
@@ -1537,7 +1538,11 @@ TEST_F(IncludeDocumentsTest, include_files2)
         [&](const std::string& file_name, const int document_id)
         {
             uint task_id = document.LoadInclude(file_name);
-            std::this_thread::sleep_for(400ms);
+#ifdef _WIN32
+    std::this_thread::sleep_for(2s);
+#else
+    std::this_thread::sleep_for(400ms);
+#endif
             return task_id;
         });
 
@@ -1553,13 +1558,21 @@ TEST_F(IncludeDocumentsTest, include_files2)
     document.WaitTask(document.InsertString("5", true));
     document.WaitSolver();
     document.WaitTask(document.Save("include1.yut"));
+#ifdef _WIN32
+    std::this_thread::sleep_for(2s);
+#else
     std::this_thread::sleep_for(200ms);
+#endif
 
     document.WaitTask(document.New());
     ASSERT_TRUE(document.IsChanged() == false);
 
     document.WaitTask(document.SetIncludeDocuments(std::vector{std::string("include1.yut")}));
+#ifdef _WIN32
+    std::this_thread::sleep_for(6s);
+#else
     std::this_thread::sleep_for(2s);
+#endif
     ASSERT_TRUE(document.IsChanged() == true);
     document.InsertCode(false, true);
     document.InsertString("var2", true);
@@ -1571,19 +1584,31 @@ TEST_F(IncludeDocumentsTest, include_files2)
     document.InsertString("var2", true);
     document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
     document.WaitSolver();
+#ifdef _WIN32
+    std::this_thread::sleep_for(6s);
+#else
     std::this_thread::sleep_for(2s);
+#endif
     ASSERT_TRUE(document.ToText() == 
         U"var2=var1+2\n"\
         U"var2=7."\
         ) << ToBasicString(document.ToText());
     document.WaitTask(document.Save("include2.yut"));
+#ifdef _WIN32
+    std::this_thread::sleep_for(2s);
+#else
     std::this_thread::sleep_for(200ms);
+#endif
 
     document.WaitTask(document.New());
     ASSERT_TRUE(document.IsChanged() == false);
 
     document.WaitTask(document.SetIncludeDocuments(std::vector{std::string("include2.yut")}));
+#ifdef _WIN32
+    std::this_thread::sleep_for(12s);
+#else
     std::this_thread::sleep_for(4s);
+#endif
     ASSERT_TRUE(document.IsChanged() == true);
     document.WaitTask(document.InsertCode(false, true));
     document.InsertString("var1", true);
@@ -1593,7 +1618,11 @@ TEST_F(IncludeDocumentsTest, include_files2)
     document.InsertString("var2", true);
     document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
     document.WaitSolver();
+#ifdef _WIN32
+    std::this_thread::sleep_for(6s);
+#else
     std::this_thread::sleep_for(2s);
+#endif
     ASSERT_TRUE(document.ToText() == 
         U"var1=5.\n"\
         U"var2=7."\
@@ -2212,7 +2241,11 @@ TEST_F(IncludeDocumentsTest, include_files11)
         [&](const std::string& file_name, const int document_id)
         {
             uint task_id = document2.LoadInclude(file_name);
-            std::this_thread::sleep_for(400ms);
+#ifdef _WIN32
+    std::this_thread::sleep_for(2s);
+#else
+    std::this_thread::sleep_for(400ms);
+#endif
             return task_id;
         });
 
@@ -2232,16 +2265,28 @@ TEST_F(IncludeDocumentsTest, include_files11)
     document.InsertAssignment(true);
     document.WaitTask(document.InsertString("var", true));
     document.WaitSolver();
+#ifdef _WIN32
+    std::this_thread::sleep_for(2s);
+#else
     std::this_thread::sleep_for(200ms);
+#endif
     ASSERT_TRUE(document.ToText() == 
         U"var=5\n"\
         U"S=var"
         ) << ToBasicString(document.ToText());
     document.WaitTask(document.Save("include1.yut"));
+#ifdef _WIN32
+    std::this_thread::sleep_for(2s);
+#else
     std::this_thread::sleep_for(200ms);
+#endif
 
     document2.WaitTask(document2.SetIncludeDocuments(std::vector{std::string("include1.yut")}));
+#ifdef _WIN32
+    std::this_thread::sleep_for(6s);
+#else
     std::this_thread::sleep_for(2s);
+#endif
     document2.WaitTask(document2.InsertParagraph(true)); //the next code block is "below" the code block from the include file
     document2.InsertCode(false, true);
     document2.InsertString("var", true);
@@ -2251,7 +2296,11 @@ TEST_F(IncludeDocumentsTest, include_files11)
     document2.InsertString("S", true);
     document2.WaitTask(document2.InsertEquation(ResultType::AUTO, true));
     document2.WaitSolver();
+#ifdef _WIN32
+    std::this_thread::sleep_for(12s);
+#else
     std::this_thread::sleep_for(4s);
+#endif
     ASSERT_TRUE(document2.ToText() == 
         U"\n"\
         U"var=55\n"\
@@ -2263,7 +2312,12 @@ TEST_F(IncludeDocumentsTest, include_files11)
     document2.WaitTask(document2.MoveCaretLeft(false));
     document2.WaitTask(document2.InsertString("7", true));
     document2.WaitSolver();
+#ifdef _WIN32
+    //the dependency re-solve round trips to the worker process take longer than on Linux
+    std::this_thread::sleep_for(6s);
+#else
     std::this_thread::sleep_for(2s);
+#endif
     ASSERT_TRUE(document2.ToText() == 
         U"\n"\
         U"var=557\n"\
@@ -2286,7 +2340,11 @@ TEST_F(IncludeDocumentsTest, include_files12)
         [&](const std::string& file_name, const int document_id)
         {
             uint task_id = document2.LoadInclude(file_name);
-            std::this_thread::sleep_for(400ms);
+#ifdef _WIN32
+    std::this_thread::sleep_for(2s);
+#else
+    std::this_thread::sleep_for(400ms);
+#endif
             return task_id;
         });
 
@@ -2313,16 +2371,28 @@ TEST_F(IncludeDocumentsTest, include_files12)
     document.InsertString("2", true);
     document.WaitTask(document.InsertCloseRoundBracket(true));
     document.WaitSolver();
+#ifdef _WIN32
+    std::this_thread::sleep_for(2s);
+#else
     std::this_thread::sleep_for(200ms);
+#endif
     ASSERT_TRUE(document.ToText() == 
         U"func(x)=x\n"\
         U"var=func(2)"
         ) << ToBasicString(document.ToText());
     document.WaitTask(document.Save("include1.yut"));
+#ifdef _WIN32
+    std::this_thread::sleep_for(2s);
+#else
     std::this_thread::sleep_for(200ms);
+#endif
 
     document2.WaitTask(document2.SetIncludeDocuments(std::vector{std::string("include1.yut")}));
+#ifdef _WIN32
+    std::this_thread::sleep_for(6s);
+#else
     std::this_thread::sleep_for(2s);
+#endif
 
     document2.WaitTask(document2.InsertParagraph(true)); //the next code block is "below" the code block from the include file
     document2.InsertCode(false, true);
@@ -2339,7 +2409,11 @@ TEST_F(IncludeDocumentsTest, include_files12)
     document2.InsertString("var", true);
     document2.WaitTask(document2.InsertEquation(ResultType::AUTO, true));
     document2.WaitSolver();
+#ifdef _WIN32
+    std::this_thread::sleep_for(6s);
+#else
     std::this_thread::sleep_for(2s);
+#endif
     ASSERT_TRUE(document2.ToText() == 
         U"\n"\
         U"func(x)=x*2\n"\
@@ -2351,7 +2425,11 @@ TEST_F(IncludeDocumentsTest, include_files12)
     document2.WaitTask(document2.MoveCaretLeft(false));
     document2.WaitTask(document2.InsertString("2", true));
     document2.WaitSolver();
+#ifdef _WIN32
+    std::this_thread::sleep_for(6s);
+#else
     std::this_thread::sleep_for(2s);
+#endif
     ASSERT_TRUE(document2.ToText() == 
         U"\n"\
         U"func(x)=x*22\n"\
@@ -2575,7 +2653,11 @@ TEST_F(IncludeDocumentsTest, include_files16)
         [&](const std::string& file_name, const int document_id)
         {
             uint task_id = document.LoadInclude(file_name);
-            std::this_thread::sleep_for(400ms);
+#ifdef _WIN32
+    std::this_thread::sleep_for(2s);
+#else
+    std::this_thread::sleep_for(400ms);
+#endif
             return task_id;
         });
 
@@ -2587,7 +2669,11 @@ TEST_F(IncludeDocumentsTest, include_files16)
 
     document.Load("../../test/tests/include_files16_2.yut");
     document.WaitLoad();
+#ifdef _WIN32
+    std::this_thread::sleep_for(18s);
+#else
     std::this_thread::sleep_for(6s);
+#endif
     ASSERT_TRUE(document.ToText() == 
         U"t=234\n"\
         U"d=234."
@@ -2595,7 +2681,11 @@ TEST_F(IncludeDocumentsTest, include_files16)
 
     document.WaitTask(document.ReSolve(ElementId{}));
     document.WaitSolver();
+#ifdef _WIN32
+    std::this_thread::sleep_for(6s);
+#else
     std::this_thread::sleep_for(2s);
+#endif
     ASSERT_TRUE(document.ToText() == 
         U"t=234\n"\
         U"d=234."
@@ -2611,7 +2701,11 @@ TEST_F(IncludeDocumentsTest, include_files17)
         [&](const std::string& file_name, const int document_id)
         {
             uint task_id = document.LoadInclude(file_name);
-            std::this_thread::sleep_for(400ms);
+#ifdef _WIN32
+    std::this_thread::sleep_for(2s);
+#else
+    std::this_thread::sleep_for(400ms);
+#endif
             return task_id;
         });
         
@@ -2623,7 +2717,11 @@ TEST_F(IncludeDocumentsTest, include_files17)
 
     document.Load("../../test/tests/include_files17_2.yut");
     document.WaitLoad();
+#ifdef _WIN32
+    std::this_thread::sleep_for(18s);
+#else
     std::this_thread::sleep_for(6s);
+#endif
     ASSERT_TRUE(document.ToText() == 
         U"t=1234\n"\
         U"d=2468."
@@ -2635,7 +2733,11 @@ TEST_F(IncludeDocumentsTest, include_files17)
     document.MoveCaretLeft(false);
     document.WaitTask(document.InsertString("5", true));
     document.WaitSolver();
+#ifdef _WIN32
+    std::this_thread::sleep_for(6s);
+#else
     std::this_thread::sleep_for(2s);
+#endif
     ASSERT_TRUE(document.ToText() == 
         U"t=12345\n"\
         U"d=24690."
@@ -2643,7 +2745,11 @@ TEST_F(IncludeDocumentsTest, include_files17)
 
     document.WaitTask(document.ReSolve(ElementId{}));
     document.WaitSolver();
+#ifdef _WIN32
+    std::this_thread::sleep_for(6s);
+#else
     std::this_thread::sleep_for(2s);
+#endif
     ASSERT_TRUE(document.ToText() == 
         U"t=12345\n"\
         U"d=24690."
@@ -2659,7 +2765,11 @@ TEST_F(IncludeDocumentsTest, include_files18)
         [&](const std::string& file_name, const int document_id)
         {
             uint task_id = document.LoadInclude(file_name);
-            std::this_thread::sleep_for(400ms);
+#ifdef _WIN32
+    std::this_thread::sleep_for(2s);
+#else
+    std::this_thread::sleep_for(400ms);
+#endif
             return task_id;
         });
         
@@ -2672,7 +2782,11 @@ TEST_F(IncludeDocumentsTest, include_files18)
     document.Load("../../test/tests/include_files18_2.yut");
     document.WaitLoad();
     document.WaitSolver();
+#ifdef _WIN32
+    std::this_thread::sleep_for(18s);
+#else
     std::this_thread::sleep_for(6s);
+#endif
     ASSERT_TRUE(document.ToText() == 
         U"проводник=\"алюминий\"\n"\
         U"длина=1м\n"\
@@ -2688,7 +2802,11 @@ TEST_F(IncludeDocumentsTest, include_files18)
         document.MoveCaretRight(false);
     document.WaitTask(document.DeleteElements(true, true));
     document.WaitSolver();
+#ifdef _WIN32
+    std::this_thread::sleep_for(6s);
+#else
     std::this_thread::sleep_for(2s);
+#endif
     ASSERT_TRUE(document.ToText() == 
         U"проводник=\"люминий\"\n"\
         U"длина=1м\n"\
@@ -2699,7 +2817,11 @@ TEST_F(IncludeDocumentsTest, include_files18)
     document.Undo();
     document.WaitUndo();
     document.WaitSolver();
+#ifdef _WIN32
+    std::this_thread::sleep_for(6s);
+#else
     std::this_thread::sleep_for(2s);
+#endif
     ASSERT_TRUE(document.ToText() == 
         U"проводник=\"алюминий\"\n"\
         U"длина=1м\n"\
@@ -2717,14 +2839,22 @@ TEST_F(IncludeDocumentsTest, include_files19)
         [&](const std::string& file_name, const int document_id)
         {
             uint task_id = document.LoadInclude(file_name);
-            std::this_thread::sleep_for(400ms);
+#ifdef _WIN32
+    std::this_thread::sleep_for(2s);
+#else
+    std::this_thread::sleep_for(400ms);
+#endif
             return task_id;
         });
         
     document.Load("../../test/tests/include_files18_2.yut");
     document.WaitLoad();
     document.WaitSolver();
+#ifdef _WIN32
+    std::this_thread::sleep_for(18s);
+#else
     std::this_thread::sleep_for(6s);
+#endif
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 3, 0, 0, 0, 0, 0, 0, 0, 9}, 
         ElementSelectionState{ElementId{0, 3, 0, 0, 0, 0, 0}, 0, 1})) << document.GetEditorState().ToString();
 
@@ -2835,6 +2965,57 @@ TEST_F(IncludeDocumentsTest, include_files21)
         U"v=5."
         ) << ToBasicString(document2.ToText());
     ASSERT_TRUE(document2.IsChanged() == true);
+}
+
+//Load an include document that cannot be opened: the task id must stay valid and the load error must be reported
+TEST_F(IncludeDocumentsTest, include_files22)
+{
+    Start(600);
+
+    uint include_task_id = 0;
+    EXPECT_CALL(window_mock, OnLoadInclude).WillOnce(
+        [&](const std::string& file_name, const int document_id)
+        {
+            include_task_id = document.LoadInclude(file_name);
+            std::this_thread::sleep_for(400ms);
+            return include_task_id;
+        });
+
+    std::atomic<int> error_results = 0;
+    EXPECT_CALL(window_mock, OnLoadResult).WillRepeatedly(
+        [&](const uint task_id, IOResult result, const int document_id)
+        {
+            if (result == IOResult::InputStreamError)
+            {
+                ++error_results;
+                //the error reply must reference the include task, not a zero id
+                ASSERT_TRUE(task_id == include_task_id);
+                ASSERT_TRUE(include_task_id != 0);
+            }
+        });
+
+    EXPECT_CALL(window_mock, Translate).WillRepeatedly(
+        [&](ElementId id, const std::u32string& str)
+        {
+            return str;
+        });
+
+    document.InsertCode(false, true);
+    document.InsertString("v", true);
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+
+    yutovo::Config c;
+    document.GetConfig(c);
+    c.include_documents.documents.emplace_back(yutovo::Config::IncludeDocument{std::string("./missing_include_file.yut")});
+    document.WaitTask(document.SetConfig(c, true));
+    std::this_thread::sleep_for(2s);
+
+    ASSERT_TRUE(error_results >= 1);
+    //the unsolved identifier echoes itself, the failed include must not corrupt the document
+    ASSERT_TRUE(document.ToText() ==
+        U"v=v"
+        ) << ToBasicString(document.ToText());
 }
 
 //Load a document with excessively deep element nesting: it must fail cleanly instead of crashing on recursive json parsing

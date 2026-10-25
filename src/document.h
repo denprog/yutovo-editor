@@ -407,6 +407,8 @@ public:
 
     bool WaitTask(uint task_id, uint64_t timeout = 0, uint64_t circle_delay = 1);
 
+    void StopSolver();
+
 private:
     void MainLoop();
 
