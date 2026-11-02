@@ -832,39 +832,39 @@ TEST_F(ParagraphTest, paragraph2)
     ASSERT_TRUE(document.ToText() == U"The source of the text itself is a little mysterious.") << ToBasicString(document.ToText());
 
     document.WaitTask(document.SetCurrentParagraphFormat("Header 1"));
-    ASSERT_TRUE(document.ToHtml() == 
+    ASSERT_TRUE(document.ToHtml() ==
         "<body>"\
-            "<p>"\
+            "<h1>"\
                 "<span style=\"font-family:'Arial';font-size:30px;\"><strong>The source of the text </strong></span>"\
                 "<span style=\"font-family:'Arial';font-size:30px;\"><strong>itself is a little </strong></span>"\
                 "<span style=\"font-family:'Arial';font-size:30px;\"><strong>mysterious.</strong></span>"\
-            "</p>"\
-        "</body>") 
+            "</h1>"\
+        "</body>")
         << document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 2, 0, 11)) << document.GetEditorState().ToString();
 
     document.Undo();
     document.WaitUndo();
     std::this_thread::sleep_for(600ms);
-    ASSERT_TRUE(document.ToHtml() == 
+    ASSERT_TRUE(document.ToHtml() ==
         "<body>"\
             "<p>"\
                 "<span style=\"font-family:'Arial';font-size:14px;\">The source of the text itself is a little mysterious.</span>"\
             "</p>"\
-        "</body>") 
+        "</body>")
         << document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 53)) << document.GetEditorState().ToString();
 
     document.Redo();
     document.WaitRedo();
-    ASSERT_TRUE(document.ToHtml() == 
+    ASSERT_TRUE(document.ToHtml() ==
         "<body>"\
-            "<p>"\
+            "<h1>"\
                 "<span style=\"font-family:'Arial';font-size:30px;\"><strong>The source of the text </strong></span>"\
                 "<span style=\"font-family:'Arial';font-size:30px;\"><strong>itself is a little </strong></span>"\
                 "<span style=\"font-family:'Arial';font-size:30px;\"><strong>mysterious.</strong></span>"\
-            "</p>"\
-        "</body>") 
+            "</h1>"\
+        "</body>")
         << document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 2, 0, 11)) << document.GetEditorState().ToString();
 
@@ -2222,17 +2222,17 @@ TEST_F(ParagraphTest, format3)
     for (int i = 0; i < 7; ++i)
         document.WaitTask(document.MoveCaretLeft(false));
     document.WaitTask(document.SetCurrentParagraphFormat("Header 1"));
-    ASSERT_TRUE(document.ToHtml() == 
+    ASSERT_TRUE(document.ToHtml() ==
         "<body>"\
-            "<p>"\
+            "<h1>"\
                 "<span style=\"font-family:'Arial';font-size:30px;\"><strong>Text</strong></span>"\
                 "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
                     "<mrow>"\
                         "<mi>123</mi>"\
                     "</mrow>"\
                 "</math>"\
-            "</p>"\
-        "</body>") 
+            "</h1>"\
+        "</body>")
         << document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 2})) << document.GetEditorState().ToString();
     ParagraphFormat format;

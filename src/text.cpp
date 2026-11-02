@@ -223,7 +223,31 @@ bool Text::IsEmpty() const
 
 std::string Text::ToHtml() const
 {
-    return "<body>" + Block::ToHtml() + "</body>";
+    //consecutive list marker paragraphs are grouped into a ul list
+    std::string html = "<body>";
+    bool in_list = false;
+    for (int i = 0; i < elements->Count(); ++i)
+    {
+        ElementPtr el = elements->Get(i);
+        if (!el->IsVisible())
+            continue;
+
+        bool list_item = el->type == ElementType::PARAGRAPH && ParagraphFormat::IsListMarker(((Paragraph*)el.get())->marker);
+        if (list_item && !in_list)
+        {
+            html += "<ul>";
+            in_list = true;
+        }
+        if (!list_item && in_list)
+        {
+            html += "</ul>";
+            in_list = false;
+        }
+        html += el->ToHtml();
+    }
+    if (in_list)
+        html += "</ul>";
+    return html + "</body>";
 }
 
 Rect Text::GetAbsoluteRect() const

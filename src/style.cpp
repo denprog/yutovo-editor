@@ -414,6 +414,25 @@ bool ParagraphFormat::IsListMarker(const std::u32string& marker)
     return marker == small_circle_marker || marker == large_circle_marker || marker == diamond_marker || marker == square_marker;
 }
 
+int ParagraphFormat::HeadingLevel(const std::string& name)
+{
+    static const std::map<std::string, int> headings =
+        {
+            {"Header 1", 1}, {"Header 2", 2}, {"Header 3", 3}, {"Header 4", 4},
+            {"Заголовок 1", 1}, {"Заголовок 2", 2}, {"Заголовок 3", 3}, {"Заголовок 4", 4},
+            {"Encabezado 1", 1}, {"Encabezado 2", 2}, {"Encabezado 3", 3}, {"Encabezado 4", 4},
+            {"Cabeçalho 1", 1}, {"Cabeçalho 2", 2}, {"Cabeçalho 3", 3}, {"Cabeçalho 4", 4},
+            {"Überschrift 1", 1}, {"Überschrift 2", 2}, {"Überschrift 3", 3}, {"Überschrift 4", 4},
+            {"Titre 1", 1}, {"Titre 2", 2}, {"Titre 3", 3}, {"Titre 4", 4},
+            {"Titolo 1", 1}, {"Titolo 2", 2}, {"Titolo 3", 3}, {"Titolo 4", 4}
+        };
+
+    auto it = headings.find(name);
+    if (it == headings.end())
+        return 0;
+    return it->second;
+}
+
 std::string ParagraphFormat::ToString()
 {
     rapidjson::Document json;

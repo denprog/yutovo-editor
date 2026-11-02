@@ -720,7 +720,17 @@ StringFormatPtr Paragraph::GetStringFormat() const
 
 std::string Paragraph::ToHtml() const
 {
-    std::string r = "<p";
+    std::string tag = "p";
+    if (ParagraphFormat::IsListMarker(marker))
+        tag = "li";
+    else
+    {
+        int heading = ParagraphFormat::HeadingLevel(format->name);
+        if (heading > 0)
+            tag = "h" + std::to_string(heading);
+    }
+
+    std::string r = "<" + tag;
     switch (format->alignment)
     {
     case ParagraphFormat::Alignment::Left:
@@ -736,14 +746,7 @@ std::string Paragraph::ToHtml() const
         break;
     }
     r += ">";
-    if (ParagraphFormat::IsListMarker(marker))
-    {
-        if (marker_format)
-            r += "<span style=\"color: " + marker_format->text_color.ToHex() + ";\">" + ToBasicString(marker) + "&nbsp;</span>";
-        else
-            r += ToBasicString(marker) + "&nbsp;";
-    }
-    return r + Element::ToHtml() + "</p>";
+    return r + Element::ToHtml() + "</" + tag + ">";
 }
 
 ElementPtr Paragraph::GetPlainRow()

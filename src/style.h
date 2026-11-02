@@ -117,6 +117,8 @@ struct ParagraphFormat
 
     static bool IsListMarker(const std::u32string& marker);
 
+    static int HeadingLevel(const std::string& name);
+
     std::string ToString();
 
     std::string name;

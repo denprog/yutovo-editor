@@ -29,10 +29,11 @@ TEST_F(UnorderedListTest, unordered_list1)
     ASSERT_TRUE(paragraph->marker_format->text_color == Color::Black()) << paragraph->marker_format->text_color.ToHex();
     ASSERT_TRUE(document.ToHtml() ==
         "<body>"
-            "<p>"
-                "<span style=\"color: #000000;\">•&nbsp;</span>"
-                "<span style=\"font-family:'Arial';font-size:14px;\">Item</span>"
-            "</p>"
+            "<ul>"
+                "<li>"
+                    "<span style=\"font-family:'Arial';font-size:14px;\">Item</span>"
+                "</li>"
+            "</ul>"
         "</body>") << document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 4)) << document.GetEditorState().ToString();
 
@@ -42,22 +43,23 @@ TEST_F(UnorderedListTest, unordered_list1)
     ASSERT_TRUE(paragraph->marker == ParagraphFormat::large_circle_marker) << ToBasicString(paragraph->marker);
     ASSERT_TRUE(document.ToHtml() ==
         "<body>"
-            "<p>"
-                "<span style=\"color: #000000;\">●&nbsp;</span>"
-                "<span style=\"font-family:'Arial';font-size:14px;\">Item</span>"
-            "</p>"
+            "<ul>"
+                "<li>"
+                    "<span style=\"font-family:'Arial';font-size:14px;\">Item</span>"
+                "</li>"
+            "</ul>"
         "</body>") << document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 4)) << document.GetEditorState().ToString();
 
     document.WaitTask(document.SetCurrentParagraphMarker(ParagraphFormat::diamond_marker, true));
     paragraph = (Paragraph*)document.GetElement(ElementId{0, 0}).get();
     ASSERT_TRUE(paragraph->marker == ParagraphFormat::diamond_marker) << ToBasicString(paragraph->marker);
-    ASSERT_TRUE(document.ToHtml().find("♦&nbsp;") != std::string::npos) << document.ToHtml();
+    ASSERT_TRUE(document.ToHtml().find("<li>") != std::string::npos) << document.ToHtml();
 
     document.WaitTask(document.SetCurrentParagraphMarker(ParagraphFormat::square_marker, true));
     paragraph = (Paragraph*)document.GetElement(ElementId{0, 0}).get();
     ASSERT_TRUE(paragraph->marker == ParagraphFormat::square_marker) << ToBasicString(paragraph->marker);
-    ASSERT_TRUE(document.ToHtml().find("■&nbsp;") != std::string::npos) << document.ToHtml();
+    ASSERT_TRUE(document.ToHtml().find("<li>") != std::string::npos) << document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 4)) << document.GetEditorState().ToString();
 }
 
@@ -85,14 +87,14 @@ TEST_F(UnorderedListTest, unordered_list2)
     paragraph = (Paragraph*)document.GetElement(ElementId{0, 0}).get();
     ASSERT_TRUE(paragraph->marker == ParagraphFormat::small_circle_marker) << ToBasicString(paragraph->marker);
     ASSERT_TRUE(paragraph->marker_format->text_color == Color::Black()) << "undo must restore the marker format";
-    ASSERT_TRUE(document.ToHtml().find("•&nbsp;") != std::string::npos) << document.ToHtml();
+    ASSERT_TRUE(document.ToHtml().find("<li>") != std::string::npos) << document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 4)) << document.GetEditorState().ToString();
 
     document.Redo();
     document.WaitRedo();
     paragraph = (Paragraph*)document.GetElement(ElementId{0, 0}).get();
     ASSERT_TRUE(paragraph->marker.empty()) << ToBasicString(paragraph->marker);
-    ASSERT_TRUE(document.ToHtml().find("•&nbsp;") == std::string::npos) << document.ToHtml();
+    ASSERT_TRUE(document.ToHtml().find("<li>") == std::string::npos) << document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 4)) << document.GetEditorState().ToString();
 }
 
@@ -108,14 +110,14 @@ TEST_F(UnorderedListTest, unordered_list3)
     document.WaitTask(document.InsertParagraph(true));
     ASSERT_TRUE(document.ToHtml() ==
         "<body>"
-            "<p>"
-                "<span style=\"color: #000000;\">•&nbsp;</span>"
-                "<span style=\"font-family:'Arial';font-size:14px;\">Fir</span>"
-            "</p>"
-            "<p>"
-                "<span style=\"color: #000000;\">•&nbsp;</span>"
-                "<span style=\"font-family:'Arial';font-size:14px;\">st</span>"
-            "</p>"
+            "<ul>"
+                "<li>"
+                    "<span style=\"font-family:'Arial';font-size:14px;\">Fir</span>"
+                "</li>"
+                "<li>"
+                    "<span style=\"font-family:'Arial';font-size:14px;\">st</span>"
+                "</li>"
+            "</ul>"
         "</body>") << document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(1, 0, 0, 0)) << document.GetEditorState().ToString();
 
@@ -123,10 +125,11 @@ TEST_F(UnorderedListTest, unordered_list3)
     document.WaitUndo();
     ASSERT_TRUE(document.ToHtml() ==
         "<body>"
-            "<p>"
-                "<span style=\"color: #000000;\">•&nbsp;</span>"
-                "<span style=\"font-family:'Arial';font-size:14px;\">First</span>"
-            "</p>"
+            "<ul>"
+                "<li>"
+                    "<span style=\"font-family:'Arial';font-size:14px;\">First</span>"
+                "</li>"
+            "</ul>"
         "</body>") << document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 3)) << document.GetEditorState().ToString();
 
@@ -134,14 +137,14 @@ TEST_F(UnorderedListTest, unordered_list3)
     document.WaitRedo();
     ASSERT_TRUE(document.ToHtml() ==
         "<body>"
-            "<p>"
-                "<span style=\"color: #000000;\">•&nbsp;</span>"
-                "<span style=\"font-family:'Arial';font-size:14px;\">Fir</span>"
-            "</p>"
-            "<p>"
-                "<span style=\"color: #000000;\">•&nbsp;</span>"
-                "<span style=\"font-family:'Arial';font-size:14px;\">st</span>"
-            "</p>"
+            "<ul>"
+                "<li>"
+                    "<span style=\"font-family:'Arial';font-size:14px;\">Fir</span>"
+                "</li>"
+                "<li>"
+                    "<span style=\"font-family:'Arial';font-size:14px;\">st</span>"
+                "</li>"
+            "</ul>"
         "</body>") << document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(1, 0, 0, 0)) << document.GetEditorState().ToString();
 }
@@ -161,28 +164,28 @@ TEST_F(UnorderedListTest, unordered_list4)
     ASSERT_TRUE(paragraph->marker_format->text_color == Color::Black()) << "the new paragraph inherits the marker format";
     ASSERT_TRUE(document.ToHtml() ==
         "<body>"
-            "<p>"
-                "<span style=\"color: #000000;\">•&nbsp;</span>"
-                "<span style=\"font-family:'Arial';font-size:14px;\">First</span>"
-            "</p>"
-            "<p>"
-                "<span style=\"color: #000000;\">•&nbsp;</span>"
-                "<span style=\"font-family:'Arial';font-size:14px;\"></span>"
-            "</p>"
+            "<ul>"
+                "<li>"
+                    "<span style=\"font-family:'Arial';font-size:14px;\">First</span>"
+                "</li>"
+                "<li>"
+                    "<span style=\"font-family:'Arial';font-size:14px;\"></span>"
+                "</li>"
+            "</ul>"
         "</body>") << document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(1, 0, 0, 0)) << document.GetEditorState().ToString();
 
     document.WaitTask(document.InsertString("Second", true));
     ASSERT_TRUE(document.ToHtml() ==
         "<body>"
-            "<p>"
-                "<span style=\"color: #000000;\">•&nbsp;</span>"
-                "<span style=\"font-family:'Arial';font-size:14px;\">First</span>"
-            "</p>"
-            "<p>"
-                "<span style=\"color: #000000;\">•&nbsp;</span>"
-                "<span style=\"font-family:'Arial';font-size:14px;\">Second</span>"
-            "</p>"
+            "<ul>"
+                "<li>"
+                    "<span style=\"font-family:'Arial';font-size:14px;\">First</span>"
+                "</li>"
+                "<li>"
+                    "<span style=\"font-family:'Arial';font-size:14px;\">Second</span>"
+                "</li>"
+            "</ul>"
         "</body>") << document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(1, 0, 0, 6)) << document.GetEditorState().ToString();
 }
@@ -195,7 +198,7 @@ TEST_F(UnorderedListTest, unordered_list5)
     document.InsertString("One", true);
     document.WaitTask(document.InsertParagraph(true));
     document.WaitTask(document.SetCurrentParagraphMarker(ParagraphFormat::small_circle_marker, true));
-    ASSERT_TRUE(document.ToHtml().find("•&nbsp;") != std::string::npos) << document.ToHtml();
+    ASSERT_TRUE(document.ToHtml().find("<li>") != std::string::npos) << document.ToHtml();
 
     document.WaitTask(document.InsertParagraph(true)); //exits the list
     auto paragraph = (Paragraph*)document.GetElement(ElementId{0, 1}).get();
@@ -220,10 +223,11 @@ TEST_F(UnorderedListTest, unordered_list5)
             "<p>"
                 "<span style=\"font-family:'Arial';font-size:14px;\">One</span>"
             "</p>"
-            "<p>"
-                "<span style=\"color: #000000;\">•&nbsp;</span>"
-                "<span style=\"font-family:'Arial';font-size:14px;\"></span>"
-            "</p>"
+            "<ul>"
+                "<li>"
+                    "<span style=\"font-family:'Arial';font-size:14px;\"></span>"
+                "</li>"
+            "</ul>"
         "</body>") << document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(1, 0, 0, 0)) << document.GetEditorState().ToString();
 
@@ -231,7 +235,7 @@ TEST_F(UnorderedListTest, unordered_list5)
     document.WaitRedo();
     paragraph = (Paragraph*)document.GetElement(ElementId{0, 1}).get();
     ASSERT_TRUE(paragraph->marker.empty()) << ToBasicString(paragraph->marker);
-    ASSERT_TRUE(document.ToHtml().find("•&nbsp;") == std::string::npos) << document.ToHtml();
+    ASSERT_TRUE(document.ToHtml().find("<li>") == std::string::npos) << document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(1, 0, 0, 0)) << document.GetEditorState().ToString();
 }
 
@@ -255,14 +259,14 @@ TEST_F(UnorderedListTest, unordered_list6)
     ASSERT_TRUE(((Paragraph*)document.GetElement(ElementId{0, 2}).get())->marker.empty()) << "the third paragraph must stay plain";
     ASSERT_TRUE(document.ToHtml() ==
         "<body>"
-            "<p>"
-                "<span style=\"color: #000000;\">♦&nbsp;</span>"
-                "<span style=\"font-family:'Arial';font-size:14px;\">One text</span>"
-            "</p>"
-            "<p>"
-                "<span style=\"color: #000000;\">♦&nbsp;</span>"
-                "<span style=\"font-family:'Arial';font-size:14px;\">Two</span>"
-            "</p>"
+            "<ul>"
+                "<li>"
+                    "<span style=\"font-family:'Arial';font-size:14px;\">One text</span>"
+                "</li>"
+                "<li>"
+                    "<span style=\"font-family:'Arial';font-size:14px;\">Two</span>"
+                "</li>"
+            "</ul>"
             "<p>"
                 "<span style=\"font-family:'Arial';font-size:14px;\">Three</span>"
             "</p>"
@@ -273,19 +277,19 @@ TEST_F(UnorderedListTest, unordered_list6)
     ASSERT_TRUE(((Paragraph*)document.GetElement(ElementId{0, 0}).get())->marker.empty());
     ASSERT_TRUE(((Paragraph*)document.GetElement(ElementId{0, 1}).get())->marker.empty());
     ASSERT_TRUE(((Paragraph*)document.GetElement(ElementId{0, 2}).get())->marker.empty());
-    ASSERT_TRUE(document.ToHtml().find("♦&nbsp;") == std::string::npos) << document.ToHtml();
+    ASSERT_TRUE(document.ToHtml().find("<li>") == std::string::npos) << document.ToHtml();
 
     document.Undo();
     document.WaitUndo();
     ASSERT_TRUE(((Paragraph*)document.GetElement(ElementId{0, 0}).get())->marker == ParagraphFormat::diamond_marker);
     ASSERT_TRUE(((Paragraph*)document.GetElement(ElementId{0, 1}).get())->marker == ParagraphFormat::diamond_marker);
-    ASSERT_TRUE(document.ToHtml().find("♦&nbsp;") != std::string::npos) << document.ToHtml();
+    ASSERT_TRUE(document.ToHtml().find("<li>") != std::string::npos) << document.ToHtml();
 
     document.Redo();
     document.WaitRedo();
     ASSERT_TRUE(((Paragraph*)document.GetElement(ElementId{0, 0}).get())->marker.empty());
     ASSERT_TRUE(((Paragraph*)document.GetElement(ElementId{0, 1}).get())->marker.empty());
-    ASSERT_TRUE(document.ToHtml().find("♦&nbsp;") == std::string::npos) << document.ToHtml();
+    ASSERT_TRUE(document.ToHtml().find("<li>") == std::string::npos) << document.ToHtml();
 }
 
 //Backspace at the beginning of a list paragraph removes the marker first, the second backspace joins the paragraphs
@@ -317,7 +321,7 @@ TEST_F(UnorderedListTest, unordered_list7)
     document.WaitUndo();
     paragraph = (Paragraph*)document.GetElement(ElementId{0, 1}).get();
     ASSERT_TRUE(paragraph->marker == ParagraphFormat::small_circle_marker) << ToBasicString(paragraph->marker);
-    ASSERT_TRUE(document.ToHtml().find("•&nbsp;") != std::string::npos) << document.ToHtml();
+    ASSERT_TRUE(document.ToHtml().find("<li>") != std::string::npos) << document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(1, 0, 0, 0)) << document.GetEditorState().ToString();
 
     document.Redo();
@@ -346,7 +350,7 @@ TEST_F(UnorderedListTest, unordered_list8)
     document.WaitTask(document.InsertString("Second", true));
     std::string html = document.ToHtml();
     auto format_id = ((Paragraph*)document.GetElement(ElementId{0, 0}).get())->marker_format->id;
-    ASSERT_TRUE(html.find("•&nbsp;") != std::string::npos) << html;
+    ASSERT_TRUE(html.find("<li>") != std::string::npos) << html;
 
     document.WaitTask(document.Save("unordered_list8.yut"));
     std::this_thread::sleep_for(200ms);
@@ -388,10 +392,11 @@ TEST_F(UnorderedListTest, unordered_list9)
     document.WaitTask(document.Paste(clipboard_json));
     ASSERT_TRUE(document.ToHtml() ==
         "<body>"
-            "<p>"
-                "<span style=\"color: #000000;\">•&nbsp;</span>"
-                "<span style=\"font-family:'Arial';font-size:14px;\">ItemItem</span>"
-            "</p>"
+            "<ul>"
+                "<li>"
+                    "<span style=\"font-family:'Arial';font-size:14px;\">ItemItem</span>"
+                "</li>"
+            "</ul>"
         "</body>") << document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 8)) << document.GetEditorState().ToString();
     ASSERT_TRUE(document.ToText() == U"ItemItem") << ToBasicString(document.ToText());
@@ -447,10 +452,11 @@ TEST_F(UnorderedListTest, unordered_list12)
     ASSERT_TRUE(paragraph->marker_format->text_color == Color::Black());
     ASSERT_TRUE(document.ToHtml() ==
         "<body>"
-            "<p>"
-                "<span style=\"color: #000000;\">♦&nbsp;</span>"
-                "<span style=\"font-family:'Arial';font-size:30px;\"><strong>Head</strong></span>"
-            "</p>"
+            "<ul>"
+                "<li>"
+                    "<span style=\"font-family:'Arial';font-size:30px;\"><strong>Head</strong></span>"
+                "</li>"
+            "</ul>"
         "</body>") << document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 4)) << document.GetEditorState().ToString();
 }
@@ -465,22 +471,23 @@ TEST_F(UnorderedListTest, unordered_list13)
     document.WaitTask(document.ChangeParagraphFormat(ParagraphFormat::Alignment::Center, true));
     ASSERT_TRUE(document.ToHtml() ==
         "<body>"
-            "<p align=\"center\">"
-                "<span style=\"color: #000000;\">•&nbsp;</span>"
-                "<span style=\"font-family:'Arial';font-size:14px;\">Item</span>"
-            "</p>"
+            "<ul>"
+                "<li align=\"center\">"
+                    "<span style=\"font-family:'Arial';font-size:14px;\">Item</span>"
+                "</li>"
+            "</ul>"
         "</body>") << document.ToHtml();
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 4)) << document.GetEditorState().ToString();
 
     document.Undo();
     document.WaitUndo();
     ASSERT_TRUE(document.ToHtml().find("align=\"center\"") == std::string::npos) << document.ToHtml();
-    ASSERT_TRUE(document.ToHtml().find("•&nbsp;") != std::string::npos) << document.ToHtml();
+    ASSERT_TRUE(document.ToHtml().find("<li>") != std::string::npos) << document.ToHtml();
 
     document.Redo();
     document.WaitRedo();
     ASSERT_TRUE(document.ToHtml().find("align=\"center\"") != std::string::npos) << document.ToHtml();
-    ASSERT_TRUE(document.ToHtml().find("•&nbsp;") != std::string::npos) << document.ToHtml();
+    ASSERT_TRUE(document.ToHtml().find("</li>") != std::string::npos) << document.ToHtml();
 }
 
 }
