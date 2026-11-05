@@ -117,6 +117,9 @@ public:
 
     uint InsertGraphHistogram(bool with_undo);
 
+    uint InsertMatrix(bool with_undo, uint rows, uint columns);
+    uint InsertDeterminant(bool with_undo, uint rows, uint columns);
+
     uint InsertFormula(Element* element, bool with_undo, bool with_last_task_id = false, bool replace = false);
     uint InsertFormulas(std::vector<ElementPtr>& elements, bool with_undo, bool with_last_task_id, bool pasting, bool replace, int select_pos);
 
@@ -293,6 +296,8 @@ public:
     bool GetGraphImage(const ElementId& id, std::vector<unsigned char>& png);
     bool GetPlotFormat(const ElementId& id, PlotFormat& format);
     uint SetPlotFormat(const ElementId& id, const PlotFormat& format, bool with_undo);
+    bool GetMatrixSize(const ElementId& id, uint& rows, uint& columns);
+    uint SetMatrixSize(const ElementId& id, uint rows, uint columns, bool with_undo);
     bool GetTextFormat(TextFormat& format);
     uint SetTextFormat(const TextFormat& format, bool with_undo);
     

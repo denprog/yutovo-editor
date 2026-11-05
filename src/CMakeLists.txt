@@ -34,8 +34,6 @@ if(NOT DEFINED EMSCRIPTEN)
     if(NOT GIAC_LIBRARY_RELEASE OR NOT GIAC_LIBRARY_DEBUG OR NOT GIAC_INCLUDE_DIR)
         message(FATAL_ERROR "giac library not found in ${INSTALL_PATH}. Run ./build_giac.sh first.")
     endif()
-    message(STATUS "giac release: ${GIAC_LIBRARY_RELEASE}")
-    message(STATUS "giac debug:   ${GIAC_LIBRARY_DEBUG}")
     add_library(giac_imported STATIC IMPORTED GLOBAL)
     set_target_properties(giac_imported PROPERTIES
         IMPORTED_CONFIGURATIONS "DEBUG;RELEASE"
@@ -159,6 +157,7 @@ add_library(${PROJECT_NAME}
     formulas/graph.cpp
     formulas/code_paragraphs_block.cpp
     formulas/evaluation_bar.cpp
+    formulas/matrix.cpp
 
     caret.h
     caret_state.h

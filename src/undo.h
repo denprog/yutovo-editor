@@ -35,6 +35,7 @@ class Equation;
 class GraphLine;
 class GraphSurface;
 class GraphHistogram;
+class Matrix;
 class Assignment;
 
 typedef std::shared_ptr<UndoElement> UndoElementPtr;
@@ -276,6 +277,18 @@ struct UndoGraphHistogram : UndoFormula
     virtual Element* Restore(Document* document, Element* parent);
 
     GraphFormat format;
+};
+
+struct UndoMatrix : UndoFormula
+{
+    UndoMatrix(Matrix* matrix);
+
+    virtual bool operator==(const UndoMatrix& el) const;
+
+    virtual Element* Restore(Document* document, Element* parent);
+
+    uint rows;
+    uint columns;
 };
 
 class ConfigElement : public Element

@@ -99,6 +99,8 @@ add_executable(${PROJECT_NAME}_tests
 	graph.cpp
 	graph_surface.cpp
 	graph_histogram.cpp
+	matrix.cpp
+	solver_matrix.cpp
 	arrays.cpp
 	pdf.cpp
 	equation.cpp

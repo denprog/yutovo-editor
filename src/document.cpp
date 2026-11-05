@@ -38,6 +38,7 @@
 #include "formulas/definite_integral.h"
 #include "formulas/indefinite_integral.h"
 #include "formulas/evaluation_bar.h"
+#include "formulas/matrix.h"
 #include "formulas/comma.h"
 #include "formulas/graph.h"
 #include "editor_utils.h"
@@ -1065,6 +1066,18 @@ uint Document::InsertGraphHistogram(bool with_undo)
     return InsertFormula(new GraphHistogram(this), with_undo, true);
 }
 
+uint Document::InsertMatrix(bool with_undo, uint rows, uint columns)
+{
+    LOG_TRACE("Insert matrix");
+    return InsertFormula(new Matrix(this, true, rows, columns), with_undo, false, false);
+}
+
+uint Document::InsertDeterminant(bool with_undo, uint rows, uint columns)
+{
+    LOG_TRACE("Insert determinant");
+    return InsertFormula(new Determinant(this, true, rows, columns), with_undo, false, false);
+}
+
 uint Document::InsertFormula(Element* element, bool with_undo, bool with_last_task_id, bool replace)
 {
     LOG_TRACE("Insert formula: {}", ToBasicString(element->ToText()));
@@ -2074,7 +2087,7 @@ uint Document::SetGraphFormat(const ElementId& id, const GraphFormat& format, bo
             ((Graph*)el.get())->format = format;
             return true;
         };
-    tasks.emplace_back(new SetFormatTask(text, id, func, with_undo));
+    tasks.emplace_back(new CallFunc(text, id, func, with_undo));
     last_task_id = tasks.back()->id;
     next_circle = true;
     return last_task_id;
@@ -2104,7 +2117,44 @@ uint Document::SetPlotFormat(const ElementId& id, const PlotFormat& format, bool
             ((Graph*)el.get())->SetPlotFormat(format);
             return true;
         };
-    tasks.emplace_back(new SetFormatTask(text, id, func, with_undo));
+    tasks.emplace_back(new CallFunc(text, id, func, with_undo));
+    last_task_id = tasks.back()->id;
+    next_circle = true;
+    return last_task_id;
+}
+
+bool Document::GetMatrixSize(const ElementId& id, uint& rows, uint& columns)
+{
+    std::lock_guard<std::recursive_mutex> lock(edit_mutex);
+    ElementPtr el = GetElement(id);
+    if (!el || (el->type != ElementType::MATRIX && el->type != ElementType::DETERMINANT))
+        return false;
+    rows = ((Matrix*)el.get())->GetRows();
+    columns = ((Matrix*)el.get())->GetColumns();
+    return true;
+}
+
+uint Document::SetMatrixSize(const ElementId& id, uint rows, uint columns, bool with_undo)
+{
+    std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
+    std::function<bool()> func =
+        [id, rows, columns, with_undo, this]()
+        {
+            ElementPtr el = GetElement(id);
+            if (!el || (el->type != ElementType::MATRIX && el->type != ElementType::DETERMINANT))
+                return false;
+            if (with_undo)
+                StoreUndo(el->id);
+            ((Matrix*)el.get())->Resize(rows, columns);
+            //the parser string of the containing formula may have changed - re-solve it
+            ElementPtr eq = FindParent(el->id, ElementType::EQUATION);
+            if (!eq)
+                eq = FindParent(el->id, ElementType::ASSIGNMENT);
+            if (eq)
+                AddResolveElement(eq->logical_id);
+            return true;
+        };
+    tasks.emplace_back(new CallFunc(text, id, func, with_undo));
     last_task_id = tasks.back()->id;
     next_circle = true;
     return last_task_id;
@@ -2132,7 +2182,7 @@ uint Document::SetTextFormat(const TextFormat& format, bool with_undo)
             ((Text*)text.get())->SetTextFormat(format);
             return true;
         };
-    tasks.emplace_back(new SetFormatTask(text, text->id, func, with_undo));
+    tasks.emplace_back(new CallFunc(text, text->id, func, with_undo));
     last_task_id = tasks.back()->id;
     next_circle = true;
     return last_task_id;

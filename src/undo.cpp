@@ -45,6 +45,7 @@
 #include "formulas/evaluation_bar.h"
 #include "formulas/comma.h"
 #include "formulas/graph.h"
+#include "formulas/matrix.h"
 
 namespace yutovo
 {
@@ -862,6 +863,36 @@ Element* UndoGraphHistogram::Restore(Document* document, Element* parent)
     return el;
 }
 
+//UndoMatrix
+
+UndoMatrix::UndoMatrix(Matrix* matrix) :
+    UndoFormula(matrix->type, matrix->formula_format),
+    rows(matrix->GetRows()),
+    columns(matrix->GetColumns())
+{
+}
+
+bool UndoMatrix::operator==(const UndoMatrix& el) const
+{
+    return UndoFormula::operator==(el);
+}
+
+Element* UndoMatrix::Restore(Document* document, Element* parent)
+{
+    Matrix* el = nullptr;
+    if (type == ElementType::DETERMINANT)
+        el = parent ? new Determinant(parent, true, rows, columns) : new Determinant(document, true, rows, columns);
+    else
+        el = parent ? new Matrix(parent, true, rows, columns) : new Matrix(document, true, rows, columns);
+    el->formula_format = formula_format;
+    for (int i = 0; i < elements.size(); ++i)
+    {
+        ElementPtr ch(elements[i]->Restore(document, el));
+        el->elements->Get(i)->elements->ReplaceAll(*ch->elements);
+    }
+    return el;
+}
+
 //ConfigElement
 
 ConfigElement::ConfigElement(const Config& _config) : 
@@ -1320,6 +1351,15 @@ UndoElementPtr UndoBase::StoreElement(const LogicalId id, ElementPtr el)
         break;
     case ElementType::GRAPH_HISTOGRAM:
         undo_element.reset(new UndoGraphHistogram(((GraphHistogram*)el.get())));
+        for (int i = 0; i < el->elements->Count(); ++i)
+        {
+            if (!store_element(el->elements->Get(i), undo_element))
+                return nullptr;
+        }
+        break;
+    case ElementType::MATRIX:
+    case ElementType::DETERMINANT:
+        undo_element.reset(new UndoMatrix(((Matrix*)el.get())));
         for (int i = 0; i < el->elements->Count(); ++i)
         {
             if (!store_element(el->elements->Get(i), undo_element))

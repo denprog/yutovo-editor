@@ -94,7 +94,9 @@ enum class ElementType
     TEXT_EQUATION,
     TEXT_ASSIGNMENT,
     GRAPH_SURFACE,
-    GRAPH_HISTOGRAM
+    GRAPH_HISTOGRAM,
+    MATRIX,
+    DETERMINANT
 };
 
 enum class IdentifierType

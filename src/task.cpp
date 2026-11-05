@@ -3118,9 +3118,9 @@ bool SetConfigTask::Execute()
     return true;
 }
 
-//SetFormatTask
+//CallFunc
 
-SetFormatTask::SetFormatTask(ElementPtr _text, const ElementId& _id, std::function<bool()> _func, bool _with_undo) : 
+CallFunc::CallFunc(ElementPtr _text, const ElementId& _id, std::function<bool()> _func, bool _with_undo) : 
     Task(_text),
     id(_id),
     func(_func)
@@ -3128,7 +3128,7 @@ SetFormatTask::SetFormatTask(ElementPtr _text, const ElementId& _id, std::functi
     with_undo = _with_undo;
 }
 
-bool SetFormatTask::Execute()
+bool CallFunc::Execute()
 {
     if (!func())
         return false;

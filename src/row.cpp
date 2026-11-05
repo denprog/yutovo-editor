@@ -655,6 +655,10 @@ bool Row::GetEndCaretState(CaretState& caret_state, Selection* select)
 
 bool Row::GetTopCaretState(const int x, const int y, CaretState& caret_state, Selection* select)
 {
+    //a matrix cell delegates the vertical selection to the matrix - it selects itself as a whole
+    if (select && parent && (parent->type == ElementType::MATRIX || parent->type == ElementType::DETERMINANT))
+        return parent->GetTopCaretState(x, y, caret_state, select);
+
     if (!select)
         return Element::GetTopCaretState(x, y, caret_state, select);
     
@@ -750,6 +754,10 @@ bool Row::GetTopCaretState(const int x, const int y, CaretState& caret_state, Se
 
 bool Row::GetBottomCaretState(const int x, const int y, CaretState& caret_state, Selection* select)
 {
+    //a matrix cell delegates the vertical selection to the matrix - it selects itself as a whole
+    if (select && parent && (parent->type == ElementType::MATRIX || parent->type == ElementType::DETERMINANT))
+        return parent->GetBottomCaretState(x, y, caret_state, select);
+
     if (!select)
         return Element::GetBottomCaretState(x, y, caret_state, select);
 

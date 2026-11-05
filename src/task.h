@@ -183,8 +183,6 @@ struct ResizeTask : Task
     uint height;
 };
 
-typedef std::function<void (const ElementId)> CallFuncPtr;
-
 struct UndoTask : Task
 {
     enum class UndoOperation
@@ -408,9 +406,9 @@ struct SetConfigTask : Task
     std::string config_str;
 };
 
-struct SetFormatTask : Task
+struct CallFunc : Task
 {
-    SetFormatTask(ElementPtr _text, const ElementId& _id, std::function<bool()> _func, bool _with_undo);
+    CallFunc(ElementPtr _text, const ElementId& _id, std::function<bool()> _func, bool _with_undo);
 
     virtual bool Execute();
 

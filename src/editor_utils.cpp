@@ -47,6 +47,7 @@
 #include "formulas/unit.h"
 #include "formulas/comma.h"
 #include "formulas/graph.h"
+#include "formulas/matrix.h"
 #include "formulas/evaluation_bar.h"
 #include "document.h"
 #define STB_IMAGE_WRITE_IMPLEMENTATION
@@ -379,7 +380,9 @@ Element* CreateFromJson(Element* parent, Document* document, const rapidjson::Va
             {ElementType::TEXT_EQUATION, &TextEquation::FromJson},
             {ElementType::TEXT_ASSIGNMENT, &TextAssignment::FromJson},
             {ElementType::GRAPH_SURFACE, &GraphSurface::FromJson},
-            {ElementType::GRAPH_HISTOGRAM, &GraphHistogram::FromJson}
+            {ElementType::GRAPH_HISTOGRAM, &GraphHistogram::FromJson},
+            {ElementType::MATRIX, &Matrix::FromJson},
+            {ElementType::DETERMINANT, &Determinant::FromJson}
         };
 
     if (!value.HasMember("type") || !value["type"].IsInt())
