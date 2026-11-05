@@ -528,7 +528,7 @@ std::u32string Matrix::ToText() const
 
 void Matrix::BuildParserString(ParserString& str) const
 {
-    str.Add(id, U"[[");
+    str.Add(id, U"([[");
     for (uint r = 0; r < rows; ++r)
     {
         if (r > 0)
@@ -540,7 +540,7 @@ void Matrix::BuildParserString(ParserString& str) const
             GetCell(r, c)->ToParserString(str);
         }
     }
-    str.Add(id, U"]]");
+    str.Add(id, U"]])");
 }
 
 void Matrix::ToParserString(ParserString& str)
