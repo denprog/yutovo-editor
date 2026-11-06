@@ -96,7 +96,8 @@ enum class ElementType
     GRAPH_SURFACE,
     GRAPH_HISTOGRAM,
     MATRIX,
-    DETERMINANT
+    DETERMINANT,
+    LIMIT
 };
 
 enum class IdentifierType

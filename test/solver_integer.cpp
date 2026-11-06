@@ -458,8 +458,8 @@ TEST_F(SolverIntegerTest, solver9)
     config.integer_result.show_notation = true;
     document.WaitTask(document.SetConfig(config, true));
 
-    document.MoveCaretEnd(false);
-    document.InsertParagraph(true);
+    document.WaitTask(document.MoveCaretEnd(false));
+    document.WaitTask(document.InsertParagraph(true));
     document.InsertString("6789", true);
     document.WaitTask(document.InsertEquation(ResultType::INTEGER, true));
     document.WaitSolver();

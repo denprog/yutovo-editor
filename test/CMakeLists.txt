@@ -96,6 +96,8 @@ add_executable(${PROJECT_NAME}_tests
 	evaluation_bar.cpp
 	solver_derivative.cpp
 	solver_evaluate.cpp
+	limit.cpp
+	solver_limit.cpp
 	graph.cpp
 	graph_surface.cpp
 	graph_histogram.cpp

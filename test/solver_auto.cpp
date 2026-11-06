@@ -760,8 +760,8 @@ TEST_F(SolverAutoTest, solver11)
     std::copy(order1, order1 + 4, config.auto_result.results_order);
     document.WaitTask(document.SetConfig(config, true));
 
-    document.MoveCaretEnd(false);
-    document.InsertParagraph(true);
+    document.WaitTask(document.MoveCaretEnd(false));
+    document.WaitTask(document.InsertParagraph(true));
     document.InsertDivision(true);
     document.InsertString("1", true);
     document.MoveCaretDown(false);

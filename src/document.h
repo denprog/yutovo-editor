@@ -95,6 +95,7 @@ public:
     uint InsertProduct(bool with_undo, bool replace = false);
     uint InsertDefiniteIntegral(bool with_undo, bool replace = false);
     uint InsertIndefiniteIntegral(bool with_undo, bool replace = false);
+    uint InsertLimit(bool with_undo, bool replace = false);
     uint InsertDerivative(bool with_undo, bool replace = false);
     uint InsertDerivative(const std::u32string& symbol, const int order, bool with_undo, bool replace = false);
     uint InsertEvaluationBarSubscript(bool with_undo, bool replace = false);

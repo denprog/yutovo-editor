@@ -115,6 +115,7 @@ TEST_F(FormulaTest, multiply2)
     document.Save("multiply2_2.yut");
 
     document.WaitTask(document.New());
+    std::this_thread::sleep_for(200ms);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\

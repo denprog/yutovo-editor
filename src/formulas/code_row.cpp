@@ -9,6 +9,7 @@
 #include "code_string.h"
 #include "assignment.h"
 #include "division.h"
+#include "limit.h"
 #include "text_block.h"
 
 namespace yutovo
@@ -234,16 +235,24 @@ std::string CodeRow<T>::ToHtml() const
 template<typename T>
 void CodeRow<T>::ToParserString(ParserString& str)
 {
-    //an evaluation bar that does not follow a derivative fraction evaluates the preceding expression at a point
+    //an evaluation bar that does not follow a derivative fraction evaluates the preceding expression at a point,
+    //a limit wraps the expression that follows it into limit(function, variable, value)
     int start = str.Length();
     int pos = 0; //the first element of the remaining part of the row
     while (pos < elements->Count())
     {
-        //find the next evaluation bar with assignments that is not consumed by a derivative fraction
+        //find the next wrapper: an evaluation bar with assignments that is not consumed by a derivative
+        //fraction, or a limit (an incomplete limit changes nothing while editing, it is skipped below)
         int bar_pos = -1;
+        int limit_pos = -1;
         for (int i = pos; i < elements->Count(); ++i)
         {
             ElementPtr el = elements->Get(i);
+            if (el->type == ElementType::LIMIT)
+            {
+                limit_pos = i;
+                break;
+            }
             if (el->type != ElementType::EVALUATION_BAR_SUBSCRIPT)
                 continue;
             //the bar after a derivative fraction is consumed by the fraction itself
@@ -256,7 +265,63 @@ void CodeRow<T>::ToParserString(ParserString& str)
             break;
         }
 
-        if (bar_pos < 0 || bar_pos == pos) //no bar or no expression before the bar: plain output
+        if (bar_pos < 0 && limit_pos < 0) //no wrapper: plain output
+        {
+            for (int i = pos; i < elements->Count(); ++i)
+                elements->Get(i)->ToParserString(str);
+            break;
+        }
+
+        if (limit_pos >= 0)
+        {
+            Limit* limit = (Limit*)elements->Get(limit_pos).get();
+            //the limited function is the segment after the limit up to the next wrapper
+            int func_end = limit_pos + 1;
+            while (func_end < elements->Count())
+            {
+                ElementPtr el = elements->Get(func_end);
+                if (el->type == ElementType::LIMIT)
+                    break;
+                if (el->type == ElementType::EVALUATION_BAR_SUBSCRIPT)
+                {
+                    Division* division = func_end > 0 ? dynamic_cast<Division*>(elements->Get(func_end - 1).get()) : nullptr;
+                    if (!(division && division->IsDerivative()) && !el->ToText().empty())
+                        break; //a bar with assignments that is not consumed by a derivative fraction
+                }
+                ++func_end;
+            }
+
+            if (!limit->IsFilled() || func_end == limit_pos + 1) //an incomplete limit or no function yet: plain output of the skipped part
+            {
+                for (int i = pos; i <= limit_pos; ++i)
+                    elements->Get(i)->ToParserString(str);
+                pos = limit_pos + 1;
+                continue;
+            }
+
+            //the scan stopped func_end on a bar with assignments - it evaluates the computed limit at a point
+            ElementPtr next = func_end < elements->Count() ? elements->Get(func_end) : ElementPtr();
+            bool bar_follows = next && next->type == ElementType::EVALUATION_BAR_SUBSCRIPT;
+
+            for (int i = pos; i < limit_pos; ++i)
+                elements->Get(i)->ToParserString(str);
+            if (bar_follows)
+                str.Add(id, U"evaluate(");
+            str.Add(limit->id, U"limit(");
+            for (int i = limit_pos + 1; i < func_end; ++i)
+                elements->Get(i)->ToParserString(str);
+            limit->AddParserArguments(str);
+            if (bar_follows)
+            {
+                str.Add(next->id, U"," + next->ToText() + U")");
+                pos = func_end + 1;
+            }
+            else
+                pos = func_end;
+            continue;
+        }
+
+        if (bar_pos == pos) //no expression before the bar: plain output
         {
             for (int i = pos; i < elements->Count(); ++i)
                 elements->Get(i)->ToParserString(str);

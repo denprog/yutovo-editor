@@ -37,6 +37,7 @@
 #include "formulas/product.h"
 #include "formulas/definite_integral.h"
 #include "formulas/indefinite_integral.h"
+#include "formulas/limit.h"
 #include "formulas/evaluation_bar.h"
 #include "formulas/matrix.h"
 #include "formulas/comma.h"
@@ -823,6 +824,12 @@ uint Document::InsertIndefiniteIntegral(bool with_undo, bool replace)
 {
     LOG_TRACE("Insert indefinite integral");
     return InsertFormula(new IndefiniteIntegral(this), with_undo, false, replace);
+}
+
+uint Document::InsertLimit(bool with_undo, bool replace)
+{
+    LOG_TRACE("Insert limit");
+    return InsertFormula(new Limit(this), with_undo, false, replace);
 }
 
 uint Document::InsertDerivative(bool with_undo, bool replace)

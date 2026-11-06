@@ -46,6 +46,7 @@
 #include "formulas/comma.h"
 #include "formulas/graph.h"
 #include "formulas/matrix.h"
+#include "formulas/limit.h"
 
 namespace yutovo
 {
@@ -415,6 +416,16 @@ Element* UndoFormula::Restore(Document* document, Element* parent)
             ElementPtr var(elements[1]->Restore(document, el));
             el->elements->Get(1)->elements->ReplaceAll(*expression->elements);
             el->elements->Get(3)->elements->ReplaceAll(*var->elements);
+        }
+        break;
+    case ElementType::LIMIT:
+        {
+            el = parent ? new Limit(parent) : new Limit(document);
+            assert(elements.size() == 2);
+            ElementPtr variable(elements[0]->Restore(document, el));
+            ElementPtr value(elements[1]->Restore(document, el));
+            el->elements->Get(1)->elements->ReplaceAll(*variable->elements);
+            el->elements->Get(3)->elements->ReplaceAll(*value->elements);
         }
         break;
     case ElementType::EVALUATION_BAR_SUBSCRIPT:
@@ -1396,6 +1407,13 @@ UndoElementPtr UndoBase::StoreElement(const LogicalId id, ElementPtr el)
             return nullptr;
         break;
     case ElementType::INDEFINITE_INTEGRAL:
+        undo_element.reset(new UndoFormula(el->type, ((Formula*)el.get())->formula_format));
+        if (!store_element(el->elements->Get(1), undo_element))
+            return nullptr;
+        if (!store_element(el->elements->Get(3), undo_element))
+            return nullptr;
+        break;
+    case ElementType::LIMIT:
         undo_element.reset(new UndoFormula(el->type, ((Formula*)el.get())->formula_format));
         if (!store_element(el->elements->Get(1), undo_element))
             return nullptr;
