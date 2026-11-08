@@ -893,4 +893,25 @@ TEST_F(SolverIntegerTest, notation6)
     ASSERT_TRUE(document.GetResultType({0, 0, 0, 0, 0, 0, 0, 2, 0}) == ResultType::AUTO);
 }
 
+//An integer loop result: for(i=1,i<=4,i=i+1,(i*2))
+TEST_F(SolverIntegerTest, for1)
+{
+    Start(600);
+
+    Config config;
+    document.GetConfig(config);
+    config.integer_result.show_notation = false;
+    document.WaitTask(document.SetConfig(config, true));
+
+    document.InsertCode(false, true);
+    OpenForLoop(U"i", U"4");
+    document.InsertString("i", true);
+    document.InsertMultiply(true);
+    document.InsertString("2", true);
+    CloseForLoop();
+    document.WaitTask(document.InsertEquation(ResultType::INTEGER, true));
+    document.WaitSolver();
+    ASSERT_TRUE(document.ToText() == U"for(i=1,i<=4,i=i+1,(i*2))=8") << ToBasicString(document.ToText());
+}
+
 }

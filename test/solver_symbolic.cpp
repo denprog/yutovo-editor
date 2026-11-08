@@ -1452,4 +1452,84 @@ TEST_F(SolverSymbolicTest, parse_json2)
     ASSERT_TRUE(CountElements(&row, ElementType::CODE_ROW) == 3) << CountElements(&row, ElementType::CODE_ROW);
 }
 
+//A symbolic real loop result: for(i=1,i<=10,i=i+1,(u=u+i)) sums 1..10 exactly
+TEST_F(SolverSymbolicTest, for1)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.InsertString("u", true);
+    document.InsertAssignment(true);
+    document.InsertString("0", true);
+    document.WaitSolver();
+    document.MoveCaretRight(false);
+    document.InsertParagraph(true);
+    OpenForLoop(U"i", U"10");
+    document.InsertString("u", true);
+    document.InsertString("=", true);
+    document.InsertString("u", true);
+    document.InsertPlus(true);
+    document.InsertString("i", true);
+    CloseForLoop();
+    document.WaitTask(document.InsertEquation(ResultType::SYMBOLIC_REAL, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(2s);
+    ASSERT_TRUE(document.ToText() == U"u=0\nfor(i=1,i<=10,i=i+1,(u=u+i))=55") << ToBasicString(document.ToText());
+}
+
+//A symbolic rational loop result: for(i=1,i<=4,i=i+1,(u=u+1/i)) sums the harmonic series 1..4 exactly
+TEST_F(SolverSymbolicTest, for2)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.InsertString("u", true);
+    document.InsertAssignment(true);
+    document.InsertString("0", true);
+    document.WaitSolver();
+    document.MoveCaretRight(false);
+    document.InsertParagraph(true);
+    OpenForLoop(U"i", U"4");
+    document.InsertString("u", true);
+    document.InsertString("=", true);
+    document.InsertString("u", true);
+    document.InsertPlus(true);
+    document.InsertString("1", true);
+    document.InsertDivision(true);
+    document.InsertString("i", true);
+    document.MoveCaretRight(false); //leave the denominator into the containing row
+    CloseForLoop();
+    document.WaitTask(document.InsertEquation(ResultType::SYMBOLIC_RATIONAL, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(2s);
+    ASSERT_TRUE(document.ToText() == U"u=0\nfor(i=1,i<=4,i=i+1,(u=u+(1)/(i)))=(25)/(12)") << ToBasicString(document.ToText());
+}
+
+//A symbolic complex loop result: the counter is k, i stays the imaginary unit, for(k=1,k<=3,k=k+1,(u=u+k*i)) returns 6i
+TEST_F(SolverSymbolicTest, for3)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.InsertString("u", true);
+    document.InsertAssignment(true);
+    document.InsertString("0", true);
+    document.WaitSolver();
+    document.MoveCaretRight(false);
+    document.InsertParagraph(true);
+    OpenForLoop(U"k", U"3");
+    document.InsertString("u", true);
+    document.InsertString("=", true);
+    document.InsertString("u", true);
+    document.InsertPlus(true);
+    document.InsertString("k", true);
+    document.InsertMultiply(true);
+    document.InsertString("i", true);
+    CloseForLoop();
+    document.WaitTask(document.InsertEquation(ResultType::SYMBOLIC_COMPLEX, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(2s);
+    ASSERT_TRUE(document.ToText() == U"u=0\nfor(k=1,k<=3,k=k+1,(u=u+k*i))=6*i") << ToBasicString(document.ToText());
+}
+
 }

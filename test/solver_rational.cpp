@@ -758,4 +758,21 @@ TEST_F(SolverRationalTest, units5)
         ) << ToBasicString(document.ToText());
 }
 
+//A rational loop result: for(i=1,i<=4,i=i+1,(1/i)) returns 1/4, the reciprocal of the last counter value
+TEST_F(SolverRationalTest, for1)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    OpenForLoop(U"i", U"4");
+    document.InsertString("1", true);
+    document.InsertDivision(true);
+    document.InsertString("i", true);
+    document.MoveCaretRight(false); //leave the denominator into the containing row
+    CloseForLoop();
+    document.WaitTask(document.InsertEquation(ResultType::RATIONAL, true));
+    document.WaitSolver();
+    ASSERT_TRUE(document.ToText() == U"for(i=1,i<=4,i=i+1,((1)/(i)))=(1)/(4)") << ToBasicString(document.ToText());
+}
+
 }

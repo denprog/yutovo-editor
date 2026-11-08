@@ -852,4 +852,20 @@ TEST_F(SolverComplexTest, definite_integral2)
     ASSERT_TRUE(document.ToText() == U"definite_integral(0,2,x,x)=2.") << ToBasicString(document.ToText());
 }
 
+//A complex loop result: the counter is k, i stays the imaginary unit, for(k=1,k<=3,k=k+1,(k*i)) returns 3i
+TEST_F(SolverComplexTest, for1)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    OpenForLoop(U"k", U"3");
+    document.InsertString("k", true);
+    document.InsertMultiply(true);
+    document.InsertString("i", true);
+    CloseForLoop();
+    document.WaitTask(document.InsertEquation(ResultType::COMPLEX, true));
+    document.WaitSolver();
+    ASSERT_TRUE(document.ToText() == U"for(k=1,k<=3,k=k+1,(k*i))=3.i") << ToBasicString(document.ToText());
+}
+
 }

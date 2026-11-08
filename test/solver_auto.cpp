@@ -3002,4 +3002,29 @@ TEST_F(MultiDocumentSolverAutoTest, load_recent_files_simultaneously)
     }
 }
 
+//The auto result type solves the loop as a real result
+TEST_F(SolverAutoTest, for1)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.InsertString("u", true);
+    document.InsertAssignment(true);
+    document.InsertString("0", true);
+    document.WaitSolver();
+    document.MoveCaretRight(false);
+    document.InsertParagraph(true);
+    OpenForLoop(U"i", U"10");
+    document.InsertString("u", true);
+    document.InsertString("=", true);
+    document.InsertString("u", true);
+    document.InsertPlus(true);
+    document.InsertString("i", true);
+    CloseForLoop();
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(2s);
+    ASSERT_TRUE(document.ToText() == U"u=0\nfor(i=1,i<=10,i=i+1,(u=u+i))=55.") << ToBasicString(document.ToText());
+}
+
 }

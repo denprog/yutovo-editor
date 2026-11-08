@@ -527,6 +527,36 @@ struct SolverTest : DocumentTest
             exit_top_power();
     }
 
+    //Type the loop head "for(counter=1,counter<=bound,counter=counter+1,(" and leave the caret inside the block;
+    //the '=' signs and the comparison sign have no dedicated insert methods, they are typed as plain strings
+    void OpenForLoop(const std::u32string& counter, const std::u32string& bound)
+    {
+        document.InsertString(U"for", true);
+        document.InsertOpenRoundBracket(true);
+        document.InsertString(counter, true);
+        document.InsertString(U"=", true);
+        document.InsertString(U"1", true);
+        document.InsertComma(true);
+        document.InsertString(counter, true);
+        document.InsertString(U"<=", true);
+        document.InsertString(bound, true);
+        document.InsertComma(true);
+        document.InsertString(counter, true);
+        document.InsertString(U"=", true);
+        document.InsertString(counter, true);
+        document.InsertPlus(true);
+        document.InsertString(U"1", true);
+        document.InsertComma(true);
+        document.InsertOpenRoundBracket(true);
+    }
+
+    //Close the block and the loop call: two closing brackets
+    void CloseForLoop()
+    {
+        document.InsertCloseRoundBracket(true);
+        document.InsertCloseRoundBracket(true);
+    }
+
     Division* CreateDerivativeDivision(int order, const std::u32string& func, const std::vector<std::u32string>& vars)
     {
         document.WaitTask(document.InsertDerivative(true));

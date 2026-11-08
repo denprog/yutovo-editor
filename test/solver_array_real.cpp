@@ -536,4 +536,40 @@ TEST_F(SolverArrayRealTest, solver_italian1)
 
     ASSERT_TRUE(document.ToText() == U"sum(n=1,5,[1,2,3,4,5])=[5.,10.,15.,20.,25.]") << ToBasicString(document.ToText());
 }
+
+//An array loop result: for(i=1,i<=3,i=i+1,(u=u+[i,2*i])) accumulates element-wise into u=[0,0]
+TEST_F(SolverArrayRealTest, for1)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.InsertString("u", true);
+    document.InsertAssignment(true);
+    document.InsertOpenSquareBracket(true);
+    document.InsertString("0", true);
+    document.InsertComma(true);
+    document.WaitTask(document.InsertString("0", true));
+    document.WaitTask(document.InsertCloseSquareBracket(true));
+    document.WaitSolver();
+    document.MoveCaretRight(false);
+    document.InsertParagraph(true);
+    OpenForLoop(U"i", U"3");
+    document.InsertString("u", true);
+    document.InsertString("=", true);
+    document.InsertString("u", true);
+    document.InsertPlus(true);
+    document.InsertOpenSquareBracket(true);
+    document.InsertString("i", true);
+    document.InsertComma(true);
+    document.InsertString("2", true);
+    document.InsertMultiply(true);
+    document.InsertString("i", true);
+    document.WaitTask(document.InsertCloseSquareBracket(true));
+    CloseForLoop();
+    document.WaitTask(document.InsertEquation(ResultType::ARRAY_REAL, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(2s);
+    ASSERT_TRUE(document.ToText() == U"u=[0,0]\nfor(i=1,i<=3,i=i+1,(u=u+[i,2*i]))=[6.,12.]") << ToBasicString(document.ToText());
+}
+
 }

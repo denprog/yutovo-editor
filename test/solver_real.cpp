@@ -591,4 +591,108 @@ TEST_F(SolverRealTest, definite_integral2)
     ASSERT_TRUE(document.ToText() == U"definite_integral(0,2,x,x)=2.") << ToBasicString(document.ToText());
 }
 
+//The sum loop with an accumulator variable: for(i=1,i<=10,i=i+1,(u=u+i)) sums 1..10
+TEST_F(SolverRealTest, for1)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.InsertString("u", true);
+    document.InsertAssignment(true);
+    document.InsertString("0", true);
+    document.WaitSolver();
+    document.MoveCaretRight(false);
+    document.InsertParagraph(true);
+    OpenForLoop(U"i", U"10");
+    document.InsertString("u", true);
+    document.InsertString("=", true);
+    document.InsertString("u", true);
+    document.InsertPlus(true);
+    document.InsertString("i", true);
+    CloseForLoop();
+    document.WaitTask(document.InsertEquation(ResultType::REAL, true));
+    document.WaitSolver();
+#ifdef _WIN32
+    std::this_thread::sleep_for(3s);
+#else
+    std::this_thread::sleep_for(600ms);
+#endif
+    ASSERT_TRUE(document.ToText() == U"u=0\nfor(i=1,i<=10,i=i+1,(u=u+i))=55.") << ToBasicString(document.ToText());
+}
+
+//The value of the last block statement of the last iteration: for(i=1,i<=3,i=i+1,(i*2)) doubles the counter
+TEST_F(SolverRealTest, for2)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    OpenForLoop(U"i", U"3");
+    document.InsertString("i", true);
+    document.InsertMultiply(true);
+    document.InsertString("2", true);
+    CloseForLoop();
+    document.WaitTask(document.InsertEquation(ResultType::REAL, true));
+    document.WaitSolver();
+    ASSERT_TRUE(document.ToText() == U"for(i=1,i<=3,i=i+1,(i*2))=6.") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.ToHtml() ==
+        "<body>"
+            "<p>"
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"
+                    "<mrow>"
+                        "<mrow>"
+                            "<mi>for</mi>"
+                            "<mo>(</mo>"
+                            "<mi>i=1</mi>"
+                            "<mo>,</mo>"
+                            "<mi>i&lt;=3</mi>"
+                            "<mo>,</mo>"
+                            "<mi>i=i</mi>"
+                            "<mo>+</mo>"
+                            "<mi>1</mi>"
+                            "<mo>,</mo>"
+                            "<mo>(</mo>"
+                            "<mi>i</mi>"
+                            "<mo>×</mo>"
+                            "<mi>2</mi>"
+                            "<mo>)</mo>"
+                            "<mo>)</mo>"
+                        "</mrow>"
+                        "<mo>=</mo>"
+                        "<mrow>"
+                            "<mrow>"
+                                "<mi>6.</mi>"
+                            "</mrow>"
+                        "</mrow>"
+                    "</mrow>"
+                "</math>"
+            "</p>"
+        "</body>") <<
+        document.ToHtml();
+
+    document.Undo();
+    document.WaitUndo();
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.ToText() == U"for(i=1,i<=3,i=i+1,(i*2))") << ToBasicString(document.ToText());
+}
+
+//A loop reading an undefined variable is an error
+TEST_F(SolverRealTest, for_errors)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    OpenForLoop(U"i", U"2");
+    document.InsertString("u", true);
+    document.InsertString("=", true);
+    document.InsertString("u", true);
+    document.InsertPlus(true);
+    document.InsertString("1", true);
+    CloseForLoop();
+    document.WaitTask(document.InsertEquation(ResultType::REAL, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == U"for(i=1,i<=2,i=i+1,(u=u+1))=Unknown identifier") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.HasErrorMarks({0})) << ErrorMarks();
+}
+
 }
