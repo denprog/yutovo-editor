@@ -775,4 +775,36 @@ TEST_F(SolverRationalTest, for1)
     ASSERT_TRUE(document.ToText() == U"for(i=1,i<=4,i=i+1,((1)/(i)))=(1)/(4)") << ToBasicString(document.ToText());
 }
 
+//A rational conditional result: if(2>1, (1/2, 2/3), (3/4, 4/5)) takes the last then-statement, a fraction
+TEST_F(SolverRationalTest, if1)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    OpenIf(U"2>1");
+    document.InsertString("1", true);
+    document.InsertDivision(true);
+    document.InsertString("2", true);
+    document.MoveCaretRight(false); //leave the denominator into the containing row
+    document.InsertComma(true);
+    document.InsertString("2", true);
+    document.InsertDivision(true);
+    document.InsertString("3", true);
+    document.MoveCaretRight(false); //leave the denominator into the containing row
+    NextIfBranch();
+    document.InsertString("3", true);
+    document.InsertDivision(true);
+    document.InsertString("4", true);
+    document.MoveCaretRight(false); //leave the denominator into the containing row
+    document.InsertComma(true);
+    document.InsertString("4", true);
+    document.InsertDivision(true);
+    document.InsertString("5", true);
+    document.MoveCaretRight(false); //leave the denominator into the containing row
+    CloseIf();
+    document.WaitTask(document.InsertEquation(ResultType::RATIONAL, true));
+    document.WaitSolver();
+    ASSERT_TRUE(document.ToText() == U"if(2>1,((1)/(2),(2)/(3)),((3)/(4),(4)/(5)))=(2)/(3)") << ToBasicString(document.ToText());
+}
+
 }

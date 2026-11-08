@@ -868,4 +868,24 @@ TEST_F(SolverComplexTest, for1)
     ASSERT_TRUE(document.ToText() == U"for(k=1,k<=3,k=k+1,(k*i))=3.i") << ToBasicString(document.ToText());
 }
 
+//A complex conditional result: the condition is false, so the else branch runs, if(2<1, (2*i), (5*i)) returns 5i
+TEST_F(SolverComplexTest, if1)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    OpenIf(U"2<1");
+    document.InsertString("2", true);
+    document.InsertMultiply(true);
+    document.InsertString("i", true);
+    NextIfBranch();
+    document.InsertString("5", true);
+    document.InsertMultiply(true);
+    document.InsertString("i", true);
+    CloseIf();
+    document.WaitTask(document.InsertEquation(ResultType::COMPLEX, true));
+    document.WaitSolver();
+    ASSERT_TRUE(document.ToText() == U"if(2<1,(2*i),(5*i))=5.i") << ToBasicString(document.ToText());
+}
+
 }

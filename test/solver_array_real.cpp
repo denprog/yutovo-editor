@@ -572,4 +572,35 @@ TEST_F(SolverArrayRealTest, for1)
     ASSERT_TRUE(document.ToText() == U"u=[0,0]\nfor(i=1,i<=3,i=i+1,(u=u+[i,2*i]))=[6.,12.]") << ToBasicString(document.ToText());
 }
 
+//An array conditional result: a branch may hold several statements, if(2>1, ([1,2], [3,4]), ([5,6])) returns the last array
+TEST_F(SolverArrayRealTest, if1)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    OpenIf(U"2>1");
+    document.InsertOpenSquareBracket(true);
+    document.InsertString("1", true);
+    document.InsertComma(true);
+    document.WaitTask(document.InsertString("2", true));
+    document.WaitTask(document.InsertCloseSquareBracket(true));
+    document.InsertComma(true);
+    document.InsertOpenSquareBracket(true);
+    document.InsertString("3", true);
+    document.InsertComma(true);
+    document.WaitTask(document.InsertString("4", true));
+    document.WaitTask(document.InsertCloseSquareBracket(true));
+    NextIfBranch();
+    document.InsertOpenSquareBracket(true);
+    document.InsertString("5", true);
+    document.InsertComma(true);
+    document.WaitTask(document.InsertString("6", true));
+    document.WaitTask(document.InsertCloseSquareBracket(true));
+    CloseIf();
+    document.WaitTask(document.InsertEquation(ResultType::ARRAY_REAL, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(2s);
+    ASSERT_TRUE(document.ToText() == U"if(2>1,([1,2],[3,4]),([5,6]))=[3.,4.]") << ToBasicString(document.ToText());
+}
+
 }

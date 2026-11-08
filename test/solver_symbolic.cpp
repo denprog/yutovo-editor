@@ -1532,4 +1532,101 @@ TEST_F(SolverSymbolicTest, for3)
     ASSERT_TRUE(document.ToText() == U"u=0\nfor(k=1,k<=3,k=k+1,(u=u+k*i))=6*i") << ToBasicString(document.ToText());
 }
 
+//A symbolic real conditional result: if(1<2, (u=u+1, u*10), (u*100)) accumulates into a branch-local u
+TEST_F(SolverSymbolicTest, if1)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.InsertString("u", true);
+    document.InsertAssignment(true);
+    document.InsertString("0", true);
+    document.WaitSolver();
+    document.MoveCaretRight(false);
+    document.InsertParagraph(true);
+    OpenIf(U"1<2");
+    document.InsertString("u", true);
+    document.InsertString("=", true);
+    document.InsertString("u", true);
+    document.InsertPlus(true);
+    document.InsertString("1", true);
+    document.InsertComma(true);
+    document.InsertString("u", true);
+    document.InsertMultiply(true);
+    document.InsertString("10", true);
+    NextIfBranch();
+    document.InsertString("u", true);
+    document.InsertMultiply(true);
+    document.InsertString("100", true);
+    CloseIf();
+    document.WaitTask(document.InsertEquation(ResultType::SYMBOLIC_REAL, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(2s);
+    ASSERT_TRUE(document.ToText() == U"u=0\nif(1<2,(u=u+1,u*10),(u*100))=10") << ToBasicString(document.ToText());
+}
+
+//A symbolic rational conditional result: fractions stay exact, if(2>1, (1/2, 2/3), (3/4, 4/5)) returns 2/3
+TEST_F(SolverSymbolicTest, if2)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    OpenIf(U"2>1");
+    document.InsertString("1", true);
+    document.InsertDivision(true);
+    document.InsertString("2", true);
+    document.MoveCaretRight(false); //leave the denominator into the containing row
+    document.InsertComma(true);
+    document.InsertString("2", true);
+    document.InsertDivision(true);
+    document.InsertString("3", true);
+    document.MoveCaretRight(false); //leave the denominator into the containing row
+    NextIfBranch();
+    document.InsertString("3", true);
+    document.InsertDivision(true);
+    document.InsertString("4", true);
+    document.MoveCaretRight(false); //leave the denominator into the containing row
+    document.InsertComma(true);
+    document.InsertString("4", true);
+    document.InsertDivision(true);
+    document.InsertString("5", true);
+    document.MoveCaretRight(false); //leave the denominator into the containing row
+    CloseIf();
+    document.WaitTask(document.InsertEquation(ResultType::SYMBOLIC_RATIONAL, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(2s);
+    ASSERT_TRUE(document.ToText() == U"if(2>1,((1)/(2),(2)/(3)),((3)/(4),(4)/(5)))=(2)/(3)") << ToBasicString(document.ToText());
+}
+
+//A symbolic complex conditional result: i stays the imaginary unit, if(1<2, (u=u+2*i, u), (0)) returns 2i
+TEST_F(SolverSymbolicTest, if3)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.InsertString("u", true);
+    document.InsertAssignment(true);
+    document.InsertString("0", true);
+    document.WaitSolver();
+    document.MoveCaretRight(false);
+    document.InsertParagraph(true);
+    OpenIf(U"1<2");
+    document.InsertString("u", true);
+    document.InsertString("=", true);
+    document.InsertString("u", true);
+    document.InsertPlus(true);
+    document.InsertString("2", true);
+    document.InsertMultiply(true);
+    document.InsertString("i", true);
+    document.InsertComma(true);
+    document.InsertString("u", true);
+    NextIfBranch();
+    document.InsertString("0", true);
+    CloseIf();
+    document.WaitTask(document.InsertEquation(ResultType::SYMBOLIC_COMPLEX, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(2s);
+    ASSERT_TRUE(document.ToText() == U"u=0\nif(1<2,(u=u+2*i,u),(0))=2*i") << ToBasicString(document.ToText());
+}
+
 }

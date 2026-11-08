@@ -557,6 +557,32 @@ struct SolverTest : DocumentTest
         document.InsertCloseRoundBracket(true);
     }
 
+    //Type the conditional head "if(condition,(" and leave the caret inside the then-branch;
+    //the comparison sign has no dedicated insert method, it is typed as a plain string
+    void OpenIf(const std::u32string& condition)
+    {
+        document.InsertString(U"if", true);
+        document.InsertOpenRoundBracket(true);
+        document.InsertString(condition, true);
+        document.InsertComma(true);
+        document.InsertOpenRoundBracket(true);
+    }
+
+    //Close the then-branch and open the else-branch: ") , ("
+    void NextIfBranch()
+    {
+        document.InsertCloseRoundBracket(true);
+        document.InsertComma(true);
+        document.InsertOpenRoundBracket(true);
+    }
+
+    //Close the else-branch and the if call: two closing brackets
+    void CloseIf()
+    {
+        document.InsertCloseRoundBracket(true);
+        document.InsertCloseRoundBracket(true);
+    }
+
     Division* CreateDerivativeDivision(int order, const std::u32string& func, const std::vector<std::u32string>& vars)
     {
         document.WaitTask(document.InsertDerivative(true));

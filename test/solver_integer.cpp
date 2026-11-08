@@ -914,4 +914,29 @@ TEST_F(SolverIntegerTest, for1)
     ASSERT_TRUE(document.ToText() == U"for(i=1,i<=4,i=i+1,(i*2))=8") << ToBasicString(document.ToText());
 }
 
+//An integer conditional result: if(2>1, (10, 20), (30, 40)) takes the last then-statement
+TEST_F(SolverIntegerTest, if1)
+{
+    Start(600);
+
+    Config config;
+    document.GetConfig(config);
+    config.integer_result.show_notation = false;
+    document.WaitTask(document.SetConfig(config, true));
+
+    document.InsertCode(false, true);
+    OpenIf(U"2>1");
+    document.InsertString("10", true);
+    document.InsertComma(true);
+    document.InsertString("20", true);
+    NextIfBranch();
+    document.InsertString("30", true);
+    document.InsertComma(true);
+    document.InsertString("40", true);
+    CloseIf();
+    document.WaitTask(document.InsertEquation(ResultType::INTEGER, true));
+    document.WaitSolver();
+    ASSERT_TRUE(document.ToText() == U"if(2>1,(10,20),(30,40))=20") << ToBasicString(document.ToText());
+}
+
 }

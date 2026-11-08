@@ -695,4 +695,122 @@ TEST_F(SolverRealTest, for_errors)
     ASSERT_TRUE(document.HasErrorMarks({0})) << ErrorMarks();
 }
 
+//The value of the conditional is the value of the last statement of the executed branch: if(1<2, (u=u+1, u*10), (u*100))
+TEST_F(SolverRealTest, if1)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.InsertString("u", true);
+    document.InsertAssignment(true);
+    document.InsertString("0", true);
+    document.WaitSolver();
+    document.MoveCaretRight(false);
+    document.InsertParagraph(true);
+    OpenIf(U"1<2");
+    document.InsertString("u", true);
+    document.InsertString("=", true);
+    document.InsertString("u", true);
+    document.InsertPlus(true);
+    document.InsertString("1", true);
+    document.InsertComma(true);
+    document.InsertString("u", true);
+    document.InsertMultiply(true);
+    document.InsertString("10", true);
+    NextIfBranch();
+    document.InsertString("u", true);
+    document.InsertMultiply(true);
+    document.InsertString("100", true);
+    CloseIf();
+    document.WaitTask(document.InsertEquation(ResultType::REAL, true));
+    document.WaitSolver();
+#ifdef _WIN32
+    std::this_thread::sleep_for(3s);
+#else
+    std::this_thread::sleep_for(600ms);
+#endif
+    ASSERT_TRUE(document.ToText() == U"u=0\nif(1<2,(u=u+1,u*10),(u*100))=10.") << ToBasicString(document.ToText());
+}
+
+//The else branch runs when the condition is false: if(2>1, (10, 20), (30, 40)) takes the last then-statement
+TEST_F(SolverRealTest, if2)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    OpenIf(U"2>1");
+    document.InsertString("10", true);
+    document.InsertComma(true);
+    document.InsertString("20", true);
+    NextIfBranch();
+    document.InsertString("30", true);
+    document.InsertComma(true);
+    document.InsertString("40", true);
+    CloseIf();
+    document.WaitTask(document.InsertEquation(ResultType::REAL, true));
+    document.WaitSolver();
+    ASSERT_TRUE(document.ToText() == U"if(2>1,(10,20),(30,40))=20.") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.ToHtml() ==
+        "<body>"
+            "<p>"
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"
+                    "<mrow>"
+                        "<mrow>"
+                            "<mi>if</mi>"
+                            "<mo>(</mo>"
+                            "<mi>2&gt;1</mi>"
+                            "<mo>,</mo>"
+                            "<mo>(</mo>"
+                            "<mi>10</mi>"
+                            "<mo>,</mo>"
+                            "<mi>20</mi>"
+                            "<mo>)</mo>"
+                            "<mo>,</mo>"
+                            "<mo>(</mo>"
+                            "<mi>30</mi>"
+                            "<mo>,</mo>"
+                            "<mi>40</mi>"
+                            "<mo>)</mo>"
+                            "<mo>)</mo>"
+                        "</mrow>"
+                        "<mo>=</mo>"
+                        "<mrow>"
+                            "<mrow>"
+                                "<mi>20.</mi>"
+                            "</mrow>"
+                        "</mrow>"
+                    "</mrow>"
+                "</math>"
+            "</p>"
+        "</body>") <<
+        document.ToHtml();
+
+    document.Undo();
+    document.WaitUndo();
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.ToText() == U"if(2>1,(10,20),(30,40))") << ToBasicString(document.ToText());
+}
+
+//A branch reading an undefined variable is an error
+TEST_F(SolverRealTest, if_errors)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    OpenIf(U"1<2");
+    document.InsertString("u", true);
+    document.InsertString("=", true);
+    document.InsertString("u", true);
+    document.InsertPlus(true);
+    document.InsertString("1", true);
+    NextIfBranch();
+    document.InsertString("0", true);
+    CloseIf();
+    document.WaitTask(document.InsertEquation(ResultType::REAL, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == U"if(1<2,(u=u+1),(0))=Unknown identifier") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.HasErrorMarks({0})) << ErrorMarks();
+}
+
 }
