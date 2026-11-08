@@ -10,26 +10,26 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 if(WIN32)
-	set(CMAKE_PREFIX_PATH "${INSTALL_PATH}")
+    set(CMAKE_PREFIX_PATH "${INSTALL_PATH}")
 else()
-	find_package(GTest)
-	find_package(PkgConfig REQUIRED)
-	pkg_check_modules(mpfr REQUIRED IMPORTED_TARGET mpfr)
-	pkg_check_modules(gmp REQUIRED IMPORTED_TARGET gmp)
+    find_package(GTest)
+    find_package(PkgConfig REQUIRED)
+    pkg_check_modules(mpfr REQUIRED IMPORTED_TARGET mpfr)
+    pkg_check_modules(gmp REQUIRED IMPORTED_TARGET gmp)
 endif()
 
 enable_testing()
 find_package(GTest REQUIRED PATHS ${INSTALL_PATH}/share/gtest)
 
 if(WIN32)
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /utf-8 /bigobj /FIwin32_prelude.h")
-	find_package(PkgConfig)
-	find_package(ZLIB REQUIRED)
-	find_package(unofficial-poppler CONFIG REQUIRED)
-	find_package(yutovo-calculator REQUIRED PATHS ${INSTALL_PATH}/lib/cmake/)
-	find_package(Boost 1.81.0 REQUIRED PATHS ${INSTALL_PATH}/lib/cmake/)
-	find_package(RapidJSON CONFIG REQUIRED)
-	find_package(Boost REQUIRED COMPONENTS iostreams filesystem)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /utf-8 /bigobj /FIwin32_prelude.h")
+    find_package(PkgConfig)
+    find_package(ZLIB REQUIRED)
+    find_package(unofficial-poppler CONFIG REQUIRED)
+    find_package(yutovo-calculator REQUIRED PATHS ${INSTALL_PATH}/lib/cmake/)
+    find_package(Boost 1.81.0 REQUIRED PATHS ${INSTALL_PATH}/lib/cmake/)
+    find_package(RapidJSON CONFIG REQUIRED)
+    find_package(Boost REQUIRED COMPONENTS iostreams filesystem)
 endif()
 
 if(EMSCRIPTEN)
@@ -54,104 +54,104 @@ endif()
 find_package(ZLIB REQUIRED)
 
 add_executable(${PROJECT_NAME}_tests
-	main.cpp
-	mock.cpp
-	str.cpp
-	elements.cpp
-	link.cpp
-	paragraph.cpp
-	caret.cpp
-	files.cpp
-	clipboard.cpp
-	code.cpp
-	text_block.cpp
-	unordered_list.cpp
-	plus.cpp
-	minus.cpp
-	multiply.cpp
-	division.cpp
-	power.cpp
-	nth_root.cpp
-	square_root.cpp
-	brackets.cpp
-	formulas.cpp
-	solver_auto.cpp
-	solver_real.cpp
-	solver_integer.cpp
-	solver_rational.cpp
-	solver_complex.cpp
-	solver_array_real.cpp
-	solver_symbolic.cpp
-	assignment.cpp
-	unit.cpp
-	functions.cpp
-	subscript.cpp
-	variables.cpp
-	image.cpp
-	sum.cpp
-	product.cpp
-	definite_integral.cpp
-	indefinite_integral.cpp
-	derivative.cpp
-	evaluation_bar.cpp
-	solver_derivative.cpp
-	solver_evaluate.cpp
-	limit.cpp
-	solver_limit.cpp
-	graph.cpp
-	graph_surface.cpp
-	graph_histogram.cpp
-	matrix.cpp
-	solver_matrix.cpp
-	arrays.cpp
-	pdf.cpp
-	equation.cpp
+    main.cpp
+    mock.cpp
+    str.cpp
+    elements.cpp
+    link.cpp
+    paragraph.cpp
+    caret.cpp
+    files.cpp
+    clipboard.cpp
+    code.cpp
+    text_block.cpp
+    unordered_list.cpp
+    plus.cpp
+    minus.cpp
+    multiply.cpp
+    division.cpp
+    power.cpp
+    nth_root.cpp
+    square_root.cpp
+    brackets.cpp
+    formulas.cpp
+    solver_auto.cpp
+    solver_real.cpp
+    solver_integer.cpp
+    solver_rational.cpp
+    solver_complex.cpp
+    solver_array_real.cpp
+    solver_symbolic.cpp
+    assignment.cpp
+    unit.cpp
+    functions.cpp
+    subscript.cpp
+    variables.cpp
+    image.cpp
+    sum.cpp
+    product.cpp
+    definite_integral.cpp
+    indefinite_integral.cpp
+    derivative.cpp
+    evaluation_bar.cpp
+    solver_derivative.cpp
+    solver_evaluate.cpp
+    limit.cpp
+    solver_limit.cpp
+    graph.cpp
+    graph_surface.cpp
+    graph_histogram.cpp
+    matrix.cpp
+    solver_matrix.cpp
+    arrays.cpp
+    pdf.cpp
+    equation.cpp
 )
 
 if (NOT WIN32)
     if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-		add_compile_options(-Og -g -fsanitize=undefined -fsanitize=address -fno-omit-frame-pointer)
+        add_compile_options(-Og -g -fsanitize=undefined -fsanitize=address -fno-omit-frame-pointer)
         add_definitions(-D_LIBCPP_HARDENING_MODE=_LIBCPP_HARDENING_MODE_EXTENSIVE)
         add_definitions(-D_LIBCPP_ENABLE_ASSERTIONS)
-		target_link_options(${PROJECT_NAME}_tests PRIVATE -fsanitize=undefined -fsanitize=address)
+        target_link_options(${PROJECT_NAME}_tests PRIVATE -fsanitize=undefined -fsanitize=address)
     endif()
 endif()
 
 if(WIN32)
-	target_link_libraries(${PROJECT_NAME}_tests PUBLIC
-		${PROJECT_NAME}
-	    Qt5::Widgets
-		yutovo-solver
-	    yutovo-logger
-	)
-	target_link_libraries(${PROJECT_NAME}_tests PRIVATE yutovo-calculator)
-	target_link_libraries(${PROJECT_NAME}_tests PRIVATE unofficial::poppler::poppler-cpp)
-	target_link_libraries(${PROJECT_NAME} PRIVATE Boost::iostreams)
-	target_link_libraries(${PROJECT_NAME}_tests PRIVATE GTest::gtest GTest::gtest_main GTest::gmock GTest::gmock_main)
+    target_link_libraries(${PROJECT_NAME}_tests PUBLIC
+        ${PROJECT_NAME}
+        Qt5::Widgets
+        yutovo-solver
+        yutovo-logger
+    )
+    target_link_libraries(${PROJECT_NAME}_tests PRIVATE yutovo-calculator)
+    target_link_libraries(${PROJECT_NAME}_tests PRIVATE unofficial::poppler::poppler-cpp)
+    target_link_libraries(${PROJECT_NAME} PRIVATE Boost::iostreams)
+    target_link_libraries(${PROJECT_NAME}_tests PRIVATE GTest::gtest GTest::gtest_main GTest::gmock GTest::gmock_main)
     target_include_directories(${PROJECT_NAME}_tests PRIVATE
         ../src
-    	${INSTALL_PATH}/include
-	)
+        ${INSTALL_PATH}/include
+    )
 else()
-	target_link_libraries(${PROJECT_NAME}_tests PUBLIC
-		stdc++
-	    pthread
-		gtest
-		gtest_main
-		gmock
-		gmock_main
-		m
-		dl
-		${PROJECT_NAME}
-	    Qt5::Widgets
-	    yutovo-logger
-		${INSTALL_PATH}/lib/libboost_iostreams.a
-		poppler-cpp
-		fontconfig
-	)
+    target_link_libraries(${PROJECT_NAME}_tests PUBLIC
+        stdc++
+        pthread
+        gtest
+        gtest_main
+        gmock
+        gmock_main
+        m
+        dl
+        ${PROJECT_NAME}
+        Qt5::Widgets
+        yutovo-logger
+        ${INSTALL_PATH}/lib/libboost_iostreams.a
+        poppler-cpp
+        fontconfig
+    )
     target_include_directories(${PROJECT_NAME}_tests PRIVATE
         ../src
-	)
+    )
 endif()
 
 if(NOT WIN32)
