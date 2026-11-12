@@ -456,6 +456,40 @@ bool SolverTask::FillArrayRealResult(rapidjson::Document& doc, Result& result)
     return true;
 }
 
+bool SolverTask::FillVectorRationalResult(rapidjson::Document& doc, Result& result)
+{
+    if (!doc.HasMember("results") || !doc["results"].IsArray())
+    {
+        result.error.error_code = ErrorCode::JSON_ERROR;
+        return false;
+    }
+    rapidjson::Value::Array arr = doc["results"].GetArray();
+    for (rapidjson::SizeType i = 0; i < arr.Size(); ++i)
+    {
+        if (!arr[i].IsObject())
+        {
+            result.error.error_code = ErrorCode::JSON_ERROR;
+            return false;
+        }
+        const auto& u = arr[i].GetObject();
+        if (!u.HasMember("numerator") || !u["numerator"].IsString() || !u.HasMember("denomerator") || !u["denomerator"].IsString())
+        {
+            LOG_ERROR("value error");
+            result.error.error_code = ErrorCode::JSON_ERROR;
+            return false;
+        }
+        Value value;
+        if (u.HasMember("integer") && u["integer"].IsString())
+            value.value["integer"] = u["integer"].GetString();
+        value.value["numerator"] = u["numerator"].GetString();
+        value.value["denomerator"] = u["denomerator"].GetString();
+        FillUnit(u, result, value);
+        FillCastUnits(u, value);
+        result.values.push_back(value);
+    }
+    return true;
+}
+
 //AutoSolverTask
 
 AutoSolverTask::AutoSolverTask(const LogicalId& _id, Document* _document, const std::string& _solver_guid, 
@@ -591,6 +625,18 @@ bool AutoSolverTask::Execute(WebSocketPtr socket, Result& result)
         break;
     case ResultType::SYMBOLIC_COMPLEX:
         if (!FillSymbolicResult(doc, result))
+            return false;
+        break;
+    case ResultType::VECTOR_REAL:
+        if (!FillArrayRealResult(doc, result))
+            return false;
+        break;
+    case ResultType::VECTOR_RATIONAL:
+        if (!FillVectorRationalResult(doc, result))
+            return false;
+        break;
+    case ResultType::VECTOR_COMPLEX:
+        if (!FillComplexResult(doc, result))
             return false;
         break;
     default:
@@ -1308,6 +1354,288 @@ bool SymbolicComplexSolverTask::Execute(WebSocketPtr socket, Result& result)
     }
 
     if (!FillSymbolicResult(doc, result))
+        return false;
+    LOG_DEBUG("Result:{}", "{" + result.ToString() + "}");
+    return true;
+}
+
+//VectorRealSolverTask
+
+VectorRealSolverTask::VectorRealSolverTask(const LogicalId& _id, Document* _document, const std::string& _solver_guid, const std::string& _task_guid,
+    uint _code_id, ExpressionType _expression_type, Config::RealResultConfig _config, bool _include_document, const std::u32string& _expression,
+    const uint _delay, Logger* _logger) :
+    SolverTask(_id, _document, _solver_guid, _task_guid, _code_id, _expression_type, _include_document, _expression, _delay, _logger),
+    config(_config)
+{
+}
+
+bool VectorRealSolverTask::Execute(WebSocketPtr socket, Result& result)
+{
+    //request
+    rapidjson::Document doc;
+    auto& alloc = doc.GetAllocator();
+    doc.SetObject();
+    doc.AddMember("command", "SOLVE_CODE", alloc);
+    doc.AddMember("document_guid", rapidjson::StringRef(document->document_guid.c_str()), alloc);
+    doc.AddMember("solver_guid", rapidjson::StringRef(solver_guid.c_str()), alloc);
+    FillId(doc);
+    doc.AddMember("timestamp", cur_time, alloc);
+    doc.AddMember("code_id", code_id, alloc);
+    doc.AddMember("solver_type", (int)SolverType::CALCULATOR, alloc);
+    doc.AddMember("result_type", (int)ResultType::VECTOR_REAL, alloc);
+    doc.AddMember("expression_type", (int)expression_type, alloc);
+    std::string s = ToBasicString(expression);
+    doc.AddMember("expression", rapidjson::StringRef(s.c_str()), alloc);
+    doc.AddMember("real_precision", config.precision, alloc);
+    doc.AddMember("real_default_angle_measure", (int)config.default_angle_measure, alloc);
+    doc.AddMember("real_result_angle_measure", (int)config.result_angle_measure, alloc);
+    doc.AddMember("real_exponent_size", config.exp, alloc);
+    doc.AddMember("include_document", include_document, alloc);
+
+    AddUnit(doc, config.unit);
+
+    LOG_DEBUG("Solve expression:\"{}\", id:{}, config:{}", s, id_str, config.ToString());
+
+    if (!SendRequest(doc, result, socket, true))
+        return false;
+
+    std::string json;
+    if (!socket->Receive(json, result))
+        return false;
+
+#ifdef EMSCRIPTEN
+    if (json.length() > 2)
+    {
+        if (json.length() > 1024)
+        {
+            std::string _json("{\"solver_guid\":\"" + solver_guid + "\",\"expression\":\"" + std::regex_replace(s, std::regex(R"(")"), R"(\\")") +
+                "\",\"id\":\"" + id_str + "\"}");
+            document->window->OnSolverAction(_json);
+        }
+        else
+        {
+            json.insert(1, "\"solver_guid\":\"" + solver_guid + "\",\"expression\":\"" + std::regex_replace(s, std::regex(R"(")"), R"(\\")") +
+                "\",\"id\":\"" + id_str + "\",");
+            document->window->OnSolverAction(json);
+        }
+    }
+#endif
+
+    doc.Parse<0>(json.c_str());
+    if (doc.HasParseError() || !doc.IsObject())
+    {
+        LOG_ERROR("Json error");
+        result.error.error_code = ErrorCode::JSON_ERROR;
+        return false;
+    }
+
+    GetDependencies(doc, result);
+
+    if (doc.HasMember("error"))
+    {
+        FillError(doc, result);
+        LOG_DEBUG("Result:{}", "{" + result.ToString() + "}");
+        return false;
+    }
+
+    GetResultType(doc, result);
+    if (result.type == ResultType::NONE)
+    {
+        result.error.error_code = ErrorCode::NO_RESULT;
+        LOG_DEBUG("Result: No result");
+        return true;
+    }
+    if (result.type != ResultType::VECTOR_REAL)
+    {
+        LOG_ERROR("Error: result type not VectorReal");
+        return false;
+    }
+
+    if (!FillArrayRealResult(doc, result))
+        return false;
+    LOG_DEBUG("Result:{}", "{" + result.ToString() + "}");
+    return true;
+}
+
+//VectorRationalSolverTask
+
+VectorRationalSolverTask::VectorRationalSolverTask(const LogicalId& _id, Document* _document, const std::string& _solver_guid, const std::string& _task_guid,
+    uint _code_id, ExpressionType _expression_type, Config::RationalResultConfig _config, bool _include_document, const std::u32string& _expression,
+    const uint _delay, Logger* _logger) :
+    SolverTask(_id, _document, _solver_guid, _task_guid, _code_id, _expression_type, _include_document, _expression, _delay, _logger),
+    config(_config)
+{
+}
+
+bool VectorRationalSolverTask::Execute(WebSocketPtr socket, Result& result)
+{
+    //request
+    rapidjson::Document doc;
+    auto& alloc = doc.GetAllocator();
+    doc.SetObject();
+    doc.AddMember("command", "SOLVE_CODE", alloc);
+    doc.AddMember("document_guid", rapidjson::StringRef(document->document_guid.c_str()), alloc);
+    doc.AddMember("solver_guid", rapidjson::StringRef(solver_guid.c_str()), alloc);
+    FillId(doc);
+    doc.AddMember("timestamp", cur_time, alloc);
+    doc.AddMember("code_id", code_id, alloc);
+    doc.AddMember("expression_type", (int)expression_type, alloc);
+    doc.AddMember("solver_type", (int)SolverType::CALCULATOR, alloc);
+    doc.AddMember("result_type", (int)ResultType::VECTOR_RATIONAL, alloc);
+    doc.AddMember("fraction_form", (int)config.fraction_form, alloc);
+    doc.AddMember("include_document", include_document, alloc);
+    std::string s = ToBasicString(expression);
+    doc.AddMember("expression", rapidjson::StringRef(s.c_str()), alloc);
+
+    AddUnit(doc, config.unit);
+
+    LOG_DEBUG("Solve expression:\"{}\", id:{}, config:{}", s, id_str, config.ToString());
+
+    if (!SendRequest(doc, result, socket, true))
+        return false;
+
+    //reply
+    std::string json;
+    if (!socket->Receive(json, result))
+        return false;
+
+#ifdef EMSCRIPTEN
+    if (json.length() > 2)
+    {
+        json.insert(1, "\"solver_guid\":\"" + solver_guid + "\",\"expression\":\"" + std::regex_replace(s, std::regex(R"(")"), R"(\\")") +
+            "\",\"id\":\"" + id_str + "\",");
+        document->window->OnSolverAction(json);
+    }
+#endif
+
+    doc.Parse<0>(json.c_str());
+    if (doc.HasParseError() || !doc.IsObject())
+    {
+        LOG_ERROR("Json error");
+        result.error.error_code = ErrorCode::JSON_ERROR;
+        return false;
+    }
+
+    GetDependencies(doc, result);
+
+    if (doc.HasMember("error"))
+    {
+        FillError(doc, result);
+        LOG_DEBUG("Result:{}", "{" + result.ToString() + "}");
+        return false;
+    }
+
+    GetResultType(doc, result);
+    if (result.type == ResultType::NONE)
+    {
+        result.error.error_code = ErrorCode::NO_RESULT;
+        LOG_DEBUG("Result: No result");
+        return true;
+    }
+    if (result.type != ResultType::VECTOR_RATIONAL)
+    {
+        LOG_ERROR("Error: result type not VectorRational");
+        return false;
+    }
+
+    if (!FillVectorRationalResult(doc, result))
+        return false;
+    LOG_DEBUG("Result:{}", "{" + result.ToString() + "}");
+    return true;
+}
+
+//VectorComplexSolverTask
+
+VectorComplexSolverTask::VectorComplexSolverTask(const LogicalId& _id, Document* _document, const std::string& _solver_guid, const std::string& _task_guid,
+    uint _code_id, ExpressionType _expression_type, Config::ComplexResultConfig _config, bool _include_document, const std::u32string& _expression,
+    const uint _delay, Logger* _logger) :
+    SolverTask(_id, _document, _solver_guid, _task_guid, _code_id, _expression_type, _include_document, _expression, _delay, _logger),
+    config(_config)
+{
+}
+
+bool VectorComplexSolverTask::Execute(WebSocketPtr socket, Result& result)
+{
+    //request
+    rapidjson::Document doc;
+    auto& alloc = doc.GetAllocator();
+    doc.SetObject();
+    doc.AddMember("command", "SOLVE_CODE", alloc);
+    doc.AddMember("document_guid", rapidjson::StringRef(document->document_guid.c_str()), alloc);
+    doc.AddMember("solver_guid", rapidjson::StringRef(solver_guid.c_str()), alloc);
+    FillId(doc);
+    doc.AddMember("timestamp", cur_time, alloc);
+    doc.AddMember("code_id", code_id, alloc);
+    doc.AddMember("solver_type", (int)SolverType::CALCULATOR, alloc);
+    doc.AddMember("result_type", (int)ResultType::VECTOR_COMPLEX, alloc);
+    doc.AddMember("expression_type", (int)expression_type, alloc);
+    std::string s = ToBasicString(expression);
+    doc.AddMember("expression", rapidjson::StringRef(s.c_str()), alloc);
+    doc.AddMember("complex_precision", config.precision, alloc);
+    doc.AddMember("complex_default_angle_measure", (int)config.default_angle_measure, alloc);
+    doc.AddMember("complex_result_angle_measure", (int)config.result_angle_measure, alloc);
+    doc.AddMember("complex_exponent_size", config.exp, alloc);
+    doc.AddMember("complex_form", (int)config.form, alloc);
+    doc.AddMember("include_document", include_document, alloc);
+
+    LOG_DEBUG("Solve expression:\"{}\", id:{}, config:{}", s, id_str, config.ToString());
+
+    if (!SendRequest(doc, result, socket, true))
+        return false;
+
+    std::string json;
+    if (!socket->Receive(json, result))
+        return false;
+
+#ifdef EMSCRIPTEN
+    if (json.length() > 2)
+    {
+        if (json.length() > 1024)
+        {
+            std::string _json("{\"solver_guid\":\"" + solver_guid + "\",\"expression\":\"" + std::regex_replace(s, std::regex(R"(")"), R"(\\")") +
+                "\",\"id\":\"" + id_str + "\"}");
+            document->window->OnSolverAction(_json);
+        }
+        else
+        {
+            json.insert(1, "\"solver_guid\":\"" + solver_guid + "\",\"expression\":\"" + std::regex_replace(s, std::regex(R"(")"), R"(\\")") +
+                "\",\"id\":\"" + id_str + "\",");
+            document->window->OnSolverAction(json);
+        }
+    }
+#endif
+
+    doc.Parse<0>(json.c_str());
+    if (doc.HasParseError() || !doc.IsObject())
+    {
+        LOG_ERROR("Json error");
+        result.error.error_code = ErrorCode::JSON_ERROR;
+        return false;
+    }
+
+    GetDependencies(doc, result);
+
+    if (doc.HasMember("error"))
+    {
+        FillError(doc, result);
+        LOG_DEBUG("Result:{}", "{" + result.ToString() + "}");
+        return false;
+    }
+
+    GetResultType(doc, result);
+    if (result.type == ResultType::NONE)
+    {
+        result.error.error_code = ErrorCode::NO_RESULT;
+        LOG_DEBUG("Result: No result");
+        return true;
+    }
+    if (result.type != ResultType::VECTOR_COMPLEX)
+    {
+        LOG_ERROR("Error: result type not VectorComplex");
+        return false;
+    }
+
+    if (!FillComplexResult(doc, result))
         return false;
     LOG_DEBUG("Result:{}", "{" + result.ToString() + "}");
     return true;

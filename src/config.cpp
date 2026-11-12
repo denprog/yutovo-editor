@@ -442,8 +442,9 @@ void Config::AutoResultConfig::FromJson(const rapidjson::Value::ConstObject& val
     {
         const auto& arr = value["results_order"].GetArray();
         //fill unique known result types in the saved order, the remaining slots with the missing types in the default order
-        const ResultType default_order[8] = {ResultType::REAL, ResultType::INTEGER, ResultType::RATIONAL, ResultType::COMPLEX,
-            ResultType::ARRAY_REAL, ResultType::SYMBOLIC_REAL, ResultType::SYMBOLIC_RATIONAL, ResultType::SYMBOLIC_COMPLEX};
+        const ResultType default_order[11] = {ResultType::REAL, ResultType::INTEGER, ResultType::RATIONAL, ResultType::COMPLEX,
+            ResultType::ARRAY_REAL, ResultType::VECTOR_REAL, ResultType::VECTOR_RATIONAL, ResultType::VECTOR_COMPLEX,
+            ResultType::SYMBOLIC_REAL, ResultType::SYMBOLIC_RATIONAL, ResultType::SYMBOLIC_COMPLEX};
         size_t filled = 0;
         for (rapidjson::SizeType i = 0; i < arr.Size() && filled < std::size(results_order); ++i)
         {
@@ -452,7 +453,8 @@ void Config::AutoResultConfig::FromJson(const rapidjson::Value::ConstObject& val
             yutovo_solver::ResultType r = (yutovo_solver::ResultType)arr[i].GetInt();
             bool known = r == ResultType::REAL || r == ResultType::INTEGER || r == ResultType::RATIONAL || r == ResultType::COMPLEX ||
                 r == ResultType::ARRAY_REAL || r == ResultType::SYMBOLIC_REAL || r == ResultType::SYMBOLIC_RATIONAL ||
-                r == ResultType::SYMBOLIC_COMPLEX;
+                r == ResultType::SYMBOLIC_COMPLEX || r == ResultType::VECTOR_REAL || r == ResultType::VECTOR_RATIONAL ||
+                r == ResultType::VECTOR_COMPLEX;
             if (known && std::find(results_order, results_order + filled, r) == results_order + filled)
                 results_order[filled++] = r;
         }

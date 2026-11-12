@@ -97,7 +97,10 @@ enum class ElementType
     GRAPH_HISTOGRAM,
     MATRIX,
     DETERMINANT,
-    LIMIT
+    LIMIT,
+    VECTOR_REAL_RESULT,
+    VECTOR_RATIONAL_RESULT,
+    VECTOR_COMPLEX_RESULT
 };
 
 enum class IdentifierType

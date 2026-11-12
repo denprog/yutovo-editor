@@ -667,6 +667,15 @@ UndoEquation::UndoEquation(Equation* equation) :
     case ResultType::SYMBOLIC_COMPLEX:
         config = ((SymbolicComplexResult*)result)->config;
         return;
+    case ResultType::VECTOR_REAL:
+        config = ((VectorRealResult*)result)->config;
+        return;
+    case ResultType::VECTOR_RATIONAL:
+        config = ((VectorRationalResult*)result)->config;
+        return;
+    case ResultType::VECTOR_COMPLEX:
+        config = ((VectorComplexResult*)result)->config;
+        return;
     default:
         assert(false);
     }
@@ -700,6 +709,12 @@ bool UndoEquation::operator==(const UndoEquation& el) const
     case ResultType::SYMBOLIC_RATIONAL:
         return std::any_cast<Config::RationalResultConfig>(config) == std::any_cast<Config::RationalResultConfig>(el.config);
     case ResultType::SYMBOLIC_COMPLEX:
+        return std::any_cast<Config::ComplexResultConfig>(config) == std::any_cast<Config::ComplexResultConfig>(el.config);
+    case ResultType::VECTOR_REAL:
+        return std::any_cast<Config::RealResultConfig>(config) == std::any_cast<Config::RealResultConfig>(el.config);
+    case ResultType::VECTOR_RATIONAL:
+        return std::any_cast<Config::RationalResultConfig>(config) == std::any_cast<Config::RationalResultConfig>(el.config);
+    case ResultType::VECTOR_COMPLEX:
         return std::any_cast<Config::ComplexResultConfig>(config) == std::any_cast<Config::ComplexResultConfig>(el.config);
     default:
         assert(false);
@@ -746,6 +761,15 @@ Element* UndoEquation::Restore(Document* document, Element* parent)
         break;
     case ResultType::SYMBOLIC_COMPLEX:
         el->SetSymbolicComplexResult(std::any_cast<Config::ComplexResultConfig>(config));
+        break;
+    case ResultType::VECTOR_REAL:
+        el->SetVectorRealResult(std::any_cast<Config::RealResultConfig>(config));
+        break;
+    case ResultType::VECTOR_RATIONAL:
+        el->SetVectorRationalResult(std::any_cast<Config::RationalResultConfig>(config));
+        break;
+    case ResultType::VECTOR_COMPLEX:
+        el->SetVectorComplexResult(std::any_cast<Config::ComplexResultConfig>(config));
         break;
     default:
         assert(false);

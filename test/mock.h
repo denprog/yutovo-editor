@@ -656,6 +656,10 @@ struct SolverArrayRealTest : SolverTest
 {
 };
 
+struct SolverVectorTest : SolverTest
+{
+};
+
 struct SolverSymbolicTest : SolverTest
 {
     //Counts the elements of the given type in the element tree; STRING/CODE_STRING element lists return the element itself, so they are not descended into

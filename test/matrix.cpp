@@ -660,4 +660,41 @@ TEST_F(FormulaTest, matrix19)
     ASSERT_TRUE(document.GetEditorState().ToString() == last_cell_end)
         << document.GetEditorState().ToString() << " != " << last_cell_end;
 }
+
+//Insert a vector: a single-column grid; the parser text is the column vector literal
+TEST_F(FormulaTest, vector1)
+{
+    Start(600);
+
+    document.WaitTask(document.InsertVector(true, 3));
+    ASSERT_TRUE(document.ToText() == U"[[],[],[]]") << ToBasicString(document.ToText());
+
+    //fill the cells in reading order: the caret starts in the first cell
+    document.InsertString("1", true);
+    document.MoveCaretRight(false);
+    document.InsertString("2", true);
+    document.MoveCaretRight(false);
+    document.WaitTask(document.InsertString("3", true));
+    ASSERT_TRUE(document.ToText() == U"[[1],[2],[3]]") << ToBasicString(document.ToText());
+}
+
+//A vector inserted by the button solves through the vector result type
+TEST_F(SolverVectorTest, vector_insert1)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.WaitTask(document.InsertVector(true, 3));
+    document.InsertString("1", true);
+    document.MoveCaretRight(false);
+    document.InsertString("2", true);
+    document.MoveCaretRight(false);
+    document.WaitTask(document.InsertString("3", true));
+    document.WaitTask(document.MoveCaretRight(false));
+    document.WaitTask(document.InsertEquation(yutovo_solver::ResultType::VECTOR_REAL, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(2s);
+    ASSERT_TRUE(document.ToText() == U"[[1],[2],[3]]=[[1.],[2.],[3.]]") << ToBasicString(document.ToText());
+}
+
 }

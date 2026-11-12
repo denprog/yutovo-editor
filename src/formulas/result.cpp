@@ -1899,6 +1899,513 @@ void SymbolicRealResult::PutResult(Result& result)
     RealResult::PutResult(result);
 }
 
+//VectorRealResult
+
+VectorRealResult::VectorRealResult(Document* _document) :
+    RealResult(_document)
+{
+    type = ElementType::VECTOR_REAL_RESULT;
+}
+
+VectorRealResult::VectorRealResult(Element* parent) :
+    RealResult(parent)
+{
+    type = ElementType::VECTOR_REAL_RESULT;
+}
+
+VectorRealResult::VectorRealResult(Element* parent, const Config::RealResultConfig& _config) :
+    RealResult(parent, _config)
+{
+    type = ElementType::VECTOR_REAL_RESULT;
+}
+
+Element* VectorRealResult::Clone()
+{
+    return new VectorRealResult(*this);
+}
+
+Element* VectorRealResult::Create(Element* _parent)
+{
+    return new VectorRealResult(_parent);
+}
+
+void VectorRealResult::ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc)
+{
+    RealResult::ToJson(value, alloc);
+}
+
+Element* VectorRealResult::FromJson(Element* parent, Document* document, const rapidjson::Value::ConstObject& value, rapidjson::Document::AllocatorType& alloc)
+{
+    Config::RealResultConfig config;
+    config.FromJson(value, alloc);
+    auto* p = new VectorRealResult(parent, config);
+    if (value.HasMember("with_angle_measure") && value["with_angle_measure"].IsBool())
+        p->with_angle_measure = value["with_angle_measure"].GetBool();
+    return p;
+}
+
+void VectorRealResult::Solve(const ParserString& expression)
+{
+    if (last_expression == expression && last_expression.Text() != U"")
+        return;
+    last_expression = expression;
+
+    PutWaitingSymbol();
+
+    solving_id = logical_id;
+    //a fresh guid for every dispatched solve so that responses of the superseded solves of this element are ignored
+    guid = boost::uuids::to_string(boost::uuids::random_generator()());
+    last_solve_time = std::chrono::duration_cast<std::chrono::milliseconds>(
+        std::chrono::system_clock::now().time_since_epoch()).count();
+    document->SolveVectorReal(logical_id, guid, GetCodeId(), config, !GetParent(1)->visible, last_expression.Text(),
+        (delay && last_error_code != yutovo_solver::ErrorCode::SOLVER_RESTARTED_ERROR) ? document->config.solve_delay : 0);
+    delay = true;
+}
+
+void VectorRealResult::PutResult(Result& result)
+{
+    ResultRow::PutResult(result);
+
+    solving_id.clear();
+
+    ElementPtr el = document->FindParent(id, ElementType::EQUATION);
+    Equation* eq = (Equation*)el.get();
+    eq->dependencies = result.dependencies;
+    if (result.values.size() == 1)
+        cast_units = result.values[0].cast_units;
+    else
+        cast_units.clear();
+
+    last_error_code = result.error.error_code;
+    if (result.error.error_code == yutovo_solver::ErrorCode::SOLVER_RESTARTED_ERROR)
+    {
+        eq->last_expression.Reset();
+        return;
+    }
+
+    elements->Clear();
+    if (result.error.error_code != yutovo_solver::ErrorCode::OK)
+    {
+        PutError(result.error); //put error message
+    }
+    else
+    {
+        document->RemoveErrorMarks(parent->parent->id, &eq->dependencies);
+
+        //a one-element vector is a scalar and renders without brackets
+        if (result.values.size() == 1)
+        {
+            std::string mantissa = result.values[0].value["mantissa"];
+            std::string exponent = result.values[0].value["exponent"];
+            AddNumber(mantissa);
+            AddExponent(exponent);
+            PutUnit(result.values[0]);
+        }
+        else if (!result.values.empty())
+        {
+            //each element of the column vector is rendered inside its own brackets: [[a],[b],[c]]
+            AddOpenSquareBracket();
+            for (size_t i = 0; i < result.values.size(); ++i)
+            {
+                AddOpenSquareBracket();
+                std::string mantissa = result.values[i].value["mantissa"];
+                std::string exponent = result.values[i].value["exponent"];
+                AddNumber(mantissa);
+                AddExponent(exponent);
+                PutUnit(result.values[i]);
+                AddCloseSquareBracket();
+                if (i < result.values.size() - 1)
+                    AddComma();
+            }
+            AddCloseSquareBracket();
+        }
+    }
+
+    if (elements->Count() > 0)
+        elements->Get(0)->SetEditable(false);
+    Remake(true);
+    parent->Remake(true);
+}
+
+//VectorRationalResult
+
+VectorRationalResult::VectorRationalResult(Document* _document) :
+    RationalResult(_document)
+{
+    type = ElementType::VECTOR_RATIONAL_RESULT;
+}
+
+VectorRationalResult::VectorRationalResult(Element* parent) :
+    RationalResult(parent)
+{
+    type = ElementType::VECTOR_RATIONAL_RESULT;
+}
+
+VectorRationalResult::VectorRationalResult(Element* parent, const Config::RationalResultConfig& _config) :
+    RationalResult(parent, _config)
+{
+    type = ElementType::VECTOR_RATIONAL_RESULT;
+}
+
+Element* VectorRationalResult::Clone()
+{
+    return new VectorRationalResult(*this);
+}
+
+Element* VectorRationalResult::Create(Element* _parent)
+{
+    return new VectorRationalResult(_parent);
+}
+
+void VectorRationalResult::ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc)
+{
+    RationalResult::ToJson(value, alloc);
+}
+
+Element* VectorRationalResult::FromJson(Element* parent, Document* document, const rapidjson::Value::ConstObject& value, rapidjson::Document::AllocatorType& alloc)
+{
+    Config::RationalResultConfig config;
+    config.FromJson(value, alloc);
+    return new VectorRationalResult(parent, config);
+}
+
+void VectorRationalResult::Solve(const ParserString& expression)
+{
+    if (last_expression == expression && last_expression.Text() != U"")
+        return;
+    last_expression = expression;
+
+    PutWaitingSymbol();
+
+    solving_id = logical_id;
+    //a fresh guid for every dispatched solve so that responses of the superseded solves of this element are ignored
+    guid = boost::uuids::to_string(boost::uuids::random_generator()());
+    last_solve_time = std::chrono::duration_cast<std::chrono::milliseconds>(
+        std::chrono::system_clock::now().time_since_epoch()).count();
+    document->SolveVectorRational(logical_id, guid, GetCodeId(), config, !GetParent(1)->visible, last_expression.Text(),
+        (delay && last_error_code != yutovo_solver::ErrorCode::SOLVER_RESTARTED_ERROR) ? document->config.solve_delay : 0);
+    delay = true;
+}
+
+void VectorRationalResult::PutResult(Result& result)
+{
+    ResultRow::PutResult(result);
+
+    solving_id.clear();
+    unit_error = false;
+
+    ElementPtr el = document->FindParent(id, ElementType::EQUATION);
+    Equation* eq = (Equation*)el.get();
+    eq->dependencies = result.dependencies;
+    if (result.values.size() == 1)
+        cast_units = result.values[0].cast_units;
+    else
+        cast_units.clear();
+
+    last_error_code = result.error.error_code;
+    if (result.error.error_code == yutovo_solver::ErrorCode::SOLVER_RESTARTED_ERROR)
+    {
+        eq->last_expression.Reset();
+        return;
+    }
+
+    if (result.error.parser_error_code == yutovo_calculator::ParserExceptionCode::CannotCastToUnit && !config.unit.IsEmpty())
+    {
+        //try to resolve without casting to a unit
+        config.unit = yutovo_calculator::Unit{};
+        eq->last_expression.Reset();
+        unit_error = true;
+        document->ReSolve(eq->id);
+        return;
+    }
+
+    elements->Clear();
+    if (result.error.error_code != yutovo_solver::ErrorCode::OK)
+    {
+        PutError(result.error); //put error message
+    }
+    else
+    {
+        document->RemoveErrorMarks(parent->parent->id, &eq->dependencies);
+        if (result.values.empty())
+            return;
+
+        auto add_value =
+            [this](Value& value)
+            {
+                std::string integer = value.value["integer"];
+                std::string numerator = value.value["numerator"];
+                std::string denomerator = value.value["denomerator"];
+
+                if (numerator[0] == '-')
+                {
+                    AddElement(ElementPtr(new Minus(this)));
+                    numerator = numerator.substr(1, numerator.size() - 1);
+                }
+
+                if (!integer.empty())
+                {
+                    AddElement(ElementPtr(new CodeString(this, integer)));
+                }
+
+                if (numerator != "0")
+                {
+                    if (denomerator == "1")
+                    {
+                        AddElement(ElementPtr(new CodeString(this, numerator)));
+                    }
+                    else
+                    {
+                        Division* d = new Division(this);
+                        AddElement(ElementPtr(d));
+                        d->AddNumerator(ElementPtr(new CodeString(this, numerator)));
+                        d->AddDenomerator(ElementPtr(new CodeString(this, denomerator)));
+                    }
+                }
+                else if (integer.empty())
+                {
+                    AddNumber(numerator);
+                }
+
+                PutUnit(value);
+            };
+
+        //a one-element vector is a scalar and renders without brackets
+        if (result.values.size() == 1)
+        {
+            add_value(result.values[0]);
+        }
+        else
+        {
+            //each element of the column vector is rendered inside its own brackets: [[a],[b],[c]]
+            AddOpenSquareBracket();
+            for (size_t i = 0; i < result.values.size(); ++i)
+            {
+                AddOpenSquareBracket();
+                add_value(result.values[i]);
+                AddCloseSquareBracket();
+                if (i < result.values.size() - 1)
+                    AddComma();
+            }
+            AddCloseSquareBracket();
+        }
+    }
+
+    if (elements->Count() > 0)
+        elements->Get(0)->SetEditable(false);
+    Remake(true);
+    parent->Remake(true);
+}
+
+//VectorComplexResult
+
+VectorComplexResult::VectorComplexResult(Document* _document) :
+    ComplexResult(_document)
+{
+    type = ElementType::VECTOR_COMPLEX_RESULT;
+}
+
+VectorComplexResult::VectorComplexResult(Element* parent) :
+    ComplexResult(parent)
+{
+    type = ElementType::VECTOR_COMPLEX_RESULT;
+}
+
+VectorComplexResult::VectorComplexResult(Element* parent, const Config::ComplexResultConfig& _config) :
+    ComplexResult(parent, _config)
+{
+    type = ElementType::VECTOR_COMPLEX_RESULT;
+}
+
+Element* VectorComplexResult::Clone()
+{
+    return new VectorComplexResult(*this);
+}
+
+Element* VectorComplexResult::Create(Element* _parent)
+{
+    return new VectorComplexResult(_parent);
+}
+
+void VectorComplexResult::ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc)
+{
+    ComplexResult::ToJson(value, alloc);
+}
+
+Element* VectorComplexResult::FromJson(Element* parent, Document* document, const rapidjson::Value::ConstObject& value, rapidjson::Document::AllocatorType& alloc)
+{
+    Config::ComplexResultConfig config;
+    config.FromJson(value, alloc);
+    auto* p = new VectorComplexResult(parent, config);
+    if (value.HasMember("with_angle_measure") && value["with_angle_measure"].IsBool())
+        p->with_angle_measure = value["with_angle_measure"].GetBool();
+    return p;
+}
+
+void VectorComplexResult::Solve(const ParserString& expression)
+{
+    if (last_expression == expression && last_expression.Text() != U"")
+        return;
+    last_expression = expression;
+
+    PutWaitingSymbol();
+
+    solving_id = logical_id;
+    //a fresh guid for every dispatched solve so that responses of the superseded solves of this element are ignored
+    guid = boost::uuids::to_string(boost::uuids::random_generator()());
+    last_solve_time = std::chrono::duration_cast<std::chrono::milliseconds>(
+        std::chrono::system_clock::now().time_since_epoch()).count();
+    document->SolveVectorComplex(logical_id, guid, GetCodeId(), config, !GetParent(1)->visible, last_expression.Text(),
+        (delay && last_error_code != yutovo_solver::ErrorCode::SOLVER_RESTARTED_ERROR) ? document->config.solve_delay : 0);
+    delay = true;
+}
+
+void VectorComplexResult::PutResult(Result& result)
+{
+    ResultRow::PutResult(result);
+
+    solving_id.clear();
+
+    ElementPtr el = document->FindParent(id, ElementType::EQUATION);
+    Equation* eq = (Equation*)el.get();
+    eq->dependencies = result.dependencies;
+
+    last_error_code = result.error.error_code;
+    if (result.error.error_code == yutovo_solver::ErrorCode::SOLVER_RESTARTED_ERROR)
+    {
+        eq->last_expression.Reset();
+        return;
+    }
+
+    elements->Clear();
+    if (result.error.error_code != yutovo_solver::ErrorCode::OK)
+    {
+        PutError(result.error); //put error message
+    }
+    else
+    {
+        document->RemoveErrorMarks(parent->parent->id, &eq->dependencies);
+
+        auto add_value =
+            [this](Value& value)
+            {
+                if (config.form == ComplexForm::Exponential || config.form == ComplexForm::Trigonometric)
+                {
+                    std::string mantissa = value.value["module_mantissa"];
+                    std::string exponent = value.value["module_exponent"];
+
+                    if (!mantissa.empty())
+                        AddNumber(mantissa);
+                    AddExponent(exponent);
+
+                    mantissa = value.value["argument_mantissa"];
+                    exponent = value.value["argument_exponent"];
+
+                    if (config.form == ComplexForm::Exponential)
+                    {
+                        PowerPtr p(new Power(this));
+                        p->AddBase(CodeStringPtr(new CodeString(p.get(), "e")));
+
+                        if (!mantissa.empty())
+                            p->AddExponent(ElementPtr(new CodeString(this, mantissa)));
+
+                        AddExponent(p->elements->Get(2)->elements->Get(0).get(), exponent);
+
+                        p->AddExponent(ElementPtr(new CodeString(this, document->config.language == yutovo_calculator::Language::Russian ? "j" : "i")));
+
+                        AddElement(p);
+                    }
+                    else
+                    {
+                        AddElement(ElementPtr(new OpenBracket(this, ElementType::OPEN_ROUND_BRACKET)));
+
+                        AddElement(ElementPtr(new CodeString(this, "cos")));
+                        AddElement(ElementPtr(new OpenBracket(this, ElementType::OPEN_ROUND_BRACKET)));
+                        AddNumber(mantissa);
+                        AddExponent(exponent);
+                        AddElement(ElementPtr(new CloseBracket(this, ElementType::CLOSE_ROUND_BRACKET)));
+
+                        AddElement(ElementPtr(new Plus(this)));
+
+                        AddElement(ElementPtr(new CodeString(this, document->config.language == yutovo_calculator::Language::Russian ? "j" : "i")));
+
+                        AddElement(ElementPtr(new Multiply(this)));
+
+                        AddElement(ElementPtr(new CodeString(this, "sin")));
+                        AddElement(ElementPtr(new OpenBracket(this, ElementType::OPEN_ROUND_BRACKET)));
+                        AddNumber(mantissa);
+                        AddExponent(exponent);
+                        AddElement(ElementPtr(new CloseBracket(this, ElementType::CLOSE_ROUND_BRACKET)));
+
+                        AddElement(ElementPtr(new CloseBracket(this, ElementType::CLOSE_ROUND_BRACKET)));
+                    }
+                }
+                else
+                {
+                    std::string re_mantissa = value.value["re_mantissa"];
+                    std::string re_exponent = value.value["re_exponent"];
+
+                    if (!re_mantissa.empty())
+                        AddNumber(re_mantissa);
+                    AddExponent(re_exponent);
+
+                    std::string im_mantissa = value.value["im_mantissa"];
+                    std::string im_exponent = value.value["im_exponent"];
+
+                    if (!im_mantissa.empty())
+                    {
+                        if (im_mantissa[0] == '-')
+                        {
+                            AddElement(ElementPtr(new Minus(this)));
+                            im_mantissa = im_mantissa.substr(1, im_mantissa.size() - 1);
+                        }
+                        else if (!re_mantissa.empty())
+                            AddElement(ElementPtr(new Plus(this)));
+                        AddNumber(im_mantissa);
+                    }
+                    if (!im_exponent.empty())
+                        AddExponent(im_exponent);
+
+                    if (!im_mantissa.empty() || !im_exponent.empty())
+                        AddElement(ElementPtr(new CodeString(this, document->config.language == yutovo_calculator::Language::Russian ? "j" : "i")));
+
+                    if (config.show_angle_measure)
+                    {
+                        std::string angle_measure = AngleMeasureToString(value.angle_measure);
+                        with_angle_measure = !angle_measure.empty();
+                        if (!angle_measure.empty())
+                            AddElement(ElementPtr(new CodeString(this, "(" + angle_measure + ")", GetStringFormat())));
+                    }
+                }
+            };
+
+        //a one-element vector is a scalar and renders without brackets
+        if (result.values.size() == 1)
+        {
+            add_value(result.values[0]);
+        }
+        else if (!result.values.empty())
+        {
+            //each element of the column vector is rendered inside its own brackets: [[a],[b],[c]]
+            AddOpenSquareBracket();
+            for (size_t i = 0; i < result.values.size(); ++i)
+            {
+                AddOpenSquareBracket();
+                add_value(result.values[i]);
+                AddCloseSquareBracket();
+                if (i < result.values.size() - 1)
+                    AddComma();
+            }
+            AddCloseSquareBracket();
+        }
+    }
+
+    for (int i = 0; i < elements->Count(); ++i)
+        elements->Get(i)->SetEditable(false);
+    Remake(true);
+    parent->Remake(true);
+}
+
 //ErrorResult
 
 ErrorResult::ErrorResult(Document* _document) :
@@ -2052,6 +2559,15 @@ void AutoResult::PutResult(Result& result)
             break;
         case ResultType::SYMBOLIC_COMPLEX:
             result_row.reset(new SymbolicComplexResult(this, config.complex_result));
+            break;
+        case ResultType::VECTOR_REAL:
+            result_row.reset(new VectorRealResult(this, config.real_result));
+            break;
+        case ResultType::VECTOR_RATIONAL:
+            result_row.reset(new VectorRationalResult(this, config.rational_result));
+            break;
+        case ResultType::VECTOR_COMPLEX:
+            result_row.reset(new VectorComplexResult(this, config.complex_result));
             break;
         default:
             return;
@@ -2223,6 +2739,12 @@ ResultType AutoResult::GetResultType()
         return ResultType::SYMBOLIC_RATIONAL;
     case ElementType::SYMBOLIC_COMPLEX_RESULT:
         return ResultType::SYMBOLIC_COMPLEX;
+    case ElementType::VECTOR_REAL_RESULT:
+        return ResultType::VECTOR_REAL;
+    case ElementType::VECTOR_RATIONAL_RESULT:
+        return ResultType::VECTOR_RATIONAL;
+    case ElementType::VECTOR_COMPLEX_RESULT:
+        return ResultType::VECTOR_COMPLEX;
     case ElementType::ERROR_RESULT:
         return ResultType::AUTO;
     default:

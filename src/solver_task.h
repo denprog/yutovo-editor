@@ -52,6 +52,7 @@ struct SolverTask
     bool FillComplexResult(rapidjson::Document& doc, Result& result);
     bool FillArrayRealResult(rapidjson::Document& doc, Result& result);
     bool FillSymbolicResult(rapidjson::Document& doc, Result& result);
+    bool FillVectorRationalResult(rapidjson::Document& doc, Result& result);
 
     Document* document;
     LogicalId id;
@@ -159,6 +160,39 @@ struct SymbolicRationalSolverTask : SolverTask
 struct SymbolicComplexSolverTask : SolverTask
 {
     SymbolicComplexSolverTask(const LogicalId& _id, Document* _document, const std::string& _solver_guid, const std::string& _task_guid,
+        uint _code_id, ExpressionType _expression_type, Config::ComplexResultConfig _config, bool _include_document, const std::u32string& _expression,
+        const uint _delay, Logger* _logger);
+
+    virtual bool Execute(WebSocketPtr socket, Result& result);
+
+    Config::ComplexResultConfig config;
+};
+
+struct VectorRealSolverTask : SolverTask
+{
+    VectorRealSolverTask(const LogicalId& _id, Document* _document, const std::string& _solver_guid, const std::string& _task_guid,
+        uint _code_id, ExpressionType _expression_type, Config::RealResultConfig _config, bool _include_document, const std::u32string& _expression,
+        const uint _delay, Logger* _logger);
+
+    virtual bool Execute(WebSocketPtr socket, Result& result);
+
+    Config::RealResultConfig config;
+};
+
+struct VectorRationalSolverTask : SolverTask
+{
+    VectorRationalSolverTask(const LogicalId& _id, Document* _document, const std::string& _solver_guid, const std::string& _task_guid,
+        uint _code_id, ExpressionType _expression_type, Config::RationalResultConfig _config, bool _include_document, const std::u32string& _expression,
+        const uint _delay, Logger* _logger);
+
+    virtual bool Execute(WebSocketPtr socket, Result& result);
+
+    Config::RationalResultConfig config;
+};
+
+struct VectorComplexSolverTask : SolverTask
+{
+    VectorComplexSolverTask(const LogicalId& _id, Document* _document, const std::string& _solver_guid, const std::string& _task_guid,
         uint _code_id, ExpressionType _expression_type, Config::ComplexResultConfig _config, bool _include_document, const std::u32string& _expression,
         const uint _delay, Logger* _logger);
 

@@ -283,6 +283,66 @@ public:
     virtual void PutResult(Result& result);
 };
 
+class VectorRealResult : public RealResult
+{
+public:
+    VectorRealResult(Document* _document);
+    VectorRealResult(Element* parent);
+    VectorRealResult(Element* parent, const Config::RealResultConfig& _config);
+    VectorRealResult(const VectorRealResult& source) = default;
+
+    virtual Element* Clone();
+
+    virtual Element* Create(Element* _parent);
+
+    virtual void ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc);
+    static Element* FromJson(Element* parent, Document* document, const rapidjson::Value::ConstObject& value, rapidjson::Document::AllocatorType& alloc);
+
+    virtual void Solve(const ParserString& expression);
+
+    virtual void PutResult(Result& result);
+};
+
+class VectorRationalResult : public RationalResult
+{
+public:
+    VectorRationalResult(Document* _document);
+    VectorRationalResult(Element* parent);
+    VectorRationalResult(Element* parent, const Config::RationalResultConfig& _config);
+    VectorRationalResult(const VectorRationalResult& source) = default;
+
+    virtual Element* Clone();
+
+    virtual Element* Create(Element* _parent);
+
+    virtual void ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc);
+    static Element* FromJson(Element* parent, Document* document, const rapidjson::Value::ConstObject& value, rapidjson::Document::AllocatorType& alloc);
+
+    virtual void Solve(const ParserString& expression);
+
+    virtual void PutResult(Result& result);
+};
+
+class VectorComplexResult : public ComplexResult
+{
+public:
+    VectorComplexResult(Document* _document);
+    VectorComplexResult(Element* parent);
+    VectorComplexResult(Element* parent, const Config::ComplexResultConfig& _config);
+    VectorComplexResult(const VectorComplexResult& source) = default;
+
+    virtual Element* Clone();
+
+    virtual Element* Create(Element* _parent);
+
+    virtual void ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc);
+    static Element* FromJson(Element* parent, Document* document, const rapidjson::Value::ConstObject& value, rapidjson::Document::AllocatorType& alloc);
+
+    virtual void Solve(const ParserString& expression);
+
+    virtual void PutResult(Result& result);
+};
+
 class ErrorResult : public ResultRow
 {
 public:

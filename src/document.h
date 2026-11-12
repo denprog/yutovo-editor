@@ -120,6 +120,7 @@ public:
 
     uint InsertMatrix(bool with_undo, uint rows, uint columns);
     uint InsertDeterminant(bool with_undo, uint rows, uint columns);
+    uint InsertVector(bool with_undo, uint rows);
 
     uint InsertFormula(Element* element, bool with_undo, bool with_last_task_id = false, bool replace = false);
     uint InsertFormulas(std::vector<ElementPtr>& elements, bool with_undo, bool with_last_task_id, bool pasting, bool replace, int select_pos);
@@ -344,6 +345,12 @@ public:
     void SolveSymbolicRational(const LogicalId& _id, const std::string& guid, uint code_id, Config::RationalResultConfig& config, bool include_document,
         const std::u32string& expression, const uint delay);
     void SolveSymbolicComplex(const LogicalId& _id, const std::string& guid, uint code_id, Config::ComplexResultConfig& config, bool include_document,
+        const std::u32string& expression, const uint delay);
+    void SolveVectorReal(const LogicalId& _id, const std::string& guid, uint code_id, Config::RealResultConfig& config, bool include_document,
+        const std::u32string& expression, const uint delay);
+    void SolveVectorRational(const LogicalId& _id, const std::string& guid, uint code_id, Config::RationalResultConfig& config, bool include_document,
+        const std::u32string& expression, const uint delay);
+    void SolveVectorComplex(const LogicalId& _id, const std::string& guid, uint code_id, Config::ComplexResultConfig& config, bool include_document,
         const std::u32string& expression, const uint delay);
     void BreakSolving(const LogicalId& _id, const std::string& guid, uint code_id, bool wait = true);
 

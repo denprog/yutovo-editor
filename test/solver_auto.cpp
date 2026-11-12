@@ -2692,6 +2692,33 @@ TEST_F(SolverAutoTest, arrays1)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 1})) << document.GetEditorState().ToString();
 }
 
+//A vector operation resolves as a vector in the auto mode: the array parser does not know
+//dot, and the vector parsers come before the symbolic ones
+TEST_F(SolverAutoTest, vectors1)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.InsertString("dot", true);
+    document.InsertOpenRoundBracket(true);
+    document.InsertOpenSquareBracket(true);
+    document.InsertString("1", true);
+    document.InsertComma(true);
+    document.InsertString("2", true);
+    document.InsertCloseSquareBracket(true);
+    document.InsertComma(true);
+    document.InsertOpenSquareBracket(true);
+    document.InsertString("3", true);
+    document.InsertComma(true);
+    document.InsertString("4", true);
+    document.InsertCloseSquareBracket(true);
+    document.InsertCloseRoundBracket(true);
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(2s);
+    ASSERT_TRUE(document.ToText() == U"dot([1,2],[3,4])=11.") << ToBasicString(document.ToText());
+}
+
 //Solve with a list
 TEST_F(SolverAutoTest, lists1)
 {

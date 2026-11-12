@@ -293,6 +293,27 @@ void Equation::SetSymbolicComplexResult(const Config::ComplexResultConfig& confi
     GetLast()->elements->Add(result);
 }
 
+void Equation::SetVectorRealResult(const Config::RealResultConfig& config)
+{
+    result.reset(new VectorRealResult(GetLast(), config));
+    GetLast()->elements->Clear();
+    GetLast()->elements->Add(result);
+}
+
+void Equation::SetVectorRationalResult(const Config::RationalResultConfig& config)
+{
+    result.reset(new VectorRationalResult(GetLast(), config));
+    GetLast()->elements->Clear();
+    GetLast()->elements->Add(result);
+}
+
+void Equation::SetVectorComplexResult(const Config::ComplexResultConfig& config)
+{
+    result.reset(new VectorComplexResult(GetLast(), config));
+    GetLast()->elements->Clear();
+    GetLast()->elements->Add(result);
+}
+
 bool Equation::SetResult(ResultType _result_type, bool with_undo)
 {
     if (result_type == _result_type)
@@ -592,6 +613,15 @@ void Equation::UpdateResult(ParserString& str)
                 break;
             case ResultType::SYMBOLIC_COMPLEX:
                 result.reset(new SymbolicComplexResult(GetLast()));
+                break;
+            case ResultType::VECTOR_REAL:
+                result.reset(new VectorRealResult(GetLast()));
+                break;
+            case ResultType::VECTOR_RATIONAL:
+                result.reset(new VectorRationalResult(GetLast()));
+                break;
+            case ResultType::VECTOR_COMPLEX:
+                result.reset(new VectorComplexResult(GetLast()));
                 break;
             default:
                 return;

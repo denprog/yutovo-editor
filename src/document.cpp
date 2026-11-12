@@ -1085,6 +1085,13 @@ uint Document::InsertDeterminant(bool with_undo, uint rows, uint columns)
     return InsertFormula(new Determinant(this, true, rows, columns), with_undo, false, false);
 }
 
+uint Document::InsertVector(bool with_undo, uint rows)
+{
+    LOG_TRACE("Insert vector");
+    //a vector is entered as a column: a single-column matrix grid
+    return InsertFormula(new Matrix(this, true, rows, 1), with_undo, false, false);
+}
+
 uint Document::InsertFormula(Element* element, bool with_undo, bool with_last_task_id, bool replace)
 {
     LOG_TRACE("Insert formula: {}", ToBasicString(element->ToText()));
@@ -3679,6 +3686,36 @@ void Document::SolveSymbolicComplex(const LogicalId& _id, const std::string& gui
     solver.SolveSymbolicComplex(_id, guid, code_id, config, include_document, expression + U";", delay);
 }
 
+void Document::SolveVectorReal(const LogicalId& _id, const std::string& guid, uint code_id, Config::RealResultConfig& config, bool include_document,
+    const std::u32string& expression, const uint delay)
+{
+    {
+        std::lock_guard<std::recursive_mutex> lock(solve_ids_mutex);
+        RegisterSolveId(guid, _id);
+    }
+    solver.SolveVectorReal(_id, guid, code_id, config, include_document, expression + U";", delay);
+}
+
+void Document::SolveVectorRational(const LogicalId& _id, const std::string& guid, uint code_id, Config::RationalResultConfig& config, bool include_document,
+    const std::u32string& expression, const uint delay)
+{
+    {
+        std::lock_guard<std::recursive_mutex> lock(solve_ids_mutex);
+        RegisterSolveId(guid, _id);
+    }
+    solver.SolveVectorRational(_id, guid, code_id, config, include_document, expression + U";", delay);
+}
+
+void Document::SolveVectorComplex(const LogicalId& _id, const std::string& guid, uint code_id, Config::ComplexResultConfig& config, bool include_document,
+    const std::u32string& expression, const uint delay)
+{
+    {
+        std::lock_guard<std::recursive_mutex> lock(solve_ids_mutex);
+        RegisterSolveId(guid, _id);
+    }
+    solver.SolveVectorComplex(_id, guid, code_id, config, include_document, expression + U";", delay);
+}
+
 void Document::BreakSolving(const LogicalId& _id, const std::string& guid, uint code_id, bool wait)
 {
     {
@@ -3749,6 +3786,12 @@ ResultType Document::GetResultType(ElementId _id)
         return ResultType::SYMBOLIC_RATIONAL;
     case ElementType::SYMBOLIC_COMPLEX_RESULT:
         return ResultType::SYMBOLIC_COMPLEX;
+    case ElementType::VECTOR_REAL_RESULT:
+        return ResultType::VECTOR_REAL;
+    case ElementType::VECTOR_RATIONAL_RESULT:
+        return ResultType::VECTOR_RATIONAL;
+    case ElementType::VECTOR_COMPLEX_RESULT:
+        return ResultType::VECTOR_COMPLEX;
     default:
         return ResultType::NONE;
     }

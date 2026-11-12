@@ -210,9 +210,10 @@ struct Config
         std::string ToString();
 
         bool result_auto_advance = true;
-        yutovo_solver::ResultType results_order[8] = {ResultType::REAL, ResultType::INTEGER, ResultType::RATIONAL, ResultType::COMPLEX,
-            ResultType::ARRAY_REAL, ResultType::SYMBOLIC_REAL, ResultType::SYMBOLIC_RATIONAL, ResultType::SYMBOLIC_COMPLEX};
-        bool results_enabled[8] = {true, true, true, true, true, true, true, true};
+        yutovo_solver::ResultType results_order[11] = {ResultType::REAL, ResultType::INTEGER, ResultType::RATIONAL, ResultType::COMPLEX,
+            ResultType::ARRAY_REAL, ResultType::VECTOR_REAL, ResultType::VECTOR_RATIONAL, ResultType::VECTOR_COMPLEX,
+            ResultType::SYMBOLIC_REAL, ResultType::SYMBOLIC_RATIONAL, ResultType::SYMBOLIC_COMPLEX};
+        bool results_enabled[11] = {true, true, true, true, true, true, true, true, true, true, true};
 
         RealResultConfig real_result;
         IntegerResultConfig integer_result;

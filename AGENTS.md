@@ -11,7 +11,7 @@ Document editor with MathML rendering and solver integration.
 - **Never create separate namespaces (such as `namespace detail` or anonymous namespaces) without explicit user permission.** Helper functions should be placed in the common `yutovo_calculator` namespace, for example in `utils.h/utils.cpp` or `giac_utils.h/giac_utils.cpp`, or as `static` methods of the appropriate class.
 - **Never commit without explicit user permission.** Do not run `git commit`, `git push`, `git reset`, `git rebase`, or any other git mutations unless explicitly asked to do so. Ask for confirmation each time when git mutations are needed.
 - **Never delete existing tests.** When fixing regressions or refactoring, update test expectations to match the new correct behavior, but do not remove tests. If `git checkout` or similar commands are used to revert a file, verify that no user-added tests were lost.
-- **Prefer targeted tests.** Run only the tests affected by the change (e.g. `./yutovo-editor_tests --gtest_filter='FormulaTest.function_definition*'`). Before running the full `yutovo-editor_tests` suite, ask the user at the beginning of the task (after planning) whether the complete suite is needed.
+- **Run the full `yutovo-editor_tests` suite only on an explicit user request.** The complete run takes 25–50 minutes. By default run only the tests affected by the change (e.g. `./yutovo-editor_tests --gtest_filter='FormulaTest.function_definition*'`); never start the full suite on your own initiative.
 - **Add new `ElementType` values only at the end of the enum.** `editor_utils.h` serializes element types as integers, so inserting values in the middle changes the numeric IDs of existing types and breaks saved documents.
 - **When adding or changing document elements, update the server SSR mapping too.** The yutovo-server generates the SEO html of a document independently of the editor: `SsrDocument` in `yutovo-server/src/logic/ssr_html.cpp` maps every `ElementType` (by its integer type, the same table as in yutovo-library/AGENTS.md) to html, mirroring the editor's `ToHtml()` implementations (formulas as MathML, paragraph semantics - headings, list markers). A new `ElementType`, a changed `ToHtml()` output, or a changed paragraph format name must be mirrored there and covered by the SSR tests in `yutovo-server/test/ssr_test.cpp`; the duplicated localized heading name tables are `ParagraphFormat::HeadingLevel` (editor) and `SsrDocument::HeadingLevel` (server). Otherwise the server keeps generating the old html for the same documents.
 
@@ -152,7 +152,7 @@ Derivatives are represented by a regular editable `Division` fraction so that th
 ## Code Style
 
 ### Parenthesized expressions
-Keep the contents of parentheses (function argument lists, conditions, initializers, etc.) on a single line when it fits. Only wrap to a new line if the expression would exceed **140 columns**.
+Keep the contents of parentheses (function argument lists, conditions, initializers, etc.) on a single line when it fits. Only wrap to a new line if the expression would exceed **150 columns**.
 When a parenthesized expression is wrapped, each continuation line uses the normal **4-space indent**; do not align arguments with the opening parenthesis.
 ```cpp
 // CORRECT
@@ -202,6 +202,21 @@ arr [0] = foo (1);
 
 ### Comments
 Comments that precede a function, method, or class (header/descriptive comments above the definition) start with a capital letter, e.g. `//Group of code paragraphs`, `//TextEquation`, `//Insert a text block into the document text`.
+Comments inside a function body start with a lowercase letter, e.g. `//a fresh guid for every dispatched solve so that responses of the superseded solves of this element are ignored`.
+
+Never leave two blank lines in a row — use at most one blank line between definitions or statements.
+
+### Names of variables and constants
+Variables and constants (including `constexpr` and class data members) are named in lowercase with words separated by underscores, without prefixes such as `k`, `m`, or `g`:
+```cpp
+// CORRECT
+int max_files = 10;
+constexpr size_t max_cached_loggers = 256;
+
+// WRONG
+int MaxFiles = 10;
+constexpr size_t kMaxCachedLoggers = 256;
+```
 
 ### Lambdas
 Place the capture clause on a new line, indented by 4 spaces. Parameters, the `->` return type, and the opening brace follow the normal rules: parameters and return type stay on the same line as the capture clause, and the opening brace goes on its own line.

@@ -44,6 +44,12 @@ public:
         const std::u32string& expression, const uint delay);
     void SolveSymbolicComplex(const LogicalId& id, const std::string& task_guid, const uint code_id, Config::ComplexResultConfig& config, bool include_document,
         const std::u32string& expression, const uint delay);
+    void SolveVectorReal(const LogicalId& id, const std::string& task_guid, const uint code_id, Config::RealResultConfig& config, bool include_document,
+        const std::u32string& expression, const uint delay);
+    void SolveVectorRational(const LogicalId& id, const std::string& task_guid, const uint code_id, Config::RationalResultConfig& config, bool include_document,
+        const std::u32string& expression, const uint delay);
+    void SolveVectorComplex(const LogicalId& id, const std::string& task_guid, const uint code_id, Config::ComplexResultConfig& config, bool include_document,
+        const std::u32string& expression, const uint delay);
 
     void BreakSolving(const LogicalId& id, const std::string& task_guid, const uint code_id, bool wait);
 

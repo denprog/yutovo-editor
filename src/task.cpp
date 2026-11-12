@@ -2515,6 +2515,9 @@ bool ResultTask::Execute()
     case ElementType::SYMBOLIC_REAL_RESULT:
     case ElementType::SYMBOLIC_RATIONAL_RESULT:
     case ElementType::SYMBOLIC_COMPLEX_RESULT:
+    case ElementType::VECTOR_REAL_RESULT:
+    case ElementType::VECTOR_RATIONAL_RESULT:
+    case ElementType::VECTOR_COMPLEX_RESULT:
         {
             ResultRow* r = dynamic_cast<ResultRow*>(el.get());
             if (!r)

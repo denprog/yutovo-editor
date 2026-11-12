@@ -56,6 +56,9 @@ public:
     void SetSymbolicRealResult(const Config::RealResultConfig& config);
     void SetSymbolicRationalResult(const Config::RationalResultConfig& config);
     void SetSymbolicComplexResult(const Config::ComplexResultConfig& config);
+    void SetVectorRealResult(const Config::RealResultConfig& config);
+    void SetVectorRationalResult(const Config::RationalResultConfig& config);
+    void SetVectorComplexResult(const Config::ComplexResultConfig& config);
     bool SetResult(ResultType _result_type, bool with_undo);
     
     bool SetConfig(int precision, int exp, AngleMeasure default_angle_measure, AngleMeasure result_angle_measure, bool with_undo);
