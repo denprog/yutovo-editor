@@ -237,6 +237,11 @@ bool Equation::Depends(const std::string& identifier)
     return Formula::MatchDependency(dependencies, identifier);
 }
 
+ResultRow* Equation::GetResult() const
+{
+    return result.get();
+}
+
 void Equation::SetResult(const Config::AutoResultConfig& config)
 {
     result.reset(new AutoResult(GetLast(), config));

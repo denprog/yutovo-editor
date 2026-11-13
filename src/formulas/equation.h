@@ -60,6 +60,7 @@ public:
     void SetVectorRationalResult(const Config::RationalResultConfig& config);
     void SetVectorComplexResult(const Config::ComplexResultConfig& config);
     bool SetResult(ResultType _result_type, bool with_undo);
+    ResultRow* GetResult() const;
     
     bool SetConfig(int precision, int exp, AngleMeasure default_angle_measure, AngleMeasure result_angle_measure, bool with_undo);
     bool SetConfig(Notation default_notation, Notation result_notation, bool with_undo);

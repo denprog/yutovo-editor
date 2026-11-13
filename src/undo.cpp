@@ -647,6 +647,7 @@ UndoEquation::UndoEquation(Equation* equation) :
         return;
     auto el = equation->elements->Get(2)->elements->Get(0);
     auto result = el.get();
+    result_hidden = ((ResultRow*)result)->IsHidden();
     switch (result_type)
     {
     case ResultType::REAL:
@@ -692,7 +693,7 @@ UndoEquation::UndoEquation(Equation* equation) :
 
 bool UndoEquation::operator==(const UndoEquation& el) const
 {
-    if (!UndoFormula::operator==(el) || result_type != el.result_type)
+    if (!UndoFormula::operator==(el) || result_type != el.result_type || result_hidden != el.result_hidden)
         return false;
     if (config.has_value() != el.config.has_value())
         return false;
@@ -783,6 +784,8 @@ Element* UndoEquation::Restore(Document* document, Element* parent)
     default:
         assert(false);
     }
+    if (result_hidden && el->GetResult())
+        el->GetResult()->SetHidden(true);
     return el;
 }
 

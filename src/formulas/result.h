@@ -26,12 +26,26 @@ public:
 
     virtual void ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc);
 
+    virtual void Draw() const;
+    virtual void UpdateRect(bool with_elements = true);
+
+    virtual bool GetFirstCaretState(CaretState& caret_state, Selection* select);
+    virtual bool GetLastCaretState(CaretState& caret_state, Selection* select);
+    virtual bool HasCaretState();
+    virtual bool HasLastCaretState();
+    virtual bool GetNearestCaretState(const int x, const int y, CaretState& caret_state);
+    virtual bool GetElementAtCoords(const int x, const int y, const int margin, ElementId& _id);
+
+    virtual bool MouseLButtonHold(const int x, const int y, MouseHoldType& hold_type, ElementId& hold_id);
+
+    virtual std::string ToHtml() const;
+
     virtual void Solve(const ParserString& expression);
 
     virtual void PutWaitingSymbol();
     virtual void PutResult(Result& result);
     virtual void PutError(const Error& error);
-    
+
     virtual void Reset();
 
     virtual void BeforeReplace();
@@ -39,10 +53,14 @@ public:
 
     virtual void BeforePaste();
     virtual void BeforeDelete();
-    
+
     virtual void LogicalIdChanged(const LogicalId& last_id);
 
     virtual void AddElement(ElementPtr element);
+
+    bool IsHidden() const;
+
+    void SetHidden(bool value); //the document task and undo apply the state, the loaded value comes from json
     
     void PutUnit(const Value& value);
     void PutVectorArrow();
@@ -81,9 +99,12 @@ protected:
     bool solving = false;
     bool replacing = false;
     bool unit_error = false;
+    bool hidden = false;
 
     LogicalId solving_id;
     std::string guid;
+    bool label_translated = false;
+    std::u32string label = U"Show result"; //the translated label drawn in the hidden state
 };
 
 typedef std::shared_ptr<ResultRow> ResultPtr;

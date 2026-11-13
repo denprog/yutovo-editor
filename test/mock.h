@@ -660,6 +660,29 @@ struct SolverVectorTest : SolverTest
 {
 };
 
+struct HiddenTest : SolverAutoTest
+{
+    //Save the document, inject "hidden": true into its first result row and load it back - the workflow of hand-editing the document json
+    bool HideResultViaJson()
+    {
+        std::string json;
+        document.WaitTask(document.SaveJson(json, 0, false));
+        size_t pos = json.find("\"type\": 25,"); //AUTO_RESULT in the pretty debug json
+        if (pos == std::string::npos)
+            return false;
+        size_t line_end = json.find('\n', pos);
+        size_t line_start = json.rfind('\n', pos) + 1;
+        if (line_end == std::string::npos)
+            return false;
+        std::string indent = json.substr(line_start, pos - line_start);
+        json.insert(line_end + 1, indent + "\"hidden\": true,\n");
+        document.WaitTask(document.LoadJson(json, 0));
+        document.WaitSolver();
+        std::this_thread::sleep_for(1s);
+        return true;
+    }
+};
+
 struct SolverSymbolicTest : SolverTest
 {
     //Counts the elements of the given type in the element tree; STRING/CODE_STRING element lists return the element itself, so they are not descended into

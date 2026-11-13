@@ -237,6 +237,7 @@ struct UndoEquation : UndoFormula
 
     yutovo_solver::ResultType result_type;
     std::any config;
+    bool result_hidden = false;
 };
 
 struct UndoResult : UndoElement

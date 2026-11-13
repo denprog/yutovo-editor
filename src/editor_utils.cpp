@@ -404,6 +404,12 @@ Element* CreateFromJson(Element* parent, Document* document, const rapidjson::Va
         return nullptr;
     if (value.HasMember("level") && value["level"].IsInt())
         el->level = (uint8_t)value["level"].GetInt();
+    if (value.HasMember("hidden") && value["hidden"].IsBool())
+    {
+        ResultRow* result = dynamic_cast<ResultRow*>(el);
+        if (result)
+            result->SetHidden(value["hidden"].GetBool());
+    }
     if (value.HasMember("elements"))
     {
         if (!el->elements->FromJson(document, value, alloc) || !el->AfterFromJson())

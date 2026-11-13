@@ -48,6 +48,35 @@ ResultRow::ResultRow(Element* parent) :
 
 bool ResultRow::Remake(bool with_elements)
 {
+    if (hidden)
+    {
+        if (document->break_remake || !visible)
+            return false;
+
+        StringFormatPtr base = GetStringFormat();
+        if (!base)
+            return false;
+        StringFormatPtr format = document->string_formats->GetFormat(base, document->config.scale);
+        if (!label_translated)
+        {
+            std::u32string translated = window->Translate(id, U"Show result");
+            if (!translated.empty())
+                label = translated; //an empty answer is an async translation (the web) - keep the source text
+            label_translated = true; //do not queue a new translation task on every remake
+        }
+        Size s = window->GetTextSize(label, format);
+        int padding = std::max(2, (int)std::round(3 * document->config.scale));
+        rect.SetSize(s.width + padding * 2, s.height);
+        baseline = rect.height / 2;
+
+        if (rect != last_rect)
+        {
+            last_rect = rect;
+            return true;
+        }
+        return false;
+    }
+
     bool changed = CodeColumn::Remake(with_elements);
 
     if (elements->Count() == 0)
@@ -57,6 +86,122 @@ bool ResultRow::Remake(bool with_elements)
         changed = true;
     }
     return changed;
+}
+
+void ResultRow::Draw() const
+{
+    if (!hidden)
+    {
+        Element::Draw();
+        return;
+    }
+
+    //the collapsed box: a thin formula_frame_color frame with the translated label
+    if (!IsVisible())
+        return;
+    Rect r = GetAbsoluteRect();
+    if (document->selection.IsSelected(id))
+        window->DrawFillRect(r.left, r.top, r.width, r.height, document->config.bg_selection_color);
+    StringFormatPtr base = GetStringFormat();
+    if (!base)
+        return;
+    StringFormatPtr format = document->string_formats->GetFormat(base, document->config.scale);
+    Size s = window->GetTextSize(label, format);
+    Rect text_rect(r.left + (r.width - s.width) / 2, r.top + (r.height - s.height) / 2, s.width, s.height);
+    window->DrawRect(r.left, r.top, r.width, r.height, document->config.formula_frame_color);
+    window->DrawText(ToBasicString(label), format, text_rect, format->text_color, GetBackgroundColor(), true);
+}
+
+void ResultRow::UpdateRect(bool with_elements)
+{
+    if (hidden)
+        return;
+    Element::UpdateRect(with_elements);
+}
+
+bool ResultRow::GetFirstCaretState(CaretState& caret_state, Selection* select)
+{
+    if (hidden)
+        return false;
+    return Element::GetFirstCaretState(caret_state, select);
+}
+
+bool ResultRow::GetLastCaretState(CaretState& caret_state, Selection* select)
+{
+    if (hidden)
+        return false;
+    return Element::GetLastCaretState(caret_state, select);
+}
+
+bool ResultRow::HasCaretState()
+{
+    if (hidden)
+        return false;
+    return Element::HasCaretState();
+}
+
+bool ResultRow::HasLastCaretState()
+{
+    if (hidden)
+        return false;
+    return Element::HasLastCaretState();
+}
+
+bool ResultRow::GetNearestCaretState(const int x, const int y, CaretState& caret_state)
+{
+    //a click on the collapsed box must not move the caret - the click is handled by MouseLButtonHold
+    if (hidden)
+        return false;
+    return Element::GetNearestCaretState(x, y, caret_state);
+}
+
+bool ResultRow::GetElementAtCoords(const int x, const int y, const int margin, ElementId& _id)
+{
+    if (hidden)
+    {
+        //hit-test the label box only - the children are not drawn and their rects are stale
+        Rect r = GetAbsoluteRect();
+        r.left -= margin;
+        r.top -= margin;
+        r.width += margin * 2;
+        r.height += margin * 2;
+        if (r.IsPointInside(x, y))
+        {
+            _id = id;
+            return true;
+        }
+        return false;
+    }
+    return Element::GetElementAtCoords(x, y, margin, _id);
+}
+
+bool ResultRow::MouseLButtonHold(const int x, const int y, MouseHoldType& hold_type, ElementId& hold_id)
+{
+    //a click on the collapsed box reveals the content
+    if (hidden && GetAbsoluteRect().IsPointInside(x, y))
+    {
+        hold_type = MouseHoldType::SHOW_HIDDEN_RESULT;
+        hold_id = id;
+        return true;
+    }
+    return Element::MouseLButtonHold(x, y, hold_type, hold_id);
+}
+
+std::string ResultRow::ToHtml() const
+{
+    if (hidden)
+        return "<mtext>" + ToBasicString(label) + "</mtext>";
+    return CodeColumn::ToHtml();
+}
+
+bool ResultRow::IsHidden() const
+{
+    return hidden;
+}
+
+void ResultRow::SetHidden(bool value)
+{
+    hidden = value;
 }
 
 void ResultRow::ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorType& alloc)
@@ -73,6 +218,8 @@ void ResultRow::ToJson(rapidjson::Value& value, rapidjson::Document::AllocatorTy
 
     rapidjson::Value arr(rapidjson::kArrayType);
     value.AddMember("elements", arr, alloc);
+    if (hidden)
+        value.AddMember("hidden", true, alloc);
 }
 
 void ResultRow::PutWaitingSymbol()
@@ -2788,6 +2935,8 @@ void AutoResult::GetCastUnits(std::vector<yutovo_calculator::Unit>& cast_units)
 
 std::string AutoResult::ToHtml() const
 {
+    if (hidden)
+        return ResultRow::ToHtml(); //the collapsed "Show result" box
     if (elements->Count() > 0)
         return elements->Get(0)->ToHtml();
     return "<mrow></mrow>";

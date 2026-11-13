@@ -2181,6 +2181,61 @@ uint Document::SetMatrixSize(const ElementId& id, uint rows, uint columns, bool 
     return last_task_id;
 }
 
+uint Document::ShowHiddenResult(const ElementId& id, bool with_undo)
+{
+    std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
+    std::function<bool()> func =
+        [id, with_undo, this]()
+        {
+            ElementPtr el = GetElement(id);
+            if (!el)
+                return false;
+            ResultRow* result = dynamic_cast<ResultRow*>(el.get());
+            if (!result || !result->IsHidden())
+                return false;
+            if (with_undo)
+            {
+                ElementPtr eq = FindParent(el->id, ElementType::EQUATION);
+                if (eq)
+                    StoreUndo(eq->id);
+            }
+            result->SetHidden(false);
+            AddChangedElement(el->id);
+            return true;
+        };
+    tasks.emplace_back(new CallFunc(text, id, func, with_undo));
+    last_task_id = tasks.back()->id;
+    next_circle = true;
+    return last_task_id;
+}
+
+uint Document::HideResult(const ElementId& id, bool with_undo)
+{
+    std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
+    std::function<bool()> func =
+        [id, with_undo, this]()
+        {
+            ElementPtr el = GetElement(id);
+            if (!el)
+                return false;
+            ResultRow* result = dynamic_cast<ResultRow*>(el.get());
+            if (!result || result->IsHidden())
+                return false;
+            ElementPtr eq = FindParent(el->id, ElementType::EQUATION);
+            if (with_undo && eq)
+                StoreUndo(eq->id); //the equation snapshot carries the collapsed flag
+            result->SetHidden(true);
+            if (eq && (caret->IsInsideElement(el->id) || caret->IsOnElement(el->id)))
+                caret->SetState(GetChild(eq->id, 1)); //onto the '=' shape - the collapsed result has no caret positions
+            AddChangedElement(el->id);
+            return true;
+        };
+    tasks.emplace_back(new CallFunc(text, id, func, with_undo));
+    last_task_id = tasks.back()->id;
+    next_circle = true;
+    return last_task_id;
+}
+
 bool Document::GetTextFormat(TextFormat& format)
 {
     std::lock_guard<std::recursive_mutex> lock(edit_mutex);

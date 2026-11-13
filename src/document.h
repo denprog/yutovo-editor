@@ -301,6 +301,8 @@ public:
     uint SetPlotFormat(const ElementId& id, const PlotFormat& format, bool with_undo);
     bool GetMatrixSize(const ElementId& id, uint& rows, uint& columns);
     uint SetMatrixSize(const ElementId& id, uint rows, uint columns, bool with_undo);
+    uint ShowHiddenResult(const ElementId& id, bool with_undo);
+    uint HideResult(const ElementId& id, bool with_undo);
     bool GetTextFormat(TextFormat& format);
     uint SetTextFormat(const TextFormat& format, bool with_undo);
     

@@ -119,7 +119,8 @@ enum class MouseHoldType
     NONE = 0,
     RESIZING,
     MOVING,
-    PLOT_FORMAT_DIALOG
+    PLOT_FORMAT_DIALOG,
+    SHOW_HIDDEN_RESULT
 };
 
 class Document;
