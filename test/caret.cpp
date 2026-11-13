@@ -2998,4 +2998,30 @@ TEST_F(DocumentTest, caret96)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 7})) << document.GetEditorState().ToString();
 }
 
+//FindCurrentParentByTypes resolves the nearest ancestor with a type from the allowed set in a single walk
+TEST_F(DocumentTest, caret97)
+{
+    Start(600);
+
+    document.InsertDivision(true);
+    document.InsertDivision(true);
+    document.WaitTask(document.InsertString("123", true));
+    auto el = document.FindByString({0}, U"123");
+    Rect rect1;
+    document.GetElementRect(el->id, rect1);
+    document.WaitTask(document.MoveCaret(rect1.left + 1, rect1.top + 1));
+
+    ElementId p_id = document.FindCurrentParentByTypes({ElementType::DIVISION, ElementType::CODE_BLOCK});
+    ASSERT_FALSE(p_id.empty());
+    ASSERT_TRUE(document.GetElementType(p_id) == ElementType::DIVISION);
+    ASSERT_TRUE(p_id == document.FindCurrentParentByType(ElementType::DIVISION));
+
+    //the nearest ancestor wins regardless of the order of the allowed types
+    p_id = document.FindCurrentParentByTypes({ElementType::CODE_BLOCK, ElementType::DIVISION});
+    ASSERT_TRUE(p_id == document.FindCurrentParentByType(ElementType::DIVISION));
+
+    p_id = document.FindCurrentParentByTypes({ElementType::POWER, ElementType::NTH_ROOT});
+    ASSERT_TRUE(p_id.empty());
+}
+
 }

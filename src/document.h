@@ -11,6 +11,7 @@
 #include <thread>
 #include <mutex>
 #include <vector>
+#include <initializer_list>
 #include <stack>
 #include <memory>
 #include <map>
@@ -171,6 +172,7 @@ public:
     ElementPtr FindElementOrParent(const ElementId& id, const ElementType type);
     ElementPtr FindParent(const ElementId& id, const ElementType type);
     ElementId FindCurrentParentByType(const ElementType type);
+    ElementId FindCurrentParentByTypes(std::initializer_list<ElementType> types);
     ElementId FindCurrentGraph();
     ElementPtr FindParentParagraph(const ElementId& id);
     ElementPtr FindParentRow(const ElementId& id);

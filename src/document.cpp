@@ -1879,12 +1879,26 @@ ElementPtr Document::FindParent(const ElementId& id, const ElementType type)
 
 ElementId Document::FindCurrentParentByType(const ElementType type)
 {
+    return FindCurrentParentByTypes({type});
+}
+
+ElementId Document::FindCurrentParentByTypes(std::initializer_list<ElementType> types)
+{
     std::lock_guard<std::recursive_mutex> lock(edit_mutex);
     auto el = caret->GetElement();
     if (!el)
         return ElementId{};
-    auto p = FindParent(el->id, type);
-    return p ? p->id : ElementId{};
+    auto p = GetParent(el->id);
+    while (p)
+    {
+        for (ElementType type : types)
+        {
+            if (p->type == type)
+                return p->id;
+        }
+        p = GetParent(p->id);
+    }
+    return ElementId{};
 }
 
 ElementId Document::FindCurrentGraph()
@@ -1893,12 +1907,7 @@ ElementId Document::FindCurrentGraph()
     auto el = caret->GetElement();
     if (el && IsGraph(el->id))
         return el->id;
-    ElementId id = FindCurrentParentByType(ElementType::GRAPH_LINE);
-    if (id.empty())
-        id = FindCurrentParentByType(ElementType::GRAPH_SURFACE);
-    if (id.empty())
-        id = FindCurrentParentByType(ElementType::GRAPH_HISTOGRAM);
-    return id;
+    return FindCurrentParentByTypes({ElementType::GRAPH_LINE, ElementType::GRAPH_SURFACE, ElementType::GRAPH_HISTOGRAM});
 }
 
 ElementPtr Document::FindParentParagraph(const ElementId& id)
