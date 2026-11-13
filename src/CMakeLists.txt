@@ -159,6 +159,7 @@ add_library(${PROJECT_NAME}
     formulas/evaluation_bar.cpp
     formulas/matrix.cpp
     formulas/limit.cpp
+    formulas/vector.cpp
 
     caret.h
     caret_state.h
@@ -219,6 +220,7 @@ add_library(${PROJECT_NAME}
     formulas/definite_integral.h
     formulas/indefinite_integral.h
     formulas/limit.h
+    formulas/vector.h
     formulas/comma.h
 )
 

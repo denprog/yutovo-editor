@@ -661,12 +661,12 @@ TEST_F(FormulaTest, matrix19)
         << document.GetEditorState().ToString() << " != " << last_cell_end;
 }
 
-//Insert a vector: a single-column grid; the parser text is the column vector literal
-TEST_F(FormulaTest, vector1)
+//Insert a vector column: a single-column grid; the parser text is the column vector literal
+TEST_F(FormulaTest, vector_column1)
 {
     Start(600);
 
-    document.WaitTask(document.InsertVector(true, 3));
+    document.WaitTask(document.InsertVectorColumn(true, 3));
     ASSERT_TRUE(document.ToText() == U"[[],[],[]]") << ToBasicString(document.ToText());
 
     //fill the cells in reading order: the caret starts in the first cell
@@ -684,7 +684,7 @@ TEST_F(SolverVectorTest, vector_insert1)
     Start(600);
 
     document.InsertCode(false, true);
-    document.WaitTask(document.InsertVector(true, 3));
+    document.WaitTask(document.InsertVectorColumn(true, 3));
     document.InsertString("1", true);
     document.MoveCaretRight(false);
     document.InsertString("2", true);

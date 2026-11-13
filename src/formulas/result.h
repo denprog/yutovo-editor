@@ -45,6 +45,8 @@ public:
     virtual void AddElement(ElementPtr element);
     
     void PutUnit(const Value& value);
+    void PutVectorArrow();
+    void MoveCurRowElements(Element* row);
     void AddExponent(Element* parent, const std::string& exponent);
     void AddExponent(const std::string& exponent);
     void AddNumber(const std::string& number);

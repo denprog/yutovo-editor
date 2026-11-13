@@ -38,6 +38,7 @@
 #include "formulas/definite_integral.h"
 #include "formulas/indefinite_integral.h"
 #include "formulas/limit.h"
+#include "formulas/vector.h"
 #include "formulas/evaluation_bar.h"
 #include "formulas/matrix.h"
 #include "formulas/comma.h"
@@ -1085,11 +1086,17 @@ uint Document::InsertDeterminant(bool with_undo, uint rows, uint columns)
     return InsertFormula(new Determinant(this, true, rows, columns), with_undo, false, false);
 }
 
-uint Document::InsertVector(bool with_undo, uint rows)
+uint Document::InsertVectorColumn(bool with_undo, uint rows)
 {
-    LOG_TRACE("Insert vector");
+    LOG_TRACE("Insert vector column");
     //a vector is entered as a column: a single-column matrix grid
     return InsertFormula(new Matrix(this, true, rows, 1), with_undo, false, false);
+}
+
+uint Document::InsertVectorElement(bool with_undo, bool replace)
+{
+    LOG_TRACE("Insert vector element");
+    return InsertFormula(new Vector(this), with_undo, false, replace);
 }
 
 uint Document::InsertFormula(Element* element, bool with_undo, bool with_last_task_id, bool replace)

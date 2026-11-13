@@ -8,6 +8,8 @@
 #include "result.h"
 #include <chrono>
 #include "multiply.h"
+#include "vector.h"
+#include "matrix.h"
 
 #undef GetObject
 #include "plus.h"
@@ -171,6 +173,25 @@ void ResultRow::LogicalIdChanged(const LogicalId& last_id)
 void ResultRow::AddElement(ElementPtr element)
 {
     GetCurRow()->AddElement(element);
+}
+
+void ResultRow::PutVectorArrow()
+{
+    ElementPtr cur_row = GetCurRow();
+    if (cur_row->elements->Count() == 0)
+        return;
+    ElementPtr vector_el(new Vector(this));
+    vector_el->UpdateLevel(cur_row->level);
+    Element* row = vector_el->elements->Get(1).get();
+    row->elements->Clear();
+    row->elements->Move(*cur_row->elements, 0);
+    cur_row->AddElement(vector_el);
+}
+
+void ResultRow::MoveCurRowElements(Element* row)
+{
+    row->elements->Clear();
+    row->elements->Move(*GetCurRow()->elements, 0);
 }
 
 void ResultRow::PutUnit(const Value& value)
@@ -1992,9 +2013,9 @@ void VectorRealResult::PutResult(Result& result)
     {
         document->RemoveErrorMarks(parent->parent->id, &eq->dependencies);
 
-        //a one-element vector is a scalar and renders without brackets
         if (result.values.size() == 1)
         {
+            //a one-element vector is a scalar and renders without brackets
             std::string mantissa = result.values[0].value["mantissa"];
             std::string exponent = result.values[0].value["exponent"];
             AddNumber(mantissa);
@@ -2003,21 +2024,19 @@ void VectorRealResult::PutResult(Result& result)
         }
         else if (!result.values.empty())
         {
-            //each element of the column vector is rendered inside its own brackets: [[a],[b],[c]]
-            AddOpenSquareBracket();
-            for (size_t i = 0; i < result.values.size(); ++i)
+            uint count = std::min<uint>((uint)result.values.size(), 100);
+            ElementPtr matrix(new Matrix(this, true, count, 1));
+            for (uint i = 0; i < count; ++i)
             {
-                AddOpenSquareBracket();
                 std::string mantissa = result.values[i].value["mantissa"];
                 std::string exponent = result.values[i].value["exponent"];
                 AddNumber(mantissa);
                 AddExponent(exponent);
                 PutUnit(result.values[i]);
-                AddCloseSquareBracket();
-                if (i < result.values.size() - 1)
-                    AddComma();
+                MoveCurRowElements(matrix->elements->Get(1 + i).get());
             }
-            AddCloseSquareBracket();
+            GetCurRow()->AddElement(matrix);
+            PutVectorArrow(); //a vector result is shown with the arrow over the column
         }
     }
 
@@ -2170,24 +2189,22 @@ void VectorRationalResult::PutResult(Result& result)
                 PutUnit(value);
             };
 
-        //a one-element vector is a scalar and renders without brackets
         if (result.values.size() == 1)
         {
+            //a one-element vector is a scalar and renders without brackets
             add_value(result.values[0]);
         }
         else
         {
-            //each element of the column vector is rendered inside its own brackets: [[a],[b],[c]]
-            AddOpenSquareBracket();
-            for (size_t i = 0; i < result.values.size(); ++i)
+            uint count = std::min<uint>((uint)result.values.size(), 100);
+            ElementPtr matrix(new Matrix(this, true, count, 1));
+            for (uint i = 0; i < count; ++i)
             {
-                AddOpenSquareBracket();
                 add_value(result.values[i]);
-                AddCloseSquareBracket();
-                if (i < result.values.size() - 1)
-                    AddComma();
+                MoveCurRowElements(matrix->elements->Get(1 + i).get());
             }
-            AddCloseSquareBracket();
+            GetCurRow()->AddElement(matrix);
+            PutVectorArrow(); //a vector result is shown with the arrow over the column
         }
     }
 
@@ -2379,24 +2396,22 @@ void VectorComplexResult::PutResult(Result& result)
                 }
             };
 
-        //a one-element vector is a scalar and renders without brackets
         if (result.values.size() == 1)
         {
+            //a one-element vector is a scalar and renders without brackets
             add_value(result.values[0]);
         }
         else if (!result.values.empty())
         {
-            //each element of the column vector is rendered inside its own brackets: [[a],[b],[c]]
-            AddOpenSquareBracket();
-            for (size_t i = 0; i < result.values.size(); ++i)
+            uint count = std::min<uint>((uint)result.values.size(), 100);
+            ElementPtr matrix(new Matrix(this, true, count, 1));
+            for (uint i = 0; i < count; ++i)
             {
-                AddOpenSquareBracket();
                 add_value(result.values[i]);
-                AddCloseSquareBracket();
-                if (i < result.values.size() - 1)
-                    AddComma();
+                MoveCurRowElements(matrix->elements->Get(1 + i).get());
             }
-            AddCloseSquareBracket();
+            GetCurRow()->AddElement(matrix);
+            PutVectorArrow(); //a vector result is shown with the arrow over the column
         }
     }
 

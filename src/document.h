@@ -120,7 +120,8 @@ public:
 
     uint InsertMatrix(bool with_undo, uint rows, uint columns);
     uint InsertDeterminant(bool with_undo, uint rows, uint columns);
-    uint InsertVector(bool with_undo, uint rows);
+    uint InsertVectorColumn(bool with_undo, uint rows);
+    uint InsertVectorElement(bool with_undo, bool replace = false);
 
     uint InsertFormula(Element* element, bool with_undo, bool with_last_task_id = false, bool replace = false);
     uint InsertFormulas(std::vector<ElementPtr>& elements, bool with_undo, bool with_last_task_id, bool pasting, bool replace, int select_pos);

@@ -100,7 +100,8 @@ enum class ElementType
     LIMIT,
     VECTOR_REAL_RESULT,
     VECTOR_RATIONAL_RESULT,
-    VECTOR_COMPLEX_RESULT
+    VECTOR_COMPLEX_RESULT,
+    VECTOR
 };
 
 enum class IdentifierType

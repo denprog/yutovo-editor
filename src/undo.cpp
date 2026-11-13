@@ -47,6 +47,7 @@
 #include "formulas/graph.h"
 #include "formulas/matrix.h"
 #include "formulas/limit.h"
+#include "formulas/vector.h"
 
 namespace yutovo
 {
@@ -426,6 +427,14 @@ Element* UndoFormula::Restore(Document* document, Element* parent)
             ElementPtr value(elements[1]->Restore(document, el));
             el->elements->Get(1)->elements->ReplaceAll(*variable->elements);
             el->elements->Get(3)->elements->ReplaceAll(*value->elements);
+        }
+        break;
+    case ElementType::VECTOR:
+        {
+            el = parent ? new Vector(parent) : new Vector(document);
+            assert(elements.size() == 1);
+            ElementPtr row(elements[0]->Restore(document, el));
+            el->elements->Get(1)->elements->ReplaceAll(*row->elements);
         }
         break;
     case ElementType::EVALUATION_BAR_SUBSCRIPT:
@@ -1442,6 +1451,11 @@ UndoElementPtr UndoBase::StoreElement(const LogicalId id, ElementPtr el)
         if (!store_element(el->elements->Get(1), undo_element))
             return nullptr;
         if (!store_element(el->elements->Get(3), undo_element))
+            return nullptr;
+        break;
+    case ElementType::VECTOR:
+        undo_element.reset(new UndoFormula(el->type, ((Formula*)el.get())->formula_format));
+        if (!store_element(el->elements->Get(1), undo_element))
             return nullptr;
         break;
     case ElementType::EVALUATION_BAR_SUBSCRIPT:
