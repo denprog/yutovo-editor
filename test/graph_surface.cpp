@@ -342,7 +342,7 @@ TEST_F(FormulaTest, graph_surface4)
     document.WaitTask(document.InsertString("4", true));
     document.WaitTask(document.MoveCaretRight(false));
     document.WaitSolver();
-    std::this_thread::sleep_for(5s);
+    std::this_thread::sleep_for(6s);
 
     auto el = document.FindByType(ElementId{0}, ElementType::GRAPH_SURFACE);
     GraphSurface* graph = (GraphSurface*)el.get();

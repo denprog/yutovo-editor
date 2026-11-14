@@ -460,7 +460,7 @@ TEST_F(FormulaTest, graph_histogram13)
     document.WaitTask(document.InsertString("3", true));
     document.WaitTask(document.InsertCloseSquareBracket(true));
     document.WaitSolver();
-    std::this_thread::sleep_for(2s);
+    std::this_thread::sleep_for(3s);
 
     auto el = document.FindByType(ElementId{0}, ElementType::GRAPH_HISTOGRAM);
     GraphHistogram* graph = (GraphHistogram*)el.get();
