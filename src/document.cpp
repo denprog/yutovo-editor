@@ -2210,6 +2210,7 @@ uint Document::ShowHiddenResult(const ElementId& id, bool with_undo)
             }
             result->SetHidden(false);
             AddChangedElement(el->id);
+            CaretMoved();
             return true;
         };
     tasks.emplace_back(new CallFunc(text, id, func, with_undo));
@@ -2237,6 +2238,7 @@ uint Document::HideResult(const ElementId& id, bool with_undo)
             if (eq && (caret->IsInsideElement(el->id) || caret->IsOnElement(el->id)))
                 caret->SetState(GetChild(eq->id, 1)); //onto the '=' shape - the collapsed result has no caret positions
             AddChangedElement(el->id);
+            CaretMoved();
             return true;
         };
     tasks.emplace_back(new CallFunc(text, id, func, with_undo));

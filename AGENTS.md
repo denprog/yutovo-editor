@@ -419,6 +419,14 @@ Tests that load documents use paths relative to the current working directory, e
 
 ## Testing
 
+### Run only the tests related to the change
+Never run a full test suite on your own initiative - after every edit run only the tests covering the changed code:
+- `yutovo-editor_tests` (gtest): `./test/yutovo-editor_tests --gtest_filter='FormulaTest.hidden*'` (from `build/debug`).
+- `yutovo-desktop_test` (QtTest): `TEST_CLASS=TestToolbar ./test/yutovo-desktop_test testHideResultUndo` - the `TEST_CLASS` env var (test/main.cpp) selects one class; plain QtTest cannot select `Class::function`, an unknown function name aborts the first `qExec` and exits the process. A full desktop run is ~3 minutes - don't pay it per edit.
+- `yutovo-server_tests`: `--gtest_filter='SsrTest.article_hidden*'`.
+- The web playwright specs already run per file: `npx playwright test test/hide_result.spec.js`.
+Widen the filter only when the change touches shared machinery (results/undo/caret); a full suite - only on an explicit user request.
+
 ### Full test suite
 Before running the full `yutovo-editor_tests` suite, ask the user at the beginning of the task (after planning) whether to run the complete suite or only targeted tests.
 

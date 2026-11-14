@@ -102,6 +102,7 @@ public:
     MOCK_METHOD(void, OnPasteResult, (PasteResult result), (override));
 
     MOCK_METHOD(void, OnLinkClicked, (const ElementId& id, const std::u32string& url), (override));
+    MOCK_METHOD(void, OnCaretMoved, (const EditorState editor_state), (override));
 };
 
 class PdfWindowMock : public PdfWindow

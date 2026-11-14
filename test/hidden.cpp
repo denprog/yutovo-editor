@@ -428,6 +428,80 @@ TEST_F(HiddenTest, hidden15)
     ASSERT_TRUE(document.ToText() == U"1+1=2.") << ToBasicString(document.ToText());
 }
 
+//The redo of the hide notifies the front-end (the undo/redo buttons) and empties the redo stack
+TEST_F(HiddenTest, hidden16)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.InsertString("234", true);
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+    document.WaitTask(document.HideResult(ElementId{0, 0, 0, 0, 0, 0, 0, 2, 0}, true));
+
+    document.Undo();
+    document.WaitUndo();
+    document.WaitSolver();
+    std::this_thread::sleep_for(1s);
+    ASSERT_TRUE(document.CanUndo() && document.CanRedo());
+
+    //the redo re-executes the CallFunc task - it must notify the window like the other tasks do,
+    //otherwise the redo button of the front-end stays enabled until the next caret move
+    EXPECT_CALL(window_mock, OnCaretMoved).Times(testing::AtLeast(1));
+    document.Redo();
+    document.WaitRedo();
+    std::this_thread::sleep_for(500ms);
+    ASSERT_TRUE(document.ToHtml().find("Show result") != std::string::npos) << document.ToHtml();
+    ASSERT_FALSE(document.CanRedo());
+    ASSERT_TRUE(document.CanUndo());
+}
+
+//The undo of the reveal click must collapse the box back even when the hide came from the api
+TEST_F(HiddenTest, hidden17)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.InsertString("1", true);
+    document.InsertPlus(true);
+    document.WaitTask(document.InsertString("2", true));
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+    ElementId id{0, 0, 0, 0, 0, 0, 0, 2, 0};
+
+    //the full front-end flow: caret clicks around, the right-click into the result (the menu path),
+    //the hide through the api, the reveal through the mouse hold
+    for (int i = 0; i < 5; ++i)
+        document.MoveCaret(100 + i * 10, 60, false);
+    std::this_thread::sleep_for(300ms);
+    ElementPtr result_el = document.GetElement(ElementId{0, 0, 0, 0, 0, 0, 0, 2, 0});
+    Rect result_rect = result_el->GetAbsoluteRect();
+    document.WaitTask(document.MoveCaret(result_rect.left + 2, result_rect.top + 2, false)); //the right-click places the caret inside the result
+    ElementId current = document.FindCurrentParentByType(ElementType::AUTO_RESULT);
+    ASSERT_FALSE(current.empty());
+    document.WaitTask(document.HideResult(current, true));
+    document.SetCaretVisible(true);
+    std::this_thread::sleep_for(200ms);
+
+    //the reveal through the mouse hold, exactly like the front-end click
+    result_el = document.GetElement(ElementId{0, 0, 0, 0, 0, 0, 0, 2, 0});
+    Rect box_rect = result_el->GetAbsoluteRect();
+    MouseHoldType hold_type;
+    ElementId hold_id;
+    ASSERT_TRUE(document.MouseLButtonDown(box_rect.left + box_rect.width / 2, box_rect.top + box_rect.height / 2, hold_type, hold_id));
+    ASSERT_TRUE(hold_type == MouseHoldType::SHOW_HIDDEN_RESULT);
+    document.WaitTask(document.ShowHiddenResult(hold_id, true));
+    ASSERT_TRUE(document.ToHtml().find("Show result") == std::string::npos) << document.ToHtml();
+
+    //the undo of the reveal returns the collapsed box
+    document.Undo();
+    document.WaitUndo();
+    document.WaitSolver();
+    std::this_thread::sleep_for(1s);
+    ASSERT_TRUE(document.ToHtml().find("Show result") != std::string::npos) << document.ToHtml();
+    ASSERT_TRUE(document.ToText() == U"1+2=3.") << ToBasicString(document.ToText());
+}
+
 //A dependency re-solve keeps the result collapsed
 TEST_F(HiddenTest, hidden7)
 {
