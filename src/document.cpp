@@ -2584,6 +2584,19 @@ bool Document::IsRow(ElementId id)
     return IsRow(GetElement(id));
 }
 
+bool Document::IsInsideResult(const ElementId& id)
+{
+    std::lock_guard<std::recursive_mutex> lock(edit_mutex);
+    ElementPtr el = GetParent(id);
+    while (el)
+    {
+        if (dynamic_cast<ResultRow*>(el.get()))
+            return true;
+        el = GetParent(el->id);
+    }
+    return false;
+}
+
 bool Document::IsParagraph(ElementPtr el)
 {
     return el && (el->type == ElementType::PARAGRAPH || el->type == ElementType::CODE_PARAGRAPH || el->type == ElementType::CODE_PARAGRAPH_ASSIGNMENT);

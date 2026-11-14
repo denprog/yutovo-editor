@@ -205,6 +205,7 @@ public:
     bool IsString(ElementId id);
     bool IsRow(ElementPtr el);
     bool IsRow(ElementId id);
+    bool IsInsideResult(const ElementId& id);
     bool IsParagraph(ElementPtr el);
     bool IsParagraph(ElementId id);
     bool IsFormula(ElementPtr el);

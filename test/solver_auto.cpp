@@ -3087,4 +3087,31 @@ TEST_F(SolverAutoTest, if1)
     ASSERT_TRUE(document.ToText() == U"u=0\nif(1<2,(u=u+1,u*10),(u*100))=10.") << ToBasicString(document.ToText());
 }
 
+//The strings of a solved result are not editable, but the text cursor is shown over them
+//(Document::IsInsideResult): a click places the caret into the result row and typing replaces the content
+TEST_F(SolverAutoTest, result_cursor1)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.InsertString("1", true);
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.ToText() == U"1=1.") << ToBasicString(document.ToText());
+
+    //the result value string (AutoResult -> RealResult -> value row) is not editable,
+    //but lies inside the result row - the beam cursor condition of the front-ends
+    ElementId result_string{0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0};
+    ASSERT_TRUE(document.IsString(result_string));
+    ASSERT_FALSE(document.IsEditable(result_string));
+    ASSERT_TRUE(document.IsInsideResult(result_string));
+
+    //a plain string of the left part is editable and not inside a result
+    ElementId left_string{0, 0, 0, 0, 0, 0, 0, 0, 0};
+    ASSERT_TRUE(document.IsString(left_string));
+    ASSERT_TRUE(document.IsEditable(left_string));
+    ASSERT_FALSE(document.IsInsideResult(left_string));
+}
+
 }
