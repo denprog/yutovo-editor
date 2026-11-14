@@ -3132,7 +3132,11 @@ bool Document::CanRedo()
     uint last_undo_task_id = 0;
     if (!undo_tasks.empty())
         last_undo_task_id = undo_tasks.back()->id;
-    
+
+    //the undo queue is empty - everything was undone, the whole redo queue can be redone
+    if (last_undo_task_id == 0)
+        return !redo_tasks.empty();
+
     int i = 0;
     for (i = (int)redo_tasks.size() - 1; i >= 0; --i)
     {
@@ -3140,13 +3144,10 @@ bool Document::CanRedo()
             break;
     }
 
-    if (++i < redo_tasks.size())
-    {
-        uint redo_task_id = redo_tasks[i]->id;
-        if (i < redo_tasks.size() && redo_tasks[i]->id == redo_task_id)
-            return true;
-    }
-    return false;
+    //the last undo task is absent in the redo queue while its task is still executing, there is nothing to redo
+    if (i < 0)
+        return false;
+    return ++i < (int)redo_tasks.size();
 }
 
 void Document::SetChanged(bool _changed)
