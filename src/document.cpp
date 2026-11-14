@@ -2219,8 +2219,19 @@ uint Document::ShowHiddenResult(const ElementId& id, bool with_undo)
     return last_task_id;
 }
 
-uint Document::HideResult(const ElementId& id, bool with_undo)
+uint Document::HideResult(bool with_undo)
 {
+    ElementId id = GetParentId(caret->GetCaretState().id, ElementType::EQUATION);
+    if (id.empty())
+        return 0;
+    {
+        auto eq = GetElement(id);
+        if (eq && eq->type == ElementType::EQUATION && eq->elements->Count() == 3 && eq->elements->Get(2)->elements->Count() > 0)
+            id = eq->elements->Get(2)->elements->Get(0)->id; //the left row, the '=' shape, the right row with the result
+        else
+            return 0;
+    }
+
     std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
     std::function<bool()> func =
         [id, with_undo, this]()

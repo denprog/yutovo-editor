@@ -230,10 +230,8 @@ TEST_F(HiddenTest, hidden8)
 
     //enter the result - the caret position the result context menu is built from
     document.WaitTask(document.MoveCaretRight(false));
-    ElementId id = document.FindCurrentParentByType(ElementType::AUTO_RESULT);
-    ASSERT_FALSE(id.empty());
 
-    document.WaitTask(document.HideResult(id, true));
+    document.WaitTask(document.HideResult(true));
     ASSERT_TRUE(document.ToHtml().find("Show result") != std::string::npos) << document.ToHtml();
     //the caret returns onto the '=' shape - the collapsed result has no caret positions
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 1})) << document.GetEditorState().ToString();
@@ -289,15 +287,13 @@ TEST_F(HiddenTest, hidden10)
     document.WaitSolver();
 
     document.WaitTask(document.MoveCaretRight(false)); //into the result
-    ElementId id = document.FindCurrentParentByType(ElementType::REAL_RESULT);
-    ASSERT_FALSE(id.empty());
-    document.WaitTask(document.HideResult(id, true));
+    document.WaitTask(document.HideResult(true));
 
     ASSERT_TRUE(document.ToHtml().find("Show result") != std::string::npos) << document.ToHtml();
     ASSERT_TRUE(document.ToText() == U"1+1=2.") << ToBasicString(document.ToText());
     ASSERT_TRUE(document.GetResultType(ElementId{0, 0, 0, 0, 0, 0, 0, 2}) == ResultType::REAL);
 
-    document.WaitTask(document.ShowHiddenResult(id, true));
+    document.WaitTask(document.ShowHiddenResult(ElementId{0, 0, 0, 0, 0, 0, 0, 2, 0}, true));
     ASSERT_TRUE(document.ToHtml().find("Show result") == std::string::npos) << document.ToHtml();
 }
 
@@ -314,7 +310,7 @@ TEST_F(HiddenTest, hidden11)
     document.WaitSolver();
 
     //the caret stands on the '=' shape
-    document.WaitTask(document.HideResult(ElementId{0, 0, 0, 0, 0, 0, 0, 2, 0}, true));
+    document.WaitTask(document.HideResult(true));
     ASSERT_TRUE(document.ToHtml().find("Show result") != std::string::npos) << document.ToHtml();
     //the caret was not inside the result - it must not move
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 1})) << document.GetEditorState().ToString();
@@ -331,20 +327,19 @@ TEST_F(HiddenTest, hidden12)
     document.InsertString("1", true);
     document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
     document.WaitSolver();
-    ElementId id{0, 0, 0, 0, 0, 0, 0, 2, 0};
-    document.WaitTask(document.HideResult(id, true));
+    document.WaitTask(document.HideResult(true));
     std::string html = document.ToHtml();
     ASSERT_TRUE(html.find("Show result") != std::string::npos);
 
     //the second hide and the reveal with a non-result id change nothing
-    document.WaitTask(document.HideResult(id, true));
+    document.WaitTask(document.HideResult(true));
     document.WaitTask(document.ShowHiddenResult(ElementId{0, 0, 0, 0, 0, 0, 0, 0}, true)); //the left row
     ASSERT_TRUE(document.ToHtml() == html) << document.ToHtml();
 
     //and a reveal of a shown result changes nothing either
-    document.WaitTask(document.ShowHiddenResult(id, true));
+    document.WaitTask(document.ShowHiddenResult(ElementId{0, 0, 0, 0, 0, 0, 0, 2, 0}, true));
     html = document.ToHtml();
-    document.WaitTask(document.ShowHiddenResult(id, true));
+    document.WaitTask(document.ShowHiddenResult(ElementId{0, 0, 0, 0, 0, 0, 0, 2, 0}, true));
     ASSERT_TRUE(document.ToHtml() == html) << document.ToHtml();
 }
 
@@ -359,7 +354,7 @@ TEST_F(HiddenTest, hidden13)
     document.InsertString("1", true);
     document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
     document.WaitSolver();
-    document.WaitTask(document.HideResult(ElementId{0, 0, 0, 0, 0, 0, 0, 2, 0}, true));
+    document.WaitTask(document.HideResult(true));
 
     document.Undo();
     document.WaitUndo();
@@ -395,11 +390,9 @@ TEST_F(HiddenTest, hidden14)
     std::this_thread::sleep_for(1s);
     ASSERT_TRUE(document.ToText() == U"1+1=2.\n2+3=5.") << ToBasicString(document.ToText());
 
-    //hide the result of the second equation only
+    //hide the result of the second equation only - the caret stands in it after the solve
     document.WaitTask(document.MoveCaretRight(false)); //into the second result
-    ElementId second = document.FindCurrentParentByType(ElementType::AUTO_RESULT);
-    ASSERT_FALSE(second.empty());
-    document.WaitTask(document.HideResult(second, true));
+    document.WaitTask(document.HideResult(true));
     std::string html = document.ToHtml();
     ASSERT_TRUE(html.find("Show result") != std::string::npos) << html;
     ASSERT_TRUE(html.find("2.") != std::string::npos) << html; //the first result is still shown
@@ -418,7 +411,7 @@ TEST_F(HiddenTest, hidden15)
     document.InsertString("1", true);
     document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
     document.WaitSolver();
-    document.WaitTask(document.HideResult(ElementId{0, 0, 0, 0, 0, 0, 0, 2, 0}, true));
+    document.WaitTask(document.HideResult(true));
 
     document.Save("hidden15_1.yut");
     document.WaitTask(document.Load("hidden15_1.yut"));
@@ -437,7 +430,7 @@ TEST_F(HiddenTest, hidden16)
     document.InsertString("234", true);
     document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
     document.WaitSolver();
-    document.WaitTask(document.HideResult(ElementId{0, 0, 0, 0, 0, 0, 0, 2, 0}, true));
+    document.WaitTask(document.HideResult(true));
 
     document.Undo();
     document.WaitUndo();
@@ -477,9 +470,7 @@ TEST_F(HiddenTest, hidden17)
     ElementPtr result_el = document.GetElement(ElementId{0, 0, 0, 0, 0, 0, 0, 2, 0});
     Rect result_rect = result_el->GetAbsoluteRect();
     document.WaitTask(document.MoveCaret(result_rect.left + 2, result_rect.top + 2, false)); //the right-click places the caret inside the result
-    ElementId current = document.FindCurrentParentByType(ElementType::AUTO_RESULT);
-    ASSERT_FALSE(current.empty());
-    document.WaitTask(document.HideResult(current, true));
+    document.WaitTask(document.HideResult(true));
     document.SetCaretVisible(true);
     std::this_thread::sleep_for(200ms);
 
@@ -500,6 +491,49 @@ TEST_F(HiddenTest, hidden17)
     std::this_thread::sleep_for(1s);
     ASSERT_TRUE(document.ToHtml().find("Show result") != std::string::npos) << document.ToHtml();
     ASSERT_TRUE(document.ToText() == U"1+2=3.") << ToBasicString(document.ToText());
+}
+
+//HideResult: the box is remade (not drawn over the stale result rect) and the redo of the
+//hide works with the caret on the '=' shape (where the redone equation insert leaves it)
+TEST_F(HiddenTest, hidden18)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.InsertString("234", true);
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+    ElementId id{0, 0, 0, 0, 0, 0, 0, 2, 0};
+
+    Rect shown_rect;
+    ASSERT_TRUE(document.GetElementRect(id, shown_rect));
+    document.WaitTask(document.HideResult(true));
+    Rect hidden_rect;
+    ASSERT_TRUE(document.GetElementRect(id, hidden_rect));
+    //the label box must be remade, not the stale rect of the solved value
+    ASSERT_TRUE(hidden_rect != shown_rect) << "shown " << shown_rect.width << "x" << shown_rect.height <<
+        " hidden " << hidden_rect.width << "x" << hidden_rect.height;
+    ASSERT_TRUE(document.ToHtml().find("Show result") != std::string::npos) << document.ToHtml();
+
+    //undo the hide and the equation, redo both - the box must return
+    document.Undo();
+    document.WaitUndo();
+    document.WaitSolver();
+    std::this_thread::sleep_for(1s);
+    document.Undo();
+    document.WaitUndo();
+    std::this_thread::sleep_for(500ms);
+
+    document.Redo();
+    document.WaitRedo();
+    document.WaitSolver();
+    std::this_thread::sleep_for(1s);
+    document.Redo();
+    document.WaitRedo();
+    std::this_thread::sleep_for(500ms);
+    ASSERT_TRUE(document.ToHtml().find("Show result") != std::string::npos) << document.ToHtml();
+    ASSERT_TRUE(document.ToText() == U"234=234.") << ToBasicString(document.ToText());
+    ASSERT_FALSE(document.CanRedo());
 }
 
 //A dependency re-solve keeps the result collapsed
