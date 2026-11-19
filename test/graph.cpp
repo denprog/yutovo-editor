@@ -1367,4 +1367,273 @@ TEST_F(FormulaTest, graphs25)
     ASSERT_TRUE(near_value(row_value(5), x_right)) << ToBasicString(el->elements->Get(5)->ToText());
 }
 
+//A jump of a piecewise function must break the curve instead of drawing a vertical segment between the branches
+TEST_F(FormulaTest, graphs26)
+{
+    Start(600);
+
+    document.WaitTask(document.InsertGraphLine(true));
+    document.WaitTask(document.InsertString("6", true));
+    document.MoveCaretRight(false);
+
+    //if(x>3,(x+1),(x-1))
+    document.WaitTask(document.InsertString("if", true));
+    document.InsertOpenRoundBracket(true);
+    document.WaitTask(document.InsertString("x", true));
+    document.WaitTask(document.InsertGreater(true));
+    document.WaitTask(document.InsertString("3", true));
+    document.InsertComma(true);
+    document.InsertOpenRoundBracket(true);
+    document.WaitTask(document.InsertString("x", true));
+    document.InsertPlus(true);
+    document.WaitTask(document.InsertString("1", true));
+    document.WaitTask(document.InsertCloseRoundBracket(true));
+    document.InsertComma(true);
+    document.InsertOpenRoundBracket(true);
+    document.WaitTask(document.InsertString("x", true));
+    document.InsertMinus(true);
+    document.WaitTask(document.InsertString("1", true));
+    document.WaitTask(document.InsertCloseRoundBracket(true));
+    document.WaitTask(document.InsertCloseRoundBracket(true));
+    std::this_thread::sleep_for(1s);
+    document.WaitTask(document.MoveCaretRight(false));
+
+    document.InsertMinus(true);
+    document.WaitTask(document.InsertString("1", true));
+    document.WaitTask(document.MoveCaretRight(false));
+    document.WaitTask(document.InsertString("0", true));
+    document.WaitTask(document.MoveCaretRight(false));
+    document.WaitTask(document.InsertString("x", true));
+    document.WaitTask(document.MoveCaretRight(false));
+    document.WaitTask(document.InsertString("6", true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(4s);
+
+    auto el = document.FindByType(ElementId{0}, ElementType::GRAPH_LINE);
+    GraphLine* graph = (GraphLine*)el.get();
+    const GraphLine::Plot& plot = graph->plots[0];
+    ASSERT_TRUE(plot.x.size() > 10) << ToBasicString(document.ToText());
+
+    //the calculator inserts a NaN break pair at the jump, so no two finite samples straddle x=3 and the finite samples follow their branches; 
+    //the sample landing exactly on x=3 may take either branch value (the calculator precision and the serialized double differ slightly)
+    bool has_break = false;
+    for (size_t i = 0; i < plot.x.size(); ++i)
+    {
+        if (!std::isnan(plot.y[i]))
+        {
+            if (plot.x[i] < 3 - 1e-9)
+                ASSERT_TRUE(std::fabs(plot.y[i] - (plot.x[i] - 1)) < 0.01) << "x=" << plot.x[i] << " y=" << plot.y[i];
+            if (plot.x[i] > 3 + 1e-9)
+                ASSERT_TRUE(std::fabs(plot.y[i] - (plot.x[i] + 1)) < 0.01) << "x=" << plot.x[i] << " y=" << plot.y[i];
+        }
+        if (std::isnan(plot.y[i]) && plot.x[i] > 2.99 && plot.x[i] < 3.1)
+            has_break = true;
+        if (i > 0 && !std::isnan(plot.y[i - 1]) && !std::isnan(plot.y[i]))
+            ASSERT_TRUE(!(plot.x[i - 1] < 3 - 1e-9 && plot.x[i] > 3 + 1e-9)) << plot.x[i - 1] << " " << plot.x[i];
+    }
+    ASSERT_TRUE(has_break);
+
+    //the rendered curve must not contain a tall red column at the jump: the plot area is
+    //InPlot(0.05, 0.95, 0.05, 0.95) of the image, the curve is red with slope 1 on both branches
+    std::string image_base64;
+    graph->GetImage(image_base64);
+    const int w = graph->graph.GetWidth();
+    const int h = graph->graph.GetHeight();
+    const unsigned char* pic = graph->graph.GetRGBA();
+    int max_column = 0;
+    for (int x = (int)(0.05 * w); x < (int)(0.95 * w); ++x)
+    {
+        int count = 0;
+        for (int y = (int)(0.05 * h); y < (int)(0.95 * h); ++y)
+        {
+            const unsigned char* p = pic + 4 * (y * w + x);
+            if (p[0] > 150 && p[1] < 100 && p[2] < 100)
+                ++count;
+        }
+        max_column = std::max(max_column, count);
+    }
+    ASSERT_TRUE(max_column < 30) << max_column;
+}
+
+//The branches of a function with poles must run off through the frame edges instead of stopping in mid-air
+TEST_F(FormulaTest, graphs27)
+{
+    Start(600);
+
+    document.WaitTask(document.InsertGraphLine(true));
+    document.WaitTask(document.InsertString("86", true));
+    document.MoveCaretRight(false);
+    document.WaitTask(document.InsertString("tg", true));
+    document.InsertOpenRoundBracket(true);
+    document.WaitTask(document.InsertString("x", true));
+    document.WaitTask(document.InsertCloseRoundBracket(true));
+    std::this_thread::sleep_for(1s);
+    document.WaitTask(document.MoveCaretRight(false));
+    document.InsertMinus(true);
+    document.WaitTask(document.InsertString("16", true));
+    document.WaitTask(document.MoveCaretRight(false));
+    document.InsertMinus(true);
+    document.WaitTask(document.InsertString("12", true));
+    document.WaitTask(document.MoveCaretRight(false));
+    document.WaitTask(document.InsertString("x", true));
+    document.WaitTask(document.MoveCaretRight(false));
+    document.WaitTask(document.InsertString("2", true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(4s);
+
+    auto el = document.FindByType(ElementId{0}, ElementType::GRAPH_LINE);
+    GraphLine* graph = (GraphLine*)el.get();
+    const GraphLine::Plot& plot = graph->plots[0];
+    ASSERT_TRUE(plot.x.size() > 10) << ToBasicString(document.ToText());
+
+    //every pole of tg must have drawn segments outside the bounds near it: a segment with both ends beyond a bound runs along the clipped 
+    //frame edge, a segment crossing the bound exits through it - either way the branch runs off through the edge; an isolated out-of-range 
+    //sample draws nothing and the branch would stop in mid-air
+    const double pi = 3.14159265358979323846;
+    for (double pole = pi / 2; pole > -12; pole -= pi)
+    {
+        bool top_cross = false;
+        bool bottom_cross = false;
+        for (size_t i = 1; i < plot.x.size(); ++i)
+        {
+            if (std::isnan(plot.y[i - 1]) || std::isnan(plot.y[i]))
+                continue;
+            if (plot.x[i] < pole - 0.3 || plot.x[i] > pole + 0.3)
+                continue;
+            if (plot.y[i - 1] > 86 && plot.y[i] > 86)
+                top_cross = true;
+            if (plot.y[i - 1] < -16 && plot.y[i] < -16)
+                bottom_cross = true;
+            if ((plot.y[i - 1] > 86) != (plot.y[i] > 86))
+                top_cross = true;
+            if ((plot.y[i - 1] < -16) != (plot.y[i] < -16))
+                bottom_cross = true;
+        }
+        ASSERT_TRUE(top_cross) << "pole " << pole;
+        ASSERT_TRUE(bottom_cross) << "pole " << pole;
+    }
+}
+
+//Both y bounds positive: the pole markers must stay beyond the frame on their own side - the old
+//bottom marker y_bottom*10 = 23.41 landed inside the frame and drew spurious vertical lines
+TEST_F(FormulaTest, graphs28)
+{
+    Start(600);
+
+    document.WaitTask(document.InsertGraphLine(true));
+    document.WaitTask(document.InsertString("104", true));
+    document.MoveCaretRight(false);
+    document.WaitTask(document.InsertString("tg", true));
+    document.InsertOpenRoundBracket(true);
+    document.WaitTask(document.InsertString("x", true));
+    document.WaitTask(document.InsertCloseRoundBracket(true));
+    std::this_thread::sleep_for(1s);
+    document.WaitTask(document.MoveCaretRight(false));
+    document.WaitTask(document.InsertString("2.341", true));
+    document.WaitTask(document.MoveCaretRight(false));
+    document.InsertMinus(true);
+    document.WaitTask(document.InsertString("15", true));
+    document.WaitTask(document.MoveCaretRight(false));
+    document.WaitTask(document.InsertString("x", true));
+    document.WaitTask(document.MoveCaretRight(false));
+    document.InsertMinus(true);
+    document.WaitTask(document.InsertString("1", true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(4s);
+
+    auto el = document.FindByType(ElementId{0}, ElementType::GRAPH_LINE);
+    GraphLine* graph = (GraphLine*)el.get();
+    const GraphLine::Plot& plot = graph->plots[0];
+    ASSERT_TRUE(plot.x.size() > 10) << ToBasicString(document.ToText());
+
+    //the old in-frame marker value must not appear among the samples
+    for (double y : plot.y)
+        if (!std::isnan(y))
+            ASSERT_TRUE(std::fabs(y - 23.41) > 1e-9) << y;
+
+    //every pole of tg must have drawn segments outside the bounds near it, on both sides of the frame
+    const double pi = 3.14159265358979323846;
+    for (double pole = -pi / 2; pole > -15; pole -= pi)
+    {
+        bool top_cross = false;
+        bool bottom_cross = false;
+        for (size_t i = 1; i < plot.x.size(); ++i)
+        {
+            if (std::isnan(plot.y[i - 1]) || std::isnan(plot.y[i]))
+                continue;
+            if (plot.x[i] < pole - 0.3 || plot.x[i] > pole + 0.3)
+                continue;
+            if (plot.y[i - 1] > 104 && plot.y[i] > 104)
+                top_cross = true;
+            if (plot.y[i - 1] < 2.341 && plot.y[i] < 2.341)
+                bottom_cross = true;
+            if ((plot.y[i - 1] > 104) != (plot.y[i] > 104))
+                top_cross = true;
+            if ((plot.y[i - 1] < 2.341) != (plot.y[i] < 2.341))
+                bottom_cross = true;
+        }
+        ASSERT_TRUE(top_cross) << "pole " << pole;
+        ASSERT_TRUE(bottom_cross) << "pole " << pole;
+    }
+}
+
+//A coarse grid step (a wide x range) catches a pole inside one step with both neighbours inside the
+//frame: the branches must still run off through the frame edges, not break in mid-air
+TEST_F(FormulaTest, graphs29)
+{
+    Start(600);
+
+    document.WaitTask(document.InsertGraphLine(true));
+    document.WaitTask(document.InsertString("80", true));
+    document.MoveCaretRight(false);
+    document.WaitTask(document.InsertString("tg", true));
+    document.InsertOpenRoundBracket(true);
+    document.WaitTask(document.InsertString("x", true));
+    document.WaitTask(document.InsertCloseRoundBracket(true));
+    std::this_thread::sleep_for(1s);
+    document.WaitTask(document.MoveCaretRight(false));
+    document.InsertMinus(true);
+    document.WaitTask(document.InsertString("80", true));
+    document.WaitTask(document.MoveCaretRight(false));
+    document.InsertMinus(true);
+    document.WaitTask(document.InsertString("66", true));
+    document.WaitTask(document.MoveCaretRight(false));
+    document.WaitTask(document.InsertString("x", true));
+    document.WaitTask(document.MoveCaretRight(false));
+    document.WaitTask(document.InsertString("45", true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(4s);
+
+    auto el = document.FindByType(ElementId{0}, ElementType::GRAPH_LINE);
+    GraphLine* graph = (GraphLine*)el.get();
+    const GraphLine::Plot& plot = graph->plots[0];
+    ASSERT_TRUE(plot.x.size() > 100) << ToBasicString(document.ToText());
+
+    //every pole of tg must have drawn segments outside the bounds near it, on both sides of the frame;
+    //the pole markers sit on the first grid points around the pole, so the window covers two steps
+    const double pi = 3.14159265358979323846;
+    for (double pole = pi / 2; pole > -66; pole -= pi)
+    {
+        bool top_cross = false;
+        bool bottom_cross = false;
+        for (size_t i = 1; i < plot.x.size(); ++i)
+        {
+            if (std::isnan(plot.y[i - 1]) || std::isnan(plot.y[i]))
+                continue;
+            if (plot.x[i] < pole - 0.5 || plot.x[i] > pole + 0.5)
+                continue;
+            if (plot.y[i - 1] > 80 && plot.y[i] > 80)
+                top_cross = true;
+            if (plot.y[i - 1] < -80 && plot.y[i] < -80)
+                bottom_cross = true;
+            if ((plot.y[i - 1] > 80) != (plot.y[i] > 80))
+                top_cross = true;
+            if ((plot.y[i - 1] < -80) != (plot.y[i] < -80))
+                bottom_cross = true;
+        }
+        ASSERT_TRUE(top_cross) << "pole " << pole;
+        ASSERT_TRUE(bottom_cross) << "pole " << pole;
+    }
+}
+
 }
