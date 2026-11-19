@@ -479,10 +479,10 @@ TEST_F(AssignmentTest, assignment7)
     document.MoveCaretDown(false);
     document.MoveCaretDown(false);
     document.InsertString("m", true);
+    //an assignment inside a formula is not a declaration, nothing is dispatched to the solver
     document.WaitTask(document.InsertAssignment(true));
-    document.WaitSolver();
-    std::this_thread::sleep_for(600ms);
-    ASSERT_TRUE(document.ToText() == 
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.ToText() ==
         U"(4)/(m=)"
         ) << ToBasicString(document.ToText());
 

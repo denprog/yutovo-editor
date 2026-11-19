@@ -365,6 +365,14 @@ ASSERT_TRUE(document.ToText() == U"...") << ToBasicString(document.ToText());
 ### Async operations and timeouts
 Editor and caret methods return a task id, but the editor runs a single thread and executes the commands sequentially - **do not put extra `document.WaitTask()` calls in tests**. Wait only before `document.WaitSolver()` (wrap the `InsertEquation`/`InsertAssignment` call that starts solving) and before checking the result (wrap the last command of a sequence, e.g. `Copy` before using the returned clipboard json, `Save` before reading the file or `Load`ing it, `LoadJson` before checks). Do not rely only on `std::this_thread::sleep_for`.
 
+### Loading test documents
+**Never load documents by absolute paths.** If a test needs a saved document, put it into `test/tests/` (naming convention `<feature><number>.yut`, e.g. `loops1.yut`) and load it with a path relative to `build/debug`:
+```cpp
+document.Load("../../test/tests/loops1.yut");
+document.WaitLoad();
+```
+A `.yut` saved by a debug build is plain (uncompressed) json, so a compacted copy of an existing document (`jq -c '.' doc.yut > test/tests/loops1.yut`) is a valid fixture.
+
 ### Changing config
 Do not mutate `document.config` directly and then call `document.SetConfig(document.config, false)` — `SetConfigTask` compares the passed config with the current `document.config`, so a direct mutation makes the comparison see no change. Instead, copy `document.config` into a local `Config`, modify the copy, and pass it to `SetConfig`.
 

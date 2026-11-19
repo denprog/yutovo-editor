@@ -3288,6 +3288,62 @@ TEST_F(SolverAutoTest, if5)
     ASSERT_TRUE(document.ToText() == U"u=0\nif(1<2,(v=0,for(i=1,i⩽3,i=i+1,(v=v+i)),v*2),(u*100))=12.") << ToBasicString(document.ToText());
 }
 
+//The help library form: a loop with a function defined in its body is the right part of an assignment,
+//the equation reads the assigned variable: f=for(i=1,i⩽3,i=i+1,(g(x)=2*x,w=g(i))), f=6
+TEST_F(SolverAutoTest, for_declaration)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.InsertString("f", true);
+    document.InsertAssignment(true);
+    OpenForLoopComparison(U"i", U"1", &Document::InsertLessEqual, U"3");
+    //g(x)=2*x
+    document.InsertString("g", true);
+    document.InsertOpenRoundBracket(true);
+    document.InsertString("x", true);
+    document.InsertCloseRoundBracket(true);
+    document.InsertAssignment(true);
+    document.InsertString("2", true);
+    document.InsertMultiply(true);
+    document.InsertString("x", true);
+    document.InsertComma(true);
+    //w=g(i)
+    document.InsertString("w", true);
+    document.InsertAssignment(true);
+    document.InsertString("g", true);
+    document.InsertOpenRoundBracket(true);
+    document.InsertString("i", true);
+    document.InsertCloseRoundBracket(true);
+    CloseForLoop();
+    document.WaitSolver();
+    document.MoveCaretRight(false);
+    document.InsertParagraph(true);
+    document.InsertString("f", true);
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(2s);
+    ASSERT_TRUE(document.ToText() == U"f=for(i=1,i⩽3,i=i+1,(g(x)=2*x,w=g(i)))\nf=6.") << ToBasicString(document.ToText());
+}
+
+//Loading the for loop help library document (loops1.yut) re-solves every formula; no waiting symbol
+//must stay (the worker restart re-solve cascade may take a few seconds, poll until it settles)
+TEST_F(SolverAutoTest, for_declaration_load)
+{
+    Start(600);
+
+    document.Load("../../test/tests/for_declaration_load.yut");
+    document.WaitLoad();
+    document.WaitSolver();
+    auto el = document.FindByString({0}, U"~");
+    for (int i = 0; i < 40 && el; ++i)
+    {
+        std::this_thread::sleep_for(250ms);
+        el = document.FindByString({0}, U"~");
+    }
+    ASSERT_TRUE(!el) << ToBasicString(document.ToText());
+}
+
 //A loop that stops before the bound with the <> comparison element: for(i=1,i<>4,i=i+1,(u=u+i))
 TEST_F(SolverAutoTest, for5)
 {

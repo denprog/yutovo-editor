@@ -47,6 +47,8 @@ public:
 
     virtual bool Depends(const std::string& identifier);
 
+    bool IsPartOfFormula() const;
+
     virtual std::string ToHtml() const;
     virtual std::u32string ToText() const;
     virtual void ToParserString(ParserString& str);

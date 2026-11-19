@@ -163,10 +163,13 @@ void Assignment::LogicalIdChanged(const LogicalId& last_id)
     GetLast()->ToParserString(expr);
     last_expression = expr;
             
-    //move the identifier in the solver
+    //move the identifier in the solver; an assignment moved inside a formula stops being a declaration
     document->RemoveIdentifier(last_id, ((CodeBlock*)code.get())->code_id, last_identifier, document->config.solve_delay);
-    document->SetIdentifier(logical_id, guid, ((CodeBlock*)code.get())->code_id, document->config.auto_result, !GetParent(1)->visible, 
-        GetFirst()->ToText(), last_expression.Text(), document->config.solve_delay);
+    if (!IsPartOfFormula())
+        document->SetIdentifier(logical_id, guid, ((CodeBlock*)code.get())->code_id, document->config.auto_result, !GetParent(1)->visible,
+            GetFirst()->ToText(), last_expression.Text(), document->config.solve_delay);
+    else
+        last_identifier = U"";
 }
 
 bool Assignment::AfterInsert(bool with_undo)
@@ -199,7 +202,7 @@ bool Assignment::AfterInsert(bool with_undo)
 
 void Assignment::BeforeDelete()
 {
-    if (!id.empty() && auto_solve && !document->moving_element)
+    if (!id.empty() && auto_solve && !IsPartOfFormula() && !document->moving_element)
     {
         auto code = document->FindParent(id, ElementType::CODE_BLOCK);
         if (code)
@@ -207,11 +210,17 @@ void Assignment::BeforeDelete()
     }
 }
 
+//An assignment of a for/if head or body is a part of the enclosing formula, not a standalone statement
+bool Assignment::IsPartOfFormula() const
+{
+    return !parent || parent->type != ElementType::CODE_ROW || !parent->parent || parent->parent->type != ElementType::CODE_PARAGRAPH;
+}
+
 void Assignment::Solve()
 {
-    if (!auto_solve || (parent && parent->type == ElementType::CODE_ROW_ASSIGNMENT))
+    if (!auto_solve || IsPartOfFormula())
         return;
-    
+
     MiddleShapeFormula::Solve();
 
     ParserString str;
@@ -224,9 +233,9 @@ void Assignment::Solve()
 
 void Assignment::ReSolve(bool if_error, bool force)
 {
-    if (!auto_solve || (parent && parent->type == ElementType::CODE_ROW_ASSIGNMENT))
+    if (!auto_solve || IsPartOfFormula())
         return;
-    
+
     document->RemoveErrorMarks(id);
     if (if_error && !last_error)
         return;
@@ -243,7 +252,7 @@ void Assignment::ReSolve(bool if_error, bool force)
             return;
         if (last_identifier != U"")
             document->RemoveIdentifier(logical_id, ((CodeBlock*)code.get())->code_id, last_identifier, document->config.solve_delay);
-        document->SetIdentifier(logical_id, guid, ((CodeBlock*)code.get())->code_id, document->config.auto_result, !GetParent(1)->visible, 
+        document->SetIdentifier(logical_id, guid, ((CodeBlock*)code.get())->code_id, document->config.auto_result, !GetParent(1)->visible,
             GetFirst()->ToText(), expr.Text(), document->config.solve_delay);
         last_identifier = GetFirst()->ToText();
         last_expression = expr;
