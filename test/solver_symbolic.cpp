@@ -1464,9 +1464,9 @@ TEST_F(SolverSymbolicTest, for1)
     document.WaitSolver();
     document.MoveCaretRight(false);
     document.InsertParagraph(true);
-    OpenForLoop(U"i", U"10");
+    OpenForLoopComparison(U"i", U"1", &Document::InsertLessEqual, U"10");
     document.InsertString("u", true);
-    document.InsertString("=", true);
+    document.InsertAssignment(true);
     document.InsertString("u", true);
     document.InsertPlus(true);
     document.InsertString("i", true);
@@ -1474,7 +1474,7 @@ TEST_F(SolverSymbolicTest, for1)
     document.WaitTask(document.InsertEquation(ResultType::SYMBOLIC_REAL, true));
     document.WaitSolver();
     std::this_thread::sleep_for(2s);
-    ASSERT_TRUE(document.ToText() == U"u=0\nfor(i=1,i<=10,i=i+1,(u=u+i))=55") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.ToText() == U"u=0\nfor(i=1,i⩽10,i=i+1,(u=u+i))=55") << ToBasicString(document.ToText());
 }
 
 //A symbolic rational loop result: for(i=1,i<=4,i=i+1,(u=u+1/i)) sums the harmonic series 1..4 exactly
@@ -1489,9 +1489,9 @@ TEST_F(SolverSymbolicTest, for2)
     document.WaitSolver();
     document.MoveCaretRight(false);
     document.InsertParagraph(true);
-    OpenForLoop(U"i", U"4");
+    OpenForLoopComparison(U"i", U"1", &Document::InsertLessEqual, U"4");
     document.InsertString("u", true);
-    document.InsertString("=", true);
+    document.InsertAssignment(true);
     document.InsertString("u", true);
     document.InsertPlus(true);
     document.InsertString("1", true);
@@ -1502,7 +1502,7 @@ TEST_F(SolverSymbolicTest, for2)
     document.WaitTask(document.InsertEquation(ResultType::SYMBOLIC_RATIONAL, true));
     document.WaitSolver();
     std::this_thread::sleep_for(2s);
-    ASSERT_TRUE(document.ToText() == U"u=0\nfor(i=1,i<=4,i=i+1,(u=u+(1)/(i)))=(25)/(12)") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.ToText() == U"u=0\nfor(i=1,i⩽4,i=i+1,(u=u+(1)/(i)))=(25)/(12)") << ToBasicString(document.ToText());
 }
 
 //A symbolic complex loop result: the counter is k, i stays the imaginary unit, for(k=1,k<=3,k=k+1,(u=u+k*i)) returns 6i
@@ -1517,9 +1517,9 @@ TEST_F(SolverSymbolicTest, for3)
     document.WaitSolver();
     document.MoveCaretRight(false);
     document.InsertParagraph(true);
-    OpenForLoop(U"k", U"3");
+    OpenForLoopComparison(U"k", U"1", &Document::InsertLessEqual, U"3");
     document.InsertString("u", true);
-    document.InsertString("=", true);
+    document.InsertAssignment(true);
     document.InsertString("u", true);
     document.InsertPlus(true);
     document.InsertString("k", true);
@@ -1529,7 +1529,7 @@ TEST_F(SolverSymbolicTest, for3)
     document.WaitTask(document.InsertEquation(ResultType::SYMBOLIC_COMPLEX, true));
     document.WaitSolver();
     std::this_thread::sleep_for(2s);
-    ASSERT_TRUE(document.ToText() == U"u=0\nfor(k=1,k<=3,k=k+1,(u=u+k*i))=6*i") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.ToText() == U"u=0\nfor(k=1,k⩽3,k=k+1,(u=u+k*i))=6*i") << ToBasicString(document.ToText());
 }
 
 //A symbolic real conditional result: if(1<2, (u=u+1, u*10), (u*100)) accumulates into a branch-local u
@@ -1544,9 +1544,9 @@ TEST_F(SolverSymbolicTest, if1)
     document.WaitSolver();
     document.MoveCaretRight(false);
     document.InsertParagraph(true);
-    OpenIf(U"1<2");
+    OpenIfComparison(U"1", &Document::InsertLess, U"2");
     document.InsertString("u", true);
-    document.InsertString("=", true);
+    document.InsertAssignment(true);
     document.InsertString("u", true);
     document.InsertPlus(true);
     document.InsertString("1", true);
@@ -1571,7 +1571,7 @@ TEST_F(SolverSymbolicTest, if2)
     Start(600);
 
     document.InsertCode(false, true);
-    OpenIf(U"2>1");
+    OpenIfComparison(U"2", &Document::InsertGreater, U"1");
     document.InsertString("1", true);
     document.InsertDivision(true);
     document.InsertString("2", true);
@@ -1610,9 +1610,9 @@ TEST_F(SolverSymbolicTest, if3)
     document.WaitSolver();
     document.MoveCaretRight(false);
     document.InsertParagraph(true);
-    OpenIf(U"1<2");
+    OpenIfComparison(U"1", &Document::InsertLess, U"2");
     document.InsertString("u", true);
-    document.InsertString("=", true);
+    document.InsertAssignment(true);
     document.InsertString("u", true);
     document.InsertPlus(true);
     document.InsertString("2", true);

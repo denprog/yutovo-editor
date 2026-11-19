@@ -715,9 +715,7 @@ TEST_F(SolverIntegerTest, logical1)
     document.InsertString("4", true);
     document.WaitTask(document.InsertEquation(ResultType::INTEGER, true));
     document.WaitSolver();
-    ASSERT_TRUE(document.ToText() == 
-        U"¬4=-5(dec)"
-        ) << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.ToText() == U"¬4=-5(dec)") << ToBasicString(document.ToText());
 }
 
 //Logical and
@@ -731,9 +729,7 @@ TEST_F(SolverIntegerTest, logical2)
     document.InsertString("234", true);
     document.WaitTask(document.InsertEquation(ResultType::INTEGER, true));
     document.WaitSolver();
-    ASSERT_TRUE(document.ToText() == 
-        U"115∧234=98(dec)"
-        ) << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.ToText() == U"115∧234=98(dec)") << ToBasicString(document.ToText());
 }
 
 //Logical or
@@ -747,9 +743,7 @@ TEST_F(SolverIntegerTest, logical3)
     document.InsertString("234", true);
     document.WaitTask(document.InsertEquation(ResultType::INTEGER, true));
     document.WaitSolver();
-    ASSERT_TRUE(document.ToText() == 
-        U"115∨234=251(dec)"
-        ) << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.ToText() == U"115∨234=251(dec)") << ToBasicString(document.ToText());
 }
 
 //Logical xor
@@ -763,9 +757,7 @@ TEST_F(SolverIntegerTest, logical4)
     document.InsertString("234", true);
     document.WaitTask(document.InsertEquation(ResultType::INTEGER, true));
     document.WaitSolver();
-    ASSERT_TRUE(document.ToText() == 
-        U"115⊕234=153(dec)"
-        ) << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.ToText() == U"115⊕234=153(dec)") << ToBasicString(document.ToText());
 }
 
 //Solve with notations
@@ -780,9 +772,7 @@ TEST_F(SolverIntegerTest, notation1)
     document.MoveCaretRight(false);
     document.WaitTask(document.InsertEquation(ResultType::INTEGER, true));
     document.WaitSolver();
-    ASSERT_TRUE(document.ToText() == 
-        U"bin[1010]=10(dec)"
-        ) << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.ToText() == U"bin[1010]=10(dec)") << ToBasicString(document.ToText());
 }
 
 //Solve with notations
@@ -797,9 +787,7 @@ TEST_F(SolverIntegerTest, notation2)
     document.MoveCaretRight(false);
     document.WaitTask(document.InsertEquation(ResultType::INTEGER, true));
     document.WaitSolver();
-    ASSERT_TRUE(document.ToText() == 
-        U"oct[776]=510(dec)"
-        ) << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.ToText() == U"oct[776]=510(dec)") << ToBasicString(document.ToText());
 }
 
 //Solve with notations
@@ -819,9 +807,7 @@ TEST_F(SolverIntegerTest, notation3)
     document.MoveCaretRight(false);
     document.WaitTask(document.InsertEquation(ResultType::INTEGER, true));
     document.WaitSolver();
-    ASSERT_TRUE(document.ToText() == 
-        U"dec[456]+bin[101111]=503(dec)"
-        ) << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.ToText() == U"dec[456]+bin[101111]=503(dec)") << ToBasicString(document.ToText());
 }
 
 //Solve with notations
@@ -842,9 +828,7 @@ TEST_F(SolverIntegerTest, notation4)
     document.MoveCaretRight(false);
     document.WaitTask(document.InsertEquation(ResultType::INTEGER, true));
     document.WaitSolver();
-    ASSERT_TRUE(document.ToText() == 
-        U"hex[456f]=100010101101111(bin)"
-        ) << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.ToText() == U"hex[456f]=100010101101111(bin)") << ToBasicString(document.ToText());
 }
 
 //Solve with notations
@@ -852,7 +836,8 @@ TEST_F(SolverIntegerTest, notation5)
 {
     Start(600);
 
-    EXPECT_CALL(window_mock, Translate).WillOnce([&](ElementId id, const std::u32string& str)
+    EXPECT_CALL(window_mock, Translate).WillOnce(
+        [&](ElementId id, const std::u32string& str)
         {
             return str;
         });
@@ -864,9 +849,7 @@ TEST_F(SolverIntegerTest, notation5)
     document.MoveCaretRight(false);
     document.WaitTask(document.InsertEquation(ResultType::INTEGER, true));
     document.WaitSolver();
-    ASSERT_TRUE(document.ToText() == 
-        U"hex[456ft]=Argument is over"
-        ) << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.ToText() == U"hex[456ft]=Argument is over") << ToBasicString(document.ToText());
 }
 
 //Error result
@@ -874,7 +857,8 @@ TEST_F(SolverIntegerTest, notation6)
 {
     Start(600);
 
-    EXPECT_CALL(window_mock, Translate).WillOnce([&](ElementId id, const std::u32string& str)
+    EXPECT_CALL(window_mock, Translate).WillOnce(
+        [&](ElementId id, const std::u32string& str)
         {
             return str;
         });
@@ -887,9 +871,7 @@ TEST_F(SolverIntegerTest, notation6)
     document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
     document.WaitSolver();
     std::this_thread::sleep_for(1s);
-    ASSERT_TRUE(document.ToText() == 
-        U"bin[123]=Argument is over"
-        ) << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.ToText() == U"bin[123]=Argument is over") << ToBasicString(document.ToText());
     ASSERT_TRUE(document.GetResultType({0, 0, 0, 0, 0, 0, 0, 2, 0}) == ResultType::AUTO);
 }
 
@@ -904,14 +886,15 @@ TEST_F(SolverIntegerTest, for1)
     document.WaitTask(document.SetConfig(config, true));
 
     document.InsertCode(false, true);
-    OpenForLoop(U"i", U"4");
+    OpenForLoopComparison(U"i", U"1", &Document::InsertLessEqual, U"4");
     document.InsertString("i", true);
     document.InsertMultiply(true);
     document.InsertString("2", true);
     CloseForLoop();
     document.WaitTask(document.InsertEquation(ResultType::INTEGER, true));
     document.WaitSolver();
-    ASSERT_TRUE(document.ToText() == U"for(i=1,i<=4,i=i+1,(i*2))=8") << ToBasicString(document.ToText());
+    std::this_thread::sleep_for(1s);
+    ASSERT_TRUE(document.ToText() == U"for(i=1,i⩽4,i=i+1,(i*2))=8") << ToBasicString(document.ToText());
 }
 
 //An integer conditional result: if(2>1, (10, 20), (30, 40)) takes the last then-statement
@@ -925,7 +908,7 @@ TEST_F(SolverIntegerTest, if1)
     document.WaitTask(document.SetConfig(config, true));
 
     document.InsertCode(false, true);
-    OpenIf(U"2>1");
+    OpenIfComparison(U"2", &Document::InsertGreater, U"1");
     document.InsertString("10", true);
     document.InsertComma(true);
     document.InsertString("20", true);

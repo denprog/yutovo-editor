@@ -603,21 +603,17 @@ TEST_F(SolverRealTest, for1)
     document.WaitSolver();
     document.MoveCaretRight(false);
     document.InsertParagraph(true);
-    OpenForLoop(U"i", U"10");
+    OpenForLoopComparison(U"i", U"1", &Document::InsertLessEqual, U"10");
     document.InsertString("u", true);
-    document.InsertString("=", true);
+    document.InsertAssignment(true);
     document.InsertString("u", true);
     document.InsertPlus(true);
     document.InsertString("i", true);
     CloseForLoop();
     document.WaitTask(document.InsertEquation(ResultType::REAL, true));
     document.WaitSolver();
-#ifdef _WIN32
-    std::this_thread::sleep_for(3s);
-#else
-    std::this_thread::sleep_for(600ms);
-#endif
-    ASSERT_TRUE(document.ToText() == U"u=0\nfor(i=1,i<=10,i=i+1,(u=u+i))=55.") << ToBasicString(document.ToText());
+    std::this_thread::sleep_for(2s);
+    ASSERT_TRUE(document.ToText() == U"u=0\nfor(i=1,i⩽10,i=i+1,(u=u+i))=55.") << ToBasicString(document.ToText());
 }
 
 //The value of the last block statement of the last iteration: for(i=1,i<=3,i=i+1,(i*2)) doubles the counter
@@ -626,14 +622,15 @@ TEST_F(SolverRealTest, for2)
     Start(600);
 
     document.InsertCode(false, true);
-    OpenForLoop(U"i", U"3");
+    OpenForLoopComparison(U"i", U"1", &Document::InsertLessEqual, U"3");
     document.InsertString("i", true);
     document.InsertMultiply(true);
     document.InsertString("2", true);
     CloseForLoop();
     document.WaitTask(document.InsertEquation(ResultType::REAL, true));
     document.WaitSolver();
-    ASSERT_TRUE(document.ToText() == U"for(i=1,i<=3,i=i+1,(i*2))=6.") << ToBasicString(document.ToText());
+    std::this_thread::sleep_for(2s);
+    ASSERT_TRUE(document.ToText() == U"for(i=1,i⩽3,i=i+1,(i*2))=6.") << ToBasicString(document.ToText());
     ASSERT_TRUE(document.ToHtml() ==
         "<body>"
             "<p>"
@@ -642,13 +639,17 @@ TEST_F(SolverRealTest, for2)
                         "<mrow>"
                             "<mi>for</mi>"
                             "<mo>(</mo>"
-                            "<mi>i=1</mi>"
+                            "<mrow><mi>i</mi></mrow>"
+                            "<mo>=</mo>"
+                            "<mrow><mi>1</mi></mrow>"
                             "<mo>,</mo>"
-                            "<mi>i&lt;=3</mi>"
+                            "<mrow><mi>i</mi></mrow>"
+                            "<mo>⩽</mo>"
+                            "<mrow><mi>3</mi></mrow>"
                             "<mo>,</mo>"
-                            "<mi>i=i</mi>"
-                            "<mo>+</mo>"
-                            "<mi>1</mi>"
+                            "<mrow><mi>i</mi></mrow>"
+                            "<mo>=</mo>"
+                            "<mrow><mi>i</mi><mo>+</mo><mi>1</mi></mrow>"
                             "<mo>,</mo>"
                             "<mo>(</mo>"
                             "<mi>i</mi>"
@@ -672,7 +673,7 @@ TEST_F(SolverRealTest, for2)
     document.Undo();
     document.WaitUndo();
     std::this_thread::sleep_for(200ms);
-    ASSERT_TRUE(document.ToText() == U"for(i=1,i<=3,i=i+1,(i*2))") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.ToText() == U"for(i=1,i⩽3,i=i+1,(i*2))") << ToBasicString(document.ToText());
 }
 
 //A loop reading an undefined variable is an error
@@ -681,9 +682,9 @@ TEST_F(SolverRealTest, for_errors)
     Start(600);
 
     document.InsertCode(false, true);
-    OpenForLoop(U"i", U"2");
+    OpenForLoopComparison(U"i", U"1", &Document::InsertLessEqual, U"2");
     document.InsertString("u", true);
-    document.InsertString("=", true);
+    document.InsertAssignment(true);
     document.InsertString("u", true);
     document.InsertPlus(true);
     document.InsertString("1", true);
@@ -691,7 +692,7 @@ TEST_F(SolverRealTest, for_errors)
     document.WaitTask(document.InsertEquation(ResultType::REAL, true));
     document.WaitSolver();
     std::this_thread::sleep_for(600ms);
-    ASSERT_TRUE(document.ToText() == U"for(i=1,i<=2,i=i+1,(u=u+1))=Unknown identifier") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.ToText() == U"for(i=1,i⩽2,i=i+1,(u=u+1))=Unknown identifier") << ToBasicString(document.ToText());
     ASSERT_TRUE(document.HasErrorMarks({0})) << ErrorMarks();
 }
 
@@ -707,9 +708,9 @@ TEST_F(SolverRealTest, if1)
     document.WaitSolver();
     document.MoveCaretRight(false);
     document.InsertParagraph(true);
-    OpenIf(U"1<2");
+    OpenIfComparison(U"1", &Document::InsertLess, U"2");
     document.InsertString("u", true);
-    document.InsertString("=", true);
+    document.InsertAssignment(true);
     document.InsertString("u", true);
     document.InsertPlus(true);
     document.InsertString("1", true);
@@ -724,11 +725,7 @@ TEST_F(SolverRealTest, if1)
     CloseIf();
     document.WaitTask(document.InsertEquation(ResultType::REAL, true));
     document.WaitSolver();
-#ifdef _WIN32
-    std::this_thread::sleep_for(3s);
-#else
-    std::this_thread::sleep_for(600ms);
-#endif
+    std::this_thread::sleep_for(2s);
     ASSERT_TRUE(document.ToText() == U"u=0\nif(1<2,(u=u+1,u*10),(u*100))=10.") << ToBasicString(document.ToText());
 }
 
@@ -738,7 +735,7 @@ TEST_F(SolverRealTest, if2)
     Start(600);
 
     document.InsertCode(false, true);
-    OpenIf(U"2>1");
+    OpenIfComparison(U"2", &Document::InsertGreater, U"1");
     document.InsertString("10", true);
     document.InsertComma(true);
     document.InsertString("20", true);
@@ -758,7 +755,9 @@ TEST_F(SolverRealTest, if2)
                         "<mrow>"
                             "<mi>if</mi>"
                             "<mo>(</mo>"
-                            "<mi>2&gt;1</mi>"
+                            "<mrow><mi>2</mi></mrow>"
+                            "<mo>&gt;</mo>"
+                            "<mrow><mi>1</mi></mrow>"
                             "<mo>,</mo>"
                             "<mo>(</mo>"
                             "<mi>10</mi>"
@@ -797,9 +796,9 @@ TEST_F(SolverRealTest, if_errors)
     Start(600);
 
     document.InsertCode(false, true);
-    OpenIf(U"1<2");
+    OpenIfComparison(U"1", &Document::InsertLess, U"2");
     document.InsertString("u", true);
-    document.InsertString("=", true);
+    document.InsertAssignment(true);
     document.InsertString("u", true);
     document.InsertPlus(true);
     document.InsertString("1", true);

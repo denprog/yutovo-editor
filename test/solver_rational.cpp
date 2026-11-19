@@ -7,6 +7,7 @@
 
 #include <gtest/gtest.h>
 #include "mock.h"
+#include "formulas/equation.h"
 #include "style.h"
 
 namespace yutovo_test
@@ -29,6 +30,10 @@ TEST_F(SolverRationalTest, rational1)
     document.MoveCaretRight(false);
     document.WaitTask(document.InsertEquation(ResultType::RATIONAL, true));
     document.WaitSolver();
+    {
+        auto eqr = document.FindByType(ElementId{0}, ElementType::EQUATION);
+        std::cout << "DBGR [" << ToBasicString(((Equation*)eqr.get())->last_expression.Text()) << "] html:" << document.ToHtml().substr(0, 400) << std::endl;
+    }
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\
@@ -764,7 +769,7 @@ TEST_F(SolverRationalTest, for1)
     Start(600);
 
     document.InsertCode(false, true);
-    OpenForLoop(U"i", U"4");
+    OpenForLoopComparison(U"i", U"1", &Document::InsertLessEqual, U"4");
     document.InsertString("1", true);
     document.InsertDivision(true);
     document.InsertString("i", true);
@@ -772,7 +777,8 @@ TEST_F(SolverRationalTest, for1)
     CloseForLoop();
     document.WaitTask(document.InsertEquation(ResultType::RATIONAL, true));
     document.WaitSolver();
-    ASSERT_TRUE(document.ToText() == U"for(i=1,i<=4,i=i+1,((1)/(i)))=(1)/(4)") << ToBasicString(document.ToText());
+    std::this_thread::sleep_for(2s);
+    ASSERT_TRUE(document.ToText() == U"for(i=1,i⩽4,i=i+1,((1)/(i)))=(1)/(4)") << ToBasicString(document.ToText());
 }
 
 //A rational conditional result: if(2>1, (1/2, 2/3), (3/4, 4/5)) takes the last then-statement, a fraction
@@ -781,7 +787,7 @@ TEST_F(SolverRationalTest, if1)
     Start(600);
 
     document.InsertCode(false, true);
-    OpenIf(U"2>1");
+    OpenIfComparison(U"2", &Document::InsertGreater, U"1");
     document.InsertString("1", true);
     document.InsertDivision(true);
     document.InsertString("2", true);

@@ -48,6 +48,7 @@
 #include "formulas/matrix.h"
 #include "formulas/limit.h"
 #include "formulas/vector.h"
+#include "formulas/comparison.h"
 
 namespace yutovo
 {
@@ -299,6 +300,12 @@ Element* UndoFormula::Restore(Document* document, Element* parent)
     case ElementType::UNIT:
     case ElementType::TEXT_EQUATION:
     case ElementType::TEXT_ASSIGNMENT:
+    case ElementType::EQUAL:
+    case ElementType::GREATER:
+    case ElementType::LESS:
+    case ElementType::GREATER_EQUAL:
+    case ElementType::LESS_EQUAL:
+    case ElementType::NOT_EQUAL:
         {
             assert(elements.size() == 2);
             switch (type)
@@ -326,6 +333,24 @@ Element* UndoFormula::Restore(Document* document, Element* parent)
                 break;
             case ElementType::TEXT_ASSIGNMENT:
                 el = parent ? new TextAssignment(parent) : new TextAssignment(document);
+                break;
+            case ElementType::EQUAL:
+                el = parent ? new Equal(parent) : new Equal(document);
+                break;
+            case ElementType::GREATER:
+                el = parent ? new Greater(parent) : new Greater(document);
+                break;
+            case ElementType::LESS:
+                el = parent ? new Less(parent) : new Less(document);
+                break;
+            case ElementType::GREATER_EQUAL:
+                el = parent ? new GreaterEqual(parent) : new GreaterEqual(document);
+                break;
+            case ElementType::LESS_EQUAL:
+                el = parent ? new LessEqual(parent) : new LessEqual(document);
+                break;
+            case ElementType::NOT_EQUAL:
+                el = parent ? new NotEqual(parent) : new NotEqual(document);
                 break;
             default:
                 assert(false);
@@ -1374,6 +1399,12 @@ UndoElementPtr UndoBase::StoreElement(const LogicalId id, ElementPtr el)
     case ElementType::UNIT:
     case ElementType::TEXT_EQUATION:
     case ElementType::TEXT_ASSIGNMENT:
+    case ElementType::EQUAL:
+    case ElementType::GREATER:
+    case ElementType::LESS:
+    case ElementType::GREATER_EQUAL:
+    case ElementType::LESS_EQUAL:
+    case ElementType::NOT_EQUAL:
         undo_element.reset(new UndoFormula(el->type, ((Formula*)el.get())->formula_format));
         if (!store_element(el->elements->Get(0), undo_element))
             return nullptr;

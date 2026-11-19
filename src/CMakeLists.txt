@@ -160,6 +160,7 @@ add_library(${PROJECT_NAME}
     formulas/matrix.cpp
     formulas/limit.cpp
     formulas/vector.cpp
+    formulas/comparison.cpp
 
     caret.h
     caret_state.h
@@ -221,6 +222,7 @@ add_library(${PROJECT_NAME}
     formulas/indefinite_integral.h
     formulas/limit.h
     formulas/vector.h
+    formulas/comparison.h
     formulas/comma.h
 )
 

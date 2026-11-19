@@ -135,6 +135,26 @@ bool CodeRow<T>::Merge(const ElementPtr with_element)
 template<typename T>
 bool CodeRow<T>::InsertElements(std::vector<ElementPtr>& _elements, bool insert_mode, bool with_undo, ElementId& changed_element)
 {
+    //a comma or a closing bracket typed in the right part of an assignment or a comparison separates the arguments of the enclosing 
+    //call or closes it
+    if (_elements.size() == 1 && parent && (parent->type == ElementType::ASSIGNMENT || IsComparison(parent->type)) &&
+        parent->elements->Count() == 3 && parent->elements->Get(2).get() == (Element*)this && parent->parent && 
+        parent->parent->type == ElementType::CODE_ROW && (_elements[0]->type == ElementType::COMMA || 
+        _elements[0]->type == ElementType::CLOSE_ROUND_BRACKET || _elements[0]->type == ElementType::CLOSE_SQUARE_BRACKET))
+    {
+        CaretState cs = caret->GetCaretState();
+        if (cs.IsInsideElement(id))
+        {
+            //a comma or a bracket inside brackets of the operand itself (a function call, an array) stays in the operand
+            if (BracketDepth(elements.get(), cs.GetPosInElement(id)) == 0)
+            {
+                Row* row = (Row*)parent->parent;
+                caret->SetState(row->id, row->elements->GetElementPos(parent->id) + 1, true);
+                return row->InsertElements(_elements, insert_mode, with_undo, changed_element);
+            }
+        }
+    }
+
     for (auto el : _elements)
     {
         if (el->type == ElementType::TEXT_BLOCK && document->FindParent(id, ElementType::TEXT_BLOCK))
@@ -163,7 +183,7 @@ bool CodeRow<T>::InsertElements(std::vector<ElementPtr>& _elements, bool insert_
         }
         if (el->type == ElementType::CODE_PARAGRAPH &&
             (parent->type != ElementType::CODE_PARAGRAPH && parent->type != ElementType::ASSIGNMENT && parent->type != ElementType::EQUATION &&
-            parent->type != ElementType::TEXT_ASSIGNMENT && parent->type != ElementType::TEXT_EQUATION))
+            parent->type != ElementType::TEXT_ASSIGNMENT && parent->type != ElementType::TEXT_EQUATION && !IsComparison(parent->type)))
         {
             return false;
         }

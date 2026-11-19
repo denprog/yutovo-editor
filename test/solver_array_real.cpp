@@ -553,9 +553,9 @@ TEST_F(SolverArrayRealTest, for1)
     document.WaitSolver();
     document.MoveCaretRight(false);
     document.InsertParagraph(true);
-    OpenForLoop(U"i", U"3");
+    OpenForLoopComparison(U"i", U"1", &Document::InsertLessEqual, U"3");
     document.InsertString("u", true);
-    document.InsertString("=", true);
+    document.InsertAssignment(true);
     document.InsertString("u", true);
     document.InsertPlus(true);
     document.InsertOpenSquareBracket(true);
@@ -569,7 +569,7 @@ TEST_F(SolverArrayRealTest, for1)
     document.WaitTask(document.InsertEquation(ResultType::ARRAY_REAL, true));
     document.WaitSolver();
     std::this_thread::sleep_for(2s);
-    ASSERT_TRUE(document.ToText() == U"u=[0,0]\nfor(i=1,i<=3,i=i+1,(u=u+[i,2*i]))=[6.,12.]") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.ToText() == U"u=[0,0]\nfor(i=1,i⩽3,i=i+1,(u=u+[i,2*i]))=[6.,12.]") << ToBasicString(document.ToText());
 }
 
 //An array conditional result: a branch may hold several statements, if(2>1, ([1,2], [3,4]), ([5,6])) returns the last array
@@ -578,7 +578,7 @@ TEST_F(SolverArrayRealTest, if1)
     Start(600);
 
     document.InsertCode(false, true);
-    OpenIf(U"2>1");
+    OpenIfComparison(U"2", &Document::InsertGreater, U"1");
     document.InsertOpenSquareBracket(true);
     document.InsertString("1", true);
     document.InsertComma(true);

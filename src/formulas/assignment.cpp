@@ -177,8 +177,15 @@ bool Assignment::AfterInsert(bool with_undo)
     for (int i = pos - 1; i >= 0; --i)
     {
         auto el = parent->elements->Get(i);
-        if (el->type == ElementType::ASSIGNMENT || el->type == ElementType::EQUATION ||
-            el->type == ElementType::TEXT_ASSIGNMENT || el->type == ElementType::TEXT_EQUATION)
+        //a statement element ends the wrapped part only at the top level of the row
+        if ((el->type == ElementType::ASSIGNMENT || el->type == ElementType::EQUATION || el->type == ElementType::TEXT_ASSIGNMENT || 
+            el->type == ElementType::TEXT_EQUATION) && BracketDepth(parent->elements.get(), i + 1) == 0)
+            break;
+        //the wrapped left part is bracket balanced: an unclosed bracket of an enclosing call (if(, for(, a function, an array) ends the wrap
+        if (BracketDepth(parent->elements.get(), pos) - BracketDepth(parent->elements.get(), i) > 0)
+            break;
+        //a comma of the same argument list ends the wrapped part: the operand does not cross it
+        if (el->type == ElementType::COMMA && BracketDepth(parent->elements.get(), i + 1) == BracketDepth(parent->elements.get(), pos))
             break;
         GetFirst()->elements->Move(el, 0);
     }

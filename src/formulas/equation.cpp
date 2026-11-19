@@ -159,7 +159,7 @@ bool Equation::InsertElements(std::vector<ElementPtr>& _elements, bool insert_mo
     for (auto el : _elements)
     {
         if (el->type == ElementType::CODE_PARAGRAPH && type != ElementType::ASSIGNMENT && type != ElementType::EQUATION &&
-            type != ElementType::TEXT_ASSIGNMENT && type != ElementType::TEXT_EQUATION)
+            type != ElementType::TEXT_ASSIGNMENT && type != ElementType::TEXT_EQUATION && !IsComparison(type))
             return false;
     }
     return Formula::InsertElements(_elements, insert_mode, with_undo, changed_element);
@@ -188,8 +188,17 @@ bool Equation::AfterInsert(bool with_undo)
     for (int i = pos - 1; i >= 0; --i)
     {
         auto el = parent->elements->Get(i);
-        if (el->type == ElementType::ASSIGNMENT || el->type == ElementType::EQUATION ||
-            el->type == ElementType::TEXT_ASSIGNMENT || el->type == ElementType::TEXT_EQUATION)
+        //a statement element ends the wrapped part only at the top level of the row: inside the argument list of an enclosing call 
+        //(if, for, a function) the whole head is one expression, the element itself can open the call (for(i=1) - its brackets count
+        if ((el->type == ElementType::ASSIGNMENT || el->type == ElementType::EQUATION || el->type == ElementType::TEXT_ASSIGNMENT || 
+            el->type == ElementType::TEXT_EQUATION) && BracketDepth(parent->elements.get(), i + 1) == 0)
+            break;
+        //the wrapped left part is bracket balanced: an unclosed bracket of an enclosing call (if(, for(, a function, an array) 
+        //ends the wrap - the call prefix stays in the row, not in the operand
+        if (BracketDepth(parent->elements.get(), pos) - BracketDepth(parent->elements.get(), i) > 0)
+            break;
+        //a comma of the same argument list ends the wrapped part: the operand does not cross it
+        if (el->type == ElementType::COMMA && BracketDepth(parent->elements.get(), i + 1) == BracketDepth(parent->elements.get(), pos))
             break;
         GetFirst()->elements->Move(el, 0);
     }

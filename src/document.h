@@ -92,6 +92,12 @@ public:
     uint InsertXor(bool with_undo);
     uint InsertNot(bool with_undo);
     uint InsertPercent(bool with_undo);
+    uint InsertEqual(bool with_undo);
+    uint InsertGreater(bool with_undo);
+    uint InsertLess(bool with_undo);
+    uint InsertGreaterEqual(bool with_undo);
+    uint InsertLessEqual(bool with_undo);
+    uint InsertNotEqual(bool with_undo);
     uint InsertSum(bool with_undo, bool replace = false);
     uint InsertProduct(bool with_undo, bool replace = false);
     uint InsertDefiniteIntegral(bool with_undo, bool replace = false);

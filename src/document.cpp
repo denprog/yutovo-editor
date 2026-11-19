@@ -39,6 +39,7 @@
 #include "formulas/indefinite_integral.h"
 #include "formulas/limit.h"
 #include "formulas/vector.h"
+#include "formulas/comparison.h"
 #include "formulas/evaluation_bar.h"
 #include "formulas/matrix.h"
 #include "formulas/comma.h"
@@ -803,6 +804,42 @@ uint Document::InsertPercent(bool with_undo)
     return InsertFormula(new Percent(this), with_undo);
 }
 
+uint Document::InsertEqual(bool with_undo)
+{
+    LOG_TRACE("Insert equal comparison");
+    return InsertFormula(new Equal(this), with_undo);
+}
+
+uint Document::InsertGreater(bool with_undo)
+{
+    LOG_TRACE("Insert greater comparison");
+    return InsertFormula(new Greater(this), with_undo);
+}
+
+uint Document::InsertLess(bool with_undo)
+{
+    LOG_TRACE("Insert less comparison");
+    return InsertFormula(new Less(this), with_undo);
+}
+
+uint Document::InsertGreaterEqual(bool with_undo)
+{
+    LOG_TRACE("Insert greater or equal comparison");
+    return InsertFormula(new GreaterEqual(this), with_undo);
+}
+
+uint Document::InsertLessEqual(bool with_undo)
+{
+    LOG_TRACE("Insert less or equal comparison");
+    return InsertFormula(new LessEqual(this), with_undo);
+}
+
+uint Document::InsertNotEqual(bool with_undo)
+{
+    LOG_TRACE("Insert not equal comparison");
+    return InsertFormula(new NotEqual(this), with_undo);
+}
+
 uint Document::InsertSum(bool with_undo, bool replace)
 {
     LOG_TRACE("Insert sum");
@@ -1344,7 +1381,7 @@ bool Document::StoreUndo(const ElementId& parent_id, const int pos, const int si
     int undo_id;
     auto p = GetParent(parent_id);
     if (p && (p->type == ElementType::EQUATION || p->type == ElementType::ASSIGNMENT ||
-        p->type == ElementType::TEXT_EQUATION || p->type == ElementType::TEXT_ASSIGNMENT))
+        p->type == ElementType::TEXT_EQUATION || p->type == ElementType::TEXT_ASSIGNMENT || IsComparison(p->type)))
     {
         int _pos = yutovo::GetChildPos(p->id);
         undo_id = undo_base.Store(p->parent->id, _pos, 1);

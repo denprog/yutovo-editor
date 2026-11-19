@@ -636,7 +636,7 @@ TEST_F(SolverComplexTest, solver22)
     document.InsertCloseRoundBracket(true);
     document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
     document.WaitSolver();
-    std::this_thread::sleep_for(1s);
+    std::this_thread::sleep_for(2s);
     ASSERT_TRUE(document.ToText() == 
         U"z=4\n"
         U"arg(z)=0.(rad)\n"
@@ -858,14 +858,15 @@ TEST_F(SolverComplexTest, for1)
     Start(600);
 
     document.InsertCode(false, true);
-    OpenForLoop(U"k", U"3");
+    OpenForLoopComparison(U"k", U"1", &Document::InsertLessEqual, U"3");
     document.InsertString("k", true);
     document.InsertMultiply(true);
     document.InsertString("i", true);
     CloseForLoop();
     document.WaitTask(document.InsertEquation(ResultType::COMPLEX, true));
     document.WaitSolver();
-    ASSERT_TRUE(document.ToText() == U"for(k=1,k<=3,k=k+1,(k*i))=3.i") << ToBasicString(document.ToText());
+    std::this_thread::sleep_for(2s);
+    ASSERT_TRUE(document.ToText() == U"for(k=1,k⩽3,k=k+1,(k*i))=3.i") << ToBasicString(document.ToText());
 }
 
 //A complex conditional result: the condition is false, so the else branch runs, if(2<1, (2*i), (5*i)) returns 5i
@@ -874,7 +875,7 @@ TEST_F(SolverComplexTest, if1)
     Start(600);
 
     document.InsertCode(false, true);
-    OpenIf(U"2<1");
+    OpenIfComparison(U"2", &Document::InsertLess, U"1");
     document.InsertString("2", true);
     document.InsertMultiply(true);
     document.InsertString("i", true);

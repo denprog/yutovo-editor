@@ -30,6 +30,7 @@ namespace yutovo
 using namespace yutovo_calculator;
 
 class Window;
+class Elements;
 
 typedef std::shared_ptr<Window> WindowPtr;
 
@@ -101,7 +102,13 @@ enum class ElementType
     VECTOR_REAL_RESULT,
     VECTOR_RATIONAL_RESULT,
     VECTOR_COMPLEX_RESULT,
-    VECTOR
+    VECTOR,
+    EQUAL,
+    GREATER,
+    LESS,
+    GREATER_EQUAL,
+    LESS_EQUAL,
+    NOT_EQUAL
 };
 
 enum class IdentifierType
@@ -488,6 +495,10 @@ extern std::string base64_chars;
 
 std::string Base64Encode(const std::vector<unsigned char>& picture);
 std::vector<unsigned char> Base64Decode(const std::string& base64);
+
+bool IsComparison(const ElementType type);
+
+int BracketDepth(Elements* _elements, const int count);
 
 #define LOG_TRACE(...) \
     if (logger->GetLevel() <= LogLevel::LEVEL_TRACE) \

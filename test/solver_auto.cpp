@@ -1847,7 +1847,7 @@ TEST_F(SolverAutoTest, solver43)
     document.MoveCaretRight(false);
     document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
     document.WaitSolver();
-    std::this_thread::sleep_for(600ms);
+    std::this_thread::sleep_for(2s);
     ASSERT_TRUE(document.ToText() ==
         U"(1)/(2)=0.5\n"
         U"(1)/(2)=(1)/(2)"
@@ -3041,9 +3041,9 @@ TEST_F(SolverAutoTest, for1)
     document.WaitSolver();
     document.MoveCaretRight(false);
     document.InsertParagraph(true);
-    OpenForLoop(U"i", U"10");
+    OpenForLoopComparison(U"i", U"1", &Document::InsertLessEqual, U"10");
     document.InsertString("u", true);
-    document.InsertString("=", true);
+    document.InsertAssignment(true);
     document.InsertString("u", true);
     document.InsertPlus(true);
     document.InsertString("i", true);
@@ -3051,10 +3051,269 @@ TEST_F(SolverAutoTest, for1)
     document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
     document.WaitSolver();
     std::this_thread::sleep_for(2s);
-    ASSERT_TRUE(document.ToText() == U"u=0\nfor(i=1,i<=10,i=i+1,(u=u+i))=55.") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.ToText() == U"u=0\nfor(i=1,i⩽10,i=i+1,(u=u+i))=55.") << ToBasicString(document.ToText());
 }
 
-//The auto result type solves the conditional as a real result
+//A descending loop with the > comparison element: for(i=10,i>0,i=i-1,(u=u+i))
+TEST_F(SolverAutoTest, for2)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.InsertString("u", true);
+    document.InsertAssignment(true);
+    document.InsertString("0", true);
+    document.WaitSolver();
+    document.MoveCaretRight(false);
+    document.InsertParagraph(true);
+    OpenForLoopComparison(U"i", U"10", &Document::InsertGreater, U"0", false);
+    document.InsertString("u", true);
+    document.InsertAssignment(true);
+    document.InsertString("u", true);
+    document.InsertPlus(true);
+    document.InsertString("i", true);
+    CloseForLoop();
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(2s);
+    ASSERT_TRUE(document.ToText() == U"u=0\nfor(i=10,i>0,i=i-1,(u=u+i))=55.") << ToBasicString(document.ToText());
+}
+
+//A descending loop with the >= comparison element: for(i=10,i>=1,i=i-1,(u=u+i))
+TEST_F(SolverAutoTest, for3)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.InsertString("u", true);
+    document.InsertAssignment(true);
+    document.InsertString("0", true);
+    document.WaitSolver();
+    document.MoveCaretRight(false);
+    document.InsertParagraph(true);
+    OpenForLoopComparison(U"i", U"10", &Document::InsertGreaterEqual, U"1", false);
+    document.InsertString("u", true);
+    document.InsertAssignment(true);
+    document.InsertString("u", true);
+    document.InsertPlus(true);
+    document.InsertString("i", true);
+    CloseForLoop();
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(2s);
+    ASSERT_TRUE(document.ToText() == U"u=0\nfor(i=10,i⩾1,i=i-1,(u=u+i))=55.") << ToBasicString(document.ToText());
+}
+
+//A loop that runs once with the == comparison element: for(i=1,i==1,i=i+1,(u=u+i))
+TEST_F(SolverAutoTest, for4)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.InsertString("u", true);
+    document.InsertAssignment(true);
+    document.InsertString("0", true);
+    document.WaitSolver();
+    document.MoveCaretRight(false);
+    document.InsertParagraph(true);
+    OpenForLoopComparison(U"i", U"1", &Document::InsertEqual, U"1");
+    document.InsertString("u", true);
+    document.InsertAssignment(true);
+    document.InsertString("u", true);
+    document.InsertPlus(true);
+    document.InsertString("i", true);
+    CloseForLoop();
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(2s);
+    ASSERT_TRUE(document.ToText() == U"u=0\nfor(i=1,i=1,i=i+1,(u=u+i))=1.") << ToBasicString(document.ToText());
+}
+
+//A nested loop: for(k=1,k⩽3,k=k+1,(v=0,for(j=1,j⩽k,j=j+1,(v=v+k*j)),u=u+v)) sums the multiplication
+//tables of every k - the calculator resets the block-local v on every iteration, u accumulates
+TEST_F(SolverAutoTest, for6)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.InsertString("u", true);
+    document.InsertAssignment(true);
+    document.InsertString("0", true);
+    document.WaitSolver();
+    document.MoveCaretRight(false);
+    document.InsertParagraph(true);
+    OpenForLoopComparison(U"k", U"1", &Document::InsertLessEqual, U"3");
+    //v = 0
+    document.InsertString("v", true);
+    document.InsertAssignment(true);
+    document.InsertString("0", true);
+    document.InsertComma(true);
+    //the inner loop over j up to the outer variable k
+    OpenForLoopComparison(U"j", U"1", &Document::InsertLessEqual, U"k");
+    document.InsertString("v", true);
+    document.InsertAssignment(true);
+    document.InsertString("v", true);
+    document.InsertPlus(true);
+    document.InsertString("k", true);
+    document.InsertMultiply(true);
+    document.InsertString("j", true);
+    CloseForLoop();
+    document.InsertComma(true);
+    //u = u + v
+    document.InsertString("u", true);
+    document.InsertAssignment(true);
+    document.InsertString("u", true);
+    document.InsertPlus(true);
+    document.InsertString("v", true);
+    CloseForLoop();
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(2s);
+    ASSERT_TRUE(document.ToText() == U"u=0\nfor(k=1,k⩽3,k=k+1,(v=0,for(j=1,j⩽k,j=j+1,(v=v+k*j)),u=u+v))=25.") << ToBasicString(document.ToText());
+}
+
+//A conditional inside a loop body: for(k=1,k⩽5,k=k+1,(u=u+if(k≠2,(k),(0)))) skips k=2
+TEST_F(SolverAutoTest, for7)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.InsertString("u", true);
+    document.InsertAssignment(true);
+    document.InsertString("0", true);
+    document.WaitSolver();
+    document.MoveCaretRight(false);
+    document.InsertParagraph(true);
+    OpenForLoopComparison(U"k", U"1", &Document::InsertLessEqual, U"5");
+    document.InsertString("u", true);
+    document.InsertAssignment(true);
+    document.InsertString("u", true);
+    document.InsertPlus(true);
+    //if(k<>2,(k),(0))
+    document.InsertString(U"if", true);
+    document.InsertOpenRoundBracket(true);
+    document.InsertString("k", true);
+    document.WaitTask(document.InsertNotEqual(true));
+    document.InsertString("2", true);
+    document.InsertComma(true);
+    document.InsertOpenRoundBracket(true);
+    document.InsertString("k", true);
+    document.InsertCloseRoundBracket(true);
+    document.InsertComma(true);
+    document.InsertOpenRoundBracket(true);
+    document.InsertString("0", true);
+    document.InsertCloseRoundBracket(true);
+    document.InsertCloseRoundBracket(true); //close the if call
+    CloseForLoop();
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(2s);
+    ASSERT_TRUE(document.ToText() == U"u=0\nfor(k=1,k⩽5,k=k+1,(u=u+if(k≠2,(k),(0))))=13.") << ToBasicString(document.ToText());
+}
+
+//A nested conditional: if(1<2,(if(2<1,(10),(20)),30),(40)) takes the outer then-branch, the inner else
+TEST_F(SolverAutoTest, if4)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    OpenIfComparison(U"1", &Document::InsertLess, U"2");
+    //if(2<1,(10),(20))
+    document.InsertString(U"if", true);
+    document.InsertOpenRoundBracket(true);
+    document.InsertString("2", true);
+    document.WaitTask(document.InsertLess(true));
+    document.InsertString("1", true);
+    document.InsertComma(true);
+    document.InsertOpenRoundBracket(true);
+    document.InsertString("10", true);
+    document.InsertCloseRoundBracket(true);
+    document.InsertComma(true);
+    document.InsertOpenRoundBracket(true);
+    document.InsertString("20", true);
+    document.InsertCloseRoundBracket(true);
+    document.InsertCloseRoundBracket(true); //close the inner if call
+    document.InsertComma(true);
+    document.InsertString("30", true);
+    NextIfBranch();
+    document.InsertString("40", true);
+    CloseIf();
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(2s);
+    ASSERT_TRUE(document.ToText() == U"if(1<2,(if(2<1,(10),(20)),30),(40))=30.") << ToBasicString(document.ToText());
+}
+
+//A loop inside a conditional branch: if(1<2,(v=0,for(i=1,i⩽3,i=i+1,(v=v+i)),v*2),(u*100)) doubles the
+//loop sum, the block-local v does not leak out of the branch
+TEST_F(SolverAutoTest, if5)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.InsertString("u", true);
+    document.InsertAssignment(true);
+    document.InsertString("0", true);
+    document.WaitSolver();
+    document.MoveCaretRight(false);
+    document.InsertParagraph(true);
+    OpenIfComparison(U"1", &Document::InsertLess, U"2");
+    //v = 0
+    document.InsertString("v", true);
+    document.InsertAssignment(true);
+    document.InsertString("0", true);
+    document.InsertComma(true);
+    //the loop inside the then-branch
+    OpenForLoopComparison(U"i", U"1", &Document::InsertLessEqual, U"3");
+    document.InsertString("v", true);
+    document.InsertAssignment(true);
+    document.InsertString("v", true);
+    document.InsertPlus(true);
+    document.InsertString("i", true);
+    CloseForLoop();
+    document.InsertComma(true);
+    //v*2
+    document.InsertString("v", true);
+    document.InsertMultiply(true);
+    document.InsertString("2", true);
+    NextIfBranch();
+    //u*100
+    document.InsertString("u", true);
+    document.InsertMultiply(true);
+    document.InsertString("100", true);
+    CloseIf();
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(2s);
+    ASSERT_TRUE(document.ToText() == U"u=0\nif(1<2,(v=0,for(i=1,i⩽3,i=i+1,(v=v+i)),v*2),(u*100))=12.") << ToBasicString(document.ToText());
+}
+
+//A loop that stops before the bound with the <> comparison element: for(i=1,i<>4,i=i+1,(u=u+i))
+TEST_F(SolverAutoTest, for5)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.InsertString("u", true);
+    document.InsertAssignment(true);
+    document.InsertString("0", true);
+    document.WaitSolver();
+    document.MoveCaretRight(false);
+    document.InsertParagraph(true);
+    OpenForLoopComparison(U"i", U"1", &Document::InsertNotEqual, U"4");
+    document.InsertString("u", true);
+    document.InsertAssignment(true);
+    document.InsertString("u", true);
+    document.InsertPlus(true);
+    document.InsertString("i", true);
+    CloseForLoop();
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(2s);
+    ASSERT_TRUE(document.ToText() == U"u=0\nfor(i=1,i≠4,i=i+1,(u=u+i))=6.") << ToBasicString(document.ToText());
+}
+
+//The auto result type solves the conditional as a real result, the condition is a comparison element
 TEST_F(SolverAutoTest, if1)
 {
     Start(600);
@@ -3066,9 +3325,9 @@ TEST_F(SolverAutoTest, if1)
     document.WaitSolver();
     document.MoveCaretRight(false);
     document.InsertParagraph(true);
-    OpenIf(U"1<2");
+    OpenIfComparison(U"1", &Document::InsertLess, U"2");
     document.InsertString("u", true);
-    document.InsertString("=", true);
+    document.InsertAssignment(true);
     document.InsertString("u", true);
     document.InsertPlus(true);
     document.InsertString("1", true);
@@ -3085,6 +3344,72 @@ TEST_F(SolverAutoTest, if1)
     document.WaitSolver();
     std::this_thread::sleep_for(2s);
     ASSERT_TRUE(document.ToText() == U"u=0\nif(1<2,(u=u+1,u*10),(u*100))=10.") << ToBasicString(document.ToText());
+}
+
+//A true >= comparison element takes the then-branch: if(2>=1,(u=u+1,u*10),(u*100))
+TEST_F(SolverAutoTest, if2)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.InsertString("u", true);
+    document.InsertAssignment(true);
+    document.InsertString("0", true);
+    document.WaitSolver();
+    document.MoveCaretRight(false);
+    document.InsertParagraph(true);
+    OpenIfComparison(U"2", &Document::InsertGreaterEqual, U"1");
+    document.InsertString("u", true);
+    document.InsertAssignment(true);
+    document.InsertString("u", true);
+    document.InsertPlus(true);
+    document.InsertString("1", true);
+    document.InsertComma(true);
+    document.InsertString("u", true);
+    document.InsertMultiply(true);
+    document.InsertString("10", true);
+    NextIfBranch();
+    document.InsertString("u", true);
+    document.InsertMultiply(true);
+    document.InsertString("100", true);
+    CloseIf();
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(2s);
+    ASSERT_TRUE(document.ToText() == U"u=0\nif(2⩾1,(u=u+1,u*10),(u*100))=10.") << ToBasicString(document.ToText());
+}
+
+//A false <> comparison element takes the else-branch: if(1<>1,(u=u+1,u*10),(u*100))
+TEST_F(SolverAutoTest, if3)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.InsertString("u", true);
+    document.InsertAssignment(true);
+    document.InsertString("0", true);
+    document.WaitSolver();
+    document.MoveCaretRight(false);
+    document.InsertParagraph(true);
+    OpenIfComparison(U"1", &Document::InsertNotEqual, U"1");
+    document.InsertString("u", true);
+    document.InsertAssignment(true);
+    document.InsertString("u", true);
+    document.InsertPlus(true);
+    document.InsertString("1", true);
+    document.InsertComma(true);
+    document.InsertString("u", true);
+    document.InsertMultiply(true);
+    document.InsertString("10", true);
+    NextIfBranch();
+    document.InsertString("u", true);
+    document.InsertMultiply(true);
+    document.InsertString("100", true);
+    CloseIf();
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(2s);
+    ASSERT_TRUE(document.ToText() == U"u=0\nif(1≠1,(u=u+1,u*10),(u*100))=0.") << ToBasicString(document.ToText());
 }
 
 //The strings of a solved result are not editable, but the text cursor is shown over them

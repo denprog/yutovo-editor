@@ -283,6 +283,9 @@ Use dedicated insert methods for operators:
 - `InsertPower(true)` — wraps the preceding string element into the base automatically; caret moves to exponent.
 - `InsertOpenRoundBracket(true)` / `InsertCloseRoundBracket(true)`
 - `InsertComma(true)`
+- `InsertAssignment(true)` — the `:=` element; this is also the `=` of a for/if head and block statement (`for(i=1,...)`, `(u=u+i)`), its parser string is the plain `=`.
+- `InsertEqual(true)` / `InsertGreater(true)` / `InsertLess(true)` / `InsertGreaterEqual(true)` / `InsertLessEqual(true)` / `InsertNotEqual(true)` — the comparison elements; never type `"="`, `"<"`, `">"`, `"<="`, `">="`, `"<>"` as strings: the elements display the single signs `= > < ⩾ ⩽ ≠` (the equal comparison draws its `=` bold - `Equal::Rescale`; U+2A7E/U+2A7D/U+2260) and emit the parenthesized calculator form `(a==b)`, `(a<=b)` in `ToParserString`, so string-typed signs produce a different `ToText`/`ToHtml` and a different document structure.
+- A comma or a closing bracket typed in the right part of an assignment or a comparison automatically goes into the containing row (the argument separator of the enclosing `if`/`for`/call), so tests type `for`/`if` heads left-to-right without extra caret moves; the same applies to the wrap of a new statement element: it never crosses an unclosed bracket or a comma of the same argument list.
 
 ### Power behavior
 `InsertPower(true)` after a string moves that string into the base and places the caret in the exponent.

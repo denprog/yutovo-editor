@@ -528,24 +528,26 @@ struct SolverTest : DocumentTest
             exit_top_power();
     }
 
-    //Type the loop head "for(counter=1,counter<=bound,counter=counter+1,(" and leave the caret inside the block;
-    //the '=' signs and the comparison sign have no dedicated insert methods, they are typed as plain strings
-    void OpenForLoop(const std::u32string& counter, const std::u32string& bound)
+    void OpenForLoopComparison(const std::u32string& counter, const std::u32string& init,
+        uint (Document::*insert_comparison)(bool), const std::u32string& bound, bool ascending = true)
     {
         document.InsertString(U"for", true);
         document.InsertOpenRoundBracket(true);
         document.InsertString(counter, true);
-        document.InsertString(U"=", true);
-        document.InsertString(U"1", true);
+        document.InsertAssignment(true);
+        document.InsertString(init, true);
         document.InsertComma(true);
         document.InsertString(counter, true);
-        document.InsertString(U"<=", true);
+        document.WaitTask((document.*insert_comparison)(true));
         document.InsertString(bound, true);
         document.InsertComma(true);
         document.InsertString(counter, true);
-        document.InsertString(U"=", true);
+        document.InsertAssignment(true);
         document.InsertString(counter, true);
-        document.InsertPlus(true);
+        if (ascending)
+            document.InsertPlus(true);
+        else
+            document.InsertMinus(true);
         document.InsertString(U"1", true);
         document.InsertComma(true);
         document.InsertOpenRoundBracket(true);
@@ -558,13 +560,15 @@ struct SolverTest : DocumentTest
         document.InsertCloseRoundBracket(true);
     }
 
-    //Type the conditional head "if(condition,(" and leave the caret inside the then-branch;
-    //the comparison sign has no dedicated insert method, it is typed as a plain string
-    void OpenIf(const std::u32string& condition)
+    //Type the conditional head "if((left SIGN right),(" sequentially, left to right; the comparison
+    //wraps only its operand, the comma typed in its right part leaves it into the containing row
+    void OpenIfComparison(const std::u32string& left, uint (Document::*insert_comparison)(bool), const std::u32string& right)
     {
         document.InsertString(U"if", true);
         document.InsertOpenRoundBracket(true);
-        document.InsertString(condition, true);
+        document.InsertString(left, true);
+        document.WaitTask((document.*insert_comparison)(true));
+        document.InsertString(right, true);
         document.InsertComma(true);
         document.InsertOpenRoundBracket(true);
     }

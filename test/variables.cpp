@@ -361,11 +361,7 @@ TEST_F(VariablesTest, variables4)
     document.InsertString("7", true);
     document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
     document.WaitSolver();
-#ifdef _WIN32
     std::this_thread::sleep_for(2s);
-#else
-    std::this_thread::sleep_for(600ms);
-#endif
     ASSERT_TRUE(document.ToText() == 
         U"d=4\n" \
         U"d+5=9.\n" \
@@ -1316,7 +1312,7 @@ TEST_F(VariablesTest, variables19)
 #ifdef _WIN32
     std::this_thread::sleep_for(6s);
 #else
-    std::this_thread::sleep_for(2s);
+    std::this_thread::sleep_for(3s);
 #endif
     ASSERT_TRUE(document.ToText() == 
         U"v=3\n" \

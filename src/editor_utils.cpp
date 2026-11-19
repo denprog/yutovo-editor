@@ -50,6 +50,7 @@
 #include "formulas/matrix.h"
 #include "formulas/limit.h"
 #include "formulas/vector.h"
+#include "formulas/comparison.h"
 #include "formulas/evaluation_bar.h"
 #include "document.h"
 #define STB_IMAGE_WRITE_IMPLEMENTATION
@@ -389,7 +390,13 @@ Element* CreateFromJson(Element* parent, Document* document, const rapidjson::Va
             {ElementType::MATRIX, &Matrix::FromJson},
             {ElementType::DETERMINANT, &Determinant::FromJson},
             {ElementType::LIMIT, &Limit::FromJson},
-            {ElementType::VECTOR, &Vector::FromJson}
+            {ElementType::VECTOR, &Vector::FromJson},
+            {ElementType::EQUAL, &Equal::FromJson},
+            {ElementType::GREATER, &Greater::FromJson},
+            {ElementType::LESS, &Less::FromJson},
+            {ElementType::GREATER_EQUAL, &GreaterEqual::FromJson},
+            {ElementType::LESS_EQUAL, &LessEqual::FromJson},
+            {ElementType::NOT_EQUAL, &NotEqual::FromJson}
         };
 
     if (!value.HasMember("type") || !value["type"].IsInt())
@@ -747,6 +754,28 @@ std::vector<unsigned char> Base64Decode(const std::string& base64)
         }
     }
     return res;
+}
+
+bool IsComparison(const ElementType type)
+{
+    return type == ElementType::EQUAL || type == ElementType::GREATER || type == ElementType::LESS ||
+        type == ElementType::GREATER_EQUAL || type == ElementType::LESS_EQUAL || type == ElementType::NOT_EQUAL;
+}
+
+int BracketDepth(Elements* _elements, const int count)
+{
+    int depth = 0;
+    for (int i = 0; i < count && i < _elements->Count(); ++i)
+    {
+        for (auto c : _elements->Get(i)->ToText())
+        {
+            if (c == U'(' || c == U'[')
+                ++depth;
+            else if (c == U')' || c == U']')
+                --depth;
+        }
+    }
+    return depth;
 }
 
 }

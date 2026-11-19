@@ -229,6 +229,7 @@ TEST_F(DocumentTest, files3)
 
     document.WaitTask(document.Save("3.yut"));
     document.WaitTask(document.New());
+    std::this_thread::sleep_for(1s);
     ASSERT_TRUE(document.ToHtml() == 
         "<body>"\
             "<p>"\

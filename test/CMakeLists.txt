@@ -105,6 +105,8 @@ add_executable(${PROJECT_NAME}_tests
     solver_matrix.cpp
     vector.cpp
     solver_vector.cpp
+    comparison.cpp
+    solver_comparison.cpp
     hidden.cpp
     arrays.cpp
     pdf.cpp
