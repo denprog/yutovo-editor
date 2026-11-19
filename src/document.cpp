@@ -4512,11 +4512,12 @@ bool Document::HasErrorMarks(const ElementId& _id)
 }
 
 void Document::SetIdentifiers(const uint code_id, const std::vector<std::string>& variables, const std::vector<std::string>& functions, 
-    const std::vector<std::string>& operations, const std::vector<std::string>& units, const std::vector<std::string>& strings)
+    const std::vector<std::string>& statements, const std::vector<std::string>& operations, const std::vector<std::string>& units,
+    const std::vector<std::string>& strings)
 {
     {
         std::lock_guard<std::recursive_mutex> lock(identifiers_mutex);
-        identifiers[code_id] = Identifiers{variables, functions, units, operations, strings};
+        identifiers[code_id] = Identifiers{variables, functions, units, operations, statements, strings};
     }
     
     std::vector<ElementId> code_blocks;
@@ -4546,6 +4547,8 @@ IdentifierType Document::FindIdentifier(const uint code_id, const std::string& s
         return IdentifierType::FUNCTION;
     if (std::find(id.units.begin(), id.units.end(), str) != id.units.end())
         return IdentifierType::UNIT;
+    if (std::find(id.statements.begin(), id.statements.end(), str) != id.statements.end())
+        return IdentifierType::STATEMENT;
     return IdentifierType::NONE;
 }
 
@@ -4571,6 +4574,11 @@ void Document::GetIdentifiers(const uint code_id, const std::string& left, std::
     {
         if (op.rfind(left, 0) == 0)
             res.push_back(std::make_pair(IdentifierType::OPERATION, op));
+    }
+    for (auto& st : ids.statements)
+    {
+        if (st.rfind(left, 0) == 0)
+            res.push_back(std::make_pair(IdentifierType::STATEMENT, st));
     }
     for (auto& str : ids.strings)
     {
@@ -4619,6 +4627,11 @@ void Document::GetPrompt(std::vector<std::pair<IdentifierType, std::string>>& re
     {
         if (op.rfind(left, 0) == 0)
             res.push_back(std::make_pair(IdentifierType::OPERATION, op));
+    }
+    for (auto& st : ids.statements)
+    {
+        if (st.rfind(left, 0) == 0)
+            res.push_back(std::make_pair(IdentifierType::STATEMENT, st));
     }
     for (auto& var : ids.variables)
     {

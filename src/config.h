@@ -63,6 +63,7 @@ struct Config
     Color numbers_color = Color::Blue();
     Color variables_color = Color::FromHex("#00193e");
     Color functions_color = Color::FromHex("#ff5500");
+    Color statements_color = Color::Blue();
     Color units_color = Color::FromHex("#005500");
     Color shapes_color = Color::Black();
     Color error_marks_color = Color::Red();

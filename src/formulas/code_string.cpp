@@ -237,6 +237,9 @@ void CodeString::Draw() const
                     case IdentifierType::FUNCTION:
                         color1 = std::make_pair(s.length(), document->config.functions_color);
                         break;
+                    case IdentifierType::STATEMENT:
+                        color1 = std::make_pair(s.length(), document->config.statements_color);
+                        break;
                     case IdentifierType::UNIT:
                         color1 = std::make_pair(s.length(), document->config.units_color);
                         break;

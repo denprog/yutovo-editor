@@ -425,7 +425,8 @@ public:
     bool HasErrorMarks(const ElementId& _id);
 
     void SetIdentifiers(const uint code_id, const std::vector<std::string>& variables, const std::vector<std::string>& functions, 
-        const std::vector<std::string>& operations, const std::vector<std::string>& units, const std::vector<std::string>& strings);
+        const std::vector<std::string>& statements, const std::vector<std::string>& operations, const std::vector<std::string>& units, 
+        const std::vector<std::string>& strings);
     IdentifierType FindIdentifier(const uint code_id, const std::string& str);
     void GetIdentifiers(const uint code_id, const std::string& left, std::vector<std::pair<IdentifierType, std::string>>& res);
     void GetPrompt(std::vector<std::pair<IdentifierType, std::string>>& res);

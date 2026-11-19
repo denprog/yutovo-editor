@@ -118,7 +118,8 @@ enum class IdentifierType
     FUNCTION,
     UNIT,
     STRING,
-    OPERATION
+    OPERATION,
+    STATEMENT
 };
 
 enum class MouseHoldType
@@ -435,6 +436,7 @@ struct Identifiers
     std::vector<std::string> functions;
     std::vector<std::string> units;
     std::vector<std::string> operations;
+    std::vector<std::string> statements;
     std::vector<std::string> strings;
 };
 

@@ -1991,6 +1991,21 @@ bool ListIdentifiersSolverTask::Execute(WebSocketPtr socket, Result& result)
         }
     }
 
+    std::vector<std::string> statements;
+    if (doc.HasMember("Statements") && doc["Statements"].IsArray())
+    {
+        auto arr = doc["Statements"].GetArray();
+        for (rapidjson::SizeType i = 0; i < arr.Size(); ++i)
+        {
+            if (arr[i].IsObject())
+            {
+                auto obj = arr[i].GetObject();
+                if (obj.HasMember("name") && obj["name"].IsString())
+                    statements.push_back(obj["name"].GetString());
+            }
+        }
+    }
+
     if (doc.HasMember("Strings") && doc["Strings"].IsArray())
     {
         auto arr = doc["Strings"].GetArray();
@@ -2042,7 +2057,7 @@ bool ListIdentifiersSolverTask::Execute(WebSocketPtr socket, Result& result)
         }
     }
 
-    document->SetIdentifiers(code_id, variables, functions, operations, units, strings);
+    document->SetIdentifiers(code_id, variables, functions, statements, operations, units, strings);
     return true;
 }
 

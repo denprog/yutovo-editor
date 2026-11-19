@@ -159,6 +159,8 @@ bool Config::FromJson(const std::string& json)
         variables_color = Color::FromInt(doc["variables_color"].GetInt64());
     if (doc.HasMember("functions_color") && doc["functions_color"].IsInt64())
         functions_color = Color::FromInt(doc["functions_color"].GetInt64());
+    if (doc.HasMember("statements_color") && doc["statements_color"].IsInt64())
+        statements_color = Color::FromInt(doc["statements_color"].GetInt64());
     if (doc.HasMember("units_color") && doc["units_color"].IsInt64())
         units_color = Color::FromInt(doc["units_color"].GetInt64());
     if (doc.HasMember("shapes_color") && doc["shapes_color"].IsInt64())

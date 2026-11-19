@@ -7,6 +7,7 @@
 
 #include <gtest/gtest.h>
 #include "mock.h"
+#include "formulas/code_block.h"
 #include "style.h"
 
 namespace yutovo_test
@@ -2141,4 +2142,24 @@ TEST_F(CodeTest, number_gaps_hexadecimal)
     CheckNumberGaps(data, 8, 4);
 }
 
+//The builtin identifiers of the calculator arrive asynchronously and color the strings: the call
+//keywords for/if/loop are operations and color like functions (Document::FindIdentifier)
+TEST_F(CodeTest, identifier_operations)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    std::this_thread::sleep_for(2s);
+    auto el = document.FindByType(ElementId{0}, ElementType::CODE_BLOCK);
+    CodeBlock* block = (CodeBlock*)el.get();
+    ASSERT_TRUE(block->code_id != 0);
+    ASSERT_TRUE(document.FindIdentifier(block->code_id, "sin") == IdentifierType::FUNCTION);
+    //the call keywords of the grammar are statements with their own color, not operations
+    ASSERT_TRUE(document.FindIdentifier(block->code_id, "for") == IdentifierType::STATEMENT);
+    ASSERT_TRUE(document.FindIdentifier(block->code_id, "if") == IdentifierType::STATEMENT);
+    ASSERT_TRUE(document.FindIdentifier(block->code_id, "loop") == IdentifierType::STATEMENT);
+    ASSERT_TRUE(document.FindIdentifier(block->code_id, "sum") == IdentifierType::NONE);
+    ASSERT_TRUE(document.FindIdentifier(block->code_id, "x") == IdentifierType::NONE);
+    ASSERT_TRUE(document.config.statements_color == Color::Blue());
+}
 }
