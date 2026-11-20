@@ -3369,6 +3369,44 @@ TEST_F(SolverAutoTest, for5)
     ASSERT_TRUE(document.ToText() == U"u=0\nfor(i=1,i≠4,i=i+1,(u=u+i))=6.") << ToBasicString(document.ToText());
 }
 
+//Editing a fraction inside the loop head re-solves the loop
+TEST_F(SolverAutoTest, for8)
+{
+    Start(600);
+
+    EXPECT_CALL(window_mock, Translate).WillRepeatedly(
+        [&](ElementId id, const std::u32string& str)
+        {
+            return str;
+        });
+
+    document.Load("../../test/tests/for8.yut");
+    document.WaitLoad();
+    document.WaitSolver();
+    std::this_thread::sleep_for(2s);
+    ASSERT_TRUE(document.ToText() == U"for(i=1,i⩽(4)/(3),i=i+(1)/(3),(i))=1(1)/(3)") << ToBasicString(document.ToText());
+
+    //Backspace deletes the 3 - the denominator of the fraction becomes empty
+    document.WaitTask(document.DeleteElements(true, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(2s);
+    ASSERT_TRUE(document.ToText() == U"for(i=1,i⩽(4)/(3),i=i+(1)/(),(i))=Syntax error") << ToBasicString(document.ToText());
+
+    //undo restores the 3 and the loop solves again
+    document.Undo();
+    document.WaitUndo();
+    document.WaitSolver();
+    std::this_thread::sleep_for(2s);
+    ASSERT_TRUE(document.ToText() == U"for(i=1,i⩽(4)/(3),i=i+(1)/(3),(i))=1(1)/(3)") << ToBasicString(document.ToText());
+
+    //redo deletes the 3 again - the syntax error comes back
+    document.Redo();
+    document.WaitRedo();
+    document.WaitSolver();
+    std::this_thread::sleep_for(2s);
+    ASSERT_TRUE(document.ToText() == U"for(i=1,i⩽(4)/(3),i=i+(1)/(),(i))=Syntax error") << ToBasicString(document.ToText());
+}
+
 //The auto result type solves the conditional as a real result, the condition is a comparison element
 TEST_F(SolverAutoTest, if1)
 {

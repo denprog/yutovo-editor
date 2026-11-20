@@ -218,7 +218,12 @@ bool Assignment::IsPartOfFormula() const
 
 void Assignment::Solve()
 {
-    if (!auto_solve || IsPartOfFormula())
+    if (IsPartOfFormula())
+    {
+        Element::Solve(); //re-solve the enclosing formula
+        return;
+    }
+    if (!auto_solve)
         return;
 
     MiddleShapeFormula::Solve();
