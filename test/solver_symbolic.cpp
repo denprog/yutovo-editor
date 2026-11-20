@@ -6,6 +6,7 @@
  */
 
 #include <gtest/gtest.h>
+#include <functional>
 #include "mock.h"
 #include "style.h"
 #include "formulas/result.h"
@@ -1450,6 +1451,49 @@ TEST_F(SolverSymbolicTest, parse_json2)
     SymbolicRealResult row(parent.get());
     ASSERT_TRUE(row.AddJsonElements(json));
     ASSERT_TRUE(CountElements(&row, ElementType::CODE_ROW) == 3) << CountElements(&row, ElementType::CODE_ROW);
+}
+
+//The base of a power in a solved result sits exactly on the baseline of the left part - CodeColumn::Remake must
+//account for the child's top offset (its top margin), not pass the raw child baseline to the containing row
+TEST_F(SolverSymbolicTest, pow_baseline1)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.InsertString("b", true);
+    document.InsertMultiply(true);
+    document.InsertString("b", true);
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == U"b*b=pow(b,2)") << ToBasicString(document.ToText());
+
+    //collect the absolute rects of every 'b' string: the two in the left part and the power base in the result
+    std::vector<Rect> bottoms;
+    std::function<void(const Element*)> collect =
+        [&](const Element* el)
+        {
+            if (el->type == ElementType::CODE_STRING && el->ToText() == U"b" && el->elements->Count() > 0)
+            {
+                Rect r = el->GetAbsoluteRect();
+                bottoms.push_back(r);
+            }
+            if (el->type == ElementType::CODE_STRING)
+                return;
+            for (int i = 0; i < el->elements->Count(); ++i)
+                collect(el->elements->Get(i).get());
+        };
+    collect(document.GetElement(ElementId{0}).get());
+    ASSERT_TRUE(bottoms.size() == 3) << bottoms.size();
+
+    //the bottom edges of all 'b' glyphs share one baseline
+    for (size_t i = 1; i < bottoms.size(); ++i)
+    {
+        ASSERT_TRUE(bottoms[i].GetBottom() == bottoms[0].GetBottom()) <<
+            "b[" << i << "] bottom " << bottoms[i].GetBottom() << " != b[0] bottom " << bottoms[0].GetBottom();
+        ASSERT_TRUE(bottoms[i].top == bottoms[0].top) <<
+            "b[" << i << "] top " << bottoms[i].top << " != b[0] top " << bottoms[0].top;
+    }
 }
 
 //A symbolic real loop result: for(i=1,i<=10,i=i+1,(u=u+i)) sums 1..10 exactly

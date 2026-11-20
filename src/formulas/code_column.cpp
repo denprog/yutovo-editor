@@ -55,7 +55,7 @@ bool CodeColumn::Remake(bool with_elements)
 
     //align the baseline
     if (elements->Count() == 1)
-        baseline = elements->Get(0)->baseline;
+        baseline = elements->Get(0)->rect.top + elements->Get(0)->baseline;
     else
         baseline = rect.height / 2;
 
