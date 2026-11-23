@@ -71,6 +71,9 @@ Task::Task(ElementPtr _text, const uint _id) :
 
 void Task::Remake(ElementId _id, bool move_into_view)
 {
+    //every content change re-lays-out through here - the search match state goes stale, the main loop recomputes it after the task batch
+    document->search_state_dirty = true;
+
     for (auto ch : document->changed_elements)
     {
         if (IsChild(ch, _id))
@@ -1614,6 +1617,7 @@ bool NewTask::Execute()
     document->current_formula_format = document->formula_formats->GetFormat("Code");
     document->text.reset(new Text(text->document, text->document->current_text_format));
     document->text->Remake(true);
+    document->search_state_dirty = true; //the whole tree was replaced - the search state goes stale
     document->MoveCaretToDocumentBegin(false);
     document->Redraw();
     return true;
@@ -2048,6 +2052,7 @@ bool LoadTask::Execute()
                 document->ClearIncludes();
                 document->ClearExport();
                 document->text->Remake(true);
+                document->search_state_dirty = true; //the tree changed - the search state goes stale
                 document->text->ReSolve();
                 return false;
             }
@@ -2084,6 +2089,7 @@ bool LoadTask::Execute()
         document->InsertString(str, false);
     }
     document->text->Remake(true);
+    document->search_state_dirty = true; //the tree changed - the search state goes stale
     document->text->ReSolve();
 
     if (!include)
@@ -3117,6 +3123,226 @@ bool SetConfigTask::Execute()
     document->LoadNextInclude();
 
     window->OnSetConfig();
+
+    return true;
+}
+
+//SearchTask
+
+SearchTask::SearchTask(ElementPtr _text, const std::u32string& _str, bool _match_case, bool _whole_word) :
+    Task(_text),
+    str(_str),
+    match_case(_match_case),
+    whole_word(_whole_word)
+{
+}
+
+bool SearchTask::Execute()
+{
+    document->search_text = str;
+    document->search_match_case = match_case;
+    document->search_whole_word = whole_word;
+
+    if (document->search_text.empty())
+    {
+        //deactivating the search must not leave the last match selected
+        if (!document->selection.IsEmpty())
+        {
+            document->selection.Clear();
+            document->UpdateLastSelection();
+        }
+        document->UpdateSearchState();
+        document->Redraw(text->id, false);
+        return false;
+    }
+
+    //select the current match so that the first FindNext goes to the next one (the browser find behavior)
+    std::vector<CaretState> matches;
+    document->CollectSearchMatches(text, matches);
+    if (!matches.empty())
+    {
+        uint current = document->CurrentSearchMatch(matches);
+        uint start = matches[current].GetPos();
+        uint size = uint(document->search_text.length());
+        ElementPtr el = document->GetElement(matches[current].GetParent());
+        if (el && document->IsString(el))
+        {
+            document->selection.Clear();
+            document->selection.Add(el, start, size);
+            document->caret->SetState(CaretState(el->id, start + size), true);
+            document->UpdateCaretView();
+            document->UpdateLastSelection();
+            document->CaretMoved();
+        }
+    }
+
+    document->UpdateSearchState(matches);
+    document->Redraw(text->id, false);
+
+    return false;
+}
+
+//FindTask
+
+FindTask::FindTask(ElementPtr _text, bool _backward) :
+    Task(_text),
+    backward(_backward)
+{
+}
+
+bool FindTask::Execute()
+{
+    if (document->search_text.empty())
+    {
+        document->UpdateSearchState();
+        return false;
+    }
+
+    std::vector<CaretState> matches;
+    document->CollectSearchMatches(text, matches);
+    if (matches.empty())
+    {
+        document->UpdateSearchState();
+        return false;
+    }
+
+    //forward: the first match not before the caret (a match starting exactly at the caret counts - the caret sits at the end of the previous match);
+    //backward: the last match strictly before the start of the selection (or of the caret), so repeating backward does not select the same match again
+    size_t target = matches.size();
+    if (!backward)
+    {
+        CaretState caret_state = document->caret->GetCaretState();
+        for (size_t i = 0; i < matches.size(); ++i)
+        {
+            if (!(matches[i] < caret_state))
+            {
+                target = i;
+                break;
+            }
+        }
+        if (target == matches.size())
+            target = 0;
+    }
+    else
+    {
+        CaretState reference = document->caret->GetCaretState();
+        SelectionState selection_state = document->selection.GetState();
+        if (!selection_state.IsEmpty())
+            reference = CaretState(selection_state.state[0].id, selection_state.state[0].start);
+        for (size_t i = matches.size(); i > 0; --i)
+        {
+            if (matches[i - 1] < reference)
+            {
+                target = i - 1;
+                break;
+            }
+        }
+        if (target == matches.size())
+            target = matches.size() - 1;
+    }
+
+    //put the caret at the end of the match and select it
+    uint start = matches[target].GetPos();
+    uint size = uint(document->search_text.length());
+    ElementPtr el = document->GetElement(matches[target].GetParent());
+    if (!el || !document->IsString(el))
+        return false;
+
+    document->selection.Clear();
+    document->selection.Add(el, start, size);
+    document->caret->SetState(CaretState(el->id, start + size), true);
+
+    document->UpdateCaretView();
+    document->UpdateLastSelection();
+    document->UpdateFormats();
+    document->CaretMoved();
+
+    //the fresh selection makes the found match the current one
+    document->UpdateSearchState();
+
+    return false;
+}
+
+//ReplaceTask
+
+ReplaceTask::ReplaceTask(ElementPtr _text, const std::u32string& _str, bool _all, bool _with_undo) :
+    Task(_text),
+    str(_str),
+    all(_all)
+{
+    with_undo = _with_undo;
+}
+
+bool ReplaceTask::Execute()
+{
+    if (document->search_text.empty())
+    {
+        document->UpdateSearchState();
+        return false;
+    }
+
+    std::vector<CaretState> matches;
+    document->CollectSearchMatches(text, matches);
+    if (matches.empty())
+    {
+        document->UpdateSearchState();
+        return false;
+    }
+
+    //the single replace works on the current match; replace-all walks in reverse document order,
+    //so the earlier positions stay valid while the text changes
+    std::vector<CaretState> targets;
+    if (all)
+    {
+        targets = matches;
+        std::reverse(targets.begin(), targets.end());
+    }
+    else
+    {
+        targets.push_back(matches[document->CurrentSearchMatch(matches)]);
+    }
+
+    uint size = uint(document->search_text.length());
+    bool replaced = false;
+    for (auto& match : targets)
+    {
+        //select the match exactly like FindTask does
+        ElementPtr el = document->GetElement(match.GetParent());
+        if (!el || !document->IsString(el) || el->ToText().length() < match.GetPos() + size)
+            continue;
+        document->selection.Clear();
+        document->selection.Add(el, match.GetPos(), size);
+        document->caret->SetState(CaretState(el->id, match.GetPos() + size), true);
+
+        //type the replacement over the selected match - the regular editing path; an empty replacement just deletes the selection;
+        //the tasks run inline, so all their undo snapshots join this one undo step
+        bool done = false;
+        if (!str.empty())
+        {
+            StringFormat format;
+            if (document->GetStringFormat(el->id, format))
+            {
+                StringFormatPtr string_format = document->string_formats->GetFormat(format);
+                std::vector<ElementPtr> elements;
+                elements.emplace_back(new String(document, str, string_format));
+                done = InsertElementsTask(document->text, elements, with_undo, false, false).Execute();
+            }
+        }
+        else
+            done = DeleteElementsTask(document->text, true, with_undo).Execute();
+        replaced = replaced || done;
+    }
+
+    if (!replaced)
+        return false;
+
+    if (!all)
+    {
+        //move to the next match, like a plain FindNext
+        FindTask(document->text, false).Execute();
+    }
+    else
+        document->UpdateSearchState();
 
     return true;
 }

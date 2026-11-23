@@ -171,6 +171,8 @@ bool Config::FromJson(const std::string& json)
         formula_bg_color = Color::FromInt(doc["formula_bg_color"].GetInt64());
     if (doc.HasMember("bg_selection_color") && doc["bg_selection_color"].IsInt64())
         bg_selection_color = Color::FromInt(doc["bg_selection_color"].GetInt64());
+    if (doc.HasMember("search_highlight_color") && doc["search_highlight_color"].IsInt64())
+        search_highlight_color = Color::FromInt(doc["search_highlight_color"].GetInt64());
     
     return true;
 }

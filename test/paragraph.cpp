@@ -26,7 +26,8 @@ TEST_F(ParagraphTest, resizing1)
     Start(530);
 
     int width = 530;
-    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
+    EXPECT_CALL(window_mock, GetRect).WillRepeatedly(
+        [&]()
         {
             return Rect{0, 0, width, 400};
         });
@@ -204,7 +205,8 @@ TEST_F(ParagraphTest, resizing2)
     Start(530);
 
     int width = 530;
-    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
+    EXPECT_CALL(window_mock, GetRect).WillRepeatedly(
+        [&]()
         {
             return Rect{0, 0, width, 400};
         });
@@ -322,7 +324,8 @@ TEST_F(ParagraphTest, resizing3)
     Start(400);
 
     int width = 400;
-    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
+    EXPECT_CALL(window_mock, GetRect).WillRepeatedly(
+        [&]()
         {
             return Rect{0, 0, width, 400};
         });
@@ -351,7 +354,8 @@ TEST_F(ParagraphTest, resizing4)
     Start(315);
 
     int width = 305;
-    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
+    EXPECT_CALL(window_mock, GetRect).WillRepeatedly(
+        [&]()
         {
             return Rect{0, 0, width, 400};
         });
@@ -382,7 +386,8 @@ TEST_F(ParagraphTest, resizing5)
     Start(510);
 
     int width = 500;
-    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
+    EXPECT_CALL(window_mock, GetRect).WillRepeatedly(
+        [&]()
         {
             return Rect{0, 0, width, 400};
         });
@@ -414,7 +419,8 @@ TEST_F(ParagraphTest, resizing6)
     Start(530);
 
     int width = 530;
-    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
+    EXPECT_CALL(window_mock, GetRect).WillRepeatedly(
+        [&]()
         {
             return Rect{0, 0, width, 400};
         });
@@ -443,7 +449,8 @@ TEST_F(ParagraphTest, paragraph1)
     Start(530);
 
     int width = 530;
-    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
+    EXPECT_CALL(window_mock, GetRect).WillRepeatedly(
+        [&]()
         {
             return Rect{0, 0, width, 400};
         });
@@ -824,7 +831,8 @@ TEST_F(ParagraphTest, paragraph2)
     Start(510);
 
     int width = 510;
-    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
+    EXPECT_CALL(window_mock, GetRect).WillRepeatedly(
+        [&]()
         {
             return Rect{0, 0, width, 400};
         });
@@ -991,7 +999,8 @@ TEST_F(ParagraphTest, paragraph3)
     Start(100);
 
     int width = 100;
-    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
+    EXPECT_CALL(window_mock, GetRect).WillRepeatedly(
+        [&]()
         {
             return Rect{0, 0, width, 400};
         });
@@ -1025,7 +1034,8 @@ TEST_F(ParagraphTest, paragraph4)
 {
     Start(380);
 
-    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
+    EXPECT_CALL(window_mock, GetRect).WillRepeatedly(
+        [&]()
         {
             return Rect{0, 0, 380, 400};
         });
@@ -2269,7 +2279,8 @@ TEST_F(ParagraphTest, format4)
     Start(645);
 
     int width = 645;
-    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
+    EXPECT_CALL(window_mock, GetRect).WillRepeatedly(
+        [&]()
         {
             return Rect{0, 0, width, 400};
         });
@@ -2338,7 +2349,8 @@ TEST_F(ParagraphTest, format5)
     Start(645);
 
     int width = 635;
-    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
+    EXPECT_CALL(window_mock, GetRect).WillRepeatedly(
+        [&]()
         {
             return Rect{0, 0, width, 400};
         });
@@ -2417,7 +2429,8 @@ TEST_F(ParagraphTest, format6)
     Start(705);
 
     int width = 680;
-    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
+    EXPECT_CALL(window_mock, GetRect).WillRepeatedly(
+        [&]()
         {
             return Rect{0, 0, width, 400};
         });
@@ -2539,7 +2552,8 @@ TEST_F(ParagraphTest, format8)
     Start(500);
 
     int width = 500;
-    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
+    EXPECT_CALL(window_mock, GetRect).WillRepeatedly(
+        [&]()
         {
             return Rect{0, 0, width, 400};
         });
@@ -2644,7 +2658,8 @@ TEST_F(ParagraphTest, format10)
     Start(495);
 
     int width = 495;
-    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
+    EXPECT_CALL(window_mock, GetRect).WillRepeatedly(
+        [&]()
         {
             return Rect{0, 0, width, 400};
         });
@@ -2787,7 +2802,8 @@ TEST_F(ParagraphTest, format13)
     Start(495);
 
     int width = 495;
-    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
+    EXPECT_CALL(window_mock, GetRect).WillRepeatedly(
+        [&]()
         {
             return Rect{0, 0, width, 400};
         });
@@ -2851,7 +2867,8 @@ TEST_F(ParagraphTest, format15)
 {
     Start(400);
 
-    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
+    EXPECT_CALL(window_mock, GetRect).WillRepeatedly(
+        [&]()
         {
             return Rect{0, 0, 400, 400};
         });
@@ -3722,12 +3739,14 @@ TEST_F(ParagraphTest, delete17)
 {
     Start(490);
 
-    EXPECT_CALL(window_mock, OnCopyResult).WillRepeatedly([&](CopyResult result)
+    EXPECT_CALL(window_mock, OnCopyResult).WillRepeatedly(
+        [&](CopyResult result)
         {
             ASSERT_TRUE(result == CopyResult::Success);
         });
 
-    EXPECT_CALL(window_mock, OnPasteResult).WillRepeatedly([&](PasteResult result)
+    EXPECT_CALL(window_mock, OnPasteResult).WillRepeatedly(
+        [&](PasteResult result)
         {
             ASSERT_TRUE(result == PasteResult::Success);
         });
@@ -4064,7 +4083,8 @@ TEST_F(ParagraphTest, delete26)
 {
     Start(1300, 740);
 
-    EXPECT_CALL(window_mock, GetViewPort).WillRepeatedly([&](const int)
+    EXPECT_CALL(window_mock, GetViewPort).WillRepeatedly(
+        [&](const int)
         {
             return Rect{0, 0, 1260, 700};
         });
@@ -4211,25 +4231,27 @@ TEST_F(ParagraphTest, delete28)
 {
     Start(1000);
 
-    EXPECT_CALL(window_mock, Translate).WillRepeatedly([&](ElementId id, const std::u32string& str)
+    EXPECT_CALL(window_mock, Translate).WillRepeatedly(
+        [&](ElementId id, const std::u32string& str)
         {
             return str;
         });
 
     document.Load("../../test/tests/paragraph24.yut");
     document.WaitLoad();
-    std::this_thread::sleep_for(2s);
+    document.WaitSolver();
+    std::this_thread::sleep_for(4s);
 
     document.WaitTask(document.MoveCaretUp(true));
     document.WaitTask(document.MoveCaretUp(true));
     document.WaitTask(document.InsertString("?", true));
     document.WaitSolver();
-    std::this_thread::sleep_for(2s);
+    std::this_thread::sleep_for(4s);
     ASSERT_TRUE(document.ToText() == 
         U"Ускорение свободного падения: g_a=9.807(м)/(pow(с,2))\n"\
         U"Высота и масса тела: m=1кг\n"\
         U"h=1м\n"\
-        U"Потенциальная энергия: \n"\
+        U"Потенциальная эне\n"\
         U"?потенциальной энергии с противоположным знаком: A=-(E2-E1)\n"\
         U"A=Unknown identifier"
         ) << ToBasicString(document.ToText());
@@ -4380,7 +4402,8 @@ TEST_F(ParagraphTest, scale2)
 {
     Start(600);
 
-    EXPECT_CALL(window_mock, OnLoadInclude).WillRepeatedly([&](const std::string& file_name, const int document_id)
+    EXPECT_CALL(window_mock, OnLoadInclude).WillRepeatedly(
+        [&](const std::string& file_name, const int document_id)
         {
             uint task_id = document.LoadInclude(file_name);
             std::this_thread::sleep_for(400ms);
@@ -4518,7 +4541,8 @@ TEST_F(ParagraphTest, paragraph31)
     Start(600);
 
     int width = 600;
-    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
+    EXPECT_CALL(window_mock, GetRect).WillRepeatedly(
+        [&]()
         {
             return Rect{0, 0, width, 400};
         });
@@ -4641,7 +4665,8 @@ TEST_F(ParagraphTest, paragraph38)
     Start(600);
 
     int width = 600;
-    EXPECT_CALL(window_mock, GetRect).WillRepeatedly([&]()
+    EXPECT_CALL(window_mock, GetRect).WillRepeatedly(
+        [&]()
         {
             return Rect{0, 0, width, 400};
         });

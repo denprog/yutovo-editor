@@ -785,6 +785,10 @@ struct TextBlockTest : DocumentTest
 {
 };
 
+struct SearchTest : DocumentTest
+{
+};
+
 struct UnorderedListTest : DocumentTest
 {
 };

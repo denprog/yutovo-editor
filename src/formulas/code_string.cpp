@@ -276,6 +276,16 @@ void CodeString::Draw() const
         }
     }
 
+    //search highlight ranges - drawn below the selection, so the current match keeps the selection color
+    std::vector<std::pair<uint, uint>> search_ranges;
+    GetSearchRanges(str, document->search_text, document->search_match_case, document->search_whole_word, search_ranges);
+    for (auto& range : search_ranges)
+    {
+        Size s1 = GetTextSize(range.first);
+        Size s2 = GetTextSize(range.first + range.second);
+        window->DrawFillRect(Rect{r.left + s1.width, r.top, s2.width - s1.width, r.height}, document->config.search_highlight_color);
+    }
+
     uint start = 0, size = 0;
     if (selection->Has(id, start, size))
     {
@@ -304,13 +314,17 @@ void CodeString::Draw() const
         if (gap > 0 && s.width - p > w)
             w = s.width - p;
         auto ch = ToBasicString(_ch);
+        //search matches are highlighted instead of the block background (the selection still wins)
+        Color bg_color = GetBackgroundColor();
+        if (IsInSearchRange(search_ranges, i))
+            bg_color = document->config.search_highlight_color;
         if (color1.first != -1 && i < color1.first)
         {
             if (size != 0 && i >= start && i < start + size)
                 window->DrawText(ch, fmt, Rect{r.left + s.width - w, r.top, w, r.height}, GetBackgroundColor(), 
                     document->config.bg_selection_color, true);
             else
-                window->DrawText(ch, fmt, Rect{r.left + s.width - w, r.top, w, r.height}, color1.second, GetBackgroundColor(), true);
+                window->DrawText(ch, fmt, Rect{r.left + s.width - w, r.top, w, r.height}, color1.second, bg_color, true);
         }
         else if (color1.first != -1 && color2.first != -1 && i >= color1.first && i < color1.first + color2.first)
         {
@@ -318,7 +332,7 @@ void CodeString::Draw() const
                 window->DrawText(ch, fmt, Rect{r.left + s.width - w, r.top, w, r.height}, GetBackgroundColor(), 
                     document->config.bg_selection_color, true);
             else
-                window->DrawText(ch, fmt, Rect{r.left + s.width - w, r.top, w, r.height}, color2.second, GetBackgroundColor(), true);
+                window->DrawText(ch, fmt, Rect{r.left + s.width - w, r.top, w, r.height}, color2.second, bg_color, true);
         }
         else if (gap == 0)
         {
@@ -326,7 +340,7 @@ void CodeString::Draw() const
                 window->DrawText(ch, fmt, Rect{r.left + s.width - w, r.top, w, r.height}, GetBackgroundColor(), 
                     document->config.bg_selection_color, true);
             else
-                window->DrawText(ch, fmt, Rect{r.left + s.width - w, r.top, w, r.height}, draw_format->text_color, GetBackgroundColor(), true);
+                window->DrawText(ch, fmt, Rect{r.left + s.width - w, r.top, w, r.height}, draw_format->text_color, bg_color, true);
         }
         else
         {
@@ -334,7 +348,7 @@ void CodeString::Draw() const
                 window->DrawText(ch, fmt, Rect{r.left + s.width - w, r.top, w, r.height}, 
                     document->config.numbers_color, GetBackgroundColor(), true);
             else
-                window->DrawText(ch, fmt, Rect{r.left + s.width - w, r.top, w, r.height}, document->config.numbers_color, GetBackgroundColor(), true);
+                window->DrawText(ch, fmt, Rect{r.left + s.width - w, r.top, w, r.height}, document->config.numbers_color, bg_color, true);
         }
 
         p = s.width;

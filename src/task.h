@@ -406,6 +406,36 @@ struct SetConfigTask : Task
     std::string config_str;
 };
 
+struct SearchTask : Task
+{
+    SearchTask(ElementPtr _text, const std::u32string& _str, bool _match_case, bool _whole_word);
+
+    virtual bool Execute();
+
+    std::u32string str;
+    bool match_case = false;
+    bool whole_word = false;
+};
+
+struct FindTask : Task
+{
+    FindTask(ElementPtr _text, bool _backward);
+
+    virtual bool Execute();
+
+    bool backward = false;
+};
+
+struct ReplaceTask : Task
+{
+    ReplaceTask(ElementPtr _text, const std::u32string& _str, bool _all, bool _with_undo);
+
+    virtual bool Execute();
+
+    std::u32string str;
+    bool all = false;
+};
+
 struct CallFunc : Task
 {
     CallFunc(ElementPtr _text, const ElementId& _id, std::function<bool()> _func, bool _with_undo);

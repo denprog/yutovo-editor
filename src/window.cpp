@@ -149,6 +149,10 @@ void Window::OnSetConfig()
 {
 }
 
+void Window::OnSearchState(const uint count, const uint current)
+{
+}
+
 #ifdef EMSCRIPTEN
 int Window::Connect(const std::string& addr)
 {

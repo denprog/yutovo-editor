@@ -486,6 +486,11 @@ struct ErrorMark
 
 bool IsLess(const ElementId& id1, const ElementId& id2);
 
+void GetSearchRanges(const std::u32string& str, const std::u32string& what, bool match_case, bool whole_word,
+    std::vector<std::pair<uint, uint>>& ranges);
+
+bool IsInSearchRange(const std::vector<std::pair<uint, uint>>& ranges, const uint pos);
+
 void FlipImageVertically(std::vector<unsigned char>& rgba, const int width, const int height);
 
 bool IsPng(const std::vector<unsigned char>& image);

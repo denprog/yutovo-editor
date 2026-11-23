@@ -3358,7 +3358,7 @@ TEST_F(FormulaTest, fonts14)
     document.InsertCode(false, true);
     document.InsertString("1234", true);
     document.InsertPlus(true);
-    document.InsertString("45", true);
+    document.WaitTask(document.InsertString("45", true));
     document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
     document.WaitSolver();
     std::this_thread::sleep_for(1s);
@@ -3371,8 +3371,8 @@ TEST_F(FormulaTest, fonts14)
     document.WaitTask(document.MoveCaretEnd(true));
     document.WaitTask(document.ChangeStringFormat("Times New Roman", 22, true, false, false, false, false, false, Color::Black(), Color::White(), true));
 
-    document.MoveCaretHome(false);
-    document.MoveCaretRight(false);
+    document.WaitTask(document.MoveCaretHome(false));
+    document.WaitTask(document.MoveCaretRight(false));
     document.WaitTask(document.InsertString("5", true));
     document.WaitSolver();
     std::this_thread::sleep_for(2s);

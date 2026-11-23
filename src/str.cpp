@@ -1048,6 +1048,16 @@ void StringElements::Draw() const
     String* p = (String*)parent;
     uint start = 0, size = 0;
     Rect r = p->GetAbsoluteRect();
+    //search highlight ranges - drawn below the selection, so the current match keeps the selection color
+    std::vector<std::pair<uint, uint>> search_ranges;
+    GetSearchRanges(str, parent->document->search_text, parent->document->search_match_case, parent->document->search_whole_word, search_ranges);
+    for (auto& range : search_ranges)
+    {
+        yutovo::Size s1(p->GetTextSize(range.first));
+        yutovo::Size s2(p->GetTextSize(range.first + range.second));
+        parent->window->DrawFillRect(Rect{r.left + s1.width, r.top, s2.width - s1.width, r.height},
+            parent->document->config.search_highlight_color);
+    }
     //draw the string by symbols
     if (parent->document->selection.Has(parent->id, start, size))
     {
@@ -1084,8 +1094,11 @@ void StringElements::Draw() const
             }
             else
             {
+                Color bg = p->draw_format->text_bg_color;
+                if (IsInSearchRange(search_ranges, i))
+                    bg = parent->document->config.search_highlight_color;
                 p->window->DrawText(sub, fmt, Rect{r.left + s.width - w, r.top, w, r.height}, 
-                    p->draw_format->text_color, p->draw_format->text_bg_color, true);
+                    p->draw_format->text_color, bg, true);
             }
         }
 

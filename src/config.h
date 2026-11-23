@@ -70,6 +70,7 @@ struct Config
     Color formula_bg_color = Color::White();
     Color formula_frame_color = Color::FromHex("#b8d3ff");
     Color bg_selection_color = Color::Blue();
+    Color search_highlight_color = Color::FromHex("#ffb84d");
     Color link_color = Color::Blue();
     Color link_visited_color = Color::FromHex("#ff69b4");
     Color hilight_color = Color::FromHex("#97deff");

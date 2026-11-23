@@ -186,7 +186,15 @@ public:
     ElementPtr FindByString(const ElementId& start_id, const std::u32string& str);
     ElementPtr FindByType(const ElementId& start_id, const ElementType type);
 
+    uint Search(const std::u32string& str, bool match_case, bool whole_word = false);
+    uint FindNext(bool backward);
+    uint Replace(const std::u32string& str, bool with_undo);
+    uint ReplaceAll(const std::u32string& str, bool with_undo);
+    void GetSearchState(uint& count, uint& current);
+
     bool GetLink(const ElementId& id, std::u32string& str, std::u32string& url);
+
+    bool GetSelectedText(std::u32string& text);
 
     Rect GetCaretRect(const CaretState& caret_state);
 
@@ -495,6 +503,9 @@ private:
     friend class InsertElementsTask;
     friend class DeleteElementsTask;
     friend class InsertFormulasTask;
+    friend class SearchTask;
+    friend class FindTask;
+    friend class ReplaceTask;
     friend class Caret;
     friend class Element;
     friend class Elements;
@@ -502,9 +513,15 @@ private:
     friend class String;
     friend class StringElements;
     friend class CodeString;
+    friend class Task;
 
     void UpdateCaretView();
     void UpdateLastSelection();
+
+    void CollectSearchMatches(const ElementPtr& el, std::vector<CaretState>& matches);
+    uint CurrentSearchMatch(const std::vector<CaretState>& matches);
+    void UpdateSearchState(bool check_search_state = false);
+    void UpdateSearchState(std::vector<CaretState>& matches);
 
 private:
     std::recursive_mutex tasks_mutex;
@@ -608,6 +625,12 @@ private:
     ElementId mouse_capture_id;
 
     EditorState last_caret_state;
+
+    std::u32string search_text;
+    bool search_match_case = false;
+    bool search_whole_word = false;
+    bool search_state_dirty = false;
+    std::pair<uint, uint> last_search_state{0, 0}; //count of matches and the current match index
 
     LogicalEditorState include_editor_state;
 

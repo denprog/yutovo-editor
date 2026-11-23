@@ -110,6 +110,8 @@ public:
 
     virtual void OnSetConfig();
 
+    virtual void OnSearchState(const uint count, const uint current);
+
 #ifdef EMSCRIPTEN
     virtual int Connect(const std::string& addr);
     virtual bool Send(const int socket_id, const std::string& message);

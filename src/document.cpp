@@ -230,6 +230,61 @@ uint Document::SetConfig(const std::string& _config, bool with_undo)
     return last_task_id;
 }
 
+uint Document::Search(const std::u32string& str, bool match_case, bool whole_word)
+{
+    LOG_TRACE("Search");
+    {
+        std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
+        tasks.emplace_back(new SearchTask(text, str, match_case, whole_word));
+        last_task_id = tasks.back()->id;
+    }
+    next_circle = true;
+    return last_task_id;
+}
+
+uint Document::FindNext(bool backward)
+{
+    LOG_TRACE("Find next");
+    {
+        std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
+        tasks.emplace_back(new FindTask(text, backward));
+        last_task_id = tasks.back()->id;
+    }
+    next_circle = true;
+    return last_task_id;
+}
+
+uint Document::Replace(const std::u32string& str, bool with_undo)
+{
+    LOG_TRACE("Replace");
+    {
+        std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
+        tasks.emplace_back(new ReplaceTask(text, str, false, with_undo));
+        last_task_id = tasks.back()->id;
+    }
+    next_circle = true;
+    return last_task_id;
+}
+
+uint Document::ReplaceAll(const std::u32string& str, bool with_undo)
+{
+    LOG_TRACE("Replace all");
+    {
+        std::lock_guard<std::recursive_mutex> lock(tasks_mutex);
+        tasks.emplace_back(new ReplaceTask(text, str, true, with_undo));
+        last_task_id = tasks.back()->id;
+    }
+    next_circle = true;
+    return last_task_id;
+}
+
+void Document::GetSearchState(uint& count, uint& current)
+{
+    std::lock_guard<std::recursive_mutex> lock(state_mutex);
+    count = last_search_state.first;
+    current = last_search_state.second;
+}
+
 //Execute a task guarding the loop against exceptions
 bool Document::ExecuteTask(const TaskPtr& task)
 {
@@ -341,6 +396,7 @@ void Document::MainLoop()
 #ifdef TEST
                 last_undo_executed = true;
 #endif
+                UpdateSearchState(true);
             }
         }
 
@@ -398,6 +454,7 @@ void Document::MainLoop()
 #ifdef TEST
                 last_redo_executed = true;
 #endif
+                UpdateSearchState(true);
             }
         }
 
@@ -470,6 +527,8 @@ void Document::MainLoop()
             }
 
             caret->Show();
+
+            UpdateSearchState(true);
 
             temp_tasks.clear();
         }
@@ -2036,6 +2095,71 @@ ElementPtr Document::FindByType(const ElementId& start_id, const ElementType typ
     return res;
 }
 
+//Collects the starts of all matches of document->search_text in document order
+void Document::CollectSearchMatches(const ElementPtr& el, std::vector<CaretState>& matches)
+{
+    if (IsString(el))
+    {
+        std::vector<std::pair<uint, uint>> ranges;
+        GetSearchRanges(el->ToText(), search_text, search_match_case, search_whole_word, ranges);
+        for (auto& r : ranges)
+            matches.push_back(CaretState(el->id, r.first));
+        return;
+    }
+    for (int i = 0; i < el->elements->Count(); ++i)
+        CollectSearchMatches(el->elements->Get(i), matches);
+}
+
+//The current match index: the selected one (a FindNext or Search selection), else the first not before the caret
+uint Document::CurrentSearchMatch(const std::vector<CaretState>& matches)
+{
+    SelectionState selection_state = selection.GetState();
+    if (!selection_state.IsEmpty())
+    {
+        //the match selected by FindNext stays the current one
+        for (size_t i = 0; i < matches.size(); ++i)
+        {
+            if (matches[i].GetParent() == selection_state.state[0].id && matches[i].GetPos() == selection_state.state[0].start)
+                return uint(i);
+        }
+    }
+    for (size_t i = 0; i < matches.size(); ++i)
+    {
+        if (!(matches[i] < caret->GetCaretState()))
+            return uint(i);
+    }
+    return 0;
+}
+
+//Recomputes the match list and reports the state
+void Document::UpdateSearchState(bool check_search_state)
+{
+    std::lock_guard<std::recursive_mutex> lock(edit_mutex);
+    bool dirty = search_state_dirty;
+    search_state_dirty = false;
+    if (check_search_state && (!dirty || search_text.empty()))
+        return;
+
+    std::vector<CaretState> matches;
+    if (!search_text.empty())
+        CollectSearchMatches(text, matches);
+    UpdateSearchState(matches);
+}
+
+//Reports the state for an already collected match list: the current match is the selected one, else the first not before the caret
+void Document::UpdateSearchState(std::vector<CaretState>& matches)
+{
+    uint current = 0;
+    if (!matches.empty())
+        current = CurrentSearchMatch(matches);
+
+    {
+        std::lock_guard<std::recursive_mutex> lock(state_mutex);
+        last_search_state = std::make_pair(uint(matches.size()), current);
+    }
+    window->OnSearchState(uint(matches.size()), current);
+}
+
 bool Document::GetLink(const ElementId& id, std::u32string& str, std::u32string& url)
 {
     std::lock_guard<std::recursive_mutex> lock(edit_mutex);
@@ -2046,6 +2170,50 @@ bool Document::GetLink(const ElementId& id, std::u32string& str, std::u32string&
     str = link->ToText();
     url = link->url;
     return true;
+}
+
+//The plain text of the selection when it resolves to a single string leaf
+bool Document::GetSelectedText(std::u32string& text)
+{
+    std::lock_guard<std::recursive_mutex> lock(edit_mutex);
+    SelectionState selection_state = selection.GetState();
+    if (selection_state.IsEmpty())
+        return false;
+
+    uint start = 0, size = 0;
+    ElementPtr el = GetElement(selection_state.GetCommonElement(start, size));
+    if (!el)
+        return false;
+    if (IsString(el))
+    {
+        std::u32string str = el->ToText();
+        if (size == 0 || start + size > str.length())
+            return false;
+        text = str.substr(start, size);
+        return true;
+    }
+
+    ElementPtr cur = el;
+    uint pos = start;
+    uint count = size;
+    while (true)
+    {
+        if (!cur->elements || count != 1)
+            return false;
+        ElementPtr child = cur->elements->Get(pos);
+        if (!child)
+            return false;
+        if (IsString(child))
+        {
+            text = child->ToText();
+            return !text.empty();
+        }
+        //the single covered child is covered fully - continue inside it
+        cur = child;
+        pos = 0;
+        count = cur->elements ? uint(cur->elements->Count()) : 0;
+    }
+    return false;
 }
 
 Rect Document::GetCaretRect(const CaretState& caret_state)

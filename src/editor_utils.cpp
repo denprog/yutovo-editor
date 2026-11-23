@@ -652,6 +652,70 @@ bool IsLess(const ElementId& id1, const ElementId& id2)
 	return id1.size() < id2.size();
 }
 
+void GetSearchRanges(const std::u32string& str, const std::u32string& what, bool match_case, bool whole_word,
+    std::vector<std::pair<uint, uint>>& ranges)
+{
+    ranges.clear();
+    if (what.empty())
+        return;
+
+    auto search_lower =
+        [](const std::u32string& str) -> std::u32string
+        {
+            std::u32string res(str);
+            for (size_t i = 0; i < res.size(); ++i)
+            {
+                char32_t& ch = res[i];
+                if ((ch >= U'A' && ch <= U'Z') || (ch >= U'À' && ch <= U'Þ' && ch != U'×') || (ch >= U'А' && ch <= U'Я'))
+                    ch += 32;
+                else if (ch == U'Ё')
+                    ch = U'ё';
+                else if (ch == U'Œ')
+                    ch = U'œ';
+                else if (ch == U'Ÿ')
+                    ch = U'ÿ';
+            }
+            return res;
+        };
+
+    auto is_word_char =
+        [](const char32_t ch) -> bool
+        {
+            return (ch >= U'A' && ch <= U'Z') || (ch >= U'a' && ch <= U'z') || (ch >= U'À' && ch <= U'ÿ' && ch != U'×' && ch != U'÷') ||
+                ch == U'Œ' || ch == U'œ' || ch == U'Ÿ' || (ch >= U'А' && ch <= U'Я') || (ch >= U'а' && ch <= U'я') || ch == U'Ё' || ch == U'ё' ||
+                (ch >= U'0' && ch <= U'9') || ch == U'_';
+        };
+
+    std::u32string where(str);
+    std::u32string lowered_what(what);
+    if (!match_case)
+    {
+        where = search_lower(str);
+        lowered_what = search_lower(what);
+    }
+    size_t pos = where.find(lowered_what);
+    while (pos != std::u32string::npos)
+    {
+        bool left_ok = pos == 0 || !is_word_char(where[pos - 1]);
+        bool right_ok = pos + lowered_what.length() >= where.length() || !is_word_char(where[pos + lowered_what.length()]);
+        bool accepted = !whole_word || (left_ok && right_ok);
+        if (accepted)
+            ranges.push_back(std::make_pair(uint(pos), uint(lowered_what.length())));
+        //an accepted range consumes its text; a rejected whole-word candidate may overlap the next one
+        pos = where.find(lowered_what, pos + (accepted ? lowered_what.length() : 1));
+    }
+}
+
+bool IsInSearchRange(const std::vector<std::pair<uint, uint>>& ranges, const uint pos)
+{
+    for (auto& range : ranges)
+    {
+        if (pos >= range.first && pos < range.first + range.second)
+            return true;
+    }
+    return false;
+}
+
 void FlipImageVertically(std::vector<unsigned char>& rgba, const int width, const int height)
 {
     if (width <= 0 || height <= 0 || rgba.size() < (size_t)width * height * 4)
