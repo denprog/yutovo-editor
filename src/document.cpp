@@ -1101,6 +1101,18 @@ uint Document::InsertSquareBrackets(bool with_undo)
     return r;
 }
 
+uint Document::InsertModuleBrackets(bool with_undo)
+{
+    LOG_TRACE("Insert module brackets");
+    std::vector<ElementPtr> els;
+    els.emplace_back(new OpenBracket(this, ElementType::OPEN_MODULE_BRACKET));
+    els.emplace_back(new CloseBracket(this, ElementType::CLOSE_MODULE_BRACKET));
+    uint r = InsertFormulas(els, with_undo, false, false, false, 1);
+    if (r > 0)
+        MoveCaretLeft(false, true);
+    return r;
+}
+
 uint Document::InsertFunction(const std::string& name, bool with_undo)
 {
     LOG_TRACE("Insert function: {}", name);

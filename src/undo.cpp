@@ -380,6 +380,12 @@ Element* UndoFormula::Restore(Document* document, Element* parent)
     case ElementType::CLOSE_SQUARE_BRACKET:
         el = parent ? new CloseBracket(parent, ElementType::CLOSE_SQUARE_BRACKET) : new CloseBracket(document, ElementType::CLOSE_SQUARE_BRACKET);
         break;
+    case ElementType::OPEN_MODULE_BRACKET:
+        el = parent ? new OpenBracket(parent, ElementType::OPEN_MODULE_BRACKET) : new OpenBracket(document, ElementType::OPEN_MODULE_BRACKET);
+        break;
+    case ElementType::CLOSE_MODULE_BRACKET:
+        el = parent ? new CloseBracket(parent, ElementType::CLOSE_MODULE_BRACKET) : new CloseBracket(document, ElementType::CLOSE_MODULE_BRACKET);
+        break;
     case ElementType::EXCLAMATION:
         el = parent ? new Exclamation(parent) : new Exclamation(document);
         break;
@@ -1383,6 +1389,8 @@ UndoElementPtr UndoBase::StoreElement(const LogicalId id, ElementPtr el)
     case ElementType::CLOSE_ROUND_BRACKET:
     case ElementType::OPEN_SQUARE_BRACKET:
     case ElementType::CLOSE_SQUARE_BRACKET:
+    case ElementType::OPEN_MODULE_BRACKET:
+    case ElementType::CLOSE_MODULE_BRACKET:
     case ElementType::COMMA:
         undo_element.reset(new UndoFormula(el->type, ((Formula*)el.get())->formula_format));
         break;

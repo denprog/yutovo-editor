@@ -16,18 +16,18 @@ namespace yutovo
 const std::string OpenBracket::family_name = "Arial";
 
 OpenBracket::OpenBracket(Element* _parent, ElementType _type) : 
-    OnlyShapeFormula(_parent, _type == ElementType::OPEN_ROUND_BRACKET ? '(' : '[')
+    OnlyShapeFormula(_parent, _type == ElementType::OPEN_ROUND_BRACKET ? '(' : (_type == ElementType::OPEN_SQUARE_BRACKET ? '[' : '|'))
 {
-    assert(_type == ElementType::OPEN_ROUND_BRACKET || _type == ElementType::OPEN_SQUARE_BRACKET);
+    assert(_type == ElementType::OPEN_ROUND_BRACKET || _type == ElementType::OPEN_SQUARE_BRACKET || _type == ElementType::OPEN_MODULE_BRACKET);
     type = _type;
     remake_always = true;
     formula_format = document->formula_formats->GetFormat("Formula");
 }
 
 OpenBracket::OpenBracket(Document* _document, ElementType _type) :
-    OnlyShapeFormula(_document, _type == ElementType::OPEN_ROUND_BRACKET ? '(' : '[')
+    OnlyShapeFormula(_document, _type == ElementType::OPEN_ROUND_BRACKET ? '(' : (_type == ElementType::OPEN_SQUARE_BRACKET ? '[' : '|'))
 {
-    assert(_type == ElementType::OPEN_ROUND_BRACKET || _type == ElementType::OPEN_SQUARE_BRACKET);
+    assert(_type == ElementType::OPEN_ROUND_BRACKET || _type == ElementType::OPEN_SQUARE_BRACKET || _type == ElementType::OPEN_MODULE_BRACKET);
     type = _type;
     remake_always = true;
     formula_format = document->formula_formats->GetFormat("Formula");
@@ -107,8 +107,12 @@ bool OpenBracket::Remake(bool with_elements)
         };
 
     if (parent->elements->IsLast(id) || 
-        (type == ElementType::OPEN_ROUND_BRACKET && parent->elements->Count() == 2 && parent->elements->Get(0)->type == ElementType::CLOSE_ROUND_BRACKET) ||
-        (type == ElementType::OPEN_SQUARE_BRACKET && parent->elements->Count() == 2 && parent->elements->Get(0)->type == ElementType::CLOSE_SQUARE_BRACKET))
+        (type == ElementType::OPEN_ROUND_BRACKET && parent->elements->Count() == 2 && 
+        parent->elements->Get(0)->type == ElementType::CLOSE_ROUND_BRACKET) ||
+        (type == ElementType::OPEN_SQUARE_BRACKET && parent->elements->Count() == 2 && 
+        parent->elements->Get(0)->type == ElementType::CLOSE_SQUARE_BRACKET) ||
+        (type == ElementType::OPEN_MODULE_BRACKET && parent->elements->Count() == 2 && 
+        parent->elements->Get(0)->type == ElementType::CLOSE_MODULE_BRACKET))
     {
         empty_brace();
         return changed;
@@ -122,12 +126,14 @@ bool OpenBracket::Remake(bool with_elements)
     {
         auto el = parent->elements->Get(i);
         if ((type == ElementType::OPEN_ROUND_BRACKET && el->type == ElementType::OPEN_ROUND_BRACKET) || 
-            (type == ElementType::OPEN_SQUARE_BRACKET && el->type == ElementType::OPEN_SQUARE_BRACKET))
+            (type == ElementType::OPEN_SQUARE_BRACKET && el->type == ElementType::OPEN_SQUARE_BRACKET) ||
+            (type == ElementType::OPEN_MODULE_BRACKET && el->type == ElementType::OPEN_MODULE_BRACKET))
         {
             ++open_count;
         }
         else if ((type == ElementType::OPEN_ROUND_BRACKET && el->type == ElementType::CLOSE_ROUND_BRACKET) || 
-            (type == ElementType::OPEN_SQUARE_BRACKET && el->type == ElementType::CLOSE_SQUARE_BRACKET))
+            (type == ElementType::OPEN_SQUARE_BRACKET && el->type == ElementType::CLOSE_SQUARE_BRACKET) ||
+            (type == ElementType::OPEN_MODULE_BRACKET && el->type == ElementType::CLOSE_MODULE_BRACKET))
         {
             if (open_count == 0)
             {
@@ -188,18 +194,18 @@ std::string OpenBracket::ToHtml() const
 const std::string CloseBracket::family_name = "Arial";
 
 CloseBracket::CloseBracket(Element* _parent, ElementType _type) : 
-    OnlyShapeFormula(_parent, _type == ElementType::CLOSE_ROUND_BRACKET ? ')' : ']')
+    OnlyShapeFormula(_parent, _type == ElementType::CLOSE_ROUND_BRACKET ? ')' : (_type == ElementType::CLOSE_SQUARE_BRACKET ? ']' : '|'))
 {
-    assert(_type == ElementType::CLOSE_ROUND_BRACKET || _type == ElementType::CLOSE_SQUARE_BRACKET);
+    assert(_type == ElementType::CLOSE_ROUND_BRACKET || _type == ElementType::CLOSE_SQUARE_BRACKET || _type == ElementType::CLOSE_MODULE_BRACKET);
     type = _type;
     remake_always = true;
     formula_format = document->formula_formats->GetFormat("Formula");
 }
 
 CloseBracket::CloseBracket(Document* _document, ElementType _type) :
-    OnlyShapeFormula(_document, _type == ElementType::CLOSE_ROUND_BRACKET ? ')' : ']')
+    OnlyShapeFormula(_document, _type == ElementType::CLOSE_ROUND_BRACKET ? ')' : (_type == ElementType::CLOSE_SQUARE_BRACKET ? ']' : '|'))
 {
-    assert(_type == ElementType::CLOSE_ROUND_BRACKET || _type == ElementType::CLOSE_SQUARE_BRACKET);
+    assert(_type == ElementType::CLOSE_ROUND_BRACKET || _type == ElementType::CLOSE_SQUARE_BRACKET || _type == ElementType::CLOSE_MODULE_BRACKET);
     type = _type;
     remake_always = true;
     formula_format = document->formula_formats->GetFormat("Formula");
@@ -221,7 +227,8 @@ Element* CloseBracket::Create(Element* _parent)
     return new CloseBracket(_parent, type);
 }
 
-Element* CloseBracket::FromJson(Element* parent, Document* document, const rapidjson::Value::ConstObject& value, rapidjson::Document::AllocatorType& alloc)
+Element* CloseBracket::FromJson(Element* parent, Document* document, const rapidjson::Value::ConstObject& value, 
+    rapidjson::Document::AllocatorType& alloc)
 {
     ElementType type = ElementType::CLOSE_ROUND_BRACKET;
     if (value.HasMember("type") && value["type"].IsInt())
@@ -279,8 +286,12 @@ bool CloseBracket::Remake(bool with_elements)
         };
 
     if (parent->elements->IsFirst(id) || 
-        (type == ElementType::CLOSE_ROUND_BRACKET && parent->elements->Count() == 2 && parent->elements->Get(0)->type == ElementType::OPEN_ROUND_BRACKET) ||
-        (type == ElementType::CLOSE_SQUARE_BRACKET && parent->elements->Count() == 2 && parent->elements->Get(0)->type == ElementType::OPEN_SQUARE_BRACKET))
+        (type == ElementType::CLOSE_ROUND_BRACKET && parent->elements->Count() == 2 && 
+        parent->elements->Get(0)->type == ElementType::OPEN_ROUND_BRACKET) ||
+        (type == ElementType::CLOSE_SQUARE_BRACKET && parent->elements->Count() == 2 && 
+        parent->elements->Get(0)->type == ElementType::OPEN_SQUARE_BRACKET) ||
+        (type == ElementType::CLOSE_MODULE_BRACKET && parent->elements->Count() == 2 && 
+        parent->elements->Get(0)->type == ElementType::OPEN_MODULE_BRACKET))
     {
         empty_brace();
         return changed;
@@ -294,12 +305,14 @@ bool CloseBracket::Remake(bool with_elements)
     {
         auto el = parent->elements->Get(i);
         if ((type == ElementType::CLOSE_ROUND_BRACKET && el->type == ElementType::CLOSE_ROUND_BRACKET) || 
-            (type == ElementType::CLOSE_SQUARE_BRACKET && el->type == ElementType::CLOSE_SQUARE_BRACKET))
+            (type == ElementType::CLOSE_SQUARE_BRACKET && el->type == ElementType::CLOSE_SQUARE_BRACKET) ||
+            (type == ElementType::CLOSE_MODULE_BRACKET && el->type == ElementType::CLOSE_MODULE_BRACKET))
         {
             ++close_count;
         }
         else if ((type == ElementType::CLOSE_ROUND_BRACKET && el->type == ElementType::OPEN_ROUND_BRACKET) || 
-            (type == ElementType::CLOSE_SQUARE_BRACKET && el->type == ElementType::OPEN_SQUARE_BRACKET))
+            (type == ElementType::CLOSE_SQUARE_BRACKET && el->type == ElementType::OPEN_SQUARE_BRACKET) ||
+            (type == ElementType::CLOSE_MODULE_BRACKET && el->type == ElementType::OPEN_MODULE_BRACKET))
         {
             if (close_count == 0)
             {

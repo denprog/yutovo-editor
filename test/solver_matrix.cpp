@@ -181,4 +181,48 @@ TEST_F(SolverAutoTest, matrix5)
     ASSERT_TRUE(document.ToText() == U"[[1,2]]=[[1,2]]") << ToBasicString(document.ToText());
 }
 
+//The module brackets around a matrix mean the determinant
+TEST_F(SolverAutoTest, module_matrix1)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.WaitTask(document.InsertModuleBrackets(true));
+    document.WaitTask(document.InsertMatrix(true, 2, 2));
+    document.InsertString("1", true);
+    document.MoveCaretRight(false);
+    document.InsertString("2", true);
+    document.MoveCaretRight(false);
+    document.InsertString("3", true);
+    document.MoveCaretRight(false);
+    document.WaitTask(document.InsertString("4", true));
+    document.MoveCaretEnd(false);
+    document.WaitTask(document.InsertEquation(yutovo_solver::ResultType::AUTO, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(2s);
+    ASSERT_TRUE(document.ToText() == U"|[[1,2],[3,4]]|=-2") << ToBasicString(document.ToText());
+}
+
+//A symbolic determinant of a matrix with variables inside the module brackets
+TEST_F(SolverAutoTest, module_matrix2)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.WaitTask(document.InsertModuleBrackets(true));
+    document.WaitTask(document.InsertMatrix(true, 2, 2));
+    document.InsertString("x", true);
+    document.MoveCaretRight(false);
+    document.InsertString("2", true);
+    document.MoveCaretRight(false);
+    document.InsertString("3", true);
+    document.MoveCaretRight(false);
+    document.WaitTask(document.InsertString("4", true));
+    document.MoveCaretEnd(false);
+    document.WaitTask(document.InsertEquation(yutovo_solver::ResultType::AUTO, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(2s);
+    ASSERT_TRUE(document.ToText() == U"|[[x,2],[3,4]]|=-6+4*x") << ToBasicString(document.ToText());
+}
+
 }

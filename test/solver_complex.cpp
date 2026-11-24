@@ -889,4 +889,21 @@ TEST_F(SolverComplexTest, if1)
     ASSERT_TRUE(document.ToText() == U"if(2<1,(2*i),(5*i))=5.i") << ToBasicString(document.ToText());
 }
 
+//The module brackets with an explicit Complex result type: the modulus
+TEST_F(SolverComplexTest, module1)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.WaitTask(document.InsertModuleBrackets(true));
+    document.InsertString("3", true);
+    document.InsertPlus(true);
+    document.InsertString("4i", true);
+    document.MoveCaretEnd(false);
+    document.WaitTask(document.InsertEquation(ResultType::COMPLEX, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(2s);
+    ASSERT_TRUE(document.ToText() == U"|3+4i|=5.") << ToBasicString(document.ToText());
+}
+
 }

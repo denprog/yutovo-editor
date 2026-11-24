@@ -347,6 +347,8 @@ Element* CreateFromJson(Element* parent, Document* document, const rapidjson::Va
             {ElementType::CLOSE_ROUND_BRACKET, &CloseBracket::FromJson},
             {ElementType::OPEN_SQUARE_BRACKET, &OpenBracket::FromJson},
             {ElementType::CLOSE_SQUARE_BRACKET, &CloseBracket::FromJson},
+            {ElementType::OPEN_MODULE_BRACKET, &OpenBracket::FromJson},
+            {ElementType::CLOSE_MODULE_BRACKET, &CloseBracket::FromJson},
             {ElementType::REAL_RESULT, &RealResult::FromJson},
             {ElementType::INTEGER_RESULT, &IntegerResult::FromJson},
             {ElementType::RATIONAL_RESULT, &RationalResult::FromJson},

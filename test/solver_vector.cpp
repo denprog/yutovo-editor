@@ -1074,4 +1074,23 @@ TEST_F(SolverVectorTest, vector_complex3)
     ASSERT_TRUE(document.ToText() == U"cross([i,0,0],[0,i,0])=[[0.],[0.],[-1.]]") << ToBasicString(document.ToText());
 }
 
+//The module brackets with an explicit Vector result type: the norm of the vector
+TEST_F(SolverVectorTest, module1)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.WaitTask(document.InsertModuleBrackets(true));
+    document.InsertOpenSquareBracket(true);
+    document.InsertString("3", true);
+    document.InsertComma(true);
+    document.InsertString("4", true);
+    document.InsertCloseSquareBracket(true);
+    document.MoveCaretEnd(false);
+    document.WaitTask(document.InsertEquation(ResultType::VECTOR_REAL, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(2s);
+    ASSERT_TRUE(document.ToText() == U"|[3,4]|=5.") << ToBasicString(document.ToText());
+}
+
 }

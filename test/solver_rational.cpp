@@ -813,4 +813,22 @@ TEST_F(SolverRationalTest, if1)
     ASSERT_TRUE(document.ToText() == U"if(2>1,((1)/(2),(2)/(3)),((3)/(4),(4)/(5)))=(2)/(3)") << ToBasicString(document.ToText());
 }
 
+//The module brackets with an explicit Rational result type: the absolute value
+TEST_F(SolverRationalTest, module1)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.WaitTask(document.InsertModuleBrackets(true));
+    document.InsertMinus(true);
+    document.InsertString("2", true);
+    document.InsertDivision(true);
+    document.InsertString("3", true);
+    document.MoveCaretEnd(false);
+    document.WaitTask(document.InsertEquation(ResultType::RATIONAL, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(2s);
+    ASSERT_TRUE(document.ToText() == U"|-(2)/(3)|=(2)/(3)") << ToBasicString(document.ToText());
+}
+
 }

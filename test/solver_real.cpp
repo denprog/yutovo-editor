@@ -812,4 +812,42 @@ TEST_F(SolverRealTest, if_errors)
     ASSERT_TRUE(document.HasErrorMarks({0})) << ErrorMarks();
 }
 
+//The module brackets with an explicit Real result type: the absolute value
+TEST_F(SolverRealTest, module1)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.WaitTask(document.InsertModuleBrackets(true));
+    document.InsertMinus(true);
+    document.InsertString("5.5", true);
+    document.MoveCaretEnd(false);
+    document.WaitTask(document.InsertEquation(ResultType::REAL, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(2s);
+    ASSERT_TRUE(document.ToText() == U"|-5.5|=5.5") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.ToHtml() ==
+        "<body>"
+            "<p>"
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"
+                    "<mrow>"
+                        "<mrow>"
+                            "<mo>|</mo>"
+                            "<mo>-</mo>"
+                            "<mi>5.5</mi>"
+                            "<mo>|</mo>"
+                        "</mrow>"
+                        "<mo>=</mo>"
+                        "<mrow>"
+                            "<mrow>"
+                                "<mi>5.5</mi>"
+                            "</mrow>"
+                        "</mrow>"
+                    "</mrow>"
+                "</math>"
+            "</p>"
+        "</body>")
+        << document.ToHtml();
+}
+
 }

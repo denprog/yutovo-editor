@@ -1673,4 +1673,19 @@ TEST_F(SolverSymbolicTest, if3)
     ASSERT_TRUE(document.ToText() == U"u=0\nif(1<2,(u=u+2*i,u),(0))=2*i") << ToBasicString(document.ToText());
 }
 
+//The module brackets of an unknown symbol fall through AUTO to the symbolic result: the absolute value
+TEST_F(SolverSymbolicTest, module1)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.WaitTask(document.InsertModuleBrackets(true));
+    document.InsertString("x", true);
+    document.MoveCaretEnd(false);
+    document.WaitTask(document.InsertEquation(yutovo_solver::ResultType::AUTO, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(2s);
+    ASSERT_TRUE(document.ToText() == U"|x|=abs(x)") << ToBasicString(document.ToText());
+}
+
 }

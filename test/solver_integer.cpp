@@ -922,4 +922,25 @@ TEST_F(SolverIntegerTest, if1)
     ASSERT_TRUE(document.ToText() == U"if(2>1,(10,20),(30,40))=20") << ToBasicString(document.ToText());
 }
 
+//The module brackets with an explicit Integer result type: the absolute value
+TEST_F(SolverIntegerTest, module1)
+{
+    Start(600);
+
+    Config config;
+    document.GetConfig(config);
+    config.integer_result.show_notation = false;
+    document.WaitTask(document.SetConfig(config, true));
+
+    document.InsertCode(false, true);
+    document.WaitTask(document.InsertModuleBrackets(true));
+    document.InsertMinus(true);
+    document.InsertString("5", true);
+    document.MoveCaretEnd(false);
+    document.WaitTask(document.InsertEquation(ResultType::INTEGER, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(2s);
+    ASSERT_TRUE(document.ToText() == U"|-5|=5") << ToBasicString(document.ToText());
+}
+
 }

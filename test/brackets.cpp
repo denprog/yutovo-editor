@@ -1142,4 +1142,160 @@ TEST_F(FormulaTest, brackets16)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 2})) << document.GetEditorState().ToString();
 }
 
+//Inserting module brackets
+TEST_F(FormulaTest, brackets17)
+{
+    Start(600);
+
+    document.WaitTask(document.InsertModuleBrackets(true));
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mo>|</mo>"\
+                        "<mo>|</mo>"\
+                    "</mrow>"\
+                "</math>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 1})) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    ASSERT_TRUE(document.ToHtml() == "<body><p><span style=\"font-family:'Arial';font-size:14px;\"></span></p></body>") << document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(0, 0, 0, 0)) << document.GetEditorState().ToString();
+
+    document.Redo();
+    document.WaitRedo();
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mo>|</mo>"\
+                        "<mo>|</mo>"\
+                    "</mrow>"\
+                "</math>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 2})) << document.GetEditorState().ToString();
+}
+
+//Save and load module brackets
+TEST_F(FormulaTest, brackets17a)
+{
+    Start(600);
+
+    document.WaitTask(document.InsertCode(false, true));
+    document.WaitTask(document.InsertModuleBrackets(true));
+    document.InsertString("123", true);
+    document.WaitTask(document.MoveCaretEnd(false));
+    ASSERT_TRUE(document.ToText() == U"|123|") << ToBasicString(document.ToText());
+
+    document.WaitTask(document.Save("module1.yut"));
+    document.WaitTask(document.New());
+    ASSERT_TRUE(document.ToText() == U"") << ToBasicString(document.ToText());
+
+    document.Load("module1.yut");
+    document.WaitLoad();
+    std::this_thread::sleep_for(400ms);
+    ASSERT_TRUE(document.ToText() == U"|123|") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mo>|</mo>"\
+                        "<mi>123</mi>"\
+                        "<mo>|</mo>"\
+                    "</mrow>"\
+                "</math>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+}
+
+//Insert module brackets after selection
+TEST_F(FormulaTest, brackets18)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.InsertString("123", true);
+    document.WaitTask(document.MoveCaretHome(true));
+    document.WaitTask(document.InsertModuleBrackets(true));
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mo>|</mo>"\
+                        "<mi>123</mi>"\
+                        "<mo>|</mo>"\
+                    "</mrow>"\
+                "</math>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0, 0, 2})) << document.GetEditorState().ToString();
+    ASSERT_TRUE(document.ToText() == U"|123|") << ToBasicString(document.ToText());
+
+    document.Undo();
+    document.WaitUndo();
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mi>123</mi>"\
+                    "</mrow>"\
+                "</math>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0, 0, 0, 0}, 
+        ElementSelectionState{ElementId{0}, 0, 1})) << document.GetEditorState().ToString();
+
+    document.MoveCaretHome(false);
+    document.MoveCaretRight(false);
+    document.WaitTask(document.MoveCaretRight(true));
+    document.WaitTask(document.InsertModuleBrackets(true));
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mo>|</mo>"\
+                        "<mi>1</mi>"\
+                        "<mo>|</mo>"\
+                        "<mi>23</mi>"\
+                    "</mrow>"\
+                "</math>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0, 0, 2})) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    ASSERT_TRUE(document.ToHtml() == 
+        "<body>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mi>123</mi>"\
+                    "</mrow>"\
+                "</math>"\
+            "</p>"\
+        "</body>") << 
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0, 0, 0, 1}, 
+        ElementSelectionState{ElementId{0, 0, 0, 0, 0, 0, 0}, 0, 1})) << document.GetEditorState().ToString();
+}
+
 }

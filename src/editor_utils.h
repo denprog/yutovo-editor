@@ -108,7 +108,9 @@ enum class ElementType
     LESS,
     GREATER_EQUAL,
     LESS_EQUAL,
-    NOT_EQUAL
+    NOT_EQUAL,
+    OPEN_MODULE_BRACKET,
+    CLOSE_MODULE_BRACKET
 };
 
 enum class IdentifierType
