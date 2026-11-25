@@ -507,17 +507,20 @@ std::u32string Matrix::BuildText() const
     if (elements->Count() != 2 + rows * columns)
         return U"";
 
-    std::u32string s = U"[";
+    std::u32string s = U"(";
     for (uint r = 0; r < rows; ++r)
     {
         if (r > 0)
             s += U",";
-        s += U"[" + GetCell(r, 0)->ToText();
+        if (rows > 1)
+            s += U"(";
+        s += GetCell(r, 0)->ToText();
         for (uint c = 1; c < columns; ++c)
             s += U"," + GetCell(r, c)->ToText();
-        s += U"]";
+        if (rows > 1)
+            s += U")";
     }
-    s += U"]";
+    s += U")";
     return s;
 }
 
@@ -528,19 +531,23 @@ std::u32string Matrix::ToText() const
 
 void Matrix::BuildParserString(ParserString& str) const
 {
-    str.Add(id, U"([[");
+    str.Add(id, U"(");
     for (uint r = 0; r < rows; ++r)
     {
         if (r > 0)
-            str.Add(id, U"],[");
+            str.Add(id, U",");
+        if (rows > 1)
+            str.Add(id, U"(");
         GetCell(r, 0)->ToParserString(str);
         for (uint c = 1; c < columns; ++c)
         {
             str.Add(id, U",");
             GetCell(r, c)->ToParserString(str);
         }
+        if (rows > 1)
+            str.Add(id, U")");
     }
-    str.Add(id, U"]])");
+    str.Add(id, U")");
 }
 
 void Matrix::ToParserString(ParserString& str)

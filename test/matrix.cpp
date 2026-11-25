@@ -54,7 +54,7 @@ TEST_F(FormulaTest, matrix1)
     document.Redo();
     document.WaitRedo();
     std::this_thread::sleep_for(200ms);
-    ASSERT_TRUE(document.ToText() == U"[[,],[,]]") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.ToText() == U"((,),(,))") << ToBasicString(document.ToText());
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 1, 0, 0})) << document.GetEditorState().ToString();
 }
 
@@ -83,18 +83,18 @@ TEST_F(FormulaTest, matrix2)
 
     //backspace and delete on the placeholder do nothing
     document.WaitTask(document.DeleteElements(true, true));
-    ASSERT_TRUE(document.ToText() == U"[[,],[,]]") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.ToText() == U"((,),(,))") << ToBasicString(document.ToText());
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 1, 0, 0})) << document.GetEditorState().ToString();
 
     document.WaitTask(document.DeleteElements(false, true));
-    ASSERT_TRUE(document.ToText() == U"[[,],[,]]") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.ToText() == U"((,),(,))") << ToBasicString(document.ToText());
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 1, 0, 0})) << document.GetEditorState().ToString();
 
     //backspace at the start of a cell does not delete anything - the cells are fixed
     document.WaitTask(document.MoveCaretRight(false));
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 2, 0, 0})) << document.GetEditorState().ToString();
     document.WaitTask(document.DeleteElements(true, true));
-    ASSERT_TRUE(document.ToText() == U"[[,],[,]]") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.ToText() == U"((,),(,))") << ToBasicString(document.ToText());
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 2, 0, 0})) << document.GetEditorState().ToString();
 }
 
@@ -111,7 +111,7 @@ TEST_F(FormulaTest, matrix3)
     document.InsertString("3", true);
     document.MoveCaretRight(false);
     document.WaitTask(document.InsertString("4", true));
-    ASSERT_TRUE(document.ToText() == U"[[1,2],[3,4]]") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.ToText() == U"((1,2),(3,4))") << ToBasicString(document.ToText());
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 4, 0, 1})) << document.GetEditorState().ToString();
 
     //vertical movements stay in the same column
@@ -131,14 +131,14 @@ TEST_F(FormulaTest, matrix3)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 1, 0, 1})) << document.GetEditorState().ToString();
     document.WaitTask(document.MoveCaretHome(true));
     document.WaitTask(document.DeleteElements(false, true));
-    ASSERT_TRUE(document.ToText() == U"[[,2],[3,4]]") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.ToText() == U"((,2),(3,4))") << ToBasicString(document.ToText());
     Element* cell = document.GetElement(GetChild(matrix_id, 1)).get();
     ASSERT_TRUE(cell->elements->Count() == 1 && cell->elements->Get(0)->elements->Count() == 0);
 
     document.Undo();
     document.WaitUndo();
     std::this_thread::sleep_for(200ms);
-    ASSERT_TRUE(document.ToText() == U"[[1,2],[3,4]]") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.ToText() == U"((1,2),(3,4))") << ToBasicString(document.ToText());
 }
 
 //A non-square matrix with column alignment
@@ -147,7 +147,7 @@ TEST_F(FormulaTest, matrix4)
     Start(600);
 
     document.WaitTask(document.InsertMatrix(true, 2, 3));
-    ASSERT_TRUE(document.ToText() == U"[[,,],[,,]]") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.ToText() == U"((,,),(,,))") << ToBasicString(document.ToText());
 
     document.InsertString("11", true);
     document.MoveCaretRight(false);
@@ -160,7 +160,7 @@ TEST_F(FormulaTest, matrix4)
     document.InsertString("55", true);
     document.MoveCaretRight(false);
     document.WaitTask(document.InsertString("6", true));
-    ASSERT_TRUE(document.ToText() == U"[[11,2,333],[4,55,6]]") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.ToText() == U"((11,2,333),(4,55,6))") << ToBasicString(document.ToText());
 
     //the columns are aligned - the cells of one column share the center
     Element* cell_00 = document.GetElement(GetChild(matrix_id, 1)).get();
@@ -211,7 +211,7 @@ TEST_F(FormulaTest, matrix5)
     document.InsertString("3", true);
     document.MoveCaretRight(false);
     document.WaitTask(document.InsertString("4", true));
-    ASSERT_TRUE(document.ToText() == U"det([[1,2],[3,4]])") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.ToText() == U"det(((1,2),(3,4)))") << ToBasicString(document.ToText());
 
     document.Undo();
     document.WaitUndo();
@@ -219,7 +219,7 @@ TEST_F(FormulaTest, matrix5)
     document.Redo();
     document.WaitRedo();
     std::this_thread::sleep_for(200ms);
-    ASSERT_TRUE(document.ToText() == U"det([[1,2],[3,4]])") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.ToText() == U"det(((1,2),(3,4)))") << ToBasicString(document.ToText());
 }
 
 //The whole element is deleted from a bracket, undo restores it
@@ -241,7 +241,7 @@ TEST_F(FormulaTest, matrix6)
     document.Undo();
     document.WaitUndo();
     std::this_thread::sleep_for(200ms);
-    ASSERT_TRUE(document.ToText() == U"[[1,],[,]]") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.ToText() == U"((1,),(,))") << ToBasicString(document.ToText());
 }
 
 //Copy-paste a matrix
@@ -257,7 +257,7 @@ TEST_F(FormulaTest, matrix7)
     document.InsertString("3", true);
     document.MoveCaretRight(false);
     document.WaitTask(document.InsertString("4", true));
-    ASSERT_TRUE(document.ToText() == U"[[1,2],[3,4]]") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.ToText() == U"((1,2),(3,4))") << ToBasicString(document.ToText());
 
     //move the caret past the matrix and select back - the whole matrix is selected as one element
     document.MoveCaretRight(false);
@@ -268,12 +268,12 @@ TEST_F(FormulaTest, matrix7)
     document.WaitTask(document.Copy(clipboard_json, clipboard_text));
     document.WaitTask(document.MoveCaretToDocumentEnd(false));
     document.WaitTask(document.Paste(clipboard_json));
-    ASSERT_TRUE(document.ToText() == U"[[1,2],[3,4]][[1,2],[3,4]]") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.ToText() == U"((1,2),(3,4))((1,2),(3,4))") << ToBasicString(document.ToText());
 
     document.Undo();
     document.WaitUndo();
     std::this_thread::sleep_for(200ms);
-    ASSERT_TRUE(document.ToText() == U"[[1,2],[3,4]]") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.ToText() == U"((1,2),(3,4))") << ToBasicString(document.ToText());
 }
 
 //Save and load with the grid size
@@ -292,7 +292,7 @@ TEST_F(FormulaTest, matrix8)
     document.InsertString("2", true);
     document.MoveCaretRight(false);
     document.WaitTask(document.InsertString("3", true));
-    ASSERT_TRUE(document.ToText() == U"[[1,2,3],[,,]]") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.ToText() == U"((1,2,3),(,,))") << ToBasicString(document.ToText());
 
     document.WaitTask(document.Save("matrix1.yut"));
     document.WaitTask(document.New());
@@ -301,7 +301,7 @@ TEST_F(FormulaTest, matrix8)
     document.Load("matrix1.yut");
     document.WaitLoad();
     std::this_thread::sleep_for(400ms);
-    ASSERT_TRUE(document.ToText() == U"[[1,2,3],[,,]]") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.ToText() == U"((1,2,3),(,,))") << ToBasicString(document.ToText());
 
     //the grid size survives the roundtrip
     uint rows = 0, columns = 0;
@@ -322,11 +322,11 @@ TEST_F(FormulaTest, matrix9)
     document.InsertString("3", true);
     document.MoveCaretRight(false);
     document.WaitTask(document.InsertString("4", true));
-    ASSERT_TRUE(document.ToText() == U"[[1,2],[3,4]]") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.ToText() == U"((1,2),(3,4))") << ToBasicString(document.ToText());
 
     //grow to 3x3
     document.WaitTask(document.SetMatrixSize(matrix_id, 3, 3, true));
-    ASSERT_TRUE(document.ToText() == U"[[1,2,],[3,4,],[,,]]") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.ToText() == U"((1,2,),(3,4,),(,,))") << ToBasicString(document.ToText());
     uint rows = 0, columns = 0;
     ASSERT_TRUE(document.GetMatrixSize(matrix_id, rows, columns));
     ASSERT_TRUE(rows == 3 && columns == 3) << rows << " " << columns;
@@ -336,20 +336,20 @@ TEST_F(FormulaTest, matrix9)
 
     //shrink back to 2x2 - the cells are removed from the right and bottom
     document.WaitTask(document.SetMatrixSize(matrix_id, 2, 2, true));
-    ASSERT_TRUE(document.ToText() == U"[[1,2],[3,4]]") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.ToText() == U"((1,2),(3,4))") << ToBasicString(document.ToText());
 
     //undo restores the 3x3 grid with its content
     document.Undo();
     document.WaitUndo();
     std::this_thread::sleep_for(200ms);
-    ASSERT_TRUE(document.ToText() == U"[[1,2,],[3,4,],[,,]]") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.ToText() == U"((1,2,),(3,4,),(,,))") << ToBasicString(document.ToText());
     ASSERT_TRUE(document.GetMatrixSize(matrix_id, rows, columns));
     ASSERT_TRUE(rows == 3 && columns == 3) << rows << " " << columns;
 
     document.Redo();
     document.WaitRedo();
     std::this_thread::sleep_for(200ms);
-    ASSERT_TRUE(document.ToText() == U"[[1,2],[3,4]]") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.ToText() == U"((1,2),(3,4))") << ToBasicString(document.ToText());
 }
 
 //The caret keeps working after the cell it was in is removed by shrinking
@@ -369,13 +369,13 @@ TEST_F(FormulaTest, matrix10)
 
     //the caret sits in the last cell, shrink removes that cell
     document.WaitTask(document.SetMatrixSize(matrix_id, 1, 1, true));
-    ASSERT_TRUE(document.ToText() == U"[[1]]") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.ToText() == U"(1)") << ToBasicString(document.ToText());
     //the caret was moved into the surviving cell
     ASSERT_TRUE(document.GetEditorState().caret_state.IsInsideElement(matrix_id)) << document.GetEditorState().ToString();
 
     //typing still works
     document.WaitTask(document.InsertString("5", true));
-    ASSERT_TRUE(document.ToText() == U"[[15]]") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.ToText() == U"(15)") << ToBasicString(document.ToText());
 }
 
 //A partially filled matrix inside an equation does not solve and shows no errors
@@ -388,7 +388,7 @@ TEST_F(FormulaTest, matrix11)
     document.InsertString("1", true);
     document.MoveCaretRight(false);
     document.WaitTask(document.InsertString("2", true));
-    ASSERT_TRUE(document.ToText() == U"[[1,2],[,]]") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.ToText() == U"((1,2),(,))") << ToBasicString(document.ToText());
 
     //move the caret out of the matrix and append an equation
     for (int i = 0; i < 3; ++i)
@@ -442,14 +442,14 @@ TEST_F(FormulaTest, matrix13)
     document.InsertString("8", true);
     document.MoveCaretRight(false);
     document.WaitTask(document.InsertString("10", true));
-    ASSERT_TRUE(document.ToText() == U"det([[1,2,3],[4,5,6],[7,8,10]])") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.ToText() == U"det(((1,2,3),(4,5,6),(7,8,10)))") << ToBasicString(document.ToText());
 
     document.WaitTask(document.Save("determinant1.yut"));
     document.WaitTask(document.New());
     document.Load("determinant1.yut");
     document.WaitLoad();
     std::this_thread::sleep_for(400ms);
-    ASSERT_TRUE(document.ToText() == U"det([[1,2,3],[4,5,6],[7,8,10]])") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.ToText() == U"det(((1,2,3),(4,5,6),(7,8,10)))") << ToBasicString(document.ToText());
 
     Element* el = document.GetElement(matrix_id).get();
     ASSERT_TRUE(el != nullptr && el->type == ElementType::DETERMINANT) << (int)(el ? el->type : ElementType::NONE);
@@ -526,7 +526,7 @@ TEST_F(FormulaTest, matrix16)
 
     //an equation can be appended right away
     document.WaitTask(document.InsertEquation(yutovo_solver::ResultType::AUTO, true));
-    ASSERT_TRUE(document.ToText() == U"[[1,2],[3,4]]=~") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.ToText() == U"((1,2),(3,4))=~") << ToBasicString(document.ToText());
 
     //a single left press from the equation returns to the same position after the closing bracket -
     //the only caret position between the bracket and "="
@@ -564,21 +564,21 @@ TEST_F(FormulaTest, matrix17)
             document.MoveCaretRight(false);
     }
     std::this_thread::sleep_for(500ms);
-    std::u32string expected = U"[";
+    std::u32string expected = U"(";
     for (uint r = 0; r < 12; ++r)
     {
         if (r > 0)
             expected += U",";
-        expected += U"[";
+        expected += U"(";
         for (uint c = 0; c < 12; ++c)
         {
             if (c > 0)
                 expected += U",";
             expected += U"7";
         }
-        expected += U"]";
+        expected += U")";
     }
-    expected += U"]";
+    expected += U")";
     ASSERT_TRUE(document.ToText() == expected) << ToBasicString(document.ToText()).substr(0, 80);
 }
 
@@ -667,7 +667,7 @@ TEST_F(FormulaTest, vector_column1)
     Start(600);
 
     document.WaitTask(document.InsertVectorColumn(true, 3));
-    ASSERT_TRUE(document.ToText() == U"[[],[],[]]") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.ToText() == U"((),(),())") << ToBasicString(document.ToText());
 
     //fill the cells in reading order: the caret starts in the first cell
     document.InsertString("1", true);
@@ -675,7 +675,7 @@ TEST_F(FormulaTest, vector_column1)
     document.InsertString("2", true);
     document.MoveCaretRight(false);
     document.WaitTask(document.InsertString("3", true));
-    ASSERT_TRUE(document.ToText() == U"[[1],[2],[3]]") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.ToText() == U"((1),(2),(3))") << ToBasicString(document.ToText());
 }
 
 //A vector inserted by the button solves through the vector result type
@@ -694,7 +694,7 @@ TEST_F(SolverVectorTest, vector_insert1)
     document.WaitTask(document.InsertEquation(yutovo_solver::ResultType::VECTOR_REAL, true));
     document.WaitSolver();
     std::this_thread::sleep_for(2s);
-    ASSERT_TRUE(document.ToText() == U"[[1],[2],[3]]=[[1.],[2.],[3.]]") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.ToText() == U"((1),(2),(3))=((1.),(2.),(3.))") << ToBasicString(document.ToText());
 }
 
 }

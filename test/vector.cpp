@@ -576,26 +576,26 @@ TEST_F(SolverVectorTest, vector_arrow_result1)
     Start(600);
 
     document.InsertCode(false, true);
-    document.InsertOpenSquareBracket(true);
+    document.InsertOpenRoundBracket(true);
     document.InsertString("1", true);
     document.InsertComma(true);
     document.WaitTask(document.InsertString("2", true));
-    document.InsertCloseSquareBracket(true);
+    document.InsertCloseRoundBracket(true);
     document.WaitTask(document.InsertEquation(yutovo_solver::ResultType::VECTOR_REAL, true));
     document.WaitSolver();
     std::this_thread::sleep_for(2s);
-    ASSERT_TRUE(document.ToText() == U"[1,2]=[[1.],[2.]]") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.ToText() == U"(1,2)=((1.),(2.))") << ToBasicString(document.ToText());
     ASSERT_TRUE(document.ToHtml() ==
         "<body>"
             "<p>"
                 "<math xmlns='http://www.w3.org/1998/Math/MathML'>"
                     "<mrow>"
                         "<mrow>"
-                            "<mo>[</mo>"
+                            "<mo>(</mo>"
                             "<mi>1</mi>"
                             "<mo>,</mo>"
                             "<mi>2</mi>"
-                            "<mo>]</mo>"
+                            "<mo>)</mo>"
                         "</mrow>"
                         "<mo>=</mo>"
                         "<mrow>"
