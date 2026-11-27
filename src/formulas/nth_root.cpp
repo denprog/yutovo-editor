@@ -67,7 +67,7 @@ void NthRoot::Draw() const
             path.push_back(Point{r.GetRight() + GetLast()->rect.width, r.top + 1});
             path.push_back(Point{r.GetRight() + GetLast()->rect.width, (int)lround(r.top + r.height * 0.001 + 1)});
             path.push_back(Point{r.GetRight(), (int)lround(r.top + r.height * 0.001 + 1)});
-            window->DrawFillPath(path, document->selection.IsSelected(id) ? document->config.formula_bg_color : document->config.shapes_color);
+            window->DrawFillPath(path, document->selection.IsSelected(id) ? GetBackgroundColor() : document->config.shapes_color);
         };
     
     if (document->selection.IsSelected(id))

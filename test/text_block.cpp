@@ -1477,5 +1477,33 @@ TEST_F(TextBlockTest, text_block18)
     ASSERT_TRUE(document.ToText() == U"x=5+3") << ToBasicString(document.ToText());
 }
 
+//The integral sign is drawn on the background of the containing block, not on the white code block background
+TEST_F(TextBlockTest, text_block19)
+{
+    Start(600);
+
+    //a glyph line box covering the requested height, like the real fonts return it from GetSymbolSize
+    ON_CALL(window_mock, GetSymbolSize).WillByDefault(
+        [](const char32_t symbol, const int height, const std::string& family_name, Size& size, int& baseline)
+        {
+            size.Set(std::max(2, height / 3), height);
+            baseline = height * 4 / 5;
+            return height;
+        });
+
+    //allow the plain text draws - with a specific expectation present every other DrawText call would fail as unexpected
+    EXPECT_CALL(window_mock, DrawText).Times(testing::AnyNumber());
+    //the integral sign background is the background of the text block
+    EXPECT_CALL(window_mock, DrawText(ToBasicString(U"∫"), testing::_, testing::_, testing::_,
+        testing::Eq(document.config.text_block.background_color), testing::_)).Times(testing::AtLeast(1));
+
+    document.WaitTask(document.InsertTextBlock(true));
+    document.WaitTask(document.InsertDefiniteIntegral(true));
+    ASSERT_TRUE(document.ToText() == U"definite_integral(,,,)") << ToBasicString(document.ToText());
+
+    //the sign is drawn by a redraw task queued after the insert task - give it time before the mock expectation is verified
+    std::this_thread::sleep_for(200ms);
+}
+
 }
 
