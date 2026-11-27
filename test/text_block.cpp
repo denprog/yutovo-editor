@@ -1348,5 +1348,83 @@ TEST_F(TextBlockTest, text_block16)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 0, 1})) << document.GetEditorState().ToString();
 }
 
+//A limit inserted into a text block stays a plain unsolved formula
+TEST_F(TextBlockTest, text_block17)
+{
+    Start(600);
+
+    document.InsertTextBlock(true);
+    document.WaitTask(document.InsertLimit(true));
+    ASSERT_TRUE(document.ToHtml() ==
+        "<body>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<munder>"\
+                            "<mi>lim</mi>"\
+                            "<mrow>"\
+                                "<mrow>"\
+                                    "<mi></mi>"\
+                                "</mrow>"\
+                                "<mo>→</mo>"\
+                                "<mrow>"\
+                                    "<mi></mi>"\
+                                "</mrow>"\
+                            "</mrow>"\
+                        "</munder>"\
+                    "</mrow>"\
+                "</math>"\
+            "</p>"\
+        "</body>") <<
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 1, 0, 0})) << document.GetEditorState().ToString();
+
+    //fill the variable, the value and the function after the limit
+    document.InsertString(U"x", true);
+    document.MoveCaretRight(false); //cross the arrow into the value row
+    document.InsertString(U"0", true);
+    document.MoveCaretRight(false); //leave the element into the containing row
+    document.InsertString(U"x", true);
+    document.InsertPlus(true);
+    document.WaitTask(document.InsertString(U"1", true));
+    ASSERT_TRUE(document.ToText() == U"lim[x→0]x+1") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.ToHtml() ==
+        "<body>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<munder>"\
+                            "<mi>lim</mi>"\
+                            "<mrow>"\
+                                "<mrow>"\
+                                    "<mi>x</mi>"\
+                                "</mrow>"\
+                                "<mo>→</mo>"\
+                                "<mrow>"\
+                                    "<mi>0</mi>"\
+                                "</mrow>"\
+                            "</mrow>"\
+                        "</munder>"\
+                        "<mi>x</mi>"\
+                        "<mo>+</mo>"\
+                        "<mi>1</mi>"\
+                    "</mrow>"\
+                "</math>"\
+            "</p>"\
+        "</body>") <<
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 3, 1})) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.ToText() == U"lim[x→0]x+") << ToBasicString(document.ToText());
+
+    document.Redo();
+    document.WaitRedo();
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.ToText() == U"lim[x→0]x+1") << ToBasicString(document.ToText());
+}
+
 }
 

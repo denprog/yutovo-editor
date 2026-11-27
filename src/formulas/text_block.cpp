@@ -330,6 +330,8 @@ void TextBlock::ConvertToText(std::vector<ElementPtr>& _elements)
 
 ElementPtr TextBlock::ConvertElementToText(ElementPtr el)
 {
+    if (!el)
+        return nullptr;
     if (el->type == ElementType::EQUATION || el->type == ElementType::ASSIGNMENT)
     {
         ElementPtr text(el->type == ElementType::EQUATION ? (Element*)new TextEquation(el->document) : (Element*)new TextAssignment(el->document));
