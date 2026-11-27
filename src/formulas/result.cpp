@@ -731,6 +731,9 @@ void ResultRow::RemoveExtraBrackets(Element* parent)
             }
             if (open_idx < 0)
                 continue;
+            //brackets that directly follow a code string are function call fences
+            if (open_idx > 0 && elems.Get(open_idx - 1)->type == yutovo::ElementType::CODE_STRING)
+                continue;
             bool has_operator = false;
             for (int j = open_idx + 1; j < close_idx; ++j)
             {

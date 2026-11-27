@@ -1316,6 +1316,17 @@ TEST_F(SolverSymbolicTest, derivative_mixed_func)
     ASSERT_TRUE(document.ToText() == U"g(x,y)=pow(x,2)*sin(y)\nderivative(derivative(g(x,y),y),x)=2*x*cos(y)") << ToBasicString(document.ToText());
 }
 
+TEST_F(SolverSymbolicTest, derivative_pow_symbolic_base1)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    InsertExpression(U"derivative(pow(a,x),x)");
+    document.WaitTask(document.InsertEquation(ResultType::SYMBOLIC_REAL, true));
+    document.WaitSolver();
+    ASSERT_TRUE(document.ToText() == U"derivative(pow(a,x),x)=log(a)*pow(a,x)") << ToBasicString(document.ToText());
+}
+
 TEST_F(SolverSymbolicTest, derivative_mixed_func_real)
 {
     Start(600);
