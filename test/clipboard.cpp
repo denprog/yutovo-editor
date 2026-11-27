@@ -2611,6 +2611,7 @@ TEST_F(DocumentTest, clipboard49)
     document.MoveCaretToDocumentBegin(false);
 
     document.WaitTask(document.Paste(clipboard_json));
+    std::this_thread::sleep_for(200ms);
     ASSERT_TRUE(document.ToText() == 
         U"Арифме́тика (др.-греч. ἀριθμητική, arithmētikḗ — от ἀριθμός, arithmós «число») — раздел математики, изучающий числа, их отношения и свойства.\n"\
         U"Предметом арифметики является понятие числа (натуральные, целые, рациональные, вещественные, комплексные числа) и его свойства.\n"\
@@ -6285,6 +6286,133 @@ TEST_F(DocumentTest, clipboard106)
             "</p>"
         "</body>"
         ) << document.ToHtml();
+}
+
+//A picture standing alone in its paragraph is copied to the system image clipboard when the whole paragraph (with its paragraph mark) is selected
+TEST_F(DocumentTest, clipboard107)
+{
+    Start(600);
+
+    EXPECT_CALL(window_mock, OnCopyResult).WillRepeatedly([&](CopyResult result)
+        {
+            ASSERT_TRUE(result == CopyResult::Success);
+        });
+
+    EXPECT_CALL(window_mock, OnPasteResult).WillRepeatedly([&](PasteResult result)
+        {
+            ASSERT_TRUE(result == PasteResult::Success);
+        });
+
+    EXPECT_CALL(window_mock, GetImageSize).WillRepeatedly([&](const std::vector<unsigned char>& image)
+        {
+            return GetImageSizeMock(image);
+        });
+
+    QImage test_image("../../test/tests/Qt_small.png");
+    std::vector<unsigned char> data;
+    GetImageData(test_image, data);
+
+    document.WaitTask(document.InsertImage(data, true, true));
+    document.WaitTask(document.InsertParagraph(true));
+    document.WaitTask(document.InsertString("Text", true));
+    ASSERT_TRUE(document.ToHtml() ==
+        "<body>"
+            "<p>"
+                "<img src=\"data:image/png;base64," + Base64Encode(data) + "\">"
+            "</p>"
+            "<p>"
+                "<span style=\"font-family:'Arial';font-size:14px;\">Text</span>"
+            "</p>"
+        "</body>") << document.ToHtml();
+
+    //select the picture paragraph from its start to the end of the paragraph
+    document.MoveCaretHome(false);
+    document.MoveCaretHome(false);
+    document.WaitTask(document.MoveCaretLeft(false));
+    document.WaitTask(document.MoveCaretHome(false));
+    document.WaitTask(document.MoveCaretEnd(true));
+    document.WaitTask(document.Copy(clipboard_json, clipboard_text, clipboard_png));
+    ASSERT_TRUE(clipboard_png == data);
+    ASSERT_TRUE(clipboard_text.find_first_not_of(U"\n") == std::u32string::npos) << ToBasicString(clipboard_text);
+
+    //the copied paragraph is restored by a paste after a delete
+    document.WaitTask(document.DeleteElements(false, true));
+    document.WaitTask(document.Paste(clipboard_json));
+    ASSERT_TRUE(document.ToHtml() ==
+        "<body>"
+            "<p>"
+                "<img src=\"data:image/png;base64," + Base64Encode(data) + "\">"
+            "</p>"
+            "<p>"
+                "<span style=\"font-family:'Arial';font-size:14px;\">Text</span>"
+            "</p>"
+        "</body>") << document.ToHtml();
+}
+
+//A mixed picture-and-text paragraph does not go to the system image clipboard, a picture-only selection inside the row does
+TEST_F(DocumentTest, clipboard108)
+{
+    Start(600);
+
+    EXPECT_CALL(window_mock, OnCopyResult).WillRepeatedly([&](CopyResult result)
+        {
+            ASSERT_TRUE(result == CopyResult::Success);
+        });
+
+    EXPECT_CALL(window_mock, GetImageSize).WillRepeatedly([&](const std::vector<unsigned char>& image)
+        {
+            return GetImageSizeMock(image);
+        });
+
+    QImage test_image("../../test/tests/Qt_small.png");
+    std::vector<unsigned char> data;
+    GetImageData(test_image, data);
+
+    document.InsertString("A", true);
+    document.WaitTask(document.InsertImage(data, true, true));
+
+    //the whole paragraph: text and picture together
+    document.MoveCaretHome(false);
+    document.WaitTask(document.MoveCaretEnd(true));
+    document.WaitTask(document.Copy(clipboard_json, clipboard_text, clipboard_png));
+    ASSERT_TRUE(clipboard_png.empty());
+    ASSERT_TRUE(clipboard_text == U"A") << ToBasicString(clipboard_text);
+
+    //the picture alone inside the row
+    document.MoveCaretEnd(false);
+    document.MoveCaretLeft(true);
+    document.WaitTask(document.Copy(clipboard_json, clipboard_text, clipboard_png));
+    ASSERT_TRUE(clipboard_png == data);
+    ASSERT_TRUE(clipboard_text.empty()) << ToBasicString(clipboard_text);
+}
+
+//Two picture paragraphs selected together do not go to the system image clipboard
+TEST_F(DocumentTest, clipboard109)
+{
+    Start(600);
+
+    EXPECT_CALL(window_mock, OnCopyResult).WillRepeatedly([&](CopyResult result)
+        {
+            ASSERT_TRUE(result == CopyResult::Success);
+        });
+
+    EXPECT_CALL(window_mock, GetImageSize).WillRepeatedly([&](const std::vector<unsigned char>& image)
+        {
+            return GetImageSizeMock(image);
+        });
+
+    QImage test_image("../../test/tests/Qt_small.png");
+    std::vector<unsigned char> data;
+    GetImageData(test_image, data);
+
+    document.WaitTask(document.InsertImage(data, true, true));
+    document.WaitTask(document.InsertParagraph(true));
+    document.WaitTask(document.InsertImage(data, true, true));
+
+    document.WaitTask(document.SelectAll());
+    document.WaitTask(document.Copy(clipboard_json, clipboard_text, clipboard_png));
+    ASSERT_TRUE(clipboard_png.empty());
+    ASSERT_TRUE(clipboard_text.find_first_not_of(U"\n") == std::u32string::npos) << ToBasicString(clipboard_text);
 }
 
 }

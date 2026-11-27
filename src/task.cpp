@@ -2442,7 +2442,23 @@ bool CopyTask::Execute()
     if (out_image != nullptr)
     {
         out_image->clear();
-        ElementPtr image = copy.size() == 1 ? copy[0] : nullptr;
+        ElementPtr image;
+        for (const ElementPtr& el : copy)
+        {
+            if (document->IsParagraph(el))
+            {
+                if (el->IsEmpty())
+                    continue;
+                image = nullptr;
+                break;
+            }
+            if (image != nullptr)
+            {
+                image = nullptr;
+                break;
+            }
+            image = el;
+        }
         while (image != nullptr && document->IsRow(image) && image->elements->Count() == 1)
             image = image->elements->Get(0);
         if (image != nullptr && image->type == ElementType::IMAGE)
