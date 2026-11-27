@@ -2296,6 +2296,7 @@ TEST_F(DocumentTest, clipboard42)
     document.InsertParagraph(true);
 
     document.WaitTask(document.Paste(clipboard_json));
+    std::this_thread::sleep_for(200ms);
     ASSERT_TRUE(document.ToText() == 
         U"2.3=2.3\n"\
         U"2.3"

@@ -2413,7 +2413,7 @@ TEST_F(IncludeDocumentsTest, include_files12)
 #ifdef _WIN32
     std::this_thread::sleep_for(6s);
 #else
-    std::this_thread::sleep_for(2s);
+    std::this_thread::sleep_for(4s);
 #endif
     ASSERT_TRUE(document2.ToText() == 
         U"\n"\

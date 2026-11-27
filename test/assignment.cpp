@@ -494,6 +494,232 @@ TEST_F(AssignmentTest, assignment7)
     ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0, 0, 0, 2, 0, 1})) << document.GetEditorState().ToString();
 }
 
+//The expression is typed first, the assignment divides the row at the caret
+TEST_F(AssignmentTest, assignment8)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.InsertString("5", true);
+    document.InsertPlus(true);
+    document.InsertString("3", true);
+    document.MoveCaretHome(false);
+    document.WaitTask(document.InsertAssignment(true));
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.ToText() == U"=5+3") << ToBasicString(document.ToText());
+    //the variable is not typed yet - the caret is in the left part
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 0, 0, 0})) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.ToText() == U"5+3") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 0})) << document.GetEditorState().ToString();
+
+    document.Redo();
+    document.WaitRedo();
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.ToText() == U"=5+3") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 0, 0, 0})) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.InsertString("x", true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToHtml() ==
+        "<body>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mrow>"\
+                            "<mi>x</mi>"\
+                        "</mrow>"\
+                        "<mo>=</mo>"\
+                        "<mrow>"\
+                            "<mi>5</mi>"\
+                            "<mo>+</mo>"\
+                            "<mi>3</mi>"\
+                        "</mrow>"\
+                    "</mrow>"\
+                "</math>"\
+            "</p>"\
+        "</body>") <<
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 0, 0, 1})) << document.GetEditorState().ToString();
+
+    //the registered variable solves below
+    document.MoveCaretEnd(false);
+    document.InsertParagraph(true);
+    document.InsertString("x", true);
+    document.WaitTask(document.InsertEquation(ResultType::AUTO, true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToHtml() ==
+        "<body>"\
+            "<p>"\
+                "<span style=\"white-space:nowrap; display:inline-block;line-height:2;vertical-align:top;\">"
+                    "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                        "<mrow>"\
+                            "<mrow>"\
+                                "<mi>x</mi>"\
+                            "</mrow>"\
+                            "<mo>=</mo>"\
+                            "<mrow>"\
+                                "<mi>5</mi>"\
+                                "<mo>+</mo>"\
+                                "<mi>3</mi>"\
+                            "</mrow>"\
+                        "</mrow>"\
+                    "</math>"\
+                    "<br>"\
+                    "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                        "<mrow>"\
+                            "<mrow>"\
+                                "<mi>x</mi>"\
+                            "</mrow>"\
+                            "<mo>=</mo>"\
+                            "<mrow>"\
+                                "<mrow>"\
+                                    "<mi>8.</mi>"\
+                                "</mrow>"\
+                            "</mrow>"\
+                        "</mrow>"\
+                    "</math>"\
+                "</span>"\
+            "</p>"\
+        "</body>") <<
+        document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 1, 0, 0, 1})) << document.GetEditorState().ToString();
+}
+
+//The assignment divides the row in the middle: the left part takes the elements before the caret, the right part - the elements after it
+TEST_F(AssignmentTest, assignment9)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.InsertString("x", true);
+    document.InsertPlus(true);
+    document.InsertString("1", true);
+    document.MoveCaretLeft(false);
+    document.WaitTask(document.InsertAssignment(true));
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.ToText() == U"x+=1") << ToBasicString(document.ToText());
+    //the left part is filled - the caret is in the right part
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 2, 0, 0})) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.ToText() == U"x+1") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState(ElementId{0, 0, 0, 0, 0, 0, 2, 0})) << document.GetEditorState().ToString();
+}
+
+//A comma of the enclosing argument list ends the wrapped right part
+TEST_F(AssignmentTest, assignment9a)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.InsertString("f", true);
+    document.InsertOpenRoundBracket(true);
+    document.InsertString("a", true);
+    document.InsertComma(true);
+    document.InsertString("b", true);
+    document.InsertCloseRoundBracket(true);
+    document.MoveCaretHome(false);
+    document.MoveCaretRight(false);
+    document.MoveCaretRight(false);
+    document.MoveCaretRight(false);
+    document.WaitTask(document.InsertAssignment(true));
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.ToText() == U"f(=a,b)") << ToBasicString(document.ToText());
+    //the variable is not typed yet - the caret is in the left part
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 2, 0, 0, 0})) << document.GetEditorState().ToString();
+}
+
+//A closing bracket of the enclosing call ends the wrapped right part
+TEST_F(AssignmentTest, assignment9b)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.InsertString("sin", true);
+    document.InsertOpenRoundBracket(true);
+    document.InsertString("x", true);
+    document.InsertCloseRoundBracket(true);
+    document.MoveCaretHome(false);
+    document.MoveCaretRight(false);
+    document.MoveCaretRight(false);
+    document.MoveCaretRight(false);
+    document.MoveCaretRight(false);
+    document.MoveCaretRight(false);
+    document.WaitTask(document.InsertAssignment(true));
+    std::this_thread::sleep_for(200ms);
+    //an assignment inside a formula is not a declaration, nothing is dispatched to the solver
+    ASSERT_TRUE(document.ToText() == U"sin(=x)") << ToBasicString(document.ToText());
+    //the variable is not typed yet - the caret is in the left part
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 2, 0, 0, 0})) << document.GetEditorState().ToString();
+}
+
+//A statement element to the right is not wrapped into the right part
+TEST_F(AssignmentTest, assignment9c)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.InsertString("x", true);
+    document.InsertAssignment(true);
+    document.WaitTask(document.InsertString("5", true));
+    document.WaitSolver();
+    std::this_thread::sleep_for(600ms);
+    ASSERT_TRUE(document.ToText() == U"x=5") << ToBasicString(document.ToText());
+
+    document.MoveCaretHome(false);
+    document.MoveCaretHome(false);
+    document.WaitTask(document.InsertAssignment(true));
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.ToText() == U"=x=5") << ToBasicString(document.ToText());
+    //the variable is not typed yet - the caret is in the left part
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 0, 0, 0})) << document.GetEditorState().ToString();
+}
+
+//The caret goes into the left part when the assignment is inserted into an empty row
+TEST_F(AssignmentTest, assignment10)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.WaitTask(document.InsertAssignment(true));
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.ToText() == U"=") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 0, 0, 0})) << document.GetEditorState().ToString();
+}
+
+//The reverse entry inside a for head
+TEST_F(AssignmentTest, assignment11)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.InsertString("for", true);
+    document.InsertOpenRoundBracket(true);
+    document.WaitTask(document.InsertAssignment(true));
+    std::this_thread::sleep_for(200ms);
+    //an assignment inside a formula is not a declaration, nothing is dispatched to the solver
+    ASSERT_TRUE(document.ToText() == U"for(=") << ToBasicString(document.ToText());
+    //the variable is not typed yet - the caret is in the left part
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 2, 0, 0, 0})) << document.GetEditorState().ToString();
+
+    document.InsertString("i", true);
+    document.MoveCaretRight(false);
+    document.MoveCaretRight(false);
+    document.InsertString("1", true);
+    //the comma leaves the right part of the assignment into the containing row
+    document.WaitTask(document.InsertComma(true));
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.ToText() == U"for(i=1,") << ToBasicString(document.ToText());
+}
+
 //Deletion of assignment
 TEST_F(AssignmentTest, delete1)
 {

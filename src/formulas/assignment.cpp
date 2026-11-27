@@ -175,8 +175,7 @@ void Assignment::LogicalIdChanged(const LogicalId& last_id)
 bool Assignment::AfterInsert(bool with_undo)
 {
     int pos = parent->elements->GetElementPos(id);
-    if (pos > 0)
-        GetFirst()->elements->Clear();
+    GetFirst()->elements->Clear();
     for (int i = pos - 1; i >= 0; --i)
     {
         auto el = parent->elements->Get(i);
@@ -193,8 +192,38 @@ bool Assignment::AfterInsert(bool with_undo)
         GetFirst()->elements->Move(el, 0);
     }
 
+    //the assignment divides the row at the caret: the elements after it are wrapped into the right part
+    pos = parent->elements->GetElementPos(id);
+    int end = pos + 1;
+    for (int i = pos + 1; i < parent->elements->Count(); ++i)
+    {
+        auto el = parent->elements->Get(i);
+        //a statement element ends the wrapped part only at the top level of the row
+        if ((el->type == ElementType::ASSIGNMENT || el->type == ElementType::EQUATION || el->type == ElementType::TEXT_ASSIGNMENT ||
+            el->type == ElementType::TEXT_EQUATION) && BracketDepth(parent->elements.get(), i + 1) == 0)
+            break;
+        if (BracketDepth(parent->elements.get(), i + 1) < BracketDepth(parent->elements.get(), pos))
+            break;
+        if (el->type == ElementType::COMMA && BracketDepth(parent->elements.get(), i + 1) == BracketDepth(parent->elements.get(), pos))
+            break;
+        ++end;
+    }
+    if (end > pos + 1)
+    {
+        GetLast()->elements->Clear();
+        for (int i = pos + 1; i < end; ++i)
+            GetLast()->elements->Move(parent->elements->Get(pos + 1), GetLast()->elements->Count());
+    }
+
     CaretState c;
-    GetLast()->GetFirstCaretState(c, nullptr);
+    if (GetFirst()->elements->Count() == 0)
+    {
+        //the variable is not typed yet - the caret goes into the left part
+        GetFirst()->Normalize();
+        GetFirst()->GetFirstCaretState(c, nullptr);
+    }
+    else
+        GetLast()->GetFirstCaretState(c, nullptr);
     caret->SetState(c);
     last_expression.Reset();
     return true;

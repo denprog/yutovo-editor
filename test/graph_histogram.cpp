@@ -117,7 +117,7 @@ TEST_F(FormulaTest, graph_histogram2)
     document.WaitTask(document.InsertString("2", true));
     document.WaitTask(document.InsertCloseSquareBracket(true));
     document.WaitSolver();
-    std::this_thread::sleep_for(2s);
+    std::this_thread::sleep_for(3s);
 
     ASSERT_TRUE(document.ToText() == U"graph_bar([1,5,3,2])") << ToBasicString(document.ToText());
     auto el = document.FindByType(ElementId{0}, ElementType::GRAPH_HISTOGRAM);

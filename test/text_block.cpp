@@ -1426,5 +1426,56 @@ TEST_F(TextBlockTest, text_block17)
     ASSERT_TRUE(document.ToText() == U"lim[x→0]x+1") << ToBasicString(document.ToText());
 }
 
+//The reverse entry of an assignment in a text block: the expression is typed first, the sign divides the row at the caret
+TEST_F(TextBlockTest, text_block18)
+{
+    Start(600);
+
+    document.InsertTextBlock(true);
+    document.InsertString("5", true);
+    document.InsertPlus(true);
+    document.InsertString("3", true);
+    document.MoveCaretHome(false);
+    document.WaitTask(document.InsertAssignment(true));
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.ToText() == U"=5+3") << ToBasicString(document.ToText());
+    //the variable is not typed yet - the caret is in the left part
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 0, 0, 0})) << document.GetEditorState().ToString();
+
+    document.WaitTask(document.InsertString("x", true));
+    std::this_thread::sleep_for(200ms);
+    //a text assignment never solves
+    ASSERT_TRUE(document.ToHtml() ==
+        "<body>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mrow>"\
+                            "<mi>x</mi>"\
+                        "</mrow>"\
+                        "<mo>=</mo>"\
+                        "<mrow>"\
+                            "<mi>5</mi>"\
+                            "<mo>+</mo>"\
+                            "<mi>3</mi>"\
+                        "</mrow>"\
+                    "</mrow>"\
+                "</math>"\
+            "</p>"\
+        "</body>"
+        ) << document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 0, 0, 1})) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.ToText() == U"=5+3") << ToBasicString(document.ToText());
+
+    document.Redo();
+    document.WaitRedo();
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.ToText() == U"x=5+3") << ToBasicString(document.ToText());
+}
+
 }
 
