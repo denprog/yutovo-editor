@@ -411,4 +411,56 @@ TEST_F(FormulaTest, nth_root6)
     ASSERT_TRUE(format.bold);
 }
 
+//Wrap a mid-string selection made right-to-left into the nth root (crashed before the wrap was reworked)
+TEST_F(FormulaTest, nth_root7)
+{
+    Start(600);
+    document.InsertCode(false, true);
+    document.InsertString("abcdef", true);
+    std::this_thread::sleep_for(100ms);
+    //the caret is at position 4, two shift+lefts select "cd"
+    for (int i = 0; i < 2; ++i)
+    {
+        uint t = document.MoveCaretLeft(false);
+        if (i == 1)
+            document.WaitTask(t);
+    }
+    document.WaitTask(document.MoveCaretLeft(true));
+    document.WaitTask(document.MoveCaretLeft(true));
+    document.WaitTask(document.InsertNthRoot(true));
+    std::this_thread::sleep_for(100ms);
+    ASSERT_TRUE(document.ToText() == U"abroot(,cd)ef") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.ToHtml() ==
+        "<body>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mi>ab</mi>"\
+                        "<mroot>"\
+                            "<mrow>"\
+                                "<mi></mi>"\
+                            "</mrow>"\
+                            "<mrow>"\
+                                "<mi>cd</mi>"\
+                            "</mrow>"\
+                        "</mroot>"\
+                        "<mi>ef</mi>"\
+                    "</mrow>"\
+                "</math>"\
+            "</p>"\
+        "</body>") 
+        << document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 1, 2, 0, 0})) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    std::this_thread::sleep_for(100ms);
+    ASSERT_TRUE(document.ToText() == U"abcdef") << ToBasicString(document.ToText());
+
+    document.Redo();
+    document.WaitRedo();
+    std::this_thread::sleep_for(100ms);
+    ASSERT_TRUE(document.ToText() == U"abroot(,cd)ef") << ToBasicString(document.ToText());
+}
+
 }

@@ -443,4 +443,38 @@ TEST_F(FormulaTest, square_root11)
         ElementSelectionState{{0, 0, 0, 0, 0, 0}, 2, 3})) << document.GetEditorState().ToString();
 }
 
+//Wrap a mid-string selection made right-to-left into the square root (crashed before the wrap was reworked)
+TEST_F(FormulaTest, square_root12)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.InsertString("abcdef", true);
+    std::this_thread::sleep_for(100ms);
+    //the caret is at position 4, two shift+lefts select "cd"
+    for (int i = 0; i < 2; ++i)
+    {
+        uint t = document.MoveCaretLeft(false);
+        if (i == 1)
+            document.WaitTask(t);
+    }
+    document.WaitTask(document.MoveCaretLeft(true));
+    document.WaitTask(document.MoveCaretLeft(true));
+    document.WaitTask(document.InsertSquareRoot(true));
+    std::this_thread::sleep_for(100ms);
+    ASSERT_TRUE(document.ToText() == U"absqrt(cd)ef") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 1, 1, 0, 0})) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    std::this_thread::sleep_for(100ms);
+    ASSERT_TRUE(document.ToText() == U"abcdef") << ToBasicString(document.ToText());
+
+    document.Redo();
+    document.WaitRedo();
+    std::this_thread::sleep_for(100ms);
+    ASSERT_TRUE(document.ToText() == U"absqrt(cd)ef") << ToBasicString(document.ToText());
+}
+
+
 }

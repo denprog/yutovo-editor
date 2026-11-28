@@ -159,31 +159,7 @@ bool MiddleShapeFormula::AfterInsert(bool with_undo)
 
         if (!selection->IsEmpty())
         {
-            ElementSelection& select = selection->selection[0];
-            uint s = select.start;
-            if (s > 0 && document->IsString(select.element))
-            {
-                select.element->can_merge = true;
-                select.element->SplitAt(s);
-            }
-
-            //move the selected elements in the GetFirst() element
-            GetFirst()->elements->RemoveAt(0, 1);
-            for (int i = selection->selection.size() - 1; i >= 0; --i)
-            {
-                ElementSelection el_s = selection->selection[i];
-                for (int j = el_s.size - 1; j >= 0; --j)
-                {
-                    auto el = document->GetElement(GetChild(el_s.element->id, el_s.start + j));
-                    if (el->type == ElementType::CODE_ROW)
-                    {
-                        for (int k = 0; k < el->elements->Count();)
-                            GetFirst()->elements->Move(el->elements->Get(0), GetFirst()->elements->Count());
-                    }
-                    else
-                        GetFirst()->elements->Move(el, 0);
-                }
-            }
+            MoveSelectionToRow(GetFirst());
             parent->parent->Normalize(); //merge rows after split
         }
         else

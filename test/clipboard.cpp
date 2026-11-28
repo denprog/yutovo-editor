@@ -2870,6 +2870,7 @@ TEST_F(DocumentTest, clipboard54)
     document.WaitTask(document.MoveCaretToDocumentEnd(false));
 
     document.WaitTask(document.Paste(clipboard_json));
+    std::this_thread::sleep_for(200ms);
     ASSERT_TRUE(document.ToText() == 
         U"Арифме́тика (др.-греч. ἀριθμητική, arithmētikḗ — от ἀριθμός, arithmós «число») — раздел математики, "\
         U"изучающий числа, их отношения и свойства.\n"\

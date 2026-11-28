@@ -1505,5 +1505,88 @@ TEST_F(TextBlockTest, text_block19)
     std::this_thread::sleep_for(200ms);
 }
 
+//Wrap a mid-string selection made right-to-left into a fraction inside a text block (crashed before the wrap was reworked)
+TEST_F(TextBlockTest, text_block20)
+{
+    Start(600);
+
+    document.InsertTextBlock(true);
+    document.InsertString("f2x0x", true);
+    std::this_thread::sleep_for(100ms);
+    //the caret is at position 3, two shift+lefts select "2x"
+    for (int i = 0; i < 2; ++i)
+    {
+        uint t = document.MoveCaretLeft(false);
+        if (i == 1)
+            document.WaitTask(t);
+    }
+    document.WaitTask(document.MoveCaretLeft(true));
+    document.WaitTask(document.MoveCaretLeft(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 1},
+        ElementSelectionState{{0, 0, 0, 0, 0, 0, 0}, 1, 2})) << document.GetEditorState().ToString();
+    document.WaitTask(document.InsertDivision(true));
+    std::this_thread::sleep_for(100ms);
+    ASSERT_TRUE(document.ToText() == U"f(2x)/()0x") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.ToHtml() ==
+        "<body>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mi>f</mi>"\
+                        "<mfrac>"\
+                            "<mrow>"\
+                                "<mi>2x</mi>"\
+                            "</mrow>"\
+                            "<mrow>"\
+                                "<mi></mi>"\
+                            "</mrow>"\
+                        "</mfrac>"\
+                        "<mi>0x</mi>"\
+                    "</mrow>"\
+                "</math>"\
+            "</p>"\
+        "</body>") 
+        << document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 1, 2, 0, 0})) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    std::this_thread::sleep_for(100ms);
+    ASSERT_TRUE(document.ToText() == U"f2x0x") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 1},
+        ElementSelectionState{{0, 0, 0, 0, 0, 0, 0}, 1, 2})) << document.GetEditorState().ToString();
+
+    document.Redo();
+    document.WaitRedo();
+    std::this_thread::sleep_for(100ms);
+    ASSERT_TRUE(document.ToText() == U"f(2x)/()0x") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 1, 2, 0, 0})) << document.GetEditorState().ToString();
+}
+
+//A saved document with a right-to-left row selection standing in a text block: pressing the division wraps it without a crash
+TEST_F(TextBlockTest, text_block21)
+{
+    Start(600);
+
+    document.Load("../../test/tests/division_wrap1.yut");
+    document.WaitLoad();
+    std::this_thread::sleep_for(200ms);
+    document.WaitTask(document.InsertDivision(true));
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.ToText() ==
+        U"f(x)\u2248f(x\u2080)+f\u00b9(x\u2080)(x\u2212x\u2080)+f\u00b2(x\u2080)(x\u2212x\u2080)\u00b2/2!"\
+        U"+f\u00b3(x\u2080)(x\u2212x\u2080)\u00b3/3!+...\nf\u00b2((x\u2080)(x\u2212x\u2080)\u00b2)/()/2!") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 1, 0, 0, 0, 0, 1, 2, 0, 0})) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    std::this_thread::sleep_for(200ms);
+    ASSERT_TRUE(document.ToText() ==
+        U"f(x)\u2248f(x\u2080)+f\u00b9(x\u2080)(x\u2212x\u2080)+f\u00b2(x\u2080)(x\u2212x\u2080)\u00b2/2!"\
+        U"+f\u00b3(x\u2080)(x\u2212x\u2080)\u00b3/3!+...\nf\u00b2(x\u2080)(x\u2212x\u2080)\u00b2/2!") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 1, 0, 0, 0, 0, 0, 2},
+        ElementSelectionState{{0, 1, 0, 0, 0, 0, 0}, 2, 11})) << document.GetEditorState().ToString();
+}
+
 }
 

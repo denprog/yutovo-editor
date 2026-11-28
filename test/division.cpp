@@ -1308,4 +1308,442 @@ TEST_F(FormulaTest, division22)
         ElementSelectionState{{0}, 0, 1})) << document.GetEditorState().ToString();
 }
 
+//Wrap the beginning of a string selected left-to-right into a division
+TEST_F(FormulaTest, division23)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.InsertString("abcdef", true);
+    std::this_thread::sleep_for(100ms);
+    //the caret is at the string start, two shift+rights select "ab"
+    for (int i = 0; i < 6; ++i)
+    {
+        uint t = document.MoveCaretLeft(false);
+        if (i == 5)
+            document.WaitTask(t);
+    }
+    document.WaitTask(document.MoveCaretRight(true));
+    document.WaitTask(document.MoveCaretRight(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 2},
+        ElementSelectionState{{0, 0, 0, 0, 0, 0, 0}, 0, 2})) << document.GetEditorState().ToString();
+    document.WaitTask(document.InsertDivision(true));
+    std::this_thread::sleep_for(100ms);
+    ASSERT_TRUE(document.ToText() == U"(ab)/()cdef") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.ToHtml() ==
+        "<body>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mfrac>"\
+                            "<mrow>"\
+                                "<mi>ab</mi>"\
+                            "</mrow>"\
+                            "<mrow>"\
+                                "<mi></mi>"\
+                            "</mrow>"\
+                        "</mfrac>"\
+                        "<mi>cdef</mi>"\
+                    "</mrow>"\
+                "</math>"\
+            "</p>"\
+        "</body>") 
+        << document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 2, 0, 0})) << document.GetEditorState().ToString();
+}
+
+//Wrap the beginning of a string selected right-to-left into a division
+TEST_F(FormulaTest, division24)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.InsertString("abcdef", true);
+    std::this_thread::sleep_for(100ms);
+    //the caret is at position 2, two shift+lefts select "ab"
+    for (int i = 0; i < 4; ++i)
+    {
+        uint t = document.MoveCaretLeft(false);
+        if (i == 3)
+            document.WaitTask(t);
+    }
+    document.WaitTask(document.MoveCaretLeft(true));
+    document.WaitTask(document.MoveCaretLeft(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 0},
+        ElementSelectionState{{0, 0, 0, 0, 0, 0, 0}, 0, 2})) << document.GetEditorState().ToString();
+    document.WaitTask(document.InsertDivision(true));
+    std::this_thread::sleep_for(100ms);
+    ASSERT_TRUE(document.ToText() == U"(ab)/()cdef") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.ToHtml() ==
+        "<body>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mfrac>"\
+                            "<mrow>"\
+                                "<mi>ab</mi>"\
+                            "</mrow>"\
+                            "<mrow>"\
+                                "<mi></mi>"\
+                            "</mrow>"\
+                        "</mfrac>"\
+                        "<mi>cdef</mi>"\
+                    "</mrow>"\
+                "</math>"\
+            "</p>"\
+        "</body>") 
+        << document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 2, 0, 0})) << document.GetEditorState().ToString();
+}
+
+//Wrap the middle of a string selected left-to-right into a division
+TEST_F(FormulaTest, division25)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.InsertString("abcdef", true);
+    std::this_thread::sleep_for(100ms);
+    //the caret is at position 2, two shift+rights select "cd"
+    for (int i = 0; i < 4; ++i)
+    {
+        uint t = document.MoveCaretLeft(false);
+        if (i == 3)
+            document.WaitTask(t);
+    }
+    document.WaitTask(document.MoveCaretRight(true));
+    document.WaitTask(document.MoveCaretRight(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 4},
+        ElementSelectionState{{0, 0, 0, 0, 0, 0, 0}, 2, 2})) << document.GetEditorState().ToString();
+    document.WaitTask(document.InsertDivision(true));
+    std::this_thread::sleep_for(100ms);
+    ASSERT_TRUE(document.ToText() == U"ab(cd)/()ef") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.ToHtml() ==
+        "<body>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mi>ab</mi>"\
+                        "<mfrac>"\
+                            "<mrow>"\
+                                "<mi>cd</mi>"\
+                            "</mrow>"\
+                            "<mrow>"\
+                                "<mi></mi>"\
+                            "</mrow>"\
+                        "</mfrac>"\
+                        "<mi>ef</mi>"\
+                    "</mrow>"\
+                "</math>"\
+            "</p>"\
+        "</body>") 
+        << document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 1, 2, 0, 0})) << document.GetEditorState().ToString();
+}
+
+//Wrap the middle of a string selected right-to-left into a division (crashed before the wrap was reworked)
+TEST_F(FormulaTest, division26)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.InsertString("abcdef", true);
+    std::this_thread::sleep_for(100ms);
+    //the caret is at position 4, two shift+lefts select "cd"
+    for (int i = 0; i < 2; ++i)
+    {
+        uint t = document.MoveCaretLeft(false);
+        if (i == 1)
+            document.WaitTask(t);
+    }
+    document.WaitTask(document.MoveCaretLeft(true));
+    document.WaitTask(document.MoveCaretLeft(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 2},
+        ElementSelectionState{{0, 0, 0, 0, 0, 0, 0}, 2, 2})) << document.GetEditorState().ToString();
+    document.WaitTask(document.InsertDivision(true));
+    std::this_thread::sleep_for(100ms);
+    ASSERT_TRUE(document.ToText() == U"ab(cd)/()ef") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.ToHtml() ==
+        "<body>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mi>ab</mi>"\
+                        "<mfrac>"\
+                            "<mrow>"\
+                                "<mi>cd</mi>"\
+                            "</mrow>"\
+                            "<mrow>"\
+                                "<mi></mi>"\
+                            "</mrow>"\
+                        "</mfrac>"\
+                        "<mi>ef</mi>"\
+                    "</mrow>"\
+                "</math>"\
+            "</p>"\
+        "</body>") 
+        << document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 1, 2, 0, 0})) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    std::this_thread::sleep_for(100ms);
+    ASSERT_TRUE(document.ToText() == U"abcdef") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 2},
+        ElementSelectionState{{0, 0, 0, 0, 0, 0, 0}, 2, 2})) << document.GetEditorState().ToString();
+
+    document.Redo();
+    document.WaitRedo();
+    std::this_thread::sleep_for(100ms);
+    ASSERT_TRUE(document.ToText() == U"ab(cd)/()ef") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 1, 2, 0, 0})) << document.GetEditorState().ToString();
+}
+
+//Wrap the end of a string selected left-to-right into a division
+TEST_F(FormulaTest, division27)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.InsertString("abcdef", true);
+    std::this_thread::sleep_for(100ms);
+    //the caret is at position 4, two shift+rights select "ef"
+    for (int i = 0; i < 2; ++i)
+    {
+        uint t = document.MoveCaretLeft(false);
+        if (i == 1)
+            document.WaitTask(t);
+    }
+    document.WaitTask(document.MoveCaretRight(true));
+    document.WaitTask(document.MoveCaretRight(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 6},
+        ElementSelectionState{{0, 0, 0, 0, 0, 0, 0}, 4, 2})) << document.GetEditorState().ToString();
+    document.WaitTask(document.InsertDivision(true));
+    std::this_thread::sleep_for(100ms);
+    ASSERT_TRUE(document.ToText() == U"abcd(ef)/()") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.ToHtml() ==
+        "<body>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mi>abcd</mi>"\
+                        "<mfrac>"\
+                            "<mrow>"\
+                                "<mi>ef</mi>"\
+                            "</mrow>"\
+                            "<mrow>"\
+                                "<mi></mi>"\
+                            "</mrow>"\
+                        "</mfrac>"\
+                    "</mrow>"\
+                "</math>"\
+            "</p>"\
+        "</body>") 
+        << document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 1, 2, 0, 0})) << document.GetEditorState().ToString();
+}
+
+//Wrap the end of a string selected right-to-left into a division
+TEST_F(FormulaTest, division28)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.InsertString("abcdef", true);
+    std::this_thread::sleep_for(100ms);
+    //the caret is at the string end, two shift+lefts select "ef"
+    document.WaitTask(document.MoveCaretLeft(true));
+    document.WaitTask(document.MoveCaretLeft(true));
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 4},
+        ElementSelectionState{{0, 0, 0, 0, 0, 0, 0}, 4, 2})) << document.GetEditorState().ToString();
+    document.WaitTask(document.InsertDivision(true));
+    std::this_thread::sleep_for(100ms);
+    ASSERT_TRUE(document.ToText() == U"abcd(ef)/()") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.ToHtml() ==
+        "<body>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mi>abcd</mi>"\
+                        "<mfrac>"\
+                            "<mrow>"\
+                                "<mi>ef</mi>"\
+                            "</mrow>"\
+                            "<mrow>"\
+                                "<mi></mi>"\
+                            "</mrow>"\
+                        "</mfrac>"\
+                    "</mrow>"\
+                "</math>"\
+            "</p>"\
+        "</body>") 
+        << document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 1, 2, 0, 0})) << document.GetEditorState().ToString();
+}
+
+//Wrap a selection crossing string boundaries into a division, left-to-right
+TEST_F(FormulaTest, division29)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.InsertString("12", true);
+    document.InsertPlus(true);
+    document.InsertString("34", true);
+    std::this_thread::sleep_for(100ms);
+    //the caret moves into "12", three shift+rights select "+34"
+    for (int i = 0; i < 4; ++i)
+    {
+        uint t = document.MoveCaretLeft(false);
+        if (i == 3)
+            document.WaitTask(t);
+    }
+    document.WaitTask(document.MoveCaretRight(true));
+    document.WaitTask(document.MoveCaretRight(true));
+    document.WaitTask(document.MoveCaretRight(true));
+    document.WaitTask(document.InsertDivision(true));
+    std::this_thread::sleep_for(100ms);
+    ASSERT_TRUE(document.ToText() == U"12(+34)/()") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.ToHtml() ==
+        "<body>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mi>12</mi>"\
+                        "<mfrac>"\
+                            "<mrow>"\
+                                "<mo>+</mo>"\
+                                "<mi>34</mi>"\
+                            "</mrow>"\
+                            "<mrow>"\
+                                "<mi></mi>"\
+                            "</mrow>"\
+                        "</mfrac>"\
+                    "</mrow>"\
+                "</math>"\
+            "</p>"\
+        "</body>") 
+        << document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 1, 2, 0, 0})) << document.GetEditorState().ToString();
+}
+
+//Wrap a selection crossing string boundaries into a division, right-to-left
+TEST_F(FormulaTest, division30)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.InsertString("12", true);
+    document.InsertPlus(true);
+    document.InsertString("34", true);
+    std::this_thread::sleep_for(100ms);
+    //the caret moves to the end of "3", three shift+lefts select "2+3"
+    uint left_task = document.MoveCaretLeft(false);
+    document.WaitTask(left_task);
+    document.WaitTask(document.MoveCaretLeft(true));
+    document.WaitTask(document.MoveCaretLeft(true));
+    document.WaitTask(document.MoveCaretLeft(true));
+    document.WaitTask(document.InsertDivision(true));
+    std::this_thread::sleep_for(100ms);
+    ASSERT_TRUE(document.ToText() == U"1(2+3)/()4") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.ToHtml() ==
+        "<body>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mi>1</mi>"\
+                        "<mfrac>"\
+                            "<mrow>"\
+                                "<mi>2</mi>"\
+                                "<mo>+</mo>"\
+                                "<mi>3</mi>"\
+                            "</mrow>"\
+                            "<mrow>"\
+                                "<mi></mi>"\
+                            "</mrow>"\
+                        "</mfrac>"\
+                        "<mi>4</mi>"\
+                    "</mrow>"\
+                "</math>"\
+            "</p>"\
+        "</body>") 
+        << document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 1, 2, 0, 0})) << document.GetEditorState().ToString();
+
+    document.Undo();
+    document.WaitUndo();
+    std::this_thread::sleep_for(100ms);
+    ASSERT_TRUE(document.ToText() == U"12+34") << ToBasicString(document.ToText());
+
+    document.Redo();
+    document.WaitRedo();
+    std::this_thread::sleep_for(100ms);
+    ASSERT_TRUE(document.ToText() == U"1(2+3)/()4") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 1, 2, 0, 0})) << document.GetEditorState().ToString();
+}
+
+//Wrap a whole row (the selection optimized up to the paragraph) into a division
+TEST_F(FormulaTest, division31)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.InsertString("12", true);
+    document.InsertPlus(true);
+    document.WaitTask(document.InsertString("34", true));
+    std::this_thread::sleep_for(200ms);
+    document.WaitTask(document.MoveCaretHome(true));
+    std::this_thread::sleep_for(100ms);
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 0},
+        ElementSelectionState{{0}, 0, 1})) << document.GetEditorState().ToString();
+    document.WaitTask(document.InsertDivision(true));
+    std::this_thread::sleep_for(100ms);
+    ASSERT_TRUE(document.ToText() == U"(12+34)/()") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.ToHtml() ==
+        "<body>"\
+            "<p>"\
+                "<math xmlns='http://www.w3.org/1998/Math/MathML'>"\
+                    "<mrow>"\
+                        "<mfrac>"\
+                            "<mrow>"\
+                                "<mi>12</mi>"\
+                                "<mo>+</mo>"\
+                                "<mi>34</mi>"\
+                            "</mrow>"\
+                            "<mrow>"\
+                                "<mi></mi>"\
+                            "</mrow>"\
+                        "</mfrac>"\
+                    "</mrow>"\
+                "</math>"\
+            "</p>"\
+        "</body>") 
+        << document.ToHtml();
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 0, 0, 0, 2, 0, 0})) << document.GetEditorState().ToString();
+}
+
+//Wrap the second row of a multi row code block (the selection optimized up to the paragraph) into a division
+TEST_F(FormulaTest, division32)
+{
+    Start(600);
+
+    document.InsertCode(false, true);
+    document.InsertString("12", true);
+    document.InsertPlus(true);
+    document.InsertString("34", true);
+    document.InsertParagraph(true);
+    document.InsertString("56", true);
+    document.InsertPlus(true);
+    document.WaitTask(document.InsertString("78", true));
+    std::this_thread::sleep_for(200ms);
+    document.WaitTask(document.MoveCaretHome(true));
+    std::this_thread::sleep_for(100ms);
+    //the whole second row is selected (the caret parking of the home move is not deterministic here)
+    ASSERT_TRUE(document.ToText() == U"12+34\n56+78") << ToBasicString(document.ToText());
+    document.WaitTask(document.InsertDivision(true));
+    std::this_thread::sleep_for(100ms);
+    ASSERT_TRUE(document.ToText() == U"12+34\n(56+78)/()") << ToBasicString(document.ToText());
+    ASSERT_TRUE(document.GetEditorState() == MakeEditorState({0, 0, 0, 0, 1, 0, 0, 2, 0, 0})) << document.GetEditorState().ToString();
+}
+
 }

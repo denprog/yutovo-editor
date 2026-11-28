@@ -140,18 +140,7 @@ bool SquareRoot::AfterInsert(bool with_undo)
 {
     if (!selection->IsEmpty())
     {
-        ElementSelection& select = selection->selection[0];
-        if (select.start > 0 && document->IsString(select.element))
-            select.element->SplitAt(select.start);
-
-        //move the selected elements in the GetLast() element
-        GetLast()->elements->RemoveAt(0, 1);
-        for (int i = selection->selection.size() - 1; i >= 0; --i)
-        {
-            ElementSelection el_s = selection->selection[i];
-            for (int j = el_s.size - 1; j >= 0; --j)
-                GetLast()->elements->Move(document->GetElement(GetChild(el_s.element->id, el_s.start + j)), 0);
-        }
+        MoveSelectionToRow(GetLast());
 
         selection->Clear();
         CaretState c;

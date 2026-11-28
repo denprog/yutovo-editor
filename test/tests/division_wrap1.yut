@@ -1,0 +1,532 @@
+{
+    "file_guid": "22f83b3c-6103-40fe-aafc-d25e6d8bd897",
+    "config": {
+        "language": 2,
+        "use_tabs": true,
+        "tab_spaces": 4,
+        "scale": 1.0,
+        "real_result": {
+            "precision": 3,
+            "exp": 10,
+            "default_angle_measure": 0,
+            "result_angle_measure": 0,
+            "show_angle_measure": false
+        },
+        "integer_result": {
+            "result_notation": 2,
+            "default_notation": 2,
+            "show_notation": true
+        },
+        "rational_result": {
+            "fraction_form": 0
+        },
+        "complex_result": {
+            "precision": 3,
+            "exp": 10,
+            "default_angle_measure": 0,
+            "result_angle_measure": 0,
+            "show_angle_measure": false,
+            "form": 0,
+            "max_count": 10
+        },
+        "auto_result": {
+            "result_auto_advance": true,
+            "results_order": [
+                1,
+                2,
+                3,
+                4,
+                10,
+                11,
+                12,
+                6,
+                7,
+                8,
+                9
+            ],
+            "results_enabled": [
+                true,
+                true,
+                true,
+                true,
+                true,
+                true,
+                true,
+                true,
+                true,
+                true,
+                true
+            ],
+            "real_config": {
+                "precision": 3,
+                "exp": 10,
+                "default_angle_measure": 0,
+                "result_angle_measure": 0,
+                "show_angle_measure": false
+            },
+            "integer_config": {
+                "result_notation": 2,
+                "default_notation": 2,
+                "show_notation": true
+            },
+            "rational_config": {
+                "fraction_form": 0
+            },
+            "complex_config": {
+                "precision": 3,
+                "exp": 10,
+                "default_angle_measure": 0,
+                "result_angle_measure": 0,
+                "show_angle_measure": false,
+                "form": 0,
+                "max_count": 10
+            },
+            "array_real_config": {
+                "precision": 3,
+                "exp": 10,
+                "default_angle_measure": 0,
+                "result_angle_measure": 0,
+                "show_angle_measure": true
+            },
+            "symbolic_real_config": {
+                "precision": 3,
+                "exp": 10,
+                "default_angle_measure": 0,
+                "result_angle_measure": 0,
+                "show_angle_measure": true
+            },
+            "symbolic_rational_config": {
+                "fraction_form": 0
+            },
+            "symbolic_complex_config": {
+                "precision": 3,
+                "exp": 10,
+                "default_angle_measure": 0,
+                "result_angle_measure": 0,
+                "show_angle_measure": true,
+                "form": 0,
+                "max_count": 10
+            }
+        },
+        "include_documents": []
+    },
+    "string_formats": [
+        {
+            "id": "8a738a8c-4e13-4dbf-8b65-fce4eaa3cb00",
+            "family": "Arial",
+            "size": 14,
+            "bold": false,
+            "italic": false,
+            "underline": false,
+            "strikethrough": false,
+            "subscript": false,
+            "superscript": false,
+            "text_color": 4278190080,
+            "text_bg_color": 4294967295,
+            "text_bg_selection_color": 4278190335
+        },
+        {
+            "id": "5946adb7-ca59-4c0b-84b4-bcdc4e629b60",
+            "family": "Arial",
+            "size": 30,
+            "bold": true,
+            "italic": false,
+            "underline": false,
+            "strikethrough": false,
+            "subscript": false,
+            "superscript": false,
+            "text_color": 4278190080,
+            "text_bg_color": 4294967295,
+            "text_bg_selection_color": 4278190335
+        },
+        {
+            "id": "9a1e4a82-6c4e-4602-8389-9277ac2d1d5f",
+            "family": "Arial",
+            "size": 26,
+            "bold": true,
+            "italic": false,
+            "underline": false,
+            "strikethrough": false,
+            "subscript": false,
+            "superscript": false,
+            "text_color": 4278190080,
+            "text_bg_color": 4294967295,
+            "text_bg_selection_color": 4278190335
+        },
+        {
+            "id": "30e7f20b-14e2-48e1-8567-25bb306554c6",
+            "family": "Arial",
+            "size": 22,
+            "bold": true,
+            "italic": false,
+            "underline": false,
+            "strikethrough": false,
+            "subscript": false,
+            "superscript": false,
+            "text_color": 4278190080,
+            "text_bg_color": 4294967295,
+            "text_bg_selection_color": 4278190335
+        },
+        {
+            "id": "41c483d8-c1ce-414b-bf1b-d1678393f278",
+            "family": "Arial",
+            "size": 16,
+            "bold": true,
+            "italic": false,
+            "underline": false,
+            "strikethrough": false,
+            "subscript": false,
+            "superscript": false,
+            "text_color": 4278190080,
+            "text_bg_color": 4294967295,
+            "text_bg_selection_color": 4278190335
+        },
+        {
+            "id": "fd7d3bac-a48f-422f-bec7-5d6ac1f80945",
+            "family": "Arial",
+            "size": 14,
+            "bold": false,
+            "italic": true,
+            "underline": false,
+            "strikethrough": false,
+            "subscript": false,
+            "superscript": false,
+            "text_color": 4278190080,
+            "text_bg_color": 4294967295,
+            "text_bg_selection_color": 4278190335
+        },
+        {
+            "id": "42fb42dd-6336-491a-8464-1a7a3ba7db11",
+            "family": "Courier New",
+            "size": 12,
+            "bold": false,
+            "italic": false,
+            "underline": false,
+            "strikethrough": false,
+            "subscript": false,
+            "superscript": false,
+            "text_color": 4278190080,
+            "text_bg_color": 4294967295,
+            "text_bg_selection_color": 4278190335
+        },
+        {
+            "id": "7957ba4e-b117-409a-8801-51a79a90450c",
+            "family": "FreeMono",
+            "size": 14,
+            "bold": false,
+            "italic": false,
+            "underline": false,
+            "strikethrough": false,
+            "subscript": false,
+            "superscript": false,
+            "text_color": 4278190080,
+            "text_bg_color": 4294967295,
+            "text_bg_selection_color": 4278190335
+        },
+        {
+            "id": "72c114e0-ecf2-4f18-a510-3a5e29bd4d44",
+            "family": "FreeMono",
+            "size": 14,
+            "bold": false,
+            "italic": false,
+            "underline": false,
+            "strikethrough": false,
+            "subscript": false,
+            "superscript": false,
+            "text_color": 4278190080,
+            "text_bg_color": 4294967295,
+            "text_bg_selection_color": 4278190335
+        }
+    ],
+    "paragraph_formats": [
+        {
+            "name": "Основной текст",
+            "alignment": 0,
+            "word_wrap": 1,
+            "line_spacing": 5,
+            "indent_before": 10,
+            "indent_after": 10,
+            "indent_first_line": 0,
+            "spacing_before": 10,
+            "spacing_after": 10,
+            "default_string_format": "8a738a8c-4e13-4dbf-8b65-fce4eaa3cb00"
+        },
+        {
+            "name": "Заголовок 1",
+            "alignment": 0,
+            "word_wrap": 1,
+            "line_spacing": 5,
+            "indent_before": 10,
+            "indent_after": 10,
+            "indent_first_line": 0,
+            "spacing_before": 10,
+            "spacing_after": 10,
+            "default_string_format": "5946adb7-ca59-4c0b-84b4-bcdc4e629b60"
+        },
+        {
+            "name": "Заголовок 2",
+            "alignment": 0,
+            "word_wrap": 1,
+            "line_spacing": 5,
+            "indent_before": 10,
+            "indent_after": 10,
+            "indent_first_line": 0,
+            "spacing_before": 10,
+            "spacing_after": 10,
+            "default_string_format": "9a1e4a82-6c4e-4602-8389-9277ac2d1d5f"
+        },
+        {
+            "name": "Заголовок 3",
+            "alignment": 0,
+            "word_wrap": 1,
+            "line_spacing": 5,
+            "indent_before": 10,
+            "indent_after": 10,
+            "indent_first_line": 0,
+            "spacing_before": 10,
+            "spacing_after": 10,
+            "default_string_format": "30e7f20b-14e2-48e1-8567-25bb306554c6"
+        },
+        {
+            "name": "Заголовок 4",
+            "alignment": 0,
+            "word_wrap": 1,
+            "line_spacing": 5,
+            "indent_before": 10,
+            "indent_after": 10,
+            "indent_first_line": 0,
+            "spacing_before": 10,
+            "spacing_after": 10,
+            "default_string_format": "41c483d8-c1ce-414b-bf1b-d1678393f278"
+        },
+        {
+            "name": "Пример",
+            "alignment": 0,
+            "word_wrap": 1,
+            "line_spacing": 5,
+            "indent_before": 10,
+            "indent_after": 10,
+            "indent_first_line": 0,
+            "spacing_before": 10,
+            "spacing_after": 10,
+            "default_string_format": "fd7d3bac-a48f-422f-bec7-5d6ac1f80945"
+        },
+        {
+            "name": "Моноширинный",
+            "alignment": 0,
+            "word_wrap": 1,
+            "line_spacing": 5,
+            "indent_before": 10,
+            "indent_after": 10,
+            "indent_first_line": 0,
+            "spacing_before": 10,
+            "spacing_after": 10,
+            "default_string_format": "42fb42dd-6336-491a-8464-1a7a3ba7db11"
+        },
+        {
+            "name": "Код",
+            "alignment": 0,
+            "word_wrap": 0,
+            "line_spacing": 2,
+            "indent_before": 2,
+            "indent_after": 2,
+            "indent_first_line": 0,
+            "spacing_before": 2,
+            "spacing_after": 2,
+            "default_string_format": "7957ba4e-b117-409a-8801-51a79a90450c"
+        }
+    ],
+    "text": {
+        "id": "0",
+        "type": 1,
+        "elements": [
+            {
+                "id": "0,0",
+                "type": 2,
+                "level": 1,
+                "elements": [
+                    {
+                        "id": "0,0,0",
+                        "type": 3,
+                        "level": 1,
+                        "elements": [
+                            {
+                                "id": "0,0,0,0",
+                                "type": 55,
+                                "level": 1,
+                                "elements": [
+                                    {
+                                        "id": "0,0,0,0,0",
+                                        "type": 6,
+                                        "level": 1,
+                                        "elements": [
+                                            {
+                                                "id": "0,0,0,0,0,0",
+                                                "type": 7,
+                                                "level": 1,
+                                                "elements": [
+                                                    {
+                                                        "id": "0,0,0,0,0,0,0",
+                                                        "type": 8,
+                                                        "level": 1,
+                                                        "elements": "f(x)",
+                                                        "format_id": "72c114e0-ecf2-4f18-a510-3a5e29bd4d44",
+                                                        "can_merge": false
+                                                    },
+                                                    {
+                                                        "id": "0,0,0,0,0,0,1",
+                                                        "type": 8,
+                                                        "level": 1,
+                                                        "elements": "≈",
+                                                        "format_id": "72c114e0-ecf2-4f18-a510-3a5e29bd4d44",
+                                                        "can_merge": false
+                                                    },
+                                                    {
+                                                        "id": "0,0,0,0,0,0,2",
+                                                        "type": 8,
+                                                        "level": 1,
+                                                        "elements": "f(x₀)",
+                                                        "format_id": "72c114e0-ecf2-4f18-a510-3a5e29bd4d44",
+                                                        "can_merge": false
+                                                    },
+                                                    {
+                                                        "id": "0,0,0,0,0,0,3",
+                                                        "type": 8,
+                                                        "level": 1,
+                                                        "elements": "+",
+                                                        "format_id": "72c114e0-ecf2-4f18-a510-3a5e29bd4d44",
+                                                        "can_merge": false
+                                                    },
+                                                    {
+                                                        "id": "0,0,0,0,0,0,4",
+                                                        "type": 8,
+                                                        "level": 1,
+                                                        "elements": "f¹(x₀)(x−x₀)",
+                                                        "format_id": "72c114e0-ecf2-4f18-a510-3a5e29bd4d44",
+                                                        "can_merge": false
+                                                    },
+                                                    {
+                                                        "id": "0,0,0,0,0,0,5",
+                                                        "type": 8,
+                                                        "level": 1,
+                                                        "elements": "+",
+                                                        "format_id": "72c114e0-ecf2-4f18-a510-3a5e29bd4d44",
+                                                        "can_merge": false
+                                                    },
+                                                    {
+                                                        "id": "0,0,0,0,0,0,6",
+                                                        "type": 8,
+                                                        "level": 1,
+                                                        "elements": "f²(x₀)(x−x₀)²/2!",
+                                                        "format_id": "72c114e0-ecf2-4f18-a510-3a5e29bd4d44",
+                                                        "can_merge": false
+                                                    },
+                                                    {
+                                                        "id": "0,0,0,0,0,0,7",
+                                                        "type": 8,
+                                                        "level": 1,
+                                                        "elements": "+",
+                                                        "format_id": "72c114e0-ecf2-4f18-a510-3a5e29bd4d44",
+                                                        "can_merge": false
+                                                    },
+                                                    {
+                                                        "id": "0,0,0,0,0,0,8",
+                                                        "type": 8,
+                                                        "level": 1,
+                                                        "elements": "f³(x₀)(x−x₀)³/3!",
+                                                        "format_id": "72c114e0-ecf2-4f18-a510-3a5e29bd4d44",
+                                                        "can_merge": false
+                                                    },
+                                                    {
+                                                        "id": "0,0,0,0,0,0,9",
+                                                        "type": 8,
+                                                        "level": 1,
+                                                        "elements": "+",
+                                                        "format_id": "72c114e0-ecf2-4f18-a510-3a5e29bd4d44",
+                                                        "can_merge": false
+                                                    },
+                                                    {
+                                                        "id": "0,0,0,0,0,0,10",
+                                                        "type": 8,
+                                                        "level": 1,
+                                                        "elements": "...",
+                                                        "format_id": "72c114e0-ecf2-4f18-a510-3a5e29bd4d44",
+                                                        "can_merge": false
+                                                    }
+                                                ]
+                                            }
+                                        ],
+                                        "format_name": "Код",
+                                        "format_alignment": 0
+                                    }
+                                ]
+                            }
+                        ],
+                        "format_name": "Основной текст"
+                    }
+                ],
+                "format_name": "Основной текст",
+                "format_alignment": 0
+            },
+            {
+                "id": "0,1",
+                "type": 2,
+                "level": 1,
+                "elements": [
+                    {
+                        "id": "0,1,0",
+                        "type": 3,
+                        "level": 1,
+                        "elements": [
+                            {
+                                "id": "0,1,0,0",
+                                "type": 5,
+                                "level": 1,
+                                "elements": [
+                                    {
+                                        "id": "0,1,0,0,0",
+                                        "type": 6,
+                                        "level": 1,
+                                        "elements": [
+                                            {
+                                                "id": "0,1,0,0,0,0",
+                                                "type": 7,
+                                                "level": 1,
+                                                "elements": [
+                                                    {
+                                                        "id": "0,1,0,0,0,0,0",
+                                                        "type": 8,
+                                                        "level": 1,
+                                                        "elements": "f²(x₀)(x−x₀)²/2!",
+                                                        "format_id": "72c114e0-ecf2-4f18-a510-3a5e29bd4d44",
+                                                        "can_merge": true
+                                                    }
+                                                ]
+                                            }
+                                        ],
+                                        "format_name": "Код",
+                                        "format_alignment": 0
+                                    }
+                                ],
+                                "code_id": 1
+                            }
+                        ],
+                        "format_name": "Основной текст"
+                    }
+                ],
+                "format_name": "Основной текст",
+                "format_alignment": 0
+            }
+        ]
+    },
+    "caret": {
+        "id": "0,1,0,0,0,0,2"
+    },
+    "selection": [
+        {
+            "id": "0,1,0,0,0,0",
+            "start": 2,
+            "size": 11
+        }
+    ]
+}

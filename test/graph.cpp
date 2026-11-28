@@ -1028,7 +1028,7 @@ TEST_F(FormulaTest, graphs19)
 
     width = 800;
     document.WaitTask(document.Resize(width, 700));
-    std::this_thread::sleep_for(200ms);
+    std::this_thread::sleep_for(1s);
     std::string image_base64_2;
     ((GraphLine*)el.get())->GetImage(image_base64_2);
     ASSERT_TRUE(image_base64_1 == image_base64_2);

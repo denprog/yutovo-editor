@@ -347,6 +347,7 @@ ASSERT_TRUE(document.ToText() == U"x+1=1+x") << ToBasicString(document.ToText())
 
 ### Checking results with ToHtml()
 In editor tests verify the document by comparing the **full** `ToHtml()` instead of spot checks (`ToText()`, substring searches, element counting) - the complete MathML distinguishes solved results (`ResultRow` wrapping), waiting symbols, formulas vs plain strings, and nested blocks. Check full `ToHtml()` exactly like `SolverSymbolicTest::solver1`:
+**Always expand the expected html one tag per line** with nested indentation (each nesting level +4 spaces) and a `\` continuation on every line - leaf elements with text stay on a single line (`"<mi>x</mi>"`), and never leave empty lines inside the assertion block.
 ```cpp
 ASSERT_TRUE(document.ToHtml() ==
     "<body>"

@@ -45,6 +45,9 @@ public:
 
     static bool MatchDependency(const std::vector<std::string>& dependencies, const std::string& identifier);
 
+protected:
+    void MoveSelectionToRow(Element* target_row);
+
 public:
     FormulaFormatPtr formula_format;
     mutable StringFormatPtr draw_string_format;

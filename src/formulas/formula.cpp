@@ -91,6 +91,96 @@ bool Formula::SplitAt(const uint pos)
     return false;
 }
 
+void Formula::MoveSelectionToRow(Element* target_row)
+{
+    //isolate the selected fragment of every partially selected string
+    for (size_t i = 0; i < selection->selection.size(); ++i)
+    {
+        ElementSelection& s = selection->selection[i];
+        if (document->IsString(s.element) && s.start > 0)
+        {
+            s.element->can_merge = true;
+            s.element->SplitAt(s.start);
+        }
+    }
+    for (size_t i = 0; i < selection->selection.size(); ++i)
+    {
+        ElementSelection& s = selection->selection[i];
+        if (document->IsString(s.element) && s.size < (uint)s.element->elements->Count())
+        {
+            s.element->can_merge = true;
+            s.element->SplitAt(s.size);
+        }
+    }
+
+    auto move_row_elements =
+        [&](Element* row_el)
+        {
+            for (int k = 0; k < row_el->elements->Count();)
+            {
+                if (row_el->elements->Get(k).get() == this)
+                {
+                    ++k; //the new formula itself stays in its row
+                    continue;
+                }
+                target_row->elements->Move(row_el->elements->Get(k), target_row->elements->Count());
+            }
+        };
+
+    //move the selected elements into the target row
+    target_row->elements->RemoveAt(0, 1);
+    for (int i = selection->selection.size() - 1; i >= 0; --i)
+    {
+        ElementSelection el_s = selection->selection[i];
+        if (document->IsString(el_s.element))
+        {
+            //the entry covers its whole string after the isolation splits - move it once
+            ElementPtr el = document->GetElement(el_s.element->id);
+            if (el)
+                target_row->elements->Move(el, 0);
+            continue;
+        }
+
+        for (int j = el_s.size - 1; j >= 0; --j)
+        {
+            auto el = document->GetElement(GetChild(el_s.element->id, el_s.start + j));
+            if (!el)
+                continue; //stale index - the splits above shifted the following entries
+
+            if (IsChild(el->id, id))
+            {
+                //the selection was optimized above the row of the formula: wrap the code rows inside it, never the element itself - 
+                //moving a parent of the formula into its own row destroys the formula together with the whole subdocument
+                std::vector<Element*> pending{el.get()};
+                std::vector<Element*> rows;
+                while (!pending.empty())
+                {
+                    Element* cur = pending.back();
+                    pending.pop_back();
+                    for (int c = 0; c < cur->elements->Count(); ++c)
+                    {
+                        Element* child = cur->elements->Get(c).get();
+                        if (child->type == ElementType::CODE_ROW)
+                            rows.push_back(child);
+                        else if (child->type == ElementType::CODE_PARAGRAPH || child->type == ElementType::CODE_BLOCK || 
+                            child->type == ElementType::TEXT_BLOCK)
+                            pending.push_back(child);
+                        //text rows, strings and formulas are never moved into a formula row
+                    }
+                }
+                for (auto row_el : rows)
+                    move_row_elements(row_el);
+            }
+            else if (el->type == ElementType::CODE_ROW)
+                move_row_elements(el.get());
+            else
+                target_row->elements->Move(el, 0);
+        }
+    }
+    if (target_row->elements->Count() == 0)
+        target_row->Normalize(); //give the row its placeholder back when nothing was moved
+}
+
 bool Formula::Merge(const ElementPtr with_element)
 {
     return false;
